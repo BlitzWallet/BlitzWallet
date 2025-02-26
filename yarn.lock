@@ -1796,16 +1796,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cashu/cashu-ts@npm:2.1.0":
-  version: 2.1.0
-  resolution: "@cashu/cashu-ts@npm:2.1.0"
+"@cashu/cashu-ts@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@cashu/cashu-ts@npm:2.2.1"
   dependencies:
     "@cashu/crypto": ^0.3.4
     "@noble/curves": ^1.3.0
     "@noble/hashes": ^1.3.3
-    "@scure/bip32": ^1.3.3
     buffer: ^6.0.3
-  checksum: fc8d295f0db1489a3e3a050ad8dd6b308d5ba64e1549be62a7b321e2a60f4a7e091fd883cebb0beab6103e71fa0a9c0ed74213c40d6ed12ef755adb89960172a
+  checksum: dbcd8bda2fc3d46800fec04f70ebb4c11a5e0079350ba2e77a11828cc5cc4930548e136a2ff55116f705b1ae990c80759c4a7551864251b1ea9f193d8099420c
   languageName: node
   linkType: hard
 
@@ -3283,15 +3282,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:~1.8.1":
-  version: 1.8.1
-  resolution: "@noble/curves@npm:1.8.1"
-  dependencies:
-    "@noble/hashes": 1.7.1
-  checksum: 4143f1248ed57c1ae46dfef5c692a91383e5830420b9c72d3ff1061aa9ebbf8999297da6d2aed8a9716fef8e6b1f5a45737feeab02abf55ca2a4f514bf9339ec
-  languageName: node
-  linkType: hard
-
 "@noble/hashes@npm:1.3.1":
   version: 1.3.1
   resolution: "@noble/hashes@npm:1.3.1"
@@ -3310,13 +3300,6 @@ __metadata:
   version: 1.6.0
   resolution: "@noble/hashes@npm:1.6.0"
   checksum: 07729b80108d2a9b862eb4e070d4f78ca7ee86b9a9c13a4f7c338ba47a15d4386dd283235da71f21ad515fa9f0b9429fc3da39d2f2b4a50e2442212d14cfd4a9
-  languageName: node
-  linkType: hard
-
-"@noble/hashes@npm:1.7.1, @noble/hashes@npm:~1.7.1":
-  version: 1.7.1
-  resolution: "@noble/hashes@npm:1.7.1"
-  checksum: 4f1b56428a10323feef17e4f437c9093556cb18db06f94d254043fadb69c3da8475f96eb3f8322d41e8670117d7486475a8875e68265c2839f60fd03edd6a616
   languageName: node
   linkType: hard
 
@@ -4257,13 +4240,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/base@npm:~1.2.2":
-  version: 1.2.4
-  resolution: "@scure/base@npm:1.2.4"
-  checksum: db554eb550a1bd17684af9282e1ad751050a13d4add0e83ad61cc496680d7d1c1c1120ca780e72935a293bb59721c20a006a53a5eec6f6b5bdcd702cf27c8cae
-  languageName: node
-  linkType: hard
-
 "@scure/bip32@npm:1.3.1":
   version: 1.3.1
   resolution: "@scure/bip32@npm:1.3.1"
@@ -4272,17 +4248,6 @@ __metadata:
     "@noble/hashes": ~1.3.1
     "@scure/base": ~1.1.0
   checksum: 394d65f77a40651eba21a5096da0f4233c3b50d422864751d373fcf142eeedb94a1149f9ab1dbb078086dab2d0bc27e2b1afec8321bf22d4403c7df2fea5bfe2
-  languageName: node
-  linkType: hard
-
-"@scure/bip32@npm:^1.3.3":
-  version: 1.6.2
-  resolution: "@scure/bip32@npm:1.6.2"
-  dependencies:
-    "@noble/curves": ~1.8.1
-    "@noble/hashes": ~1.7.1
-    "@scure/base": ~1.2.2
-  checksum: e7586619f8a669e522267ce71a90b2d00c3a91da658f1f50e54072cf9f432ba26d2bb4d3d91a5d06932ab96612b8bd038bc31d885bbc048cebfb6509c4a790fc
   languageName: node
   linkType: hard
 
@@ -4862,7 +4827,7 @@ __metadata:
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk": ^0.6.6
     "@breeztech/react-native-breez-sdk-liquid": ^0.7.1
-    "@cashu/cashu-ts": 2.1.0
+    "@cashu/cashu-ts": ^2.2.1
     "@dreson4/react-native-quick-bip39": ^0.0.6
     "@getalby/sdk": ^3.7.0
     "@miblanchard/react-native-slider": ^2.6.0
