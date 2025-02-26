@@ -41,17 +41,17 @@ export const initEcashWallet = async mintURL => {
     if (eCashWallets[activeMintURL]) return eCashWallets[activeMintURL];
     const mnemonic = await retrieveData('mnemonic');
     const mint = new CashuMint(activeMintURL);
-    const keysets = (await mint.getKeySets()).keysets.filter(
-      ks => ks.unit === 'sat',
-    );
-    const keys = (await mint.getKeys()).keysets.find(ks => ks.unit === 'sat');
+    // const keysets = (await mint.getKeySets()).keysets.filter(
+    //   ks => ks.unit === 'sat',
+    // );
+    // const keys = (await mint.getKeys()).keysets.find(ks => ks.unit === 'sat');
     const seed = mnemonicToSeed(mnemonic);
     const wallet = new CashuWallet(mint, {
       bip39seed: Uint8Array.from(seed),
       mintInfo: await mint.getInfo(),
       unit: 'sat',
-      keysets,
-      keys,
+      // keysets,
+      // keys,
     });
 
     await wallet.loadMint();
@@ -67,17 +67,17 @@ export const migrateEcashWallet = async mintURL => {
   try {
     const activeMintURL = mintURL;
     const mint = new CashuMint(activeMintURL);
-    const keysets = (await mint.getKeySets()).keysets.filter(
-      ks => ks.unit === 'sat',
-    );
+    // const keysets = (await mint.getKeySets()).keysets.filter(
+    //   ks => ks.unit === 'sat',
+    // );
 
-    const keys = (await mint.getKeys()).keysets.find(ks => ks.unit === 'sat');
+    // const keys = (await mint.getKeys()).keysets.find(ks => ks.unit === 'sat');
 
     const wallet = new CashuWallet(mint, {
       mintInfo: await mint.getInfo(),
       unit: 'sat',
-      keysets,
-      keys,
+      // keysets,
+      // keys,
     });
 
     await wallet.loadMint();
@@ -365,7 +365,7 @@ async function mintEcash({invoice, quote, mintURL, globalCounter}) {
     const info = await wallet.mintProofs(
       prasedInvoice.invoice.amountMsat / 1000,
       quote,
-      {counter, keysetId: wallet.keysetId},
+      {counter},
     );
 
     console.log(info, 'TESTING');
@@ -521,7 +521,6 @@ export const payLnInvoiceFromEcash = async ({quote, invoice, proofsToUse}) => {
         const mintData = await getSelectedMintData();
         meltResponse = await wallet.meltProofs(quote, proofs, {
           counter: mintData.counter,
-          keysetId: wallet.keysetId,
         });
         break;
       } catch (err) {
