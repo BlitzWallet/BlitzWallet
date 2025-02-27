@@ -23,6 +23,8 @@ import PosSettingsPage from './posPath/settings';
 import HistoricalOnChainPayments from './onChainComponents/historicalOnChainPayments';
 import RestoreChannel from './restoreChannels';
 import FastPay from './fastPay';
+import ViewPOSTransactions from './posPath/transactions';
+import TotalTipsScreen from './posPath/totalTipsScreen';
 
 export {
   AboutPage,
@@ -47,4 +49,6 @@ export {
   HistoricalOnChainPayments,
   RestoreChannel,
   FastPay,
+  ViewPOSTransactions,
+  TotalTipsScreen,
 };

@@ -254,7 +254,11 @@ import {GlobalAppDataProvider} from './context-store/appData';
 import CustomHalfModal from './app/functions/CustomElements/halfModal';
 import {CustomWebView} from './app/functions/CustomElements';
 import ExplainBalanceScreen from './app/components/admin/homeComponents/sendBitcoin/components/balanceExplainerScreen';
-import {HistoricalOnChainPayments} from './app/components/admin/homeComponents/settingsContent';
+import {
+  HistoricalOnChainPayments,
+  TotalTipsScreen,
+  ViewPOSTransactions,
+} from './app/components/admin/homeComponents/settingsContent';
 import PushNotificationManager, {
   registerBackgroundNotificationTask,
 } from './context-store/notificationManager';
@@ -272,7 +276,6 @@ import {
   LiquidNavigationListener,
 } from './context-store/SDKNavigation';
 import {LightningEventProvider} from './context-store/lightningEventContext';
-import {checkGooglePlayServices} from './app/functions/checkGoogleServices';
 import HistoricalSMSMessagingPage from './app/components/admin/homeComponents/apps/sms4sats/sentPayments';
 import {
   GlobalThemeProvider,
@@ -363,7 +366,7 @@ function ResetStack(): JSX.Element | null {
   }, [handleDeepLink]);
 
   useEffect(() => {
-    Linking.addListener('url', handleDeepLink);
+    const subscription = Linking.addListener('url', handleDeepLink);
 
     async function initWallet() {
       const [
@@ -405,7 +408,7 @@ function ResetStack(): JSX.Element | null {
     initWallet();
 
     return () => {
-      Linking.removeAllListeners('url');
+      subscription.remove();
     };
   }, []);
 
@@ -509,6 +512,14 @@ function ResetStack(): JSX.Element | null {
           options={{
             animation: 'fade',
 
+            presentation: 'transparentModal',
+          }}
+        />
+        <Stack.Screen
+          name="TotalTipsScreen"
+          component={TotalTipsScreen}
+          options={{
+            animation: 'fade',
             presentation: 'transparentModal',
           }}
         />
@@ -689,6 +700,10 @@ function ResetStack(): JSX.Element | null {
           <Stack.Screen
             name="AccountInformationPage"
             component={AccountInformationPage}
+          />
+          <Stack.Screen
+            name="ViewPOSTransactions"
+            component={ViewPOSTransactions}
           />
         </Stack.Group>
         <Stack.Group
