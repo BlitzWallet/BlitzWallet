@@ -273,7 +273,6 @@ import {
 } from './context-store/SDKNavigation';
 import {LightningEventProvider} from './context-store/lightningEventContext';
 import {checkGooglePlayServices} from './app/functions/checkGoogleServices';
-import EnableGoogleServices from './app/screens/noGoogleServicesEnabled';
 import HistoricalSMSMessagingPage from './app/components/admin/homeComponents/apps/sms4sats/sentPayments';
 import {
   GlobalThemeProvider,
@@ -328,12 +327,10 @@ function ResetStack(): JSX.Element | null {
   const [initSettings, setInitSettings] = useState<{
     isLoggedIn: boolean | null;
     hasSecurityEnabled: boolean | null;
-    enabledGooglePlay: boolean | null;
     isLoaded: boolean | null;
   }>({
     isLoggedIn: null,
     hasSecurityEnabled: null,
-    enabledGooglePlay: null,
     isLoaded: null,
   });
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -385,7 +382,6 @@ function ResetStack(): JSX.Element | null {
         await getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
       ]);
 
-      const hasGooglePlayServics = checkGooglePlayServices();
       const storedSettings = JSON.parse(securitySettings);
       const parsedSettings = storedSettings ?? {
         isSecurityEnabled: true,
@@ -403,7 +399,6 @@ function ResetStack(): JSX.Element | null {
           ...prev,
           isLoggedIn: pin && mnemonic,
           hasSecurityEnabled: parsedSettings.isSecurityEnabled,
-          enabledGooglePlay: hasGooglePlayServics,
         };
       });
     }
@@ -462,9 +457,7 @@ function ResetStack(): JSX.Element | null {
         <Stack.Screen
           name="Home"
           component={
-            !initSettings.enabledGooglePlay
-              ? EnableGoogleServices
-              : initSettings.isLoggedIn
+            initSettings.isLoggedIn
               ? initSettings.hasSecurityEnabled
                 ? AdminLogin
                 : ConnectingToNodeLoadingScreen
