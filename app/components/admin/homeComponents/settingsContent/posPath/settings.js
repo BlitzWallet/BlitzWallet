@@ -11,19 +11,30 @@ import {
 } from 'react-native';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useNavigation} from '@react-navigation/native';
-import {CENTER, COLORS, VALID_USERNAME_REGEX} from '../../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  ICONS,
+  VALID_USERNAME_REGEX,
+} from '../../../../../constants';
 import {FONT, SIZES, WINDOWWIDTH} from '../../../../../constants/theme';
-import {ThemeText} from '../../../../../functions/CustomElements';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {canUsePOSName} from '../../../../../../db';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import {useAppStatus} from '../../../../../../context-store/appStatus';
 
 export default function PosSettingsPage() {
   const isInitialRender = useRef(true);
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
+  const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
   const [currencies, setCurrencies] = useState([]);
@@ -97,93 +108,115 @@ export default function PosSettingsPage() {
       </TouchableOpacity>
     );
   };
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : null}
-      style={styles.container}>
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <View style={{flex: 1, width: '90%', ...CENTER}}>
-          <ThemeText styles={{marginTop: 20}} content={'Store name'} />
-          <CustomSearchInput
-            setInputText={setStoreNameInput}
-            inputText={storeNameInput}
-            placeholderText={'Enter store name'}
-            containerStyles={{marginTop: 10}}
-          />
+    <GlobalThemeView useStandardWidth={true}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        style={styles.container}>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <View style={{flex: 1, width: '95%', ...CENTER}}>
+            <CustomSettingsTopBar
+              shouldDismissKeyboard={true}
+              showLeftImage={true}
+              leftImageBlue={ICONS.receiptIcon}
+              LeftImageDarkMode={ICONS.receiptWhite}
+              containerStyles={{marginBottom: 0}}
+              label={'Point-of-sale'}
+              leftImageFunction={() => {
+                Keyboard.dismiss();
 
-          <ThemeText styles={{marginTop: 10}} content={'Display currency'} />
-          <CustomSearchInput
-            inputText={textInput}
-            setInputText={setTextInput}
-            placeholderText={currentCurrency}
-            containerStyles={{marginTop: 10}}
-          />
+                if (!isConnectedToTheInternet) {
+                  navigate.navigate('ErrorScreen', {
+                    errorMessage: 'Please reconnect to the internet',
+                  });
+                  return;
+                }
+                navigate.navigate('ViewPOSTransactions');
+              }}
+            />
+            <ThemeText styles={{marginTop: 20}} content={'Store name'} />
+            <CustomSearchInput
+              setInputText={setStoreNameInput}
+              inputText={storeNameInput}
+              placeholderText={'Enter store name'}
+              containerStyles={{marginTop: 10}}
+            />
 
-          <FlatList
-            style={{
-              flex: 1,
-              width: '100%',
-            }}
-            data={listData}
-            renderItem={({item, index}) => (
-              <CurrencyElements id={index} currency={item} />
-            )}
-            keyExtractor={currency => currency.id}
-            showsVerticalScrollIndicator={false}
-          />
+            <ThemeText styles={{marginTop: 10}} content={'Display currency'} />
+            <CustomSearchInput
+              inputText={textInput}
+              setInputText={setTextInput}
+              placeholderText={currentCurrency}
+              containerStyles={{marginTop: 10}}
+            />
 
-          <CustomButton
-            buttonStyles={{
-              width: '100%',
-              marginTop: 'auto',
-              backgroundColor: backgroundOffset,
-            }}
-            textStyles={{color: textColor}}
-            actionFunction={() => {
-              navigate.navigate('POSInstructionsPath');
-            }}
-            textContent={'See employee instructions'}
-          />
-          <CustomButton
-            buttonStyles={{
-              width: '65%',
-              marginTop: 20,
-              ...CENTER,
-              backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-            }}
-            textStyles={{
-              color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-            }}
-            actionFunction={() => {
-              if (
-                masterInfoObject.posSettings.storeNameLower !=
+            <FlatList
+              style={{
+                flex: 1,
+                width: '100%',
+              }}
+              data={listData}
+              renderItem={({item, index}) => (
+                <CurrencyElements id={index} currency={item} />
+              )}
+              keyExtractor={currency => currency.id}
+              showsVerticalScrollIndicator={false}
+            />
+
+            <CustomButton
+              buttonStyles={{
+                width: '100%',
+                marginTop: 'auto',
+                backgroundColor: backgroundOffset,
+              }}
+              textStyles={{color: textColor}}
+              actionFunction={() => {
+                navigate.navigate('POSInstructionsPath');
+              }}
+              textContent={'See employee instructions'}
+            />
+            <CustomButton
+              buttonStyles={{
+                width: '65%',
+                marginTop: 20,
+                ...CENTER,
+                backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+              }}
+              textStyles={{
+                color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+              }}
+              actionFunction={() => {
+                if (
+                  masterInfoObject.posSettings.storeNameLower !=
+                  storeNameInput.toLowerCase()
+                ) {
+                  savePOSSettings(
+                    {
+                      storeName: storeNameInput.trim(),
+                      storeNameLower: storeNameInput.trim().toLowerCase(),
+                    },
+                    'storeName',
+                  );
+                  return;
+                } else {
+                  openWebBrowser({
+                    navigate,
+                    link: `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`,
+                  });
+                }
+              }}
+              textContent={
+                masterInfoObject.posSettings.storeName.toLowerCase() !=
                 storeNameInput.toLowerCase()
-              ) {
-                savePOSSettings(
-                  {
-                    storeName: storeNameInput.trim(),
-                    storeNameLower: storeNameInput.trim().toLowerCase(),
-                  },
-                  'storeName',
-                );
-                return;
-              } else {
-                openWebBrowser({
-                  navigate,
-                  link: `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`,
-                });
+                  ? 'Save'
+                  : 'Open POS'
               }
-            }}
-            textContent={
-              masterInfoObject.posSettings.storeName.toLowerCase() !=
-              storeNameInput.toLowerCase()
-                ? 'Save'
-                : 'Open POS'
-            }
-          />
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+            />
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </GlobalThemeView>
   );
 
   async function savePOSSettings(newData, type) {
