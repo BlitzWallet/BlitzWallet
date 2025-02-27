@@ -6,7 +6,7 @@ import {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {
   RESTORE_PROOFS_EVENT_NAME,
-  restoreProofs,
+  restoreMintProofs,
   restoreProofsEventListener,
 } from '../../../../../functions/eCash/wallet';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -94,7 +94,7 @@ export default function RestoreProofsPopup(props) {
               onPress={() => {
                 setIsRestoring(true);
                 setTimeout(() => {
-                  restoreProofs(mintURL);
+                  restoreMintProofs(mintURL);
                 }, 500);
               }}
               style={[styles.button]}>

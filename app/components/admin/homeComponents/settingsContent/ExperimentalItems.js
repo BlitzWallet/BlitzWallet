@@ -159,7 +159,7 @@ export default function ExperimentalItemsPage() {
               </View>
             </View>
           ) : (
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
               <ThemeText
                 styles={{marginTop: 20, fontSize: SIZES.large}}
                 content={'eCash'}

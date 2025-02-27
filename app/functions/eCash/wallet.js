@@ -99,73 +99,141 @@ export const calculateEcashFees = (mintURL, proofs) => {
     console.log('ecash fee calculator error', err);
   }
 };
-
-export const restoreProofs = async mintURL => {
+// changeed from restoreProofs
+export const restoreMintProofs = async mintURL => {
+  const BATCH_SIZE = 200;
+  const MAX_GAP = 2;
+  const mnemonic = await retrieveData('mnemonic');
   try {
+    const seed = mnemonicToSeed(mnemonic);
+    let restoreCounter = 0;
+    let restoreProgress = 0;
     restoreProofsEventListener.emit(
       RESTORE_PROOFS_EVENT_NAME,
-      'Starting restore process',
+      'Preparing restore process...',
     );
-    const wallet = await initEcashWallet(mintURL);
 
-    const BATCH_SIZE = 100;
-    let currentCount = 0;
-    let emptyBatchCount = 0;
-    let lastSuccessfulRestore = 0;
-    let totalRestoredProofs = 0;
+    const mint = new CashuMint(mintURL);
+    const keysets = (await mint.getKeySets()).keysets;
+    let restoredSomething = false;
 
-    while (emptyBatchCount < 3) {
+    let totalSteps = keysets.length * MAX_GAP;
+    let currentStep = 0;
+
+    for (const keyset of keysets) {
+      console.log(`Restoring keyset ${keyset.id} with unit ${keyset.unit}`);
       restoreProofsEventListener.emit(
         RESTORE_PROOFS_EVENT_NAME,
-        `Running batch number ${Math.round(currentCount / BATCH_SIZE)}`,
+        `Restoring keyset ${keyset.id} with unit ${keyset.unit}`,
       );
-
-      const restoredProofs = await wallet.restore(
-        currentCount,
-        currentCount + BATCH_SIZE - 1,
-      );
-      console.log(restoredProofs.proofs.length, 'restor proofs length');
-      if (!restoredProofs.proofs || restoredProofs.proofs.length === 0) {
-        emptyBatchCount++;
-      } else {
-        emptyBatchCount = 0;
-        lastSuccessfulRestore = currentCount;
-
-        const proofStates = await wallet.checkProofsStates(
-          restoredProofs.proofs,
-        );
+      const wallet = new CashuWallet(mint, {
+        bip39seed: Uint8Array.from(seed),
+        unit: keyset.unit,
+      });
+      let start = 0;
+      let emptyBatchCount = 0;
+      let restoreProofs = [];
+      while (emptyBatchCount < MAX_GAP) {
+        console.log(`Restoring proofs ${start} to ${start + BATCH_SIZE}`);
         restoreProofsEventListener.emit(
           RESTORE_PROOFS_EVENT_NAME,
-          `Checking proofs state`,
+          `Restored ${restoreCounter} proofs for keyset ${keyset.id}`,
         );
 
-        const unspentProofs = restoredProofs.proofs.filter(
-          (proof, index) => proofStates[index].state === 'UNSPENT',
+        const proofs = (
+          await wallet.restore(start, BATCH_SIZE, {keysetId: keyset.id})
+        ).proofs;
+
+        if (proofs.length === 0) {
+          console.log(`No proofs found for keyset ${keyset.id}`);
+          emptyBatchCount++;
+        } else {
+          console.log(
+            `> Restored ${proofs.length} proofs with sum ${sumProofsValue(
+              proofs,
+            )}`,
+          );
+          restoreProofs = restoreProofs.concat(proofs);
+          emptyBatchCount = 0;
+          restoreCounter += proofs.length;
+          totalSteps += 1;
+        }
+
+        start += BATCH_SIZE;
+        currentStep++;
+        restoreProgress = currentStep / totalSteps;
+
+        restoreProofsEventListener.emit(
+          RESTORE_PROOFS_EVENT_NAME,
+          `Restored ${restoreCounter} proofs for keyset ${keyset.id}`,
+        );
+      }
+
+      let restoredProofs = [];
+      for (let i = 0; i < restoreProofs.length; i += BATCH_SIZE) {
+        restoreProofsEventListener.emit(
+          RESTORE_PROOFS_EVENT_NAME,
+          `Checking proofs ${i} to ${i + BATCH_SIZE} for keyset ${keyset.id}`,
+        );
+
+        const checkRestoreProofs = restoreProofs.slice(i, i + BATCH_SIZE);
+        const proofStates = await wallet.checkProofsStates(checkRestoreProofs);
+
+        const spentProofs = checkRestoreProofs.filter(
+          (p, idx) => proofStates[idx].state === 'SPENT',
+        );
+        const spentProofsSecrets = spentProofs.map(p => p.secret);
+        const unspentProofs = checkRestoreProofs.filter(
+          p => !spentProofsSecrets.includes(p.secret),
         );
 
         if (unspentProofs.length > 0) {
-          restoreProofsEventListener.emit(
-            RESTORE_PROOFS_EVENT_NAME,
-            `Saving unspent proofs`,
+          console.log(
+            `Found ${
+              unspentProofs.length
+            } unspent proofs with sum ${sumProofsValue(unspentProofs)}`,
           );
-          await storeProofs(unspentProofs, mintURL);
+
+          const existingProofSecrets = await getStoredProofs(mintURL);
+          const newProofs = unspentProofs.filter(
+            p => !existingProofSecrets.includes(p.secret),
+          );
+
+          await storeProofs(newProofs, mintURL);
+          restoredProofs = restoredProofs.concat(newProofs);
         }
 
-        totalRestoredProofs += restoredProofs.proofs.length;
+        currentStep++;
+        restoreProgress = currentStep / totalSteps;
+
+        restoreProofsEventListener.emit(
+          RESTORE_PROOFS_EVENT_NAME,
+          `Checking proofs ${i} to ${i + BATCH_SIZE} for keyset ${keyset.id}`,
+        );
       }
 
-      currentCount += BATCH_SIZE;
+      const restoredAmount = sumProofsValue(restoredProofs);
+
+      if (restoredAmount > 0) {
+        console.log(`Restored ${restoredAmount} for keyset ${keyset.id}`);
+        restoredSomething = true;
+
+        restoreProofsEventListener.emit(
+          RESTORE_PROOFS_EVENT_NAME,
+          `Restored ${restoredAmount} for keyset ${keyset.id}`,
+        );
+      }
     }
 
-    const finalCounter = totalRestoredProofs;
-    console.log(
-      `Restore complete. Last successful restore at counter: ${
-        finalCounter + 1
-      }`,
-    );
+    if (!restoredSomething) {
+      restoreProofsEventListener.emit(
+        RESTORE_PROOFS_EVENT_NAME,
+        'No proofs found to restore',
+      );
+    }
+    const finalCounter = restoreCounter;
     await setMintCounter(mintURL, finalCounter + 1);
-
-    restoreProofsEventListener.emit(RESTORE_PROOFS_EVENT_NAME, `end`);
+    restoreProofsEventListener.emit(RESTORE_PROOFS_EVENT_NAME, 'end');
     return true;
   } catch (err) {
     console.error('Error restoring proofs:', err);
@@ -206,7 +274,8 @@ async function getECashInvoice({amount, mintURL, descriptoin}) {
         }
         await new Promise(res => setTimeout(res, 500));
       } catch (err) {
-        console.log('getEcash while loop error');
+        console.log('getEcash while loop error', err);
+        break;
       }
     }
 
