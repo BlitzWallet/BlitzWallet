@@ -53,6 +53,7 @@ export default function FormattedBalanceInput({
   return (
     <View
       onTouchEnd={() => {
+        console.log(isScrolling, 'IS SCROLLING');
         if (!isScrolling && containerFunction) {
           containerFunction();
         }
@@ -75,6 +76,7 @@ export default function FormattedBalanceInput({
         <ScrollView
           onTouchStart={() => setIsScrolling(false)}
           onTouchMove={() => setIsScrolling(true)}
+          onTouchEnd={() => setIsScrolling(false)}
           horizontal
           showsHorizontalScrollIndicator={false}>
           <TextInput
