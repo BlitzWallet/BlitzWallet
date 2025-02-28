@@ -7,10 +7,10 @@ import {
 import {CENTER, COLORS} from '../../../../../constants';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useNavigation} from '@react-navigation/native';
-import {formatDate} from './transactions';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
+import {formatDateToDayMonthYearTime} from '../../../../../functions/rotateAddressDateChecker';
 
 export default function TotalTipsScreen(props) {
   const {sortedTips, fromDate} = props.route.params;
@@ -29,7 +29,7 @@ export default function TotalTipsScreen(props) {
           <ThemeText styles={{textAlign: 'center'}} content={'Since'} />
           <ThemeText
             styles={{textAlign: 'center', marginBottom: 20}}
-            content={formatDate(fromDate)}
+            content={formatDateToDayMonthYearTime(fromDate)}
           />
           <ScrollView contentContainerStyle={{width: '90%', ...CENTER}}>
             {Object.entries(sortedTips).map((item, index) => {
