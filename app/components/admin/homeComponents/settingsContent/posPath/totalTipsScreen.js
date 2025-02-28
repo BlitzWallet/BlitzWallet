@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   entryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 10,
+    paddingVertical: 10,
     borderBlockColor: COLORS.halfModalBackgroundColor,
     borderBottomWidth: 1,
   },
