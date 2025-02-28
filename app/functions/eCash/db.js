@@ -54,6 +54,7 @@ export const initEcashDBTables = async () => {
         fee INTEGER,
         preImage TEXT,
         mintURL TEXT,
+        description TEXT,
         FOREIGN KEY(mintURL) REFERENCES ${MINTS_TABLE_NAME}(mintURL) ON DELETE CASCADE
       );`);
 
@@ -185,12 +186,13 @@ export const storeEcashTransactions = async (transactions, mintURL) => {
         transaction.paymentType,
         transaction.fee,
         transaction.preImage,
+        transaction.description,
         currentMint,
       );
       await sqlLiteDB.runAsync(
         `INSERT OR REPLACE INTO ${TRANSACTIONS_TABLE_NAME} 
-        (id, time, amount, type, paymentType, fee, preImage, mintURL) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+        (id, time, amount, type, paymentType, fee, preImage, mintURL, description) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
         [
           transaction.id,
           transaction.time,
@@ -200,6 +202,7 @@ export const storeEcashTransactions = async (transactions, mintURL) => {
           transaction.fee,
           transaction.preImage,
           currentMint,
+          transaction.description,
         ],
       );
     }
