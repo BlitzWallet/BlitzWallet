@@ -4,14 +4,14 @@ import {CENTER, COLORS, SIZES} from '../../../../../constants';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {
-  RESTORE_PROOFS_EVENT_NAME,
-  restoreMintProofs,
-  restoreProofsEventListener,
-} from '../../../../../functions/eCash/wallet';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import CustomButton from '../../../../../functions/CustomElements/button';
+import {
+  restoreMintProofs,
+  restoreProofsEventListener,
+  RESTORE_PROOFS_EVENT_NAME,
+} from '../../../../../functions/eCash/restore';
 
 export default function RestoreProofsPopup(props) {
   const {mintURL} = props?.route?.params;
@@ -27,7 +27,7 @@ export default function RestoreProofsPopup(props) {
       if (eventName === 'end') {
         setDidFinish(true);
         return;
-      } else if (eventName === 'error') {
+      } else if (eventName.toLowerCase().includes('error')) {
         setRestoreProcessText('An error occured during the restore process.');
         setTimeout(() => {
           navigate.goBack();
