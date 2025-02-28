@@ -23,13 +23,10 @@ import {
 } from './db';
 import {parseInvoice} from '@breeztech/react-native-breez-sdk-liquid';
 import customUUID from '../customUUID';
-import EventEmitter from 'events';
+
 import {sumProofsValue} from './proofs';
 export const ACTIVE_MINT_STORAGE_KEY = 'ACTIVE_ECASH_MINT';
 export const ECASH_QUOTE_STORAGE_KEY = 'UNPAID_ECASH_QUOTES';
-
-export const RESTORE_PROOFS_EVENT_NAME = 'RESTORING_PROOF_EVENT';
-export const restoreProofsEventListener = new EventEmitter();
 
 let eCashWallets = {};
 
@@ -41,20 +38,21 @@ export const initEcashWallet = async mintURL => {
     if (eCashWallets[activeMintURL]) return eCashWallets[activeMintURL];
     const mnemonic = await retrieveData('mnemonic');
     const mint = new CashuMint(activeMintURL);
-    // const keysets = (await mint.getKeySets()).keysets.filter(
-    //   ks => ks.unit === 'sat',
-    // );
-    // const keys = (await mint.getKeys()).keysets.find(ks => ks.unit === 'sat');
+    const keysets = (await mint.getKeySets()).keysets.filter(
+      ks => ks.unit === 'sat',
+    );
+    const keys = (await mint.getKeys()).keysets.find(ks => ks.unit === 'sat');
     const seed = mnemonicToSeed(mnemonic);
     const wallet = new CashuWallet(mint, {
       bip39seed: Uint8Array.from(seed),
       mintInfo: await mint.getInfo(),
       unit: 'sat',
-      // keysets,
-      // keys,
+      keysets,
+      keys,
     });
 
     await wallet.loadMint();
+    await wallet.getKeys();
 
     eCashWallets[activeMintURL] = wallet;
     return wallet;
@@ -67,17 +65,16 @@ export const migrateEcashWallet = async mintURL => {
   try {
     const activeMintURL = mintURL;
     const mint = new CashuMint(activeMintURL);
-    // const keysets = (await mint.getKeySets()).keysets.filter(
-    //   ks => ks.unit === 'sat',
-    // );
-
-    // const keys = (await mint.getKeys()).keysets.find(ks => ks.unit === 'sat');
+    const keysets = (await mint.getKeySets()).keysets.filter(
+      ks => ks.unit === 'sat',
+    );
+    const keys = (await mint.getKeys()).keysets.find(ks => ks.unit === 'sat');
 
     const wallet = new CashuWallet(mint, {
       mintInfo: await mint.getInfo(),
       unit: 'sat',
-      // keysets,
-      // keys,
+      keysets,
+      keys,
     });
 
     await wallet.loadMint();
@@ -97,148 +94,7 @@ export const calculateEcashFees = (mintURL, proofs) => {
     return fees || 2;
   } catch (err) {
     console.log('ecash fee calculator error', err);
-  }
-};
-// changeed from restoreProofs
-export const restoreMintProofs = async mintURL => {
-  const BATCH_SIZE = 200;
-  const MAX_GAP = 2;
-  const mnemonic = await retrieveData('mnemonic');
-  try {
-    const seed = mnemonicToSeed(mnemonic);
-    let restoreCounter = 0;
-    let restoreProgress = 0;
-    restoreProofsEventListener.emit(
-      RESTORE_PROOFS_EVENT_NAME,
-      'Preparing restore process...',
-    );
-
-    const mint = new CashuMint(mintURL);
-    const keysets = (await mint.getKeySets()).keysets;
-    let restoredSomething = false;
-
-    let totalSteps = keysets.length * MAX_GAP;
-    let currentStep = 0;
-
-    for (const keyset of keysets) {
-      console.log(`Restoring keyset ${keyset.id} with unit ${keyset.unit}`);
-      restoreProofsEventListener.emit(
-        RESTORE_PROOFS_EVENT_NAME,
-        `Restoring keyset ${keyset.id} with unit ${keyset.unit}`,
-      );
-      const wallet = new CashuWallet(mint, {
-        bip39seed: Uint8Array.from(seed),
-        unit: keyset.unit,
-      });
-      let start = 0;
-      let emptyBatchCount = 0;
-      let restoreProofs = [];
-      while (emptyBatchCount < MAX_GAP) {
-        console.log(`Restoring proofs ${start} to ${start + BATCH_SIZE}`);
-        restoreProofsEventListener.emit(
-          RESTORE_PROOFS_EVENT_NAME,
-          `Restored ${restoreCounter} proofs for keyset ${keyset.id}`,
-        );
-
-        const proofs = (
-          await wallet.restore(start, BATCH_SIZE, {keysetId: keyset.id})
-        ).proofs;
-
-        if (proofs.length === 0) {
-          console.log(`No proofs found for keyset ${keyset.id}`);
-          emptyBatchCount++;
-        } else {
-          console.log(
-            `> Restored ${proofs.length} proofs with sum ${sumProofsValue(
-              proofs,
-            )}`,
-          );
-          restoreProofs = restoreProofs.concat(proofs);
-          emptyBatchCount = 0;
-          restoreCounter += proofs.length;
-          totalSteps += 1;
-        }
-
-        start += BATCH_SIZE;
-        currentStep++;
-        restoreProgress = currentStep / totalSteps;
-
-        restoreProofsEventListener.emit(
-          RESTORE_PROOFS_EVENT_NAME,
-          `Restored ${restoreCounter} proofs for keyset ${keyset.id}`,
-        );
-      }
-
-      let restoredProofs = [];
-      for (let i = 0; i < restoreProofs.length; i += BATCH_SIZE) {
-        restoreProofsEventListener.emit(
-          RESTORE_PROOFS_EVENT_NAME,
-          `Checking proofs ${i} to ${i + BATCH_SIZE} for keyset ${keyset.id}`,
-        );
-
-        const checkRestoreProofs = restoreProofs.slice(i, i + BATCH_SIZE);
-        const proofStates = await wallet.checkProofsStates(checkRestoreProofs);
-
-        const spentProofs = checkRestoreProofs.filter(
-          (p, idx) => proofStates[idx].state === 'SPENT',
-        );
-        const spentProofsSecrets = spentProofs.map(p => p.secret);
-        const unspentProofs = checkRestoreProofs.filter(
-          p => !spentProofsSecrets.includes(p.secret),
-        );
-
-        if (unspentProofs.length > 0) {
-          console.log(
-            `Found ${
-              unspentProofs.length
-            } unspent proofs with sum ${sumProofsValue(unspentProofs)}`,
-          );
-
-          const existingProofSecrets = await getStoredProofs(mintURL);
-          const newProofs = unspentProofs.filter(
-            p => !existingProofSecrets.includes(p.secret),
-          );
-
-          await storeProofs(newProofs, mintURL);
-          restoredProofs = restoredProofs.concat(newProofs);
-        }
-
-        currentStep++;
-        restoreProgress = currentStep / totalSteps;
-
-        restoreProofsEventListener.emit(
-          RESTORE_PROOFS_EVENT_NAME,
-          `Checking proofs ${i} to ${i + BATCH_SIZE} for keyset ${keyset.id}`,
-        );
-      }
-
-      const restoredAmount = sumProofsValue(restoredProofs);
-
-      if (restoredAmount > 0) {
-        console.log(`Restored ${restoredAmount} for keyset ${keyset.id}`);
-        restoredSomething = true;
-
-        restoreProofsEventListener.emit(
-          RESTORE_PROOFS_EVENT_NAME,
-          `Restored ${restoredAmount} for keyset ${keyset.id}`,
-        );
-      }
-    }
-
-    if (!restoredSomething) {
-      restoreProofsEventListener.emit(
-        RESTORE_PROOFS_EVENT_NAME,
-        'No proofs found to restore',
-      );
-    }
-    const finalCounter = restoreCounter;
-    await setMintCounter(mintURL, finalCounter + 1);
-    restoreProofsEventListener.emit(RESTORE_PROOFS_EVENT_NAME, 'end');
-    return true;
-  } catch (err) {
-    console.error('Error restoring proofs:', err);
-    restoreProofsEventListener.emit(RESTORE_PROOFS_EVENT_NAME, `error`);
-    return null;
+    return 2;
   }
 };
 
@@ -436,8 +292,7 @@ async function mintEcash({invoice, quote, mintURL, globalCounter}) {
       quote,
       {counter},
     );
-
-    console.log(info, 'TESTING');
+    if (info.length) await incrementMintCounter(mintURL, info.length + 1);
 
     return {parsedInvoie: prasedInvoice, proofs: info, counter};
   } catch (err) {
@@ -553,12 +408,12 @@ export const payLnInvoiceFromEcash = async ({quote, invoice, proofsToUse}) => {
   const mintURL = await getSelectedMint();
   const wallet = await initEcashWallet(mintURL);
   let proofs = [...proofsToUse];
-  let returnChangeGlobal = [];
   const decodedInvoice = await parseInvoice(invoice);
   const amount = decodedInvoice.amountMsat / 1000;
-  console.log('ecash quote fee reserve:', quote?.fee_reserve);
+
   const amountToPay = quote?.fee_reserve + amount;
   const totalProofsValue = sumProofsValue(proofs);
+  console.log('ecash quote fee reserve:', quote?.fee_reserve);
   console.log('Proofs before send', proofs);
   console.log(totalProofsValue, amountToPay);
   try {
@@ -571,49 +426,37 @@ export const payLnInvoiceFromEcash = async ({quote, invoice, proofsToUse}) => {
       proofs: totalProofsValue,
     });
 
-    await incrementMintCounter(mintURL);
-    const {proofsToSend, proofsToKeep} = await getSpendingProofs(
-      amountToPay,
-      proofsToUse,
-      mintURL,
-      wallet,
-    );
+    const mintData = await getSelectedMintData();
+    let currentCount = mintData.counter;
 
-    if (proofsToKeep.length) await storeProofs(proofsToKeep, mintURL);
+    const {proofsToSend, proofsToKeep, newCounterValue} =
+      await getSpendingProofsWithPreciseCounter(
+        wallet,
+        amountToPay,
+        proofsToUse,
+        currentCount,
+      );
+
+    console.log('PROOFS TO SEND:', proofsToSend);
+    console.log('PROOFS TO KEEP:', proofsToKeep);
 
     proofs = proofsToSend;
 
-    let meltResponse = null;
-    await incrementMintCounter(mintURL);
-    for (let attempt = 0; attempt < 10; attempt++) {
-      try {
-        const mintData = await getSelectedMintData();
-        meltResponse = await wallet.meltProofs(quote, proofs, {
-          counter: mintData.counter,
-        });
-        break;
-      } catch (err) {
-        meltResponse = null;
-        if (err.message === 'not enough inputs provided for melt') {
-          throw new Error('Insufficient balance');
-        }
-        if (err.message.includes('outputs have already been signed before')) {
-          await incrementMintCounter(mintURL);
-        }
-        if (attempt === 9) {
-          throw new Error('Max retry attempts reached');
-        }
-        await new Promise(res => setTimeout(res, 1000));
-        console.log('Error in melt process, retrying...', err);
-      }
-    }
+    if (proofsToKeep.length) await storeProofs(proofsToKeep, mintURL);
 
-    if (meltResponse.quote.state != MeltQuoteState.PAID) {
-      throw new Error('Invoice not paid.');
-    }
+    let meltResponse = await wallet.meltProofs(quote, proofsToSend, {
+      counter: newCounterValue,
+    });
+    console.log('melt response', meltResponse);
 
-    if (meltResponse?.change != null) {
-      returnChangeGlobal.push(...meltResponse.change);
+    if (meltResponse?.change?.length) {
+      await setMintCounter(
+        mintURL,
+        newCounterValue + meltResponse.change.length + 1,
+      );
+      await storeProofs(meltResponse.change, mintURL);
+    } else {
+      await setMintCounter(mintURL, newCounterValue + 1);
     }
 
     const realFee = Math.max(
@@ -627,8 +470,8 @@ export const payLnInvoiceFromEcash = async ({quote, invoice, proofsToUse}) => {
       paymentType: 'sent',
       preImage: meltResponse.quote.payment_preimage,
     };
+
     await removeProofs(proofsToUse);
-    await storeProofs(returnChangeGlobal);
     await storeEcashTransactions([formatEcashTx(txObject)]);
     return {didWork: true, txObject};
   } catch (err) {
@@ -641,42 +484,50 @@ export const payLnInvoiceFromEcash = async ({quote, invoice, proofsToUse}) => {
       return {didWork: false, message: 'Invoice already paid or pending.'};
     }
     await removeProofs(proofsToUse);
-    await storeProofs([...returnChangeGlobal, ...proofs]);
+    await storeProofs(proofs);
     return {didWork: false, message: String(err.message)};
   }
 };
-async function getSpendingProofs(amountToPay, proofs, mintURL, wallet) {
-  for (let runCount = 0; runCount < 10; runCount++) {
-    try {
-      const mintData = await getSelectedMintData();
-      const {keep: proofsToKeep, send: proofsToSend} = await wallet.send(
-        amountToPay,
-        proofs,
-        {
-          counter: mintData.counter,
-          includeFees: true,
-        },
-      );
 
-      console.log('PROOFS TO KEEP:', proofsToKeep);
-      console.log('PROOFS TO SEND:', proofsToSend);
+const getSpendingProofsWithPreciseCounter = async (
+  wallet,
+  amountToPay,
+  proofs,
+  currentCounter,
+) => {
+  try {
+    const {keep: proofsToKeep, send: proofsToSend} = await wallet.send(
+      amountToPay,
+      proofs,
+      {
+        counter: currentCounter,
+        includeFees: true,
+      },
+    );
 
-      await incrementMintCounter(
-        mintURL,
-        proofsToKeep?.length + proofsToSend.length,
-      );
+    const existingProofsIds = proofs.map(p => p.secret);
+    const newKeepProofsCount = proofsToKeep.filter(
+      p => !existingProofsIds.includes(p.secret),
+    ).length;
+    const newSendProofsCount = proofsToSend.filter(
+      p => !existingProofsIds.includes(p.secret),
+    ).length;
 
-      return {proofsToSend, proofsToKeep};
-    } catch (err) {
-      console.error('Error in getSpendingProofs:', err);
-      if (err.message.includes('outputs have already been signed before')) {
-        await incrementMintCounter(mintURL);
-      }
-      if (runCount === 9) {
-        throw new Error('Max retry attempts reached');
-      }
-    }
+    console.log(newKeepProofsCount, 'NEW PROOFS KEEP COUNT s');
+    console.log(newSendProofsCount, 'NEW PROOFS SEND COUNT s');
+
+    const newCounterValue =
+      currentCounter + newKeepProofsCount + newSendProofsCount;
+
+    return {
+      proofsToSend,
+      proofsToKeep,
+      newCounterValue,
+    };
+  } catch (err) {
+    console.error('Error in getSpendingProofsWithPreciseCounter:', err);
+    throw err;
   }
-}
+};
 
 export {getECashInvoice, mintEcash, claimUnclaimedEcashQuotes, formatEcashTx};
