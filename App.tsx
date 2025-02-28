@@ -284,6 +284,7 @@ import {
 import {GLobalNodeContextProider} from './context-store/nodeContext';
 import {AppStatusProvider} from './context-store/appStatus';
 import {KeysContextProvider} from './context-store/keys';
+import {POSTransactionsProvider} from './context-store/pos';
 
 const Stack = createNativeStackNavigator();
 
@@ -296,22 +297,24 @@ function App(): JSX.Element {
             <GLobalNodeContextProider>
               <GlobalContextProvider>
                 <GlobalAppDataProvider>
-                  <WebViewProvider>
-                    <GlobalContactsList>
-                      <GlobaleCashVariables>
-                        <PushNotificationManager>
-                          <LiquidEventProvider>
-                            <LightningEventProvider>
-                              {/* <Suspense
+                  <POSTransactionsProvider>
+                    <WebViewProvider>
+                      <GlobalContactsList>
+                        <GlobaleCashVariables>
+                          <PushNotificationManager>
+                            <LiquidEventProvider>
+                              <LightningEventProvider>
+                                {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                              <ResetStack />
-                              {/* </Suspense> */}
-                            </LightningEventProvider>
-                          </LiquidEventProvider>
-                        </PushNotificationManager>
-                      </GlobaleCashVariables>
-                    </GlobalContactsList>
-                  </WebViewProvider>
+                                <ResetStack />
+                                {/* </Suspense> */}
+                              </LightningEventProvider>
+                            </LiquidEventProvider>
+                          </PushNotificationManager>
+                        </GlobaleCashVariables>
+                      </GlobalContactsList>
+                    </WebViewProvider>
+                  </POSTransactionsProvider>
                 </GlobalAppDataProvider>
                 {/* <BreezTest /> */}
               </GlobalContextProvider>
