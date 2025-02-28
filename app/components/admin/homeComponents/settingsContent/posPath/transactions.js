@@ -12,48 +12,22 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {db} from '../../../../../../db/initializeFirebase';
-import {useKeysContext} from '../../../../../../context-store/keys';
-import {onSnapshot} from '@react-native-firebase/firestore';
-import {decryptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
+import {usePOSTransactions} from '../../../../../../context-store/pos';
+import {formatDateToDayMonthYearTime} from '../../../../../functions/rotateAddressDateChecker';
 
 export default function ViewPOSTransactions() {
-  const {publicKey, contactsPrivateKey} = useKeysContext();
-  const [txList, setTxList] = useState(null);
+  const {txList} = usePOSTransactions();
   const [employeeName, setEmployeeName] = useState('');
   const [isAddingTotals, setIsAddingTotals] = useState(false);
-  const navigate = useNavigation();
-  useEffect(() => {
-    const docRef = db.collection('blitzWalletUsers').doc(publicKey);
-    const unsubscribe = onSnapshot(docRef, docSnap => {
-      if (docSnap.exists) {
-        const data = docSnap.data();
 
-        if (data.posSettings.transactions) {
-          const txs = decryptMessage(
-            contactsPrivateKey,
-            process.env.BACKEND_PUB_KEY,
-            data.posSettings.transactions,
-          );
-          const parsedTxs = JSON.parse(txs);
-          setTxList(parsedTxs);
-        } else {
-          setTxList([]);
-        }
-      }
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const navigate = useNavigation();
 
   const filteredList = useMemo(() => {
     return !txList
@@ -69,7 +43,7 @@ export default function ViewPOSTransactions() {
       let totals = {};
       const oneMonthAgo = oneMonthAgoDate();
       for (const tx of txArray) {
-        if (!isWithinOneMonth(tx.time, oneMonthAgo)) continue;
+        if (!isWithinOneMonth(tx.timestamp, oneMonthAgo)) continue;
         console.log(totals[tx.serverName]);
         if (!totals[tx.serverName]) {
           totals[tx.serverName] = 0;
@@ -77,7 +51,7 @@ export default function ViewPOSTransactions() {
 
         totals[tx.serverName] = totals[tx.serverName] + tx.tipAmountSats;
       }
-      console.log(totals);
+
       return {totals, fromDate: oneMonthAgo};
     } catch (err) {
       console.log('getting tip totals error', err);
@@ -99,7 +73,7 @@ export default function ViewPOSTransactions() {
           <ThemeText
             CustomNumberOfLines={1}
             styles={{fontSize: SIZES.small}}
-            content={formatDate(item.time)}
+            content={formatDateToDayMonthYearTime(item.timestamp)}
           />
         </View>
         <View style={{alignItems: 'flex-end'}}>
@@ -140,7 +114,7 @@ export default function ViewPOSTransactions() {
                 showsVerticalScrollIndicator={false}
                 data={filteredList}
                 renderItem={transactionItem}
-                key={item => item.time}
+                key={item => item.timestamp}
               />
               <CustomButton
                 useLoading={isAddingTotals}
@@ -191,20 +165,6 @@ const isWithinOneMonth = (date, oneMonthAgo) => {
     dateToCompareTimestamp >= oneMonthAgoTimestamp &&
     dateToCompareTimestamp <= endOfDay.getTime()
   );
-};
-
-export const formatDate = timestamp => {
-  const date = new Date(timestamp);
-  const location = Intl.DateTimeFormat().resolvedOptions().locale || 'en-US';
-  return new Intl.DateTimeFormat(location, {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  }).format(date);
 };
 
 const styles = StyleSheet.create({
