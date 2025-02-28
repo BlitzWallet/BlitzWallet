@@ -45,6 +45,7 @@ import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useNodeContext} from '../../../context-store/nodeContext';
 import {useAppStatus} from '../../../context-store/appStatus';
 import {useKeysContext} from '../../../context-store/keys';
+import {initializePOSTransactionsDatabase} from '../../functions/pos';
 export default function ConnectingToNodeLoadingScreen({
   navigation: {reset},
   route,
@@ -113,7 +114,8 @@ export default function ConnectingToNodeLoadingScreen({
 
     (async () => {
       const didOpen = await initializeDatabase();
-      if (!didOpen) {
+      const posTransactions = await initializePOSTransactionsDatabase();
+      if (!didOpen || !posTransactions) {
         setHasError('Not able to open database');
         return;
       }
