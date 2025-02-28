@@ -357,6 +357,7 @@ export default function ConnectingToNodeLoadingScreen({
                   quote: meltQuote.quote,
                   invoice: resolvedData.invoice,
                   proofsToUse: meltQuote.proofsToUse,
+                  description: 'Auto Channel Rebalance',
                 });
                 reset({
                   index: 0,

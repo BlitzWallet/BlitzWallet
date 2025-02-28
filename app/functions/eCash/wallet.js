@@ -124,7 +124,7 @@ async function getECashInvoice({amount, mintURL, descriptoin}) {
           mintURL: mintURL,
         });
 
-        if (didMint.parsedInvoie || didMint.error === 'Quote not paid') {
+        if (didMint.prasedInvoice || didMint.error === 'Quote not paid') {
           derivePathIndex = didMint.counter;
           break;
         }
@@ -220,11 +220,12 @@ async function claimUnclaimedEcashQuotes() {
           mintURL: storedQuoteInformation.mintURL,
           globalCounter: storedQuoteInformation.counter,
         });
-        if (didMint.parsedInvoie) {
+        if (didMint.prasedInvoice) {
           const formattedEcashTx = formatEcashTx({
-            amount: didMint.parsedInvoie.invoice.amountMsat / 1000,
+            amount: didMint.prasedInvoice.amountMsat / 1000,
             fee: 0,
             paymentType: 'received',
+            description: didMint.prasedInvoice.description,
           });
 
           if (!newTransactions[storedQuoteInformation?.mintURL]) {
@@ -283,27 +284,26 @@ async function mintEcash({invoice, quote, mintURL, globalCounter}) {
       ? Promise.resolve(globalCounter)
       : incrementMintCounter(currentMint);
     counter = await selctingCounter;
-    const prasedInvoice = await parseInput(invoice);
-    console.log(prasedInvoice.invoice.amountMsat, 'mint ecash amount');
-    console.log(counter, 'ECASH COUNTER');
+    const prasedInvoice = await parseInvoice(invoice);
+
+    console.log(prasedInvoice.amountMsat, 'mint ecash amount');
 
     const info = await wallet.mintProofs(
-      prasedInvoice.invoice.amountMsat / 1000,
+      prasedInvoice.amountMsat / 1000,
       quote,
       {counter},
     );
     if (info.length) await incrementMintCounter(mintURL, info.length + 1);
 
-    return {parsedInvoie: prasedInvoice, proofs: info, counter};
+    return {prasedInvoice, proofs: info, counter};
   } catch (err) {
     console.log(err, 'mint Ecash error');
     if (err.message === 'quote not paid') {
       console.log('The quote has not been paid. Handling this specific error.');
-      return {parsedInvoice: null, error: 'Quote not paid', counter};
+      return {prasedInvoice: null, error: 'Quote not paid', counter};
     }
-
     // If other errors occur, you can handle them here:
-    return {parsedInvoice: null, error: err.message, counter};
+    return {prasedInvoice: null, error: err.message, counter};
   }
 }
 export const checkMintQuote = async ({quote, mintURL}) => {
@@ -358,10 +358,18 @@ export const getMeltQuote = async bolt11Invoice => {
   }
 };
 
-function formatEcashTx({amount, paymentType, fee, preImage, time}) {
+function formatEcashTx({
+  amount,
+  paymentType,
+  fee,
+  preImage,
+  time,
+  description = '',
+}) {
   let txObject = {
     id: customUUID(),
     time: new Date().getTime(),
+    description: '',
     amount: null,
     type: 'ecash',
     paymentType: null,
@@ -372,6 +380,7 @@ function formatEcashTx({amount, paymentType, fee, preImage, time}) {
   if (time) {
     txObject['time'] = time;
   }
+  txObject['description'] = description;
   txObject['paymentType'] = paymentType;
   txObject['fee'] = fee;
   txObject['preImage'] = preImage;
@@ -404,7 +413,12 @@ export const getProofsToUse = (proofsAvailable, amount, order = 'desc') => {
   }
 };
 
-export const payLnInvoiceFromEcash = async ({quote, invoice, proofsToUse}) => {
+export const payLnInvoiceFromEcash = async ({
+  quote,
+  invoice,
+  proofsToUse,
+  description,
+}) => {
   const mintURL = await getSelectedMint();
   const wallet = await initEcashWallet(mintURL);
   let proofs = [...proofsToUse];
@@ -469,6 +483,7 @@ export const payLnInvoiceFromEcash = async ({quote, invoice, proofsToUse}) => {
       fee: realFee,
       paymentType: 'sent',
       preImage: meltResponse.quote.payment_preimage,
+      description: decodedInvoice?.description || description,
     };
 
     await removeProofs(proofsToUse);

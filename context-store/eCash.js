@@ -140,7 +140,7 @@ export const GlobaleCashVariables = ({children}) => {
       if (ecashWalletInformation.balance - 5 < 1) return;
       const lightningInvoice = await receivePayment({
         amountMsat: (ecashWalletInformation.balance - 5) * 1000,
-        description: 'Ecash -> LN swap',
+        description: 'Auto Channel Rebalance',
       });
       const meltQuote = await getMeltQuote(lightningInvoice.lnInvoice.bolt11);
       if (!meltQuote) throw new Error('unable to create melt quote');
@@ -148,6 +148,7 @@ export const GlobaleCashVariables = ({children}) => {
         quote: meltQuote.quote,
         invoice: lightningInvoice.lnInvoice.bolt11,
         proofsToUse: meltQuote.proofsToUse,
+        description: 'Auto Channel Rebalance',
       });
 
       console.log(didPay, 'pay response in drain ecash balance');
@@ -201,11 +202,12 @@ export const GlobaleCashVariables = ({children}) => {
             mintURL: mintURL,
           });
 
-          if (didMint.parsedInvoie) {
+          if (didMint.prasedInvoice) {
             const formattedEcashTx = formatEcashTx({
-              amount: didMint.parsedInvoie.invoice.amountMsat / 1000,
+              amount: didMint.prasedInvoice.amountMsat / 1000,
               fee: 0,
               paymentType: 'received',
+              description: didMint.prasedInvoice.description,
             });
 
             await storeProofs([...didMint.proofs], mintURL);
@@ -230,7 +232,7 @@ export const GlobaleCashVariables = ({children}) => {
                       status: 'complete',
                       feeSat: 0,
                       amountSat: Math.round(
-                        didMint.parsedInvoie.invoice.amountMsat / 1000,
+                        didMint.prasedInvoice.amountMsat / 1000,
                       ),
                       details: {error: ''},
                     },

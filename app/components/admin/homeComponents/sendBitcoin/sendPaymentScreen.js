@@ -629,6 +629,7 @@ export default function SendPaymentScreen(props) {
         quote: meltQuote.quote,
         invoice: sendingInvoice,
         proofsToUse: meltQuote.proofsToUse,
+        description: paymentInfo?.data?.message || description,
       });
       if (didPay.didWork && fromPage === 'contacts') {
         publishMessageFunc();
