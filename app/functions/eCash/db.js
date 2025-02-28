@@ -314,7 +314,7 @@ export const getSelectedMint = async () => {
 export const getSelectedMintData = async () => {
   try {
     const result = await sqlLiteDB.getFirstAsync(
-      `SELECT mintURL FROM ${MINTS_TABLE_NAME} WHERE isSelected = 1;`,
+      `SELECT * FROM ${MINTS_TABLE_NAME} WHERE isSelected = 1;`,
     );
     return result ? result : null;
   } catch (err) {
