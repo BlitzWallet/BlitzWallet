@@ -93,7 +93,7 @@ async function generateLightningAddress(wolletInfo) {
         descriptoin: description,
       });
 
-      if (eCashInvoice) {
+      if (eCashInvoice.didWork) {
         setAddressState(prev => {
           return {
             ...prev,
@@ -108,7 +108,19 @@ async function generateLightningAddress(wolletInfo) {
         });
 
         return true;
-      } else return false;
+      } else {
+        setAddressState(prev => {
+          return {
+            ...prev,
+            generatedAddress: null,
+            errorMessageText: {
+              type: 'stop',
+              text: eCashInvoice.reason,
+            },
+          };
+        });
+        return;
+      }
     } else {
       console.log(description, 'DESCRIPTION');
       const addressResponse = await breezLiquidReceivePaymentWrapper({
