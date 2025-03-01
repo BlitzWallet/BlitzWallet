@@ -48,11 +48,10 @@ export const restoreMintProofs = async mintURL => {
 
       if (count > highestCount) {
         highestCount = count;
+        // Update the counter for this keyset
+        console.log('SETTING COUNT', count + 1);
+        await setMintCounter(mintURL, count + 1);
       }
-
-      // Update the counter for this keyset
-      console.log('SETTING COUNT', highestCount + 1);
-      await setMintCounter(mintURL, highestCount + 1);
 
       const restoredAmount = sumProofsValue(restoredProofs);
       if (restoredAmount > 0) {
