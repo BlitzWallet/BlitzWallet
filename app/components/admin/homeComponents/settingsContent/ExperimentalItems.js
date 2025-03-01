@@ -14,6 +14,7 @@ import {
   CENTER,
   COLORS,
   ICONS,
+  MIGRATE_ECASH_STORAGE_KEY,
   SIZES,
   VALID_URL_REGEX,
 } from '../../../../constants';
@@ -36,7 +37,8 @@ import {
   selectMint,
 } from '../../../../functions/eCash/db';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {copyToClipboard} from '../../../../functions';
+import {copyToClipboard, getLocalStorageItem} from '../../../../functions';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
 export default function ExperimentalItemsPage() {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -47,6 +49,7 @@ export default function ExperimentalItemsPage() {
   const navigate = useNavigation();
   const [mintURL, setMintURL] = useState('');
   const [savedMintList, setSavedMintList] = useState([]);
+  const [hasUserMigrated, setHasUserMigrated] = useState(null);
 
   const enabledEcash = masterInfoObject.enabledEcash;
   const currentMintURL = ecashWalletInformation.mintURL;
@@ -87,6 +90,16 @@ export default function ExperimentalItemsPage() {
     getSavedMints();
   }, [usersMintList, ecashWalletInformation]);
 
+  useEffect(() => {
+    async function hasUserMigrated() {
+      const hasMigrated = JSON.parse(
+        await getLocalStorageItem(MIGRATE_ECASH_STORAGE_KEY),
+      );
+      setHasUserMigrated(!!hasMigrated);
+    }
+    hasUserMigrated();
+  }, [parsedEcashInformation]);
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <KeyboardAvoidingView
@@ -108,7 +121,9 @@ export default function ExperimentalItemsPage() {
           label={'Experimental'}
         />
         <View style={{flex: 1, width: '95%', ...CENTER}}>
-          {parsedEcashInformation.length ? (
+          {hasUserMigrated === null ? (
+            <FullLoadingScreen text={'Loading...'} />
+          ) : parsedEcashInformation.length && !hasUserMigrated ? (
             <View
               style={{
                 width: '100%',
@@ -193,6 +208,36 @@ export default function ExperimentalItemsPage() {
               </View>
               {masterInfoObject.enabledEcash && (
                 <>
+                  {parsedEcashInformation.length && (
+                    <View
+                      style={{
+                        backgroundColor: backgroundOffset,
+                        borderRadius: 8,
+                        marginTop: 20,
+                      }}>
+                      <View
+                        style={{
+                          paddingVertical: 10,
+                          paddingRight: '5%',
+                          width: '95%',
+                          marginLeft: 'auto',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                        }}>
+                        <ThemeText
+                          CustomNumberOfLines={1}
+                          styles={{marginRight: 10, flex: 1}}
+                          content={'Retry mint migration'}
+                        />
+                        <CustomButton
+                          actionFunction={() =>
+                            navigate.navigate('MigrateProofsPopup')
+                          }
+                          textContent={'Retry'}
+                        />
+                      </View>
+                    </View>
+                  )}
                   <ThemeText
                     styles={{marginTop: 20, fontSize: SIZES.large}}
                     content={'Enter a Mint'}
