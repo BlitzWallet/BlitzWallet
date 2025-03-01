@@ -118,8 +118,8 @@ export default function MigrateProofsPopup(props) {
             JSON.stringify(newSavedMintList),
           );
           console.log(em);
-          toggleGLobalEcashInformation(em);
-        } else toggleGLobalEcashInformation(null);
+          toggleGLobalEcashInformation(em, true);
+        } else toggleGLobalEcashInformation(null, true);
 
         const hasSelectedMint = migratedMints.filter(mint => {
           console.log(mint, 'IN FILTER MINT');
