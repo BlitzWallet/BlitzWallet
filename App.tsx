@@ -258,7 +258,6 @@ import {HistoricalOnChainPayments} from './app/components/admin/homeComponents/s
 import PushNotificationManager, {
   registerBackgroundNotificationTask,
 } from './context-store/notificationManager';
-import {initializeFirebase} from './db/initializeFirebase';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import GetThemeColors from './app/hooks/themeColors';
 import InformationPopup from './app/functions/CustomElements/informationPopup';
@@ -366,21 +365,14 @@ function ResetStack(): JSX.Element | null {
     Linking.addListener('url', handleDeepLink);
 
     async function initWallet() {
-      const [
-        initialURL,
-        registerBackground,
-        pin,
-        mnemonic,
-        // initFirebase,
-        securitySettings,
-      ] = await Promise.all([
-        await getInitialURL(),
-        await registerBackgroundNotificationTask(),
-        await retrieveData('pin'),
-        await retrieveData('mnemonic'),
-        // await initializeFirebase(),
-        await getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-      ]);
+      const [initialURL, registerBackground, pin, mnemonic, securitySettings] =
+        await Promise.all([
+          await getInitialURL(),
+          await registerBackgroundNotificationTask(),
+          await retrieveData('pin'),
+          await retrieveData('mnemonic'),
+          await getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
+        ]);
 
       const storedSettings = JSON.parse(securitySettings);
       const parsedSettings = storedSettings ?? {

@@ -30,6 +30,7 @@ export async function initializeFirebase(publicKey, privateKey) {
       privateKey,
       publicKey,
     );
+    if (!token) throw new Error('Not able to get custom token from backend');
     console.log('custom sign in token from backend', token);
     await auth().signOut();
 
@@ -38,7 +39,7 @@ export async function initializeFirebase(publicKey, privateKey) {
     return customSignIn;
   } catch (error) {
     console.error('Error initializing Firebase:', error);
-    return false;
+    throw new Error(String(error.message));
   }
 }
 
