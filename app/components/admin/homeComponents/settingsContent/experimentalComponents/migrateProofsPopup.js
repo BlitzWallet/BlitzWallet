@@ -1,5 +1,10 @@
 import {StyleSheet, View} from 'react-native';
-import {CENTER, COLORS, SIZES} from '../../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  MIGRATE_ECASH_STORAGE_KEY,
+  SIZES,
+} from '../../../../../constants';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
@@ -17,80 +22,74 @@ import {
   storeProofs,
 } from '../../../../../functions/eCash/db';
 import CustomButton from '../../../../../functions/CustomElements/button';
+import {useKeysContext} from '../../../../../../context-store/keys';
+import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
+import {setLocalStorageItem} from '../../../../../functions';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
 
 export default function MigrateProofsPopup(props) {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
+  const {toggleMasterInfoObject} = useGlobalContextProvider();
+  const {contactsPrivateKey, publicKey} = useKeysContext();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const {parsedEcashInformation, toggleGLobalEcashInformation} =
     useGlobaleCash();
-  const [wasSuccessfull, setWasSuccesfull] = useState(false);
+  const [wasSuccessfull, setWasSuccesfull] = useState('');
 
   useEffect(() => {
     if (!parsedEcashInformation) return;
     async function handleMigration() {
-      let success = true;
-
+      await setLocalStorageItem(
+        MIGRATE_ECASH_STORAGE_KEY,
+        JSON.stringify(true),
+      );
+      let migratedMints = [];
+      let failedMints = [];
       try {
         for (const mint of parsedEcashInformation) {
-          const wallet = await migrateEcashWallet(mint.mintURL);
-          if (!wallet) {
-            navigate.goBack();
-            setTimeout(() => {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: 'Unable to create temporary signing wallet',
-              });
-            }, 250);
-            success = false;
-            break;
+          console.log('running restore for mint:', mint.mintURL);
+          const {wallet, reason, didWork} = await migrateEcashWallet(
+            mint.mintURL,
+          );
+
+          if (!didWork) {
+            console.log('Unable to load mint:', reason);
+            failedMints.push(mint.mintURL);
+            continue;
           }
 
           const didAdd = await addMint(mint.mintURL);
           if (!didAdd) {
-            navigate.goBack();
-            setTimeout(() => {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: 'Unable to add selected mint',
-              });
-            }, 250);
-            success = false;
-            break;
+            failedMints.push(mint.mintURL);
+            continue;
           }
+          console.log('added mint to database');
           if (mint.isCurrentMint) {
             const didSelect = await selectMint(mint.mintURL);
             if (!didSelect) {
-              navigate.goBack();
-              setTimeout(() => {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: 'Unable to add selected mint',
-                });
-              }, 250);
-              success = false;
-              break;
+              failedMints.push(mint.mintURL);
+              continue;
             }
+            console.log('selected current mint');
           }
           if (mint.proofs?.length) {
-            console.log(mint.proofs, 'MING PROOFS');
+            console.log('adding proofs to database', mint.proofs);
             const proofStates = await wallet.checkProofsStates(mint.proofs);
+            console.log('checking proofs state', proofStates);
             const unspentProofs = mint.proofs.filter(
               (proof, index) => proofStates[index].state === 'UNSPENT',
             );
-            console.log(proofStates, unspentProofs);
             if (unspentProofs.length > 0) {
               const didStore = await storeProofs(unspentProofs, mint.mintURL);
               if (!didStore) {
-                navigate.goBack();
-                setTimeout(() => {
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage: 'Unable to save proofs',
-                  });
-                }, 250);
-                success = false;
-                break;
+                failedMints.push(mint.mintURL);
+                continue;
               }
             }
           }
           if (mint.transactions?.length) {
+            console.log('Migrating mint transactions');
             let formattedTransactions = [];
             for (const tx of mint.transactions) {
               const formattedEcashTx = formatEcashTx({
@@ -102,26 +101,52 @@ export default function MigrateProofsPopup(props) {
               formattedTransactions.push(formattedEcashTx);
             }
 
-            const didStore = await storeEcashTransactions(
-              formattedTransactions,
-              mint.mintURL,
-            );
-            if (!didStore) {
-              navigate.goBack();
-              setTimeout(() => {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: 'Unable to save transactions',
-                });
-              }, 250);
-              success = false;
-              break;
-            }
+            await storeEcashTransactions(formattedTransactions, mint.mintURL);
           }
+          migratedMints.push(mint.mintURL);
         }
-        if (!success) return;
 
-        toggleGLobalEcashInformation(null, true);
-        setWasSuccesfull(true);
+        if (failedMints.length) {
+          console.log('Updating db mint list to only failed mints');
+          const newSavedMintList = parsedEcashInformation.filter(savedMint =>
+            failedMints.includes(savedMint.mintURL),
+          );
+          console.log(newSavedMintList, 'filtered mint list');
+          const em = encriptMessage(
+            contactsPrivateKey,
+            publicKey,
+            JSON.stringify(newSavedMintList),
+          );
+          console.log(em);
+          toggleGLobalEcashInformation(em);
+        } else toggleGLobalEcashInformation(null);
+
+        const hasSelectedMint = migratedMints.filter(mint => {
+          console.log(mint, 'IN FILTER MINT');
+          return parsedEcashInformation.find(
+            parsedMint =>
+              parsedMint.mintURL === mint && parsedMint.isCurrentMint,
+          );
+        }).length;
+        console.log(hasSelectedMint, 'asjdflaksjfklasjflkasdjf');
+        if (!hasSelectedMint && migratedMints.length) {
+          console.log('Selecting mint if none are selcted');
+          await selectMint(migratedMints[0]);
+        }
+
+        toggleMasterInfoObject({enabledEcash: true});
+
+        setWasSuccesfull(
+          `Migrated ${migratedMints.length} of ${
+            parsedEcashInformation.length
+          } mints. ${
+            failedMints.length
+              ? failedMints.join(' ') +
+                (failedMints.length === 1 ? ' is' : ' are') +
+                ' unavailable.'
+              : ''
+          }`,
+        );
       } catch (err) {
         console.log('ecash migration error', err);
         navigate.goBack();
@@ -133,7 +158,7 @@ export default function MigrateProofsPopup(props) {
       }
     }
     handleMigration();
-  }, [parsedEcashInformation]);
+  }, []);
   return (
     <View style={styles.container}>
       <View
@@ -150,7 +175,7 @@ export default function MigrateProofsPopup(props) {
           containerStyles={{width: '95%', ...CENTER}}
           textStyles={{textAlign: 'center'}}
           showLoadingIcon={!wasSuccessfull}
-          text={wasSuccessfull ? 'Migration complete' : 'Migration in progress'}
+          text={wasSuccessfull || 'Migration in progress'}
         />
         {wasSuccessfull && (
           <CustomButton
