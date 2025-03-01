@@ -60,7 +60,7 @@ export const GlobaleCashVariables = ({children}) => {
   });
   const [usersMintList, setUesrsMintList] = useState([]);
   const didRunUnclaimedEcashQuotes = useRef(false);
-  const [pendingNavigation, setPendingNavigation] = useState({});
+  const [pendingNavigation, setPendingNavigation] = useState(null);
 
   const toggleEcashWalletInformation = useCallback(newData => {
     setEcashWalletInformation(prev => ({...prev, ...newData}));
@@ -215,7 +215,6 @@ export const GlobaleCashVariables = ({children}) => {
             await storeProofs([...didMint.proofs], mintURL);
             await storeEcashTransactions([formattedEcashTx], mintURL);
             await hanleEcashQuoteStorage(receiveEcashQuote, false);
-            await new Promise(res => setTimeout(res, 1000));
 
             setPendingNavigation({
               index: 0, // The top-level route index
