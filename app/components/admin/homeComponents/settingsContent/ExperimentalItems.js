@@ -123,7 +123,7 @@ export default function ExperimentalItemsPage() {
         <View style={{flex: 1, width: '95%', ...CENTER}}>
           {hasUserMigrated === null ? (
             <FullLoadingScreen text={'Loading...'} />
-          ) : parsedEcashInformation.length && !hasUserMigrated ? (
+          ) : parsedEcashInformation?.length && !hasUserMigrated ? (
             <View
               style={{
                 width: '100%',
@@ -208,7 +208,7 @@ export default function ExperimentalItemsPage() {
               </View>
               {masterInfoObject.enabledEcash && (
                 <>
-                  {parsedEcashInformation.length && (
+                  {!!parsedEcashInformation.length && (
                     <View
                       style={{
                         backgroundColor: backgroundOffset,
@@ -279,7 +279,7 @@ export default function ExperimentalItemsPage() {
                       }}
                       placeholderText={'Mint URL'}
                       setInputText={setMintURL}
-                      inputText={mintURL}
+                      inputText={mintURL || ''}
                     />
                   </View>
                   <ThemeText
@@ -288,6 +288,7 @@ export default function ExperimentalItemsPage() {
                   />
                   {savedMintList.map((mint, id) => {
                     const proofValue = sumProofsValue(mint.proofs);
+
                     return (
                       <TouchableOpacity
                         activeOpacity={mint.isCurrentMint ? 1 : 0.4}

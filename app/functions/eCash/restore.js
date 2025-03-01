@@ -27,6 +27,7 @@ export const restoreMintProofs = async mintURL => {
 
     progress = 5;
 
+    let highestCount = 0;
     let restoredSomething = false;
     const ksLen = keysets.length;
     const hexDigitsRegex = /^[0-9A-Fa-f]+$/;
@@ -45,10 +46,13 @@ export const restoreMintProofs = async mintURL => {
       const {restoredProofs, count} = await restoreKeyset(mint, keyset, seed);
       progress = Math.floor(((i + 1) / ksLen) * 100);
 
-      // Update the counter for this keyset
+      if (count > highestCount) {
+        highestCount = count;
+      }
 
-      console.log('SETTING COUNT', count + 1);
-      await setMintCounter(mintURL, count + 1);
+      // Update the counter for this keyset
+      console.log('SETTING COUNT', highestCount + 1);
+      await setMintCounter(mintURL, highestCount + 1);
 
       const restoredAmount = sumProofsValue(restoredProofs);
       if (restoredAmount > 0) {
