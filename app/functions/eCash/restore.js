@@ -119,7 +119,7 @@ const restoreKeyset = async (mint, keyset, seed) => {
       );
 
       // Store only new proofs
-      const existingProofSecrets = await getStoredProofs(mint.mintUrl);
+      const existingProofSecrets = (await getStoredProofs(mint.mintUrl)) || [];
       const newProofs = unspentKeysetProofs.filter(
         p => !existingProofSecrets.includes(p.secret),
       );

@@ -623,7 +623,8 @@ export default function ConnectingToNodeLoadingScreen({
   async function setEcashInformationForSession() {
     try {
       const hasSelectedMint = await getSelectedMint();
-      if (!hasSelectedMint) return {transactions: [], balance: 0};
+      if (!hasSelectedMint)
+        return {transactions: [], balance: 0, proofs: [], mintURL: ''};
       await initEcashWallet(hasSelectedMint);
       const transactions = await getStoredEcashTransactions();
       const storedProofs = await getStoredProofs();
@@ -632,9 +633,9 @@ export default function ConnectingToNodeLoadingScreen({
 
       const ecashWalletData = {
         mintURL: hasSelectedMint,
-        balance: balance,
-        transactions,
-        proofs: storedProofs,
+        balance: balance || 0,
+        transactions: transactions || [],
+        proofs: storedProofs || [],
       };
       toggleEcashWalletInformation(ecashWalletData);
       toggleMintList(mintList);

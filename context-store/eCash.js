@@ -73,22 +73,24 @@ export const GlobaleCashVariables = ({children}) => {
     const updateTransactions = async eventType => {
       console.log('Receved a transaction event emitter of type', eventType);
       const storedTransactions = await getStoredEcashTransactions();
+      if (!storedTransactions) return;
       toggleEcashWalletInformation({transactions: storedTransactions});
     };
     const updateBalance = async eventType => {
       console.log('Receved a proofs event emitter of type', eventType);
       const storedProofs = await getStoredProofs();
+      if (!storedProofs) return;
       const balance = sumProofsValue(storedProofs);
       toggleEcashWalletInformation({balance: balance, proofs: storedProofs});
     };
     const updateMint = async eventType => {
       console.log('Receved a mint event emitter of type', eventType);
       const selectedMint = await getSelectedMint();
-
       const mintList = await getAllMints();
       const storedTransactions = await getStoredEcashTransactions();
-      const storedProofs = await getStoredProofs();
+      const storedProofs = (await getStoredProofs()) || [];
       const balance = sumProofsValue(storedProofs);
+
       toggleEcashWalletInformation({
         mintURL: selectedMint,
         balance,
@@ -267,7 +269,6 @@ export const GlobaleCashVariables = ({children}) => {
     <GlobaleCash.Provider
       value={{
         parsedEcashInformation,
-        getStoredEcashTransactions,
         globalEcashInformation,
         toggleGLobalEcashInformation,
         ecashWalletInformation,
