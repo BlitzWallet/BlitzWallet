@@ -18,7 +18,7 @@ export default function RestoreProofsPopup(props) {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
-  const [isRestoring, setIsRestoring] = useState(false);
+  // const [isRestoring, setIsRestoring] = useState(false);
   const [restoreProcessText, setRestoreProcessText] = useState('');
   const [didFinish, setDidFinish] = useState(false);
 
@@ -46,37 +46,45 @@ export default function RestoreProofsPopup(props) {
         handleRestoreProofEvents,
       );
   }, []);
+
+  useEffect(() => {
+    // setIsRestoring(true);
+    setTimeout(() => {
+      restoreMintProofs(mintURL);
+    }, 500);
+  }, []);
+
   return (
     <View style={styles.container}>
-      {isRestoring ? (
-        <View
-          style={[
-            styles.content,
-            {
-              height: 200,
-              backgroundColor:
-                theme && darkModeType ? backgroundOffset : backgroundColor,
-              padding: 10,
-            },
-          ]}>
-          <FullLoadingScreen
-            containerStyles={{width: '95%', ...CENTER}}
-            textStyles={{textAlign: 'center'}}
-            showLoadingIcon={!didFinish}
-            text={
-              didFinish
-                ? 'Restore successful'
-                : restoreProcessText || 'Starting restore process'
-            }
+      {/* {isRestoring ? ( */}
+      <View
+        style={[
+          styles.content,
+          {
+            height: 200,
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+            padding: 10,
+          },
+        ]}>
+        <FullLoadingScreen
+          containerStyles={{width: '95%', ...CENTER}}
+          textStyles={{textAlign: 'center'}}
+          showLoadingIcon={!didFinish}
+          text={
+            didFinish
+              ? 'Restore successful'
+              : restoreProcessText || 'Starting restore process'
+          }
+        />
+        {didFinish && (
+          <CustomButton
+            actionFunction={() => navigate.goBack()}
+            textContent={'Go back'}
           />
-          {didFinish && (
-            <CustomButton
-              actionFunction={() => navigate.goBack()}
-              textContent={'Go back'}
-            />
-          )}
-        </View>
-      ) : (
+        )}
+      </View>
+      {/* ) : (
         <View
           style={[
             styles.content,
@@ -114,7 +122,7 @@ export default function RestoreProofsPopup(props) {
             </TouchableOpacity>
           </View>
         </View>
-      )}
+      )} */}
     </View>
   );
 }
