@@ -79,10 +79,10 @@ export const migrateEcashWallet = async mintURL => {
 
     await wallet.loadMint();
 
-    return wallet;
+    return {wallet, didWork: true};
   } catch (err) {
     console.log('migrate ecash wallet error', err);
-    return false;
+    return {didWork: false, reason: err.message};
   }
 };
 
@@ -101,47 +101,32 @@ export const calculateEcashFees = (mintURL, proofs) => {
 async function getECashInvoice({amount, mintURL, descriptoin}) {
   try {
     const wallet = await initEcashWallet(mintURL);
-    console.log(wallet);
-    let mintQuote;
-    let derivePathIndex;
-    let didFindMintQuote = true;
-    const runCount = 10;
-    let counter = 0;
+    if (!wallet)
+      throw new Error('Not able to connect to your selected eCash mint.');
 
-    while (didFindMintQuote && runCount > counter) {
-      counter += 1;
-      mintQuote = {parsedInvoie: null};
-      try {
-        console.log('ecash invioce run count', counter);
-        mintQuote = await wallet.createMintQuote(
-          amount,
-          descriptoin || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
-        );
+    const mintQuote = await wallet.createMintQuote(
+      amount,
+      descriptoin || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
+    );
 
-        const didMint = await mintEcash({
-          invoice: mintQuote.request,
-          quote: mintQuote.quote,
-          mintURL: mintURL,
-        });
+    const didMint = await mintEcash({
+      invoice: mintQuote.request,
+      quote: mintQuote.quote,
+      mintURL: mintURL,
+    });
 
-        if (didMint.prasedInvoice || didMint.error === 'Quote not paid') {
-          derivePathIndex = didMint.counter;
-          break;
-        }
-        await new Promise(res => setTimeout(res, 500));
-      } catch (err) {
-        console.log('getEcash while loop error', err);
-        break;
-      }
-    }
+    console.log(didMint);
+    if (!didMint.prasedInvoice && didMint.error !== 'Quote not paid')
+      throw new Error('Not able to create mint quote');
 
-    await hanleEcashQuoteStorage(mintQuote, true, derivePathIndex);
+    if (!didMint.counter) throw new Error('Not able to create mint quote');
+    await hanleEcashQuoteStorage(mintQuote, true, didMint.counter);
 
     console.log('generated Ecash quote', mintQuote);
-    return {mintQuote, counter: derivePathIndex, mintURL};
+    return {mintQuote, counter: didMint.counter, mintURL, didWork: true};
   } catch (err) {
-    console.log('generating ecash invoice error', err);
-    return false;
+    console.log('generating ecash invoice error', err.message);
+    return {didWork: false, reason: err.message};
   }
 }
 
@@ -421,6 +406,11 @@ export const payLnInvoiceFromEcash = async ({
 }) => {
   const mintURL = await getSelectedMint();
   const wallet = await initEcashWallet(mintURL);
+  if (!wallet)
+    return {
+      didWork: false,
+      message: String('Not able to connect to your selected eCash mint'),
+    };
   let proofs = [...proofsToUse];
   const decodedInvoice = await parseInvoice(invoice);
   const amount = decodedInvoice.amountMsat / 1000;
