@@ -624,8 +624,7 @@ export default function ConnectingToNodeLoadingScreen({
     try {
       const hasSelectedMint = await getSelectedMint();
       if (!hasSelectedMint) return {transactions: [], balance: 0};
-      const didLoadEcash = await initEcashWallet(hasSelectedMint);
-      if (!didLoadEcash) throw new Error('Unable to load ecash wallet');
+      await initEcashWallet(hasSelectedMint);
       const transactions = await getStoredEcashTransactions();
       const storedProofs = await getStoredProofs();
       const balance = sumProofsValue(storedProofs);
