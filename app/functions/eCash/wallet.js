@@ -161,7 +161,7 @@ export const getEcashBalance = async () => {
     if (!activeMintURL) throw new Error('No selected mint to save to');
     const savedProofs = await getStoredProofs(activeMintURL);
     console.log(savedProofs, 'saved proofs');
-    if (!savedProofs) return 0;
+    if (!savedProofs.length) return 0;
     const userBalance = savedProofs.reduce((prev, curr) => {
       const proof = curr;
       return (prev += proof.amount);
@@ -308,7 +308,7 @@ export const checkMintQuote = async ({quote, mintURL}) => {
 
 export async function cleanEcashWalletState(mintURL) {
   try {
-    const storedProofs = (await getStoredProofs(mintURL)) || [];
+    const storedProofs = await getStoredProofs(mintURL);
     const wallet = await initEcashWallet(mintURL);
 
     const proofsState = await wallet.checkProofsStates(storedProofs);
@@ -329,7 +329,7 @@ export const getMeltQuote = async bolt11Invoice => {
     const mintURL = await getSelectedMint();
     if (!mintURL) throw new Error('No seleected mint url');
     const wallet = await initEcashWallet(mintURL);
-    const storedProofs = (await getStoredProofs(mintURL)) || [];
+    const storedProofs = await getStoredProofs(mintURL);
     const meltQuote = await wallet.createMeltQuote(bolt11Invoice);
     const {proofsToUse} = getProofsToUse(
       storedProofs,

@@ -634,8 +634,8 @@ export default function ConnectingToNodeLoadingScreen({
       const ecashWalletData = {
         mintURL: hasSelectedMint,
         balance: balance || 0,
-        transactions: transactions || [],
-        proofs: storedProofs || [],
+        transactions: transactions,
+        proofs: storedProofs,
       };
       toggleEcashWalletInformation(ecashWalletData);
       toggleMintList(mintList);

@@ -80,7 +80,7 @@ export default function ExperimentalItemsPage() {
           return {
             mintURL: mint?.mintURL,
             isCurrentMint: mint?.isSelected === 1,
-            proofs: savedProofs || [],
+            proofs: savedProofs,
           };
         }),
       );

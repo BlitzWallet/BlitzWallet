@@ -149,7 +149,7 @@ export const getStoredProofs = async mintURL => {
     return proofs;
   } catch (err) {
     console.log('getting stored ecash proofs error', err);
-    return false;
+    return [];
   }
 };
 
@@ -230,7 +230,7 @@ export const getStoredEcashTransactions = async () => {
     return result || [];
   } catch (err) {
     console.log('Error getting saved transactions:', err);
-    return false;
+    return [];
   }
 };
 
