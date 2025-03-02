@@ -72,10 +72,11 @@ export default function MigrateProofsPopup(props) {
       );
       let migratedMints = [];
       let failedMints = [];
-      let count = 1;
+      let count = 0;
       try {
         for (const mint of parsedEcashInformation) {
           console.log('running restore for mint:', mint.mintURL);
+          count += 1;
           setMigrationUpdates(
             `Migrating ${count} of ${parsedEcashInformation.length} mints`,
           );
@@ -149,7 +150,6 @@ export default function MigrateProofsPopup(props) {
             await storeEcashTransactions(formattedTransactions, mint.mintURL);
           }
           migratedMints.push(mint.mintURL);
-          count += 1;
         }
 
         if (failedMints.length) {
