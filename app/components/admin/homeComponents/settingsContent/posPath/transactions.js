@@ -52,12 +52,13 @@ export default function ViewPOSTransactions() {
       const oneMonthAgo = oneMonthAgoDate();
       for (const tx of txArray) {
         if (!isWithinOneMonth(tx.timestamp, oneMonthAgo)) continue;
-        console.log(totals[tx.serverName]);
-        if (!totals[tx.serverName]) {
-          totals[tx.serverName] = 0;
+        const serverName = tx.serverName?.toLowerCase()?.trim();
+        console.log(totals[serverName]);
+        if (!totals[serverName]) {
+          totals[serverName] = 0;
         }
 
-        totals[tx.serverName] = totals[tx.serverName] + tx.tipAmountSats;
+        totals[serverName] = totals[serverName] + tx.tipAmountSats;
       }
 
       return {totals, fromDate: oneMonthAgo};

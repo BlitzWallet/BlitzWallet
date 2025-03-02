@@ -44,7 +44,10 @@ export default function TotalTipsScreen(props) {
                       borderBottomWidth: index === tipsArray.length - 1 ? 0 : 1,
                     }}
                     key={name}>
-                    <ThemeText content={name} />
+                    <ThemeText
+                      styles={{textTransform: 'capitalize'}}
+                      content={name}
+                    />
                     <FormattedSatText balance={amount} />
                   </View>
                 );
