@@ -17,6 +17,7 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import {useGlobaleCash} from '../../../../../../context-store/eCash';
 import {
   addMint,
+  getStoredProofs,
   selectMint,
   storeEcashTransactions,
   storeProofs,
@@ -26,6 +27,11 @@ import {useKeysContext} from '../../../../../../context-store/keys';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {setLocalStorageItem} from '../../../../../functions';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import {
+  RESTORE_PROOFS_EVENT_NAME,
+  restoreMintProofs,
+  restoreProofsEventListener,
+} from '../../../../../functions/eCash/restore';
 
 export default function MigrateProofsPopup(props) {
   const navigate = useNavigation();
@@ -36,6 +42,26 @@ export default function MigrateProofsPopup(props) {
   const {parsedEcashInformation, toggleGLobalEcashInformation} =
     useGlobaleCash();
   const [wasSuccessfull, setWasSuccesfull] = useState('');
+  const [migrationUpdates, setMigrationUpdates] =
+    useState('Migration starting');
+
+  useEffect(() => {
+    function handleRestoreProofEvents(eventName) {
+      if (eventName === 'end' || eventName.toLowerCase().includes('error')) {
+        return;
+      }
+      setMigrationUpdates(eventName);
+    }
+    restoreProofsEventListener.on(
+      RESTORE_PROOFS_EVENT_NAME,
+      handleRestoreProofEvents,
+    );
+    return () =>
+      restoreProofsEventListener.off(
+        RESTORE_PROOFS_EVENT_NAME,
+        handleRestoreProofEvents,
+      );
+  }, []);
 
   useEffect(() => {
     if (!parsedEcashInformation) return;
@@ -46,9 +72,13 @@ export default function MigrateProofsPopup(props) {
       );
       let migratedMints = [];
       let failedMints = [];
+      let count = 1;
       try {
         for (const mint of parsedEcashInformation) {
           console.log('running restore for mint:', mint.mintURL);
+          setMigrationUpdates(
+            `Migrating ${count} of ${parsedEcashInformation.length} mints`,
+          );
           const {wallet, reason, didWork} = await migrateEcashWallet(
             mint.mintURL,
           );
@@ -73,6 +103,9 @@ export default function MigrateProofsPopup(props) {
             }
             console.log('selected current mint');
           }
+
+          await restoreMintProofs(mint.mintURL);
+
           if (mint.proofs?.length) {
             console.log('adding proofs to database', mint.proofs);
             const proofStates = await wallet.checkProofsStates(mint.proofs);
@@ -81,13 +114,25 @@ export default function MigrateProofsPopup(props) {
               (proof, index) => proofStates[index].state === 'UNSPENT',
             );
             if (unspentProofs.length > 0) {
-              const didStore = await storeProofs(unspentProofs, mint.mintURL);
-              if (!didStore) {
-                failedMints.push(mint.mintURL);
-                continue;
+              const storedProofs = await getStoredProofs(mint.mintURL);
+              const newProofs = unspentProofs.filter(proof => {
+                console.log(proof, 'UNSPEND PROOF');
+                return !storedProofs.find(p2 => {
+                  console.log(p2, 'STORED PROOFs');
+                  return p2.secret === proof.secret;
+                });
+              });
+              console.log(newProofs, 'NEW PROOFS');
+              if (newProofs.length > 0) {
+                const didStore = await storeProofs(newProofs, mint.mintURL);
+                if (!didStore) {
+                  failedMints.push(mint.mintURL);
+                  continue;
+                }
               }
             }
           }
+
           if (mint.transactions?.length) {
             console.log('Migrating mint transactions');
             let formattedTransactions = [];
@@ -104,6 +149,7 @@ export default function MigrateProofsPopup(props) {
             await storeEcashTransactions(formattedTransactions, mint.mintURL);
           }
           migratedMints.push(mint.mintURL);
+          count += 1;
         }
 
         if (failedMints.length) {
@@ -175,7 +221,7 @@ export default function MigrateProofsPopup(props) {
           containerStyles={{width: '95%', ...CENTER}}
           textStyles={{textAlign: 'center'}}
           showLoadingIcon={!wasSuccessfull}
-          text={wasSuccessfull || 'Migration in progress'}
+          text={wasSuccessfull || migrationUpdates}
         />
         {wasSuccessfull && (
           <CustomButton
