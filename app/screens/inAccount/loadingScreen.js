@@ -127,7 +127,7 @@ export default function ConnectingToNodeLoadingScreen({
       const didOpen = await initializeDatabase();
       const ecashTablesOpened = await initEcashDBTables();
       const posTransactions = await initializePOSTransactionsDatabase();
-      if (!didOpen || !ecashTablesOpened || !!posTransactions) {
+      if (!didOpen || !ecashTablesOpened || !posTransactions) {
         setHasError('Not able to open database');
         return;
       }
