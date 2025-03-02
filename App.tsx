@@ -267,6 +267,7 @@ import ManualSwapPopup from './app/components/admin/homeComponents/settingsConte
 import AccountInformationPage from './app/components/admin/homeComponents/settingsContent/walletInfoComponents/AccountInformationPage';
 import {LiquidEventProvider} from './context-store/liquidEventContext';
 import {
+  EcashNavigationListener,
   LightningNavigationListener,
   LiquidNavigationListener,
 } from './context-store/SDKNavigation';
@@ -280,6 +281,8 @@ import {
 import {GLobalNodeContextProider} from './context-store/nodeContext';
 import {AppStatusProvider} from './context-store/appStatus';
 import {KeysContextProvider} from './context-store/keys';
+import RestoreProofsPopup from './app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
+import MigrateProofsPopup from './app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
 
 const Stack = createNativeStackNavigator();
 
@@ -426,6 +429,7 @@ function ResetStack(): JSX.Element | null {
       ref={navigationRef}>
       <LiquidNavigationListener />
       <LightningNavigationListener />
+      <EcashNavigationListener />
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
@@ -722,6 +726,15 @@ function ResetStack(): JSX.Element | null {
             name="ContactsPageLongPressActions"
             component={ContactsPageLongPressActions}
           />
+          <Stack.Screen
+            name="RestoreProofsPopup"
+            component={RestoreProofsPopup}
+          />
+          <Stack.Screen
+            name="MigrateProofsPopup"
+            component={MigrateProofsPopup}
+          />
+
           {/* <Stack.Screen name="LetterKeyboard" component={LetterKeyboard} /> */}
           {/* <Stack.Screen
             name="ConfirmAddContact"

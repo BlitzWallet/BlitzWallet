@@ -17,11 +17,12 @@ import {useAppStatus} from '../../../../../context-store/appStatus';
 export default function LiquidWallet() {
   const {isConnectedToTheInternet} = useAppStatus();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {ecashTransactions} = useGlobaleCash();
+  const {ecashWalletInformation} = useGlobaleCash();
   const navigate = useNavigation();
   const {t} = useTranslation();
   const insets = useSafeAreaInsets();
   const {autoChannelRebalanceIDs} = useWebView();
+  const ecashTransactions = ecashWalletInformation.transactions;
 
   const bottomPadding = Platform.select({
     ios: insets.bottom,

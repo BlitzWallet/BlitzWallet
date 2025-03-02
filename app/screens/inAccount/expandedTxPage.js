@@ -59,6 +59,8 @@ export default function ExpandedTx(props) {
     ? transaction?.details?.data?.lnAddress
       ? transaction?.details?.data?.label
       : transaction?.description
+    : usesEcash
+    ? transaction?.description
     : null;
 
   console.log(selectedTX);
@@ -354,31 +356,30 @@ export default function ExpandedTx(props) {
                 </View>
               </View>
             )}
-            {selectedTX.type !== 'ecash' ? (
-              <CustomButton
-                buttonStyles={{
-                  width: 'auto',
-                  ...CENTER,
-                  backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-                  marginVertical: 20,
-                }}
-                textStyles={{
-                  color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-                  paddingVertical: 10,
-                  includeFontPadding: false,
-                }}
-                textContent={'Technical details'}
-                actionFunction={() => {
-                  navigate.navigate('TechnicalTransactionDetails', {
-                    selectedTX: selectedTX,
-                    isLiquidPayment: usesLiquidNode,
-                    isFailedPayment: isFailedPayment,
-                  });
-                }}
-              />
-            ) : (
-              <View style={{height: 40}}></View>
-            )}
+
+            <CustomButton
+              buttonStyles={{
+                width: 'auto',
+                ...CENTER,
+                backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+                marginVertical: 20,
+              }}
+              textStyles={{
+                color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+                paddingVertical: 10,
+                includeFontPadding: false,
+              }}
+              textContent={'Technical details'}
+              actionFunction={() => {
+                navigate.navigate('TechnicalTransactionDetails', {
+                  selectedTX: selectedTX,
+                  isLiquidPayment: usesLiquidNode,
+                  isFailedPayment: isFailedPayment,
+                  isEcashPayment: usesEcash,
+                });
+              }}
+            />
+
             <ReceiptDots />
           </View>
         </ScrollView>

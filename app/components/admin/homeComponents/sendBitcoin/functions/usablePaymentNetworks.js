@@ -4,6 +4,7 @@ import {
   LIGHTNINGAMOUNTBUFFER,
   LIQUIDAMOUTBUFFER,
 } from '../../../../../constants/math';
+import {calculateEcashFees} from '../../../../../functions/eCash/wallet';
 
 export default function usablePaymentNetwork({
   liquidNodeInformation,
@@ -18,6 +19,8 @@ export default function usablePaymentNetwork({
   isLightningPayment,
   paymentInfo,
   lightningFee,
+  usedEcashProofs,
+  ecashWalletInformation,
 }) {
   const canUseLiquid = isLiquidPayment
     ? liquidNodeInformation.userBalance >= convertedSendAmount &&
@@ -33,7 +36,9 @@ export default function usablePaymentNetwork({
   const canUseEcash =
     nodeInformation.userBalance === 0 &&
     masterInfoObject.enabledEcash &&
-    eCashBalance >= convertedSendAmount + 2 &&
+    eCashBalance >=
+      convertedSendAmount +
+        calculateEcashFees(ecashWalletInformation.mintURL, usedEcashProofs) &&
     (!paymentInfo.canEditPayment ||
       paymentInfo?.type === InputTypeVariant.LN_URL_PAY);
 

@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -9,24 +10,38 @@ import {
   decryptMessage,
   encriptMessage,
 } from '../app/functions/messaging/encodingAndDecodingMessages';
-import {
-  checkMintQuote,
-  claimUnclaimedEcashQuotes,
-  cleanEcashWalletState,
-  createWallet,
-  formatEcashTx,
-  getProofsToUse,
-  mintEcash,
-  sendEcashToLightningPayment,
-} from '../app/functions/eCash';
-import {addDataToCollection} from '../db';
+import {useKeysContext} from './keys';
 import {sumProofsValue} from '../app/functions/eCash/proofs';
-import {parseInvoice, receivePayment} from '@breeztech/react-native-breez-sdk';
+import {receivePayment} from '@breeztech/react-native-breez-sdk';
 import {MintQuoteState} from '@cashu/cashu-ts';
 import {LIGHTNINGAMOUNTBUFFER} from '../app/constants/math';
 import {useNodeContext} from './nodeContext';
 import {useAppStatus} from './appStatus';
-import {useKeysContext} from './keys';
+import {
+  checkMintQuote,
+  claimUnclaimedEcashQuotes,
+  formatEcashTx,
+  getMeltQuote,
+  hanleEcashQuoteStorage,
+  mintEcash,
+  payLnInvoiceFromEcash,
+} from '../app/functions/eCash/wallet';
+import {
+  getAllMints,
+  getSelectedMint,
+  getStoredEcashTransactions,
+  getStoredProofs,
+  MINT_EVENT_UPDATE_NAME,
+  PROOF_EVENT_UPDATE_NAME,
+  sqlEventEmitter,
+  storeEcashTransactions,
+  storeProofs,
+  TRANSACTIONS_EVENT_UPDATE_NAME,
+} from '../app/functions/eCash/db';
+import EventEmitter from 'events';
+import {addDataToCollection} from '../db';
+export const ECASH_QUOTE_EVENT_NAME = 'GENERATED_ECASH_QUPTE_EVENT';
+export const ecashEventEmitter = new EventEmitter();
 
 // Create a context for the WebView ref
 const GlobaleCash = createContext(null);
@@ -35,22 +50,63 @@ export const GlobaleCashVariables = ({children}) => {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {didGetToHomepage} = useAppStatus();
   const {nodeInformation} = useNodeContext();
-  const isInitialCleanWalletStateRender = useRef(true);
   const countersRef = useRef({});
-
   const [globalEcashInformation, setGlobalEcashInformation] = useState([]);
-
-  const [eCashBalance, setEcashBalance] = useState(0);
-  const [ecashTransactions, setecashTransactions] = useState([]);
-  const [eCashPaymentInformation, setEcashPaymentInformation] = useState({
-    quote: null,
-    invoice: null,
-    proofsToUse: null,
+  const [ecashWalletInformation, setEcashWalletInformation] = useState({
+    balance: 0,
+    transactions: [],
+    mintURL: '',
+    proofs: [],
   });
-  const [eCashNavigate, seteCashNavigate] = useState(null);
-  const eCashIntervalRef = useRef(null);
-  const [receiveEcashQuote, setReceiveEcashQuote] = useState('');
+  const [usersMintList, setUesrsMintList] = useState([]);
   const didRunUnclaimedEcashQuotes = useRef(false);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
+
+  const toggleEcashWalletInformation = useCallback(newData => {
+    setEcashWalletInformation(prev => ({...prev, ...newData}));
+  }, []);
+  const toggleMintList = useCallback(newList => {
+    setUesrsMintList(newList);
+  }, []);
+
+  useEffect(() => {
+    const updateTransactions = async eventType => {
+      console.log('Receved a transaction event emitter of type', eventType);
+      const storedTransactions = await getStoredEcashTransactions();
+
+      toggleEcashWalletInformation({transactions: storedTransactions});
+    };
+    const updateBalance = async eventType => {
+      console.log('Receved a proofs event emitter of type', eventType);
+      const storedProofs = await getStoredProofs();
+      const balance = sumProofsValue(storedProofs);
+      toggleEcashWalletInformation({balance: balance, proofs: storedProofs});
+    };
+    const updateMint = async eventType => {
+      console.log('Receved a mint event emitter of type', eventType);
+      const selectedMint = await getSelectedMint();
+      const mintList = await getAllMints();
+      const storedTransactions = await getStoredEcashTransactions();
+      const storedProofs = await getStoredProofs();
+      const balance = sumProofsValue(storedProofs);
+
+      toggleEcashWalletInformation({
+        mintURL: selectedMint,
+        balance,
+        transactions: storedTransactions,
+        proofs: storedProofs,
+      });
+      toggleMintList(mintList);
+    };
+    sqlEventEmitter.on(TRANSACTIONS_EVENT_UPDATE_NAME, updateTransactions);
+    sqlEventEmitter.on(PROOF_EVENT_UPDATE_NAME, updateBalance);
+    sqlEventEmitter.on(MINT_EVENT_UPDATE_NAME, updateMint);
+    return () => {
+      sqlEventEmitter.off(TRANSACTIONS_EVENT_UPDATE_NAME, updateTransactions);
+      sqlEventEmitter.off(PROOF_EVENT_UPDATE_NAME, updateBalance);
+      sqlEventEmitter.off(MINT_EVENT_UPDATE_NAME, updateMint);
+    };
+  }, []);
 
   const toggleGLobalEcashInformation = (newData, writeToDB) => {
     setGlobalEcashInformation(prev => {
@@ -80,164 +136,25 @@ export const GlobaleCashVariables = ({children}) => {
       : [];
   }, [globalEcashInformation, publicKey]);
 
-  const currentMint = useMemo(() => {
-    if (parsedEcashInformation.length === 0) return '';
-    const [currentMint] = parsedEcashInformation.filter(mintInfo => {
-      return mintInfo?.isCurrentMint;
-    });
-    return currentMint;
-  }, [parsedEcashInformation]);
-
-  const getStoredEcashTransactions = () => {
-    try {
-      const txs = currentMint.transactions;
-      return txs ? txs : [];
-    } catch (error) {
-      console.error('Failed to retrieve txs:', error);
-      return [];
-    }
-  };
-  const removeProofs = (proofsToRemove, proofArray) => {
-    try {
-      const existingProofs = proofArray || currentMint.proofs;
-      const updatedProofs = existingProofs.filter(
-        item1 =>
-          !proofsToRemove.some(
-            item2 =>
-              item1.C === item2.C &&
-              item1.amount === item2.amount &&
-              item1.id === item2.id &&
-              item1.secret === item2.secret,
-          ),
-      );
-
-      return updatedProofs;
-    } catch (error) {
-      console.error('Failed to remove proofs:', error);
-    }
-  };
-
-  useEffect(() => {
-    if (eCashBalance == 0) return;
-    console.log('IN CLEAN EACASH FUNCTION');
-
-    cleanWallet();
-  }, [eCashBalance]);
-
-  const cleanWallet = async () => {
-    try {
-      let doesNeedToUpdate = false;
-
-      const newList = await Promise.all(
-        parsedEcashInformation.map(async mint => {
-          const usedProofs = await cleanEcashWalletState(mint);
-
-          const availableProofs = removeProofs(usedProofs, mint.proofs);
-
-          if (usedProofs.length > 0) {
-            doesNeedToUpdate = true;
-          }
-
-          return {...mint, proofs: availableProofs};
-        }),
-      );
-
-      console.log(doesNeedToUpdate, 'DOES NEED TO UPDATE');
-      if (doesNeedToUpdate) {
-        const em = encriptMessage(
-          contactsPrivateKey,
-          publicKey,
-          JSON.stringify(newList),
-        );
-        toggleGLobalEcashInformation(em, true);
-      }
-      return true;
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  };
-
-  const getEcashBalance = async () => {
-    // const didClean = await cleanWallet();
-
-    // if (didClean) {
-    const savedProofs = currentMint.proofs;
-
-    const userBalance = savedProofs.reduce((prev, curr) => {
-      const proof = curr;
-      return (prev += proof.amount);
-    }, 0);
-    return userBalance;
-    // } else {
-    //   return eCashBalance;
-    // }
-  };
-
-  const saveNewEcashInformation = storageInfo => {
-    const newEcashInformation = [...parsedEcashInformation].map(mint => {
-      if (mint.isCurrentMint) {
-        Object.entries(storageInfo).forEach(entry => {
-          mint[entry[0]] = entry[1];
-        });
-
-        return mint;
-      } else return mint;
-    });
-
-    const em = encriptMessage(
-      contactsPrivateKey,
-      publicKey,
-      JSON.stringify(newEcashInformation),
-    );
-    toggleGLobalEcashInformation(em, true);
-  };
-
-  const sendEcashPayment = async bolt11Invoice => {
-    try {
-      const wallet = await createWallet(currentMint.mintURL);
-      const meltQuote = await wallet.createMeltQuote(bolt11Invoice);
-      const eCashBalance = await getEcashBalance();
-
-      const {proofsToUse} = getProofsToUse(
-        currentMint.proofs,
-        meltQuote.amount + meltQuote.fee_reserve,
-        'desc',
-      );
-
-      if (
-        proofsToUse.length === 0 ||
-        eCashBalance < meltQuote.amount + meltQuote.fee_reserve
-      ) {
-        return false;
-      } else {
-        return {quote: meltQuote, proofsToUse};
-      }
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
-  };
-
   const drainEcashBalance = async () => {
     try {
-      if (eCashBalance - 5 < 1) return;
+      if (ecashWalletInformation.balance - 5 < 1) return;
       const lightningInvoice = await receivePayment({
-        amountMsat: (eCashBalance - 5) * 1000,
-        description: 'Ecash -> LN swap',
+        amountMsat: (ecashWalletInformation.balance - 5) * 1000,
+        description: 'Auto Channel Rebalance',
+      });
+      const meltQuote = await getMeltQuote(lightningInvoice.lnInvoice.bolt11);
+      if (!meltQuote) throw new Error('unable to create melt quote');
+      const didPay = await payLnInvoiceFromEcash({
+        quote: meltQuote.quote,
+        invoice: lightningInvoice.lnInvoice.bolt11,
+        proofsToUse: meltQuote.proofsToUse,
+        description: 'Auto Channel Rebalance',
       });
 
-      const didSendEcashPayment = await sendEcashPayment(
-        lightningInvoice.lnInvoice.bolt11,
-      );
-      setEcashPaymentInformation({
-        quote: didSendEcashPayment.quote,
-        invoice: lightningInvoice.lnInvoice.bolt11,
-        proofsToUse: didSendEcashPayment.proofsToUse,
-        isAutoChannelRebalance: true,
-      });
+      console.log(didPay, 'pay response in drain ecash balance');
     } catch (err) {
-      console.log(err, 'TEST');
+      console.log(err, 'draining ecash balance error');
     }
   };
 
@@ -246,7 +163,7 @@ export const GlobaleCashVariables = ({children}) => {
     if (nodeInformation.userBalance === 0) return;
     if (
       nodeInformation.inboundLiquidityMsat / 1000 + LIGHTNINGAMOUNTBUFFER <
-      eCashBalance
+      ecashWalletInformation?.balance
     )
       return;
 
@@ -254,310 +171,114 @@ export const GlobaleCashVariables = ({children}) => {
   }, [didGetToHomepage]);
 
   useEffect(() => {
-    if (!receiveEcashQuote) return;
-    // Initialize the counter for this specific quote
-    if (!countersRef.current[receiveEcashQuote]) {
-      countersRef.current[receiveEcashQuote] = 0; // Initialize counter if not already
-    }
+    function listenForPayment(event) {
+      const receiveEcashQuote = event?.quote;
+      const counter = event?.counter;
+      const mintURL = event?.mintURL;
+      console.log('received event for quote', event);
+      // Initialize the counter for this specific quote
+      if (!countersRef.current[receiveEcashQuote]) {
+        countersRef.current[receiveEcashQuote] = 0; // Initialize counter if not already
+      }
 
-    const intervalId = setInterval(async () => {
-      countersRef.current[receiveEcashQuote] += 1;
-      console.log(
-        countersRef.current,
-        countersRef.current[receiveEcashQuote],
-        'ECASH INTERVAL NUMBER',
-        receiveEcashQuote,
-      );
-      const response = await checkMintQuote({
-        quote: receiveEcashQuote,
-        mintURL: currentMint.mintURL,
-      });
-      console.log(response);
-      if (response.state === MintQuoteState.PAID) {
-        clearInterval(intervalId);
-        setReceiveEcashQuote('');
-        const didMint = await mintEcash({
-          quote: response.quote,
-          invoice: response.request,
-          mintURL: currentMint.mintURL,
+      const intervalId = setInterval(async () => {
+        countersRef.current[receiveEcashQuote] += 1;
+        console.log(
+          countersRef.current,
+          countersRef.current[receiveEcashQuote],
+          'ECASH INTERVAL NUMBER',
+          receiveEcashQuote,
+        );
+        const response = await checkMintQuote({
+          quote: receiveEcashQuote,
+          mintURL: mintURL,
         });
-
-        if (didMint.parsedInvoie) {
-          const formattedEcashTx = formatEcashTx({
-            time: Date.now(),
-            amount: didMint.parsedInvoie.invoice.amountMsat / 1000,
-            fee: 0,
-            paymentType: 'received',
+        console.log(response);
+        if (response.state === MintQuoteState.PAID) {
+          clearInterval(intervalId);
+          const didMint = await mintEcash({
+            quote: response.quote,
+            invoice: response.request,
+            globalCounter: counter,
+            mintURL: mintURL,
           });
 
-          saveNewEcashInformation({
-            transactions: !!currentMint?.transactions
-              ? [...currentMint.transactions, formattedEcashTx]
-              : [formattedEcashTx],
-            proofs: !!currentMint?.proofs
-              ? [...currentMint.proofs, ...didMint.proofs]
-              : didMint.proofs,
-          });
+          if (didMint.prasedInvoice) {
+            const formattedEcashTx = formatEcashTx({
+              amount: didMint.prasedInvoice.amountMsat / 1000,
+              fee: 0,
+              paymentType: 'received',
+              description: didMint.prasedInvoice.description,
+            });
 
-          updateUserBalance();
-          const storedTransactions = getStoredEcashTransactions();
-          setecashTransactions(storedTransactions);
+            await storeProofs([...didMint.proofs], mintURL);
+            await storeEcashTransactions([formattedEcashTx], mintURL);
+            await hanleEcashQuoteStorage(receiveEcashQuote, false);
 
-          eCashNavigate.reset({
-            index: 0, // The top-level route index
-            routes: [
-              {
-                name: 'HomeAdmin', // Navigate to HomeAdmin
-                params: {
-                  screen: 'Home',
-                },
-              },
-              {
-                name: 'ConfirmTxPage', // Navigate to ExpandedAddContactsPage
-                params: {
-                  for: 'invoicePaid',
-                  information: {
-                    status: 'complete',
-                    feeSat: 0,
-                    amountSat: Math.round(
-                      didMint.parsedInvoie.invoice.amountMsat / 1000,
-                    ),
-                    details: {error: ''},
+            setPendingNavigation({
+              index: 0, // The top-level route index
+              routes: [
+                {
+                  name: 'HomeAdmin', // Navigate to HomeAdmin
+                  params: {
+                    screen: 'Home',
                   },
-                  formattingType: 'ecash',
                 },
-              },
-            ],
-            // Array of routes to set in the stack
-          });
+                {
+                  name: 'ConfirmTxPage', // Navigate to ExpandedAddContactsPage
+                  params: {
+                    for: 'invoicePaid',
+                    information: {
+                      status: 'complete',
+                      feeSat: 0,
+                      amountSat: Math.round(
+                        didMint.prasedInvoice.amountMsat / 1000,
+                      ),
+                      details: {error: ''},
+                    },
+                    formattingType: 'ecash',
+                  },
+                },
+              ],
+              // Array of routes to set in the stack
+            });
+          }
         }
-      }
-      // Clear the interval after 4 executions for this quote
-      if (countersRef.current[receiveEcashQuote] >= 15) {
-        clearInterval(intervalId);
-      }
-    }, 10000);
-    return () => clearInterval(intervalId);
-  }, [receiveEcashQuote]);
-
-  useEffect(() => {
-    if (
-      !eCashPaymentInformation.invoice ||
-      !eCashPaymentInformation.proofsToUse ||
-      !eCashPaymentInformation.quote
-    )
-      return;
-
-    payLnInvoiceFromEcash();
-  }, [eCashPaymentInformation]);
-
-  useEffect(() => {
-    async function initEcash() {
-      updateUserBalance();
-      const storedTransactions = getStoredEcashTransactions();
-      setecashTransactions(storedTransactions);
+        // Clear the interval after 4 executions for this quote
+        if (countersRef.current[receiveEcashQuote] >= 15) {
+          clearInterval(intervalId);
+        }
+      }, 10000);
     }
-    if (!publicKey || parsedEcashInformation.length === 0) return;
-    initEcash();
-  }, [globalEcashInformation]);
+
+    ecashEventEmitter.on(ECASH_QUOTE_EVENT_NAME, listenForPayment);
+    return () =>
+      ecashEventEmitter.off(ECASH_QUOTE_EVENT_NAME, listenForPayment);
+  }, []);
 
   useEffect(() => {
-    if (!currentMint) return;
+    if (!ecashWalletInformation.mintURL) return;
     if (didRunUnclaimedEcashQuotes.current) return;
     didRunUnclaimedEcashQuotes.current = true;
-    claimUnclaimedEcashQuotes({
-      currentMint: currentMint,
-      saveNewEcashInformation: saveNewEcashInformation,
-      updateUserBalance: updateUserBalance,
-      setecashTransactions: setecashTransactions,
-    }); //if a receive ecash timeout clears before payment is receve this will try and claim the ecash quote on the next wallet load
-  }, [currentMint]);
+    claimUnclaimedEcashQuotes(); //if a receive ecash timeout clears before payment is receve this will try and claim the ecash quote on the next wallet load
+  }, [ecashWalletInformation.mintURL]);
 
   return (
     <GlobaleCash.Provider
       value={{
-        eCashBalance,
-        seteCashNavigate,
-        setEcashPaymentInformation,
-        setReceiveEcashQuote,
-        ecashTransactions,
         parsedEcashInformation,
-        currentMint,
-        saveNewEcashInformation,
-        removeProofs,
-        getStoredEcashTransactions,
-        sendEcashPayment,
         globalEcashInformation,
         toggleGLobalEcashInformation,
+        ecashWalletInformation,
+        toggleEcashWalletInformation,
+        usersMintList,
+        toggleMintList,
+        pendingNavigation,
+        setPendingNavigation,
       }}>
       {children}
     </GlobaleCash.Provider>
   );
-
-  async function updateUserBalance() {
-    const userBalance = await getEcashBalance();
-    setEcashBalance(userBalance);
-  }
-
-  async function payLnInvoiceFromEcash() {
-    const wallet = await createWallet(currentMint.mintURL);
-    const walletProofsToDelete = JSON.parse(
-      JSON.stringify(eCashPaymentInformation.proofsToUse),
-    );
-    let proofs = walletProofsToDelete;
-    let globalProofTracker = JSON.parse(JSON.stringify(currentMint.proofs));
-    let returnChangeGlobal = [];
-    const decodedInvoice = await parseInvoice(eCashPaymentInformation.invoice);
-    const amount = decodedInvoice.amountMsat / 1000;
-    const amountToPay =
-      (eCashPaymentInformation?.quote?.fee_reserve || 5) + amount;
-
-    console.log('Proofs before send', proofs);
-    console.log(sumProofsValue(proofs), amountToPay);
-    try {
-      if (sumProofsValue(proofs) >= amountToPay) {
-        console.log('[payLnInvoce] use send ', {
-          amountToPay,
-          amount,
-          fee: eCashPaymentInformation?.quote?.fee_reserve,
-          proofs: sumProofsValue(proofs),
-        });
-        const {keep: proofsToKeep, send: proofsToSend} = await wallet.send(
-          amountToPay,
-          proofs,
-          {
-            includeFees: true,
-          },
-        );
-        console.log(proofsToKeep, 'PROOFS TO KEEP');
-        console.log(proofsToSend, 'PROOFS TO SEND');
-        if (proofsToKeep?.length) {
-          returnChangeGlobal.push(...proofsToKeep);
-        }
-
-        proofs = proofsToSend;
-      } else throw Error('Not enough to cover payment');
-      console.log('Proofs after send', proofs);
-
-      const payResponse = await sendEcashToLightningPayment({
-        wallet,
-        proofsToSend: proofs,
-        invoice: eCashPaymentInformation.invoice,
-      });
-      // const payResponse = await wallet.payLnInvoice(
-      //   eCashPaymentInformation.invoice,
-      //   proofs,
-      //   eCashPaymentInformation.quote,
-      // );
-      console.log('PAY RSPONSE', payResponse);
-      if (payResponse?.change?.length) {
-        returnChangeGlobal.push(...payResponse?.change);
-      }
-      if (payResponse.isPaid) {
-        const newProofs = removeProofs(
-          walletProofsToDelete,
-          globalProofTracker,
-        );
-        globalProofTracker = newProofs;
-
-        setEcashPaymentInformation({
-          quote: null,
-          invoice: null,
-          proofsToUse: null,
-        });
-        const realFee =
-          eCashPaymentInformation.quote.fee_reserve -
-          sumProofsValue(payResponse.change);
-        const formattedEcashTx = formatEcashTx({
-          time: Date.now(),
-          amount: eCashPaymentInformation.quote.amount,
-          fee: realFee < 0 ? 0 : realFee,
-          paymentType: 'sent',
-          preImage: payResponse.payment_preimage,
-        });
-        saveNewEcashInformation({
-          transactions: [...currentMint.transactions, formattedEcashTx],
-          proofs: [...globalProofTracker, ...returnChangeGlobal],
-        });
-        clearTimeout(eCashIntervalRef.current);
-
-        updateUserBalance();
-        const storedTransactions = getStoredEcashTransactions();
-        setecashTransactions(storedTransactions);
-
-        if (eCashPaymentInformation.isAutoChannelRebalance || !eCashNavigate)
-          return;
-        eCashNavigate.reset({
-          index: 0, // The top-level route index
-          routes: [
-            {
-              name: 'HomeAdmin', // Navigate to HomeAdmin
-              params: {
-                screen: 'Home',
-              },
-            },
-
-            {
-              name: 'ConfirmTxPage', // Navigate to ExpandedAddContactsPage
-              params: {
-                for: 'paymentSucceed',
-                information: {
-                  status: 'complete',
-                  feeSat: realFee < 0 ? 0 : realFee,
-                  amountSat: eCashPaymentInformation.quote.amount,
-                  details: {error: ''},
-                },
-                formattingType: 'ecash',
-              },
-            },
-          ],
-          // Array of routes to set in the stack
-        });
-      }
-    } catch (err) {
-      const newProofs = removeProofs(walletProofsToDelete, globalProofTracker);
-      globalProofTracker = newProofs;
-      setEcashPaymentInformation({
-        quote: null,
-        invoice: null,
-        proofsToUse: null,
-      });
-      saveNewEcashInformation({
-        transactions: currentMint.transactions,
-        proofs: [...globalProofTracker, ...returnChangeGlobal, ...proofs],
-      });
-      if (eCashPaymentInformation.isAutoChannelRebalance || !eCashNavigate)
-        return;
-
-      eCashNavigate.reset({
-        index: 0, // The top-level route index
-        routes: [
-          {
-            name: 'HomeAdmin', // Navigate to HomeAdmin
-            params: {
-              screen: 'Home',
-            },
-          },
-
-          {
-            name: 'ConfirmTxPage',
-            params: {
-              for: 'paymentFailed',
-              information: {
-                status: 'failed',
-                feeSat: 0,
-                amountSat: 0,
-                details: {error: err},
-              },
-              formattingType: 'ecash',
-            },
-          },
-        ],
-      });
-
-      console.log(`ecash send error`, err);
-    }
-  }
 };
 
 export const useGlobaleCash = () => {

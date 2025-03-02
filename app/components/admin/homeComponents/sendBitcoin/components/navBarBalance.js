@@ -12,7 +12,8 @@ import {useNodeContext} from '../../../../../../context-store/nodeContext';
 
 export default function NavbarBalance() {
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {eCashBalance} = useGlobaleCash();
+  const {ecashWalletInformation} = useGlobaleCash();
+  const eCashBalance = ecashWalletInformation.balance;
   const navigate = useNavigation();
   const maxSendingAmoount =
     nodeInformation.userBalance === 0

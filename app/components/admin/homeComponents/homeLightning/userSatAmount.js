@@ -17,7 +17,8 @@ export function UserSatAmount() {
   const {isConnectedToTheInternet} = useAppStatus();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {darkModeType, theme} = useGlobalThemeContext();
-  const {eCashBalance} = useGlobaleCash();
+  const {ecashWalletInformation} = useGlobaleCash();
+  const eCashBalance = ecashWalletInformation.balance;
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
   const [balanceWidth, setBalanceWidth] = useState(0);

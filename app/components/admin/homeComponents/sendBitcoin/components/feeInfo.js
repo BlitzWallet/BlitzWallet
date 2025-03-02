@@ -87,7 +87,7 @@ export default function SendTransactionFeeInfo({
                 backText={` & instant`}
                 neverHideBalance={true}
                 styles={{includeFontPadding: false}}
-                balance={canUseEcash ? 5 : lightningFee}
+                balance={lightningFee}
               />
             )}
           </>

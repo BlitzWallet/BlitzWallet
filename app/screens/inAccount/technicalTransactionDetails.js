@@ -1,13 +1,11 @@
 import {StyleSheet, View, TouchableOpacity, Image} from 'react-native';
 import {CENTER, ICONS} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
-import * as Clipboard from 'expo-clipboard';
-import {copyToClipboard, formatBalanceAmount} from '../../functions';
+import {copyToClipboard} from '../../functions';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {WINDOWWIDTH} from '../../constants/theme';
 import handleBackPress from '../../hooks/handleBackPress';
 import {useEffect} from 'react';
-import {backArrow} from '../../constants/styles';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 
 export default function TechnicalTransactionDetails(props) {
@@ -22,14 +20,16 @@ export default function TechnicalTransactionDetails(props) {
     handleBackPress(handleBackPressFunction);
   }, []);
 
-  const selectedTX = props.route.params.selectedTX;
-  const isLiquidPayment = props.route.params.isLiquidPayment;
-  const isFailedPayment = props.route.params.isFailedPayment;
+  const {selectedTX, isLiquidPayment, isFailedPayment, isEcashPayment} =
+    props.route.params;
+
   const isAClosedChannelTx = selectedTX.description
     ?.toLowerCase()
     ?.includes('closed channel');
 
-  const paymentDetails = isFailedPayment
+  const paymentDetails = isEcashPayment
+    ? ['Mint url', 'Payment Preimage']
+    : isFailedPayment
     ? ['Payment Hash', 'Payment Secret', 'Node ID']
     : isLiquidPayment
     ? ['Destination', 'Transaction Id']
@@ -38,7 +38,11 @@ export default function TechnicalTransactionDetails(props) {
     : ['Payment Hash', 'Payment Preimage', 'Destination Pubkey'];
 
   const infoElements = paymentDetails.map((item, id) => {
-    const txItem = isFailedPayment
+    const txItem = isEcashPayment
+      ? id === 0
+        ? selectedTX.mintURL
+        : selectedTX.preImage || 'Null'
+      : isFailedPayment
       ? id === 0
         ? selectedTX.invoice.paymentHash
         : id === 1
@@ -100,6 +104,7 @@ export default function TechnicalTransactionDetails(props) {
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
+    width: '95%',
     paddingTop: 50,
     ...CENTER,
   },

@@ -129,6 +129,9 @@ export default function EditReceivePaymentInformation(props) {
               maxWidth={0.9}
               amountValue={amountValue}
               inputDenomination={inputDenomination}
+              customTextInputContainerStyles={{
+                padding: 10,
+              }}
               containerFunction={() => {
                 setInputDenomination(prev => {
                   const newPrev = prev === 'sats' ? 'fiat' : 'sats';
