@@ -334,7 +334,7 @@ export default function ExperimentalItemsPage() {
                                     navigate.navigate('ConfirmActionPage', {
                                       confirmMessage: `You have a balance of ${proofValue} sat${
                                         proofValue === 1 ? '' : 's'
-                                      }. If you delete this mint you will lose your sats. Click yes to delete.`,
+                                      }. If you delete this mint you may lose your sats. Click yes to delete.`,
                                       deleteMint: () =>
                                         removeMint(mint.mintURL),
                                     });
