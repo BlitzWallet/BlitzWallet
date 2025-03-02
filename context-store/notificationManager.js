@@ -16,6 +16,7 @@ import {useGlobalContacts} from './globalContacts';
 import {getPublicKey} from 'nostr-tools';
 import {useAppStatus} from './appStatus';
 import {useKeysContext} from './keys';
+import {checkGooglePlayServices} from '../app/functions/checkGoogleServices';
 
 const PushNotificationManager = ({children}) => {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -32,6 +33,9 @@ const PushNotificationManager = ({children}) => {
 
     async function initNotification() {
       try {
+        const hasGooglePlayServics = checkGooglePlayServices();
+        if (!hasGooglePlayServics) return;
+
         if (Platform.OS === 'ios') {
           const url = `${process.env.NDS_TEST_BACKEND}?platform=${Platform.OS}&token=${globalContactsInformation.myProfile.uniqueName}`;
           await registerWebhook(url);

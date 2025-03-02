@@ -53,6 +53,7 @@ export default function FormattedBalanceInput({
   return (
     <View
       onTouchEnd={() => {
+        console.log(isScrolling, 'IS SCROLLING');
         if (!isScrolling && containerFunction) {
           containerFunction();
         }
@@ -75,6 +76,7 @@ export default function FormattedBalanceInput({
         <ScrollView
           onTouchStart={() => setIsScrolling(false)}
           onTouchMove={() => setIsScrolling(true)}
+          onTouchEnd={() => setIsScrolling(false)}
           horizontal
           showsHorizontalScrollIndicator={false}>
           <TextInput
@@ -107,7 +109,7 @@ export default function FormattedBalanceInput({
         onLayout={e => {
           console.log(e.nativeEvent.layout.width, 'INPUT WIDTH');
           const newWidth = Math.min(
-            e.nativeEvent.layout.width + (Platform.OS === 'android' ? 10 : 0),
+            e.nativeEvent.layout.width + (Platform.OS === 'android' ? 10 : 5),
             windowWidth * maxWidth,
           );
           setInputWidth(newWidth);
