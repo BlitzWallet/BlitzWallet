@@ -7,7 +7,7 @@ import Icon from './CustomElements/Icon';
 import {useGlobalThemeContext} from '../../context-store/theme';
 import {useGlobalContextProvider} from '../../context-store/context';
 import {useMemo} from 'react';
-import MaxHeap from './minHeap';
+import MinHeap from './minHeap';
 
 export default function getFormattedHomepageTxs({
   nodeInformation,
@@ -179,7 +179,7 @@ function mergeArrays({
   n3 = 0,
 }) {
   let mergedArray = [];
-  const minHeap = new MaxHeap();
+  const minHeap = new MinHeap();
 
   // Function to push elements into the heap
   const pushToHeap = (arr, index, identifier) => {

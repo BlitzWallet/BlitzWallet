@@ -35,7 +35,8 @@ export default function WalletInformation() {
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {eCashBalance} = useGlobaleCash();
+  const {ecashWalletInformation} = useGlobaleCash();
+  const eCashBalance = ecashWalletInformation.balance;
   const navigate = useNavigation();
 
   const showManualSwap =

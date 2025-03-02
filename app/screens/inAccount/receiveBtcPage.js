@@ -22,8 +22,8 @@ export default function ReceivePaymentHome(props) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {seteCashNavigate, setReceiveEcashQuote, currentMint} =
-    useGlobaleCash();
+  const {ecashWalletInformation} = useGlobaleCash();
+  const currentMintURL = ecashWalletInformation.mintURL;
   const {textColor} = GetThemeColors();
   const ecashRef = useRef(null);
   const initialSendAmount = props.route.params?.receiveAmount;
@@ -65,9 +65,7 @@ export default function ReceivePaymentHome(props) {
       description: paymentDescription,
       masterInfoObject,
       minMaxSwapAmounts: minMaxLiquidSwapAmounts,
-      mintURL: currentMint.mintURL,
-      seteCashNavigate,
-      setReceiveEcashQuote,
+      mintURL: currentMintURL,
       ecashRef,
       setAddressState: setAddressState,
       selectedRecieveOption: addressState.selectedRecieveOption,

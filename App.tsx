@@ -262,7 +262,6 @@ import {
 import PushNotificationManager, {
   registerBackgroundNotificationTask,
 } from './context-store/notificationManager';
-import {initializeFirebase} from './db/initializeFirebase';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import GetThemeColors from './app/hooks/themeColors';
 import InformationPopup from './app/functions/CustomElements/informationPopup';
@@ -272,6 +271,7 @@ import ManualSwapPopup from './app/components/admin/homeComponents/settingsConte
 import AccountInformationPage from './app/components/admin/homeComponents/settingsContent/walletInfoComponents/AccountInformationPage';
 import {LiquidEventProvider} from './context-store/liquidEventContext';
 import {
+  EcashNavigationListener,
   LightningNavigationListener,
   LiquidNavigationListener,
 } from './context-store/SDKNavigation';
@@ -284,6 +284,8 @@ import {
 import {GLobalNodeContextProider} from './context-store/nodeContext';
 import {AppStatusProvider} from './context-store/appStatus';
 import {KeysContextProvider} from './context-store/keys';
+import RestoreProofsPopup from './app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
+import MigrateProofsPopup from './app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
 import {POSTransactionsProvider} from './context-store/pos';
 
 const Stack = createNativeStackNavigator();
@@ -372,21 +374,14 @@ function ResetStack(): JSX.Element | null {
     const subscription = Linking.addListener('url', handleDeepLink);
 
     async function initWallet() {
-      const [
-        initialURL,
-        registerBackground,
-        pin,
-        mnemonic,
-        // initFirebase,
-        securitySettings,
-      ] = await Promise.all([
-        await getInitialURL(),
-        await registerBackgroundNotificationTask(),
-        await retrieveData('pin'),
-        await retrieveData('mnemonic'),
-        // await initializeFirebase(),
-        await getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-      ]);
+      const [initialURL, registerBackground, pin, mnemonic, securitySettings] =
+        await Promise.all([
+          await getInitialURL(),
+          await registerBackgroundNotificationTask(),
+          await retrieveData('pin'),
+          await retrieveData('mnemonic'),
+          await getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
+        ]);
 
       const storedSettings = JSON.parse(securitySettings);
       const parsedSettings = storedSettings ?? {
@@ -440,6 +435,7 @@ function ResetStack(): JSX.Element | null {
       ref={navigationRef}>
       <LiquidNavigationListener />
       <LightningNavigationListener />
+      <EcashNavigationListener />
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
@@ -748,6 +744,15 @@ function ResetStack(): JSX.Element | null {
             name="ContactsPageLongPressActions"
             component={ContactsPageLongPressActions}
           />
+          <Stack.Screen
+            name="RestoreProofsPopup"
+            component={RestoreProofsPopup}
+          />
+          <Stack.Screen
+            name="MigrateProofsPopup"
+            component={MigrateProofsPopup}
+          />
+
           {/* <Stack.Screen name="LetterKeyboard" component={LetterKeyboard} /> */}
           {/* <Stack.Screen
             name="ConfirmAddContact"

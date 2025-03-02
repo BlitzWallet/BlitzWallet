@@ -25,7 +25,8 @@ export default function ViewAllTxPage() {
   const navigate = useNavigation();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {ecashTransactions} = useGlobaleCash();
+  const {ecashWalletInformation} = useGlobaleCash();
+  const ecashTransactions = ecashWalletInformation.transactions;
   const insets = useSafeAreaInsets();
   const {t} = useTranslation();
 

@@ -55,7 +55,8 @@ export default function ManualSwapPopup() {
   const [userBalanceInformation, setUserBalanceInformation] = useState({});
   const [transferInfo, setTransferInfo] = useState({from: '', to: ''});
   const [isDoingTransfer, setIsDoingTransfer] = useState(false);
-  const {eCashBalance} = useGlobaleCash();
+  const {ecashWalletInformation} = useGlobaleCash();
+  const eCashBalance = ecashWalletInformation.balance;
 
   const convertedSendAmount =
     masterInfoObject.userBalanceDenomination != 'fiat'

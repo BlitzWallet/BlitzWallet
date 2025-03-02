@@ -46,6 +46,11 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
+import {
+  calculateEcashFees,
+  getProofsToUse,
+} from '../../../../functions/eCash/wallet';
+import {sumProofsValue} from '../../../../functions/eCash/proofs';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -58,7 +63,8 @@ export default function SendAndRequestPage(props) {
   const {textColor, backgroundOffset} = GetThemeColors();
   const {globalContactsInformation, updatedCachedMessagesStateFunction} =
     useGlobalContacts();
-  const {eCashBalance} = useGlobaleCash();
+  const {ecashWalletInformation} = useGlobaleCash();
+  const eCashBalance = ecashWalletInformation.balance;
   const [amountValue, setAmountValue] = useState('');
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [descriptionValue, setDescriptionValue] = useState('');
@@ -125,13 +131,34 @@ export default function SendAndRequestPage(props) {
     ],
   );
 
+  const usedEcashProofs = useMemo(() => {
+    const proofsToUse = getProofsToUse(
+      ecashWalletInformation.proofs,
+      convertedSendAmount,
+    );
+    return proofsToUse
+      ? proofsToUse?.proofsToUse
+      : ecashWalletInformation.proofs;
+  }, [convertedSendAmount, ecashWalletInformation]);
+
   const canUseEcash = useMemo(
     () =>
       selectedContact?.isLNURL
-        ? eCashBalance >= Number(convertedSendAmount) + 5 &&
-          masterInfoObject.enabledEcash
+        ? eCashBalance >=
+            Number(convertedSendAmount) +
+              calculateEcashFees(
+                ecashWalletInformation.mintURL,
+                usedEcashProofs,
+              ) && masterInfoObject.enabledEcash
         : false,
-    [selectedContact, eCashBalance, convertedSendAmount, masterInfoObject],
+    [
+      selectedContact,
+      eCashBalance,
+      convertedSendAmount,
+      masterInfoObject,
+      ecashWalletInformation,
+      usedEcashProofs,
+    ],
   );
 
   const canSendToLNURL = useMemo(

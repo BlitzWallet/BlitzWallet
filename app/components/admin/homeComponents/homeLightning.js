@@ -18,7 +18,7 @@ export default function HomeLightning({tabNavigation}) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {toggleDidGetToHomepage, didGetToHomepage} = useAppStatus();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {ecashTransactions} = useGlobaleCash();
+  const {ecashWalletInformation} = useGlobaleCash();
   const navigate = useNavigation();
   const shouldUpdateTransactions = useUpdateHomepageTransactions();
   const {t} = useTranslation();
@@ -26,6 +26,7 @@ export default function HomeLightning({tabNavigation}) {
   const masterFailedTransactions = masterInfoObject.failedTransactions;
   const enabledEcash = masterInfoObject.enabledEcash;
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
+  const ecashTransactions = ecashWalletInformation.transactions;
 
   useEffect(() => {
     toggleDidGetToHomepage(true);

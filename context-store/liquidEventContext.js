@@ -90,7 +90,7 @@ export function LiquidEventProvider({children}) {
       event.type === SdkEventVariant.PAYMENT_PENDING
     ) {
       if (
-        event?.details?.txId &&
+        !event?.details?.txId ||
         receivedPayments.current.includes(event?.details?.txId)
       ) {
         return false;

@@ -349,9 +349,12 @@ export async function getLNAddressForLiquidPayment(
   if (paymentInfo.type === InputTypeVariant.LN_URL_PAY) {
     const url = `${paymentInfo.data.callback}?amount=${sendingValue * 1000}${
       !!paymentInfo?.data.commentAllowed
-        ? `&comment=${encodeURIComponent(description || '')}`
+        ? `&comment=${encodeURIComponent(
+            paymentInfo?.data?.message || description || '',
+          )}`
         : ''
     }`;
+
     console.log('Generated URL:', url);
     const response = await fetch(url);
 

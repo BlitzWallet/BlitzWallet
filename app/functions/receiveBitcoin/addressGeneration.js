@@ -3,12 +3,15 @@ import {
   receivePayment,
 } from '@breeztech/react-native-breez-sdk';
 import {LIGHTNINGAMOUNTBUFFER} from '../../constants/math';
-import {getECashInvoice} from '../eCash';
-import {getLocalStorageItem} from '../localStorage';
+import {getECashInvoice} from '../eCash/wallet';
 import {BLITZ_DEFAULT_PAYMENT_DESCRIPTION} from '../../constants';
 import {breezLiquidReceivePaymentWrapper} from '../breezLiquid';
 import {fetchOnchainLimits} from '@breeztech/react-native-breez-sdk-liquid';
 import displayCorrectDenomination from '../displayCorrectDenomination';
+import {
+  ECASH_QUOTE_EVENT_NAME,
+  ecashEventEmitter,
+} from '../../../context-store/eCash';
 
 export async function initializeAddressProcess(wolletInfo) {
   const {setAddressState, selectedRecieveOption} = wolletInfo;
@@ -64,9 +67,6 @@ async function generateLightningAddress(wolletInfo) {
     setAddressState,
     minMaxSwapAmounts,
     mintURL,
-    seteCashNavigate,
-    navigate,
-    setReceiveEcashQuote,
   } = wolletInfo;
   const liquidWalletSettings = masterInfoObject.liquidWalletSettings;
   const hasLightningChannel = !!nodeInformation.userBalance;
@@ -87,30 +87,40 @@ async function generateLightningAddress(wolletInfo) {
       receivingAmount < minMaxSwapAmounts.min)
   ) {
     if (receivingAmount < minMaxSwapAmounts.min) {
-      seteCashNavigate(navigate);
       const eCashInvoice = await getECashInvoice({
         amount: receivingAmount,
         mintURL: mintURL,
         descriptoin: description,
       });
 
-      if (eCashInvoice.request) {
-        let localStoredQuotes =
-          JSON.parse(await getLocalStorageItem('ecashQuotes')) || [];
+      if (eCashInvoice.didWork) {
         setAddressState(prev => {
           return {
             ...prev,
             fe: 0,
-            generatedAddress: eCashInvoice.request,
+            generatedAddress: eCashInvoice.mintQuote.request,
           };
         });
-
-        setReceiveEcashQuote(
-          localStoredQuotes[localStoredQuotes.length - 1].quote,
-        );
+        ecashEventEmitter.emit(ECASH_QUOTE_EVENT_NAME, {
+          quote: eCashInvoice.mintQuote.quote,
+          counter: eCashInvoice.counter,
+          mintURL: eCashInvoice.mintURL,
+        });
 
         return true;
-      } else return false;
+      } else {
+        setAddressState(prev => {
+          return {
+            ...prev,
+            generatedAddress: null,
+            errorMessageText: {
+              type: 'stop',
+              text: eCashInvoice.reason,
+            },
+          };
+        });
+        return;
+      }
     } else {
       console.log(description, 'DESCRIPTION');
       const addressResponse = await breezLiquidReceivePaymentWrapper({
@@ -174,7 +184,35 @@ async function generateLightningAddress(wolletInfo) {
       receivingAmount,
       userBalanceDenomination,
     });
-
+    if (
+      needsToOpenChannel.fee / 1000 >=
+      liquidWalletSettings.maxChannelOpenFee
+    ) {
+      setAddressState(prev => {
+        return {
+          ...prev,
+          generatedAddress: '',
+          errorMessageText: {
+            type: needsToOpenChannel.type,
+            text: `A ${displayCorrectDenomination({
+              amount: needsToOpenChannel.fee / 1000,
+              nodeInformation,
+              masterInfoObject: {
+                userBalanceDenomination: userBalanceDenomination,
+              },
+            })} fee needs to be applied, but you have a max fee of ${displayCorrectDenomination(
+              {
+                amount: liquidWalletSettings.maxChannelOpenFee,
+                nodeInformation,
+                masterInfoObject: {
+                  userBalanceDenomination: userBalanceDenomination,
+                },
+              },
+            )} set.`,
+          },
+        };
+      });
+    }
     if (needsToOpenChannel.fee / 1000 > receivingAmount) {
       setAddressState(prev => {
         return {

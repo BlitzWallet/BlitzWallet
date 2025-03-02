@@ -27,8 +27,9 @@ export default function ConfirmExportPayments() {
   const insets = useSafeAreaInsets();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {ecashTransactions} = useGlobaleCash();
+  const {ecashWalletInformation} = useGlobaleCash();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const ecashTransactions = ecashWalletInformation.transactions;
   const totalPayments =
     nodeInformation.transactions.length +
     liquidNodeInformation.transactions.length +

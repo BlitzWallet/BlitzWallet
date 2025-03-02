@@ -18,7 +18,7 @@ import {
   SATSPERBITCOIN,
   SIZES,
 } from '../../../../constants';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
 import SwipeButton from 'rn-swipe-button';
@@ -62,6 +62,12 @@ import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
 import hasAlredyPaidInvoice from './functions/hasPaid';
+import {
+  calculateEcashFees,
+  getMeltQuote,
+  getProofsToUse,
+  payLnInvoiceFromEcash,
+} from '../../../../functions/eCash/wallet';
 
 export default function SendPaymentScreen(props) {
   const {
@@ -76,12 +82,8 @@ export default function SendPaymentScreen(props) {
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {
-    setEcashPaymentInformation,
-    seteCashNavigate,
-    eCashBalance,
-    sendEcashPayment,
-  } = useGlobaleCash();
+  const {ecashWalletInformation} = useGlobaleCash();
+  const eCashBalance = ecashWalletInformation.balance;
   const {webViewRef, setWebViewArgs, toggleSavedIds} = useWebView();
   console.log('CONFIRM SEND PAYMENT SCREEN');
   const navigate = useNavigation();
@@ -122,6 +124,16 @@ export default function SendPaymentScreen(props) {
   const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
   const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
 
+  const usedEcashProofs = useMemo(() => {
+    const proofsToUse = getProofsToUse(
+      ecashWalletInformation.proofs,
+      convertedSendAmount,
+    );
+    return proofsToUse
+      ? proofsToUse?.proofsToUse
+      : ecashWalletInformation.proofs;
+  }, [convertedSendAmount, ecashWalletInformation]);
+
   const {canUseEcash, canUseLiquid, canUseLightning} = usablePaymentNetwork({
     liquidNodeInformation,
     nodeInformation,
@@ -136,9 +148,11 @@ export default function SendPaymentScreen(props) {
     paymentInfo,
     lightningFee,
     isBitcoinPayment,
+    usedEcashProofs,
+    ecashWalletInformation,
   });
   const lightningFee = canUseEcash
-    ? 5
+    ? calculateEcashFees(ecashWalletInformation.mintURL, usedEcashProofs)
     : masterInfoObject.useTrampoline
     ? Math.round(convertedSendAmount * 0.005) + 4
     : null;
@@ -581,20 +595,8 @@ export default function SendPaymentScreen(props) {
         setIsSendingPayment(false);
         return;
       }
-
-      const didSendEcashPayment = await sendEcashPayment(sendingInvoice);
-      if (didSendEcashPayment.proofsToUse && didSendEcashPayment.quote) {
-        if (fromPage === 'contacts') {
-          publishMessageFunc();
-        }
-
-        seteCashNavigate(navigate);
-        setEcashPaymentInformation({
-          quote: didSendEcashPayment.quote,
-          invoice: sendingInvoice,
-          proofsToUse: didSendEcashPayment.proofsToUse,
-        });
-      } else {
+      const meltQuote = await getMeltQuote(sendingInvoice);
+      if (!meltQuote) {
         navigate.reset({
           index: 0, // The top-level route index
           routes: [
@@ -621,8 +623,49 @@ export default function SendPaymentScreen(props) {
             },
           ],
         });
+        return;
       }
-      console.log(didSendEcashPayment);
+      const didPay = await payLnInvoiceFromEcash({
+        quote: meltQuote.quote,
+        invoice: sendingInvoice,
+        proofsToUse: meltQuote.proofsToUse,
+        description: paymentInfo?.data?.message || '',
+      });
+      if (didPay.didWork && fromPage === 'contacts') {
+        publishMessageFunc();
+      }
+
+      navigate.reset({
+        index: 0, // The top-level route index
+        routes: [
+          {
+            name: 'HomeAdmin', // Navigate to HomeAdmin
+            params: {
+              screen: 'Home',
+            },
+          },
+
+          {
+            name: 'ConfirmTxPage', // Navigate to ExpandedAddContactsPage
+            params: {
+              for: didPay.didWork ? 'paymentSucceed' : 'paymentFailed',
+              information: {
+                status: didPay.didWork ? 'complete' : 'failed',
+                feeSat: didPay.txObject?.fee,
+                amountSat: didPay.txObject?.amount,
+                details: didPay.didWork
+                  ? {error: ''}
+                  : {
+                      error: didPay.message,
+                    },
+              },
+              formattingType: 'ecash',
+            },
+          },
+        ],
+        // Array of routes to set in the stack
+      });
+
       return;
     }
 
