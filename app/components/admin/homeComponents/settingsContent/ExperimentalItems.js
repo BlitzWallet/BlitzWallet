@@ -102,79 +102,84 @@ export default function ExperimentalItemsPage() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <KeyboardAvoidingView
-        style={{flex: 1}}
-        behavior={Platform.OS === 'ios' ? 'padding' : null}>
-        <CustomSettingsTopBar
-          customBackFunction={() => {
-            Keyboard.dismiss();
-            if (!currentMintURL && masterInfoObject.enabledEcash) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: 'Must input a mintURL to enable ecash',
-              });
-              return;
-            }
+      <CustomSettingsTopBar
+        customBackFunction={() => {
+          Keyboard.dismiss();
+          if (!currentMintURL && masterInfoObject.enabledEcash) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: 'Must input a mintURL to enable ecash',
+            });
+            return;
+          }
 
-            navigate.goBack();
-          }}
-          shouldDismissKeyboard={true}
-          label={'Experimental'}
-        />
-        <View style={{flex: 1, width: '95%', ...CENTER}}>
-          {hasUserMigrated === null ? (
-            <FullLoadingScreen text={'Loading...'} />
-          ) : parsedEcashInformation?.length && !hasUserMigrated ? (
-            <View
-              style={{
-                width: '100%',
-                backgroundColor: backgroundOffset,
-                borderRadius: 8,
-                marginTop: 20,
-              }}>
-              <View style={{padding: 10, width: '100%', ...CENTER}}>
+          navigate.goBack();
+        }}
+        shouldDismissKeyboard={true}
+        label={'Experimental'}
+      />
+
+      <View style={{flex: 1, width: '95%', ...CENTER}}>
+        {hasUserMigrated === null ? (
+          <FullLoadingScreen text={'Loading...'} />
+        ) : parsedEcashInformation?.length && !hasUserMigrated ? (
+          <View
+            style={{
+              width: '100%',
+              backgroundColor: backgroundOffset,
+              borderRadius: 8,
+              marginTop: 20,
+            }}>
+            <View style={{padding: 10, width: '100%', ...CENTER}}>
+              <ThemeText
+                styles={{
+                  fontWeight: '500',
+                  marginBottom: 10,
+                  textAlign: 'center',
+                }}
+                content={'Manual Migration Required'}
+              />
+              <ThemeText
+                styles={{marginBottom: 10}}
+                content={
+                  'We have implemented a new system for storing and managing your eCash proofs. Since your proofs are currently stored using the old method, you will need to manually migrate them before you can continue using your eCash.'
+                }
+              />
+              <Text style={{marginBottom: 10}}>
                 <ThemeText
                   styles={{
                     fontWeight: '500',
-                    marginBottom: 10,
-                    textAlign: 'center',
                   }}
-                  content={'Manual Migration Required'}
+                  content={'Warning:'}
                 />
                 <ThemeText
-                  styles={{marginBottom: 10}}
                   content={
-                    'We have implemented a new system for storing and managing your eCash proofs. Since your proofs are currently stored using the old method, you will need to manually migrate them before you can continue using your eCash.'
+                    ' There is a risk of losing eCash during the migration process. Please proceed with caution and ensure you follow all steps carefully.'
                   }
                 />
-                <Text style={{marginBottom: 10}}>
-                  <ThemeText
-                    styles={{
-                      fontWeight: '500',
-                    }}
-                    content={'Warning:'}
-                  />
-                  <ThemeText
-                    content={
-                      ' There is a risk of losing eCash during the migration process. Please proceed with caution and ensure you follow all steps carefully.'
-                    }
-                  />
-                </Text>
-                <ThemeText
-                  content={
-                    'To continue using your eCash, please click "Migrate".'
-                  }
-                />
-                <CustomButton
-                  buttonStyles={{
-                    marginTop: 10,
-                  }}
-                  textContent={'Migrate'}
-                  actionFunction={() => navigate.navigate('MigrateProofsPopup')}
-                />
-              </View>
+              </Text>
+              <ThemeText
+                content={
+                  'To continue using your eCash, please click "Migrate".'
+                }
+              />
+              <CustomButton
+                buttonStyles={{
+                  marginTop: 10,
+                }}
+                textContent={'Migrate'}
+                actionFunction={() => navigate.navigate('MigrateProofsPopup')}
+              />
             </View>
-          ) : (
-            <ScrollView showsVerticalScrollIndicator={false}>
+          </View>
+        ) : (
+          <KeyboardAvoidingView
+            style={{flex: 1}}
+            behavior={Platform.OS === 'ios' ? 'padding' : null}>
+            <ScrollView
+              contentContainerStyle={{
+                paddingBottom: Platform.OS === 'ios' ? 50 : 0,
+              }}
+              showsVerticalScrollIndicator={false}>
               <ThemeText
                 styles={{marginTop: 20, fontSize: SIZES.large}}
                 content={'eCash'}
@@ -207,7 +212,7 @@ export default function ExperimentalItemsPage() {
                 </View>
               </View>
               {masterInfoObject.enabledEcash && (
-                <>
+                <View>
                   {!!parsedEcashInformation.length && (
                     <View
                       style={{
@@ -282,92 +287,107 @@ export default function ExperimentalItemsPage() {
                       inputText={mintURL || ''}
                     />
                   </View>
-                  <ThemeText
-                    styles={{marginTop: 20, fontSize: SIZES.large}}
-                    content={'Added Mints'}
-                  />
-                  {savedMintList.map((mint, id) => {
-                    const proofValue = sumProofsValue(mint.proofs);
-
-                    return (
-                      <TouchableOpacity
-                        activeOpacity={mint.isCurrentMint ? 1 : 0.4}
-                        onPress={() => {
-                          if (mint.isCurrentMint) return;
-                          switchMint(mint.mintURL, true);
-                        }}
-                        style={{
-                          alignItems: 'baseline',
-                          backgroundColor: backgroundOffset,
-                          padding: 10,
-                          borderRadius: 8,
-                          marginVertical: 10,
-                        }}
-                        key={id}>
-                        <View
-                          style={{
-                            width: '100%',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                          }}>
-                          <TouchableOpacity
-                            onPress={() => {
-                              copyToClipboard(mint.mintURL, navigate);
-                            }}>
-                            <ThemeText
-                              styles={{fontSize: SIZES.small}}
-                              content={mint.mintURL}
-                            />
-                          </TouchableOpacity>
+                  {savedMintList.length ? (
+                    <View>
+                      <ThemeText
+                        styles={{marginTop: 20, fontSize: SIZES.large}}
+                        content={'Added Mints'}
+                      />
+                      {savedMintList.map((mint, id) => {
+                        const proofValue = sumProofsValue(mint.proofs);
+                        return (
                           <TouchableOpacity
                             activeOpacity={mint.isCurrentMint ? 1 : 0.4}
                             onPress={() => {
                               if (mint.isCurrentMint) return;
-                              if (proofValue > 0) {
-                                navigate.navigate('ConfirmActionPage', {
-                                  confirmMessage: `You have a balance of ${proofValue} sat${
-                                    proofValue === 1 ? '' : 's'
-                                  }. If you delete this mint you will lose your sats. Click yes to delete.`,
-                                  deleteMint: () => removeMint(mint.mintURL),
-                                });
-                                return;
-                              }
-                              removeMint(mint.mintURL);
-                            }}>
-                            <Image
-                              style={{width: 25, height: 25}}
-                              source={
-                                mint.isCurrentMint
-                                  ? theme && darkModeType
-                                    ? ICONS.starWhite
-                                    : ICONS.starBlue
-                                  : theme && darkModeType
-                                  ? ICONS.trashIconWhite
-                                  : ICONS.trashIcon
-                              }
+                              switchMint(mint.mintURL, true);
+                            }}
+                            style={{
+                              alignItems: 'baseline',
+                              backgroundColor: backgroundOffset,
+                              padding: 10,
+                              borderRadius: 8,
+                              marginVertical: 10,
+                            }}
+                            key={id}>
+                            <View
+                              style={{
+                                width: '100%',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                              }}>
+                              <TouchableOpacity
+                                onPress={() => {
+                                  copyToClipboard(mint.mintURL, navigate);
+                                }}>
+                                <ThemeText
+                                  styles={{fontSize: SIZES.small}}
+                                  content={mint.mintURL}
+                                />
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                activeOpacity={mint.isCurrentMint ? 1 : 0.4}
+                                onPress={() => {
+                                  if (mint.isCurrentMint) return;
+                                  if (proofValue > 0) {
+                                    navigate.navigate('ConfirmActionPage', {
+                                      confirmMessage: `You have a balance of ${proofValue} sat${
+                                        proofValue === 1 ? '' : 's'
+                                      }. If you delete this mint you will lose your sats. Click yes to delete.`,
+                                      deleteMint: () =>
+                                        removeMint(mint.mintURL),
+                                    });
+                                    return;
+                                  }
+                                  removeMint(mint.mintURL);
+                                }}>
+                                <Image
+                                  style={{width: 25, height: 25}}
+                                  source={
+                                    mint.isCurrentMint
+                                      ? theme && darkModeType
+                                        ? ICONS.starWhite
+                                        : ICONS.starBlue
+                                      : theme && darkModeType
+                                      ? ICONS.trashIconWhite
+                                      : ICONS.trashIcon
+                                  }
+                                />
+                              </TouchableOpacity>
+                            </View>
+                            <FormattedSatText
+                              neverHideBalance={true}
+                              frontText={'Balance: '}
+                              containerStyles={{marginTop: 10}}
+                              styles={{
+                                includeFontPadding: false,
+                                fontSize: SIZES.small,
+                              }}
+                              balance={proofValue || 0}
                             />
                           </TouchableOpacity>
-                        </View>
-                        <FormattedSatText
-                          neverHideBalance={true}
-                          frontText={'Balance: '}
-                          containerStyles={{marginTop: 10}}
-                          styles={{
-                            includeFontPadding: false,
-                            fontSize: SIZES.small,
-                          }}
-                          balance={proofValue || 0}
-                        />
-                      </TouchableOpacity>
-                    );
-                  })}
-                </>
+                        );
+                      })}
+                    </View>
+                  ) : (
+                    <View>
+                      <ThemeText
+                        styles={{
+                          marginTop: 20,
+                          fontSize: SIZES.large,
+                          textAlign: 'center',
+                        }}
+                        content={'No added mints'}
+                      />
+                    </View>
+                  )}
+                </View>
               )}
             </ScrollView>
-          )}
-        </View>
-      </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        )}
+      </View>
     </GlobalThemeView>
   );
 
