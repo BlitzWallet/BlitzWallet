@@ -262,7 +262,7 @@ export default function ExperimentalItemsPage() {
       return mintInfo.mintURL === newMintURL;
     });
 
-    if (newMintURL === currentMint.mintURL) return;
+    if (newMintURL === currentMint?.mintURL) return;
 
     let newMintInfo;
 
