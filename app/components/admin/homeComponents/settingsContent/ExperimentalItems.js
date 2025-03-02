@@ -153,7 +153,7 @@ export default function ExperimentalItemsPage() {
                 />
                 <ThemeText
                   content={
-                    ' There is a risk of losing eCash during the migration process. Please proceed with caution and ensure you follow all steps carefully.'
+                    ' There is a risk of losing eCash during the migration process. Please proceed with caution. Also, only new proofs generated after the migration can be restored.'
                   }
                 />
               </Text>
