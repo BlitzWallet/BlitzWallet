@@ -17,6 +17,7 @@ export default function TotalTipsScreen(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const navigate = useNavigation();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
+  const tipsArray = Object.entries(sortedTips);
   return (
     <TouchableWithoutFeedback onPress={navigate.goBack}>
       <View style={styles.container}>
@@ -31,24 +32,30 @@ export default function TotalTipsScreen(props) {
             styles={{textAlign: 'center', marginBottom: 20}}
             content={formatDateToDayMonthYearTime(fromDate)}
           />
-          <ScrollView contentContainerStyle={{width: '90%', ...CENTER}}>
-            {Object.entries(sortedTips).map((item, index) => {
-              const [name, amount] = item;
-              console.log(item, index);
-              return (
-                <View
-                  style={{
-                    ...styles.entryRow,
-                    borderBottomWidth:
-                      index === Object.entries(sortedTips).length - 1 ? 0 : 1,
-                  }}
-                  key={name}>
-                  <ThemeText content={name} />
-                  <FormattedSatText balance={amount} />
-                </View>
-              );
-            })}
-          </ScrollView>
+          {tipsArray.length ? (
+            <ScrollView contentContainerStyle={{width: '90%', ...CENTER}}>
+              {tipsArray.map((item, index) => {
+                const [name, amount] = item;
+                console.log(item, index);
+                return (
+                  <View
+                    style={{
+                      ...styles.entryRow,
+                      borderBottomWidth: index === tipsArray.length - 1 ? 0 : 1,
+                    }}
+                    key={name}>
+                    <ThemeText content={name} />
+                    <FormattedSatText balance={amount} />
+                  </View>
+                );
+              })}
+            </ScrollView>
+          ) : (
+            <ThemeText
+              styles={{textAlign: 'center'}}
+              content={'No tips received.'}
+            />
+          )}
         </View>
       </View>
     </TouchableWithoutFeedback>

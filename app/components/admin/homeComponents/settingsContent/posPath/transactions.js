@@ -21,13 +21,21 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
 import {usePOSTransactions} from '../../../../../../context-store/pos';
 import {formatDateToDayMonthYearTime} from '../../../../../functions/rotateAddressDateChecker';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 
 export default function ViewPOSTransactions() {
   const {txList} = usePOSTransactions();
   const [employeeName, setEmployeeName] = useState('');
   const [isAddingTotals, setIsAddingTotals] = useState(false);
-
   const navigate = useNavigation();
+
+  const insets = useSafeAreaInsets();
+
+  const paddingBottom = Platform.select({
+    ios: insets.bottom,
+    android: ANDROIDSAFEAREA,
+  });
 
   const filteredList = useMemo(() => {
     return !txList
@@ -88,58 +96,57 @@ export default function ViewPOSTransactions() {
   }, []);
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : null}
-          style={styles.container}>
-          <CustomSettingsTopBar
-            shouldDismissKeyboard={true}
-            showLeftImage={false}
-            leftImageBlue={ICONS.receiptIcon}
-            LeftImageDarkMode={ICONS.receiptWhite}
-            containerStyles={{marginBottom: 0}}
-            label={'Transactions'}
+    <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        showLeftImage={false}
+        leftImageBlue={ICONS.receiptIcon}
+        LeftImageDarkMode={ICONS.receiptWhite}
+        containerStyles={{marginBottom: 0}}
+        label={'Transactions'}
+      />
+      <CustomSearchInput
+        placeholderText={'Employee name'}
+        setInputText={setEmployeeName}
+        containerStyles={{marginTop: 10}}
+      />
+      {txList === null ? (
+        <FullLoadingScreen text={'Loading transactions'} />
+      ) : filteredList.length ? (
+        <View style={{...styles.container, alignItems: 'center'}}>
+          <FlatList
+            style={{width: '100%'}}
+            contentContainerStyle={{paddingBottom: paddingBottom + 50}}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={true}
+            data={filteredList}
+            renderItem={transactionItem}
+            keyExtractor={item => item.timestamp.toString()}
           />
-          <CustomSearchInput
-            placeholderText={'Employee name'}
-            setInputText={setEmployeeName}
-            containerStyles={{marginTop: 10}}
+          <CustomButton
+            useLoading={isAddingTotals}
+            buttonStyles={{
+              width: 'auto',
+              ...CENTER,
+              position: 'absolute',
+              bottom: paddingBottom,
+            }}
+            actionFunction={() => {
+              const response = calculateBasicTipTotals(txList);
+              console.log(response);
+              navigate.navigate('TotalTipsScreen', {
+                sortedTips: response.totals,
+                fromDate: response.fromDate,
+              });
+            }}
+            textContent={'Employee Tip Totals'}
           />
-          {txList === null ? (
-            <FullLoadingScreen text={'Loading transactions'} />
-          ) : filteredList ? (
-            <>
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                data={filteredList}
-                renderItem={transactionItem}
-                key={item => item.timestamp}
-              />
-              <CustomButton
-                useLoading={isAddingTotals}
-                buttonStyles={{marginBottom: 10}}
-                actionFunction={() => {
-                  const response = calculateBasicTipTotals(txList);
-                  console.log(response);
-                  navigate.navigate('TotalTipsScreen', {
-                    sortedTips: response.totals,
-                    fromDate: response.fromDate,
-                  });
-                }}
-                textContent={'Employee Tip Totals'}
-              />
-            </>
-          ) : (
-            <View style={{flex: 1, alignItems: 'center'}}>
-              <ThemeText
-                styles={{marginTop: 10}}
-                content={'No transactions '}
-              />
-            </View>
-          )}
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
+        </View>
+      ) : (
+        <View style={{flex: 1, alignItems: 'center'}}>
+          <ThemeText styles={{marginTop: 10}} content={'No transactions '} />
+        </View>
+      )}
     </GlobalThemeView>
   );
 }
