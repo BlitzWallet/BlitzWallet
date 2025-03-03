@@ -109,6 +109,19 @@ function getTwoWeeksAgoDate() {
 
   return twoWeeksAgoTimestamp;
 }
+const formatDateToDayMonthYearTime = timestamp => {
+  const date = new Date(timestamp);
+  const location = Intl.DateTimeFormat().resolvedOptions().locale || 'en-US';
+  return new Intl.DateTimeFormat(location, {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).format(date);
+};
 
 export {
   isMoreThan7DaysPast,
@@ -118,4 +131,5 @@ export {
   isMoreThan40MinOld,
   getDateXDaysAgo,
   getTwoWeeksAgoDate,
+  formatDateToDayMonthYearTime,
 };

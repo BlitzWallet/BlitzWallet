@@ -59,6 +59,7 @@ import {
   payLnInvoiceFromEcash,
 } from '../../functions/eCash/wallet';
 import {sumProofsValue} from '../../functions/eCash/proofs';
+import {initializePOSTransactionsDatabase} from '../../functions/pos';
 export default function ConnectingToNodeLoadingScreen({
   navigation: {reset},
   route,
@@ -125,7 +126,8 @@ export default function ConnectingToNodeLoadingScreen({
     (async () => {
       const didOpen = await initializeDatabase();
       const ecashTablesOpened = await initEcashDBTables();
-      if (!didOpen || !ecashTablesOpened) {
+      const posTransactions = await initializePOSTransactionsDatabase();
+      if (!didOpen || !ecashTablesOpened || !posTransactions) {
         setHasError('Not able to open database');
         return;
       }

@@ -48,7 +48,8 @@ export default function SettingsContentIndex(props) {
     <>
       {selectedPage?.toLowerCase() === 'display currency' ||
       selectedPage?.toLowerCase() === 'experimental' ||
-      selectedPage?.toLowerCase() === 'bank' ? (
+      selectedPage?.toLowerCase() === 'bank' ||
+      selectedPage?.toLowerCase() === 'point-of-sale' ? (
         <>
           {selectedPage?.toLowerCase() === 'display currency' && (
             <FiatCurrencyPage theme={theme} />
@@ -58,6 +59,9 @@ export default function SettingsContentIndex(props) {
           )}
           {selectedPage?.toLowerCase() === 'bank' && (
             <LiquidWallet theme={theme} />
+          )}
+          {selectedPage?.toLowerCase() === 'point-of-sale' && (
+            <PosSettingsPage />
           )}
         </>
       ) : (
@@ -118,13 +122,6 @@ export default function SettingsContentIndex(props) {
             {selectedPage?.toLowerCase() === 'delete wallet' && <ResetPage />}
             {selectedPage?.toLowerCase() === 'restore channels' && (
               <RestoreChannel isDoomsday={isDoomsday} />
-            )}
-
-            {selectedPage?.toLowerCase() === 'point-of-sale' && (
-              <PosSettingsPage />
-            )}
-            {selectedPage?.toLowerCase() === 'pos instructions' && (
-              <POSInstructionsPath />
             )}
           </View>
         </GlobalThemeView>
