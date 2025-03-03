@@ -33,10 +33,11 @@ export default function displayCorrectDenomination({
       if (showSymbol) return BITCOIN_SATS_ICON + formatedSat;
       else return formatedSat + ' sats';
     } else {
-      if (showSymbol && isSymbolInFront) return currencySymbol + formatedSat;
+      if (showSymbol && isSymbolInFront)
+        return currencySymbol + formattedCurrency[1];
       else if (showSymbol && !isSymbolInFront)
-        return formatedSat + currencySymbol;
-      else return formatedSat + ` ${currencyText}`;
+        return formattedCurrency[1] + currencySymbol;
+      else return formattedCurrency[1] + ` ${currencyText}`;
     }
   } catch (err) {
     console.log('display correct denomincation error', err);

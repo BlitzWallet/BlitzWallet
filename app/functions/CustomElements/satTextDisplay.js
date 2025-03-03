@@ -152,7 +152,7 @@ export default function FormattedSatText({
       )}
       <ThemeText
         reversed={reversed}
-        content={`${formattedBalance}`}
+        content={`${currencyOptions[1]}`}
         styles={{includeFontPadding: false, ...styles}}
       />
       {!isSymbolInFront && showSymbol && (
