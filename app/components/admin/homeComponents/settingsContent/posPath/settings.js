@@ -115,7 +115,7 @@ export default function PosSettingsPage() {
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         style={styles.container}>
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-          <View style={{flex: 1, width: '95%', ...CENTER}}>
+          <View style={{flex: 1}}>
             <CustomSettingsTopBar
               shouldDismissKeyboard={true}
               showLeftImage={true}
@@ -135,84 +135,89 @@ export default function PosSettingsPage() {
                 navigate.navigate('ViewPOSTransactions');
               }}
             />
-            <ThemeText styles={{marginTop: 20}} content={'Store name'} />
-            <CustomSearchInput
-              setInputText={setStoreNameInput}
-              inputText={storeNameInput}
-              placeholderText={'Enter store name'}
-              containerStyles={{marginTop: 10}}
-            />
+            <View style={{flex: 1, width: '95%', ...CENTER}}>
+              <ThemeText styles={{marginTop: 20}} content={'Store name'} />
+              <CustomSearchInput
+                setInputText={setStoreNameInput}
+                inputText={storeNameInput}
+                placeholderText={'Enter store name'}
+                containerStyles={{marginTop: 10}}
+              />
 
-            <ThemeText styles={{marginTop: 10}} content={'Display currency'} />
-            <CustomSearchInput
-              inputText={textInput}
-              setInputText={setTextInput}
-              placeholderText={currentCurrency}
-              containerStyles={{marginTop: 10}}
-            />
+              <ThemeText
+                styles={{marginTop: 10}}
+                content={'Display currency'}
+              />
+              <CustomSearchInput
+                inputText={textInput}
+                setInputText={setTextInput}
+                placeholderText={currentCurrency}
+                containerStyles={{marginTop: 10}}
+              />
 
-            <FlatList
-              style={{
-                flex: 1,
-                width: '100%',
-              }}
-              data={listData}
-              renderItem={({item, index}) => (
-                <CurrencyElements id={index} currency={item} />
-              )}
-              keyExtractor={currency => currency.id}
-              showsVerticalScrollIndicator={false}
-            />
+              <FlatList
+                style={{
+                  flex: 1,
+                  width: '100%',
+                }}
+                data={listData}
+                renderItem={({item, index}) => (
+                  <CurrencyElements id={index} currency={item} />
+                )}
+                keyExtractor={currency => currency.id}
+                showsVerticalScrollIndicator={false}
+              />
 
-            <CustomButton
-              buttonStyles={{
-                width: '100%',
-                marginTop: 'auto',
-                backgroundColor: backgroundOffset,
-              }}
-              textStyles={{color: textColor}}
-              actionFunction={() => {
-                navigate.navigate('POSInstructionsPath');
-              }}
-              textContent={'See employee instructions'}
-            />
-            <CustomButton
-              buttonStyles={{
-                width: '65%',
-                marginTop: 20,
-                ...CENTER,
-                backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-              }}
-              textStyles={{
-                color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-              }}
-              actionFunction={() => {
-                if (
-                  masterInfoObject.posSettings.storeNameLower !=
+              <CustomButton
+                buttonStyles={{
+                  width: '100%',
+                  marginTop: 'auto',
+                  backgroundColor: backgroundOffset,
+                }}
+                textStyles={{color: textColor}}
+                actionFunction={() => {
+                  navigate.navigate('POSInstructionsPath');
+                }}
+                textContent={'See employee instructions'}
+              />
+              <CustomButton
+                buttonStyles={{
+                  width: '65%',
+                  marginTop: 20,
+                  ...CENTER,
+                  backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+                }}
+                textStyles={{
+                  color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+                }}
+                actionFunction={() => {
+                  if (
+                    masterInfoObject.posSettings.storeNameLower !=
+                    storeNameInput.toLowerCase()
+                  ) {
+                    savePOSSettings(
+                      {
+                        storeName: storeNameInput.trim(),
+                        storeNameLower: storeNameInput.trim().toLowerCase(),
+                      },
+                      'storeName',
+                    );
+                    return;
+                  } else {
+                    openWebBrowser({
+                      navigate,
+                      link: `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`,
+                    });
+                  }
+                }}
+                textContent={
+                  masterInfoObject.posSettings.storeName.toLowerCase() !=
                   storeNameInput.toLowerCase()
-                ) {
-                  savePOSSettings(
-                    {
-                      storeName: storeNameInput.trim(),
-                      storeNameLower: storeNameInput.trim().toLowerCase(),
-                    },
-                    'storeName',
-                  );
-                  return;
-                } else {
-                  openWebBrowser({
-                    navigate,
-                    link: `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`,
-                  });
+                    ? 'Save'
+                    : 'Open POS'
                 }
-              }}
-              textContent={
-                masterInfoObject.posSettings.storeName.toLowerCase() !=
-                storeNameInput.toLowerCase()
-                  ? 'Save'
-                  : 'Open POS'
-              }
-            />
+              />
+            </View>
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
