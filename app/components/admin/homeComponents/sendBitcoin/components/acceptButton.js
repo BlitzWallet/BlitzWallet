@@ -21,6 +21,7 @@ export default function AcceptButtonSendPage({
   isSendingSwap,
   canUseLightning,
   canUseLiquid,
+  setLoadingMessage,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
@@ -129,36 +130,12 @@ export default function AcceptButtonSendPage({
     if (!canSendPayment) return;
     setIsGeneratingInvoice(true);
     try {
-      console.log(paymentInfo);
-      // let invoice;
-
-      // if (paymentInfo?.type === InputTypeVariant.LN_URL_PAY) {
-      //   invoice = await getLNAddressForLiquidPayment(
-      //     paymentInfo,
-      //     convertedSendAmount,
-      //     paymentDescription,
-      //   );
-      // } else if (paymentInfo?.type === 'liquid') {
-      //   invoice = `${
-      //     process.env.BOLTZ_ENVIRONMENT === 'testnet'
-      //       ? 'liquidtestnet:'
-      //       : 'liquidnetwork:'
-      //   }${btcAdress}?amount=${(convertedSendAmount / SATSPERBITCOIN).toFixed(
-      //     8,
-      //   )}&assetid=${assetIDS['L-BTC']}`;
-      // } else {
-      //   invoice = paymentInfo?.data.invoice?.bolt11;
-      // }
-      // return;
-
-      decodeSendAddress({
+      await decodeSendAddress({
         nodeInformation,
         btcAdress: btcAdress,
         goBackFunction: errorMessageNavigation,
-        // setIsLightningPayment,
-        // setSendingAmount,
         setPaymentInfo,
-        // setIsLoading,
+
         liquidNodeInformation,
         masterInfoObject,
         navigate,
@@ -170,9 +147,10 @@ export default function AcceptButtonSendPage({
           description: paymentDescription,
           from: canUseLiquid ? 'liquid' : 'lightning',
         },
+        setLoadingMessage,
       });
     } catch (err) {
-      console.log(err);
+      console.log('accecpt button error', err);
     }
   }
 }

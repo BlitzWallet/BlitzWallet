@@ -125,6 +125,7 @@ export default async function decodeSendAddress(props) {
         );
       }
     } catch (err) {
+      console.log('error parsing liquid address', err);
       navigateToErrorScreen(navigate, 'Not a valid Address', goBackFunction);
     }
   }

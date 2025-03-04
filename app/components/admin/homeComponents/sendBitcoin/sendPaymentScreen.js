@@ -271,11 +271,7 @@ export default function SendPaymentScreen(props) {
     canUseLiquid,
     paymentInfo,
   );
-  if (
-    !Object.keys(paymentInfo).length ||
-    (!canEditPaymentAmount &&
-      ((isLiquidPayment && canUseLiquid) || (isSendingSwap && canUseLiquid)))
-  )
+  if (!Object.keys(paymentInfo).length)
     return <FullLoadingScreen text={loadingMessage} />;
 
   return (
@@ -392,6 +388,7 @@ export default function SendPaymentScreen(props) {
               isSendingSwap={isSendingSwap}
               canUseLightning={canUseLightning}
               canUseLiquid={canUseLiquid}
+              setLoadingMessage={setLoadingMessage}
             />
           </>
         )}
