@@ -4,7 +4,7 @@ import bolt11 from 'bolt11';
 import {ECPairFactory} from 'ecpair';
 import ecc from '@bitcoinerlab/secp256k1';
 import {assetIDS} from '../liquidWallet/assetIDS';
-
+import {Buffer} from 'buffer';
 const ECPair = ECPairFactory(ecc);
 
 const endpoint = 'https://api.boltz.exchange';
