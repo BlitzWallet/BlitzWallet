@@ -1,7 +1,7 @@
 import {fetchOnchainLimits} from '@breeztech/react-native-breez-sdk-liquid';
-import {formatBalanceAmount, numberConverter} from '../../../../../functions';
 import {sendBitcoinPayment} from './payments';
 import {SATSPERBITCOIN} from '../../../../../constants';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 
 export default async function processBitcoinAddress(input, context) {
   const {
@@ -40,16 +40,14 @@ export default async function processBitcoinAddress(input, context) {
       navigate.navigate('ErrorScreen', {
         errorMessage: `${
           amountSat < currentLimits.send.minSat ? 'Minimum' : 'Maximum'
-        } send amount ${formatBalanceAmount(
-          numberConverter(
+        } send amount ${displayCorrectDenomination({
+          amount:
             currentLimits.send[
               amountSat < currentLimits.send.minSat ? 'minSat' : 'maxSat'
             ],
-            masterInfoObject.userBalanceDenomination,
-            nodeInformation,
-            masterInfoObject.userBalanceDenomination === 'fiat' ? 2 : 0,
-          ),
-        )}`,
+          nodeInformation,
+          masterInfoObject,
+        })}`,
         customNavigator: () => goBackFunction(),
       });
       return;

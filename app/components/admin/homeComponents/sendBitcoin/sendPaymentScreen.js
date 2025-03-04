@@ -47,8 +47,6 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {calculateBoltzFeeNew} from '../../../../functions/boltz/boltzFeeNew';
 
 import NavbarBalance from './components/navBarBalance';
-import Icon from '../../../../functions/CustomElements/Icon';
-import {formatBalanceAmount} from '../../../../functions';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
@@ -60,7 +58,6 @@ import FormattedBalanceInput from '../../../../functions/CustomElements/formatte
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
-import {useKeysContext} from '../../../../../context-store/keys';
 import hasAlredyPaidInvoice from './functions/hasPaid';
 import {
   calculateEcashFees,
@@ -153,7 +150,6 @@ export default function SendPaymentScreen(props) {
     ? Math.round(convertedSendAmount * 0.005) + 4
     : null;
 
-  console.log(lightningFee);
   const isReverseSwap =
     canUseLightning &&
     (!canUseLiquid || !canUseEcash) &&
@@ -165,7 +161,7 @@ export default function SendPaymentScreen(props) {
   const isSendingSwap = isReverseSwap || isSubmarineSwap;
 
   const canSendPayment =
-    (canUseLiquid || canUseLightning) && sendingAmount != 0;
+    (canUseLiquid || canUseLightning) && sendingAmount != 0; //ecash is built into ln
 
   const isUsingSwapWithZeroInvoice =
     canUseLiquid &&
@@ -292,46 +288,52 @@ export default function SendPaymentScreen(props) {
 
           <NavbarBalance />
         </View>
-        <ScrollView
-          contentContainerStyle={{
+        <View
+          style={{
             flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
+            paddingVertical: 10,
           }}>
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={paymentInfo?.sendAmount || 0}
-            inputDenomination={masterInfoObject.userBalanceDenomination}
-            activeOpacity={!paymentInfo.sendAmount ? 0.5 : 1}
-          />
-
-          <FormattedSatText
-            containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
-            neverHideBalance={true}
-            styles={{includeFontPadding: false, ...styles.satValue}}
-            globalBalanceDenomination={
-              masterInfoObject.userBalanceDenomination === 'sats' ||
-              masterInfoObject.userBalanceDenomination === 'hidden'
-                ? 'fiat'
-                : 'sats'
-            }
-            balance={convertedSendAmount}
-          />
-
-          {!canEditPaymentAmount && (
-            <SendTransactionFeeInfo
-              canUseLightning={canUseLightning}
-              canUseLiquid={canUseLiquid}
-              isLightningPayment={isLightningPayment}
-              swapFee={swapFee}
-              lightningFee={lightningFee}
-              isReverseSwap={isReverseSwap}
-              isSubmarineSwap={isSubmarineSwap}
-              isLiquidPayment={isLiquidPayment}
-              paymentInfo={paymentInfo}
+          <ScrollView
+            contentContainerStyle={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <FormattedBalanceInput
+              maxWidth={0.9}
+              amountValue={paymentInfo?.sendAmount || 0}
+              inputDenomination={masterInfoObject.userBalanceDenomination}
+              activeOpacity={!paymentInfo.sendAmount ? 0.5 : 1}
             />
-          )}
-        </ScrollView>
+
+            <FormattedSatText
+              containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
+              neverHideBalance={true}
+              styles={{includeFontPadding: false, ...styles.satValue}}
+              globalBalanceDenomination={
+                masterInfoObject.userBalanceDenomination === 'sats' ||
+                masterInfoObject.userBalanceDenomination === 'hidden'
+                  ? 'fiat'
+                  : 'sats'
+              }
+              balance={convertedSendAmount}
+            />
+
+            {!canEditPaymentAmount && (
+              <SendTransactionFeeInfo
+                canUseLightning={canUseLightning}
+                canUseLiquid={canUseLiquid}
+                isLightningPayment={isLightningPayment}
+                swapFee={swapFee}
+                lightningFee={lightningFee}
+                isReverseSwap={isReverseSwap}
+                isSubmarineSwap={isSubmarineSwap}
+                isLiquidPayment={isLiquidPayment}
+                paymentInfo={paymentInfo}
+              />
+            )}
+          </ScrollView>
+        </View>
         {canEditPaymentAmount && (
           <>
             <SendMaxComponent

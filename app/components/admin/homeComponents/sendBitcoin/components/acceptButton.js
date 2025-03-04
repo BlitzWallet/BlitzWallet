@@ -3,10 +3,9 @@ import {useGlobalContextProvider} from '../../../../../../context-store/context'
 import {CENTER, SATSPERBITCOIN} from '../../../../../constants';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useState} from 'react';
-import {getLNAddressForLiquidPayment} from '../functions/payments';
-import {formatBalanceAmount, numberConverter} from '../../../../../functions';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 
 export default function AcceptButtonSendPage({
   canSendPayment,
@@ -16,7 +15,6 @@ export default function AcceptButtonSendPage({
   paymentInfo,
   convertedSendAmount,
   paymentDescription,
-  //   setSendingAmount,
   setPaymentInfo,
   isSendingSwap,
   canUseLightning,
@@ -76,18 +74,16 @@ export default function AcceptButtonSendPage({
           convertedSendAmount <= paymentInfo.data.limits.minSat
             ? 'Minimum'
             : 'Maximum'
-        } send amount ${formatBalanceAmount(
-          numberConverter(
+        } send amount ${displayCorrectDenomination({
+          amount:
             paymentInfo.data.limits[
               convertedSendAmount <= paymentInfo.data.limits.minSat
                 ? 'minSat'
                 : 'maxSat'
             ],
-            masterInfoObject.userBalanceDenomination,
-            nodeInformation,
-            masterInfoObject.userBalanceDenomination === 'fiat' ? 2 : 0,
-          ),
-        )}`,
+          nodeInformation,
+          masterInfoObject,
+        })}`,
       });
       return;
     }
@@ -104,30 +100,26 @@ export default function AcceptButtonSendPage({
     if (!canSendPayment && !!paymentInfo?.sendAmount) {
       navigate.navigate('ErrorScreen', {
         errorMessage:
-          isSendingSwap &&
-          (paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min ||
-            paymentInfo?.sendAmount > minMaxLiquidSwapAmounts.max)
+          paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min ||
+          paymentInfo?.sendAmount > minMaxLiquidSwapAmounts.max
             ? `${
                 paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min
                   ? 'Minimum'
                   : 'Maximum'
-              } send amount ${formatBalanceAmount(
-                numberConverter(
+              } send amount ${displayCorrectDenomination({
+                amount:
                   minMaxLiquidSwapAmounts[
                     paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min
                       ? 'min'
                       : 'max'
                   ],
-                  masterInfoObject.userBalanceDenomination,
-                  nodeInformation,
-                  masterInfoObject.userBalanceDenomination === 'fiat' ? 2 : 0,
-                ),
-              )}`
+                nodeInformation,
+                masterInfoObject,
+              })}`
             : 'Not enough funds to cover fees',
       });
       return;
     }
-    if (!canSendPayment) return;
     setIsGeneratingInvoice(true);
     try {
       await decodeSendAddress({
