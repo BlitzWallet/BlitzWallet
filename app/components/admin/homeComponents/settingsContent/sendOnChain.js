@@ -36,6 +36,7 @@ import connectToLightningNode from '../../../../functions/connectToLightning';
 import {DUST_LIMIT_FOR_BTC_CHAIN_PAYMENTS} from '../../../../constants/math';
 import {useLightningEvent} from '../../../../../context-store/lightningEventContext';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import {recommendedFees} from '@breeztech/react-native-breez-sdk-liquid';
 
 export default function SendOnChainBitcoin({isDoomsday}) {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -77,7 +78,7 @@ export default function SendOnChainBitcoin({isDoomsday}) {
             width: WINDOWWIDTH,
             ...CENTER,
           }}>
-          {isLoading || onChainBalance === 0 ? (
+          {isLoading || onChainBalance != 0 ? (
             <FullLoadingScreen
               showLoadingIcon={isLoading}
               textStyles={{textAlign: 'center'}}
@@ -352,8 +353,8 @@ export default function SendOnChainBitcoin({isDoomsday}) {
   }
   async function getMempoolTxFee() {
     try {
-      const data = await fetch('https://mempool.space/api/v1/fees/recommended');
-      const {fastestFee, halfHourFee, hourFee} = await data.json();
+      const data = await recommendedFees();
+      const {fastestFee, halfHourFee, hourFee} = data;
 
       setFeeInfo([
         {feeType: 'fastest', isSelected: true, feeAmount: fastestFee},

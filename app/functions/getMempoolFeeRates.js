@@ -1,11 +1,11 @@
-export async function getMempoolReccomenededFee(numberOfConfs = '2') {
+import {recommendedFees} from '@breeztech/react-native-breez-sdk-liquid';
+
+export async function getMempoolReccomenededFee(feeTime = 'fastestFee') {
   try {
-    const blockstreamResponse = await fetch(
-      'https://blockstream.info/api/fee-estimates',
-    );
-    const feeInfo = await blockstreamResponse.json();
-    return Math.round(feeInfo[numberOfConfs]);
+    const sdkFee = await recommendedFees();
+    return Math.round(sdkFee[feeTime]);
   } catch (err) {
+    console.log('get recommended mempool fee error', err);
     return false;
   }
 }
