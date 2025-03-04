@@ -70,6 +70,8 @@ import {
 } from '../../../../functions/eCash/wallet';
 
 export default function SendPaymentScreen(props) {
+  console.log('CONFIRM SEND PAYMENT SCREEN');
+  const navigate = useNavigation();
   const {
     btcAdress,
     fromPage,
@@ -77,39 +79,35 @@ export default function SendPaymentScreen(props) {
     comingFromAccept,
     enteredPaymentInfo,
   } = props.route.params;
+
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {contactsPrivateKey} = useKeysContext();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {ecashWalletInformation} = useGlobaleCash();
-  const eCashBalance = ecashWalletInformation.balance;
-  const {webViewRef, setWebViewArgs, toggleSavedIds} = useWebView();
-  console.log('CONFIRM SEND PAYMENT SCREEN');
-  const navigate = useNavigation();
+  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const {webViewRef, setWebViewArgs} = useWebView();
+
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [paymentInfo, setPaymentInfo] = useState({});
-  const sendingAmount = paymentInfo?.sendAmount;
-  //Combine these two add sending amount to payment info
   const [isSendingPayment, setIsSendingPayment] = useState(false);
-  const liquidTxFee = LIQUID_DEFAULT_FEE;
-  const isCalculatingFees = false;
   const [paymentDescription, setPaymentDescription] = useState('');
-  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const [loadingMessage, setLoadingMessage] = useState(
+    'Getting invoice information',
+  );
 
+  const eCashBalance = ecashWalletInformation.balance;
+  const sendingAmount = paymentInfo?.sendAmount;
   const isBTCdenominated =
     masterInfoObject.userBalanceDenomination === 'hidden' ||
     masterInfoObject.userBalanceDenomination === 'sats';
-
   const canEditPaymentAmount = paymentInfo?.canEditPayment;
-
   const convertedSendAmount = isBTCdenominated
     ? Math.round(Number(sendingAmount))
     : Math.round(
         (SATSPERBITCOIN / nodeInformation.fiatStats?.value) *
           Number(sendingAmount),
       );
-
   const swapFee = calculateBoltzFeeNew(
     Number(convertedSendAmount),
     paymentInfo.type === 'liquid' ? 'ln-liquid' : 'liquid-ln',
@@ -140,13 +138,11 @@ export default function SendPaymentScreen(props) {
     eCashBalance,
     masterInfoObject,
     convertedSendAmount,
-    liquidTxFee,
     swapFee,
     minMaxLiquidSwapAmounts,
     isLiquidPayment,
     isLightningPayment,
     paymentInfo,
-    lightningFee,
     isBitcoinPayment,
     usedEcashProofs,
     ecashWalletInformation,
@@ -181,14 +177,12 @@ export default function SendPaymentScreen(props) {
   // paymentInfo.type != InputTypeVariant.LN_URL_PAY &&
   // !paymentInfo.invoice?.amountMsat;
 
-  const handleBackPressFunction = useCallback(() => {
-    goBackFunction();
-    return true;
-  }, []);
-
   useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+    handleBackPress(() => {
+      goBackFunction();
+      return true;
+    });
+  }, []);
 
   useEffect(() => {
     async function decodePayment() {
@@ -209,10 +203,7 @@ export default function SendPaymentScreen(props) {
         nodeInformation,
         btcAdress,
         goBackFunction: errorMessageNavigation,
-        // setIsLightningPayment,
-        // setSendingAmount,
         setPaymentInfo,
-        // setIsLoading,
         liquidNodeInformation,
         masterInfoObject,
         setWebViewArgs,
@@ -222,6 +213,7 @@ export default function SendPaymentScreen(props) {
           minMaxLiquidSwapAmounts?.submarineSwapStats?.limits?.maximalZeroConf,
         comingFromAccept,
         enteredPaymentInfo,
+        setLoadingMessage,
       });
     }
     setTimeout(decodePayment, 1000);
@@ -270,11 +262,9 @@ export default function SendPaymentScreen(props) {
   console.log(
     'LOADNIG OPTIONS',
     !Object.keys(paymentInfo).length ||
-      (!liquidTxFee &&
-        !canEditPaymentAmount &&
+      (!canEditPaymentAmount &&
         (isLiquidPayment || (isSendingSwap && canUseLiquid))),
     Object.keys(paymentInfo).length,
-    liquidTxFee,
     canEditPaymentAmount,
     isLiquidPayment,
     isSendingSwap,
@@ -283,11 +273,10 @@ export default function SendPaymentScreen(props) {
   );
   if (
     !Object.keys(paymentInfo).length ||
-    (!liquidTxFee &&
-      !canEditPaymentAmount &&
+    (!canEditPaymentAmount &&
       ((isLiquidPayment && canUseLiquid) || (isSendingSwap && canUseLiquid)))
   )
-    return <FullLoadingScreen text={'Getting invoice information'} />;
+    return <FullLoadingScreen text={loadingMessage} />;
 
   return (
     <GlobalThemeView useStandardWidth={true}>
@@ -337,15 +326,9 @@ export default function SendPaymentScreen(props) {
             <SendTransactionFeeInfo
               canUseLightning={canUseLightning}
               canUseLiquid={canUseLiquid}
-              canUseEcash={canUseEcash}
               isLightningPayment={isLightningPayment}
               swapFee={swapFee}
               lightningFee={lightningFee}
-              liquidTxFee={liquidTxFee}
-              canSendPayment={canSendPayment}
-              convertedSendAmount={convertedSendAmount}
-              sendingAmount={sendingAmount}
-              isSendingSwap={isSendingSwap}
               isReverseSwap={isReverseSwap}
               isSubmarineSwap={isSubmarineSwap}
               isLiquidPayment={isLiquidPayment}
@@ -398,7 +381,6 @@ export default function SendPaymentScreen(props) {
             )}
             <AcceptButtonSendPage
               canSendPayment={canSendPayment}
-              isCalculatingFees={isCalculatingFees}
               decodeSendAddress={decodeSendAddress}
               errorMessageNavigation={errorMessageNavigation}
               btcAdress={btcAdress}
@@ -423,9 +405,7 @@ export default function SendPaymentScreen(props) {
             }}>
             <SwipeButton
               containerStyles={{
-                opacity: isCalculatingFees
-                  ? 0.5
-                  : isSendingPayment
+                opacity: isSendingPayment
                   ? 1
                   : canSendPayment
                   ? isBitcoinPayment
@@ -475,9 +455,7 @@ export default function SendPaymentScreen(props) {
               thumbIconBackgroundColor={COLORS.darkModeText}
               thumbIconBorderColor={COLORS.darkModeText}
               titleColor={COLORS.darkModeText}
-              title={
-                isCalculatingFees ? 'Calculating Fees' : 'Slide to confirm'
-              }
+              title={'Slide to confirm'}
             />
             {isSendingPayment && (
               <View
@@ -512,7 +490,6 @@ export default function SendPaymentScreen(props) {
   );
 
   async function sendPayment() {
-    if (isCalculatingFees) return;
     if (!canSendPayment) return;
     if (isSendingPayment) return;
     setIsSendingPayment(true);

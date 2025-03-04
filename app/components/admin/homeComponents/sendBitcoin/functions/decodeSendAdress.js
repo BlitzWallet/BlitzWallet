@@ -1,205 +1,94 @@
-import {
-  InputTypeVariant,
-  LnUrlCallbackStatusVariant,
-  lnurlAuth,
-  parseInput,
-  withdrawLnurl,
-} from '@breeztech/react-native-breez-sdk';
+import {InputTypeVariant, parseInput} from '@breeztech/react-native-breez-sdk';
 import {decodeLiquidAddress} from '../../../../../functions/liquidWallet/decodeLiquidAddress';
-import bip39LiquidAddressDecode from './bip39LiquidAddressDecode';
-import {getLNAddressForLiquidPayment, sendBitcoinPayment} from './payments';
-import {formatBalanceAmount, numberConverter} from '../../../../../functions';
-import {SATSPERBITCOIN} from '../../../../../constants';
+import {getLNAddressForLiquidPayment} from './payments';
 import {
-  fetchOnchainLimits,
-  lnurlWithdraw,
+  InputTypeVariant as LiquidTypeVarient,
+  parseInvoice,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import processBitcoinAddress from './processBitcoinAddress';
+import processBolt11Invoice from './processBolt11Invoice';
+import processLNUrlAuth from './processLNUrlAuth';
+import processLNUrlPay from './processLNUrlPay';
+import processLNUrlWithdraw from './processLNUrlWithdrawl';
+import processLiquidAddress from './processLiquidAddress';
 
-export default async function decodeSendAddress({
-  nodeInformation,
-  btcAdress,
-  goBackFunction,
-  // setIsLightningPayment,
-  setSendingAmount,
-  setPaymentInfo,
-  // setIsLoading,
-  liquidNodeInformation,
-  masterInfoObject,
-  setWebViewArgs,
-  webViewRef,
-  navigate,
-  setHasError,
-  maxZeroConf,
-  comingFromAccept,
-  enteredPaymentInfo,
-}) {
+export default async function decodeSendAddress(props) {
+  let {
+    nodeInformation,
+    btcAdress,
+    goBackFunction,
+    setPaymentInfo,
+    liquidNodeInformation,
+    masterInfoObject,
+    setWebViewArgs,
+    webViewRef,
+    navigate,
+    maxZeroConf,
+    comingFromAccept,
+    enteredPaymentInfo,
+    setLoadingMessage,
+  } = props;
+
   try {
-    let input;
+    // Handle cryptoqr.net special case
     if (btcAdress.includes('cryptoqr.net')) {
-      console.log(btcAdress.split('@')[1]);
-
+      const [username, domain] = btcAdress.split('@');
       const response = await fetch(
-        `https://${btcAdress.split('@')[1]}/.well-known/lnurlp/${
-          btcAdress.split('@')[0]
-        }`,
+        `https://${domain}/.well-known/lnurlp/${username}`,
       );
       const data = await response.json();
+
       if (data.status === 'ERROR') {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Not able to get merchant payment information',
-          customNavigator: () => goBackFunction(),
-        });
-        // Alert.alert('Not able to get merchant payment information', '', [
-        //   {text: 'Ok', onPress: () => goBackFunction()},
-        // ]);
-        return;
+        return navigateToErrorScreen(
+          navigate,
+          'Not able to get merchant payment information',
+          goBackFunction,
+        );
       }
+
       const bolt11 = await getLNAddressForLiquidPayment(
-        {data: data, type: InputTypeVariant.LN_URL_PAY},
+        {data, type: InputTypeVariant.LN_URL_PAY},
         data.minSendable / 1000,
       );
+      const parsedInvoice = await parseInvoice(bolt11);
 
-      input = await parseInput(bolt11);
-      if (input.invoice.amountMsat / 1000 >= maxZeroConf) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: `Cannot send more than ${displayCorrectDenomination({
+      if (parsedInvoice.amountMsat / 1000 >= maxZeroConf) {
+        return navigateToErrorScreen(
+          navigate,
+          `Cannot send more than ${displayCorrectDenomination({
             amount: maxZeroConf,
             nodeInformation,
             masterInfoObject,
           })} to a merchant`,
-          customNavigator: () => goBackFunction(),
-        });
-
-        return;
+          goBackFunction,
+        );
       }
-    } else {
-      input = await parseInput(btcAdress);
+      btcAdress = bolt11;
     }
 
-    if (input.type === InputTypeVariant.BITCOIN_ADDRESS) {
-      const currentLimits = await fetchOnchainLimits();
-      const amountSat = comingFromAccept
-        ? enteredPaymentInfo.amount
-        : input.address.amountSat || 0;
-
-      const fromNetwork = comingFromAccept
-        ? enteredPaymentInfo.from
-        : liquidNodeInformation.userBalance > amountSat
-        ? 'liquid'
-        : nodeInformation.userBalance > amountSat
-        ? 'lightning'
-        : 'none';
-
-      const shouldDrain =
-        fromNetwork === 'liquid'
-          ? liquidNodeInformation.userBalance - amountSat < 500
-          : nodeInformation.userBalance - amountSat < 500;
-
-      if (
-        (currentLimits.send.minSat > amountSat ||
-          currentLimits.send.maxSat < amountSat) &&
-        amountSat
-      ) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: `${
-            amountSat < currentLimits.send.minSat ? 'Minimum' : 'Maximum'
-          } send amount ${formatBalanceAmount(
-            numberConverter(
-              currentLimits.send[
-                amountSat < currentLimits.send.minSat ? 'minSat' : 'maxSat'
-              ],
-              masterInfoObject.userBalanceDenomination,
-              nodeInformation,
-              masterInfoObject.userBalanceDenomination === 'fiat' ? 2 : 0,
-            ),
-          )}`,
-          customNavigator: () => goBackFunction(),
-        });
-        return;
-      }
-      const fiatValue =
-        Number(amountSat) /
-        (SATSPERBITCOIN / (nodeInformation.fiatStats?.value || 65000));
-      let paymentInfo = {
-        address: input.address.address,
-        amount: amountSat,
-        label: input.address.label || '',
-        limits: currentLimits.send,
-        shouldDrain,
-      };
-      let paymentFee = 0;
-      if (amountSat) {
-        const paymentFeeResponse = await sendBitcoinPayment({
-          paymentInfo: {data: paymentInfo},
-          sendingValue: amountSat,
-          onlyPrepare: true,
-          from: fromNetwork,
-        });
-        if (paymentFeeResponse.didWork) {
-          paymentFee = paymentFeeResponse.fees;
-        } else {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: `Sending amount is above your balance`,
-            customNavigator: () => goBackFunction(),
-          });
-          return;
-        }
-      }
-      paymentInfo = {
-        ...paymentInfo,
-        fee: paymentFee,
-      };
-
-      setPaymentInfo({
-        data: paymentInfo,
-        type: 'Bitcoin',
-        paymentNetwork: 'Bitcoin',
-        sendAmount: !amountSat
-          ? ''
-          : `${
-              masterInfoObject.userBalanceDenomination != 'fiat'
-                ? `${amountSat}`
-                : fiatValue < 0.01
-                ? ''
-                : `${fiatValue.toFixed(2)}`
-            }`,
-        canEditPayment:
-          comingFromAccept || input.address.amountSat ? false : true,
-      });
-
-      return;
-    }
-    if (input.type === InputTypeVariant.BOLT11) {
-      const currentTime = Math.floor(Date.now() / 1000);
-      const expirationTime = input.invoice.timestamp + input.invoice.expiry;
-      const isExpired = currentTime > expirationTime;
-      if (isExpired) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Invoice is expired',
-          customNavigator: () => goBackFunction(),
-        });
-        return;
-      }
-    }
-
-    setupLNPage({
-      input,
-      setSendingAmount,
-      setPaymentInfo,
-      goBackFunction,
+    const input = await parseInput(btcAdress);
+    const processedPaymentInfo = await processInputType(input, {
       nodeInformation,
       liquidNodeInformation,
       masterInfoObject,
-      setWebViewArgs,
-      webViewRef,
       navigate,
-      setHasError,
+      goBackFunction,
+      maxZeroConf,
       comingFromAccept,
       enteredPaymentInfo,
+      setPaymentInfo,
+      webViewRef,
+      setWebViewArgs,
+      setLoadingMessage,
     });
+
+    if (processedPaymentInfo) {
+      setPaymentInfo(processedPaymentInfo);
+    }
   } catch (err) {
-    console.log(err, 'LIGHTNIG ERROR');
+    console.log(err, 'LIGHTNING ERROR');
+
     try {
       const rawLiquidAddress = btcAdress.startsWith(
         process.env.BOLTZ_ENVIRONMENT === 'testnet'
@@ -211,231 +100,68 @@ export default async function decodeSendAddress({
 
       const input = decodeLiquidAddress(rawLiquidAddress);
 
-      if (input)
-        setupLiquidPage({
-          btcAddress: btcAdress,
-          // setIsLightningPayment,
-          setSendingAmount,
-          setPaymentInfo,
-          // setIsLoading,
-          goBackFunction,
-          liquidNodeInformation,
-          nodeInformation,
+      if (input) {
+        const processedLiquidInfo = await processInputType(
+          {...input, type: 'liquidAddress'},
+          {
+            btcAddress: btcAdress,
+            liquidNodeInformation,
+            nodeInformation,
+            masterInfoObject,
+            navigate,
+            goBackFunction,
+            comingFromAccept,
+            enteredPaymentInfo,
+            setLoadingMessage,
+          },
+        );
+
+        setPaymentInfo(processedLiquidInfo);
+      } else {
+        navigateToErrorScreen(
           navigate,
-          masterInfoObject,
-          comingFromAccept,
-          enteredPaymentInfo,
-        });
-      else
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Error getting liquid address',
-          customNavigator: () => goBackFunction(),
-        });
+          'Error getting liquid address',
+          goBackFunction,
+        );
+      }
     } catch (err) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: 'Not a valid Address',
-        customNavigator: () => goBackFunction(),
-      });
+      navigateToErrorScreen(navigate, 'Not a valid Address', goBackFunction);
     }
   }
 }
-async function setupLiquidPage({
-  btcAddress,
-  setSendingAmount,
-  setPaymentInfo,
-  goBackFunction,
-  liquidNodeInformation,
-  nodeInformation,
-  navigate,
-  masterInfoObject,
-  comingFromAccept,
-  enteredPaymentInfo,
-}) {
-  let addressInfo = bip39LiquidAddressDecode(btcAddress, liquidNodeInformation);
 
-  if (comingFromAccept) {
-    console.log('RUNNING FROM ACEPT');
-    addressInfo.amount = enteredPaymentInfo.amount;
-    addressInfo.label = enteredPaymentInfo.description;
-    addressInfo.isBip21 = true;
-    const shouldDrain =
-      liquidNodeInformation.userBalance - addressInfo.amount < 10
-        ? true
-        : false;
-    addressInfo.shouldDrain = shouldDrain;
+async function processInputType(input, context) {
+  const {navigate, goBackFunction, setLoadingMessage} = context;
+  setLoadingMessage('Getting invoice details');
+
+  switch (input.type) {
+    case InputTypeVariant.BITCOIN_ADDRESS:
+      return await processBitcoinAddress(input, context);
+
+    case InputTypeVariant.BOLT11:
+      return processBolt11Invoice(input, context);
+
+    case InputTypeVariant.LN_URL_AUTH:
+      return await processLNUrlAuth(input, context);
+
+    case InputTypeVariant.LN_URL_PAY:
+      return processLNUrlPay(input, context);
+
+    case InputTypeVariant.LN_URL_WITHDRAW:
+      return await processLNUrlWithdraw(input, context);
+
+    case LiquidTypeVarient.LIQUID_ADDRESS:
+      return processLiquidAddress(input, context);
+
+    default:
+      navigateToErrorScreen(navigate, 'Not a valid Address', goBackFunction);
+      return null;
   }
+}
 
-  const amountSat = addressInfo.amount;
-  const fiatValue =
-    Number(amountSat) /
-    (SATSPERBITCOIN / (nodeInformation.fiatStats?.value || 65000));
-
-  console.log(fiatValue, 'FIAT VALUE');
-
-  setPaymentInfo({
-    data: addressInfo,
-    type: 'liquid',
-    paymentNetwork: 'liquid',
-    sendAmount: !addressInfo.amount
-      ? ''
-      : `${
-          masterInfoObject.userBalanceDenomination != 'fiat'
-            ? `${amountSat}`
-            : fiatValue < 0.01
-            ? ''
-            : `${fiatValue.toFixed(2)}`
-        }`,
-    canEditPayment: !addressInfo.isBip21,
+function navigateToErrorScreen(navigate, message, goBackFunction) {
+  navigate.navigate('ErrorScreen', {
+    errorMessage: message,
+    customNavigator: () => goBackFunction(),
   });
-
-  // setSendingAmount(addressInfo.amount);
-  // setPaymentInfo({type: 'liquid', addressInfo: addressInfo});
-
-  // setTimeout(() => {
-  //   setIsLoading(false);
-  // }, 1000);
-}
-
-async function setupLNPage({
-  input,
-  setSendingAmount,
-  setPaymentInfo,
-  goBackFunction,
-  nodeInformation,
-  masterInfoObject,
-  setWebViewArgs,
-  webViewRef,
-  navigate,
-  setHasError,
-  comingFromAccept,
-  enteredPaymentInfo,
-}) {
-  try {
-    if (input.type === InputTypeVariant.LN_URL_AUTH) {
-      try {
-        const result = await lnurlAuth(input.data);
-        if (result.type === LnUrlCallbackStatusVariant.OK) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: 'LNURL successfully authenticated',
-            customNavigator: () => goBackFunction(),
-          });
-        } else {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: 'Failed to authenticate LNURL',
-            customNavigator: () => goBackFunction(),
-          });
-        }
-      } catch (err) {
-        console.log(err);
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Failed to authenticate LNURL',
-          customNavigator: () => goBackFunction(),
-        });
-      }
-      return;
-    } else if (input.type === InputTypeVariant.LN_URL_PAY) {
-      const amountMsat = comingFromAccept
-        ? enteredPaymentInfo.amount * 1000
-        : input.data.minSendable;
-      const fiatValue =
-        Number(amountMsat / 1000) /
-        (SATSPERBITCOIN / (nodeInformation.fiatStats?.value || 65000));
-
-      console.log(fiatValue, 'FIAT VALUE');
-      // setSendingAmount(
-      //   `${
-      //     masterInfoObject.userBalanceDenomination != 'fiat'
-      //       ? amountMsat / 1000
-      //       : fiatValue < 0.01
-      //       ? ''
-      //       : fiatValue.toFixed(2)
-      //   }`,
-      // );
-      setPaymentInfo({
-        data: comingFromAccept
-          ? {...input.data, message: enteredPaymentInfo.description}
-          : input.data,
-        type: InputTypeVariant.LN_URL_PAY,
-        paymentNetwork: 'lightning',
-        sendAmount: `${
-          masterInfoObject.userBalanceDenomination != 'fiat'
-            ? `${Math.round(amountMsat / 1000)}`
-            : fiatValue < 0.01
-            ? ''
-            : `${fiatValue.toFixed(2)}`
-        }`,
-        canEditPayment: !comingFromAccept,
-      });
-      return;
-    } else if (input.type === InputTypeVariant.LN_URL_WITHDRAW) {
-      if (
-        nodeInformation.userBalance != 0 &&
-        nodeInformation.inboundLiquidityMsat / 1000 >
-          input.data.maxWithdrawable / 1000 + 100
-      ) {
-        try {
-          await withdrawLnurl({
-            data: input.data,
-            amountMsat: input.data.maxWithdrawable,
-            description: input.data.defaultDescription,
-          });
-
-          setHasError('Retrieving LNURL');
-        } catch (err) {
-          console.log(err);
-          navigate.navigate('ErrorScreen', {
-            errorMessage: 'Error comnpleting withdrawl',
-            customNavigator: () => goBackFunction(),
-          });
-        }
-      } else if (
-        masterInfoObject.liquidWalletSettings.regulatedChannelOpenSize
-      ) {
-        const amountMsat = input.data.minWithdrawable;
-        await lnurlWithdraw({
-          data: input.data,
-          amountMsat,
-          description: 'Withdrawl',
-        });
-        setHasError('Retrieving LNURL');
-
-        return;
-      }
-      return;
-    }
-
-    const amountMsat = comingFromAccept
-      ? enteredPaymentInfo.amount * 1000
-      : input.invoice.amountMsat;
-    const fiatValue =
-      !!amountMsat &&
-      Number(amountMsat / 1000) /
-        (SATSPERBITCOIN / (nodeInformation.fiatStats?.value || 65000));
-    setPaymentInfo({
-      data: input,
-      type: InputTypeVariant.BOLT11,
-      paymentNetwork: 'lightning',
-      sendAmount: !amountMsat
-        ? ''
-        : `${
-            masterInfoObject.userBalanceDenomination != 'fiat'
-              ? `${Math.round(amountMsat / 1000)}`
-              : fiatValue < 0.01
-              ? ''
-              : `${fiatValue.toFixed(2)}`
-          }`,
-      canEditPayment: comingFromAccept ? false : !amountMsat,
-    });
-    // setSendingAmount(
-    //   !input.invoice.amountMsat ? '' : input.invoice.amountMsat / 1000,
-    // );
-    // setPaymentInfo(input);
-  } catch (err) {
-    navigate.navigate('ErrorScreen', {
-      errorMessage: 'Not a valid Address',
-      customNavigator: () => goBackFunction(),
-    });
-
-    console.log(err);
-  }
 }

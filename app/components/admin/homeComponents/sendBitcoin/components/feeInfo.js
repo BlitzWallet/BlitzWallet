@@ -1,6 +1,11 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {ThemeText} from '../../../../../functions/CustomElements';
-import {CENTER, ICONS, SIZES} from '../../../../../constants';
+import {
+  CENTER,
+  ICONS,
+  LIQUID_DEFAULT_FEE,
+  SIZES,
+} from '../../../../../constants';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {useNavigation} from '@react-navigation/native';
@@ -9,15 +14,8 @@ export default function SendTransactionFeeInfo({
   canUseLiquid,
   canUseLightning,
   isLightningPayment,
-  // fees,
   swapFee,
-  liquidTxFee,
-  canSendPayment,
-  convertedSendAmount,
-  sendingAmount,
   lightningFee,
-  canUseEcash,
-  isSendingSwap,
   isReverseSwap,
   isSubmarineSwap,
   isLiquidPayment,
@@ -35,7 +33,6 @@ export default function SendTransactionFeeInfo({
   //Liquid -> Liquid: liquid transaction fee of
   //LIquid -> LN: bank swap fee of
 
-  // if ((!canSendPayment && sendingAmount) || !sendingAmount) return;
   console.log(swapFee);
   return (
     <View>
@@ -96,7 +93,7 @@ export default function SendTransactionFeeInfo({
             backText={' & instant'}
             neverHideBalance={true}
             styles={{includeFontPadding: false}}
-            balance={swapFee + liquidTxFee}
+            balance={swapFee + LIQUID_DEFAULT_FEE}
           />
         )
       ) : isLiquidPayment ? (
@@ -105,7 +102,7 @@ export default function SendTransactionFeeInfo({
             backText={' & instant'}
             neverHideBalance={true}
             styles={{includeFontPadding: false}}
-            balance={liquidTxFee}
+            balance={LIQUID_DEFAULT_FEE}
           />
         ) : (
           <FormattedSatText

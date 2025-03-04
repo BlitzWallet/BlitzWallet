@@ -10,7 +10,6 @@ import {useAppStatus} from '../../../../../../context-store/appStatus';
 
 export default function AcceptButtonSendPage({
   canSendPayment,
-  isCalculatingFees,
   decodeSendAddress,
   errorMessageNavigation,
   btcAdress,
@@ -34,7 +33,6 @@ export default function AcceptButtonSendPage({
       buttonStyles={{
         opacity:
           canSendPayment &&
-          !isCalculatingFees &&
           !(
             isSendingSwap &&
             paymentInfo?.data?.invoice?.amountMsat === null &&
@@ -61,10 +59,6 @@ export default function AcceptButtonSendPage({
   );
 
   async function handleEnterSendAmount() {
-    if (isCalculatingFees) {
-      navigate.navigate('ErrorScreen', {errorMessage: 'Calculating fees'});
-      return;
-    }
     if (!paymentInfo?.sendAmount) {
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Please enter a send amount',
