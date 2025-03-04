@@ -47,8 +47,6 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {calculateBoltzFeeNew} from '../../../../functions/boltz/boltzFeeNew';
 
 import NavbarBalance from './components/navBarBalance';
-import Icon from '../../../../functions/CustomElements/Icon';
-import {formatBalanceAmount} from '../../../../functions';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
@@ -60,7 +58,6 @@ import FormattedBalanceInput from '../../../../functions/CustomElements/formatte
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
-import {useKeysContext} from '../../../../../context-store/keys';
 import hasAlredyPaidInvoice from './functions/hasPaid';
 import {
   calculateEcashFees,
@@ -70,6 +67,8 @@ import {
 } from '../../../../functions/eCash/wallet';
 
 export default function SendPaymentScreen(props) {
+  console.log('CONFIRM SEND PAYMENT SCREEN');
+  const navigate = useNavigation();
   const {
     btcAdress,
     fromPage,
@@ -77,39 +76,35 @@ export default function SendPaymentScreen(props) {
     comingFromAccept,
     enteredPaymentInfo,
   } = props.route.params;
+
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {contactsPrivateKey} = useKeysContext();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {ecashWalletInformation} = useGlobaleCash();
-  const eCashBalance = ecashWalletInformation.balance;
-  const {webViewRef, setWebViewArgs, toggleSavedIds} = useWebView();
-  console.log('CONFIRM SEND PAYMENT SCREEN');
-  const navigate = useNavigation();
+  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const {webViewRef, setWebViewArgs} = useWebView();
+
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [paymentInfo, setPaymentInfo] = useState({});
-  const sendingAmount = paymentInfo?.sendAmount;
-  //Combine these two add sending amount to payment info
   const [isSendingPayment, setIsSendingPayment] = useState(false);
-  const liquidTxFee = LIQUID_DEFAULT_FEE;
-  const isCalculatingFees = false;
   const [paymentDescription, setPaymentDescription] = useState('');
-  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const [loadingMessage, setLoadingMessage] = useState(
+    'Getting invoice information',
+  );
 
+  const eCashBalance = ecashWalletInformation.balance;
+  const sendingAmount = paymentInfo?.sendAmount;
   const isBTCdenominated =
     masterInfoObject.userBalanceDenomination === 'hidden' ||
     masterInfoObject.userBalanceDenomination === 'sats';
-
   const canEditPaymentAmount = paymentInfo?.canEditPayment;
-
   const convertedSendAmount = isBTCdenominated
     ? Math.round(Number(sendingAmount))
     : Math.round(
         (SATSPERBITCOIN / nodeInformation.fiatStats?.value) *
           Number(sendingAmount),
       );
-
   const swapFee = calculateBoltzFeeNew(
     Number(convertedSendAmount),
     paymentInfo.type === 'liquid' ? 'ln-liquid' : 'liquid-ln',
@@ -140,13 +135,11 @@ export default function SendPaymentScreen(props) {
     eCashBalance,
     masterInfoObject,
     convertedSendAmount,
-    liquidTxFee,
     swapFee,
     minMaxLiquidSwapAmounts,
     isLiquidPayment,
     isLightningPayment,
     paymentInfo,
-    lightningFee,
     isBitcoinPayment,
     usedEcashProofs,
     ecashWalletInformation,
@@ -157,7 +150,6 @@ export default function SendPaymentScreen(props) {
     ? Math.round(convertedSendAmount * 0.005) + 4
     : null;
 
-  console.log(lightningFee);
   const isReverseSwap =
     canUseLightning &&
     (!canUseLiquid || !canUseEcash) &&
@@ -169,7 +161,7 @@ export default function SendPaymentScreen(props) {
   const isSendingSwap = isReverseSwap || isSubmarineSwap;
 
   const canSendPayment =
-    (canUseLiquid || canUseLightning) && sendingAmount != 0;
+    (canUseLiquid || canUseLightning) && sendingAmount != 0; //ecash is built into ln
 
   const isUsingSwapWithZeroInvoice =
     canUseLiquid &&
@@ -181,14 +173,12 @@ export default function SendPaymentScreen(props) {
   // paymentInfo.type != InputTypeVariant.LN_URL_PAY &&
   // !paymentInfo.invoice?.amountMsat;
 
-  const handleBackPressFunction = useCallback(() => {
-    goBackFunction();
-    return true;
-  }, []);
-
   useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+    handleBackPress(() => {
+      goBackFunction();
+      return true;
+    });
+  }, []);
 
   useEffect(() => {
     async function decodePayment() {
@@ -209,10 +199,7 @@ export default function SendPaymentScreen(props) {
         nodeInformation,
         btcAdress,
         goBackFunction: errorMessageNavigation,
-        // setIsLightningPayment,
-        // setSendingAmount,
         setPaymentInfo,
-        // setIsLoading,
         liquidNodeInformation,
         masterInfoObject,
         setWebViewArgs,
@@ -222,6 +209,8 @@ export default function SendPaymentScreen(props) {
           minMaxLiquidSwapAmounts?.submarineSwapStats?.limits?.maximalZeroConf,
         comingFromAccept,
         enteredPaymentInfo,
+        setLoadingMessage,
+        paymentInfo,
       });
     }
     setTimeout(decodePayment, 1000);
@@ -270,24 +259,17 @@ export default function SendPaymentScreen(props) {
   console.log(
     'LOADNIG OPTIONS',
     !Object.keys(paymentInfo).length ||
-      (!liquidTxFee &&
-        !canEditPaymentAmount &&
+      (!canEditPaymentAmount &&
         (isLiquidPayment || (isSendingSwap && canUseLiquid))),
     Object.keys(paymentInfo).length,
-    liquidTxFee,
     canEditPaymentAmount,
     isLiquidPayment,
     isSendingSwap,
     canUseLiquid,
     paymentInfo,
   );
-  if (
-    !Object.keys(paymentInfo).length ||
-    (!liquidTxFee &&
-      !canEditPaymentAmount &&
-      ((isLiquidPayment && canUseLiquid) || (isSendingSwap && canUseLiquid)))
-  )
-    return <FullLoadingScreen text={'Getting invoice information'} />;
+  if (!Object.keys(paymentInfo).length)
+    return <FullLoadingScreen text={loadingMessage} />;
 
   return (
     <GlobalThemeView useStandardWidth={true}>
@@ -307,52 +289,52 @@ export default function SendPaymentScreen(props) {
 
           <NavbarBalance />
         </View>
-        <ScrollView
-          contentContainerStyle={{
+        <View
+          style={{
             flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
+            paddingVertical: 10,
           }}>
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={paymentInfo?.sendAmount || 0}
-            inputDenomination={masterInfoObject.userBalanceDenomination}
-            activeOpacity={!paymentInfo.sendAmount ? 0.5 : 1}
-          />
-
-          <FormattedSatText
-            containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
-            neverHideBalance={true}
-            styles={{includeFontPadding: false, ...styles.satValue}}
-            globalBalanceDenomination={
-              masterInfoObject.userBalanceDenomination === 'sats' ||
-              masterInfoObject.userBalanceDenomination === 'hidden'
-                ? 'fiat'
-                : 'sats'
-            }
-            balance={convertedSendAmount}
-          />
-
-          {!canEditPaymentAmount && (
-            <SendTransactionFeeInfo
-              canUseLightning={canUseLightning}
-              canUseLiquid={canUseLiquid}
-              canUseEcash={canUseEcash}
-              isLightningPayment={isLightningPayment}
-              swapFee={swapFee}
-              lightningFee={lightningFee}
-              liquidTxFee={liquidTxFee}
-              canSendPayment={canSendPayment}
-              convertedSendAmount={convertedSendAmount}
-              sendingAmount={sendingAmount}
-              isSendingSwap={isSendingSwap}
-              isReverseSwap={isReverseSwap}
-              isSubmarineSwap={isSubmarineSwap}
-              isLiquidPayment={isLiquidPayment}
-              paymentInfo={paymentInfo}
+          <ScrollView
+            contentContainerStyle={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <FormattedBalanceInput
+              maxWidth={0.9}
+              amountValue={paymentInfo?.sendAmount || 0}
+              inputDenomination={masterInfoObject.userBalanceDenomination}
+              activeOpacity={!paymentInfo.sendAmount ? 0.5 : 1}
             />
-          )}
-        </ScrollView>
+
+            <FormattedSatText
+              containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
+              neverHideBalance={true}
+              styles={{includeFontPadding: false, ...styles.satValue}}
+              globalBalanceDenomination={
+                masterInfoObject.userBalanceDenomination === 'sats' ||
+                masterInfoObject.userBalanceDenomination === 'hidden'
+                  ? 'fiat'
+                  : 'sats'
+              }
+              balance={convertedSendAmount}
+            />
+
+            {!canEditPaymentAmount && (
+              <SendTransactionFeeInfo
+                canUseLightning={canUseLightning}
+                canUseLiquid={canUseLiquid}
+                isLightningPayment={isLightningPayment}
+                swapFee={swapFee}
+                lightningFee={lightningFee}
+                isReverseSwap={isReverseSwap}
+                isSubmarineSwap={isSubmarineSwap}
+                isLiquidPayment={isLiquidPayment}
+                paymentInfo={paymentInfo}
+              />
+            )}
+          </ScrollView>
+        </View>
         {canEditPaymentAmount && (
           <>
             <SendMaxComponent
@@ -398,7 +380,6 @@ export default function SendPaymentScreen(props) {
             )}
             <AcceptButtonSendPage
               canSendPayment={canSendPayment}
-              isCalculatingFees={isCalculatingFees}
               decodeSendAddress={decodeSendAddress}
               errorMessageNavigation={errorMessageNavigation}
               btcAdress={btcAdress}
@@ -410,6 +391,7 @@ export default function SendPaymentScreen(props) {
               isSendingSwap={isSendingSwap}
               canUseLightning={canUseLightning}
               canUseLiquid={canUseLiquid}
+              setLoadingMessage={setLoadingMessage}
             />
           </>
         )}
@@ -423,9 +405,7 @@ export default function SendPaymentScreen(props) {
             }}>
             <SwipeButton
               containerStyles={{
-                opacity: isCalculatingFees
-                  ? 0.5
-                  : isSendingPayment
+                opacity: isSendingPayment
                   ? 1
                   : canSendPayment
                   ? isBitcoinPayment
@@ -475,9 +455,7 @@ export default function SendPaymentScreen(props) {
               thumbIconBackgroundColor={COLORS.darkModeText}
               thumbIconBorderColor={COLORS.darkModeText}
               titleColor={COLORS.darkModeText}
-              title={
-                isCalculatingFees ? 'Calculating Fees' : 'Slide to confirm'
-              }
+              title={'Slide to confirm'}
             />
             {isSendingPayment && (
               <View
@@ -512,7 +490,6 @@ export default function SendPaymentScreen(props) {
   );
 
   async function sendPayment() {
-    if (isCalculatingFees) return;
     if (!canSendPayment) return;
     if (isSendingPayment) return;
     setIsSendingPayment(true);

@@ -1,9 +1,5 @@
 import {InputTypeVariant} from '@breeztech/react-native-breez-sdk';
-import {
-  DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS,
-  LIGHTNINGAMOUNTBUFFER,
-  LIQUIDAMOUTBUFFER,
-} from '../../../../../constants/math';
+import {DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS} from '../../../../../constants/math';
 import {calculateEcashFees} from '../../../../../functions/eCash/wallet';
 
 export default function usablePaymentNetwork({
@@ -12,13 +8,11 @@ export default function usablePaymentNetwork({
   eCashBalance,
   masterInfoObject,
   convertedSendAmount,
-  liquidTxFee,
   swapFee,
   minMaxLiquidSwapAmounts,
   isLiquidPayment,
   isLightningPayment,
   paymentInfo,
-  lightningFee,
   usedEcashProofs,
   ecashWalletInformation,
 }) {
