@@ -28,6 +28,7 @@ export default async function decodeSendAddress(props) {
     comingFromAccept,
     enteredPaymentInfo,
     setLoadingMessage,
+    paymentInfo,
   } = props;
 
   try {
@@ -81,6 +82,7 @@ export default async function decodeSendAddress(props) {
       webViewRef,
       setWebViewArgs,
       setLoadingMessage,
+      paymentInfo,
     });
 
     if (processedPaymentInfo) {
@@ -113,6 +115,7 @@ export default async function decodeSendAddress(props) {
             comingFromAccept,
             enteredPaymentInfo,
             setLoadingMessage,
+            paymentInfo,
           },
         );
 

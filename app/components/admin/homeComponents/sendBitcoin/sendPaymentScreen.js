@@ -210,6 +210,7 @@ export default function SendPaymentScreen(props) {
         comingFromAccept,
         enteredPaymentInfo,
         setLoadingMessage,
+        paymentInfo,
       });
     }
     setTimeout(decodePayment, 1000);

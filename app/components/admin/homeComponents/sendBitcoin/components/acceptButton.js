@@ -139,6 +139,7 @@ export default function AcceptButtonSendPage({
           description: paymentDescription,
           from: canUseLiquid ? 'liquid' : 'lightning',
         },
+        paymentInfo,
         setLoadingMessage,
       });
     } catch (err) {

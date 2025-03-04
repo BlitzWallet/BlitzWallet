@@ -1,7 +1,6 @@
 import {fetchOnchainLimits} from '@breeztech/react-native-breez-sdk-liquid';
 import {sendBitcoinPayment} from './payments';
 import {SATSPERBITCOIN} from '../../../../../constants';
-import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 
 export default async function processBitcoinAddress(input, context) {
   const {
@@ -12,9 +11,14 @@ export default async function processBitcoinAddress(input, context) {
     goBackFunction,
     comingFromAccept,
     enteredPaymentInfo,
+    paymentInfo,
   } = context;
   try {
-    const currentLimits = await fetchOnchainLimits();
+    const choosingLimit = paymentInfo?.data?.limits
+      ? Promise.resolve({send: paymentInfo?.data?.limits})
+      : fetchOnchainLimits();
+    const currentLimits = await choosingLimit;
+
     const amountSat = comingFromAccept
       ? enteredPaymentInfo.amount
       : input.address.amountSat || 0;
@@ -32,30 +36,10 @@ export default async function processBitcoinAddress(input, context) {
         ? liquidNodeInformation.userBalance - amountSat < 500
         : nodeInformation.userBalance - amountSat < 500;
 
-    if (
-      (currentLimits.send.minSat > amountSat ||
-        currentLimits.send.maxSat < amountSat) &&
-      amountSat
-    ) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: `${
-          amountSat < currentLimits.send.minSat ? 'Minimum' : 'Maximum'
-        } send amount ${displayCorrectDenomination({
-          amount:
-            currentLimits.send[
-              amountSat < currentLimits.send.minSat ? 'minSat' : 'maxSat'
-            ],
-          nodeInformation,
-          masterInfoObject,
-        })}`,
-        customNavigator: () => goBackFunction(),
-      });
-      return;
-    }
     const fiatValue =
       Number(amountSat) /
       (SATSPERBITCOIN / (nodeInformation.fiatStats?.value || 65000));
-    let paymentInfo = {
+    let newPaymentInfo = {
       address: input.address.address,
       amount: amountSat,
       label: input.address.label || '',
@@ -65,7 +49,7 @@ export default async function processBitcoinAddress(input, context) {
     let paymentFee = 0;
     if (amountSat) {
       const paymentFeeResponse = await sendBitcoinPayment({
-        paymentInfo: {data: paymentInfo},
+        paymentInfo: {data: newPaymentInfo},
         sendingValue: amountSat,
         onlyPrepare: true,
         from: fromNetwork,
@@ -80,13 +64,13 @@ export default async function processBitcoinAddress(input, context) {
         return;
       }
     }
-    paymentInfo = {
-      ...paymentInfo,
+    newPaymentInfo = {
+      ...newPaymentInfo,
       fee: paymentFee,
     };
 
     return {
-      data: paymentInfo,
+      data: newPaymentInfo,
       type: 'Bitcoin',
       paymentNetwork: 'Bitcoin',
       sendAmount: !amountSat
