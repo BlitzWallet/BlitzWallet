@@ -64,7 +64,18 @@ export default function MigrateProofsPopup(props) {
   }, []);
 
   useEffect(() => {
-    if (!parsedEcashInformation) return;
+    if (!parsedEcashInformation || !Array.isArray(parsedEcashInformation))
+      return;
+    const transformedMints = parsedEcashInformation.map(mint => {
+      return {
+        ...mint,
+        mintURL: mint.mintURL.replace(
+          /stablenut\.umint\.cash/g,
+          'stablenut.cashu.network',
+        ),
+      };
+    });
+
     async function handleMigration() {
       await setLocalStorageItem(
         MIGRATE_ECASH_STORAGE_KEY,
@@ -74,11 +85,11 @@ export default function MigrateProofsPopup(props) {
       let failedMints = [];
       let count = 0;
       try {
-        for (const mint of parsedEcashInformation) {
+        for (const mint of transformedMints) {
           console.log('running restore for mint:', mint.mintURL);
           count += 1;
           setMigrationUpdates(
-            `Migrating ${count} of ${parsedEcashInformation.length} mints`,
+            `Migrating ${count} of ${transformedMints.length} mints`,
           );
           const {wallet, reason, didWork} = await migrateEcashWallet(
             mint.mintURL,
@@ -154,7 +165,7 @@ export default function MigrateProofsPopup(props) {
 
         if (failedMints.length) {
           console.log('Updating db mint list to only failed mints');
-          const newSavedMintList = parsedEcashInformation.filter(savedMint =>
+          const newSavedMintList = transformedMints.filter(savedMint =>
             failedMints.includes(savedMint.mintURL),
           );
           console.log(newSavedMintList, 'filtered mint list');
@@ -169,7 +180,7 @@ export default function MigrateProofsPopup(props) {
 
         const hasSelectedMint = migratedMints.filter(mint => {
           console.log(mint, 'IN FILTER MINT');
-          return parsedEcashInformation.find(
+          return transformedMints.find(
             parsedMint =>
               parsedMint.mintURL === mint && parsedMint.isCurrentMint,
           );
@@ -184,7 +195,7 @@ export default function MigrateProofsPopup(props) {
 
         setWasSuccesfull(
           `Migrated ${migratedMints.length} of ${
-            parsedEcashInformation.length
+            transformedMints.length
           } mints. ${
             failedMints.length
               ? failedMints.join(' ') +
