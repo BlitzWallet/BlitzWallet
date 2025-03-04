@@ -4852,6 +4852,7 @@ __metadata:
     babel-plugin-module-resolver: ^5.0.2
     babel-plugin-transform-remove-console: ^6.9.4
     bip21: ^3.0.0
+    bolt11: ^1.4.1
     boltz-swap-web-context: "https://github.com/BlakeKaufman/boltz-swap-web-context.git"
     buffer: ^6.0.3
     ecpair: ^3.0.0-rc.0

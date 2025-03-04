@@ -34,6 +34,7 @@
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
     "bip21": "^3.0.0",
+    "bolt11": "^1.4.1",
     "boltz-swap-web-context": "https://github.com/BlakeKaufman/boltz-swap-web-context.git",
     "buffer": "^6.0.3",
     "ecpair": "^3.0.0-rc.0",
