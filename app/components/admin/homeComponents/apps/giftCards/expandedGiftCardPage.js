@@ -63,7 +63,7 @@ export default function ExpandedGiftCardPage(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {globalContactsInformation} = useGlobalContacts();
   const {masterInfoObject} = useGlobalContextProvider();
-  const {backgroundOffset} = GetThemeColors();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const insets = useSafeAreaInsets();
   const {width} = useWindowDimensions();
@@ -193,7 +193,9 @@ export default function ExpandedGiftCardPage(props) {
                         borderWidth: 1,
                         borderColor:
                           !canPurchaseCard && selectedDenomination
-                            ? COLORS.cancelRed
+                            ? theme && darkModeType
+                              ? backgroundColor
+                              : COLORS.cancelRed
                             : backgroundOffset,
                         color: COLORS.lightModeText,
                       }}
@@ -325,7 +327,9 @@ export default function ExpandedGiftCardPage(props) {
                     backgroundColor: COLORS.darkModeText,
                     borderWidth: 1,
                     borderColor: !EMAIL_REGEX.test(email)
-                      ? COLORS.cancelRed
+                      ? theme && darkModeType
+                        ? backgroundColor
+                        : COLORS.cancelRed
                       : backgroundOffset,
                     color: COLORS.lightModeText,
                   }}

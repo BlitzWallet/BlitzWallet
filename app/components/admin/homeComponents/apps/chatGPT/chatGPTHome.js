@@ -126,7 +126,9 @@ export default function ChatGPTHome(props) {
                 styles={{
                   color:
                     item.content.toLowerCase() === 'error with request'
-                      ? COLORS.cancelRed
+                      ? theme && darkModeType
+                        ? textColor
+                        : COLORS.cancelRed
                       : textColor,
                 }}
                 content={item.content}

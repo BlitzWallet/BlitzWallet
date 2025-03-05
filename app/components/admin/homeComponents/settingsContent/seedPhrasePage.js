@@ -45,7 +45,8 @@ export default function SeedPhrasePage() {
         />
         <ThemeText
           styles={{
-            color: theme ? COLORS.darkModeText : COLORS.cancelRed,
+            color:
+              theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
             marginBottom: 50,
             fontSize: SIZES.large,
           }}

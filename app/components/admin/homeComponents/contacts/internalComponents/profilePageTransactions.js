@@ -139,7 +139,14 @@ function ConfirmedOrSentTransaction({
   return (
     <View style={[styles.transactionContainer, {alignItems: 'center'}]}>
       {didDeclinePayment ? (
-        <Image style={styles.icons} source={ICONS.failedTransaction} />
+        <Image
+          style={styles.icons}
+          source={
+            theme && darkModeType
+              ? ICONS.failedTransactionWhite
+              : ICONS.failedTransaction
+          }
+        />
       ) : (
         <View
           style={{
@@ -240,7 +247,11 @@ function ConfirmedOrSentTransaction({
           CustomNumberOfLines={1}
           styles={{
             ...styles.descriptionText,
-            color: didDeclinePayment ? COLORS.cancelRed : textColor,
+            color: didDeclinePayment
+              ? theme && darkModeType
+                ? textColor
+                : COLORS.cancelRed
+              : textColor,
             marginRight: 15,
           }}
           content={
@@ -264,7 +275,11 @@ function ConfirmedOrSentTransaction({
         <ThemeText
           styles={{
             ...styles.dateText,
-            color: didDeclinePayment ? COLORS.cancelRed : textColor,
+            color: didDeclinePayment
+              ? theme && darkModeType
+                ? textColor
+                : COLORS.cancelRed
+              : textColor,
           }}
           content={`${
             timeDifferenceMinutes < 60
@@ -304,7 +319,11 @@ function ConfirmedOrSentTransaction({
         containerStyles={{marginBottom: 'auto'}}
         styles={{
           ...styles.amountText,
-          color: didDeclinePayment ? COLORS.cancelRed : textColor,
+          color: didDeclinePayment
+            ? theme && darkModeType
+              ? textColor
+              : COLORS.cancelRed
+            : textColor,
           includeFontPadding: false,
         }}
         balance={txParsed.amountMsat / 1000}

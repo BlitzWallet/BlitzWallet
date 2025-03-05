@@ -136,7 +136,9 @@ export default function ExpandedTx(props) {
                       ? COLORS.expandedTxDarkModePendingOuter
                       : COLORS.expandedTXLightModePendingOuter
                     : isFailedPayment
-                    ? COLORS.expandedTXLightModeFailed
+                    ? theme && darkModeType
+                      ? COLORS.lightsOutBackgroundOffset
+                      : COLORS.expandedTXLightModeFailed
                     : theme
                     ? COLORS.expandedTXDarkModeConfirmd
                     : COLORS.expandedTXLightModeConfirmd,
@@ -154,7 +156,9 @@ export default function ExpandedTx(props) {
                         ? COLORS.expandedTxDarkModePendingInner
                         : COLORS.expandedTXLightModePendingInner
                       : isFailedPayment
-                      ? COLORS.cancelRed
+                      ? theme && darkModeType
+                        ? COLORS.white
+                        : COLORS.cancelRed
                       : theme
                       ? COLORS.darkModeText
                       : COLORS.primary,
@@ -236,7 +240,9 @@ export default function ExpandedTx(props) {
                       ? COLORS.expandedTxDarkModePendingInner
                       : COLORS.expandedTXLightModePendingOuter
                     : isFailedPayment
-                    ? COLORS.expandedTXLightModeFailed
+                    ? theme && darkModeType
+                      ? COLORS.lightsOutBackground
+                      : COLORS.expandedTXLightModeFailed
                     : theme
                     ? COLORS.expandedTXDarkModeConfirmd
                     : COLORS.expandedTXLightModeConfirmd,
@@ -251,7 +257,9 @@ export default function ExpandedTx(props) {
                         ? COLORS.darkModeText
                         : COLORS.expandedTXLightModePendingInner
                       : isFailedPayment
-                      ? COLORS.cancelRed
+                      ? theme && darkModeType
+                        ? COLORS.white
+                        : COLORS.cancelRed
                       : theme
                       ? COLORS.darkModeText
                       : COLORS.primary,

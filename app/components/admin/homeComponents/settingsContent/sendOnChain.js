@@ -428,11 +428,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  noOnChainFunds: {
-    width: '95%',
-    maxWidth: 250,
-    textAlign: 'center',
-  },
 
   balanceContainer: {
     alignItems: 'center',
@@ -442,24 +437,11 @@ const styles = StyleSheet.create({
   balanceNum: {
     fontSize: SIZES.xxLarge,
   },
-  fiatBalanceNum: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.medium,
-  },
-  balanceDescription: {
-    fontFamily: FONT.Descriptoin_Regular,
-    fontSize: SIZES.medium,
-  },
 
   btcAdressContainer: {
     width: '100%',
     padding: 8,
     borderRadius: 8,
-  },
-  btcAdressHeader: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.medium,
-    marginBottom: 10,
   },
 
   inputContainer: {
@@ -474,37 +456,5 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginRight: 10,
-  },
-
-  buttonText: {
-    color: COLORS.white,
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Other_Regular,
-  },
-
-  errorText: {
-    fontFamily: FONT.Descriptoin_Regular,
-
-    fontSize: SIZES.medium,
-    color: COLORS.cancelRed,
-  },
-
-  textBreakdown: {
-    fontFamily: FONT.Descriptoin_Regular,
-    fontSize: SIZES.medium,
-  },
-
-  feeAmountContainer: {
-    width: '100%',
-    marginBottom: 'auto',
-    flex: 1,
-    marginTop: 20,
-    paddingBottom: 10,
-  },
-  feeScrollViewContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
   },
 });

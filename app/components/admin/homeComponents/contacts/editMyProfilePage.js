@@ -316,7 +316,11 @@ function InnerContent({
               {
                 backgroundColor: textInputBackground,
                 color:
-                  inputs.name.length < 30 ? textInputColor : COLORS.cancelRed,
+                  inputs.name.length < 30
+                    ? textInputColor
+                    : theme && darkModeType
+                    ? textInputColor
+                    : COLORS.cancelRed,
               },
             ]}
             value={inputs.name || ''}
@@ -325,7 +329,12 @@ function InnerContent({
           <ThemeText
             styles={{
               textAlign: 'right',
-              color: inputs.name.length < 30 ? textColor : COLORS.cancelRed,
+              color:
+                inputs.name.length < 30
+                  ? textColor
+                  : theme && darkModeType
+                  ? textColor
+                  : COLORS.cancelRed,
             }}
             content={`${inputs.name.length} / ${30}`}
           />
@@ -351,6 +360,8 @@ function InnerContent({
                   color:
                     inputs.receiveAddress.length < 30
                       ? textInputColor
+                      : theme && darkModeType
+                      ? textInputColor
                       : COLORS.cancelRed,
                 },
               ]}
@@ -364,6 +375,8 @@ function InnerContent({
                 textAlign: 'right',
                 color:
                   inputs.receiveAddress.length < 60
+                    ? textColor
+                    : theme && darkModeType
                     ? textColor
                     : COLORS.cancelRed,
               }}
@@ -392,6 +405,8 @@ function InnerContent({
                   color:
                     inputs.uniquename.length < 30
                       ? textInputColor
+                      : theme && darkModeType
+                      ? textInputColor
                       : COLORS.cancelRed,
                 },
               ]}
@@ -404,7 +419,11 @@ function InnerContent({
               styles={{
                 textAlign: 'right',
                 color:
-                  inputs.uniquename.length < 30 ? textColor : COLORS.cancelRed,
+                  inputs.uniquename.length < 30
+                    ? textColor
+                    : theme && darkModeType
+                    ? textColor
+                    : COLORS.cancelRed,
               }}
               content={`${inputs.uniquename.length} / ${30}`}
             />
@@ -434,7 +453,11 @@ function InnerContent({
                 maxHeight: 100,
                 backgroundColor: textInputBackground,
                 color:
-                  inputs.bio.length < 150 ? textInputColor : COLORS.cancelRed,
+                  inputs.bio.length < 150
+                    ? textInputColor
+                    : theme && darkModeType
+                    ? textInputColor
+                    : COLORS.cancelRed,
               },
             ]}
             value={inputs.bio || ''}
@@ -444,7 +467,12 @@ function InnerContent({
           <ThemeText
             styles={{
               textAlign: 'right',
-              color: inputs.bio.length < 150 ? textColor : COLORS.cancelRed,
+              color:
+                inputs.bio.length < 150
+                  ? textColor
+                  : theme && darkModeType
+                  ? textColor
+                  : COLORS.cancelRed,
             }}
             content={`${inputs.bio.length} / ${150}`}
           />

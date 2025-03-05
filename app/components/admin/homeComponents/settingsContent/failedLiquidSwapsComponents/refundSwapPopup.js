@@ -272,19 +272,7 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
   },
-  buttonText: {
-    color: COLORS.white,
-    fontSize: SIZES.medium,
-  },
 
-  errorText: {
-    fontSize: SIZES.medium,
-    color: COLORS.cancelRed,
-  },
-
-  textBreakdown: {
-    fontSize: SIZES.medium,
-  },
   contentContainer: {
     minHeight: 60,
     width: '100%',

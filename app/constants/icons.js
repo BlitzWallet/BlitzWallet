@@ -90,6 +90,7 @@ import fillArrow from '../assets/icons/fillArrow.png';
 import noFillArrow from '../assets/icons/noFillArrow.png';
 import fillArrowLight from '../assets/icons/fillArrowLight.png';
 import failedTransaction from '../assets/icons/failedTransaction.png';
+import failedTransactionWhite from '../assets/icons/failedTransactionWhite.png';
 import posDark from '../assets/icons/posDark.png';
 import posLight from '../assets/icons/posLight.png';
 // import QRcodeIcon from '../assets/icons/qr-scan.png';
@@ -290,4 +291,5 @@ export default {
   logoWithPadding,
   adminHomeWalletDark,
   xSmallIconWhite,
+  failedTransactionWhite,
 };

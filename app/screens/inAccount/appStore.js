@@ -330,7 +330,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    backgroundColor: COLORS.cancelRed,
     borderTopRightRadius: 200,
 
     zIndex: -3,
