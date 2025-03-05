@@ -285,7 +285,7 @@ export default function SendAndRequestPage(props) {
         sendObject['isRedeemed'] = null;
         sendObject['wasSeen'] = null;
         sendObject['didSend'] = null;
-        publishMessage({
+        await publishMessage({
           toPubKey: selectedContact.uuid,
           fromPubKey: globalContactsInformation.myProfile.uuid,
           data: sendObject,
