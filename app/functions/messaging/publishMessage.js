@@ -11,7 +11,6 @@ export async function publishMessage({
   selectedContact,
   fiatCurrencies,
   isLNURLPayment,
-  updateFunction,
   privateKey,
 }) {
   try {
@@ -21,7 +20,6 @@ export async function publishMessage({
       fromPubKey,
       toPubKey,
       onlySaveToLocal: isLNURLPayment,
-      updateFunction,
     });
 
     if (isLNURLPayment) return;

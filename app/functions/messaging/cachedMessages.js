@@ -1,10 +1,13 @@
 import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 import * as SQLite from 'expo-sqlite';
 import {getTwoWeeksAgoDate} from '../rotateAddressDateChecker';
+import EventEmitter from 'events';
 export const CACHED_MESSAGES_KEY = 'CASHED_CONTACTS_MESSAGES';
 export const SQL_TABLE_NAME = 'messagesTable';
 export const LOCALSTORAGE_LAST_RECEIVED_TIME_KEY =
   'LAST_RECEIVED_CONTACT_MESSAGE';
+export const CONTACTS_TRANSACTION_UPDATE_NAME = 'RECEIVED_CONTACTS EVENT';
+export const contactsSQLEventEmitter = new EventEmitter();
 
 let sqlLiteDB;
 let messageQueue = [];
@@ -86,9 +89,12 @@ const processQueue = async () => {
   if (isProcessing) return;
   isProcessing = true;
   while (messageQueue.length > 0) {
-    const {newMessagesList, myPubKey, updateFunction} = messageQueue.shift();
+    const {newMessagesList, myPubKey} = messageQueue.shift();
     try {
-      await setCashedMessages({newMessagesList, myPubKey, updateFunction});
+      await setCashedMessages({
+        newMessagesList,
+        myPubKey,
+      });
     } catch (err) {
       console.error('Error processing batch in queue:', err);
     }
@@ -96,22 +102,17 @@ const processQueue = async () => {
 
   isProcessing = false;
 };
-export const queueSetCashedMessages = ({
-  newMessagesList,
-  myPubKey,
-  updateFunction,
-}) => {
-  messageQueue.push({newMessagesList, myPubKey, updateFunction});
+export const queueSetCashedMessages = ({newMessagesList, myPubKey}) => {
+  messageQueue.push({
+    newMessagesList,
+    myPubKey,
+  });
   if (messageQueue.length === 1) {
     processQueue();
   }
 };
 
-const setCashedMessages = async ({
-  newMessagesList,
-  myPubKey,
-  updateFunction,
-}) => {
+const setCashedMessages = async ({newMessagesList, myPubKey}) => {
   try {
     // Start a database transaction for better performance
     await sqlLiteDB.execAsync('BEGIN TRANSACTION;');
@@ -195,7 +196,10 @@ const setCashedMessages = async ({
       LOCALSTORAGE_LAST_RECEIVED_TIME_KEY,
       JSON.stringify(newTimesatmp),
     );
-    updateFunction();
+    contactsSQLEventEmitter.emit(
+      CONTACTS_TRANSACTION_UPDATE_NAME,
+      'addedMessage',
+    );
   }
 };
 
@@ -207,6 +211,10 @@ export const deleteCachedMessages = async contactPubKey => {
     );
 
     console.log(`Deleted all messages for contactPubKey: ${contactPubKey}`);
+    contactsSQLEventEmitter.emit(
+      CONTACTS_TRANSACTION_UPDATE_NAME,
+      'deleatedMessage',
+    );
     return true;
   } catch (error) {
     console.error('Error deleting messages:', error);

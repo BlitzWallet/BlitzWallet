@@ -48,7 +48,6 @@ export default function ExpandedContactsPage(props) {
     globalContactsInformation,
     toggleGlobalContactsInformation,
     contactsMessags,
-    updatedCachedMessagesStateFunction,
   } = useGlobalContacts();
   const insets = useSafeAreaInsets();
 
@@ -96,7 +95,6 @@ export default function ExpandedContactsPage(props) {
       queueSetCashedMessages({
         newMessagesList,
         myPubKey: globalContactsInformation.myProfile.uuid,
-        updateFunction: updatedCachedMessagesStateFunction,
       });
     }
     updateSeenTransactions();

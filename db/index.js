@@ -162,7 +162,6 @@ export async function updateMessage({
   fromPubKey,
   toPubKey,
   onlySaveToLocal,
-  updateFunction,
 }) {
   try {
     const docSnap = db.collection('contactMessages');
@@ -180,7 +179,6 @@ export async function updateMessage({
       queueSetCashedMessages({
         newMessagesList: [message],
         myPubKey: fromPubKey,
-        updateFunction,
       });
       return;
     }
@@ -194,7 +192,10 @@ export async function updateMessage({
   }
 }
 
-export async function syncDatabasePayment(myPubKey, updateFunction) {
+export async function syncDatabasePayment(
+  myPubKey,
+  updatedCachedMessagesStateFunction,
+) {
   try {
     const cachedConversations = await getCachedMessages();
 
@@ -215,7 +216,7 @@ export async function syncDatabasePayment(myPubKey, updateFunction) {
       .get();
 
     if (receivedMessages.empty && sentMessages.empty) {
-      updateFunction();
+      updatedCachedMessagesStateFunction();
       return;
     }
     console.log(
@@ -234,7 +235,6 @@ export async function syncDatabasePayment(myPubKey, updateFunction) {
     queueSetCashedMessages({
       newMessagesList: messsageList,
       myPubKey,
-      updateFunction,
     });
   } catch (err) {
     console.log('sync database payment err', err);

@@ -50,7 +50,6 @@ import {
   calculateEcashFees,
   getProofsToUse,
 } from '../../../../functions/eCash/wallet';
-import {sumProofsValue} from '../../../../functions/eCash/proofs';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -61,8 +60,7 @@ export default function SendAndRequestPage(props) {
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset} = GetThemeColors();
-  const {globalContactsInformation, updatedCachedMessagesStateFunction} =
-    useGlobalContacts();
+  const {globalContactsInformation} = useGlobalContacts();
   const {ecashWalletInformation} = useGlobaleCash();
   const eCashBalance = ecashWalletInformation.balance;
   const [amountValue, setAmountValue] = useState('');
@@ -276,7 +274,6 @@ export default function SendAndRequestPage(props) {
               selectedContact,
               fiatCurrencies,
               isLNURLPayment: selectedContact?.isLNURL,
-              updateFunction: updatedCachedMessagesStateFunction,
               privateKey: contactsPrivateKey,
             }),
         });
@@ -296,7 +293,6 @@ export default function SendAndRequestPage(props) {
           selectedContact,
           fiatCurrencies,
           isLNURLPayment: selectedContact?.isLNURL,
-          updateFunction: updatedCachedMessagesStateFunction,
           privateKey: contactsPrivateKey,
         });
         navigate.goBack();
@@ -318,7 +314,6 @@ export default function SendAndRequestPage(props) {
     selectedContact,
     navigate,
     contactsPrivateKey,
-    updatedCachedMessagesStateFunction,
     descriptionValue,
     paymentType,
     globalContactsInformation,

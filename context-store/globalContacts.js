@@ -20,8 +20,9 @@ import {
   getCurrentDateFormatted,
   isMoreThan21Days,
 } from '../app/functions/rotateAddressDateChecker';
-import {removeLocalStorageItem} from '../app/functions/localStorage';
 import {
+  CONTACTS_TRANSACTION_UPDATE_NAME,
+  contactsSQLEventEmitter,
   getCachedMessages,
   queueSetCashedMessages,
 } from '../app/functions/messaging/cachedMessages';
@@ -41,7 +42,6 @@ export const GlobalContactsList = ({children}) => {
 
   const didTryToUpdate = useRef(false);
   const lookForNewMessages = useRef(false);
-  const updateCachedContactsOnAddedContacts = useRef(false);
   const unsubscribeMessagesRef = useRef(null);
   const unsubscribeSentMessagesRef = useRef(null);
 
@@ -132,6 +132,26 @@ export const GlobalContactsList = ({children}) => {
   }, []);
 
   useEffect(() => {
+    async function handleUpdate(updateType) {
+      try {
+        console.log('Received contact transaction update type', updateType);
+        updatedCachedMessagesStateFunction();
+      } catch (err) {
+        console.log('error in contact messages update function', err);
+      }
+    }
+    contactsSQLEventEmitter.off(CONTACTS_TRANSACTION_UPDATE_NAME, handleUpdate);
+    contactsSQLEventEmitter.on(CONTACTS_TRANSACTION_UPDATE_NAME, handleUpdate);
+
+    return () => {
+      contactsSQLEventEmitter.off(
+        CONTACTS_TRANSACTION_UPDATE_NAME,
+        handleUpdate,
+      );
+    };
+  }, [updatedCachedMessagesStateFunction]);
+
+  useEffect(() => {
     if (!Object.keys(globalContactsInformation).length) return;
     const now = new Date().getTime();
 
@@ -155,7 +175,6 @@ export const GlobalContactsList = ({children}) => {
             queueSetCashedMessages({
               newMessagesList: [newMessage],
               myPubKey: globalContactsInformation.myProfile.uuid,
-              updateFunction: updatedCachedMessagesStateFunction,
             });
           }
         });
@@ -174,7 +193,6 @@ export const GlobalContactsList = ({children}) => {
             queueSetCashedMessages({
               newMessagesList: [newMessage],
               myPubKey: globalContactsInformation.myProfile.uuid,
-              updateFunction: updatedCachedMessagesStateFunction,
             });
           }
         });
@@ -188,7 +206,7 @@ export const GlobalContactsList = ({children}) => {
         unsubscribeSentMessagesRef.current();
       }
     };
-  }, [globalContactsInformation, updatedCachedMessagesStateFunction]);
+  }, [globalContactsInformation?.myProfile?.uuid]);
 
   useEffect(() => {
     if (!Object.keys(globalContactsInformation).length) return;
@@ -198,13 +216,6 @@ export const GlobalContactsList = ({children}) => {
       globalContactsInformation.myProfile.uuid,
       updatedCachedMessagesStateFunction,
     );
-  }, [globalContactsInformation, updatedCachedMessagesStateFunction]);
-
-  useEffect(() => {
-    if (!Object.keys(globalContactsInformation).length) return;
-    if (updateCachedContactsOnAddedContacts.current) return;
-    updateCachedContactsOnAddedContacts.current = true;
-    updatedCachedMessagesStateFunction();
   }, [globalContactsInformation, updatedCachedMessagesStateFunction]);
 
   useEffect(() => {
