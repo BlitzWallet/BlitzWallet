@@ -15,7 +15,7 @@ export async function publishMessage({
 }) {
   try {
     const sendingObj = data;
-    updateMessage({
+    await updateMessage({
       newMessage: sendingObj,
       fromPubKey,
       toPubKey,
@@ -23,7 +23,7 @@ export async function publishMessage({
     });
 
     if (isLNURLPayment) return;
-    sendPushNotification({
+    await sendPushNotification({
       selectedContactUsername: selectedContact.uniqueName,
       myProfile: globalContactsInformation.myProfile,
       data: data,
