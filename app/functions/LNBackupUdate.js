@@ -27,11 +27,10 @@ const startUpdateInterval = toggleNodeInformation => {
   const updateNodeInfo = async () => {
     console.log('RUNNING UPDATE LN DATA');
     try {
-      const nodeState = await nodeInfo();
-      const transactions = await listPayments({});
-      console.log(transactions[0]);
-      //   const savedLNBalance =
-      //     JSON.parse(await getLocalStorageItem('LNBalance')) || 0;
+      const [nodeState, transactions] = await Promise.all([
+        nodeInfo(),
+        listPayments({}),
+      ]);
 
       const userBalance = nodeState.channelsBalanceMsat / 1000;
       const inboundLiquidityMsat = nodeState.totalInboundLiquidityMsats;
@@ -53,7 +52,7 @@ const startUpdateInterval = toggleNodeInformation => {
   };
 
   // Run 2 times with 30 second interval
-  return runIntervalTimes(updateNodeInfo, 1000 * 30, 4);
+  return runIntervalTimes(updateNodeInfo, 1000 * 30, 2);
 };
 
 export default startUpdateInterval;

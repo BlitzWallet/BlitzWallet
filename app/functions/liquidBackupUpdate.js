@@ -26,10 +26,9 @@ const startLiquidUpdateInterval = (toggleLiquidNodeInformation, runCount) => {
   const updateNodeInfo = async () => {
     console.log('RUNNING UPDATE LIQUID DATA');
     try {
-      const info = await getInfo();
-      const balanceSat = info.walletInfo.balanceSat;
+      const [info, payments] = await Promise.all([getInfo(), listPayments({})]);
 
-      const payments = await listPayments({});
+      const balanceSat = info.walletInfo.balanceSat;
 
       const liquidNodeObject = {
         transactions: payments,

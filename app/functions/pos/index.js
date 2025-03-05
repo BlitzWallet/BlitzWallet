@@ -152,7 +152,7 @@ const setPOSTransactions = async ({
   }
 };
 
-export const deleteTransactionsTable = async () => {
+export const deletePOSTransactionsTable = async () => {
   try {
     await sqlLiteDB.runAsync(
       `DROP TABLE IF EXISTS ${POS_TRANSACTION_TABLE_NAME};`,

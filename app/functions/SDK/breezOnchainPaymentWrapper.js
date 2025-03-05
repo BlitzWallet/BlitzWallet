@@ -14,7 +14,10 @@ export default async function breezLNOnchainPaymentWrapper({
   paymentInfo,
 }) {
   try {
-    const currentLimits = await onchainPaymentLimits();
+    const [currentLimits, satPerVbyte] = await Promise.all([
+      onchainPaymentLimits(),
+      getMempoolReccomenededFee(),
+    ]);
 
     console.log(`Minimum amount, in sats: ${currentLimits.minSat}`);
     console.log(`Maximum amount, in sats: ${currentLimits.maxSat}`);
@@ -30,9 +33,6 @@ export default async function breezLNOnchainPaymentWrapper({
         error: `Maximum amount, in sats: ${currentLimits.maxSat}`,
       };
 
-    const satPerVbyte = (await getMempoolReccomenededFee()) || 10;
-    console.log(satPerVbyte, 'MEMPOOL');
-
     const prepareResponse = await prepareOnchainPayment({
       amountSat: paymentInfo.data.shouldDrain
         ? currentLimits.maxSat
@@ -40,7 +40,7 @@ export default async function breezLNOnchainPaymentWrapper({
       amountType: paymentInfo.data.shouldDrain
         ? SwapAmountType.SEND
         : SwapAmountType.RECEIVE,
-      claimTxFeerate: satPerVbyte,
+      claimTxFeerate: satPerVbyte || 10,
     });
     console.log(`Sender amount: ${prepareResponse.senderAmountSat} sats`);
     console.log(`Recipient amount: ${prepareResponse.recipientAmountSat} sats`);

@@ -53,7 +53,6 @@ import {
   initEcashDBTables,
 } from '../../functions/eCash/db';
 import {
-  getEcashBalance,
   getMeltQuote,
   initEcashWallet,
   payLnInvoiceFromEcash,
@@ -68,14 +67,9 @@ export default function ConnectingToNodeLoadingScreen({
   const {onLightningBreezEvent} = useLightningEvent();
   const {onLiquidBreezEvent} = useLiquidEvent();
   const {
-    // toggleNostrSocket,
-    // toggleNostrEvents,
-    // toggleNostrContacts,
-    // nostrContacts,
     toggleMasterInfoObject,
     masterInfoObject,
     setMasterInfoObject,
-    // setJWT,
     deepLinkContent,
     setDeepLinkContent,
   } = useGlobalContextProvider();
@@ -84,7 +78,6 @@ export default function ConnectingToNodeLoadingScreen({
     useAppStatus();
   const {toggleNodeInformation, toggleLiquidNodeInformation} = useNodeContext();
   const {theme} = useGlobalThemeContext();
-
   const {toggleGlobalContactsInformation, globalContactsInformation} =
     useGlobalContacts();
   const {
@@ -92,12 +85,10 @@ export default function ConnectingToNodeLoadingScreen({
     toggleEcashWalletInformation,
     toggleMintList,
   } = useGlobaleCash();
-
   const {toggleGlobalAppDataInformation} = useGlobalAppData();
 
   const [hasError, setHasError] = useState(null);
   const {t} = useTranslation();
-  // const webViewRef = useRef(null);
 
   //gets data from either firebase or local storage to load users saved settings
   const didLoadInformation = useRef(false);
@@ -124,25 +115,32 @@ export default function ConnectingToNodeLoadingScreen({
     isInialredner.current = false;
 
     (async () => {
-      const didOpen = await initializeDatabase();
-      const ecashTablesOpened = await initEcashDBTables();
-      const posTransactions = await initializePOSTransactionsDatabase();
-      if (!didOpen || !ecashTablesOpened || !posTransactions) {
-        setHasError('Not able to open database');
-        return;
-      }
-      const didSet = await initializeUserSettingsFromHistory({
-        setContactsPrivateKey: toggleContactsPrivateKey,
-        setMasterInfoObject,
-        toggleGlobalContactsInformation,
-        toggleGLobalEcashInformation,
-        toggleGlobalAppDataInformation,
-      });
+      try {
+        const [
+          didOpen,
+          ecashTablesOpened,
+          posTransactions,
+          didLoadUserSettings,
+        ] = await Promise.all([
+          initializeDatabase(),
+          initEcashDBTables(),
+          initializePOSTransactionsDatabase(),
+          initializeUserSettingsFromHistory({
+            setContactsPrivateKey: toggleContactsPrivateKey,
+            setMasterInfoObject,
+            toggleGlobalContactsInformation,
+            toggleGLobalEcashInformation,
+            toggleGlobalAppDataInformation,
+          }),
+        ]);
+        if (!didOpen || !ecashTablesOpened || !posTransactions)
+          throw new Error('Database initialization failed');
 
-      //waits for data to be loaded untill login process can start
-      if (!didSet) {
-        setHasError('Not able to get account information');
-        return;
+        if (!didLoadUserSettings)
+          throw new Error('Failed to load user settings');
+      } catch (err) {
+        console.log('intializatiion error', err);
+        setHasError(err.message);
       }
     })();
   }, []);
@@ -218,21 +216,22 @@ export default function ConnectingToNodeLoadingScreen({
           !masterInfoObject.liquidWalletSettings.isLightningEnabled) &&
         didConnectToLiquidNode?.isConnected
       ) {
-        const [didSetLightning, didSetLiquid] = await (masterInfoObject
-          .liquidWalletSettings.isLightningEnabled
-          ? Promise.all([
-              setNodeInformationForSession(didConnectToNode?.node_info),
-              setLiquidNodeInformationForSession(
-                didConnectToLiquidNode?.liquid_node_info,
-              ),
-            ])
-          : Promise.all([
-              Promise.resolve({}),
-              setLiquidNodeInformationForSession(
-                didConnectToLiquidNode?.liquid_node_info,
-              ),
-            ]));
-        const didSetEcashInformation = await setEcashInformationForSession();
+        const [didSetLightning, didSetLiquid, didSetEcashInformation] =
+          await (masterInfoObject.liquidWalletSettings.isLightningEnabled
+            ? Promise.all([
+                setNodeInformationForSession(didConnectToNode?.node_info),
+                setLiquidNodeInformationForSession(
+                  didConnectToLiquidNode?.liquid_node_info,
+                ),
+                setEcashInformationForSession(),
+              ])
+            : Promise.all([
+                Promise.resolve({}),
+                setLiquidNodeInformationForSession(
+                  didConnectToLiquidNode?.liquid_node_info,
+                ),
+                setEcashInformationForSession(),
+              ]));
 
         if (
           (didSetLightning ||
@@ -445,7 +444,6 @@ export default function ConnectingToNodeLoadingScreen({
       } else throw new Error('something went wrong');
     } catch (err) {
       setHasError(String(err));
-      setHasError(JSON.stringify(err));
       console.log(err, 'homepage connection to node err');
     }
   }
@@ -486,24 +484,15 @@ export default function ConnectingToNodeLoadingScreen({
 
   async function setNodeInformationForSession(retrivedNodeInfo) {
     try {
-      const nodeState = await (retrivedNodeInfo
-        ? Promise.resolve(retrivedNodeInfo)
-        : nodeInfo());
-      const transactions = await getTransactions();
-      const heath = await serviceHealthCheck(process.env.API_KEY);
+      const [nodeState, transactions, heath, lspInfo] = await Promise.all([
+        retrivedNodeInfo ? Promise.resolve(retrivedNodeInfo) : nodeInfo(),
+        getTransactions({}),
+        serviceHealthCheck(),
+        listLsps(),
+      ]);
+
       const msatToSat = nodeState.channelsBalanceMsat / 1000;
       console.log(nodeState, heath, 'TESTIGg');
-      // const fiat = await fetchFiatRates();
-      const lspInfo = await listLsps();
-
-      // const currency = masterInfoObject.fiatCurrency;
-      // const currenies = await listFiatCurrencies();
-
-      // const sourted = currenies.sort((a, b) => a.id.localeCompare(b.id));
-
-      // const [fiatRate] = fiat.filter(rate => {
-      //   return rate.coin.toLowerCase() === currency.toLowerCase();
-      // });
 
       const didConnectToLSP = await (nodeState.connectedPeers.length != 0
         ? Promise.resolve(true)
@@ -519,7 +508,6 @@ export default function ConnectingToNodeLoadingScreen({
         inboundLiquidityMsat: nodeState.totalInboundLiquidityMsats,
         blockHeight: nodeState.blockHeight,
         onChainBalance: nodeState.onchainBalanceMsat,
-        // fiatStats: fiatRate,
         lsp: lspInfo,
       };
       toggleNodeInformation(nodeObject);
@@ -534,21 +522,25 @@ export default function ConnectingToNodeLoadingScreen({
 
   async function setLiquidNodeInformationForSession(retrivedLiquidNodeInfo) {
     try {
-      const parsedInformation = await (retrivedLiquidNodeInfo
-        ? Promise.resolve(retrivedLiquidNodeInfo)
-        : getInfo());
+      const [parsedInformation, payments, fiat_rate, addressResponse] =
+        await Promise.all([
+          retrivedLiquidNodeInfo
+            ? Promise.resolve(retrivedLiquidNodeInfo)
+            : getInfo(),
+          listPayments({}),
+          setupFiatCurrencies(),
+          !globalContactsInformation.myProfile.receiveAddress ||
+          isMoreThan7DaysPast(globalContactsInformation.myProfile.lastRotated)
+            ? breezLiquidReceivePaymentWrapper({
+                paymentType: 'liquid',
+              })
+            : Promise.resolve(null),
+        ]);
+
       const info = parsedInformation.walletInfo;
       const balanceSat = info.balanceSat;
-      const payments = await listPayments({});
-      const fiat_rate = await setupFiatCurrencies();
 
-      if (
-        !globalContactsInformation.myProfile.receiveAddress ||
-        isMoreThan7DaysPast(globalContactsInformation.myProfile.lastRotated)
-      ) {
-        const addressResponse = await breezLiquidReceivePaymentWrapper({
-          paymentType: 'liquid',
-        });
+      if (addressResponse) {
         const {destination, receiveFeesSat} = addressResponse;
         console.log('LIQUID DESTINATION ADDRESS', destination);
         console.log(destination);
@@ -592,10 +584,12 @@ export default function ConnectingToNodeLoadingScreen({
         await new Promise(resolve => setTimeout(resolve, 10000));
         console.log('FINISHED WAITING');
 
-        const restoreWalletInfo = await getInfo();
+        const [restoreWalletInfo, restoreWalletPayments] = await Promise.all([
+          getInfo(),
+          listPayments({}),
+        ]);
 
         const restoreWalletBalance = restoreWalletInfo.walletInfo.balanceSat;
-        const restoreWalletPayments = await listPayments({});
 
         console.log(
           restoreWalletInfo.walletInfo.balanceSat,
@@ -628,10 +622,14 @@ export default function ConnectingToNodeLoadingScreen({
       if (!hasSelectedMint)
         return {transactions: [], balance: 0, proofs: [], mintURL: ''};
       await initEcashWallet(hasSelectedMint);
-      const transactions = await getStoredEcashTransactions();
-      const storedProofs = await getStoredProofs();
+
+      const [transactions, storedProofs, mintList] = await Promise.all([
+        getStoredEcashTransactions(),
+        getStoredProofs(),
+        getAllMints(),
+      ]);
+
       const balance = sumProofsValue(storedProofs);
-      const mintList = await getAllMints();
 
       const ecashWalletData = {
         mintURL: hasSelectedMint,
@@ -644,7 +642,7 @@ export default function ConnectingToNodeLoadingScreen({
       return ecashWalletData;
     } catch (err) {
       console.log('setting ecash information error', err);
-      throw new Error('Unable to load ecash wallet');
+      return false;
     }
   }
 }

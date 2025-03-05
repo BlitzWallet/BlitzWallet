@@ -24,7 +24,6 @@ import {
   SIZES,
 } from '../../../../../constants';
 import {
-  formatBalanceAmount,
   getLocalStorageItem,
   setLocalStorageItem,
 } from '../../../../../functions';
@@ -42,9 +41,6 @@ import {
   LIGHTNINGAMOUNTBUFFER,
   LIQUIDAMOUTBUFFER,
 } from '../../../../../constants/math';
-import {getBoltzWsUrl} from '../../../../../functions/boltz/boltzEndpoitns';
-import {useWebView} from '../../../../../../context-store/webViewContext';
-
 import handleBackPress from '../../../../../hooks/handleBackPress';
 import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
@@ -57,6 +53,8 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../../context-store/keys';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
 
 export default function ExpandedGiftCardPage(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -64,6 +62,7 @@ export default function ExpandedGiftCardPage(props) {
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {globalContactsInformation} = useGlobalContacts();
+  const {masterInfoObject} = useGlobalContextProvider();
   const {backgroundOffset} = GetThemeColors();
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const insets = useSafeAreaInsets();
@@ -76,7 +75,6 @@ export default function ExpandedGiftCardPage(props) {
       : selectedItem.denominations[0],
   );
   const navigate = useNavigation();
-  const {webViewRef, setWebViewArgs, toggleSavedIds} = useWebView();
 
   const [isPurchasingGift, setIsPurchasingGift] = useState({
     isPurasing: false,
@@ -459,20 +457,18 @@ export default function ExpandedGiftCardPage(props) {
 
   function saveNewEmail(wantsToSave) {
     if (wantsToSave) {
-      setTimeout(() => {
-        const em = encriptMessage(
-          contactsPrivateKey,
-          publicKey,
-          JSON.stringify({
-            ...decodedGiftCards,
-            profile: {
-              ...decodedGiftCards.profile,
-              email: email,
-            },
-          }),
-        );
-        toggleGlobalAppDataInformation({giftCards: em}, true);
-      }, 800);
+      const em = encriptMessage(
+        contactsPrivateKey,
+        publicKey,
+        JSON.stringify({
+          ...decodedGiftCards,
+          profile: {
+            ...decodedGiftCards.profile,
+            email: email,
+          },
+        }),
+      );
+      toggleGlobalAppDataInformation({giftCards: em}, true);
     } else {
       setEmail(decodedGiftCards?.profile?.email || '');
     }
@@ -497,16 +493,16 @@ export default function ExpandedGiftCardPage(props) {
       setIsPurchasingGift(prev => {
         return {...prev, isPurasing: true};
       });
-
       const responseInvoice = responseObject.invoice;
-      const parsedInput = await parseInput(responseInvoice);
 
-      const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
-      const fiatRates = await getFiatRates();
-      const dailyPurchaseAmount = JSON.parse(
-        await getLocalStorageItem('dailyPurchaeAmount'),
-      );
+      const [parsedInput, fiatRates, dailyPurchaseAmount] = await Promise.all([
+        parseInput(responseInvoice),
+        getFiatRates(),
+        getLocalStorageItem('dailyPurchaeAmount').then(JSON.parse),
+      ]);
+
       const USDBTCValue = fiatRates.find(currency => currency.coin === 'USD');
+      const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
 
       if (dailyPurchaseAmount) {
         if (isMoreThanADayOld(dailyPurchaseAmount.date)) {
@@ -590,9 +586,13 @@ export default function ExpandedGiftCardPage(props) {
       ) {
         if (sendingAmountSat < minMaxLiquidSwapAmounts.min) {
           navigate.navigate('ErrorScreen', {
-            errorMessage: `Cannot send payment less than ${formatBalanceAmount(
-              minMaxLiquidSwapAmounts.min,
-            )} sats using the bank`,
+            errorMessage: `Cannot send payment less than ${displayCorrectDenomination(
+              {
+                amount: minMaxLiquidSwapAmounts.min,
+                nodeInformation,
+                masterInfoObject,
+              },
+            )} using the bank`,
           });
           return;
         }

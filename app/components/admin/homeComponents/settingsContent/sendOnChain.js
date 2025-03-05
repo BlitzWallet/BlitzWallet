@@ -260,7 +260,12 @@ export default function SendOnChainBitcoin({isDoomsday}) {
 
   async function initPage() {
     try {
-      const node_info = (await nodeInfo()).onchainBalanceMsat;
+      const [node_info, didSetMempoolFees] = await Promise.all([
+        nodeInfo(),
+        getMempoolTxFee(),
+      ]);
+
+      const balance = node_info.onchainBalanceMsat;
       // const swaps = await inProgressOnchainPayments();
       // console.log(swaps);
       // for (const swap of swaps) {
@@ -269,10 +274,10 @@ export default function SendOnChainBitcoin({isDoomsday}) {
       //   );
       // }
 
-      const didLoad = await getMempoolTxFee();
-      setOnChainBalance(node_info);
+      // const didLoad = await getMempoolTxFee();
+      setOnChainBalance(balance);
 
-      didLoad && setIsLoading(false);
+      if (didSetMempoolFees) setIsLoading(false);
     } catch (err) {
       const lightningSession = await connectToLightningNode(
         onLightningBreezEvent,
@@ -370,7 +375,6 @@ export default function SendOnChainBitcoin({isDoomsday}) {
       return new Promise(resolve => {
         resolve(false);
       });
-      console.log(err);
     }
   }
   async function changeSelectedFee(item, sliderFunction) {

@@ -294,14 +294,17 @@ async function generateBitcoinAddress(wolletInfo) {
     nodeInformation,
   } = wolletInfo;
   // Fetch the Onchain lightning limits
-  const currentLimits = await fetchOnchainLimits();
+  const [currentLimits, addressResponse] = await Promise.all([
+    fetchOnchainLimits(),
+    breezLiquidReceivePaymentWrapper({
+      paymentType: 'bitcoin',
+      sendAmount: receivingAmount,
+    }),
+  ]);
+
   console.log(`Minimum amount, in sats: ${currentLimits.receive.minSat}`);
   console.log(`Maximum amount, in sats: ${currentLimits.receive.maxSat}`);
 
-  const addressResponse = await breezLiquidReceivePaymentWrapper({
-    paymentType: 'bitcoin',
-    sendAmount: receivingAmount,
-  });
   if (!addressResponse) {
     setAddressState(prev => {
       return {

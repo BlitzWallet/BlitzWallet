@@ -1,6 +1,5 @@
 import {retrieveData} from './secureStore';
 import * as nostr from 'nostr-tools';
-import {getLocalStorageItem} from './localStorage';
 import {getDataFromCollection} from '../../db';
 import {generateRandomContact} from './contacts';
 import {
@@ -10,6 +9,7 @@ import {
 import {MIN_CHANNEL_OPEN_FEE, QUICK_PAY_STORAGE_KEY} from '../constants';
 import {sendDataToDB} from '../../db/interactionManager';
 import {initializeFirebase} from '../../db/initializeFirebase';
+import {fetchLocalStorageItems} from './initializeUserSettingsHelpers';
 
 export default async function initializeUserSettingsFromHistory({
   setContactsPrivateKey,
@@ -28,28 +28,29 @@ export default async function initializeUserSettingsFromHistory({
         .filter(word => word.length > 0)
         .join(' ');
 
-    const privateKey =
-      mnemonic && nostr.nip06.privateKeyFromSeedWords(mnemonic);
+    const privateKey = mnemonic
+      ? nostr.nip06.privateKeyFromSeedWords(mnemonic)
+      : null;
 
-    const publicKey = privateKey && nostr.getPublicKey(privateKey);
+    const publicKey = privateKey ? nostr.getPublicKey(privateKey) : null;
 
-    if (!privateKey || !publicKey) throw Error('Failed to retrive');
+    if (!privateKey || !publicKey) throw Error('Failed to retrieve keys');
 
     await initializeFirebase(publicKey, privateKey);
 
-    let blitzStoredData;
-    const retrivedStoredBlitzData = await getDataFromCollection(
+    let blitzStoredData = await getDataFromCollection(
       'blitzWalletUsers',
       publicKey,
     );
 
-    if (retrivedStoredBlitzData === null) throw Error('Failed to retrive');
-    else if (retrivedStoredBlitzData) blitzStoredData = retrivedStoredBlitzData;
-    else blitzStoredData = {};
+    if (blitzStoredData === null) throw Error('Failed to retrive');
+    blitzStoredData = blitzStoredData || {};
 
     setContactsPrivateKey(privateKey);
 
-    const generatedUniqueName = generateRandomContact();
+    const generatedUniqueName = blitzStoredData?.contacts?.uniqueName
+      ? ''
+      : generateRandomContact();
     const contacts = blitzStoredData.contacts || {
       myProfile: {
         uniqueName: generatedUniqueName.uniqueName,
@@ -66,33 +67,18 @@ export default async function initializeUserSettingsFromHistory({
       addedContacts: [],
     };
 
-    const storedUserTxPereferance =
-      JSON.parse(await getLocalStorageItem('homepageTxPreferance')) || 25;
-
-    const enabledSlidingCamera =
-      JSON.parse(await getLocalStorageItem('enabledSlidingCamera')) ?? false;
-
-    const userFaceIDPereferance =
-      JSON.parse(await getLocalStorageItem('userFaceIDPereferance')) ?? false;
-
-    const fiatCurrenciesList =
-      JSON.parse(await getLocalStorageItem('fiatCurrenciesList')) || [];
-
-    const failedTransactions =
-      JSON.parse(await getLocalStorageItem('failedTransactions')) || [];
-
-    const satDisplay =
-      JSON.parse(await getLocalStorageItem('satDisplay')) || 'word';
-    const enabledEcash =
-      JSON.parse(await getLocalStorageItem('enabledEcash')) ?? false;
-
-    const hideUnknownContacts =
-      JSON.parse(await getLocalStorageItem('hideUnknownContacts')) ?? false;
-    const useTrampoline =
-      JSON.parse(await getLocalStorageItem('useTrampoline')) ?? true;
-    const fastPaySettings = JSON.parse(
-      await getLocalStorageItem(QUICK_PAY_STORAGE_KEY),
-    ) ?? {isFastPayEnabled: false, fastPayThresholdSats: 5000};
+    const {
+      storedUserTxPereferance,
+      enabledSlidingCamera,
+      userFaceIDPereferance,
+      fiatCurrenciesList,
+      failedTransactions,
+      satDisplay,
+      enabledEcash,
+      hideUnknownContacts,
+      useTrampoline,
+      fastPaySettings,
+    } = await fetchLocalStorageItems();
 
     const fiatCurrency = blitzStoredData.fiatCurrency || 'USD';
 

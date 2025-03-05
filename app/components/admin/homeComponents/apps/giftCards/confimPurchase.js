@@ -58,12 +58,18 @@ export default function ConfirmGiftCardPurchase(props) {
           email: email,
           blitzUsername: blitzUsername,
         };
-        const response = await fetchBackend(
-          'theBitcoinCompanyV3',
-          postData,
-          contactsPrivateKey,
-          publicKey,
-        );
+        const [response, countryInfo] = await Promise.all([
+          fetchBackend(
+            'theBitcoinCompanyV3',
+            postData,
+            contactsPrivateKey,
+            publicKey,
+          ),
+          getCountryInfoAsync({
+            countryCode: ISOCode || 'US',
+          }),
+        ]);
+
         if (!response) {
           navigate.goBack();
           navigate.navigate('ErrorScreen', {
@@ -72,11 +78,6 @@ export default function ConfirmGiftCardPurchase(props) {
           });
           return;
         }
-        console.log(response);
-
-        const countryInfo = await getCountryInfoAsync({
-          countryCode: ISOCode || 'US',
-        });
 
         setRetrivedInformation({
           countryInfo: countryInfo,

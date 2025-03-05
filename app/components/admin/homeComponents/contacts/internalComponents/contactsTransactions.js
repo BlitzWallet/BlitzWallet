@@ -212,32 +212,38 @@ export default function ContactsTransactionItem(props) {
       delete newMessage.wasSeen;
       const fiatCurrencies = await getFiatRates();
 
-      await sendPushNotification({
-        selectedContactUsername: selectedContact.uniqueName,
-        myProfile: myProfile,
-        data: {
-          isUpdate: true,
-          message: `${myProfile.name || myProfile.uniqueName} ${
-            didPay ? 'paid' : 'declined'
-          } your request`,
-        },
-        fiatCurrencies: fiatCurrencies,
-        privateKey: contactsPrivateKey,
-      });
-
-      await updateMessage({
-        newMessage,
-        fromPubKey: transaction.fromPubKey,
-        toPubKey: transaction.toPubKey,
-      });
+      const [didPublishNotification, didUpdateMessage] = await Promise.all([
+        sendPushNotification({
+          selectedContactUsername: selectedContact.uniqueName,
+          myProfile: myProfile,
+          data: {
+            isUpdate: true,
+            message: `${myProfile.name || myProfile.uniqueName} ${
+              didPay ? 'paid' : 'declined'
+            } your request`,
+          },
+          fiatCurrencies: fiatCurrencies,
+          privateKey: contactsPrivateKey,
+        }),
+        await updateMessage({
+          newMessage,
+          fromPubKey: transaction.fromPubKey,
+          toPubKey: transaction.toPubKey,
+        }),
+      ]);
+      if (!didUpdateMessage && usingOnPage) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: 'Unable to update message',
+        });
+      }
+      usingOnPage && setIsLoading(false);
     } catch (err) {
       console.log(err);
-      usingOnPage &&
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Unable to decline payment',
-        });
-    } finally {
-      usingOnPage && setIsLoading(false);
+      if (!usingOnPage) return;
+      setIsLoading(false);
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'Unable to decline payment',
+      });
     }
   }
 

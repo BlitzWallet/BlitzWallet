@@ -16,6 +16,7 @@ import auth from '@react-native-firebase/auth';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {deleteEcashDBTables} from '../../../../functions/eCash/db';
+import {deletePOSTransactionsTable} from '../../../../functions/pos';
 
 export default function ResetPage(props) {
   const [selectedOptions, setSelectedOptions] = useState({
@@ -191,6 +192,7 @@ export default function ResetPage(props) {
         const didClearLocalStoreage = await clearLocalStorage();
         await deleteTable();
         await deleteEcashDBTables();
+        await deletePOSTransactionsTable();
         if (!didClearLocalStoreage)
           throw Error('Not able to delete local stored information');
       }

@@ -534,10 +534,14 @@ function SettingsItem({settingsName, settingsDescription, id}) {
 
         await connectLsp(availableLsps[0].id);
       }
-      const nodeState = await nodeInfo();
-      const transactions = await getTransactions();
+
+      const [nodeState, transactions, lspInfo] = await Promise.all([
+        nodeInfo(),
+        getTransactions(),
+        listLsps(),
+      ]);
+
       const msatToSat = nodeState.channelsBalanceMsat / 1000;
-      const lspInfo = await listLsps();
 
       toggleNodeInformation({
         didConnectToNode: true,

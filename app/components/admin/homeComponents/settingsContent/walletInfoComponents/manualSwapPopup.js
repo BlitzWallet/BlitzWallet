@@ -1,14 +1,9 @@
 import {
-  Animated,
-  Image,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
@@ -30,14 +25,12 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import {nodeInfo, parseInput} from '@breeztech/react-native-breez-sdk';
 import {getInfo} from '@breeztech/react-native-breez-sdk-liquid';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import {useGlobaleCash} from '../../../../../../context-store/eCash';
 import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
 import {breezLiquidPaymentWrapper} from '../../../../../functions/breezLiquid';
@@ -132,8 +125,10 @@ export default function ManualSwapPopup() {
   );
   useEffect(() => {
     async function loadUserBalanceInformation() {
-      const node_info = await nodeInfo();
-      const liquid_info = await getInfo();
+      const [node_info, liquid_info] = await Promise.all([
+        nodeInfo(),
+        getInfo(),
+      ]);
 
       setUserBalanceInformation({
         lightningInboundAmount: node_info.totalInboundLiquidityMsats / 1000,

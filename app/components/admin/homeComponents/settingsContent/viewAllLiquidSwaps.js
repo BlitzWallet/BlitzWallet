@@ -12,14 +12,15 @@ import {
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
 export default function ViewAllLiquidSwaps(props) {
-  const [liquidSwaps, setLiquidSwaps] = useState([
-    // {
-    //   amountSat: 50000,
-    //   swapAddress:
-    //     'bc1p8k4v4xuz55dv49svzjg43qjxq2whur7ync9tm0xgl5t4wjl9ca9snxgmlt',
-    //   timestamp: 1714764847,
-    // },
-  ]);
+  const [liquidSwaps, setLiquidSwaps] = useState(null);
+  //   [
+  //   // {
+  //   //   amountSat: 50000,
+  //   //   swapAddress:
+  //   //     'bc1p8k4v4xuz55dv49svzjg43qjxq2whur7ync9tm0xgl5t4wjl9ca9snxgmlt',
+  //   //   timestamp: 1714764847,
+  //   // },
+  // ]
   const navigate = useNavigation();
 
   useEffect(() => {

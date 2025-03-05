@@ -119,12 +119,12 @@ export default function FiatCurrencyPage() {
   async function saveCurrencySettings(selectedCurrency) {
     try {
       setIsLoading(true);
-      await toggleMasterInfoObject({fiatCurrency: selectedCurrency});
+      toggleMasterInfoObject({fiatCurrency: selectedCurrency});
       const fiat = await fetchFiatRates();
       const [fiatRate] = fiat.filter(rate => {
         return rate.coin.toLowerCase() === selectedCurrency.toLowerCase();
       });
-      await toggleNodeInformation({fiatStats: fiatRate});
+      toggleNodeInformation({fiatStats: fiatRate});
 
       if (fiatRate) {
         navigate.goBack();
