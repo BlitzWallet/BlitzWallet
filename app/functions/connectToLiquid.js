@@ -54,22 +54,26 @@ export default async function connectToLiquidNode(breezLiquidEvent) {
   didConnect = true;
   try {
     // Create the default config, providing your Breez API key
-    const config = await defaultConfig(
-      LiquidNetwork[
-        process.env.BOLTZ_ENVIRONMENT === 'testnet' ? 'TESTNET' : 'MAINNET'
-      ],
-      process.env.LIQUID_BREEZ_KEY,
-    );
+    const [config, mnemonic] = await Promise.all([
+      defaultConfig(
+        LiquidNetwork[
+          process.env.BOLTZ_ENVIRONMENT === 'testnet' ? 'TESTNET' : 'MAINNET'
+        ],
+        process.env.LIQUID_BREEZ_KEY,
+      ),
+      retrieveData('mnemonic').then(data =>
+        data
+          .split(' ')
+          .filter(word => word.length > 0)
+          .join(' '),
+      ),
+    ]);
+
     const directoryPath = await getOrCreateDirectory(
       'liquidFilesystemUUID',
       config.workingDir,
     );
     config.workingDir = directoryPath;
-    const mnemonic = (await retrieveData('mnemonic'))
-      .split(' ')
-      .filter(word => word.length > 0)
-      .join(' ');
-
     // By default in React Native the workingDir is set to:
     // `/<APPLICATION_SANDBOX_DIRECTORY>/breezSdkLiquid`
     // You can change this to another writable directory or a

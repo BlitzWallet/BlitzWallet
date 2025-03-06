@@ -38,10 +38,24 @@ export default async function initializeUserSettingsFromHistory({
 
     await initializeFirebase(publicKey, privateKey);
 
-    let blitzStoredData = await getDataFromCollection(
-      'blitzWalletUsers',
-      publicKey,
-    );
+    // Wrap both of thses in promise.all to fetch together.
+    let [blitzStoredData, localStoredData] = await Promise.all([
+      getDataFromCollection('blitzWalletUsers', publicKey),
+      fetchLocalStorageItems(),
+    ]);
+
+    const {
+      storedUserTxPereferance,
+      enabledSlidingCamera,
+      userFaceIDPereferance,
+      fiatCurrenciesList,
+      failedTransactions,
+      satDisplay,
+      enabledEcash,
+      hideUnknownContacts,
+      useTrampoline,
+      fastPaySettings,
+    } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
     blitzStoredData = blitzStoredData || {};
@@ -66,19 +80,6 @@ export default async function initializeUserSettingsFromHistory({
       },
       addedContacts: [],
     };
-
-    const {
-      storedUserTxPereferance,
-      enabledSlidingCamera,
-      userFaceIDPereferance,
-      fiatCurrenciesList,
-      failedTransactions,
-      satDisplay,
-      enabledEcash,
-      hideUnknownContacts,
-      useTrampoline,
-      fastPaySettings,
-    } = await fetchLocalStorageItems();
 
     const fiatCurrency = blitzStoredData.fiatCurrency || 'USD';
 
