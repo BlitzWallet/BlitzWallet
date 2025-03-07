@@ -16,7 +16,14 @@ import {
   createNativeStackNavigator,
   NativeStackNavigationProp,
 } from '@react-navigation/native-stack';
-import React, {Suspense, useCallback, useEffect, useRef, useState} from 'react';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {registerRootComponent} from 'expo';
 type RootStackParamList = {
   Home: {someParam?: string};
@@ -415,56 +422,63 @@ function ResetStack(): JSX.Element | null {
       return {...prev, isLoaded: true};
     });
   };
+  const navigationTheme = useMemo(
+    () => ({
+      dark: theme,
+      colors: {
+        background: backgroundColor,
+        primary: '',
+        card: '',
+        text: '',
+        border: '',
+        notification: '',
+      },
+    }),
+    [theme, backgroundColor],
+  );
+
+  const screenOptions = useMemo(() => {
+    return {
+      headerShown: false,
+      statusBarColor: Platform.OS === 'android' ? backgroundColor : undefined,
+      statusBarStyle:
+        Platform.OS === 'android'
+          ? ((theme ? 'light' : 'dark') as
+              | 'light'
+              | 'dark'
+              | 'inverted'
+              | 'auto'
+              | undefined)
+          : undefined,
+      statusBarAnimation:
+        Platform.OS === 'android'
+          ? ('fade' as 'fade' | 'none' | 'slide' | undefined)
+          : undefined,
+      navigationBarColor: backgroundColor,
+    };
+  }, [backgroundColor, theme]);
+
+  const HomeComponent = useMemo(() => {
+    if (initSettings.isLoggedIn) {
+      return initSettings.hasSecurityEnabled
+        ? AdminLogin
+        : ConnectingToNodeLoadingScreen;
+    }
+    return CreateAccountHome;
+  }, [initSettings.isLoggedIn, initSettings.hasSecurityEnabled]);
 
   if (!initSettings.isLoaded || theme === null || darkModeType === null) {
     return <SplashScreen onAnimationFinish={handleAnimationFinish} />;
   }
   return (
-    <NavigationContainer
-      theme={{
-        dark: theme,
-        colors: {
-          background: backgroundColor,
-          primary: '',
-          card: '',
-          text: '',
-          border: '',
-          notification: '',
-        },
-      }}
-      ref={navigationRef}>
+    <NavigationContainer theme={navigationTheme} ref={navigationRef}>
       <LiquidNavigationListener />
       <LightningNavigationListener />
       <EcashNavigationListener />
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          statusBarColor:
-            Platform.OS === 'android'
-              ? theme
-                ? darkModeType
-                  ? COLORS.lightsOutBackground
-                  : COLORS.darkModeBackground
-                : COLORS.lightModeBackground
-              : undefined,
-          statusBarStyle:
-            Platform.OS === 'android' ? (theme ? 'light' : 'dark') : undefined,
-          statusBarAnimation: Platform.OS === 'android' ? 'fade' : undefined,
-          navigationBarColor: theme
-            ? darkModeType
-              ? COLORS.lightsOutBackground
-              : COLORS.darkModeBackground
-            : COLORS.lightModeBackground,
-        }}>
+      <Stack.Navigator screenOptions={screenOptions}>
         <Stack.Screen
           name="Home"
-          component={
-            initSettings.isLoggedIn
-              ? initSettings.hasSecurityEnabled
-                ? AdminLogin
-                : ConnectingToNodeLoadingScreen
-              : CreateAccountHome
-          }
+          component={HomeComponent}
           options={{
             animation: 'fade',
             gestureEnabled: false,
