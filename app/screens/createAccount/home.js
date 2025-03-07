@@ -30,13 +30,13 @@ export default function CreateAccountHome({navigation: {navigate}}) {
             ...styles.buttonStyle,
             backgroundColor: COLORS.primary,
           }}
-          textStyles={{...styles.buttonText, color: COLORS.darkModeText}}
+          textStyles={{color: COLORS.darkModeText}}
           textContent={t('createAccount.homePage.buttons.button2')}
           actionFunction={() => navigate('DisclaimerPage')}
         />
         <CustomButton
           buttonStyles={styles.buttonStyle}
-          textStyles={{...styles.buttonText, color: COLORS.lightModeText}}
+          textStyles={{color: COLORS.lightModeText}}
           textContent={t('createAccount.homePage.buttons.button1')}
           actionFunction={() => navigate('RestoreWallet')}
         />
@@ -69,12 +69,6 @@ const styles = StyleSheet.create({
   buttonStyle: {
     width: '80%',
     marginBottom: 20,
-  },
-
-  buttonText: {
-    fontSize: SIZES.large,
-    paddingTop: 10,
-    paddingBottom: 10,
   },
 
   disclamer_text: {

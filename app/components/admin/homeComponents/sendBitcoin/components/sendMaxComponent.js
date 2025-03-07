@@ -30,9 +30,6 @@ export default function SendMaxComponent({
         ...CENTER,
         marginBottom: 25,
       }}
-      textStyles={{
-        includeFontPadding: false,
-      }}
       useLoading={isGettingMax}
       actionFunction={() => {
         sendMax();

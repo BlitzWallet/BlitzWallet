@@ -48,9 +48,6 @@ export default function AcceptButtonSendPage({
         ...CENTER,
         marginTop: 15,
       }}
-      textStyles={{
-        includeFontPadding: false,
-      }}
       useLoading={isGeneratingInvoice}
       actionFunction={handleEnterSendAmount}
       textContent={'Accept'}

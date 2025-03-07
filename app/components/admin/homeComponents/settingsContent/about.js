@@ -183,8 +183,6 @@ const styles = StyleSheet.create({
 
   customButtonContainer: {width: 'auto', backgroundColor: COLORS.primary},
   buttonTextStyles: {
-    paddingVertical: 5,
     color: COLORS.darkModeText,
-    paddingHorizontal: 10,
   },
 });

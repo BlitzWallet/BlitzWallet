@@ -21,6 +21,7 @@ export default function CustomSearchInput({
   textAlignVertical,
   maxLength,
   placeholderTextColor,
+  shouldDelayBlur = true,
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textInputColor, textInputBackground} = GetThemeColors();
@@ -56,7 +57,12 @@ export default function CustomSearchInput({
             onFocusFunction && onFocusFunction();
           }}
           onBlur={() => {
-            onBlurFunction && onBlurFunction();
+            if (!onBlurFunction) return;
+            if (shouldDelayBlur) {
+              setTimeout(() => {
+                onBlurFunction();
+              }, 150);
+            } else onBlurFunction();
           }}
           multiline={
             textInputMultiline != undefined ? textInputMultiline : false

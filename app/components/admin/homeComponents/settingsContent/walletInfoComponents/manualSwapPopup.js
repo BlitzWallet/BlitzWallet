@@ -1,11 +1,4 @@
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useRef, useState} from 'react';
@@ -143,154 +136,150 @@ export default function ManualSwapPopup() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        style={{flex: 1}}>
-        <View style={styles.topbar}>
-          <TouchableOpacity
-            style={{position: 'absolute', top: 0, left: 0, zIndex: 1}}
-            onPress={() => {
-              navigate.goBack();
-            }}>
-            <ThemeImage
-              lightsOutIcon={ICONS.arrow_small_left_white}
-              darkModeIcon={ICONS.smallArrowLeft}
-              lightModeIcon={ICONS.smallArrowLeft}
-            />
-          </TouchableOpacity>
-          <ThemeText
-            CustomEllipsizeMode={'tail'}
-            CustomNumberOfLines={1}
-            content={'Internal transfer'}
-            styles={{...styles.topBarText}}
+      <View style={styles.topbar}>
+        <TouchableOpacity
+          style={{position: 'absolute', top: 0, left: 0, zIndex: 1}}
+          onPress={() => {
+            navigate.goBack();
+          }}>
+          <ThemeImage
+            lightsOutIcon={ICONS.arrow_small_left_white}
+            darkModeIcon={ICONS.smallArrowLeft}
+            lightModeIcon={ICONS.smallArrowLeft}
           />
-        </View>
-        {!Object.keys(userBalanceInformation).length || isDoingTransfer ? (
-          <FullLoadingScreen
-            textStyles={{textAlign: 'center'}}
-            text={
-              isDoingTransfer
-                ? 'Handling transfer, please do not leave the page.'
-                : ''
-            }
-          />
-        ) : (
-          <>
-            <ScrollView style={{width: '100%', flex: 1}}>
-              <View style={styles.transferAccountRow}>
-                <ThemeText content={'Transfer from:'} />
-                <TouchableOpacity
-                  onPress={() =>
-                    navigate.navigate('AccountInformationPage', {
-                      setTransferInfo: setTransferInfo,
-                      transferType: 'from',
-                      userBalanceInformation: userBalanceInformation,
-                    })
+        </TouchableOpacity>
+        <ThemeText
+          CustomEllipsizeMode={'tail'}
+          CustomNumberOfLines={1}
+          content={'Internal transfer'}
+          styles={{...styles.topBarText}}
+        />
+      </View>
+      {!Object.keys(userBalanceInformation).length || isDoingTransfer ? (
+        <FullLoadingScreen
+          textStyles={{textAlign: 'center'}}
+          text={
+            isDoingTransfer
+              ? 'Handling transfer, please do not leave the page.'
+              : ''
+          }
+        />
+      ) : (
+        <>
+          <ScrollView style={{width: '100%', flex: 1}}>
+            <View style={styles.transferAccountRow}>
+              <ThemeText content={'Transfer from:'} />
+              <TouchableOpacity
+                onPress={() =>
+                  navigate.navigate('AccountInformationPage', {
+                    setTransferInfo: setTransferInfo,
+                    transferType: 'from',
+                    userBalanceInformation: userBalanceInformation,
+                  })
+                }
+                style={styles.chooseAccountBTN}>
+                <ThemeText
+                  content={
+                    !transferInfo.from
+                      ? 'Select from account'
+                      : transferInfo.from
                   }
-                  style={styles.chooseAccountBTN}>
-                  <ThemeText
-                    content={
-                      !transferInfo.from
-                        ? 'Select from account'
-                        : transferInfo.from
-                    }
-                  />
-                  <ThemeImage
-                    styles={styles.chooseAccountImage}
-                    lightModeIcon={ICONS.leftCheveronIcon}
-                    darkModeIcon={ICONS.leftCheveronIcon}
-                    lightsOutIcon={ICONS.left_cheveron_white}
-                  />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.transferAccountRow}>
-                <ThemeText content={'Transfer to:'} />
-                <TouchableOpacity
-                  activeOpacity={1}
-                  style={styles.chooseAccountBTN}>
-                  <ThemeText
-                    content={!transferInfo.to ? '* * * * *' : transferInfo.to}
-                  />
-                </TouchableOpacity>
-              </View>
-              <FormattedBalanceInput
-                customTextInputContainerStyles={{marginTop: 20}}
-                maxWidth={0.9}
-                amountValue={sendingAmount}
-                inputDenomination={masterInfoObject.userBalanceDenomination}
-              />
-
-              <FormattedSatText
-                containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
-                neverHideBalance={true}
-                styles={{includeFontPadding: false}}
-                globalBalanceDenomination={
-                  masterInfoObject.userBalanceDenomination === 'sats' ||
-                  masterInfoObject.userBalanceDenomination === 'hidden'
-                    ? 'fiat'
-                    : 'sats'
-                }
-                balance={convertedSendAmount}
-              />
-            </ScrollView>
-            {transferInfo.from && transferInfo.to && (
-              <FormattedSatText
-                frontText={`${
-                  convertedSendAmount < minMaxLiquidSwapAmounts.min
-                    ? 'Minimum'
-                    : 'Maximum'
-                } transfer amount is  `}
-                balance={
-                  convertedSendAmount < minMaxLiquidSwapAmounts.min
-                    ? minMaxLiquidSwapAmounts.min
-                    : maxTransferAmount
-                }
-                styles={{textAlign: 'center'}}
-                containerStyles={{
-                  marginBottom: 10,
-                  width: '100%',
-                  flexWrap: 'wrap',
-                  ...CENTER,
-                }}
-              />
-            )}
-
-            <CustomNumberKeyboard
-              showDot={masterInfoObject.userBalanceDenomination === 'fiat'}
-              frompage="sendContactsPage"
-              setInputValue={setSendingAmount}
-              usingForBalance={true}
-              nodeInformation={nodeInformation}
+                />
+                <ThemeImage
+                  styles={styles.chooseAccountImage}
+                  lightModeIcon={ICONS.leftCheveronIcon}
+                  darkModeIcon={ICONS.leftCheveronIcon}
+                  lightsOutIcon={ICONS.left_cheveron_white}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.transferAccountRow}>
+              <ThemeText content={'Transfer to:'} />
+              <TouchableOpacity
+                activeOpacity={1}
+                style={styles.chooseAccountBTN}>
+                <ThemeText
+                  content={!transferInfo.to ? '* * * * *' : transferInfo.to}
+                />
+              </TouchableOpacity>
+            </View>
+            <FormattedBalanceInput
+              customTextInputContainerStyles={{marginTop: 20}}
+              maxWidth={0.9}
+              amountValue={sendingAmount}
+              inputDenomination={masterInfoObject.userBalanceDenomination}
             />
 
-            <CustomButton
-              textContent={'Confirm'}
-              buttonStyles={{
+            <FormattedSatText
+              containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
+              neverHideBalance={true}
+              styles={{includeFontPadding: false}}
+              globalBalanceDenomination={
+                masterInfoObject.userBalanceDenomination === 'sats' ||
+                masterInfoObject.userBalanceDenomination === 'hidden'
+                  ? 'fiat'
+                  : 'sats'
+              }
+              balance={convertedSendAmount}
+            />
+          </ScrollView>
+          {transferInfo.from && transferInfo.to && (
+            <FormattedSatText
+              frontText={`${
+                convertedSendAmount < minMaxLiquidSwapAmounts.min
+                  ? 'Minimum'
+                  : 'Maximum'
+              } transfer amount is  `}
+              balance={
+                convertedSendAmount < minMaxLiquidSwapAmounts.min
+                  ? minMaxLiquidSwapAmounts.min
+                  : maxTransferAmount
+              }
+              styles={{textAlign: 'center'}}
+              containerStyles={{
+                marginBottom: 10,
+                width: '100%',
+                flexWrap: 'wrap',
                 ...CENTER,
-                opacity:
-                  !transferInfo.from ||
-                  !transferInfo.to ||
-                  !canDoTransfer ||
-                  !sendingAmount
-                    ? 0.2
-                    : 1,
-              }}
-              actionFunction={() => {
-                if (!transferInfo.from || !transferInfo.to) return;
-                if (!canDoTransfer) return;
-                if (!sendingAmount) return;
-                navigate.navigate('CustomHalfModal', {
-                  wantedContent: 'confirmInternalTransferHalfModal',
-                  amount: convertedSendAmount,
-                  transferInfo: transferInfo,
-                  startTransferFunction: initiateTransfer,
-                  sliderHight: 0.5,
-                });
               }}
             />
-          </>
-        )}
-      </KeyboardAvoidingView>
+          )}
+
+          <CustomNumberKeyboard
+            showDot={masterInfoObject.userBalanceDenomination === 'fiat'}
+            frompage="sendContactsPage"
+            setInputValue={setSendingAmount}
+            usingForBalance={true}
+            nodeInformation={nodeInformation}
+          />
+
+          <CustomButton
+            textContent={'Confirm'}
+            buttonStyles={{
+              ...CENTER,
+              opacity:
+                !transferInfo.from ||
+                !transferInfo.to ||
+                !canDoTransfer ||
+                !sendingAmount
+                  ? 0.2
+                  : 1,
+            }}
+            actionFunction={() => {
+              if (!transferInfo.from || !transferInfo.to) return;
+              if (!canDoTransfer) return;
+              if (!sendingAmount) return;
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'confirmInternalTransferHalfModal',
+                amount: convertedSendAmount,
+                transferInfo: transferInfo,
+                startTransferFunction: initiateTransfer,
+                sliderHight: 0.5,
+              });
+            }}
+          />
+        </>
+      )}
     </GlobalThemeView>
   );
   async function initiateTransfer({invoice, transferInfo}) {

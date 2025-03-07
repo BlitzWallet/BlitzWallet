@@ -210,45 +210,39 @@ export default function AddContactsHalfModal(props) {
               </TouchableOpacity>
             }
           />
-          <View
-            style={{
-              flex: 1,
-            }}>
-            {searchInput.includes('@') ? (
-              <ScrollView
-                keyboardShouldPersistTaps="always"
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{
-                  alignItems: 'center',
-                  marginTop: 10,
-                }}>
-                <ThemeText content={'You are about to add'} />
-                <ThemeText content={searchInput} />
 
-                <CustomButton
-                  buttonStyles={{
-                    width: 'auto',
-                    ...CENTER,
-                    marginTop: 25,
-                    // marginVertical: 5,
-                  }}
-                  // textStyles={{}}
-                  actionFunction={() => {
-                    clearHalfModalForLNURL();
-                  }}
-                  textContent={'Continue'}
-                />
-              </ScrollView>
-            ) : (
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                data={users}
-                renderItem={({item}) => item}
-                keyboardShouldPersistTaps="handled"
-                keyboardDismissMode="none"
+          {searchInput.includes('@') ? (
+            <ScrollView
+              keyboardShouldPersistTaps="always"
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                alignItems: 'center',
+                marginTop: 10,
+              }}>
+              <ThemeText content={'You are about to add'} />
+              <ThemeText content={searchInput} />
+
+              <CustomButton
+                buttonStyles={{
+                  width: 'auto',
+                  ...CENTER,
+                  marginTop: 25,
+                }}
+                actionFunction={() => {
+                  clearHalfModalForLNURL();
+                }}
+                textContent={'Continue'}
               />
-            )}
-          </View>
+            </ScrollView>
+          ) : (
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              data={users}
+              renderItem={({item}) => item}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="none"
+            />
+          )}
         </View>
       </View>
     </TouchableWithoutFeedback>

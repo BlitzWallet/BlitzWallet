@@ -171,7 +171,6 @@ export default function RestoreWallet({
                 {params && !currentFocused && (
                   <CustomButton
                     buttonStyles={styles.pasteButton}
-                    textStyles={{fontSize: SIZES.large}}
                     textContent={t('constants.paste')}
                     actionFunction={getClipboardText}
                   />
@@ -188,7 +187,6 @@ export default function RestoreWallet({
                         marginRight: 10,
                       }}
                       textStyles={{
-                        fontSize: SIZES.large,
                         color: COLORS.lightModeText,
                       }}
                       textContent={params ? t('constants.skip') : 'Paste'}
@@ -204,7 +202,6 @@ export default function RestoreWallet({
                         backgroundColor: COLORS.primary,
                       }}
                       textStyles={{
-                        fontSize: SIZES.large,
                         color: COLORS.darkModeText,
                       }}
                       textContent={params ? t('constants.verify') : 'Restore'}
@@ -358,6 +355,7 @@ const styles = StyleSheet.create({
   textInputStyle: {
     width: '90%',
     fontSize: SIZES.large,
+    fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
   },
   continueBTN: {

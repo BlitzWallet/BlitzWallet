@@ -239,7 +239,6 @@ export default function ConfirmTxPage(props) {
 const styles = StyleSheet.create({
   buttonText: {
     fontFamily: FONT.Descriptoin_Regular,
-    fontSize: SIZES.large,
   },
   paymentConfirmedMessage: {
     width: '90%',

@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
   textInputStyle: {
     width: '90%',
     fontSize: SIZES.large,
+    fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
   },
 });

@@ -9,7 +9,13 @@ import {ThemeText} from '../../../../functions/CustomElements';
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {CENTER, COLORS, QUICK_PAY_STORAGE_KEY} from '../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  FONT,
+  QUICK_PAY_STORAGE_KEY,
+  SIZES,
+} from '../../../../constants';
 import {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
@@ -94,9 +100,11 @@ export default function FastPay() {
               style={{
                 padding: 10,
                 borderRadius: 8,
-
                 backgroundColor: backgroundColor,
                 color: textColor,
+                fontSize: SIZES.medium,
+                fontFamily: FONT.Title_Regular,
+                includeFontPadding: false,
               }}
             />
           </View>

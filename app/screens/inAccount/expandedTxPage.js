@@ -374,8 +374,6 @@ export default function ExpandedTx(props) {
               }}
               textStyles={{
                 color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-                paddingVertical: 10,
-                includeFontPadding: false,
               }}
               textContent={'Technical details'}
               actionFunction={() => {

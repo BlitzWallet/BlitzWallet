@@ -8,7 +8,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import {BITCOIN_SATS_ICON, CENTER, SIZES} from '../../constants';
+import {BITCOIN_SATS_ICON, CENTER, FONT, SIZES} from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import formatBalanceAmount from '../formatNumber';
@@ -134,6 +134,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     pointerEvents: 'none',
     paddingVertical: 0,
+    fontFamily: FONT.Title_Regular,
   },
 
   satText: {
