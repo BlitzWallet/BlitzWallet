@@ -78,16 +78,10 @@ export default function AppStore({navigation}) {
         style={{
           ...styles.appRowContainer,
           width:
-            (windowWidth.width *
-              0.95 *
-              0.95 *
-              (Platform.OS === 'ios' ? 0.95 : 0.95)) /
+            (windowWidth.width * 0.95 * (Platform.OS === 'ios' ? 0.95 : 0.95)) /
             2,
           height:
-            (windowWidth.width *
-              0.95 *
-              0.95 *
-              (Platform.OS === 'ios' ? 0.95 : 0.95)) /
+            (windowWidth.width * 0.95 * (Platform.OS === 'ios' ? 0.95 : 0.95)) /
             2,
           overflow: 'scroll',
           backgroundColor: backgroundOffset,
@@ -295,7 +289,7 @@ const styles = StyleSheet.create({
 
   giftCardContainer: {
     minHeight: 120,
-    width: '95%',
+    width: '100%',
     minWidth: 310,
     paddingHorizontal: 15,
     borderRadius: 10,
