@@ -19,24 +19,15 @@ export default function AppStorePageIndex(props) {
   useEffect(() => {
     handleBackPress(handleBackPressFunction);
   }, []);
-  console.log(props?.route?.params, 'APP STORE INDEX');
+
+  if (targetPage.toLowerCase() === 'sms4sats') return <SMSMessagingHome />;
+  if (targetPage.toLowerCase() === 'lnvpn') return <VPNHome />;
+  if (targetPage.toLowerCase() === 'ai')
+    return <ChatGPTDrawer props={props?.route?.params} />;
 
   return (
-    <>
-      {targetPage.toLowerCase() === 'ai' ? (
-        <View style={{flex: 1}}>
-          <ChatGPTDrawer props={props?.route?.params} />
-        </View>
-      ) : (
-        // : targetPage.toLowerCase() === 'shopbitcoin' ? (
-        //   <ShopBitcoinHome />
-        // )
-        <GlobalThemeView>
-          {targetPage.toLowerCase() === 'resturant' && <ResturantHomepage />}
-          {targetPage.toLowerCase() === 'sms4sats' && <SMSMessagingHome />}
-          {targetPage.toLowerCase() === 'lnvpn' && <VPNHome />}
-        </GlobalThemeView>
-      )}
-    </>
+    <GlobalThemeView>
+      {targetPage.toLowerCase() === 'resturant' && <ResturantHomepage />}
+    </GlobalThemeView>
   );
 }

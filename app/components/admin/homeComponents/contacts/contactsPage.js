@@ -1,22 +1,20 @@
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {
   Image,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   useWindowDimensions,
   View,
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {getPublicKey} from 'nostr-tools';
 import {encriptMessage} from '../../../../functions/messaging/encodingAndDecodingMessages';
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import handleBackPress from '../../../../hooks/handleBackPress';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
@@ -111,145 +109,139 @@ export default function ContactsPage({navigation}) {
   }, [decodedAddedContacts, inputText, hideUnknownContacts, contactsMessags]);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : null}
-      style={[styles.globalContainer]}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <GlobalThemeView useStandardWidth={true} styles={{paddingBottom: 0}}>
-          {myProfile.didEditProfile && (
-            <View style={styles.topBar}>
-              <TouchableOpacity
-                onPress={() => {
-                  if (!isConnectedToTheInternet) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage:
-                        'Please connect to the internet to use this feature',
-                    });
-                    return;
-                  }
-                  navigate.navigate('CustomHalfModal', {
-                    wantedContent: 'addContacts',
+    <CustomKeyboardAvoidingView
+      useTouchableWithoutFeedback={true}
+      useStandardWidth={true}>
+      {myProfile.didEditProfile && (
+        <View style={styles.topBar}>
+          <TouchableOpacity
+            onPress={() => {
+              if (!isConnectedToTheInternet) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage:
+                    'Please connect to the internet to use this feature',
+                });
+                return;
+              }
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'addContacts',
 
-                    sliderHight: 0.5,
-                  });
-                }}>
-                <Icon
-                  name={'addContactsIcon'}
-                  width={30}
-                  height={30}
-                  color={
-                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                  }
-                  offsetColor={
-                    theme
-                      ? darkModeType
-                        ? COLORS.lightsOutBackground
-                        : COLORS.darkModeBackground
-                      : COLORS.lightModeBackground
-                  }
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('MyContactProfilePage', {})}>
-                <View
-                  style={{
-                    ...styles.profileImageContainer,
-                    backgroundColor: backgroundOffset,
-                  }}>
-                  <Image
-                    source={
-                      myProfileImage
-                        ? {uri: myProfileImage}
-                        : darkModeType && theme
-                        ? ICONS.userWhite
-                        : ICONS.userIcon
-                    }
-                    style={
-                      myProfileImage
-                        ? {width: '100%', aspectRatio: 1}
-                        : {width: '50%', height: '50%'}
-                    }
-                  />
-                </View>
-              </TouchableOpacity>
+                sliderHight: 0.5,
+              });
+            }}>
+            <Icon
+              name={'addContactsIcon'}
+              width={30}
+              height={30}
+              color={
+                theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+              }
+              offsetColor={
+                theme
+                  ? darkModeType
+                    ? COLORS.lightsOutBackground
+                    : COLORS.darkModeBackground
+                  : COLORS.lightModeBackground
+              }
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('MyContactProfilePage', {})}>
+            <View
+              style={{
+                ...styles.profileImageContainer,
+                backgroundColor: backgroundOffset,
+              }}>
+              <Image
+                source={
+                  myProfileImage
+                    ? {uri: myProfileImage}
+                    : darkModeType && theme
+                    ? ICONS.userWhite
+                    : ICONS.userIcon
+                }
+                style={
+                  myProfileImage
+                    ? {width: '100%', aspectRatio: 1}
+                    : {width: '50%', height: '50%'}
+                }
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
+      {decodedAddedContacts.filter(
+        contact => !hideUnknownContacts || contact.isAdded,
+      ).length !== 0 && myProfile.didEditProfile ? (
+        <View style={{flex: 1}}>
+          {pinnedContacts.length != 0 && (
+            <View style={{height: 130, marginBottom: 10}}>
+              <ScrollView
+                showsHorizontalScrollIndicator={false}
+                horizontal
+                contentContainerStyle={styles.pinnedContactsContainer}>
+                {pinnedContacts}
+              </ScrollView>
             </View>
           )}
-          {decodedAddedContacts.filter(
-            contact => !hideUnknownContacts || contact.isAdded,
-          ).length !== 0 && myProfile.didEditProfile ? (
-            <View style={{flex: 1}}>
-              {pinnedContacts.length != 0 && (
-                <View style={{height: 130, marginBottom: 10}}>
-                  <ScrollView
-                    showsHorizontalScrollIndicator={false}
-                    horizontal
-                    contentContainerStyle={styles.pinnedContactsContainer}>
-                    {pinnedContacts}
-                  </ScrollView>
-                </View>
-              )}
-              <CustomSearchInput
-                placeholderText={'Search added contacts'}
-                inputText={inputText}
-                setInputText={setInputText}
-              />
-              <View style={{flex: 1}}>
-                <ScrollView
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{paddingTop: 10, paddingBottom: 10}}
-                  style={{flex: 1, overflow: 'hidden'}}>
-                  {contactElements}
-                </ScrollView>
-              </View>
-            </View>
-          ) : (
-            <View style={styles.noContactsContainer}>
-              <Icon
-                width={250}
-                height={200}
-                color={theme ? COLORS.darkModeText : COLORS.primary}
-                name={'qusetionContacts'}
-              />
-              <ThemeText
-                styles={{...styles.noContactsText}}
-                content={'You have no contacts.'}
-              />
+          <CustomSearchInput
+            placeholderText={'Search added contacts'}
+            inputText={inputText}
+            setInputText={setInputText}
+          />
+          <View style={{flex: 1}}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingTop: 10, paddingBottom: 10}}
+              style={{flex: 1, overflow: 'hidden'}}>
+              {contactElements}
+            </ScrollView>
+          </View>
+        </View>
+      ) : (
+        <View style={styles.noContactsContainer}>
+          <Icon
+            width={250}
+            height={200}
+            color={theme ? COLORS.darkModeText : COLORS.primary}
+            name={'qusetionContacts'}
+          />
+          <ThemeText
+            styles={{...styles.noContactsText}}
+            content={'You have no contacts.'}
+          />
 
-              <CustomButton
-                buttonStyles={{
-                  ...CENTER,
-                  width: 'auto',
-                }}
-                actionFunction={() => {
-                  if (!isConnectedToTheInternet) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage:
-                        'Please connect to the internet to use this feature',
-                    });
-                    return;
-                  }
-                  if (didEditProfile) {
-                    //navigate to add contacts popup
-                    navigation.navigate('CustomHalfModal', {
-                      wantedContent: 'addContacts',
-                      sliderHight: 0.5,
-                    });
-                  } else {
-                    navigation.navigate('EditMyProfilePage', {
-                      pageType: 'myProfile',
-                      fromSettings: false,
-                    });
-                  }
-                }}
-                textContent={`${
-                  didEditProfile ? 'Add contact' : 'Edit profile'
-                }`}
-              />
-            </View>
-          )}
-        </GlobalThemeView>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+          <CustomButton
+            buttonStyles={{
+              ...CENTER,
+              width: 'auto',
+            }}
+            actionFunction={() => {
+              if (!isConnectedToTheInternet) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage:
+                    'Please connect to the internet to use this feature',
+                });
+                return;
+              }
+              if (didEditProfile) {
+                //navigate to add contacts popup
+                navigation.navigate('CustomHalfModal', {
+                  wantedContent: 'addContacts',
+                  sliderHight: 0.5,
+                });
+              } else {
+                navigation.navigate('EditMyProfilePage', {
+                  pageType: 'myProfile',
+                  fromSettings: false,
+                });
+              }
+            }}
+            textContent={`${didEditProfile ? 'Add contact' : 'Edit profile'}`}
+          />
+        </View>
+      )}
+    </CustomKeyboardAvoidingView>
   );
 }
 function PinnedContactElement(props) {

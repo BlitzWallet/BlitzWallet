@@ -4,11 +4,9 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  KeyboardAvoidingView,
   Keyboard,
   TextInput,
   FlatList,
-  ActivityIndicator,
   Platform,
   useWindowDimensions,
 } from 'react-native';
@@ -24,7 +22,7 @@ import {useEffect, useRef, useState} from 'react';
 import {copyToClipboard} from '../../../../../functions';
 import ContextMenu from 'react-native-context-menu-view';
 import {
-  GlobalThemeView,
+  CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import {SHADOWS, WINDOWWIDTH} from '../../../../../constants/theme';
@@ -41,6 +39,8 @@ import fetchBackend from '../../../../../../db/handleBackend';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
@@ -71,6 +71,7 @@ export default function ChatGPTHome(props) {
     useState(false);
   const conjoinedLists = [...chatHistory.conversation, ...newChats];
   const windowDimension = useWindowDimensions();
+  const [isKeyboardFocused, setIsKeyboardFocused] = useState(true);
 
   useEffect(() => {
     if (!chatHistoryFromProps) return;
@@ -148,183 +149,179 @@ export default function ChatGPTHome(props) {
   };
 
   return (
-    <GlobalThemeView>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        style={{
-          flex: 1,
-        }}>
-        <View
-          style={{
-            flex: 1,
-            width: WINDOWWIDTH,
-            ...CENTER,
-          }}>
-          <View style={styles.topBar}>
-            <TouchableOpacity
-              style={{position: 'absolute', left: 0}}
-              onPress={closeChat}>
-              <ThemeImage
-                lightModeIcon={ICONS.smallArrowLeft}
-                darkModeIcon={ICONS.smallArrowLeft}
-                lightsOutIcon={ICONS.arrow_small_left_white}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() =>
-                navigate.navigate('SwitchGenerativeAIModel', {
-                  setSelectedModel: setSearchModel,
-                })
-              }
-              style={{
-                ...styles.switchModel,
-                backgroundColor: backgroundOffset,
-              }}>
-              <ThemeText styles={styles.topBarText} content={model} />
-              <ThemeImage
-                styles={styles.topBarIcon}
-                lightModeIcon={ICONS.leftCheveronDark}
-                darkModeIcon={ICONS.left_cheveron_white}
-                lightsOutIcon={ICONS.left_cheveron_white}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={{position: 'absolute', right: 0}}
-              onPress={() => {
-                Keyboard.dismiss();
-                props.navigation.openDrawer();
-              }}>
-              <ThemeImage
-                lightModeIcon={ICONS.drawerList}
-                darkModeIcon={ICONS.drawerList}
-                lightsOutIcon={ICONS.drawerListWhite}
-              />
-            </TouchableOpacity>
-          </View>
-          <ThemeText
-            styles={{textAlign: 'center'}}
-            content={`Available credits: ${totalAvailableCredits.toFixed(2)}`}
+    <CustomKeyboardAvoidingView
+      isKeyboardActive={isKeyboardFocused}
+      useLocalPadding={true}
+      useStandardWidth={true}>
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          style={{position: 'absolute', left: 0}}
+          onPress={closeChat}>
+          <ThemeImage
+            lightModeIcon={ICONS.smallArrowLeft}
+            darkModeIcon={ICONS.smallArrowLeft}
+            lightsOutIcon={ICONS.arrow_small_left_white}
           />
+        </TouchableOpacity>
 
-          <View style={[styles.container]}>
-            {conjoinedLists.length === 0 ? (
-              <View
-                style={[
-                  styles.container,
-                  {alignItems: 'center', justifyContent: 'center'},
-                ]}>
-                <View
-                  style={[
-                    styles.noChatHistoryImgContainer,
-                    {
-                      backgroundColor: theme
-                        ? COLORS.darkModeText
-                        : COLORS.lightModeBackgroundOffset,
-                    },
-                  ]}>
-                  <Image
-                    style={{width: '50%', height: '50%'}}
-                    source={ICONS.logoIcon}
-                  />
-                </View>
-              </View>
-            ) : (
-              <View style={styles.flasListContianer}>
-                <FlatList
-                  keyboardShouldPersistTaps="handled"
-                  ref={flatListRef}
-                  inverted
-                  onScroll={e => {
-                    const offset = e.nativeEvent.contentOffset.y;
-                    if (offset > 20) setShowScrollBottomIndicator(true);
-                    else setShowScrollBottomIndicator(false);
-                  }}
-                  scrollEnabled={true}
-                  showsHorizontalScrollIndicator={false}
-                  data={conjoinedLists}
-                  renderItem={flatListItem}
-                  key={item => item.uuid}
-                  contentContainerStyle={{
-                    flexDirection: 'column-reverse',
-                  }}
-                />
-                {showScrollBottomIndicator && (
-                  <TouchableOpacity
-                    activeOpacity={1}
-                    onPress={() => {
-                      flatListRef.current.scrollToEnd();
-                    }}
-                    style={{
-                      ...styles.scrollToBottom,
-                      backgroundColor: backgroundOffset,
-                    }}>
-                    <Image
-                      style={styles.scrollToBottomIcon}
-                      source={ICONS.smallArrowLeft}
-                    />
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-          </View>
+        <TouchableOpacity
+          onPress={() =>
+            navigate.navigate('SwitchGenerativeAIModel', {
+              setSelectedModel: setSearchModel,
+            })
+          }
+          style={{
+            ...styles.switchModel,
+            backgroundColor: backgroundOffset,
+          }}>
+          <ThemeText styles={styles.topBarText} content={model} />
+          <ThemeImage
+            styles={styles.topBarIcon}
+            lightModeIcon={ICONS.leftCheveronDark}
+            darkModeIcon={ICONS.left_cheveron_white}
+            lightsOutIcon={ICONS.left_cheveron_white}
+          />
+        </TouchableOpacity>
 
-          {chatHistory.conversation.length === 0 &&
-            userChatText.length === 0 &&
-            newChats.length === 0 && (
-              <ExampleGPTSearchCard
-                submitChaMessage={submitChaMessage}
-                setUserChatText={setUserChatText}
-              />
-            )}
-          <View style={styles.bottomBarContainer}>
-            <TextInput
-              onChangeText={setUserChatText}
-              autoFocus={true}
-              placeholder={`Message ${model}`}
-              multiline={true}
-              placeholderTextColor={textColor}
+        <TouchableOpacity
+          style={{position: 'absolute', right: 0}}
+          onPress={() => {
+            Keyboard.dismiss();
+            props.navigation.openDrawer();
+          }}>
+          <ThemeImage
+            lightModeIcon={ICONS.drawerList}
+            darkModeIcon={ICONS.drawerList}
+            lightsOutIcon={ICONS.drawerListWhite}
+          />
+        </TouchableOpacity>
+      </View>
+      <ThemeText
+        styles={{textAlign: 'center'}}
+        content={`Available credits: ${totalAvailableCredits.toFixed(2)}`}
+      />
+
+      <View style={[styles.container]}>
+        {conjoinedLists.length === 0 ? (
+          <View
+            style={[
+              styles.container,
+              {alignItems: 'center', justifyContent: 'center'},
+            ]}>
+            <View
               style={[
-                styles.bottomBarTextInput,
-                {color: textColor, borderColor: textColor},
-              ]}
-              value={userChatText}
-            />
-            <TouchableOpacity
-              onPress={() => {
-                if (!userChatText.length) return;
-                submitChaMessage(userChatText);
-              }}
-              style={{
-                width: 45,
-                height: 45,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 40,
-                opacity: !userChatText.length ? 0.5 : 1,
-                backgroundColor: theme
-                  ? COLORS.lightModeBackground
-                  : COLORS.lightModeText,
-                marginLeft: 10,
-              }}>
-              <Icon
-                width={30}
-                height={30}
-                color={
-                  theme
-                    ? darkModeType
-                      ? COLORS.lightsOutBackground
-                      : COLORS.darkModeBackground
-                    : COLORS.lightModeBackground
-                }
-                name={'arrow'}
+                styles.noChatHistoryImgContainer,
+                {
+                  backgroundColor: theme
+                    ? COLORS.darkModeText
+                    : COLORS.lightModeBackgroundOffset,
+                },
+              ]}>
+              <Image
+                style={{width: '50%', height: '50%'}}
+                source={ICONS.logoIcon}
               />
-            </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </KeyboardAvoidingView>
-    </GlobalThemeView>
+        ) : (
+          <View style={styles.flasListContianer}>
+            <FlatList
+              keyboardShouldPersistTaps="handled"
+              ref={flatListRef}
+              inverted
+              onScroll={e => {
+                const offset = e.nativeEvent.contentOffset.y;
+                if (offset > 20) setShowScrollBottomIndicator(true);
+                else setShowScrollBottomIndicator(false);
+              }}
+              scrollEnabled={true}
+              showsHorizontalScrollIndicator={false}
+              data={conjoinedLists}
+              renderItem={flatListItem}
+              key={item => item.uuid}
+              contentContainerStyle={{
+                flexDirection: 'column-reverse',
+              }}
+            />
+            {showScrollBottomIndicator && (
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => {
+                  flatListRef.current.scrollToEnd();
+                }}
+                style={{
+                  ...styles.scrollToBottom,
+                  backgroundColor: backgroundOffset,
+                }}>
+                <Image
+                  style={styles.scrollToBottomIcon}
+                  source={ICONS.smallArrowLeft}
+                />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+      </View>
+
+      {chatHistory.conversation.length === 0 &&
+        userChatText.length === 0 &&
+        newChats.length === 0 && (
+          <ExampleGPTSearchCard
+            submitChaMessage={submitChaMessage}
+            setUserChatText={setUserChatText}
+          />
+        )}
+      <View style={styles.bottomBarContainer}>
+        <TextInput
+          onChangeText={setUserChatText}
+          autoFocus={true}
+          placeholder={`Message ${model}`}
+          multiline={true}
+          placeholderTextColor={textColor}
+          style={[
+            styles.bottomBarTextInput,
+            {color: textColor, borderColor: textColor},
+          ]}
+          value={userChatText}
+          onFocus={() => {
+            setIsKeyboardFocused(true);
+          }}
+          onBlur={() => {
+            setIsKeyboardFocused(false);
+          }}
+        />
+        <TouchableOpacity
+          onPress={() => {
+            if (!userChatText.length) return;
+            submitChaMessage(userChatText);
+          }}
+          style={{
+            width: 45,
+            height: 45,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 40,
+            opacity: !userChatText.length ? 0.5 : 1,
+            backgroundColor: theme
+              ? COLORS.lightModeBackground
+              : COLORS.lightModeText,
+            marginLeft: 10,
+          }}>
+          <Icon
+            width={30}
+            height={30}
+            color={
+              theme
+                ? darkModeType
+                  ? COLORS.lightsOutBackground
+                  : COLORS.darkModeBackground
+                : COLORS.lightModeBackground
+            }
+            name={'arrow'}
+          />
+        </TouchableOpacity>
+      </View>
+    </CustomKeyboardAvoidingView>
   );
 
   function closeChat() {
@@ -554,8 +551,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     ...CENTER,
-    marginBottom: 5,
-    paddingTop: 5,
+    marginTop: 5,
   },
 
   bottomBarTextInput: {

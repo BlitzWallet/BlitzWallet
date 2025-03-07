@@ -151,11 +151,11 @@ export default function CustomHalfModal(props) {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={handleBackPressFunction}>
-      <View style={styles.container}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : null}
-          style={styles.keyboardAvoidingView}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : null}
+      style={styles.keyboardAvoidingView}>
+      <TouchableWithoutFeedback onPress={handleBackPressFunction}>
+        <View style={styles.container}>
           <Animated.View
             style={[
               styles.contentContainer,
@@ -166,9 +166,9 @@ export default function CustomHalfModal(props) {
             ]}>
             {renderContent()}
           </Animated.View>
-        </KeyboardAvoidingView>
-      </View>
-    </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -176,10 +176,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.halfModalBackgroundColor,
+    justifyContent: 'flex-end',
   },
   keyboardAvoidingView: {
     flex: 1,
-    justifyContent: 'flex-end',
   },
   contentContainer: {
     borderTopLeftRadius: 20,

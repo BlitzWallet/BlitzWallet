@@ -1,12 +1,9 @@
 import {
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../../constants';
@@ -27,8 +24,10 @@ import {useNavigation} from '@react-navigation/native';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../../../functions/CustomElements/button';
 import SendOnChainBitcoinFeeSlider from './onChainComponents/txFeeSlider';
-import {WINDOWWIDTH} from '../../../../constants/theme';
-import {ThemeText} from '../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
@@ -37,6 +36,7 @@ import {DUST_LIMIT_FOR_BTC_CHAIN_PAYMENTS} from '../../../../constants/math';
 import {useLightningEvent} from '../../../../../context-store/lightningEventContext';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {recommendedFees} from '@breeztech/react-native-breez-sdk-liquid';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 
 export default function SendOnChainBitcoin({isDoomsday}) {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -48,6 +48,7 @@ export default function SendOnChainBitcoin({isDoomsday}) {
     sendingBTCpayment: false,
     didSend: false,
   });
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [onChainBalance, setOnChainBalance] = useState(0);
   const [errorMessage, setErrorMessage] = useState(null);
   const [feeInfo, setFeeInfo] = useState([]);
@@ -64,198 +65,195 @@ export default function SendOnChainBitcoin({isDoomsday}) {
   console.log(isDoomsday, 'ISDOMES');
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : null}
-      style={{flex: 1}}>
-      <TouchableWithoutFeedback
-        onPress={() => {
+    <CustomKeyboardAvoidingView
+      useLocalPadding={true}
+      isKeyboardActive={isKeyboardActive}
+      useTouchableWithoutFeedback={true}
+      useStandardWidth={true}>
+      <CustomSettingsTopBar
+        showLeftImage={true}
+        leftImageBlue={ICONS.receiptIcon}
+        LeftImageDarkMode={ICONS.receiptWhite}
+        leftImageFunction={() => {
           Keyboard.dismiss();
-        }}>
+          navigate.navigate('HistoricalOnChainPayments');
+        }}
+        shouldDismissKeyboard={true}
+        label={'Channel Closure'}
+      />
+
+      {isLoading || onChainBalance != 0 ? (
+        <FullLoadingScreen
+          showLoadingIcon={isLoading}
+          textStyles={{textAlign: 'center'}}
+          text={
+            !isLoading
+              ? 'You do not have any on-chain funds from a channel closure'
+              : ''
+          }
+        />
+      ) : isSendingPayment.sendingBTCpayment ? (
         <View
           style={{
             flex: 1,
             alignItems: 'center',
-            width: WINDOWWIDTH,
-            ...CENTER,
+            justifyContent: 'center',
           }}>
-          {isLoading || onChainBalance != 0 ? (
-            <FullLoadingScreen
-              showLoadingIcon={isLoading}
-              textStyles={{textAlign: 'center'}}
-              text={
-                !isLoading
-                  ? 'You do not have any on-chain funds from a channel closure'
-                  : ''
-              }
-            />
-          ) : isSendingPayment.sendingBTCpayment ? (
+          {isSendingPayment.didSend ? (
             <View
               style={{
-                flex: 1,
-                alignItems: 'center',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
                 justifyContent: 'center',
               }}>
-              {isSendingPayment.didSend ? (
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                    justifyContent: 'center',
-                  }}>
-                  <ThemeText
-                    styles={{fontSize: SIZES.large}}
-                    content={'Txid'}
-                  />
-                  <TouchableOpacity
-                    onPress={() => {
-                      copyToClipboard(String(bitcoinTxId), navigate);
-                    }}
-                    style={{width: '95%'}}>
-                    <ThemeText
-                      styles={{textAlign: 'center'}}
-                      content={bitcoinTxId}
-                    />
-                  </TouchableOpacity>
-                  <ThemeText
-                    styles={{marginVertical: 10}}
-                    content={'Save this ID to check up on your transaction'}
-                  />
+              <ThemeText styles={{fontSize: SIZES.large}} content={'Txid'} />
+              <TouchableOpacity
+                onPress={() => {
+                  copyToClipboard(String(bitcoinTxId), navigate);
+                }}
+                style={{width: '95%'}}>
+                <ThemeText
+                  styles={{textAlign: 'center'}}
+                  content={bitcoinTxId}
+                />
+              </TouchableOpacity>
+              <ThemeText
+                styles={{marginVertical: 10}}
+                content={'Save this ID to check up on your transaction'}
+              />
 
-                  <TouchableOpacity
-                    onPress={() => {
-                      (async () => {
-                        try {
-                          await WebBrowser.openBrowserAsync(
-                            `https://mempool.space/tx/${bitcoinTxId}`,
-                          );
-                        } catch (err) {
-                          console.log(err, 'OPENING LINK ERROR');
-                        }
-                      })();
-                    }}>
-                    <ThemeText
-                      styles={{
-                        color:
-                          theme && darkModeType
-                            ? COLORS.darkModeText
-                            : COLORS.primary,
-                        textAlign: 'center',
-                      }}
-                      content={'View Transaction'}
-                    />
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <FullLoadingScreen text={'Sending transaction'} />
-              )}
+              <TouchableOpacity
+                onPress={() => {
+                  (async () => {
+                    try {
+                      await WebBrowser.openBrowserAsync(
+                        `https://mempool.space/tx/${bitcoinTxId}`,
+                      );
+                    } catch (err) {
+                      console.log(err, 'OPENING LINK ERROR');
+                    }
+                  })();
+                }}>
+                <ThemeText
+                  styles={{
+                    color:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                    textAlign: 'center',
+                  }}
+                  content={'View Transaction'}
+                />
+              </TouchableOpacity>
             </View>
           ) : (
-            <>
-              <ScrollView style={{flex: 1, width: '100%'}}>
-                <View style={styles.balanceContainer}>
-                  <ThemeText content={'Current balance'} />
-                  <FormattedSatText
-                    neverHideBalance={true}
-                    styles={{...styles.balanceNum}}
-                    globalBalanceDenomination={
-                      isDoomsday
-                        ? 'sats'
-                        : masterInfoObject.userBalanceDenomination
-                    }
-                    balance={onChainBalance / 1000}
-                  />
-                </View>
-                <View
-                  style={[
-                    styles.btcAdressContainer,
-                    {
-                      backgroundColor: backgroundOffset,
-                    },
-                  ]}>
-                  <ThemeText
-                    styles={{marginBottom: 10}}
-                    content={'Enter BTC address'}
-                  />
-                  <View style={[styles.inputContainer]}>
-                    <TextInput
-                      value={bitcoinAddress}
-                      onChangeText={setBitcoinAddress}
-                      style={[
-                        styles.input,
-                        {
-                          // borderColor: theme
-                          //   ? COLORS.darkModeText
-                          //   : COLORS.lightModeText,
-                          paddingVertical: Platform.OS == 'ios' ? 10 : 0,
-                          backgroundColor: COLORS.darkModeText,
-                          color: COLORS.lightModeText,
-                        },
-                      ]}
-                      placeholder="bc1..."
-                      placeholderTextColor={COLORS.opaicityGray}
-                    />
-                    <TouchableOpacity
-                      onPress={() => {
-                        navigate.navigate('CameraModal', {
-                          updateBitcoinAdressFunc: setBitcoinAddress,
-                        });
-                      }}>
-                      <ThemeImage
-                        darkModeIcon={ICONS.faceIDIcon}
-                        lightModeIcon={ICONS.faceIDIcon}
-                        lightsOutIcon={ICONS.faceIDIconWhite}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <SendOnChainBitcoinFeeSlider
-                  changeSelectedFee={changeSelectedFee}
-                  feeInfo={feeInfo}
-                  bitcoinAddress={bitcoinAddress}
-                  txFeeSat={txFeeSat}
-                />
-              </ScrollView>
-              <ThemeText
-                styles={{width: '95%', textAlign: 'center'}}
-                content={errorMessage}
-              />
-
-              <CustomButton
-                buttonStyles={{
-                  opacity:
-                    !bitcoinAddress ||
-                    feeInfo.filter(item => item.isSelected).length === 0 ||
-                    txFeeSat >= onChainBalance ||
-                    errorMessage
-                      ? 0.5
-                      : 1,
-                  width: 'auto',
-                  marginTop: 'auto',
-                  ...CENTER,
-                }}
-                actionFunction={() => {
-                  if (
-                    !bitcoinAddress ||
-                    feeInfo.filter(item => item.isSelected).length === 0 ||
-                    txFeeSat >= onChainBalance ||
-                    errorMessage
-                  )
-                    return;
-
-                  navigate.navigate('ConfirmActionPage', {
-                    confirmFunction: sendOnChain,
-                    confirmMessage:
-                      'Are you sure you want to send this payment?',
-                  });
-                }}
-                textContent={'Send transaction'}
-              />
-            </>
+            <FullLoadingScreen text={'Sending transaction'} />
           )}
         </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+      ) : (
+        <>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{flexGrow: 1, width: '100%'}}>
+            <View style={styles.balanceContainer}>
+              <ThemeText content={'Current balance'} />
+              <FormattedSatText
+                neverHideBalance={true}
+                styles={{...styles.balanceNum}}
+                globalBalanceDenomination={
+                  isDoomsday ? 'sats' : masterInfoObject.userBalanceDenomination
+                }
+                balance={onChainBalance / 1000}
+              />
+            </View>
+            <View
+              style={[
+                styles.btcAdressContainer,
+                {
+                  backgroundColor: backgroundOffset,
+                },
+              ]}>
+              <ThemeText
+                styles={{marginBottom: 10}}
+                content={'Enter BTC address'}
+              />
+              <View style={[styles.inputContainer]}>
+                <TextInput
+                  value={bitcoinAddress}
+                  onChangeText={setBitcoinAddress}
+                  style={[
+                    styles.input,
+                    {
+                      // borderColor: theme
+                      //   ? COLORS.darkModeText
+                      //   : COLORS.lightModeText,
+                      backgroundColor: COLORS.darkModeText,
+                      color: COLORS.lightModeText,
+                    },
+                  ]}
+                  placeholder="bc1..."
+                  placeholderTextColor={COLORS.opaicityGray}
+                  onBlur={() => setIsKeyboardActive(false)}
+                  onFocus={() => setIsKeyboardActive(true)}
+                />
+                <TouchableOpacity
+                  onPress={() => {
+                    navigate.navigate('CameraModal', {
+                      updateBitcoinAdressFunc: setBitcoinAddress,
+                    });
+                  }}>
+                  <ThemeImage
+                    darkModeIcon={ICONS.faceIDIcon}
+                    lightModeIcon={ICONS.faceIDIcon}
+                    lightsOutIcon={ICONS.faceIDIconWhite}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <SendOnChainBitcoinFeeSlider
+              changeSelectedFee={changeSelectedFee}
+              feeInfo={feeInfo}
+              bitcoinAddress={bitcoinAddress}
+              txFeeSat={txFeeSat}
+            />
+          </ScrollView>
+          <ThemeText
+            styles={{width: '95%', textAlign: 'center'}}
+            content={errorMessage}
+          />
+          <CustomButton
+            buttonStyles={{
+              opacity:
+                !bitcoinAddress ||
+                feeInfo.filter(item => item.isSelected).length === 0 ||
+                txFeeSat >= onChainBalance ||
+                errorMessage
+                  ? 0.5
+                  : 1,
+              width: 'auto',
+              marginTop: 'auto',
+              ...CENTER,
+            }}
+            actionFunction={() => {
+              if (
+                !bitcoinAddress ||
+                feeInfo.filter(item => item.isSelected).length === 0 ||
+                txFeeSat >= onChainBalance ||
+                errorMessage
+              )
+                return;
+
+              navigate.navigate('ConfirmActionPage', {
+                confirmFunction: sendOnChain,
+                confirmMessage: 'Are you sure you want to send this payment?',
+              });
+            }}
+            textContent={'Send transaction'}
+          />
+        </>
+      )}
+    </CustomKeyboardAvoidingView>
   );
 
   async function initPage() {
@@ -456,5 +454,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginRight: 10,
+    padding: 10,
+    fontSize: SIZES.medium,
+    fontFamily: FONT.Title_Regular,
+    includeFontPadding: false,
   },
 });

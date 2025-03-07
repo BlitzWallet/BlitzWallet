@@ -1,7 +1,6 @@
 import {
   Image,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
@@ -9,10 +8,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import {
   CENTER,
   COLORS,
+  CONTENT_KEYBOARD_OFFSET,
   ICONS,
   MIGRATE_ECASH_STORAGE_KEY,
   SIZES,
@@ -39,6 +42,8 @@ import {
 import CustomButton from '../../../../functions/CustomElements/button';
 import {copyToClipboard, getLocalStorageItem} from '../../../../functions';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 
 export default function ExperimentalItemsPage() {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -50,6 +55,12 @@ export default function ExperimentalItemsPage() {
   const [mintURL, setMintURL] = useState('');
   const [savedMintList, setSavedMintList] = useState([]);
   const [hasUserMigrated, setHasUserMigrated] = useState(null);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const insets = useSafeAreaInsets();
+  const paddingBottom = Platform.select({
+    ios: insets.bottom,
+    android: ANDROIDSAFEAREA,
+  });
 
   const enabledEcash = masterInfoObject.enabledEcash;
   const currentMintURL = ecashWalletInformation.mintURL;
@@ -101,7 +112,7 @@ export default function ExperimentalItemsPage() {
   }, [parsedEcashInformation]);
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <CustomKeyboardAvoidingView useStandardWidth={true}>
       <CustomSettingsTopBar
         customBackFunction={() => {
           Keyboard.dismiss();
@@ -172,223 +183,221 @@ export default function ExperimentalItemsPage() {
             </View>
           </View>
         ) : (
-          <KeyboardAvoidingView
-            style={{flex: 1}}
-            behavior={Platform.OS === 'ios' ? 'padding' : null}>
-            <ScrollView
-              contentContainerStyle={{
-                paddingBottom: Platform.OS === 'ios' ? 50 : 0,
-              }}
-              showsVerticalScrollIndicator={false}>
-              <ThemeText
-                styles={{marginTop: 20, fontSize: SIZES.large}}
-                content={'eCash'}
-              />
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingBottom: isKeyboardActive
+                ? CONTENT_KEYBOARD_OFFSET
+                : paddingBottom,
+            }}
+            showsVerticalScrollIndicator={false}>
+            <ThemeText
+              styles={{marginTop: 20, fontSize: SIZES.large}}
+              content={'eCash'}
+            />
+            <View
+              style={{
+                backgroundColor: backgroundOffset,
+                borderRadius: 8,
+                marginTop: 20,
+              }}>
               <View
-                style={{
-                  backgroundColor: backgroundOffset,
-                  borderRadius: 8,
-                  marginTop: 20,
-                }}>
-                <View
-                  style={[
-                    styles.switchContainer,
-                    {
-                      borderBottomColor: backgroundColor,
-                    },
-                  ]}>
-                  <View style={styles.inlineItemContainer}>
-                    <ThemeText content={`Use eCash`} />
-                    <CustomToggleSwitch page={'eCash'} />
-                  </View>
-                </View>
-                <View style={styles.warningContainer}>
-                  <ThemeText
-                    styles={{...styles.warningText}}
-                    content={
-                      'By turning on eCash you agree to the risk that your funds might be lost. Unlike Bitcoin which is self-custodial and Liquid which is a federated model, eCash is custodial and therefore your funds can be taken.'
-                    }
-                  />
+                style={[
+                  styles.switchContainer,
+                  {
+                    borderBottomColor: backgroundColor,
+                  },
+                ]}>
+                <View style={styles.inlineItemContainer}>
+                  <ThemeText content={`Use eCash`} />
+                  <CustomToggleSwitch page={'eCash'} />
                 </View>
               </View>
-              {masterInfoObject.enabledEcash && (
-                <View>
-                  {!!parsedEcashInformation.length && (
-                    <View
-                      style={{
-                        backgroundColor: backgroundOffset,
-                        borderRadius: 8,
-                        marginTop: 20,
-                      }}>
-                      <View
-                        style={{
-                          paddingVertical: 10,
-                          paddingRight: '5%',
-                          width: '95%',
-                          marginLeft: 'auto',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                        }}>
-                        <ThemeText
-                          CustomNumberOfLines={1}
-                          styles={{marginRight: 10, flex: 1}}
-                          content={'Retry mint migration'}
-                        />
-                        <CustomButton
-                          actionFunction={() =>
-                            navigate.navigate('MigrateProofsPopup')
-                          }
-                          textContent={'Retry'}
-                        />
-                      </View>
-                    </View>
-                  )}
-                  <ThemeText
-                    styles={{marginTop: 20, fontSize: SIZES.large}}
-                    content={'Enter a Mint'}
-                  />
-                  <TouchableOpacity
-                    onPress={() => {
-                      navigate.navigate('CustomWebView', {
-                        webViewURL:
-                          'https://bitcoinmints.com/?tab=mints&showCashu=true&minReviews=1',
-                      });
-                    }}>
-                    <ThemeText
-                      styles={{
-                        color:
-                          theme && darkModeType
-                            ? COLORS.darkModeText
-                            : COLORS.primary,
-                        fontSize: SIZES.small,
-                      }}
-                      content={'Click here to find mints'}
-                    />
-                  </TouchableOpacity>
+              <View style={styles.warningContainer}>
+                <ThemeText
+                  styles={{...styles.warningText}}
+                  content={
+                    'By turning on eCash you agree to the risk that your funds might be lost. Unlike Bitcoin which is self-custodial and Liquid which is a federated model, eCash is custodial and therefore your funds can be taken.'
+                  }
+                />
+              </View>
+            </View>
+            {masterInfoObject.enabledEcash && (
+              <View>
+                {!!parsedEcashInformation.length && (
                   <View
                     style={{
                       backgroundColor: backgroundOffset,
                       borderRadius: 8,
-                      marginTop: 15,
+                      marginTop: 20,
                     }}>
-                    <CustomSearchInput
-                      onBlurFunction={() => {
-                        if (!mintURL || !mintURL.trim()) return;
-                        if (!VALID_URL_REGEX.test(mintURL)) {
-                          navigate.navigate('ErrorScreen', {
-                            errorMessage: 'You did not enter a valid URL',
-                          });
-                          return;
+                    <View
+                      style={{
+                        paddingVertical: 10,
+                        paddingRight: '5%',
+                        width: '95%',
+                        marginLeft: 'auto',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                      }}>
+                      <ThemeText
+                        CustomNumberOfLines={1}
+                        styles={{marginRight: 10, flex: 1}}
+                        content={'Retry mint migration'}
+                      />
+                      <CustomButton
+                        actionFunction={() =>
+                          navigate.navigate('MigrateProofsPopup')
                         }
-                        switchMint(mintURL, false);
-                      }}
-                      placeholderText={'Mint URL'}
-                      setInputText={setMintURL}
-                      inputText={mintURL || ''}
-                    />
+                        textContent={'Retry'}
+                      />
+                    </View>
                   </View>
-                  {savedMintList.length ? (
-                    <View>
-                      <ThemeText
-                        styles={{marginTop: 20, fontSize: SIZES.large}}
-                        content={'Added Mints'}
-                      />
-                      {savedMintList.map((mint, id) => {
-                        const proofValue = sumProofsValue(mint.proofs);
-                        return (
-                          <TouchableOpacity
-                            activeOpacity={mint.isCurrentMint ? 1 : 0.4}
-                            onPress={() => {
-                              if (mint.isCurrentMint) return;
-                              switchMint(mint.mintURL, true);
-                            }}
-                            style={{
-                              alignItems: 'baseline',
-                              backgroundColor: backgroundOffset,
-                              padding: 10,
-                              borderRadius: 8,
-                              marginVertical: 10,
-                            }}
-                            key={id}>
-                            <View
-                              style={{
-                                width: '100%',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                              }}>
-                              <TouchableOpacity
-                                onPress={() => {
-                                  copyToClipboard(mint.mintURL, navigate);
-                                }}>
-                                <ThemeText
-                                  styles={{fontSize: SIZES.small}}
-                                  content={mint.mintURL}
-                                />
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                activeOpacity={mint.isCurrentMint ? 1 : 0.4}
-                                onPress={() => {
-                                  if (mint.isCurrentMint) return;
-                                  if (proofValue > 0) {
-                                    navigate.navigate('ConfirmActionPage', {
-                                      confirmMessage: `You have a balance of ${proofValue} sat${
-                                        proofValue === 1 ? '' : 's'
-                                      }. If you delete this mint you may lose your sats. Click yes to delete.`,
-                                      deleteMint: () =>
-                                        removeMint(mint.mintURL),
-                                    });
-                                    return;
-                                  }
-                                  removeMint(mint.mintURL);
-                                }}>
-                                <Image
-                                  style={{width: 25, height: 25}}
-                                  source={
-                                    mint.isCurrentMint
-                                      ? theme && darkModeType
-                                        ? ICONS.starWhite
-                                        : ICONS.starBlue
-                                      : theme && darkModeType
-                                      ? ICONS.trashIconWhite
-                                      : ICONS.trashIcon
-                                  }
-                                />
-                              </TouchableOpacity>
-                            </View>
-                            <FormattedSatText
-                              neverHideBalance={true}
-                              frontText={'Balance: '}
-                              containerStyles={{marginTop: 10}}
-                              styles={{
-                                includeFontPadding: false,
-                                fontSize: SIZES.small,
-                              }}
-                              balance={proofValue || 0}
-                            />
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </View>
-                  ) : (
-                    <View>
-                      <ThemeText
-                        styles={{
-                          marginTop: 20,
-                          fontSize: SIZES.large,
-                          textAlign: 'center',
-                        }}
-                        content={'No added mints'}
-                      />
-                    </View>
-                  )}
+                )}
+                <ThemeText
+                  styles={{marginTop: 20, fontSize: SIZES.large}}
+                  content={'Enter a Mint'}
+                />
+                <TouchableOpacity
+                  onPress={() => {
+                    navigate.navigate('CustomWebView', {
+                      webViewURL:
+                        'https://bitcoinmints.com/?tab=mints&showCashu=true&minReviews=1',
+                    });
+                  }}>
+                  <ThemeText
+                    styles={{
+                      color:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                      fontSize: SIZES.small,
+                    }}
+                    content={'Click here to find mints'}
+                  />
+                </TouchableOpacity>
+                <View
+                  style={{
+                    backgroundColor: backgroundOffset,
+                    borderRadius: 8,
+                    marginTop: 15,
+                  }}>
+                  <CustomSearchInput
+                    onBlurFunction={() => {
+                      if (!mintURL || !mintURL.trim()) return;
+                      if (!VALID_URL_REGEX.test(mintURL)) {
+                        navigate.navigate('ErrorScreen', {
+                          errorMessage: 'You did not enter a valid URL',
+                        });
+                        return;
+                      }
+                      setIsKeyboardActive(false);
+                      switchMint(mintURL, false);
+                    }}
+                    placeholderText={'Mint URL'}
+                    setInputText={setMintURL}
+                    inputText={mintURL || ''}
+                    onFocusFunction={() => setIsKeyboardActive(true)}
+                  />
                 </View>
-              )}
-            </ScrollView>
-          </KeyboardAvoidingView>
+                {savedMintList.length ? (
+                  <View>
+                    <ThemeText
+                      styles={{marginTop: 20, fontSize: SIZES.large}}
+                      content={'Added Mints'}
+                    />
+                    {savedMintList.map((mint, id) => {
+                      const proofValue = sumProofsValue(mint.proofs);
+                      return (
+                        <TouchableOpacity
+                          activeOpacity={mint.isCurrentMint ? 1 : 0.4}
+                          onPress={() => {
+                            if (mint.isCurrentMint) return;
+                            switchMint(mint.mintURL, true);
+                          }}
+                          style={{
+                            alignItems: 'baseline',
+                            backgroundColor: backgroundOffset,
+                            padding: 10,
+                            borderRadius: 8,
+                            marginVertical: 10,
+                          }}
+                          key={id}>
+                          <View
+                            style={{
+                              width: '100%',
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                            }}>
+                            <TouchableOpacity
+                              onPress={() => {
+                                copyToClipboard(mint.mintURL, navigate);
+                              }}>
+                              <ThemeText
+                                styles={{fontSize: SIZES.small}}
+                                content={mint.mintURL}
+                              />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              activeOpacity={mint.isCurrentMint ? 1 : 0.4}
+                              onPress={() => {
+                                if (mint.isCurrentMint) return;
+                                if (proofValue > 0) {
+                                  navigate.navigate('ConfirmActionPage', {
+                                    confirmMessage: `You have a balance of ${proofValue} sat${
+                                      proofValue === 1 ? '' : 's'
+                                    }. If you delete this mint you may lose your sats. Click yes to delete.`,
+                                    deleteMint: () => removeMint(mint.mintURL),
+                                  });
+                                  return;
+                                }
+                                removeMint(mint.mintURL);
+                              }}>
+                              <Image
+                                style={{width: 25, height: 25}}
+                                source={
+                                  mint.isCurrentMint
+                                    ? theme && darkModeType
+                                      ? ICONS.starWhite
+                                      : ICONS.starBlue
+                                    : theme && darkModeType
+                                    ? ICONS.trashIconWhite
+                                    : ICONS.trashIcon
+                                }
+                              />
+                            </TouchableOpacity>
+                          </View>
+                          <FormattedSatText
+                            neverHideBalance={true}
+                            frontText={'Balance: '}
+                            containerStyles={{marginTop: 10}}
+                            styles={{
+                              includeFontPadding: false,
+                              fontSize: SIZES.small,
+                            }}
+                            balance={proofValue || 0}
+                          />
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                ) : (
+                  <ThemeText
+                    styles={{
+                      marginTop: 20,
+                      fontSize: SIZES.large,
+                      textAlign: 'center',
+                    }}
+                    content={'No added mints'}
+                  />
+                )}
+              </View>
+            )}
+          </ScrollView>
         )}
       </View>
-    </GlobalThemeView>
+    </CustomKeyboardAvoidingView>
   );
 
   async function removeMint(mintURL) {

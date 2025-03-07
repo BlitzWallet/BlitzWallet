@@ -1,5 +1,4 @@
 import {
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
@@ -8,7 +7,7 @@ import {
 } from 'react-native';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useEffect, useMemo, useState} from 'react';
-import {CENTER} from '../../../../../constants';
+import {CENTER, CONTENT_KEYBOARD_OFFSET} from '../../../../../constants';
 import VPNDurationSlider from './components/durationSlider';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
@@ -28,6 +27,8 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import {breezLiquidPaymentWrapper} from '../../../../../functions/breezLiquid';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 
 export default function VPNPlanPage({countryList}) {
   const [searchInput, setSearchInput] = useState('');
@@ -40,6 +41,12 @@ export default function VPNPlanPage({countryList}) {
   const navigate = useNavigation();
   const {textColor} = GetThemeColors();
   const [loadingMessage, setLoadingMessage] = useState('');
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const insets = useSafeAreaInsets();
+  const paddingBottom = Platform.select({
+    ios: insets.bottom,
+    android: ANDROIDSAFEAREA,
+  });
 
   const countryElements = useMemo(() => {
     return [...countryList]
@@ -65,7 +72,13 @@ export default function VPNPlanPage({countryList}) {
   }, [searchInput, countryList]);
 
   return (
-    <>
+    <View
+      style={{
+        flex: 1,
+        paddingBottom: isKeyboardActive
+          ? CONTENT_KEYBOARD_OFFSET
+          : paddingBottom,
+      }}>
       {isPaying ? (
         <>
           {generatedFile ? (
@@ -80,31 +93,26 @@ export default function VPNPlanPage({countryList}) {
           )}
         </>
       ) : (
-        <View style={{flex: 1}}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : null}
-            style={{flex: 1}}>
-            <VPNDurationSlider
-              setSelectedDuration={setSelectedDuration}
-              selectedDuration={selectedDuration}
+        <>
+          <VPNDurationSlider
+            setSelectedDuration={setSelectedDuration}
+            selectedDuration={selectedDuration}
+          />
+          <View style={{flex: 1, marginTop: 10}}>
+            <CustomSearchInput
+              inputText={searchInput}
+              setInputText={setSearchInput}
+              placeholderText={'Search for a country'}
+              onBlurFunction={() => setIsKeyboardActive(false)}
+              onFocusFunction={() => setIsKeyboardActive(true)}
             />
-            <View style={{flex: 1, marginTop: 10}}>
-              <View
-                style={{
-                  flex: 1,
-                }}>
-                <CustomSearchInput
-                  inputText={searchInput}
-                  setInputText={setSearchInput}
-                  placeholderText={'Search for a country'}
-                />
-                <ScrollView
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{paddingTop: 10}}>
-                  {countryElements}
-                </ScrollView>
-              </View>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingTop: 10}}>
+              {countryElements}
+            </ScrollView>
 
+            {!isKeyboardActive && (
               <CustomButton
                 buttonStyles={{marginTop: 'auto', width: 'auto', ...CENTER}}
                 textContent={'Create VPN'}
@@ -143,11 +151,11 @@ export default function VPNPlanPage({countryList}) {
                   });
                 }}
               />
-            </View>
-          </KeyboardAvoidingView>
-        </View>
+            )}
+          </View>
+        </>
       )}
-    </>
+    </View>
   );
 
   async function createVPN() {

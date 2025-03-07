@@ -1,13 +1,12 @@
 import {
   FlatList,
-  KeyboardAvoidingView,
-  Platform,
+  Keyboard,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
 import {
-  GlobalThemeView,
+  CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -17,11 +16,9 @@ import {CountryCodeList} from 'react-native-country-picker-modal';
 import CountryFlag from 'react-native-country-flag';
 import {getCountryInfoAsync} from 'react-native-country-picker-modal/lib/CountryService';
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import handleBackPress from '../../../../../hooks/handleBackPress';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useKeysContext} from '../../../../../../context-store/keys';
@@ -31,16 +28,10 @@ export default function CountryList() {
   const {toggleGlobalAppDataInformation, decodedGiftCards} = useGlobalAppData();
   const {textColor} = GetThemeColors();
   const navigate = useNavigation();
-  const insets = useSafeAreaInsets();
   const [allCountries, setAllCountries] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [showList, setShowList] = useState(false);
   const ISOCode = decodedGiftCards?.profile?.isoCode;
-
-  const bottomPadding = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
 
   useFocusEffect(
     useCallback(() => {
@@ -137,47 +128,43 @@ export default function CountryList() {
   );
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        style={{flex: 1}}>
-        <View style={styles.topBar}>
-          <TouchableOpacity
-            onPress={() => {
-              navigate.goBack();
-            }}
-            style={{marginRight: 'auto'}}>
-            <ThemeImage
-              lightModeIcon={ICONS.smallArrowLeft}
-              darkModeIcon={ICONS.smallArrowLeft}
-              lightsOutIcon={ICONS.arrow_small_left_white}
-            />
-          </TouchableOpacity>
-        </View>
-        <CustomSearchInput
-          inputText={searchInput}
-          setInputText={setSearchInput}
-          placeholderText={'Search'}
-          containerStyles={{width: '90%', marginTop: 20}}
-        />
-        {showList && (
-          <FlatList
-            contentContainerStyle={{
-              width: '90%',
-              ...CENTER,
-              paddingBottom: bottomPadding,
-            }}
-            renderItem={flatListElement}
-            key={item => item.code}
-            initialNumToRender={20}
-            maxToRenderPerBatch={20}
-            windowSize={3}
-            showsVerticalScrollIndicator={false}
-            data={countries}
+    <CustomKeyboardAvoidingView useStandardWidth={true}>
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          onPress={() => {
+            Keyboard.dismiss();
+            navigate.goBack();
+          }}
+          style={{marginRight: 'auto'}}>
+          <ThemeImage
+            lightModeIcon={ICONS.smallArrowLeft}
+            darkModeIcon={ICONS.smallArrowLeft}
+            lightsOutIcon={ICONS.arrow_small_left_white}
           />
-        )}
-      </KeyboardAvoidingView>
-    </GlobalThemeView>
+        </TouchableOpacity>
+      </View>
+      <CustomSearchInput
+        inputText={searchInput}
+        setInputText={setSearchInput}
+        placeholderText={'Search'}
+        containerStyles={{width: '90%', marginTop: 20}}
+      />
+      {showList && (
+        <FlatList
+          contentContainerStyle={{
+            width: '90%',
+            ...CENTER,
+          }}
+          renderItem={flatListElement}
+          key={item => item.code}
+          initialNumToRender={20}
+          maxToRenderPerBatch={20}
+          windowSize={3}
+          showsVerticalScrollIndicator={false}
+          data={countries}
+        />
+      )}
+    </CustomKeyboardAvoidingView>
   );
 }
 const styles = StyleSheet.create({

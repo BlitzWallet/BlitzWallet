@@ -2,18 +2,21 @@ import {useNavigation} from '@react-navigation/native';
 import {
   Image,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
+  SIZES,
+} from '../../../../../constants';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {
-  GlobalThemeView,
+  CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import handleBackPress from '../../../../../hooks/handleBackPress';
@@ -25,14 +28,23 @@ import useUnmountKeyboard from '../../../../../hooks/useUnmountKeyboard';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 
 export default function ChooseContactHalfModal() {
   const {theme, darkModeType} = useGlobalThemeContext();
   useUnmountKeyboard();
   const {decodedAddedContacts} = useGlobalContacts();
   const navigate = useNavigation();
+  const insets = useSafeAreaInsets();
+  const [isKeyboardActive, setIskeyboardActive] = useState(false);
   const [inputText, setInputText] = useState('');
   const {t} = useTranslation();
+
+  const paddingBottom = Platform.select({
+    ios: insets.bottom,
+    android: ANDROIDSAFEAREA,
+  });
 
   const handleBackPressFunction = useCallback(() => {
     navigate.goBack();
@@ -60,59 +72,65 @@ export default function ChooseContactHalfModal() {
   }, [decodedAddedContacts, inputText]);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : null}
-      style={[styles.globalContainer]}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <GlobalThemeView useStandardWidth={true} styles={{paddingBottom: 0}}>
-          <View style={styles.topBar}>
-            <TouchableOpacity
-              style={{position: 'absolute'}}
-              onPress={() => {
-                navigate.goBack();
-              }}>
-              <ThemeImage
-                darkModeIcon={ICONS.smallArrowLeft}
-                lightModeIcon={ICONS.smallArrowLeft}
-                lightsOutIcon={ICONS.arrow_small_left_white}
-              />
-            </TouchableOpacity>
-            <ThemeText
-              styles={{
-                marginRight: 'auto',
-                marginLeft: 'auto',
-                fontSize: SIZES.large,
-              }}
-              content={t('wallet.contactsPage.header')}
-            />
-          </View>
+    <CustomKeyboardAvoidingView
+      useStandardWidth={true}
+      useTouchableWithoutFeedback={true}>
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          style={{position: 'absolute'}}
+          onPress={() => {
+            navigate.goBack();
+          }}>
+          <ThemeImage
+            darkModeIcon={ICONS.smallArrowLeft}
+            lightModeIcon={ICONS.smallArrowLeft}
+            lightsOutIcon={ICONS.arrow_small_left_white}
+          />
+        </TouchableOpacity>
+        <ThemeText
+          styles={{
+            marginRight: 'auto',
+            marginLeft: 'auto',
+            fontSize: SIZES.large,
+          }}
+          content={t('wallet.contactsPage.header')}
+        />
+      </View>
 
-          <View
-            style={{
-              flex: 1,
-              width: '90%',
-              ...CENTER,
-              marginTop: 30,
-            }}>
-            <CustomSearchInput
-              inputText={inputText}
-              setInputText={setInputText}
-              placeholderText={t('wallet.contactsPage.inputTextPlaceholder')}
-              containerStyles={{marginBottom: 10}}
-            />
-            <View style={{flex: 1}}>
-              <ThemeText content={t('wallet.contactsPage.subHeader')} />
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="always"
-                style={{flex: 1, overflow: 'hidden'}}>
-                {contactElements}
-              </ScrollView>
-            </View>
-          </View>
-        </GlobalThemeView>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+      <View
+        style={{
+          flex: 1,
+          width: '90%',
+          ...CENTER,
+          marginTop: 30,
+        }}>
+        <CustomSearchInput
+          inputText={inputText}
+          setInputText={setInputText}
+          placeholderText={t('wallet.contactsPage.inputTextPlaceholder')}
+          containerStyles={{marginBottom: 10}}
+          onBlurFunction={() => {
+            setIskeyboardActive(false);
+          }}
+          onFocusFunction={() => {
+            setIskeyboardActive(true);
+          }}
+        />
+
+        <ThemeText content={t('wallet.contactsPage.subHeader')} />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="always"
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: isKeyboardActive
+              ? CONTENT_KEYBOARD_OFFSET
+              : paddingBottom,
+          }}>
+          {contactElements}
+        </ScrollView>
+      </View>
+    </CustomKeyboardAvoidingView>
   );
 
   function navigateToExpandedContact(contact) {
@@ -202,21 +220,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-
-    // paddingHorizontal: 5,
     marginBottom: 5,
-    // backgroundColor: 'black',
-    ...CENTER,
-  },
-  backButton: {
-    width: 20,
-    height: 20,
-  },
-
-  inputContainer: {
-    width: '100%',
-    ...CENTER,
-    marginTop: 10,
   },
 
   contactRowContainer: {
