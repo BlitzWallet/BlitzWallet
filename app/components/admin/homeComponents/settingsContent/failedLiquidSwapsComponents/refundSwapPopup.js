@@ -1,18 +1,13 @@
 import {
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../../constants';
-import {
-  GlobalThemeView,
-  ThemeText,
-} from '../../../../../functions/CustomElements';
+import {ThemeText} from '../../../../../functions/CustomElements';
 import {useEffect, useState} from 'react';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useNavigation} from '@react-navigation/native';

@@ -68,9 +68,6 @@ export default function GenerateKey() {
                 marginRight: 10,
                 opacity: mnemonic.length === 0 ? 0.5 : 1,
               }}
-              textStyles={{
-                fontSize: SIZES.large,
-              }}
               textContent={t('constants.copy')}
               actionFunction={() => {
                 if (mnemonic.length !== 12) {
@@ -89,7 +86,6 @@ export default function GenerateKey() {
                 opacity: mnemonic.length != 12 ? 0.2 : 1,
               }}
               textStyles={{
-                fontSize: SIZES.large,
                 color: COLORS.darkModeText,
               }}
               textContent={t('constants.next')}

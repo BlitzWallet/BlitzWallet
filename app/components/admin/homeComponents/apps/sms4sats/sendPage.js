@@ -1,5 +1,4 @@
 import {
-  ActivityIndicator,
   FlatList,
   Keyboard,
   Platform,
@@ -11,13 +10,22 @@ import {
 } from 'react-native';
 
 import {ThemeText} from '../../../../../functions/CustomElements';
-import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  FONT,
+  SIZES,
+} from '../../../../../constants';
 import {useMemo, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {parseInput} from '@breeztech/react-native-breez-sdk';
 import {sendCountryCodes} from './sendCountryCodes';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
-import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
+import {
+  ANDROIDSAFEAREA,
+  KEYBOARDTIMEOUT,
+} from '../../../../../constants/styles';
 import {AsYouType} from 'libphonenumber-js';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {
@@ -37,6 +45,7 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../../context-store/keys';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 export default function SMSMessagingSendPage({SMSprices}) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -49,13 +58,19 @@ export default function SMSMessagingSendPage({SMSprices}) {
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [focusedElement, setFocusedElement] = useState('country');
+  const [focusedElement, setFocusedElement] = useState('');
   const phoneRef = useRef(null);
   const areaCodeRef = useRef(null);
   const messageRef = useRef(null);
   const navigate = useNavigation();
-  const [isNumberFocused, setIsNumberFocused] = useState(false);
   const {textColor, backgroundColor} = GetThemeColors();
+
+  const insets = useSafeAreaInsets();
+
+  const paddingBottom = Platform.select({
+    ios: insets.bottom,
+    android: ANDROIDSAFEAREA,
+  });
 
   const selectedAreaCode = useMemo(() => {
     return sendCountryCodes.filter(
@@ -63,24 +78,40 @@ export default function SMSMessagingSendPage({SMSprices}) {
     );
   }, [areaCode]);
 
-  // make sure to save orderID number and then remove orderID number when payment sends
+  const changeFunction = (toPage, isClearing) => {
+    if (isClearing) {
+      setFocusedElement(prev => (prev === toPage ? '' : prev));
+      return;
+    }
+
+    setFocusedElement(toPage);
+  };
+
   return (
-    <>
+    <View style={{flex: 1}}>
       {!isSending ? (
         <TouchableWithoutFeedback
           onPress={() => {
             Keyboard.dismiss();
-            setIsNumberFocused(false);
             setFocusedElement('');
           }}>
-          <View style={styles.sendPage}>
+          <View
+            style={{
+              ...styles.sendPage,
+              paddingBottom: focusedElement
+                ? CONTENT_KEYBOARD_OFFSET
+                : paddingBottom,
+            }}>
             <TextInput
               style={styles.textInputHidden}
               onChangeText={e => setPhoneNumber(e)}
               ref={phoneRef}
               keyboardType="number-pad"
               maxLength={15}
-              onFocus={() => setFocusedElement('phoneNumber')}
+              onFocus={() => changeFunction('phoneNumber')}
+              onBlur={() => {
+                changeFunction('', true);
+              }}
             />
             <TextInput
               style={styles.textInputHidden}
@@ -88,9 +119,9 @@ export default function SMSMessagingSendPage({SMSprices}) {
               ref={areaCodeRef}
               keyboardType="ascii-capable"
               onFocus={() => {
-                setFocusedElement('country');
-                setIsNumberFocused(false);
+                changeFunction('country');
               }}
+              onBlur={() => changeFunction('', true)}
               value={areaCode}
             />
             <ThemeText
@@ -100,11 +131,8 @@ export default function SMSMessagingSendPage({SMSprices}) {
 
             <TouchableOpacity
               onPress={() => {
-                setFocusedElement('phoneNumber');
                 Keyboard.dismiss();
-                setTimeout(() => {
-                  setIsNumberFocused(true);
-                }, 200);
+                changeFunction('phoneNumber');
               }}>
               <ThemeText
                 styles={{
@@ -130,7 +158,11 @@ export default function SMSMessagingSendPage({SMSprices}) {
               content={'Phone number country'}
             />
             <TouchableOpacity
-              style={{flexDirection: 'row', justifyContent: 'center'}}
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                marginBottom: 'auto',
+              }}
               onPress={() => {
                 areaCodeRef.current.focus();
               }}>
@@ -181,46 +213,49 @@ export default function SMSMessagingSendPage({SMSprices}) {
               />
             )}
 
-            <CustomSearchInput
-              onFocusFunction={() => {
-                setIsNumberFocused(false);
-                setFocusedElement('message');
-              }}
-              textInputRef={messageRef}
-              setInputText={setMessage}
-              inputText={message}
-              placeholderText={'Message'}
-              maxLength={135}
-              textInputMultiline={true}
-              containerStyles={{
-                marginTop: 'auto',
-                maxHeight: 120,
-              }}
-            />
+            {(!focusedElement || focusedElement === 'message') && (
+              <>
+                <CustomSearchInput
+                  onFocusFunction={() => {
+                    changeFunction('message');
+                  }}
+                  onBlurFunction={() => {
+                    changeFunction('', true);
+                  }}
+                  shouldDelayBlur={false}
+                  textInputRef={messageRef}
+                  setInputText={setMessage}
+                  inputText={message}
+                  placeholderText={'Message'}
+                  maxLength={135}
+                  textInputMultiline={true}
+                  containerStyles={{
+                    marginTop: 'auto',
+                    maxHeight: 120,
+                  }}
+                />
+                <CustomButton
+                  buttonStyles={{
+                    width: 'auto',
+                    marginTop: 10,
+                    opacity:
+                      phoneNumber.length === 0 ||
+                      message.length === 0 ||
+                      areaCode.length === 0
+                        ? 0.5
+                        : 1,
+                    ...CENTER,
+                  }}
+                  textStyles={{
+                    color: theme ? backgroundColor : COLORS.lightModeText,
+                  }}
+                  actionFunction={handleSubmit}
+                  textContent={'Send message'}
+                />
+              </>
+            )}
 
-            <CustomButton
-              buttonStyles={{
-                width: 'auto',
-                marginTop: 5,
-                marginBottom: Platform.OS === 'ios' ? 5 : 0,
-
-                opacity:
-                  phoneNumber.length === 0 ||
-                  message.length === 0 ||
-                  areaCode.length === 0
-                    ? 0.5
-                    : 1,
-                ...CENTER,
-              }}
-              textStyles={{
-                paddingVertical: 10,
-                color: theme ? backgroundColor : COLORS.lightModeText,
-              }}
-              actionFunction={handleSubmit}
-              textContent={'Send message'}
-            />
-
-            {isNumberFocused && (
+            {focusedElement === 'phoneNumber' && (
               <CustomNumberKeyboard
                 setInputValue={setPhoneNumber}
                 frompage={'sendSMSPage'}
@@ -238,7 +273,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
           textStyles={{textAlign: 'center'}}
         />
       )}
-    </>
+    </View>
   );
 
   function handleSubmit() {

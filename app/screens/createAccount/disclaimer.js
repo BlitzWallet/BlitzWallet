@@ -83,7 +83,6 @@ export default function DislaimerPage({navigation: {navigate, goBack}}) {
             marginTop: 'auto',
           }}
           textStyles={{
-            fontSize: SIZES.large,
             color: COLORS.darkModeText,
           }}
           textContent={t('constants.next')}

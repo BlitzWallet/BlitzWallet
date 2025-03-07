@@ -1,12 +1,10 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {
-  FlatList,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
@@ -14,12 +12,13 @@ import {useNavigation} from '@react-navigation/native';
 import {
   CENTER,
   COLORS,
+  CONTENT_KEYBOARD_OFFSET,
   ICONS,
   VALID_USERNAME_REGEX,
 } from '../../../../../constants';
-import {FONT, SIZES, WINDOWWIDTH} from '../../../../../constants/theme';
+
 import {
-  GlobalThemeView,
+  CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
@@ -30,38 +29,34 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 
 export default function PosSettingsPage() {
-  const isInitialRender = useRef(true);
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
   const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
-  const [currencies, setCurrencies] = useState([]);
-  const [textInput, setTextInput] = useState(currentCurrency);
-  const [listData, setListData] = useState([]);
+  const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
+  const navigate = useNavigation();
+
+  const [textInput, setTextInput] = useState('');
   const [storeNameInput, setStoreNameInput] = useState(
     masterInfoObject?.posSettings?.storeName,
   );
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const insets = useSafeAreaInsets();
 
-  const {backgroundOffset, textColor} = GetThemeColors();
+  const paddingBottom = Platform.select({
+    ios: insets.bottom,
+    android: ANDROIDSAFEAREA,
+  });
 
-  const navigate = useNavigation();
+  const savedCurrencies = masterInfoObject.fiatCurrenciesList || [];
+  const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
 
-  useEffect(() => {
-    if (isInitialRender.current) {
-      const savedCurrencies = masterInfoObject.fiatCurrenciesList || [];
-
-      setCurrencies(savedCurrencies);
-      setListData(savedCurrencies);
-
-      isInitialRender.current = false;
-    } else {
-      if (!textInput) {
-        setListData(currencies);
-        return;
-      }
-      const filteredList = currencies.filter(currency => {
+  const CurrencyElements = useMemo(() => {
+    return savedCurrencies
+      .filter(currency => {
         if (
           currency.info.name
             .toLowerCase()
@@ -70,158 +65,158 @@ export default function PosSettingsPage() {
         )
           return currency;
         else return false;
+      })
+      .map((item, index) => {
+        return (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.currencyContainer,
+
+              {
+                marginTop: index === 0 ? 10 : 0,
+              },
+            ]}
+            onPress={() => {
+              setTextInput('');
+              savePOSSettings({storeCurrency: item.id}, 'currency');
+              Keyboard.dismiss();
+            }}>
+            <ThemeText
+              styles={{
+                color: theme
+                  ? item.id?.toLowerCase() === currentCurrency?.toLowerCase()
+                    ? darkModeType
+                      ? COLORS.opaicityGray
+                      : COLORS.primary
+                    : COLORS.darkModeText
+                  : item.id?.toLowerCase() === currentCurrency?.toLowerCase()
+                  ? COLORS.primary
+                  : COLORS.lightModeText,
+              }}
+              content={`${item.id} - ${item.info.name}`}
+            />
+          </TouchableOpacity>
+        );
       });
-      setListData(filteredList);
-    }
-  }, [textInput]);
-
-  const CurrencyElements = ({currency, id}) => {
-    return (
-      <TouchableOpacity
-        style={[
-          styles.currencyContainer,
-
-          {
-            marginBottom: id === currencies.length - 1 ? 30 : 0,
-            marginTop: id === 0 ? 10 : 0,
-          },
-        ]}
-        onPress={() => {
-          setTextInput('');
-          savePOSSettings({storeCurrency: currency.id}, 'currency');
-          Keyboard.dismiss();
-        }}>
-        <ThemeText
-          styles={{
-            color: theme
-              ? currency.id?.toLowerCase() === currentCurrency?.toLowerCase()
-                ? darkModeType
-                  ? COLORS.opaicityGray
-                  : COLORS.primary
-                : COLORS.darkModeText
-              : currency.id?.toLowerCase() === currentCurrency?.toLowerCase()
-              ? COLORS.primary
-              : COLORS.lightModeText,
-          }}
-          content={`${currency.id} - ${currency.info.name}`}
-        />
-      </TouchableOpacity>
-    );
-  };
+  }, [textInput, currentCurrency]);
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        style={styles.container}>
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-          <View style={{flex: 1}}>
-            <CustomSettingsTopBar
-              shouldDismissKeyboard={true}
-              showLeftImage={true}
-              leftImageBlue={ICONS.receiptIcon}
-              LeftImageDarkMode={ICONS.receiptWhite}
-              containerStyles={{marginBottom: 0}}
-              label={'Point-of-sale'}
-              leftImageFunction={() => {
-                Keyboard.dismiss();
+    <CustomKeyboardAvoidingView
+      useTouchableWithoutFeedback={true}
+      useStandardWidth={true}>
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        showLeftImage={true}
+        leftImageBlue={ICONS.receiptIcon}
+        LeftImageDarkMode={ICONS.receiptWhite}
+        containerStyles={{marginBottom: 0}}
+        label={'Point-of-sale'}
+        leftImageFunction={() => {
+          Keyboard.dismiss();
 
-                if (!isConnectedToTheInternet) {
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage: 'Please reconnect to the internet',
-                  });
-                  return;
-                }
-                navigate.navigate('ViewPOSTransactions');
-              }}
-            />
-            <View style={{flex: 1, width: '95%', ...CENTER}}>
-              <ThemeText styles={{marginTop: 20}} content={'Store name'} />
-              <CustomSearchInput
-                setInputText={setStoreNameInput}
-                inputText={storeNameInput}
-                placeholderText={'Enter store name'}
-                containerStyles={{marginTop: 10}}
-              />
+          if (!isConnectedToTheInternet) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: 'Please reconnect to the internet',
+            });
+            return;
+          }
+          navigate.navigate('ViewPOSTransactions');
+        }}
+      />
+      <ScrollView
+        style={{flex: 1, width: '95%', ...CENTER}}
+        contentContainerStyle={{
+          paddingBottom: isKeyboardActive
+            ? CONTENT_KEYBOARD_OFFSET
+            : paddingBottom,
+        }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        stickyHeaderIndices={[1]}>
+        <View style={{marginTop: 20, marginBottom: 10}}>
+          <ThemeText content={'Store name'} />
+          <CustomSearchInput
+            setInputText={setStoreNameInput}
+            inputText={storeNameInput}
+            placeholderText={'Enter store name'}
+            containerStyles={{marginTop: 10}}
+            onBlurFunction={() => setIsKeyboardActive(false)}
+            onFocusFunction={() => setIsKeyboardActive(true)}
+            shouldDelayBlur={false}
+          />
+        </View>
 
-              <ThemeText
-                styles={{marginTop: 10}}
-                content={'Display currency'}
-              />
-              <CustomSearchInput
-                inputText={textInput}
-                setInputText={setTextInput}
-                placeholderText={currentCurrency}
-                containerStyles={{marginTop: 10}}
-              />
+        {/* Sticky Header Section */}
+        <View style={{backgroundColor: backgroundColor, paddingVertical: 10}}>
+          <ThemeText content={'Display currency'} />
+          <CustomSearchInput
+            inputText={textInput}
+            setInputText={setTextInput}
+            placeholderText={currentCurrency}
+            containerStyles={{marginTop: 10}}
+            onBlurFunction={() => setIsKeyboardActive(false)}
+            onFocusFunction={() => setIsKeyboardActive(true)}
+            shouldDelayBlur={false}
+          />
+        </View>
+        {CurrencyElements}
+      </ScrollView>
 
-              <FlatList
-                style={{
-                  flex: 1,
-                  width: '100%',
-                }}
-                data={listData}
-                renderItem={({item, index}) => (
-                  <CurrencyElements id={index} currency={item} />
-                )}
-                keyExtractor={currency => currency.id}
-                showsVerticalScrollIndicator={false}
-              />
-
-              <CustomButton
-                buttonStyles={{
-                  width: '100%',
-                  marginTop: 'auto',
-                  backgroundColor: backgroundOffset,
-                }}
-                textStyles={{color: textColor}}
-                actionFunction={() => {
-                  navigate.navigate('POSInstructionsPath');
-                }}
-                textContent={'See employee instructions'}
-              />
-              <CustomButton
-                buttonStyles={{
-                  width: '65%',
-                  marginTop: 20,
-                  ...CENTER,
-                  backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-                }}
-                textStyles={{
-                  color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-                }}
-                actionFunction={() => {
-                  if (
-                    masterInfoObject.posSettings.storeNameLower !=
-                    storeNameInput.toLowerCase()
-                  ) {
-                    savePOSSettings(
-                      {
-                        storeName: storeNameInput.trim(),
-                        storeNameLower: storeNameInput.trim().toLowerCase(),
-                      },
-                      'storeName',
-                    );
-                    return;
-                  } else {
-                    openWebBrowser({
-                      navigate,
-                      link: `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`,
-                    });
-                  }
-                }}
-                textContent={
-                  masterInfoObject.posSettings.storeName.toLowerCase() !=
-                  storeNameInput.toLowerCase()
-                    ? 'Save'
-                    : 'Open POS'
-                }
-              />
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-    </GlobalThemeView>
+      <CustomButton
+        buttonStyles={{
+          width: '95%',
+          maxWidth: 200,
+          alignSelf: 'center',
+          backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+        }}
+        textStyles={{
+          color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+        }}
+        actionFunction={() => {
+          if (
+            masterInfoObject.posSettings.storeNameLower !==
+            storeNameInput.toLowerCase()
+          ) {
+            savePOSSettings(
+              {
+                storeName: storeNameInput.trim(),
+                storeNameLower: storeNameInput.trim().toLowerCase(),
+              },
+              'storeName',
+            );
+            return;
+          } else {
+            openWebBrowser({
+              navigate,
+              link: `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`,
+            });
+          }
+        }}
+        textContent={
+          masterInfoObject.posSettings.storeName.toLowerCase() !==
+          storeNameInput.toLowerCase()
+            ? 'Save'
+            : 'Open POS'
+        }
+      />
+      <CustomButton
+        buttonStyles={{
+          width: '100%',
+          marginTop: 20,
+          backgroundColor: backgroundOffset,
+          marginBottom: isKeyboardActive
+            ? CONTENT_KEYBOARD_OFFSET
+            : paddingBottom,
+          ...CENTER,
+        }}
+        textStyles={{color: textColor}}
+        actionFunction={() => {
+          navigate.navigate('POSInstructionsPath');
+        }}
+        textContent={'Employee instructions'}
+      />
+    </CustomKeyboardAvoidingView>
   );
 
   async function savePOSSettings(newData, type) {
@@ -276,33 +271,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
 
-  errorText: {
-    color: 'black',
-    fontFamily: FONT.Title_Bold,
-    fontSize: SIZES.large,
-    marginTop: 'auto',
-    marginBottom: 'auto',
-  },
-
-  currencyTitle: {
-    width: '100%',
-    flex: 1,
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Bold,
-  },
-  currencyID: {
-    fontSize: SIZES.small,
-    fontFamily: FONT.Descriptoin_Regular,
-    marginLeft: 10,
-  },
   topbar: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  topBarText: {
-    fontSize: SIZES.xLarge,
-    width: '100%',
-    textAlign: 'center',
-    fontFamily: FONT.Title_Regular,
   },
 });

@@ -45,7 +45,7 @@ export default function VPNDurationSlider({
   };
 
   const sliderWidth = (windowDimensions.width * 0.95 * 0.95) / 3.333 + 12;
-
+  console.log(selectedDuration);
   return (
     <View style={{marginBottom: 20, marginTop: 20, alignItems: 'center'}}>
       <ThemeText styles={{...styles.infoHeaders}} content={'Duration'} />
@@ -66,9 +66,16 @@ export default function VPNDurationSlider({
               handleSlide('week');
             }}>
             <ThemeText
-              styles={{...styles.colorSchemeText}}
+              styles={{
+                ...styles.colorSchemeText,
+                color:
+                  selectedDuration === 'week'
+                    ? COLORS.darkModeText
+                    : theme
+                    ? COLORS.darkModeText
+                    : COLORS.lightModeText,
+              }}
               content={'1 Week'}
-              reversed={selectedDuration === 'week' && !theme}
             />
           </TouchableOpacity>
 
@@ -80,9 +87,16 @@ export default function VPNDurationSlider({
               handleSlide('month');
             }}>
             <ThemeText
-              styles={{...styles.colorSchemeText}}
+              styles={{
+                ...styles.colorSchemeText,
+                color:
+                  selectedDuration === 'month'
+                    ? COLORS.darkModeText
+                    : theme
+                    ? COLORS.darkModeText
+                    : COLORS.lightModeText,
+              }}
               content={'1 Month'}
-              reversed={selectedDuration === 'month' && !theme}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -93,9 +107,16 @@ export default function VPNDurationSlider({
               handleSlide('quarter');
             }}>
             <ThemeText
-              styles={{...styles.colorSchemeText}}
+              styles={{
+                ...styles.colorSchemeText,
+                color:
+                  selectedDuration === 'quarter'
+                    ? COLORS.darkModeText
+                    : theme
+                    ? COLORS.darkModeText
+                    : COLORS.lightModeText,
+              }}
               content={'1 Quarter'}
-              reversed={selectedDuration === 'quarter' && !theme}
             />
           </TouchableOpacity>
           <Animated.View
@@ -107,7 +128,8 @@ export default function VPNDurationSlider({
                 backgroundColor:
                   theme && darkModeType ? backgroundColor : COLORS.primary,
               },
-            ]}></Animated.View>
+            ]}
+          />
         </View>
       </View>
       <FormattedSatText

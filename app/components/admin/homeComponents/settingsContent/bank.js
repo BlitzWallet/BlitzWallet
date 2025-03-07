@@ -98,7 +98,6 @@ export default function LiquidWallet() {
           position: 'absolute',
           bottom: bottomPadding,
         }}
-        textStyles={{}}
         textContent={'Get Address'}
         actionFunction={() =>
           navigate.navigate('CustomHalfModal', {

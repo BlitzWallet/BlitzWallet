@@ -81,7 +81,7 @@ import {
   AppStorePageIndex,
   ConfirmTxPage,
   ConnectingToNodeLoadingScreen,
-  ConnectionToNode,
+  // ConnectionToNode,
   ExpandedTx,
   ReceivePaymentHome,
   SendPaymentHome,
@@ -122,7 +122,7 @@ import {
   EditReceivePaymentInformation,
   ErrorScreen,
   ExpandedContactsPage,
-  HalfModalSendOptions,
+  // HalfModalSendOptions,
   // LetterKeyboard,
   LiquidSettingsPage,
   LspDescriptionPopup,
@@ -158,7 +158,7 @@ import {
 // );
 import AddResturantItemToCart from './app/components/admin/homeComponents/apps/resturantService/addItemToCart';
 import ResturantCartPage from './app/components/admin/homeComponents/apps/resturantService/cartPage';
-import ManualEnterSendAddress from './app/components/admin/homeComponents/homeLightning/manualEnterSendAddress';
+// import ManualEnterSendAddress from './app/components/admin/homeComponents/homeLightning/manualEnterSendAddress';
 import {WebViewProvider} from './context-store/webViewContext';
 import {Linking, Platform} from 'react-native';
 
@@ -194,7 +194,7 @@ import {Linking, Platform} from 'react-native';
 // );
 import ConfirmExportPayments from './app/components/admin/homeComponents/exportTransactions/exportTracker';
 import {
-  ClaimGiftCard,
+  // ClaimGiftCard,
   ConfirmSMSPayment,
   ConfirmVPNPage,
   CountryList,
@@ -207,7 +207,7 @@ import {
   GiftCardPage,
   HistoricalGiftCardPurchases,
   HistoricalVPNPurchases,
-  ResetGiftCardProfilePassword,
+  // ResetGiftCardProfilePassword,
   SwitchGenerativeAIModel,
 } from './app/components/admin/homeComponents/apps';
 
@@ -664,10 +664,10 @@ function ResetStack(): JSX.Element | null {
             name="POSInstructionsPath"
             component={POSInstructionsPath}
           />
-          <Stack.Screen
+          {/* <Stack.Screen
             name="ManualyEnterSendAddress"
             component={ManualEnterSendAddress}
-          />
+          /> */}
           {/* <Stack.Screen
             name="GiftCardLoginPage"
             component={GiftCardLoginPage}
@@ -682,10 +682,10 @@ function ResetStack(): JSX.Element | null {
             name="ForgotGiftCardPassword"
             component={ForgotGiftCardPassword}
           /> */}
-          <Stack.Screen
+          {/* <Stack.Screen
             name="ResetGiftCardProfilePassword"
             component={ResetGiftCardProfilePassword}
-          />
+          /> */}
           <Stack.Screen
             name="ExpandedGiftCardPage"
             component={ExpandedGiftCardPage}
@@ -694,7 +694,7 @@ function ResetStack(): JSX.Element | null {
             name="HistoricalGiftCardPurchases"
             component={HistoricalGiftCardPurchases}
           />
-          <Stack.Screen name="ClaimGiftCard" component={ClaimGiftCard} />
+          {/* <Stack.Screen name="ClaimGiftCard" component={ClaimGiftCard} /> */}
           <Stack.Screen name="ManualSwapPopup" component={ManualSwapPopup} />
           <Stack.Screen
             name="AccountInformationPage"
@@ -710,12 +710,12 @@ function ResetStack(): JSX.Element | null {
             animation: 'fade',
             presentation: 'containedTransparentModal',
           }}>
-          <Stack.Screen name="ConnectionToNode" component={ConnectionToNode} />
+          {/* <Stack.Screen name="ConnectionToNode" component={ConnectionToNode} /> */}
 
-          <Stack.Screen
+          {/* <Stack.Screen
             name="HalfModalSendOption"
             component={HalfModalSendOptions}
-          />
+          /> */}
           <Stack.Screen name="CustomHalfModal" component={CustomHalfModal} />
           <Stack.Screen
             name="ConfirmActionPage"

@@ -187,7 +187,6 @@ export default function AddChatGPTCredits({props}) {
               width: 'auto',
               ...CENTER,
             }}
-            textStyles={{fontSize: SIZES.large}}
             actionFunction={() => {
               const [selectedPlan] = selectedSubscription.filter(
                 subscription => subscription.isSelected,

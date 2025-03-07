@@ -17,7 +17,7 @@ export async function getBoltzSwapPairInformation(swapType) {
       resolve(data);
     });
   } catch (err) {
-    console.log(err, 'ERR');
+    console.log(err, 'get boltz swap information error');
     return new Promise(resolve => {
       resolve(false);
     });

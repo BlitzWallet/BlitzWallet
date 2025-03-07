@@ -5,32 +5,32 @@ import {
   Image,
   ScrollView,
   TextInput,
-  TouchableWithoutFeedback,
   Keyboard,
   Platform,
-  KeyboardAvoidingView,
 } from 'react-native';
 import {
   CENTER,
   COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  FONT,
   ICONS,
   SIZES,
   VALID_USERNAME_REGEX,
 } from '../../../../constants';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useState, useRef, useCallback, useMemo} from 'react';
-import {getPublicKey} from 'nostr-tools';
 import {encriptMessage} from '../../../../functions/messaging/encodingAndDecodingMessages';
 
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import {isValidUniqueName} from '../../../../../db';
 import handleBackPress from '../../../../hooks/handleBackPress';
 
 import CustomButton from '../../../../functions/CustomElements/button';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {
   removeLocalStorageItem,
   setLocalStorageItem,
@@ -38,6 +38,8 @@ import {
 import {getImageFromLibrary} from '../../../../functions/imagePickerWrapper';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../context-store/keys';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -86,61 +88,36 @@ export default function EditMyProfilePage(props) {
   }, [handleBackPressFunction]);
 
   return (
-    <TouchableWithoutFeedback
-      style={{flex: 1}}
-      onPress={() => {
-        Keyboard.dismiss();
-      }}>
-      {fromSettings ? (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : null}
-          style={{flex: 1, marginTop: 20}}>
-          <InnerContent
-            isEditingMyProfile={isEditingMyProfile}
-            selectedAddedContact={selectedAddedContact}
-            setSelectedAddedContact={setSelectedAddedContact}
-            fromInitialAdd={props.fromInitialAdd}
-          />
-        </KeyboardAvoidingView>
-      ) : (
-        <GlobalThemeView useStandardWidth={true}>
-          <View style={styles.topBar}>
-            <TouchableOpacity
-              onPress={() => {
-                if (!isFirstTimeEditing) {
-                  toggleGlobalContactsInformation(
-                    {
-                      myProfile: {
-                        ...globalContactsInformation.myProfile,
-                        didEditProfile: true,
-                      },
-                      addedContacts: globalContactsInformation.addedContacts,
-                    },
-                    true,
-                  );
-                }
-                navigate.goBack();
-              }}>
-              <ThemeImage
-                darkModeIcon={ICONS.smallArrowLeft}
-                lightModeIcon={ICONS.smallArrowLeft}
-                lightsOutIcon={ICONS.arrow_small_left_white}
-              />
-            </TouchableOpacity>
-          </View>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : null}
-            style={{flex: 1}}>
-            <InnerContent
-              isEditingMyProfile={isEditingMyProfile}
-              selectedAddedContact={selectedAddedContact}
-              setSelectedAddedContact={setSelectedAddedContact}
-              fromInitialAdd={props.fromInitialAdd}
-            />
-          </KeyboardAvoidingView>
-        </GlobalThemeView>
-      )}
-    </TouchableWithoutFeedback>
+    <CustomKeyboardAvoidingView
+      useTouchableWithoutFeedback={true}
+      useStandardWidth={true}>
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        label={fromSettings ? 'Edit Contact Profile' : ''}
+        customBackFunction={() => {
+          Keyboard.dismiss();
+          if (!isFirstTimeEditing) {
+            toggleGlobalContactsInformation(
+              {
+                myProfile: {
+                  ...globalContactsInformation.myProfile,
+                  didEditProfile: true,
+                },
+                addedContacts: globalContactsInformation.addedContacts,
+              },
+              true,
+            );
+          }
+          navigate.goBack();
+        }}
+      />
+      <InnerContent
+        isEditingMyProfile={isEditingMyProfile}
+        selectedAddedContact={selectedAddedContact}
+        setSelectedAddedContact={setSelectedAddedContact}
+        fromInitialAdd={props.fromInitialAdd}
+      />
+    </CustomKeyboardAvoidingView>
   );
 }
 
@@ -179,11 +156,17 @@ function InnerContent({
   const selectedAddedContactReceiveAddress =
     selectedAddedContact?.receiveAddress;
 
+  const insets = useSafeAreaInsets();
   const [inputs, setInputs] = useState({
     name: '',
     bio: '',
     uniquename: '',
     receiveAddress: '',
+  });
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const paddingBottom = Platform.select({
+    ios: insets.bottom,
+    android: CONTENT_KEYBOARD_OFFSET,
   });
 
   const navigate = useNavigation();
@@ -235,9 +218,9 @@ function InnerContent({
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
+          flexGrow: 1,
           alignItems: 'center',
-          width: '90%',
-          ...CENTER,
+          width: '100%',
         }}>
         <TouchableOpacity
           onPress={() => {
@@ -325,6 +308,12 @@ function InnerContent({
             ]}
             value={inputs.name || ''}
             onChangeText={text => changeInputText(text, 'name')}
+            onBlur={() => {
+              setIsKeyboardActive(false);
+            }}
+            onFocus={() => {
+              setIsKeyboardActive(true);
+            }}
           />
           <ThemeText
             styles={{
@@ -368,6 +357,12 @@ function InnerContent({
               value={inputs.receiveAddress || ''}
               placeholder={'Enter lnurl here...'}
               onChangeText={text => changeInputText(text, 'receiveAddress')}
+              onBlur={() => {
+                setIsKeyboardActive(false);
+              }}
+              onFocus={() => {
+                setIsKeyboardActive(true);
+              }}
             />
 
             <ThemeText
@@ -413,6 +408,12 @@ function InnerContent({
               value={inputs.uniquename || ''}
               placeholder={myContact.uniqueName}
               onChangeText={text => changeInputText(text, 'uniquename')}
+              onBlur={() => {
+                setIsKeyboardActive(false);
+              }}
+              onFocus={() => {
+                setIsKeyboardActive(true);
+              }}
             />
 
             <ThemeText
@@ -462,6 +463,12 @@ function InnerContent({
             ]}
             value={inputs.bio || ''}
             onChangeText={text => changeInputText(text, 'bio')}
+            onBlur={() => {
+              setIsKeyboardActive(false);
+            }}
+            onFocus={() => {
+              setIsKeyboardActive(true);
+            }}
           />
 
           <ThemeText
@@ -483,7 +490,10 @@ function InnerContent({
         buttonStyles={{
           width: 'auto',
           ...CENTER,
-          marginTop: 25,
+          marginTop: 10,
+          marginBottom: isKeyboardActive
+            ? CONTENT_KEYBOARD_OFFSET
+            : paddingBottom,
         }}
         actionFunction={saveChanges}
         textContent={fromInitialAdd ? 'Add contact' : 'Save'}
@@ -739,16 +749,10 @@ function InnerContent({
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
   innerContainer: {
     flex: 1,
-    width: '100%',
+    width: '95%',
+    ...CENTER,
   },
   selectFromPhotos: {
     width: 30,
@@ -776,8 +780,9 @@ const styles = StyleSheet.create({
 
   textInput: {
     fontSize: SIZES.medium,
-    paddingHorizontal: 15,
-    paddingVertical: Platform.OS === 'ios' ? 15 : 10,
+    padding: 10,
+    fontFamily: FONT.Title_Regular,
+    includeFontPadding: false,
     borderRadius: 8,
     marginBottom: 10,
   },

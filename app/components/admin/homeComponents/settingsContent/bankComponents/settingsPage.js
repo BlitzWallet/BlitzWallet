@@ -1,6 +1,4 @@
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
@@ -19,10 +17,10 @@ import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
-  GlobalThemeView,
+  CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {COLORS, WINDOWWIDTH} from '../../../../../constants/theme';
+import {COLORS, FONT} from '../../../../../constants/theme';
 import handleBackPress from '../../../../../hooks/handleBackPress';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
@@ -96,177 +94,146 @@ export default function LiquidSettingsPage() {
   });
 
   return (
-    <GlobalThemeView
-      styles={{
-        paddingBottom: 0,
-      }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        style={{flex: 1, alignItems: 'center'}}>
-        <View style={{flex: 1, width: WINDOWWIDTH}}>
-          <View style={styles.topbar}>
-            <TouchableOpacity
-              style={{position: 'absolute'}}
-              onPress={() => {
-                navigate.goBack();
-              }}>
-              <ThemeImage
-                lightsOutIcon={ICONS.arrow_small_left_white}
-                lightModeIcon={ICONS.smallArrowLeft}
-                darkModeIcon={ICONS.smallArrowLeft}
-              />
-            </TouchableOpacity>
-            <ThemeText styles={{...styles.topBarText}} content={'Settings'} />
-          </View>
+    <CustomKeyboardAvoidingView useStandardWidth={true}>
+      <View style={styles.topbar}>
+        <TouchableOpacity
+          style={{position: 'absolute'}}
+          onPress={() => {
+            navigate.goBack();
+          }}>
+          <ThemeImage
+            lightsOutIcon={ICONS.arrow_small_left_white}
+            lightModeIcon={ICONS.smallArrowLeft}
+            darkModeIcon={ICONS.smallArrowLeft}
+          />
+        </TouchableOpacity>
+        <ThemeText styles={{...styles.topBarText}} content={'Settings'} />
+      </View>
 
-          <View style={styles.settingsContainer}>
-            {/* <FlatList
-              renderItem={({item}) => (
-                <SettingsItem
-                  settingsDescription={item.desc}
-                  settingsName={item.name}
-                  id={item.id}
-                />
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: bottomPadding,
+        }}
+        showsVerticalScrollIndicator={false}>
+        {settingsElements}
+        <View
+          key={'mco'}
+          style={[
+            styles.warningContainer,
+            {
+              backgroundColor: backgroundOffset,
+              borderRadius: 8,
+              marginTop: 20,
+              width: '100%',
+              paddingHorizontal: '2.5%',
+            },
+          ]}>
+          <View style={styles.inlineItemContainer}>
+            <ThemeText content={'Max channel open fee (sats)'} />
+            <TextInput
+              value={inputText}
+              defaultValue={String(
+                masterInfoObject.liquidWalletSettings.maxChannelOpenFee === 0 ||
+                  masterInfoObject.liquidWalletSettings.maxChannelOpenFee
+                  ? masterInfoObject.liquidWalletSettings.maxChannelOpenFee
+                  : 5000,
               )}
-              showsVerticalScrollIndicator={false}
-              data={SETTINGSITEMS}
-            /> */}
-            <ScrollView
-              contentContainerStyle={{
-                paddingBottom: bottomPadding,
+              onChangeText={input => handleTextChange(input, 'channelOpen')}
+              keyboardType="number-pad"
+              onEndEditing={() => {
+                if (!inputText) {
+                  handleTextChange(
+                    String(
+                      masterInfoObject.liquidWalletSettings.maxChannelOpenFee,
+                    ),
+                    'channelOpen',
+                  );
+                  return;
+                }
+
+                if (
+                  inputText ==
+                  masterInfoObject.liquidWalletSettings.maxChannelOpenFee
+                ) {
+                  return;
+                }
+
+                toggleMasterInfoObject({
+                  liquidWalletSettings: {
+                    ...masterInfoObject.liquidWalletSettings,
+                    maxChannelOpenFee: Number(inputText.channelOpen),
+                  },
+                });
               }}
-              showsVerticalScrollIndicator={false}>
-              {settingsElements}
-              <View
-                key={'mco'}
-                style={[
-                  styles.warningContainer,
-                  {
-                    backgroundColor: backgroundOffset,
-                    borderRadius: 8,
-                    marginTop: 20,
-                    width: '100%',
-                    paddingHorizontal: '2.5%',
-                  },
-                ]}>
-                <View style={styles.inlineItemContainer}>
-                  <ThemeText content={'Max channel open fee (sats)'} />
-                  <TextInput
-                    value={inputText}
-                    defaultValue={String(
-                      masterInfoObject.liquidWalletSettings
-                        .maxChannelOpenFee === 0 ||
-                        masterInfoObject.liquidWalletSettings.maxChannelOpenFee
-                        ? masterInfoObject.liquidWalletSettings
-                            .maxChannelOpenFee
-                        : 5000,
-                    )}
-                    onChangeText={input =>
-                      handleTextChange(input, 'channelOpen')
-                    }
-                    keyboardType="number-pad"
-                    onEndEditing={() => {
-                      if (!inputText) {
-                        handleTextChange(
-                          String(
-                            masterInfoObject.liquidWalletSettings
-                              .maxChannelOpenFee,
-                          ),
-                          'channelOpen',
-                        );
-                        return;
-                      }
-
-                      if (
-                        inputText ==
-                        masterInfoObject.liquidWalletSettings.maxChannelOpenFee
-                      ) {
-                        return;
-                      }
-
-                      toggleMasterInfoObject({
-                        liquidWalletSettings: {
-                          ...masterInfoObject.liquidWalletSettings,
-                          maxChannelOpenFee: Number(inputText.channelOpen),
-                        },
-                      });
-                    }}
-                    style={{
-                      padding: 10,
-                      borderRadius: 8,
-                      marginRight: 10,
-                      backgroundColor: backgroundColor,
-                      color: textColor,
-                    }}
-                  />
-                </View>
-              </View>
-              <View
-                key={'msa'}
-                style={[
-                  styles.warningContainer,
-                  {
-                    backgroundColor: backgroundOffset,
-                    borderRadius: 8,
-                    marginTop: 20,
-
-                    width: '100%',
-                    paddingHorizontal: '2.5%',
-                  },
-                ]}>
-                <View style={styles.inlineItemContainer}>
-                  <ThemeText content={'Minimum rebalance (sats)'} />
-                  <TextInput
-                    value={inputText}
-                    defaultValue={String(
-                      masterInfoObject.liquidWalletSettings.minAutoSwapAmount,
-                    )}
-                    onChangeText={input =>
-                      handleTextChange(input, 'minimumRebalance')
-                    }
-                    keyboardType="number-pad"
-                    onEndEditing={() => {
-                      if (!inputText) {
-                        handleTextChange(
-                          String(
-                            masterInfoObject.liquidWalletSettings
-                              .minAutoSwapAmount,
-                          ),
-                          'minimumRebalance',
-                        );
-
-                        return;
-                      }
-
-                      if (
-                        inputText ==
-                        masterInfoObject.liquidWalletSettings.minAutoSwapAmount
-                      ) {
-                        return;
-                      }
-
-                      toggleMasterInfoObject({
-                        liquidWalletSettings: {
-                          ...masterInfoObject.liquidWalletSettings,
-                          minAutoSwapAmount: Number(inputText.minimumRebalance),
-                        },
-                      });
-                    }}
-                    style={{
-                      padding: 10,
-                      borderRadius: 8,
-                      marginRight: 10,
-                      backgroundColor: backgroundColor,
-                      color: textColor,
-                    }}
-                  />
-                </View>
-              </View>
-            </ScrollView>
+              style={{
+                ...styles.textInput,
+                backgroundColor: backgroundColor,
+                color: textColor,
+              }}
+            />
           </View>
         </View>
-      </KeyboardAvoidingView>
-    </GlobalThemeView>
+        <View
+          key={'msa'}
+          style={[
+            styles.warningContainer,
+            {
+              backgroundColor: backgroundOffset,
+              borderRadius: 8,
+              marginTop: 20,
+
+              width: '100%',
+              paddingHorizontal: '2.5%',
+            },
+          ]}>
+          <View style={styles.inlineItemContainer}>
+            <ThemeText content={'Minimum rebalance (sats)'} />
+            <TextInput
+              value={inputText}
+              defaultValue={String(
+                masterInfoObject.liquidWalletSettings.minAutoSwapAmount,
+              )}
+              onChangeText={input =>
+                handleTextChange(input, 'minimumRebalance')
+              }
+              keyboardType="number-pad"
+              onEndEditing={() => {
+                if (!inputText) {
+                  handleTextChange(
+                    String(
+                      masterInfoObject.liquidWalletSettings.minAutoSwapAmount,
+                    ),
+                    'minimumRebalance',
+                  );
+
+                  return;
+                }
+
+                if (
+                  inputText ==
+                  masterInfoObject.liquidWalletSettings.minAutoSwapAmount
+                ) {
+                  return;
+                }
+
+                toggleMasterInfoObject({
+                  liquidWalletSettings: {
+                    ...masterInfoObject.liquidWalletSettings,
+                    minAutoSwapAmount: Number(inputText.minimumRebalance),
+                  },
+                });
+              }}
+              style={{
+                ...styles.textInput,
+                backgroundColor: backgroundColor,
+                color: textColor,
+              }}
+            />
+          </View>
+        </View>
+      </ScrollView>
+    </CustomKeyboardAvoidingView>
   );
   function handleTextChange(input, selector) {
     setInputText(prev => {
@@ -382,25 +349,6 @@ function SettingsItem({settingsName, settingsDescription, id}) {
             }}
             stateValue={isActive}
           />
-
-          {/* <Switch
-            style={{marginRight: 10}}
-            onChange={event => {
-              setIsActive(prev => {
-                toggleMasterInfoObject({
-                  liquidWalletSettings: {
-                    ...masterInfoObject.liquidWalletSettings,
-                    [id === 'acr'
-                      ? 'autoChannelRebalance'
-                      : 'regulateChannelOpen']: !prev,
-                  },
-                });
-                return !prev;
-              });
-            }}
-            value={isActive}
-            trackColor={{false: '#767577', true: COLORS.primary}}
-          /> */}
         </View>
       </View>
       <View style={styles.warningContainer}>
@@ -444,9 +392,7 @@ function SettingsItem({settingsName, settingsDescription, id}) {
                 });
               }}
               style={{
-                padding: 10,
-                borderRadius: 8,
-                marginRight: 10,
+                ...styles.textInput,
                 backgroundColor: backgroundColor,
                 color: textColor,
               }}
@@ -504,9 +450,7 @@ function SettingsItem({settingsName, settingsDescription, id}) {
                 });
               }}
               style={{
-                padding: 10,
-                borderRadius: 8,
-                marginRight: 10,
+                ...styles.textInput,
                 backgroundColor: backgroundColor,
                 color: textColor,
               }}
@@ -605,5 +549,13 @@ const styles = StyleSheet.create({
   },
   warningText: {
     width: '90%',
+  },
+  textInput: {
+    padding: 10,
+    borderRadius: 8,
+    fontSize: SIZES.medium,
+    fontFamily: FONT.Title_Regular,
+    includeFontPadding: false,
+    marginRight: 10,
   },
 });

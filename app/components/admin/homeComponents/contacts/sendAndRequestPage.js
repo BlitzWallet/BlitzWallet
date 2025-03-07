@@ -3,27 +3,17 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
   ScrollView,
 } from 'react-native';
-import {
-  CENTER,
-  FONT,
-  ICONS,
-  LIQUID_DEFAULT_FEE,
-  SATSPERBITCOIN,
-  SHADOWS,
-  SIZES,
-} from '../../../../constants';
+import {CENTER, ICONS, SATSPERBITCOIN} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {formatBalanceAmount} from '../../../../functions';
 import {publishMessage} from '../../../../functions/messaging/publishMessage';
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import handleBackPress from '../../../../hooks/handleBackPress';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import {
@@ -31,7 +21,6 @@ import {
   LIGHTNINGAMOUNTBUFFER,
 } from '../../../../constants/math';
 import CustomButton from '../../../../functions/CustomElements/button';
-import Icon from '../../../../functions/CustomElements/Icon';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -320,129 +309,116 @@ export default function SendAndRequestPage(props) {
   ]);
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        style={{flex: 1}}>
-        <View
-          style={{
-            flex: 1,
+    <CustomKeyboardAvoidingView
+      isKeyboardActive={!isAmountFocused}
+      useLocalPadding={true}
+      useStandardWidth={true}>
+      <TouchableOpacity onPress={navigate.goBack}>
+        <ThemeImage
+          darkModeIcon={ICONS.smallArrowLeft}
+          lightModeIcon={ICONS.smallArrowLeft}
+          lightsOutIcon={ICONS.arrow_small_left_white}
+        />
+      </TouchableOpacity>
+
+      <View
+        style={{
+          flex: 1,
+        }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: 20,
           }}>
-          <TouchableOpacity onPress={navigate.goBack}>
-            <ThemeImage
-              darkModeIcon={ICONS.smallArrowLeft}
-              lightModeIcon={ICONS.smallArrowLeft}
-              lightsOutIcon={ICONS.arrow_small_left_white}
-            />
-          </TouchableOpacity>
-
           <View
-            style={{
-              flex: 1,
-            }}>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingBottom: 20,
-              }}>
-              <View
-                style={[
-                  styles.profileImage,
-                  {
-                    backgroundColor: backgroundOffset,
-                    marginBottom: 5,
-                  },
-                ]}>
-                <Image
-                  source={
-                    selectedContact.profileImage
-                      ? {uri: selectedContact.profileImage}
-                      : darkModeType && theme
-                      ? ICONS.userWhite
-                      : ICONS.userIcon
-                  }
-                  style={
-                    selectedContact.profileImage
-                      ? {width: '100%', aspectRatio: 1}
-                      : {width: '50%', height: '50%'}
-                  }
-                />
-              </View>
-              <ThemeText
-                styles={styles.profileName}
-                content={`${
-                  selectedContact.name || selectedContact.uniqueName
-                }`}
-              />
-              <FormattedBalanceInput
-                maxWidth={0.9}
-                amountValue={amountValue || 0}
-                inputDenomination={masterInfoObject.userBalanceDenomination}
-              />
-              <FormattedSatText
-                containerStyles={{
-                  opacity: !amountValue ? 0.5 : 1,
-                }}
-                neverHideBalance={true}
-                globalBalanceDenomination={
-                  masterInfoObject.userBalanceDenomination === 'sats' ||
-                  masterInfoObject.userBalanceDenomination === 'hidden'
-                    ? 'fiat'
-                    : 'sats'
-                }
-                balance={convertedSendAmount}
-              />
-            </ScrollView>
-
-            <CustomSearchInput
-              onFocusFunction={() => {
-                setIsAmountFocused(false);
-              }}
-              onBlurFunction={() => {
-                setTimeout(() => {
-                  setIsAmountFocused(true);
-                }, 150);
-              }}
-              textInputRef={descriptionRef}
-              placeholderText={"What's this for?"}
-              setInputText={setDescriptionValue}
-              inputText={descriptionValue}
-              textInputMultiline={true}
-              textAlignVertical={'center'}
-              maxLength={150}
-              containerStyles={{
-                width: '90%',
-                marginBottom: Platform.OS === 'ios' ? 25 : 10,
-              }}
-            />
-
-            {isAmountFocused && (
-              <CustomNumberKeyboard
-                showDot={masterInfoObject.userBalanceDenomination === 'fiat'}
-                frompage="sendContactsPage"
-                setInputValue={handleSearch}
-                usingForBalance={true}
-                nodeInformation={nodeInformation}
-              />
-            )}
-
-            <CustomButton
-              buttonStyles={{
-                opacity: canSendPayment ? 1 : 0.5,
-                ...styles.button,
-              }}
-              textStyles={{
-                fontSize: SIZES.large,
-                includeFontPadding: false,
-              }}
-              useLoading={isLoading}
-              actionFunction={handleSubmit}
-              textContent={paymentType === 'send' ? 'Confirm' : 'Request'}
+            style={[
+              styles.profileImage,
+              {
+                backgroundColor: backgroundOffset,
+                marginBottom: 5,
+              },
+            ]}>
+            <Image
+              source={
+                selectedContact.profileImage
+                  ? {uri: selectedContact.profileImage}
+                  : darkModeType && theme
+                  ? ICONS.userWhite
+                  : ICONS.userIcon
+              }
+              style={
+                selectedContact.profileImage
+                  ? {width: '100%', aspectRatio: 1}
+                  : {width: '50%', height: '50%'}
+              }
             />
           </View>
-        </View>
-      </KeyboardAvoidingView>
-    </GlobalThemeView>
+          <ThemeText
+            styles={styles.profileName}
+            content={`${selectedContact.name || selectedContact.uniqueName}`}
+          />
+          <FormattedBalanceInput
+            maxWidth={0.9}
+            amountValue={amountValue || 0}
+            inputDenomination={masterInfoObject.userBalanceDenomination}
+          />
+          <FormattedSatText
+            containerStyles={{
+              opacity: !amountValue ? 0.5 : 1,
+            }}
+            neverHideBalance={true}
+            globalBalanceDenomination={
+              masterInfoObject.userBalanceDenomination === 'sats' ||
+              masterInfoObject.userBalanceDenomination === 'hidden'
+                ? 'fiat'
+                : 'sats'
+            }
+            balance={convertedSendAmount}
+          />
+        </ScrollView>
+
+        <CustomSearchInput
+          onFocusFunction={() => {
+            setIsAmountFocused(false);
+          }}
+          onBlurFunction={() => {
+            setIsAmountFocused(true);
+          }}
+          textInputRef={descriptionRef}
+          placeholderText={"What's this for?"}
+          setInputText={setDescriptionValue}
+          inputText={descriptionValue}
+          textInputMultiline={true}
+          textAlignVertical={'center'}
+          maxLength={150}
+          containerStyles={{
+            width: '90%',
+          }}
+        />
+
+        {isAmountFocused && (
+          <CustomNumberKeyboard
+            showDot={masterInfoObject.userBalanceDenomination === 'fiat'}
+            frompage="sendContactsPage"
+            setInputValue={handleSearch}
+            usingForBalance={true}
+            nodeInformation={nodeInformation}
+          />
+        )}
+
+        {isAmountFocused && (
+          <CustomButton
+            buttonStyles={{
+              opacity: canSendPayment ? 1 : 0.5,
+              ...styles.button,
+            }}
+            useLoading={isLoading}
+            actionFunction={handleSubmit}
+            textContent={paymentType === 'send' ? 'Confirm' : 'Request'}
+          />
+        )}
+      </View>
+    </CustomKeyboardAvoidingView>
   );
 }
 
@@ -462,20 +438,6 @@ const styles = StyleSheet.create({
   profileName: {
     ...CENTER,
     marginBottom: 20,
-  },
-
-  textInputContainer: {
-    width: '95%',
-    margin: 0,
-    ...CENTER,
-  },
-  memoInput: {
-    fontSize: 50,
-    padding: 0,
-    pointerEvents: 'none',
-    width: 'auto',
-    maxWidth: '70%',
-    includeFontPadding: false,
   },
 
   button: {

@@ -15,9 +15,6 @@ export default function LoginNavbar({destination}) {
         buttonStyles={{
           width: 'auto',
         }}
-        textStyles={{
-          fontSize: SIZES.large,
-        }}
         textContent={t('constants.skip_all')}
         actionFunction={() => navigate.navigate('SkipCreateAccountPathMessage')}
       />

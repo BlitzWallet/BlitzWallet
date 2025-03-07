@@ -487,7 +487,7 @@ export default function ConnectingToNodeLoadingScreen({
       const [nodeState, transactions, heath, lspInfo] = await Promise.all([
         retrivedNodeInfo ? Promise.resolve(retrivedNodeInfo) : nodeInfo(),
         getTransactions({}),
-        serviceHealthCheck(),
+        serviceHealthCheck(process.env.API_KEY),
         listLsps(),
       ]);
 

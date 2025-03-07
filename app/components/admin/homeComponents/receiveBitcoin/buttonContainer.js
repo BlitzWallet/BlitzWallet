@@ -16,7 +16,6 @@ export default function ButtonsContainer(props) {
       <View style={styles.buttonRow}>
         <CustomButton
           buttonStyles={{...styles.mainButtons, marginRight: 10}}
-          textStyles={{...styles.mainButtonsText}}
           actionFunction={() =>
             navigate.navigate('EditReceivePaymentInformation', {
               from: 'receivePage',
@@ -29,7 +28,6 @@ export default function ButtonsContainer(props) {
             ...styles.mainButtons,
             opacity: props.generatingInvoiceQRCode ? 0.5 : 1,
           }}
-          textStyles={{...styles.mainButtonsText}}
           actionFunction={() => {
             if (props.generatingInvoiceQRCode) return;
             copyToClipboard(props.generatedAddress, navigate);
@@ -75,9 +73,6 @@ const styles = StyleSheet.create({
   mainButtons: {
     width: 125,
     maxWidth: '45%',
-  },
-  mainButtonsText: {
-    fontSize: SIZES.large,
   },
 
   secondaryButton: {

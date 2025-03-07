@@ -1,23 +1,22 @@
 import {
   Image,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   useWindowDimensions,
   View,
 } from 'react-native';
 import {
-  GlobalThemeView,
+  CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {
   CENTER,
   COLORS,
+  CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
   ICONS,
   SATSPERBITCOIN,
@@ -55,6 +54,7 @@ import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 
 export default function ExpandedGiftCardPage(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -82,6 +82,11 @@ export default function ExpandedGiftCardPage(props) {
     errorMessage: '',
   });
   const [email, setEmail] = useState(decodedGiftCards?.profile?.email || '');
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const paddingBottom = Platform.select({
+    ios: insets.bottom,
+    android: ANDROIDSAFEAREA,
+  });
 
   const variableRange = [
     selectedItem.denominations[0],
@@ -131,160 +136,166 @@ export default function ExpandedGiftCardPage(props) {
   }, [handleBackPressFunction]);
 
   return (
-    <KeyboardAvoidingView style={{flex: 1}}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
-          <View style={styles.topBar}>
-            <TouchableOpacity
-              onPress={() => {
-                props.navigation.goBack();
-              }}
-              style={{marginRight: 'auto'}}>
-              <ThemeImage
-                lightModeIcon={ICONS.smallArrowLeft}
-                darkModeIcon={ICONS.smallArrowLeft}
-                lightsOutIcon={ICONS.arrow_small_left_white}
-              />
-            </TouchableOpacity>
-          </View>
-          {isPurchasingGift.isPurasing ? (
-            <FullLoadingScreen
-              showLoadingIcon={isPurchasingGift.hasError ? false : true}
-              textStyles={{textAlign: 'center'}}
-              text={
-                isPurchasingGift.hasError
-                  ? isPurchasingGift.errorMessage
-                  : 'Purchasing gift card, do not leave the page.'
-              }
+    <CustomKeyboardAvoidingView useStandardWidth={true}>
+      <View style={{flex: 1}}>
+        <View style={styles.topBar}>
+          <TouchableOpacity
+            onPress={() => {
+              Keyboard.dismiss();
+              props.navigation.goBack();
+            }}
+            style={{marginRight: 'auto'}}>
+            <ThemeImage
+              lightModeIcon={ICONS.smallArrowLeft}
+              darkModeIcon={ICONS.smallArrowLeft}
+              lightsOutIcon={ICONS.arrow_small_left_white}
             />
-          ) : (
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <View style={styles.contentContainer}>
-                <Image
-                  style={styles.companyLogo}
-                  source={{uri: selectedItem.logo}}
-                />
-                <View style={{flex: 1}}>
-                  <ThemeText
-                    styles={styles.companyName}
-                    content={selectedItem.name}
-                  />
-                </View>
-              </View>
-              <ThemeText
-                styles={{marginBottom: 15}}
-                content={'Select an amount'}
+          </TouchableOpacity>
+        </View>
+        {isPurchasingGift.isPurasing ? (
+          <FullLoadingScreen
+            showLoadingIcon={isPurchasingGift.hasError ? false : true}
+            textStyles={{textAlign: 'center'}}
+            text={
+              isPurchasingGift.hasError
+                ? isPurchasingGift.errorMessage
+                : 'Purchasing gift card, do not leave the page.'
+            }
+          />
+        ) : (
+          <ScrollView
+            contentContainerStyle={{
+              paddingBottom: isKeyboardActive
+                ? CONTENT_KEYBOARD_OFFSET
+                : paddingBottom,
+            }}
+            showsVerticalScrollIndicator={false}>
+            <View style={styles.contentContainer}>
+              <Image
+                style={styles.companyLogo}
+                source={{uri: selectedItem.logo}}
               />
+              <View style={{flex: 1}}>
+                <ThemeText
+                  styles={styles.companyName}
+                  content={selectedItem.name}
+                />
+              </View>
+            </View>
+            <ThemeText
+              styles={{marginBottom: 15}}
+              content={'Select an amount'}
+            />
+            <View
+              style={{
+                padding: 20,
+                backgroundColor: backgroundOffset,
+                borderRadius: 10,
+              }}>
+              {selectedItem.denominationType === 'Variable' && (
+                <>
+                  <CustomSearchInput
+                    inputText={String(selectedDenomination)}
+                    setInputText={setSelectedDenomination}
+                    placeholderText={`${selectedItem.denominations[0]} ${selectedItem.currency} - ${selectedItem.denominations[1]} ${selectedItem.currency}`}
+                    keyboardType={'number-pad'}
+                    textInputStyles={{
+                      backgroundColor: COLORS.darkModeText,
+                      borderWidth: 1,
+                      borderColor:
+                        !canPurchaseCard && selectedDenomination
+                          ? theme && darkModeType
+                            ? backgroundColor
+                            : COLORS.cancelRed
+                          : backgroundOffset,
+                      color: COLORS.lightModeText,
+                    }}
+                    containerStyles={{marginBottom: 10}}
+                    placeholderTextColor={COLORS.opaicityGray}
+                    onBlurFunction={() => setIsKeyboardActive(false)}
+                    onFocusFunction={() => setIsKeyboardActive(true)}
+                  />
+                  {!canPurchaseCard && !!selectedDenomination && (
+                    <ThemeText
+                      styles={{
+                        color:
+                          theme && darkModeType
+                            ? COLORS.white
+                            : COLORS.cancelRed,
+                        marginBottom: 10,
+                        textAlign: 'center',
+                      }}
+                      content={`You can buy a ${
+                        selectedDenomination <= variableRange[0] ? 'min' : 'max'
+                      } amount of ${
+                        selectedDenomination <= variableRange[0]
+                          ? variableRange[0]
+                          : variableRange[1]
+                      } ${selectedItem.currency}`}
+                    />
+                  )}
+                </>
+              )}
+
               <View
                 style={{
-                  padding: 20,
-                  backgroundColor: backgroundOffset,
-                  borderRadius: 10,
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
                 }}>
-                {selectedItem.denominationType === 'Variable' && (
-                  <>
-                    <CustomSearchInput
-                      inputText={String(selectedDenomination)}
-                      setInputText={setSelectedDenomination}
-                      placeholderText={`${selectedItem.denominations[0]} ${selectedItem.currency} - ${selectedItem.denominations[1]} ${selectedItem.currency}`}
-                      keyboardType={'number-pad'}
-                      textInputStyles={{
-                        backgroundColor: COLORS.darkModeText,
-                        borderWidth: 1,
-                        borderColor:
-                          !canPurchaseCard && selectedDenomination
-                            ? theme && darkModeType
-                              ? backgroundColor
-                              : COLORS.cancelRed
-                            : backgroundOffset,
-                        color: COLORS.lightModeText,
-                      }}
-                      containerStyles={{marginBottom: 10}}
-                      placeholderTextColor={COLORS.opaicityGray}
-                    />
-                    {!canPurchaseCard && !!selectedDenomination && (
+                {demoninationArray.map((item, index) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => setSelectedDenomination(item)}
+                      key={item}
+                      style={{
+                        width: optionSpacing / 3,
+                        minWidth: 100,
+                        paddingVertical: 10,
+                        paddingHorizontal: 5,
+                        borderRadius: 8,
+                        marginBottom: optionSpacing * 0.025,
+                        marginHorizontal: (index - 1) % 3 === 0 ? '2.5%' : 0,
+                        backgroundColor:
+                          theme && darkModeType
+                            ? selectedDenomination == item
+                              ? COLORS.lightsOutBackground
+                              : COLORS.white
+                            : selectedDenomination == item
+                            ? theme
+                              ? COLORS.darkModeBackground
+                              : COLORS.primary
+                            : theme
+                            ? COLORS.darkModeText
+                            : COLORS.lightBlueForGiftCards,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
                       <ThemeText
                         styles={{
                           color:
                             theme && darkModeType
-                              ? COLORS.white
-                              : COLORS.cancelRed,
-                          marginBottom: 10,
-                          textAlign: 'center',
-                        }}
-                        content={`You can buy a ${
-                          selectedDenomination <= variableRange[0]
-                            ? 'min'
-                            : 'max'
-                        } amount of ${
-                          selectedDenomination <= variableRange[0]
-                            ? variableRange[0]
-                            : variableRange[1]
-                        } ${selectedItem.currency}`}
-                      />
-                    )}
-                  </>
-                )}
-
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    flexWrap: 'wrap',
-                  }}>
-                  {demoninationArray.map((item, index) => {
-                    return (
-                      <TouchableOpacity
-                        onPress={() => setSelectedDenomination(item)}
-                        key={item}
-                        style={{
-                          width: optionSpacing / 3,
-                          minWidth: 100,
-                          paddingVertical: 10,
-                          paddingHorizontal: 5,
-                          borderRadius: 8,
-                          marginBottom: optionSpacing * 0.025,
-                          marginHorizontal: (index - 1) % 3 === 0 ? '2.5%' : 0,
-                          backgroundColor:
-                            theme && darkModeType
                               ? selectedDenomination == item
-                                ? COLORS.lightsOutBackground
-                                : COLORS.white
+                                ? COLORS.darkModeText
+                                : COLORS.lightModeText
                               : selectedDenomination == item
                               ? theme
-                                ? COLORS.darkModeBackground
-                                : COLORS.primary
+                                ? COLORS.darkModeText
+                                : COLORS.white
                               : theme
-                              ? COLORS.darkModeText
-                              : COLORS.lightBlueForGiftCards,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}>
-                        <ThemeText
-                          styles={{
-                            color:
-                              theme && darkModeType
-                                ? selectedDenomination == item
-                                  ? COLORS.darkModeText
-                                  : COLORS.lightModeText
-                                : selectedDenomination == item
-                                ? theme
-                                  ? COLORS.darkModeText
-                                  : COLORS.white
-                                : theme
-                                ? COLORS.lightModeText
-                                : COLORS.white,
+                              ? COLORS.lightModeText
+                              : COLORS.white,
 
-                            fontSize: SIZES.small,
-                            includeFontPadding: false,
-                            textAlign: 'center',
-                          }}
-                          content={`${item} ${selectedItem.currency}`}
-                        />
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-                {/* <View
+                          fontSize: SIZES.small,
+                          includeFontPadding: false,
+                          textAlign: 'center',
+                        }}
+                        content={`${item} ${selectedItem.currency}`}
+                      />
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              {/* <View
                   style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
@@ -314,149 +325,137 @@ export default function ExpandedGiftCardPage(props) {
                  
                 </View> */}
 
-                <ThemeText
-                  styles={{marginTop: 20, marginBottom: 5}}
-                  content={'Sending to:'}
-                />
-                <CustomSearchInput
-                  inputText={email}
-                  setInputText={setEmail}
-                  placeholderText={'Enter Email'}
-                  textInputStyles={{
-                    marginBottom: 0,
-                    backgroundColor: COLORS.darkModeText,
-                    borderWidth: 1,
-                    borderColor: !EMAIL_REGEX.test(email)
-                      ? theme && darkModeType
-                        ? backgroundColor
-                        : COLORS.cancelRed
-                      : backgroundOffset,
-                    color: COLORS.lightModeText,
-                  }}
-                  placeholderTextColor={COLORS.opaicityGray}
-                />
-              </View>
+              <ThemeText
+                styles={{marginTop: 20, marginBottom: 5}}
+                content={'Sending to:'}
+              />
+              <CustomSearchInput
+                inputText={email}
+                setInputText={setEmail}
+                placeholderText={'Enter Email'}
+                textInputStyles={{
+                  marginBottom: 0,
+                  backgroundColor: COLORS.darkModeText,
+                  borderWidth: 1,
+                  borderColor: !EMAIL_REGEX.test(email)
+                    ? theme && darkModeType
+                      ? backgroundColor
+                      : COLORS.cancelRed
+                    : backgroundOffset,
+                  color: COLORS.lightModeText,
+                }}
+                placeholderTextColor={COLORS.opaicityGray}
+                onBlurFunction={() => setIsKeyboardActive(false)}
+                onFocusFunction={() => setIsKeyboardActive(true)}
+              />
+            </View>
 
+            <CustomButton
+              buttonStyles={{
+                ...styles.purchaseButton,
+                backgroundColor:
+                  theme && darkModeType
+                    ? COLORS.lightsOutBackgroundOffset
+                    : COLORS.primary,
+                opacity:
+                  canPurchaseCard &&
+                  numberOfGiftCards >= 1 &&
+                  EMAIL_REGEX.test(email)
+                    ? 1
+                    : 0.4,
+              }}
+              textStyles={{
+                color: COLORS.darkModeText,
+              }}
+              textContent={'Purchase gift card'}
+              actionFunction={() => {
+                if (
+                  !canPurchaseCard ||
+                  numberOfGiftCards < 1 ||
+                  !EMAIL_REGEX.test(email)
+                )
+                  return;
+
+                if (email != decodedGiftCards?.profile?.email) {
+                  navigate.navigate('ConfirmActionPage', {
+                    confirmMessage:
+                      'The current email is different than the saved one. Would you like to make this email your primary?',
+                    confirmFunction: () => saveNewEmail(true),
+                    cancelFunction: () => saveNewEmail(false),
+                  });
+                  return;
+                }
+
+                navigate.navigate('CustomHalfModal', {
+                  wantedContent: 'giftCardConfirm',
+                  quantity: numberOfGiftCards,
+                  price: selectedDenomination,
+                  productId: selectedItem.id,
+                  purchaseGiftCard: purchaseGiftCard,
+                  email: email,
+                  blitzUsername:
+                    globalContactsInformation.myProfile.name ||
+                    globalContactsInformation.myProfile.uniqueName,
+                  sliderHight: 0.5,
+                });
+              }}
+            />
+            <ThemeText
+              styles={{
+                fontSize: SIZES.large,
+                fontWeight: 500,
+                marginBottom: 20,
+                textAlign: 'center',
+              }}
+              content={'Terms'}
+            />
+
+            {selectedItem.description && (
+              <>
+                {isDescriptionHTML ? (
+                  <CustomButton
+                    buttonStyles={{
+                      width: 'auto',
+                      ...CENTER,
+                    }}
+                    textContent={'Card Description'}
+                    actionFunction={() => {
+                      navigate.navigate('CustomWebView', {
+                        headerText: 'Card Description',
+                        webViewURL: selectedItem.description,
+                        isHTML: true,
+                      });
+                    }}
+                  />
+                ) : (
+                  <ThemeText content={selectedItem.description} />
+                )}
+              </>
+            )}
+            <View style={{height: 40}}></View>
+
+            {isTermsHTML ? (
               <CustomButton
                 buttonStyles={{
-                  ...styles.purchaseButton,
-                  backgroundColor:
-                    theme && darkModeType
-                      ? COLORS.lightsOutBackgroundOffset
-                      : COLORS.primary,
-                  opacity:
-                    canPurchaseCard &&
-                    numberOfGiftCards >= 1 &&
-                    EMAIL_REGEX.test(email)
-                      ? 1
-                      : 0.4,
+                  width: 'auto',
+                  ...CENTER,
                 }}
-                textStyles={{
-                  color: COLORS.darkModeText,
-                  paddingVertical: 10,
-                }}
-                textContent={'Purchase gift card'}
+                textContent={'Card terms'}
                 actionFunction={() => {
-                  if (
-                    !canPurchaseCard ||
-                    numberOfGiftCards < 1 ||
-                    !EMAIL_REGEX.test(email)
-                  )
-                    return;
-
-                  if (email != decodedGiftCards?.profile?.email) {
-                    navigate.navigate('ConfirmActionPage', {
-                      confirmMessage:
-                        'The current email is different than the saved one. Would you like to make this email your primary?',
-                      confirmFunction: () => saveNewEmail(true),
-                      cancelFunction: () => saveNewEmail(false),
-                    });
-                    return;
-                  }
-
-                  navigate.navigate('CustomHalfModal', {
-                    wantedContent: 'giftCardConfirm',
-                    quantity: numberOfGiftCards,
-                    price: selectedDenomination,
-                    productId: selectedItem.id,
-                    purchaseGiftCard: purchaseGiftCard,
-                    email: email,
-                    blitzUsername:
-                      globalContactsInformation.myProfile.name ||
-                      globalContactsInformation.myProfile.uniqueName,
-                    sliderHight: 0.5,
+                  navigate.navigate('CustomWebView', {
+                    headerText: 'Card Terms',
+                    webViewURL: selectedItem.terms,
+                    isHTML: true,
                   });
                 }}
               />
-              <ThemeText
-                styles={{
-                  fontSize: SIZES.large,
-                  fontWeight: 500,
-                  marginBottom: 20,
-                  textAlign: 'center',
-                }}
-                content={'Terms'}
-              />
-
-              {selectedItem.description && (
-                <>
-                  {isDescriptionHTML ? (
-                    <CustomButton
-                      buttonStyles={{
-                        width: 'auto',
-                        ...CENTER,
-                      }}
-                      textStyles={{
-                        paddingVertical: 10,
-                      }}
-                      textContent={'Card Description'}
-                      actionFunction={() => {
-                        navigate.navigate('CustomWebView', {
-                          headerText: 'Card Description',
-                          webViewURL: selectedItem.description,
-                          isHTML: true,
-                        });
-                      }}
-                    />
-                  ) : (
-                    <ThemeText content={selectedItem.description} />
-                  )}
-                </>
-              )}
-              <View style={{height: 40}}></View>
-
-              {isTermsHTML ? (
-                <CustomButton
-                  buttonStyles={{
-                    width: 'auto',
-                    ...CENTER,
-                  }}
-                  textStyles={{
-                    paddingVertical: 10,
-                  }}
-                  textContent={'Card terms'}
-                  actionFunction={() => {
-                    navigate.navigate('CustomWebView', {
-                      headerText: 'Card Terms',
-                      webViewURL: selectedItem.terms,
-                      isHTML: true,
-                    });
-                  }}
-                />
-              ) : (
-                <ThemeText content={selectedItem.terms} />
-              )}
-
-              <View
-                style={{
-                  height: insets.bottom + (Platform.OS === 'ios' ? 20 : 80),
-                }}
-              />
-            </ScrollView>
-          )}
-        </GlobalThemeView>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+            ) : (
+              <ThemeText content={selectedItem.terms} />
+            )}
+          </ScrollView>
+        )}
+      </View>
+    </CustomKeyboardAvoidingView>
   );
 
   function saveNewEmail(wantsToSave) {

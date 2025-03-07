@@ -1,10 +1,9 @@
 import {
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -18,7 +17,7 @@ import {
   SIZES,
 } from '../../../../../constants';
 import {
-  GlobalThemeView,
+  CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -42,26 +41,25 @@ export default function CreateGiftCardAccount(props) {
   const {toggleGlobalAppDataInformation, decodedGiftCards} = useGlobalAppData();
   const {textColor, textInputBackground, textInputColor} = GetThemeColors();
   const [email, setEmail] = useState('');
-
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [hasError, setHasError] = useState('');
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
 
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
+  useEffect(() => {
+    handleBackPress(() => {
+      navigate.goBack();
+      return true;
+    });
   }, [navigate]);
 
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
-
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <CustomKeyboardAvoidingView
+      isKeyboardActive={isKeyboardActive}
+      useLocalPadding={true}
+      useStandardWidth={true}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : null}
-          style={{flex: 1}}>
+        <View style={{flex: 1}}>
           <View style={styles.topBar}>
             <TouchableOpacity
               onPress={() => {
@@ -104,53 +102,67 @@ export default function CreateGiftCardAccount(props) {
               </>
             ) : (
               <>
-                <ThemeText
-                  styles={{
-                    color:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
-                    fontSize: SIZES.xLarge,
-                    fontWeight: 500,
-                    marginBottom: 20,
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  style={{
+                    marginBottom: 10,
+                    flexGrow: 1,
                   }}
-                  content={'Powered by'}
-                />
-                <View style={{marginBottom: 20}}>
-                  <Icon
-                    width={250}
-                    height={70}
-                    color={
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary
-                    }
-                    name={'theBitcoinCompany'}
+                  contentContainerStyle={{
+                    alignItems: 'center',
+                    paddingBottom: 10,
+                  }}>
+                  <ThemeText
+                    styles={{
+                      color:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                      fontSize: SIZES.xLarge,
+                      fontWeight: 500,
+                      marginBottom: 20,
+                    }}
+                    content={'Powered by'}
                   />
-                </View>
+                  <View style={{marginBottom: 20}}>
+                    <Icon
+                      width={250}
+                      height={70}
+                      color={
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary
+                      }
+                      name={'theBitcoinCompany'}
+                    />
+                  </View>
 
-                <ThemeText
-                  styles={{textAlign: 'center'}}
-                  content={
-                    'You do not have an email saved. Speed up the checkout process by saving an email.'
-                  }
-                />
-                <CustomSearchInput
-                  inputText={email}
-                  setInputText={setEmail}
-                  placeholderText={'email@address.com'}
-                  placeholderTextColor={COLORS.opaicityGray}
-                  textInputStyles={{
-                    ...styles.textInput,
-                    marginTop: 50,
-                  }}
-                />
+                  <ThemeText
+                    styles={{textAlign: 'center'}}
+                    content={
+                      'You do not have an email saved. Speed up the checkout process by saving an email.'
+                    }
+                  />
+                  <CustomSearchInput
+                    inputText={email}
+                    setInputText={setEmail}
+                    placeholderText={'email@address.com'}
+                    placeholderTextColor={COLORS.opaicityGray}
+                    textInputStyles={{
+                      ...styles.textInput,
+                      marginTop: 50,
+                    }}
+                    onBlurFunction={() => {
+                      setIsKeyboardActive(false);
+                    }}
+                    onFocusFunction={() => {
+                      setIsKeyboardActive(true);
+                    }}
+                  />
+                </ScrollView>
 
                 <CustomButton
                   buttonStyles={styles.button}
-                  textStyles={{
-                    paddingVertical: 10,
-                  }}
                   textContent={'Continue'}
                   actionFunction={() => {
                     createAGiftCardAccount();
@@ -209,9 +221,9 @@ export default function CreateGiftCardAccount(props) {
               </>
             )}
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </TouchableWithoutFeedback>
-    </GlobalThemeView>
+    </CustomKeyboardAvoidingView>
   );
 
   async function createAGiftCardAccount() {

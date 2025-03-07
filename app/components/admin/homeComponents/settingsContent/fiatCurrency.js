@@ -1,26 +1,20 @@
-import {
-  FlatList,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  Keyboard,
-  KeyboardAvoidingView,
-  ActivityIndicator,
-  Platform,
-} from 'react-native';
-import {CENTER, COLORS} from '../../../../constants';
+import {FlatList, StyleSheet, TouchableOpacity, Platform} from 'react-native';
+import {CENTER, COLORS, CONTENT_KEYBOARD_OFFSET} from '../../../../constants';
 import {fetchFiatRates} from '@breeztech/react-native-breez-sdk-liquid';
 import {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../../../constants/theme';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 
 export default function FiatCurrencyPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -29,6 +23,13 @@ export default function FiatCurrencyPage() {
   const currencies = masterInfoObject.fiatCurrenciesList || [];
   const [textInput, setTextInput] = useState('');
   const currentCurrency = masterInfoObject?.fiatCurrency;
+
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const insets = useSafeAreaInsets();
+  const paddingBottom = Platform.select({
+    ios: insets.bottom,
+    android: ANDROIDSAFEAREA,
+  });
 
   const navigate = useNavigation();
 
@@ -50,9 +51,7 @@ export default function FiatCurrencyPage() {
       <TouchableOpacity
         style={[
           styles.currencyContainer,
-
           {
-            marginBottom: id === currencies.length - 1 ? 30 : 0,
             marginTop: id === 0 ? 10 : 0,
           },
         ]}
@@ -78,42 +77,43 @@ export default function FiatCurrencyPage() {
   };
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0}}>
-      <View style={styles.outerContainer}>
-        <CustomSettingsTopBar
-          shouldDismissKeyboard={true}
-          label={'Display Currency'}
-        />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : null}
-          style={styles.container}>
-          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <>
-              <CustomSearchInput
-                setInputText={setTextInput}
-                inputText={textInput}
-                placeholderText={'Search currency'}
-                containerStyles={{width: '90%', marginTop: 20}}
-              />
+    <CustomKeyboardAvoidingView
+      useTouchableWithoutFeedback={true}
+      useStandardWidth={true}>
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        label={'Display Currency'}
+      />
 
-              {isLoading ? (
-                <FullLoadingScreen />
-              ) : (
-                <FlatList
-                  style={{flex: 1, width: '100%'}}
-                  data={filteredList}
-                  renderItem={({item, index}) => (
-                    <CurrencyElements id={index} currency={item} />
-                  )}
-                  keyExtractor={currency => currency.id}
-                  showsVerticalScrollIndicator={false}
-                />
-              )}
-            </>
-          </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
-      </View>
-    </GlobalThemeView>
+      <CustomSearchInput
+        setInputText={setTextInput}
+        inputText={textInput}
+        placeholderText={'Search currency'}
+        containerStyles={{width: '90%', marginTop: 20}}
+        onBlurFunction={() => setIsKeyboardActive(false)}
+        onFocusFunction={() => setIsKeyboardActive(true)}
+      />
+
+      {isLoading ? (
+        <FullLoadingScreen />
+      ) : (
+        <FlatList
+          style={{width: '100%'}}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: isKeyboardActive
+              ? CONTENT_KEYBOARD_OFFSET
+              : paddingBottom,
+          }}
+          data={filteredList}
+          renderItem={({item, index}) => (
+            <CurrencyElements id={index} currency={item} />
+          )}
+          keyExtractor={currency => currency.id}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+    </CustomKeyboardAvoidingView>
   );
 
   async function saveCurrencySettings(selectedCurrency) {
@@ -145,12 +145,6 @@ export default function FiatCurrencyPage() {
 }
 
 const styles = StyleSheet.create({
-  outerContainer: {
-    flex: 1,
-    width: WINDOWWIDTH,
-    ...CENTER,
-  },
-
   container: {
     flex: 1,
   },

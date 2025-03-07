@@ -49,7 +49,9 @@ export default function SettingsContentIndex(props) {
       {selectedPage?.toLowerCase() === 'display currency' ||
       selectedPage?.toLowerCase() === 'experimental' ||
       selectedPage?.toLowerCase() === 'bank' ||
-      selectedPage?.toLowerCase() === 'point-of-sale' ? (
+      selectedPage?.toLowerCase() === 'point-of-sale' ||
+      selectedPage?.toLowerCase() === 'edit contact profile' ||
+      selectedPage?.toLowerCase() === 'channel closure' ? (
         <>
           {selectedPage?.toLowerCase() === 'display currency' && (
             <FiatCurrencyPage theme={theme} />
@@ -62,6 +64,12 @@ export default function SettingsContentIndex(props) {
           )}
           {selectedPage?.toLowerCase() === 'point-of-sale' && (
             <PosSettingsPage />
+          )}
+          {selectedPage?.toLowerCase() === 'edit contact profile' && (
+            <EditMyProfilePage fromSettings={true} pageType="myProfile" />
+          )}
+          {selectedPage?.toLowerCase() === 'channel closure' && (
+            <SendOnChainBitcoin isDoomsday={isDoomsday} theme={theme} />
           )}
         </>
       ) : (
@@ -92,9 +100,7 @@ export default function SettingsContentIndex(props) {
             {selectedPage?.toLowerCase() === 'display options' && (
               <DisplayOptions theme={theme} />
             )}
-            {selectedPage?.toLowerCase() === 'channel closure' && (
-              <SendOnChainBitcoin isDoomsday={isDoomsday} theme={theme} />
-            )}
+
             {selectedPage?.toLowerCase() === 'balance info' && (
               <WalletInformation theme={theme} />
             )}
@@ -102,9 +108,6 @@ export default function SettingsContentIndex(props) {
               <ViewAllLiquidSwaps theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
-            {selectedPage?.toLowerCase() === 'edit contact profile' && (
-              <EditMyProfilePage fromSettings={true} pageType="myProfile" />
-            )}
 
             {selectedPage?.toLowerCase() === 'noster wallet connect' && (
               <NosterWalletConnect theme={theme} />

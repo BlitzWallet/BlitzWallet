@@ -1,26 +1,18 @@
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  ActivityIndicator,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  TextInput,
-  Keyboard,
-} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
 import {
   CENTER,
   COLORS,
   ICONS,
-  LIQUID_DEFAULT_FEE,
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
   SIZES,
 } from '../../../../constants';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import SwipeButton from 'rn-swipe-button';
 import SendTransactionFeeInfo from './components/feeInfo';
 import decodeSendAddress from './functions/decodeSendAdress';
@@ -272,112 +264,102 @@ export default function SendPaymentScreen(props) {
     return <FullLoadingScreen text={loadingMessage} />;
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
-      <KeyboardAvoidingView
-        style={{flex: 1}}
-        behavior={Platform.OS === 'ios' ? 'padding' : null}>
-        <View style={styles.topBar}>
-          <TouchableOpacity
-            style={{position: 'absolute', zIndex: 99, left: 0}}
-            onPress={goBackFunction}>
-            <ThemeImage
-              lightModeIcon={ICONS.smallArrowLeft}
-              darkModeIcon={ICONS.smallArrowLeft}
-              lightsOutIcon={ICONS.arrow_small_left_white}
-            />
-          </TouchableOpacity>
+    <CustomKeyboardAvoidingView
+      useLocalPadding={true}
+      isKeyboardActive={!isAmountFocused}
+      useStandardWidth={true}>
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          style={{position: 'absolute', zIndex: 99, left: 0}}
+          onPress={goBackFunction}>
+          <ThemeImage
+            lightModeIcon={ICONS.smallArrowLeft}
+            darkModeIcon={ICONS.smallArrowLeft}
+            lightsOutIcon={ICONS.arrow_small_left_white}
+          />
+        </TouchableOpacity>
 
-          <NavbarBalance />
-        </View>
-        <View
-          style={{
-            flex: 1,
-            paddingVertical: 10,
-          }}>
-          <ScrollView
-            contentContainerStyle={{
-              flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <FormattedBalanceInput
-              maxWidth={0.9}
-              amountValue={paymentInfo?.sendAmount || 0}
-              inputDenomination={masterInfoObject.userBalanceDenomination}
-              activeOpacity={!paymentInfo.sendAmount ? 0.5 : 1}
-            />
+        <NavbarBalance />
+      </View>
 
-            <FormattedSatText
-              containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
-              neverHideBalance={true}
-              styles={{includeFontPadding: false, ...styles.satValue}}
-              globalBalanceDenomination={
-                masterInfoObject.userBalanceDenomination === 'sats' ||
-                masterInfoObject.userBalanceDenomination === 'hidden'
-                  ? 'fiat'
-                  : 'sats'
-              }
-              balance={convertedSendAmount}
-            />
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: 10,
+        }}>
+        <FormattedBalanceInput
+          maxWidth={0.9}
+          amountValue={paymentInfo?.sendAmount || 0}
+          inputDenomination={masterInfoObject.userBalanceDenomination}
+          activeOpacity={!paymentInfo.sendAmount ? 0.5 : 1}
+        />
 
-            {!canEditPaymentAmount && (
-              <SendTransactionFeeInfo
-                canUseLightning={canUseLightning}
-                canUseLiquid={canUseLiquid}
-                isLightningPayment={isLightningPayment}
-                swapFee={swapFee}
-                lightningFee={lightningFee}
-                isReverseSwap={isReverseSwap}
-                isSubmarineSwap={isSubmarineSwap}
-                isLiquidPayment={isLiquidPayment}
-                paymentInfo={paymentInfo}
-              />
-            )}
-          </ScrollView>
-        </View>
-        {canEditPaymentAmount && (
-          <>
-            <SendMaxComponent
-              nodeInformation={nodeInformation}
-              eCashBalance={eCashBalance}
+        <FormattedSatText
+          containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
+          neverHideBalance={true}
+          styles={{includeFontPadding: false, ...styles.satValue}}
+          globalBalanceDenomination={
+            masterInfoObject.userBalanceDenomination === 'sats' ||
+            masterInfoObject.userBalanceDenomination === 'hidden'
+              ? 'fiat'
+              : 'sats'
+          }
+          balance={convertedSendAmount}
+        />
+
+        {!canEditPaymentAmount && (
+          <SendTransactionFeeInfo
+            canUseLightning={canUseLightning}
+            canUseLiquid={canUseLiquid}
+            isLightningPayment={isLightningPayment}
+            swapFee={swapFee}
+            lightningFee={lightningFee}
+            isReverseSwap={isReverseSwap}
+            isSubmarineSwap={isSubmarineSwap}
+            isLiquidPayment={isLiquidPayment}
+            paymentInfo={paymentInfo}
+          />
+        )}
+      </ScrollView>
+      {canEditPaymentAmount && (
+        <>
+          <SendMaxComponent
+            nodeInformation={nodeInformation}
+            eCashBalance={eCashBalance}
+            paymentInfo={paymentInfo}
+            navigate={navigate}
+            setPaymentInfo={setPaymentInfo}
+            isLiquidPayment={isLiquidPayment}
+            isLightningPayment={isLightningPayment}
+            minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+            masterInfoObject={masterInfoObject}
+            isBitcoinPayment={isBitcoinPayment}
+            liquidNodeInformation={liquidNodeInformation}
+          />
+
+          <CustomSearchInput
+            onFocusFunction={() => setIsAmountFocused(false)}
+            onBlurFunction={() => setIsAmountFocused(true)}
+            placeholderText={'Description..'}
+            setInputText={setPaymentDescription}
+            inputText={paymentDescription}
+            textInputMultiline={true}
+            textAlignVertical={'center'}
+            maxLength={paymentInfo?.data?.commentAllowed || 150}
+            containerStyles={{
+              width: '90%',
+            }}
+          />
+          {isAmountFocused && (
+            <NumberInputSendPage
               paymentInfo={paymentInfo}
-              navigate={navigate}
               setPaymentInfo={setPaymentInfo}
-              isLiquidPayment={isLiquidPayment}
-              isLightningPayment={isLightningPayment}
-              minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
-              masterInfoObject={masterInfoObject}
-              isBitcoinPayment={isBitcoinPayment}
-              liquidNodeInformation={liquidNodeInformation}
+              nodeInformation={nodeInformation}
             />
-
-            <CustomSearchInput
-              onFocusFunction={() => {
-                setIsAmountFocused(false);
-              }}
-              onBlurFunction={() => {
-                setTimeout(() => {
-                  setIsAmountFocused(true);
-                }, 150);
-              }}
-              placeholderText={'Description..'}
-              setInputText={setPaymentDescription}
-              inputText={paymentDescription}
-              textInputMultiline={true}
-              textAlignVertical={'center'}
-              maxLength={paymentInfo?.data?.commentAllowed || 150}
-              containerStyles={{
-                width: '90%',
-                marginBottom: Platform.OS === 'ios' ? 15 : 0,
-              }}
-            />
-            {isAmountFocused && (
-              <NumberInputSendPage
-                paymentInfo={paymentInfo}
-                setPaymentInfo={setPaymentInfo}
-                nodeInformation={nodeInformation}
-              />
-            )}
+          )}
+          {isAmountFocused && (
             <AcceptButtonSendPage
               canSendPayment={canSendPayment}
               decodeSendAddress={decodeSendAddress}
@@ -393,100 +375,100 @@ export default function SendPaymentScreen(props) {
               canUseLiquid={canUseLiquid}
               setLoadingMessage={setLoadingMessage}
             />
-          </>
-        )}
-        {!canEditPaymentAmount && (
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '100%',
-              position: 'relative',
-            }}>
-            <SwipeButton
-              containerStyles={{
-                opacity: isSendingPayment
-                  ? 1
-                  : canSendPayment
-                  ? isBitcoinPayment
-                    ? canUseLightning || canUseLiquid
-                      ? 1
-                      : 0.2
-                    : isLightningPayment
-                    ? canUseLightning
-                      ? 1
-                      : convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
-                        !isUsingSwapWithZeroInvoice
-                      ? 1
-                      : 0.2
-                    : canUseLiquid
-                    ? convertedSendAmount >= DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS
-                      ? 1
-                      : 0.2
-                    : canUseLightning &&
-                      convertedSendAmount >= minMaxLiquidSwapAmounts.min
+          )}
+        </>
+      )}
+      {!canEditPaymentAmount && (
+        <View
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            position: 'relative',
+          }}>
+          <SwipeButton
+            containerStyles={{
+              opacity: isSendingPayment
+                ? 1
+                : canSendPayment
+                ? isBitcoinPayment
+                  ? canUseLightning || canUseLiquid
                     ? 1
                     : 0.2
-                  : 0.2,
-                width: '100%',
-                maxWidth: 350,
-                borderColor: textColor,
-                ...CENTER,
-              }}
-              titleStyles={{fontWeight: '500', fontSize: SIZES.large}}
-              swipeSuccessThreshold={100}
-              onSwipeSuccess={sendPayment}
-              shouldResetAfterSuccess={false}
-              railBackgroundColor={
-                isSendingPayment
-                  ? COLORS.darkModeText
-                  : theme
-                  ? backgroundOffset
-                  : COLORS.primary
-              }
-              railBorderColor={
-                theme ? backgroundOffset : COLORS.lightModeBackground
-              }
-              height={55}
-              railStyles={{
-                backgroundColor: COLORS.darkModeText,
-                borderColor: COLORS.darkModeText,
-              }}
-              thumbIconBackgroundColor={COLORS.darkModeText}
-              thumbIconBorderColor={COLORS.darkModeText}
-              titleColor={COLORS.darkModeText}
-              title={'Slide to confirm'}
-            />
-            {isSendingPayment && (
-              <View
-                style={{
-                  alignItems: 'center',
-                  flexDirection: 'row',
-                  position: 'absolute',
-                  zIndex: 1,
-                }}>
-                <ThemeText
-                  styles={{
-                    color: theme ? backgroundColor : COLORS.lightModeText,
-                    fontWeight: '500',
-                    fontSize: SIZES.large,
-                    includeFontPadding: false,
-                    marginRight: 10,
-                  }}
-                  content={'Sending payment'}
-                />
-                <FullLoadingScreen
-                  containerStyles={{flex: 0}}
-                  size="small"
-                  loadingColor={theme ? backgroundColor : COLORS.lightModeText}
-                  showText={false}
-                />
-              </View>
-            )}
-          </View>
-        )}
-      </KeyboardAvoidingView>
-    </GlobalThemeView>
+                  : isLightningPayment
+                  ? canUseLightning
+                    ? 1
+                    : convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
+                      !isUsingSwapWithZeroInvoice
+                    ? 1
+                    : 0.2
+                  : canUseLiquid
+                  ? convertedSendAmount >= DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS
+                    ? 1
+                    : 0.2
+                  : canUseLightning &&
+                    convertedSendAmount >= minMaxLiquidSwapAmounts.min
+                  ? 1
+                  : 0.2
+                : 0.2,
+              width: '100%',
+              maxWidth: 350,
+              borderColor: textColor,
+              ...CENTER,
+            }}
+            titleStyles={{fontWeight: '500', fontSize: SIZES.large}}
+            swipeSuccessThreshold={100}
+            onSwipeSuccess={sendPayment}
+            shouldResetAfterSuccess={false}
+            railBackgroundColor={
+              isSendingPayment
+                ? COLORS.darkModeText
+                : theme
+                ? backgroundOffset
+                : COLORS.primary
+            }
+            railBorderColor={
+              theme ? backgroundOffset : COLORS.lightModeBackground
+            }
+            height={55}
+            railStyles={{
+              backgroundColor: COLORS.darkModeText,
+              borderColor: COLORS.darkModeText,
+            }}
+            thumbIconBackgroundColor={COLORS.darkModeText}
+            thumbIconBorderColor={COLORS.darkModeText}
+            titleColor={COLORS.darkModeText}
+            title={'Slide to confirm'}
+          />
+          {isSendingPayment && (
+            <View
+              style={{
+                alignItems: 'center',
+                flexDirection: 'row',
+                position: 'absolute',
+                zIndex: 1,
+              }}>
+              <ThemeText
+                styles={{
+                  color: theme ? backgroundColor : COLORS.lightModeText,
+                  fontWeight: '500',
+                  fontSize: SIZES.large,
+                  includeFontPadding: false,
+                  marginRight: 10,
+                }}
+                content={'Sending payment'}
+              />
+              <FullLoadingScreen
+                containerStyles={{flex: 0}}
+                size="small"
+                loadingColor={theme ? backgroundColor : COLORS.lightModeText}
+                showText={false}
+              />
+            </View>
+          )}
+        </View>
+      )}
+    </CustomKeyboardAvoidingView>
   );
 
   async function sendPayment() {
@@ -742,28 +724,9 @@ export default function SendPaymentScreen(props) {
 }
 
 const styles = StyleSheet.create({
-  paymentInfoContainer: {
-    flex: 1,
-  },
-  isLoadingContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: 15,
-  },
   topBar: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  memoInput: {
-    width: 'auto',
-    maxWidth: '60%',
-    includeFontPadding: false,
-    fontSize: 50,
-    padding: 0,
-    pointerEvents: 'none',
   },
 });

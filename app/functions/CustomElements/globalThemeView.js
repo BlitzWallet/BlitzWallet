@@ -19,6 +19,26 @@ export default function GlobalThemeView({children, styles, useStandardWidth}) {
     ios: insets.bottom,
     android: ANDROIDSAFEAREA,
   });
+
+  if (useStandardWidth) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: backgroundColor,
+        }}>
+        <View
+          style={{
+            ...referanceStyles.widthContainer,
+            paddingTop: topPadding,
+            paddingBottom: bottomPadding,
+            ...styles,
+          }}>
+          {children}
+        </View>
+      </View>
+    );
+  }
   return (
     <View
       style={{
@@ -28,13 +48,7 @@ export default function GlobalThemeView({children, styles, useStandardWidth}) {
         paddingBottom: bottomPadding,
         ...styles,
       }}>
-      {useStandardWidth ? (
-        <View style={{...referanceStyles.widthContainer, ...styles}}>
-          {children}
-        </View>
-      ) : (
-        children
-      )}
+      {children}
     </View>
   );
 }
