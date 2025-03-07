@@ -35,7 +35,7 @@ import connectToLightningNode from '../../../../functions/connectToLightning';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
-import {WINDOWWIDTH} from '../../../../constants/theme';
+import {INSET_WINDOW_WIDTH, WINDOWWIDTH} from '../../../../constants/theme';
 
 export default function NodeInfo() {
   const [lnNodeInfo, setLNNodeInfo] = useState({});
@@ -86,17 +86,12 @@ export default function NodeInfo() {
         showsVerticalScrollIndicator={false}
         style={{
           flex: 1,
-          width: WINDOWWIDTH,
+          width: INSET_WINDOW_WIDTH,
           maxWidth: 300,
           ...CENTER,
         }}
         contentContainerStyle={{paddingBottom: 20, paddingTop: 50}}>
-        <ThemeText
-          content={'Good to know'}
-          styles={{
-            ...styles.sectionHeader,
-          }}
-        />
+        <ThemeText content={'Good to know'} styles={styles.sectionHeader} />
         <Text style={{textAlign: 'center'}}>
           <ThemeText
             content={`You currently have no lightning channel open.`}
@@ -174,209 +169,205 @@ export default function NodeInfo() {
     );
   });
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <View>
-        {/* <ThemeText
-          styles={{...styles.sectionTitle, marginTop: 20}}
-          content={'Lightning'}
-        /> */}
-        <View
-          style={[
-            styles.itemContainer,
-            {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-              marginTop: 30,
-            },
-          ]}>
+    <ScrollView
+      style={{width: INSET_WINDOW_WIDTH, ...CENTER}}
+      showsVerticalScrollIndicator={false}>
+      <View
+        style={[
+          styles.itemContainer,
+          {
+            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            marginTop: 30,
+          },
+        ]}>
+        <ThemeText
+          styles={{...styles.itemTitle, color: textColor}}
+          content={'Node ID'}
+        />
+        <TouchableOpacity
+          onPress={() => {
+            copyToClipboard(lnNodeInfo?.id, navigate);
+          }}>
           <ThemeText
-            styles={{...styles.itemTitle, color: textColor}}
-            content={'Node ID'}
+            styles={{
+              color: textColor,
+              textAlign: isInfoSet ? 'center' : 'left',
+            }}
+            content={isInfoSet ? lnNodeInfo?.id : 'N/A'}
           />
-          <TouchableOpacity
-            onPress={() => {
-              copyToClipboard(lnNodeInfo?.id, navigate);
-            }}>
-            <ThemeText
-              styles={{
-                color: textColor,
-                textAlign: isInfoSet ? 'center' : 'left',
-              }}
-              content={isInfoSet ? lnNodeInfo?.id : 'N/A'}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.itemContainer}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-            }}>
-            <FormattedSatText
-              styles={{fontSize: SIZES.large}}
-              neverHideBalance={true}
-              useBalance={true}
-              balance={
-                masterInfoObject.userBalanceDenomination != 'fiat'
-                  ? nodeInformation.userBalance > 1000000
-                    ? `${(nodeInformation.userBalance / 1000000).toFixed(0)}M`
-                    : nodeInformation.userBalance > 1000
-                    ? `${(nodeInformation.userBalance / 1000).toFixed(0)}k`
-                    : Math.round(nodeInformation.userBalance)
-                  : formatBalanceAmount(
-                      numberConverter(
-                        nodeInformation.userBalance,
-                        'fiat',
-                        nodeInformation,
-                        2,
-                      ),
-                    )
-              }
-            />
-            <FormattedSatText
-              styles={{fontSize: SIZES.large}}
-              containerStyles={{paddingRight: 5}}
-              neverHideBalance={true}
-              useBalance={true}
-              balance={
-                masterInfoObject.userBalanceDenomination != 'fiat'
-                  ? nodeInformation.inboundLiquidityMsat / 1000 > 1000000
-                    ? `${(
-                        nodeInformation.inboundLiquidityMsat /
-                        1000 /
-                        1000000
-                      ).toFixed(0)}M`
-                    : nodeInformation.inboundLiquidityMsat / 1000 > 1000
-                    ? `${(
-                        nodeInformation.inboundLiquidityMsat /
-                        1000 /
-                        1000
-                      ).toFixed(0)}k`
-                    : Math.round(nodeInformation.inboundLiquidityMsat / 1000)
-                  : formatBalanceAmount(
-                      numberConverter(
-                        nodeInformation.inboundLiquidityMsat / 1000,
-                        'fiat',
-                        nodeInformation,
-                        2,
-                      ),
-                    )
-              }
-            />
-          </View>
-          <LiquidityIndicator />
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingHorizontal: 5,
-            }}>
-            <ThemeText styles={{fontSize: SIZES.large}} content={'Send'} />
-            <ThemeText styles={{fontSize: SIZES.large}} content={'Receive'} />
-          </View>
-        </View>
-
-        <View
-          style={[
-            styles.itemContainer,
-            {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            },
-          ]}>
-          <ThemeText
-            styles={{...styles.itemTitle, color: textColor}}
-            content={'Connected Peers'}
-          />
-
-          <ScrollView style={{height: 120}}>
-            {isInfoSet ? (
-              connectedPeersElements
-            ) : (
-              <ThemeText styles={{color: textColor}} content={'N/A'} />
-            )}
-          </ScrollView>
-        </View>
+        </TouchableOpacity>
       </View>
-      {/* Bitcoin */}
-      <View>
+
+      <View style={styles.itemContainer}>
         <View
-          style={[
-            styles.itemContainer,
-            {
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-              marginTop: 20,
-            },
-          ]}>
-          <ThemeText
-            styles={{...styles.itemTitle, marginBottom: 0, color: textColor}}
-            content={'On-chain Balance'}
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+          }}>
+          <FormattedSatText
+            styles={{fontSize: SIZES.large}}
+            neverHideBalance={true}
+            useBalance={true}
+            balance={
+              masterInfoObject.userBalanceDenomination != 'fiat'
+                ? nodeInformation.userBalance > 1000000
+                  ? `${(nodeInformation.userBalance / 1000000).toFixed(0)}M`
+                  : nodeInformation.userBalance > 1000
+                  ? `${(nodeInformation.userBalance / 1000).toFixed(0)}k`
+                  : Math.round(nodeInformation.userBalance)
+                : formatBalanceAmount(
+                    numberConverter(
+                      nodeInformation.userBalance,
+                      'fiat',
+                      nodeInformation,
+                      2,
+                    ),
+                  )
+            }
           />
-          {isInfoSet ? (
-            <FormattedSatText
-              styles={{color: textColor}}
-              neverHideBalance={true}
-              balance={lnNodeInfo?.onchainBalanceMsat / 1000}
-            />
-          ) : (
-            <ThemeText styles={{color: textColor}} content={'N/A'} />
-          )}
-        </View>
-        <View
-          style={[
-            styles.itemContainer,
-            {
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            },
-          ]}>
-          <ThemeText
-            styles={{...styles.itemTitle, marginBottom: 0, color: textColor}}
-            content={'Block Height'}
-          />
-          <ThemeText
-            styles={{color: textColor}}
-            content={
-              isInfoSet ? formatBalanceAmount(lnNodeInfo?.blockHeight) : 'N/A'
+          <FormattedSatText
+            styles={{fontSize: SIZES.large}}
+            containerStyles={{paddingRight: 5}}
+            neverHideBalance={true}
+            useBalance={true}
+            balance={
+              masterInfoObject.userBalanceDenomination != 'fiat'
+                ? nodeInformation.inboundLiquidityMsat / 1000 > 1000000
+                  ? `${(
+                      nodeInformation.inboundLiquidityMsat /
+                      1000 /
+                      1000000
+                    ).toFixed(0)}M`
+                  : nodeInformation.inboundLiquidityMsat / 1000 > 1000
+                  ? `${(
+                      nodeInformation.inboundLiquidityMsat /
+                      1000 /
+                      1000
+                    ).toFixed(0)}k`
+                  : Math.round(nodeInformation.inboundLiquidityMsat / 1000)
+                : formatBalanceAmount(
+                    numberConverter(
+                      nodeInformation.inboundLiquidityMsat / 1000,
+                      'fiat',
+                      nodeInformation,
+                      2,
+                    ),
+                  )
             }
           />
         </View>
+        <LiquidityIndicator />
         <View
-          style={[
-            styles.contentContainer,
-            {
-              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-              flexDirection: 'row',
-              alignItems: 'center',
-              // justifyContent: 'space-between',
-              marginBottom: 20,
-            },
-          ]}>
-          <ThemeText
-            styles={{marginRight: 5, includeFontPadding: false}}
-            content={`Use trampoline`}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              navigate.navigate('InformationPopup', {
-                textContent:
-                  'Trampoline payments let the LSP find payment routes, making transactions faster but less private, as the LSP knows the destination.',
-                buttonText: 'I understand',
-              });
-            }}
-            style={{marginRight: 'auto'}}>
-            <ThemeImage
-              lightModeIcon={ICONS.aboutIcon}
-              darkModeIcon={ICONS.aboutIcon}
-              lightsOutIcon={ICONS.aboutIconWhite}
-              styles={{width: 20, height: 20}}
-            />
-          </TouchableOpacity>
-          <CustomToggleSwitch page={'useTrampoline'} />
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingHorizontal: 5,
+          }}>
+          <ThemeText styles={{fontSize: SIZES.large}} content={'Send'} />
+          <ThemeText styles={{fontSize: SIZES.large}} content={'Receive'} />
         </View>
+      </View>
+
+      <View
+        style={[
+          styles.itemContainer,
+          {
+            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+          },
+        ]}>
+        <ThemeText
+          styles={{...styles.itemTitle, color: textColor}}
+          content={'Connected Peers'}
+        />
+
+        <ScrollView style={{height: 120}}>
+          {isInfoSet ? (
+            connectedPeersElements
+          ) : (
+            <ThemeText styles={{color: textColor}} content={'N/A'} />
+          )}
+        </ScrollView>
+      </View>
+
+      {/* Bitcoin */}
+
+      <View
+        style={[
+          styles.itemContainer,
+          {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            marginTop: 20,
+          },
+        ]}>
+        <ThemeText
+          styles={{...styles.itemTitle, marginBottom: 0, color: textColor}}
+          content={'On-chain Balance'}
+        />
+        {isInfoSet ? (
+          <FormattedSatText
+            styles={{color: textColor}}
+            neverHideBalance={true}
+            balance={lnNodeInfo?.onchainBalanceMsat / 1000}
+          />
+        ) : (
+          <ThemeText styles={{color: textColor}} content={'N/A'} />
+        )}
+      </View>
+      <View
+        style={[
+          styles.itemContainer,
+          {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+          },
+        ]}>
+        <ThemeText
+          styles={{...styles.itemTitle, marginBottom: 0, color: textColor}}
+          content={'Block Height'}
+        />
+        <ThemeText
+          styles={{color: textColor}}
+          content={
+            isInfoSet ? formatBalanceAmount(lnNodeInfo?.blockHeight) : 'N/A'
+          }
+        />
+      </View>
+      <View
+        style={[
+          styles.contentContainer,
+          {
+            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            flexDirection: 'row',
+            alignItems: 'center',
+            // justifyContent: 'space-between',
+            marginBottom: 20,
+          },
+        ]}>
+        <ThemeText
+          styles={{marginRight: 5, includeFontPadding: false}}
+          content={`Use trampoline`}
+        />
+        <TouchableOpacity
+          onPress={() => {
+            navigate.navigate('InformationPopup', {
+              textContent:
+                'Trampoline payments let the LSP find payment routes, making transactions faster but less private, as the LSP knows the destination.',
+              buttonText: 'I understand',
+            });
+          }}
+          style={{marginRight: 'auto'}}>
+          <ThemeImage
+            lightModeIcon={ICONS.aboutIcon}
+            darkModeIcon={ICONS.aboutIcon}
+            lightsOutIcon={ICONS.aboutIconWhite}
+            styles={{width: 20, height: 20}}
+          />
+        </TouchableOpacity>
+        <CustomToggleSwitch page={'useTrampoline'} />
       </View>
     </ScrollView>
   );
@@ -472,8 +463,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   itemContainer: {
-    width: '90%',
-
+    width: '100%',
     padding: 10,
     borderRadius: 8,
     marginBottom: 20,
@@ -493,7 +483,6 @@ const styles = StyleSheet.create({
   },
 
   peerTitle: {
-    fontFamily: FONT.Title_Regular,
     marginBottom: 5,
   },
   sectionHeader: {
@@ -503,7 +492,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     minHeight: 50,
-    width: '90%',
+    width: '100%',
     paddingHorizontal: 10,
     borderRadius: 8,
     ...CENTER,

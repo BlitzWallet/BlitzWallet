@@ -15,6 +15,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function FiatCurrencyPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -89,7 +90,7 @@ export default function FiatCurrencyPage() {
         setInputText={setTextInput}
         inputText={textInput}
         placeholderText={'Search currency'}
-        containerStyles={{width: '90%', marginTop: 20}}
+        containerStyles={{width: INSET_WINDOW_WIDTH, marginTop: 20}}
         onBlurFunction={() => setIsKeyboardActive(false)}
         onFocusFunction={() => setIsKeyboardActive(true)}
       />

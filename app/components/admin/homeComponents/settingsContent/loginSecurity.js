@@ -19,6 +19,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
 import Icon from '../../../../functions/CustomElements/Icon';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function LoginSecurity() {
   const [securityLoginSettings, setSecurityLoginSettings] = useState({
@@ -42,122 +43,120 @@ export default function LoginSecurity() {
   }, []);
 
   return (
-    <View style={styles.globalContainer}>
-      <View style={styles.innerContainer}>
-        <View
-          style={[
-            styles.contentContainer,
-            {
-              backgroundColor: backgroundOffset,
-            },
-          ]}>
-          <View style={styles.faceIDContainer}>
-            <ThemeText
-              styles={{...styles.contentText}}
-              content={'Enable Login Security'}
-            />
-            <CustomToggleSwitch
-              stateValue={securityLoginSettings.isSecurityEnabled}
-              toggleSwitchFunction={handleSwitch}
-              page={'LoginSecurityMode'}
-            />
-          </View>
+    <View style={styles.innerContainer}>
+      <View
+        style={[
+          styles.contentContainer,
+          {
+            backgroundColor: backgroundOffset,
+          },
+        ]}>
+        <View style={styles.faceIDContainer}>
+          <ThemeText
+            styles={{...styles.contentText}}
+            content={'Enable Login Security'}
+          />
+          <CustomToggleSwitch
+            stateValue={securityLoginSettings.isSecurityEnabled}
+            toggleSwitchFunction={handleSwitch}
+            page={'LoginSecurityMode'}
+          />
         </View>
-        {securityLoginSettings.isSecurityEnabled && (
-          <View style={{width: '90%', ...CENTER}}>
-            <ThemeText
-              styles={{...styles.infoHeaders}}
-              content={'Security Type'}
-            />
-            <TouchableOpacity
-              onPress={() => {
-                toggleLoginSecurity('pin');
-              }}
-              style={[
-                styles.toggleSecurityMode,
-                {
-                  minHeight: 0,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: 20,
-                  paddingHorizontal: 0,
-                },
-              ]}>
-              <ThemeText content={`Pin`} />
-              <View
-                style={{
-                  height: 30,
-                  width: 30,
-                  backgroundColor: securityLoginSettings.isPinEnabled
-                    ? theme
-                      ? backgroundOffset
-                      : COLORS.primary
-                    : 'transparent',
-                  borderWidth: securityLoginSettings.isPinEnabled ? 0 : 2,
-                  borderColor: theme ? backgroundOffset : COLORS.white,
-                  borderRadius: 15,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                {securityLoginSettings.isPinEnabled && (
-                  <Icon
-                    width={15}
-                    height={15}
-                    color={COLORS.darkModeText}
-                    name={'expandedTxCheck'}
-                  />
-                )}
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                toggleLoginSecurity('biometric');
-              }}
-              style={[
-                styles.toggleSecurityMode,
-                {
-                  // backgroundColor: theme
-                  //   ? COLORS.darkModeBackgroundOffset
-                  //   : COLORS.darkModeText,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: 10,
-                  paddingHorizontal: 0,
-                  minHeight: 0,
-                },
-              ]}>
-              <ThemeText content={`Biometric`} />
-              <View
-                style={{
-                  height: 30,
-                  width: 30,
-                  backgroundColor: securityLoginSettings.isBiometricEnabled
-                    ? theme
-                      ? backgroundOffset
-                      : COLORS.primary
-                    : 'transparent',
-                  borderColor: theme ? backgroundOffset : COLORS.white,
-                  borderWidth: securityLoginSettings.isBiometricEnabled ? 0 : 2,
-                  borderRadius: 15,
-                  alignItems: 'center',
-
-                  justifyContent: 'center',
-                }}>
-                {securityLoginSettings.isBiometricEnabled && (
-                  <Icon
-                    width={15}
-                    height={15}
-                    color={COLORS.darkModeText}
-                    name={'expandedTxCheck'}
-                  />
-                )}
-              </View>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
+      {securityLoginSettings.isSecurityEnabled && (
+        <View style={{width: '90%', ...CENTER}}>
+          <ThemeText
+            styles={{...styles.infoHeaders}}
+            content={'Security Type'}
+          />
+          <TouchableOpacity
+            onPress={() => {
+              toggleLoginSecurity('pin');
+            }}
+            style={[
+              styles.toggleSecurityMode,
+              {
+                minHeight: 0,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 20,
+                paddingHorizontal: 0,
+              },
+            ]}>
+            <ThemeText content={`Pin`} />
+            <View
+              style={{
+                height: 30,
+                width: 30,
+                backgroundColor: securityLoginSettings.isPinEnabled
+                  ? theme
+                    ? backgroundOffset
+                    : COLORS.primary
+                  : 'transparent',
+                borderWidth: securityLoginSettings.isPinEnabled ? 0 : 2,
+                borderColor: theme ? backgroundOffset : COLORS.white,
+                borderRadius: 15,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              {securityLoginSettings.isPinEnabled && (
+                <Icon
+                  width={15}
+                  height={15}
+                  color={COLORS.darkModeText}
+                  name={'expandedTxCheck'}
+                />
+              )}
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              toggleLoginSecurity('biometric');
+            }}
+            style={[
+              styles.toggleSecurityMode,
+              {
+                // backgroundColor: theme
+                //   ? COLORS.darkModeBackgroundOffset
+                //   : COLORS.darkModeText,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 10,
+                paddingHorizontal: 0,
+                minHeight: 0,
+              },
+            ]}>
+            <ThemeText content={`Biometric`} />
+            <View
+              style={{
+                height: 30,
+                width: 30,
+                backgroundColor: securityLoginSettings.isBiometricEnabled
+                  ? theme
+                    ? backgroundOffset
+                    : COLORS.primary
+                  : 'transparent',
+                borderColor: theme ? backgroundOffset : COLORS.white,
+                borderWidth: securityLoginSettings.isBiometricEnabled ? 0 : 2,
+                borderRadius: 15,
+                alignItems: 'center',
+
+                justifyContent: 'center',
+              }}>
+              {securityLoginSettings.isBiometricEnabled && (
+                <Icon
+                  width={15}
+                  height={15}
+                  color={COLORS.darkModeText}
+                  name={'expandedTxCheck'}
+                />
+              )}
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
   async function handleSwitch() {
@@ -223,14 +222,11 @@ export default function LoginSecurity() {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
   innerContainer: {
     flex: 1,
-    width: '95%',
-    paddingTop: 50,
+    width: INSET_WINDOW_WIDTH,
+    paddingTop: 20,
+    ...CENTER,
   },
   contentContainer: {
     width: '100%',

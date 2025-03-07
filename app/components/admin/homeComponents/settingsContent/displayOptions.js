@@ -29,6 +29,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function DisplayOptions() {
   const {toggleMasterInfoObject, setMasterInfoObject, masterInfoObject} =
@@ -452,8 +453,7 @@ export default function DisplayOptions() {
 const styles = StyleSheet.create({
   innerContainer: {
     marginTop: 25,
-
-    width: '90%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
   infoHeaders: {

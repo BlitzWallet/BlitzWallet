@@ -48,9 +48,16 @@ export default function WalletInfoDenominationSlider({
               handleSlide('amount');
             }}>
             <ThemeText
-              styles={{...styles.colorSchemeText}}
+              styles={{
+                ...styles.colorSchemeText,
+                color:
+                  displayFormat === 'amount'
+                    ? COLORS.darkModeText
+                    : theme
+                    ? COLORS.darkModeText
+                    : COLORS.lightModeText,
+              }}
               content={'Amount'}
-              reversed={displayFormat === 'amount' && !theme}
             />
           </TouchableOpacity>
 
@@ -61,9 +68,16 @@ export default function WalletInfoDenominationSlider({
               handleSlide('percentage');
             }}>
             <ThemeText
-              styles={{...styles.colorSchemeText}}
+              styles={{
+                ...styles.colorSchemeText,
+                color:
+                  displayFormat === 'percentage'
+                    ? COLORS.darkModeText
+                    : theme
+                    ? COLORS.darkModeText
+                    : COLORS.lightModeText,
+              }}
               content={'Percentage'}
-              reversed={displayFormat === 'percentage' && !theme}
             />
           </TouchableOpacity>
           <Animated.View

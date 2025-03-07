@@ -44,6 +44,7 @@ import {copyToClipboard, getLocalStorageItem} from '../../../../functions';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function ExperimentalItemsPage() {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -129,7 +130,7 @@ export default function ExperimentalItemsPage() {
         label={'Experimental'}
       />
 
-      <View style={{flex: 1, width: '95%', ...CENTER}}>
+      <View style={{flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
         {hasUserMigrated === null ? (
           <FullLoadingScreen text={'Loading...'} />
         ) : parsedEcashInformation?.length && !hasUserMigrated ? (

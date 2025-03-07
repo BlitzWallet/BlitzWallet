@@ -3,7 +3,6 @@ import {
   decryptMessage,
   encriptMessage,
 } from '../app/functions/messaging/encodingAndDecodingMessages';
-import {getLocalStorageItem} from '../app/functions';
 export default async function fetchBackend(
   method,
   data,
@@ -12,16 +11,11 @@ export default async function fetchBackend(
 ) {
   try {
     const message = encodeRequest(privateKey, data);
-    // const token =
-    //   method === 'customToken' ||
-    //   method === 'login' ||
-    //   JSON.parse(await getLocalStorageItem('session-token'));
-    // if (!message || !token) throw new Error('Unable to encode request');
+
     if (!message) throw new Error('Unable to encode request');
     const responseData = {
       em: message,
       publicKey,
-      // token,
     };
     console.log('function call data', responseData);
     const response = await functions().httpsCallable(method)(responseData);

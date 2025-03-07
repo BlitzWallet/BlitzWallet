@@ -30,6 +30,8 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
+import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 
 export default function ChooseContactHalfModal() {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -75,35 +77,11 @@ export default function ChooseContactHalfModal() {
     <CustomKeyboardAvoidingView
       useStandardWidth={true}
       useTouchableWithoutFeedback={true}>
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          style={{position: 'absolute'}}
-          onPress={() => {
-            navigate.goBack();
-          }}>
-          <ThemeImage
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
-        </TouchableOpacity>
-        <ThemeText
-          styles={{
-            marginRight: 'auto',
-            marginLeft: 'auto',
-            fontSize: SIZES.large,
-          }}
-          content={t('wallet.contactsPage.header')}
-        />
-      </View>
-
-      <View
-        style={{
-          flex: 1,
-          width: '90%',
-          ...CENTER,
-          marginTop: 30,
-        }}>
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        label={t('wallet.contactsPage.header')}
+      />
+      <View style={styles.innerContainer}>
         <CustomSearchInput
           inputText={inputText}
           setInputText={setInputText}
@@ -116,7 +94,6 @@ export default function ChooseContactHalfModal() {
             setIskeyboardActive(true);
           }}
         />
-
         <ThemeText content={t('wallet.contactsPage.subHeader')} />
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -211,21 +188,15 @@ export default function ChooseContactHalfModal() {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
+  innerContainer: {
     flex: 1,
-  },
-
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+    marginTop: 20,
   },
 
   contactRowContainer: {
     width: '100%',
-
     flexDirection: 'row',
     alignItems: 'center',
     ...CENTER,

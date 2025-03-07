@@ -20,7 +20,7 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {COLORS, FONT} from '../../../../../constants/theme';
+import {COLORS, FONT, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import handleBackPress from '../../../../../hooks/handleBackPress';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
@@ -113,6 +113,8 @@ export default function LiquidSettingsPage() {
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
+          width: INSET_WINDOW_WIDTH,
+          ...CENTER,
           paddingBottom: bottomPadding,
         }}
         showsVerticalScrollIndicator={false}>

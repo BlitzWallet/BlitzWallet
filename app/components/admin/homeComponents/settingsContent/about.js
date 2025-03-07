@@ -16,6 +16,7 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function AboutPage() {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -164,12 +165,11 @@ export default function AboutPage() {
 
 const styles = StyleSheet.create({
   innerContainer: {
-    width: '85%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
 
   sectionHeader: {
-    fontFamily: FONT.Title_Regular,
     fontSize: SIZES.large,
     textAlign: 'center',
     marginBottom: 10,

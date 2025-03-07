@@ -8,15 +8,12 @@ import {
 } from 'react';
 import {useTranslation} from 'react-i18next';
 import {sendDataToDB} from '../db/interactionManager';
-// import useJWTSessionToken from '../app/hooks/jwtSessionToken';
-// import {useAppStatus} from './appStatus';
 import {useKeysContext} from './keys';
 
 // Initiate context
 const GlobalContextManger = createContext(null);
 
 const GlobalContextProvider = ({children}) => {
-  // const {didGetToHomepage} = useAppStatus();
   const {contactsPrivateKey, publicKey} = useKeysContext();
 
   const [deepLinkContent, setDeepLinkContent] = useState({type: '', data: ''});
@@ -36,8 +33,6 @@ const GlobalContextProvider = ({children}) => {
     },
     [i18n, publicKey],
   );
-
-  // useJWTSessionToken(publicKey, contactsPrivateKey, didGetToHomepage);
 
   const contextValue = useMemo(
     () => ({

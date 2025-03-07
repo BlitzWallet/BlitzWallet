@@ -6,7 +6,7 @@ import {COLORS, FONT, SIZES, SHADOWS, CENTER} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {WINDOWWIDTH} from '../../../../constants/theme';
+import {INSET_WINDOW_WIDTH, WINDOWWIDTH} from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 
@@ -111,8 +111,10 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    width: INSET_WINDOW_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
+    ...CENTER,
   },
 
   headerPhrase: {
@@ -132,12 +134,12 @@ const styles = StyleSheet.create({
   confirmationContainer: {
     flexDirection: 'row',
     marginTop: 50,
-    width: '90%',
+    width: '100%',
     justifyContent: 'center',
   },
   confirmPopupInnerContainer: {
-    width: '90%',
-    height: '100%',
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -147,7 +149,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContainer: {flex: 1, maxHeight: 450},
   scrollViewStyles: {
-    width: WINDOWWIDTH,
+    width: '100%',
     ...CENTER,
     paddingVertical: 10,
   },

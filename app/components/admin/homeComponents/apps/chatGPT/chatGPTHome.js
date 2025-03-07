@@ -165,11 +165,14 @@ export default function ChatGPTHome(props) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() =>
+          onPress={() => {
+            if (Platform.OS === 'android') {
+              Keyboard.dismiss();
+            }
             navigate.navigate('SwitchGenerativeAIModel', {
               setSelectedModel: setSearchModel,
-            })
-          }
+            });
+          }}
           style={{
             ...styles.switchModel,
             backgroundColor: backgroundOffset,

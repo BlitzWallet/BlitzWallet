@@ -13,7 +13,6 @@ import SeedPhrasePage from './seedPhrasePage';
 import LoginSecurity from './loginSecurity';
 import SendOnChainBitcoin from './sendOnChain';
 import BlitzSocialOptions from './socialOptions';
-import UserBalanceDenomination from './popups/balanceDenomination';
 
 import LiquidWallet from './bank';
 import ViewAllLiquidSwaps from './viewAllLiquidSwaps';
@@ -41,7 +40,6 @@ export {
   LoginSecurity,
   SendOnChainBitcoin,
   BlitzSocialOptions,
-  // UserBalanceDenomination,
   ViewAllLiquidSwaps,
   LiquidWallet,
   ExperimentalItemsPage,
