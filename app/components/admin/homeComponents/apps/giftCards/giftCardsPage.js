@@ -21,7 +21,7 @@ import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import CountryFlag from 'react-native-country-flag';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import callGiftCardsAPI from './giftCardAPI';
+import getGiftCardsList from './giftCardAPI';
 import handleBackPress from '../../../../../hooks/handleBackPress';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 
@@ -40,9 +40,7 @@ export default function GiftCardPage() {
       setShowList(true);
       async function loadGiftCards() {
         try {
-          const giftCards = await callGiftCardsAPI({
-            apiEndpoint: 'listGiftCards',
-          });
+          const giftCards = await getGiftCardsList();
 
           if (giftCards.statusCode === 400) {
             setErrorMessage(giftCards.body.error);
