@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, Platform} from 'react-native';
 import {CENTER, SIZES, ICONS} from '../../constants';
 import {useEffect, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
@@ -90,7 +90,13 @@ export default function ReceivePaymentHome(props) {
 
       <View style={{marginBottom: 'auto'}}></View>
 
-      <View style={{position: 'absolute', bottom: 0, alignItems: 'center'}}>
+      <View
+        style={{
+          alignItems: 'center',
+          position: 'absolute',
+          [Platform.OS === 'ios' ? 'top' : 'bottom']:
+            Platform.OS === 'ios' ? '100%' : 0,
+        }}>
         <Text
           style={[
             styles.title,
