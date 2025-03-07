@@ -9,33 +9,35 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useGlobalAppData} from '../../context-store/appData';
 import GetThemeColors from '../../app/hooks/themeColors';
 import handleBackPress from '../../app/hooks/handleBackPress';
+import FullLoadingScreen from '../../app/functions/CustomElements/loadingScreen';
 
 const Drawer = createDrawerNavigator();
 
 function ChatGPTDrawer() {
-  const {decodedChatGPT} = useGlobalAppData();
-  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const insets = useSafeAreaInsets();
   const navigate = useNavigation();
 
-  const insets = useSafeAreaInsets();
+  const {decodedChatGPT} = useGlobalAppData();
+  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+
+  const [didLoad, setDidLoad] = useState(false);
 
   const bottomPadding = Platform.select({
     ios: insets.bottom,
     android: ANDROIDSAFEAREA,
   });
-  const chatGPTCoversations = decodedChatGPT.conversation;
+  const chatGPTCoversations = decodedChatGPT.conversation || [];
   const chatGPTCredits = decodedChatGPT.credits;
 
-  const drawerWidth =
-    Dimensions.get('screen').width * 0.5 < 150 ||
-    Dimensions.get('screen').width * 0.5 > 230
+  const drawerWidth = useMemo(() => {
+    return Dimensions.get('screen').width * 0.5 < 150 ||
+      Dimensions.get('screen').width * 0.5 > 230
       ? 175
       : Dimensions.get('screen').width * 0.55;
+  }, [Dimensions]);
 
   const savedConversations =
-    decodedChatGPT.conversation.length != 0
-      ? [...decodedChatGPT.conversation, null]
-      : [null];
+    chatGPTCoversations.length != 0 ? [...chatGPTCoversations, null] : [null];
 
   const drawerElements = useMemo(() => {
     return savedConversations
@@ -59,8 +61,18 @@ function ChatGPTDrawer() {
   }, [navigate]);
 
   useEffect(() => {
+    setTimeout(() => {
+      setDidLoad(true);
+    }, 250);
     handleBackPress(handleBackPressFunction);
+    return () => {
+      setDidLoad(false);
+    };
   }, []);
+
+  if (!didLoad) {
+    return <FullLoadingScreen text={'Loading...'} />;
+  }
 
   if (chatGPTCredits > 30) {
     return (
