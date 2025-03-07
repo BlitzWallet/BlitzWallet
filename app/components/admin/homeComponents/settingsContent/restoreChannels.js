@@ -1,4 +1,4 @@
-import {Platform, Share, StyleSheet} from 'react-native';
+import {Platform, Share, StyleSheet, View} from 'react-native';
 import {ThemeText} from '../../../../functions/CustomElements';
 import {useEffect, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
@@ -10,6 +10,7 @@ import {getLocalStorageItem} from '../../../../functions';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import {useLightningEvent} from '../../../../../context-store/lightningEventContext';
 import connectToLightningNode from '../../../../functions/connectToLightning';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function RestoreChannel() {
   const [SCBfile, setSCBfile] = useState(null);
@@ -46,7 +47,7 @@ export default function RestoreChannel() {
     getStaticBackup();
   }, []);
   return (
-    <>
+    <View style={{flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
       {SCBfile ? (
         <>
           <ThemeText
@@ -76,7 +77,7 @@ export default function RestoreChannel() {
           text={'Getting Channel'}
         />
       )}
-    </>
+    </View>
   );
 }
 

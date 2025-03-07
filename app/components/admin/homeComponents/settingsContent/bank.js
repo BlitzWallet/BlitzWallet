@@ -8,11 +8,13 @@ import {useGlobaleCash} from '../../../../../context-store/eCash';
 import {useTranslation} from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../constants/styles';
+import {ANDROIDSAFEAREA, CENTER} from '../../../../constants/styles';
 import {useWebView} from '../../../../../context-store/webViewContext';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import GetThemeColors from '../../../../hooks/themeColors';
 
 export default function LiquidWallet() {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -22,6 +24,7 @@ export default function LiquidWallet() {
   const {t} = useTranslation();
   const insets = useSafeAreaInsets();
   const {autoChannelRebalanceIDs} = useWebView();
+  const {backgroundColor} = GetThemeColors();
   const ecashTransactions = ecashWalletInformation.transactions;
 
   const bottomPadding = Platform.select({
@@ -51,44 +54,42 @@ export default function LiquidWallet() {
           navigate.navigate('LiquidSettingsPage');
         }}
       />
-      <View style={styles.topBar}>
-        <ThemeText
-          content={'Balance'}
-          styles={{marginTop: 10, textTransform: 'uppercase', marginBottom: 10}}
-        />
-        <View style={styles.valueContainer}>
-          <FormattedSatText
-            styles={{...styles.valueText}}
-            balance={liquidNodeInformation.userBalance}
-          />
-        </View>
-      </View>
+
       <FlatList
         style={{flex: 1, width: '100%'}}
         showsVerticalScrollIndicator={false}
-        data={getFormattedHomepageTxs({
-          nodeInformation,
-          liquidNodeInformation,
-          navigate,
-          isBankPage: true,
-          ecashTransactions,
-          noTransactionHistoryText: t('wallet.no_transaction_history'),
-          todayText: t('constants.today'),
-          yesterdayText: t('constants.yesterday'),
-          dayText: t('constants.day'),
-          monthText: t('constants.month'),
-          yearText: t('constants.year'),
-          agoText: t('transactionLabelText.ago'),
-          autoChannelRebalanceIDs,
-        })}
-        renderItem={({item}) => item}
-        ListFooterComponent={
+        stickyHeaderIndices={[1]} // Selects only the second item
+        ListHeaderComponent={<View style={{marginTop: 25}} />}
+        data={[
           <View
-            style={{
-              width: '100%',
-              height: bottomPadding + 60,
-            }}
-          />
+            style={{...styles.stickyHeader, backgroundColor: backgroundColor}}>
+            <ThemeText content={'Balance'} styles={styles.amountText} />
+            <FormattedSatText
+              styles={{...styles.valueText}}
+              balance={liquidNodeInformation.userBalance}
+            />
+          </View>, // Dummy item to shift indices
+          ...getFormattedHomepageTxs({
+            nodeInformation,
+            liquidNodeInformation,
+            navigate,
+            isBankPage: true,
+            ecashTransactions,
+            noTransactionHistoryText: t('wallet.no_transaction_history'),
+            todayText: t('constants.today'),
+            yesterdayText: t('constants.yesterday'),
+            dayText: t('constants.day'),
+            monthText: t('constants.month'),
+            yearText: t('constants.year'),
+            agoText: t('transactionLabelText.ago'),
+            autoChannelRebalanceIDs,
+          }),
+        ]}
+        renderItem={
+          ({item, index}) => item // Skip dummy item
+        }
+        ListFooterComponent={
+          <View style={{width: '100%', height: bottomPadding + 60}} />
         }
       />
 
@@ -116,20 +117,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 0,
   },
-  topBar: {
-    alignItems: 'center',
+
+  amountText: {
+    textTransform: 'uppercase',
+    marginBottom: 0,
+    textAlign: 'center',
   },
-
-  valueContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-
-    marginBottom: 25,
+  stickyHeader: {
+    paddingVertical: 10,
   },
-
   valueText: {
     fontSize: SIZES.xxLarge,
-    fontFamily: FONT.Title_Regular,
+    includeFontPadding: false,
   },
 });

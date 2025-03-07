@@ -40,6 +40,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../context-store/keys';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -116,6 +117,7 @@ export default function EditMyProfilePage(props) {
         selectedAddedContact={selectedAddedContact}
         setSelectedAddedContact={setSelectedAddedContact}
         fromInitialAdd={props.fromInitialAdd}
+        fromSettings={fromSettings}
       />
     </CustomKeyboardAvoidingView>
   );
@@ -126,6 +128,7 @@ function InnerContent({
   selectedAddedContact,
   setSelectedAddedContact,
   fromInitialAdd,
+  fromSettings,
 }) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -220,7 +223,8 @@ function InnerContent({
         contentContainerStyle={{
           flexGrow: 1,
           alignItems: 'center',
-          width: '100%',
+          width: fromSettings ? INSET_WINDOW_WIDTH : '100%',
+          ...CENTER,
         }}>
         <TouchableOpacity
           onPress={() => {

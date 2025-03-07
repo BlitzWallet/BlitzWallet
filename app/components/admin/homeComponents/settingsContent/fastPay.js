@@ -19,6 +19,7 @@ import {
 import {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function FastPay() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -34,7 +35,7 @@ export default function FastPay() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={{flex: 1, width: '95%', ...CENTER}}>
+      <View style={{flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
         <View
           style={[
             styles.contentContainer,

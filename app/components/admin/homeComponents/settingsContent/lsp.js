@@ -6,11 +6,13 @@ import {ThemeText} from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function LSPPage() {
   const {nodeInformation} = useNodeContext();
   const navigate = useNavigation();
   const {backgroundOffset} = GetThemeColors();
+  console.log(nodeInformation);
   return (
     <View style={styles.globalContainer}>
       <View
@@ -98,7 +100,7 @@ export default function LSPPage() {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {flex: 1, width: '90%', ...CENTER},
+  globalContainer: {flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER},
   contentContainer: {
     padding: 8,
     borderRadius: 8,

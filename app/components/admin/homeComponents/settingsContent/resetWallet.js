@@ -1,5 +1,11 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {COLORS, FONT, SATSPERBITCOIN, SIZES} from '../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  FONT,
+  SATSPERBITCOIN,
+  SIZES,
+} from '../../../../constants';
 import {useState} from 'react';
 import {deleteItem, terminateAccount} from '../../../../functions/secureStore';
 import RNRestart from 'react-native-restart';
@@ -17,6 +23,7 @@ import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {deleteEcashDBTables} from '../../../../functions/eCash/db';
 import {deletePOSTransactionsTable} from '../../../../functions/pos';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function ResetPage(props) {
   const [selectedOptions, setSelectedOptions] = useState({
@@ -30,7 +37,13 @@ export default function ResetPage(props) {
   const navigate = useNavigation();
 
   return (
-    <View style={{flex: 1, alignItems: 'center'}}>
+    <View
+      style={{
+        flex: 1,
+        width: INSET_WINDOW_WIDTH,
+        ...CENTER,
+        alignItems: 'center',
+      }}>
       <View
         style={[
           styles.infoContainer,

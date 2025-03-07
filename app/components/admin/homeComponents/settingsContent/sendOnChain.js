@@ -37,6 +37,7 @@ import {useLightningEvent} from '../../../../../context-store/lightningEventCont
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {recommendedFees} from '@breeztech/react-native-breez-sdk-liquid';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function SendOnChainBitcoin({isDoomsday}) {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -96,6 +97,8 @@ export default function SendOnChainBitcoin({isDoomsday}) {
         <View
           style={{
             flex: 1,
+            width: INSET_WINDOW_WIDTH,
+            ...CENTER,
             alignItems: 'center',
             justifyContent: 'center',
           }}>
@@ -154,7 +157,7 @@ export default function SendOnChainBitcoin({isDoomsday}) {
         <>
           <ScrollView
             showsVerticalScrollIndicator={false}
-            style={{flexGrow: 1, width: '100%'}}>
+            style={{flexGrow: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
             <View style={styles.balanceContainer}>
               <ThemeText content={'Current balance'} />
               <FormattedSatText
