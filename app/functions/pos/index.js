@@ -27,7 +27,7 @@ export const initializePOSTransactionsDatabase = async () => {
         orderAmountSats INTEGER NOT NULL,
         serverName TEXT NOT NULL,
         timestamp INTEGER NOT NULL,
-        dbDateAdded INTEGER NOT NULL
+        dbDateAdded INTEGER NOT NULL UNIQUE
       );`);
     console.log('OPENED POS TRANSACTIONS TABLE');
     return true;

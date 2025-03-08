@@ -12,15 +12,12 @@ import {
   getSavedPOSTransactions,
   queuePOSTransactions,
 } from '../app/functions/pos';
-import {useAppStatus} from './appStatus';
 import {getTwoWeeksAgoDate} from '../app/functions/rotateAddressDateChecker';
 // Initiate context
 const POSTransactionsContextManager = createContext(null);
 
 const POSTransactionsProvider = ({children}) => {
   const {publicKey, contactsPrivateKey} = useKeysContext();
-  const {didGetToHomepage} = useAppStatus();
-  const [lastSavedMessage, setLastSavedMessage] = useState(null);
   const [txList, setTxList] = useState([]);
 
   const updateTxListFunction = useCallback(async () => {
@@ -30,20 +27,19 @@ const POSTransactionsProvider = ({children}) => {
   }, []);
 
   useEffect(() => {
-    if (!lastSavedMessage || !publicKey) return;
+    if (!publicKey) return;
     console.log('running pos transactions listener...');
+    const now = new Date().getTime();
     const unsubscribe = db
       .collection('posTransactions')
       .where('storePubKey', '==', publicKey)
       .orderBy('dateAdded')
-      .startAfter(lastSavedMessage)
+      .startAfter(now)
       .onSnapshot(snapshot => {
         snapshot?.docChanges()?.forEach(async change => {
           console.log('recived a new message', change.type);
           if (change.type === 'added') {
             const newTX = change.doc.data();
-            console.log(newTX, 'new transactions');
-
             queuePOSTransactions({
               transactionsList: [newTX],
               privateKey: contactsPrivateKey,
@@ -56,7 +52,7 @@ const POSTransactionsProvider = ({children}) => {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [lastSavedMessage, publicKey]);
+  }, [publicKey]);
 
   useEffect(() => {
     async function loadSavedTxs() {
@@ -75,7 +71,6 @@ const POSTransactionsProvider = ({children}) => {
         .get();
 
       if (missedMessags.empty) {
-        setLastSavedMessage(lastMessageTimestamp);
         return;
       }
 
@@ -91,11 +86,10 @@ const POSTransactionsProvider = ({children}) => {
         privateKey: contactsPrivateKey,
         updateTxListFunction,
       });
-      setLastSavedMessage(messsageList[0]?.dateAdded || new Date().getTime());
     }
-    if (!didGetToHomepage || !publicKey) return;
+    if (!publicKey) return;
     loadSavedTxs();
-  }, [didGetToHomepage, publicKey]);
+  }, [publicKey]);
 
   const contextValue = useMemo(
     () => ({
