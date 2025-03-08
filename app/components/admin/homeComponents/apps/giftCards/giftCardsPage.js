@@ -74,7 +74,7 @@ export default function GiftCardPage() {
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const giftCards = giftCardsList;
   const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
+    navigate.navigate('HomeAdmin');
     return true;
   }, [navigate]);
 
@@ -158,7 +158,7 @@ export default function GiftCardPage() {
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => {
-              navigate.goBack();
+              navigate.navigate('HomeAdmin');
             }}
             style={{marginRight: 'auto'}}>
             <ThemeImage

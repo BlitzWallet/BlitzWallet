@@ -34,6 +34,7 @@ import handleBackPress from '../../../../../hooks/handleBackPress';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
+import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
 
 export default function CreateGiftCardAccount(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -245,24 +246,10 @@ export default function CreateGiftCardAccount(props) {
           );
           toggleGlobalAppDataInformation({giftCards: em}, true);
 
-          props.navigation.reset({
-            index: 0, // The index of the route to focus on
-            routes: [
-              {name: 'HomeAdmin', params: {fromStore: false}},
-              {name: 'HomeAdmin', params: {fromStore: true}},
-              {name: 'GiftCardsPage'},
-            ], // Array of routes to set in the stack
-          });
-        }, 1000);
+          navigate.navigate('GiftCardsPage');
+        }, KEYBOARDTIMEOUT);
       } else {
-        props.navigation.reset({
-          index: 0, // The index of the route to focus on
-          routes: [
-            {name: 'HomeAdmin', params: {fromStore: false}},
-            {name: 'HomeAdmin', params: {fromStore: true}},
-            {name: 'GiftCardsPage'},
-          ], // Array of routes to set in the stack
-        });
+        navigate.navigate('GiftCardsPage');
       }
     } catch (err) {
       setHasError(

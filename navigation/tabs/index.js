@@ -201,7 +201,7 @@ function MyTabBar({state, descriptors, navigation}) {
 export function MyTabs(props) {
   return (
     <Tab.Navigator
-      initialRouteName={props.fromStore ? 'App Store' : 'Home'}
+      initialRouteName={'Home'}
       screenOptions={{
         headerShown: false,
       }}
@@ -209,7 +209,6 @@ export function MyTabs(props) {
       <Tab.Screen name="ContactsPageInit" component={ContactsPage} />
       <Tab.Screen name="Home" component={props.adminHome} />
       <Tab.Screen name="App Store" component={props.appStore} />
-      {/* Eventualy make this the app drawer onces there are enough apps to segment */}
     </Tab.Navigator>
   );
 }
