@@ -168,6 +168,7 @@ export const GlobalContactsList = ({children}) => {
       .orderBy('timestamp')
       .startAfter(now)
       .onSnapshot(snapshot => {
+        if (!snapshot?.docChanges) return;
         snapshot.docChanges().forEach(async change => {
           console.log('recived a new message', change.type);
           if (change.type === 'added') {
@@ -186,6 +187,7 @@ export const GlobalContactsList = ({children}) => {
       .orderBy('timestamp')
       .startAfter(now)
       .onSnapshot(snapshot => {
+        if (!snapshot?.docChanges) return;
         snapshot.docChanges().forEach(async change => {
           console.log('sent a new message', change.type);
           if (change.type === 'added') {
