@@ -41,18 +41,18 @@ export default function RestoreWallet({
   const [currentFocused, setCurrentFocused] = useState(null);
   const keyRefs = useRef({});
   const [inputedKey, setInputedKey] = useState({
-    key1: null,
-    key2: null,
-    key3: null,
-    key4: null,
-    key5: null,
-    key6: null,
-    key7: null,
-    key8: null,
-    key9: null,
-    key10: null,
-    key11: null,
-    key12: null,
+    key1: '',
+    key2: '',
+    key3: '',
+    key4: '',
+    key5: '',
+    key6: '',
+    key7: '',
+    key8: '',
+    key9: '',
+    key10: '',
+    key11: '',
+    key12: '',
   });
 
   function handleInputElement(text, keyNumber) {
@@ -232,7 +232,7 @@ export default function RestoreWallet({
     const data = await Clipboard.getStringAsync();
     if (!data) return;
     const splitSeed = data.split(' ');
-
+    if (!splitSeed.every(word => word.trim().length > 0)) return;
     if (splitSeed.length != 12) return;
     console.log(Object.entries(inputedKey));
 
