@@ -22,7 +22,7 @@
   
   
 
-  <application android:name=".MainApplication" android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:allowBackup="false" android:theme="@style/AppTheme" android:supportsRtl="true">
+  <application android:name=".MainApplication" android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:allowBackup="false" android:theme="@style/AppTheme" android:supportsRtl="true">
 
    <!-- <service android:name=".java.MyFirebaseMessagingService" android:exported="false">
       <intent-filter>
@@ -52,7 +52,7 @@
       <!-- Firebase Messaging Customization -->
     <meta-data
         android:name="com.google.firebase.messaging.default_notification_icon"
-        android:resource="@drawable/ic_stat_transparenticon" />
+        android:resource="@mipmap/ic_stat_transparenticon" />
     <meta-data
         tools:replace="android:resource"
         android:name="com.google.firebase.messaging.default_notification_color"
