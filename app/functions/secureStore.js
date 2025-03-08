@@ -24,11 +24,14 @@ async function storeData(key, value) {
 
 async function retrieveData(key) {
   try {
-    const oldPin = await SecureStore.getItemAsync('pin');
-    const oldMnemoinc = await SecureStore.getItemAsync('mnemonic');
+    const [oldPin, oldMnemoinc] = await Promise.all([
+      SecureStore.getItemAsync('pin'),
+      SecureStore.getItemAsync('mnemonic'),
+    ]);
+
     if (oldPin || oldMnemoinc) {
-      oldPin && storeData('pin', oldPin);
-      oldMnemoinc && storeData('mnemonic', oldMnemoinc);
+      oldPin && (await storeData('pin', oldPin));
+      oldMnemoinc && (await storeData('mnemonic', oldMnemoinc));
       await SecureStore.deleteItemAsync('pin');
       await SecureStore.deleteItemAsync('mnemonic');
     }

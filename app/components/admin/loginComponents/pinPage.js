@@ -15,6 +15,7 @@ import KeyForKeyboard from '../../../functions/CustomElements/key';
 import RNRestart from 'react-native-restart';
 import PinDot from '../../../functions/CustomElements/pinDot';
 import {useNavigation} from '@react-navigation/native';
+import factoryResetWallet from '../../../functions/factoryResetWallet';
 
 export default function PinPage(props) {
   const [pin, setPin] = useState([null, null, null, null]);
@@ -68,21 +69,21 @@ export default function PinPage(props) {
           });
       } else {
         if (pinEnterCount === 7) {
-          setTimeout(async () => {
-            const deleted = await terminateAccount();
-            if (deleted) {
-              clearSettings();
-              RNRestart.restart();
-            } else console.log('ERRROR');
-          }, 2000);
+          const deleted = await factoryResetWallet();
+          if (deleted) {
+            clearSettings();
+            RNRestart.restart();
+          } else {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: 'Error removing wallet',
+            });
+          }
         } else {
           if (error) return;
           setError(true);
           setPinEnterCount(prev => (prev += 1));
-          setTimeout(() => {
-            setError(false);
-            setPin([null, null, null, null]);
-          }, 500);
+          setError(false);
+          setPin([null, null, null, null]);
         }
       }
     })();

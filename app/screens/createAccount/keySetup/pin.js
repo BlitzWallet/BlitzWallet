@@ -1,12 +1,14 @@
 import {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {storeData, terminateAccount} from '../../../functions';
+import {storeData} from '../../../functions';
 import {SIZES} from '../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
 import KeyForKeyboard from '../../../functions/CustomElements/key';
 import PinDot from '../../../functions/CustomElements/pinDot';
+import factoryResetWallet from '../../../functions/factoryResetWallet';
+import RNRestart from 'react-native-restart';
 
 export default function PinPage(props) {
   const [pin, setPin] = useState([null, null, null, null]);
@@ -48,22 +50,21 @@ export default function PinPage(props) {
           ],
         });
       } else {
-        if (pinEnterCount === 8) {
-          setTimeout(async () => {
-            const deleted = await terminateAccount();
-
-            if (deleted) {
-              clearSettings();
-              navigate.reset('Home');
-            } else console.log('ERRROR');
-          }, 2000);
+        if (pinEnterCount === 7) {
+          const deleted = await factoryResetWallet();
+          if (deleted) {
+            clearSettings();
+            RNRestart.restart();
+          } else {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: 'Error removing wallet',
+            });
+          }
         } else {
           setPinNotMatched(true);
           setPinEnterCount(prev => (prev += 1));
-          setTimeout(() => {
-            setPinNotMatched(false);
-            setPin([null, null, null, null]);
-          }, 500);
+          setPinNotMatched(false);
+          setPin([null, null, null, null]);
         }
       }
     })();
