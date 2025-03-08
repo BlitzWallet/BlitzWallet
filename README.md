@@ -67,5 +67,3 @@ Coming soon...
 ## License
 
 Blitz is released under the terms of the Apache 2.0 license. See LICENSE for more information.
-
-This project is tested with BrowserStack
