@@ -81,9 +81,13 @@ export default async function connectToLiquidNode(breezLiquidEvent) {
     // console.log(`Working directory: ${config.workingDir}`);
     // config.workingDir = "path to writable directory"
 
-    await connect({mnemonic, config});
+    const [didConnect, eventListener] = await Promise.all([
+      connect({mnemonic, config}),
+      addEventListener(breezLiquidEvent),
+    ]);
+    console.log(didConnect, 'connect request response');
+    console.log(eventListener, 'add event listener request response');
 
-    await addEventListener(breezLiquidEvent);
     return new Promise(resolve => {
       resolve({
         isConnected: true,
