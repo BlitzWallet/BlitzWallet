@@ -197,7 +197,10 @@ export default function SMSMessagingSendPage({SMSprices}) {
                       key={item.country}
                       onPress={() => {
                         setAreaCode(item.country);
-                        messageRef.current.focus();
+                        setFocusedElement('message');
+                        setTimeout(() => {
+                          messageRef.current?.focus();
+                        }, KEYBOARDTIMEOUT);
                       }}>
                       <CountryFlag isoCode={item.isoCode} size={20} />
 
