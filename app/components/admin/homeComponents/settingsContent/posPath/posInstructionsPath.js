@@ -28,7 +28,7 @@ export default function POSInstructionsPath() {
   return (
     <GlobalThemeView
       useStandardWidth={true}
-      styles={{backgroundColor: COLORS.white}}>
+      globalContainerStyles={{backgroundColor: COLORS.white}}>
       <View style={styles.topbar}>
         <TouchableOpacity
           style={{position: 'absolute', top: 0, left: 0, zIndex: 1}}

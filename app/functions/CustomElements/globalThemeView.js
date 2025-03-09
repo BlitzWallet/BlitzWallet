@@ -6,7 +6,12 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {WINDOWWIDTH} from '../../constants/theme';
 import GetThemeColors from '../../hooks/themeColors';
 
-export default function GlobalThemeView({children, styles, useStandardWidth}) {
+export default function GlobalThemeView({
+  children,
+  styles,
+  useStandardWidth,
+  globalContainerStyles,
+}) {
   const insets = useSafeAreaInsets();
   const {backgroundColor} = GetThemeColors();
 
@@ -26,6 +31,7 @@ export default function GlobalThemeView({children, styles, useStandardWidth}) {
         style={{
           flex: 1,
           backgroundColor: backgroundColor,
+          ...globalContainerStyles,
         }}>
         <View
           style={{
