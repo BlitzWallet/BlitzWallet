@@ -30,6 +30,10 @@ export function LightningEventProvider({children}) {
     }, 2000);
   };
 
+  useEffect(() => {
+    console.log('lightningevent changed:', lightningEvent);
+  }, [lightningEvent]);
+
   const waitForActiveScreen = () => {
     const subscription = AppState.addEventListener('change', state => {
       console.log('RUNNINGIN WAIT FOR AVTIVE SCREEN', state);
@@ -70,7 +74,7 @@ export function LightningEventProvider({children}) {
       event?.type != BreezEventVariant.REVERSE_SWAP_UPDATED
     )
       return false;
-    debouncedStartInterval();
+
     if (event?.type === BreezEventVariant.REVERSE_SWAP_UPDATED) return false;
     console.log('CURRENT APP STATW', AppState.currentState);
     if (AppState.currentState == 'background') {
@@ -144,6 +148,14 @@ export function LightningEventProvider({children}) {
     console.log('Running in breez event in useContext');
     console.log(e);
     setLightningEvent(e);
+    if (
+      e?.type != BreezEventVariant.INVOICE_PAID &&
+      e?.type != BreezEventVariant.PAYMENT_SUCCEED &&
+      e?.type != BreezEventVariant.PAYMENT_FAILED &&
+      e?.type != BreezEventVariant.REVERSE_SWAP_UPDATED
+    )
+      return;
+    debouncedStartInterval();
   };
 
   return (

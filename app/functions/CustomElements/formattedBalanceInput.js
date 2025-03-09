@@ -147,5 +147,6 @@ const styles = StyleSheet.create({
     fontSize: 40,
     opacity: 0,
     includeFontPadding: false,
+    fontFamily: FONT.Title_Regular,
   },
 });

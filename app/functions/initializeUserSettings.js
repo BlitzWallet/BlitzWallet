@@ -141,6 +141,11 @@ export default async function initializeUserSettingsFromHistory({
         ? MIN_CHANNEL_OPEN_FEE
         : liquidWalletSettings.regulatedChannelOpenSize;
 
+    if (isNaN(liquidWalletSettings?.maxChannelOpenFee)) {
+      liquidWalletSettings.maxChannelOpenFee = 5000;
+      needsToUpdate = true;
+    }
+
     if (!contacts.myProfile?.uniqueNameLower) {
       contacts.myProfile.uniqueNameLower =
         contacts.myProfile.uniqueName.toLocaleLowerCase();

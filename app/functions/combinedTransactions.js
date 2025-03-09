@@ -362,12 +362,15 @@ export function UserTransaction({
                   (transaction?.paymentType !== 'receive'
                     ? t('constants.sent')
                     : t('constants.received'))
-                : isLightningPayment && transaction?.details?.data?.lnAddress
+                : isLightningPayment &&
+                  transaction?.details?.data?.lnAddress &&
+                  transaction?.details?.data?.label
                 ? transaction?.details?.data?.label
-                : transaction?.description ||
-                  (transaction.paymentType === 'sent'
-                    ? t('constants.sent')
-                    : t('constants.received'))
+                : !!transaction?.description
+                ? transaction?.description
+                : transaction.paymentType === 'sent'
+                ? t('constants.sent')
+                : t('constants.received')
             }
           />
 
