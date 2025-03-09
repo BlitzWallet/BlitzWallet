@@ -20,6 +20,7 @@ if (!sqlLiteDB) {
 export const initEcashDBTables = async () => {
   try {
     await sqlLiteDB.runAsync(`PRAGMA journal_mode = WAL;`);
+    await sqlLiteDB.runAsync(`PRAGMA foreign_keys = ON;`);
     await sqlLiteDB.execAsync('BEGIN TRANSACTION;');
 
     // Mints Table
@@ -35,7 +36,7 @@ export const initEcashDBTables = async () => {
         proofIndex INTEGER PRIMARY KEY AUTOINCREMENT,
         id INTEGER,
         amount INTEGER,
-        secret TEXT,
+        secret TEXT UNIQUE,
         C TEXT,
         dleq TEXT,
         dleqValid INTEGER,
