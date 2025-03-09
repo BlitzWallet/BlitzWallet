@@ -125,7 +125,7 @@ export default function ConfirmExportPayments() {
       const conjoinedTxList = [...liquidData, ...lNdata, ...ecashData];
       let formatedData = [];
 
-      for (let index = 0; index < 100; index++) {
+      for (let index = 0; index < conjoinedTxList.length; index++) {
         const tx = conjoinedTxList[index];
         setTxNumber(prev => (prev += 1));
         try {
@@ -161,7 +161,7 @@ export default function ConfirmExportPayments() {
         } catch (err) {
           console.log(err);
         } finally {
-          await new Promise(res => setTimeout(res, 5));
+          await new Promise(res => setTimeout(res, 2));
         }
       }
 
