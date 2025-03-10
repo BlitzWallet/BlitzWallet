@@ -267,6 +267,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
         const lnInvoice = await getLNAddressForLiquidPayment(
           input,
           creditPrice,
+          'Store - chatGPT',
         );
         const parsedLnInvoice = await parseInput(lnInvoice);
 
