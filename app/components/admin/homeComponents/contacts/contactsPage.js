@@ -21,15 +21,13 @@ import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../functions/CustomElements/Icon';
-import getDeepLinkUser from './internalComponents/getDeepLinkUser';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
 
-export default function ContactsPage({navigation, route}) {
-  const {masterInfoObject, deepLinkContent, setDeepLinkContent} =
-    useGlobalContextProvider();
+export default function ContactsPage({navigation}) {
+  const {masterInfoObject} = useGlobalContextProvider();
   const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {
@@ -45,13 +43,7 @@ export default function ContactsPage({navigation, route}) {
   const navigate = useNavigation();
   const {backgroundOffset} = GetThemeColors();
   const myProfile = globalContactsInformation.myProfile;
-  const deepLinkData = {
-    data: route?.params?.deepLinkData,
-    type: route?.params?.deepLinkType,
-  };
   const didEditProfile = globalContactsInformation.myProfile.didEditProfile;
-
-  console.log(deepLinkData, 'TESTING');
 
   const handleBackPressFunction = useCallback(() => {
     tabsNavigate('Home');
@@ -63,43 +55,6 @@ export default function ContactsPage({navigation, route}) {
 
     handleBackPress(handleBackPressFunction);
   }, [isFocused, handleBackPressFunction]);
-
-  useEffect(() => {
-    if (!deepLinkData.data || !deepLinkData.type) return;
-    if (deepLinkData.type !== 'Contact') return;
-
-    (async () => {
-      const deepLinkContact = await getDeepLinkUser({
-        deepLinkContent: deepLinkData.data,
-        userProfile: myProfile,
-      });
-      if (deepLinkContact.didWork) {
-        navigate.navigate('ExpandedAddContactsPage', {
-          newContact: deepLinkContact.data,
-        });
-      } else {
-        navigate.reset({
-          index: 0, // The top-level route index
-          routes: [
-            {
-              name: 'HomeAdmin',
-              params: {screen: 'Home'},
-            },
-            {
-              name: 'HomeAdmin',
-              params: {
-                screen: 'ContactsPageInit',
-              },
-            },
-            {
-              name: 'ErrorScreen',
-              params: {errorMessage: `${deepLinkContact.reason}`},
-            },
-          ],
-        });
-      }
-    })();
-  }, [deepLinkData]);
 
   const pinnedContacts = useMemo(() => {
     return decodedAddedContacts

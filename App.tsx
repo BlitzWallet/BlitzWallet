@@ -12,22 +12,15 @@ import {
 import 'text-encoding-polyfill';
 import 'react-native-gesture-handler';
 import './i18n'; // for translation option
-import {
-  createNativeStackNavigator,
-  NativeStackNavigationProp,
-} from '@react-navigation/native-stack';
-import React, {
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {registerRootComponent} from 'expo';
 type RootStackParamList = {
   Home: {someParam?: string};
   Details: {someParam?: string};
+  ExpandedAddContactsPage: {newContact: object};
+  ConfirmPaymentScreen: {btcAdress: string};
+  ErrorScreen: {errorMessage: string};
 };
 import {
   getLocalStorageItem,
@@ -40,10 +33,7 @@ import {
   ConnectingToNodeLoadingScreen,
 } from './app/screens/inAccount';
 
-import {
-  GlobalContextProvider,
-  useGlobalContextProvider,
-} from './context-store/context';
+import {GlobalContextProvider} from './context-store/context';
 
 import {WebViewProvider} from './context-store/webViewContext';
 import {Linking, Platform} from 'react-native';
@@ -72,8 +62,8 @@ import {
   useGlobalThemeContext,
 } from './context-store/theme';
 import {GLobalNodeContextProider} from './context-store/nodeContext';
-import {AppStatusProvider} from './context-store/appStatus';
-import {KeysContextProvider} from './context-store/keys';
+import {AppStatusProvider, useAppStatus} from './context-store/appStatus';
+import {KeysContextProvider, useKeysContext} from './context-store/keys';
 import {POSTransactionsProvider} from './context-store/pos';
 import {
   FADE_SCREENS,
@@ -81,6 +71,7 @@ import {
   SLIDE_FROM_BOTTOM_SCREENS,
   SLIDE_FROM_RIGHT_SCREENS,
 } from './navigation/screens';
+import getDeepLinkUser from './app/components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 
 const Stack = createNativeStackNavigator();
 
@@ -135,49 +126,116 @@ function ResetStack(): JSX.Element | null {
     hasSecurityEnabled: null,
     isLoaded: null,
   });
+  const [pendingLinkData, setPendingLinkData] = useState<{
+    url: string;
+    timestamp: number | null;
+  }>({
+    url: '',
+    timestamp: null,
+  });
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {setDeepLinkContent} = useGlobalContextProvider();
+  const {didGetToHomepage} = useAppStatus();
+  const {publicKey} = useKeysContext();
   const {backgroundColor} = GetThemeColors();
 
   // Memoize handleDeepLink
-  // const handleDeepLink = useCallback((event: {url: string}) => {
-  //   console.log('TEST');
-  //   const {url} = event;
+  const handleDeepLink = useCallback(
+    (event: {url: string}) => {
+      console.log('TEST');
+      const {url} = event;
+      console.log('Deep link URL:', url);
 
-  //   if (url.startsWith('lightning')) {
-  //     setDeepLinkContent({type: 'LN', data: url});
-  //   } else if (url.includes('blitz')) {
-  //     setDeepLinkContent({type: 'Contact', data: url});
-  //   }
+      setPendingLinkData({
+        url: event.url,
+        timestamp: Date.now(),
+      });
+    },
+    [didGetToHomepage],
+  );
 
-  //   console.log('Deep link URL:', url); // Log the URL
-  // }, []);
+  const clearDeepLink = useCallback(() => {
+    setPendingLinkData({
+      url: '',
+      timestamp: null,
+    });
+  }, []);
 
-  // Memoize getInitialURL
-  // const getInitialURL = useCallback(async () => {
-  //   const url = await Linking.getInitialURL();
-  //   if (url) {
-  //     handleDeepLink({url});
-  //   }
-  // }, [handleDeepLink]);
+  const getInitialURL = useCallback(async () => {
+    const url = await Linking.getInitialURL();
+    if (url) {
+      handleDeepLink({url});
+      console.log('Initial deep link stored:', url);
+    }
+  }, []);
 
   useEffect(() => {
-    // const subscription = Linking.addListener('url', handleDeepLink);
+    async function handleDeeplink() {
+      const {url, timestamp} = pendingLinkData;
+      if (!url) return;
+      console.log(
+        'Processing link:',
+        url,
+        'at timestamp:',
+        timestamp,
+        'conditions:',
+        {
+          didGetToHomepage,
+          hasNavigationRef: !!navigationRef.current,
+          hasPublicKey: !!publicKey,
+        },
+      );
 
+      if (didGetToHomepage && navigationRef.current && publicKey) {
+        try {
+          if (url.startsWith('lightning')) {
+            navigationRef.current.navigate('ConfirmPaymentScreen', {
+              btcAdress: url,
+            });
+          } else if (url.includes('blitz')) {
+            const deepLinkContact = await getDeepLinkUser({
+              deepLinkContent: url,
+              userProfile: {uuid: publicKey},
+            });
+
+            if (deepLinkContact.didWork) {
+              navigationRef.current.navigate('ExpandedAddContactsPage', {
+                newContact: deepLinkContact.data,
+              });
+            } else {
+              navigationRef.current.navigate('ErrorScreen', {
+                errorMessage: deepLinkContact.reason,
+              });
+            }
+          }
+
+          // Clear the pending link after processing
+          clearDeepLink();
+        } catch (error: any) {
+          console.error('Error processing deep link:', error);
+          navigationRef.current.navigate('ErrorScreen', {
+            errorMessage: `Failed to process link: ${
+              error.message || 'Unknown error'
+            }`,
+          });
+
+          // Clear the pending link even if there was an error
+          clearDeepLink();
+        }
+      }
+    }
+    handleDeeplink();
+  }, [pendingLinkData, didGetToHomepage, publicKey]);
+
+  useEffect(() => {
     async function initWallet() {
-      const [
-        //initialURL,
-        registerBackground,
-        pin,
-        mnemonic,
-        securitySettings,
-      ] = await Promise.all([
-        // await getInitialURL(),
-        await registerBackgroundNotificationTask(),
-        await retrieveData('pin'),
-        await retrieveData('mnemonic'),
-        await getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-      ]);
+      const [initialURL, registerBackground, pin, mnemonic, securitySettings] =
+        await Promise.all([
+          getInitialURL(),
+          registerBackgroundNotificationTask(),
+          retrieveData('pin'),
+          retrieveData('mnemonic'),
+          getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
+        ]);
 
       const storedSettings = JSON.parse(securitySettings);
       const parsedSettings = storedSettings ?? {
@@ -199,6 +257,7 @@ function ResetStack(): JSX.Element | null {
         };
       });
     }
+    const subscription = Linking.addEventListener('url', handleDeepLink);
     initWallet();
 
     return () => {
@@ -295,34 +354,40 @@ function ResetStack(): JSX.Element | null {
             presentation: 'containedTransparentModal',
             animation: 'slide_from_bottom',
           }}>
-          {SLIDE_FROM_BOTTOM_SCREENS.map(({name, component}) => (
-            <Stack.Screen key={name} name={name} component={component} />
+          {SLIDE_FROM_BOTTOM_SCREENS.map(({name, component: Component}) => (
+            <Stack.Screen
+              key={name}
+              name={name}
+              component={Component as React.ComponentType<any>}
+            />
           ))}
         </Stack.Group>
         <Stack.Group
           screenOptions={{
             animation: 'slide_from_right',
           }}>
-          {SLIDE_FROM_RIGHT_SCREENS.map(({name, component, options = {}}) => (
-            <Stack.Screen
-              key={name}
-              name={name}
-              component={component}
-              options={{...options}}
-            />
-          ))}
+          {SLIDE_FROM_RIGHT_SCREENS.map(
+            ({name, component: Component, options = {}}) => (
+              <Stack.Screen
+                key={name}
+                name={name}
+                component={Component as React.ComponentType<any>}
+                options={{...options}}
+              />
+            ),
+          )}
         </Stack.Group>
         <Stack.Group
           screenOptions={{
             animation: 'fade',
             presentation: 'containedTransparentModal',
           }}>
-          {FADE_SCREENS.map(({name, component, options = {}}) => (
+          {FADE_SCREENS.map(({name, component: Component, options = {}}) => (
             <Stack.Screen
               key={name}
               name={name}
               options={{...options}}
-              component={component}
+              component={Component as React.ComponentType<any>}
             />
           ))}
         </Stack.Group>
@@ -331,9 +396,15 @@ function ResetStack(): JSX.Element | null {
             animation: 'fade',
             presentation: 'transparentModal',
           }}>
-          {FADE_TRANSPARENT_MODAL_SCREENS.map(({name, component}) => (
-            <Stack.Screen key={name} name={name} component={component} />
-          ))}
+          {FADE_TRANSPARENT_MODAL_SCREENS.map(
+            ({name, component: Component}) => (
+              <Stack.Screen
+                key={name}
+                name={name}
+                component={Component as React.ComponentType<any>}
+              />
+            ),
+          )}
         </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>

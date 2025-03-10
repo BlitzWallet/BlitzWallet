@@ -16,8 +16,6 @@ const GlobalContextManger = createContext(null);
 const GlobalContextProvider = ({children}) => {
   const {contactsPrivateKey, publicKey} = useKeysContext();
 
-  const [deepLinkContent, setDeepLinkContent] = useState({type: '', data: ''});
-
   const [masterInfoObject, setMasterInfoObject] = useState({});
 
   const {i18n} = useTranslation();
@@ -39,15 +37,8 @@ const GlobalContextProvider = ({children}) => {
       toggleMasterInfoObject,
       setMasterInfoObject,
       masterInfoObject,
-      deepLinkContent,
-      setDeepLinkContent,
     }),
-    [
-      toggleMasterInfoObject,
-      masterInfoObject,
-      setMasterInfoObject,
-      deepLinkContent,
-    ],
+    [toggleMasterInfoObject, masterInfoObject, setMasterInfoObject],
   );
 
   return (

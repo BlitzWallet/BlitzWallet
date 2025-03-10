@@ -14,7 +14,6 @@ import {useTranslation} from 'react-i18next';
 import autoChannelRebalance from '../../functions/liquidWallet/autoChannelRebalance';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
 import claimUnclaimedBoltzSwaps from '../../functions/boltz/claimUnclaimedTxs';
-import getDeepLinkUser from '../../components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import {useGlobalContacts} from '../../../context-store/globalContacts';
 import {
   getDateXDaysAgo,
@@ -66,13 +65,8 @@ export default function ConnectingToNodeLoadingScreen({
   const navigate = useNavigation();
   const {onLightningBreezEvent} = useLightningEvent();
   const {onLiquidBreezEvent} = useLiquidEvent();
-  const {
-    toggleMasterInfoObject,
-    masterInfoObject,
-    setMasterInfoObject,
-    deepLinkContent,
-    setDeepLinkContent,
-  } = useGlobalContextProvider();
+  const {toggleMasterInfoObject, masterInfoObject, setMasterInfoObject} =
+    useGlobalContextProvider();
   const {toggleContactsPrivateKey} = useKeysContext();
   const {minMaxLiquidSwapAmounts, toggleMinMaxLiquidSwapAmounts} =
     useAppStatus();
@@ -239,81 +233,6 @@ export default function ConnectingToNodeLoadingScreen({
           didSetLiquid &&
           (!masterInfoObject.enabledEcash || didSetEcashInformation)
         ) {
-          if (deepLinkContent.data.length != 0) {
-            const deepLinkData = deepLinkContent.data;
-            const deepLinkType = deepLinkContent.type;
-            setDeepLinkContent({type: '', data: ''});
-            try {
-              if (deepLinkType === 'LN') {
-                reset({
-                  index: 0, // The top-level route index
-                  routes: [
-                    {
-                      name: 'HomeAdmin', // Navigate to HomeAdmin
-                      params: {
-                        screen: 'Home',
-                      },
-                    },
-                    {
-                      name: 'ConfirmPaymentScreen', // Navigate to ExpandedAddContactsPage
-                      params: {
-                        btcAdress: deepLinkData,
-                      },
-                    },
-                  ],
-                  // Array of routes to set in the stack
-                });
-              } else if (deepLinkType === 'Contact') {
-                const deepLinkContact = await getDeepLinkUser({
-                  deepLinkContent: deepLinkData,
-                  userProfile: globalContactsInformation.myProfile,
-                });
-
-                if (deepLinkContact.didWork) {
-                  reset({
-                    index: 0, // The top-level route index
-                    routes: [
-                      {
-                        name: 'HomeAdmin', // Navigate to HomeAdmin
-                        params: {
-                          screen: 'Home',
-                        },
-                      },
-                      {
-                        name: 'HomeAdmin', // Navigate to HomeAdmin
-                        params: {
-                          screen: 'ContactsPageInit',
-                        },
-                      },
-                    ],
-                  });
-                } else {
-                  reset({
-                    index: 0, // The top-level route index
-                    routes: [
-                      {
-                        name: 'HomeAdmin', // Navigate to HomeAdmin
-                        params: {
-                          screen: 'Home',
-                        },
-                      },
-                      {
-                        name: 'ErrorScreen', // Navigate to HomeAdmin
-                        params: {
-                          errorMessage: `${deepLinkContact.reason}`,
-                        },
-                      },
-                    ],
-                    // Array of routes to set in the stack
-                  });
-                }
-              }
-            } catch (err) {
-              console.log('deep link error', err);
-            }
-            return;
-          }
-
           const autoWorkData =
             process.env.BOLTZ_ENVIRONMENT === 'testnet' ||
             AppState.currentState !== 'active'

@@ -8,10 +8,8 @@ import {
 } from 'react-native';
 
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useGlobalContextProvider} from '../../context-store/context';
-import {COLORS, FONT, ICONS, SHADOWS, SIZES} from '../../app/constants';
-import {useNavigation} from '@react-navigation/native';
-import {useEffect, useMemo, useRef} from 'react';
+import {COLORS, ICONS, SIZES} from '../../app/constants';
+import {useMemo} from 'react';
 import {CENTER} from '../../app/constants/styles';
 import {ThemeText} from '../../app/functions/CustomElements';
 import {useGlobalContacts} from '../../context-store/globalContacts';
@@ -23,12 +21,9 @@ const Tab = createBottomTabNavigator();
 
 function MyTabBar({state, descriptors, navigation}) {
   const insets = useSafeAreaInsets();
-  const {deepLinkContent, setDeepLinkContent} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {contactsMessags} = useGlobalContacts();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
-
-  const navigate = useNavigation();
 
   const hasUnlookedTransactions = useMemo(() => {
     return (
@@ -43,55 +38,6 @@ function MyTabBar({state, descriptors, navigation}) {
       }).length > 0
     );
   }, [contactsMessags]);
-
-  const deepLinkContentData = deepLinkContent.data;
-  useEffect(() => {
-    if (!deepLinkContentData) return;
-    if (deepLinkContentData.length === 0) return;
-    const deepLinkData = deepLinkContent.data;
-    const deepLinkType = deepLinkContent.type;
-    setDeepLinkContent({type: '', data: ''});
-    try {
-      if (deepLinkContent.type === 'Contact') {
-        navigate.reset({
-          index: 0, // The top-level route index
-          routes: [
-            {
-              name: 'HomeAdmin',
-              params: {screen: 'Home'},
-            },
-            {
-              name: 'HomeAdmin',
-              params: {
-                screen: 'ContactsPageInit',
-                params: {
-                  deepLinkData: deepLinkData,
-                  deepLinkType: deepLinkType,
-                },
-              },
-            },
-          ],
-        });
-      } else if (deepLinkContent.type === 'LN') {
-        navigate.reset({
-          index: 0,
-          routes: [
-            {
-              name: 'HomeAdmin',
-              params: {screen: 'Home'},
-            },
-
-            {
-              name: 'ConfirmPaymentScreen',
-              params: {btcAdress: deepLinkContentData},
-            },
-          ],
-        });
-      }
-    } catch (err) {
-      console.log('deep link in navigator error', err);
-    }
-  }, [deepLinkContentData]);
 
   return (
     <View>
