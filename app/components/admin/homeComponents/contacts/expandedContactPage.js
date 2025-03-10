@@ -64,8 +64,7 @@ export default function ExpandedContactsPage(props) {
   const contactTransactions = contactsMessags[selectedUUID]?.messages || []; //selectedContact?.transactions;
 
   const handleBackPressFunction = useCallback(() => {
-    if (navigate.canGoBack()) navigate.goBack();
-    else navigate.replace('HomeAdmin');
+    navigate.goBack();
     return true;
   }, [navigate]);
 
@@ -106,10 +105,7 @@ export default function ExpandedContactsPage(props) {
       <View style={styles.topBar}>
         <TouchableOpacity
           style={{marginRight: 'auto'}}
-          onPress={() => {
-            if (navigate.canGoBack()) navigate.goBack();
-            else navigate.replace('HomeAdmin');
-          }}>
+          onPress={navigate.goBack}>
           <ThemeImage
             darkModeIcon={ICONS.smallArrowLeft}
             lightModeIcon={ICONS.smallArrowLeft}

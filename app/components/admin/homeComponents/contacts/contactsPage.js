@@ -103,7 +103,6 @@ export default function ContactsPage({navigation}) {
               }
               navigate.navigate('CustomHalfModal', {
                 wantedContent: 'addContacts',
-
                 sliderHight: 0.5,
               });
             }}>

@@ -51,7 +51,6 @@ export default function AddContactsHalfModal(props) {
       return (
         <ContactListItem
           key={savedContact.uniqueName}
-          navigation={navigate}
           id={id}
           savedContact={savedContact}
           contactsPrivateKey={contactsPrivateKey}
@@ -90,22 +89,7 @@ export default function AddContactsHalfModal(props) {
         isAdded: true,
         profileImage: '',
       };
-
-      navigate.reset({
-        index: 0,
-        routes: [
-          {
-            name: 'HomeAdmin',
-            params: {screen: 'ContactsPageInit'},
-          },
-          {
-            name: 'ExpandedAddContactsPage',
-            params: {
-              newContact: newContact,
-            },
-          },
-        ],
-      });
+      navigate.replace('ExpandedAddContactsPage', {newContact: newContact});
     } catch (err) {
       console.log('parse contact half modal error', err);
       navigate.navigate('ErrorScreen', {
@@ -117,33 +101,20 @@ export default function AddContactsHalfModal(props) {
   const clearHalfModalForLNURL = () => {
     if (!EMAIL_REGEX.test(searchInput)) return;
 
-    navigate.reset({
-      index: 0, // The top-level route index
-      routes: [
-        {
-          name: 'HomeAdmin', // Navigate to HomeAdmin
-          params: {screen: 'ContactsPageInit'},
-        },
-        {
-          name: 'ExpandedAddContactsPage', // Navigate to ExpandedAddContactsPage
-          params: {
-            newContact: {
-              name: searchInput.split('@')[0],
-              bio: '',
-              uniqueName: null,
-              isFavorite: false,
-              transactions: [],
-              unlookedTransactions: 0,
-              receiveAddress: searchInput,
-              isAdded: true,
-              isLNURL: true,
-              profileImage: '',
-              uuid: customUUID(),
-            },
-          },
-        },
-      ],
-      // Array of routes to set in the stack
+    navigate.replace('ExpandedAddContactsPage', {
+      newContact: {
+        name: searchInput.split('@')[0],
+        bio: '',
+        uniqueName: null,
+        isFavorite: false,
+        transactions: [],
+        unlookedTransactions: 0,
+        receiveAddress: searchInput,
+        isAdded: true,
+        isLNURL: true,
+        profileImage: '',
+        uuid: customUUID(),
+      },
     });
   };
 
@@ -263,21 +234,7 @@ function ContactListItem(props) {
     <TouchableOpacity
       key={props.savedContact.uniqueName}
       onPress={() => {
-        navigate.reset({
-          index: 0, // The top-level route index
-          routes: [
-            {
-              name: 'HomeAdmin',
-              params: {screen: 'ContactsPageInit'},
-            },
-            {
-              name: 'ExpandedAddContactsPage',
-              params: {
-                newContact: newContact,
-              },
-            },
-          ],
-        });
+        navigate.replace('ExpandedAddContactsPage', {newContact: newContact});
       }}>
       <View style={[styles.contactListContainer, {}]}>
         <View
