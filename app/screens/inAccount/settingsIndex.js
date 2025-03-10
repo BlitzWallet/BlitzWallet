@@ -4,7 +4,7 @@ import {useNavigation} from '@react-navigation/native';
 import {BlitzSocialOptions} from '../../components/admin/homeComponents/settingsContent';
 import {CENTER} from '../../constants/styles';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../constants/theme';
+import {INSET_WINDOW_WIDTH} from '../../constants/theme';
 import {useCallback, useEffect} from 'react';
 import handleBackPress from '../../hooks/handleBackPress';
 import Icon from '../../functions/CustomElements/Icon';
@@ -235,7 +235,7 @@ export default function SettingsIndex(props) {
           key={id}
           onPress={() => {
             if (
-              element.name.toLowerCase() === 'restore channels' &&
+              element.name?.toLowerCase() === 'restore channels' &&
               nodeInformation.userBalance === 0 &&
               !isDoomsday
             ) {
@@ -247,13 +247,13 @@ export default function SettingsIndex(props) {
             console.log(element);
             if (
               !isConnectedToTheInternet &&
-              (element.name.toLowerCase() === 'display currency' ||
-                element.name.toLowerCase() === 'node info' ||
-                element.name.toLowerCase() === 'channel closure' ||
-                element.name.toLowerCase() === 'edit contact profile' ||
-                element.name.toLowerCase() === 'refund liquid swap' ||
-                element.name.toLowerCase() === 'experimental' ||
-                element.name.toLowerCase() === 'lsp')
+              (element.name?.toLowerCase() === 'display currency' ||
+                element.name?.toLowerCase() === 'node info' ||
+                element.name?.toLowerCase() === 'channel closure' ||
+                element.name?.toLowerCase() === 'edit contact profile' ||
+                element.name?.toLowerCase() === 'refund liquid swap' ||
+                element.name?.toLowerCase() === 'experimental' ||
+                element.name?.toLowerCase() === 'lsp')
             ) {
               navigate.navigate('ErrorScreen', {
                 errorMessage:
@@ -319,72 +319,64 @@ export default function SettingsIndex(props) {
   });
 
   return (
-    <GlobalThemeView styles={{alignItems: 'center', paddingBottom: 0}}>
-      <View style={[styles.innerContainer]}>
-        <CustomSettingsTopBar label={'Settings'} />
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{alignItems: 'center'}}
-          style={styles.settingsContainer}>
-          {settingsElements}
-          {!isDoomsday && (
-            <>
-              <TouchableOpacity
-                onPress={() => {
-                  if (!isConnectedToTheInternet) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage:
-                        'Please reconnect to the internet to use this feature',
-                    });
-                    return;
-                  }
-
-                  navigate.navigate('SettingsContentHome', {
-                    for: 'Point-of-sale',
+    <GlobalThemeView
+      useStandardWidth={true}
+      styles={{alignItems: 'center', paddingBottom: 0}}>
+      <CustomSettingsTopBar label={'Settings'} />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{alignItems: 'center'}}
+        style={styles.settingsContainer}>
+        {settingsElements}
+        {!isDoomsday && (
+          <>
+            <TouchableOpacity
+              onPress={() => {
+                if (!isConnectedToTheInternet) {
+                  navigate.navigate('ErrorScreen', {
+                    errorMessage:
+                      'Please reconnect to the internet to use this feature',
                   });
-                }}
-                style={{
-                  ...styles.posContainer,
-                  borderColor:
-                    theme && darkModeType ? COLORS.white : COLORS.primary,
-                }}>
-                <Icon
-                  color={theme && darkModeType ? COLORS.white : COLORS.primary}
-                  width={30}
-                  height={40}
-                  name={'posICON'}
-                />
-                <ThemeText
-                  styles={{
-                    color:
-                      theme && darkModeType ? COLORS.white : COLORS.primary,
-                    fontSize: SIZES.xLarge,
-                    marginLeft: 10,
-                    includeFontPadding: false,
-                  }}
-                  content={'Point-of-sale'}
-                />
-              </TouchableOpacity>
-              <BlitzSocialOptions />
-            </>
-          )}
-        </ScrollView>
-      </View>
+                  return;
+                }
 
-      {/* popups */}
+                navigate.navigate('SettingsContentHome', {
+                  for: 'Point-of-sale',
+                });
+              }}
+              style={{
+                ...styles.posContainer,
+                borderColor:
+                  theme && darkModeType ? COLORS.white : COLORS.primary,
+              }}>
+              <Icon
+                color={theme && darkModeType ? COLORS.white : COLORS.primary}
+                width={30}
+                height={40}
+                name={'posICON'}
+              />
+              <ThemeText
+                styles={{
+                  color: theme && darkModeType ? COLORS.white : COLORS.primary,
+                  fontSize: SIZES.xLarge,
+                  marginLeft: 10,
+                  includeFontPadding: false,
+                }}
+                content={'Point-of-sale'}
+              />
+            </TouchableOpacity>
+            <BlitzSocialOptions />
+          </>
+        )}
+      </ScrollView>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  innerContainer: {
-    width: WINDOWWIDTH,
-    flex: 1,
-  },
-
   settingsContainer: {
     flex: 1,
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
 
