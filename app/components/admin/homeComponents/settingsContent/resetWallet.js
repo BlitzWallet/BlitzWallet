@@ -1,16 +1,8 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {
-  CENTER,
-  COLORS,
-  FONT,
-  SATSPERBITCOIN,
-  SIZES,
-} from '../../../../constants';
+import {CENTER, COLORS, SIZES} from '../../../../constants';
 import {useState} from 'react';
-import {deleteItem, terminateAccount} from '../../../../functions/secureStore';
+import {terminateAccount} from '../../../../functions/secureStore';
 import RNRestart from 'react-native-restart';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ThemeText} from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -24,6 +16,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {deleteEcashDBTables} from '../../../../functions/eCash/db';
 import {deletePOSTransactionsTable} from '../../../../functions/pos';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import {removeAllLocalData} from '../../../../functions/localStorage';
 
 export default function ResetPage(props) {
   const [selectedOptions, setSelectedOptions] = useState({
@@ -202,10 +195,18 @@ export default function ResetPage(props) {
 
     try {
       if (selectedOptions.localStoredItems) {
-        const didClearLocalStoreage = await clearLocalStorage();
-        await deleteTable();
-        await deleteEcashDBTables();
-        await deletePOSTransactionsTable();
+        const [
+          didClearLocalStoreage,
+          didClearMessages,
+          didClearEcash,
+          didClearPos,
+        ] = await Promise.all([
+          removeAllLocalData(),
+          deleteTable(),
+          deleteEcashDBTables(),
+          deletePOSTransactionsTable(),
+        ]);
+
         if (!didClearLocalStoreage)
           throw Error('Not able to delete local stored information');
       }
@@ -229,16 +230,6 @@ export default function ResetPage(props) {
   }
 }
 
-async function clearLocalStorage() {
-  try {
-    (await AsyncStorage.getAllKeys()).forEach(key => {
-      AsyncStorage.removeItem(key);
-    });
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
 const styles = StyleSheet.create({
   infoContainer: {
     width: '100%',
