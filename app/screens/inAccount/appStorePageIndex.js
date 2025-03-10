@@ -1,4 +1,3 @@
-import {View} from 'react-native';
 import {ChatGPTDrawer} from '../../../navigation/drawers';
 import {ResturantHomepage} from '../../components/admin/homeComponents/apps';
 import SMSMessagingHome from '../../components/admin/homeComponents/apps/sms4sats/home';
@@ -23,7 +22,7 @@ export default function AppStorePageIndex(props) {
   if (targetPage.toLowerCase() === 'sms4sats') return <SMSMessagingHome />;
   if (targetPage.toLowerCase() === 'lnvpn') return <VPNHome />;
   if (targetPage.toLowerCase() === 'ai')
-    return <ChatGPTDrawer props={props?.route?.params} />;
+    return <ChatGPTDrawer confirmationSliderData={props?.route?.params} />;
 
   return (
     <GlobalThemeView>

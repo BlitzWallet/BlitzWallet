@@ -47,7 +47,7 @@ const CREDITOPTIONS = [
 ];
 //price is in sats
 
-export default function AddChatGPTCredits({props}) {
+export default function AddChatGPTCredits({confirmationSliderData}) {
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {
@@ -64,10 +64,10 @@ export default function AddChatGPTCredits({props}) {
 
   useEffect(() => {
     // FUNCTION TO PURCHASE CREDITS
-    if (!props?.purchaseCredits) return;
+    if (!confirmationSliderData?.purchaseCredits) return;
     navigate.setParams({purchaseCredits: null});
     payForChatGPTCredits();
-  }, [props?.purchaseCredits]);
+  }, [confirmationSliderData?.purchaseCredits]);
 
   const subscriptionElements = selectedSubscription.map((subscription, id) => {
     return (
@@ -195,7 +195,6 @@ export default function AddChatGPTCredits({props}) {
                 wantedContent: 'chatGPT',
                 price: selectedPlan.price,
                 plan: selectedPlan.title,
-                payForPlan: payForChatGPTCredits,
                 sliderHight: 0.5,
               });
             }}

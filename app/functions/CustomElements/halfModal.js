@@ -115,7 +115,6 @@ export default function CustomHalfModal(props) {
           <ConfirmChatGPTPage
             price={props.route.params?.price}
             plan={props.route.params?.plan}
-            payForPlan={props.route.params?.payForPlan}
             slideHeight={slideHeight}
           />
         );

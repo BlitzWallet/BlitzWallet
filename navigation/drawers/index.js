@@ -13,7 +13,7 @@ import FullLoadingScreen from '../../app/functions/CustomElements/loadingScreen'
 
 const Drawer = createDrawerNavigator();
 
-function ChatGPTDrawer() {
+function ChatGPTDrawer({confirmationSliderData}) {
   const insets = useSafeAreaInsets();
   const navigate = useNavigation();
 
@@ -70,11 +70,10 @@ function ChatGPTDrawer() {
     };
   }, []);
 
-  if (!didLoad) {
-    return <FullLoadingScreen text={'Loading...'} />;
-  }
-
   if (chatGPTCredits > 30) {
+    if (!didLoad) {
+      return <FullLoadingScreen text={'Loading...'} />;
+    }
     return (
       <Drawer.Navigator
         screenOptions={{
@@ -96,7 +95,9 @@ function ChatGPTDrawer() {
       </Drawer.Navigator>
     );
   } else {
-    return <AddChatGPTCredits />;
+    return (
+      <AddChatGPTCredits confirmationSliderData={confirmationSliderData} />
+    );
   }
 }
 
