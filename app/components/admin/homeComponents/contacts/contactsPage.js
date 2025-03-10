@@ -27,7 +27,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
 
-export default function ContactsPage({navigation}) {
+export default function ContactsPage({navigation, route}) {
   const {masterInfoObject, deepLinkContent, setDeepLinkContent} =
     useGlobalContextProvider();
   const {isConnectedToTheInternet} = useAppStatus();
@@ -45,7 +45,13 @@ export default function ContactsPage({navigation}) {
   const navigate = useNavigation();
   const {backgroundOffset} = GetThemeColors();
   const myProfile = globalContactsInformation.myProfile;
+  const deepLinkData = {
+    data: route?.params?.deepLinkData,
+    type: route?.params?.deepLinkType,
+  };
   const didEditProfile = globalContactsInformation.myProfile.didEditProfile;
+
+  console.log(deepLinkData, 'TESTING');
 
   const handleBackPressFunction = useCallback(() => {
     tabsNavigate('Home');
@@ -59,24 +65,41 @@ export default function ContactsPage({navigation}) {
   }, [isFocused, handleBackPressFunction]);
 
   useEffect(() => {
-    if (deepLinkContent.type !== 'Contact') return;
+    if (!deepLinkData.data || !deepLinkData.type) return;
+    if (deepLinkData.type !== 'Contact') return;
+
     (async () => {
       const deepLinkContact = await getDeepLinkUser({
-        deepLinkContent: deepLinkContent.data,
+        deepLinkContent: deepLinkData.data,
         userProfile: myProfile,
       });
       if (deepLinkContact.didWork) {
         navigate.navigate('ExpandedAddContactsPage', {
           newContact: deepLinkContact.data,
         });
-        setDeepLinkContent({type: '', data: ''});
       } else {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: `${deepLinkContact.reason}`,
+        navigate.reset({
+          index: 0, // The top-level route index
+          routes: [
+            {
+              name: 'HomeAdmin',
+              params: {screen: 'Home'},
+            },
+            {
+              name: 'HomeAdmin',
+              params: {
+                screen: 'ContactsPageInit',
+              },
+            },
+            {
+              name: 'ErrorScreen',
+              params: {errorMessage: `${deepLinkContact.reason}`},
+            },
+          ],
         });
       }
     })();
-  }, [deepLinkContent]);
+  }, [deepLinkData]);
 
   const pinnedContacts = useMemo(() => {
     return decodedAddedContacts

@@ -240,8 +240,11 @@ export default function ConnectingToNodeLoadingScreen({
           (!masterInfoObject.enabledEcash || didSetEcashInformation)
         ) {
           if (deepLinkContent.data.length != 0) {
+            const deepLinkData = deepLinkContent.data;
+            const deepLinkType = deepLinkContent.type;
+            setDeepLinkContent({type: '', data: ''});
             try {
-              if (deepLinkContent.type === 'LN') {
+              if (deepLinkType === 'LN') {
                 reset({
                   index: 0, // The top-level route index
                   routes: [
@@ -254,15 +257,15 @@ export default function ConnectingToNodeLoadingScreen({
                     {
                       name: 'ConfirmPaymentScreen', // Navigate to ExpandedAddContactsPage
                       params: {
-                        btcAdress: deepLinkContent.data,
+                        btcAdress: deepLinkData,
                       },
                     },
                   ],
                   // Array of routes to set in the stack
                 });
-              } else if (deepLinkContent.type === 'Contact') {
+              } else if (deepLinkType === 'Contact') {
                 const deepLinkContact = await getDeepLinkUser({
-                  deepLinkContent: deepLinkContent.data,
+                  deepLinkContent: deepLinkData,
                   userProfile: globalContactsInformation.myProfile,
                 });
 
@@ -282,14 +285,7 @@ export default function ConnectingToNodeLoadingScreen({
                           screen: 'ContactsPageInit',
                         },
                       },
-                      {
-                        name: 'ExpandedAddContactsPage', // Navigate to ExpandedAddContactsPage
-                        params: {
-                          newContact: deepLinkContact.data,
-                        },
-                      },
                     ],
-                    // Array of routes to set in the stack
                   });
                 } else {
                   reset({
@@ -314,10 +310,8 @@ export default function ConnectingToNodeLoadingScreen({
               }
             } catch (err) {
               console.log('deep link error', err);
-            } finally {
-              setDeepLinkContent({type: '', data: ''});
-              return;
             }
+            return;
           }
 
           const autoWorkData =

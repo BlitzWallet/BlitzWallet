@@ -140,42 +140,44 @@ function ResetStack(): JSX.Element | null {
   const {backgroundColor} = GetThemeColors();
 
   // Memoize handleDeepLink
-  const handleDeepLink = useCallback(
-    (event: {url: string}) => {
-      console.log('TEST');
-      const {url} = event;
+  // const handleDeepLink = useCallback((event: {url: string}) => {
+  //   console.log('TEST');
+  //   const {url} = event;
 
-      if (url.startsWith('lightning')) {
-        setDeepLinkContent({type: 'LN', data: url});
-      } else if (url.includes('blitz')) {
-        setDeepLinkContent({type: 'Contact', data: url});
-      }
+  //   if (url.startsWith('lightning')) {
+  //     setDeepLinkContent({type: 'LN', data: url});
+  //   } else if (url.includes('blitz')) {
+  //     setDeepLinkContent({type: 'Contact', data: url});
+  //   }
 
-      console.log('Deep link URL:', url); // Log the URL
-    },
-    [setDeepLinkContent],
-  );
+  //   console.log('Deep link URL:', url); // Log the URL
+  // }, []);
 
   // Memoize getInitialURL
-  const getInitialURL = useCallback(async () => {
-    const url = await Linking.getInitialURL();
-    if (url) {
-      handleDeepLink({url});
-    }
-  }, [handleDeepLink]);
+  // const getInitialURL = useCallback(async () => {
+  //   const url = await Linking.getInitialURL();
+  //   if (url) {
+  //     handleDeepLink({url});
+  //   }
+  // }, [handleDeepLink]);
 
   useEffect(() => {
-    const subscription = Linking.addListener('url', handleDeepLink);
+    // const subscription = Linking.addListener('url', handleDeepLink);
 
     async function initWallet() {
-      const [initialURL, registerBackground, pin, mnemonic, securitySettings] =
-        await Promise.all([
-          await getInitialURL(),
-          await registerBackgroundNotificationTask(),
-          await retrieveData('pin'),
-          await retrieveData('mnemonic'),
-          await getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-        ]);
+      const [
+        //initialURL,
+        registerBackground,
+        pin,
+        mnemonic,
+        securitySettings,
+      ] = await Promise.all([
+        // await getInitialURL(),
+        await registerBackgroundNotificationTask(),
+        await retrieveData('pin'),
+        await retrieveData('mnemonic'),
+        await getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
+      ]);
 
       const storedSettings = JSON.parse(securitySettings);
       const parsedSettings = storedSettings ?? {

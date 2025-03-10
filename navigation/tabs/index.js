@@ -46,37 +46,50 @@ function MyTabBar({state, descriptors, navigation}) {
 
   const deepLinkContentData = deepLinkContent.data;
   useEffect(() => {
-    if (deepLinkContent.data.length === 0) return;
+    if (!deepLinkContentData) return;
+    if (deepLinkContentData.length === 0) return;
+    const deepLinkData = deepLinkContent.data;
+    const deepLinkType = deepLinkContent.type;
     setDeepLinkContent({type: '', data: ''});
-    if (deepLinkContent.type === 'Contact') {
-      navigate.reset({
-        index: 0, // The top-level route index
-        routes: [
-          {
-            name: 'HomeAdmin',
-            params: {screen: 'Home'},
-          },
-          {
-            name: 'HomeAdmin',
-            params: {screen: 'ContactsPageInit'},
-          },
-        ],
-      });
-    } else if (deepLinkContent.type === 'LN') {
-      navigate.reset({
-        index: 0,
-        routes: [
-          {
-            name: 'HomeAdmin',
-            params: {screen: 'Home'},
-          },
+    try {
+      if (deepLinkContent.type === 'Contact') {
+        navigate.reset({
+          index: 0, // The top-level route index
+          routes: [
+            {
+              name: 'HomeAdmin',
+              params: {screen: 'Home'},
+            },
+            {
+              name: 'HomeAdmin',
+              params: {
+                screen: 'ContactsPageInit',
+                params: {
+                  deepLinkData: deepLinkData,
+                  deepLinkType: deepLinkType,
+                },
+              },
+            },
+          ],
+        });
+      } else if (deepLinkContent.type === 'LN') {
+        navigate.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'HomeAdmin',
+              params: {screen: 'Home'},
+            },
 
-          {
-            name: 'ConfirmPaymentScreen',
-            params: {btcAdress: deepLinkContent.data},
-          },
-        ],
-      });
+            {
+              name: 'ConfirmPaymentScreen',
+              params: {btcAdress: deepLinkContentData},
+            },
+          ],
+        });
+      }
+    } catch (err) {
+      console.log('deep link in navigator error', err);
     }
   }, [deepLinkContentData]);
 
