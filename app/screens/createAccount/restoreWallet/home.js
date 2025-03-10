@@ -80,12 +80,12 @@ export default function RestoreWallet({
           key={item}
           style={{
             ...styles.seedItem,
-            paddingVertical: Platform.OS === 'ios' ? 10 : 0,
+
             backgroundColor: theme
               ? COLORS.darkModeBackgroundOffset
               : COLORS.darkModeText,
           }}>
-          <ThemeText styles={{...styles.numberText}} content={`${item}.`} />
+          <ThemeText styles={styles.numberText} content={`${item}.`} />
           <TextInput
             ref={ref => (keyRefs.current[item] = ref)} // Store ref for each input
             value={inputedKey[`key${item}`]}
@@ -94,7 +94,7 @@ export default function RestoreWallet({
             onChangeText={e => handleInputElement(e, item)}
             blurOnSubmit={false}
             cursorColor={COLORS.lightModeText}
-            style={{...styles.textInputStyle, color: COLORS.lightModeText}}
+            style={styles.textInputStyle}
           />
         </View>,
       );
@@ -334,16 +334,15 @@ const styles = StyleSheet.create({
   },
   seedRow: {
     width: '100%',
-
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   seedItem: {
     width: '48%',
-
+    paddingVertical: Platform.OS === 'ios' ? 10 : 0,
+    minHeight: Platform.OS === 'ios' ? 0 : 55,
     flexDirection: 'row',
     alignItems: 'center',
-
     paddingHorizontal: 10,
     borderRadius: 8,
   },
@@ -353,16 +352,14 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   textInputStyle: {
-    width: '90%',
+    flex: 1,
+    minHeight: Platform.OS === 'ios' ? 0 : 55,
     fontSize: SIZES.large,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
+    color: COLORS.lightModeText,
   },
-  continueBTN: {
-    fontSize: SIZES.large,
-    fontFamily: FONT.Other_Regular,
-    color: COLORS.background,
-  },
+
   mainBTCContainer: {
     width: '100%',
     flexDirection: 'row',
