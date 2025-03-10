@@ -39,8 +39,6 @@ import fetchBackend from '../../../../../../db/handleBackend';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
@@ -330,7 +328,7 @@ export default function ChatGPTHome(props) {
   function closeChat() {
     Keyboard.dismiss();
     if (newChats.length === 0) {
-      props.navigation.navigate('App Store');
+      navigate.navigate('HomeAdmin');
       return;
     }
     navigate.setOptions({
@@ -341,10 +339,9 @@ export default function ChatGPTHome(props) {
           chatHistory,
           newChats,
           toggleGlobalAppDataInformation,
-          navigation: props.navigation,
           navigate,
         }),
-      doesNotWantToSave: () => props.navigation.navigate('App Store'),
+      doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
     });
     navigate.navigate('ConfirmLeaveChatGPT', {
       wantsToSave: () =>
@@ -354,10 +351,9 @@ export default function ChatGPTHome(props) {
           chatHistory,
           newChats,
           toggleGlobalAppDataInformation,
-          navigation: props.navigation,
           navigate,
         }),
-      doesNotWantToSave: () => props.navigation.navigate('App Store'),
+      doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
     });
   }
 

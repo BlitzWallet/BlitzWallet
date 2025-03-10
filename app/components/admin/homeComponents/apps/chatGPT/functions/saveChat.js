@@ -11,7 +11,6 @@ export default function saveChatGPTChat({
   chatHistory,
   newChats,
   toggleGlobalAppDataInformation,
-  navigation,
   navigate,
 }) {
   try {
@@ -76,7 +75,7 @@ export default function saveChatGPTChat({
       true,
     );
 
-    navigation.navigate('App Store');
+    navigate.navigate('HomeAdmin');
   } catch (err) {
     console.log(err);
     navigate.navigate('ErrorScreen', {
