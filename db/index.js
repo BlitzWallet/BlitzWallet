@@ -13,7 +13,7 @@ export async function addDataToCollection(dataObject, collection, uuid) {
 
     await Promise.all([
       docRef.set(dataObject, {merge: true}),
-      saveToLocalDB(dataObject),
+      // saveToLocalDB(dataObject),
     ]);
 
     console.log('New document information', dataObject);
@@ -50,20 +50,20 @@ export async function getDataFromCollection(collectionName, uuid) {
   try {
     if (!uuid) throw Error('Not authenticated');
 
-    const existingData = await getLocalStorageItem(LOCAL_STORED_USER_DATA_KEY);
-    if (existingData) {
-      console.log('returning existing data...');
-      return JSON.parse(existingData);
-    }
+    // const existingData = await getLocalStorageItem(LOCAL_STORED_USER_DATA_KEY);
+    // if (existingData) {
+    //   console.log('returning existing data...');
+    //   return JSON.parse(existingData);
+    // }
 
     const docRef = db.collection(collectionName).doc(uuid);
     const docSnap = await docRef.get();
     if (docSnap.exists) {
       const userData = docSnap.data();
-      await setLocalStorageItem(
-        LOCAL_STORED_USER_DATA_KEY,
-        JSON.stringify(userData),
-      );
+      // await setLocalStorageItem(
+      //   LOCAL_STORED_USER_DATA_KEY,
+      //   JSON.stringify(userData),
+      // );
       return userData;
     }
   } catch (err) {
