@@ -201,19 +201,7 @@ function TopBar(props) {
     <TouchableOpacity
       style={{marginRight: 'auto'}}
       activeOpacity={0.6}
-      onPress={() => {
-        props.navigate.reset({
-          index: 0,
-          routes: [
-            {
-              name: 'HomeAdmin',
-              params: {
-                screen: 'Home',
-              },
-            },
-          ],
-        });
-      }}>
+      onPress={props.navigate.goBack}>
       <ThemeImage
         darkModeIcon={ICONS.smallArrowLeft}
         lightModeIcon={ICONS.smallArrowLeft}

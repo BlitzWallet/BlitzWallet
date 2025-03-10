@@ -100,10 +100,7 @@ export default function EditReceivePaymentInformation(props) {
       useLocalPadding={true}
       isKeyboardActive={isKeyboardFocused}
       useStandardWidth={true}>
-      <TouchableOpacity
-        onPress={() => {
-          navigate.goBack();
-        }}>
+      <TouchableOpacity onPress={navigate.goBack}>
         <ThemeImage
           darkModeIcon={ICONS.smallArrowLeft}
           lightModeIcon={ICONS.smallArrowLeft}
