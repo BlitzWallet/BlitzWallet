@@ -117,43 +117,38 @@ export async function searchUsers(
   if (!parsedSearchTerm || !parsedSearchTerm.length) return []; // Return an empty array if the search term is empty
   console.log('running search');
   try {
-    const uniqueNameQuery = (
-      await db
-        .collection(collectionName)
-        .where(
-          'contacts.myProfile.uniqueNameLower',
-          '>=',
-          parsedSearchTerm.toLowerCase(),
-        )
-        .where(
-          'contacts.myProfile.uniqueNameLower',
-          '<=',
-          parsedSearchTerm.toLowerCase() + '\uf8ff',
-        )
-        .limit(5)
-        .get()
-    ).docs.map(doc => doc.data());
-
-    const nameQuery = (
-      await db
-        .collection(collectionName)
-        .where(
-          'contacts.myProfile.nameLower',
-          '>=',
-          parsedSearchTerm.toLowerCase(),
-        )
-        .where(
-          'contacts.myProfile.nameLower',
-          '<=',
-          parsedSearchTerm.toLowerCase() + '\uf8ff',
-        )
-        .limit(5)
-        .get()
-    ).docs.map(doc => doc.data());
-
     const [uniqueNameSnapshot, nameSnapshot] = await Promise.all([
-      uniqueNameQuery,
-      nameQuery,
+      db
+        .collection(collectionName)
+        .where(
+          'contacts.myProfile.uniqueNameLower',
+          '>=',
+          parsedSearchTerm.toLowerCase(),
+        )
+        .where(
+          'contacts.myProfile.uniqueNameLower',
+          '<=',
+          parsedSearchTerm.toLowerCase() + '\uf8ff',
+        )
+        .limit(5)
+        .get()
+        .then(querySnapshot => querySnapshot.docs.map(doc => doc.data())),
+
+      db
+        .collection(collectionName)
+        .where(
+          'contacts.myProfile.nameLower',
+          '>=',
+          parsedSearchTerm.toLowerCase(),
+        )
+        .where(
+          'contacts.myProfile.nameLower',
+          '<=',
+          parsedSearchTerm.toLowerCase() + '\uf8ff',
+        )
+        .limit(5)
+        .get()
+        .then(querySnapshot => querySnapshot.docs.map(doc => doc.data())),
     ]);
 
     const uniqueUsers = new Map();
@@ -238,17 +233,18 @@ export async function syncDatabasePayment(
 
     console.log('retriving docs from this timestamp:', savedMillis);
 
-    const receivedMessages = await db
-      .collection('contactMessages')
-      .where('toPubKey', '==', myPubKey)
-      .where('timestamp', '>', savedMillis)
-      .get();
-
-    const sentMessages = await db
-      .collection('contactMessages')
-      .where('fromPubKey', '==', myPubKey)
-      .where('timestamp', '>', savedMillis)
-      .get();
+    const [receivedMessages, sentMessages] = await Promise.all([
+      db
+        .collection('contactMessages')
+        .where('toPubKey', '==', myPubKey)
+        .where('timestamp', '>', savedMillis)
+        .get(),
+      db
+        .collection('contactMessages')
+        .where('fromPubKey', '==', myPubKey)
+        .where('timestamp', '>', savedMillis)
+        .get(),
+    ]);
 
     if (receivedMessages.empty && sentMessages.empty) {
       updatedCachedMessagesStateFunction();
