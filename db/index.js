@@ -3,16 +3,20 @@ import {
   getCachedMessages,
   queueSetCashedMessages,
 } from '../app/functions/messaging/cachedMessages';
+import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
+export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
 
 export async function addDataToCollection(dataObject, collection, uuid) {
   try {
     if (!uuid) throw Error('Not authenticated');
     const docRef = db.collection(collection).doc(uuid);
 
+    await Promise.all([
+      docRef.set(dataObject, {merge: true}),
+      saveToLocalDB(dataObject),
+    ]);
+
     console.log('New document information', dataObject);
-
-    await docRef.set(dataObject, {merge: true});
-
     console.log('Document written with ID: ', uuid);
 
     return true;
@@ -22,14 +26,45 @@ export async function addDataToCollection(dataObject, collection, uuid) {
   }
 }
 
+const saveToLocalDB = async dataObject => {
+  try {
+    const existingData = await getLocalStorageItem(LOCAL_STORED_USER_DATA_KEY);
+    let userData = existingData ? JSON.parse(existingData) : {};
+
+    // Merge new data with existing local user data
+    userData = {...userData, ...dataObject};
+
+    // Save back to AsyncStorage
+    await setLocalStorageItem(
+      LOCAL_STORED_USER_DATA_KEY,
+      JSON.stringify(userData),
+    );
+    return true;
+  } catch (error) {
+    console.error('Error writing document:', error);
+    throw error;
+  }
+};
+
 export async function getDataFromCollection(collectionName, uuid) {
   try {
     if (!uuid) throw Error('Not authenticated');
 
+    const existingData = await getLocalStorageItem(LOCAL_STORED_USER_DATA_KEY);
+    if (existingData) {
+      console.log('returning existing data...');
+      return JSON.parse(existingData);
+    }
+
     const docRef = db.collection(collectionName).doc(uuid);
     const docSnap = await docRef.get();
     if (docSnap.exists) {
-      return docSnap.data();
+      const userData = docSnap.data();
+      await setLocalStorageItem(
+        LOCAL_STORED_USER_DATA_KEY,
+        JSON.stringify(userData),
+      );
+      return userData;
     }
   } catch (err) {
     console.log(err);
