@@ -96,11 +96,11 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <data android:scheme="keyauth"/>
       </intent-filter>
-      <intent-filter android:autoVerify="true">
+     <intent-filter android:autoVerify="true">
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="https" android:host="blitz-wallet.com"/>
+        <data android:scheme="https" android:host="blitz-wallet.com" android:pathPrefix="/u"/>
       </intent-filter>
       <intent-filter android:label="filter_react_native">
         <action android:name="android.intent.action.VIEW"/>
