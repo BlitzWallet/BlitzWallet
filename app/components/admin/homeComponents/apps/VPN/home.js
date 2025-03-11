@@ -31,23 +31,7 @@ export default function VPNHome() {
         navigate.navigate('ErrorScreen', {
           errorMessage: 'Unable to get available countries',
           customNavigator: () => {
-            navigate.reset({
-              index: 0,
-              routes: [
-                {
-                  name: 'HomeAdmin', // Navigate to HomeAdmin
-                  params: {
-                    screen: 'Home',
-                  },
-                },
-                {
-                  name: 'HomeAdmin', // Navigate to HomeAdmin
-                  params: {
-                    screen: 'App Store',
-                  },
-                },
-              ],
-            });
+            navigate.navigate('HomeAdmin');
           },
         });
         console.log(err);

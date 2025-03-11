@@ -111,22 +111,8 @@ export default function ManualEnterSendAddress() {
       openWebBrowser({navigate, link: inputValue});
       return;
     }
-    navigate.reset({
-      index: 0,
-      routes: [
-        {
-          name: 'HomeAdmin', // Navigate to HomeAdmin
-          params: {
-            screen: 'Home',
-          },
-        },
-        {
-          name: 'ConfirmPaymentScreen', // Navigate to HomeAdmin
-          params: {
-            btcAdress: inputValue,
-          },
-        },
-      ],
+    navigate.replace('ConfirmPaymentScreen', {
+      btcAdress: inputValue,
     });
   }
 }

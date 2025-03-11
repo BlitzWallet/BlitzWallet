@@ -62,30 +62,9 @@ export default function HalfModalSendOptions(props) {
               return;
             }
             if (!response.didWork || !response.btcAdress) return;
-            if (Platform.OS === 'android') {
-              navigate.navigate('ConfirmPaymentScreen', {
-                btcAdress: response.btcAdress,
-                fromPage: '',
-              });
-              return;
-            }
-            navigate.reset({
-              index: 0,
-              routes: [
-                {
-                  name: 'HomeAdmin',
-                  params: {
-                    screen: 'Home',
-                  },
-                },
-                {
-                  name: 'ConfirmPaymentScreen',
-                  params: {
-                    btcAdress: response.btcAdress,
-                    fromPage: '',
-                  },
-                },
-              ],
+            navigate.replace('ConfirmPaymentScreen', {
+              btcAdress: response.btcAdress,
+              fromPage: '',
             });
           } else if (item === 'clipboard') {
             getClipboardText(navigate, 'modal', nodeInformation);
@@ -133,24 +112,7 @@ export default function HalfModalSendOptions(props) {
           {decodedAddedContacts.length != 0 && (
             <TouchableOpacity
               onPress={() => {
-                if (Platform.OS === 'android') {
-                  navigate.navigate('ChooseContactHalfModal');
-                } else {
-                  navigate.reset({
-                    index: 0,
-                    routes: [
-                      {
-                        name: 'HomeAdmin',
-                        params: {
-                          screen: 'Home',
-                        },
-                      },
-                      {
-                        name: 'ChooseContactHalfModal',
-                      },
-                    ],
-                  });
-                }
+                navigate.replace('ChooseContactHalfModal');
               }}>
               <View style={styles.optionRow}>
                 <ThemeImage
