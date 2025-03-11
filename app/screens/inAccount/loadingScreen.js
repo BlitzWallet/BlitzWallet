@@ -59,7 +59,7 @@ import {
 import {sumProofsValue} from '../../functions/eCash/proofs';
 import {initializePOSTransactionsDatabase} from '../../functions/pos';
 export default function ConnectingToNodeLoadingScreen({
-  navigation: {reset},
+  navigation: {replace},
   route,
 }) {
   const navigate = useNavigation();
@@ -249,17 +249,8 @@ export default function ConnectingToNodeLoadingScreen({
           console.log('AUTO WORK DATA', resolvedData);
 
           if (!resolvedData.didRun) {
-            reset({
-              index: 0,
-              routes: [
-                {
-                  name: 'HomeAdmin',
-                  params: {
-                    screen: 'Home',
-                  },
-                },
-              ],
-            });
+            replace('HomeAdmin', {screen: 'Home'});
+
             return;
           }
 
@@ -273,29 +264,9 @@ export default function ConnectingToNodeLoadingScreen({
                   proofsToUse: meltQuote.proofsToUse,
                   description: 'Auto Channel Rebalance',
                 });
-                reset({
-                  index: 0,
-                  routes: [
-                    {
-                      name: 'HomeAdmin',
-                      params: {
-                        screen: 'Home',
-                      },
-                    },
-                  ],
-                });
+                replace('HomeAdmin', {screen: 'Home'});
               } else {
-                reset({
-                  index: 0,
-                  routes: [
-                    {
-                      name: 'HomeAdmin',
-                      params: {
-                        screen: 'Home',
-                      },
-                    },
-                  ],
-                });
+                replace('HomeAdmin', {screen: 'Home'});
               }
             } else {
               const parsedInvoice = await parseInput(resolvedData.invoice);
@@ -304,30 +275,10 @@ export default function ConnectingToNodeLoadingScreen({
                 paymentInfo: parsedInvoice,
                 paymentDescription: 'Auto Channel Rebalance',
                 failureFunction: () => {
-                  reset({
-                    index: 0,
-                    routes: [
-                      {
-                        name: 'HomeAdmin',
-                        params: {
-                          screen: 'Home',
-                        },
-                      },
-                    ],
-                  });
+                  replace('HomeAdmin', {screen: 'Home'});
                 },
                 confirmFunction: () => {
-                  reset({
-                    index: 0,
-                    routes: [
-                      {
-                        name: 'HomeAdmin',
-                        params: {
-                          screen: 'Home',
-                        },
-                      },
-                    ],
-                  });
+                  replace('HomeAdmin', {screen: 'Home'});
                 },
               });
             }
@@ -337,18 +288,7 @@ export default function ConnectingToNodeLoadingScreen({
               invoice: resolvedData.invoice.lnInvoice.bolt11,
             });
 
-            if (response)
-              reset({
-                index: 0,
-                routes: [
-                  {
-                    name: 'HomeAdmin',
-                    params: {
-                      screen: 'Home',
-                    },
-                  },
-                ],
-              });
+            if (response) replace('HomeAdmin', {screen: 'Home'});
           }
         } else
           throw new Error(

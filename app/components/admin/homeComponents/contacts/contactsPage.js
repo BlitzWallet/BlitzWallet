@@ -185,7 +185,11 @@ export default function ContactsPage({navigation}) {
           />
           <ThemeText
             styles={{...styles.noContactsText}}
-            content={'You have no contacts.'}
+            content={
+              didEditProfile
+                ? 'You have no contacts.'
+                : 'Edit your profile to begin using contacts.'
+            }
           />
 
           <CustomButton

@@ -17,14 +17,13 @@ import PinDot from '../../../functions/CustomElements/pinDot';
 import {useNavigation} from '@react-navigation/native';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 
-export default function PinPage(props) {
+export default function PinPage() {
   const [pin, setPin] = useState([null, null, null, null]);
   const [error, setError] = useState(false);
   const [pinEnterCount, setPinEnterCount] = useState(0);
   const [loginSettings, setLoginSettings] = useState({});
   const {t} = useTranslation();
 
-  const fromBackground = props.fromBackground;
   const navigate = useNavigation();
 
   useEffect(() => {
@@ -60,13 +59,9 @@ export default function PinPage(props) {
 
         clearSettings();
 
-        if (fromBackground) {
-          if (navigate.canGoBack()) navigate.goBack();
-          else navigate.replace('ConnectingToNodeLoadingScreen');
-        } else
-          navigate.replace('ConnectingToNodeLoadingScreen', {
-            isInitialLoad: false,
-          });
+        navigate.replace('ConnectingToNodeLoadingScreen', {
+          isInitialLoad: false,
+        });
       } else {
         if (pinEnterCount === 7) {
           const deleted = await factoryResetWallet();
@@ -87,7 +82,7 @@ export default function PinPage(props) {
         }
       }
     })();
-  }, [pin, pinEnterCount, fromBackground, navigate]);
+  }, [pin, pinEnterCount, navigate]);
 
   useEffect(() => {
     (async () => {
@@ -100,7 +95,10 @@ export default function PinPage(props) {
       if (!storedSettings.isBiometricEnabled) return;
 
       const didLogIn = await handleLogin();
-      if (didLogIn) navigate.replace('ConnectingToNodeLoadingScreen');
+      if (didLogIn)
+        navigate.replace('ConnectingToNodeLoadingScreen', {
+          isInitialLoad: false,
+        });
     })();
   }, []);
 

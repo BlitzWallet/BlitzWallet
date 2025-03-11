@@ -5,23 +5,13 @@
  * @format
  */
 
-import {
-  NavigationContainer,
-  NavigationContainerRef,
-} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import 'text-encoding-polyfill';
 import 'react-native-gesture-handler';
 import './i18n'; // for translation option
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {registerRootComponent} from 'expo';
-type RootStackParamList = {
-  Home: {someParam?: string};
-  Details: {someParam?: string};
-  ExpandedAddContactsPage: {newContact: object};
-  ConfirmPaymentScreen: {btcAdress: string};
-  ErrorScreen: {errorMessage: string};
-};
 import {
   getLocalStorageItem,
   retrieveData,
@@ -72,6 +62,7 @@ import {
   SLIDE_FROM_RIGHT_SCREENS,
 } from './navigation/screens';
 import getDeepLinkUser from './app/components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
+import {navigationRef} from './navigation/navigationService';
 
 const Stack = createNativeStackNavigator();
 
@@ -114,9 +105,6 @@ function App(): JSX.Element {
 }
 
 function ResetStack(): JSX.Element | null {
-  const navigationRef =
-    useRef<NavigationContainerRef<RootStackParamList> | null>(null);
-
   const [initSettings, setInitSettings] = useState<{
     isLoggedIn: boolean | null;
     hasSecurityEnabled: boolean | null;

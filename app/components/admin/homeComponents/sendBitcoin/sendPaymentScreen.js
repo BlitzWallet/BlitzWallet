@@ -709,17 +709,7 @@ export default function SendPaymentScreen(props) {
     navigate.goBack();
   }
   function errorMessageNavigation() {
-    navigate.reset({
-      index: 0,
-      routes: [
-        {
-          name: 'HomeAdmin', // Navigate to HomeAdmin
-          params: {
-            screen: 'Home',
-          },
-        },
-      ],
-    });
+    navigate.navigate('HomeAdmin', {screen: 'Home'});
   }
 }
 

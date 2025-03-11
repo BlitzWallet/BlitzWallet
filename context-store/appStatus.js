@@ -8,6 +8,7 @@ import {
 } from 'react';
 import {getBoltzSwapPairInformation} from '../app/functions/boltz/boltzSwapInfo';
 import * as Network from 'expo-network';
+import {navigationRef} from '../navigation/navigationService';
 // Initiate context
 const AppStatusManager = createContext(null);
 
@@ -27,6 +28,19 @@ const AppStatusProvider = ({children}) => {
   }, []);
   const toggleMinMaxLiquidSwapAmounts = useCallback(newInfo => {
     setMinMaxLiquidSwapAmounts(prev => ({...prev, ...newInfo}));
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigationRef.addListener('state', () => {
+      console.log(
+        'Current navigation stack',
+        navigationRef.getRootState().routes,
+      );
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {

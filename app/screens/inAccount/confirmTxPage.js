@@ -24,7 +24,6 @@ export default function ConfirmTxPage(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const paymentType = props.route.params?.for;
   const paymentInformation = props.route.params?.information;
-  const fromPage = props.route.params?.fromPage;
   const formmatingType = props.route.params?.formattingType;
 
   console.log(props.route.params);
@@ -221,16 +220,11 @@ export default function ConfirmTxPage(props) {
             didSucceed && !theme ? COLORS.darkModeText : COLORS.lightModeText,
         }}
         actionFunction={() => {
-          if (fromPage === 'sendSMSPage') {
-            navigate.goBack();
-            return;
-          }
-          props.navigation.reset({
-            index: 0, // The index of the route to focus on
-            routes: [{name: 'HomeAdmin'}], // Array of routes to set in the stack
-          });
+          console.log('POPPING TO TOP');
+          // This will go to whatever the base homsecreen is set to
+          navigate.popToTop();
         }}
-        textContent={fromPage === 'sendSMSPage' ? 'Back' : 'Continue'}
+        textContent={'Continue'}
       />
     </GlobalThemeView>
   );

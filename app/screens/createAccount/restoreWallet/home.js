@@ -27,7 +27,7 @@ import {useGlobalThemeContext} from '../../../../context-store/theme';
 const NUMARRAY = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 export default function RestoreWallet({
-  navigation: {navigate},
+  navigation: {navigate, reset},
   route: {params},
 }) {
   const {t} = useTranslation();
@@ -298,9 +298,20 @@ export default function RestoreWallet({
       return;
     } else {
       storeData('mnemonic', mnemonic.join(' '));
-      if (hasPin)
-        navigate('ConnectingToNodeLoadingScreen', {didRestoreWallet: true});
-      else navigate('PinSetup', {didRestoreWallet: true});
+      if (hasPin) {
+        reset({
+          index: 0,
+          routes: [
+            {
+              name: 'ConnectingToNodeLoadingScreen',
+              params: {
+                isInitialLoad: true,
+                didRestoreWallet: true,
+              },
+            },
+          ],
+        });
+      } else navigate('PinSetup', {didRestoreWallet: true});
     }
   }
 }
