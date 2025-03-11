@@ -1,5 +1,12 @@
 import {Image, StyleSheet, View, TouchableOpacity, Text} from 'react-native';
-import {CENTER, COLORS, FONT, ICONS, SIZES} from '../constants';
+import {
+  BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
+  CENTER,
+  COLORS,
+  FONT,
+  ICONS,
+  SIZES,
+} from '../constants';
 import {ThemeText} from './CustomElements';
 import FormattedSatText from './CustomElements/satTextDisplay';
 import {useTranslation} from 'react-i18next';
@@ -282,6 +289,17 @@ export function UserTransaction({
     [transaction, isLiquidPayment],
   );
 
+  const paymentDescription = isLiquidPayment
+    ? transaction?.details?.description
+    : isLightningPayment &&
+      transaction?.details?.data?.lnAddress &&
+      transaction?.details?.data?.label
+    ? transaction?.details?.data?.label
+    : transaction?.description;
+  const isDefaultDescription =
+    paymentDescription === BLITZ_DEFAULT_PAYMENT_DESCRIPTION ||
+    paymentDescription === 'Liquid transfer';
+
   return (
     <TouchableOpacity
       style={{
@@ -317,7 +335,8 @@ export function UserTransaction({
                       transaction.paymentType === 'closed_channel'
                         ? '0deg'
                         : isLiquidPayment
-                        ? transaction?.paymentType !== 'receive'
+                        ? transaction?.paymentType !== 'receive' &&
+                          transaction?.paymentTime !== 'received'
                           ? '130deg'
                           : '310deg'
                         : transaction.status === 'complete' ||
@@ -357,20 +376,12 @@ export function UserTransaction({
                 ? t('transactionLabelText.failed')
                 : masterInfoObject.userBalanceDenomination === 'hidden'
                 ? '*****'
-                : isLiquidPayment
-                ? transaction?.details?.description ||
-                  (transaction?.paymentType !== 'receive'
-                    ? t('constants.sent')
-                    : t('constants.received'))
-                : isLightningPayment &&
-                  transaction?.details?.data?.lnAddress &&
-                  transaction?.details?.data?.label
-                ? transaction?.details?.data?.label
-                : !!transaction?.description
-                ? transaction?.description
-                : transaction.paymentType === 'sent'
-                ? t('constants.sent')
-                : t('constants.received')
+                : isDefaultDescription || !paymentDescription
+                ? transaction?.paymentType !== 'receive' &&
+                  transaction?.paymentTime !== 'received'
+                  ? t('constants.sent')
+                  : t('constants.received')
+                : paymentDescription
             }
           />
 
