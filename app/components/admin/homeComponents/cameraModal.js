@@ -78,7 +78,10 @@ export default function CameraModal(props) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <TouchableOpacity
-          style={[styles.topBar, {position: 'absolute', zIndex: 99}]}
+          style={[
+            styles.topBar,
+            {position: 'absolute', zIndex: 99, top: topPadding},
+          ]}
           activeOpacity={0.5}
           onPress={() => {
             navigate.goBack();
@@ -103,7 +106,10 @@ export default function CameraModal(props) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <TouchableOpacity
-          style={[styles.topBar, {position: 'absolute', zIndex: 99}]}
+          style={[
+            styles.topBar,
+            {position: 'absolute', zIndex: 99, top: topPadding},
+          ]}
           activeOpacity={0.5}
           onPress={() => {
             navigate.goBack();

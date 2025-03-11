@@ -215,7 +215,10 @@ export default function SendPaymentHome({pageViewPage, from}) {
       <GlobalThemeView useStandardWidth={true}>
         {from != 'home' && (
           <TouchableOpacity
-            style={[styles.topBar, {position: 'absolute', zIndex: 99}]}
+            style={[
+              styles.topBar,
+              {position: 'absolute', zIndex: 99, top: topPadding},
+            ]}
             activeOpacity={0.5}
             onPress={() => {
               navigate.goBack();
@@ -245,7 +248,10 @@ export default function SendPaymentHome({pageViewPage, from}) {
       <GlobalThemeView useStandardWidth={true}>
         {from != 'home' && (
           <TouchableOpacity
-            style={[styles.topBar, {position: 'absolute', zIndex: 99}]}
+            style={[
+              styles.topBar,
+              {position: 'absolute', zIndex: 99, top: topPadding},
+            ]}
             activeOpacity={0.5}
             onPress={() => {
               navigate.goBack();

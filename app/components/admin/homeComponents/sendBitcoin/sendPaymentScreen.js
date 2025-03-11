@@ -86,7 +86,7 @@ export default function SendPaymentScreen(props) {
   );
 
   const eCashBalance = ecashWalletInformation.balance;
-  const sendingAmount = paymentInfo?.sendAmount;
+  const sendingAmount = paymentInfo?.sendAmount || 0;
   const isBTCdenominated =
     masterInfoObject.userBalanceDenomination === 'hidden' ||
     masterInfoObject.userBalanceDenomination === 'sats';
