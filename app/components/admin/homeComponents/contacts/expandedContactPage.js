@@ -16,8 +16,6 @@ import {
 } from '../../../../functions/messaging/encodingAndDecodingMessages';
 import ContactsTransactionItem from './internalComponents/contactsTransactions';
 import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
-import handleBackPress from '../../../../hooks/handleBackPress';
-import CustomButton from '../../../../functions/CustomElements/button';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
@@ -30,6 +28,7 @@ import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRe
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
+import handleBackPressNew from '../../../../hooks/handleBackPressNew';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
@@ -62,15 +61,7 @@ export default function ExpandedContactsPage(props) {
   );
 
   const contactTransactions = contactsMessags[selectedUUID]?.messages || []; //selectedContact?.transactions;
-
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   useEffect(() => {
     //listening for messages when you're on the contact

@@ -10,9 +10,6 @@ import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {WINDOWWIDTH} from '../../constants/theme';
-import handleBackPress from '../../hooks/handleBackPress';
-import {useEffect} from 'react';
-
 import Icon from '../../functions/CustomElements/Icon';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../functions/CustomElements/button';
@@ -20,9 +17,11 @@ import GetThemeColors from '../../hooks/themeColors';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import {PaymentState} from '@breeztech/react-native-breez-sdk-liquid';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
 
 export default function ExpandedTx(props) {
   console.log('Transaction Detials Page');
+
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
@@ -67,14 +66,7 @@ export default function ExpandedTx(props) {
   const month = paymentDate.toLocaleString('default', {month: 'short'});
   const day = paymentDate.getDate();
   const year = paymentDate.getFullYear();
-
-  function handleBackPressFunction() {
-    navigate.goBack();
-    return true;
-  }
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, []);
+  handleBackPressNew();
 
   return (
     <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>

@@ -4,32 +4,21 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-
 import {useNavigation} from '@react-navigation/native';
-
-import {useCallback, useEffect} from 'react';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import handleBackPress from '../../../../../hooks/handleBackPress';
 import {CENTER, COLORS, FONT, SIZES} from '../../../../../constants';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {copyToClipboard} from '../../../../../functions';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {openInbox} from 'react-native-email-link';
+import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
 
 export default function GiftCardOrderDetails(props) {
   const {backgroundColor} = GetThemeColors();
 
   const item = props.route.params?.item;
   const navigate = useNavigation();
-
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>

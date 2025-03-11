@@ -15,13 +15,12 @@ import {
 import {ANDROIDSAFEAREA, CENTER} from '../../../../../constants/styles';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useRef, useState} from 'react';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import {COLORS, FONT, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
-import handleBackPress from '../../../../../hooks/handleBackPress';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import CustomToggleSwitch from '../../../../../functions/CustomElements/switch';
@@ -38,6 +37,7 @@ import {useLightningEvent} from '../../../../../../context-store/lightningEventC
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
+import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
 
 const SETTINGSITEMS = [
   {
@@ -67,15 +67,7 @@ export default function LiquidSettingsPage() {
 
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
   const insets = useSafeAreaInsets();
-
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   const settingsElements = SETTINGSITEMS.map((item, index) => {
     return (

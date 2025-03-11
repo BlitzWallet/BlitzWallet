@@ -12,17 +12,16 @@ import {
 } from '../../../../../functions/CustomElements';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {CENTER, COLORS, ICONS} from '../../../../../constants';
-import {useCallback, useEffect} from 'react';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
-import handleBackPress from '../../../../../hooks/handleBackPress';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {openComposer} from 'react-native-email-link';
 import {copyToClipboard} from '../../../../../functions';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useKeysContext} from '../../../../../../context-store/keys';
+import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
 
 export default function HistoricalGiftCardPurchases() {
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
@@ -35,15 +34,7 @@ export default function HistoricalGiftCardPurchases() {
     ios: insets.bottom,
     android: ANDROIDSAFEAREA,
   });
-
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   const renderItem = ({item}) => (
     <TouchableOpacity
@@ -82,9 +73,7 @@ export default function HistoricalGiftCardPurchases() {
       useStandardWidth={true}>
       <View style={styles.topBar}>
         <TouchableOpacity
-          onPress={() => {
-            navigate.goBack();
-          }}
+          onPress={navigate.goBack}
           style={{marginRight: 'auto'}}>
           <ThemeImage
             lightModeIcon={ICONS.smallArrowLeft}

@@ -2,13 +2,12 @@ import {useNavigation} from '@react-navigation/native';
 import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {CENTER, FONT, ICONS, SIZES} from '../../../../constants';
 import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../../../constants/theme';
-import handleBackPress from '../../../../hooks/handleBackPress';
-import {useCallback, useEffect} from 'react';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useTranslation} from 'react-i18next';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import handleBackPressNew from '../../../../hooks/handleBackPressNew';
+import {useMemo} from 'react';
 
 export default function SwitchReceiveOptionPage(props) {
   const navigate = useNavigation();
@@ -16,108 +15,79 @@ export default function SwitchReceiveOptionPage(props) {
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
   const setSelectedRecieveOption = props.route.params.setSelectedRecieveOption;
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
+  handleBackPressNew();
 
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
-  return (
-    <GlobalThemeView>
-      <View
-        style={{
-          flex: 1,
-          width: WINDOWWIDTH,
-          ...CENTER,
-        }}>
+  const paymentElements = useMemo(() => {
+    return ['Lightning', 'Bitcoin', 'Liquid'].map(item => {
+      return (
         <TouchableOpacity
-          style={{marginRight: 'auto'}}
+          key={item}
           onPress={() => {
-            navigate.goBack();
+            handleClick(item);
           }}>
-          <ThemeImage
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <View
+            style={[
+              styles.optionItemContainer,
+              {
+                backgroundColor: backgroundColor,
+              },
+            ]}>
+            <Image
+              style={{
+                width: 40,
+                height:
+                  item === 'Lightning' ? 65 : item === 'Bitcoin' ? 40 : 45,
+                marginRight: 10,
+              }}
+              source={
+                theme
+                  ? ICONS[
+                      item === 'Lightning'
+                        ? 'lightningBoltLight'
+                        : item === 'Bitcoin'
+                        ? 'chainLight'
+                        : 'LiquidLight'
+                    ]
+                  : ICONS[
+                      item === 'Lightning'
+                        ? 'lightningBoltDark'
+                        : item === 'Bitcoin'
+                        ? 'chainDark'
+                        : 'LiquidDark'
+                    ]
+              }
+            />
+            <ThemeText
+              styles={{...styles.optionItemText}}
+              content={`${item != 'Liquid' ? item + ' |' : ''} ${
+                item != 'Liquid'
+                  ? t(`wallet.switchOption.${item.toLowerCase()}`)
+                  : 'Liquid Network'
+              }`}
+            />
+          </View>
         </TouchableOpacity>
+      );
+    });
+  }, []);
 
-        <View
-          style={[
-            styles.optionContainer,
-            {
-              backgroundColor: backgroundOffset,
-            },
-          ]}>
-          <TouchableOpacity
-            onPress={() => {
-              handleClick('Lightning');
-            }}>
-            <View
-              style={[
-                styles.optionItemContainer,
-                {
-                  backgroundColor: backgroundColor,
-                },
-              ]}>
-              <Image
-                style={{width: 40, height: 65, marginRight: 10}}
-                source={
-                  theme ? ICONS.lightningBoltLight : ICONS.lightningBoltDark
-                }
-              />
-              <ThemeText
-                styles={{...styles.optionItemText}}
-                content={`Lightning | ${t('wallet.switchOption.lightning')}`}
-              />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              handleClick('Bitcoin');
-            }}>
-            <View
-              style={[
-                styles.optionItemContainer,
-                {
-                  backgroundColor: backgroundColor,
-                },
-              ]}>
-              <Image
-                style={{width: 40, height: 40, marginRight: 10}}
-                source={theme ? ICONS.chainLight : ICONS.chainDark}
-              />
-              <ThemeText
-                styles={{...styles.optionItemText}}
-                content={`On-chain | ${t('wallet.switchOption.bitcoin')}`}
-              />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              handleClick('Liquid');
-            }}>
-            <View
-              style={[
-                styles.optionItemContainer,
-                {
-                  backgroundColor: backgroundColor,
-                  marginBottom: 0,
-                },
-              ]}>
-              <Image
-                style={{width: 40, height: 45, marginRight: 10}}
-                source={theme ? ICONS.LiquidLight : ICONS.LiquidDark}
-              />
-              <ThemeText
-                styles={{...styles.optionItemText}}
-                content="Liquid Network"
-              />
-            </View>
-          </TouchableOpacity>
-        </View>
+  return (
+    <GlobalThemeView useStandardWidth={true}>
+      <TouchableOpacity style={{marginRight: 'auto'}} onPress={navigate.goBack}>
+        <ThemeImage
+          darkModeIcon={ICONS.smallArrowLeft}
+          lightModeIcon={ICONS.smallArrowLeft}
+          lightsOutIcon={ICONS.arrow_small_left_white}
+        />
+      </TouchableOpacity>
+      <View
+        style={[
+          styles.optionContainer,
+          {
+            backgroundColor: backgroundOffset,
+          },
+        ]}>
+        {paymentElements}
       </View>
     </GlobalThemeView>
   );
@@ -131,10 +101,6 @@ export default function SwitchReceiveOptionPage(props) {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
-    flex: 1,
-  },
-
   optionContainer: {
     height: 'auto',
     width: '90%',

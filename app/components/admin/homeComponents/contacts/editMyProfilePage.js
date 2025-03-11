@@ -26,7 +26,6 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import {isValidUniqueName} from '../../../../../db';
-import handleBackPress from '../../../../hooks/handleBackPress';
 
 import CustomButton from '../../../../functions/CustomElements/button';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
@@ -41,6 +40,7 @@ import {useKeysContext} from '../../../../../context-store/keys';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import handleBackPressNew from '../../../../hooks/handleBackPressNew';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -78,15 +78,7 @@ export default function EditMyProfilePage(props) {
       setSelectedAddedContact(contact);
     }
   }, [props.fromInitialAdd, providedContact, decodedAddedContacts]);
-
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   return (
     <CustomKeyboardAvoidingView

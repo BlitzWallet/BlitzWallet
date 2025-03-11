@@ -12,6 +12,7 @@ import {useNavigation} from '@react-navigation/native';
 import {backArrow} from '../../constants/styles';
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
 
 export default function SkipCreateAccountPathMessage() {
   const BlurViewAnimation = useRef(new Animated.Value(0)).current;
@@ -20,6 +21,11 @@ export default function SkipCreateAccountPathMessage() {
   const [goBack, setGoGack] = useState(false);
   const goToPinRef = useRef(false);
   const {t} = useTranslation();
+
+  const handleBackPressFunction = () => {
+    setGoGack(true);
+  };
+  handleBackPressNew(handleBackPressFunction);
 
   useEffect(() => {
     if (isInitialLoad.current) {

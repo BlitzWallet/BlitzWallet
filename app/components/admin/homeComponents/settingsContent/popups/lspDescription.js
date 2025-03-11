@@ -1,38 +1,21 @@
-import {
-  Image,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-
-import * as WebBrowser from 'expo-web-browser';
-import {BTN, COLORS, FONT, ICONS, SIZES} from '../../../../../constants';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {ICONS} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
-import {CENTER, backArrow} from '../../../../../constants/styles';
+import {CENTER} from '../../../../../constants/styles';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../../../../constants/theme';
-import handleBackPress from '../../../../../hooks/handleBackPress';
-import {useEffect} from 'react';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
 
 export default function LspDescriptionPopup() {
   const navigate = useNavigation();
-  function handleBackPressFunction() {
-    navigate.goBack();
-    return true;
-  }
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, []);
+  handleBackPressNew();
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <TouchableOpacity onPress={() => navigate.goBack()}>
+      <TouchableOpacity onPress={navigate.goBack}>
         <ThemeImage
           lightsOutIcon={ICONS.arrow_small_left_white}
           darkModeIcon={ICONS.smallArrowLeft}

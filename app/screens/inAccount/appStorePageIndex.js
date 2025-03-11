@@ -3,21 +3,20 @@ import {ResturantHomepage} from '../../components/admin/homeComponents/apps';
 import SMSMessagingHome from '../../components/admin/homeComponents/apps/sms4sats/home';
 import {GlobalThemeView} from '../../functions/CustomElements';
 import {useNavigation} from '@react-navigation/native';
-import handleBackPress from '../../hooks/handleBackPress';
-import {useEffect} from 'react';
+import {useCallback, useEffect} from 'react';
 import VPNHome from '../../components/admin/homeComponents/apps/VPN/home';
+import {Keyboard} from 'react-native';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
 
 export default function AppStorePageIndex(props) {
   const targetPage = props.route.params.page;
   const navigate = useNavigation();
 
-  function handleBackPressFunction() {
+  const handleBackPressFunction = useCallback(() => {
+    Keyboard.dismiss();
     navigate.goBack();
-    return true;
-  }
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, []);
+  }, [navigate]);
+  handleBackPressNew(handleBackPressFunction);
 
   if (targetPage.toLowerCase() === 'sms4sats') return <SMSMessagingHome />;
   if (targetPage.toLowerCase() === 'lnvpn') return <VPNHome />;

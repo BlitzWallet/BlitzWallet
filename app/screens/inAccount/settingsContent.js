@@ -22,27 +22,37 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView} from '../../functions/CustomElements';
 import {WINDOWWIDTH} from '../../constants/theme';
-import handleBackPress from '../../hooks/handleBackPress';
-import {useEffect} from 'react';
-import POSInstructionsPath from '../../components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import {EditMyProfilePage} from '../../components/admin';
 
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
+import {useGlobalContextProvider} from '../../../context-store/context';
+import {useGlobaleCash} from '../../../context-store/eCash';
+import {useCallback} from 'react';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
+  const {masterInfoObject} = useGlobalContextProvider();
+  const {ecashWalletInformation} = useGlobaleCash();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const selectedPage = props.route.params.for;
+  const selectedPage = props?.route?.params?.for;
   const isDoomsday = props?.route?.params?.isDoomsday;
-
-  function handleBackPressFunction() {
-    navigate.goBack();
-    return true;
-  }
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, []);
+  const enabledEcash = masterInfoObject?.enabledEcash;
+  const currentMintURL = ecashWalletInformation?.mintURL;
+  const handleBackPressFunction = useCallback(() => {
+    if (selectedPage?.toLowerCase() === 'experimental') {
+      Keyboard.dismiss();
+      if (!currentMintURL && enabledEcash) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: 'Must input a mintURL to enable ecash',
+        });
+      } else navigate.goBack();
+    } else {
+      navigate.goBack();
+    }
+  }, [navigate, currentMintURL, enabledEcash, selectedPage]);
+  handleBackPressNew(handleBackPressFunction);
 
   return (
     <>

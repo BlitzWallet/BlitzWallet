@@ -13,8 +13,7 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../../../../../constants/theme';
-import handleBackPress from '../../../../../../hooks/handleBackPress';
+import handleBackPressNew from '../../../../../../hooks/handleBackPressNew';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../../functions/CustomElements/themeImage';
 import {AI_MODEL_COST} from '../contants/AIModelCost';
@@ -24,14 +23,7 @@ export default function SwitchGenerativeAIModel(props) {
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
   const setSelectedRecieveOption = props.route.params.setSelectedModel;
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   const ModelElements = AI_MODEL_COST.map((item, index) => {
     console.log(item);
@@ -63,11 +55,7 @@ export default function SwitchGenerativeAIModel(props) {
   });
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <TouchableOpacity
-        style={{marginRight: 'auto'}}
-        onPress={() => {
-          navigate.goBack();
-        }}>
+      <TouchableOpacity style={{marginRight: 'auto'}} onPress={navigate.goBack}>
         <ThemeImage
           darkModeIcon={ICONS.smallArrowLeft}
           lightModeIcon={ICONS.smallArrowLeft}
@@ -75,7 +63,7 @@ export default function SwitchGenerativeAIModel(props) {
         />
       </TouchableOpacity>
 
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View
           style={[
             styles.optionContainer,

@@ -11,8 +11,6 @@ import {CENTER, COLORS, ICONS, SIZES} from '../../constants';
 import {ANDROIDSAFEAREA} from '../../constants/styles';
 import {GlobalThemeView} from '../../functions/CustomElements';
 import {WINDOWWIDTH} from '../../constants/theme';
-import {useEffect} from 'react';
-import handleBackPress from '../../hooks/handleBackPress';
 import getFormattedHomepageTxs from '../../functions/combinedTransactions';
 import {useGlobaleCash} from '../../../context-store/eCash';
 import ThemeImage from '../../functions/CustomElements/themeImage';
@@ -20,6 +18,7 @@ import {useTranslation} from 'react-i18next';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useNodeContext} from '../../../context-store/nodeContext';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
 
 export default function ViewAllTxPage() {
   const navigate = useNavigation();
@@ -29,15 +28,7 @@ export default function ViewAllTxPage() {
   const ecashTransactions = ecashWalletInformation.transactions;
   const insets = useSafeAreaInsets();
   const {t} = useTranslation();
-
-  function handleBackPressFunction() {
-    navigate.goBack();
-    return true;
-  }
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, []);
+  handleBackPressNew();
 
   const bottomPadding = Platform.select({
     ios: insets.bottom,

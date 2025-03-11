@@ -6,7 +6,6 @@ import {copyToClipboard} from '../../functions';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import {ButtonsContainer} from '../../components/admin/homeComponents/receiveBitcoin';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
-import handleBackPress from '../../hooks/handleBackPress';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import {useGlobaleCash} from '../../../context-store/eCash';
 import GetThemeColors from '../../hooks/themeColors';
@@ -16,6 +15,7 @@ import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import QrCodeWrapper from '../../functions/CustomElements/QrWrapper';
 import {useNodeContext} from '../../../context-store/nodeContext';
 import {useAppStatus} from '../../../context-store/appStatus';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -28,14 +28,7 @@ export default function ReceivePaymentHome(props) {
   const ecashRef = useRef(null);
   const initialSendAmount = props.route.params?.receiveAmount;
   const paymentDescription = props.route.params?.description;
-
-  function handleBackPressFunction() {
-    navigate.goBack();
-    return true;
-  }
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, []);
+  handleBackPressNew();
 
   const [addressState, setAddressState] = useState({
     selectedRecieveOption: 'lightning',

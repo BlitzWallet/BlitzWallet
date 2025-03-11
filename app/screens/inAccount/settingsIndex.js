@@ -5,14 +5,14 @@ import {BlitzSocialOptions} from '../../components/admin/homeComponents/settings
 import {CENTER} from '../../constants/styles';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {INSET_WINDOW_WIDTH} from '../../constants/theme';
-import {useCallback, useEffect} from 'react';
-import handleBackPress from '../../hooks/handleBackPress';
+import {useMemo} from 'react';
 import Icon from '../../functions/CustomElements/Icon';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useNodeContext} from '../../../context-store/nodeContext';
 import {useAppStatus} from '../../../context-store/appStatus';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
 
 const GENERALOPTIONS = [
   {
@@ -210,113 +210,115 @@ const DOOMSDAYSETTINGS = [
 
 export default function SettingsIndex(props) {
   const {isConnectedToTheInternet} = useAppStatus();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
+  const {nodeInformation} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const isDoomsday = props?.route?.params?.isDoomsday;
-  console.log(props);
   const navigate = useNavigation();
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   const settignsList = isDoomsday ? DOOMSDAYSETTINGS : SETTINGSOPTIONS;
 
-  const settingsElements = settignsList.map((element, id) => {
-    const internalElements = element.map((element, id) => {
-      return (
-        <TouchableOpacity
-          activeOpacity={0.5}
-          style={styles.listContainer}
-          key={id}
-          onPress={() => {
-            if (
-              element.name?.toLowerCase() === 'restore channels' &&
-              nodeInformation.userBalance === 0 &&
-              !isDoomsday
-            ) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: 'You have no channels to back up',
+  const settingsElements = useMemo(() => {
+    return settignsList.map((element, id) => {
+      const internalElements = element.map((element, id) => {
+        return (
+          <TouchableOpacity
+            activeOpacity={0.5}
+            style={styles.listContainer}
+            key={id}
+            onPress={() => {
+              if (
+                element.name?.toLowerCase() === 'restore channels' &&
+                nodeInformation.userBalance === 0 &&
+                !isDoomsday
+              ) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: 'You have no channels to back up',
+                });
+                return;
+              }
+              if (
+                !isConnectedToTheInternet &&
+                [
+                  'display currency',
+                  'node info',
+                  'channel closure',
+                  'edit contact profile',
+                  'refund liquid swap',
+                  'experimental',
+                  'lsp',
+                ].includes(element.name?.toLowerCase())
+              ) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage:
+                    'Please reconnect to the internet to use this feature',
+                });
+                return;
+              }
+              navigate.navigate('SettingsContentHome', {
+                for: element.name,
+                isDoomsday: isDoomsday,
               });
-              return;
-            }
-            console.log(element);
-            if (
-              !isConnectedToTheInternet &&
-              (element.name?.toLowerCase() === 'display currency' ||
-                element.name?.toLowerCase() === 'node info' ||
-                element.name?.toLowerCase() === 'channel closure' ||
-                element.name?.toLowerCase() === 'edit contact profile' ||
-                element.name?.toLowerCase() === 'refund liquid swap' ||
-                element.name?.toLowerCase() === 'experimental' ||
-                element.name?.toLowerCase() === 'lsp')
-            ) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage:
-                  'Please reconnect to the internet to use this feature',
-              });
-              return;
-            }
-            navigate.navigate('SettingsContentHome', {
-              for: element.name,
-              isDoomsday: isDoomsday,
-            });
-            // setSettingsContent({isDisplayed: true, for: element.name});
-          }}>
-          {element.svgIcon ? (
-            <Icon
-              color={theme && darkModeType ? COLORS.white : COLORS.primary}
-              width={20}
-              height={20}
-              name={element.svgName}
+            }}>
+            {element.svgIcon ? (
+              <Icon
+                color={theme && darkModeType ? COLORS.white : COLORS.primary}
+                width={20}
+                height={20}
+                name={element.svgName}
+              />
+            ) : (
+              <ThemeImage
+                styles={{width: 20, height: 20}}
+                lightsOutIcon={element.iconWhite}
+                darkModeIcon={element.icon}
+                lightModeIcon={element.icon}
+              />
+            )}
+            <ThemeText
+              styles={{
+                ...styles.listText,
+                textTransform:
+                  element.name === 'Experimental' ? 'none' : 'capitalize',
+              }}
+              content={element.name}
             />
-          ) : (
             <ThemeImage
-              styles={{width: 20, height: 20}}
-              lightsOutIcon={element.iconWhite}
-              darkModeIcon={element.icon}
-              lightModeIcon={element.icon}
+              styles={{width: 20, height: 20, transform: [{rotate: '180deg'}]}}
+              lightsOutIcon={ICONS.left_cheveron_white}
+              darkModeIcon={ICONS.leftCheveronIcon}
+              lightModeIcon={ICONS.leftCheveronIcon}
             />
-          )}
+          </TouchableOpacity>
+        );
+      });
+
+      return (
+        <View key={id} style={styles.optionsContainer}>
           <ThemeText
-            styles={{
-              ...styles.listText,
-              textTransform:
-                element.name === 'Experimental' ? 'none' : 'capitalize',
-            }}
-            content={element.name}
+            content={
+              id === 0
+                ? 'General'
+                : id === 1
+                ? 'Security'
+                : id === 2
+                ? 'Technical Settings'
+                : 'Experimental Features'
+            }
+            styles={{...styles.optionsTitle}}
           />
-          <ThemeImage
-            styles={{width: 20, height: 20, transform: [{rotate: '180deg'}]}}
-            lightsOutIcon={ICONS.left_cheveron_white}
-            darkModeIcon={ICONS.leftCheveronIcon}
-            lightModeIcon={ICONS.leftCheveronIcon}
-          />
-        </TouchableOpacity>
+          <View style={[styles.optionsListContainer]}>{internalElements}</View>
+        </View>
       );
     });
-    return (
-      <View key={id} style={styles.optionsContainer}>
-        <ThemeText
-          content={
-            id === 0
-              ? 'general'
-              : id === 1
-              ? 'Security'
-              : id === 2
-              ? 'Technical Settings'
-              : 'Experimental features'
-          }
-          styles={{...styles.optionsTitle}}
-        />
-        <View style={[styles.optionsListContainer]}>{internalElements}</View>
-      </View>
-    );
-  });
+  }, [
+    settignsList,
+    nodeInformation.userBalance,
+    isDoomsday,
+    isConnectedToTheInternet,
+    theme,
+    darkModeType,
+  ]);
 
   return (
     <GlobalThemeView

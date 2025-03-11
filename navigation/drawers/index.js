@@ -8,7 +8,6 @@ import {useNavigation} from '@react-navigation/native';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useGlobalAppData} from '../../context-store/appData';
 import GetThemeColors from '../../app/hooks/themeColors';
-import handleBackPress from '../../app/hooks/handleBackPress';
 import FullLoadingScreen from '../../app/functions/CustomElements/loadingScreen';
 
 const Drawer = createDrawerNavigator();
@@ -54,17 +53,10 @@ function ChatGPTDrawer({confirmationSliderData}) {
       .reverse();
   }, [chatGPTCoversations]);
 
-  const handleBackPressFunction = useCallback(() => {
-    Keyboard.dismiss();
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
   useEffect(() => {
     setTimeout(() => {
       setDidLoad(true);
     }, 250);
-    handleBackPress(handleBackPressFunction);
     return () => {
       setDidLoad(false);
     };

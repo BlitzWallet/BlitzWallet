@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {COLORS} from '../../constants';
-import handleBackPress from '../../hooks/handleBackPress';
 import {HalfModalSendOptions} from '../../components/admin';
 import {
   ConfirmSMSPayment,
@@ -28,6 +27,8 @@ import ExpandedMessageHalfModal from '../../components/admin/homeComponents/cont
 import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 import ManualEnterSendAddress from '../../components/admin/homeComponents/homeLightning/manualEnterSendAddress';
 import ConfirmInternalTransferHalfModal from '../../components/admin/homeComponents/settingsContent/walletInfoComponents/confirmTransferHalfModal';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
+import {KEYBOARDTIMEOUT} from '../../constants/styles';
 
 export default function CustomHalfModal(props) {
   const navigation = useNavigation();
@@ -46,16 +47,16 @@ export default function CustomHalfModal(props) {
     Keyboard.dismiss();
     setTimeout(() => {
       navigation.goBack();
-    }, 200);
-    return true;
+    }, KEYBOARDTIMEOUT);
   }, [navigation]);
 
+  handleBackPressNew(handleBackPressFunction);
+
   useEffect(() => {
-    handleBackPress(handleBackPressFunction);
     setTimeout(() => {
       slideIn();
     }, 100);
-  }, [handleBackPressFunction]);
+  }, []);
 
   const slideIn = () => {
     Animated.timing(translateY, {

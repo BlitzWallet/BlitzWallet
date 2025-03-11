@@ -8,23 +8,16 @@ import {
 import {COLORS, FONT, SHADOWS, SIZES, CENTER} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../../functions/CustomElements';
-import handleBackPress from '../../../../../hooks/handleBackPress';
-import {useEffect} from 'react';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
 
 export default function ConfirmActionPage(props) {
   const navigate = useNavigation();
+
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundColor} = GetThemeColors();
-
-  function handleBackPressFunction() {
-    navigate.goBack();
-    return true;
-  }
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, []);
+  handleBackPressNew();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>

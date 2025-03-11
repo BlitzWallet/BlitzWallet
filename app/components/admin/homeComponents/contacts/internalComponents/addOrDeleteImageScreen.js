@@ -6,23 +6,16 @@ import {
   View,
 } from 'react-native';
 import {COLORS, FONT, SIZES} from '../../../../../constants';
-import handleBackPress from '../../../../../hooks/handleBackPress';
-import {useCallback, useEffect} from 'react';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useNavigation} from '@react-navigation/native';
+import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
 
 export default function AddOrDeleteContactImage(props) {
   const {textColor, backgroundColor} = GetThemeColors();
   const navigate = useNavigation();
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
+  handleBackPressNew();
 
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>
       <View style={styles.globalContainer}>

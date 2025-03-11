@@ -7,7 +7,7 @@ import {
   SATSPERBITCOIN,
   SIZES,
 } from '../../../../constants';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {
   CustomKeyboardAvoidingView,
@@ -16,7 +16,6 @@ import {
 import SwipeButton from 'rn-swipe-button';
 import SendTransactionFeeInfo from './components/feeInfo';
 import decodeSendAddress from './functions/decodeSendAdress';
-
 import {useNavigation} from '@react-navigation/native';
 import {
   getLNAddressForLiquidPayment,
@@ -27,8 +26,6 @@ import {
   sendToLiquidFromLightning_sendPaymentScreen,
 } from './functions/payments';
 import {useWebView} from '../../../../../context-store/webViewContext';
-import handleBackPress from '../../../../hooks/handleBackPress';
-
 import {
   DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS,
   LIGHTNINGAMOUNTBUFFER,
@@ -57,6 +54,7 @@ import {
   getProofsToUse,
   payLnInvoiceFromEcash,
 } from '../../../../functions/eCash/wallet';
+import handleBackPressNew from '../../../../hooks/handleBackPressNew';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -164,13 +162,7 @@ export default function SendPaymentScreen(props) {
   // paymentInfo.type === 'bolt11' &&
   // paymentInfo.type != InputTypeVariant.LN_URL_PAY &&
   // !paymentInfo.invoice?.amountMsat;
-
-  useEffect(() => {
-    handleBackPress(() => {
-      goBackFunction();
-      return true;
-    });
-  }, []);
+  handleBackPressNew(goBackFunction);
 
   useEffect(() => {
     async function decodePayment() {

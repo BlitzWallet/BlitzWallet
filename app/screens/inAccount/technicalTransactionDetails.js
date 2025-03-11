@@ -4,21 +4,13 @@ import {useNavigation} from '@react-navigation/native';
 import {copyToClipboard} from '../../functions';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {WINDOWWIDTH} from '../../constants/theme';
-import handleBackPress from '../../hooks/handleBackPress';
-import {useEffect} from 'react';
 import ThemeImage from '../../functions/CustomElements/themeImage';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
 
 export default function TechnicalTransactionDetails(props) {
   console.log('Transaction Detials Page');
   const navigate = useNavigation();
-
-  function handleBackPressFunction() {
-    navigate.goBack();
-    return true;
-  }
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, []);
+  handleBackPressNew();
 
   const {selectedTX, isLiquidPayment, isFailedPayment, isEcashPayment} =
     props.route.params;

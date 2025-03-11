@@ -1,21 +1,19 @@
 import {
   StyleSheet,
-  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {COLORS, FONT, SIZES} from '../../../../../constants';
+import {COLORS} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import handleBackPress from '../../../../../hooks/handleBackPress';
-import {useCallback, useEffect} from 'react';
 import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {deleteCachedMessages} from '../../../../../functions/messaging/cachedMessages';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
+import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
 
 export default function ContactsPageLongPressActions({
   route: {
@@ -31,15 +29,7 @@ export default function ContactsPageLongPressActions({
     globalContactsInformation,
     toggleGlobalContactsInformation,
   } = useGlobalContacts();
-
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>

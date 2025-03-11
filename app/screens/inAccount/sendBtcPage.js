@@ -35,13 +35,13 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {getClipboardText, getQRImage} from '../../functions';
 import openWebBrowser from '../../functions/openWebBrowser';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
-import handleBackPress from '../../hooks/handleBackPress';
 import {WINDOWWIDTH} from '../../constants/theme';
 import {ANDROIDSAFEAREA, backArrow} from '../../constants/styles';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import {useTranslation} from 'react-i18next';
 import {convertMerchantQRToLightningAddress} from '../../functions/sendBitcoin/getMerchantAddress';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
 
 export default function SendPaymentHome({pageViewPage, from}) {
   console.log('SCREEN OPTIONS PAGE');
@@ -86,13 +86,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
     }),
     [theme, darkModeType],
   );
-
-  useEffect(() => {
-    handleBackPress(() => {
-      navigate.goBack();
-      return true;
-    });
-  }, [navigate]);
+  handleBackPressNew();
 
   useEffect(() => {
     (async () => {

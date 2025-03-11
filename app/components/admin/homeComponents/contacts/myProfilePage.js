@@ -9,8 +9,7 @@ import {
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import handleBackPress from '../../../../hooks/handleBackPress';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -20,6 +19,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
+import handleBackPressNew from '../../../../hooks/handleBackPressNew';
 
 export default function MyContactProfilePage({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -74,22 +74,12 @@ export default function MyContactProfilePage({navigation}) {
   }, [decodedAddedContacts, contactsMessags]);
 
   const insets = useSafeAreaInsets();
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   return (
     <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
       <View style={styles.topBar}>
-        <TouchableOpacity
-          onPress={() => {
-            navigate.goBack();
-          }}>
+        <TouchableOpacity onPress={navigate.goBack}>
           <ThemeImage
             darkModeIcon={ICONS.smallArrowLeft}
             lightModeIcon={ICONS.smallArrowLeft}
@@ -101,7 +91,7 @@ export default function MyContactProfilePage({navigation}) {
           onPress={() => {
             Share.share({
               title: 'Blitz Contact',
-              message: `blitz-wallet.com/u/${myContact.uniqueName}`,
+              message: `https://blitz-wallet.com/u/${myContact.uniqueName}`,
             });
           }}>
           <ThemeImage
@@ -224,7 +214,7 @@ export default function MyContactProfilePage({navigation}) {
         ) : (
           <ThemeText
             styles={{marginTop: 20}}
-            content={'No transaction history'}
+            content={showList ? 'No transaction history' : "Where'd you go?"}
           />
         )}
       </View>

@@ -8,13 +8,12 @@ import {
 import {CENTER, ICONS, SATSPERBITCOIN} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useMemo, useRef, useState} from 'react';
 import {publishMessage} from '../../../../functions/messaging/publishMessage';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import handleBackPress from '../../../../hooks/handleBackPress';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import {
   DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS,
@@ -39,6 +38,7 @@ import {
   calculateEcashFees,
   getProofsToUse,
 } from '../../../../functions/eCash/wallet';
+import handleBackPressNew from '../../../../hooks/handleBackPressNew';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -194,13 +194,7 @@ export default function SendAndRequestPage(props) {
       paymentType,
     ],
   );
-
-  useEffect(() => {
-    handleBackPress(() => {
-      navigate.goBack();
-      return true;
-    });
-  }, [navigate]);
+  handleBackPressNew();
 
   const handleSearch = useCallback(term => {
     setAmountValue(term);

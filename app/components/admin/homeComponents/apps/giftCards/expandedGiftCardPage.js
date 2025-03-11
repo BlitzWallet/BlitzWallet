@@ -26,12 +26,10 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from '../../../../../functions';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useMemo, useState} from 'react';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomButton from '../../../../../functions/CustomElements/button';
-
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {useNavigation} from '@react-navigation/native';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
@@ -40,10 +38,8 @@ import {
   LIGHTNINGAMOUNTBUFFER,
   LIQUIDAMOUTBUFFER,
 } from '../../../../../constants/math';
-import handleBackPress from '../../../../../hooks/handleBackPress';
 import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
-
 import {isMoreThanADayOld} from '../../../../../functions/rotateAddressDateChecker';
 import {breezPaymentWrapper, getFiatRates} from '../../../../../functions/SDK';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
@@ -55,6 +51,7 @@ import {useKeysContext} from '../../../../../../context-store/keys';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
+import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
 
 export default function ExpandedGiftCardPage(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -75,6 +72,7 @@ export default function ExpandedGiftCardPage(props) {
       : selectedItem.denominations[0],
   );
   const navigate = useNavigation();
+  handleBackPressNew();
 
   const [isPurchasingGift, setIsPurchasingGift] = useState({
     isPurasing: false,
@@ -125,15 +123,6 @@ export default function ExpandedGiftCardPage(props) {
   const isTermsHTML =
     selectedItem.terms.includes('<p>') || selectedItem.terms.includes('br');
   const optionSpacing = (width * 0.95 - 40) * 0.95;
-
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
 
   return (
     <CustomKeyboardAvoidingView useStandardWidth={true}>
@@ -681,25 +670,23 @@ export default function ExpandedGiftCardPage(props) {
       }),
     );
     toggleGlobalAppDataInformation({giftCards: em}, true);
-    setTimeout(() => {
-      navigate.reset({
-        index: 0, // The top-level route index
-        routes: [
-          {
-            name: 'HomeAdmin',
-            params: {screen: 'Home'},
+    navigate.reset({
+      index: 0,
+      routes: [
+        {
+          name: 'HomeAdmin',
+          params: {screen: 'Home'},
+        },
+        {
+          name: 'ConfirmTxPage',
+          params: {
+            for: 'paymentSucceed',
+            information: paymentObject,
+            formattingType: nodeType,
           },
-          {
-            name: 'ConfirmTxPage',
-            params: {
-              for: 'paymentSucceed',
-              information: paymentObject,
-              formattingType: nodeType,
-            },
-          },
-        ],
-      });
-    }, 1000);
+        },
+      ],
+    });
   }
 }
 const styles = StyleSheet.create({

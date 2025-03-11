@@ -20,7 +20,7 @@ import {CENTER, COLORS, ICONS} from '../../../constants';
 import {ThemeText, GlobalThemeView} from '../../../functions/CustomElements';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import {ANDROIDSAFEAREA, backArrow} from '../../../constants/styles';
-import handleBackPress from '../../../hooks/handleBackPress';
+import handleBackPressNew from '../../../hooks/handleBackPressNew';
 import * as Clipboard from 'expo-clipboard';
 import {useIsForeground} from '../../../hooks/isAppForground';
 import {getImageFromLibrary} from '../../../functions/imagePickerWrapper';
@@ -46,15 +46,7 @@ export default function CameraModal(props) {
     ios: insets.top,
     android: ANDROIDSAFEAREA,
   });
-
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   useEffect(() => {
     (async () => {
@@ -83,9 +75,7 @@ export default function CameraModal(props) {
             {position: 'absolute', zIndex: 99, top: topPadding},
           ]}
           activeOpacity={0.5}
-          onPress={() => {
-            navigate.goBack();
-          }}>
+          onPress={navigate.goBack}>
           <Image
             source={ICONS.smallArrowLeft}
             style={[backArrow]}
@@ -111,9 +101,7 @@ export default function CameraModal(props) {
             {position: 'absolute', zIndex: 99, top: topPadding},
           ]}
           activeOpacity={0.5}
-          onPress={() => {
-            navigate.goBack();
-          }}>
+          onPress={navigate.goBack}>
           <Image
             source={ICONS.smallArrowLeft}
             style={[backArrow]}
@@ -161,9 +149,7 @@ export default function CameraModal(props) {
               paddingTop: topPadding,
             }}
             activeOpacity={0.5}
-            onPress={() => {
-              navigate.goBack();
-            }}>
+            onPress={navigate.goBack}>
             <Image
               source={ICONS.arrow_small_left_white}
               style={[backArrow]}

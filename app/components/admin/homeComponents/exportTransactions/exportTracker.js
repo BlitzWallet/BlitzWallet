@@ -1,20 +1,10 @@
-import {
-  ActivityIndicator,
-  Share,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from 'react-native';
-
+import {Share, StyleSheet, View, useWindowDimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-
-import {useCallback, useEffect, useState} from 'react';
-
+import {useState} from 'react';
 import SwipeButton from 'rn-swipe-button';
 import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../../constants';
 import {ThemeText} from '../../../../functions/CustomElements';
-import handleBackPress from '../../../../hooks/handleBackPress';
 import * as FileSystem from 'expo-file-system';
 import {useGlobaleCash} from '../../../../../context-store/eCash';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -36,15 +26,6 @@ export default function ConfirmExportPayments() {
     ecashTransactions.length;
 
   const [txNumber, setTxNumber] = useState(0);
-
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
 
   return (
     <View

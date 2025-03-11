@@ -1,26 +1,16 @@
-import {BackHandler} from 'react-native';
-import {useEffect} from 'react';
-
+import {useCallback} from 'react';
 import HomeLightning from '../../components/admin/homeComponents/homeLightning';
 
-import handleBackPress from '../../hooks/handleBackPress';
-import {useIsFocused} from '@react-navigation/native';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
+import {BackHandler} from 'react-native';
 
 export default function AdminHome({navigation}) {
   console.log('admin home');
-
-  const isFocused = useIsFocused();
-
-  function handleBackPressFunction() {
+  const handleBackPressFunction = useCallback(() => {
     BackHandler.exitApp();
-
     return true;
-  }
-  useEffect(() => {
-    if (!isFocused) return;
-    console.log('RUNNIN IN APP INDES USE EFFECT');
-    handleBackPress(handleBackPressFunction);
-  }, [isFocused]);
+  }, []);
+  handleBackPressNew(handleBackPressFunction);
 
   return <HomeLightning tabNavigation={navigation} />;
 }

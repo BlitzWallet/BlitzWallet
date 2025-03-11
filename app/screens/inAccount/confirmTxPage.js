@@ -7,9 +7,8 @@ import {
 } from 'react-native';
 import {COLORS, FONT, SIZES} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
-import {useEffect} from 'react';
+import {useCallback, useEffect} from 'react';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
-import handleBackPress from '../../hooks/handleBackPress';
 import CustomButton from '../../functions/CustomElements/button';
 import LottieView from 'lottie-react-native';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
@@ -17,9 +16,15 @@ import {copyToClipboard} from '../../functions';
 import GetThemeColors from '../../hooks/themeColors';
 import {openComposer} from 'react-native-email-link';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
 
 export default function ConfirmTxPage(props) {
   const navigate = useNavigation();
+  const handleBackPressFunction = useCallback(() => {
+    navigate.popToTop();
+  }, []);
+
+  handleBackPressNew(handleBackPressFunction);
   const {backgroundOffset} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
   const paymentType = props.route.params?.for;
@@ -78,14 +83,6 @@ export default function ConfirmTxPage(props) {
       : paymentInformation?.amountSat;
 
   console.log(paymentInformation);
-
-  function handleBackPressFunction() {
-    navigate.goBack();
-    return true;
-  }
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, []);
 
   return (
     <GlobalThemeView

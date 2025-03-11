@@ -23,6 +23,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../constants/styles';
 import {WINDOWWIDTH} from '../../../constants/theme';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
+import handleBackPressNew from '../../../hooks/handleBackPressNew';
 
 const NUMARRAY = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
@@ -30,6 +31,7 @@ export default function RestoreWallet({
   navigation: {navigate, reset},
   route: {params},
 }) {
+  handleBackPressNew();
   const {t} = useTranslation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const insets = useSafeAreaInsets();

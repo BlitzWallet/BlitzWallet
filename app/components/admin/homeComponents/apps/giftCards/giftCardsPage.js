@@ -11,7 +11,7 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {formatBalanceAmount} from '../../../../../functions';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -22,12 +22,13 @@ import CountryFlag from 'react-native-country-flag';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import getGiftCardsList from './giftCardAPI';
-import handleBackPress from '../../../../../hooks/handleBackPress';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
+import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
 
 export default function GiftCardPage() {
   const {decodedGiftCards, toggleGiftCardsList, giftCardsList} =
     useGlobalAppData();
+
   const {backgroundOffset} = GetThemeColors();
   const insets = useSafeAreaInsets();
   const [errorMessage, setErrorMessage] = useState('');
@@ -73,14 +74,7 @@ export default function GiftCardPage() {
 
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const giftCards = giftCardsList;
-  const handleBackPressFunction = useCallback(() => {
-    navigate.navigate('HomeAdmin');
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew(() => navigate.navigate('HomeAdmin'));
 
   // Filter gift cards based on search input
   const filteredGiftCards = useMemo(

@@ -1,25 +1,16 @@
-import {useCallback, useEffect} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {CENTER, COLORS} from '../../constants';
+import {COLORS} from '../../constants';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
-import {SIZES, WINDOWWIDTH} from '../../constants/theme';
+import {SIZES} from '../../constants/theme';
 import CustomButton from '../../functions/CustomElements/button';
 import {G, Path, Svg} from 'react-native-svg';
 import LoginNavbar from '../../components/login/navBar';
-import handleBackPress from '../../hooks/handleBackPress';
 import {useTranslation} from 'react-i18next';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
 
-export default function DislaimerPage({navigation: {navigate, goBack}}) {
+export default function DislaimerPage({navigation: {navigate}}) {
   const {t} = useTranslation();
-
-  const handleBackPressFunction = useCallback(() => {
-    goBack();
-    return true;
-  }, [goBack]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   return (
     <GlobalThemeView useStandardWidth={true}>

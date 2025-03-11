@@ -28,7 +28,6 @@ import {useNavigation} from '@react-navigation/native';
 import {useGlobaleCash} from '../../../../../context-store/eCash';
 import {sumProofsValue} from '../../../../functions/eCash/proofs';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import handleBackPress from '../../../../hooks/handleBackPress';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
@@ -45,6 +44,7 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import handleBackPressNew from '../../../../hooks/handleBackPressNew';
 
 export default function ExperimentalItemsPage() {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -67,20 +67,13 @@ export default function ExperimentalItemsPage() {
   const currentMintURL = ecashWalletInformation.mintURL;
 
   const handleBackPressFunction = useCallback(() => {
+    Keyboard.dismiss();
     if (!currentMintURL && enabledEcash) {
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Must input a mintURL to enable ecash',
       });
-      return true;
-    } else {
-      navigate.goBack();
-    }
-    return true;
+    } else navigate.goBack();
   }, [navigate, currentMintURL, enabledEcash]);
-  console.log(parsedEcashInformation, 'TESTIGN');
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
 
   useEffect(() => {
     async function getSavedMints() {
@@ -115,17 +108,7 @@ export default function ExperimentalItemsPage() {
   return (
     <CustomKeyboardAvoidingView useStandardWidth={true}>
       <CustomSettingsTopBar
-        customBackFunction={() => {
-          Keyboard.dismiss();
-          if (!currentMintURL && masterInfoObject.enabledEcash) {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: 'Must input a mintURL to enable ecash',
-            });
-            return;
-          }
-
-          navigate.goBack();
-        }}
+        customBackFunction={handleBackPressFunction}
         shouldDismissKeyboard={true}
         label={'Experimental'}
       />

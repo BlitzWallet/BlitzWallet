@@ -7,12 +7,10 @@ import {
   Platform,
   useWindowDimensions,
 } from 'react-native';
-import {CENTER, COLORS, FONT, SIZES} from '../../constants';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {CENTER, COLORS, SIZES} from '../../constants';
+import {useNavigation} from '@react-navigation/native';
 import {APPLIST} from '../../components/admin/homeComponents/apps/appList';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
-import handleBackPress from '../../hooks/handleBackPress';
-import {useEffect} from 'react';
 import Icon from '../../functions/CustomElements/Icon';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalAppData} from '../../../context-store/appData';
@@ -21,6 +19,7 @@ import {openComposer} from 'react-native-email-link';
 import {copyToClipboard} from '../../functions';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useAppStatus} from '../../../context-store/appStatus';
+import handleBackPressNew from '../../hooks/handleBackPressNew';
 
 export default function AppStore({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -29,17 +28,12 @@ export default function AppStore({navigation}) {
   const {decodedGiftCards} = useGlobalAppData();
   const windowWidth = useWindowDimensions();
   const navigate = useNavigation();
-  const isFocused = useIsFocused();
 
   function handleBackPressFunction() {
     navigation.navigate('Home');
-    return true;
   }
-  useEffect(() => {
-    if (!isFocused) return;
-    console.log('RUNNIN IN APP INDES USE EFFECT');
-    handleBackPress(handleBackPressFunction);
-  }, [isFocused]);
+
+  handleBackPressNew(handleBackPressFunction);
 
   const gridGap = Platform.select({
     ios: '10%',

@@ -30,11 +30,11 @@ import {encriptMessage} from '../../../../../functions/messaging/encodingAndDeco
 import {FONT, WINDOWWIDTH} from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import * as WebBrowser from 'expo-web-browser';
-import handleBackPress from '../../../../../hooks/handleBackPress';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
+import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
 
 export default function CreateGiftCardAccount(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -46,13 +46,7 @@ export default function CreateGiftCardAccount(props) {
   const [hasError, setHasError] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
-
-  useEffect(() => {
-    handleBackPress(() => {
-      navigate.goBack();
-      return true;
-    });
-  }, [navigate]);
+  handleBackPressNew();
 
   return (
     <CustomKeyboardAvoidingView
@@ -63,9 +57,7 @@ export default function CreateGiftCardAccount(props) {
         <View style={{flex: 1}}>
           <View style={styles.topBar}>
             <TouchableOpacity
-              onPress={() => {
-                navigate.goBack();
-              }}
+              onPress={navigate.goBack}
               style={{marginRight: 'auto'}}>
               <ThemeImage
                 lightModeIcon={ICONS.smallArrowLeft}

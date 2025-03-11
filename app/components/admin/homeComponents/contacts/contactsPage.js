@@ -1,4 +1,4 @@
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {
   Image,
   ScrollView,
@@ -15,7 +15,6 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import handleBackPress from '../../../../hooks/handleBackPress';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -25,6 +24,7 @@ import CustomSearchInput from '../../../../functions/CustomElements/searchInput'
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
+import handleBackPressNew from '../../../../hooks/handleBackPressNew';
 
 export default function ContactsPage({navigation}) {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -36,7 +36,6 @@ export default function ContactsPage({navigation}) {
     myProfileImage,
     contactsMessags,
   } = useGlobalContacts();
-  const isFocused = useIsFocused();
   const [inputText, setInputText] = useState('');
   const hideUnknownContacts = masterInfoObject.hideUnknownContacts;
   const tabsNavigate = navigation.navigate;
@@ -47,14 +46,9 @@ export default function ContactsPage({navigation}) {
 
   const handleBackPressFunction = useCallback(() => {
     tabsNavigate('Home');
-    return true;
-  }, [tabsNavigate, isFocused]);
+  }, [tabsNavigate]);
 
-  useEffect(() => {
-    if (!isFocused) return;
-
-    handleBackPress(handleBackPressFunction);
-  }, [isFocused, handleBackPressFunction]);
+  handleBackPressNew(handleBackPressFunction);
 
   const pinnedContacts = useMemo(() => {
     return decodedAddedContacts

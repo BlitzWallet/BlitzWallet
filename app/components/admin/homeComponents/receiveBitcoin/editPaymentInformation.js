@@ -15,12 +15,11 @@ import {
   SIZES,
 } from '../../../../constants';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useCallback, useEffect, useState} from 'react';
+import {useState} from 'react';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import handleBackPress from '../../../../hooks/handleBackPress';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
@@ -32,6 +31,7 @@ import CustomSearchInput from '../../../../functions/CustomElements/searchInput'
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
+import handleBackPressNew from '../../../../hooks/handleBackPressNew';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -85,15 +85,7 @@ export default function EditReceivePaymentInformation(props) {
         );
 
   console.log(localSatAmount, 'tesing');
-
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   return (
     <CustomKeyboardAvoidingView

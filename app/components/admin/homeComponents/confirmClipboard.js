@@ -7,8 +7,7 @@ import {
 } from 'react-native';
 import {COLORS, FONT, SIZES} from '../../../constants';
 import {useNavigation} from '@react-navigation/native';
-import handleBackPress from '../../../hooks/handleBackPress';
-import {useCallback, useEffect} from 'react';
+import handleBackPressNew from '../../../hooks/handleBackPressNew';
 import GetThemeColors from '../../../hooks/themeColors';
 import {ThemeText} from '../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
@@ -20,16 +19,10 @@ export default function ClipboardCopyPopup(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundColor, backgroundOffset} = GetThemeColors();
 
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
+  handleBackPressNew();
 
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
   return (
-    <TouchableWithoutFeedback onPress={() => navigate.goBack()}>
+    <TouchableWithoutFeedback onPress={navigate.goBack}>
       <View style={styles.globalContainer}>
         <TouchableWithoutFeedback>
           <View
@@ -54,7 +47,7 @@ export default function ClipboardCopyPopup(props) {
                   theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
               }}
             />
-            <TouchableOpacity onPress={() => navigate.goBack()}>
+            <TouchableOpacity onPress={navigate.goBack}>
               <ThemeText styles={styles.cancelButton} content={'OK'} />
             </TouchableOpacity>
           </View>

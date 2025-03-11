@@ -1,14 +1,12 @@
 import {
   StyleSheet,
-  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {COLORS, FONT, SIZES} from '../../../constants';
+import {COLORS} from '../../../constants';
 import {useNavigation} from '@react-navigation/native';
-import handleBackPress from '../../../hooks/handleBackPress';
-import {useCallback, useEffect} from 'react';
+import handleBackPressNew from '../../../hooks/handleBackPressNew';
 import GetThemeColors from '../../../hooks/themeColors';
 import {ThemeText} from '../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
@@ -22,25 +20,16 @@ export default function ErrorScreen(props) {
 
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
-
-  const handleBackPressFunction = useCallback(() => {
-    handleNaviagation();
-    return true;
-  }, [navigate]);
+  handleBackPressNew();
 
   const handleNaviagation = () => {
     if (navigationFunction) {
       navigationFunction.navigator(navigationFunction.destination);
-
       navigate.goBack();
     } else if (customNavigator) {
       customNavigator();
     } else navigate.goBack();
   };
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
 
   return (
     <TouchableWithoutFeedback onPress={handleNaviagation}>

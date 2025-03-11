@@ -19,9 +19,9 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import handleBackPress from '../../../../../hooks/handleBackPress';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useKeysContext} from '../../../../../../context-store/keys';
+import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
 
 export default function CountryList() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -56,14 +56,7 @@ export default function CountryList() {
       };
     }, []),
   );
-  const handleBackPressFunction = useCallback(() => {
-    navigate.goBack();
-    return true;
-  }, [navigate]);
-
-  useEffect(() => {
-    handleBackPress(handleBackPressFunction);
-  }, [handleBackPressFunction]);
+  handleBackPressNew();
 
   const saveNewCountrySetting = useCallback(
     async isoCode => {
