@@ -11,7 +11,7 @@ import {
 import formatBalanceAmount from './formatNumber';
 
 import copyToClipboard from './copyToClipboard';
-import {getClipboardText, getQRImage} from './sendBitcoin';
+import {navigateToSendUsingClipboard, getQRImage} from './sendBitcoin';
 import numberConverter from './numberConverter';
 import createAccountMnemonic from './seed';
 
@@ -29,7 +29,7 @@ export {
   handleLogin,
   formatBalanceAmount,
   copyToClipboard,
-  getClipboardText,
+  navigateToSendUsingClipboard,
   getQRImage,
   numberConverter,
 };

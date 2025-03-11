@@ -17,13 +17,13 @@ import {useTranslation} from 'react-i18next';
 import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
 import SuggestedWordContainer from '../../../components/login/suggestedWords';
 import CustomButton from '../../../functions/CustomElements/button';
-import * as Clipboard from 'expo-clipboard';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../constants/styles';
 import {WINDOWWIDTH} from '../../../constants/theme';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
+import getClipboardText from '../../../functions/getClipboardText';
 
 const NUMARRAY = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
@@ -174,7 +174,7 @@ export default function RestoreWallet({
                   <CustomButton
                     buttonStyles={styles.pasteButton}
                     textContent={t('constants.paste')}
-                    actionFunction={getClipboardText}
+                    actionFunction={handleSeedFromClipboard}
                   />
                 )}
                 {!currentFocused && (
@@ -195,7 +195,7 @@ export default function RestoreWallet({
                       actionFunction={() =>
                         params
                           ? navigate('PinSetup', {isInitialLoad: true})
-                          : getClipboardText()
+                          : handleSeedFromClipboard()
                       }
                     />
                     <CustomButton
@@ -230,9 +230,12 @@ export default function RestoreWallet({
     </TouchableWithoutFeedback>
   );
 
-  async function getClipboardText() {
-    const data = await Clipboard.getStringAsync();
-    if (!data) return;
+  async function handleSeedFromClipboard() {
+    const response = await getClipboardText();
+    if (!response.didWork) {
+      navigate('ErrorScreen', {errorMessage: response.reason});
+    }
+    const data = response.data;
     const splitSeed = data.split(' ');
     if (!splitSeed.every(word => word.trim().length > 0)) return;
     if (splitSeed.length != 12) return;

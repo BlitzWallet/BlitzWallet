@@ -21,11 +21,11 @@ import {ThemeText, GlobalThemeView} from '../../../functions/CustomElements';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import {ANDROIDSAFEAREA, backArrow} from '../../../constants/styles';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
-import * as Clipboard from 'expo-clipboard';
 import {useIsForeground} from '../../../hooks/isAppForground';
 import {getImageFromLibrary} from '../../../functions/imagePickerWrapper';
 import RNQRGenerator from 'rn-qr-generator';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
+import getClipboardText from '../../../functions/getClipboardText';
 
 export default function CameraModal(props) {
   console.log('SCREEN OPTIONS PAGE');
@@ -184,7 +184,7 @@ export default function CameraModal(props) {
         <View style={styles.bottomOverlay}>
           {props?.route?.params?.fromPage !== 'addContact' && (
             <TouchableOpacity
-              onPress={getClipboardText}
+              onPress={dataFromClipboard}
               style={{
                 ...styles.pasteBTN,
                 borderColor: COLORS.darkModeText,
@@ -216,11 +216,14 @@ export default function CameraModal(props) {
     setIsFlashOn(prev => !prev);
   }
 
-  async function getClipboardText() {
+  async function dataFromClipboard() {
     try {
-      const text = await Clipboard.getStringAsync();
+      const response = await getClipboardText();
+      if (!response.didWork) {
+        navigate.navigate('ErrorScreen', {errorMessage: response.reason});
+      }
       navigate.goBack();
-      props.route.params.updateBitcoinAdressFunc(text);
+      props.route.params.updateBitcoinAdressFunc(response.data);
     } catch (err) {
       console.log(err);
     }

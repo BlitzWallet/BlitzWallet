@@ -32,7 +32,7 @@ import {
 } from 'react-native-vision-camera';
 import {useIsForeground} from '../../hooks/isAppForground';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {getClipboardText, getQRImage} from '../../functions';
+import {navigateToSendUsingClipboard, getQRImage} from '../../functions';
 import openWebBrowser from '../../functions/openWebBrowser';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {WINDOWWIDTH} from '../../constants/theme';
@@ -330,7 +330,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
         <View style={styles.overlay}>
           <TouchableOpacity
             onPress={() => {
-              getClipboardText(navigate, 'sendBTCPage');
+              navigateToSendUsingClipboard(navigate, 'sendBTCPage');
             }}
             style={{
               ...styles.pasteBTN,

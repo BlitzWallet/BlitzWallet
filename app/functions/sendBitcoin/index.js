@@ -1,19 +1,17 @@
-import * as Clipboard from 'expo-clipboard';
 import {Alert, Platform} from 'react-native';
 import {WEBSITE_REGEX} from '../../constants';
 import openWebBrowser from '../openWebBrowser';
 import {convertMerchantQRToLightningAddress} from './getMerchantAddress';
 import {getImageFromLibrary} from '../imagePickerWrapper';
 import RNQRGenerator from 'rn-qr-generator';
+import getClipboardText from '../getClipboardText';
 
-async function getClipboardText(navigate, callLocation, nodeInformation) {
-  const data = await Clipboard.getStringAsync();
-  if (!data) {
-    navigate.navigate('ErrorScreen', {
-      errorMessage: 'No data in clipboard',
-    });
-    return;
+async function navigateToSendUsingClipboard(navigate, callLocation) {
+  const response = await getClipboardText();
+  if (!response.didWork) {
+    navigate.navigate('ErrorScreen', {errorMessage: response.reason});
   }
+  const data = response.data;
 
   if (WEBSITE_REGEX.test(data)) {
     openWebBrowser({navigate, link: data});
@@ -102,4 +100,4 @@ async function getQRImage(navigate, callLocation) {
   return {btcAdress: merchantLNAddress || address, didWork: true, error: ''};
 }
 
-export {getClipboardText, getQRImage};
+export {navigateToSendUsingClipboard, getQRImage};

@@ -9,7 +9,7 @@ import {
 import {CENTER, ICONS, SIZES} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {getClipboardText, getQRImage} from '../../../../functions';
+import {navigateToSendUsingClipboard, getQRImage} from '../../../../functions';
 import {ThemeText} from '../../../../functions/CustomElements';
 
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
@@ -67,7 +67,7 @@ export default function HalfModalSendOptions(props) {
               fromPage: '',
             });
           } else if (item === 'clipboard') {
-            getClipboardText(navigate, 'modal', nodeInformation);
+            navigateToSendUsingClipboard(navigate, 'modal');
           } else {
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'manualEnterSendAddress',
