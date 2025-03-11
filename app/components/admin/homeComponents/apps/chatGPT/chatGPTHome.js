@@ -267,10 +267,7 @@ export default function ChatGPTHome(props) {
       {chatHistory.conversation.length === 0 &&
         userChatText.length === 0 &&
         newChats.length === 0 && (
-          <ExampleGPTSearchCard
-            submitChaMessage={submitChaMessage}
-            setUserChatText={setUserChatText}
-          />
+          <ExampleGPTSearchCard submitChaMessage={submitChaMessage} />
         )}
       <View style={styles.bottomBarContainer}>
         <TextInput
@@ -358,27 +355,12 @@ export default function ChatGPTHome(props) {
   }
 
   async function submitChaMessage(forcedText) {
-    if (!forcedText) {
+    if (forcedText) {
       if (userChatText.length === 0 || userChatText.trim() === '') return;
 
       if (totalAvailableCredits < 30) {
-        navigate.reset({
-          index: 0,
-          routes: [
-            {
-              name: 'HomeAdmin',
-              params: {
-                screen: 'Home',
-              },
-            },
-            {
-              name: 'HomeAdmin',
-              params: {
-                screen: 'App Store',
-              },
-            },
-            {name: 'AppStorePageIndex', params: {page: 'AI'}},
-          ],
+        navigate.navigate('ErrorScreen', {
+          errorMessage: 'You have run out of credits.',
         });
         return;
       }
