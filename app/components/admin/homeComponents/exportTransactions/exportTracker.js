@@ -1,16 +1,16 @@
-import {Share, StyleSheet, View, useWindowDimensions} from 'react-native';
+import {StyleSheet, View, useWindowDimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useState} from 'react';
 import SwipeButton from 'rn-swipe-button';
 import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../../constants';
 import {ThemeText} from '../../../../functions/CustomElements';
-import * as FileSystem from 'expo-file-system';
 import {useGlobaleCash} from '../../../../../context-store/eCash';
 import GetThemeColors from '../../../../hooks/themeColors';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
+import writeAndShareFileToFilesystem from '../../../../functions/writeFileToFilesystem';
 
 export default function ConfirmExportPayments() {
   const navigate = useNavigation();
@@ -142,30 +142,20 @@ export default function ConfirmExportPayments() {
         } catch (err) {
           console.log(err);
         } finally {
-          await new Promise(res => setTimeout(res, 2));
+          await new Promise(res => setTimeout(res, 0.5));
         }
       }
 
       const csvData = headers.concat(formatedData).join('\n');
-
-      const dir = FileSystem.documentDirectory;
-
       const fileName = 'BlitzWallet.csv';
-      const filePath = `${dir}${fileName}`;
 
-      await FileSystem.writeAsStringAsync(filePath, csvData, {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
-      setTimeout(async () => {
-        await Share.share({
-          title: 'BlitzWallet',
-          // message: `${csvData}`,
-          url: `file://${filePath}`,
-          type: 'text/csv',
-        });
-      }, 200);
+      await writeAndShareFileToFilesystem(
+        csvData,
+        fileName,
+        'text/csv',
+        navigate,
+      );
       navigate.goBack();
-      console.log(dir);
     } catch (err) {
       console.log(err);
       navigate.navigate('ErrorScreen', {

@@ -1,8 +1,7 @@
-import {Platform, Share, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {ThemeText} from '../../../../functions/CustomElements';
 import {useEffect, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import * as FileSystem from 'expo-file-system';
 import {staticBackup} from '@breeztech/react-native-breez-sdk';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {BREEZ_WORKING_DIR_KEY, CENTER} from '../../../../constants';
@@ -11,6 +10,7 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import {useLightningEvent} from '../../../../../context-store/lightningEventContext';
 import connectToLightningNode from '../../../../functions/connectToLightning';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import writeAndShareFileToFilesystem from '../../../../functions/writeFileToFilesystem';
 
 export default function RestoreChannel() {
   const [SCBfile, setSCBfile] = useState(null);
@@ -83,59 +83,14 @@ export default function RestoreChannel() {
 
 async function downloadBackupFile(file, navigate) {
   const content = JSON.stringify(file);
+
   const fileName = `blitzSCBFile.json`;
-  const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-
-  try {
-    await FileSystem.writeAsStringAsync(fileUri, content, {
-      encoding: FileSystem.EncodingType.UTF8,
-    });
-
-    if (Platform.OS === 'ios') {
-      await Share.share({
-        title: `${fileName}`,
-        // message: `${content}`,
-        url: `${fileUri}`,
-        type: 'application/json',
-      });
-    } else {
-      try {
-        const permissions =
-          await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
-        if (permissions.granted) {
-          const data =
-            await FileSystem.StorageAccessFramework.readAsStringAsync(fileUri);
-          await FileSystem.StorageAccessFramework.createFileAsync(
-            permissions.directoryUri,
-            fileName,
-            'application/json',
-          )
-            .then(async uri => {
-              await FileSystem.writeAsStringAsync(uri, data);
-            })
-            .catch(err => {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: 'Error saving file to document',
-              });
-            });
-        } else {
-          await Share.share({
-            title: `${fileName}`,
-            // message: `${content}`,
-            url: `${fileUri}`,
-            type: 'application/json',
-          });
-        }
-      } catch (err) {
-        console.log(err);
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Error accessing file system',
-        });
-      }
-    }
-  } catch (e) {
-    console.log(e);
-  }
+  await writeAndShareFileToFilesystem(
+    content,
+    fileName,
+    'application/json',
+    navigate,
+  );
 }
 
 const styles = StyleSheet.create({

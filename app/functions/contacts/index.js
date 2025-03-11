@@ -1,22 +1,10 @@
-import {setLocalStorageItem} from '../localStorage';
-import {generateRandomContact} from './generateContact';
+import {uniqueNamesGenerator, animals, names} from 'unique-names-generator';
 
-async function updateContactProfile(update, contacts, selectedContact) {
-  const newContacts = contacts.map(contact => {
-    if (contact.npub === selectedContact.npub) {
-      return {...contact, ...update};
-    } else {
-      return contact;
-    }
-  });
+export function generateRandomContact() {
+  const randomName = uniqueNamesGenerator({
+    dictionaries: [names, animals],
+    separator: '',
+  }); // big_red_donkey
 
-  const didSet = await setLocalStorageItem(
-    'contacts',
-    JSON.stringify(newContacts),
-  );
-  return new Promise(resolve => {
-    resolve(didSet);
-  });
+  return {uniqueName: randomName + Math.ceil(Math.random() * 99)};
 }
-
-export {generateRandomContact, updateContactProfile};
