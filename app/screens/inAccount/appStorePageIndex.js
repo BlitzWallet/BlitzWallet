@@ -6,7 +6,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useCallback, useEffect} from 'react';
 import VPNHome from '../../components/admin/homeComponents/apps/VPN/home';
 import {Keyboard} from 'react-native';
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 export default function AppStorePageIndex(props) {
   const targetPage = props.route.params.page;
@@ -16,7 +16,7 @@ export default function AppStorePageIndex(props) {
     Keyboard.dismiss();
     navigate.goBack();
   }, [navigate]);
-  handleBackPressNew(handleBackPressFunction);
+  useHandleBackPressNew(handleBackPressFunction);
 
   if (targetPage.toLowerCase() === 'sms4sats') return <SMSMessagingHome />;
   if (targetPage.toLowerCase() === 'lnvpn') return <VPNHome />;

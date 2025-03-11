@@ -16,7 +16,7 @@ import {copyToClipboard} from '../../functions';
 import GetThemeColors from '../../hooks/themeColors';
 import {openComposer} from 'react-native-email-link';
 import {useGlobalThemeContext} from '../../../context-store/theme';
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 export default function ConfirmTxPage(props) {
   const navigate = useNavigation();
@@ -24,7 +24,7 @@ export default function ConfirmTxPage(props) {
     navigate.popToTop();
   }, []);
 
-  handleBackPressNew(handleBackPressFunction);
+  useHandleBackPressNew(handleBackPressFunction);
   const {backgroundOffset} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
   const paymentType = props.route.params?.for;

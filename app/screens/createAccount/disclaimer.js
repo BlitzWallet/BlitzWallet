@@ -6,11 +6,11 @@ import CustomButton from '../../functions/CustomElements/button';
 import {G, Path, Svg} from 'react-native-svg';
 import LoginNavbar from '../../components/login/navBar';
 import {useTranslation} from 'react-i18next';
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 export default function DislaimerPage({navigation: {navigate}}) {
   const {t} = useTranslation();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   return (
     <GlobalThemeView useStandardWidth={true}>

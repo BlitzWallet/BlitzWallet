@@ -8,11 +8,11 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function LspDescriptionPopup() {
   const navigate = useNavigation();
-  handleBackPressNew();
+  useHandleBackPressNew();
   return (
     <GlobalThemeView useStandardWidth={true}>
       <TouchableOpacity onPress={navigate.goBack}>

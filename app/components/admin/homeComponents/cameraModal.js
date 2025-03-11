@@ -20,7 +20,7 @@ import {CENTER, COLORS, ICONS} from '../../../constants';
 import {ThemeText, GlobalThemeView} from '../../../functions/CustomElements';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import {ANDROIDSAFEAREA, backArrow} from '../../../constants/styles';
-import handleBackPressNew from '../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import * as Clipboard from 'expo-clipboard';
 import {useIsForeground} from '../../../hooks/isAppForground';
 import {getImageFromLibrary} from '../../../functions/imagePickerWrapper';
@@ -46,7 +46,7 @@ export default function CameraModal(props) {
     ios: insets.top,
     android: ANDROIDSAFEAREA,
   });
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   useEffect(() => {
     (async () => {

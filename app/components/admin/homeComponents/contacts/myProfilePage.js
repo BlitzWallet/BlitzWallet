@@ -19,7 +19,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
-import handleBackPressNew from '../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 export default function MyContactProfilePage({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -74,7 +74,7 @@ export default function MyContactProfilePage({navigation}) {
   }, [decodedAddedContacts, contactsMessags]);
 
   const insets = useSafeAreaInsets();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   return (
     <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>

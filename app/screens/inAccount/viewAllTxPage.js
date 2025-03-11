@@ -18,7 +18,7 @@ import {useTranslation} from 'react-i18next';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useNodeContext} from '../../../context-store/nodeContext';
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 export default function ViewAllTxPage() {
   const navigate = useNavigation();
@@ -28,7 +28,7 @@ export default function ViewAllTxPage() {
   const ecashTransactions = ecashWalletInformation.transactions;
   const insets = useSafeAreaInsets();
   const {t} = useTranslation();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const bottomPadding = Platform.select({
     ios: insets.bottom,

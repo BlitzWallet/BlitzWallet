@@ -31,7 +31,7 @@ import CustomSearchInput from '../../../../functions/CustomElements/searchInput'
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
-import handleBackPressNew from '../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -85,7 +85,7 @@ export default function EditReceivePaymentInformation(props) {
         );
 
   console.log(localSatAmount, 'tesing');
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   return (
     <CustomKeyboardAvoidingView

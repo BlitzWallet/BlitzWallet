@@ -28,7 +28,7 @@ import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRe
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
-import handleBackPressNew from '../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
@@ -61,7 +61,7 @@ export default function ExpandedContactsPage(props) {
   );
 
   const contactTransactions = contactsMessags[selectedUUID]?.messages || []; //selectedContact?.transactions;
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   useEffect(() => {
     //listening for messages when you're on the contact

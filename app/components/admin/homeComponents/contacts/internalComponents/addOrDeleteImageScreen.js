@@ -9,12 +9,12 @@ import {COLORS, FONT, SIZES} from '../../../../../constants';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useNavigation} from '@react-navigation/native';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function AddOrDeleteContactImage(props) {
   const {textColor, backgroundColor} = GetThemeColors();
   const navigate = useNavigation();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>

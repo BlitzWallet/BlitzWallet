@@ -2,7 +2,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useCallback} from 'react';
 import {BackHandler} from 'react-native';
 
-export default function handleBackPressNew(callback) {
+export default function useHandleBackPressNew(callback) {
   useFocusEffect(
     useCallback(() => {
       console.log('RUNNING IN HANDLE BACK PRESS NEW');

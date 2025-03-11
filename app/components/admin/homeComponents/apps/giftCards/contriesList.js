@@ -21,7 +21,7 @@ import {encriptMessage} from '../../../../../functions/messaging/encodingAndDeco
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function CountryList() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -56,7 +56,7 @@ export default function CountryList() {
       };
     }, []),
   );
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const saveNewCountrySetting = useCallback(
     async isoCode => {

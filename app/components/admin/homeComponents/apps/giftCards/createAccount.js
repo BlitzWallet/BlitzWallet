@@ -34,7 +34,7 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function CreateGiftCardAccount(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -46,7 +46,7 @@ export default function CreateGiftCardAccount(props) {
   const [hasError, setHasError] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   return (
     <CustomKeyboardAvoidingView

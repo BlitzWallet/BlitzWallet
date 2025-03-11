@@ -17,7 +17,7 @@ import GetThemeColors from '../../hooks/themeColors';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import {PaymentState} from '@breeztech/react-native-breez-sdk-liquid';
 import {useGlobalThemeContext} from '../../../context-store/theme';
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 export default function ExpandedTx(props) {
   console.log('Transaction Detials Page');
@@ -66,7 +66,7 @@ export default function ExpandedTx(props) {
   const month = paymentDate.toLocaleString('default', {month: 'short'});
   const day = paymentDate.getDate();
   const year = paymentDate.getFullYear();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   return (
     <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>

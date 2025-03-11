@@ -26,7 +26,7 @@ import {EditMyProfilePage} from '../../components/admin';
 
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import {useGlobalThemeContext} from '../../../context-store/theme';
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import {useGlobaleCash} from '../../../context-store/eCash';
 import {useCallback} from 'react';
@@ -52,7 +52,7 @@ export default function SettingsContentIndex(props) {
       navigate.goBack();
     }
   }, [navigate, currentMintURL, enabledEcash, selectedPage]);
-  handleBackPressNew(handleBackPressFunction);
+  useHandleBackPressNew(handleBackPressFunction);
 
   return (
     <>

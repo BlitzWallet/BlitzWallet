@@ -12,7 +12,7 @@ import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar'
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useNodeContext} from '../../../context-store/nodeContext';
 import {useAppStatus} from '../../../context-store/appStatus';
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 const GENERALOPTIONS = [
   {
@@ -214,7 +214,7 @@ export default function SettingsIndex(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const isDoomsday = props?.route?.params?.isDoomsday;
   const navigate = useNavigation();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const settignsList = isDoomsday ? DOOMSDAYSETTINGS : SETTINGSOPTIONS;
 

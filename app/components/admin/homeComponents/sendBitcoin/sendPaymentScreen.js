@@ -54,7 +54,7 @@ import {
   getProofsToUse,
   payLnInvoiceFromEcash,
 } from '../../../../functions/eCash/wallet';
-import handleBackPressNew from '../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -162,7 +162,7 @@ export default function SendPaymentScreen(props) {
   // paymentInfo.type === 'bolt11' &&
   // paymentInfo.type != InputTypeVariant.LN_URL_PAY &&
   // !paymentInfo.invoice?.amountMsat;
-  handleBackPressNew(goBackFunction);
+  useHandleBackPressNew(goBackFunction);
 
   useEffect(() => {
     async function decodePayment() {

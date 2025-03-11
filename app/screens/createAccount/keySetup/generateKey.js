@@ -10,13 +10,13 @@ import CustomButton from '../../../functions/CustomElements/button';
 import {copyToClipboard} from '../../../functions';
 import {useNavigation} from '@react-navigation/native';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import handleBackPressNew from '../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 
 export default function GenerateKey() {
   const [mnemonic, setMnemonic] = useState([]);
   const {t} = useTranslation();
   const hookNavigate = useNavigation();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   useState(() => {
     async function loadSeed() {

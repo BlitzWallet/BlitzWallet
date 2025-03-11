@@ -5,12 +5,12 @@ import {copyToClipboard} from '../../functions';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {WINDOWWIDTH} from '../../constants/theme';
 import ThemeImage from '../../functions/CustomElements/themeImage';
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 export default function TechnicalTransactionDetails(props) {
   console.log('Transaction Detials Page');
   const navigate = useNavigation();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const {selectedTX, isLiquidPayment, isFailedPayment, isEcashPayment} =
     props.route.params;

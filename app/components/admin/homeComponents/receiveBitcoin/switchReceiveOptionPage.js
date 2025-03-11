@@ -6,7 +6,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useTranslation} from 'react-i18next';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import handleBackPressNew from '../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {useMemo} from 'react';
 
 export default function SwitchReceiveOptionPage(props) {
@@ -15,7 +15,7 @@ export default function SwitchReceiveOptionPage(props) {
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
   const setSelectedRecieveOption = props.route.params.setSelectedRecieveOption;
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const paymentElements = useMemo(() => {
     return ['Lightning', 'Bitcoin', 'Liquid'].map(item => {

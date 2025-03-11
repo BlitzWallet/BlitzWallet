@@ -37,7 +37,7 @@ import {useLightningEvent} from '../../../../../../context-store/lightningEventC
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 const SETTINGSITEMS = [
   {
@@ -67,7 +67,7 @@ export default function LiquidSettingsPage() {
 
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
   const insets = useSafeAreaInsets();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const settingsElements = SETTINGSITEMS.map((item, index) => {
     return (

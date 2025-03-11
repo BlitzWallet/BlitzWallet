@@ -11,14 +11,14 @@ import {ThemeText} from '../../../../../functions/CustomElements';
 import {copyToClipboard} from '../../../../../functions';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {openInbox} from 'react-native-email-link';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function GiftCardOrderDetails(props) {
   const {backgroundColor} = GetThemeColors();
 
   const item = props.route.params?.item;
   const navigate = useNavigation();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>

@@ -40,7 +40,7 @@ import {useKeysContext} from '../../../../../context-store/keys';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import handleBackPressNew from '../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -78,7 +78,7 @@ export default function EditMyProfilePage(props) {
       setSelectedAddedContact(contact);
     }
   }, [props.fromInitialAdd, providedContact, decodedAddedContacts]);
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   return (
     <CustomKeyboardAvoidingView

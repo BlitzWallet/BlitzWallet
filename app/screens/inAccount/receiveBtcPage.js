@@ -15,7 +15,7 @@ import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import QrCodeWrapper from '../../functions/CustomElements/QrWrapper';
 import {useNodeContext} from '../../../context-store/nodeContext';
 import {useAppStatus} from '../../../context-store/appStatus';
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -28,7 +28,7 @@ export default function ReceivePaymentHome(props) {
   const ecashRef = useRef(null);
   const initialSendAmount = props.route.params?.receiveAmount;
   const paymentDescription = props.route.params?.description;
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const [addressState, setAddressState] = useState({
     selectedRecieveOption: 'lightning',

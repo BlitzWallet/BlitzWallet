@@ -44,7 +44,7 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import handleBackPressNew from '../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 export default function ExperimentalItemsPage() {
   const {masterInfoObject} = useGlobalContextProvider();

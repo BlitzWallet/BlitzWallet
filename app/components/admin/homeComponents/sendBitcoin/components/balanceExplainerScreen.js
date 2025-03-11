@@ -4,14 +4,14 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import {COLORS} from '../../../../../constants';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function ExplainBalanceScreen() {
   const {backgroundColor} = GetThemeColors();
 
   const navigate = useNavigation();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>

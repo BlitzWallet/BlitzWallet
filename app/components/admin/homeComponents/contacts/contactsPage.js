@@ -24,7 +24,7 @@ import CustomSearchInput from '../../../../functions/CustomElements/searchInput'
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
-import handleBackPressNew from '../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 export default function ContactsPage({navigation}) {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -48,7 +48,7 @@ export default function ContactsPage({navigation}) {
     tabsNavigate('Home');
   }, [tabsNavigate]);
 
-  handleBackPressNew(handleBackPressFunction);
+  useHandleBackPressNew(handleBackPressFunction);
 
   const pinnedContacts = useMemo(() => {
     return decodedAddedContacts

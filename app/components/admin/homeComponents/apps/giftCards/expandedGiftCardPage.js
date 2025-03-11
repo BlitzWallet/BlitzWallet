@@ -51,7 +51,7 @@ import {useKeysContext} from '../../../../../../context-store/keys';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function ExpandedGiftCardPage(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -72,7 +72,7 @@ export default function ExpandedGiftCardPage(props) {
       : selectedItem.denominations[0],
   );
   const navigate = useNavigation();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const [isPurchasingGift, setIsPurchasingGift] = useState({
     isPurasing: false,

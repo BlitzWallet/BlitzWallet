@@ -21,7 +21,7 @@ import {openComposer} from 'react-native-email-link';
 import {copyToClipboard} from '../../../../../functions';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function HistoricalGiftCardPurchases() {
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
@@ -34,7 +34,7 @@ export default function HistoricalGiftCardPurchases() {
     ios: insets.bottom,
     android: ANDROIDSAFEAREA,
   });
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const renderItem = ({item}) => (
     <TouchableOpacity

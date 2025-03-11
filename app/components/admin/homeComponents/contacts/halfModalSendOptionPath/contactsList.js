@@ -30,7 +30,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function ChooseContactHalfModal() {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -46,7 +46,7 @@ export default function ChooseContactHalfModal() {
     ios: insets.bottom,
     android: ANDROIDSAFEAREA,
   });
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const contactElements = useMemo(() => {
     return decodedAddedContacts

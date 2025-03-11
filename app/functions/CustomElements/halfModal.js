@@ -27,7 +27,7 @@ import ExpandedMessageHalfModal from '../../components/admin/homeComponents/cont
 import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 import ManualEnterSendAddress from '../../components/admin/homeComponents/homeLightning/manualEnterSendAddress';
 import ConfirmInternalTransferHalfModal from '../../components/admin/homeComponents/settingsContent/walletInfoComponents/confirmTransferHalfModal';
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {KEYBOARDTIMEOUT} from '../../constants/styles';
 
 export default function CustomHalfModal(props) {
@@ -50,7 +50,7 @@ export default function CustomHalfModal(props) {
     }, KEYBOARDTIMEOUT);
   }, [navigation]);
 
-  handleBackPressNew(handleBackPressFunction);
+  useHandleBackPressNew(handleBackPressFunction);
 
   useEffect(() => {
     setTimeout(() => {

@@ -13,7 +13,7 @@ import {deleteCachedMessages} from '../../../../../functions/messaging/cachedMes
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function ContactsPageLongPressActions({
   route: {
@@ -29,7 +29,7 @@ export default function ContactsPageLongPressActions({
     globalContactsInformation,
     toggleGlobalContactsInformation,
   } = useGlobalContacts();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>

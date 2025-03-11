@@ -19,7 +19,7 @@ import {openComposer} from 'react-native-email-link';
 import {copyToClipboard} from '../../functions';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useAppStatus} from '../../../context-store/appStatus';
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 export default function AppStore({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -33,7 +33,7 @@ export default function AppStore({navigation}) {
     navigation.navigate('Home');
   }
 
-  handleBackPressNew(handleBackPressFunction);
+  useHandleBackPressNew(handleBackPressFunction);
 
   const gridGap = Platform.select({
     ios: '10%',

@@ -1,7 +1,7 @@
 import {useCallback} from 'react';
 import HomeLightning from '../../components/admin/homeComponents/homeLightning';
 
-import handleBackPressNew from '../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {BackHandler} from 'react-native';
 
 export default function AdminHome({navigation}) {
@@ -10,7 +10,7 @@ export default function AdminHome({navigation}) {
     BackHandler.exitApp();
     return true;
   }, []);
-  handleBackPressNew(handleBackPressFunction);
+  useHandleBackPressNew(handleBackPressFunction);
 
   return <HomeLightning tabNavigation={navigation} />;
 }

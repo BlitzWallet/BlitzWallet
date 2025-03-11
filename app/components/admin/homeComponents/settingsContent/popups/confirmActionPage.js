@@ -10,14 +10,14 @@ import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import handleBackPressNew from '../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 
 export default function ConfirmActionPage(props) {
   const navigate = useNavigation();
 
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundColor} = GetThemeColors();
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>

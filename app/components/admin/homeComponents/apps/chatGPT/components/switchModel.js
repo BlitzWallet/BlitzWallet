@@ -13,7 +13,7 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../../functions/CustomElements';
-import handleBackPressNew from '../../../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../../functions/CustomElements/themeImage';
 import {AI_MODEL_COST} from '../contants/AIModelCost';
@@ -23,7 +23,7 @@ export default function SwitchGenerativeAIModel(props) {
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
   const setSelectedRecieveOption = props.route.params.setSelectedModel;
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const ModelElements = AI_MODEL_COST.map((item, index) => {
     console.log(item);

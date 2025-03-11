@@ -38,7 +38,7 @@ import {
   calculateEcashFees,
   getProofsToUse,
 } from '../../../../functions/eCash/wallet';
-import handleBackPressNew from '../../../../hooks/handleBackPressNew';
+import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -194,7 +194,7 @@ export default function SendAndRequestPage(props) {
       paymentType,
     ],
   );
-  handleBackPressNew();
+  useHandleBackPressNew();
 
   const handleSearch = useCallback(term => {
     setAmountValue(term);
