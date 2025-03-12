@@ -11,19 +11,13 @@ export default async function processLNUrlAuth(input, context) {
     if (result.type === LnUrlCallbackStatusVariant.OK) {
       navigate.navigate('ErrorScreen', {
         errorMessage: 'LNURL successfully authenticated',
-        customNavigator: () => goBackFunction(),
+        customNavigator: () => navigate.navigate('HomeAdmin', {screen: 'home'}),
       });
     } else {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: 'Failed to authenticate LNURL',
-        customNavigator: () => goBackFunction(),
-      });
+      goBackFunction('Failed to authenticate LNURL');
     }
   } catch (err) {
     console.log(err);
-    navigate.navigate('ErrorScreen', {
-      errorMessage: 'Failed to authenticate LNURL',
-      customNavigator: () => goBackFunction(),
-    });
+    goBackFunction(err.message);
   }
 }

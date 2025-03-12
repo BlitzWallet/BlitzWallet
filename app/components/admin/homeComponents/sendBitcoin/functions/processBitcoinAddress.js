@@ -57,10 +57,7 @@ export default async function processBitcoinAddress(input, context) {
       if (paymentFeeResponse.didWork) {
         paymentFee = paymentFeeResponse.fees;
       } else {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: `Sending amount is above your balance`,
-          customNavigator: () => goBackFunction(),
-        });
+        goBackFunction(`Sending amount is above your balance`);
         return;
       }
     }

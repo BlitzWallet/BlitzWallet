@@ -15,10 +15,7 @@ export default function processBolt11Invoice(input, context) {
     const expirationTime = input.invoice.timestamp + input.invoice.expiry;
     const isExpired = currentTime > expirationTime;
     if (isExpired) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: 'Invoice is expired',
-        customNavigator: () => goBackFunction(),
-      });
+      goBackFunction('Invoice is expired');
       return;
     }
 

@@ -23,31 +23,10 @@ async function navigateToSendUsingClipboard(navigate, callLocation) {
     qrContent: data,
     network: process.env.BOLTZ_ENVIRONEMNT,
   });
-  if (Platform.OS === 'android') {
-    navigate.navigate('ConfirmPaymentScreen', {
-      btcAdress: merchantLNAddress || data,
-      fromPage: callLocation === 'slideCamera' ? 'slideCamera' : '',
-    });
-  } else {
-    navigate.reset({
-      index: 0,
-      routes: [
-        {
-          name: 'HomeAdmin',
-          params: {
-            screen: 'Home',
-          },
-        },
-        {
-          name: 'ConfirmPaymentScreen',
-          params: {
-            btcAdress: merchantLNAddress || data,
-            fromPage: callLocation === 'slideCamera' ? 'slideCamera' : '',
-          },
-        },
-      ],
-    });
-  }
+  navigate.replace('ConfirmPaymentScreen', {
+    btcAdress: merchantLNAddress || data,
+    fromPage: callLocation === 'slideCamera' ? 'slideCamera' : '',
+  });
 }
 
 async function getQRImage(navigate, callLocation) {

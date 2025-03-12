@@ -1,5 +1,5 @@
 // SplashScreen.js
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useMemo, useRef} from 'react';
 import {View, StyleSheet, Animated} from 'react-native';
 import LottieView from 'lottie-react-native';
 import {COLORS} from '../constants';
@@ -9,7 +9,18 @@ const SplashScreen = ({onAnimationFinish}) => {
   const opacity = useRef(new Animated.Value(1)).current;
   const {theme, darkModeType} = useGlobalThemeContext();
 
+  const animationRef = useRef(null);
+
+  const animationSource = useMemo(() => {
+    return theme
+      ? darkModeType
+        ? require('../assets/BlitzAnimationLightsOut.json')
+        : require('../assets/BlitzAnimationDM.json')
+      : require('../assets/BlitzAnimation.json');
+  }, [theme, darkModeType]);
+
   useEffect(() => {
+    animationRef.current?.play();
     setTimeout(() => {
       Animated.timing(opacity, {
         toValue: 0,
@@ -41,14 +52,8 @@ const SplashScreen = ({onAnimationFinish}) => {
           },
         ]}>
         <LottieView
-          source={
-            theme
-              ? darkModeType
-                ? require('../assets/BlitzAnimationLightsOut.json')
-                : require('../assets/BlitzAnimationDM.json')
-              : require('../assets/BlitzAnimation.json')
-          }
-          autoPlay
+          ref={animationRef}
+          source={animationSource}
           speed={0.8}
           loop={false}
           style={styles.lottie}

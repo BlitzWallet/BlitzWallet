@@ -61,7 +61,8 @@ export default function SendPaymentHome({pageViewPage, from}) {
     () => screenDimensions.height / screenDimensions.width,
     [screenDimensions],
   );
-  const format = device.formats.length
+
+  const format = device?.formats?.length
     ? useCameraFormat(device, [{photoAspectRatio: screenAspectRatio}])
     : null;
   const isCameraActive = useMemo(

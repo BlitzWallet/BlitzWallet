@@ -42,11 +42,10 @@ export default async function decodeSendAddress(props) {
       const data = await response.json();
 
       if (data.status === 'ERROR') {
-        return navigateToErrorScreen(
-          navigate,
-          'Not able to get merchant payment information',
-          goBackFunction,
+        goBackFunction(
+          'Not able to get merchant payment information from invoice',
         );
+        return;
       }
 
       const bolt11 = await getLNAddressForLiquidPayment(
@@ -56,15 +55,14 @@ export default async function decodeSendAddress(props) {
       const parsedInvoice = await parseInvoice(bolt11);
 
       if (parsedInvoice.amountMsat / 1000 >= maxZeroConf) {
-        return navigateToErrorScreen(
-          navigate,
+        goBackFunction(
           `Cannot send more than ${displayCorrectDenomination({
             amount: maxZeroConf,
             nodeInformation,
             masterInfoObject,
           })} to a merchant`,
-          goBackFunction,
         );
+        return;
       }
       btcAdress = bolt11;
     }
@@ -133,15 +131,11 @@ export default async function decodeSendAddress(props) {
 
         setPaymentInfo(processedLiquidInfo);
       } else {
-        navigateToErrorScreen(
-          navigate,
-          'Error getting liquid address',
-          goBackFunction,
-        );
+        goBackFunction('Error getting liquid address');
       }
     } catch (err) {
       console.log('error parsing liquid address', err);
-      navigateToErrorScreen(navigate, 'Not a valid Address', goBackFunction);
+      goBackFunction(err.message);
     }
   }
 }
@@ -170,14 +164,7 @@ async function processInputType(input, context) {
       return processLiquidAddress(input, context);
 
     default:
-      navigateToErrorScreen(navigate, 'Not a valid Address', goBackFunction);
+      goBackFunction('Not a valid address type');
       return null;
   }
-}
-
-function navigateToErrorScreen(navigate, message, goBackFunction) {
-  navigate.navigate('ErrorScreen', {
-    errorMessage: message,
-    customNavigator: () => goBackFunction(),
-  });
 }

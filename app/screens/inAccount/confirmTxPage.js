@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import {COLORS, FONT, SIZES} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect} from 'react';
+import {useCallback, useEffect, useMemo, useRef} from 'react';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import LottieView from 'lottie-react-native';
@@ -27,6 +27,7 @@ export default function ConfirmTxPage(props) {
   useHandleBackPressNew(handleBackPressFunction);
   const {backgroundOffset} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
+  const animationRef = useRef(null);
   const paymentType = props.route.params?.for;
   const paymentInformation = props.route.params?.information;
   const formmatingType = props.route.params?.formattingType;
@@ -82,8 +83,22 @@ export default function ConfirmTxPage(props) {
       ? Math.round(paymentInformation?.payment?.amountMsat / 1000)
       : paymentInformation?.amountSat;
 
-  console.log(paymentInformation);
-
+  useEffect(() => {
+    animationRef.current?.play();
+  }, []);
+  const animationSource = useMemo(() => {
+    return didSucceed
+      ? theme
+        ? darkModeType
+          ? require('../../assets/confirmTxAnimationLightsOutMode.json')
+          : require('../../assets/confirmTxAnimationDarkMode.json')
+        : require('../../assets/confirmTxAnimation.json')
+      : theme
+      ? darkModeType
+        ? require('../../assets/errorTxAnimationLightsOutMode.json')
+        : require('../../assets/errorTxAnimationDarkMode.json')
+      : require('../../assets/errorTxAnimation.json');
+  }, [theme, darkModeType, didSucceed]);
   return (
     <GlobalThemeView
       useStandardWidth={true}
@@ -92,21 +107,8 @@ export default function ConfirmTxPage(props) {
         alignItems: 'center',
       }}>
       <LottieView
-        source={
-          didSucceed
-            ? theme
-              ? darkModeType
-                ? require('../../assets/confirmTxAnimationLightsOutMode.json')
-                : require('../../assets/confirmTxAnimationDarkMode.json')
-              : require('../../assets/confirmTxAnimation.json')
-            : theme
-            ? darkModeType
-              ? require('../../assets/errorTxAnimationLightsOutMode.json')
-              : require('../../assets/errorTxAnimationDarkMode.json')
-            : require('../../assets/errorTxAnimation.json')
-        }
-        autoPlay
-        speed={1}
+        ref={animationRef}
+        source={animationSource}
         loop={false}
         style={{
           width: useWindowDimensions().width / 1.5,

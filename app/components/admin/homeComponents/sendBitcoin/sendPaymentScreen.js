@@ -56,6 +56,7 @@ import {
 } from '../../../../functions/eCash/wallet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
+import ErrorWithPayment from './components/errorScreen';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -66,6 +67,7 @@ export default function SendPaymentScreen(props) {
     publishMessageFunc,
     comingFromAccept,
     enteredPaymentInfo,
+    errorMessage,
   } = props.route.params;
 
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -174,10 +176,7 @@ export default function SendPaymentScreen(props) {
       });
       console.log(didPay, 'DID PAY');
       if (didPay) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'You have already paid this invoice',
-          customNavigator: () => errorMessageNavigation(),
-        });
+        errorMessageNavigation('You have already paid this invoice');
         return;
       }
       await decodeSendAddress({
@@ -253,8 +252,13 @@ export default function SendPaymentScreen(props) {
     canUseLiquid,
     paymentInfo,
   );
-  if (!Object.keys(paymentInfo).length)
+  if (!Object.keys(paymentInfo).length && !errorMessage)
     return <FullLoadingScreen text={loadingMessage} />;
+
+  if (errorMessage) {
+    console.log('RUNNING ERROR COMPONENT');
+    return <ErrorWithPayment reason={errorMessage} />;
+  }
 
   return (
     <CustomKeyboardAvoidingView
@@ -701,8 +705,15 @@ export default function SendPaymentScreen(props) {
   function goBackFunction() {
     keyboardGoBack(navigate);
   }
-  function errorMessageNavigation() {
-    navigate.navigate('HomeAdmin', {screen: 'Home'});
+  function errorMessageNavigation(reason) {
+    navigate.navigate('ConfirmPaymentScreen', {
+      btcAdress: '',
+      fromPage: '',
+      publishMessageFunc: null,
+      comingFromAccept: null,
+      enteredPaymentInfo: {},
+      errorMessage: reason || 'Error decoding invoice',
+    });
   }
 }
 

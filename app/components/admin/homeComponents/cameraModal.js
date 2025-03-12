@@ -62,7 +62,7 @@ export default function CameraModal(props) {
     codeTypes: ['qr'],
     onCodeScanned: handleBarCodeScanned,
   });
-  const format = device.formats.length
+  const format = device?.formats?.length
     ? useCameraFormat(device, [{photoAspectRatio: screenAspectRatio}])
     : null;
 

@@ -23,10 +23,7 @@ export default async function processLNUrlWithdraw(input, context) {
       });
     } catch (err) {
       console.log(err);
-      navigate.navigate('ErrorScreen', {
-        errorMessage: 'Error comnpleting withdrawl',
-        customNavigator: () => goBackFunction(),
-      });
+      goBackFunction(err.message);
     }
   } else if (masterInfoObject.liquidWalletSettings.regulatedChannelOpenSize) {
     try {
@@ -38,10 +35,7 @@ export default async function processLNUrlWithdraw(input, context) {
       });
     } catch (err) {
       console.log('process lnurl withdrawls error', err);
-      navigate.navigate('ErrorScreen', {
-        errorMessage: 'Error comnpleting withdrawl',
-        customNavigator: () => goBackFunction(),
-      });
+      goBackFunction(err.message);
     }
   }
 }
