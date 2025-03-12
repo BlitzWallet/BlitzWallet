@@ -15,8 +15,6 @@ import {
 } from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useState} from 'react';
-import openWebBrowser from '../../../../functions/openWebBrowser';
-
 import {ANDROIDSAFEAREA, CENTER} from '../../../../constants/styles';
 import {SIZES} from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -108,7 +106,10 @@ export default function ManualEnterSendAddress() {
     if (!inputValue) return;
     Keyboard.dismiss();
     if (WEBSITE_REGEX.test(inputValue)) {
-      openWebBrowser({navigate, link: inputValue});
+      navigate.navigate('CustomWebView', {
+        headerText: '',
+        webViewURL: inputValue,
+      });
       return;
     }
     navigate.replace('ConfirmPaymentScreen', {

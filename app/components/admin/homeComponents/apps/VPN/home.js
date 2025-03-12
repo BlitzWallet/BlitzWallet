@@ -8,10 +8,10 @@ import {CENTER, ICONS} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useState} from 'react';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import * as WebBrowser from 'expo-web-browser';
 import VPNPlanPage from './VPNPlanPage';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import openWebBrowser from '../../../../../functions/openWebBrowser';
 
 export default function VPNHome() {
   const navigate = useNavigation();
@@ -68,18 +68,14 @@ export default function VPNHome() {
               }
             />
             <TouchableOpacity
-              onPress={() => {
-                (async () => {
-                  try {
-                    await WebBrowser.openBrowserAsync(
-                      Platform.OS === 'ios'
-                        ? 'https://apps.apple.com/us/app/wireguard/id1441195209'
-                        : 'https://play.google.com/store/apps/details?id=com.wireguard.android',
-                    );
-                  } catch (err) {
-                    console.log(err, 'OPENING LINK ERROR');
-                  }
-                })();
+              onPress={async () => {
+                await openWebBrowser({
+                  navigate: navigate,
+                  link:
+                    Platform.OS === 'ios'
+                      ? 'https://apps.apple.com/us/app/wireguard/id1441195209'
+                      : 'https://play.google.com/store/apps/details?id=com.wireguard.android',
+                });
               }}>
               <ThemeText
                 styles={{

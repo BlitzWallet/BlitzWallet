@@ -1,6 +1,5 @@
 import {Alert, Platform} from 'react-native';
 import {WEBSITE_REGEX} from '../../constants';
-import openWebBrowser from '../openWebBrowser';
 import {convertMerchantQRToLightningAddress} from './getMerchantAddress';
 import {getImageFromLibrary} from '../imagePickerWrapper';
 import RNQRGenerator from 'rn-qr-generator';
@@ -14,7 +13,10 @@ async function navigateToSendUsingClipboard(navigate, callLocation) {
   const data = response.data;
 
   if (WEBSITE_REGEX.test(data)) {
-    openWebBrowser({navigate, link: data});
+    navigate.navigate('CustomWebView', {
+      headerText: '',
+      webViewURL: data,
+    });
     return;
   }
   const merchantLNAddress = convertMerchantQRToLightningAddress({
@@ -89,7 +91,10 @@ async function getQRImage(navigate, callLocation) {
   }
 
   if (WEBSITE_REGEX.test(address)) {
-    openWebBrowser({navigate, link: address});
+    navigate.navigate('CustomWebView', {
+      headerText: '',
+      webViewURL: address,
+    });
     return {btcAdress: '', didWork: false, error: ''};
   }
   const merchantLNAddress = convertMerchantQRToLightningAddress({

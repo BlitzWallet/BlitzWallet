@@ -94,5 +94,6 @@ const styles = StyleSheet.create({
     zIndex: -1,
     position: 'absolute',
     textAlign: 'center',
+    fontSize: SIZES.xLarge,
   },
 });

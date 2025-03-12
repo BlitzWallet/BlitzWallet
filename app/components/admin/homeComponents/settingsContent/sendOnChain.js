@@ -13,7 +13,6 @@ import {
   prepareRedeemOnchainFunds,
   redeemOnchainFunds,
 } from '@breeztech/react-native-breez-sdk';
-import * as WebBrowser from 'expo-web-browser';
 import {
   copyToClipboard,
   getLocalStorageItem,
@@ -127,15 +126,10 @@ export default function SendOnChainBitcoin({isDoomsday}) {
 
               <TouchableOpacity
                 onPress={() => {
-                  (async () => {
-                    try {
-                      await WebBrowser.openBrowserAsync(
-                        `https://mempool.space/tx/${bitcoinTxId}`,
-                      );
-                    } catch (err) {
-                      console.log(err, 'OPENING LINK ERROR');
-                    }
-                  })();
+                  navigate.navigate('CustomWebView', {
+                    headerText: 'Mempool',
+                    webViewURL: `https://mempool.space/tx/${bitcoinTxId}`,
+                  });
                 }}>
                 <ThemeText
                   styles={{

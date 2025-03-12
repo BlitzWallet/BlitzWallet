@@ -29,7 +29,6 @@ import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {FONT, WINDOWWIDTH} from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import * as WebBrowser from 'expo-web-browser';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
@@ -170,15 +169,11 @@ export default function CreateGiftCardAccount(props) {
                     By continuing you agree to The Bitcoin Company's{' '}
                     <Text
                       onPress={() => {
-                        (async () => {
-                          try {
-                            await WebBrowser.openBrowserAsync(
-                              'https://thebitcoincompany.com/terms',
-                            );
-                          } catch (err) {
-                            console.log(err, 'OPENING LINK ERROR');
-                          }
-                        })();
+                        navigate.navigate('CustomWebView', {
+                          headerText: 'Terms',
+                          webViewURL:
+                            'https://thebitcoincompany.com/gift-card-shopping-terms.html',
+                        });
                       }}
                       style={{
                         color:
@@ -191,15 +186,10 @@ export default function CreateGiftCardAccount(props) {
                     and{' '}
                     <Text
                       onPress={() => {
-                        (async () => {
-                          try {
-                            await WebBrowser.openBrowserAsync(
-                              'https://thebitcoincompany.com/privacy',
-                            );
-                          } catch (err) {
-                            console.log(err, 'OPENING LINK ERROR');
-                          }
-                        })();
+                        navigate.navigate('CustomWebView', {
+                          headerText: 'Privacy',
+                          webViewURL: 'https://thebitcoincompany.com/privacy',
+                        });
                       }}
                       style={{
                         color:

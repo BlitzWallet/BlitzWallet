@@ -33,7 +33,6 @@ import {
 import {useIsForeground} from '../../hooks/isAppForground';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {navigateToSendUsingClipboard, getQRImage} from '../../functions';
-import openWebBrowser from '../../functions/openWebBrowser';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {WINDOWWIDTH} from '../../constants/theme';
 import {ANDROIDSAFEAREA, backArrow} from '../../constants/styles';
@@ -105,7 +104,10 @@ export default function SendPaymentHome({pageViewPage, from}) {
       if (!data.type.includes('qr')) return;
 
       if (WEBSITE_REGEX.test(data.value)) {
-        openWebBrowser({navigate, link: data.value});
+        navigate.navigate('CustomWebView', {
+          headerText: '',
+          webViewURL: data.value,
+        });
         return;
       }
 

@@ -9,13 +9,12 @@ import {useNavigation} from '@react-navigation/native';
 import {useEffect, useState} from 'react';
 import {copyToClipboard, getLocalStorageItem} from '../../../../../functions';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import * as WebBrowser from 'expo-web-browser';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
+import openWebBrowser from '../../../../../functions/openWebBrowser';
 
 export default function HistoricalVPNPurchases() {
   const [purchaseList, setPurchaseList] = useState([]);
@@ -108,16 +107,11 @@ export default function HistoricalVPNPurchases() {
             <CustomButton
               buttonStyles={{...CENTER, marginTop: 10}}
               textContent={'Contact'}
-              actionFunction={() => {
-                (async () => {
-                  try {
-                    await WebBrowser.openBrowserAsync(
-                      'https://t.me/+x_j8zikjnqhiODIy',
-                    );
-                  } catch (err) {
-                    console.log(err, 'OPENING LINK ERROR');
-                  }
-                })();
+              actionFunction={async () => {
+                await openWebBrowser({
+                  navigate: navigate,
+                  link: 'https://t.me/+x_j8zikjnqhiODIy',
+                });
               }}
             />
           </>
