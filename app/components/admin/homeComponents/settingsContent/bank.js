@@ -42,8 +42,6 @@ export default function LiquidWallet() {
         containerStyles={{marginBottom: 0}}
         label={'Bank'}
         leftImageFunction={() => {
-          Keyboard.dismiss();
-
           if (!isConnectedToTheInternet) {
             navigate.navigate('ErrorScreen', {
               errorMessage:

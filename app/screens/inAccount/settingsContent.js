@@ -30,6 +30,7 @@ import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import {useGlobaleCash} from '../../../context-store/eCash';
 import {useCallback} from 'react';
+import {keyboardGoBack} from '../../functions/customNavigation';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
@@ -42,12 +43,11 @@ export default function SettingsContentIndex(props) {
   const currentMintURL = ecashWalletInformation?.mintURL;
   const handleBackPressFunction = useCallback(() => {
     if (selectedPage?.toLowerCase() === 'experimental') {
-      Keyboard.dismiss();
       if (!currentMintURL && enabledEcash) {
         navigate.navigate('ErrorScreen', {
           errorMessage: 'Must input a mintURL to enable ecash',
         });
-      } else navigate.goBack();
+      } else keyboardGoBack(navigate);
     } else {
       navigate.goBack();
     }
@@ -91,7 +91,6 @@ export default function SettingsContentIndex(props) {
               LeftImageDarkMode={ICONS.receiptWhite}
               leftImageFunction={() => {
                 Keyboard.dismiss();
-
                 navigate.navigate('HistoricalOnChainPayments');
               }}
               shouldDismissKeyboard={

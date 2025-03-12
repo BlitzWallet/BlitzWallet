@@ -56,7 +56,7 @@ function ChatGPTDrawer({confirmationSliderData}) {
   useEffect(() => {
     setTimeout(() => {
       setDidLoad(true);
-    }, 250);
+    }, 1000);
     return () => {
       setDidLoad(false);
     };

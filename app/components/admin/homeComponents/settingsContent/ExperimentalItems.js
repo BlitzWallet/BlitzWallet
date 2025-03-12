@@ -45,6 +45,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import {keyboardGoBack} from '../../../../functions/customNavigation';
 
 export default function ExperimentalItemsPage() {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -67,12 +68,11 @@ export default function ExperimentalItemsPage() {
   const currentMintURL = ecashWalletInformation.mintURL;
 
   const handleBackPressFunction = useCallback(() => {
-    Keyboard.dismiss();
     if (!currentMintURL && enabledEcash) {
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Must input a mintURL to enable ecash',
       });
-    } else navigate.goBack();
+    } else keyboardGoBack(navigate);
   }, [navigate, currentMintURL, enabledEcash]);
 
   useEffect(() => {

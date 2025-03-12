@@ -15,7 +15,11 @@ import {
 } from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useState} from 'react';
-import {ANDROIDSAFEAREA, CENTER} from '../../../../constants/styles';
+import {
+  ANDROIDSAFEAREA,
+  CENTER,
+  KEYBOARDTIMEOUT,
+} from '../../../../constants/styles';
 import {SIZES} from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
@@ -105,16 +109,21 @@ export default function ManualEnterSendAddress() {
   function hanldeSubmit() {
     if (!inputValue) return;
     Keyboard.dismiss();
-    if (WEBSITE_REGEX.test(inputValue)) {
-      navigate.navigate('CustomWebView', {
-        headerText: '',
-        webViewURL: inputValue,
-      });
-      return;
-    }
-    navigate.replace('ConfirmPaymentScreen', {
-      btcAdress: inputValue,
-    });
+    setTimeout(
+      () => {
+        if (WEBSITE_REGEX.test(inputValue)) {
+          navigate.navigate('CustomWebView', {
+            headerText: '',
+            webViewURL: inputValue,
+          });
+          return;
+        }
+        navigate.replace('ConfirmPaymentScreen', {
+          btcAdress: inputValue,
+        });
+      },
+      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+    );
   }
 }
 

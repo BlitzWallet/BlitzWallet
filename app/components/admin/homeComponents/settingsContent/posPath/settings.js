@@ -30,7 +30,10 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
+import {
+  ANDROIDSAFEAREA,
+  KEYBOARDTIMEOUT,
+} from '../../../../../constants/styles';
 
 export default function PosSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -78,9 +81,9 @@ export default function PosSettingsPage() {
               },
             ]}
             onPress={() => {
+              Keyboard.dismiss();
               setTextInput('');
               savePOSSettings({storeCurrency: item.id}, 'currency');
-              Keyboard.dismiss();
             }}>
             <ThemeText
               styles={{
@@ -114,14 +117,18 @@ export default function PosSettingsPage() {
         label={'Point-of-sale'}
         leftImageFunction={() => {
           Keyboard.dismiss();
-
-          if (!isConnectedToTheInternet) {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: 'Please reconnect to the internet',
-            });
-            return;
-          }
-          navigate.navigate('ViewPOSTransactions');
+          setTimeout(
+            () => {
+              if (!isConnectedToTheInternet) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: 'Please reconnect to the internet',
+                });
+                return;
+              }
+              navigate.navigate('ViewPOSTransactions');
+            },
+            Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+          );
         }}
       />
       <ScrollView

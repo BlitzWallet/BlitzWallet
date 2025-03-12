@@ -10,7 +10,7 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 
 export default function ProfilePageTransactions({transaction, currentTime}) {
   const profileInfo = transaction;
-  const transaction = transaction.transaction;
+  const transactionData = transaction.transaction;
 
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset} = GetThemeColors();
@@ -18,14 +18,14 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
   const navigate = useNavigation();
 
   const endDate = currentTime;
-  const startDate = transaction.timestamp;
+  const startDate = transactionData.timestamp;
 
   const timeDifferenceMs = endDate - startDate;
   const timeDifferenceMinutes = timeDifferenceMs / (1000 * 60);
   const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60);
   const timeDifferenceDays = timeDifferenceMs / (1000 * 60 * 60 * 24);
 
-  const paymentDescription = transaction.description || '';
+  const paymentDescription = transactionData.description || '';
 
   return (
     <TouchableOpacity
@@ -35,13 +35,13 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
           uuid: profileInfo.contactUUID,
         });
       }}
-      key={transaction.message.uuid}>
-      {transaction.message.didSend ||
-      !transaction.message.isRequest ||
-      (transaction.message.isRequest &&
-        transaction.message.isRedeemed != null) ? (
+      key={transactionData.message.uuid}>
+      {transactionData.message.didSend ||
+      !transactionData.message.isRequest ||
+      (transactionData.message.isRequest &&
+        transactionData.message.isRedeemed != null) ? (
         <ConfirmedOrSentTransaction
-          txParsed={transaction.message}
+          txParsed={transactionData.message}
           paymentDescription={paymentDescription}
           timeDifferenceMinutes={timeDifferenceMinutes}
           timeDifferenceHours={timeDifferenceHours}
@@ -87,7 +87,7 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
                   color: theme ? COLORS.darkModeText : COLORS.lightModeText,
                   includeFontPadding: false,
                 }}
-                balance={transaction.message.amountMsat / 1000}
+                balance={transactionData.message.amountMsat / 1000}
               />
             </View>
             <ThemeText

@@ -39,6 +39,7 @@ import fetchBackend from '../../../../../../db/handleBackend';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
+import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
 
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
@@ -324,34 +325,39 @@ export default function ChatGPTHome(props) {
 
   function closeChat() {
     Keyboard.dismiss();
-    if (newChats.length === 0) {
-      navigate.navigate('HomeAdmin');
-      return;
-    }
-    navigate.setOptions({
-      wantsToSave: () =>
-        saveChatGPTChat({
-          contactsPrivateKey,
-          globalAppDataInformation,
-          chatHistory,
-          newChats,
-          toggleGlobalAppDataInformation,
-          navigate,
-        }),
-      doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
-    });
-    navigate.navigate('ConfirmLeaveChatGPT', {
-      wantsToSave: () =>
-        saveChatGPTChat({
-          contactsPrivateKey,
-          globalAppDataInformation,
-          chatHistory,
-          newChats,
-          toggleGlobalAppDataInformation,
-          navigate,
-        }),
-      doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
-    });
+    setTimeout(
+      () => {
+        if (newChats.length === 0) {
+          navigate.navigate('HomeAdmin');
+          return;
+        }
+        navigate.setOptions({
+          wantsToSave: () =>
+            saveChatGPTChat({
+              contactsPrivateKey,
+              globalAppDataInformation,
+              chatHistory,
+              newChats,
+              toggleGlobalAppDataInformation,
+              navigate,
+            }),
+          doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
+        });
+        navigate.navigate('ConfirmLeaveChatGPT', {
+          wantsToSave: () =>
+            saveChatGPTChat({
+              contactsPrivateKey,
+              globalAppDataInformation,
+              chatHistory,
+              newChats,
+              toggleGlobalAppDataInformation,
+              navigate,
+            }),
+          doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
+        });
+      },
+      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+    );
   }
 
   async function submitChaMessage(forcedText) {

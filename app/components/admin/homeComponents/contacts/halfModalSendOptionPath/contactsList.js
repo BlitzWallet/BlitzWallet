@@ -27,7 +27,10 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
+import {
+  ANDROIDSAFEAREA,
+  KEYBOARDTIMEOUT,
+} from '../../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
@@ -103,11 +106,16 @@ export default function ChooseContactHalfModal() {
 
   function navigateToExpandedContact(contact) {
     Keyboard.dismiss();
-    navigate.navigate('SendAndRequestPage', {
-      selectedContact: contact,
-      paymentType: 'send',
-      fromPage: 'halfModal',
-    });
+    setTimeout(
+      () => {
+        navigate.navigate('SendAndRequestPage', {
+          selectedContact: contact,
+          paymentType: 'send',
+          fromPage: 'halfModal',
+        });
+      },
+      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+    );
   }
 
   function ContactElement(props) {

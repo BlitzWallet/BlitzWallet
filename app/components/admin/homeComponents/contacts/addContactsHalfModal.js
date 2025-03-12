@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import {ThemeText} from '../../../../functions/CustomElements';
-import {CENTER} from '../../../../constants/styles';
+import {CENTER, KEYBOARDTIMEOUT} from '../../../../constants/styles';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {EMAIL_REGEX, FONT, ICONS, SIZES} from '../../../../constants';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
@@ -163,10 +163,15 @@ export default function AddContactsHalfModal(props) {
               <TouchableOpacity
                 onPress={() => {
                   Keyboard.dismiss();
-                  navigate.navigate('CameraModal', {
-                    updateBitcoinAdressFunc: parseContact,
-                    fromPage: 'addContact',
-                  });
+                  setTimeout(
+                    () => {
+                      navigate.navigate('CameraModal', {
+                        updateBitcoinAdressFunc: parseContact,
+                        fromPage: 'addContact',
+                      });
+                    },
+                    Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+                  );
                 }}
                 style={{
                   position: 'absolute',

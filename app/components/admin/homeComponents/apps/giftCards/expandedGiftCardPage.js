@@ -52,6 +52,7 @@ import displayCorrectDenomination from '../../../../../functions/displayCorrectD
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {keyboardGoBack} from '../../../../../functions/customNavigation';
 
 export default function ExpandedGiftCardPage(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -130,8 +131,7 @@ export default function ExpandedGiftCardPage(props) {
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => {
-              Keyboard.dismiss();
-              props.navigation.goBack();
+              keyboardGoBack(navigate);
             }}
             style={{marginRight: 'auto'}}>
             <ThemeImage

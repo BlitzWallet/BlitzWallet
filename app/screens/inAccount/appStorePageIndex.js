@@ -7,6 +7,7 @@ import {useCallback, useEffect} from 'react';
 import VPNHome from '../../components/admin/homeComponents/apps/VPN/home';
 import {Keyboard} from 'react-native';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import {KEYBOARDTIMEOUT} from '../../constants/styles';
 
 export default function AppStorePageIndex(props) {
   const targetPage = props.route.params.page;
@@ -14,7 +15,12 @@ export default function AppStorePageIndex(props) {
 
   const handleBackPressFunction = useCallback(() => {
     Keyboard.dismiss();
-    navigate.goBack();
+    setTimeout(
+      () => {
+        navigate.goBack();
+      },
+      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+    );
   }, [navigate]);
   useHandleBackPressNew(handleBackPressFunction);
 

@@ -214,22 +214,25 @@ export default function CreateGiftCardAccount(props) {
       if (EMAIL_REGEX.test(email)) {
         setIsSigningIn(true);
         Keyboard.dismiss();
-        setTimeout(() => {
-          const em = encriptMessage(
-            contactsPrivateKey,
-            publicKey,
-            JSON.stringify({
-              ...decodedGiftCards,
-              profile: {
-                ...decodedGiftCards.profile,
-                email: email,
-              },
-            }),
-          );
-          toggleGlobalAppDataInformation({giftCards: em}, true);
+        setTimeout(
+          () => {
+            const em = encriptMessage(
+              contactsPrivateKey,
+              publicKey,
+              JSON.stringify({
+                ...decodedGiftCards,
+                profile: {
+                  ...decodedGiftCards.profile,
+                  email: email,
+                },
+              }),
+            );
+            toggleGlobalAppDataInformation({giftCards: em}, true);
 
-          navigate.navigate('GiftCardsPage');
-        }, KEYBOARDTIMEOUT);
+            navigate.navigate('GiftCardsPage');
+          },
+          Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+        );
       } else {
         navigate.navigate('GiftCardsPage');
       }

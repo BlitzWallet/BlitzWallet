@@ -37,6 +37,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {recommendedFees} from '@breeztech/react-native-breez-sdk-liquid';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import {KEYBOARDTIMEOUT} from '../../../../constants/styles';
 
 export default function SendOnChainBitcoin({isDoomsday}) {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -76,7 +77,12 @@ export default function SendOnChainBitcoin({isDoomsday}) {
         LeftImageDarkMode={ICONS.receiptWhite}
         leftImageFunction={() => {
           Keyboard.dismiss();
-          navigate.navigate('HistoricalOnChainPayments');
+          setTimeout(
+            () => {
+              navigate.navigate('HistoricalOnChainPayments');
+            },
+            Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+          );
         }}
         shouldDismissKeyboard={true}
         label={'Channel Closure'}

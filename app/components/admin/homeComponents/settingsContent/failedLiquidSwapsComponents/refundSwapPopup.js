@@ -22,6 +22,7 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import {copyToClipboard} from '../../../../../functions';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import {keyboardGoBack} from '../../../../../functions/customNavigation';
 
 export default function RefundLiquidSwapPopup(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -126,8 +127,7 @@ export default function RefundLiquidSwapPopup(props) {
     <KeyboardAvoidingView style={{flex: 1}}>
       <TouchableWithoutFeedback
         onPress={() => {
-          Keyboard.dismiss();
-          navigate.goBack();
+          keyboardGoBack(navigate);
         }}>
         <View
           style={{

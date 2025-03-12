@@ -22,6 +22,7 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {keyboardGoBack} from '../../../../../functions/customNavigation';
 
 export default function CountryList() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -125,8 +126,7 @@ export default function CountryList() {
       <View style={styles.topBar}>
         <TouchableOpacity
           onPress={() => {
-            Keyboard.dismiss();
-            navigate.goBack();
+            keyboardGoBack(navigate);
           }}
           style={{marginRight: 'auto'}}>
           <ThemeImage

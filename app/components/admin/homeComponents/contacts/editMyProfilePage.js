@@ -41,6 +41,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import {keyboardGoBack} from '../../../../functions/customNavigation';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -88,7 +89,6 @@ export default function EditMyProfilePage(props) {
         shouldDismissKeyboard={true}
         label={fromSettings ? 'Edit Contact Profile' : ''}
         customBackFunction={() => {
-          Keyboard.dismiss();
           if (!isFirstTimeEditing) {
             toggleGlobalContactsInformation(
               {
@@ -101,7 +101,7 @@ export default function EditMyProfilePage(props) {
               true,
             );
           }
-          navigate.goBack();
+          keyboardGoBack(navigate);
         }}
       />
       <InnerContent

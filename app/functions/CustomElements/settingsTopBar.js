@@ -9,6 +9,7 @@ import ThemeImage from './themeImage';
 import ThemeText from './textTheme';
 import {useNavigation} from '@react-navigation/native';
 import {CENTER, FONT, ICONS, SIZES} from '../../constants';
+import {keyboardGoBack} from '../customNavigation';
 
 export default function CustomSettingsTopBar({
   containerStyles,
@@ -32,8 +33,10 @@ export default function CustomSettingsTopBar({
             customBackFunction();
             return;
           }
-          if (shouldDismissKeyboard) Keyboard.dismiss();
-
+          if (shouldDismissKeyboard) {
+            keyboardGoBack(navigate);
+            return;
+          }
           navigate.goBack();
         }}>
         <ThemeImage

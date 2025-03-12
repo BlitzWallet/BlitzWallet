@@ -93,7 +93,12 @@ export default function SMSMessagingSendPage({SMSprices}) {
         <TouchableWithoutFeedback
           onPress={() => {
             Keyboard.dismiss();
-            setFocusedElement('');
+            setTimeout(
+              () => {
+                setFocusedElement('');
+              },
+              Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+            );
           }}>
           <View
             style={{
@@ -303,16 +308,19 @@ export default function SMSMessagingSendPage({SMSprices}) {
     }
 
     Keyboard.dismiss();
-    setTimeout(() => {
-      navigate.navigate('CustomHalfModal', {
-        wantedContent: 'confirmSMS',
-        prices: SMSprices,
-        phoneNumber: phoneNumber,
-        areaCodeNum: selectedAreaCode[0].cc,
-        sendTextMessage: sendTextMessage,
-        sliderHight: 0.5,
-      });
-    }, KEYBOARDTIMEOUT);
+    setTimeout(
+      () => {
+        navigate.navigate('CustomHalfModal', {
+          wantedContent: 'confirmSMS',
+          prices: SMSprices,
+          phoneNumber: phoneNumber,
+          areaCodeNum: selectedAreaCode[0].cc,
+          sendTextMessage: sendTextMessage,
+          sliderHight: 0.5,
+        });
+      },
+      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+    );
 
     return;
   }
