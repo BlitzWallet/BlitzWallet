@@ -17,6 +17,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import openWebBrowser from '../../../../functions/openWebBrowser';
 
 export default function AboutPage() {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -155,8 +156,9 @@ export default function AboutPage() {
   );
 
   async function openBrower(person) {
-    navigate.navigate('CustomWebView', {
-      webViewURL: `https://x.com/${
+    await openWebBrowser({
+      navigate: navigate,
+      link: `https://x.com/${
         person === 'blake' ? 'blakekaufman17' : 'Stromens'
       }`,
     });

@@ -20,6 +20,7 @@ import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import MaxHeap from '../../../../functions/minHeap';
 
 export default function MyContactProfilePage({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -33,6 +34,7 @@ export default function MyContactProfilePage({navigation}) {
   const {backgroundOffset, textInputBackground, textInputColor} =
     GetThemeColors();
   const navigate = useNavigation();
+  const currentTime = new Date();
   const [showList, setShowList] = useState(false);
   useFocusEffect(
     useCallback(() => {
@@ -48,7 +50,9 @@ export default function MyContactProfilePage({navigation}) {
   const myContact = globalContactsInformation.myProfile;
 
   const createdPayments = useMemo(() => {
-    let tempArray = [];
+    const messageHeap = new MaxHeap();
+    const MAX_MESSAGES = 50;
+
     for (let contact of Object.keys(contactsMessags)) {
       if (contact === 'lastMessageTimestamp') continue;
       const data = contactsMessags[contact];
@@ -57,7 +61,9 @@ export default function MyContactProfilePage({navigation}) {
       );
 
       for (let message of data.messages) {
-        tempArray.push({
+        const timestamp = message.timestamp;
+
+        const messageObj = {
           transaction: message,
           selectedProfileImage: selectedAddedContact?.profileImage || null,
           name:
@@ -65,12 +71,21 @@ export default function MyContactProfilePage({navigation}) {
             selectedAddedContact?.uniqueName ||
             'Unknown',
           contactUUID: selectedAddedContact?.uuid || contact,
-        });
+          time: timestamp,
+        };
+
+        messageHeap.add(messageObj);
       }
     }
-    tempArray.slice(0, 50);
 
-    return tempArray;
+    const result = [];
+    while (!messageHeap.isEmpty() && result.length < MAX_MESSAGES) {
+      result.push(messageHeap.poll());
+    }
+
+    console.log(result.length, 'LENGTH OF RESULT ARRAY');
+
+    return result;
   }, [decodedAddedContacts, contactsMessags]);
 
   const insets = useSafeAreaInsets();
@@ -207,6 +222,7 @@ export default function MyContactProfilePage({navigation}) {
                   key={index}
                   transaction={item}
                   id={index}
+                  currentTime={currentTime}
                 />
               );
             }}

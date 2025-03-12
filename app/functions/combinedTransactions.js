@@ -62,6 +62,7 @@ export default function getFormattedHomepageTxs({
     let formattedTxs = [];
     let currentGroupedDate = '';
     let transactionIndex = 0;
+    const currentTime = new Date();
 
     while (
       formattedTxs.length <
@@ -80,11 +81,11 @@ export default function getFormattedHomepageTxs({
         const isFailedPayment = !currentTransaction.status === 'complete';
         let paymentDate;
         if (isLiquidPayment) {
-          paymentDate = new Date(currentTransaction.timestamp * 1000);
+          paymentDate = currentTransaction.timestamp * 1000;
         } else if (isLightningPayment) {
-          paymentDate = new Date(currentTransaction.paymentTime * 1000); // could also need to be timd by 1000
+          paymentDate = currentTransaction.paymentTime * 1000; // could also need to be timd by 1000
         } else {
-          paymentDate = new Date(currentTransaction.time);
+          paymentDate = currentTransaction.time;
         }
 
         const uniuqeIDFromTx = isLiquidPayment
@@ -96,6 +97,7 @@ export default function getFormattedHomepageTxs({
         const styledTx = (
           <UserTransaction
             tx={currentTransaction}
+            currentTime={currentTime}
             navigate={navigate}
             nodeInformation={nodeInformation}
             isLiquidPayment={isLiquidPayment}
@@ -109,7 +111,8 @@ export default function getFormattedHomepageTxs({
           />
         );
 
-        const timeDifference = (new Date() - paymentDate) / 1000 / 60 / 60 / 24;
+        const timeDifference =
+          (currentTime - paymentDate) / 1000 / 60 / 60 / 24;
 
         const bannerText =
           timeDifference < 0.5
@@ -130,8 +133,7 @@ export default function getFormattedHomepageTxs({
               } ${agoText}`;
 
         if (
-          (transactionIndex === 0 || currentGroupedDate != bannerText) && //&&
-          // paymentDate.toDateString() != new Date().toDateString()
+          (transactionIndex === 0 || currentGroupedDate != bannerText) &&
           timeDifference > 0.5 &&
           frompage != 'home'
         ) {
@@ -238,6 +240,7 @@ function mergeArrays({
 
 export function UserTransaction({
   tx: transaction,
+  currentTime,
   paymentDate,
   isLiquidPayment,
   isLightningPayment,
@@ -251,7 +254,7 @@ export function UserTransaction({
   const {theme, darkModeType} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {t} = useTranslation();
-  const endDate = new Date();
+  const endDate = currentTime;
 
   const timeDifferenceMs = endDate - paymentDate;
 

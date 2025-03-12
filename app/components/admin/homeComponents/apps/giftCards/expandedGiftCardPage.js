@@ -495,12 +495,13 @@ export default function ExpandedGiftCardPage(props) {
 
       const USDBTCValue = fiatRates.find(currency => currency.coin === 'USD');
       const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
+      const currentTime = new Date();
 
       if (dailyPurchaseAmount) {
         if (isMoreThanADayOld(dailyPurchaseAmount.date)) {
           setLocalStorageItem(
             'dailyPurchaeAmount',
-            JSON.stringify({date: new Date(), amount: sendingAmountSat}),
+            JSON.stringify({date: currentTime, amount: sendingAmountSat}),
           );
         } else {
           const totalPurchaseAmount = Math.round(
@@ -533,7 +534,7 @@ export default function ExpandedGiftCardPage(props) {
         setLocalStorageItem(
           'dailyPurchaeAmount',
           JSON.stringify({
-            date: new Date(),
+            date: currentTime,
             amount: sendingAmountSat,
           }),
         );
@@ -624,6 +625,7 @@ export default function ExpandedGiftCardPage(props) {
           responseObject,
           paymentObject: response.payment,
           nodeType: 'liquidNode',
+          currentTime,
         });
       } else {
         setIsPurchasingGift(prev => {
@@ -648,6 +650,7 @@ export default function ExpandedGiftCardPage(props) {
     responseObject,
     paymentObject,
     nodeType,
+    currentTime,
   }) {
     const newClaimInfo = {
       logo: selectedItem.logo,
@@ -655,7 +658,7 @@ export default function ExpandedGiftCardPage(props) {
       id: responseObject.orderId,
       uuid: responseObject.uuid,
       invoice: responseObject.invoice,
-      date: new Date(),
+      date: currentTime,
     };
     const newCardsList = decodedGiftCards?.purchasedCards
       ? [...decodedGiftCards.purchasedCards, newClaimInfo]

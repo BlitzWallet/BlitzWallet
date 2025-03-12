@@ -17,14 +17,15 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
 
 export default function ContactsTransactionItem(props) {
-  const {selectedContact, transaction, myProfile} = props;
+  const {selectedContact, transaction, myProfile, currentTime} = props;
+
   const {contactsPrivateKey} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundColor} = GetThemeColors();
   const navigate = useNavigation();
 
-  const endDate = new Date();
-  const startDate = new Date(transaction.timestamp);
+  const endDate = currentTime;
+  const startDate = transaction.timestamp;
 
   const timeDifferenceMs = endDate - startDate;
   const timeDifferenceMinutes = timeDifferenceMs / (1000 * 60);

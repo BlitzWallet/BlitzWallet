@@ -15,6 +15,7 @@ export default function saveChatGPTChat({
 }) {
   try {
     const publicKey = getPublicKey(contactsPrivateKey);
+    const currentTime = new Date();
 
     let savedHistory =
       typeof globalAppDataInformation.chatGPT.conversation === 'string'
@@ -41,14 +42,14 @@ export default function saveChatGPTChat({
         ...filteredHistory.conversation,
         ...newChats,
       ];
-      newChatHistoryObject['lastUsed'] = new Date();
+      newChatHistoryObject['lastUsed'] = currentTime;
     } else {
       newChatHistoryObject['conversation'] = [
         ...chatHistory.conversation,
         ...newChats,
       ];
       newChatHistoryObject['firstQuery'] = newChats[0].content;
-      newChatHistoryObject['lasdUsed'] = new Date();
+      newChatHistoryObject['lasdUsed'] = currentTime;
       newChatHistoryObject['uuid'] = customUUID();
       savedHistory.push(newChatHistoryObject);
     }

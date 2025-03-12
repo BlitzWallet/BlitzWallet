@@ -8,16 +8,17 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 
-export default function ProfilePageTransactions(props) {
-  const transaction = props.transaction.transaction;
-  const profileInfo = props.transaction;
+export default function ProfilePageTransactions({transaction, currentTime}) {
+  const profileInfo = transaction;
+  const transaction = transaction.transaction;
+
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset} = GetThemeColors();
 
   const navigate = useNavigation();
 
-  const endDate = new Date();
-  const startDate = new Date(transaction.timestamp);
+  const endDate = currentTime;
+  const startDate = transaction.timestamp;
 
   const timeDifferenceMs = endDate - startDate;
   const timeDifferenceMinutes = timeDifferenceMs / (1000 * 60);

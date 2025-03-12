@@ -76,7 +76,11 @@ export default function HomeLightning({tabNavigation}) {
                 marginTop: nodeInformation.userBalance === 0 ? 20 : 0,
               }}
             />
-            <UserSatAmount />
+            <UserSatAmount
+              nodeInformation={nodeInformation}
+              liquidNodeInformation={liquidNodeInformation}
+              ecashWalletInformation={ecashWalletInformation}
+            />
             {/* {nodeInformation.userBalance != 0 && <LiquidityIndicator />} */}
           </GlobalThemeView>
         }

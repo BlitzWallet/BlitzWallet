@@ -374,14 +374,15 @@ export default function ChatGPTHome(props) {
 
     let userChatObject = {};
     let GPTChatObject = {};
+    const currentTime = new Date();
     userChatObject['content'] = textToSend;
     userChatObject['role'] = 'user';
-    userChatObject['time'] = new Date();
+    userChatObject['time'] = currentTime;
 
     GPTChatObject['role'] = 'assistant';
     GPTChatObject['responseBot'] = filteredModel.name;
     GPTChatObject['content'] = '';
-    GPTChatObject['time'] = new Date();
+    GPTChatObject['time'] = currentTime;
 
     setNewChats(prev => [...prev, userChatObject, GPTChatObject]);
     setUserChatText('');

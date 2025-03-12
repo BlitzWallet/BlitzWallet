@@ -49,7 +49,7 @@ export default function ExpandedContactsPage(props) {
     contactsMessags,
   } = useGlobalContacts();
   const insets = useSafeAreaInsets();
-
+  const currentTime = new Date();
   const isInitialRender = useRef(true);
   const selectedUUID = props?.route?.params?.uuid || props?.uuid;
   const myProfile = globalContactsInformation?.myProfile;
@@ -328,6 +328,7 @@ export default function ExpandedContactsPage(props) {
                       id={index}
                       selectedContact={selectedContact}
                       myProfile={myProfile}
+                      currentTime={currentTime}
                     />
                   );
                 }}

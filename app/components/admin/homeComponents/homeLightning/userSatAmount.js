@@ -2,22 +2,22 @@ import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {COLORS, SIZES} from '../../../../constants';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {useGlobaleCash} from '../../../../../context-store/eCash';
 import {useRef, useState} from 'react';
 import handleDBStateChange from '../../../../functions/handleDBStateChange';
 import Icon from '../../../../functions/CustomElements/Icon';
 import {useNavigation} from '@react-navigation/native';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 
-export function UserSatAmount() {
+export function UserSatAmount({
+  nodeInformation,
+  liquidNodeInformation,
+  ecashWalletInformation,
+}) {
   const {masterInfoObject, toggleMasterInfoObject, setMasterInfoObject} =
     useGlobalContextProvider();
   const {isConnectedToTheInternet} = useAppStatus();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {darkModeType, theme} = useGlobalThemeContext();
-  const {ecashWalletInformation} = useGlobaleCash();
   const eCashBalance = ecashWalletInformation.balance;
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
