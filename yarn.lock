@@ -1763,7 +1763,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@breeztech/react-native-breez-sdk-liquid@npm:^0.7.1":
+"@breeztech/react-native-breez-sdk-liquid@npm:0.7.1":
   version: 0.7.1
   resolution: "@breeztech/react-native-breez-sdk-liquid@npm:0.7.1"
   peerDependencies:
@@ -4826,7 +4826,7 @@ __metadata:
     "@babel/runtime": ^7.20.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk": ^0.6.6
-    "@breeztech/react-native-breez-sdk-liquid": ^0.7.1
+    "@breeztech/react-native-breez-sdk-liquid": 0.7.1
     "@cashu/cashu-ts": ^2.2.1
     "@dreson4/react-native-quick-bip39": ^0.0.6
     "@getalby/sdk": ^3.7.0
