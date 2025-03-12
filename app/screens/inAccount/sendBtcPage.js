@@ -61,10 +61,9 @@ export default function SendPaymentHome({pageViewPage, from}) {
     () => screenDimensions.height / screenDimensions.width,
     [screenDimensions],
   );
-
-  const format = device?.formats?.length
-    ? useCameraFormat(device, [{photoAspectRatio: screenAspectRatio}])
-    : null;
+  const format = useCameraFormat(device?.formats?.length ? device : undefined, [
+    {photoAspectRatio: screenAspectRatio},
+  ]);
   const isCameraActive = useMemo(
     () =>
       navigate.canGoBack() ? isFocused && isForeground : pageViewPage === 0,
@@ -179,31 +178,6 @@ export default function SendPaymentHome({pageViewPage, from}) {
       navigate.replace('ConfirmPaymentScreen', {
         btcAdress: response.btcAdress,
       });
-      return;
-      if (Platform.OS === 'android') {
-        navigate.navigate('ConfirmPaymentScreen', {
-          btcAdress: response.btcAdress,
-          fromPage: '',
-        });
-      } else {
-        navigate.reset({
-          index: 0,
-          routes: [
-            {
-              name: 'HomeAdmin',
-              params: {
-                screen: 'Home',
-              },
-            },
-            {
-              name: 'ConfirmPaymentScreen',
-              params: {
-                btcAdress: response.btcAdress,
-              },
-            },
-          ],
-        });
-      }
     } catch (err) {
       console.log('Error in getting QR image', err);
     } finally {
