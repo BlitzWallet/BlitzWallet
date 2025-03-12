@@ -61,9 +61,9 @@ export default function SendPaymentHome({pageViewPage, from}) {
     () => screenDimensions.height / screenDimensions.width,
     [screenDimensions],
   );
-  const format = useCameraFormat(device, [
-    {photoAspectRatio: screenAspectRatio},
-  ]);
+  const format = device.formats.length
+    ? useCameraFormat(device, [{photoAspectRatio: screenAspectRatio}])
+    : null;
   const isCameraActive = useMemo(
     () =>
       navigate.canGoBack() ? isFocused && isForeground : pageViewPage === 0,
@@ -175,6 +175,10 @@ export default function SendPaymentHome({pageViewPage, from}) {
       }
 
       if (!response.didWork || !response.btcAdress) return;
+      navigate.replace('ConfirmPaymentScreen', {
+        btcAdress: response.btcAdress,
+      });
+      return;
       if (Platform.OS === 'android') {
         navigate.navigate('ConfirmPaymentScreen', {
           btcAdress: response.btcAdress,
