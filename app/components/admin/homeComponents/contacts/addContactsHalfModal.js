@@ -24,6 +24,7 @@ import useUnmountKeyboard from '../../../../hooks/useUnmountKeyboard';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import customUUID from '../../../../functions/customUUID';
 import {useKeysContext} from '../../../../../context-store/keys';
+import {keyboardNavigate} from '../../../../functions/customNavigation';
 
 export default function AddContactsHalfModal(props) {
   useUnmountKeyboard();
@@ -162,15 +163,11 @@ export default function AddContactsHalfModal(props) {
             buttonComponent={
               <TouchableOpacity
                 onPress={() => {
-                  Keyboard.dismiss();
-                  setTimeout(
-                    () => {
-                      navigate.navigate('CameraModal', {
-                        updateBitcoinAdressFunc: parseContact,
-                        fromPage: 'addContact',
-                      });
-                    },
-                    Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+                  keyboardNavigate(() =>
+                    navigate.navigate('CameraModal', {
+                      updateBitcoinAdressFunc: parseContact,
+                      fromPage: 'addContact',
+                    }),
                   );
                 }}
                 style={{

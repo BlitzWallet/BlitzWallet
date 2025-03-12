@@ -39,7 +39,7 @@ import fetchBackend from '../../../../../../db/handleBackend';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
+import {keyboardNavigate} from '../../../../../functions/customNavigation';
 
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
@@ -155,7 +155,7 @@ export default function ChatGPTHome(props) {
       <View style={styles.topBar}>
         <TouchableOpacity
           style={{position: 'absolute', left: 0}}
-          onPress={closeChat}>
+          onPress={() => keyboardNavigate(closeChat)}>
           <ThemeImage
             lightModeIcon={ICONS.smallArrowLeft}
             darkModeIcon={ICONS.smallArrowLeft}
@@ -324,40 +324,34 @@ export default function ChatGPTHome(props) {
   );
 
   function closeChat() {
-    Keyboard.dismiss();
-    setTimeout(
-      () => {
-        if (newChats.length === 0) {
-          navigate.navigate('HomeAdmin');
-          return;
-        }
-        navigate.setOptions({
-          wantsToSave: () =>
-            saveChatGPTChat({
-              contactsPrivateKey,
-              globalAppDataInformation,
-              chatHistory,
-              newChats,
-              toggleGlobalAppDataInformation,
-              navigate,
-            }),
-          doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
-        });
-        navigate.navigate('ConfirmLeaveChatGPT', {
-          wantsToSave: () =>
-            saveChatGPTChat({
-              contactsPrivateKey,
-              globalAppDataInformation,
-              chatHistory,
-              newChats,
-              toggleGlobalAppDataInformation,
-              navigate,
-            }),
-          doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
-        });
-      },
-      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
-    );
+    if (newChats.length === 0) {
+      navigate.navigate('HomeAdmin');
+      return;
+    }
+    navigate.setOptions({
+      wantsToSave: () =>
+        saveChatGPTChat({
+          contactsPrivateKey,
+          globalAppDataInformation,
+          chatHistory,
+          newChats,
+          toggleGlobalAppDataInformation,
+          navigate,
+        }),
+      doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
+    });
+    navigate.navigate('ConfirmLeaveChatGPT', {
+      wantsToSave: () =>
+        saveChatGPTChat({
+          contactsPrivateKey,
+          globalAppDataInformation,
+          chatHistory,
+          newChats,
+          toggleGlobalAppDataInformation,
+          navigate,
+        }),
+      doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
+    });
   }
 
   async function submitChaMessage(forcedText) {

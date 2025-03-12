@@ -18,16 +18,14 @@ import {formatBalanceAmount} from '../../../../../functions';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../../constants';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {
-  ANDROIDSAFEAREA,
-  KEYBOARDTIMEOUT,
-} from '../../../../../constants/styles';
+import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import CountryFlag from 'react-native-country-flag';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import getGiftCardsList from './giftCardAPI';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {keyboardNavigate} from '../../../../../functions/customNavigation';
 
 export default function GiftCardPage() {
   const {decodedGiftCards, toggleGiftCardsList, giftCardsList} =
@@ -156,13 +154,7 @@ export default function GiftCardPage() {
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => {
-              Keyboard.dismiss();
-              setTimeout(
-                () => {
-                  navigate.navigate('HomeAdmin');
-                },
-                Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
-              );
+              keyboardNavigate(() => navigate.navigate('HomeAdmin'));
             }}
             style={{marginRight: 'auto'}}>
             <ThemeImage
@@ -171,12 +163,19 @@ export default function GiftCardPage() {
               lightsOutIcon={ICONS.arrow_small_left_white}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigate.navigate('CountryList')}>
+          <TouchableOpacity
+            onPress={() =>
+              keyboardNavigate(() => navigate.navigate('CountryList'))
+            }>
             <CountryFlag isoCode={userLocal} size={20} />
           </TouchableOpacity>
           <TouchableOpacity
             style={{marginLeft: 10}}
-            onPress={() => navigate.navigate('HistoricalGiftCardPurchases')}>
+            onPress={() =>
+              keyboardNavigate(() =>
+                navigate.navigate('HistoricalGiftCardPurchases'),
+              )
+            }>
             <ThemeImage
               darkModeIcon={ICONS.receiptIcon}
               lightModeIcon={ICONS.receiptIcon}

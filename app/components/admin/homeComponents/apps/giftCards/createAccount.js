@@ -32,9 +32,11 @@ import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import {keyboardGoBack} from '../../../../../functions/customNavigation';
+import {
+  keyboardGoBack,
+  keyboardNavigate,
+} from '../../../../../functions/customNavigation';
 
 export default function CreateGiftCardAccount(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -157,7 +159,9 @@ export default function CreateGiftCardAccount(props) {
                 <CustomButton
                   buttonStyles={styles.button}
                   textContent={'Continue'}
-                  actionFunction={createAGiftCardAccount}
+                  actionFunction={() =>
+                    keyboardNavigate(createAGiftCardAccount)
+                  }
                 />
                 <View style={styles.warningContainer}>
                   <Text
@@ -210,29 +214,22 @@ export default function CreateGiftCardAccount(props) {
 
   async function createAGiftCardAccount() {
     try {
-      Keyboard.dismiss();
-      setTimeout(
-        () => {
-          if (EMAIL_REGEX.test(email)) {
-            setIsSigningIn(true);
-
-            const em = encriptMessage(
-              contactsPrivateKey,
-              publicKey,
-              JSON.stringify({
-                ...decodedGiftCards,
-                profile: {
-                  ...decodedGiftCards.profile,
-                  email: email,
-                },
-              }),
-            );
-            toggleGlobalAppDataInformation({giftCards: em}, true);
-          }
-          navigate.navigate('GiftCardsPage');
-        },
-        Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
-      );
+      if (EMAIL_REGEX.test(email)) {
+        setIsSigningIn(true);
+        const em = encriptMessage(
+          contactsPrivateKey,
+          publicKey,
+          JSON.stringify({
+            ...decodedGiftCards,
+            profile: {
+              ...decodedGiftCards.profile,
+              email: email,
+            },
+          }),
+        );
+        toggleGlobalAppDataInformation({giftCards: em}, true);
+      }
+      navigate.navigate('GiftCardsPage');
     } catch (err) {
       setHasError(
         'Not able to save account. Please make sure you are connected to the internet.',
