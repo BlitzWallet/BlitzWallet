@@ -1,4 +1,10 @@
-import {Platform, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Keyboard,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -12,6 +18,7 @@ import VPNPlanPage from './VPNPlanPage';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
+import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
 
 export default function VPNHome() {
   const navigate = useNavigation();
@@ -48,7 +55,15 @@ export default function VPNHome() {
         <CustomSettingsTopBar
           customBackFunction={() => {
             if (selectedPage === null) navigate.goBack();
-            else setSelectedPage(null);
+            else {
+              Keyboard.dismiss();
+              setTimeout(
+                () => {
+                  setSelectedPage(null);
+                },
+                Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+              );
+            }
           }}
           label={selectedPage || ''}
           showLeftImage={!selectedPage}

@@ -1,4 +1,4 @@
-import {StyleSheet, View} from 'react-native';
+import {Keyboard, StyleSheet, View} from 'react-native';
 import {ICONS, SIZES} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useState} from 'react';
@@ -14,6 +14,7 @@ import {encriptMessage} from '../../../../../functions/messaging/encodingAndDeco
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useKeysContext} from '../../../../../../context-store/keys';
+import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
 
 export default function SMSMessagingHome() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -69,7 +70,15 @@ export default function SMSMessagingHome() {
       <CustomSettingsTopBar
         customBackFunction={() => {
           if (selectedPage === null) navigate.goBack();
-          else setSelectedPage(null);
+          else {
+            Keyboard.dismiss();
+            setTimeout(
+              () => {
+                setSelectedPage(null);
+              },
+              Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+            );
+          }
         }}
         label={selectedPage || ''}
         showLeftImage={!selectedPage}

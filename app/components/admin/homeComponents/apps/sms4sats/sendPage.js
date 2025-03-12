@@ -93,12 +93,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
         <TouchableWithoutFeedback
           onPress={() => {
             Keyboard.dismiss();
-            setTimeout(
-              () => {
-                setFocusedElement('');
-              },
-              Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
-            );
+            setFocusedElement('');
           }}>
           <View
             style={{

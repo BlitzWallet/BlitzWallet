@@ -32,6 +32,7 @@ import FormattedBalanceInput from '../../../../functions/CustomElements/formatte
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import {keyboardGoBack} from '../../../../functions/customNavigation';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -92,7 +93,7 @@ export default function EditReceivePaymentInformation(props) {
       useLocalPadding={true}
       isKeyboardActive={isKeyboardFocused}
       useStandardWidth={true}>
-      <TouchableOpacity onPress={navigate.goBack}>
+      <TouchableOpacity onPress={() => keyboardGoBack(navigate)}>
         <ThemeImage
           darkModeIcon={ICONS.smallArrowLeft}
           lightModeIcon={ICONS.smallArrowLeft}

@@ -1,6 +1,7 @@
 import {useNavigation} from '@react-navigation/native';
 import {
   Image,
+  Keyboard,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -25,6 +26,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import {ANDROIDSAFEAREA, KEYBOARDTIMEOUT} from '../../../../constants/styles';
 
 export default function ContactsPage({navigation}) {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -88,17 +90,23 @@ export default function ContactsPage({navigation}) {
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => {
-              if (!isConnectedToTheInternet) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage:
-                    'Please connect to the internet to use this feature',
-                });
-                return;
-              }
-              navigate.navigate('CustomHalfModal', {
-                wantedContent: 'addContacts',
-                sliderHight: 0.5,
-              });
+              Keyboard.dismiss();
+              setTimeout(
+                () => {
+                  if (!isConnectedToTheInternet) {
+                    navigate.navigate('ErrorScreen', {
+                      errorMessage:
+                        'Please connect to the internet to use this feature',
+                    });
+                    return;
+                  }
+                  navigate.navigate('CustomHalfModal', {
+                    wantedContent: 'addContacts',
+                    sliderHight: 0.5,
+                  });
+                },
+                Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+              );
             }}>
             <Icon
               name={'addContactsIcon'}
@@ -117,7 +125,15 @@ export default function ContactsPage({navigation}) {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate('MyContactProfilePage', {})}>
+            onPress={() => {
+              Keyboard.dismiss();
+              setTimeout(
+                () => {
+                  navigation.navigate('MyContactProfilePage', {});
+                },
+                Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+              );
+            }}>
             <View
               style={{
                 ...styles.profileImageContainer,

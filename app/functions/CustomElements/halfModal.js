@@ -49,7 +49,7 @@ export default function CustomHalfModal(props) {
       () => {
         navigation.goBack();
       },
-      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 100,
     );
   }, [navigation]);
 

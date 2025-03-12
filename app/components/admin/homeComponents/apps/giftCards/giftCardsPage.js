@@ -1,6 +1,7 @@
 import {
   FlatList,
   Image,
+  Keyboard,
   Platform,
   StyleSheet,
   TouchableOpacity,
@@ -17,7 +18,10 @@ import {formatBalanceAmount} from '../../../../../functions';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../../constants';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
+import {
+  ANDROIDSAFEAREA,
+  KEYBOARDTIMEOUT,
+} from '../../../../../constants/styles';
 import CountryFlag from 'react-native-country-flag';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
@@ -152,7 +156,13 @@ export default function GiftCardPage() {
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => {
-              navigate.navigate('HomeAdmin');
+              Keyboard.dismiss();
+              setTimeout(
+                () => {
+                  navigate.navigate('HomeAdmin');
+                },
+                Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+              );
             }}
             style={{marginRight: 'auto'}}>
             <ThemeImage

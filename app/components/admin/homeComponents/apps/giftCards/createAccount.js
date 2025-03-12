@@ -34,6 +34,7 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {keyboardGoBack} from '../../../../../functions/customNavigation';
 
 export default function CreateGiftCardAccount(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -56,7 +57,7 @@ export default function CreateGiftCardAccount(props) {
         <View style={{flex: 1}}>
           <View style={styles.topBar}>
             <TouchableOpacity
-              onPress={navigate.goBack}
+              onPress={() => keyboardGoBack(navigate)}
               style={{marginRight: 'auto'}}>
               <ThemeImage
                 lightModeIcon={ICONS.smallArrowLeft}
@@ -156,9 +157,7 @@ export default function CreateGiftCardAccount(props) {
                 <CustomButton
                   buttonStyles={styles.button}
                   textContent={'Continue'}
-                  actionFunction={() => {
-                    createAGiftCardAccount();
-                  }}
+                  actionFunction={createAGiftCardAccount}
                 />
                 <View style={styles.warningContainer}>
                   <Text
@@ -211,11 +210,12 @@ export default function CreateGiftCardAccount(props) {
 
   async function createAGiftCardAccount() {
     try {
-      if (EMAIL_REGEX.test(email)) {
-        setIsSigningIn(true);
-        Keyboard.dismiss();
-        setTimeout(
-          () => {
+      Keyboard.dismiss();
+      setTimeout(
+        () => {
+          if (EMAIL_REGEX.test(email)) {
+            setIsSigningIn(true);
+
             const em = encriptMessage(
               contactsPrivateKey,
               publicKey,
@@ -228,14 +228,11 @@ export default function CreateGiftCardAccount(props) {
               }),
             );
             toggleGlobalAppDataInformation({giftCards: em}, true);
-
-            navigate.navigate('GiftCardsPage');
-          },
-          Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
-        );
-      } else {
-        navigate.navigate('GiftCardsPage');
-      }
+          }
+          navigate.navigate('GiftCardsPage');
+        },
+        Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+      );
     } catch (err) {
       setHasError(
         'Not able to save account. Please make sure you are connected to the internet.',

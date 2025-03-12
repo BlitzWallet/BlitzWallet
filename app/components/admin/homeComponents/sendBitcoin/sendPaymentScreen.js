@@ -55,6 +55,7 @@ import {
   payLnInvoiceFromEcash,
 } from '../../../../functions/eCash/wallet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import {keyboardGoBack} from '../../../../functions/customNavigation';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -698,7 +699,7 @@ export default function SendPaymentScreen(props) {
   }
 
   function goBackFunction() {
-    navigate.goBack();
+    keyboardGoBack(navigate);
   }
   function errorMessageNavigation() {
     navigate.navigate('HomeAdmin', {screen: 'Home'});
