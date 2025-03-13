@@ -7,8 +7,10 @@ import getClipboardText from '../getClipboardText';
 
 async function navigateToSendUsingClipboard(navigate, callLocation) {
   const response = await getClipboardText();
+
   if (!response.didWork) {
     navigate.navigate('ErrorScreen', {errorMessage: response.reason});
+    return;
   }
   const data = response.data;
 

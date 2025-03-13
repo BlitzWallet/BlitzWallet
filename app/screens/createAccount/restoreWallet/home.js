@@ -234,6 +234,7 @@ export default function RestoreWallet({
     const response = await getClipboardText();
     if (!response.didWork) {
       navigate('ErrorScreen', {errorMessage: response.reason});
+      return;
     }
     const data = response.data;
     const splitSeed = data.split(' ');
