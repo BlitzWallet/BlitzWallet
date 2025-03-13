@@ -1,19 +1,12 @@
 import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
 import {
-  CENTER,
-  COLORS,
   ICONS,
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
-  SIZES,
 } from '../../../../constants';
 import {useEffect, useMemo, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../functions/CustomElements';
-import SwipeButton from 'rn-swipe-button';
+import {CustomKeyboardAvoidingView} from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
 import decodeSendAddress from './functions/decodeSendAdress';
 import {useNavigation} from '@react-navigation/native';
@@ -57,6 +50,7 @@ import {
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import ErrorWithPayment from './components/errorScreen';
+import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -376,94 +370,48 @@ export default function SendPaymentScreen(props) {
         </>
       )}
       {!canEditPaymentAmount && (
-        <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            position: 'relative',
-          }}>
-          <SwipeButton
-            containerStyles={{
-              opacity: isSendingPayment
-                ? 1
-                : canSendPayment
-                ? isBitcoinPayment
-                  ? canUseLightning || canUseLiquid
-                    ? 1
-                    : 0.2
-                  : isLightningPayment
-                  ? canUseLightning
-                    ? 1
-                    : convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
-                      !isUsingSwapWithZeroInvoice
-                    ? 1
-                    : 0.2
-                  : canUseLiquid
-                  ? convertedSendAmount >= DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS
-                    ? 1
-                    : 0.2
-                  : canUseLightning &&
-                    convertedSendAmount >= minMaxLiquidSwapAmounts.min
+        <SwipeButtonNew
+          onSwipeSuccess={sendPayment}
+          width={0.95}
+          shouldAnimateViewOnSuccess={true}
+          containerStyles={{
+            opacity: isSendingPayment
+              ? 1
+              : canSendPayment
+              ? isBitcoinPayment
+                ? canUseLightning || canUseLiquid
                   ? 1
                   : 0.2
-                : 0.2,
-              width: '100%',
-              maxWidth: 350,
-              borderColor: textColor,
-              ...CENTER,
-            }}
-            titleStyles={{fontWeight: '500', fontSize: SIZES.large}}
-            swipeSuccessThreshold={100}
-            onSwipeSuccess={sendPayment}
-            shouldResetAfterSuccess={false}
-            railBackgroundColor={
-              isSendingPayment
-                ? COLORS.darkModeText
-                : theme
-                ? backgroundOffset
-                : COLORS.primary
-            }
-            railBorderColor={
-              theme ? backgroundOffset : COLORS.lightModeBackground
-            }
-            height={55}
-            railStyles={{
-              backgroundColor: COLORS.darkModeText,
-              borderColor: COLORS.darkModeText,
-            }}
-            thumbIconBackgroundColor={COLORS.darkModeText}
-            thumbIconBorderColor={COLORS.darkModeText}
-            titleColor={COLORS.darkModeText}
-            title={'Slide to confirm'}
-          />
-          {isSendingPayment && (
-            <View
-              style={{
-                alignItems: 'center',
-                flexDirection: 'row',
-                position: 'absolute',
-                zIndex: 1,
-              }}>
-              <ThemeText
-                styles={{
-                  color: theme ? backgroundColor : COLORS.lightModeText,
-                  fontWeight: '500',
-                  fontSize: SIZES.large,
-                  includeFontPadding: false,
-                  marginRight: 10,
-                }}
-                content={'Sending payment'}
-              />
-              <FullLoadingScreen
-                containerStyles={{flex: 0}}
-                size="small"
-                loadingColor={theme ? backgroundColor : COLORS.lightModeText}
-                showText={false}
-              />
-            </View>
-          )}
-        </View>
+                : isLightningPayment
+                ? canUseLightning
+                  ? 1
+                  : convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
+                    !isUsingSwapWithZeroInvoice
+                  ? 1
+                  : 0.2
+                : canUseLiquid
+                ? convertedSendAmount >= DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS
+                  ? 1
+                  : 0.2
+                : canUseLightning &&
+                  convertedSendAmount >= minMaxLiquidSwapAmounts.min
+                ? 1
+                : 0.2
+              : 0.2,
+          }}
+          thumbIconStyles={{
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+            borderColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+          }}
+          railStyles={{
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+            borderColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+          }}
+        />
       )}
     </CustomKeyboardAvoidingView>
   );

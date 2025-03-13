@@ -20,15 +20,12 @@ import {searchUsers} from '../../../../../db';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {atob} from 'react-native-quick-base64';
-import useUnmountKeyboard from '../../../../hooks/useUnmountKeyboard';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import customUUID from '../../../../functions/customUUID';
 import {useKeysContext} from '../../../../../context-store/keys';
 import {keyboardNavigate} from '../../../../functions/customNavigation';
 
 export default function AddContactsHalfModal(props) {
-  useUnmountKeyboard();
-  const {backgroundOffset} = GetThemeColors();
   const {contactsPrivateKey} = useKeysContext();
   const {globalContactsInformation} = useGlobalContacts();
   const [searchInput, setSearchInput] = useState('');
@@ -121,25 +118,7 @@ export default function AddContactsHalfModal(props) {
 
   return (
     <TouchableWithoutFeedback>
-      <View
-        style={{
-          height: useWindowDimensions().height * 0.35,
-          width: '100%',
-          borderTopLeftRadius: 30,
-          borderTopRightRadius: 30,
-          paddingBottom: 0,
-          alignItems: 'center',
-          position: 'relative',
-          zIndex: 1,
-        }}>
-        <View
-          style={[
-            styles.topBar,
-            {
-              backgroundColor: backgroundOffset,
-            },
-          ]}
-        />
+      <View style={styles.container}>
         <View style={{flex: 1, width: '90%', ...CENTER}}>
           <ThemeText
             styles={{
@@ -236,7 +215,9 @@ function ContactListItem(props) {
     <TouchableOpacity
       key={props.savedContact.uniqueName}
       onPress={() => {
-        navigate.replace('ExpandedAddContactsPage', {newContact: newContact});
+        keyboardNavigate(() =>
+          navigate.replace('ExpandedAddContactsPage', {newContact: newContact}),
+        );
       }}>
       <View style={[styles.contactListContainer, {}]}>
         <View
@@ -268,12 +249,9 @@ function ContactListItem(props) {
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    width: 120,
-    height: 8,
-    marginTop: 10,
-    borderRadius: 8,
-    marginBottom: 20,
+  container: {
+    flex: 1,
+    alignItems: 'center',
   },
 
   contactListContainer: {
@@ -288,17 +266,9 @@ const styles = StyleSheet.create({
     height: 30,
     width: 30,
     borderRadius: 15,
-
     alignItems: 'center',
     justifyContent: 'center',
-
     borderWidth: 1,
-
     marginRight: 10,
-  },
-
-  contactListName: {fontFamily: FONT.Title_Regular, fontSize: SIZES.medium},
-  inputContainer: {
-    justifyContent: 'center',
   },
 });

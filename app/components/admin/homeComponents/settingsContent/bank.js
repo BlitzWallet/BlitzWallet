@@ -101,7 +101,7 @@ export default function LiquidWallet() {
         actionFunction={() =>
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'liquidAddressModal',
-            sliderHight: 0.5,
+            sliderHight: 0.6,
           })
         }
       />

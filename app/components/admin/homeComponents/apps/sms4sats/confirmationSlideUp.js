@@ -1,44 +1,39 @@
 import {Platform, StyleSheet, View, useWindowDimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ThemeText} from '../../../../../functions/CustomElements';
-import {
-  CENTER,
-  COLORS,
-  LIQUID_DEFAULT_FEE,
-  SIZES,
-} from '../../../../../constants';
-import SwipeButton from 'rn-swipe-button';
+import {LIQUID_DEFAULT_FEE, SIZES} from '../../../../../constants';
 import {parsePhoneNumber} from 'libphonenumber-js';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
+import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {LIGHTNINGAMOUNTBUFFER} from '../../../../../constants/math';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
+import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton';
+import {useCallback} from 'react';
 
 export default function ConfirmSMSPayment(props) {
   const navigate = useNavigation();
-  const insets = useSafeAreaInsets();
   const {nodeInformation} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const {theme} = useGlobalThemeContext();
-  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
-  const {areaCodeNum, phoneNumber, prices, page, sendTextMessage} = props;
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {
+    areaCodeNum,
+    phoneNumber,
+    prices,
+    page,
+    sendTextMessage,
+    theme,
+    darkModeType,
+  } = props;
   const liquidTxFee =
     process.env.BOLTZ_ENVIRONMENT === 'testnet' ? 30 : LIQUID_DEFAULT_FEE;
 
   const price = page === 'sendSMS' ? 1000 : prices[page];
 
   console.log(areaCodeNum, phoneNumber, prices, page, sendTextMessage);
-
-  const bottomPadding = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
 
   const formattedPhoneNumber = () => {
     try {
@@ -60,31 +55,15 @@ export default function ConfirmSMSPayment(props) {
           'liquid-ln',
           minMaxLiquidSwapAmounts.submarineSwapStats,
         );
+  const onSwipeSuccess = useCallback(() => {
+    navigate.goBack();
+    setTimeout(() => {
+      sendTextMessage();
+    }, KEYBOARDTIMEOUT);
+  }, []);
 
   return (
-    <View
-      style={{
-        height: useWindowDimensions().height * 0.5,
-        width: '100%',
-        backgroundColor: backgroundColor,
-
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-
-        padding: 10,
-        paddingBottom: bottomPadding,
-        alignItems: 'center',
-        position: 'relative',
-        zIndex: 1,
-      }}>
-      <View
-        style={[
-          styles.topBar,
-          {
-            backgroundColor: backgroundOffset,
-          },
-        ]}></View>
-
+    <View style={styles.halfModalContainer}>
       {!liquidTxFee ? (
         <FullLoadingScreen />
       ) : (
@@ -119,39 +98,22 @@ export default function ConfirmSMSPayment(props) {
             frontText={'Fee: '}
             balance={fee}
           />
-
-          <SwipeButton
-            containerStyles={{
-              width: '90%',
-              maxWidth: 350,
-              borderColor: textColor,
-              ...CENTER,
-              marginBottom: 20,
+          <SwipeButtonNew
+            onSwipeSuccess={onSwipeSuccess}
+            width={0.95}
+            containerStyles={{marginBottom: 20}}
+            thumbIconStyles={{
+              backgroundColor:
+                theme && darkModeType ? backgroundOffset : backgroundColor,
+              borderColor:
+                theme && darkModeType ? backgroundOffset : backgroundColor,
             }}
-            titleStyles={{fontWeight: 'bold', fontSize: SIZES.large}}
-            swipeSuccessThreshold={100}
-            onSwipeSuccess={() => {
-              console.log('sucess');
-              navigate.goBack();
-              setTimeout(() => {
-                sendTextMessage();
-              }, 500);
-            }}
-            railBackgroundColor={theme ? COLORS.darkModeText : COLORS.primary}
-            railBorderColor={
-              theme ? backgroundColor : COLORS.lightModeBackground
-            }
-            height={55}
             railStyles={{
-              backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
-              borderColor: theme ? backgroundColor : COLORS.darkModeText,
+              backgroundColor:
+                theme && darkModeType ? backgroundOffset : backgroundColor,
+              borderColor:
+                theme && darkModeType ? backgroundOffset : backgroundColor,
             }}
-            thumbIconBackgroundColor={
-              theme ? backgroundColor : COLORS.darkModeText
-            }
-            thumbIconBorderColor={theme ? backgroundColor : COLORS.darkModeText}
-            titleColor={theme ? backgroundColor : COLORS.darkModeText}
-            title="Slide to confirm"
           />
         </>
       )}
@@ -160,26 +122,8 @@ export default function ConfirmSMSPayment(props) {
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    width: 120,
-    height: 8,
-    marginTop: 10,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  borderTop: {
-    width: '100%',
-    height: 60,
-    position: 'absolute',
-    top: -5,
-    zIndex: -1,
-
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-  },
-
-  optionsContainer: {
-    width: '100%',
-    height: '100%',
+  halfModalContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
 });

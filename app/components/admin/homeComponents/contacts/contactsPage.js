@@ -102,7 +102,7 @@ export default function ContactsPage({navigation}) {
                   }
                   navigate.navigate('CustomHalfModal', {
                     wantedContent: 'addContacts',
-                    sliderHight: 0.5,
+                    sliderHight: 0.4,
                   });
                 },
                 Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
@@ -219,7 +219,7 @@ export default function ContactsPage({navigation}) {
                 //navigate to add contacts popup
                 navigation.navigate('CustomHalfModal', {
                   wantedContent: 'addContacts',
-                  sliderHight: 0.5,
+                  sliderHight: 0.4,
                 });
               } else {
                 navigation.navigate('EditMyProfilePage', {

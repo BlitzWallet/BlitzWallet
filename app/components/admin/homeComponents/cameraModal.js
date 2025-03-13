@@ -222,6 +222,7 @@ export default function CameraModal(props) {
       const response = await getClipboardText();
       if (!response.didWork) {
         navigate.navigate('ErrorScreen', {errorMessage: response.reason});
+        return;
       }
       navigate.goBack();
       props.route.params.updateBitcoinAdressFunc(response.data);

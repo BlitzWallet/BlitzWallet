@@ -141,7 +141,7 @@ export default function MyContactProfilePage({navigation}) {
           onPress={() => {
             navigation.navigate('CustomHalfModal', {
               wantedContent: 'myProfileQRcode',
-              sliderHight: 0.5,
+              sliderHight: 0.6,
             });
           }}>
           <View>

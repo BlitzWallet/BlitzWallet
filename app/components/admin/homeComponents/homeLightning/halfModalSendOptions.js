@@ -1,11 +1,4 @@
-import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {CENTER, ICONS, SIZES} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -13,21 +6,15 @@ import {navigateToSendUsingClipboard, getQRImage} from '../../../../functions';
 import {ThemeText} from '../../../../functions/CustomElements';
 
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
-import GetThemeColors from '../../../../hooks/themeColors';
 import {useTranslation} from 'react-i18next';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
 
 export default function HalfModalSendOptions(props) {
   const navigate = useNavigation();
   const insets = useSafeAreaInsets();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {decodedAddedContacts} = useGlobalContacts();
   const {t} = useTranslation();
-
-  const windowDimensions = useWindowDimensions();
 
   const sendOptionElements = ['img', 'clipboard', 'manual'].map((item, key) => {
     const lightIcon =
@@ -89,89 +76,43 @@ export default function HalfModalSendOptions(props) {
   });
 
   return (
-    <View
-      style={{
-        ...styles.containerStyles,
-        height: windowDimensions.height * props.slideHeight,
-        backgroundColor: backgroundColor,
-        paddingBottom: insets.bottom,
-      }}>
-      <View
-        style={[
-          styles.topBar,
-          {
-            backgroundColor: backgroundOffset,
-          },
-        ]}
-      />
-      <View style={styles.optionsContainer}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}>
-          {sendOptionElements}
-          {decodedAddedContacts.length != 0 && (
-            <TouchableOpacity
-              onPress={() => {
-                navigate.replace('ChooseContactHalfModal');
-              }}>
-              <View style={styles.optionRow}>
-                <ThemeImage
-                  styles={styles.icon}
-                  lightModeIcon={ICONS.contactsIcon}
-                  darkModeIcon={ICONS.contactsIconLight}
-                  lightsOutIcon={ICONS.contactsIconLight}
-                />
-                <ThemeText
-                  styles={{...styles.optionText}}
-                  content={t('wallet.halfModal.contacts')}
-                />
-              </View>
-            </TouchableOpacity>
-          )}
-          <View
-            style={{
-              height: insets.bottom < 20 ? ANDROIDSAFEAREA : insets.bottom,
-            }}
-          />
-        </ScrollView>
-      </View>
+    <View style={styles.containerStyles}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}>
+        {sendOptionElements}
+        {decodedAddedContacts.length != 0 && (
+          <TouchableOpacity
+            onPress={() => {
+              navigate.replace('ChooseContactHalfModal');
+            }}>
+            <View style={styles.optionRow}>
+              <ThemeImage
+                styles={styles.icon}
+                lightModeIcon={ICONS.contactsIcon}
+                darkModeIcon={ICONS.contactsIconLight}
+                lightsOutIcon={ICONS.contactsIconLight}
+              />
+              <ThemeText
+                styles={{...styles.optionText}}
+                content={t('wallet.halfModal.contacts')}
+              />
+            </View>
+          </TouchableOpacity>
+        )}
+        <View
+          style={{
+            height: insets.bottom < 20 ? ANDROIDSAFEAREA : insets.bottom,
+          }}
+        />
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    width: 120,
-    height: 8,
-    marginTop: 10,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  borderTop: {
-    width: '100%',
-    height: 60,
-    position: 'absolute',
-    top: -5,
-    zIndex: -1,
-
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-  },
   containerStyles: {
-    minHeight: 'auto',
-    width: '100%',
-
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-
-    alignItems: 'center',
-    position: 'relative',
-    zIndex: 1,
-  },
-
-  optionsContainer: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
   },
 
   optionRow: {

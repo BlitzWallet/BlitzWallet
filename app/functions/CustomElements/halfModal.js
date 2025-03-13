@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Animated,
   Keyboard,
@@ -10,7 +10,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {COLORS} from '../../constants';
+import {COLORS, CONTENT_KEYBOARD_OFFSET} from '../../constants';
 import {HalfModalSendOptions} from '../../components/admin';
 import {
   ConfirmSMSPayment,
@@ -28,19 +28,30 @@ import LiquidAddressModal from '../../components/admin/homeComponents/settingsCo
 import ManualEnterSendAddress from '../../components/admin/homeComponents/homeLightning/manualEnterSendAddress';
 import ConfirmInternalTransferHalfModal from '../../components/admin/homeComponents/settingsContent/walletInfoComponents/confirmTransferHalfModal';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {KEYBOARDTIMEOUT} from '../../constants/styles';
+import {ANDROIDSAFEAREA, CENTER, KEYBOARDTIMEOUT} from '../../constants/styles';
+import {useGlobalThemeContext} from '../../../context-store/theme';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 export default function CustomHalfModal(props) {
+  const {theme, darkModeType} = useGlobalThemeContext();
   const navigation = useNavigation();
   const windowDimensions = useWindowDimensions();
-
   const contentType = props?.route?.params?.wantedContent;
   const slideHeight = props?.route?.params?.sliderHight || 0.5;
-  const {backgroundColor} = GetThemeColors();
+  const {backgroundColor, backgroundOffset} = GetThemeColors();
+  const [contentHeight, setContentHeight] = useState(0);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Platform.select({
+    ios: insets.bottom,
+    android: ANDROIDSAFEAREA,
+  });
 
   const translateY = useRef(
     new Animated.Value(windowDimensions.height),
   ).current;
+
+  const deviceHeight = useWindowDimensions().height;
 
   const handleBackPressFunction = useCallback(() => {
     slideOut();
@@ -80,10 +91,18 @@ export default function CustomHalfModal(props) {
   const renderContent = () => {
     switch (contentType) {
       case 'sendOptions':
-        return <HalfModalSendOptions slideHeight={slideHeight} />;
+        return (
+          <HalfModalSendOptions
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+          />
+        );
       case 'confirmSMS':
         return (
           <ConfirmSMSPayment
+            theme={theme}
+            darkModeType={darkModeType}
             prices={props.route.params?.prices}
             phoneNumber={props.route.params?.phoneNumber}
             areaCodeNum={props.route.params?.areaCodeNum}
@@ -94,6 +113,8 @@ export default function CustomHalfModal(props) {
       case 'confirmVPN':
         return (
           <ConfirmVPNPage
+            theme={theme}
+            darkModeType={darkModeType}
             price={props.route.params?.price}
             duration={props.route.params?.duration}
             country={props.route.params?.country}
@@ -104,6 +125,8 @@ export default function CustomHalfModal(props) {
       case 'giftCardConfirm':
         return (
           <ConfirmGiftCardPurchase
+            theme={theme}
+            darkModeType={darkModeType}
             quantity={props.route.params?.quantity}
             price={props.route.params?.price}
             productId={props.route.params?.productId}
@@ -113,20 +136,34 @@ export default function CustomHalfModal(props) {
           />
         );
       case 'exportTransactions':
-        return <ConfirmExportPayments />;
+        return (
+          <ConfirmExportPayments
+            theme={theme}
+            darkModeType={darkModeType}
+            startExport={props.route.params?.startExport}
+          />
+        );
       case 'chatGPT':
         return (
           <ConfirmChatGPTPage
+            theme={theme}
+            darkModeType={darkModeType}
             price={props.route.params?.price}
             plan={props.route.params?.plan}
             slideHeight={slideHeight}
           />
         );
       case 'addContacts':
-        return <AddContactsHalfModal slideHeight={slideHeight} />;
+        return (
+          <AddContactsHalfModal
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+          />
+        );
 
       case 'myProfileQRcode':
-        return <MyProfileQRCode slideHeight={slideHeight} />;
+        return <MyProfileQRCode theme={theme} />;
 
       case 'expandedContactMessage':
         return (
@@ -138,10 +175,19 @@ export default function CustomHalfModal(props) {
       case 'liquidAddressModal':
         return <LiquidAddressModal />;
       case 'manualEnterSendAddress':
-        return <ManualEnterSendAddress />;
+        return (
+          <ManualEnterSendAddress
+            setContentHeight={setContentHeight}
+            setIsKeyboardActive={setIsKeyboardActive}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        );
       case 'confirmInternalTransferHalfModal':
         return (
           <ConfirmInternalTransferHalfModal
+            theme={theme}
+            darkModeType={darkModeType}
             amount={props.route.params?.amount}
             fee={props.route.params?.fee}
             transferInfo={props.route.params?.transferInfo}
@@ -152,7 +198,6 @@ export default function CustomHalfModal(props) {
         return <ThemeText content={'TST'} />;
     }
   };
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : null}
@@ -163,10 +208,31 @@ export default function CustomHalfModal(props) {
             style={[
               styles.contentContainer,
               {
-                backgroundColor: backgroundColor,
+                height: contentHeight
+                  ? contentHeight
+                  : deviceHeight * slideHeight,
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+                paddingBottom:
+                  contentType === 'manualEnterSendAddress'
+                    ? isKeyboardActive
+                      ? CONTENT_KEYBOARD_OFFSET
+                      : bottomPadding
+                    : contentType === 'addContacts'
+                    ? 0
+                    : bottomPadding,
                 transform: [{translateY}],
               },
             ]}>
+            <View
+              style={[
+                styles.topBar,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            />
             {renderContent()}
           </Animated.View>
         </View>
@@ -183,6 +249,14 @@ const styles = StyleSheet.create({
   },
   keyboardAvoidingView: {
     flex: 1,
+  },
+  topBar: {
+    width: 120,
+    height: 8,
+    marginTop: 10,
+    borderRadius: 8,
+    marginBottom: 20,
+    ...CENTER,
   },
   contentContainer: {
     borderTopLeftRadius: 20,
