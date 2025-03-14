@@ -101,7 +101,7 @@ export default function ConfirmGiftCardPurchase(props) {
     setTimeout(() => {
       props.purchaseGiftCard(retrivedInformation.productInfo);
     }, 200);
-  }, []);
+  }, [retrivedInformation]);
   return (
     <View style={styles.halfModalContainer}>
       {Object.keys(retrivedInformation.productInfo).length === 0 ? (

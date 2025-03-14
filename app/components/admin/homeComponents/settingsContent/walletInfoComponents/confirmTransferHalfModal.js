@@ -87,7 +87,7 @@ export default function ConfirmInternalTransferHalfModal(props) {
       invoice: invoiceInfo.invoice,
       transferInfo,
     });
-  }, []);
+  }, [invoiceInfo, transferInfo]);
 
   return (
     <View style={styles.container}>
