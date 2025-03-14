@@ -78,7 +78,10 @@ export default function getFormattedHomepageTxs({
         const isLiquidPayment = currentTransaction.usesLiquidNode;
         const isLightningPayment = currentTransaction.usesLightningNode;
         const isEcashPayment = currentTransaction.usesEcash;
-        const isFailedPayment = !currentTransaction.status === 'complete';
+        const isFailedPayment =
+          !(currentTransaction.status === 'complete') &&
+          !!currentTransaction?.error;
+
         let paymentDate;
         if (isLiquidPayment) {
           paymentDate = currentTransaction.timestamp * 1000;
@@ -142,6 +145,7 @@ export default function getFormattedHomepageTxs({
         }
         if (
           (currentTransaction?.description === 'Auto Channel Rebalance' ||
+            currentTransaction?.description === 'Auto Channel Open' ||
             currentTransaction?.description?.toLowerCase() ===
               'internal_transfer') &&
           frompage != 'viewAllTx'
@@ -153,6 +157,7 @@ export default function getFormattedHomepageTxs({
           isLiquidPayment &&
           (currentTransaction.details?.description ===
             'Auto Channel Rebalance' ||
+            currentTransaction.details?.description === 'Auto Channel Open' ||
             currentTransaction.details?.description?.toLowerCase() ===
               'internal_transfer')
         )
@@ -251,6 +256,7 @@ export function UserTransaction({
   isBankPage,
   frompage,
 }) {
+  console.log(transaction);
   const {theme, darkModeType} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {t} = useTranslation();
@@ -285,11 +291,13 @@ export function UserTransaction({
     theme,
   ]);
 
-  const transactionStatusIcon = useMemo(
+  const showPendingTransactionStatusIcon = useMemo(
     () =>
-      (transaction.usesLightningNode && transaction.status === 'pending') ||
+      (transaction.usesLightningNode &&
+        transaction.status === 'pending' &&
+        !isFailedPayment) ||
       (isLiquidPayment && transaction.status === 'pending'),
-    [transaction, isLiquidPayment],
+    [transaction, isLiquidPayment, isFailedPayment],
   );
 
   const paymentDescription = isLiquidPayment
@@ -315,7 +323,7 @@ export function UserTransaction({
         navigate.navigate('ExpandedTx', {isFailedPayment, transaction})
       }>
       <View style={styles.transactionContainer}>
-        {transactionStatusIcon ? (
+        {showPendingTransactionStatusIcon ? (
           <View style={styles.icons}>
             <Icon
               width={27}

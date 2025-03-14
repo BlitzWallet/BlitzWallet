@@ -34,15 +34,14 @@ export default function ExpandedTx(props) {
   const isFailedPayment =
     props.route.params.isFailedPayment && transaction?.type != 'ecash';
 
-  const isPending = transaction.status === PaymentState.PENDING;
+  const isPending =
+    transaction.status === PaymentState.PENDING && !isFailedPayment;
 
   const selectedTX = transaction;
 
   const paymentDate = new Date(
     usesLiquidNode
       ? selectedTX.timestamp * 1000
-      : isFailedPayment
-      ? selectedTX.invoice.timestamp * 1000
       : usesEcash
       ? selectedTX.time
       : selectedTX.paymentTime * 1000,

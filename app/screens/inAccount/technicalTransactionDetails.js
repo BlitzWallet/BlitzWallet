@@ -22,7 +22,7 @@ export default function TechnicalTransactionDetails(props) {
   const paymentDetails = isEcashPayment
     ? ['Mint url', 'Payment Preimage']
     : isFailedPayment
-    ? ['Payment Hash', 'Payment Secret', 'Node ID']
+    ? ['Payment Hash', 'Payment Preimage', 'Destination Pubkey']
     : isLiquidPayment
     ? ['Destination', 'Transaction Id']
     : isAClosedChannelTx
@@ -32,29 +32,29 @@ export default function TechnicalTransactionDetails(props) {
   const infoElements = paymentDetails.map((item, id) => {
     const txItem = isEcashPayment
       ? id === 0
-        ? selectedTX.mintURL
-        : selectedTX.preImage || 'Null'
+        ? selectedTX?.mintURL
+        : selectedTX?.preImage || ''
       : isFailedPayment
       ? id === 0
-        ? selectedTX.invoice.paymentHash
+        ? selectedTX?.details?.data?.paymentHash
         : id === 1
-        ? JSON.stringify(selectedTX.invoice.paymentSecret)
-        : selectedTX.nodeId
+        ? selectedTX?.details?.data?.paymentPreimage
+        : selectedTX?.details?.data?.destinationPubkey
       : isLiquidPayment
       ? id === 0
-        ? selectedTX.destination
-        : selectedTX.txId
+        ? selectedTX?.destination
+        : selectedTX?.txId
       : isAClosedChannelTx
       ? id === 0
-        ? selectedTX.details.data.closingTxid
+        ? selectedTX.details?.data?.closingTxid
         : id === 1
-        ? selectedTX.details.data.fundingTxid
-        : selectedTX.details.data.shortChannelId
+        ? selectedTX.details?.data?.fundingTxid
+        : selectedTX.details?.data?.shortChannelId
       : id === 0
-      ? selectedTX.details.data.paymentHash
+      ? selectedTX.details?.data?.paymentHash
       : id === 1
-      ? selectedTX.details.data.paymentPreimage
-      : selectedTX.details.data?.destinationPubkey;
+      ? selectedTX.details?.data?.paymentPreimage
+      : selectedTX.details?.data?.destinationPubkey;
     return (
       <View key={id}>
         <ThemeText content={item} styles={{...styles.headerText}} />
