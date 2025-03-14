@@ -25,7 +25,6 @@ export default function ReceivePaymentHome(props) {
   const {ecashWalletInformation} = useGlobaleCash();
   const currentMintURL = ecashWalletInformation.mintURL;
   const {textColor} = GetThemeColors();
-  const ecashRef = useRef(null);
   const initialSendAmount = props.route.params?.receiveAmount;
   const paymentDescription = props.route.params?.description;
   useHandleBackPressNew();
@@ -59,9 +58,8 @@ export default function ReceivePaymentHome(props) {
       masterInfoObject,
       minMaxSwapAmounts: minMaxLiquidSwapAmounts,
       mintURL: currentMintURL,
-      ecashRef,
       setAddressState: setAddressState,
-      selectedRecieveOption: addressState.selectedRecieveOption,
+      selectedRecieveOption: receiveOption,
       navigate,
     });
   }, [initialSendAmount, paymentDescription, receiveOption]);

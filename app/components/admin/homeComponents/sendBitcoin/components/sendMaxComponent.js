@@ -7,7 +7,6 @@ import {
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {InputTypeVariant} from '@breeztech/react-native-breez-sdk';
 import {fetchOnchainLimits} from '@breeztech/react-native-breez-sdk-liquid';
-import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
 
 export default function SendMaxComponent({
   nodeInformation,
@@ -106,21 +105,21 @@ export default function SendMaxComponent({
           if (!masterInfoObject.liquidWalletSettings.isLightningEnabled)
             continue;
 
-          const lnFee = Math.round(option.balance * 0.0005) + 4;
+          const lnFee = Math.round(option.balance * 0.005) + 4;
           if (isLightningPayment) {
-            maxAmountSats = option.balance - 5 - lnFee;
+            maxAmountSats = option.balance - lnFee;
             break;
           } else if (
             isBitcoinPayment &&
             option.balance >= currentLimits.send.minSat + 5
           ) {
-            maxAmountSats = option.balance - 5 - lnFee;
+            maxAmountSats = option.balance - lnFee;
             break;
           } else if (
             isLiquidPayment &&
-            option.balance >= minMaxLiquidSwapAmounts.min + 5
+            option.balance >= minMaxLiquidSwapAmounts.min
           ) {
-            maxAmountSats = option.balance - 5 - lnFee;
+            maxAmountSats = option.balance - lnFee;
             break;
           } else {
             maxAmountSats = 0;

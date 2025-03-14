@@ -282,7 +282,9 @@ export function UserTransaction({
         ? ICONS.arrow_small_left_white
         : ICONS.smallArrowLeft;
     }
-    return ICONS.failedTransaction;
+    return darkModeType && theme
+      ? ICONS.failedTransactionWhite
+      : ICONS.failedTransaction;
   }, [
     isLiquidPayment,
     isEcashPayment,
@@ -372,7 +374,9 @@ export function UserTransaction({
               ...styles.descriptionText,
               color:
                 isFailedPayment || transaction.paymentType === 'closed_channel'
-                  ? COLORS.failedTransaction
+                  ? theme && darkModeType
+                    ? COLORS.darkModeText
+                    : COLORS.failedTransaction
                   : theme
                   ? COLORS.darkModeText
                   : COLORS.lightModeText,
@@ -401,7 +405,9 @@ export function UserTransaction({
               ...styles.dateText,
               color:
                 isFailedPayment || transaction.paymentType === 'closed_channel'
-                  ? COLORS.failedTransaction
+                  ? theme && darkModeType
+                    ? COLORS.darkModeText
+                    : COLORS.failedTransaction
                   : theme
                   ? COLORS.darkModeText
                   : COLORS.lightModeText,

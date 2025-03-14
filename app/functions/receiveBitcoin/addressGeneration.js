@@ -1,7 +1,4 @@
-import {
-  openChannelFee,
-  receivePayment,
-} from '@breeztech/react-native-breez-sdk';
+import {receivePayment} from '@breeztech/react-native-breez-sdk';
 import {LIGHTNINGAMOUNTBUFFER} from '../../constants/math';
 import {getECashInvoice} from '../eCash/wallet';
 import {BLITZ_DEFAULT_PAYMENT_DESCRIPTION} from '../../constants';
@@ -12,9 +9,15 @@ import {
   ECASH_QUOTE_EVENT_NAME,
   ecashEventEmitter,
 } from '../../../context-store/eCash';
-
+import {lnToLiquidInvoiceDetails} from './invoices';
+import customUUID from '../customUUID';
+let invoiceTracker = [];
 export async function initializeAddressProcess(wolletInfo) {
   const {setAddressState, selectedRecieveOption} = wolletInfo;
+  const requestUUID = customUUID();
+  invoiceTracker.push(requestUUID);
+  let stateTracker = {};
+  let hasGlobalError = false;
   try {
     setAddressState(prev => {
       return {
@@ -32,28 +35,40 @@ export async function initializeAddressProcess(wolletInfo) {
     });
     if (selectedRecieveOption.toLowerCase() === 'lightning') {
       const response = await generateLightningAddress(wolletInfo);
-      if (!response) throw Error('Not able to generate invoice');
+      if (!response) throw new Error('Error with lightning');
+      stateTracker = response;
     } else if (selectedRecieveOption.toLowerCase() === 'bitcoin') {
-      await generateBitcoinAddress(wolletInfo);
+      const response = await generateBitcoinAddress(wolletInfo);
+      if (!response) throw new Error('Error with bitcoin');
+      stateTracker = response;
     } else {
-      await generateLiquidAddress(wolletInfo);
+      const response = await generateLiquidAddress(wolletInfo);
+      if (!response) throw new Error('Error with bitcoin');
+      stateTracker = response;
     }
   } catch (error) {
     console.log(error, 'HANDLING ERROR');
-    setAddressState(prev => {
-      return {
-        ...prev,
-        hasGlobalError: true,
-      };
-    });
+    hasGlobalError = true;
   } finally {
-    console.log('RUNNING AFTER');
-    setAddressState(prev => {
-      return {
-        ...prev,
-        isGeneratingInvoice: false,
-      };
-    });
+    if (invoiceTracker.length > 3) invoiceTracker = [invoiceTracker.pop()];
+    if (invoiceTracker[invoiceTracker.length - 1] != requestUUID) return;
+    if (hasGlobalError) {
+      setAddressState(prev => {
+        return {
+          ...prev,
+          hasGlobalError: true,
+          isGeneratingInvoice: false,
+        };
+      });
+    } else {
+      setAddressState(prev => {
+        return {
+          ...prev,
+          ...stateTracker,
+          isGeneratingInvoice: false,
+        };
+      });
+    }
   }
 }
 
@@ -71,186 +86,155 @@ async function generateLightningAddress(wolletInfo) {
   const liquidWalletSettings = masterInfoObject.liquidWalletSettings;
   const hasLightningChannel = !!nodeInformation.userBalance;
   const enabledEcash = masterInfoObject.enabledEcash;
-
+  // At this ponint we have three receive options, LN -> Liquid, Ecash, LN
+  // We will first try to see if we can use ecash
+  // if lightning is not enabled and ecash is enabled and the receiving amount is less than boltz min swap amount use ecash
   if (
-    (liquidWalletSettings.regulateChannelOpen &&
-      liquidWalletSettings.regulatedChannelOpenSize > receivingAmount &&
-      !hasLightningChannel) ||
-    !liquidWalletSettings.isLightningEnabled ||
-    (hasLightningChannel &&
-      nodeInformation.inboundLiquidityMsat / 1000 - LIGHTNINGAMOUNTBUFFER <=
-        receivingAmount &&
-      liquidWalletSettings.regulateChannelOpen &&
-      liquidWalletSettings.regulatedChannelOpenSize > receivingAmount) ||
-    (enabledEcash &&
-      !hasLightningChannel &&
-      receivingAmount < minMaxSwapAmounts.min)
+    !liquidWalletSettings.isLightningEnabled &&
+    enabledEcash &&
+    receivingAmount < minMaxSwapAmounts.min //Eventualy repalce with customaizable amount
   ) {
-    if (receivingAmount < minMaxSwapAmounts.min) {
-      const eCashInvoice = await getECashInvoice({
-        amount: receivingAmount,
-        mintURL: mintURL,
-        descriptoin: description,
-      });
-
-      if (eCashInvoice.didWork) {
-        setAddressState(prev => {
-          return {
-            ...prev,
-            fe: 0,
-            generatedAddress: eCashInvoice.mintQuote.request,
-          };
-        });
-        ecashEventEmitter.emit(ECASH_QUOTE_EVENT_NAME, {
-          quote: eCashInvoice.mintQuote.quote,
-          counter: eCashInvoice.counter,
-          mintURL: eCashInvoice.mintURL,
-        });
-
-        return true;
-      } else {
-        setAddressState(prev => {
-          return {
-            ...prev,
-            generatedAddress: null,
-            errorMessageText: {
-              type: 'stop',
-              text: eCashInvoice.reason,
-            },
-          };
-        });
-        return;
-      }
-    } else {
-      console.log(description, 'DESCRIPTION');
-      const addressResponse = await breezLiquidReceivePaymentWrapper({
-        sendAmount: receivingAmount,
-        paymentType: 'lightning',
-        description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
-      });
-
-      if (!addressResponse) {
-        setAddressState(prev => {
-          return {
-            ...prev,
-            generatedAddress: null,
-            errorMessageText: {
-              type: 'stop',
-              text: `Unable to generate lightning address`,
-            },
-          };
-        });
-        return;
-      }
-      const {destination, receiveFeesSat} = addressResponse;
-
-      setAddressState(prev => {
-        return {
-          ...prev,
-          generatedAddress: destination,
-          fee: receiveFeesSat,
-        };
-      });
-
-      return true;
-    }
-  } else {
-    if (
-      nodeInformation.inboundLiquidityMsat / 1000 - LIGHTNINGAMOUNTBUFFER >=
-      receivingAmount
-    ) {
-      const invoice = await receivePayment({
-        amountMsat: receivingAmount * 1000,
-        description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
-      });
-      if (invoice) {
-        setAddressState(prev => {
-          return {
-            ...prev,
-            fee: 0,
-            generatedAddress: invoice.lnInvoice.bolt11,
-            errorMessageText: {
-              type: null,
-              text: '',
-            },
-          };
-        });
-        return true;
-      } else return false;
-    }
-
-    const needsToOpenChannel = await checkRecevingCapacity({
-      nodeInformation,
-      receivingAmount,
-      userBalanceDenomination,
+    const eCashInvoice = await getECashInvoice({
+      amount: receivingAmount,
+      mintURL: mintURL,
+      descriptoin: description,
     });
-    if (
-      needsToOpenChannel.fee / 1000 >=
-      liquidWalletSettings.maxChannelOpenFee
-    ) {
-      setAddressState(prev => {
-        return {
-          ...prev,
-          generatedAddress: '',
-          errorMessageText: {
-            type: needsToOpenChannel.type,
-            text: `A ${displayCorrectDenomination({
-              amount: needsToOpenChannel.fee / 1000,
-              nodeInformation,
-              masterInfoObject: {
-                userBalanceDenomination: userBalanceDenomination,
-              },
-            })} fee needs to be applied, but you have a max fee of ${displayCorrectDenomination(
-              {
-                amount: liquidWalletSettings.maxChannelOpenFee,
-                nodeInformation,
-                masterInfoObject: {
-                  userBalanceDenomination: userBalanceDenomination,
-                },
-              },
-            )} set.`,
-          },
-        };
+
+    if (eCashInvoice.didWork) {
+      ecashEventEmitter.emit(ECASH_QUOTE_EVENT_NAME, {
+        quote: eCashInvoice.mintQuote.quote,
+        counter: eCashInvoice.counter,
+        mintURL: eCashInvoice.mintURL,
       });
-    }
-    if (needsToOpenChannel.fee / 1000 > receivingAmount) {
-      setAddressState(prev => {
-        return {
-          ...prev,
-          generatedAddress: '',
-          errorMessageText: {
-            type: needsToOpenChannel.type,
-            text: `A ${displayCorrectDenomination({
-              amount: needsToOpenChannel.fee / 1000,
-              nodeInformation,
-              masterInfoObject: {
-                userBalanceDenomination: userBalanceDenomination,
-              },
-            })} fee needs to be applied, but only ${displayCorrectDenomination({
-              amount: receivingAmount,
-              nodeInformation,
-              masterInfoObject: {
-                userBalanceDenomination: userBalanceDenomination,
-              },
-            })} was requested.`,
-          },
-        };
-      });
+      return {
+        fee: 0,
+        generatedAddress: eCashInvoice.mintQuote.request,
+      };
     } else {
-      const invoice = await receivePayment({
-        amountMsat: receivingAmount * 1000,
-        description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
-      });
-      setAddressState(prev => {
-        return {
-          ...prev,
-          fee: Math.round(needsToOpenChannel.fee / 1000),
-          generatedAddress: invoice.lnInvoice.bolt11,
-        };
-      });
+      return {
+        returngeneratedAddress: null,
+        errorMessageText: {
+          type: 'stop',
+          text: eCashInvoice.reason || 'Error generating eCash invoice',
+        },
+      };
     }
-    return true;
   }
+
+  // Now the only posible options are LN -> liquid swaps or LN.
+
+  // if lightning is not enabled and ecash also must not be enabled and the minimum requested amount is less than boltz minimum we need to force an error since we cannot receive this payment
+  if (
+    !liquidWalletSettings.isLightningEnabled &&
+    receivingAmount < minMaxSwapAmounts.min
+  ) {
+    return {
+      errorMessageText: {
+        type: 'stop',
+        text: `The minimum receive amount is ${displayCorrectDenomination({
+          amount: minMaxSwapAmounts.min,
+          nodeInformation,
+          masterInfoObject: {
+            userBalanceDenomination: userBalanceDenomination,
+          },
+        })}, but ${displayCorrectDenomination({
+          amount: receivingAmount,
+          nodeInformation,
+          masterInfoObject: {
+            userBalanceDenomination: userBalanceDenomination,
+          },
+        })} was requested.`,
+      },
+    };
+  }
+
+  // If Ln is not enabled use liquid and we know we can use liquid since we just checked the min amoutn in the last statement
+  if (!liquidWalletSettings.isLightningEnabled) {
+    const resposne = await lnToLiquidInvoiceDetails({
+      receivingAmount,
+      description,
+    });
+    return {
+      ...resposne,
+    };
+  }
+
+  // At this point we know that lightning is enabled
+
+  // If lightning is enabled, but a user does not have a channel open and they have set for blitz wallet to automaticly manage the channel open process and the receive amount is less than thier set channel open amount then use liquid
+  if (
+    !hasLightningChannel &&
+    liquidWalletSettings.regulateChannelOpen &&
+    liquidWalletSettings.regulatedChannelOpenSize > receivingAmount
+  ) {
+    const resposne = await lnToLiquidInvoiceDetails({
+      receivingAmount,
+      description,
+    });
+    return {
+      ...resposne,
+    };
+  }
+
+  // if lightning is enabled and a user has a lightning channel but thier inbound liquidity is less than the receiving amount and they have set for blitz to regulate the channnel open process and the receiving amount is less than the regulated channel open amount use liqid
+  if (
+    hasLightningChannel &&
+    nodeInformation.inboundLiquidityMsat / 1000 - LIGHTNINGAMOUNTBUFFER <=
+      receivingAmount &&
+    liquidWalletSettings.regulateChannelOpen &&
+    liquidWalletSettings.regulatedChannelOpenSize > receivingAmount
+  ) {
+    const resposne = await lnToLiquidInvoiceDetails({
+      receivingAmount,
+      description,
+    });
+    return {
+      ...resposne,
+    };
+  }
+  // At this point all of the base use cases for liquid swaps are used and we now should generate a lightning invoice
+
+  const invoice = await receivePayment({
+    amountMsat: receivingAmount * 1000,
+    description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
+  });
+
+  // If the user has lightning enabled and the current lightiing fee is grater than the max channel open fee they have set in settings and they have regulated channel open on then use liquid
+  if (
+    invoice.openingFeeMsat / 1000 >= liquidWalletSettings.maxChannelOpenFee &&
+    liquidWalletSettings.regulateChannelOpen
+  ) {
+    const resposne = await lnToLiquidInvoiceDetails({
+      receivingAmount,
+      description,
+    });
+    return {
+      ...resposne,
+    };
+  }
+
+  // if the current lightning invoice has a channel open fee give a wanring to the user so they know what is happening
+  if (invoice.openingFeeMsat) {
+    return {
+      generatedAddress: invoice.lnInvoice.bolt11,
+      fee: invoice.openingFeeMsat / 1000,
+      errorMessageText: {
+        type: 'warning',
+        text: `A ${displayCorrectDenomination({
+          amount: invoice.openingFeeMsat / 1000,
+          nodeInformation,
+          masterInfoObject: {
+            userBalanceDenomination: userBalanceDenomination,
+          },
+        })} fee will to be applied.`,
+      },
+    };
+  }
+
+  return {
+    generatedAddress: invoice.lnInvoice.bolt11,
+    fee: invoice.openingFeeMsat / 1000,
+  };
 }
 
 async function generateLiquidAddress(wolletInfo) {
@@ -259,31 +243,24 @@ async function generateLiquidAddress(wolletInfo) {
   const addressResponse = await breezLiquidReceivePaymentWrapper({
     sendAmount: receivingAmount,
     paymentType: 'liquid',
-    description: description,
+    description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   });
   if (!addressResponse) {
-    setAddressState(prev => {
-      return {
-        ...prev,
-        generatedAddress: null,
-        errorMessageText: {
-          type: 'stop',
-          text: `Unable to generate liquid address`,
-        },
-      };
-    });
-    return;
+    return {
+      generatedAddress: null,
+      errorMessageText: {
+        type: 'stop',
+        text: `Unable to generate liquid address`,
+      },
+    };
   }
 
   const {destination, receiveFeesSat} = addressResponse;
 
-  setAddressState(prev => {
-    return {
-      ...prev,
-      generatedAddress: destination,
-      fee: receiveFeesSat,
-    };
-  });
+  return {
+    generatedAddress: destination,
+    fee: receiveFeesSat,
+  };
 }
 
 async function generateBitcoinAddress(wolletInfo) {
@@ -306,77 +283,40 @@ async function generateBitcoinAddress(wolletInfo) {
   console.log(`Maximum amount, in sats: ${currentLimits.receive.maxSat}`);
 
   if (!addressResponse) {
-    setAddressState(prev => {
-      return {
-        ...prev,
-        generatedAddress: null,
-        errorMessageText: {
-          type: 'stop',
-          text: `Output amount is ${
-            currentLimits.receive.minSat > receivingAmount
-              ? 'below minimum ' +
-                displayCorrectDenomination({
-                  amount: currentLimits.receive.minSat,
-                  nodeInformation,
-                  masterInfoObject: {
-                    userBalanceDenomination: userBalanceDenomination,
-                  },
-                })
-              : 'above maximum ' +
-                displayCorrectDenomination({
-                  amount: currentLimits.receive.maxSat,
-                  nodeInformation,
-                  masterInfoObject: {
-                    userBalanceDenomination: userBalanceDenomination,
-                  },
-                })
-          }`,
-        },
-
-        minMaxSwapAmount: {
-          min: currentLimits.receive.minSat,
-          max: currentLimits.receive.maxSat,
-        },
-      };
-    });
-    return;
+    return {
+      generatedAddress: null,
+      errorMessageText: {
+        type: 'stop',
+        text: `Output amount is ${
+          currentLimits.receive.minSat > receivingAmount
+            ? 'below minimum ' +
+              displayCorrectDenomination({
+                amount: currentLimits.receive.minSat,
+                nodeInformation,
+                masterInfoObject: {
+                  userBalanceDenomination: userBalanceDenomination,
+                },
+              })
+            : 'above maximum ' +
+              displayCorrectDenomination({
+                amount: currentLimits.receive.maxSat,
+                nodeInformation,
+                masterInfoObject: {
+                  userBalanceDenomination: userBalanceDenomination,
+                },
+              })
+        }`,
+      },
+      minMaxSwapAmount: {
+        min: currentLimits.receive.minSat,
+        max: currentLimits.receive.maxSat,
+      },
+    };
   }
   const {destination, receiveFeesSat} = addressResponse;
 
-  setAddressState(prev => {
-    return {
-      ...prev,
-      generatedAddress: destination,
-      fee: receiveFeesSat,
-    };
-  });
-}
-
-async function checkRecevingCapacity({
-  nodeInformation,
-  receivingAmount,
-  userBalanceDenomination,
-}) {
-  try {
-    const channelFee = await openChannelFee({
-      amountMsat: receivingAmount * 1000,
-    });
-
-    if (channelFee.feeMsat != 0) {
-      return {
-        fee: channelFee.feeMsat,
-        type: 'warning',
-        text: `A ${displayCorrectDenomination({
-          amount: channelFee.feeMsat / 1000,
-          nodeInformation,
-          masterInfoObject: {
-            userBalanceDenomination: userBalanceDenomination,
-          },
-        })} fee will be applied.`,
-      };
-    } else return false;
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
+  return {
+    generatedAddress: destination,
+    fee: receiveFeesSat,
+  };
 }
