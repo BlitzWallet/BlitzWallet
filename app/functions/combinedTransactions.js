@@ -339,7 +339,7 @@ export function UserTransaction({
                         ? '0deg'
                         : isLiquidPayment
                         ? transaction?.paymentType !== 'receive' &&
-                          transaction?.paymentTime !== 'received'
+                          transaction?.paymentType !== 'received'
                           ? '130deg'
                           : '310deg'
                         : transaction.status === 'complete' ||
@@ -381,7 +381,7 @@ export function UserTransaction({
                 ? '*****'
                 : isDefaultDescription || !paymentDescription
                 ? transaction?.paymentType !== 'receive' &&
-                  transaction?.paymentTime !== 'received'
+                  transaction?.paymentType !== 'received'
                   ? t('constants.sent')
                   : t('constants.received')
                 : paymentDescription
