@@ -27,9 +27,9 @@ function CustomFlatList({style, ...props}) {
       </Animated.View>
 
       <Animated.FlatList
-        initialNumToRender={20} // check this
-        maxToRenderPerBatch={10}
-        updateCellsBatchingPeriod={100}
+        initialNumToRender={10}
+        maxToRenderPerBatch={5}
+        updateCellsBatchingPeriod={50}
         showsVerticalScrollIndicator={false}
         {...props}
         ListHeaderComponent={

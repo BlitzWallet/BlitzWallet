@@ -2,6 +2,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {
   Dimensions,
   Image,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -24,6 +25,11 @@ function MyTabBar({state, descriptors, navigation}) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {contactsMessags} = useGlobalContacts();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+
+  const paddingBottom = Platform.select({
+    ios: insets.bottom,
+    android: 0,
+  });
 
   const hasUnlookedTransactions = useMemo(() => {
     return (
@@ -56,7 +62,7 @@ function MyTabBar({state, descriptors, navigation}) {
         }}>
         <View
           style={{
-            paddingBottom: insets.bottom < 20 ? 0 : insets.bottom,
+            paddingBottom: paddingBottom,
             ...styles.tabsInnerContainer,
           }}>
           {state.routes.map((route, index) => {

@@ -6,65 +6,54 @@ import {MyTabs} from '../../../navigation/tabs';
 import AdminHome from './home';
 import {ContactsDrawer} from '../../../navigation/drawers';
 import AppStore from './appStore';
-import {GlobalThemeView} from '../../functions/CustomElements';
 import SendPaymentHome from './sendBtcPage';
+import GetThemeColors from '../../hooks/themeColors';
 
-export default function AdminHomeIndex(props) {
+const CAMERA_PAGE = 0;
+const HOME_PAGE = 1;
+
+export default function AdminHomeIndex() {
   const {masterInfoObject} = useGlobalContextProvider();
-  const [pagePosition, setPagePosition] = useState(1);
+  const [currentPage, setCurrentPage] = useState(HOME_PAGE);
+  const {backgroundColor} = GetThemeColors();
 
-  const handlePageScroll = useCallback(event => {
-    const {offset, position} = event.nativeEvent;
-    const pageIndex = offset >= 1 ? position + 1 : position;
-    setPagePosition(pageIndex);
+  const handlePageChange = useCallback(e => {
+    setCurrentPage(e.nativeEvent.position);
   }, []);
 
-  const handlePageSelected = useCallback(e => {
-    setPagePosition(e.nativeEvent.position);
-  }, []);
-  const pagerContent = useMemo(
+  const MainContent = useCallback(
     () => (
-      <PagerView
-        onPageScroll={handlePageScroll}
-        onPageSelected={handlePageSelected}
-        style={styles.container}
-        initialPage={1}>
-        <SendPaymentHome from="home" pageViewPage={pagePosition} key="0" />
-        <View key="1" style={styles.container}>
-          <MyTabs
-            fromStore={props?.route?.params?.fromStore}
-            adminHome={AdminHome}
-            contactsDrawer={ContactsDrawer}
-            appStore={AppStore}
-          />
-        </View>
-      </PagerView>
+      <MyTabs
+        adminHome={AdminHome}
+        contactsDrawer={ContactsDrawer}
+        appStore={AppStore}
+      />
     ),
-    [
-      pagePosition,
-      props?.route?.params?.fromStore,
-      handlePageScroll,
-      handlePageSelected,
-    ],
+    [],
   );
 
-  const nonCameraContent = useMemo(
-    () => (
-      <View style={styles.container}>
-        <MyTabs
-          fromStore={props?.route?.params?.fromStore}
-          adminHome={AdminHome}
-          contactsDrawer={ContactsDrawer}
-          appStore={AppStore}
-        />
+  if (!masterInfoObject.enabledSlidingCamera) {
+    return (
+      <View style={{...styles.container, backgroundColor}}>
+        <MainContent />
       </View>
-    ),
-    [props?.route?.params?.fromStore],
-  );
+    );
+  }
+
   return (
-    <GlobalThemeView styles={{paddingTop: 0, paddingBottom: 0}}>
-      {masterInfoObject.enabledSlidingCamera ? pagerContent : nonCameraContent}
-    </GlobalThemeView>
+    <PagerView
+      style={{...styles.container, backgroundColor}}
+      initialPage={HOME_PAGE}
+      onPageSelected={handlePageChange}>
+      <SendPaymentHome
+        from="home"
+        pageViewPage={currentPage}
+        key={CAMERA_PAGE}
+      />
+      <View key={HOME_PAGE} style={styles.container}>
+        <MainContent />
+      </View>
+    </PagerView>
   );
 }
 
