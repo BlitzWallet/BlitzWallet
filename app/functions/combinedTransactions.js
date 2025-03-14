@@ -256,7 +256,6 @@ export function UserTransaction({
   isBankPage,
   frompage,
 }) {
-  console.log(transaction);
   const {theme, darkModeType} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {t} = useTranslation();

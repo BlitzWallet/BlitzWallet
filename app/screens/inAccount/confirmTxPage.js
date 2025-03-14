@@ -173,10 +173,11 @@ export default function ConfirmTxPage(props) {
       {!didSucceed && (
         <View
           style={{
+            flex: 1,
             backgroundColor: backgroundOffset,
             borderRadius: 8,
             width: 250,
-            height: 100,
+            minHeight: 100,
 
             color: 'red',
           }}>
@@ -199,7 +200,7 @@ export default function ConfirmTxPage(props) {
             }
           }}>
           <ThemeText
-            styles={{marginTop: 10}}
+            styles={{marginTop: 10, marginBottom: 20}}
             content={'Send report to developer'}
           />
         </TouchableOpacity>
