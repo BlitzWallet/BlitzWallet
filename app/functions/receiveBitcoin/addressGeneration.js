@@ -88,9 +88,9 @@ async function generateLightningAddress(wolletInfo) {
   const enabledEcash = masterInfoObject.enabledEcash;
   // At this ponint we have three receive options, LN -> Liquid, Ecash, LN
   // We will first try to see if we can use ecash
-  // if lightning is not enabled and ecash is enabled and the receiving amount is less than boltz min swap amount use ecash
+  // if lightning is not enabled or a user does not have a channel and ecash is enabled and the receiving amount is less than boltz min swap amount use ecash
   if (
-    !liquidWalletSettings.isLightningEnabled &&
+    (!liquidWalletSettings.isLightningEnabled || !hasLightningChannel) &&
     enabledEcash &&
     receivingAmount < minMaxSwapAmounts.min //Eventualy repalce with customaizable amount
   ) {
@@ -226,7 +226,7 @@ async function generateLightningAddress(wolletInfo) {
           masterInfoObject: {
             userBalanceDenomination: userBalanceDenomination,
           },
-        })} fee will to be applied.`,
+        })} fee will be applied.`,
       },
     };
   }

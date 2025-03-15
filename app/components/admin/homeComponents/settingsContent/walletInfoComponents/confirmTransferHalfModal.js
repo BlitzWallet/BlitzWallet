@@ -94,7 +94,7 @@ export default function ConfirmInternalTransferHalfModal(props) {
       {!invoiceInfo.fee || !invoiceInfo.invoice ? (
         <FullLoadingScreen />
       ) : (
-        <>
+        <View style={styles.container}>
           <ThemeText
             styles={{
               fontSize: SIZES.xLarge,
@@ -110,7 +110,7 @@ export default function ConfirmInternalTransferHalfModal(props) {
           />
 
           <FormattedSatText
-            styles={{marginBottom: 'auto'}}
+            containerStyles={{marginBottom: 'auto'}}
             frontText={`Fee: `}
             balance={invoiceInfo.fee}
           />
@@ -131,7 +131,7 @@ export default function ConfirmInternalTransferHalfModal(props) {
                 theme && darkModeType ? backgroundOffset : backgroundColor,
             }}
           />
-        </>
+        </View>
       )}
     </View>
   );

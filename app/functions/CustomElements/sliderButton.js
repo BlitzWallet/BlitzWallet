@@ -18,6 +18,8 @@ import FullLoadingScreen from './loadingScreen';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import GetThemeColors from '../../hooks/themeColors';
 import {
+  DEFAULT_ANIMATION_DURATION,
+  RESET_AFTER_SUCCESS_DEFAULT_DELAY,
   SHOULD_ANIMATE_VIEW_ON_SUCCESS,
   SWIPE_SUCCESS_THRESHOLD,
 } from './swipeButton/constants';
@@ -100,6 +102,20 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
     }).start();
   };
 
+  const reset = () => {
+    setShowLoadingIcon(false);
+    Animated.timing(containerAnimatedWidth, {
+      toValue: layoutWidth,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+    Animated.timing(loadingAnimationOpacity, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
+
   const animateViewOnSuccess = () => {
     if (!shouldAnimateViewOnSuccess) return;
     const thumbSize = height + 3 + 2;
@@ -115,6 +131,16 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
       duration: 200,
       useNativeDriver: false,
     }).start();
+
+    // Animate back to initial position after successfully swiped
+    const resetDelay =
+      DEFAULT_ANIMATION_DURATION +
+      (resetAfterSuccessAnimDelay !== undefined
+        ? resetAfterSuccessAnimDelay
+        : RESET_AFTER_SUCCESS_DEFAULT_DELAY);
+    setTimeout(() => {
+      shouldResetAfterSuccess && reset();
+    }, resetDelay);
   };
 
   useEffect(() => {
