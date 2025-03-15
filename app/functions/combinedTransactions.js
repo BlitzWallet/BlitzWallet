@@ -34,6 +34,7 @@ export default function getFormattedHomepageTxs({
   yearText,
   agoText,
 }) {
+  console.log('re-rendering transactions');
   const arr1 = [...nodeInformation.transactions];
 
   const n1 = nodeInformation.transactions.length;
@@ -193,6 +194,7 @@ function mergeArrays({
   arr3 = [],
   n3 = 0,
 }) {
+  console.log('re-ordering transaactins');
   let mergedArray = [];
   const minHeap = new MinHeap();
 
