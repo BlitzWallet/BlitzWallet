@@ -7,6 +7,7 @@ import {
   CENTER,
   COLORS,
   FONT,
+  HIDDEN_BALANCE_TEXT,
   ICONS,
   LIQUID_DEFAULT_FEE,
   SATSPERBITCOIN,
@@ -199,7 +200,9 @@ export default function ManualSwapPopup() {
                 activeOpacity={1}
                 style={styles.chooseAccountBTN}>
                 <ThemeText
-                  content={!transferInfo.to ? '* * * * *' : transferInfo.to}
+                  content={
+                    !transferInfo.to ? HIDDEN_BALANCE_TEXT : transferInfo.to
+                  }
                 />
               </TouchableOpacity>
             </View>

@@ -27,6 +27,7 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const VALID_USERNAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
 const BITCOIN_SATS_ICON = '₿';
+const HIDDEN_BALANCE_TEXT = `* * * * *`;
 
 const ECASH_TX_STORAGE_KEY = 'CASHU_TRANSACTIONS';
 const AUTO_CHANNEL_REBALANCE_STORAGE_KEY = 'ACR_STORAGE_KEY';
@@ -82,4 +83,5 @@ export {
   BITCOIN_SATS_ICON,
   MIGRATE_ECASH_STORAGE_KEY,
   CONTENT_KEYBOARD_OFFSET,
+  HIDDEN_BALANCE_TEXT,
 };

@@ -1,6 +1,6 @@
 import {StyleSheet, View} from 'react-native';
 import {useGlobalContextProvider} from '../../../context-store/context';
-import {BITCOIN_SATS_ICON} from '../../constants';
+import {BITCOIN_SATS_ICON, HIDDEN_BALANCE_TEXT} from '../../constants';
 import ThemeText from './textTheme';
 import {formatCurrency} from '../formatCurrency';
 import {useNodeContext} from '../../../context-store/nodeContext';
@@ -77,7 +77,7 @@ export default function FormattedSatText({
         )}
         <ThemeText
           reversed={reversed}
-          content={`* * * * *`}
+          content={HIDDEN_BALANCE_TEXT}
           styles={{includeFontPadding: false, ...styles}}
         />
         {backText && (

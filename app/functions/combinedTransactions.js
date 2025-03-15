@@ -4,6 +4,7 @@ import {
   CENTER,
   COLORS,
   FONT,
+  HIDDEN_BALANCE_TEXT,
   ICONS,
   SIZES,
 } from '../constants';
@@ -389,7 +390,7 @@ export function UserTransaction({
               isFailedPayment
                 ? t('transactionLabelText.failed')
                 : masterInfoObject.userBalanceDenomination === 'hidden'
-                ? '*****'
+                ? `${HIDDEN_BALANCE_TEXT}`
                 : isDefaultDescription || !paymentDescription
                 ? transaction?.paymentType !== 'receive' &&
                   transaction?.paymentType !== 'received'

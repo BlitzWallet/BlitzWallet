@@ -1,5 +1,5 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {COLORS} from '../../../../constants';
+import {COLORS, HIDDEN_BALANCE_TEXT} from '../../../../constants';
 import {useEffect, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {formatBalanceAmount, numberConverter} from '../../../../functions';
@@ -50,7 +50,7 @@ export default function LiquidityIndicator() {
                       nodeInformation,
                     ),
                   )
-                : '*****'
+                : HIDDEN_BALANCE_TEXT
               : t('constants.send')
           }
           styles={{
@@ -92,7 +92,7 @@ export default function LiquidityIndicator() {
                       nodeInformation,
                     ),
                   )
-                : '*****'
+                : HIDDEN_BALANCE_TEXT
               : t('constants.receive')
           }
           styles={{...styles.typeText}}
