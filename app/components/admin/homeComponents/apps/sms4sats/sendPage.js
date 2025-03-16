@@ -57,7 +57,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
   const [areaCode, setAreaCode] = useState('');
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState('Creating send order');
   const [focusedElement, setFocusedElement] = useState('');
   const phoneRef = useRef(null);
   const areaCodeRef = useRef(null);
@@ -270,9 +270,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
         </TouchableWithoutFeedback>
       ) : (
         <FullLoadingScreen
-          text={
-            hasError ? 'Error sending message, try again!' : 'Sending message'
-          }
+          text={sendingMessage}
           textStyles={{textAlign: 'center'}}
         />
       )}
@@ -349,7 +347,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
 
       const parsedInput = await parseInput(data.payreq);
       const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
-
+      setSendingMessage('Paying...');
       if (
         nodeInformation.userBalance >
         sendingAmountSat + LIGHTNINGAMOUNTBUFFER
@@ -416,10 +414,13 @@ export default function SMSMessagingSendPage({SMSprices}) {
           'liquidNode',
         );
       } else {
-        setHasError(true);
+        setIsSending(false);
+        navigate.navigate('ErrorScreen', {
+          errorMessage: 'Not enough funds.',
+        });
       }
     } catch (err) {
-      setHasError(true);
+      setSendingMessage(err.message);
       console.log(err);
     }
   }
@@ -466,7 +467,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
             ],
           });
         } else {
-          console.log('Waiting for confirmation....');
+          setSendingMessage(`Running ${runCount} of 10 tries`);
           await new Promise(resolve => setTimeout(resolve, 5000));
         }
       } catch (err) {
@@ -475,7 +476,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
       }
     }
 
-    if (!didSettleInvoice) setHasError(true);
+    if (!didSettleInvoice) setSendingMessage(true);
   }
 
   async function saveMessagesToDB(messageObject) {
