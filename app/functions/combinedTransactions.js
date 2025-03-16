@@ -41,7 +41,7 @@ export default function getFormattedHomepageTxs({
     ? mergeArrays({arr2, n2})
     : combinedTransactions;
 
-  console.log('re-rendering transactions', conjoinedTxList);
+  console.log('re-rendering transactions');
 
   if (conjoinedTxList.length === 0) {
     return [
@@ -168,6 +168,7 @@ export default function getFormattedHomepageTxs({
     if (!isBankPage && frompage != 'viewAllTx')
       formattedTxs.push(
         <TouchableOpacity
+          key={'view_all_tx_btn'}
           style={{marginBottom: 10, ...CENTER}}
           onPress={() => {
             navigate.navigate('ViewAllTxPage');

@@ -83,38 +83,30 @@ export default function LiquidWallet() {
           navigate.navigate('LiquidSettingsPage');
         }}
       />
+      <View
+        key={'balance'}
+        style={{
+          ...styles.stickyHeader,
+          backgroundColor: backgroundColor,
+        }}>
+        <ThemeText content={'Balance'} styles={styles.amountText} />
+        <FormattedSatText
+          styles={{...styles.valueText}}
+          balance={liquidNodeInformation.userBalance}
+        />
+      </View>
       {!txs.length ? (
         <FullLoadingScreen />
       ) : (
         <FlatList
           style={{flex: 1, width: '100%'}}
+          contentContainerStyle={{paddingBottom: bottomPadding + 60}}
           initialNumToRender={20}
           maxToRenderPerBatch={20}
           windowSize={3}
           showsVerticalScrollIndicator={false}
-          stickyHeaderIndices={[1]} // Selects only the second item
-          ListHeaderComponent={<View style={{marginTop: 25}} />}
-          data={[
-            <View
-              key={'balance'}
-              style={{
-                ...styles.stickyHeader,
-                backgroundColor: backgroundColor,
-              }}>
-              <ThemeText content={'Balance'} styles={styles.amountText} />
-              <FormattedSatText
-                styles={{...styles.valueText}}
-                balance={liquidNodeInformation.userBalance}
-              />
-            </View>, // Dummy item to shift indices
-            txs,
-          ]}
-          renderItem={
-            ({item, index}) => item // Skip dummy item
-          }
-          ListFooterComponent={
-            <View style={{width: '100%', height: bottomPadding + 60}} />
-          }
+          data={txs}
+          renderItem={({item, index}) => item}
         />
       )}
 
