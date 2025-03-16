@@ -63,6 +63,7 @@ import {
 } from './navigation/screens';
 import getDeepLinkUser from './app/components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import {navigationRef} from './navigation/navigationService';
+import {GlobalConbinedTxContextProvider} from './context-store/combinedTransactionsContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -70,35 +71,37 @@ function App(): JSX.Element {
   return (
     <GestureHandlerRootView>
       <KeysContextProvider>
-        <AppStatusProvider>
-          <GlobalThemeProvider>
-            <GLobalNodeContextProider>
-              <GlobalContextProvider>
-                <GlobalAppDataProvider>
-                  <POSTransactionsProvider>
-                    <WebViewProvider>
-                      <GlobalContactsList>
-                        <GlobaleCashVariables>
-                          <PushNotificationManager>
-                            <LiquidEventProvider>
-                              <LightningEventProvider>
-                                {/* <Suspense
+        <GlobalContextProvider>
+          <AppStatusProvider>
+            <GlobalThemeProvider>
+              <GlobaleCashVariables>
+                <GLobalNodeContextProider>
+                  <GlobalConbinedTxContextProvider>
+                    <GlobalAppDataProvider>
+                      <POSTransactionsProvider>
+                        <WebViewProvider>
+                          <GlobalContactsList>
+                            <PushNotificationManager>
+                              <LiquidEventProvider>
+                                <LightningEventProvider>
+                                  {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                <ResetStack />
-                                {/* </Suspense> */}
-                              </LightningEventProvider>
-                            </LiquidEventProvider>
-                          </PushNotificationManager>
-                        </GlobaleCashVariables>
-                      </GlobalContactsList>
-                    </WebViewProvider>
-                  </POSTransactionsProvider>
-                </GlobalAppDataProvider>
-                {/* <BreezTest /> */}
-              </GlobalContextProvider>
-            </GLobalNodeContextProider>
-          </GlobalThemeProvider>
-        </AppStatusProvider>
+                                  <ResetStack />
+                                  {/* </Suspense> */}
+                                </LightningEventProvider>
+                              </LiquidEventProvider>
+                            </PushNotificationManager>
+                          </GlobalContactsList>
+                        </WebViewProvider>
+                      </POSTransactionsProvider>
+                    </GlobalAppDataProvider>
+                    {/* <BreezTest /> */}
+                  </GlobalConbinedTxContextProvider>
+                </GLobalNodeContextProider>
+              </GlobaleCashVariables>
+            </GlobalThemeProvider>
+          </AppStatusProvider>
+        </GlobalContextProvider>
       </KeysContextProvider>
     </GestureHandlerRootView>
   );

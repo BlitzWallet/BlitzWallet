@@ -4,33 +4,64 @@ import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
 import getFormattedHomepageTxs from '../../../../functions/combinedTransactions';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {useGlobaleCash} from '../../../../../context-store/eCash';
 import {useTranslation} from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA, CENTER} from '../../../../constants/styles';
-import {useWebView} from '../../../../../context-store/webViewContext';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
+import {useUpdateHomepageTransactions} from '../../../../hooks/updateHomepageTransactions';
+import {useGlobalContextProvider} from '../../../../../context-store/context';
+import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import {useEffect, useState} from 'react';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
 export default function LiquidWallet() {
   const {isConnectedToTheInternet} = useAppStatus();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {ecashWalletInformation} = useGlobaleCash();
+  const {liquidNodeInformation} = useNodeContext();
+  const {theme, darkModeType} = useGlobalThemeContext();
+  const {masterInfoObject} = useGlobalContextProvider();
   const navigate = useNavigation();
   const {t} = useTranslation();
   const insets = useSafeAreaInsets();
-  const {autoChannelRebalanceIDs} = useWebView();
   const {backgroundColor} = GetThemeColors();
-  const ecashTransactions = ecashWalletInformation.transactions;
+  const [txs, setTxs] = useState([]);
 
+  const currentTime = useUpdateHomepageTransactions();
+  const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
   const bottomPadding = Platform.select({
     ios: insets.bottom,
     android: ANDROIDSAFEAREA,
   });
+
+  useEffect(() => {
+    const formattedTxs = getFormattedHomepageTxs({
+      currentTime,
+      liquidNodeInformation,
+      navigate,
+      isBankPage: true,
+      noTransactionHistoryText: t('wallet.no_transaction_history'),
+      todayText: t('constants.today'),
+      yesterdayText: t('constants.yesterday'),
+      dayText: t('constants.day'),
+      monthText: t('constants.month'),
+      yearText: t('constants.year'),
+      agoText: t('transactionLabelText.ago'),
+      theme,
+      darkModeType,
+      userBalanceDenomination,
+    });
+    setTxs(formattedTxs);
+  }, [
+    currentTime,
+    liquidNodeInformation,
+    navigate,
+    theme,
+    darkModeType,
+    userBalanceDenomination,
+  ]);
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.container}>
@@ -52,44 +83,40 @@ export default function LiquidWallet() {
           navigate.navigate('LiquidSettingsPage');
         }}
       />
-
-      <FlatList
-        style={{flex: 1, width: '100%'}}
-        showsVerticalScrollIndicator={false}
-        stickyHeaderIndices={[1]} // Selects only the second item
-        ListHeaderComponent={<View style={{marginTop: 25}} />}
-        data={[
-          <View
-            style={{...styles.stickyHeader, backgroundColor: backgroundColor}}>
-            <ThemeText content={'Balance'} styles={styles.amountText} />
-            <FormattedSatText
-              styles={{...styles.valueText}}
-              balance={liquidNodeInformation.userBalance}
-            />
-          </View>, // Dummy item to shift indices
-          ...getFormattedHomepageTxs({
-            nodeInformation,
-            liquidNodeInformation,
-            navigate,
-            isBankPage: true,
-            ecashTransactions,
-            noTransactionHistoryText: t('wallet.no_transaction_history'),
-            todayText: t('constants.today'),
-            yesterdayText: t('constants.yesterday'),
-            dayText: t('constants.day'),
-            monthText: t('constants.month'),
-            yearText: t('constants.year'),
-            agoText: t('transactionLabelText.ago'),
-            autoChannelRebalanceIDs,
-          }),
-        ]}
-        renderItem={
-          ({item, index}) => item // Skip dummy item
-        }
-        ListFooterComponent={
-          <View style={{width: '100%', height: bottomPadding + 60}} />
-        }
-      />
+      {!txs.length ? (
+        <FullLoadingScreen />
+      ) : (
+        <FlatList
+          style={{flex: 1, width: '100%'}}
+          initialNumToRender={20}
+          maxToRenderPerBatch={20}
+          windowSize={3}
+          showsVerticalScrollIndicator={false}
+          stickyHeaderIndices={[1]} // Selects only the second item
+          ListHeaderComponent={<View style={{marginTop: 25}} />}
+          data={[
+            <View
+              key={'balance'}
+              style={{
+                ...styles.stickyHeader,
+                backgroundColor: backgroundColor,
+              }}>
+              <ThemeText content={'Balance'} styles={styles.amountText} />
+              <FormattedSatText
+                styles={{...styles.valueText}}
+                balance={liquidNodeInformation.userBalance}
+              />
+            </View>, // Dummy item to shift indices
+            txs,
+          ]}
+          renderItem={
+            ({item, index}) => item // Skip dummy item
+          }
+          ListFooterComponent={
+            <View style={{width: '100%', height: bottomPadding + 60}} />
+          }
+        />
+      )}
 
       <CustomButton
         buttonStyles={{

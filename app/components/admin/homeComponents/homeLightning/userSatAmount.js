@@ -2,22 +2,24 @@ import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {COLORS, SIZES} from '../../../../constants';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {useRef, useState} from 'react';
+import {memo, useRef, useState} from 'react';
 import handleDBStateChange from '../../../../functions/handleDBStateChange';
 import Icon from '../../../../functions/CustomElements/Icon';
 import {useNavigation} from '@react-navigation/native';
-import {useAppStatus} from '../../../../../context-store/appStatus';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import {useNodeContext} from '../../../../../context-store/nodeContext';
+import {useGlobaleCash} from '../../../../../context-store/eCash';
 
-export function UserSatAmount({
-  nodeInformation,
-  liquidNodeInformation,
-  ecashWalletInformation,
+export const UserSatAmount = memo(function UserSatAmount({
+  isConnectedToTheInternet,
+  theme,
+  darkModeType,
 }) {
+  console.log('User sat amount container');
+  const {nodeInformation, liquidNodeInformation} = useNodeContext();
+  const {ecashWalletInformation} = useGlobaleCash();
   const {masterInfoObject, toggleMasterInfoObject, setMasterInfoObject} =
     useGlobalContextProvider();
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {darkModeType, theme} = useGlobalThemeContext();
+
   const eCashBalance = ecashWalletInformation.balance;
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
@@ -102,7 +104,7 @@ export function UserSatAmount({
       )}
     </TouchableOpacity>
   );
-}
+});
 
 const styles = StyleSheet.create({
   balanceContainer: {

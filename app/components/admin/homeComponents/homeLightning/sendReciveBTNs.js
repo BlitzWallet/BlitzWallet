@@ -3,17 +3,26 @@ import {CENTER, COLORS, ICONS} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {useMemo} from 'react';
+import {memo, useCallback, useMemo} from 'react';
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useAppStatus} from '../../../../../context-store/appStatus';
 
-export function SendRecieveBTNs() {
+export const SendRecieveBTNs = memo(function SendRecieveBTNs({
+  theme,
+  darkModeType,
+  isConnectedToTheInternet,
+}) {
+  console.log('SENd and receiv btns');
   const navigate = useNavigation();
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {theme, darkModeType} = useGlobalThemeContext();
-
   const {t} = useTranslation();
+
+  const handleSettingsCheck = useCallback(() => {
+    try {
+      if (!isConnectedToTheInternet) throw new Error('Not Connected To Node');
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }, [isConnectedToTheInternet]);
 
   const buttonElements = useMemo(
     () =>
@@ -22,8 +31,8 @@ export function SendRecieveBTNs() {
         if (isArrow) {
           return CustomSendAndRequsetBTN({
             btnType,
-            btnFunction: async () => {
-              const areSettingsSet = await handleSettingsCheck();
+            btnFunction: () => {
+              const areSettingsSet = handleSettingsCheck();
               if (!areSettingsSet) {
                 navigate.navigate('ErrorScreen', {
                   errorMessage: t('constants.internetError'),
@@ -53,17 +62,15 @@ export function SendRecieveBTNs() {
           <TouchableOpacity
             key={btnType}
             onPress={() => {
-              (async () => {
-                const areSettingsSet = await handleSettingsCheck();
-                if (!areSettingsSet) {
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage: t('constants.internetError'),
-                  });
-                  return;
-                }
+              const areSettingsSet = handleSettingsCheck();
+              if (!areSettingsSet) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t('constants.internetError'),
+                });
+                return;
+              }
 
-                navigate.navigate('SendBTC');
-              })();
+              navigate.navigate('SendBTC');
             }}>
             <View
               style={{
@@ -83,25 +90,17 @@ export function SendRecieveBTNs() {
           </TouchableOpacity>
         );
       }),
-    [isConnectedToTheInternet, theme, darkModeType],
+    [
+      isConnectedToTheInternet,
+      theme,
+      darkModeType,
+      handleSettingsCheck,
+      navigate,
+    ],
   );
 
   return <View style={styles.container}>{buttonElements}</View>;
-
-  async function handleSettingsCheck() {
-    try {
-      if (!isConnectedToTheInternet) throw new Error('Not Connected To Node');
-
-      return new Promise(resolve => {
-        resolve(true);
-      });
-    } catch (err) {
-      return new Promise(resolve => {
-        resolve(false);
-      });
-    }
-  }
-}
+});
 
 const styles = StyleSheet.create({
   container: {

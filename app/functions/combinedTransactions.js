@@ -3,7 +3,6 @@ import {
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   CENTER,
   COLORS,
-  FONT,
   HIDDEN_BALANCE_TEXT,
   ICONS,
   SIZES,
@@ -12,19 +11,17 @@ import {ThemeText} from './CustomElements';
 import FormattedSatText from './CustomElements/satTextDisplay';
 import {useTranslation} from 'react-i18next';
 import Icon from './CustomElements/Icon';
-import {useGlobalThemeContext} from '../../context-store/theme';
-import {useGlobalContextProvider} from '../../context-store/context';
-import {useMemo} from 'react';
-import MinHeap from './minHeap';
+import {memo, useMemo} from 'react';
+import {mergeArrays} from './mergeArrays';
 
 export default function getFormattedHomepageTxs({
-  nodeInformation,
+  combinedTransactions,
+  currentTime,
   liquidNodeInformation,
   homepageTxPreferance = 25,
   navigate,
   isBankPage,
   frompage,
-  ecashTransactions,
   viewAllTxText,
   noTransactionHistoryText,
   todayText,
@@ -33,23 +30,18 @@ export default function getFormattedHomepageTxs({
   monthText,
   yearText,
   agoText,
+  theme,
+  darkModeType,
+  userBalanceDenomination,
 }) {
-  console.log('re-rendering transactions');
-  const arr1 = [...nodeInformation.transactions];
-
-  const n1 = nodeInformation.transactions.length;
-
-  const arr2 = [...liquidNodeInformation.transactions];
-
-  const n2 = liquidNodeInformation.transactions.length;
-
-  const arr3 = [...ecashTransactions];
-
-  const n3 = ecashTransactions.length;
+  const arr2 = liquidNodeInformation?.transactions;
+  const n2 = liquidNodeInformation?.transactions?.length;
 
   const conjoinedTxList = isBankPage
     ? mergeArrays({arr2, n2})
-    : mergeArrays({arr1, arr2, n1, n2, arr3, n3});
+    : combinedTransactions;
+
+  console.log('re-rendering transactions', conjoinedTxList);
 
   if (conjoinedTxList.length === 0) {
     return [
@@ -64,12 +56,11 @@ export default function getFormattedHomepageTxs({
     let formattedTxs = [];
     let currentGroupedDate = '';
     let transactionIndex = 0;
-    const currentTime = new Date();
 
     while (
       formattedTxs.length <
         (isBankPage
-          ? arr2.length
+          ? n2
           : frompage === 'viewAllTx'
           ? conjoinedTxList.length
           : homepageTxPreferance) &&
@@ -104,7 +95,6 @@ export default function getFormattedHomepageTxs({
             tx={currentTransaction}
             currentTime={currentTime}
             navigate={navigate}
-            nodeInformation={nodeInformation}
             isLiquidPayment={isLiquidPayment}
             isLightningPayment={isLightningPayment}
             isEcashPayment={isEcashPayment}
@@ -113,6 +103,9 @@ export default function getFormattedHomepageTxs({
             id={uniuqeIDFromTx}
             isBankPage={isBankPage}
             frompage={frompage}
+            theme={theme}
+            darkModeType={darkModeType}
+            userBalanceDenomination={userBalanceDenomination}
           />
         );
 
@@ -186,67 +179,8 @@ export default function getFormattedHomepageTxs({
     return formattedTxs;
   }
 }
-function mergeArrays({
-  arr1 = [],
-  arr2 = [],
-  n1 = 0,
-  n2 = 0,
-  arr3 = [],
-  n3 = 0,
-}) {
-  console.log('re-ordering transaactins');
-  let mergedArray = [];
-  const minHeap = new MinHeap();
 
-  // Function to push elements into the heap
-  const pushToHeap = (arr, index, identifier) => {
-    if (arr[index]) {
-      const time =
-        arr[index].paymentTime * 1000 ||
-        arr[index].timestamp * 1000 ||
-        arr[index].time ||
-        Infinity;
-
-      const element = {
-        ...arr[index],
-        [identifier === 'arr1'
-          ? 'usesLightningNode'
-          : identifier === 'arr2'
-          ? 'usesLiquidNode'
-          : 'usesEcash']: true,
-        source: identifier,
-        index,
-        time,
-      };
-
-      minHeap.add(element);
-    }
-  };
-
-  // Add first elements of each array to the heap
-  if (n1 > 0) pushToHeap(arr1, 0, 'arr1');
-  if (n2 > 0) pushToHeap(arr2, 0, 'arr2');
-  if (n3 > 0) pushToHeap(arr3, 0, 'arr3');
-
-  // Process heap
-  while (!minHeap.isEmpty()) {
-    const minElement = minHeap.poll();
-    mergedArray.push(minElement);
-
-    // Push next element from the same source array
-    let {source, index} = minElement;
-    if (source === 'arr1' && index + 1 < n1)
-      pushToHeap(arr1, index + 1, 'arr1');
-    if (source === 'arr2' && index + 1 < n2)
-      pushToHeap(arr2, index + 1, 'arr2');
-    if (source === 'arr3' && index + 1 < n3)
-      pushToHeap(arr3, index + 1, 'arr3');
-  }
-
-  return mergedArray;
-}
-
-export function UserTransaction({
+export const UserTransaction = memo(function UserTransaction({
   tx: transaction,
   currentTime,
   paymentDate,
@@ -258,9 +192,10 @@ export function UserTransaction({
   navigate,
   isBankPage,
   frompage,
+  theme,
+  darkModeType,
+  userBalanceDenomination,
 }) {
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {masterInfoObject} = useGlobalContextProvider();
   const {t} = useTranslation();
   const endDate = currentTime;
 
@@ -391,7 +326,7 @@ export function UserTransaction({
             content={
               isFailedPayment
                 ? t('transactionLabelText.failed')
-                : masterInfoObject.userBalanceDenomination === 'hidden'
+                : userBalanceDenomination === 'hidden'
                 ? `${HIDDEN_BALANCE_TEXT}`
                 : isDefaultDescription || !paymentDescription
                 ? transaction?.paymentType !== 'receive' &&
@@ -456,7 +391,7 @@ export function UserTransaction({
             }
             containerStyles={{marginLeft: 'auto', marginBottom: 'auto'}}
             frontText={
-              masterInfoObject.userBalanceDenomination !== 'hidden'
+              userBalanceDenomination !== 'hidden'
                 ? transaction.paymentType === 'closed_channel'
                   ? ''
                   : isLiquidPayment
@@ -489,7 +424,7 @@ export function UserTransaction({
       </View>
     </TouchableOpacity>
   );
-}
+});
 
 export function dateBanner(bannerText) {
   return (
