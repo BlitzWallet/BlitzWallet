@@ -57,7 +57,7 @@ export default function PinPage(props) {
             RNRestart.restart();
           } else {
             navigate.navigate('ErrorScreen', {
-              errorMessage: 'Error removing wallet',
+              errorMessage: t('createAccount.pinPage.deleteError'),
             });
           }
         } else {

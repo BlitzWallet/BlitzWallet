@@ -3,6 +3,7 @@
     "next": "Next",
     "skip_all": "Skip all",
     "copy": "Copy",
+    "restore": "Copy",
     "validating": "Validating",
     "paste": "Paste",
     "skip": "Skip",
@@ -27,7 +28,9 @@
     "minimum": "Minimum",
     "request": "Request",
     "fee": "Fee",
-    "edit": "Edit"
+    "edit": "Edit",
+    "terms_conditions": "Terms and Conditions",
+    "clipboardCopyError": "AFailed to get clipboard data."
   },
   "transactionLabelText": {
     "failed": "Payment not sent",
@@ -45,8 +48,9 @@
     },
     "disclaimerPage": {
       "header": "Self-custodial",
-      "subHeader": "Blitz doesn't have access to any of your funds, if funds are lost we can not help you recover them.",
+      "subHeader": "Blitz cannot access your funds or help recover them if lost. By continuing, you agree to Blitz Wallet's terms and conditions.",
       "imgCaption": "'With great power comes great responsibility' - Uncle Ben",
+
       "continueBTN": "Next"
     },
     "securityOptionPage": {
@@ -58,6 +62,7 @@
       "header": "This is your password to your money, if you lose it you lose your money!",
       "subHeader": "Write it down with pen and paper and keep it safe!",
       "disclaimer": "WE CAN NOT HELP YOU IF YOU LOSE IT",
+      "seedError": "Not able to generate valid recovery phrase. Please close the app and try again.",
       "errorText": "Error Fetching recovery phrase"
     },
     "skipMessage": {
@@ -72,7 +77,8 @@
       "wrongPinError": "Try again",
       "enterPinMessage": "Create PIN",
       "confirmPin": "Confirm Pin",
-      "attemptsText": "attempts left"
+      "attemptsText": "attempts left",
+      "deleteError": "Error removing wallet"
     },
     "restoreWallet": {
       "home": {

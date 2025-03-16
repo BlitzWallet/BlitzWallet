@@ -191,7 +191,9 @@ export default function RestoreWallet({
                       textStyles={{
                         color: COLORS.lightModeText,
                       }}
-                      textContent={params ? t('constants.skip') : 'Paste'}
+                      textContent={
+                        params ? t('constants.skip') : t('constants.paste')
+                      }
                       actionFunction={() =>
                         params
                           ? navigate('PinSetup', {isInitialLoad: true})
@@ -206,7 +208,9 @@ export default function RestoreWallet({
                       textStyles={{
                         color: COLORS.darkModeText,
                       }}
-                      textContent={params ? t('constants.verify') : 'Restore'}
+                      textContent={
+                        params ? t('constants.verify') : t('constants.restore')
+                      }
                       actionFunction={
                         params ? didEnterCorrectSeed : keyValidation
                       }
@@ -233,7 +237,9 @@ export default function RestoreWallet({
   async function handleSeedFromClipboard() {
     const response = await getClipboardText();
     if (!response.didWork) {
-      navigate('ErrorScreen', {errorMessage: response.reason});
+      navigate('ErrorScreen', {
+        errorMessage: t('constants.clipboardCopyError'),
+      });
       return;
     }
     const data = response.data;

@@ -32,7 +32,7 @@ export default function DislaimerPage({navigation: {navigate}}) {
             textAlign: 'center',
             marginBottom: 10,
           }}
-          content={`Blitz cannot access your funds or help recover them if lost. By continuing, you agree to Blitz Wallet's terms and conditions.`}
+          content={t('createAccount.disclaimerPage.subHeader')}
         />
         <Svg
           width="300"
@@ -86,7 +86,7 @@ export default function DislaimerPage({navigation: {navigate}}) {
             });
           }}
           style={{marginTop: 10, opacity: 0.8}}>
-          <ThemeText content={'Terms and Conditions'} />
+          <ThemeText content={t('constants.terms_conditions')} />
         </TouchableOpacity>
       </View>
     </GlobalThemeView>

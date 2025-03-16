@@ -39,7 +39,8 @@ export default function GenerateKey() {
           {mnemonic.length != 12 ? (
             <FullLoadingScreen
               showLoadingIcon={false}
-              text={'Not able to generate valid seed'}
+              textStyles={{textAlign: 'center'}}
+              text={t('createAccount.generateKeyPage.seedError')}
             />
           ) : (
             <ScrollView
@@ -74,7 +75,7 @@ export default function GenerateKey() {
               actionFunction={() => {
                 if (mnemonic.length !== 12) {
                   hookNavigate.navigate('ErrorScreen', {
-                    errorMessage: 'Not able to generate valid seed',
+                    errorMessage: t('createAccount.generateKeyPage.seedError'),
                   });
                   return;
                 }
