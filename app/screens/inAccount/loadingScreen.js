@@ -432,7 +432,7 @@ export default function ConnectingToNodeLoadingScreen({
         'CHEKCING RETRY LOGIC',
       );
 
-      if (didRestoreWallet && !payments.length) {
+      if (didRestoreWallet) {
         console.log('RETRYING LIQUID INFORMATION, LOADING....');
         await new Promise(resolve => setTimeout(resolve, 10000));
         console.log('FINISHED WAITING');
@@ -458,12 +458,14 @@ export default function ConnectingToNodeLoadingScreen({
         };
       }
 
-      toggleLiquidNodeInformation(liquidNodeObject);
+      toggleLiquidNodeInformation({
+        ...liquidNodeObject,
+        didConnectToNode: true,
+      });
 
       return liquidNodeObject;
     } catch (err) {
       console.log(err, 'LIQUID INFORMATION ERROR');
-
       return new Promise(resolve => {
         resolve(false);
       });
@@ -489,6 +491,7 @@ export default function ConnectingToNodeLoadingScreen({
         balance: balance || 0,
         transactions: transactions,
         proofs: storedProofs,
+        didConnectToNode: true,
       };
       toggleEcashWalletInformation(ecashWalletData);
       toggleMintList(mintList);

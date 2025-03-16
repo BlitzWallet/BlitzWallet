@@ -26,7 +26,7 @@ const VALID_URL_REGEX =
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const VALID_USERNAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
-const BITCOIN_SATS_ICON = '₿';
+const BITCOIN_SATS_ICON = '\u20BF';
 const HIDDEN_BALANCE_TEXT = `* * * * *`;
 
 const ECASH_TX_STORAGE_KEY = 'CASHU_TRANSACTIONS';

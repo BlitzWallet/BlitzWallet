@@ -44,7 +44,7 @@ const startLiquidUpdateInterval = (toggleLiquidNodeInformation, runCount) => {
   };
 
   // Run 2 times with 30 second interval
-  return runIntervalTimes(updateNodeInfo, 1000 * 30, runCount || 2);
+  return runIntervalTimes(updateNodeInfo, 1000 * 30, runCount);
 };
 
 export default startLiquidUpdateInterval;

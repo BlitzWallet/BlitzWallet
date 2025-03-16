@@ -11,7 +11,7 @@ import {
 import {Back_BTN} from '../../../components/login';
 import {retrieveData, storeData} from '../../../functions';
 import {CENTER, COLORS, FONT, SIZES} from '../../../constants';
-import {useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import isValidMnemonic from '../../../functions/isValidMnemonic';
 import {useTranslation} from 'react-i18next';
 import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
@@ -56,24 +56,27 @@ export default function RestoreWallet({
     key11: '',
     key12: '',
   });
-
-  function handleInputElement(text, keyNumber) {
+  const handleInputElement = useCallback((text, keyNumber) => {
     setInputedKey(prev => ({...prev, [`key${keyNumber}`]: text}));
-  }
+  }, []);
 
-  function handleFocus(keyNumber) {
+  const handleFocus = useCallback(keyNumber => {
     setCurrentFocused(keyNumber); // Update the current focused key
-  }
-  function handleSubmit(keyNumber) {
-    if (keyNumber < 12) {
-      const nextKey = keyNumber + 1;
-      keyRefs.current[nextKey]?.focus(); // Focus the next input
-    } else {
-      keyRefs.current[12]?.blur(); // Blur the last input
-    }
-  }
+  }, []);
 
-  function createInputKeys() {
+  const handleSubmit = useCallback(
+    keyNumber => {
+      if (keyNumber < 12) {
+        const nextKey = keyNumber + 1;
+        keyRefs.current[nextKey]?.focus(); // Focus the next input
+      } else {
+        keyRefs.current[12]?.blur(); // Blur the last input
+      }
+    },
+    [keyRefs],
+  );
+
+  const inputKeys = useMemo(() => {
     let keyRows = [];
     let keyItem = [];
     NUMARRAY.forEach(item => {
@@ -82,7 +85,6 @@ export default function RestoreWallet({
           key={item}
           style={{
             ...styles.seedItem,
-
             backgroundColor: theme
               ? COLORS.darkModeBackgroundOffset
               : COLORS.darkModeText,
@@ -112,9 +114,7 @@ export default function RestoreWallet({
       }
     });
     return keyRows;
-  }
-
-  const keyElements = createInputKeys();
+  }, [handleSubmit, theme, inputedKey, keyRefs]);
 
   useEffect(() => {
     const keyboardDidHideListener = Keyboard.addListener(
@@ -168,7 +168,7 @@ export default function RestoreWallet({
                   showsVerticalScrollIndicator={false}
                   style={styles.contentContainer}
                   contentContainerStyle={{paddingBottom: 10}}>
-                  {keyElements}
+                  {inputKeys}
                 </ScrollView>
                 {params && !currentFocused && (
                   <CustomButton

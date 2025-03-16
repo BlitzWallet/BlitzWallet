@@ -5,28 +5,31 @@ import {useGlobalContextProvider} from '../../../../context-store/context';
 import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
 import CustomFlatList from './homeLightning/cusomFlatlist/CustomFlatList';
 import getFormattedHomepageTxs from '../../../functions/combinedTransactions';
-import NavBar from './navBar';
+import {NavBar} from './navBar';
+
 import {useNavigation} from '@react-navigation/native';
 import {useUpdateHomepageTransactions} from '../../../hooks/updateHomepageTransactions';
-import {useGlobaleCash} from '../../../../context-store/eCash';
 import {useEffect, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useNodeContext} from '../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../context-store/appStatus';
-export default function HomeLightning({tabNavigation}) {
+import {useGlobalThemeContext} from '../../../../context-store/theme';
+import {useGlobalTxContextProvider} from '../../../../context-store/combinedTransactionsContext';
+
+export default function HomeLightning() {
   console.log('HOME LIGHTNING PAGE');
+  const {theme, darkModeType, toggleTheme} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
-  const {toggleDidGetToHomepage, didGetToHomepage} = useAppStatus();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {ecashWalletInformation} = useGlobaleCash();
+  const {toggleDidGetToHomepage, isConnectedToTheInternet} = useAppStatus();
+  const {combinedTransactions} = useGlobalTxContextProvider();
   const navigate = useNavigation();
-  const shouldUpdateTransactions = useUpdateHomepageTransactions();
+  const currentTime = useUpdateHomepageTransactions();
   const {t} = useTranslation();
+  console.log(currentTime);
 
   const masterFailedTransactions = masterInfoObject.failedTransactions;
   const enabledEcash = masterInfoObject.enabledEcash;
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
-  const ecashTransactions = ecashWalletInformation.transactions;
+  const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
 
   useEffect(() => {
     toggleDidGetToHomepage(true);
@@ -34,12 +37,11 @@ export default function HomeLightning({tabNavigation}) {
 
   const flatListData = useMemo(() => {
     return getFormattedHomepageTxs({
-      nodeInformation,
-      liquidNodeInformation,
+      combinedTransactions,
+      currentTime,
       homepageTxPreferance,
       navigate,
       frompage: 'home',
-      ecashTransactions,
       viewAllTxText: t('wallet.see_all_txs'),
       noTransactionHistoryText: t('wallet.no_transaction_history'),
       todayText: t('constants.today'),
@@ -48,16 +50,20 @@ export default function HomeLightning({tabNavigation}) {
       monthText: t('constants.month'),
       yearText: t('constants.year'),
       agoText: t('transactionLabelText.ago'),
+      theme,
+      darkModeType,
+      userBalanceDenomination,
     });
   }, [
-    ecashTransactions,
-    nodeInformation,
-    liquidNodeInformation,
     masterFailedTransactions,
     enabledEcash,
     homepageTxPreferance,
-    shouldUpdateTransactions,
     navigate,
+    combinedTransactions,
+    currentTime,
+    theme,
+    darkModeType,
+    userBalanceDenomination,
   ]);
 
   return (
@@ -66,22 +72,20 @@ export default function HomeLightning({tabNavigation}) {
         style={{overflow: 'hidden', flex: 1}}
         data={flatListData}
         renderItem={({item}) => item}
-        HeaderComponent={<NavBar />}
+        HeaderComponent={<NavBar theme={theme} toggleTheme={toggleTheme} />}
         StickyElementComponent={
           <GlobalThemeView styles={style.balanceContainer}>
             <ThemeText
               content={t('constants.total_balance')}
               styles={{
                 textTransform: 'uppercase',
-                marginTop: nodeInformation.userBalance === 0 ? 20 : 0,
               }}
             />
             <UserSatAmount
-              nodeInformation={nodeInformation}
-              liquidNodeInformation={liquidNodeInformation}
-              ecashWalletInformation={ecashWalletInformation}
+              isConnectedToTheInternet={isConnectedToTheInternet}
+              theme={theme}
+              darkModeType={darkModeType}
             />
-            {/* {nodeInformation.userBalance != 0 && <LiquidityIndicator />} */}
           </GlobalThemeView>
         }
         TopListElementComponent={
@@ -89,7 +93,11 @@ export default function HomeLightning({tabNavigation}) {
             style={{
               alignItems: 'center',
             }}>
-            <SendRecieveBTNs tabNavigation={tabNavigation} />
+            <SendRecieveBTNs
+              theme={theme}
+              darkModeType={darkModeType}
+              isConnectedToTheInternet={isConnectedToTheInternet}
+            />
           </View>
         }
       />

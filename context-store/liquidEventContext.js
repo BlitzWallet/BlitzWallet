@@ -24,7 +24,7 @@ const BLOCKED_PAYMENT_CODES = [
 ];
 // Create a context for the WebView ref
 export function LiquidEventProvider({children}) {
-  const {toggleLiquidNodeInformation} = useNodeContext();
+  const {toggleLiquidNodeInformation, liquidNodeInformation} = useNodeContext();
   const {didGetToHomepage} = useAppStatus();
   const intervalId = useRef(null);
   const debounceTimer = useRef(null);
@@ -197,7 +197,9 @@ export function LiquidEventProvider({children}) {
 
   useEffect(() => {
     if (!didGetToHomepage) return;
+    if (liquidNodeInformation.userBalance) return;
     console.log('Makeing sure user balance is loaded');
+
     debouncedStartInterval(0);
   }, [didGetToHomepage]);
 

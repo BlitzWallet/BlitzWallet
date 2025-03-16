@@ -3,13 +3,11 @@ import {CENTER, ICONS} from '../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {WINDOWWIDTH} from '../../../constants/theme';
 import ThemeImage from '../../../functions/CustomElements/themeImage';
-import {useGlobalThemeContext} from '../../../../context-store/theme';
+import {memo} from 'react';
 
-export default function NavBar() {
+export const NavBar = memo(function NavBar({theme, toggleTheme}) {
   console.log('NAV BAR PAGE');
-
   const navigate = useNavigation();
-  const {theme, toggleTheme} = useGlobalThemeContext();
 
   return (
     <View style={[styles.topBar]}>
@@ -39,7 +37,7 @@ export default function NavBar() {
       </TouchableOpacity>
     </View>
   );
-}
+});
 const styles = StyleSheet.create({
   topBar: {
     width: WINDOWWIDTH,

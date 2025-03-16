@@ -12,19 +12,13 @@ import {
 } from '../app/functions/messaging/encodingAndDecodingMessages';
 import {useKeysContext} from './keys';
 import {sumProofsValue} from '../app/functions/eCash/proofs';
-import {receivePayment} from '@breeztech/react-native-breez-sdk';
 import {MintQuoteState} from '@cashu/cashu-ts';
-import {LIGHTNINGAMOUNTBUFFER} from '../app/constants/math';
-import {useNodeContext} from './nodeContext';
-import {useAppStatus} from './appStatus';
 import {
   checkMintQuote,
   claimUnclaimedEcashQuotes,
   formatEcashTx,
-  getMeltQuote,
   hanleEcashQuoteStorage,
   mintEcash,
-  payLnInvoiceFromEcash,
 } from '../app/functions/eCash/wallet';
 import {
   getAllMints,
@@ -48,11 +42,10 @@ const GlobaleCash = createContext(null);
 
 export const GlobaleCashVariables = ({children}) => {
   const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {didGetToHomepage} = useAppStatus();
-  const {nodeInformation} = useNodeContext();
   const countersRef = useRef({});
   const [globalEcashInformation, setGlobalEcashInformation] = useState([]);
   const [ecashWalletInformation, setEcashWalletInformation] = useState({
+    didConnectToNode: null,
     balance: 0,
     transactions: [],
     mintURL: '',
@@ -135,40 +128,6 @@ export const GlobaleCashVariables = ({children}) => {
         ]
       : [];
   }, [globalEcashInformation, publicKey]);
-
-  const drainEcashBalance = async () => {
-    try {
-      if (ecashWalletInformation.balance - 5 < 1) return;
-      const lightningInvoice = await receivePayment({
-        amountMsat: (ecashWalletInformation.balance - 5) * 1000,
-        description: 'Auto Channel Rebalance',
-      });
-      const meltQuote = await getMeltQuote(lightningInvoice.lnInvoice.bolt11);
-      if (!meltQuote) throw new Error('unable to create melt quote');
-      const didPay = await payLnInvoiceFromEcash({
-        quote: meltQuote.quote,
-        invoice: lightningInvoice.lnInvoice.bolt11,
-        proofsToUse: meltQuote.proofsToUse,
-        description: 'Auto Channel Rebalance',
-      });
-
-      console.log(didPay, 'pay response in drain ecash balance');
-    } catch (err) {
-      console.log(err, 'draining ecash balance error');
-    }
-  };
-
-  useEffect(() => {
-    if (!didGetToHomepage) return;
-    if (nodeInformation.userBalance === 0) return;
-    if (
-      nodeInformation.inboundLiquidityMsat / 1000 + LIGHTNINGAMOUNTBUFFER <
-      ecashWalletInformation?.balance
-    )
-      return;
-
-    drainEcashBalance();
-  }, [didGetToHomepage]);
 
   useEffect(() => {
     function listenForPayment(event) {
@@ -263,21 +222,32 @@ export const GlobaleCashVariables = ({children}) => {
     claimUnclaimedEcashQuotes(); //if a receive ecash timeout clears before payment is receve this will try and claim the ecash quote on the next wallet load
   }, [ecashWalletInformation.mintURL]);
 
+  const memoedValues = useMemo(() => {
+    return {
+      parsedEcashInformation,
+      globalEcashInformation,
+      toggleGLobalEcashInformation,
+      ecashWalletInformation,
+      toggleEcashWalletInformation,
+      usersMintList,
+      toggleMintList,
+      pendingNavigation,
+      setPendingNavigation,
+    };
+  }, [
+    parsedEcashInformation,
+    globalEcashInformation,
+    toggleGLobalEcashInformation,
+    ecashWalletInformation,
+    toggleEcashWalletInformation,
+    usersMintList,
+    toggleMintList,
+    pendingNavigation,
+    setPendingNavigation,
+  ]);
+
   return (
-    <GlobaleCash.Provider
-      value={{
-        parsedEcashInformation,
-        globalEcashInformation,
-        toggleGLobalEcashInformation,
-        ecashWalletInformation,
-        toggleEcashWalletInformation,
-        usersMintList,
-        toggleMintList,
-        pendingNavigation,
-        setPendingNavigation,
-      }}>
-      {children}
-    </GlobaleCash.Provider>
+    <GlobaleCash.Provider value={memoedValues}>{children}</GlobaleCash.Provider>
   );
 };
 

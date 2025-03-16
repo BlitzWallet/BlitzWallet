@@ -210,8 +210,8 @@ export default function GiftCardPage() {
           />
         ) : (
           <FlatList
-            initialNumToRender={10}
-            maxToRenderPerBatch={10}
+            initialNumToRender={20}
+            maxToRenderPerBatch={20}
             windowSize={3}
             removeClippedSubviews={true}
             data={filteredGiftCards}
