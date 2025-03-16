@@ -86,6 +86,7 @@ export default function ConnectingToNodeLoadingScreen({
 
   //gets data from either firebase or local storage to load users saved settings
   const didLoadInformation = useRef(false);
+  const didOpenDatabases = useRef(false);
   const didRestoreWallet = route?.params?.didRestoreWallet;
   const isInialredner = useRef(true);
 
@@ -105,10 +106,7 @@ export default function ConnectingToNodeLoadingScreen({
   }, []);
 
   useEffect(() => {
-    if (!isInialredner.current) return;
-    isInialredner.current = false;
-
-    (async () => {
+    async function startConnectProcess() {
       try {
         const [
           didOpen,
@@ -132,24 +130,28 @@ export default function ConnectingToNodeLoadingScreen({
 
         if (!didLoadUserSettings)
           throw new Error('Failed to load user settings');
+
+        claimUnclaimedBoltzSwaps();
+        didOpenDatabases.current = true;
       } catch (err) {
         console.log('intializatiion error', err);
         setHasError(err.message);
       }
-    })();
+    }
+    startConnectProcess();
   }, []);
 
   useEffect(() => {
     if (
       Object.keys(masterInfoObject).length === 0 ||
       didLoadInformation.current ||
-      Object.keys(globalContactsInformation).length === 0
+      Object.keys(globalContactsInformation).length === 0 ||
+      !didOpenDatabases.current
     )
       return;
     didLoadInformation.current = true;
 
     initWallet();
-    claimUnclaimedBoltzSwaps();
   }, [masterInfoObject, globalContactsInformation]);
 
   return (
