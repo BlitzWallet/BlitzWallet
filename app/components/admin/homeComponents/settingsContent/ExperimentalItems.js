@@ -44,8 +44,8 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
+import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
 
 export default function ExperimentalItemsPage() {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -110,6 +110,12 @@ export default function ExperimentalItemsPage() {
       <CustomSettingsTopBar
         customBackFunction={handleBackPressFunction}
         shouldDismissKeyboard={true}
+        showLeftImage={enabledEcash}
+        leftImageBlue={ICONS.settingsIcon}
+        LeftImageDarkMode={ICONS.settingsWhite}
+        leftImageFunction={() => {
+          navigate.navigate('EcashSettings');
+        }}
         label={'Experimental'}
       />
 
@@ -175,37 +181,11 @@ export default function ExperimentalItemsPage() {
                 : paddingBottom,
             }}
             showsVerticalScrollIndicator={false}>
-            <ThemeText
-              styles={{marginTop: 20, fontSize: SIZES.large}}
-              content={'eCash'}
+            <SettingsItemWithSlider
+              settingsTitle="Use eCash"
+              switchPageName="eCash"
+              settingDescription="By turning on eCash you agree to the risk that your funds might be lost. Unlike Bitcoin which is self-custodial and Liquid which is a federated model, eCash is custodial and therefore your funds can be taken."
             />
-            <View
-              style={{
-                backgroundColor: backgroundOffset,
-                borderRadius: 8,
-                marginTop: 20,
-              }}>
-              <View
-                style={[
-                  styles.switchContainer,
-                  {
-                    borderBottomColor: backgroundColor,
-                  },
-                ]}>
-                <View style={styles.inlineItemContainer}>
-                  <ThemeText content={`Use eCash`} />
-                  <CustomToggleSwitch page={'eCash'} />
-                </View>
-              </View>
-              <View style={styles.warningContainer}>
-                <ThemeText
-                  styles={{...styles.warningText}}
-                  content={
-                    'By turning on eCash you agree to the risk that your funds might be lost. Unlike Bitcoin which is self-custodial and Liquid which is a federated model, eCash is custodial and therefore your funds can be taken.'
-                  }
-                />
-              </View>
-            </View>
             {masterInfoObject.enabledEcash && (
               <View>
                 {!!parsedEcashInformation.length && (

@@ -107,6 +107,7 @@ export default async function initializeUserSettingsFromHistory({
       isLightningEnabled: false, //dissabled by deafult
       minAutoSwapAmount: 10000, //sats
     };
+    let ecashWalletSettings = blitzStoredData.ecashWalletSettings;
 
     const eCashInformation =
       blitzStoredData.eCashInformation ||
@@ -188,6 +189,13 @@ export default async function initializeUserSettingsFromHistory({
       enabledLNURL = true;
       needsToUpdate = true;
     }
+    if (!ecashWalletSettings) {
+      ecashWalletSettings = {
+        maxReceiveAmountSat: 10_000,
+        maxEcashBalance: 25_000,
+      };
+      needsToUpdate = true;
+    }
 
     tempObject['homepageTxPreferance'] = storedUserTxPereferance;
     tempObject['userBalanceDenomination'] = userBalanceDenomination;
@@ -200,6 +208,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['satDisplay'] = satDisplay;
     tempObject['uuid'] = publicKey;
     tempObject['liquidWalletSettings'] = liquidWalletSettings;
+    tempObject['ecashWalletSettings'] = ecashWalletSettings;
     tempObject['enabledSlidingCamera'] = enabledSlidingCamera;
     tempObject['posSettings'] = posSettings;
     tempObject['enabledEcash'] = enabledEcash;
