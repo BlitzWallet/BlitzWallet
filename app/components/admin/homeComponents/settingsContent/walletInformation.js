@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {CENTER, COLORS} from '../../../../constants';
+import {CENTER, COLORS, LIQUID_DEFAULT_FEE} from '../../../../constants';
 
 import {ThemeText} from '../../../../functions/CustomElements';
 import {useGlobaleCash} from '../../../../../context-store/eCash';
@@ -39,15 +39,33 @@ export default function WalletInformation() {
   const eCashBalance = ecashWalletInformation.balance;
   const navigate = useNavigation();
 
-  const showManualSwap =
-    eCashBalance > minMaxLiquidSwapAmounts.min + 5 ||
-    nodeInformation.userBalance > minMaxLiquidSwapAmounts.min ||
-    (liquidNodeInformation.userBalance > minMaxLiquidSwapAmounts.min &&
-      nodeInformation.inboundLiquidityMsat / 1000 >
-        minMaxLiquidSwapAmounts.min &&
-      masterInfoObject.liquidWalletSettings.isLightningEnabled);
+  // if ecash is enabled and the ecash balance is grater than the min boltz swap amount (ln-> liquid) or the user has a lightning balance
+  const canTransferEcash =
+    masterInfoObject.enabledEcash &&
+    (eCashBalance > minMaxLiquidSwapAmounts.min + 5 ||
+      (!!nodeInformation.userBalance &&
+        masterInfoObject.liquidWalletSettings.isLightningEnabled));
 
-  console.log(showManualSwap, '');
+  //  if lightning is enabled and the users balance + fee is grater than the min boltz swap amount
+  const canTransferLightning =
+    masterInfoObject.liquidWalletSettings.isLightningEnabled &&
+    nodeInformation.userBalance >
+      minMaxLiquidSwapAmounts.min + (minMaxLiquidSwapAmounts.min * 0.005 + 4);
+
+  // if the users balance is grater than the min boltz fee + liquid fee and a user has enough inbound liquidity in an LN channel or enough inbound liqudity in ecash
+  const canTransferLiquid =
+    liquidNodeInformation.userBalance >
+      minMaxLiquidSwapAmounts.min + LIQUID_DEFAULT_FEE &&
+    ((nodeInformation.inboundLiquidityMsat / 1000 >
+      minMaxLiquidSwapAmounts.min &&
+      masterInfoObject.liquidWalletSettings.isLightningEnabled) ||
+      (masterInfoObject.enabledEcash &&
+        masterInfoObject.ecashWalletSettings.maxEcashBalance - eCashBalance >
+          minMaxLiquidSwapAmounts.min));
+
+  const showManualSwap =
+    canTransferEcash || canTransferLightning || canTransferLiquid;
+
   const data =
     nodeInformation.userBalance != 0
       ? [
