@@ -241,15 +241,15 @@ export const UserTransaction = memo(function UserTransaction({
   );
 
   const paymentDescription = isLiquidPayment
-    ? transaction?.details?.description
-    : isLightningPayment &&
-      transaction?.details?.data?.lnAddress &&
-      transaction?.details?.data?.label
-    ? transaction?.details?.data?.label
+    ? transaction?.details?.lnurlInfo?.lnurlPayComment ||
+      transaction?.details?.description
+    : isLightningPayment
+    ? transaction?.details?.data?.label || transaction?.description
     : transaction?.description;
   const isDefaultDescription =
     paymentDescription === BLITZ_DEFAULT_PAYMENT_DESCRIPTION ||
-    paymentDescription === 'Liquid transfer';
+    paymentDescription === 'Liquid transfer' ||
+    paymentDescription === 'Lightning payment';
 
   return (
     <TouchableOpacity
