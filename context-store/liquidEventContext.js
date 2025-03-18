@@ -87,21 +87,13 @@ export function LiquidEventProvider({children}) {
         return false;
       }
       receivedPayments.current.push(event?.details?.txId);
-
+      backgroundNotificationEvent.current = event;
       if (
         event?.details?.details?.type === PaymentDetailsVariant.BITCOIN &&
-        event?.details.paymentType === PaymentType.SEND
+        event?.details?.paymentType === PaymentType.SEND
       )
         return false;
-      console.log('CURRENT APP STATW', AppState.currentState);
-      if (AppState.currentState == 'background') {
-        if (!isWaitingForActiveRef.current) {
-          isWaitingForActiveRef.current = true;
-          backgroundNotificationEvent.current = event;
-          waitForActiveScreen();
-        }
-        return false;
-      }
+
       const description =
         event?.details?.details?.lnurlInfo?.lnurlPayComment ||
         event.details?.details?.description;
@@ -128,6 +120,14 @@ export function LiquidEventProvider({children}) {
     const response = shouldNavigate(liquidEvent);
     if (response) {
       console.log('SETTING PENDING NAVIGATION');
+      console.log('current app State', AppState.currentState);
+      if (AppState.currentState == 'background') {
+        if (!isWaitingForActiveRef.current) {
+          isWaitingForActiveRef.current = true;
+          waitForActiveScreen();
+        }
+        return;
+      }
       setPendingNavigation({
         routes: [
           {

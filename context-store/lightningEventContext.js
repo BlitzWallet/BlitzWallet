@@ -66,37 +66,25 @@ export function LightningEventProvider({children}) {
     setLightningEvent(null);
     if (
       event?.type != BreezEventVariant.INVOICE_PAID &&
-      event?.type != BreezEventVariant.PAYMENT_SUCCEED &&
-      event?.type != BreezEventVariant.PAYMENT_FAILED &&
-      event?.type != BreezEventVariant.REVERSE_SWAP_UPDATED
+      event?.type != BreezEventVariant.PAYMENT_SUCCEED
     )
       return false;
+    backgroundNotificationEvent.current = event;
 
-    if (event?.type === BreezEventVariant.REVERSE_SWAP_UPDATED) return false;
-    console.log('CURRENT APP STATW', AppState.currentState);
-    if (AppState.currentState == 'background') {
-      if (!isWaitingForActiveRef.current) {
-        isWaitingForActiveRef.current = true;
-        backgroundNotificationEvent.current = event;
-        waitForActiveScreen();
-      }
-      return false;
-    }
     const paymentHash =
       event?.type === BreezEventVariant.INVOICE_PAID
         ? event.details.payment.id
         : event.details.id;
 
     if (currentTransactionIDS.current.includes(paymentHash)) return false;
-
-    (event?.type === BreezEventVariant.PAYMENT_SUCCEED ||
-      event?.type === BreezEventVariant.INVOICE_PAID) &&
-      currentTransactionIDS.current.push(paymentHash);
-
-    if (event.type === BreezEventVariant.PAYMENT_FAILED) return false;
+    currentTransactionIDS.current.push(paymentHash);
 
     const description =
-      event?.details?.payment?.label || event.details.payment.description;
+      event?.type === BreezEventVariant.INVOICE_PAID
+        ? event?.details?.payment?.details?.data?.label ||
+          event?.details?.payment?.description
+        : event?.details?.details?.data?.label || event?.details?.description;
+    console.log('ln invoice payment description', description);
     if (
       event?.type === BreezEventVariant.PAYMENT_SUCCEED ||
       event?.details?.status === 'pending' ||
@@ -112,14 +100,14 @@ export function LightningEventProvider({children}) {
     const response = shouldNavigate(lightningEvent);
     if (response) {
       console.log('SETTING PENDING NAVIGATION');
-      console.log('SENDING OBJECT', {
-        name: 'ConfirmTxPage',
-        params: {
-          for: lightningEvent.type,
-          information: lightningEvent?.details,
-          formattingType: 'lightningNode',
-        },
-      });
+      console.log('current app state in ln', AppState.currentState);
+      if (AppState.currentState == 'background') {
+        if (!isWaitingForActiveRef.current) {
+          isWaitingForActiveRef.current = true;
+          waitForActiveScreen();
+        }
+        return;
+      }
       setPendingNavigation({
         routes: [
           {
