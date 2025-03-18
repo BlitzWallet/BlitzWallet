@@ -1,12 +1,9 @@
 import {createContext, useContext, useEffect, useRef, useState} from 'react';
 import {AppState} from 'react-native';
-import {BLOCKED_NAVIGATION_PAYMENT_CODES} from '../app/constants';
 import startUpdateInterval from '../app/functions/LNBackupUdate';
-import {
-  BreezEventVariant,
-  PaymentType,
-} from '@breeztech/react-native-breez-sdk';
+import {BreezEventVariant} from '@breeztech/react-native-breez-sdk';
 import {useNodeContext} from './nodeContext';
+import {shouldBlockNavigation} from '../app/functions/sendBitcoin';
 
 const LightningEventContext = createContext(null);
 
@@ -98,15 +95,13 @@ export function LightningEventProvider({children}) {
 
     if (event.type === BreezEventVariant.PAYMENT_FAILED) return false;
 
+    const description =
+      event?.details?.payment?.label || event.details.payment.description;
     if (
       event?.type === BreezEventVariant.PAYMENT_SUCCEED ||
       event?.details?.status === 'pending' ||
       (event?.type === BreezEventVariant.INVOICE_PAID &&
-        BLOCKED_NAVIGATION_PAYMENT_CODES.filter(
-          code =>
-            code.toLowerCase() ===
-            event.details.payment.description.toLowerCase(),
-        ).length != 0)
+        shouldBlockNavigation(description))
     )
       return false;
     return true;

@@ -1,5 +1,4 @@
-import {Alert, Platform} from 'react-native';
-import {WEBSITE_REGEX} from '../../constants';
+import {BLOCKED_NAVIGATION_PAYMENT_CODES, WEBSITE_REGEX} from '../../constants';
 import {convertMerchantQRToLightningAddress} from './getMerchantAddress';
 import {getImageFromLibrary} from '../imagePickerWrapper';
 import RNQRGenerator from 'rn-qr-generator';
@@ -86,4 +85,20 @@ async function getQRImage(navigate, callLocation) {
   return {btcAdress: merchantLNAddress || address, didWork: true, error: ''};
 }
 
-export {navigateToSendUsingClipboard, getQRImage};
+function shouldBlockNavigation(paymentDescription) {
+  try {
+    return !!BLOCKED_NAVIGATION_PAYMENT_CODES.filter(blockedCode => {
+      if (blockedCode === '1.5' || blockedCode === '4' || blockedCode === '9') {
+        return paymentDescription === blockedCode;
+      } else
+        return paymentDescription
+          ?.toLowerCase()
+          ?.includes(blockedCode.toLowerCase());
+    }).length;
+  } catch (err) {
+    console.log('blocked navigation chkecing error', err);
+    return false;
+  }
+}
+
+export {navigateToSendUsingClipboard, getQRImage, shouldBlockNavigation};
