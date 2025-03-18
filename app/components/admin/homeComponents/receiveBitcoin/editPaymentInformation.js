@@ -33,10 +33,12 @@ import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
+import {useGlobaleCash} from '../../../../../context-store/eCash';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
   const {masterInfoObject} = useGlobalContextProvider();
+  const {ecashWalletInformation} = useGlobaleCash();
   const {nodeInformation} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const [amountValue, setAmountValue] = useState('');
@@ -45,28 +47,42 @@ export default function EditReceivePaymentInformation(props) {
   const {textColor} = GetThemeColors();
   const {t} = useTranslation();
 
+  const eCashSettings = masterInfoObject.ecashWalletSettings;
+  const liquidWalletSettings = masterInfoObject.liquidWalletSettings;
+  const hasLightningChannel = !!nodeInformation.userBalance;
   const fromPage = props.route.params.from;
+  const eCashBalance = ecashWalletInformation.balance;
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination != 'fiat' ? 'sats' : 'fiat',
   );
 
-  console.log(minMaxLiquidSwapAmounts);
   const localSatAmount =
     inputDenomination === 'sats'
-      ? amountValue
+      ? Number(amountValue)
       : Math.round(
           SATSPERBITCOIN / (nodeInformation.fiatStats?.value || 65000),
         ) * amountValue;
+
   const isOverInboundLiquidity =
     nodeInformation.inboundLiquidityMsat / 1000 < localSatAmount;
 
-  const isBetweenMinAndMaxLiquidAmount =
-    nodeInformation.userBalance === 0 ||
-    isOverInboundLiquidity ||
-    !masterInfoObject.liquidWalletSettings.isLightningEnabled
-      ? localSatAmount >= minMaxLiquidSwapAmounts.min &&
-        localSatAmount <= minMaxLiquidSwapAmounts.max
-      : true;
+  // These settings are just for lightning
+  const canUseEcash =
+    masterInfoObject.enabledEcash &&
+    (!liquidWalletSettings.isLightningEnabled || !hasLightningChannel) &&
+    localSatAmount <= eCashSettings.maxReceiveAmountSat &&
+    localSatAmount + eCashBalance <= eCashSettings.maxEcashBalance;
+
+  const canUseLiquid =
+    localSatAmount >= minMaxLiquidSwapAmounts.min &&
+    localSatAmount <= minMaxLiquidSwapAmounts.max;
+
+  const canUseLightning =
+    liquidWalletSettings.isLightningEnabled &&
+    ((hasLightningChannel && !isOverInboundLiquidity) ||
+      localSatAmount >=
+        masterInfoObject.liquidWalletSettings.regulatedChannelOpenSize ||
+      !liquidWalletSettings.regulateChannelOpen);
 
   const convertedValue = () =>
     !amountValue
@@ -85,7 +101,6 @@ export default function EditReceivePaymentInformation(props) {
           ).toFixed(2),
         );
 
-  console.log(localSatAmount, 'tesing');
   useHandleBackPressNew();
 
   return (
@@ -134,14 +149,11 @@ export default function EditReceivePaymentInformation(props) {
           balance={localSatAmount}
         />
 
-        {(masterInfoObject.liquidWalletSettings.regulateChannelOpen ||
-          !masterInfoObject.liquidWalletSettings.isLightningEnabled) && (
+        {(liquidWalletSettings.regulateChannelOpen ||
+          !liquidWalletSettings.isLightningEnabled) && (
           <View>
             {!!localSatAmount ? (
-              !isBetweenMinAndMaxLiquidAmount &&
-              !masterInfoObject.enabledEcash &&
-              (nodeInformation.userBalance == 0 ||
-                !masterInfoObject.liquidWalletSettings.isLightningEnabled) ? (
+              !canUseLiquid && !canUseEcash && !canUseLightning ? (
                 <ThemeText
                   styles={{
                     textAlign: 'center',
@@ -155,10 +167,7 @@ export default function EditReceivePaymentInformation(props) {
                     'wallet.receivePages.editPaymentInfo.receive_amount',
                   )}:`}
                 />
-              ) : (masterInfoObject.enabledEcash && localSatAmount < 1000) ||
-                (nodeInformation.userBalance != 0 &&
-                  masterInfoObject.liquidWalletSettings.isLightningEnabled &&
-                  !isOverInboundLiquidity) ? (
+              ) : canUseEcash ? (
                 <FormattedSatText
                   neverHideBalance={true}
                   frontText={`${t('constants.fee')}: `}
@@ -225,11 +234,9 @@ export default function EditReceivePaymentInformation(props) {
             )}
 
             {!!localSatAmount &&
-            (localSatAmount > minMaxLiquidSwapAmounts.max ||
-              localSatAmount < minMaxLiquidSwapAmounts.min) &&
-            !masterInfoObject.enabledEcash &&
-            (nodeInformation.userBalance === 0 ||
-              !masterInfoObject.liquidWalletSettings.isLightningEnabled) ? (
+            !canUseLiquid &&
+            !canUseLightning &&
+            !canUseEcash ? (
               <FormattedSatText
                 neverHideBalance={true}
                 styles={{includeFontPadding: false}}
@@ -270,17 +277,13 @@ export default function EditReceivePaymentInformation(props) {
           <CustomButton
             buttonStyles={{
               opacity:
-                (isBetweenMinAndMaxLiquidAmount ||
-                  !masterInfoObject.liquidWalletSettings.regulateChannelOpen ||
-                  masterInfoObject.enabledEcash) &&
+                (canUseEcash || canUseLightning || canUseLiquid) &&
                 !!Number(localSatAmount)
                   ? 1
                   : 0.5,
               ...CENTER,
             }}
-            actionFunction={() => {
-              handleSubmit();
-            }}
+            actionFunction={handleSubmit}
             textContent={t('constants.request')}
           />
         </>
@@ -289,14 +292,9 @@ export default function EditReceivePaymentInformation(props) {
   );
 
   function handleSubmit() {
-    if (
-      !isBetweenMinAndMaxLiquidAmount &&
-      masterInfoObject.liquidWalletSettings.regulateChannelOpen &&
-      !masterInfoObject.enabledEcash
-    )
-      return;
-
+    if (!canUseEcash && !canUseLightning && !canUseLiquid) return;
     if (!Number(localSatAmount)) return;
+
     if (fromPage === 'homepage') {
       navigate.replace('ReceiveBTC', {
         receiveAmount: Number(localSatAmount),
@@ -336,17 +334,5 @@ const styles = StyleSheet.create({
     width: 200,
     textAlign: 'center',
     ...CENTER,
-  },
-
-  button: {
-    width: 120,
-    height: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    ...SHADOWS.small,
-    ...CENTER,
-    marginBottom: 0,
-    marginTop: 'auto',
   },
 });

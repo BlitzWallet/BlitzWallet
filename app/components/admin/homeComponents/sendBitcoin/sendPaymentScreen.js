@@ -1,6 +1,7 @@
 import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
 import {
   ICONS,
+  LIQUID_NON_BITCOIN_DRAIN_LIMIT,
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
 } from '../../../../constants';
@@ -597,7 +598,8 @@ export default function SendPaymentScreen(props) {
         convertedSendAmount <= minMaxLiquidSwapAmounts.max
       ) {
         const shouldDrain =
-          liquidNodeInformation.userBalance - convertedSendAmount < 10
+          liquidNodeInformation.userBalance - convertedSendAmount <
+          LIQUID_NON_BITCOIN_DRAIN_LIMIT
             ? true
             : false;
         sendToLNFromLiquid_sendPaymentScreen({
