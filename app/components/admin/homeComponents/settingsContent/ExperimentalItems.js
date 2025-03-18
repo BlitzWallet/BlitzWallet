@@ -248,7 +248,8 @@ export default function ExperimentalItemsPage() {
                   }}>
                   <CustomSearchInput
                     onBlurFunction={() => {
-                      if (!mintURL || !mintURL.trim()) return;
+                      const parsedURL = mintURL.trim();
+                      if (!mintURL || !parsedURL) return;
                       if (!VALID_URL_REGEX.test(mintURL)) {
                         navigate.navigate('ErrorScreen', {
                           errorMessage: 'You did not enter a valid URL',
@@ -256,7 +257,7 @@ export default function ExperimentalItemsPage() {
                         return;
                       }
                       setIsKeyboardActive(false);
-                      switchMint(mintURL, false);
+                      switchMint(parsedURL, false);
                     }}
                     placeholderText={'Mint URL'}
                     setInputText={setMintURL}
@@ -281,7 +282,9 @@ export default function ExperimentalItemsPage() {
                           }}
                           style={{
                             alignItems: 'baseline',
-                            backgroundColor: backgroundOffset,
+                            backgroundColor: theme
+                              ? backgroundOffset
+                              : COLORS.darkModeText,
                             padding: 10,
                             borderRadius: 8,
                             marginVertical: 10,
