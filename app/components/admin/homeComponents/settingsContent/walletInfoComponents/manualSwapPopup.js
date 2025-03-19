@@ -221,15 +221,17 @@ export default function ManualSwapPopup() {
               balance={convertedSendAmount}
             />
           </ScrollView>
-          {transferInfo.from && transferInfo.to && (
+          {transferInfo.from && transferInfo.to && !!convertedSendAmount && (
             <FormattedSatText
               frontText={`${
-                convertedSendAmount < minMaxLiquidSwapAmounts.min
+                convertedSendAmount < minMaxLiquidSwapAmounts.min &&
+                !canDoTransfer
                   ? 'Minimum'
                   : 'Maximum'
               } transfer amount is  `}
               balance={
-                convertedSendAmount < minMaxLiquidSwapAmounts.min
+                convertedSendAmount < minMaxLiquidSwapAmounts.min &&
+                !canDoTransfer
                   ? minMaxLiquidSwapAmounts.min
                   : maxTransferAmount
               }

@@ -4,7 +4,7 @@ import FormattedSatText from '../../../../../functions/CustomElements/satTextDis
 import {useNavigation} from '@react-navigation/native';
 import {useCallback, useEffect, useState} from 'react';
 import {ThemeText} from '../../../../../functions/CustomElements';
-import {COLORS, SIZES} from '../../../../../constants';
+import {COLORS, LIQUID_DEFAULT_FEE, SIZES} from '../../../../../constants';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {breezLiquidReceivePaymentWrapper} from '../../../../../functions/breezLiquid';
 import {receivePayment} from '@breeztech/react-native-breez-sdk';
@@ -12,6 +12,11 @@ import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
 
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton';
+import {getECashInvoice} from '../../../../../functions/eCash/wallet';
+import {
+  ECASH_QUOTE_EVENT_NAME,
+  ecashEventEmitter,
+} from '../../../../../../context-store/eCash';
 export default function ConfirmInternalTransferHalfModal(props) {
   const {backgroundColor, backgroundOffset, textColor} = GetThemeColors();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
@@ -27,56 +32,90 @@ export default function ConfirmInternalTransferHalfModal(props) {
 
   useEffect(() => {
     async function retriveSwapInformation() {
-      let address;
-      let receiveFee = 0;
-
-      if (['lightning', 'ecash'].includes(transferInfo.from.toLowerCase())) {
-        const response = await breezLiquidReceivePaymentWrapper({
-          sendAmount: amount,
-          paymentType: 'lightning',
-          description: 'Internal_Transfer',
-        });
-        if (!response) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: 'Unable to generate invoice',
-          });
-          return;
-        }
-        const {destination, receiveFeesSat} = response;
-
-        address = destination;
-        receiveFee =
-          receiveFeesSat +
-          (transferInfo.from.toLowerCase() === 'ecash'
-            ? 5
-            : Math.round(amount * 0.005) + 4);
-        console.log('GENERATING LN to LIQUID INVOICE');
-      } else {
-        const response = await receivePayment({
-          amountMsat: amount * 1000,
-          description: 'Internal_Transfer',
-        });
-        if (response.openingFeeMsat) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage:
-              'Payment will create a new channel. Please send a smaller amount.',
-          });
-          return;
-        }
-        address = response.lnInvoice.bolt11;
-        receiveFee =
-          26 +
+      try {
+        let address;
+        let receiveFee = 0;
+        const liquidFee =
+          LIQUID_DEFAULT_FEE +
           calculateBoltzFeeNew(
             amount,
             'liquid-ln',
             minMaxLiquidSwapAmounts.submarineSwapStats,
           );
-        console.log('GENERATING LIQUID to LN INVOICE');
+        const lnFee = amount * 0.005 + 4;
+
+        if (transferInfo.to.toLowerCase() === 'bank') {
+          console.log('Generating liquid swap invoice for transfer');
+          const response = await breezLiquidReceivePaymentWrapper({
+            sendAmount: amount,
+            paymentType: 'lightning',
+            description: 'Internal_Transfer',
+          });
+          if (!response) throw new Error('Unable to generate invoice');
+
+          const {destination, receiveFeesSat} = response;
+
+          address = destination;
+          receiveFee =
+            LIQUID_DEFAULT_FEE +
+            calculateBoltzFeeNew(
+              amount,
+              'liquid-ln',
+              minMaxLiquidSwapAmounts.submarineSwapStats,
+            ) +
+            lnFee;
+        } else if (transferInfo.to.toLowerCase() === 'ecash') {
+          console.log('Generating ecash invoice for transfer');
+          const eCashInvoice = await getECashInvoice({
+            amount: amount,
+            descriptoin: 'Internal_Transfer',
+          });
+          if (!eCashInvoice.didWork)
+            throw new Error('Unable to generate invoice');
+          ecashEventEmitter.emit(ECASH_QUOTE_EVENT_NAME, {
+            quote: eCashInvoice.mintQuote.quote,
+            counter: eCashInvoice.counter,
+            mintURL: eCashInvoice.mintURL,
+            shouldNavigate: false,
+          });
+
+          address = eCashInvoice.mintQuote.request;
+          receiveFee =
+            LIQUID_DEFAULT_FEE +
+            calculateBoltzFeeNew(
+              amount,
+              'liquid-ln',
+              minMaxLiquidSwapAmounts.submarineSwapStats,
+            );
+        } else {
+          console.log('Generating lightning invoice for transfer');
+          const response = await receivePayment({
+            amountMsat: amount * 1000,
+            description: 'Internal_Transfer',
+          });
+          if (response.openingFeeMsat)
+            throw new Error(
+              'Payment will create a new channel. Please send a smaller amount.',
+            );
+          address = response.lnInvoice.bolt11;
+          receiveFee =
+            transferInfo.from.toLowerCase() === 'bank'
+              ? LIQUID_DEFAULT_FEE +
+                calculateBoltzFeeNew(
+                  amount,
+                  'liquid-ln',
+                  minMaxLiquidSwapAmounts.submarineSwapStats,
+                )
+              : lnFee;
+        }
+        setInvoiceInfo({
+          fee: receiveFee,
+          invoice: address,
+        });
+      } catch (err) {
+        console.log('generate transfer invoice error', err);
+        navigate.navigate('ErrorScreen', {errorMessage: err.message});
       }
-      setInvoiceInfo({
-        fee: receiveFee,
-        invoice: address,
-      });
     }
     retriveSwapInformation();
   }, []);
@@ -85,13 +124,13 @@ export default function ConfirmInternalTransferHalfModal(props) {
     navigate.goBack();
     startTransferFunction({
       invoice: invoiceInfo.invoice,
-      transferInfo,
+      transferInfo: {...transferInfo, amount},
     });
-  }, [invoiceInfo, transferInfo]);
+  }, [invoiceInfo, transferInfo, amount]);
 
   return (
     <View style={styles.container}>
-      {!invoiceInfo.fee || !invoiceInfo.invoice ? (
+      {invoiceInfo.fee === null || !invoiceInfo.invoice ? (
         <FullLoadingScreen />
       ) : (
         <View style={styles.container}>

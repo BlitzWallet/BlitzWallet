@@ -236,7 +236,11 @@ export default function LiquidSettingsPage() {
       const didConnectToNode = await connectToLightningNode(
         onLightningBreezEvent,
       );
-      if (!didConnectToNode?.isConnected)
+
+      if (
+        !didConnectToNode?.isConnected &&
+        didConnectToNode.reason !== 'BreezServices already initialized'
+      )
         throw Error('Not able to connect to node');
       const node_info = await nodeInfo();
       if (!node_info.connectedPeers.length) {

@@ -440,8 +440,8 @@ export const payLnInvoiceFromEcash = async ({
         selctingCounter,
       );
 
-    console.log('PROOFS TO SEND:', proofsToSend);
-    console.log('PROOFS TO KEEP:', proofsToKeep);
+    console.log('PROOFS TO SEND LENGTH:', proofsToSend.length);
+    console.log('PROOFS TO KEEP LENGTH:', proofsToKeep.length);
 
     proofs = proofsToSend;
 
