@@ -24,6 +24,10 @@ import {
 } from '@breeztech/react-native-breez-sdk-liquid';
 import breezLNOnchainPaymentWrapper from '../../../../../functions/SDK/breezOnchainPaymentWrapper';
 import {getMempoolReccomenededFee} from '../../../../../functions/getMempoolFeeRates';
+import {
+  getMeltQuote,
+  payLnInvoiceFromEcash,
+} from '../../../../../functions/eCash/wallet';
 
 export async function sendLiquidPayment_sendPaymentScreen({
   sendingAmount,
@@ -335,6 +339,131 @@ export async function sendToLiquidFromLightning_sendPaymentScreen({
         details: {error: 'Not able to generate invoice'},
       },
       formattingType: 'lightningNode',
+    });
+  }
+}
+
+export async function sendPaymentUsingEcash({
+  paymentInfo,
+  convertedSendAmount,
+  isLiquidPayment,
+  navigate,
+  setIsSendingPayment,
+  publishMessageFunc,
+  fromPage,
+  paymentDescription = '',
+  webViewRef,
+}) {
+  try {
+    let invoice = null;
+    let swapData = null;
+    if (isLiquidPayment) {
+      const {data, publicKey, privateKey, keys, preimage, liquidAddress} =
+        await contactsLNtoLiquidSwapInfo(
+          paymentInfo.data.address,
+          convertedSendAmount,
+          paymentDescription,
+        );
+
+      if (!data?.invoice) throw new Error(`Couldn't create a swap invoice.`);
+      const webSocket = new WebSocket(
+        `${getBoltzWsUrl(process.env.BOLTZ_ENVIRONMENT)}`,
+      );
+      const didHandle = await handleReverseClaimWSS({
+        ref: webViewRef,
+        webSocket: webSocket,
+        liquidAddress: liquidAddress,
+        swapInfo: data,
+        preimage: preimage,
+        privateKey: privateKey,
+        fromPage: fromPage,
+        contactsFunction: publishMessageFunc,
+      });
+      if (!didHandle) throw new Error('Unable to open websocket');
+      swapData = data;
+      invoice = data.invoice;
+    } else {
+      const sendingInvoice = await getLNAddressForLiquidPayment(
+        paymentInfo,
+        convertedSendAmount,
+      );
+      if (!sendingInvoice)
+        throw new Error(
+          'Unable to create an invoice for the lightning address.',
+        );
+      invoice = sendingInvoice;
+    }
+    if (!invoice) throw new Error('Unable to parse sending invoice.');
+
+    const meltQuote = await getMeltQuote(invoice);
+    if (!meltQuote)
+      throw new Error(`Not able to generate ecash quote or proofs.`);
+
+    const didPay = await payLnInvoiceFromEcash({
+      quote: meltQuote.quote,
+      invoice: invoice,
+      proofsToUse: meltQuote.proofsToUse,
+      description: paymentInfo?.data?.message || '',
+    });
+    if (!didPay.didWork) throw new Error('Unable to pay invoice from eCash');
+    const response = {
+      status: 'complete',
+      feeSat: didPay.txObject?.fee,
+      amountSat: didPay.txObject?.amount,
+      details: {error: ''},
+    };
+    if (swapData) {
+      let didSettleInvoice = false;
+      let runCount = 0;
+
+      while (!didSettleInvoice && runCount < 10) {
+        runCount += 1;
+        const resposne = await fetch(
+          getBoltzApiUrl() + `/v2/swap/${swapData.id}`,
+        );
+        const boltzData = await resposne.json();
+
+        if (boltzData.status === 'invoice.settled') {
+          didSettleInvoice = true;
+          handleNavigation({
+            navigate,
+            didWork: true,
+            response,
+            formattingType: 'ecash',
+          });
+        } else {
+          console.log('Waiting for confirmation....');
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+      }
+      if (didSettleInvoice) return;
+      throw new Error('Not able to settle manual reverse swap.');
+    } else {
+      if (didPay.didWork && fromPage === 'contacts') {
+        publishMessageFunc();
+      }
+      handleNavigation({
+        navigate,
+        didWork: didPay.didWork,
+        response,
+        formattingType: 'ecash',
+      });
+    }
+  } catch (err) {
+    console.log('ecash payment error', err.message);
+    const response = {
+      status: 'failed',
+      fee: 0,
+      amountSat: 0,
+      details: {
+        error: err.message,
+      },
+    };
+    handleNavigation({
+      navigate,
+      didWork: false,
+      response,
+      formattingType: 'ecash',
     });
   }
 }

@@ -8,7 +8,7 @@ import {
 import {CENTER, ICONS, SATSPERBITCOIN} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useCallback, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {publishMessage} from '../../../../functions/messaging/publishMessage';
 import {
   CustomKeyboardAvoidingView,
@@ -82,6 +82,10 @@ export default function SendAndRequestPage(props) {
     );
   }, [convertedSendAmount, minMaxLiquidSwapAmounts]);
 
+  const lnFee = useMemo(() => {
+    return convertedSendAmount * 0.005 + 4;
+  }, [convertedSendAmount]);
+
   const canUseLiquid = useMemo(
     () =>
       selectedContact?.isLNURL
@@ -104,7 +108,7 @@ export default function SendAndRequestPage(props) {
         ? selectedContact?.isLNURL
           ? nodeInformation.userBalance >= Number(convertedSendAmount)
           : nodeInformation.userBalance >=
-              Number(convertedSendAmount) + boltzFee + LIGHTNINGAMOUNTBUFFER &&
+              Number(convertedSendAmount) + lnFee &&
             Number(convertedSendAmount) >= minMaxLiquidSwapAmounts.min &&
             Number(convertedSendAmount) <= minMaxLiquidSwapAmounts.max
         : false,
@@ -115,6 +119,7 @@ export default function SendAndRequestPage(props) {
       nodeInformation,
       masterInfoObject,
       selectedContact,
+      lnFee,
     ],
   );
 
@@ -130,13 +135,12 @@ export default function SendAndRequestPage(props) {
 
   const canUseEcash = useMemo(
     () =>
-      selectedContact?.isLNURL
-        ? eCashBalance >=
-            Number(convertedSendAmount) +
-              calculateEcashFees(
-                ecashWalletInformation.mintURL,
-                usedEcashProofs,
-              ) && masterInfoObject.enabledEcash
+      masterInfoObject.enabledEcash
+        ? selectedContact?.isLNURL
+          ? eCashBalance >= Number(convertedSendAmount) + lnFee
+          : eCashBalance >= Number(convertedSendAmount) + lnFee &&
+            Number(convertedSendAmount) >= minMaxLiquidSwapAmounts.min &&
+            Number(convertedSendAmount) <= minMaxLiquidSwapAmounts.max
         : false,
     [
       selectedContact,
@@ -145,6 +149,7 @@ export default function SendAndRequestPage(props) {
       masterInfoObject,
       ecashWalletInformation,
       usedEcashProofs,
+      lnFee,
     ],
   );
 
