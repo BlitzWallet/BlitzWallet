@@ -9,26 +9,33 @@ import {
   LIQUIDAMOUTBUFFER,
 } from '../../../../../constants/math';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
 
 export default function NavbarBalance() {
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
+  const {masterInfoObject} = useGlobalContextProvider();
   const {ecashWalletInformation} = useGlobaleCash();
-  const eCashBalance = ecashWalletInformation.balance;
   const navigate = useNavigation();
-  const maxSendingAmoount =
-    nodeInformation.userBalance === 0
-      ? liquidNodeInformation.userBalance > eCashBalance
-        ? liquidNodeInformation.userBalance - LIQUIDAMOUTBUFFER
-        : eCashBalance
-      : nodeInformation.userBalance > liquidNodeInformation.userBalance
-      ? nodeInformation.userBalance - LIGHTNINGAMOUNTBUFFER
-      : liquidNodeInformation.userBalance - LIQUIDAMOUTBUFFER;
+
+  const lnBalance = masterInfoObject.liquidWalletSettings.isLightningEnabled
+    ? nodeInformation.userBalance - LIGHTNINGAMOUNTBUFFER
+    : 0;
+  const liquidBalance = liquidNodeInformation.userBalance - LIQUIDAMOUTBUFFER;
+  const eCashBalance = masterInfoObject.enabledEcash
+    ? ecashWalletInformation.balance
+    : 0;
+  const maxSendingAmoount = Math.max(lnBalance, liquidBalance, eCashBalance);
 
   return (
     <TouchableOpacity
       onPress={() => {
         navigate.navigate('InformationPopup', {
-          textContent: `You might wonder why you can't send your full balance. Since you can only send from one source at a time, your available amount is the highest balance between eCash and Liquid (or Lightning). Blitz Wallet automatically rebalances your funds for a smoother experience.`,
+          textContent: `You might wonder why you can't send your full balance. Since you can only send from one source at a time, your available amount is the highest balance between ${
+            nodeInformation.userBalance === 0 ||
+            !masterInfoObject.liquidWalletSettings.isLightningEnabled
+              ? 'eCash'
+              : 'Lightning'
+          } and Liquid (or Lightning). Blitz Wallet automatically rebalances your funds for a smoother experience.`,
           buttonText: 'I understand',
         });
       }}

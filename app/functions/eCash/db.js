@@ -106,7 +106,9 @@ export const storeProofs = async (proofs, mintURL) => {
           proof.amount,
           proof.secret,
           proof.C,
-          JSON.stringify(proof.dleq), // Store dleq as a JSON string
+          typeof proof.dleq === 'string'
+            ? proof.dleq
+            : JSON.stringify(proof.dleq), // Store dleq as a JSON string
           proof.dleqValid ? 1 : 0, // Store dleqValid as 1 (true) or 0 (false)
           proof.witness || null, // Store witness if it exists, otherwise null,
           currentMint, //be able to link proofs to correct mint
@@ -246,7 +248,7 @@ export const getStoredEcashTransactions = async () => {
       [currentMint],
     );
 
-    console.log('Successfully got saved transactions:', result);
+    console.log('Successfully got saved transactions');
     return result || [];
   } catch (err) {
     console.log('Error getting saved transactions:', err);

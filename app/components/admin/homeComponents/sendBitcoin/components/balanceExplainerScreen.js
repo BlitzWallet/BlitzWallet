@@ -5,12 +5,14 @@ import {COLORS} from '../../../../../constants';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
 
 export default function ExplainBalanceScreen() {
   const {backgroundColor} = GetThemeColors();
 
   const navigate = useNavigation();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
+  const {masterInfoObject} = useGlobalContextProvider();
   useHandleBackPressNew();
 
   return (
@@ -31,7 +33,10 @@ export default function ExplainBalanceScreen() {
             <ThemeText
               styles={styles.itemDescription}
               content={`You currently have a balance in both ${
-                nodeInformation.userBalance === 0 ? 'eCash' : 'Lightning'
+                nodeInformation.userBalance === 0 ||
+                !masterInfoObject.liquidWalletSettings.isLightningEnabled
+                  ? 'eCash'
+                  : 'Lightning'
               } and Liquid. Since you can only send from one place at a time, your available sending amount is the highest balance.`}
             />
             <ThemeText
