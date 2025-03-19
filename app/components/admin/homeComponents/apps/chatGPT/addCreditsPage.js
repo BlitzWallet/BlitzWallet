@@ -1,5 +1,11 @@
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {CENTER, COLORS, ICONS, SIZES} from '../../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  ICONS,
+  LIQUID_DEFAULT_FEE,
+  SIZES,
+} from '../../../../../constants';
 import {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {parseInput} from '@breeztech/react-native-breez-sdk';
@@ -24,6 +30,14 @@ import {breezPaymentWrapper} from '../../../../../functions/SDK';
 import {breezLiquidPaymentWrapper} from '../../../../../functions/breezLiquid';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import {getStoredProofs} from '../../../../../functions/eCash/db';
+import {sumProofsValue} from '../../../../../functions/eCash/proofs';
+import {
+  getMeltQuote,
+  payLnInvoiceFromEcash,
+} from '../../../../../functions/eCash/wallet';
+import breezLNAddressPaymentWrapperV2 from '../../../../../functions/SDK/lightningAddressPaymentWrapperV2';
 
 const CREDITOPTIONS = [
   {
@@ -56,6 +70,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
     globalAppDataInformation,
   } = useGlobalAppData();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const {masterInfoObject} = useGlobalContextProvider();
 
   const [selectedSubscription, setSelectedSubscription] =
     useState(CREDITOPTIONS);
@@ -224,9 +239,52 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
       creditPrice += 150; //blitz flat fee
       creditPrice += Math.ceil(creditPrice * 0.005);
 
-      if (liquidNodeInformation.userBalance - LIQUIDAMOUTBUFFER > creditPrice) {
-        // try {
-        // Need to create BIP21 liquid address to pay to with message 'Store - chatGPT'
+      const lightningFee = creditPrice * 0.005 + 4;
+      const lnPayoutLNURL = process.env.GPT_PAYOUT_LNURL;
+      if (masterInfoObject.enabledEcash) {
+        try {
+          const input = await parseInput(lnPayoutLNURL);
+          const lnInvoice = await getLNAddressForLiquidPayment(
+            input,
+            creditPrice,
+            'Store - chatGPT',
+          );
+          const storedProofs = await getStoredProofs();
+          const balance = sumProofsValue(storedProofs);
+          if (balance > creditPrice + lightningFee) {
+            const meltQuote = await getMeltQuote(lnInvoice);
+            if (!meltQuote) throw new Error('Not able to generate ecash quote');
+            const didPay = await payLnInvoiceFromEcash({
+              quote: meltQuote.quote,
+              invoice: lnInvoice,
+              proofsToUse: meltQuote.proofsToUse,
+              description: 'Store - chatGPT',
+            });
+            if (!didPay.didWork) throw new Error(didPay.message);
+            toggleGlobalAppDataInformation(
+              {
+                chatGPT: {
+                  conversation:
+                    globalAppDataInformation.chatGPT.conversation || [],
+                  credits: decodedChatGPT.credits + selectedPlan.price,
+                },
+              },
+              true,
+            );
+            setIsPaying(false);
+            return;
+          }
+        } catch (err) {
+          console.warn('eCash payment failed:', err.message);
+        }
+      }
+
+      if (
+        liquidNodeInformation.userBalance -
+          LIQUIDAMOUTBUFFER -
+          LIQUID_DEFAULT_FEE >
+        creditPrice
+      ) {
         const liquidBip21 = `liquidnetwork:${
           process.env.BLITZ_LIQUID_ADDRESS
         }?assetid=6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d&amount=${(
@@ -255,46 +313,36 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
           true,
         );
         setIsPaying(false);
-
-        console.log(liquidBip21);
-
         return;
-      } else if (
-        nodeInformation.userBalance - LIGHTNINGAMOUNTBUFFER >
+      }
+
+      if (
+        nodeInformation.userBalance - LIGHTNINGAMOUNTBUFFER - lightningFee >
         creditPrice
       ) {
-        const input = await parseInput(process.env.GPT_PAYOUT_LNURL);
-        const lnInvoice = await getLNAddressForLiquidPayment(
-          input,
-          creditPrice,
-          'Store - chatGPT',
-        );
-        const parsedLnInvoice = await parseInput(lnInvoice);
-
-        breezPaymentWrapper({
-          paymentInfo: parsedLnInvoice,
-          amountMsat: parsedLnInvoice?.invoice?.amountMsat,
+        const input = await parseInput(lnPayoutLNURL);
+        const paymentResponse = await breezLNAddressPaymentWrapperV2({
+          sendingAmountSat: creditPrice,
+          paymentInfo: input,
           paymentDescription: 'Store - chatGPT',
-          failureFunction: () => {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: 'Error processing payment. Try again.',
-            });
-            setIsPaying(false);
-          },
-          confirmFunction: () => {
-            toggleGlobalAppDataInformation(
-              {
-                chatGPT: {
-                  conversation:
-                    globalAppDataInformation.chatGPT.conversation || [],
-                  credits: decodedChatGPT.credits + selectedPlan.price,
-                },
-              },
-              true,
-            );
-            setIsPaying(false);
-          },
         });
+        if (!paymentResponse.didWork) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: 'Error completing payment',
+          });
+          setIsPaying(false);
+          return;
+        }
+        await toggleGlobalAppDataInformation(
+          {
+            chatGPT: {
+              conversation: globalAppDataInformation.chatGPT.conversation || [],
+              credits: decodedChatGPT.credits + selectedPlan.price,
+            },
+          },
+          true,
+        );
+        setIsPaying(false);
       } else {
         navigate.navigate('ErrorScreen', {errorMessage: 'Not enough funds.'});
         setIsPaying(false);
