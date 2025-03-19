@@ -97,6 +97,9 @@ async function generateLightningAddress(wolletInfo) {
   const eCashSettings = masterInfoObject.ecashWalletSettings;
   const hasLightningChannel = !!nodeInformation.userBalance;
   const enabledEcash = masterInfoObject.enabledEcash;
+  const isInBetweenLiquidReceiveAmounts =
+    receivingAmount >= minMaxSwapAmounts.min &&
+    receivingAmount <= minMaxSwapAmounts.max;
   // At this ponint we have three receive options, LN -> Liquid, Ecash, LN
   // We will first try to see if we can use ecash
   // if lightning is not enabled or a user does not have a channel and ecash is enabled and the receiving amount is less than boltz min swap amount use ecash
@@ -191,7 +194,10 @@ async function generateLightningAddress(wolletInfo) {
   }
 
   // If Ln is not enabled use liquid and we know we can use liquid since we just checked the min amoutn in the last statement
-  if (!liquidWalletSettings.isLightningEnabled) {
+  if (
+    !liquidWalletSettings.isLightningEnabled &&
+    isInBetweenLiquidReceiveAmounts
+  ) {
     const resposne = await lnToLiquidInvoiceDetails({
       receivingAmount,
       description,
@@ -207,7 +213,8 @@ async function generateLightningAddress(wolletInfo) {
   if (
     !hasLightningChannel &&
     liquidWalletSettings.regulateChannelOpen &&
-    liquidWalletSettings.regulatedChannelOpenSize > receivingAmount
+    liquidWalletSettings.regulatedChannelOpenSize > receivingAmount &&
+    isInBetweenLiquidReceiveAmounts
   ) {
     const resposne = await lnToLiquidInvoiceDetails({
       receivingAmount,
@@ -224,7 +231,8 @@ async function generateLightningAddress(wolletInfo) {
     nodeInformation.inboundLiquidityMsat / 1000 - LIGHTNINGAMOUNTBUFFER <=
       receivingAmount &&
     liquidWalletSettings.regulateChannelOpen &&
-    liquidWalletSettings.regulatedChannelOpenSize > receivingAmount
+    liquidWalletSettings.regulatedChannelOpenSize > receivingAmount &&
+    isInBetweenLiquidReceiveAmounts
   ) {
     const resposne = await lnToLiquidInvoiceDetails({
       receivingAmount,
@@ -242,7 +250,8 @@ async function generateLightningAddress(wolletInfo) {
   // If the user has lightning enabled and the current lightiing fee is grater than the max channel open fee they have set in settings and they have regulated channel open on then use liquid
   if (
     openChannelFees.feeMsat / 1000 >= liquidWalletSettings.maxChannelOpenFee &&
-    liquidWalletSettings.regulateChannelOpen
+    liquidWalletSettings.regulateChannelOpen &&
+    isInBetweenLiquidReceiveAmounts
   ) {
     const resposne = await lnToLiquidInvoiceDetails({
       receivingAmount,
