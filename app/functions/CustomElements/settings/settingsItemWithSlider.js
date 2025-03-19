@@ -8,6 +8,7 @@ import CustomToggleSwitch from '../switch';
 import ThemeImage from '../themeImage';
 import {ICONS} from '../../../constants';
 import FullLoadingScreen from '../loadingScreen';
+import {useNavigation} from '@react-navigation/native';
 
 export default function SettingsItemWithSlider({
   settingsTitle = '',
@@ -23,6 +24,7 @@ export default function SettingsItemWithSlider({
 }) {
   const {theme} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor, textColor} = GetThemeColors();
+  const navigate = useNavigation();
 
   return (
     <View
