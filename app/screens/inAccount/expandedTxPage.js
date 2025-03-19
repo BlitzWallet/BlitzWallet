@@ -50,7 +50,9 @@ export default function ExpandedTx(props) {
     selectedTX?.details?.lnurlInfo?.lnurlPayComment ||
     selectedTX?.details?.description;
   const lightningDescription =
-    transaction?.details?.data?.label || transaction?.description;
+    (transaction?.details?.data?.lnAddress &&
+      transaction?.details?.data?.label) ||
+    transaction?.description;
   const description = isFailedPayment
     ? transaction?.error
     : usesLiquidNode

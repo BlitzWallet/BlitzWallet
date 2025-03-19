@@ -79,12 +79,20 @@ export function LightningEventProvider({children}) {
     if (currentTransactionIDS.current.includes(paymentHash)) return false;
     currentTransactionIDS.current.push(paymentHash);
 
-    const description =
+    const isUsingLNDescription =
       event?.type === BreezEventVariant.INVOICE_PAID
-        ? event?.details?.payment?.details?.data?.label ||
+        ? event?.details?.payment?.details?.data?.lnAddress
+        : event?.details?.details?.data?.lnAddress;
+
+    const description =
+      event?.type === BreezEventVariant.INVOICE_PAID //NO LNURL EXISTS
+        ? (isUsingLNDescription &&
+            event?.details?.payment?.details?.data?.label) ||
           event?.details?.payment?.description
-        : event?.details?.details?.data?.label || event?.details?.description;
+        : (isUsingLNDescription && event?.details?.details?.data?.label) ||
+          event?.details?.description;
     console.log('ln invoice payment description', description);
+
     if (
       event?.type === BreezEventVariant.PAYMENT_SUCCEED ||
       event?.details?.status === 'pending' ||

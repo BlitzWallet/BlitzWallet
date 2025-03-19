@@ -244,7 +244,9 @@ export const UserTransaction = memo(function UserTransaction({
     ? transaction?.details?.lnurlInfo?.lnurlPayComment ||
       transaction?.details?.description
     : isLightningPayment
-    ? transaction?.details?.data?.label || transaction?.description
+    ? (transaction?.details?.data?.lnAddress &&
+        transaction?.details?.data?.label) ||
+      transaction?.description
     : transaction?.description;
   const isDefaultDescription =
     paymentDescription === BLITZ_DEFAULT_PAYMENT_DESCRIPTION ||
