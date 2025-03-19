@@ -98,7 +98,7 @@ export const storeProofs = async (proofs, mintURL) => {
     await sqlLiteDB.execAsync('BEGIN TRANSACTION;');
     for (const proof of proofs) {
       await sqlLiteDB.runAsync(
-        `INSERT INTO ${PROOF_TABLE_NAME} 
+        `INSERT OR IGNORE INTO ${PROOF_TABLE_NAME} 
         (id, amount, secret, C, dleq, dleqValid, witness, mintURL) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
         [
@@ -157,11 +157,29 @@ export const getStoredProofs = async mintURL => {
 export const removeProofs = async proofsToRemove => {
   try {
     await sqlLiteDB.execAsync('BEGIN TRANSACTION;');
-    for (const proof of proofsToRemove) {
-      await sqlLiteDB.runAsync(
-        `DELETE FROM ${PROOF_TABLE_NAME} WHERE id = ? AND C = ? AND amount = ? AND mintURL = ?;`,
-        [proof.id, proof.C, proof.amount, proof.mintURL],
-      );
+    if (proofsToRemove.length <= 500) {
+      const secrets = proofsToRemove.map(p => p.secret);
+      const placeholders = secrets.map(() => '?').join(',');
+
+      if (secrets.length > 0) {
+        await sqlLiteDB.runAsync(
+          `DELETE FROM ${PROOF_TABLE_NAME} WHERE secret IN (${placeholders});`,
+          secrets,
+        );
+      }
+    } else {
+      // For larger batches, process in chunks to avoid SQLite parameter limits
+      const batchSize = 500;
+      for (let i = 0; i < proofsToRemove.length; i += batchSize) {
+        const batch = proofsToRemove.slice(i, i + batchSize);
+        const secrets = batch.map(p => p.secret);
+        const placeholders = secrets.map(() => '?').join(',');
+
+        await sqlLiteDB.runAsync(
+          `DELETE FROM ${PROOF_TABLE_NAME} WHERE secret IN (${placeholders});`,
+          secrets,
+        );
+      }
     }
     sqlEventEmitter.emit(PROOF_EVENT_UPDATE_NAME, 'removeProofs');
     await sqlLiteDB.execAsync('COMMIT;');
@@ -169,6 +187,7 @@ export const removeProofs = async proofsToRemove => {
     return true;
   } catch (err) {
     console.log('removing proofs error', err);
+    await sqlLiteDB.execAsync('ROLLBACK;');
     return false;
   }
 };
