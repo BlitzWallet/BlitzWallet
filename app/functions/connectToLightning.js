@@ -44,6 +44,7 @@ export default async function connectToLightningNode(breezEvent) {
         runcount += 1;
       }
     }
+    if (ableToRetrive) return;
     return new Promise(resolve => {
       resolve({
         isConnected: false,
@@ -80,6 +81,10 @@ export default async function connectToLightningNode(breezEvent) {
       config.workingDir,
     );
 
+    // WHY IS DIRECTORY PATH RUNNINGN AN ERORR??!?!?!!?
+    console.log(config.workingDir);
+    console.log(directoryPath);
+
     config.workingDir = directoryPath;
     await setLocalStorageItem(BREEZ_WORKING_DIR_KEY, directoryPath);
     // Connect to the Breez SDK make it ready for use
@@ -96,11 +101,12 @@ export default async function connectToLightningNode(breezEvent) {
     });
   } catch (err) {
     console.log(err, 'connect to node err LIGHTNING');
+    didConnect = false;
     return new Promise(resolve => {
       resolve({
         isConnected: false,
         // errMessage: JSON.stringify(err),
-        reason: 'error connecting',
+        reason: err.message,
       });
     });
   }

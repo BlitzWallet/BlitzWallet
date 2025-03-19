@@ -20,11 +20,9 @@ export async function getOrCreateDirectory(uuidKey, workingDir) {
     console.log('Directory Info:', dirInfo);
 
     if (!dirInfo.exists) {
-      const createPath =
-        Platform.OS === 'android' ? `file://${directoryPath}` : directoryPath;
-      await FileSystem.makeDirectoryAsync(createPath, {intermediates: true});
-      console.log(`Directory created: ${createPath}`);
-      await new Promise(resolve => setTimeout(resolve, 2000)); //adds two second buffer
+      await FileSystem.makeDirectoryAsync(checkPath, {intermediates: true});
+      console.log(`Directory created: ${checkPath}`);
+      await new Promise(resolve => setTimeout(resolve, 5000)); //adds buffer
     } else {
       console.log(`Directory already exists: ${checkPath}`);
     }
