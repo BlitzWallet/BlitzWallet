@@ -1,4 +1,5 @@
 import {
+  PaymentStatus,
   reportIssue,
   ReportIssueRequestVariant,
   sendPayment,
@@ -31,7 +32,11 @@ export default async function breezPaymentWrapper({
           amountMsat,
           label: paymentDescription || '',
         });
-    if (!!resposne.payment.error) throw Error(String(resposne.payment.error));
+    if (
+      !!resposne.payment.error &&
+      resposne.payment.status === PaymentStatus.FAILED
+    )
+      throw Error(String(resposne.payment.error));
     confirmFunction && confirmFunction(resposne);
     return true;
   } catch (err) {

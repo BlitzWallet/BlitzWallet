@@ -75,7 +75,7 @@ export default function ManualSwapPopup() {
     transferInfo.from.toLowerCase() === 'bank'
       ? maxBankTransfer
       : transferInfo.from.toLowerCase() === 'ecash'
-      ? eCashBalance - (eCashBalance * 0.005 + 10)
+      ? eCashBalance - (eCashBalance * 0.005 + 6)
       : userBalanceInformation.lightningBalance -
         (userBalanceInformation.lightningBalance * 0.005 + 10);
 
