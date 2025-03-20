@@ -1240,7 +1240,7 @@ PODS:
   - Firebase/Messaging (11.5.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 11.5.0)
-  - FirebaseAppCheckInterop (11.9.0)
+  - FirebaseAppCheckInterop (11.10.0)
   - FirebaseAuth (11.5.0):
     - FirebaseAppCheckInterop (~> 11.0)
     - FirebaseAuthInterop (~> 11.0)
@@ -1250,7 +1250,7 @@ PODS:
     - GoogleUtilities/Environment (~> 8.0)
     - GTMSessionFetcher/Core (< 5.0, >= 3.4)
     - RecaptchaInterop (~> 100.0)
-  - FirebaseAuthInterop (11.9.0)
+  - FirebaseAuthInterop (11.10.0)
   - FirebaseCore (11.5.0):
     - FirebaseCoreInternal (= 11.5)
     - GoogleUtilities/Environment (~> 8.0)
@@ -1301,8 +1301,8 @@ PODS:
     - GoogleUtilities/Reachability (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - nanopb (~> 3.30910.0)
-  - FirebaseMessagingInterop (11.9.0)
-  - FirebaseSharedSwift (11.9.0)
+  - FirebaseMessagingInterop (11.10.0)
+  - FirebaseSharedSwift (11.10.0)
   - fmt (9.1.0)
   - glog (0.3.5)
   - GoogleDataTransport (10.1.0):
@@ -3610,9 +3610,9 @@ SPEC CHECKSUMS:
   EXTaskManager: b515b853fd97286a25cb643978ff7fa456f3139a
   FBLazyVector: 38bb611218305c3bc61803e287b8a81c6f63b619
   Firebase: 7a56fe4f56b5ab81b86a6822f5b8f909ae6fc7e2
-  FirebaseAppCheckInterop: 9226f7217b43e99dfa0bc9f674ad8108cef89feb
+  FirebaseAppCheckInterop: 9664c858489710f682766ef54e2b6741d3b62070
   FirebaseAuth: d8ad770642af39d1be932094be5f5230efb0ea74
-  FirebaseAuthInterop: 2a26ee1bea6d47df8048683cfa071e7da657798f
+  FirebaseAuthInterop: 01a804fb074424fd58b92dd50dd0272277199356
   FirebaseCore: 93abc05437f8064cd2bc0a53b768fb0bc5a1d006
   FirebaseCoreExtension: ddb2eb987f736b714d30f6386795b52c4670439e
   FirebaseCoreInternal: f47dd28ae7782e6a4738aad3106071a8fe0af604
@@ -3621,8 +3621,8 @@ SPEC CHECKSUMS:
   FirebaseFunctions: 302356b97cd56d1d95dc9aca0ddcb0f1e0443b0c
   FirebaseInstallations: d8063d302a426d114ac531cd82b1e335a0565745
   FirebaseMessaging: 9f4e42053241bd45ce8565c881bfdd9c1df2f7da
-  FirebaseMessagingInterop: ced922294784e3f7cce3b5bcbd6c55a54a94d737
-  FirebaseSharedSwift: 574e6a5602afe4397a55c8d4f767382d620285de
+  FirebaseMessagingInterop: 2fb9a3ca813c3b7b495232f1fbedd365eb60da45
+  FirebaseSharedSwift: 1baacae75939499b5def867cbe34129464536a38
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: 69ef571f3de08433d766d614c73a9838a06bf7eb
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
