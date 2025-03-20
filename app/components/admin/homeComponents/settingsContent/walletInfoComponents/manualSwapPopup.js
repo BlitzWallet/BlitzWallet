@@ -1,12 +1,9 @@
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useRef, useState} from 'react';
-
 import {
   CENTER,
   COLORS,
-  FONT,
   HIDDEN_BALANCE_TEXT,
   ICONS,
   LIQUID_DEFAULT_FEE,
@@ -32,6 +29,12 @@ import {breezPaymentWrapper} from '../../../../../functions/SDK';
 import FormattedBalanceInput from '../../../../../functions/CustomElements/formattedBalanceInput';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
+import {
+  getMeltQuote,
+  payLnInvoiceFromEcash,
+} from '../../../../../functions/eCash/wallet';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import calculateCanDoTransfer from './functions/canDoTransfer';
 
 export default function ManualSwapPopup() {
   const navigate = useNavigation();
@@ -53,19 +56,29 @@ export default function ManualSwapPopup() {
             Number(sendingAmount),
         );
 
-  console.log(masterInfoObject.userBalanceDenomination, 'TESTING');
-
-  const maxTransferAmountFromBalance =
-    transferInfo.from.toLowerCase() === 'bank'
+  const maxBankTransfer =
+    masterInfoObject.liquidWalletSettings.isLightningEnabled &&
+    !!userBalanceInformation.lightningBalance
       ? userBalanceInformation.lightningInboundAmount >
         userBalanceInformation.liquidBalance
         ? userBalanceInformation.liquidBalance - 5
         : userBalanceInformation.lightningInboundAmount - 5
-      : transferInfo.from.toLowerCase() === 'ecash'
-      ? eCashBalance - 5
-      : userBalanceInformation.lightningBalance - 5;
+      : masterInfoObject.enabledEcash
+      ? Math.min(
+          masterInfoObject.ecashWalletSettings.maxReceiveAmountSat,
+          masterInfoObject.ecashWalletSettings.maxEcashBalance - eCashBalance,
+          userBalanceInformation.liquidBalance - LIQUID_DEFAULT_FEE,
+        )
+      : 0;
 
-  const lnFee = Math.round(maxTransferAmountFromBalance * 0.005) + 4;
+  const maxTransferAmountFromBalance =
+    transferInfo.from.toLowerCase() === 'bank'
+      ? maxBankTransfer
+      : transferInfo.from.toLowerCase() === 'ecash'
+      ? eCashBalance - (eCashBalance * 0.005 + 6)
+      : userBalanceInformation.lightningBalance -
+        (userBalanceInformation.lightningBalance * 0.005 + 10);
+
   const maxAmountCaluclation =
     maxTransferAmountFromBalance > minMaxLiquidSwapAmounts.max
       ? minMaxLiquidSwapAmounts.max -
@@ -95,32 +108,33 @@ export default function ManualSwapPopup() {
 
   const maxTransferAmount =
     transferInfo.from.toLowerCase() === 'lightning'
-      ? maxAmountCaluclation - lnFee
+      ? maxTransferAmountFromBalance //can only go to bank so any amount is fine
       : transferInfo.from.toLowerCase() === 'bank'
-      ? maxAmountCaluclation - LIQUID_DEFAULT_FEE
-      : maxAmountCaluclation - 5;
+      ? maxAmountCaluclation - LIQUID_DEFAULT_FEE //calucluation above
+      : transferInfo.to.toLowerCase() === 'bank'
+      ? maxTransferAmountFromBalance - 5 // if going to bank any amount is fine
+      : Math.min(
+          maxTransferAmountFromBalance - 5,
+          userBalanceInformation.lightningInboundAmount - 5,
+        ); //can either be the max of the ecash balance or inbound liquidty amount
 
-  const canDoTransfer =
-    maxTransferAmount >= minMaxLiquidSwapAmounts.min &&
-    convertedSendAmount < maxTransferAmount &&
-    convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
-    convertedSendAmount <= minMaxLiquidSwapAmounts.max;
+  const canDoTransfer = calculateCanDoTransfer({
+    from: transferInfo.from,
+    to: transferInfo.to,
+    minMaxLiquidSwapAmounts,
+    maxTransferAmount,
+    convertedSendAmount,
+  });
 
-  console.log(
-    calculateBoltzFeeNew(
-      convertedSendAmount,
-      transferInfo.from.toLowerCase() === 'bank' ? 'liquid-ln' : 'ln-liquid',
-      minMaxLiquidSwapAmounts[
-        transferInfo.from.toLowerCase() === 'bank'
-          ? 'submarineSwapStats'
-          : 'reverseSwapStats'
-      ],
-    ),
-  );
   useEffect(() => {
     async function loadUserBalanceInformation() {
       const [node_info, liquid_info] = await Promise.all([
-        nodeInfo(),
+        masterInfoObject.liquidWalletSettings.isLightningEnabled
+          ? nodeInfo()
+          : Promise.resolve({
+              totalInboundLiquidityMsats: 0,
+              channelsBalanceMsat: 0,
+            }),
         getInfo(),
       ]);
 
@@ -133,29 +147,10 @@ export default function ManualSwapPopup() {
     }
     loadUserBalanceInformation();
   }, []);
-  console.log(userBalanceInformation);
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <View style={styles.topbar}>
-        <TouchableOpacity
-          style={{position: 'absolute', top: 0, left: 0, zIndex: 1}}
-          onPress={() => {
-            navigate.goBack();
-          }}>
-          <ThemeImage
-            lightsOutIcon={ICONS.arrow_small_left_white}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-          />
-        </TouchableOpacity>
-        <ThemeText
-          CustomEllipsizeMode={'tail'}
-          CustomNumberOfLines={1}
-          content={'Internal transfer'}
-          styles={{...styles.topBarText}}
-        />
-      </View>
+      <CustomSettingsTopBar label="Internal transfer" />
       {!Object.keys(userBalanceInformation).length || isDoingTransfer ? (
         <FullLoadingScreen
           textStyles={{textAlign: 'center'}}
@@ -226,15 +221,17 @@ export default function ManualSwapPopup() {
               balance={convertedSendAmount}
             />
           </ScrollView>
-          {transferInfo.from && transferInfo.to && (
+          {transferInfo.from && transferInfo.to && !!convertedSendAmount && (
             <FormattedSatText
               frontText={`${
-                convertedSendAmount < minMaxLiquidSwapAmounts.min
+                convertedSendAmount < minMaxLiquidSwapAmounts.min &&
+                !canDoTransfer
                   ? 'Minimum'
                   : 'Maximum'
               } transfer amount is  `}
               balance={
-                convertedSendAmount < minMaxLiquidSwapAmounts.min
+                convertedSendAmount < minMaxLiquidSwapAmounts.min &&
+                !canDoTransfer
                   ? minMaxLiquidSwapAmounts.min
                   : maxTransferAmount
               }
@@ -333,8 +330,71 @@ export default function ManualSwapPopup() {
           },
         });
       } else if (transferInfo.from.toLowerCase() === 'ecash') {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'eCash transfers are not set up yet',
+        const meltQuote = await getMeltQuote(invoice);
+        if (!meltQuote) {
+          navigate.reset({
+            index: 0, // The top-level route index
+            routes: [
+              {
+                name: 'HomeAdmin', // Navigate to HomeAdmin
+                params: {
+                  screen: 'Home',
+                },
+              },
+              {
+                name: 'ConfirmTxPage',
+                params: {
+                  for: 'paymentFailed',
+                  information: {
+                    status: 'failed',
+                    fee: 0,
+                    amountSat: 0,
+                    details: {
+                      error: 'Not able to generate ecash quote or proofs',
+                    },
+                  },
+                  formattingType: 'ecash',
+                },
+              },
+            ],
+          });
+          return;
+        }
+        const didPay = await payLnInvoiceFromEcash({
+          quote: meltQuote.quote,
+          invoice: invoice,
+          proofsToUse: meltQuote.proofsToUse,
+          description: 'Internal_Transfer',
+        });
+        navigate.reset({
+          index: 0, // The top-level route index
+          routes: [
+            {
+              name: 'HomeAdmin', // Navigate to HomeAdmin
+              params: {
+                screen: 'Home',
+              },
+            },
+
+            {
+              name: 'ConfirmTxPage', // Navigate to ExpandedAddContactsPage
+              params: {
+                for: didPay.didWork ? 'paymentSucceed' : 'paymentFailed',
+                information: {
+                  status: didPay.didWork ? 'complete' : 'failed',
+                  feeSat: didPay.txObject?.fee,
+                  amountSat: didPay.txObject?.amount,
+                  details: didPay.didWork
+                    ? {error: ''}
+                    : {
+                        error: didPay.message,
+                      },
+                },
+                formattingType: 'ecash',
+              },
+            },
+          ],
+          // Array of routes to set in the stack
         });
       } else {
         const paymentResponse = await breezLiquidPaymentWrapper({

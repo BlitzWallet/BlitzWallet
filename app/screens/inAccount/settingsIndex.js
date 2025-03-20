@@ -13,6 +13,7 @@ import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useNodeContext} from '../../../context-store/nodeContext';
 import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import {useGlobalContextProvider} from '../../../context-store/context';
 
 const GENERALOPTIONS = [
   {
@@ -211,6 +212,7 @@ const DOOMSDAYSETTINGS = [
 export default function SettingsIndex(props) {
   const {isConnectedToTheInternet} = useAppStatus();
   const {nodeInformation} = useNodeContext();
+  const {masterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
   const isDoomsday = props?.route?.params?.isDoomsday;
   const navigate = useNavigation();
@@ -229,7 +231,8 @@ export default function SettingsIndex(props) {
             onPress={() => {
               if (
                 element.name?.toLowerCase() === 'restore channels' &&
-                nodeInformation.userBalance === 0 &&
+                (nodeInformation.userBalance === 0 ||
+                  !masterInfoObject.liquidWalletSettings.isLightningEnabled) &&
                 !isDoomsday
               ) {
                 navigate.navigate('ErrorScreen', {

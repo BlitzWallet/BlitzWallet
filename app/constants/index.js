@@ -4,15 +4,15 @@ import {CENTER, BTN, Background} from './styles';
 import {SATSPERBITCOIN} from './math';
 
 const BLOCKED_NAVIGATION_PAYMENT_CODES = [
-  'Redeemed Gift Code',
-  'Givaway',
-  'bwsfd',
-  'contacts payment',
-  'BW-POS',
   'Auto Channel Rebalance',
   'Auto Channel Open',
   'Store - chatGPT',
   'Ecash -> LN swap',
+  'TBC Gift Card',
+  'sms4sats send sms api payment',
+  '1.5',
+  '4',
+  '9',
   'Internal_Transfer',
 ];
 
@@ -42,11 +42,14 @@ const BLITZ_DEFAULT_PAYMENT_DESCRIPTION = 'Blitz Wallet';
 const CHATGPT_INPUT_COST = 10 / 1000000;
 const CHATGPT_OUTPUT_COST = 30 / 1000000;
 
-const MIN_CHANNEL_OPEN_FEE = 500000;
-const MAX_CHANNEL_OPEN_FEE = 1000000;
+const MIN_CHANNEL_OPEN_FEE = 500_000;
+const MAX_CHANNEL_OPEN_FEE = 1_000_000;
 const BLITZ_RECEIVE_FEE = 0.0;
 const BLITZ_SEND_FEE = 0.0;
 const LIQUID_DEFAULT_FEE = 30;
+const MAX_ECASH_RECEIVE = 50_000;
+const MAX_ECASH_BALANCE = 50_000;
+const LIQUID_NON_BITCOIN_DRAIN_LIMIT = 10;
 
 const CONTENT_KEYBOARD_OFFSET = 10;
 
@@ -84,4 +87,7 @@ export {
   MIGRATE_ECASH_STORAGE_KEY,
   CONTENT_KEYBOARD_OFFSET,
   HIDDEN_BALANCE_TEXT,
+  MAX_ECASH_RECEIVE,
+  MAX_ECASH_BALANCE,
+  LIQUID_NON_BITCOIN_DRAIN_LIMIT,
 };

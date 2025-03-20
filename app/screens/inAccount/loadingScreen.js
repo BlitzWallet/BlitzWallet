@@ -243,7 +243,7 @@ export default function ConnectingToNodeLoadingScreen({
                   nodeInformation: didSetLightning,
                   liquidNodeInformation: didSetLiquid,
                   masterInfoObject,
-                  eCashBalance: didSetEcashInformation.balance,
+                  // eCashBalance: didSetEcashInformation.balance,
                   minMaxLiquidSwapAmounts,
                 });
 
@@ -257,33 +257,33 @@ export default function ConnectingToNodeLoadingScreen({
           }
 
           if (resolvedData.type == 'reverseSwap') {
-            if (resolvedData.isEcash) {
-              const meltQuote = await getMeltQuote(resolvedData.invoice);
-              if (meltQuote) {
-                await payLnInvoiceFromEcash({
-                  quote: meltQuote.quote,
-                  invoice: resolvedData.invoice,
-                  proofsToUse: meltQuote.proofsToUse,
-                  description: 'Auto Channel Rebalance',
-                });
+            // if (resolvedData.isEcash) {
+            //   const meltQuote = await getMeltQuote(resolvedData.invoice);
+            //   if (meltQuote) {
+            //     await payLnInvoiceFromEcash({
+            //       quote: meltQuote.quote,
+            //       invoice: resolvedData.invoice,
+            //       proofsToUse: meltQuote.proofsToUse,
+            //       description: 'Auto Channel Rebalance',
+            //     });
+            //     replace('HomeAdmin', {screen: 'Home'});
+            //   } else {
+            //     replace('HomeAdmin', {screen: 'Home'});
+            //   }
+            // } else {
+            const parsedInvoice = await parseInput(resolvedData.invoice);
+            console.log(parsedInvoice);
+            await breezPaymentWrapper({
+              paymentInfo: parsedInvoice,
+              paymentDescription: 'Auto Channel Rebalance',
+              failureFunction: () => {
                 replace('HomeAdmin', {screen: 'Home'});
-              } else {
+              },
+              confirmFunction: () => {
                 replace('HomeAdmin', {screen: 'Home'});
-              }
-            } else {
-              const parsedInvoice = await parseInput(resolvedData.invoice);
-              console.log(parsedInvoice);
-              await breezPaymentWrapper({
-                paymentInfo: parsedInvoice,
-                paymentDescription: 'Auto Channel Rebalance',
-                failureFunction: () => {
-                  replace('HomeAdmin', {screen: 'Home'});
-                },
-                confirmFunction: () => {
-                  replace('HomeAdmin', {screen: 'Home'});
-                },
-              });
-            }
+              },
+            });
+            // }
           } else {
             const response = await breezLiquidPaymentWrapper({
               paymentType: 'bolt11',

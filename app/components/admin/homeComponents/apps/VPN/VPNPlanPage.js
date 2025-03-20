@@ -6,35 +6,34 @@ import {
   View,
 } from 'react-native';
 import {ThemeText} from '../../../../../functions/CustomElements';
-import {useEffect, useMemo, useState} from 'react';
+import {useMemo, useState} from 'react';
 import {CENTER, CONTENT_KEYBOARD_OFFSET} from '../../../../../constants';
 import VPNDurationSlider from './components/durationSlider';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useNavigation} from '@react-navigation/native';
 import {parseInput} from '@breeztech/react-native-breez-sdk';
-import {
-  LIGHTNINGAMOUNTBUFFER,
-  LIQUIDAMOUTBUFFER,
-  SATSPERBITCOIN,
-} from '../../../../../constants/math';
+import {SATSPERBITCOIN} from '../../../../../constants/math';
 import GeneratedFile from './pages/generatedFile';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {breezPaymentWrapper} from '../../../../../functions/SDK';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {breezLiquidPaymentWrapper} from '../../../../../functions/breezLiquid';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
+import sendStorePayment from '../../../../../functions/apps/payments';
+import {useAppStatus} from '../../../../../../context-store/appStatus';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
 
 export default function VPNPlanPage({countryList}) {
   const [searchInput, setSearchInput] = useState('');
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {decodedVPNS, toggleGlobalAppDataInformation} = useGlobalAppData();
+  const {masterInfoObject} = useGlobalContextProvider();
+  const {minMaxLiquidSwapAmounts} = useAppStatus();
   const [selectedDuration, setSelectedDuration] = useState('week');
   const [isPaying, setIsPaying] = useState(false);
   const [generatedFile, setGeneratedFile] = useState(null);
@@ -202,56 +201,29 @@ export default function VPNPlanPage({countryList}) {
           country: country,
         });
         setLoadingMessage('Paying invoice');
-
         const parsedInput = await parseInput(invoice.payment_request);
         const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
+        const paymentResponse = await sendStorePayment({
+          liquidNodeInformation,
+          nodeInformation,
+          invoice: invoice.payment_request,
+          minMaxLiquidSwapAmounts,
+          sendingAmountSats: sendingAmountSat,
+          masterInfoObject: masterInfoObject,
+        });
 
-        if (
-          nodeInformation.userBalance >=
-          sendingAmountSat + LIGHTNINGAMOUNTBUFFER
-        ) {
-          breezPaymentWrapper({
-            paymentInfo: parsedInput,
-            amountMsat: parsedInput?.invoice?.amountMsat,
-            failureFunction: () => {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: 'Error paying with lightning',
-              });
-              setIsPaying(false);
-            },
-            confirmFunction: () => {
-              getVPNConfig({
-                paymentHash: invoice.payment_hash,
-                location: cc,
-                savedVPNConfigs,
-              });
-            },
-          });
-        } else if (
-          liquidNodeInformation.userBalance >=
-          sendingAmountSat + LIQUIDAMOUTBUFFER
-        ) {
-          const response = await breezLiquidPaymentWrapper({
-            paymentType: 'bolt11',
-            invoice: parsedInput.invoice.bolt11,
-          });
-
-          if (!response.didWork) {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: 'Error paying with liquid',
-            });
-            setIsPaying(false);
-            return;
-          }
-          getVPNConfig({
-            paymentHash: invoice.payment_hash,
-            location: cc,
-            savedVPNConfigs,
-          });
-        } else {
-          navigate.navigate('ErrorScreen', {errorMessage: 'Not enough funds.'});
+        if (!paymentResponse.didWork) {
           setIsPaying(false);
+          navigate.navigate('ErrorScreen', {
+            errorMessage: paymentResponse.reason || 'Error paying invoice.',
+          });
+          return;
         }
+        getVPNConfig({
+          paymentHash: invoice.payment_hash,
+          location: cc,
+          savedVPNConfigs,
+        });
       } else {
         navigate.navigate('ErrorScreen', {
           errorMessage: 'Error creating invoice',

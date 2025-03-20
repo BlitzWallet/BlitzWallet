@@ -6,42 +6,39 @@ import {
 } from '@breeztech/react-native-breez-sdk';
 import {getLocalStorageItem} from '../localStorage';
 
-export default async function breezPaymentWrapper({
+export default async function breezPaymentWrapperV2({
   paymentInfo,
   amountMsat,
-  confirmFunction,
-  failureFunction,
-  paymentDescription,
+  paymentDescription = '',
 }) {
-  let resposne;
+  let response;
   try {
     const useTrampoline =
       JSON.parse(await getLocalStorageItem('useTrampoline')) ?? true;
 
     console.log('USING TRAMPOLINE', useTrampoline);
 
-    resposne = !!paymentInfo?.invoice?.amountMsat
+    response = !!paymentInfo?.invoice?.amountMsat
       ? await sendPayment({
           useTrampoline: useTrampoline,
           bolt11: paymentInfo?.invoice?.bolt11,
-          label: paymentDescription || '',
+          label: paymentDescription,
         })
       : await sendPayment({
           useTrampoline: useTrampoline,
           bolt11: paymentInfo?.invoice?.bolt11,
           amountMsat,
-          label: paymentDescription || '',
+          label: paymentDescription,
         });
     if (
-      !!resposne.payment.error &&
-      resposne.payment.status === PaymentStatus.FAILED
+      !!response.payment.error &&
+      response.payment.status === PaymentStatus.FAILED
     )
-      throw Error(String(resposne.payment.error));
-    confirmFunction && confirmFunction(resposne);
-    return true;
+      throw new Error(String(response.payment.error));
+    return {didWork: true, response};
   } catch (err) {
-    console.log(err, 'PAYMENT FAILURE ERRROR');
-    console.log(resposne, 'PAYMENT RESPONSE ERRROR');
+    console.log(err.message, 'PAYMENT FAILURE ERRROR');
+    console.log(response, 'PAYMENT RESPONSE ERRROR');
     try {
       const paymentHash = paymentInfo.invoice.paymentHash;
       await reportIssue({
@@ -51,8 +48,7 @@ export default async function breezPaymentWrapper({
     } catch (error) {
       console.log(error);
     } finally {
-      failureFunction && failureFunction({reason: err});
+      return {didWork: false, response: {...response, reason: err.message}};
     }
-    return false;
   }
 }

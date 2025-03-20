@@ -16,6 +16,7 @@ import QrCodeWrapper from '../../functions/CustomElements/QrWrapper';
 import {useNodeContext} from '../../../context-store/nodeContext';
 import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import CustomButton from '../../functions/CustomElements/button';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -24,6 +25,7 @@ export default function ReceivePaymentHome(props) {
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {ecashWalletInformation} = useGlobaleCash();
   const currentMintURL = ecashWalletInformation.mintURL;
+  const eCashBalance = ecashWalletInformation.balance;
   const {textColor} = GetThemeColors();
   const initialSendAmount = props.route.params?.receiveAmount;
   const paymentDescription = props.route.params?.description;
@@ -61,6 +63,7 @@ export default function ReceivePaymentHome(props) {
       setAddressState: setAddressState,
       selectedRecieveOption: receiveOption,
       navigate,
+      eCashBalance,
     });
   }, [initialSendAmount, paymentDescription, receiveOption]);
   return (
@@ -154,6 +157,31 @@ function QrCode(props) {
             addressState.errorMessageText.text || 'Unable to generate address'
           }
         />
+        {addressState.errorMessageText.showButton && (
+          <CustomButton
+            buttonStyles={{width: '90%', marginTop: 20}}
+            textContent={'Open transfer page'}
+            actionFunction={() => {
+              navigate.reset({
+                routes: [
+                  {
+                    name: 'HomeAdmin',
+                    params: {screen: 'Home'},
+                  },
+                  {
+                    name: 'SettingsHome',
+                  },
+                  {
+                    name: 'SettingsContentHome',
+                    params: {
+                      for: 'Balance Info',
+                    },
+                  },
+                ],
+              });
+            }}
+          />
+        )}
       </View>
     );
   }

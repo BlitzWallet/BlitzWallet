@@ -278,7 +278,7 @@ async function mintEcash({invoice, quote, mintURL, globalCounter}) {
       quote,
       {counter},
     );
-    if (info.length) await incrementMintCounter(mintURL, info.length + 1);
+    if (info.length) await incrementMintCounter(currentMint, info.length + 1);
 
     return {prasedInvoice, proofs: info, counter};
   } catch (err) {
@@ -402,7 +402,7 @@ export const payLnInvoiceFromEcash = async ({
   quote,
   invoice,
   proofsToUse,
-  description,
+  description = '',
 }) => {
   const mintURL = await getSelectedMint();
   const wallet = await initEcashWallet(mintURL);
@@ -411,7 +411,7 @@ export const payLnInvoiceFromEcash = async ({
       didWork: false,
       message: String('Not able to connect to your selected eCash mint'),
     };
-  let proofs = [...proofsToUse];
+  let proofs = JSON.parse(JSON.stringify(proofsToUse));
   const decodedInvoice = await parseInvoice(invoice);
   const amount = decodedInvoice.amountMsat / 1000;
 
@@ -430,19 +430,18 @@ export const payLnInvoiceFromEcash = async ({
       proofs: totalProofsValue,
     });
 
-    const mintData = await getSelectedMintData();
-    let currentCount = mintData.counter;
+    const selctingCounter = await incrementMintCounter(mintURL);
 
     const {proofsToSend, proofsToKeep, newCounterValue} =
       await getSpendingProofsWithPreciseCounter(
         wallet,
         amountToPay,
-        proofsToUse,
-        currentCount,
+        proofs,
+        selctingCounter,
       );
 
-    console.log('PROOFS TO SEND:', proofsToSend);
-    console.log('PROOFS TO KEEP:', proofsToKeep);
+    console.log('PROOFS TO SEND LENGTH:', proofsToSend.length);
+    console.log('PROOFS TO KEEP LENGTH:', proofsToKeep.length);
 
     proofs = proofsToSend;
 

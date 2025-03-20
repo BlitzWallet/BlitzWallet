@@ -44,39 +44,39 @@ const GLobalNodeContextProider = ({children}) => {
     setLiquidNodeInformation(prev => ({...prev, ...newInfo}));
   }, []);
 
-  useEffect(() => {
-    if (!didGetToHomepage) return;
-    if (nodeInformation.userBalance === 0) return;
-    if (
-      nodeInformation.inboundLiquidityMsat / 1000 + LIGHTNINGAMOUNTBUFFER <
-      ecashWalletInformation?.balance
-    )
-      return;
+  // useEffect(() => {
+  //   if (!didGetToHomepage) return;
+  //   if (nodeInformation.userBalance === 0) return;
+  //   if (
+  //     nodeInformation.inboundLiquidityMsat / 1000 + LIGHTNINGAMOUNTBUFFER <
+  //     ecashWalletInformation?.balance
+  //   )
+  //     return;
 
-    drainEcashBalance();
-  }, [didGetToHomepage]);
+  //   drainEcashBalance();
+  // }, [didGetToHomepage]);
 
-  const drainEcashBalance = useCallback(async () => {
-    try {
-      if (ecashWalletInformation.balance - 5 < 1) return;
-      const lightningInvoice = await receivePayment({
-        amountMsat: (ecashWalletInformation.balance - 5) * 1000,
-        description: 'Auto Channel Rebalance',
-      });
-      const meltQuote = await getMeltQuote(lightningInvoice.lnInvoice.bolt11);
-      if (!meltQuote) throw new Error('unable to create melt quote');
-      const didPay = await payLnInvoiceFromEcash({
-        quote: meltQuote.quote,
-        invoice: lightningInvoice.lnInvoice.bolt11,
-        proofsToUse: meltQuote.proofsToUse,
-        description: 'Auto Channel Rebalance',
-      });
+  // const drainEcashBalance = useCallback(async () => {
+  //   try {
+  //     if (ecashWalletInformation.balance - 5 < 1) return;
+  //     const lightningInvoice = await receivePayment({
+  //       amountMsat: (ecashWalletInformation.balance - 5) * 1000,
+  //       description: 'Auto Channel Rebalance',
+  //     });
+  //     const meltQuote = await getMeltQuote(lightningInvoice.lnInvoice.bolt11);
+  //     if (!meltQuote) throw new Error('unable to create melt quote');
+  //     const didPay = await payLnInvoiceFromEcash({
+  //       quote: meltQuote.quote,
+  //       invoice: lightningInvoice.lnInvoice.bolt11,
+  //       proofsToUse: meltQuote.proofsToUse,
+  //       description: 'Auto Channel Rebalance',
+  //     });
 
-      console.log(didPay, 'pay response in drain ecash balance');
-    } catch (err) {
-      console.log(err, 'draining ecash balance error');
-    }
-  }, [ecashWalletInformation]);
+  //     console.log(didPay, 'pay response in drain ecash balance');
+  //   } catch (err) {
+  //     console.log(err, 'draining ecash balance error');
+  //   }
+  // }, [ecashWalletInformation]);
 
   const contextValue = useMemo(
     () => ({

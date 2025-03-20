@@ -28,29 +28,25 @@ import {
 } from '../../../../../constants/styles';
 import {AsYouType} from 'libphonenumber-js';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {
-  LIGHTNINGAMOUNTBUFFER,
-  LIQUIDAMOUTBUFFER,
-} from '../../../../../constants/math';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CountryFlag from 'react-native-country-flag';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {breezPaymentWrapper} from '../../../../../functions/SDK';
-import {breezLiquidPaymentWrapper} from '../../../../../functions/breezLiquid';
-import {formatBalanceAmount} from '../../../../../functions';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import sendStorePayment from '../../../../../functions/apps/payments';
 
 export default function SMSMessagingSendPage({SMSprices}) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
+  const {masterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {decodedMessages, toggleGlobalAppDataInformation} = useGlobalAppData();
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -348,77 +344,29 @@ export default function SMSMessagingSendPage({SMSprices}) {
       const parsedInput = await parseInput(data.payreq);
       const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
       setSendingMessage('Paying...');
-      if (
-        nodeInformation.userBalance >
-        sendingAmountSat + LIGHTNINGAMOUNTBUFFER
-      ) {
-        await breezPaymentWrapper({
-          paymentInfo: parsedInput,
-          amountMsat: parsedInput?.invoice?.amountMsat,
-          paymentDescription: 'Store - SMS',
-          failureFunction: paymentResponse => {
-            navigate.reset({
-              index: 0, // The top-level route index
-              routes: [
-                {
-                  name: 'HomeAdmin',
-                  params: {screen: 'Home'},
-                },
-                {
-                  name: 'ConfirmTxPage',
-                  params: {
-                    for: 'paymentFailed',
-                    information: paymentResponse,
-                    formattingType: 'lightningNode',
-                  },
-                },
-              ],
-            });
-          },
-          confirmFunction: paymentResponse => {
-            listenForConfirmation(
-              data,
-              savedMessages,
-              paymentResponse,
-              'lightningNode',
-            );
-          },
-        });
-      } else if (
-        liquidNodeInformation.userBalance >
-        sendingAmountSat + LIQUIDAMOUTBUFFER
-      ) {
-        if (sendingAmountSat < minMaxLiquidSwapAmounts.min) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: `Cannot send payment less than ${formatBalanceAmount(
-              minMaxLiquidSwapAmounts.min,
-            )} sats using the bank`,
-          });
-          return;
-        }
-        const paymentResponse = await breezLiquidPaymentWrapper({
-          paymentType: 'bolt11',
-          invoice: data.payreq,
-        });
+      const paymentResponse = await sendStorePayment({
+        liquidNodeInformation,
+        nodeInformation,
+        invoice: data.payreq,
+        minMaxLiquidSwapAmounts,
+        sendingAmountSats: sendingAmountSat,
+        masterInfoObject: masterInfoObject,
+      });
 
-        if (!paymentResponse.didWork) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: 'Error paying with liquid',
-          });
-          setIsSending(false);
-        }
-        listenForConfirmation(
-          data,
-          savedMessages,
-          paymentResponse.payment,
-          'liquidNode',
-        );
-      } else {
+      if (!paymentResponse.didWork) {
         setIsSending(false);
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Not enough funds.',
+          errorMessage: paymentResponse.reason || 'Error paying invoice.',
         });
+        return;
       }
+
+      listenForConfirmation(
+        data,
+        savedMessages,
+        paymentResponse.response,
+        paymentResponse.formattingType,
+      );
     } catch (err) {
       setSendingMessage(err.message);
       console.log(err);
@@ -476,7 +424,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
       }
     }
 
-    if (!didSettleInvoice) setSendingMessage(true);
+    if (!didSettleInvoice) setSendingMessage('Not able to settle invoice.');
   }
 
   async function saveMessagesToDB(messageObject) {

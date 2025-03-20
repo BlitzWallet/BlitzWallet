@@ -46,17 +46,19 @@ export default function ExpandedTx(props) {
       ? selectedTX.time
       : selectedTX.paymentTime * 1000,
   );
+  const liquidDescription =
+    selectedTX?.details?.lnurlInfo?.lnurlPayComment ||
+    selectedTX?.details?.description;
+  const lightningDescription =
+    (transaction?.details?.data?.lnAddress &&
+      transaction?.details?.data?.label) ||
+    transaction?.description;
   const description = isFailedPayment
     ? transaction?.error
     : usesLiquidNode
-    ? selectedTX?.details?.description
-    : usesLightningNode &&
-      ((transaction?.details?.data?.lnAddress &&
-        !!transaction?.details?.data?.label) ||
-        (!transaction?.details?.data?.lnAddress && !!transaction.description))
-    ? transaction?.details?.data?.lnAddress
-      ? transaction?.details?.data?.label
-      : transaction?.description
+    ? liquidDescription
+    : usesLightningNode
+    ? lightningDescription
     : usesEcash
     ? transaction?.description
     : null;

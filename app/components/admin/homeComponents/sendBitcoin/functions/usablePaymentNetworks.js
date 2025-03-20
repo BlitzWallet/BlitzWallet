@@ -1,6 +1,4 @@
-import {InputTypeVariant} from '@breeztech/react-native-breez-sdk';
 import {DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS} from '../../../../../constants/math';
-import {calculateEcashFees} from '../../../../../functions/eCash/wallet';
 
 export default function usablePaymentNetwork({
   liquidNodeInformation,
@@ -16,41 +14,50 @@ export default function usablePaymentNetwork({
   usedEcashProofs,
   ecashWalletInformation,
 }) {
-  const canUseLiquid = isLiquidPayment
-    ? liquidNodeInformation.userBalance >= convertedSendAmount &&
-      convertedSendAmount >= DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS
-    : isLightningPayment
-    ? liquidNodeInformation.userBalance >= convertedSendAmount &&
-      convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
-      convertedSendAmount <= minMaxLiquidSwapAmounts.max
-    : liquidNodeInformation.userBalance >= convertedSendAmount &&
-      convertedSendAmount >= paymentInfo?.data?.limits?.minSat &&
-      convertedSendAmount <= paymentInfo?.data?.limits?.maxSat;
+  try {
+    const lnFee = convertedSendAmount * 0.005 + 4;
+    const canUseLiquid = isLiquidPayment
+      ? liquidNodeInformation.userBalance >= convertedSendAmount &&
+        convertedSendAmount >= DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS
+      : isLightningPayment
+      ? liquidNodeInformation.userBalance >= convertedSendAmount &&
+        convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
+        convertedSendAmount <= minMaxLiquidSwapAmounts.max
+      : liquidNodeInformation.userBalance >= convertedSendAmount &&
+        convertedSendAmount >= paymentInfo?.data?.limits?.minSat &&
+        convertedSendAmount <= paymentInfo?.data?.limits?.maxSat;
 
-  const canUseEcash =
-    nodeInformation.userBalance === 0 &&
-    masterInfoObject.enabledEcash &&
-    eCashBalance >=
-      convertedSendAmount +
-        calculateEcashFees(ecashWalletInformation.mintURL, usedEcashProofs) &&
-    (!paymentInfo.canEditPayment ||
-      paymentInfo?.type === InputTypeVariant.LN_URL_PAY);
+    const canUseEcash =
+      !masterInfoObject.liquidWalletSettings.isLightningEnabled &&
+      masterInfoObject.enabledEcash &&
+      eCashBalance >= convertedSendAmount + lnFee;
 
-  const canUseLightning = masterInfoObject.liquidWalletSettings
-    .isLightningEnabled
-    ? isLightningPayment
-      ? canUseEcash || nodeInformation.userBalance >= convertedSendAmount
+    const canUseLightningWithLNEnabled = isLightningPayment
+      ? nodeInformation.userBalance >= convertedSendAmount + lnFee
       : isLiquidPayment
       ? convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
         convertedSendAmount <= minMaxLiquidSwapAmounts.max &&
-        nodeInformation.userBalance >=
-          convertedSendAmount + swapFee + convertedSendAmount * 0.01
+        nodeInformation.userBalance >= convertedSendAmount + lnFee
       : nodeInformation.userBalance >= convertedSendAmount &&
         convertedSendAmount >= paymentInfo?.data?.limits?.minSat &&
-        convertedSendAmount <= paymentInfo?.data?.limits?.maxSat
-    : isLiquidPayment
-    ? false
-    : canUseEcash;
+        convertedSendAmount <= paymentInfo?.data?.limits?.maxSat;
 
-  return {canUseEcash, canUseLiquid, canUseLightning};
+    const canUseLightningWithoutLNEnabled = isLightningPayment
+      ? canUseEcash
+      : isLiquidPayment
+      ? convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
+        convertedSendAmount <= minMaxLiquidSwapAmounts.max &&
+        canUseEcash
+      : false;
+
+    const canUseLightning = masterInfoObject.liquidWalletSettings
+      .isLightningEnabled
+      ? canUseLightningWithLNEnabled
+      : canUseLightningWithoutLNEnabled;
+
+    return {canUseEcash, canUseLiquid, canUseLightning};
+  } catch (err) {
+    console.log('useable payment network error', err);
+    return {canUseEcash: false, canUseLiquid: false, canUseLightning: false};
+  }
 }

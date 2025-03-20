@@ -1,12 +1,9 @@
 import {createContext, useContext, useEffect, useRef, useState} from 'react';
 import {AppState} from 'react-native';
-import {BLOCKED_NAVIGATION_PAYMENT_CODES} from '../app/constants';
 import startUpdateInterval from '../app/functions/LNBackupUdate';
-import {
-  BreezEventVariant,
-  PaymentType,
-} from '@breeztech/react-native-breez-sdk';
+import {BreezEventVariant} from '@breeztech/react-native-breez-sdk';
 import {useNodeContext} from './nodeContext';
+import {shouldBlockNavigation} from '../app/functions/sendBitcoin';
 
 const LightningEventContext = createContext(null);
 
@@ -69,44 +66,38 @@ export function LightningEventProvider({children}) {
     setLightningEvent(null);
     if (
       event?.type != BreezEventVariant.INVOICE_PAID &&
-      event?.type != BreezEventVariant.PAYMENT_SUCCEED &&
-      event?.type != BreezEventVariant.PAYMENT_FAILED &&
-      event?.type != BreezEventVariant.REVERSE_SWAP_UPDATED
+      event?.type != BreezEventVariant.PAYMENT_SUCCEED
     )
       return false;
+    backgroundNotificationEvent.current = event;
 
-    if (event?.type === BreezEventVariant.REVERSE_SWAP_UPDATED) return false;
-    console.log('CURRENT APP STATW', AppState.currentState);
-    if (AppState.currentState == 'background') {
-      if (!isWaitingForActiveRef.current) {
-        isWaitingForActiveRef.current = true;
-        backgroundNotificationEvent.current = event;
-        waitForActiveScreen();
-      }
-      return false;
-    }
     const paymentHash =
       event?.type === BreezEventVariant.INVOICE_PAID
         ? event.details.payment.id
         : event.details.id;
 
     if (currentTransactionIDS.current.includes(paymentHash)) return false;
+    currentTransactionIDS.current.push(paymentHash);
 
-    (event?.type === BreezEventVariant.PAYMENT_SUCCEED ||
-      event?.type === BreezEventVariant.INVOICE_PAID) &&
-      currentTransactionIDS.current.push(paymentHash);
+    const isUsingLNURLDescription =
+      event?.type === BreezEventVariant.INVOICE_PAID
+        ? event?.details?.payment?.details?.data?.lnAddress
+        : event?.details?.details?.data?.lnAddress;
 
-    if (event.type === BreezEventVariant.PAYMENT_FAILED) return false;
+    const description =
+      event?.type === BreezEventVariant.INVOICE_PAID //NO LNURL EXISTS
+        ? (isUsingLNURLDescription &&
+            event?.details?.payment?.details?.data?.label) ||
+          event?.details?.payment?.description
+        : (isUsingLNURLDescription && event?.details?.details?.data?.label) ||
+          event?.details?.description;
+    console.log('ln invoice payment description', description);
 
     if (
       event?.type === BreezEventVariant.PAYMENT_SUCCEED ||
       event?.details?.status === 'pending' ||
       (event?.type === BreezEventVariant.INVOICE_PAID &&
-        BLOCKED_NAVIGATION_PAYMENT_CODES.filter(
-          code =>
-            code.toLowerCase() ===
-            event.details.payment.description.toLowerCase(),
-        ).length != 0)
+        shouldBlockNavigation(description))
     )
       return false;
     return true;
@@ -117,14 +108,14 @@ export function LightningEventProvider({children}) {
     const response = shouldNavigate(lightningEvent);
     if (response) {
       console.log('SETTING PENDING NAVIGATION');
-      console.log('SENDING OBJECT', {
-        name: 'ConfirmTxPage',
-        params: {
-          for: lightningEvent.type,
-          information: lightningEvent?.details,
-          formattingType: 'lightningNode',
-        },
-      });
+      console.log('current app state in ln', AppState.currentState);
+      if (AppState.currentState == 'background') {
+        if (!isWaitingForActiveRef.current) {
+          isWaitingForActiveRef.current = true;
+          waitForActiveScreen();
+        }
+        return;
+      }
       setPendingNavigation({
         routes: [
           {

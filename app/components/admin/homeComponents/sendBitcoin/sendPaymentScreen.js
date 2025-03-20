@@ -1,6 +1,7 @@
 import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
 import {
   ICONS,
+  LIQUID_NON_BITCOIN_DRAIN_LIMIT,
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
 } from '../../../../constants';
@@ -15,6 +16,7 @@ import {
   sendBitcoinPayment,
   sendLightningPayment_sendPaymentScreen,
   sendLiquidPayment_sendPaymentScreen,
+  sendPaymentUsingEcash,
   sendToLNFromLiquid_sendPaymentScreen,
   sendToLiquidFromLightning_sendPaymentScreen,
 } from './functions/payments';
@@ -43,9 +45,7 @@ import {useAppStatus} from '../../../../../context-store/appStatus';
 import hasAlredyPaidInvoice from './functions/hasPaid';
 import {
   calculateEcashFees,
-  getMeltQuote,
   getProofsToUse,
-  payLnInvoiceFromEcash,
 } from '../../../../functions/eCash/wallet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
@@ -131,8 +131,9 @@ export default function SendPaymentScreen(props) {
     usedEcashProofs,
     ecashWalletInformation,
   });
+  console.log(canUseEcash, 'CAN USE ECASH');
   const lightningFee = canUseEcash
-    ? calculateEcashFees(ecashWalletInformation.mintURL, usedEcashProofs)
+    ? Math.round(convertedSendAmount * 0.005) + 4
     : masterInfoObject.useTrampoline
     ? Math.round(convertedSendAmount * 0.005) + 4
     : null;
@@ -486,99 +487,26 @@ export default function SendPaymentScreen(props) {
       }
       return;
     }
-
-    if (canUseEcash) {
-      const sendingInvoice = await getLNAddressForLiquidPayment(
-        paymentInfo,
-        convertedSendAmount,
-      );
-
-      if (!sendingInvoice) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage:
-            'Unable to create an invoice for the lightning address.',
-        });
-        setIsSendingPayment(false);
-        return;
-      }
-      const meltQuote = await getMeltQuote(sendingInvoice);
-      if (!meltQuote) {
-        navigate.reset({
-          index: 0, // The top-level route index
-          routes: [
-            {
-              name: 'HomeAdmin', // Navigate to HomeAdmin
-              params: {
-                screen: 'Home',
-              },
-            },
-            {
-              name: 'ConfirmTxPage',
-              params: {
-                for: 'paymentFailed',
-                information: {
-                  status: 'failed',
-                  fee: 0,
-                  amountSat: 0,
-                  details: {
-                    error: 'Not able to generate ecash quote or proofs',
-                  },
-                },
-                formattingType: 'ecash',
-              },
-            },
-          ],
-        });
-        return;
-      }
-      const didPay = await payLnInvoiceFromEcash({
-        quote: meltQuote.quote,
-        invoice: sendingInvoice,
-        proofsToUse: meltQuote.proofsToUse,
-        description: paymentInfo?.data?.message || '',
-      });
-      if (didPay.didWork && fromPage === 'contacts') {
-        publishMessageFunc();
-      }
-
-      navigate.reset({
-        index: 0, // The top-level route index
-        routes: [
-          {
-            name: 'HomeAdmin', // Navigate to HomeAdmin
-            params: {
-              screen: 'Home',
-            },
-          },
-
-          {
-            name: 'ConfirmTxPage', // Navigate to ExpandedAddContactsPage
-            params: {
-              for: didPay.didWork ? 'paymentSucceed' : 'paymentFailed',
-              information: {
-                status: didPay.didWork ? 'complete' : 'failed',
-                feeSat: didPay.txObject?.fee,
-                amountSat: didPay.txObject?.amount,
-                details: didPay.didWork
-                  ? {error: ''}
-                  : {
-                      error: didPay.message,
-                    },
-              },
-              formattingType: 'ecash',
-            },
-          },
-        ],
-        // Array of routes to set in the stack
-      });
-
-      return;
-    }
-
     setWebViewArgs({
       navigate: navigate,
       page: 'sendingPage',
     });
+
+    if (canUseEcash) {
+      await sendPaymentUsingEcash({
+        paymentInfo,
+        convertedSendAmount,
+        isLiquidPayment,
+        navigate,
+        setIsSendingPayment,
+        publishMessageFunc,
+        fromPage,
+        paymentDescription:
+          paymentDescription || paymentInfo?.data.message || '',
+        webViewRef,
+      });
+      return;
+    }
 
     if (isLightningPayment) {
       if (canUseLightning) {
@@ -597,7 +525,8 @@ export default function SendPaymentScreen(props) {
         convertedSendAmount <= minMaxLiquidSwapAmounts.max
       ) {
         const shouldDrain =
-          liquidNodeInformation.userBalance - convertedSendAmount < 10
+          liquidNodeInformation.userBalance - convertedSendAmount <
+          LIQUID_NON_BITCOIN_DRAIN_LIMIT
             ? true
             : false;
         sendToLNFromLiquid_sendPaymentScreen({

@@ -1,6 +1,5 @@
 import {
   Image,
-  Keyboard,
   Platform,
   ScrollView,
   StyleSheet,
@@ -34,25 +33,20 @@ import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {useNavigation} from '@react-navigation/native';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {parseInput} from '@breeztech/react-native-breez-sdk';
-import {
-  LIGHTNINGAMOUNTBUFFER,
-  LIQUIDAMOUTBUFFER,
-} from '../../../../../constants/math';
 import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {isMoreThanADayOld} from '../../../../../functions/rotateAddressDateChecker';
-import {breezPaymentWrapper, getFiatRates} from '../../../../../functions/SDK';
+import {getFiatRates} from '../../../../../functions/SDK';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {breezLiquidPaymentWrapper} from '../../../../../functions/breezLiquid';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../../functions/customNavigation';
+import sendStorePayment from '../../../../../functions/apps/payments';
 
 export default function ExpandedGiftCardPage(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -540,98 +534,36 @@ export default function ExpandedGiftCardPage(props) {
         );
       }
 
-      if (
-        nodeInformation.userBalance >=
-        sendingAmountSat + LIGHTNINGAMOUNTBUFFER
-      ) {
-        breezPaymentWrapper({
-          paymentInfo: parsedInput,
-          amountMsat: parsedInput?.invoice?.amountMsat,
-          failureFunction: response => {
-            navigate.reset({
-              index: 0, // The top-level route index
-              routes: [
-                {
-                  name: 'HomeAdmin',
-                  params: {screen: 'Home'},
-                },
-                {
-                  name: 'ConfirmTxPage',
-                  params: {
-                    for: 'paymentFailed',
-                    information: response,
-                    formattingType: 'lightningNode',
-                  },
-                },
-              ],
-            });
-          },
-          confirmFunction: response =>
-            saveClaimInformation({
-              responseObject,
-              paymentObject: response,
-              nodeType: 'lightningNode',
-            }),
-        });
-      } else if (
-        liquidNodeInformation.userBalance >=
-        sendingAmountSat + LIQUIDAMOUTBUFFER
-      ) {
-        if (sendingAmountSat < minMaxLiquidSwapAmounts.min) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: `Cannot send payment less than ${displayCorrectDenomination(
-              {
-                amount: minMaxLiquidSwapAmounts.min,
-                nodeInformation,
-                masterInfoObject,
-              },
-            )} using the bank`,
-          });
-          return;
-        }
+      const paymentResponse = await sendStorePayment({
+        liquidNodeInformation,
+        nodeInformation,
+        invoice: responseInvoice,
+        minMaxLiquidSwapAmounts,
+        sendingAmountSats: sendingAmountSat,
+        masterInfoObject: masterInfoObject,
+      });
 
-        const response = await breezLiquidPaymentWrapper({
-          paymentType: 'bolt11',
-          invoice: parsedInput.invoice.bolt11,
-        });
-
-        if (!response.didWork) {
-          navigate.reset({
-            index: 0,
-            routes: [
-              {
-                name: 'HomeAdmin',
-                params: {screen: 'Home'},
-              },
-              {
-                name: 'ConfirmTxPage',
-                params: {
-                  for: 'paymentFailed',
-                  information: {
-                    details: {
-                      error: response.error,
-                      amountSat: sendingAmountSat,
-                    },
-                  },
-                  formattingType: 'liquidNode',
-                },
-              },
-            ],
-          });
-          return;
-        }
-
-        saveClaimInformation({
-          responseObject,
-          paymentObject: response.payment,
-          nodeType: 'liquidNode',
-          currentTime,
-        });
-      } else {
+      if (!paymentResponse.didWork) {
         setIsPurchasingGift(prev => {
-          return {...prev, hasError: true, errorMessage: 'Not enough funds'};
+          return {
+            ...prev,
+            isPurasing: false,
+            hasError: false,
+            errorMessage: '',
+          };
         });
+        navigate.navigate('ErrorScreen', {
+          errorMessage: paymentResponse.reason || 'Error paying invoice.',
+        });
+        return;
       }
+
+      saveClaimInformation({
+        responseObject,
+        paymentObject: paymentResponse.response,
+        nodeType: paymentResponse.formattingType,
+      });
+      return;
     } catch (err) {
       setIsPurchasingGift(prev => {
         return {

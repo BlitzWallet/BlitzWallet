@@ -38,6 +38,7 @@ import {
   TotalTipsScreen,
   ViewPOSTransactions,
 } from '../app/components/admin/homeComponents/settingsContent';
+import EcashSettings from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/ecashSettings';
 import MigrateProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
 import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
 import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
@@ -116,6 +117,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'GenerateKey', component: GenerateKey},
   {name: 'PinSetup', component: PinSetupPage},
   {name: 'RestoreWallet', component: RestoreWallet},
+  {name: 'EcashSettings', component: EcashSettings},
 ];
 
 const FADE_SCREENS = [

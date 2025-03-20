@@ -8,20 +8,11 @@ import startLiquidUpdateInterval from '../app/functions/liquidBackupUpdate';
 import {AppState} from 'react-native';
 import {useNodeContext} from './nodeContext';
 import {useAppStatus} from './appStatus';
+import {BLOCKED_NAVIGATION_PAYMENT_CODES} from '../app/constants';
+import {shouldBlockNavigation} from '../app/functions/sendBitcoin';
 
 const LiquidEventContext = createContext(null);
 
-const BLOCKED_PAYMENT_CODES = [
-  'Auto Channel Rebalance',
-  'Auto Channel Open',
-  'Store - chatGPT',
-  'TBC Gift Card',
-  'sms4sats send sms api payment',
-  '1.5',
-  '4',
-  '9',
-  'Internal_Transfer',
-];
 // Create a context for the WebView ref
 export function LiquidEventProvider({children}) {
   const {toggleLiquidNodeInformation, liquidNodeInformation} = useNodeContext();
@@ -96,56 +87,28 @@ export function LiquidEventProvider({children}) {
         return false;
       }
       receivedPayments.current.push(event?.details?.txId);
-
+      backgroundNotificationEvent.current = event;
       if (
         event?.details?.details?.type === PaymentDetailsVariant.BITCOIN &&
-        event?.details.paymentType === PaymentType.SEND
+        event?.details?.paymentType === PaymentType.SEND
       )
         return false;
-      console.log('CURRENT APP STATW', AppState.currentState);
-      if (AppState.currentState == 'background') {
-        if (!isWaitingForActiveRef.current) {
-          isWaitingForActiveRef.current = true;
-          backgroundNotificationEvent.current = event;
-          waitForActiveScreen();
-        }
-        return false;
-      }
+
+      const description =
+        event?.details?.details?.lnurlInfo?.lnurlPayComment ||
+        event.details?.details?.description;
       console.log(
-        !!BLOCKED_PAYMENT_CODES.filter(blockedCode => {
-          if (
-            blockedCode == '1.5' ||
-            blockedCode === '4' ||
-            blockedCode === '9'
-          ) {
-            return event.details?.details?.description == blockedCode;
-          } else
-            return event.details?.details?.description
-              .toLowerCase()
-              .includes(blockedCode.toLowerCase());
-        }).length,
+        shouldBlockNavigation(description),
         'NEW WAY',
         '_________',
         'OLD WAY',
-        BLOCKED_PAYMENT_CODES.includes(event.details?.details?.description),
+        BLOCKED_NAVIGATION_PAYMENT_CODES.includes(
+          event.details?.details?.description,
+        ),
         'BLOCKING NAVIGATION LOGIC',
       );
 
-      if (
-        !!BLOCKED_PAYMENT_CODES.filter(blockedCode => {
-          if (
-            blockedCode === '1.5' ||
-            blockedCode === '4' ||
-            blockedCode === '9'
-          ) {
-            return event.details?.details?.description === blockedCode;
-          } else
-            return event.details?.details?.description
-              .toLowerCase()
-              .includes(blockedCode.toLowerCase());
-        }).length
-      )
-        return false;
+      if (shouldBlockNavigation(description)) return false;
       return true;
     } else {
       return false;
@@ -157,6 +120,14 @@ export function LiquidEventProvider({children}) {
     const response = shouldNavigate(liquidEvent);
     if (response) {
       console.log('SETTING PENDING NAVIGATION');
+      console.log('current app State', AppState.currentState);
+      if (AppState.currentState == 'background') {
+        if (!isWaitingForActiveRef.current) {
+          isWaitingForActiveRef.current = true;
+          waitForActiveScreen();
+        }
+        return;
+      }
       setPendingNavigation({
         routes: [
           {

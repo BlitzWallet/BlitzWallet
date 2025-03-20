@@ -134,6 +134,8 @@ export const GlobaleCashVariables = ({children}) => {
       const receiveEcashQuote = event?.quote;
       const counter = event?.counter;
       const mintURL = event?.mintURL;
+      const shouldNavigate =
+        typeof event?.shouldNavigate !== 'boolean' || event?.shouldNavigate;
       console.log('received event for quote', event);
       // Initialize the counter for this specific quote
       if (!countersRef.current[receiveEcashQuote]) {
@@ -173,7 +175,7 @@ export const GlobaleCashVariables = ({children}) => {
             await storeProofs([...didMint.proofs], mintURL);
             await storeEcashTransactions([formattedEcashTx], mintURL);
             await hanleEcashQuoteStorage(receiveEcashQuote, false);
-
+            if (!shouldNavigate) return;
             setPendingNavigation({
               index: 0, // The top-level route index
               routes: [

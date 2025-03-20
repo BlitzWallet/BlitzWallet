@@ -10,7 +10,7 @@ export default async function autoChannelRebalance({
   nodeInformation,
   liquidNodeInformation,
   masterInfoObject,
-  eCashBalance,
+  // eCashBalance,
   minMaxLiquidSwapAmounts,
 }) {
   const node_information = nodeInformation;
@@ -27,33 +27,33 @@ export default async function autoChannelRebalance({
     masterInfoObject.liquidWalletSettings.minAutoSwapAmount || 10000;
   const autoChannelRebalancePercantage =
     masterInfoObject.liquidWalletSettings.autoChannelRebalancePercantage || 90;
-  if (eCashBalance > 5000) {
-    console.log('RUNNIN IN ECASH AUTO CHANNEL REBALANCE');
+  // if (eCashBalance > 5000) {
+  //   console.log('RUNNIN IN ECASH AUTO CHANNEL REBALANCE');
 
-    try {
-      const sendAmountSat = eCashBalance - 1000;
-      if (valueIsNotANumber(sendAmountSat)) return {didRun: false};
+  //   try {
+  //     const sendAmountSat = eCashBalance - 1000;
+  //     if (valueIsNotANumber(sendAmountSat)) return {didRun: false};
 
-      const response = await breezLiquidReceivePaymentWrapper({
-        sendAmount: Number(sendAmountSat),
-        paymentType: 'lightning',
-        description: 'Auto Channel Rebalance',
-      });
-      if (!response) return {didRun: false};
-      const {destination} = response;
+  //     const response = await breezLiquidReceivePaymentWrapper({
+  //       sendAmount: Number(sendAmountSat),
+  //       paymentType: 'lightning',
+  //       description: 'Auto Channel Rebalance',
+  //     });
+  //     if (!response) return {didRun: false};
+  //     const {destination} = response;
 
-      return {
-        type: 'reverseSwap',
-        for: 'autoChannelRebalance',
-        didRun: true,
-        isEcash: true,
-        invoice: destination,
-      };
-    } catch (err) {
-      console.log(err);
-      return {didRun: false};
-    }
-  }
+  //     return {
+  //       type: 'reverseSwap',
+  //       for: 'autoChannelRebalance',
+  //       didRun: true,
+  //       isEcash: true,
+  //       invoice: destination,
+  //     };
+  //   } catch (err) {
+  //     console.log(err);
+  //     return {didRun: false};
+  //   }
+  // }
 
   if (!masterInfoObject.liquidWalletSettings.isLightningEnabled)
     return {didRun: false};
