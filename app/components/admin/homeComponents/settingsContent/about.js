@@ -100,7 +100,8 @@ export default function AboutPage() {
         <ThemeText
           styles={{color: theme && darkModeType ? textColor : COLORS.primary}}
           content={displayCorrectDenomination({
-            amount: MIN_CHANNEL_OPEN_FEE,
+            amount:
+              masterInfoObject.liquidWalletSettings.regulatedChannelOpenSize,
             nodeInformation,
             masterInfoObject,
           })}

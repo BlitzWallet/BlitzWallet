@@ -43,7 +43,7 @@ const SETTINGSITEMS = [
     id: 'rco', //regulate channel open
   },
   {
-    desc: `Turning off Lightning disables both auto channel rebalance and regulate channel open. So, your balance will be held only on Liquid and never swapped to Lightning.`,
+    desc: `By enabling Lightning, you must connect to your Lightning node when loading the app. However, the Lightning node connection tends to fail more often than the Liquid node connection, which may prevent the app from loading.\n\nBy disabling Lightning, you ensure that your balance remains on Liquid, disabling both auto channel rebalancing and regulated channel opening.`,
     name: 'Enable Lightning',
     id: 'tln', //toggleLN
   },

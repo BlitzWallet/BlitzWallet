@@ -39,43 +39,31 @@ import {INSET_WINDOW_WIDTH, WINDOWWIDTH} from '../../../../constants/theme';
 
 export default function NodeInfo() {
   const [lnNodeInfo, setLNNodeInfo] = useState({});
-  const [isInfoSet, stIsInfoSet] = useState(false);
+
+  const [isConnectingToLN, setIsConnectingToLN] = useState(false);
   const {masterInfoObject} = useGlobalContextProvider();
   const {nodeInformation} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const navigate = useNavigation();
   const windowDimensions = useWindowDimensions();
-  const [seeNodeInfo, setSeeNodeInfo] = useState(false);
+  const [seeNodeInfo, setSeeNodeInfo] = useState(
+    nodeInformation.didConnectToNode,
+  );
   const {textColor, backgroundOffset} = GetThemeColors();
   const {onLightningBreezEvent} = useLightningEvent();
+  console.log(nodeInformation.didConnectToNode);
   useEffect(() => {
     (async () => {
       try {
         const nodeState = await nodeInfo();
         setLNNodeInfo(nodeState);
-        stIsInfoSet(true);
+        // stIsInfoSet(true);
       } catch (err) {
         console.log(err);
-
-        try {
-          const lightningSession = await connectToLightningNode(
-            onLightningBreezEvent,
-          );
-          if (lightningSession?.isConnected) {
-            const nodeState = await nodeInfo();
-            setLNNodeInfo(nodeState);
-            stIsInfoSet(true);
-          } else
-            navigate.navigate('ErrorScreen', {
-              errorMessage: 'Unable to get lightning information',
-            });
-        } catch (err) {
-          console.log(err);
-        }
       }
     })();
   }, []);
-
+  console.log(masterInfoObject.liquidWalletSettings.regulatedChannelOpenSize);
   if (
     nodeInformation.userBalance === 0 &&
     nodeInformation.inboundLiquidityMsat === 0 &&
@@ -94,23 +82,24 @@ export default function NodeInfo() {
         <ThemeText content={'Good to know'} styles={styles.sectionHeader} />
         <Text style={{textAlign: 'center'}}>
           <ThemeText
-            content={`You currently have no lightning channel open.`}
+            content={`You currently do not have Lightning enabled. If you would like to enable Lightning, click the button below.`}
           />
         </Text>
+
         <Text style={{textAlign: 'center', marginTop: 20}}>
           <ThemeText
-            content={`Blitz will automatically open a channel to you when you reach a balance of `}
+            content={`If you enable Lightning, Blitz will automatically open a channel for you when you reach a balance of `}
           />
           <ThemeText
             styles={{color: theme && darkModeType ? textColor : COLORS.primary}}
             content={displayCorrectDenomination({
-              amount: MIN_CHANNEL_OPEN_FEE,
+              amount:
+                masterInfoObject.liquidWalletSettings.regulatedChannelOpenSize,
               nodeInformation,
               masterInfoObject,
             })}
           />
         </Text>
-
         <Text style={{textAlign: 'center', marginTop: 20}}>
           <ThemeText content={`Blitz uses `} />
           <ThemeText
@@ -121,7 +110,8 @@ export default function NodeInfo() {
           <ThemeText
             styles={{color: theme && darkModeType ? textColor : COLORS.primary}}
             content={displayCorrectDenomination({
-              amount: MIN_CHANNEL_OPEN_FEE,
+              amount:
+                masterInfoObject.liquidWalletSettings.regulatedChannelOpenSize,
               nodeInformation,
               masterInfoObject,
             })}
@@ -132,15 +122,49 @@ export default function NodeInfo() {
         </Text>
         <CustomButton
           buttonStyles={{width: 'auto', marginTop: 50, ...CENTER}}
-          textContent={'See node Info'}
-          actionFunction={() => setSeeNodeInfo(true)}
+          useLoading={isConnectingToLN}
+          textContent={
+            nodeInformation.didConnectToNode === null
+              ? 'Enable lightning'
+              : 'See node Info'
+          }
+          actionFunction={async () => {
+            if (nodeInformation.didConnectToNode === null) {
+              try {
+                navigate.reset({
+                  routes: [
+                    {
+                      name: 'HomeAdmin',
+                      params: {screen: 'Home'},
+                    },
+                    {
+                      name: 'SettingsHome',
+                    },
+                    {
+                      name: 'SettingsContentHome',
+                      params: {
+                        for: 'bank',
+                      },
+                    },
+                    {
+                      name: 'LiquidSettingsPage',
+                    },
+                  ],
+                });
+              } catch (err) {
+                console.log(err);
+              } finally {
+                setIsConnectingToLN(false);
+              }
+            } else setSeeNodeInfo(true);
+          }}
         />
       </ScrollView>
     );
   }
 
-  if (!isInfoSet)
-    return <FullLoadingScreen text={'Loading node information'} />;
+  // if (!Object.keys(lnNodeInfo).length)
+  //   return <FullLoadingScreen text={'Loading node information'} />;
 
   const connectedPeersElements = lnNodeInfo?.connectedPeers?.map((peer, id) => {
     return (
@@ -191,9 +215,9 @@ export default function NodeInfo() {
           <ThemeText
             styles={{
               color: textColor,
-              textAlign: isInfoSet ? 'center' : 'left',
+              textAlign: lnNodeInfo?.id ? 'center' : 'left',
             }}
-            content={isInfoSet ? lnNodeInfo?.id : 'N/A'}
+            content={lnNodeInfo?.id ? lnNodeInfo?.id : 'N/A'}
           />
         </TouchableOpacity>
       </View>
@@ -281,7 +305,7 @@ export default function NodeInfo() {
         />
 
         <ScrollView style={{height: 120}}>
-          {isInfoSet ? (
+          {connectedPeersElements?.length ? (
             connectedPeersElements
           ) : (
             <ThemeText styles={{color: textColor}} content={'N/A'} />
@@ -306,7 +330,7 @@ export default function NodeInfo() {
           styles={{...styles.itemTitle, marginBottom: 0, color: textColor}}
           content={'On-chain Balance'}
         />
-        {isInfoSet ? (
+        {!!lnNodeInfo?.onchainBalanceMsat ? (
           <FormattedSatText
             styles={{color: textColor}}
             neverHideBalance={true}
@@ -332,7 +356,9 @@ export default function NodeInfo() {
         <ThemeText
           styles={{color: textColor}}
           content={
-            isInfoSet ? formatBalanceAmount(lnNodeInfo?.blockHeight) : 'N/A'
+            !!lnNodeInfo?.blockHeight
+              ? formatBalanceAmount(lnNodeInfo?.blockHeight)
+              : 'N/A'
           }
         />
       </View>
