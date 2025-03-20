@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import {
   addDataToCollection,
+  bulkGetUnownContacts,
   getUnknownContact,
   syncDatabasePayment,
 } from '../db';
@@ -240,25 +241,44 @@ export const GlobalContactsList = ({children}) => {
       )
         return;
 
-      const updatedContactsAddress = await Promise.all(
-        decodedAddedContacts.map(async contact => {
-          try {
-            const dbContact = await getUnknownContact(contact.uuid);
-            if (
-              contact.receiveAddress !==
-              dbContact.contacts.myProfile?.receiveAddress
-            ) {
-              return {
-                ...contact,
-                receiveAddress: dbContact.contacts.myProfile.receiveAddress,
-              };
-            }
-          } catch (err) {
-            console.log(err);
-          }
-          return contact;
-        }),
+      // break array into size of 10 to meet firestore limits
+      const chunkArray = (arr, size) =>
+        arr.length > size
+          ? [arr.slice(0, size), ...chunkArray(arr.slice(size), size)]
+          : [arr];
+
+      // take document uuids from valid contacts (LNURL address does not need to be looked up)
+      const uuidChunks = chunkArray(
+        decodedAddedContacts.map(c => !c.isLNURL && c.uuid),
+        10,
       );
+
+      console.log('uuid chunks', uuidChunks);
+
+      // Request database for updated contact addresses
+      const bulkResults = (
+        await Promise.all(uuidChunks.map(uuids => bulkGetUnownContacts(uuids)))
+      )
+        .flat()
+        .filter(Boolean);
+
+      // create an object of {id:address}
+      const uuidToAddressMap = bulkResults.reduce((acc, doc) => {
+        const uuid = doc.contacts.myProfile?.uuid;
+        if (uuid) acc[uuid] = doc.contacts.myProfile.receiveAddress;
+        return acc;
+      }, {});
+
+      console.log('uuid address map', uuidToAddressMap);
+      // Updated saved contacts address to new address if they have changed but skip LNURL
+      const updatedContactsAddress = decodedAddedContacts.map(contact => {
+        const newAddress = uuidToAddressMap[contact.uuid];
+        return newAddress &&
+          newAddress !== contact.receiveAddress &&
+          !contact.isLNURL
+          ? {...contact, receiveAddress: newAddress}
+          : contact;
+      });
 
       toggleGlobalContactsInformation(
         {

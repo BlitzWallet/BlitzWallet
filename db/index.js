@@ -187,6 +187,25 @@ export async function getUnknownContact(
   }
 }
 
+export async function bulkGetUnownContacts(
+  uuidList,
+  collectionName = 'blitzWalletUsers',
+) {
+  try {
+    const snapshot = await db
+      .collection(collectionName)
+      .where('contacts.myProfile.uuid', 'in', uuidList)
+      .get();
+
+    if (snapshot.empty) return null;
+
+    return snapshot.docs.map(doc => doc.data());
+  } catch (err) {
+    console.log('get bulk contacts error', err);
+    return null;
+  }
+}
+
 export async function updateMessage({
   newMessage,
   fromPubKey,
