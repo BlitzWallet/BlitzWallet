@@ -1,6 +1,6 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {CENTER, COLORS, SIZES} from '../../../../constants';
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {terminateAccount} from '../../../../functions/secureStore';
 import RNRestart from 'react-native-restart';
 import {ThemeText} from '../../../../functions/CustomElements';
@@ -29,6 +29,10 @@ export default function ResetPage(props) {
   const {backgroundOffset} = GetThemeColors();
   const navigate = useNavigation();
 
+  const backgroundColor = useMemo(() => {
+    return theme ? backgroundOffset : COLORS.darkModeText;
+  }, [theme, backgroundOffset]);
+
   return (
     <View
       style={{
@@ -42,7 +46,7 @@ export default function ResetPage(props) {
           styles.infoContainer,
           {
             marginTop: 30,
-            backgroundColor: backgroundOffset,
+            backgroundColor: backgroundColor,
           },
         ]}>
         <ThemeText
@@ -58,7 +62,7 @@ export default function ResetPage(props) {
         style={[
           styles.infoContainer,
           {
-            backgroundColor: backgroundOffset,
+            backgroundColor: backgroundColor,
           },
         ]}>
         <ThemeText
@@ -113,7 +117,7 @@ export default function ResetPage(props) {
               content={'Delete seed phrase and pin from my device'}
             />
           </View>
-          <View style={styles.selectorContainer}>
+          <View style={{...styles.selectorContainer, marginBottom: 0}}>
             <TouchableOpacity
               onPress={() => handleSelectedItems('localStoredItems')}
               style={[
@@ -150,7 +154,7 @@ export default function ResetPage(props) {
         style={[
           styles.infoContainer,
           {
-            backgroundColor: backgroundOffset,
+            backgroundColor: backgroundColor,
           },
         ]}>
         <ThemeText
@@ -233,7 +237,7 @@ export default function ResetPage(props) {
 const styles = StyleSheet.create({
   infoContainer: {
     width: '100%',
-    padding: 8,
+    padding: 10,
     borderRadius: 8,
     marginBottom: 20,
   },

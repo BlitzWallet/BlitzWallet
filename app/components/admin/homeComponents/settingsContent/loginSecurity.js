@@ -48,7 +48,7 @@ export default function LoginSecurity() {
         style={[
           styles.contentContainer,
           {
-            backgroundColor: backgroundOffset,
+            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
           },
         ]}>
         <View style={styles.faceIDContainer}>

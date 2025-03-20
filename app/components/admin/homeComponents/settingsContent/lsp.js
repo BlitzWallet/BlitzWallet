@@ -7,19 +7,53 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import {useMemo} from 'react';
+import {useGlobalThemeContext} from '../../../../../context-store/theme';
 
 export default function LSPPage() {
   const {nodeInformation} = useNodeContext();
+  const {theme} = useGlobalThemeContext();
   const navigate = useNavigation();
   const {backgroundOffset} = GetThemeColors();
   console.log(nodeInformation);
+
+  const lspElement = useMemo(() => {
+    return ['Name', 'ID', 'Host'].map(item => {
+      return (
+        <View
+          key={item}
+          style={[
+            styles.contentContainer,
+            {
+              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            },
+          ]}>
+          <ThemeText content={item} styles={{...styles.titleText}} />
+          <TouchableOpacity
+            style={styles.descriptionContainer}
+            onPress={() => {
+              if (!nodeInformation.lsp[0]?.[item.toLowerCase()]) return;
+              copyToClipboard(
+                nodeInformation.lsp[0]?.[item.toLowerCase()],
+                navigate,
+              );
+            }}>
+            <ThemeText
+              content={nodeInformation.lsp[0]?.[item.toLowerCase()] || 'N/A'}
+              styles={{...styles.descriptionText}}
+            />
+          </TouchableOpacity>
+        </View>
+      );
+    });
+  }, [backgroundOffset, theme, nodeInformation]);
   return (
     <View style={styles.globalContainer}>
       <View
         style={[
           styles.contentContainer,
           {
-            backgroundColor: backgroundOffset,
+            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
           },
         ]}>
         <ThemeText content={'What is an Lsp?'} styles={{...styles.titleText}} />
@@ -33,68 +67,7 @@ export default function LSPPage() {
           />
         </TouchableOpacity>
       </View>
-      <View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: backgroundOffset,
-          },
-        ]}>
-        <ThemeText content={'Name'} styles={{...styles.titleText}} />
-        <TouchableOpacity
-          style={styles.descriptionContainer}
-          onPress={() => {
-            if (!nodeInformation.lsp[0]?.name) return;
-            copyToClipboard(nodeInformation.lsp[0]?.name, navigate);
-          }}>
-          <ThemeText
-            content={nodeInformation.lsp[0]?.name || 'N/A'}
-            styles={{...styles.descriptionText}}
-          />
-        </TouchableOpacity>
-      </View>
-      <View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: backgroundOffset,
-          },
-        ]}>
-        <ThemeText content={'ID'} styles={{...styles.titleText}} />
-
-        <TouchableOpacity
-          style={styles.descriptionContainer}
-          onPress={() => {
-            if (!nodeInformation.lsp[0]?.id) return;
-            copyToClipboard(nodeInformation.lsp[0]?.id, navigate);
-          }}>
-          <ThemeText
-            content={nodeInformation.lsp[0]?.id || 'N/A'}
-            styles={{...styles.descriptionText}}
-          />
-        </TouchableOpacity>
-      </View>
-      <View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: backgroundOffset,
-          },
-        ]}>
-        <ThemeText content={'Host'} styles={{...styles.titleText}} />
-
-        <TouchableOpacity
-          style={styles.descriptionContainer}
-          onPress={() => {
-            if (!nodeInformation.lsp[0]?.host) return;
-            copyToClipboard(nodeInformation.lsp[0]?.host, navigate);
-          }}>
-          <ThemeText
-            content={nodeInformation.lsp[0]?.host || 'N/A'}
-            styles={{...styles.descriptionText}}
-          />
-        </TouchableOpacity>
-      </View>
+      {lspElement}
     </View>
   );
 }
