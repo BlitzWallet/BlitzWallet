@@ -45,6 +45,7 @@ import receiptIcon from '../assets/icons/receipt.png';
 import expandedTxreceiptLM from '../assets/icons/receiptLM.png';
 import expandedTxreceiptDM from '../assets/icons/receiptDM.png';
 import checkIcon from '../assets/icons/check.png';
+import checkIconWhite from '../assets/icons/checkWhite.png';
 import bankIcon from '../assets/icons/bank.png';
 import wordmark from '../assets/wordmark.png';
 import Connected from '../assets/icons/chart-connected.png';
@@ -292,4 +293,5 @@ export default {
   adminHomeWalletDark,
   xSmallIconWhite,
   failedTransactionWhite,
+  checkIconWhite,
 };

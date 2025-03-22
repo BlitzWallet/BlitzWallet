@@ -15,6 +15,7 @@ import {usePOSTransactions} from '../../../../../../context-store/pos';
 import {formatDateToDayMonthYearTime} from '../../../../../functions/rotateAddressDateChecker';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
+import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 
 export default function ViewPOSTransactions() {
   const {txList} = usePOSTransactions();
@@ -29,6 +30,7 @@ export default function ViewPOSTransactions() {
     android: ANDROIDSAFEAREA,
   });
 
+  console.log(txList);
   const filteredList = useMemo(() => {
     return !txList
       ? []
@@ -43,7 +45,7 @@ export default function ViewPOSTransactions() {
       let totals = {};
       const oneMonthAgo = oneMonthAgoDate();
       for (const tx of txArray) {
-        if (!isWithinOneMonth(tx.timestamp, oneMonthAgo)) continue;
+        if (!isWithinOneMonth(tx.timestamp, oneMonthAgo) && tx.didPay) continue;
         const serverName = tx.serverName?.toLowerCase()?.trim();
         console.log(totals[serverName]);
         if (!totals[serverName]) {
@@ -66,11 +68,21 @@ export default function ViewPOSTransactions() {
     return (
       <View style={styles.transactionContainer}>
         <View style={{flex: 1, marginRight: 10}}>
-          <ThemeText
-            styles={styles.nameText}
-            content={item.serverName}
-            CustomNumberOfLines={1}
-          />
+          <View style={styles.nameContainer}>
+            <ThemeText
+              styles={styles.nameText}
+              content={item.serverName}
+              CustomNumberOfLines={1}
+            />
+            {!!item?.didPay && (
+              <ThemeImage
+                styles={styles.image}
+                darkModeIcon={ICONS.checkIcon}
+                lightsOutIcon={ICONS.checkIconWhite}
+                lightModeIcon={ICONS.checkIcon}
+              />
+            )}
+          </View>
           <ThemeText
             CustomNumberOfLines={1}
             styles={{fontSize: SIZES.small}}
@@ -180,5 +192,14 @@ const styles = StyleSheet.create({
   },
   nameText: {
     textTransform: 'capitalize',
+    marginRight: 5,
+  },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  image: {
+    height: 12,
+    width: 12,
   },
 });
