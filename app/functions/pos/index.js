@@ -20,16 +20,36 @@ if (!sqlLiteDB) {
 
 export const initializePOSTransactionsDatabase = async () => {
   try {
-    await sqlLiteDB.execAsync(`PRAGMA journal_mode = WAL;
-    CREATE TABLE IF NOT EXISTS ${POS_TRANSACTION_TABLE_NAME} (
+    await sqlLiteDB.execAsync('PRAGMA journal_mode = WAL;');
+
+    // Check if the column 'didPay' exists
+    const result = await sqlLiteDB.getFirstAsync(`
+      SELECT COUNT(*) AS count FROM pragma_table_info('${POS_TRANSACTION_TABLE_NAME}') 
+      WHERE name='didPay';
+    `);
+
+    if (result.count === 0) {
+      // Add the new column if it doesn't exist
+      await sqlLiteDB.execAsync(`
+        ALTER TABLE ${POS_TRANSACTION_TABLE_NAME} 
+        ADD COLUMN didPay INTEGER DEFAULT 0;
+      `);
+    }
+
+    // Ensure the table exists
+    await sqlLiteDB.execAsync(`
+      CREATE TABLE IF NOT EXISTS ${POS_TRANSACTION_TABLE_NAME} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         tipAmountSats INTEGER NOT NULL,
         orderAmountSats INTEGER NOT NULL,
         serverName TEXT NOT NULL,
         timestamp INTEGER NOT NULL,
-        dbDateAdded INTEGER NOT NULL UNIQUE
-      );`);
-    console.log('OPENED POS TRANSACTIONS TABLE');
+        dbDateAdded INTEGER NOT NULL UNIQUE,
+        didPay INTEGER DEFAULT 0
+      );
+    `);
+
+    console.log('POS TRANSACTIONS TABLE READY');
     return true;
   } catch (err) {
     console.log(err);
@@ -149,6 +169,30 @@ const setPOSTransactions = async ({
       JSON.stringify(newTimesatmp),
     );
     updateTxListFunction();
+  }
+};
+export const bulkUpdateDidPay = async dbDateAddedArray => {
+  if (!dbDateAddedArray || dbDateAddedArray.length === 0) {
+    console.log('No transactions to update.');
+    return;
+  }
+
+  try {
+    // Generate placeholders for the query (?, ?, ?)
+    const placeholders = dbDateAddedArray.map(() => '?').join(', ');
+
+    await sqlLiteDB.runAsync(
+      `UPDATE ${POS_TRANSACTION_TABLE_NAME} 
+       SET didPay = 1 
+       WHERE dbDateAdded IN (${placeholders});`,
+      dbDateAddedArray,
+    );
+
+    console.log(
+      `Updated ${dbDateAddedArray.length} transactions to didPay = 1`,
+    );
+  } catch (err) {
+    console.error('Error updating transactions:', err);
   }
 };
 
