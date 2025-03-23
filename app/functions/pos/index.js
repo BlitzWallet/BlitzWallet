@@ -2,9 +2,13 @@ import * as SQLite from 'expo-sqlite';
 import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 import {getTwoWeeksAgoDate} from '../rotateAddressDateChecker';
 import {decryptMessage} from '../messaging/encodingAndDecodingMessages';
+import EventEmitter from 'events';
 export const POS_TRANSACTION_TABLE_NAME = 'POS_TRANSACTIONS';
 
 export const POS_LAST_RECEIVED_TIME = 'LAST_RECEIVED_POS_EVENT';
+export const POS_EVENT_UPDATE = 'POS_EVENT_UPDATE';
+export const pointOfSaleEventEmitter = new EventEmitter();
+
 let sqlLiteDB;
 let messageQueue = [];
 let isProcessing = false;
@@ -93,13 +97,11 @@ const processQueue = async () => {
   if (isProcessing) return;
   isProcessing = true;
   while (messageQueue.length > 0) {
-    const {transactionsList, privateKey, updateTxListFunction} =
-      messageQueue.shift();
+    const {transactionsList, privateKey} = messageQueue.shift();
     try {
       await setPOSTransactions({
         transactionsList,
         privateKey,
-        updateTxListFunction,
       });
     } catch (err) {
       console.error('Error processing batch in queue:', err);
@@ -108,22 +110,17 @@ const processQueue = async () => {
 
   isProcessing = false;
 };
-export const queuePOSTransactions = ({
-  transactionsList,
-  privateKey,
-  updateTxListFunction,
-}) => {
-  messageQueue.push({transactionsList, privateKey, updateTxListFunction});
+export const queuePOSTransactions = ({transactionsList, privateKey}) => {
+  messageQueue.push({
+    transactionsList,
+    privateKey,
+  });
   if (messageQueue.length === 1) {
     processQueue();
   }
 };
 
-const setPOSTransactions = async ({
-  transactionsList,
-  privateKey,
-  updateTxListFunction,
-}) => {
+const setPOSTransactions = async ({transactionsList, privateKey}) => {
   try {
     // Start a database transaction for better performance
     await sqlLiteDB.execAsync('BEGIN TRANSACTION;');
@@ -168,7 +165,7 @@ const setPOSTransactions = async ({
       POS_LAST_RECEIVED_TIME,
       JSON.stringify(newTimesatmp),
     );
-    updateTxListFunction();
+    pointOfSaleEventEmitter.emit(POS_EVENT_UPDATE, 'set pos transaction');
   }
 };
 export const bulkUpdateDidPay = async dbDateAddedArray => {
@@ -190,6 +187,32 @@ export const bulkUpdateDidPay = async dbDateAddedArray => {
 
     console.log(
       `Updated ${dbDateAddedArray.length} transactions to didPay = 1`,
+    );
+    pointOfSaleEventEmitter.emit(POS_EVENT_UPDATE, 'bulk updated did pay');
+  } catch (err) {
+    console.error('Error updating transactions:', err);
+  }
+};
+
+export const updateDidPayForSingleTx = async (didPaySetting, dbDateAdded) => {
+  if (!dbDateAdded) {
+    console.log('No transactions to update.');
+    return;
+  }
+  try {
+    await sqlLiteDB.runAsync(
+      `UPDATE ${POS_TRANSACTION_TABLE_NAME} 
+       SET didPay = ?
+       WHERE dbDateAdded = ?;`,
+      [didPaySetting, dbDateAdded],
+    );
+
+    console.log(
+      `Updated ${dbDateAdded} transactions to didPay = ${didPaySetting}`,
+    );
+    pointOfSaleEventEmitter.emit(
+      POS_EVENT_UPDATE,
+      'updated did pay for sinlge tx',
     );
   } catch (err) {
     console.error('Error updating transactions:', err);
