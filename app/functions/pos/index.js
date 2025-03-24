@@ -7,6 +7,7 @@ export const POS_TRANSACTION_TABLE_NAME = 'POS_TRANSACTIONS';
 
 export const POS_LAST_RECEIVED_TIME = 'LAST_RECEIVED_POS_EVENT';
 export const POS_EVENT_UPDATE = 'POS_EVENT_UPDATE';
+export const DID_OPEN_TABLES_EVENT_NAME = 'DID_OPEN_POS_TABLES';
 export const pointOfSaleEventEmitter = new EventEmitter();
 
 let sqlLiteDB;
@@ -26,7 +27,19 @@ export const initializePOSTransactionsDatabase = async () => {
   try {
     await sqlLiteDB.execAsync('PRAGMA journal_mode = WAL;');
 
-    // Check if the column 'didPay' exists
+    await sqlLiteDB.execAsync(`
+      CREATE TABLE IF NOT EXISTS ${POS_TRANSACTION_TABLE_NAME} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tipAmountSats INTEGER NOT NULL,
+        orderAmountSats INTEGER NOT NULL,
+        serverName TEXT NOT NULL,
+        timestamp INTEGER NOT NULL,
+        dbDateAdded INTEGER NOT NULL UNIQUE,
+        didPay INTEGER DEFAULT 0
+      );
+    `);
+
+    // Now check if the column exists and add it if necessary
     const result = await sqlLiteDB.getFirstAsync(`
       SELECT COUNT(*) AS count FROM pragma_table_info('${POS_TRANSACTION_TABLE_NAME}') 
       WHERE name='didPay';
@@ -40,23 +53,12 @@ export const initializePOSTransactionsDatabase = async () => {
       `);
     }
 
-    // Ensure the table exists
-    await sqlLiteDB.execAsync(`
-      CREATE TABLE IF NOT EXISTS ${POS_TRANSACTION_TABLE_NAME} (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        tipAmountSats INTEGER NOT NULL,
-        orderAmountSats INTEGER NOT NULL,
-        serverName TEXT NOT NULL,
-        timestamp INTEGER NOT NULL,
-        dbDateAdded INTEGER NOT NULL UNIQUE,
-        didPay INTEGER DEFAULT 0
-      );
-    `);
-
     console.log('POS TRANSACTIONS TABLE READY');
+    pointOfSaleEventEmitter.emit(DID_OPEN_TABLES_EVENT_NAME, 'opened');
     return true;
   } catch (err) {
     console.log(err);
+    pointOfSaleEventEmitter.emit(DID_OPEN_TABLES_EVENT_NAME, 'not opened');
     return false;
   }
 };

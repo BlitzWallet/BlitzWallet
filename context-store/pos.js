@@ -9,6 +9,7 @@ import {
 import {useKeysContext} from './keys';
 import {db} from '../db/initializeFirebase';
 import {
+  DID_OPEN_TABLES_EVENT_NAME,
   getSavedPOSTransactions,
   pointOfSaleEventEmitter,
   POS_EVENT_UPDATE,
@@ -21,6 +22,7 @@ const POSTransactionsContextManager = createContext(null);
 const POSTransactionsProvider = ({children}) => {
   const {publicKey, contactsPrivateKey} = useKeysContext();
   const [txList, setTxList] = useState([]);
+  const [didOpenTable, setDidOpenTable] = useState(false);
 
   const updateTxListFunction = useCallback(async () => {
     const txs = await getSavedPOSTransactions();
@@ -75,6 +77,7 @@ const POSTransactionsProvider = ({children}) => {
   }, [txList]);
 
   useEffect(() => {
+    if (!didOpenTable) return;
     if (!publicKey) return;
     console.log('running pos transactions listener...');
     const now = new Date().getTime();
@@ -99,7 +102,7 @@ const POSTransactionsProvider = ({children}) => {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [publicKey]);
+  }, [publicKey, didOpenTable]);
 
   useEffect(() => {
     async function loadSavedTxs() {
@@ -133,11 +136,19 @@ const POSTransactionsProvider = ({children}) => {
         privateKey: contactsPrivateKey,
       });
     }
+    if (!didOpenTable) return;
     if (!publicKey) return;
     loadSavedTxs();
-  }, [publicKey]);
+  }, [publicKey, didOpenTable]);
+
+  const handlePosTableOpen = useCallback(eventType => {
+    if (eventType === 'opened') {
+      setDidOpenTable(true);
+    }
+  }, []);
   useEffect(() => {
     // listens for events from the db and updates the state
+    pointOfSaleEventEmitter.on(DID_OPEN_TABLES_EVENT_NAME, handlePosTableOpen);
     pointOfSaleEventEmitter.on(POS_EVENT_UPDATE, updateTxListFunction);
     return () => {
       pointOfSaleEventEmitter.off(POS_EVENT_UPDATE, updateTxListFunction);

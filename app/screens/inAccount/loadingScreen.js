@@ -120,26 +120,22 @@ export default function ConnectingToNodeLoadingScreen({
   useEffect(() => {
     async function startConnectProcess() {
       try {
-        const [
-          didOpen,
-          ecashTablesOpened,
-          posTransactions,
-          didLoadUserSettings,
-        ] = await Promise.all([
-          initializeDatabase(),
-          initEcashDBTables(),
-          initializePOSTransactionsDatabase(),
-          initializeUserSettingsFromHistory({
-            setContactsPrivateKey: toggleContactsPrivateKey,
-            setMasterInfoObject,
-            toggleGlobalContactsInformation,
-            toggleGLobalEcashInformation,
-            toggleGlobalAppDataInformation,
-          }),
-        ]);
+        const [didOpen, ecashTablesOpened, posTransactions] = await Promise.all(
+          [
+            initializeDatabase(),
+            initEcashDBTables(),
+            initializePOSTransactionsDatabase(),
+          ],
+        );
         if (!didOpen || !ecashTablesOpened || !posTransactions)
           throw new Error('Database initialization failed');
-
+        const didLoadUserSettings = await initializeUserSettingsFromHistory({
+          setContactsPrivateKey: toggleContactsPrivateKey,
+          setMasterInfoObject,
+          toggleGlobalContactsInformation,
+          toggleGLobalEcashInformation,
+          toggleGlobalAppDataInformation,
+        });
         if (!didLoadUserSettings)
           throw new Error('Failed to load user settings');
 
@@ -283,7 +279,11 @@ export default function ConnectingToNodeLoadingScreen({
             Promise.resolve({isConnected: true}),
             connectToLiquidNode(onLiquidBreezEvent),
           ]));
-
+      console.log(
+        didConnectToNode?.isConnected,
+        !masterInfoObject.liquidWalletSettings.isLightningEnabled,
+        didConnectToLiquidNode?.isConnected,
+      );
       if (
         (didConnectToNode?.isConnected ||
           !masterInfoObject.liquidWalletSettings.isLightningEnabled) &&
