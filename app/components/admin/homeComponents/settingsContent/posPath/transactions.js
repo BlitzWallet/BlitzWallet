@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {CENTER, ICONS, SIZES} from '../../../../../constants';
 import {
   GlobalThemeView,
@@ -6,21 +6,29 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {FlatList, Platform, StyleSheet, View} from 'react-native';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
+import {
+  FlatList,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
 import {usePOSTransactions} from '../../../../../../context-store/pos';
-import {formatDateToDayMonthYearTime} from '../../../../../functions/rotateAddressDateChecker';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import {useNodeContext} from '../../../../../../context-store/nodeContext';
+import {deleteEmployee} from '../../../../../functions/pos';
 
 export default function ViewPOSTransactions() {
-  const {txList} = usePOSTransactions();
+  const {groupedTxs} = usePOSTransactions();
   const [employeeName, setEmployeeName] = useState('');
-  const [isAddingTotals, setIsAddingTotals] = useState(false);
+  const {masterInfoObject} = useGlobalContextProvider();
+  const {nodeInformation} = useNodeContext();
   const navigate = useNavigation();
 
   const insets = useSafeAreaInsets();
@@ -30,73 +38,59 @@ export default function ViewPOSTransactions() {
     android: ANDROIDSAFEAREA,
   });
 
-  console.log(txList);
   const filteredList = useMemo(() => {
-    return !txList
+    return !groupedTxs
       ? []
-      : txList.filter(tx =>
-          tx.serverName.toLowerCase()?.startsWith(employeeName.toLowerCase()),
-        );
-  }, [txList]);
+      : groupedTxs.filter(tx => {
+          const [name, info] = tx;
+          return name.toLowerCase()?.startsWith(employeeName.toLowerCase());
+        });
+  }, [groupedTxs]);
 
-  const calculateBasicTipTotals = useCallback(txArray => {
-    try {
-      setIsAddingTotals(true);
-      let totals = {};
-      const oneMonthAgo = oneMonthAgoDate();
-      for (const tx of txArray) {
-        if (!isWithinOneMonth(tx.timestamp, oneMonthAgo) && tx.didPay) continue;
-        const serverName = tx.serverName?.toLowerCase()?.trim();
-        console.log(totals[serverName]);
-        if (!totals[serverName]) {
-          totals[serverName] = 0;
-        }
-
-        totals[serverName] = totals[serverName] + tx.tipAmountSats;
-      }
-
-      return {totals, fromDate: oneMonthAgo};
-    } catch (err) {
-      console.log('getting tip totals error', err);
-    } finally {
-      setIsAddingTotals(false);
-    }
+  const removeEmployee = useCallback(async name => {
+    navigate.navigate('ConfirmActionPage', {
+      confirmMessage: 'Are you sure you want to remove this employee?',
+      confirmFunction: () => deleteEmployee(name),
+    });
   }, []);
 
   const transactionItem = useCallback(({item}) => {
-    console.log(item, 'item');
+    const [name, {totalTipAmount}] = item;
+
     return (
-      <View style={styles.transactionContainer}>
-        <View style={{flex: 1, marginRight: 10}}>
-          <View style={styles.nameContainer}>
+      <TouchableOpacity
+        onLongPress={() => removeEmployee(name)}
+        activeOpacity={1}>
+        <View style={styles.transactionContainer}>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              marginRight: 'auto',
+            }}>
+            <View style={styles.nameContainer}>
+              <ThemeText
+                styles={styles.nameText}
+                content={name}
+                CustomNumberOfLines={1}
+              />
+            </View>
             <ThemeText
-              styles={styles.nameText}
-              content={item.serverName}
+              content={`Unpaid tips: ${displayCorrectDenomination({
+                amount: totalTipAmount,
+                masterInfoObject,
+                nodeInformation,
+              })}`}
               CustomNumberOfLines={1}
             />
-            {!!item?.didPay && (
-              <ThemeImage
-                styles={styles.image}
-                darkModeIcon={ICONS.checkIcon}
-                lightsOutIcon={ICONS.checkIconWhite}
-                lightModeIcon={ICONS.checkIcon}
-              />
-            )}
           </View>
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={{fontSize: SIZES.small}}
-            content={formatDateToDayMonthYearTime(item.timestamp)}
+          <CustomButton
+            actionFunction={() => navigate.navigate('TotalTipsScreen', {item})}
+            textContent={'View'}
           />
         </View>
-        <View style={{alignItems: 'flex-end'}}>
-          <FormattedSatText
-            frontText={'Order: '}
-            balance={item.orderAmountSats}
-          />
-          <FormattedSatText frontText={'Tip: '} balance={item.tipAmountSats} />
-        </View>
-      </View>
+      </TouchableOpacity>
     );
   }, []);
 
@@ -108,16 +102,14 @@ export default function ViewPOSTransactions() {
         leftImageBlue={ICONS.receiptIcon}
         LeftImageDarkMode={ICONS.receiptWhite}
         containerStyles={{marginBottom: 0}}
-        label={'Transactions'}
+        label={'Tips to pay'}
       />
       <CustomSearchInput
         placeholderText={'Employee name'}
         setInputText={setEmployeeName}
         containerStyles={{marginTop: 10}}
       />
-      {txList === null ? (
-        <FullLoadingScreen text={'Loading transactions'} />
-      ) : filteredList.length ? (
+      {filteredList.length ? (
         <View style={{...styles.container, alignItems: 'center'}}>
           <FlatList
             style={{width: '100%'}}
@@ -126,10 +118,9 @@ export default function ViewPOSTransactions() {
             scrollEnabled={true}
             data={filteredList}
             renderItem={transactionItem}
-            keyExtractor={item => item.timestamp.toString()}
+            keyExtractor={([name, {total, txs}]) => name}
           />
           <CustomButton
-            useLoading={isAddingTotals}
             buttonStyles={{
               width: 'auto',
               ...CENTER,
@@ -137,12 +128,7 @@ export default function ViewPOSTransactions() {
               bottom: paddingBottom,
             }}
             actionFunction={() => {
-              const response = calculateBasicTipTotals(txList);
-              console.log(response);
-              navigate.navigate('TotalTipsScreen', {
-                sortedTips: response.totals,
-                fromDate: response.fromDate,
-              });
+              navigate.navigate('TotalTipsScreen');
             }}
             textContent={'Employee Tip Totals'}
           />
@@ -156,47 +142,24 @@ export default function ViewPOSTransactions() {
   );
 }
 
-const oneMonthAgoDate = () => {
-  const endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999); // Set the time to the end of the day
-
-  const oneMonthAgo = new Date(endOfDay);
-  oneMonthAgo.setMonth(endOfDay.getMonth() - 1);
-
-  return oneMonthAgo.getTime();
-};
-const isWithinOneMonth = (date, oneMonthAgo) => {
-  const endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999); // Set the time to the end of the day
-  // Convert both dates to Unix timestamps (milliseconds)
-  const dateToCompareTimestamp = new Date(date).getTime();
-  const oneMonthAgoTimestamp = oneMonthAgo;
-
-  // Check if the date is within the last month
-  return (
-    dateToCompareTimestamp >= oneMonthAgoTimestamp &&
-    dateToCompareTimestamp <= endOfDay.getTime()
-  );
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   transactionContainer: {
-    marginVertical: 10,
-    width: '95%',
+    marginVertical: 12,
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
     flexDirection: 'row',
     alignItems: 'center',
   },
   nameText: {
     textTransform: 'capitalize',
-    marginRight: 5,
   },
   nameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginRight: 5,
   },
   image: {
     height: 12,
