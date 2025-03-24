@@ -219,6 +219,22 @@ export const updateDidPayForSingleTx = async (didPaySetting, dbDateAdded) => {
   }
 };
 
+export const deleteEmployee = async employeeName => {
+  try {
+    await sqlLiteDB.runAsync(
+      `DELETE FROM ${POS_TRANSACTION_TABLE_NAME} WHERE LOWER(serverName) = LOWER(?);`,
+      [employeeName],
+    );
+
+    console.log(`Deleted all messages for employee: ${employeeName}`);
+    pointOfSaleEventEmitter.emit(POS_EVENT_UPDATE, 'delted employee');
+    return true;
+  } catch (error) {
+    console.error('Error deleting messages:', error);
+    return false;
+  }
+};
+
 export const deletePOSTransactionsTable = async () => {
   try {
     await sqlLiteDB.runAsync(
