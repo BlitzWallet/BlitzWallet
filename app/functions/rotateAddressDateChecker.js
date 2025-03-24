@@ -123,6 +123,16 @@ const formatDateToDayMonthYearTime = timestamp => {
   }).format(date);
 };
 
+const formatDateToDayMonthYear = timestamp => {
+  const date = new Date(timestamp);
+  const location = Intl.DateTimeFormat().resolvedOptions().locale || 'en-US';
+  return new Intl.DateTimeFormat(location, {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
+};
+
 export {
   isMoreThan7DaysPast,
   getCurrentDateFormatted,
@@ -132,4 +142,5 @@ export {
   getDateXDaysAgo,
   getTwoWeeksAgoDate,
   formatDateToDayMonthYearTime,
+  formatDateToDayMonthYear,
 };
