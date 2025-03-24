@@ -14,11 +14,7 @@ import {
   POS_EVENT_UPDATE,
   queuePOSTransactions,
 } from '../app/functions/pos';
-import {
-  getTwoWeeksAgoDate,
-  isWithinOneMonth,
-  oneMonthAgoDate,
-} from '../app/functions/rotateAddressDateChecker';
+import {getTwoWeeksAgoDate} from '../app/functions/rotateAddressDateChecker';
 // Initiate context
 const POSTransactionsContextManager = createContext(null);
 
@@ -35,21 +31,35 @@ const POSTransactionsProvider = ({children}) => {
   const groupedTxs = useMemo(() => {
     try {
       let totals = {};
-      const oneMonthAgo = oneMonthAgoDate();
       for (const tx of txList) {
-        if (
-          (!isWithinOneMonth(tx.timestamp, oneMonthAgo) && tx.didPay) ||
-          tx.didPay
-        )
-          continue;
         const serverName = tx.serverName?.toLowerCase()?.trim();
-        if (!totals[serverName]) {
-          totals[serverName] = {total: 0, txs: []};
+        let savedAccount = totals[serverName];
+        if (!savedAccount) {
+          totals[serverName] = {
+            totalTipAmount: 0,
+            txs: [],
+            unpaidTxs: [],
+            lastActivity: 0,
+            totalUnpaidTxs: 0,
+            totalPaidTxs: 0,
+          };
         }
+        savedAccount = totals[serverName];
+
+        let newUnpaidTxArray = [...savedAccount.unpaidTxs];
+        if (!tx.didPay) newUnpaidTxArray.push;
 
         totals[serverName] = {
-          total: totals[serverName].total + tx.tipAmountSats,
-          txs: [tx, ...totals[serverName].txs],
+          totalTipAmount:
+            savedAccount.totalTipAmount + (tx.didPay ? 0 : tx.tipAmountSats),
+          txs: [tx, ...savedAccount.txs],
+          unpaidTxs: newUnpaidTxArray,
+          lastActivity:
+            tx.timestamp > savedAccount.lastActivity
+              ? tx.timestamp
+              : savedAccount.lastActivity,
+          totalUnpaidTxs: savedAccount.totalUnpaidTxs + (!tx.didPay ? 1 : 0),
+          totalPaidTxs: savedAccount.totalPaidTxs + (tx.didPay ? 1 : 0),
         };
       }
 
@@ -136,10 +146,9 @@ const POSTransactionsProvider = ({children}) => {
 
   const contextValue = useMemo(
     () => ({
-      txList,
       groupedTxs,
     }),
-    [txList, groupedTxs],
+    [groupedTxs],
   );
 
   return (
