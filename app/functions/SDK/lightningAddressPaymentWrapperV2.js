@@ -14,8 +14,8 @@ export default async function breezLNAddressPaymentWrapperV2({
     console.log('USING TRAMPOLINE', useTrampoline);
     const amountMsat = sendingAmountSat * 1000;
 
-    const optionalComment = paymentDescription;
-    const optionalPaymentLabel = paymentDescription;
+    const optionalComment = paymentDescription || undefined;
+    const optionalPaymentLabel = paymentDescription || undefined;
     resposne = await payLnurl({
       data: paymentInfo.data,
       amountMsat,

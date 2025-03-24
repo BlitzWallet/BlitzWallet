@@ -9,7 +9,7 @@ export default function formatBip21LiquidAddress({
   try {
     const liquidBip21 = `liquidnetwork:${address}?assetid=${assetID}&amount=${(
       amount / SATSPERBITCOIN
-    ).toFixed(8)}${message ? `&message=${encodeURI(message)}` : ''}`;
+    ).toFixed(8)}${message ? `&message=${message}` : ''}`;
     return liquidBip21;
   } catch (err) {
     console.log('format bip21 liquid address error', err);
