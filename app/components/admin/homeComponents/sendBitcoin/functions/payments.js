@@ -28,6 +28,7 @@ import {
   getMeltQuote,
   payLnInvoiceFromEcash,
 } from '../../../../../functions/eCash/wallet';
+import formatBip21LiquidAddress from '../../../../../functions/liquidWallet/formatBip21liquidAddress';
 
 export async function sendLiquidPayment_sendPaymentScreen({
   sendingAmount,
@@ -38,15 +39,11 @@ export async function sendLiquidPayment_sendPaymentScreen({
   paymentDescription,
 }) {
   try {
-    const formattedLiquidAddress = `${
-      process.env.BOLTZ_ENVIRONMENT === 'testnet'
-        ? 'liquidtestnet:'
-        : 'liquidnetwork:'
-    }${paymentInfo?.data?.address}?assetid=${
-      assetIDS['L-BTC']
-    }&message=${paymentDescription}&amount=${(
-      Number(sendingAmount) / SATSPERBITCOIN
-    ).toFixed(8)}`;
+    const formattedLiquidAddress = formatBip21LiquidAddress({
+      address: paymentInfo?.data?.address,
+      amount: Number(sendingAmount),
+      message: paymentDescription,
+    });
 
     const paymentResponse = await breezLiquidPaymentWrapper({
       invoice: formattedLiquidAddress,

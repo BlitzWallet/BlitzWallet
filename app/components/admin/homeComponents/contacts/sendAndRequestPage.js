@@ -39,6 +39,7 @@ import {
   getProofsToUse,
 } from '../../../../functions/eCash/wallet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import formatBip21LiquidAddress from '../../../../functions/liquidWallet/formatBip21liquidAddress';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -224,15 +225,13 @@ export default function SendAndRequestPage(props) {
         receiveAddress = address;
         // note do not need to set an amount for lnurl taken care of down below with entered payment information object
       } else {
-        receiveAddress = `${
-          process.env.BOLTZ_ENVIRONMENT === 'testnet'
-            ? 'liquidtestnet:'
-            : 'liquidnetwork:'
-        }${address}?message=${`Paying ${
-          selectedContact.name || selectedContact.uniqueName
-        }`}&amount=${(convertedSendAmount / SATSPERBITCOIN).toFixed(
-          8,
-        )}&assetid=${assetIDS['L-BTC']}`;
+        receiveAddress = formatBip21LiquidAddress({
+          address: address,
+          amount: convertedSendAmount,
+          message: `Paying ${
+            selectedContact.name || selectedContact.uniqueName
+          }`,
+        });
       }
       const UUID = customUUID();
       let sendObject = {};
