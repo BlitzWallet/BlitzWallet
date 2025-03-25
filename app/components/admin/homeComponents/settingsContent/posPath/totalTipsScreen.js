@@ -1,4 +1,6 @@
 import {
+  FlatList,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
@@ -19,7 +21,7 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {formatDateToDayMonthYear} from '../../../../../functions/rotateAddressDateChecker';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {useCallback, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
@@ -32,11 +34,16 @@ import customUUID from '../../../../../functions/customUUID';
 import {publishMessage} from '../../../../../functions/messaging/publishMessage';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {getFiatRates} from '../../../../../functions/SDK';
-import {bulkUpdateDidPay} from '../../../../../functions/pos';
+import {bulkUpdateDidPay, deleteEmployee} from '../../../../../functions/pos';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import TipsTXItem from './internalComponents/tipTx';
+import {usePOSTransactions} from '../../../../../../context-store/pos';
 
 export default function TotalTipsScreen(props) {
   const {decodedAddedContacts, globalContactsInformation} = useGlobalContacts();
+  const {groupedTxs} = usePOSTransactions();
+  const [wantedName, {}] = props.route?.params?.item;
+
   const [
     name,
     {
@@ -47,7 +54,8 @@ export default function TotalTipsScreen(props) {
       txs,
       unpaidTxs,
     },
-  ] = props.route?.params?.item;
+  ] = groupedTxs.find(item => item[0] === wantedName);
+
   const {theme, darkModeType} = useGlobalThemeContext();
   const {contactsPrivateKey} = useKeysContext();
   const {liquidNodeInformation, nodeInformation} = useNodeContext();
@@ -64,19 +72,19 @@ export default function TotalTipsScreen(props) {
     updateMessage: '',
     didComplete: false,
   });
+  const [viewTips, setViewTips] = useState(false);
 
-  console.log(name);
   const eCashBalance = ecashWalletInformation.balance;
 
   const handlePayment = useCallback(async () => {
     try {
       if (totalTipAmount < minMaxLiquidSwapAmounts.min) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: `Minimum tip balance is ${displayCorrectDenomination({
+          errorMessage: `Must have over ${displayCorrectDenomination({
             amount: minMaxLiquidSwapAmounts.min,
             nodeInformation,
             masterInfoObject,
-          })}.`,
+          })} in order to tip.`,
         });
         return;
       }
@@ -177,6 +185,30 @@ export default function TotalTipsScreen(props) {
     await bulkUpdateDidPay(dateAddedArray);
   }, []);
 
+  const renderItem = useCallback(
+    ({item}) => {
+      return (
+        <TipsTXItem
+          item={item}
+          masterInfoObject={masterInfoObject}
+          nodeInformation={nodeInformation}
+        />
+      );
+    },
+    [masterInfoObject, nodeInformation],
+  );
+
+  const viewHeight = useMemo(() => height * 0.5, [height]);
+  const removeEmployee = useCallback(async name => {
+    navigate.navigate('ConfirmActionPage', {
+      confirmMessage: 'Are you sure you want to remove this employee?',
+      confirmFunction: async () => {
+        await deleteEmployee(name);
+        navigate.navigate('ViewPOSTransactions');
+      },
+    });
+  }, []);
+
   return (
     <View style={styles.container}>
       <View
@@ -184,10 +216,43 @@ export default function TotalTipsScreen(props) {
           ...styles.contentContainer,
           backgroundColor:
             theme && darkModeType ? backgroundOffset : backgroundColor,
-          maxHeight: height * 0.5,
+          height: viewHeight,
         }}>
+        {!paymentUpdate.isSending && (
+          <View style={styles.navBarButtons}>
+            {!viewTips && (
+              <TouchableOpacity onPress={() => removeEmployee(name)}>
+                <ThemeImage
+                  styles={{width: 23, height: 23}}
+                  lightModeIcon={ICONS.trashIcon}
+                  darkModeIcon={ICONS.trashIcon}
+                  lightsOutIcon={ICONS.trashIconWhite}
+                />
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              onPress={() => {
+                if (viewTips) setViewTips(false);
+                else navigate.goBack();
+              }}>
+              <ThemeImage
+                lightModeIcon={
+                  viewTips ? ICONS.smallArrowLeft : ICONS.xSmallIcon
+                }
+                darkModeIcon={
+                  viewTips ? ICONS.smallArrowLeft : ICONS.xSmallIcon
+                }
+                lightsOutIcon={
+                  viewTips
+                    ? ICONS.arrow_small_left_white
+                    : ICONS.xSmallIconWhite
+                }
+              />
+            </TouchableOpacity>
+          </View>
+        )}
         {paymentUpdate.isSending ? (
-          <View style={{height: 250}}>
+          <>
             <FullLoadingScreen
               textStyles={{textAlign: 'center'}}
               text={
@@ -200,62 +265,63 @@ export default function TotalTipsScreen(props) {
             {paymentUpdate.didComplete && (
               <CustomButton textContent={'Go back'} />
             )}
-          </View>
+          </>
+        ) : viewTips ? (
+          <FlatList
+            contentContainerStyle={{paddingTop: 10, paddingBottom: 20}}
+            data={txs}
+            keyExtractor={item => item.dbDateAdded.toString()}
+            renderItem={renderItem}
+          />
         ) : (
           <>
-            <TouchableOpacity
-              onPress={navigate.goBack}
-              style={styles.cancelButton}>
-              <ThemeImage
-                lightModeIcon={ICONS.xSmallIcon}
-                darkModeIcon={ICONS.xSmallIcon}
-                lightsOutIcon={ICONS.xSmallIconWhite}
-              />
-            </TouchableOpacity>
             <ThemeText
               CustomNumberOfLines={1}
-              styles={{
-                textAlign: 'center',
-                marginBottom: 20,
-                fontSize: SIZES.large,
-              }}
+              styles={styles.employeeName}
               content={name}
             />
-            <View style={styles.attributeContainer}>
-              <ThemeText CustomNumberOfLines={1} content={`Last sale:`} />
-              <ThemeText
-                content={`${formatDateToDayMonthYear(lastActivity)}`}
-              />
-            </View>
-            <View style={styles.attributeContainer}>
-              <ThemeText
-                CustomNumberOfLines={1}
-                content={`Number of tips paid:`}
-              />
-              <ThemeText content={`${totalPaidTxs}`} />
-            </View>
-            <View style={styles.attributeContainer}>
-              <ThemeText
-                CustomNumberOfLines={1}
-                content={`Number of unpaid tips:`}
-              />
-              <ThemeText content={`${totalUnpaidTxs}`} />
-            </View>
-            <View style={styles.attributeContainer}>
-              <ThemeText
-                CustomNumberOfLines={1}
-                content={`Current tip balance:`}
-              />
-              <ThemeText
-                content={`${displayCorrectDenomination({
-                  amount: totalTipAmount,
-                  masterInfoObject,
-                  nodeInformation,
-                })}`}
-              />
-            </View>
+            <ScrollView contentContainerStyle={{paddingBottom: 20}}>
+              <View style={styles.attributeContainer}>
+                <ThemeText CustomNumberOfLines={1} content={`Last sale:`} />
+                <ThemeText
+                  content={`${formatDateToDayMonthYear(lastActivity)}`}
+                />
+              </View>
+              <View style={styles.attributeContainer}>
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  content={`Number of tips paid:`}
+                />
+                <ThemeText content={`${totalPaidTxs}`} />
+              </View>
+              <View style={styles.attributeContainer}>
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  content={`Number of unpaid tips:`}
+                />
+                <ThemeText content={`${totalUnpaidTxs}`} />
+              </View>
+              <View style={styles.attributeContainer}>
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  content={`Current tip balance:`}
+                />
+                <ThemeText
+                  content={`${displayCorrectDenomination({
+                    amount: totalTipAmount,
+                    masterInfoObject,
+                    nodeInformation,
+                  })}`}
+                />
+              </View>
+            </ScrollView>
 
             <CustomButton actionFunction={handlePayment} textContent={'Pay'} />
+            <CustomButton
+              actionFunction={() => setViewTips(true)}
+              textContent={'View Tips'}
+              buttonStyles={{marginTop: 10}}
+            />
           </>
         )}
       </View>
@@ -275,20 +341,12 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
   },
-  entryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBlockColor: COLORS.halfModalBackgroundColor,
-    borderBottomWidth: 1,
-  },
-  name: {
+
+  employeeName: {
+    textAlign: 'center',
+    marginBottom: 20,
+    fontSize: SIZES.large,
     textTransform: 'capitalize',
-    flex: 1,
-    marginRight: 10,
-  },
-  cancelButton: {
-    marginLeft: 'auto',
   },
   attributeContainer: {
     width: '90%',
@@ -297,5 +355,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     ...CENTER,
+  },
+  navBarButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
 });
