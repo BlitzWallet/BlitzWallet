@@ -1,5 +1,5 @@
 import {StyleSheet, View} from 'react-native';
-import {useCallback, useMemo, useState} from 'react';
+import {useCallback, useState} from 'react';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import PagerView from 'react-native-pager-view';
 import {MyTabs} from '../../../navigation/tabs';
@@ -15,10 +15,17 @@ const HOME_PAGE = 1;
 export default function AdminHomeIndex() {
   const {masterInfoObject} = useGlobalContextProvider();
   const [currentPage, setCurrentPage] = useState(HOME_PAGE);
+  const [isSliding, setIsSliding] = useState(false);
   const {backgroundColor} = GetThemeColors();
 
   const handlePageChange = useCallback(e => {
     setCurrentPage(e.nativeEvent.position);
+    setIsSliding(false);
+  }, []);
+
+  const handlePageScroll = useCallback(e => {
+    const {position, offset} = e.nativeEvent;
+    setIsSliding(position === 0 && offset > 0);
   }, []);
 
   const MainContent = useCallback(
@@ -44,12 +51,17 @@ export default function AdminHomeIndex() {
     <PagerView
       style={{...styles.container, backgroundColor}}
       initialPage={HOME_PAGE}
-      onPageSelected={handlePageChange}>
-      <SendPaymentHome
-        from="home"
-        pageViewPage={currentPage}
-        key={CAMERA_PAGE}
-      />
+      onPageSelected={handlePageChange}
+      onPageScroll={handlePageScroll}>
+      {currentPage === CAMERA_PAGE || isSliding ? (
+        <SendPaymentHome
+          from="home"
+          pageViewPage={currentPage}
+          key={CAMERA_PAGE}
+        />
+      ) : (
+        <View key={CAMERA_PAGE} style={styles.container} />
+      )}
       <View key={HOME_PAGE} style={styles.container}>
         <MainContent />
       </View>
