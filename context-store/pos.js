@@ -49,7 +49,7 @@ const POSTransactionsProvider = ({children}) => {
         savedAccount = totals[serverName];
 
         let newUnpaidTxArray = [...savedAccount.unpaidTxs];
-        if (!tx.didPay) newUnpaidTxArray.push;
+        if (!tx.didPay) newUnpaidTxArray.push(tx);
 
         totals[serverName] = {
           totalTipAmount:
