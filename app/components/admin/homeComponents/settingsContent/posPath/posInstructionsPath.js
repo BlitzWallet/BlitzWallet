@@ -23,7 +23,7 @@ export default function POSInstructionsPath() {
   const {masterInfoObject} = useGlobalContextProvider();
   const navigate = useNavigation();
 
-  const posURL = `pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`;
+  const posURL = `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`;
 
   return (
     <GlobalThemeView
@@ -51,9 +51,8 @@ export default function POSInstructionsPath() {
             size={250}
             quietZone={15}
             value={posURL}
-            color={COLORS.lightModeText}
-            backgroundColor={COLORS.darkModeText}
-            BackgroundColor={COLORS.darkModeText}
+            color={COLORS.white}
+            backgroundColor={COLORS.lightModeText}
           />
         </View>
       </TouchableOpacity>
@@ -77,22 +76,7 @@ export default function POSInstructionsPath() {
           styles={styles.lineItem}
           content={`1. Scan QR code with your camera`}
         />
-        <ThemeText
-          styles={styles.lineItem}
-          content={`2. Click the 3 dots on the top right corner of the web-browser`}
-        />
-        <ThemeText
-          styles={styles.lineItem}
-          content={`3. Click "Add to home screen"`}
-        />
-        <ThemeText
-          styles={styles.lineItem}
-          content={`4. Done! Use the now saved app to accept payments`}
-        />
-        <ThemeText
-          styles={styles.lineItem}
-          content={`show the customer the QR code that appears`}
-        />
+        <ThemeText styles={styles.lineItem} content={`2. That's it.`} />
       </ScrollView>
     </GlobalThemeView>
   );
@@ -109,7 +93,6 @@ const styles = StyleSheet.create({
   topBarText: {
     width: '100%',
     fontSize: SIZES.xLarge,
-    fontFamily: FONT.Title_Regular,
     textAlign: 'center',
     color: COLORS.lightModeText,
   },
@@ -123,7 +106,6 @@ const styles = StyleSheet.create({
   qrCodeContainer: {
     width: 275,
     height: 275,
-    backgroundColor: COLORS.primary,
     borderRadius: 20,
     ...CENTER,
     marginTop: 20,
