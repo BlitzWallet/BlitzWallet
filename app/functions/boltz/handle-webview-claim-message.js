@@ -2,10 +2,10 @@ import {getBoltzApiUrl} from './boltzEndpoitns';
 import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 
 export default function handleWebviewClaimMessage(
-  navigate,
+  // navigate,
   event,
-  receiveingPage,
-  confirmFunction,
+  // receiveingPage,
+  // confirmFunction,
   // saveBotlzSwapIdFunction,
 ) {
   (async () => {
@@ -45,9 +45,9 @@ export default function handleWebviewClaimMessage(
             } else await new Promise(resolve => setTimeout(resolve, 5000));
           } catch (err) {
             console.log(err);
-            if (receiveingPage === 'loadingScreen') {
-              confirmFunction(1);
-            }
+            // if (receiveingPage === 'loadingScreen') {
+            //   confirmFunction(1);
+            // }
           }
         }
 

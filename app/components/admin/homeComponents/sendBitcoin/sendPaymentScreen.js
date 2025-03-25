@@ -70,7 +70,10 @@ export default function SendPaymentScreen(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {ecashWalletInformation} = useGlobaleCash();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
-  const {webViewRef, setWebViewArgs} = useWebView();
+  const {
+    webViewRef,
+    //  setWebViewArgs
+  } = useWebView();
 
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [paymentInfo, setPaymentInfo] = useState({});
@@ -181,7 +184,7 @@ export default function SendPaymentScreen(props) {
         setPaymentInfo,
         liquidNodeInformation,
         masterInfoObject,
-        setWebViewArgs,
+        // setWebViewArgs,
         webViewRef,
         navigate,
         maxZeroConf:
@@ -487,10 +490,6 @@ export default function SendPaymentScreen(props) {
       }
       return;
     }
-    setWebViewArgs({
-      navigate: navigate,
-      page: 'sendingPage',
-    });
 
     if (canUseEcash) {
       await sendPaymentUsingEcash({

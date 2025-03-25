@@ -38,6 +38,7 @@ import {bulkUpdateDidPay, deleteEmployee} from '../../../../../functions/pos';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import TipsTXItem from './internalComponents/tipTx';
 import {usePOSTransactions} from '../../../../../../context-store/pos';
+import {useWebView} from '../../../../../../context-store/webViewContext';
 
 export default function TotalTipsScreen(props) {
   const {decodedAddedContacts, globalContactsInformation} = useGlobalContacts();
@@ -73,6 +74,7 @@ export default function TotalTipsScreen(props) {
     didComplete: false,
   });
   const [viewTips, setViewTips] = useState(false);
+  const {webViewRef} = useWebView();
 
   const eCashBalance = ecashWalletInformation.balance;
 
@@ -113,6 +115,7 @@ export default function TotalTipsScreen(props) {
           sendingAmountSats: totalTipAmount,
           masterInfoObject,
           description: POINT_OF_SALE_PAYOUT_DESCRIPTION,
+          webViewRef,
         });
         if (didPay) {
           setPaymentUpdate(prev => ({
