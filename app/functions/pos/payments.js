@@ -12,6 +12,9 @@ import formatBip21LiquidAddress from '../liquidWallet/formatBip21liquidAddress';
 import breezPaymentWrapperV2 from '../SDK/breezPaymentWrapperV2';
 import {getLNAddressForLiquidPayment} from '../../components/admin/homeComponents/sendBitcoin/functions/payments';
 import breezLNAddressPaymentWrapperV2 from '../SDK/lightningAddressPaymentWrapperV2';
+import {contactsLNtoLiquidSwapInfo} from '../../components/admin/homeComponents/contacts/internalComponents/LNtoLiquidSwap';
+import {getBoltzWsUrl} from '../boltz/boltzEndpoitns';
+import handleReverseClaimWSS from '../boltz/handle-reverse-claim-wss';
 
 /**
  * Pay to a Liquid address using the most efficient available payment method
@@ -35,6 +38,7 @@ export async function payPOSLiquid({
   sendingAmountSats,
   masterInfoObject,
   description,
+  webViewRef,
 }) {
   try {
     // Calculate fees for different payment methods
@@ -90,7 +94,25 @@ export async function payPOSLiquid({
       }
     }
 
-    // NEED TO ADD BOLTZ ADDRESS GENERATION HERE FOR INVOICE
+    const {data, publicKey, privateKey, keys, preimage, liquidAddress} =
+      await contactsLNtoLiquidSwapInfo(address, sendingAmountSats, description);
+
+    if (!data?.invoice) throw new Error('No Invoice genereated');
+
+    const webSocket = new WebSocket(
+      `${getBoltzWsUrl(process.env.BOLTZ_ENVIRONMENT)}`,
+    );
+    const didHandle = await handleReverseClaimWSS({
+      ref: webViewRef,
+      webSocket: webSocket,
+      liquidAddress: liquidAddress,
+      swapInfo: data,
+      preimage: preimage,
+      privateKey: privateKey,
+    });
+    if (!didHandle) throw new Error('Unable to open websocket');
+
+    const invoice = data.invoice;
 
     // 2. SECOND ATTEMPT: Pay with eCash if enabled
     if (masterInfoObject.enabledEcash) {
@@ -156,7 +178,6 @@ export async function payPOSLiquid({
     return false;
   } catch (err) {
     console.error('Payment error in payPOSLiquid:', err);
-
     return false;
   }
 }
