@@ -34,6 +34,7 @@ import {
   ANDROIDSAFEAREA,
   KEYBOARDTIMEOUT,
 } from '../../../../../constants/styles';
+import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 
 export default function PosSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -172,8 +173,7 @@ export default function PosSettingsPage() {
 
       <CustomButton
         buttonStyles={{
-          width: '95%',
-          maxWidth: 200,
+          width: INSET_WINDOW_WIDTH,
           alignSelf: 'center',
           backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
         }}
@@ -209,7 +209,7 @@ export default function PosSettingsPage() {
       />
       <CustomButton
         buttonStyles={{
-          width: '100%',
+          width: INSET_WINDOW_WIDTH,
           marginTop: 20,
           backgroundColor: backgroundOffset,
           marginBottom: isKeyboardActive
