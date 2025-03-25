@@ -126,9 +126,16 @@ export default function SendMaxComponent({
           }
         } else if (option.type === 'ecash') {
           if (!masterInfoObject.enabledEcash) continue;
-          if (isLightningPayment && option.balance) {
+          const lnFee = Math.round(option.balance * 0.005) + 4;
+
+          if (
+            (isLightningPayment && option.balance) ||
+            (isLiquidPayment && option.balance >= minMaxLiquidSwapAmounts.min)
+          ) {
             maxAmountSats =
-              Number(option.balance) - 2 < 0 ? 0 : Number(option.balance) - 2;
+              Number(option.balance) - lnFee < 0
+                ? 0
+                : Number(option.balance) - lnFee;
             break;
           } else maxAmountSats = 0;
         }
