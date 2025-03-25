@@ -28,7 +28,6 @@ export default function usablePaymentNetwork({
         convertedSendAmount <= paymentInfo?.data?.limits?.maxSat;
 
     const canUseEcash =
-      !masterInfoObject.liquidWalletSettings.isLightningEnabled &&
       masterInfoObject.enabledEcash &&
       eCashBalance >= convertedSendAmount + lnFee;
 
@@ -52,7 +51,7 @@ export default function usablePaymentNetwork({
 
     const canUseLightning = masterInfoObject.liquidWalletSettings
       .isLightningEnabled
-      ? canUseLightningWithLNEnabled
+      ? canUseLightningWithLNEnabled || canUseLightningWithoutLNEnabled
       : canUseLightningWithoutLNEnabled;
 
     return {canUseEcash, canUseLiquid, canUseLightning};
