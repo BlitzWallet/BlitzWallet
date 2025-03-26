@@ -272,6 +272,7 @@ export default function ChatGPTHome(props) {
         )}
       <View style={styles.bottomBarContainer}>
         <TextInput
+          keyboardAppearance={theme ? 'dark' : 'light'}
           onChangeText={setUserChatText}
           autoFocus={true}
           placeholder={`Message ${model}`}

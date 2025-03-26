@@ -287,6 +287,7 @@ function InnerContent({
             content={'Name'}
           />
           <TextInput
+            keyboardAppearance={theme ? 'dark' : 'light'}
             placeholder="Set Name"
             placeholderTextColor={COLORS.opaicityGray}
             ref={nameRef}
@@ -336,6 +337,7 @@ function InnerContent({
               content={'Lightning Address'}
             />
             <TextInput
+              keyboardAppearance={theme ? 'dark' : 'light'}
               placeholderTextColor={COLORS.opaicityGray}
               ref={receiveAddressRef}
               style={[
@@ -387,6 +389,7 @@ function InnerContent({
               content={'Username'}
             />
             <TextInput
+              keyboardAppearance={theme ? 'dark' : 'light'}
               placeholderTextColor={COLORS.opaicityGray}
               ref={uniquenameRef}
               style={[
@@ -437,6 +440,7 @@ function InnerContent({
             content={'Bio'}
           />
           <TextInput
+            keyboardAppearance={theme ? 'dark' : 'light'}
             placeholder="Set Bio"
             placeholderTextColor={COLORS.opaicityGray}
             ref={bioRef}

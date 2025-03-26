@@ -110,6 +110,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
               }}
             />
             <TextInput
+              keyboardAppearance={theme ? 'dark' : 'light'}
               style={styles.textInputHidden}
               onChangeText={e => setAreaCode(e)}
               ref={areaCodeRef}

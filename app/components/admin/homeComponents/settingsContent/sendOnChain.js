@@ -182,6 +182,7 @@ export default function SendOnChainBitcoin({isDoomsday}) {
               />
               <View style={[styles.inputContainer]}>
                 <TextInput
+                  keyboardAppearance={theme ? 'dark' : 'light'}
                   value={bitcoinAddress}
                   onChangeText={setBitcoinAddress}
                   style={[

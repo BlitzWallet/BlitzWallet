@@ -156,7 +156,7 @@ export default function PosSettingsPage() {
         </View>
 
         {/* Sticky Header Section */}
-        <View style={{backgroundColor: backgroundColor, paddingVertical: 10}}>
+        <View style={{backgroundColor: backgroundColor, paddingTop: 10}}>
           <ThemeText content={'Display currency'} />
           <CustomSearchInput
             inputText={textInput}

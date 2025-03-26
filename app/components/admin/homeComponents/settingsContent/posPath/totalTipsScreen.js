@@ -86,7 +86,7 @@ export default function TotalTipsScreen(props) {
             amount: minMaxLiquidSwapAmounts.min,
             nodeInformation,
             masterInfoObject,
-          })} in order to tip.`,
+          })} in order payout tips.`,
         });
         return;
       }

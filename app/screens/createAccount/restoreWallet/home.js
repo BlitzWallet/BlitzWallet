@@ -91,6 +91,7 @@ export default function RestoreWallet({
           }}>
           <ThemeText styles={styles.numberText} content={`${item}.`} />
           <TextInput
+            keyboardAppearance={theme ? 'dark' : 'light'}
             ref={ref => (keyRefs.current[item] = ref)} // Store ref for each input
             value={inputedKey[`key${item}`]}
             onFocus={() => handleFocus(item)} // Track the currently focused input
