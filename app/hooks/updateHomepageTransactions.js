@@ -1,5 +1,6 @@
 import {useFocusEffect} from '@react-navigation/native';
 import {useState, useRef, useCallback, useMemo} from 'react';
+import {InteractionManager} from 'react-native';
 
 export function useUpdateHomepageTransactions() {
   const [minuteTick, setMinuteTick] = useState(Math.floor(Date.now() / 60000));
@@ -20,11 +21,13 @@ export function useUpdateHomepageTransactions() {
       }, 60000);
 
       return () => {
-        console.log('Clearing stable time interval');
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-        }
+        InteractionManager.runAfterInteractions(() => {
+          console.log('Clearing stable time interval');
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+        });
       };
     }, []),
   );

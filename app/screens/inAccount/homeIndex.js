@@ -15,18 +15,38 @@ const HOME_PAGE = 1;
 export default function AdminHomeIndex() {
   const {masterInfoObject} = useGlobalContextProvider();
   const [currentPage, setCurrentPage] = useState(HOME_PAGE);
-  const [isSliding, setIsSliding] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(false);
   const {backgroundColor} = GetThemeColors();
 
   const handlePageChange = useCallback(e => {
-    setCurrentPage(e.nativeEvent.position);
-    setIsSliding(false);
+    console.log(e.nativeEvent, 'PAGE CHANGE');
+    const newPage = e.nativeEvent.position;
+    setCurrentPage(newPage);
+
+    if (newPage === CAMERA_PAGE) {
+      setIsCameraActive(true);
+    } else {
+      setIsCameraActive(false);
+    }
   }, []);
 
-  const handlePageScroll = useCallback(e => {
-    const {position, offset} = e.nativeEvent;
-    setIsSliding(position === 0 && offset > 0);
-  }, []);
+  const handlePageScroll = useCallback(
+    e => {
+      const state = e.nativeEvent.pageScrollState;
+      console.log(
+        currentPage,
+        'CURRENT PAGE IN SCROLL',
+        state,
+        state === 'dragging' && currentPage === HOME_PAGE,
+      );
+      if (state === 'dragging' && currentPage === HOME_PAGE) {
+        setIsCameraActive(true);
+      } else if (state === 'idle' && currentPage === HOME_PAGE) {
+        setIsCameraActive(false);
+      }
+    },
+    [currentPage],
+  );
 
   const MainContent = useCallback(
     () => (
@@ -52,16 +72,12 @@ export default function AdminHomeIndex() {
       style={{...styles.container, backgroundColor}}
       initialPage={HOME_PAGE}
       onPageSelected={handlePageChange}
-      onPageScroll={handlePageScroll}>
-      {currentPage === CAMERA_PAGE || isSliding ? (
-        <SendPaymentHome
-          from="home"
-          pageViewPage={currentPage}
-          key={CAMERA_PAGE}
-        />
-      ) : (
-        <View key={CAMERA_PAGE} style={styles.container} />
-      )}
+      onPageScrollStateChanged={handlePageScroll}>
+      <View style={{flex: 1}} key={CAMERA_PAGE}>
+        {isCameraActive && (
+          <SendPaymentHome from="home" pageViewPage={currentPage} />
+        )}
+      </View>
       <View key={HOME_PAGE} style={styles.container}>
         <MainContent />
       </View>
