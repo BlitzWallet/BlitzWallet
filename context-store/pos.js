@@ -9,7 +9,10 @@ import {
 import {useKeysContext} from './keys';
 import {db} from '../db/initializeFirebase';
 import {
+  DID_OPEN_TABLES_EVENT_NAME,
   getSavedPOSTransactions,
+  pointOfSaleEventEmitter,
+  POS_EVENT_UPDATE,
   queuePOSTransactions,
 } from '../app/functions/pos';
 import {getTwoWeeksAgoDate} from '../app/functions/rotateAddressDateChecker';
@@ -19,6 +22,7 @@ const POSTransactionsContextManager = createContext(null);
 const POSTransactionsProvider = ({children}) => {
   const {publicKey, contactsPrivateKey} = useKeysContext();
   const [txList, setTxList] = useState([]);
+  const [didOpenTable, setDidOpenTable] = useState(false);
 
   const updateTxListFunction = useCallback(async () => {
     const txs = await getSavedPOSTransactions();
@@ -26,7 +30,54 @@ const POSTransactionsProvider = ({children}) => {
     return txs || [];
   }, []);
 
+  const groupedTxs = useMemo(() => {
+    try {
+      let totals = {};
+      for (const tx of txList) {
+        const serverName = tx.serverName?.toLowerCase()?.trim();
+        let savedAccount = totals[serverName];
+        if (!savedAccount) {
+          totals[serverName] = {
+            totalTipAmount: 0,
+            txs: [],
+            unpaidTxs: [],
+            lastActivity: 0,
+            totalUnpaidTxs: 0,
+            totalPaidTxs: 0,
+          };
+        }
+        savedAccount = totals[serverName];
+
+        let newUnpaidTxArray = [...savedAccount.unpaidTxs];
+        if (!tx.didPay) newUnpaidTxArray.push(tx);
+
+        totals[serverName] = {
+          totalTipAmount:
+            savedAccount.totalTipAmount + (tx.didPay ? 0 : tx.tipAmountSats),
+          txs: [tx, ...savedAccount.txs],
+          unpaidTxs: newUnpaidTxArray,
+          lastActivity:
+            tx.timestamp > savedAccount.lastActivity
+              ? tx.timestamp
+              : savedAccount.lastActivity,
+          totalUnpaidTxs: savedAccount.totalUnpaidTxs + (!tx.didPay ? 1 : 0),
+          totalPaidTxs: savedAccount.totalPaidTxs + (tx.didPay ? 1 : 0),
+        };
+      }
+
+      if (!Object.keys(totals).length) {
+        return [];
+      }
+
+      return Object.entries(totals);
+    } catch (err) {
+      console.log('getting tip totals error', err);
+      return [];
+    }
+  }, [txList]);
+
   useEffect(() => {
+    if (!didOpenTable) return;
     if (!publicKey) return;
     console.log('running pos transactions listener...');
     const now = new Date().getTime();
@@ -43,7 +94,6 @@ const POSTransactionsProvider = ({children}) => {
             queuePOSTransactions({
               transactionsList: [newTX],
               privateKey: contactsPrivateKey,
-              updateTxListFunction,
             });
           }
         });
@@ -52,7 +102,7 @@ const POSTransactionsProvider = ({children}) => {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [publicKey]);
+  }, [publicKey, didOpenTable]);
 
   useEffect(() => {
     async function loadSavedTxs() {
@@ -84,18 +134,32 @@ const POSTransactionsProvider = ({children}) => {
       queuePOSTransactions({
         transactionsList: messsageList,
         privateKey: contactsPrivateKey,
-        updateTxListFunction,
       });
     }
+    if (!didOpenTable) return;
     if (!publicKey) return;
     loadSavedTxs();
-  }, [publicKey]);
+  }, [publicKey, didOpenTable]);
+
+  const handlePosTableOpen = useCallback(eventType => {
+    if (eventType === 'opened') {
+      setDidOpenTable(true);
+    }
+  }, []);
+  useEffect(() => {
+    // listens for events from the db and updates the state
+    pointOfSaleEventEmitter.on(DID_OPEN_TABLES_EVENT_NAME, handlePosTableOpen);
+    pointOfSaleEventEmitter.on(POS_EVENT_UPDATE, updateTxListFunction);
+    return () => {
+      pointOfSaleEventEmitter.off(POS_EVENT_UPDATE, updateTxListFunction);
+    };
+  }, []);
 
   const contextValue = useMemo(
     () => ({
-      txList,
+      groupedTxs,
     }),
-    [txList],
+    [groupedTxs],
   );
 
   return (

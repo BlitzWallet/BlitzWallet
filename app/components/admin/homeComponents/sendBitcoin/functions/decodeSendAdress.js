@@ -22,7 +22,7 @@ export default async function decodeSendAddress(props) {
     setPaymentInfo,
     liquidNodeInformation,
     masterInfoObject,
-    setWebViewArgs,
+    // setWebViewArgs,
     webViewRef,
     navigate,
     maxZeroConf,
@@ -90,7 +90,7 @@ export default async function decodeSendAddress(props) {
       enteredPaymentInfo,
       setPaymentInfo,
       webViewRef,
-      setWebViewArgs,
+      // setWebViewArgs,
       setLoadingMessage,
       paymentInfo,
     });

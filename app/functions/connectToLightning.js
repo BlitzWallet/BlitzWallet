@@ -94,6 +94,7 @@ export default async function connectToLightningNode(breezEvent) {
       .join(' ');
     const seed = await mnemonicToSeed(mnemonic);
     const connectRequest = {config, seed};
+    // setLogStream(logHandler);
     await connect(connectRequest, breezEvent);
 
     return new Promise(resolve => {

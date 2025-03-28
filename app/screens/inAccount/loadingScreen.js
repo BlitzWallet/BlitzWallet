@@ -1,7 +1,14 @@
-import {AppState, Platform, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  AppState,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import {COLORS, FONT, ICONS} from '../../constants';
 import {useGlobalContextProvider} from '../../../context-store/context';
-import {useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {
   connectLsp,
   listLsps,
@@ -58,11 +65,14 @@ import {
 } from '../../functions/eCash/wallet';
 import {sumProofsValue} from '../../functions/eCash/proofs';
 import {initializePOSTransactionsDatabase} from '../../functions/pos';
+import CustomButton from '../../functions/CustomElements/button';
+import {INSET_WINDOW_WIDTH} from '../../constants/theme';
 export default function ConnectingToNodeLoadingScreen({
   navigation: {replace},
   route,
 }) {
   const navigate = useNavigation();
+  const window = useWindowDimensions();
   const {onLightningBreezEvent} = useLightningEvent();
   const {onLiquidBreezEvent} = useLiquidEvent();
   const {toggleMasterInfoObject, masterInfoObject, setMasterInfoObject} =
@@ -71,7 +81,7 @@ export default function ConnectingToNodeLoadingScreen({
   const {minMaxLiquidSwapAmounts, toggleMinMaxLiquidSwapAmounts} =
     useAppStatus();
   const {toggleNodeInformation, toggleLiquidNodeInformation} = useNodeContext();
-  const {theme} = useGlobalThemeContext();
+  const {theme, darkModeType} = useGlobalThemeContext();
   const {toggleGlobalContactsInformation, globalContactsInformation} =
     useGlobalContacts();
   const {
@@ -88,6 +98,8 @@ export default function ConnectingToNodeLoadingScreen({
   const didLoadInformation = useRef(false);
   const didOpenDatabases = useRef(false);
   const didRestoreWallet = route?.params?.didRestoreWallet;
+  const [showLNErrorScreen, setShowLNErrorScreen] = useState(false);
+  const [loadingLNFailedSettings, setLoadingLNFailedSettings] = useState(false);
   const isInialredner = useRef(true);
 
   const [message, setMessage] = useState(t('loadingScreen.message1'));
@@ -108,26 +120,22 @@ export default function ConnectingToNodeLoadingScreen({
   useEffect(() => {
     async function startConnectProcess() {
       try {
-        const [
-          didOpen,
-          ecashTablesOpened,
-          posTransactions,
-          didLoadUserSettings,
-        ] = await Promise.all([
-          initializeDatabase(),
-          initEcashDBTables(),
-          initializePOSTransactionsDatabase(),
-          initializeUserSettingsFromHistory({
-            setContactsPrivateKey: toggleContactsPrivateKey,
-            setMasterInfoObject,
-            toggleGlobalContactsInformation,
-            toggleGLobalEcashInformation,
-            toggleGlobalAppDataInformation,
-          }),
-        ]);
+        const [didOpen, ecashTablesOpened, posTransactions] = await Promise.all(
+          [
+            initializeDatabase(),
+            initEcashDBTables(),
+            initializePOSTransactionsDatabase(),
+          ],
+        );
         if (!didOpen || !ecashTablesOpened || !posTransactions)
           throw new Error('Database initialization failed');
-
+        const didLoadUserSettings = await initializeUserSettingsFromHistory({
+          setContactsPrivateKey: toggleContactsPrivateKey,
+          setMasterInfoObject,
+          toggleGlobalContactsInformation,
+          toggleGLobalEcashInformation,
+          toggleGlobalAppDataInformation,
+        });
         if (!didLoadUserSettings)
           throw new Error('Failed to load user settings');
 
@@ -154,40 +162,105 @@ export default function ConnectingToNodeLoadingScreen({
     initWallet();
   }, [masterInfoObject, globalContactsInformation]);
 
-  return (
-    <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-      {hasError && (
-        <TouchableOpacity
-          onPress={() => navigate.navigate('SettingsHome', {isDoomsday: true})}
-          style={styles.doomsday}>
-          <ThemeImage
-            lightModeIcon={ICONS.settingsIcon}
-            darkModeIcon={ICONS.settingsIcon}
-            lightsOutIcon={ICONS.settingsWhite}
-          />
-        </TouchableOpacity>
-      )}
-      <LottieView
-        source={
-          theme
-            ? require('../../assets/MOSCATWALKING2White.json')
-            : require('../../assets/MOSCATWALKING2Blue.json')
-        }
-        autoPlay
-        loop={true}
-        style={{
-          width: 150, // adjust as necessary
-          height: 150, // adjust as necessary
-        }}
-      />
+  const continueWithoutLN = useCallback(async () => {
+    if (loadingLNFailedSettings) return;
+    try {
+      setLoadingLNFailedSettings(true);
+      await Promise.all([
+        setLiquidNodeInformationForSession(),
+        setEcashInformationForSession(),
+      ]);
+      toggleMasterInfoObject(
+        {
+          liquidWalletSettings: {
+            ...masterInfoObject.liquidWalletSettings,
+            isLightningEnabled: false,
+          },
+        },
+        false,
+      );
+      replace('HomeAdmin', {screen: 'Home'});
+    } catch (err) {
+      console.log(err, 'continue without ln error');
+    }
+  }, [toggleMasterInfoObject, masterInfoObject, loadingLNFailedSettings]);
 
-      <ThemeText
-        styles={{
-          ...styles.waitingText,
-          color: theme ? COLORS.darkModeText : COLORS.primary,
-        }}
-        content={hasError ? hasError : message}
-      />
+  return (
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={styles.globalContainer}>
+        {showLNErrorScreen ? (
+          <View style={{alignItems: 'center', width: '100%'}}>
+            <LottieView
+              source={
+                theme
+                  ? darkModeType
+                    ? require('../../assets/errorTxAnimationLightsOutMode.json')
+                    : require('../../assets/errorTxAnimationDarkMode.json')
+                  : require('../../assets/errorTxAnimation.json')
+              }
+              autoPlay
+              loop={false}
+              style={{
+                width: window.width * 0.6,
+                height: window.width * 0.6,
+              }}
+            />
+
+            <ThemeText
+              styles={{
+                textAlign: 'center',
+                marginBottom: 50,
+                width: INSET_WINDOW_WIDTH,
+              }}
+              content={
+                'There was a problem setting up your Lightning node. Would you like to continue without lightning?'
+              }
+            />
+            <CustomButton
+              useLoading={loadingLNFailedSettings}
+              actionFunction={continueWithoutLN}
+              textContent={'Continue'}
+            />
+          </View>
+        ) : (
+          <>
+            {hasError && (
+              <TouchableOpacity
+                onPress={() =>
+                  navigate.navigate('SettingsHome', {isDoomsday: true})
+                }
+                style={styles.doomsday}>
+                <ThemeImage
+                  lightModeIcon={ICONS.settingsIcon}
+                  darkModeIcon={ICONS.settingsIcon}
+                  lightsOutIcon={ICONS.settingsWhite}
+                />
+              </TouchableOpacity>
+            )}
+            <LottieView
+              source={
+                theme
+                  ? require('../../assets/MOSCATWALKING2White.json')
+                  : require('../../assets/MOSCATWALKING2Blue.json')
+              }
+              autoPlay
+              loop={true}
+              style={{
+                width: 150, // adjust as necessary
+                height: 150, // adjust as necessary
+              }}
+            />
+
+            <ThemeText
+              styles={{
+                ...styles.waitingText,
+                color: theme ? COLORS.darkModeText : COLORS.primary,
+              }}
+              content={hasError ? hasError : message}
+            />
+          </>
+        )}
+      </View>
     </GlobalThemeView>
   );
 
@@ -206,7 +279,11 @@ export default function ConnectingToNodeLoadingScreen({
             Promise.resolve({isConnected: true}),
             connectToLiquidNode(onLiquidBreezEvent),
           ]));
-
+      console.log(
+        didConnectToNode?.isConnected,
+        !masterInfoObject.liquidWalletSettings.isLightningEnabled,
+        didConnectToLiquidNode?.isConnected,
+      );
       if (
         (didConnectToNode?.isConnected ||
           !masterInfoObject.liquidWalletSettings.isLightningEnabled) &&
@@ -296,9 +373,18 @@ export default function ConnectingToNodeLoadingScreen({
           throw new Error(
             'Either lightning or liquid node did not set up properly',
           );
-      } else throw new Error('something went wrong');
+      } else {
+        if (
+          !didConnectToNode.isConnected &&
+          didConnectToLiquidNode?.isConnected
+        ) {
+          setShowLNErrorScreen(true);
+          return;
+        }
+        throw new Error('Something went wrong during setup, try again.');
+      }
     } catch (err) {
-      setHasError(String(err));
+      setHasError(String(err.message));
       console.log(err, 'homepage connection to node err');
     }
   }

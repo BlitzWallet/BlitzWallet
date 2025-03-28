@@ -50,6 +50,7 @@ export default function TextInputWithSliderSettingsItem({
           content={settingInputTitle}
         />
         <TextInput
+          keyboardAppearance={theme ? 'dark' : 'light'}
           value={inputValue}
           defaultValue={String(defaultTextInputValue)}
           onChangeText={setInputValue}

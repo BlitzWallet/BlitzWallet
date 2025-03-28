@@ -22,13 +22,13 @@ export default async function breezPaymentWrapperV2({
       ? await sendPayment({
           useTrampoline: useTrampoline,
           bolt11: paymentInfo?.invoice?.bolt11,
-          label: paymentDescription,
+          label: paymentDescription || undefined,
         })
       : await sendPayment({
           useTrampoline: useTrampoline,
           bolt11: paymentInfo?.invoice?.bolt11,
           amountMsat,
-          label: paymentDescription,
+          label: paymentDescription || undefined,
         });
     if (
       !!response.payment.error &&

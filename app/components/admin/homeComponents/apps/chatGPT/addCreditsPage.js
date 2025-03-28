@@ -38,6 +38,7 @@ import {
   payLnInvoiceFromEcash,
 } from '../../../../../functions/eCash/wallet';
 import breezLNAddressPaymentWrapperV2 from '../../../../../functions/SDK/lightningAddressPaymentWrapperV2';
+import formatBip21LiquidAddress from '../../../../../functions/liquidWallet/formatBip21liquidAddress';
 
 const CREDITOPTIONS = [
   {
@@ -285,11 +286,11 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
           LIQUID_DEFAULT_FEE >
         creditPrice
       ) {
-        const liquidBip21 = `liquidnetwork:${
-          process.env.BLITZ_LIQUID_ADDRESS
-        }?assetid=6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d&amount=${(
-          creditPrice / SATSPERBITCOIN
-        ).toFixed(8)}&message=${encodeURI('Store - chatGPT')}`;
+        const liquidBip21 = formatBip21LiquidAddress({
+          address: process.env.BLITZ_LIQUID_ADDRESS,
+          amount: creditPrice,
+          message: 'Store - chatGPT',
+        });
 
         const response = await breezLiquidPaymentWrapper({
           paymentType: 'liquid',

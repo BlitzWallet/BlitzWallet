@@ -15,6 +15,7 @@ import {sendPushNotification} from '../../../../../functions/messaging/publishMe
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
+import formatBip21LiquidAddress from '../../../../../functions/liquidWallet/formatBip21liquidAddress';
 
 export default function ContactsTransactionItem(props) {
   const {selectedContact, transaction, myProfile, currentTime} = props;
@@ -251,13 +252,11 @@ export default function ContactsTransactionItem(props) {
   async function acceptPayRequest(transaction, selectedContact) {
     const sendingAmount = transaction.message.amountMsat / 1000;
 
-    const receiveAddress = `${
-      process.env.BOLTZ_ENVIRONMENT === 'testnet'
-        ? 'liquidtestnet:'
-        : 'liquidnetwork:'
-    }${selectedContact.receiveAddress}?amount=${(
-      sendingAmount / SATSPERBITCOIN
-    ).toFixed(8)}&assetid=${assetIDS['L-BTC']}`;
+    const receiveAddress = formatBip21LiquidAddress({
+      address: selectedContact.receiveAddress,
+      amount: sendingAmount,
+      message: `Paying ${selectedContact.name || selectedContact.uniqueName}`,
+    });
 
     navigate.navigate('ConfirmPaymentScreen', {
       btcAdress: receiveAddress,

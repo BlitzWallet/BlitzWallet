@@ -34,6 +34,7 @@ export default function TextInputSettingsItem({
           content={settingInputTitle}
         />
         <TextInput
+          keyboardAppearance={theme ? 'dark' : 'light'}
           value={inputValue}
           defaultValue={String(defaultTextInputValue)}
           onChangeText={setInputValue}

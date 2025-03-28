@@ -12,11 +12,11 @@ const WebViewContext = createContext(null);
 export const WebViewProvider = ({children}) => {
   const {didGetToHomepage} = useAppStatus();
   const webViewRef = useRef(null);
-  const [webViewArgs, setWebViewArgs] = useState({
-    navigate: null,
-    page: null,
-    function: null,
-  });
+  // const [webViewArgs, setWebViewArgs] = useState({
+  //   navigate: null,
+  //   page: null,
+  //   function: null,
+  // });
 
   useEffect(() => {
     if (!didGetToHomepage) {
@@ -30,9 +30,9 @@ export const WebViewProvider = ({children}) => {
 
       try {
         savedClaimInfo.forEach(claim => {
-          const webViewArgs = JSON.stringify(claim);
+          const claimInfo = JSON.stringify(claim);
           webViewRef.current.injectJavaScript(
-            `window.claimReverseSubmarineSwap(${webViewArgs}); void(0);`,
+            `window.claimReverseSubmarineSwap(${claimInfo}); void(0);`,
           );
         });
 
@@ -53,8 +53,8 @@ export const WebViewProvider = ({children}) => {
     <WebViewContext.Provider
       value={{
         webViewRef,
-        webViewArgs,
-        setWebViewArgs,
+        // webViewArgs,
+        // setWebViewArgs,
       }}>
       {children}
       <WebView
@@ -70,10 +70,10 @@ export const WebViewProvider = ({children}) => {
         originWhitelist={['*']}
         onMessage={event =>
           handleWebviewClaimMessage(
-            webViewArgs.navigate,
+            // webViewArgs.navigate,
             event,
-            webViewArgs.page,
-            webViewArgs.function,
+            // webViewArgs.page,
+            // webViewArgs.function,
           )
         }
       />

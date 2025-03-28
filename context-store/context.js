@@ -21,12 +21,13 @@ const GlobalContextProvider = ({children}) => {
   const {i18n} = useTranslation();
 
   const toggleMasterInfoObject = useCallback(
-    async newData => {
+    async (newData, shouldSendToDb = true) => {
       if (newData.userSelectedLanguage) {
         i18n.changeLanguage(newData.userSelectedLanguage);
       }
 
       setMasterInfoObject(prev => ({...prev, ...newData}));
+      if (!shouldSendToDb) return;
       await sendDataToDB(newData, publicKey);
     },
     [i18n, publicKey],

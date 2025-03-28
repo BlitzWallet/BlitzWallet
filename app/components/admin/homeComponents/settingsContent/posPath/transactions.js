@@ -1,5 +1,5 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {CENTER, ICONS, SIZES} from '../../../../../constants';
+import {useCallback, useMemo, useState} from 'react';
+import {CENTER, ICONS} from '../../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -7,19 +7,20 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {FlatList, Platform, StyleSheet, View} from 'react-native';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
 import {usePOSTransactions} from '../../../../../../context-store/pos';
-import {formatDateToDayMonthYearTime} from '../../../../../functions/rotateAddressDateChecker';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import {useNodeContext} from '../../../../../../context-store/nodeContext';
 
 export default function ViewPOSTransactions() {
-  const {txList} = usePOSTransactions();
+  const {groupedTxs} = usePOSTransactions();
   const [employeeName, setEmployeeName] = useState('');
-  const [isAddingTotals, setIsAddingTotals] = useState(false);
+  const {masterInfoObject} = useGlobalContextProvider();
+  const {nodeInformation} = useNodeContext();
   const navigate = useNavigation();
 
   const insets = useSafeAreaInsets();
@@ -30,60 +31,39 @@ export default function ViewPOSTransactions() {
   });
 
   const filteredList = useMemo(() => {
-    return !txList
+    return !groupedTxs
       ? []
-      : txList.filter(tx =>
-          tx.serverName.toLowerCase()?.startsWith(employeeName.toLowerCase()),
-        );
-  }, [txList]);
-
-  const calculateBasicTipTotals = useCallback(txArray => {
-    try {
-      setIsAddingTotals(true);
-      let totals = {};
-      const oneMonthAgo = oneMonthAgoDate();
-      for (const tx of txArray) {
-        if (!isWithinOneMonth(tx.timestamp, oneMonthAgo)) continue;
-        const serverName = tx.serverName?.toLowerCase()?.trim();
-        console.log(totals[serverName]);
-        if (!totals[serverName]) {
-          totals[serverName] = 0;
-        }
-
-        totals[serverName] = totals[serverName] + tx.tipAmountSats;
-      }
-
-      return {totals, fromDate: oneMonthAgo};
-    } catch (err) {
-      console.log('getting tip totals error', err);
-    } finally {
-      setIsAddingTotals(false);
-    }
-  }, []);
+      : groupedTxs.filter(tx => {
+          const [name, info] = tx;
+          return name.toLowerCase()?.startsWith(employeeName.toLowerCase());
+        });
+  }, [groupedTxs, employeeName]);
 
   const transactionItem = useCallback(({item}) => {
-    console.log(item, 'item');
+    const [name, {totalTipAmount}] = item;
     return (
       <View style={styles.transactionContainer}>
-        <View style={{flex: 1, marginRight: 10}}>
+        <View style={styles.nameAndTipContainer}>
+          <View style={styles.nameContainer}>
+            <ThemeText
+              styles={styles.nameText}
+              content={name}
+              CustomNumberOfLines={1}
+            />
+          </View>
           <ThemeText
-            styles={styles.nameText}
-            content={item.serverName}
+            content={`Unpaid tips: ${displayCorrectDenomination({
+              amount: totalTipAmount,
+              masterInfoObject,
+              nodeInformation,
+            })}`}
             CustomNumberOfLines={1}
           />
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={{fontSize: SIZES.small}}
-            content={formatDateToDayMonthYearTime(item.timestamp)}
-          />
         </View>
-        <View style={{alignItems: 'flex-end'}}>
-          <FormattedSatText
-            frontText={'Order: '}
-            balance={item.orderAmountSats}
-          />
-          <FormattedSatText frontText={'Tip: '} balance={item.tipAmountSats} />
-        </View>
+        <CustomButton
+          actionFunction={() => navigate.navigate('TotalTipsScreen', {item})}
+          textContent={'View'}
+        />
       </View>
     );
   }, []);
@@ -96,17 +76,15 @@ export default function ViewPOSTransactions() {
         leftImageBlue={ICONS.receiptIcon}
         LeftImageDarkMode={ICONS.receiptWhite}
         containerStyles={{marginBottom: 0}}
-        label={'Transactions'}
+        label={'Tips to pay'}
       />
-      <CustomSearchInput
-        placeholderText={'Employee name'}
-        setInputText={setEmployeeName}
-        containerStyles={{marginTop: 10}}
-      />
-      {txList === null ? (
-        <FullLoadingScreen text={'Loading transactions'} />
-      ) : filteredList.length ? (
-        <View style={{...styles.container, alignItems: 'center'}}>
+      <View style={{...styles.container, alignItems: 'center'}}>
+        <CustomSearchInput
+          placeholderText={'Employee name'}
+          setInputText={setEmployeeName}
+          containerStyles={{marginTop: 10}}
+        />
+        {filteredList.length ? (
           <FlatList
             style={{width: '100%'}}
             contentContainerStyle={{paddingBottom: paddingBottom + 50}}
@@ -114,71 +92,44 @@ export default function ViewPOSTransactions() {
             scrollEnabled={true}
             data={filteredList}
             renderItem={transactionItem}
-            keyExtractor={item => item.timestamp.toString()}
+            keyExtractor={([name, {total, txs}]) => name}
           />
-          <CustomButton
-            useLoading={isAddingTotals}
-            buttonStyles={{
-              width: 'auto',
-              ...CENTER,
-              position: 'absolute',
-              bottom: paddingBottom,
-            }}
-            actionFunction={() => {
-              const response = calculateBasicTipTotals(txList);
-              console.log(response);
-              navigate.navigate('TotalTipsScreen', {
-                sortedTips: response.totals,
-                fromDate: response.fromDate,
-              });
-            }}
-            textContent={'Employee Tip Totals'}
-          />
-        </View>
-      ) : (
-        <View style={{flex: 1, alignItems: 'center'}}>
-          <ThemeText styles={{marginTop: 10}} content={'No transactions '} />
-        </View>
-      )}
+        ) : (
+          <ThemeText styles={{marginTop: 20}} content={'No tips'} />
+        )}
+      </View>
     </GlobalThemeView>
   );
 }
 
-const oneMonthAgoDate = () => {
-  const endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999); // Set the time to the end of the day
-
-  const oneMonthAgo = new Date(endOfDay);
-  oneMonthAgo.setMonth(endOfDay.getMonth() - 1);
-
-  return oneMonthAgo.getTime();
-};
-const isWithinOneMonth = (date, oneMonthAgo) => {
-  const endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999); // Set the time to the end of the day
-  // Convert both dates to Unix timestamps (milliseconds)
-  const dateToCompareTimestamp = new Date(date).getTime();
-  const oneMonthAgoTimestamp = oneMonthAgo;
-
-  // Check if the date is within the last month
-  return (
-    dateToCompareTimestamp >= oneMonthAgoTimestamp &&
-    dateToCompareTimestamp <= endOfDay.getTime()
-  );
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  transactionContainer: {
-    marginVertical: 10,
     width: '95%',
     ...CENTER,
+  },
+  transactionContainer: {
+    marginVertical: 12,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
   },
   nameText: {
     textTransform: 'capitalize',
+  },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 5,
+  },
+  image: {
+    height: 12,
+    width: 12,
+  },
+  nameAndTipContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginRight: 'auto',
   },
 });
