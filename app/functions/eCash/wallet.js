@@ -6,8 +6,7 @@ import {
   MintQuoteState,
 } from '@cashu/cashu-ts';
 import {retrieveData} from '../secureStore';
-import {mnemonicToSeed} from '@dreson4/react-native-quick-bip39';
-import {parseInput} from '@breeztech/react-native-breez-sdk';
+import {mnemonicToSeed} from '@scure/bip39';
 import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 
 import {BLITZ_DEFAULT_PAYMENT_DESCRIPTION} from '../../constants';
@@ -42,7 +41,7 @@ export const initEcashWallet = async mintURL => {
       ks => ks.unit === 'sat',
     );
     const keys = (await mint.getKeys()).keysets.find(ks => ks.unit === 'sat');
-    const seed = mnemonicToSeed(mnemonic);
+    const seed = await mnemonicToSeed(mnemonic);
     const wallet = new CashuWallet(mint, {
       bip39seed: Uint8Array.from(seed),
       mintInfo: await mint.getInfo(),
