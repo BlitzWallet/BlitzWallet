@@ -6,8 +6,7 @@
  */
 
 import {NavigationContainer} from '@react-navigation/native';
-import 'text-encoding-polyfill';
-import 'react-native-gesture-handler';
+import './pollyfills';
 import './i18n'; // for translation option
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
