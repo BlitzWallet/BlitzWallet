@@ -1796,15 +1796,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cashu/cashu-ts@npm:^2.2.1":
-  version: 2.2.1
-  resolution: "@cashu/cashu-ts@npm:2.2.1"
+"@cashu/cashu-ts@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "@cashu/cashu-ts@npm:2.4.1"
   dependencies:
     "@cashu/crypto": ^0.3.4
     "@noble/curves": ^1.3.0
     "@noble/hashes": ^1.3.3
     buffer: ^6.0.3
-  checksum: dbcd8bda2fc3d46800fec04f70ebb4c11a5e0079350ba2e77a11828cc5cc4930548e136a2ff55116f705b1ae990c80759c4a7551864251b1ea9f193d8099420c
+  checksum: 57893d79359e7d20e5805ee7b7b7e4891580166fbd1dad644ba8356492b5c44f233b3cc90503bf3096067f696a7d635f794f9c76a0953b59c7f48c92eb589811
   languageName: node
   linkType: hard
 
@@ -4827,7 +4827,7 @@ __metadata:
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk": ^0.6.6
     "@breeztech/react-native-breez-sdk-liquid": 0.7.1
-    "@cashu/cashu-ts": ^2.2.1
+    "@cashu/cashu-ts": ^2.4.1
     "@dreson4/react-native-quick-bip39": ^0.0.6
     "@getalby/sdk": ^3.7.0
     "@miblanchard/react-native-slider": ^2.6.0

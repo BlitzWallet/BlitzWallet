@@ -393,8 +393,10 @@ export async function sendPaymentUsingEcash({
     if (!invoice) throw new Error('Unable to parse sending invoice.');
 
     const meltQuote = await getMeltQuote(invoice);
-    if (!meltQuote)
-      throw new Error(`Not able to generate ecash quote or proofs.`);
+    if (!meltQuote.quote)
+      throw new Error(
+        meltQuote.reason || `Not able to generate ecash quote or proofs.`,
+      );
 
     const didPay = await payLnInvoiceFromEcash({
       quote: meltQuote.quote,

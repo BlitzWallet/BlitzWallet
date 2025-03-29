@@ -339,7 +339,7 @@ export const getMeltQuote = async bolt11Invoice => {
     return {quote: meltQuote, proofsToUse};
   } catch (err) {
     console.log('Error creating melt quote', err);
-    return false;
+    return {quote: null, reason: err.message};
   }
 };
 

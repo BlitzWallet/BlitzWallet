@@ -331,7 +331,7 @@ export default function ManualSwapPopup() {
         });
       } else if (transferInfo.from.toLowerCase() === 'ecash') {
         const meltQuote = await getMeltQuote(invoice);
-        if (!meltQuote) {
+        if (!meltQuote.quote) {
           navigate.reset({
             index: 0, // The top-level route index
             routes: [
@@ -350,7 +350,9 @@ export default function ManualSwapPopup() {
                     fee: 0,
                     amountSat: 0,
                     details: {
-                      error: 'Not able to generate ecash quote or proofs',
+                      error:
+                        meltQuote.reason ||
+                        'Not able to generate ecash quote or proofs',
                     },
                   },
                   formattingType: 'ecash',

@@ -34,7 +34,10 @@ export default async function sendStorePayment({
         const balance = sumProofsValue(storedProofs);
         if (balance > sendingAmountSats + lightningFee) {
           const meltQuote = await getMeltQuote(invoice);
-          if (!meltQuote) throw new Error('Not able to generate ecash quote');
+          if (!meltQuote.quote)
+            throw new Error(
+              meltQuote.reason || 'Not able to generate ecash quote',
+            );
           const didPay = await payLnInvoiceFromEcash({
             quote: meltQuote.quote,
             invoice,
