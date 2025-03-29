@@ -402,7 +402,8 @@ export async function sendPaymentUsingEcash({
       proofsToUse: meltQuote.proofsToUse,
       description: paymentInfo?.data?.message || '',
     });
-    if (!didPay.didWork) throw new Error('Unable to pay invoice from eCash');
+    if (!didPay.didWork)
+      throw new Error(didPay.message || 'Unable to pay invoice from eCash');
     const response = {
       status: 'complete',
       feeSat: didPay.txObject?.fee,

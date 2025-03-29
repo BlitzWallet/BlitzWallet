@@ -420,6 +420,7 @@ export const payLnInvoiceFromEcash = async ({
   console.log('ecash quote fee reserve:', quote?.fee_reserve);
   console.log('Proofs before send', proofs);
   console.log(totalProofsValue, amountToPay);
+  let deterministicSecretCounter = null;
   try {
     if (totalProofsValue < amountToPay)
       throw new Error('Not enough funds to cover payment');
@@ -440,6 +441,8 @@ export const payLnInvoiceFromEcash = async ({
         selctingCounter,
       );
 
+    deterministicSecretCounter = newCounterValue;
+
     console.log('PROOFS TO SEND LENGTH:', proofsToSend.length);
     console.log('PROOFS TO KEEP LENGTH:', proofsToKeep.length);
 
@@ -457,9 +460,11 @@ export const payLnInvoiceFromEcash = async ({
         mintURL,
         newCounterValue + meltResponse.change.length + 1,
       );
+      deterministicSecretCounter += meltResponse.change.length + 1;
       await storeProofs(meltResponse.change, mintURL);
     } else {
       await setMintCounter(mintURL, newCounterValue + 1);
+      deterministicSecretCounter += 1;
     }
 
     const realFee = Math.max(
@@ -489,6 +494,8 @@ export const payLnInvoiceFromEcash = async ({
     }
     await removeProofs(proofsToUse);
     await storeProofs(proofs);
+    deterministicSecretCounter &&
+      (await setMintCounter(mintURL, deterministicSecretCounter + 1));
     return {didWork: false, message: String(err.message)};
   }
 };
