@@ -71,16 +71,23 @@ export const GlobaleCashVariables = ({children}) => {
     };
     const updateBalance = async eventType => {
       console.log('Receved a proofs event emitter of type', eventType);
-      const storedProofs = await getStoredProofs();
+      const [storedProofs, mintList] = await Promise.all([
+        getStoredProofs(),
+        getAllMints(),
+      ]);
       const balance = sumProofsValue(storedProofs);
       toggleEcashWalletInformation({balance: balance, proofs: storedProofs});
+      toggleMintList(mintList);
     };
     const updateMint = async eventType => {
-      console.log('Receved a mint event emitter of type', eventType);
-      const selectedMint = await getSelectedMint();
-      const mintList = await getAllMints();
-      const storedTransactions = await getStoredEcashTransactions();
-      const storedProofs = await getStoredProofs();
+      console.log('Receved a mint update event emitter of type', eventType);
+      const [selectedMint, mintList, storedTransactions, storedProofs] =
+        await Promise.all([
+          getSelectedMint(),
+          getAllMints(),
+          getStoredEcashTransactions(),
+          getStoredProofs(),
+        ]);
       const balance = sumProofsValue(storedProofs);
 
       toggleEcashWalletInformation({
