@@ -1,6 +1,5 @@
 import {
   Image,
-  Keyboard,
   Platform,
   ScrollView,
   StyleSheet,
@@ -22,7 +21,6 @@ import {
   VALID_URL_REGEX,
 } from '../../../../constants';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
 import {useCallback, useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobaleCash} from '../../../../../context-store/eCash';
@@ -77,10 +75,10 @@ export default function ExperimentalItemsPage() {
 
   useEffect(() => {
     async function getSavedMints() {
+      console.log('Reformmating mint list in experinmental page');
       if (!usersMintList) return;
       const formattedMintList = await Promise.all(
         usersMintList.map(async mint => {
-          console.log(mint);
           const savedProofs = await getStoredProofs(mint?.mintURL);
           return {
             mintURL: mint?.mintURL,
@@ -90,10 +88,9 @@ export default function ExperimentalItemsPage() {
         }),
       );
       setSavedMintList(formattedMintList);
-      console.log(usersMintList, 'MINT LIST');
     }
     getSavedMints();
-  }, [usersMintList, ecashWalletInformation]);
+  }, [usersMintList]);
 
   useEffect(() => {
     async function hasUserMigrated() {
