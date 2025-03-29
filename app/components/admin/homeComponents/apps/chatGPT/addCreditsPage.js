@@ -254,7 +254,10 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
           const balance = sumProofsValue(storedProofs);
           if (balance > creditPrice + lightningFee) {
             const meltQuote = await getMeltQuote(lnInvoice);
-            if (!meltQuote) throw new Error('Not able to generate ecash quote');
+            if (!meltQuote.quote)
+              throw new Error(
+                meltQuote.reason || 'Not able to generate ecash quote',
+              );
             const didPay = await payLnInvoiceFromEcash({
               quote: meltQuote.quote,
               invoice: lnInvoice,

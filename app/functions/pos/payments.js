@@ -129,7 +129,10 @@ export async function payPOSLiquid({
           }
 
           const meltQuote = await getMeltQuote(invoice);
-          if (!meltQuote) throw new Error('Not able to generate eCash quote');
+          if (!meltQuote.quote)
+            throw new Error(
+              meltQuote.reason || 'Not able to generate eCash quote',
+            );
 
           const didPay = await payLnInvoiceFromEcash({
             quote: meltQuote.quote,
@@ -255,7 +258,10 @@ export async function payPOSLNURL({
 
         if (balance >= sendingAmountSats + lightningFee) {
           const meltQuote = await getMeltQuote(invoice);
-          if (!meltQuote) throw new Error('Not able to generate eCash quote');
+          if (!meltQuote.quote)
+            throw new Error(
+              meltQuote.reason || 'Not able to generate eCash quote',
+            );
 
           const didPay = await payLnInvoiceFromEcash({
             quote: meltQuote.quote,
