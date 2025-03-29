@@ -8,14 +8,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import {
-  CENTER,
-  COLORS,
-  FONT,
-  ICONS,
-  MIN_CHANNEL_OPEN_FEE,
-  SIZES,
-} from '../../../../constants';
+import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../../constants';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {
   copyToClipboard,
@@ -29,9 +22,6 @@ import FormattedSatText from '../../../../functions/CustomElements/satTextDispla
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import {useLightningEvent} from '../../../../../context-store/lightningEventContext';
-import connectToLightningNode from '../../../../functions/connectToLightning';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
@@ -45,13 +35,11 @@ export default function NodeInfo() {
   const {nodeInformation} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const navigate = useNavigation();
-  const windowDimensions = useWindowDimensions();
   const [seeNodeInfo, setSeeNodeInfo] = useState(
     nodeInformation.didConnectToNode,
   );
   const {textColor, backgroundOffset} = GetThemeColors();
-  const {onLightningBreezEvent} = useLightningEvent();
-  console.log(nodeInformation.didConnectToNode);
+
   useEffect(() => {
     (async () => {
       try {

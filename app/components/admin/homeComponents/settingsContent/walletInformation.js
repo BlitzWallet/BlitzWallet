@@ -67,7 +67,8 @@ export default function WalletInformation() {
     canTransferEcash || canTransferLightning || canTransferLiquid;
 
   const data =
-    nodeInformation.userBalance != 0
+    masterInfoObject.liquidWalletSettings.isLightningEnabled &&
+    !!nodeInformation.userBalance
       ? [
           {
             key: 1,
