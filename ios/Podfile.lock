@@ -2690,6 +2690,8 @@ PODS:
     - Yoga
   - react-native-context-menu-view (1.16.0):
     - React
+  - react-native-get-random-values (1.11.0):
+    - React-Core
   - react-native-image-picker (8.0.0):
     - DoubleConversion
     - glog
@@ -3282,6 +3284,7 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
+  - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-quick-base64 (from `../node_modules/react-native-quick-base64`)
@@ -3483,6 +3486,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
   react-native-context-menu-view:
     :path: "../node_modules/react-native-context-menu-view"
+  react-native-get-random-values:
+    :path: "../node_modules/react-native-get-random-values"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-pager-view:
@@ -3668,6 +3673,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 9f1c73f53cb27bba0d913545c0ae14c6f0e6e865
   React-microtasksnativemodule: e8d0d98c5928b3993bc1f558acde32b70fd94cf4
   react-native-context-menu-view: 3bb7e1aa97c897e26a027d23895a60066f7e4e17
+  react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-image-picker: 07dcbae358126947798da44f3ceab1c73f066527
   react-native-pager-view: b466d0c2a37d506d20a5041b8a5eba79fa175420
   react-native-quick-base64: d63ae7b77d91c24cb72b46dc66b10c1f3b45ae6e
