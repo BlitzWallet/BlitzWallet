@@ -5,12 +5,11 @@ import {
   NodeConfigVariant,
   connect,
   defaultConfig,
-  listFiatCurrencies,
   mnemonicToSeed,
-  nodeInfo,
 } from '@breeztech/react-native-breez-sdk';
 import {btoa, atob, toByteArray} from 'react-native-quick-base64';
-import {generateMnemonic} from '@dreson4/react-native-quick-bip39';
+import {generateMnemonic} from '@scure/bip39';
+import {wordlist} from '@scure/bip39/wordlists/english';
 import {ThemeText} from '../functions/CustomElements';
 import {startLiquidSession} from '../functions/breezLiquid';
 
@@ -46,7 +45,7 @@ async function connectToBreezNode() {
   try {
     // Create the default config
     // const mnemoinc = await retrieveData('mnemonic');
-    const mnemonic = generateMnemonic();
+    const mnemonic = generateMnemonic(wordlist);
 
     const seed = await mnemonicToSeed(mnemonic);
 
