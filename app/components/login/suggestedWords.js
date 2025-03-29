@@ -1,7 +1,8 @@
-import {Wordlists} from '@dreson4/react-native-quick-bip39';
 import {COLORS, SIZES} from '../../constants';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {ThemeText} from '../../functions/CustomElements';
+import {wordlist} from '@scure/bip39/wordlists/english';
+import {useMemo} from 'react';
 
 export default function SuggestedWordContainer({
   inputedKey,
@@ -10,40 +11,44 @@ export default function SuggestedWordContainer({
   keyRefs,
 }) {
   const searchingWord = inputedKey[`key${selectedKey}`] || '';
-  const suggestedWordElements = Wordlists.en
-    .filter(word => word.toLowerCase().startsWith(searchingWord.toLowerCase()))
-    .map(word => {
-      return (
-        <TouchableOpacity
-          style={{
-            minHeight: 60,
-            width: '100%',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onPress={() => {
-            setInputedKey(prev => ({...prev, [`key${selectedKey}`]: word}));
-            if (selectedKey === 12) {
-              keyRefs.current[12].blur();
-              return;
-            }
-
-            keyRefs.current[selectedKey + 1].focus();
-          }}
-          key={word}>
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={{
-              textTransform: 'capitalize',
-              fontSize: SIZES.large,
-              color: COLORS.lightModeText,
-              includeFontPadding: false,
+  const suggestedWordElements = useMemo(() => {
+    return wordlist
+      .filter(word =>
+        word.toLowerCase().startsWith(searchingWord.toLowerCase()),
+      )
+      .map(word => {
+        return (
+          <TouchableOpacity
+            style={{
+              minHeight: 60,
+              width: '100%',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
-            content={word}
-          />
-        </TouchableOpacity>
-      );
-    });
+            onPress={() => {
+              setInputedKey(prev => ({...prev, [`key${selectedKey}`]: word}));
+              if (selectedKey === 12) {
+                keyRefs.current[12].blur();
+                return;
+              }
+
+              keyRefs.current[selectedKey + 1].focus();
+            }}
+            key={word}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={{
+                textTransform: 'capitalize',
+                fontSize: SIZES.large,
+                color: COLORS.lightModeText,
+                includeFontPadding: false,
+              }}
+              content={word}
+            />
+          </TouchableOpacity>
+        );
+      });
+  }, [selectedKey, inputedKey, setInputedKey, keyRefs]);
 
   return (
     <View
