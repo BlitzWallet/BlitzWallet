@@ -15,7 +15,7 @@ export default function DislaimerPage({navigation: {navigate}}) {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={styles.contentContainer}>
-        <LoginNavbar destination={'Home'} />
+        <LoginNavbar />
         <ThemeText
           styles={{
             fontSize: SIZES.xxLarge,

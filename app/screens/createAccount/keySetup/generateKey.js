@@ -29,7 +29,7 @@ export default function GenerateKey() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <View style={styles.contentContainer}>
-        <LoginNavbar destination={'DisclaimerPage'} />
+        <LoginNavbar />
         <View style={styles.container}>
           <ThemeText
             styles={{...styles.header, marginTop: 30, marginBottom: 30}}

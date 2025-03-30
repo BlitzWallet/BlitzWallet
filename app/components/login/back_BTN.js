@@ -1,15 +1,19 @@
-import {TouchableOpacity, View, Text, StyleSheet, Image} from 'react-native';
-import {SIZES, COLORS, ICONS, FONT, CENTER} from '../../constants';
+import {TouchableOpacity, StyleSheet, Image} from 'react-native';
+import {ICONS} from '../../constants';
+import {useNavigation} from '@react-navigation/native';
+import {keyboardGoBack} from '../../functions/customNavigation';
+import ThemeImage from '../../functions/CustomElements/themeImage';
 
-export default function Back_BTN(props) {
+export default function Back_BTN() {
+  const navigate = useNavigation();
   return (
     <TouchableOpacity
-      onPress={() => props.navigation(props.destination)}
+      onPress={() => keyboardGoBack(navigate)}
       style={styles.container}>
-      <Image
-        source={ICONS.smallArrowLeft}
-        style={{width: 30, height: 30, marginRight: 4}}
-        resizeMode="contain"
+      <ThemeImage
+        lightModeIcon={ICONS.smallArrowLeft}
+        darkModeIcon={ICONS.smallArrowLeft}
+        lightsOutIcon={ICONS.smallArrowLeft}
       />
     </TouchableOpacity>
   );
@@ -17,13 +21,6 @@ export default function Back_BTN(props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'transparent',
     marginBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: SIZES.large,
-    fontFamily: FONT.Other_Medium,
   },
 });
