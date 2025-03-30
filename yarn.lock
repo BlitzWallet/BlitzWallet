@@ -4910,7 +4910,6 @@ __metadata:
     react-native-webview: ^13.12.2
     react-test-renderer: 18.3.1
     rn-qr-generator: ^1.4.3
-    rn-swipe-button: ^1.3.8
     text-encoding-polyfill: ^0.6.7
     typescript: 5.0.4
     unique-names-generator: ^4.7.1
@@ -13391,16 +13390,6 @@ __metadata:
   peerDependencies:
     react-native: ">=0.55"
   checksum: 570ee73fbc897a6fb5e9cb69b90e5f6542c2622004921658bec467b9cd564dc2b0f0b4440e87eac740121f717bf760e873ba0977ca1f7924e364f3586b98ba82
-  languageName: node
-  linkType: hard
-
-"rn-swipe-button@npm:^1.3.8":
-  version: 1.3.8
-  resolution: "rn-swipe-button@npm:1.3.8"
-  peerDependencies:
-    react: ">=16.8.6"
-    react-native: ">=0.60.5"
-  checksum: b0b909b5d1f11444d30ab6a3116ca2c5e58f993ef7fa6486f7a3ad87a1e76592c5b2300b44e2c9121e285c0706b4a8b2a30002ff9b951470086d8c4bdafa3ad1
   languageName: node
   linkType: hard
 
