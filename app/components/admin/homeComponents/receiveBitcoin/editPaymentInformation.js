@@ -167,7 +167,10 @@ export default function EditReceivePaymentInformation(props) {
                     'wallet.receivePages.editPaymentInfo.receive_amount',
                   )}:`}
                 />
-              ) : canUseEcash ? (
+              ) : canUseEcash ||
+                (canUseLightning &&
+                  masterInfoObject.liquidWalletSettings
+                    .regulatedChannelOpenSize > localSatAmount) ? (
                 <FormattedSatText
                   neverHideBalance={true}
                   frontText={`${t('constants.fee')}: `}
@@ -177,7 +180,6 @@ export default function EditReceivePaymentInformation(props) {
                   balance={0}
                 />
               ) : (
-                // localSatAmount
                 <View>
                   {masterInfoObject.liquidWalletSettings
                     .regulatedChannelOpenSize <= localSatAmount &&
