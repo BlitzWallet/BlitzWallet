@@ -1,5 +1,5 @@
 import {CashuMint, CashuWallet} from '@cashu/cashu-ts';
-import {mnemonicToSeed} from '@dreson4/react-native-quick-bip39';
+import {mnemonicToSeed} from '@scure/bip39';
 import EventEmitter from 'events';
 import {sumProofsValue} from './proofs';
 import {getStoredProofs, setMintCounter, storeProofs} from './db';
@@ -13,7 +13,7 @@ export const restoreMintProofs = async mintURL => {
   const mnemonic = await retrieveData('mnemonic');
 
   try {
-    const seed = mnemonicToSeed(mnemonic);
+    const seed = await mnemonicToSeed(mnemonic);
     let progress = 0;
 
     restoreProofsEventListener.emit(

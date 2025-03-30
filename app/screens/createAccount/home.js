@@ -2,8 +2,6 @@ import React, {useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {COLORS, SIZES} from '../../constants';
 import {useTranslation} from 'react-i18next';
-
-import {useGlobalContextProvider} from '../../../context-store/context';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import {createAccountMnemonic} from '../../functions';

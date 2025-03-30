@@ -2,15 +2,14 @@ import {useNavigation} from '@react-navigation/native';
 import {StyleSheet, View} from 'react-native';
 import Back_BTN from './back_BTN';
 import CustomButton from '../../functions/CustomElements/button';
-import {SIZES} from '../../constants';
 import {useTranslation} from 'react-i18next';
 
-export default function LoginNavbar({destination}) {
+export default function LoginNavbar() {
   const navigate = useNavigation();
   const {t} = useTranslation();
   return (
     <View style={styles.container}>
-      <Back_BTN navigation={navigate.navigate} destination={destination} />
+      <Back_BTN />
       <CustomButton
         buttonStyles={{
           width: 'auto',

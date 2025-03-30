@@ -2,19 +2,20 @@ import {
   View,
   TextInput,
   StyleSheet,
-  KeyboardAvoidingView,
-  TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
   Platform,
 } from 'react-native';
 import {Back_BTN} from '../../../components/login';
 import {retrieveData, storeData} from '../../../functions';
-import {CENTER, COLORS, FONT, SIZES} from '../../../constants';
+import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../constants';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import isValidMnemonic from '../../../functions/isValidMnemonic';
 import {useTranslation} from 'react-i18next';
-import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../functions/CustomElements';
 import SuggestedWordContainer from '../../../components/login/suggestedWords';
 import CustomButton from '../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
@@ -24,14 +25,17 @@ import {WINDOWWIDTH} from '../../../constants/theme';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import getClipboardText from '../../../functions/getClipboardText';
+import {useNavigation} from '@react-navigation/native';
 
-const NUMARRAY = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
+const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
+  acc[`key${num}`] = '';
+  return acc;
+}, {});
 
-export default function RestoreWallet({
-  navigation: {navigate, reset},
-  route: {params},
-}) {
+export default function RestoreWallet({navigation: {reset}, route: {params}}) {
   useHandleBackPressNew();
+  const navigate = useNavigation();
   const {t} = useTranslation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const insets = useSafeAreaInsets();
@@ -42,20 +46,16 @@ export default function RestoreWallet({
   const [isValidating, setIsValidating] = useState(false);
   const [currentFocused, setCurrentFocused] = useState(null);
   const keyRefs = useRef({});
-  const [inputedKey, setInputedKey] = useState({
-    key1: '',
-    key2: '',
-    key3: '',
-    key4: '',
-    key5: '',
-    key6: '',
-    key7: '',
-    key8: '',
-    key9: '',
-    key10: '',
-    key11: '',
-    key12: '',
-  });
+  const [inputedKey, setInputedKey] = useState(INITIAL_KEY_STATE);
+
+  // Helper functions
+  const navigateToError = useCallback(
+    errorMessage => {
+      navigate.navigate('ErrorScreen', {errorMessage});
+    },
+    [navigate],
+  );
+
   const handleInputElement = useCallback((text, keyNumber) => {
     setInputedKey(prev => ({...prev, [`key${keyNumber}`]: text}));
   }, []);
@@ -76,46 +76,166 @@ export default function RestoreWallet({
     [keyRefs],
   );
 
+  const handleSeedFromClipboard = useCallback(async () => {
+    try {
+      const response = await getClipboardText();
+      if (!response.didWork) throw new Error(response.reason);
+
+      const data = response.data;
+      const splitSeed = data.split(' ');
+      if (!splitSeed.every(word => word.trim().length > 0))
+        throw new Error('Not every word is of valid length');
+      if (splitSeed.length != 12)
+        throw new Error('Unable to find 12 words from copied recovery phrase.');
+      console.log(Object.entries(inputedKey));
+
+      const newKeys = {};
+      NUMARRAY.forEach((num, index) => {
+        newKeys[`key${num}`] = splitSeed[index];
+      });
+      setInputedKey(newKeys);
+    } catch (err) {
+      console.log('Error getting data from clipbarod', err);
+      navigateToError(err.message);
+    }
+  }, [navigateToError]);
+
+  const didEnterCorrectSeed = useCallback(async () => {
+    try {
+      const keys = await retrieveData('mnemonic');
+      const didEnterAllKeys =
+        Object.keys(inputedKey).filter(value => inputedKey[value]).length ===
+        12;
+
+      if (!didEnterAllKeys)
+        throw new Error(t('createAccount.restoreWallet.home.error1'));
+      const enteredMnemonic = Object.values(inputedKey).map(val =>
+        val.trim().toLowerCase(),
+      );
+      const savedMnemonic = keys.split(' ').filter(item => item);
+
+      if (JSON.stringify(savedMnemonic) === JSON.stringify(enteredMnemonic)) {
+        navigate.navigate('PinSetup', {didRestoreWallet: true});
+      } else throw new Error(t('createAccount.restoreWallet.home.error3'));
+    } catch (err) {
+      console.log('did enter correct seed error', err);
+      navigateToError(err.message);
+    }
+  }, [inputedKey, navigateToError]);
+
+  const keyValidation = useCallback(async () => {
+    try {
+      setIsValidating(true);
+      const enteredKeys =
+        Object.keys(inputedKey).filter(value => inputedKey[value]).length ===
+        12;
+
+      if (!enteredKeys)
+        throw new Error(t('createAccount.restoreWallet.home.error1'));
+
+      const mnemonic = Object.values(inputedKey).map(val =>
+        val.trim().toLowerCase(),
+      );
+
+      const hasAccount = isValidMnemonic(mnemonic);
+      const hasPin = await retrieveData('pin');
+
+      if (!hasAccount)
+        throw new Error(t('createAccount.restoreWallet.home.error2'));
+      else {
+        await storeData('mnemonic', mnemonic.join(' '));
+        if (hasPin) {
+          reset({
+            index: 0,
+            routes: [
+              {
+                name: 'ConnectingToNodeLoadingScreen',
+                params: {
+                  isInitialLoad: true,
+                  didRestoreWallet: true,
+                },
+              },
+            ],
+          });
+        } else navigate.navigate('PinSetup', {didRestoreWallet: true});
+      }
+    } catch (err) {
+      console.log('key validation error', err);
+      navigateToError(err.message);
+    } finally {
+      setIsValidating(false);
+    }
+  }, [inputedKey, reset, navigate, navigateToError, t]);
+
+  const seedItemBackgroundColor = useMemo(
+    () => (theme ? COLORS.darkModeBackgroundOffset : COLORS.darkModeText),
+    [theme],
+  );
+
   const inputKeys = useMemo(() => {
-    let keyRows = [];
-    let keyItem = [];
-    NUMARRAY.forEach(item => {
-      keyItem.push(
+    const rows = [];
+
+    // Process input fields in pairs
+    for (let i = 0; i < NUMARRAY.length; i += 2) {
+      const item1 = NUMARRAY[i];
+      const item2 = NUMARRAY[i + 1];
+
+      rows.push(
         <View
-          key={item}
-          style={{
-            ...styles.seedItem,
-            backgroundColor: theme
-              ? COLORS.darkModeBackgroundOffset
-              : COLORS.darkModeText,
-          }}>
-          <ThemeText styles={styles.numberText} content={`${item}.`} />
-          <TextInput
-            keyboardAppearance={theme ? 'dark' : 'light'}
-            ref={ref => (keyRefs.current[item] = ref)} // Store ref for each input
-            value={inputedKey[`key${item}`]}
-            onFocus={() => handleFocus(item)} // Track the currently focused input
-            onSubmitEditing={() => handleSubmit(item)} // Move to next input on submit
-            onChangeText={e => handleInputElement(e, item)}
-            blurOnSubmit={false}
-            cursorColor={COLORS.lightModeText}
-            style={styles.textInputStyle}
-          />
+          key={`row${item1}`}
+          style={[styles.seedRow, {marginBottom: item2 !== 12 ? 10 : 0}]}>
+          {/* First item in row */}
+          <View
+            style={[
+              styles.seedItem,
+              {backgroundColor: seedItemBackgroundColor},
+            ]}>
+            <ThemeText styles={styles.numberText} content={`${item1}.`} />
+            <TextInput
+              keyboardAppearance={theme ? 'dark' : 'light'}
+              ref={ref => (keyRefs.current[item1] = ref)}
+              value={inputedKey[`key${item1}`]}
+              onFocus={() => handleFocus(item1)}
+              onSubmitEditing={() => handleSubmit(item1)}
+              onChangeText={e => handleInputElement(e, item1)}
+              blurOnSubmit={false}
+              cursorColor={COLORS.lightModeText}
+              style={styles.textInputStyle}
+            />
+          </View>
+
+          {/* Second item in row */}
+          <View
+            style={[
+              styles.seedItem,
+              {backgroundColor: seedItemBackgroundColor},
+            ]}>
+            <ThemeText styles={styles.numberText} content={`${item2}.`} />
+            <TextInput
+              keyboardAppearance={theme ? 'dark' : 'light'}
+              ref={ref => (keyRefs.current[item2] = ref)}
+              value={inputedKey[`key${item2}`]}
+              onFocus={() => handleFocus(item2)}
+              onSubmitEditing={() => handleSubmit(item2)}
+              onChangeText={e => handleInputElement(e, item2)}
+              blurOnSubmit={false}
+              cursorColor={COLORS.lightModeText}
+              style={styles.textInputStyle}
+            />
+          </View>
         </View>,
       );
-      if (item % 2 === 0) {
-        keyRows.push(
-          <View
-            key={`row${item - 1}`}
-            style={[styles.seedRow, {marginBottom: item !== 12 ? 10 : 0}]}>
-            {keyItem}
-          </View>,
-        );
-        keyItem = [];
-      }
-    });
-    return keyRows;
-  }, [handleSubmit, theme, inputedKey, keyRefs]);
+    }
+
+    return rows;
+  }, [
+    handleFocus,
+    handleSubmit,
+    handleInputElement,
+    theme,
+    inputedKey,
+    seedItemBackgroundColor,
+  ]);
 
   useEffect(() => {
     const keyboardDidHideListener = Keyboard.addListener(
@@ -130,206 +250,105 @@ export default function RestoreWallet({
     };
   }, []);
 
+  if (isValidating) {
+    return <FullLoadingScreen text={t('constants.validating')} />;
+  }
+
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        console.log('RUNNING');
-        Keyboard.dismiss();
-      }}
-      style={{flex: 1}}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        style={{flex: 1}}>
-        <GlobalThemeView styles={{paddingBottom: 0}}>
-          {isValidating ? (
-            <FullLoadingScreen text={t('constants.validating')} />
-          ) : (
-            <>
-              <View
-                style={{
-                  flex: 1,
-                  width: WINDOWWIDTH,
-                  ...CENTER,
-                }}>
-                <Back_BTN
-                  navigation={navigate}
-                  destination={params ? params.goBackName : 'Home'}
-                />
+    <CustomKeyboardAvoidingView
+      touchableWithoutFeedbackFunction={Keyboard.dismiss}
+      useLocalPadding={false}
+      useTouchableWithoutFeedback={true}>
+      <View style={styles.keyContainer}>
+        <View style={styles.navContainer}>
+          <Back_BTN />
+        </View>
+        <ThemeText
+          styles={styles.headerText}
+          content={
+            params
+              ? t('createAccount.verifyKeyPage.header')
+              : t('createAccount.restoreWallet.home.header')
+          }
+        />
 
-                <ThemeText
-                  styles={{...styles.headerText}}
-                  content={
-                    params
-                      ? t('createAccount.verifyKeyPage.header')
-                      : t('createAccount.restoreWallet.home.header')
-                  }
-                />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.contentContainer}
+          contentContainerStyle={{
+            paddingBottom: 10,
+            paddingTop: 20,
+          }}>
+          {inputKeys}
+        </ScrollView>
+        {params && !currentFocused && (
+          <CustomButton
+            buttonStyles={styles.pasteButton}
+            textContent={t('constants.paste')}
+            actionFunction={handleSeedFromClipboard}
+          />
+        )}
+        {!currentFocused && (
+          <View
+            style={{
+              ...styles.mainBTCContainer,
+              paddingBottom: bottomOffset,
+            }}>
+            <CustomButton
+              buttonStyles={{
+                width: 145,
+                marginRight: 10,
+              }}
+              textStyles={{
+                color: COLORS.lightModeText,
+              }}
+              textContent={params ? t('constants.skip') : 'Paste'}
+              actionFunction={() =>
+                params
+                  ? navigate('PinSetup', {isInitialLoad: true})
+                  : handleSeedFromClipboard()
+              }
+            />
+            <CustomButton
+              buttonStyles={{
+                width: 145,
+                backgroundColor: COLORS.primary,
+              }}
+              textStyles={{
+                color: COLORS.darkModeText,
+              }}
+              textContent={params ? t('constants.verify') : 'Restore'}
+              actionFunction={params ? didEnterCorrectSeed : keyValidation}
+            />
+          </View>
+        )}
+      </View>
 
-                <ScrollView
-                  showsVerticalScrollIndicator={false}
-                  style={styles.contentContainer}
-                  contentContainerStyle={{paddingBottom: 10}}>
-                  {inputKeys}
-                </ScrollView>
-                {params && !currentFocused && (
-                  <CustomButton
-                    buttonStyles={styles.pasteButton}
-                    textContent={t('constants.paste')}
-                    actionFunction={handleSeedFromClipboard}
-                  />
-                )}
-                {!currentFocused && (
-                  <View
-                    style={{
-                      ...styles.mainBTCContainer,
-                      paddingBottom: bottomOffset,
-                    }}>
-                    <CustomButton
-                      buttonStyles={{
-                        width: 145,
-                        marginRight: 10,
-                      }}
-                      textStyles={{
-                        color: COLORS.lightModeText,
-                      }}
-                      textContent={params ? t('constants.skip') : 'Paste'}
-                      actionFunction={() =>
-                        params
-                          ? navigate('PinSetup', {isInitialLoad: true})
-                          : handleSeedFromClipboard()
-                      }
-                    />
-                    <CustomButton
-                      buttonStyles={{
-                        width: 145,
-                        backgroundColor: COLORS.primary,
-                      }}
-                      textStyles={{
-                        color: COLORS.darkModeText,
-                      }}
-                      textContent={params ? t('constants.verify') : 'Restore'}
-                      actionFunction={
-                        params ? didEnterCorrectSeed : keyValidation
-                      }
-                    />
-                  </View>
-                )}
-              </View>
-
-              {currentFocused && (
-                <SuggestedWordContainer
-                  inputedKey={inputedKey}
-                  setInputedKey={setInputedKey}
-                  selectedKey={currentFocused}
-                  keyRefs={keyRefs}
-                />
-              )}
-            </>
-          )}
-        </GlobalThemeView>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+      {currentFocused && (
+        <SuggestedWordContainer
+          inputedKey={inputedKey}
+          setInputedKey={setInputedKey}
+          selectedKey={currentFocused}
+          keyRefs={keyRefs}
+        />
+      )}
+    </CustomKeyboardAvoidingView>
   );
-
-  async function handleSeedFromClipboard() {
-    const response = await getClipboardText();
-    if (!response.didWork) {
-      navigate('ErrorScreen', {errorMessage: response.reason});
-      return;
-    }
-    const data = response.data;
-    const splitSeed = data.split(' ');
-    if (!splitSeed.every(word => word.trim().length > 0)) return;
-    if (splitSeed.length != 12) return;
-    console.log(Object.entries(inputedKey));
-
-    const newKeys = Object.entries(inputedKey).reduce((acc, key) => {
-      const index = Object.entries(acc).length;
-      acc[key[0]] = splitSeed[index];
-      return acc;
-    }, {});
-
-    setInputedKey(newKeys);
-  }
-
-  async function didEnterCorrectSeed() {
-    const keys = await retrieveData('mnemonic');
-    const didEnterAllKeys =
-      Object.keys(inputedKey).filter(value => inputedKey[value]).length === 12;
-
-    if (!didEnterAllKeys) {
-      navigate('ErrorScreen', {
-        errorMessage: t('createAccount.restoreWallet.home.error1'),
-      });
-
-      return;
-    }
-    const enteredMnemonic = Object.values(inputedKey).map(val =>
-      val.trim().toLowerCase(),
-    );
-    const savedMnemonic = keys.split(' ').filter(item => item);
-
-    if (JSON.stringify(savedMnemonic) === JSON.stringify(enteredMnemonic)) {
-      navigate('PinSetup', {didRestoreWallet: true});
-    } else {
-      navigate('ErrorScreen', {
-        errorMessage: t('createAccount.restoreWallet.home.error3'),
-      });
-    }
-  }
-
-  async function keyValidation() {
-    setIsValidating(true);
-    const enteredKeys =
-      Object.keys(inputedKey).filter(value => inputedKey[value]).length === 12;
-
-    if (!enteredKeys) {
-      setIsValidating(false);
-      navigate('ErrorScreen', {
-        errorMessage: t('createAccount.restoreWallet.home.error1'),
-      });
-      return;
-    }
-    const mnemonic = Object.values(inputedKey).map(val =>
-      val.trim().toLowerCase(),
-    );
-
-    const hasAccount = await isValidMnemonic(mnemonic);
-    const hasPin = await retrieveData('pin');
-
-    if (!hasAccount) {
-      setIsValidating(false);
-      navigate('ErrorScreen', {
-        errorMessage: t('createAccount.restoreWallet.home.error2'),
-      });
-      return;
-    } else {
-      storeData('mnemonic', mnemonic.join(' '));
-      if (hasPin) {
-        reset({
-          index: 0,
-          routes: [
-            {
-              name: 'ConnectingToNodeLoadingScreen',
-              params: {
-                isInitialLoad: true,
-                didRestoreWallet: true,
-              },
-            },
-          ],
-        });
-      } else navigate('PinSetup', {didRestoreWallet: true});
-    }
-  }
 }
 
 const styles = StyleSheet.create({
+  keyContainer: {
+    flex: 1,
+    width: WINDOWWIDTH,
+    ...CENTER,
+  },
+  navContainer: {
+    marginRight: 'auto',
+  },
   headerText: {
-    width: '95%',
     fontSize: SIZES.xLarge,
     textAlign: 'center',
-    marginBottom: 30,
-    ...CENTER,
+    marginBottom: 10,
   },
   contentContainer: {
     flex: 1,

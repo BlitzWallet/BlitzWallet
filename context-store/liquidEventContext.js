@@ -24,6 +24,7 @@ export function LiquidEventProvider({children}) {
   const [pendingNavigation, setPendingNavigation] = useState(null);
   const [liquidEvent, setLiquidEvent] = useState(null);
   const receivedPayments = useRef([]);
+  const syncRunCounter = useRef(0);
   // Add debug logging
   useEffect(() => {
     console.log('liquidEvent changed:', liquidEvent);
@@ -163,6 +164,16 @@ export function LiquidEventProvider({children}) {
       debouncedStartInterval(
         e.type === SdkEventVariant.PAYMENT_SUCCEEDED ? 1 : 0,
       );
+    } else {
+      console.log(
+        `Running in sync else statment for liquiid on sync count:${syncRunCounter.current}`,
+      );
+      if (syncRunCounter.current > 6) {
+        console.log('running debounce sync else statment for liquiid');
+        debouncedStartInterval(0);
+        syncRunCounter.current = 0;
+      }
+      syncRunCounter.current = syncRunCounter.current + 1;
     }
   };
 
