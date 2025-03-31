@@ -105,7 +105,7 @@ export default async function sendStorePayment({
     }
 
     // No available balances for the purchase
-    throw new Error('No available balances for your purchase.');
+    throw new Error('All payment methods failed. Try again.');
   } catch (err) {
     console.log('Send store payment error:', err.message);
     return {didWork: false, reason: err.message};

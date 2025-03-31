@@ -77,8 +77,6 @@ export default function ConfirmExportPayments({
             formatedData.push(formattedTx);
           } catch (err) {
             console.log(err);
-          } finally {
-            await new Promise(res => setTimeout(res, 0.1));
           }
         }
 
