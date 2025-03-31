@@ -1,4 +1,11 @@
-import {createContext, useContext, useEffect, useRef, useState} from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   PaymentDetailsVariant,
   PaymentType,
@@ -15,8 +22,7 @@ const LiquidEventContext = createContext(null);
 
 // Create a context for the WebView ref
 export function LiquidEventProvider({children}) {
-  const {toggleLiquidNodeInformation, liquidNodeInformation} = useNodeContext();
-  const {didGetToHomepage} = useAppStatus();
+  const {toggleLiquidNodeInformation} = useNodeContext();
   const intervalId = useRef(null);
   const debounceTimer = useRef(null);
   const isWaitingForActiveRef = useRef(false);
@@ -24,7 +30,8 @@ export function LiquidEventProvider({children}) {
   const [pendingNavigation, setPendingNavigation] = useState(null);
   const [liquidEvent, setLiquidEvent] = useState(null);
   const receivedPayments = useRef([]);
-  const syncRunCounter = useRef(0);
+  const isInitialSync = useRef(true);
+  const syncRunCounter = useRef(1);
   // Add debug logging
   useEffect(() => {
     console.log('liquidEvent changed:', liquidEvent);
@@ -151,39 +158,35 @@ export function LiquidEventProvider({children}) {
     }
   }, [liquidEvent]);
 
-  const onLiquidBreezEvent = e => {
-    console.log('Running in breez Liquid event in useContext', e);
-    if (!e || typeof e !== 'object') {
-      console.warn('Invalid event received in onLiquidBreezEvent');
-      return;
-    }
-
-    setLiquidEvent(e);
-
-    if (e.type !== SdkEventVariant.SYNCED) {
-      debouncedStartInterval(
-        e.type === SdkEventVariant.PAYMENT_SUCCEEDED ? 1 : 0,
-      );
-    } else {
-      console.log(
-        `Running in sync else statment for liquiid on sync count:${syncRunCounter.current}`,
-      );
-      if (syncRunCounter.current > 6) {
-        console.log('running debounce sync else statment for liquiid');
-        debouncedStartInterval(0);
-        syncRunCounter.current = 0;
+  const onLiquidBreezEvent = useCallback(
+    e => {
+      console.log('Running in breez Liquid event in useContext', e);
+      if (!e || typeof e !== 'object') {
+        console.warn('Invalid event received in onLiquidBreezEvent');
+        return;
       }
-      syncRunCounter.current = syncRunCounter.current + 1;
-    }
-  };
 
-  useEffect(() => {
-    if (!didGetToHomepage) return;
-    if (liquidNodeInformation.userBalance) return;
-    console.log('Makeing sure user balance is loaded');
+      setLiquidEvent(e);
 
-    debouncedStartInterval(0);
-  }, [didGetToHomepage]);
+      if (e.type !== SdkEventVariant.SYNCED) {
+        debouncedStartInterval(
+          e.type === SdkEventVariant.PAYMENT_SUCCEEDED ? 1 : 0,
+        );
+      } else {
+        console.log(
+          `Running in sync else statment for liquiid on sync count:${syncRunCounter.current} and is initiail sync ${isInitialSync.current}`,
+        );
+        if (syncRunCounter.current >= (isInitialSync.current ? 2 : 6)) {
+          if (isInitialSync.current) isInitialSync.current = false;
+          console.log('running debounce sync else statment for liquiid');
+          debouncedStartInterval(0);
+          syncRunCounter.current = 0;
+        }
+        syncRunCounter.current = syncRunCounter.current + 1;
+      }
+    },
+    [syncRunCounter, isInitialSync],
+  );
 
   return (
     <LiquidEventContext.Provider
