@@ -1,5 +1,5 @@
 import formatBalanceAmount from '../formatNumber';
-import {getSignleContact, updateMessage} from '../../../db';
+import {getSingleContact, updateMessage} from '../../../db';
 import {SATSPERBITCOIN} from '../../constants';
 import fetchBackend from '../../../db/handleBackend';
 
@@ -44,7 +44,7 @@ export async function sendPushNotification({
 }) {
   try {
     console.log(selectedContactUsername);
-    const retrivedContact = await getSignleContact(
+    const retrivedContact = await getSingleContact(
       selectedContactUsername.toLowerCase(),
     );
 

@@ -29,11 +29,18 @@ const GlobalConbinedTxContextProvider = ({children}) => {
   const enabledLightning =
     masterInfoObject.liquidWalletSettings?.isLightningEnabled;
 
+  console.log(
+    didConnectToLightningNode !== null,
+    !enabledLightning,
+    didConnectToLiquidNode,
+    didConnectToEcashNode !== null,
+    !enabledEcash,
+  );
   const shouldStartToMergeArrays = useMemo(() => {
     return (
-      (didConnectToLightningNode || !enabledLightning) &&
+      (didConnectToLightningNode !== null || !enabledLightning) &&
       didConnectToLiquidNode &&
-      (didConnectToEcashNode === null || !enabledEcash)
+      (didConnectToEcashNode !== null || !enabledEcash)
     );
   }, [
     didConnectToEcashNode,

@@ -13,6 +13,7 @@ import {
   doc,
   setDoc,
   limit,
+  addDoc,
 } from '@react-native-firebase/firestore';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';

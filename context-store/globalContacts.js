@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import {
   addDataToCollection,
-  bulkGetUnownContacts,
+  bulkGetUnknownContacts,
   getUnknownContact,
   syncDatabasePayment,
 } from '../db';
@@ -276,7 +276,9 @@ export const GlobalContactsList = ({children}) => {
 
       // Request database for updated contact addresses
       const bulkResults = (
-        await Promise.all(uuidChunks.map(uuids => bulkGetUnownContacts(uuids)))
+        await Promise.all(
+          uuidChunks.map(uuids => bulkGetUnknownContacts(uuids)),
+        )
       )
         .flat()
         .filter(Boolean);
