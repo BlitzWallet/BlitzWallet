@@ -148,7 +148,7 @@ export const getStoredProofs = async mintURL => {
       formmattedProof['witness'] = proof.witness || undefined;
       proofs.push(formmattedProof);
     }
-
+    console.log('Successfully got saved proofs');
     return proofs;
   } catch (err) {
     console.log('getting stored ecash proofs error', err);

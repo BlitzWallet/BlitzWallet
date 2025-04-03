@@ -64,20 +64,6 @@ const COLORS = {
 };
 
 const FONT = {
-  // Title_Light: 'Inter-Light',
-  // Title_Medium: 'Inter-Medium',
-  // Title_Regular: 'Inter-Regular',
-  // Title_Bold: 'Inter-Bold',
-
-  // Descriptoin_light: 'Montserrat-Light',
-  // Descriptoin_Regular: 'Montserrat-Regular',
-  // Descriptoin_Bold: 'Montserrat-Bold',
-
-  // Other_light: 'Montserrat-Light',
-  // Other_Medium: 'Montserrat-Medium',
-  // Other_Regular: 'Montserrat-Regular',
-  // Other_Bold: 'Montserrat-Bold',
-
   Title_light: 'Poppins-Light',
   Title_Medium: 'Poppins-Medium',
   Title_Regular: 'Poppins-Regular',

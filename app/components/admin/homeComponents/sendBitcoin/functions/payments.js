@@ -384,6 +384,7 @@ export async function sendPaymentUsingEcash({
         paymentInfo,
         convertedSendAmount,
       );
+
       if (!sendingInvoice)
         throw new Error(
           'Unable to create an invoice for the lightning address.',
@@ -391,8 +392,9 @@ export async function sendPaymentUsingEcash({
       invoice = sendingInvoice;
     }
     if (!invoice) throw new Error('Unable to parse sending invoice.');
-
+    console.log('Before melt quote');
     const meltQuote = await getMeltQuote(invoice);
+    console.log('after melt quote');
     if (!meltQuote.quote)
       throw new Error(
         meltQuote.reason || `Not able to generate ecash quote or proofs.`,

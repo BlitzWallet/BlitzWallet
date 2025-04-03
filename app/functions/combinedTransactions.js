@@ -41,6 +41,7 @@ export default function getFormattedHomepageTxs({
     ? mergeArrays({arr2, n2})
     : combinedTransactions;
 
+  console.log(conjoinedTxList?.length, combinedTransactions?.length);
   console.log('re-rendering transactions');
 
   if (conjoinedTxList.length === 0) {

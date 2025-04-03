@@ -2,7 +2,7 @@ import {Platform, StyleSheet, View, useWindowDimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {LIQUID_DEFAULT_FEE, SIZES} from '../../../../../constants';
-import {parsePhoneNumber} from 'libphonenumber-js';
+import {parsePhoneNumberWithError} from 'libphonenumber-js';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
@@ -37,7 +37,7 @@ export default function ConfirmSMSPayment(props) {
 
   const formattedPhoneNumber = () => {
     try {
-      return parsePhoneNumber(
+      return parsePhoneNumberWithError(
         `${areaCodeNum}${phoneNumber}`,
       ).formatInternational();
     } catch (err) {

@@ -2,7 +2,7 @@ import {deleteEcashDBTables} from './eCash/db';
 import {deleteTable} from './messaging/cachedMessages';
 import {deletePOSTransactionsTable} from './pos';
 import {terminateAccount} from './secureStore';
-import auth from '@react-native-firebase/auth';
+import {getAuth} from '@react-native-firebase/auth';
 
 export default async function factoryResetWallet() {
   try {
@@ -11,7 +11,7 @@ export default async function factoryResetWallet() {
     await deletePOSTransactionsTable();
     await terminateAccount();
     try {
-      await auth().signOut();
+      await getAuth().signOut();
     } catch (err) {
       console.log('reset wallet sign out error', err);
     }

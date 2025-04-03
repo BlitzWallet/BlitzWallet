@@ -33,7 +33,7 @@ const GlobalConbinedTxContextProvider = ({children}) => {
     return (
       (didConnectToLightningNode || !enabledLightning) &&
       didConnectToLiquidNode &&
-      (didConnectToEcashNode || !enabledEcash)
+      (didConnectToEcashNode === null || !enabledEcash)
     );
   }, [
     didConnectToEcashNode,
@@ -51,6 +51,7 @@ const GlobalConbinedTxContextProvider = ({children}) => {
   const n3 = ecashWalletInformation.transactions.length;
 
   useEffect(() => {
+    console.log('Checking changes in transactions...');
     const hasChanged =
       JSON.stringify(prevDependencies.current.arr1) !== JSON.stringify(arr1) ||
       JSON.stringify(prevDependencies.current.arr2) !== JSON.stringify(arr2) ||
@@ -58,6 +59,10 @@ const GlobalConbinedTxContextProvider = ({children}) => {
       prevDependencies.current.n1 !== n1 ||
       prevDependencies.current.n2 !== n2 ||
       prevDependencies.current.n3 !== n3;
+
+    console.log('has changed', hasChanged);
+    console.log('should start to merge', shouldStartToMergeArrays);
+    console.log(n1, n2, n3);
 
     if (!hasChanged || !shouldStartToMergeArrays) return;
     console.log('re-filtering transaactins');

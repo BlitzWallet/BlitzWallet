@@ -376,8 +376,7 @@ const styles = StyleSheet.create({
   },
   seedItem: {
     width: '48%',
-    paddingVertical: Platform.OS === 'ios' ? 10 : 0,
-    minHeight: Platform.OS === 'ios' ? 0 : 55,
+    minHeight: 55,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,

@@ -76,7 +76,7 @@ export default function GiftCardPage() {
 
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const giftCards = giftCardsList;
-  useHandleBackPressNew(() => navigate.navigate('HomeAdmin'));
+  useHandleBackPressNew(() => navigate.popTo('HomeAdmin'));
 
   // Filter gift cards based on search input
   const filteredGiftCards = useMemo(
@@ -154,7 +154,7 @@ export default function GiftCardPage() {
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => {
-              keyboardNavigate(() => navigate.navigate('HomeAdmin'));
+              keyboardNavigate(() => navigate.popTo('HomeAdmin'));
             }}
             style={{marginRight: 'auto'}}>
             <ThemeImage

@@ -1,12 +1,8 @@
 import React from 'react';
 import {StyleSheet, View, Text, Dimensions} from 'react-native';
-import {
-  GestureHandlerRootView,
-  PanGestureHandler,
-} from 'react-native-gesture-handler';
+import {Gesture, GestureHandlerRootView} from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
-  useAnimatedGestureHandler,
   useSharedValue,
   withSpring,
   runOnJS,
@@ -53,39 +49,6 @@ const CustomSwipButton = ({
     }
   };
 
-  const gestureHandler = useAnimatedGestureHandler({
-    onStart: (_, context) => {
-      context.startX = translateX.value;
-    },
-    onActive: (event, context) => {
-      if (completed.value) return;
-
-      let newPosition = context.startX + event.translationX;
-      // Clamp position between 0 and max distance
-      newPosition = Math.min(
-        Math.max(newPosition, 0),
-        buttonWidth - sliderSize,
-      );
-      translateX.value = newPosition;
-
-      // Check if swipe is complete
-      if (newPosition >= (buttonWidth - sliderSize) * swipeThreshold) {
-        translateX.value = withSpring(buttonWidth - sliderSize);
-        runOnJS(handleComplete)();
-      }
-    },
-    onEnd: () => {
-      if (!completed.value) {
-        // Spring back to start if not completed
-        translateX.value = withSpring(0);
-      }
-    },
-  });
-
-  const knobStyle = useAnimatedStyle(() => ({
-    transform: [{translateX: translateX.value}],
-  }));
-
   const progressStyle = useAnimatedStyle(() => ({
     width: translateX.value + sliderSize,
     opacity: interpolate(
@@ -112,6 +75,36 @@ const CustomSwipButton = ({
     ],
   }));
 
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      context.value.startX = translateX.value;
+    })
+    .onUpdate(event => {
+      if (completed.value) return;
+
+      let newPosition = context.value.startX + event.translationX;
+      // Clamp position between 0 and max distance
+      newPosition = Math.min(
+        Math.max(newPosition, 0),
+        buttonWidth - sliderSize,
+      );
+      translateX.value = newPosition;
+
+      // Check if swipe is complete
+      if (newPosition >= (buttonWidth - sliderSize) * swipeThreshold) {
+        translateX.value = withSpring(buttonWidth - sliderSize);
+        runOnJS(handleComplete)();
+      }
+    })
+    .onEnd(() => {
+      if (!completed.value) {
+        // Spring back to start if not completed
+        translateX.value = withSpring(0);
+      }
+    });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{translateX: translateX.value}],
+  }));
   return (
     <View style={{padding: 0}}>
       {/* Background track */}
@@ -163,11 +156,11 @@ const CustomSwipButton = ({
         />
 
         {/* Swipeable knob */}
-        <PanGestureHandler onGestureEvent={gestureHandler}>
+        <GestureDetector gesture={panGesture}>
           <Animated.View
             style={[
               styles.knob,
-              knobStyle,
+              animatedStyle,
               {
                 backgroundColor: theme
                   ? darkModeType
@@ -180,7 +173,7 @@ const CustomSwipButton = ({
               },
             ]}
           />
-        </PanGestureHandler>
+        </GestureDetector>
       </View>
     </View>
   );

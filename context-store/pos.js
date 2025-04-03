@@ -16,6 +16,15 @@ import {
   queuePOSTransactions,
 } from '../app/functions/pos';
 import {getTwoWeeksAgoDate} from '../app/functions/rotateAddressDateChecker';
+import {
+  collection,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+  startAfter,
+  where,
+} from '@react-native-firebase/firestore';
 // Initiate context
 const POSTransactionsContextManager = createContext(null);
 
@@ -81,23 +90,26 @@ const POSTransactionsProvider = ({children}) => {
     if (!publicKey) return;
     console.log('running pos transactions listener...');
     const now = new Date().getTime();
-    const unsubscribe = db
-      .collection('posTransactions')
-      .where('storePubKey', '==', publicKey)
-      .orderBy('dateAdded')
-      .startAfter(now)
-      .onSnapshot(snapshot => {
-        snapshot?.docChanges()?.forEach(async change => {
-          console.log('recived a new message', change.type);
-          if (change.type === 'added') {
-            const newTX = change.doc.data();
-            queuePOSTransactions({
-              transactionsList: [newTX],
-              privateKey: contactsPrivateKey,
-            });
-          }
-        });
+
+    const transaction = query(
+      collection(db, 'posTransactions'),
+      where('storePubKey', '==', publicKey),
+      orderBy('dateAdded'),
+      startAfter(now),
+    );
+
+    const unsubscribe = onSnapshot(transaction, snapshot => {
+      snapshot?.docChanges()?.forEach(async change => {
+        console.log('recived a new pos transaction', change.type);
+        if (change.type === 'added') {
+          const newTX = change.doc.data();
+          queuePOSTransactions({
+            transactionsList: [newTX],
+            privateKey: contactsPrivateKey,
+          });
+        }
       });
+    });
 
     return () => {
       if (unsubscribe) unsubscribe();
@@ -113,20 +125,21 @@ const POSTransactionsProvider = ({children}) => {
         : getTwoWeeksAgoDate();
 
       console.log('last pos transaction timestamp', txs[0]?.dbDateAdded);
+      const transactionsRef = collection(db, 'posTransactions');
 
-      const missedMessags = await db
-        .collection('posTransactions')
-        .where('storePubKey', '==', publicKey)
-        .where('dateAdded', '>', lastMessageTimestamp)
-        .get();
+      const messagesQuery = query(
+        transactionsRef,
+        where('storePubKey', '==', publicKey),
+        where('dateAdded', '>', lastMessageTimestamp),
+      );
 
-      if (missedMessags.empty) {
-        return;
-      }
+      const querySnapshot = await getDocs(messagesQuery);
+
+      if (querySnapshot.empty) return;
 
       let messsageList = [];
 
-      for (const doc of missedMessags.docs) {
+      for (const doc of querySnapshot.docs) {
         const data = doc.data();
         messsageList.push(data);
       }

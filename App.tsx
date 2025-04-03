@@ -5,7 +5,7 @@
  * @format
  */
 
-import {NavigationContainer} from '@react-navigation/native';
+import {DefaultTheme, NavigationContainer} from '@react-navigation/native';
 import './pollyfills';
 import './i18n'; // for translation option
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -63,6 +63,7 @@ import {
 import getDeepLinkUser from './app/components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import {navigationRef} from './navigation/navigationService';
 import {GlobalConbinedTxContextProvider} from './context-store/combinedTransactionsContext';
+import BreezTest from './app/screens/breezTest';
 
 const Stack = createNativeStackNavigator();
 
@@ -262,14 +263,16 @@ function ResetStack(): JSX.Element | null {
   };
   const navigationTheme = useMemo(
     () => ({
+      ...DefaultTheme,
       dark: theme,
       colors: {
+        ...DefaultTheme.colors,
+        primary: '#1E1E1E',
         background: backgroundColor,
-        primary: '',
-        card: '',
-        text: '',
-        border: '',
-        notification: '',
+        card: '#1E1E1E',
+        text: '#1E1E1E',
+        border: '#1E1E1E',
+        notification: '#1E1E1E',
       },
     }),
     [theme, backgroundColor],
@@ -278,7 +281,8 @@ function ResetStack(): JSX.Element | null {
   const screenOptions = useMemo(() => {
     return {
       headerShown: false,
-      statusBarColor: Platform.OS === 'android' ? backgroundColor : undefined,
+      statusBarBackgroundColor:
+        Platform.OS === 'android' ? backgroundColor : undefined,
       statusBarStyle:
         Platform.OS === 'android'
           ? ((theme ? 'light' : 'dark') as
@@ -308,6 +312,7 @@ function ResetStack(): JSX.Element | null {
   if (!initSettings.isLoaded || theme === null || darkModeType === null) {
     return <SplashScreen onAnimationFinish={handleAnimationFinish} />;
   }
+
   return (
     <NavigationContainer theme={navigationTheme} ref={navigationRef}>
       <LiquidNavigationListener />

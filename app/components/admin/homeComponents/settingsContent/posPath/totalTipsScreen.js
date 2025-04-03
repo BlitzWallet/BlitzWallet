@@ -207,7 +207,7 @@ export default function TotalTipsScreen(props) {
       confirmMessage: 'Are you sure you want to remove this employee?',
       confirmFunction: async () => {
         await deleteEmployee(name);
-        navigate.navigate('ViewPOSTransactions');
+        navigate.popTo('ViewPOSTransactions');
       },
     });
   }, []);

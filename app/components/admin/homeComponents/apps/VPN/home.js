@@ -38,7 +38,7 @@ export default function VPNHome() {
         navigate.navigate('ErrorScreen', {
           errorMessage: 'Unable to get available countries',
           customNavigator: () => {
-            navigate.navigate('HomeAdmin');
+            navigate.popTo('HomeAdmin');
           },
         });
         console.log(err);

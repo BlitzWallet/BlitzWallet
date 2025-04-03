@@ -34,7 +34,7 @@ const CustomToggleSwitch = ({
     Animated.timing(animatedValue, {
       toValue: localIsOn ? 1 : 0,
       duration: 300, // Duration of the animation
-      useNativeDriver: false, // Enable if animating style properties
+      useNativeDriver: true, // Enable if animating style properties
     }).start();
   }, [localIsOn]);
 
@@ -84,6 +84,12 @@ const CustomToggleSwitch = ({
     inputRange: [0, 1],
     outputRange: [5, 40], // From left to right position
   });
+  // Text position animation (now properly initialized)
+  const textPosition = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [33, 10], // Adjusted these values for better positioning
+    extrapolate: 'clamp',
+  });
 
   return (
     <TouchableOpacity
@@ -100,21 +106,21 @@ const CustomToggleSwitch = ({
         <Animated.View
           style={[
             styles.circle,
-            {left: circlePosition, backgroundColor: circleColor},
+            {
+              transform: [{translateX: circlePosition}],
+              backgroundColor: circleColor,
+            },
           ]}
         />
         <Animated.Text
           style={[
             styles.text,
             {
-              left: circlePosition,
+              // left: circlePosition,
               color: animatedTextColor,
               transform: [
                 {
-                  translateX: animatedValue.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [30, -28], // Adjust text position relative to the circle
-                  }),
+                  translateX: textPosition,
                 },
               ],
             },
@@ -137,6 +143,7 @@ const styles = StyleSheet.create({
   circle: {
     width: 24,
     height: 24,
+    padding: 10,
     borderRadius: 12,
     backgroundColor: '#fff',
     position: 'absolute',

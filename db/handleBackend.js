@@ -1,8 +1,9 @@
-import functions from '@react-native-firebase/functions';
+import {getFunctions} from '@react-native-firebase/functions';
 import {
   decryptMessage,
   encriptMessage,
 } from '../app/functions/messaging/encodingAndDecodingMessages';
+
 export default async function fetchBackend(
   method,
   data,
@@ -18,7 +19,7 @@ export default async function fetchBackend(
       publicKey,
     };
     console.log('function call data', responseData);
-    const response = await functions().httpsCallable(method)(responseData);
+    const response = await getFunctions().httpsCallable(method)(responseData);
 
     const dm = decodeRequest(privateKey, response.data);
     console.log('decoded response', dm);

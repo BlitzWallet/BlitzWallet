@@ -50,8 +50,8 @@ export const initEcashWallet = async mintURL => {
       keys,
     });
 
-    await wallet.loadMint();
-    await wallet.getKeys();
+    // await wallet.loadMint();
+    // await wallet.getKeys();
 
     eCashWallets[activeMintURL] = wallet;
     return wallet;

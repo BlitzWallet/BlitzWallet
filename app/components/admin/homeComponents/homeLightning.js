@@ -1,6 +1,7 @@
 import {StyleSheet, View} from 'react-native';
 import {UserSatAmount} from './homeLightning/userSatAmount';
-import {SendRecieveBTNs} from './homeLightning/sendReciveBTNs';
+// import {SendRecieveBTNs} from './homeLightning/sendReciveBTNs';
+
 import {useGlobalContextProvider} from '../../../../context-store/context';
 import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
 import CustomFlatList from './homeLightning/cusomFlatlist/CustomFlatList';
@@ -14,6 +15,7 @@ import {useTranslation} from 'react-i18next';
 import {useAppStatus} from '../../../../context-store/appStatus';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
 import {useGlobalTxContextProvider} from '../../../../context-store/combinedTransactionsContext';
+import {SendRecieveBTNs} from './homeLightning/sendReciveBTNs';
 
 export default function HomeLightning() {
   console.log('HOME LIGHTNING PAGE');

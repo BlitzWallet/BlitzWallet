@@ -326,7 +326,7 @@ export default function ChatGPTHome(props) {
 
   function closeChat() {
     if (newChats.length === 0) {
-      navigate.navigate('HomeAdmin');
+      navigate.popTo('HomeAdmin');
       return;
     }
     navigate.setOptions({
@@ -339,7 +339,7 @@ export default function ChatGPTHome(props) {
           toggleGlobalAppDataInformation,
           navigate,
         }),
-      doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
+      doesNotWantToSave: () => navigate.popTo('HomeAdmin'),
     });
     navigate.navigate('ConfirmLeaveChatGPT', {
       wantsToSave: () =>
@@ -351,7 +351,7 @@ export default function ChatGPTHome(props) {
           toggleGlobalAppDataInformation,
           navigate,
         }),
-      doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
+      doesNotWantToSave: () => navigate.popTo('HomeAdmin'),
     });
   }
 

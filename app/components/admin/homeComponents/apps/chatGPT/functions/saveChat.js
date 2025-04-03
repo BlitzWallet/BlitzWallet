@@ -76,7 +76,7 @@ export default function saveChatGPTChat({
       true,
     );
 
-    navigate.navigate('HomeAdmin');
+    navigate.popTo('HomeAdmin');
   } catch (err) {
     console.log(err);
     navigate.navigate('ErrorScreen', {

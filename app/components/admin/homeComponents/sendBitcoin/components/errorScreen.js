@@ -48,7 +48,7 @@ export default function ErrorWithPayment({reason}) {
         buttonStyles={styles.buttonStyle}
         textContent={'Continue'}
         actionFunction={() => {
-          navigate.navigate('HomeAdmin', {screen: 'Home'});
+          navigate.popTo('HomeAdmin', {screen: 'Home'});
         }}
       />
     </GlobalThemeView>
