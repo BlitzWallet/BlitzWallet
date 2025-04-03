@@ -56,10 +56,23 @@ export const initEcashDBTables = async () => {
         preImage TEXT,
         mintURL TEXT,
         description TEXT,
+        invoice TEXT,
         FOREIGN KEY(mintURL) REFERENCES ${MINTS_TABLE_NAME}(mintURL) ON DELETE CASCADE
       );`);
-
     await sqlLiteDB.execAsync('COMMIT;');
+
+    const columnExists = await sqlLiteDB.someAsync(
+      `
+            PRAGMA table_info('${TRANSACTIONS_TABLE_NAME}')
+        `,
+      row => row.name === 'invoice',
+    );
+
+    if (!columnExists) {
+      await sqlLiteDB.runAsync(
+        `ALTER TABLE ${TRANSACTIONS_TABLE_NAME} ADD COLUMN invoice TEXT;`,
+      );
+    }
 
     console.log('opened or created ecash tables');
     return true;
@@ -209,12 +222,14 @@ export const storeEcashTransactions = async (transactions, mintURL) => {
         transaction.fee,
         transaction.preImage,
         transaction.description,
+        transaction.invoice,
         currentMint,
+        'store transaction informatino',
       );
       await sqlLiteDB.runAsync(
         `INSERT OR REPLACE INTO ${TRANSACTIONS_TABLE_NAME} 
-        (id, time, amount, type, paymentType, fee, preImage, mintURL, description) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        (id, time, amount, type, paymentType, fee, preImage, mintURL, description, invoice) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
         [
           transaction.id,
           transaction.time,
@@ -225,6 +240,7 @@ export const storeEcashTransactions = async (transactions, mintURL) => {
           transaction.preImage,
           currentMint,
           transaction.description,
+          transaction.invoice,
         ],
       );
     }

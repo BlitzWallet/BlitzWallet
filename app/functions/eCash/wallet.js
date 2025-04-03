@@ -210,6 +210,7 @@ async function claimUnclaimedEcashQuotes() {
             fee: 0,
             paymentType: 'received',
             description: didMint.prasedInvoice.description,
+            invoice: minQuoteResponse.request,
           });
 
           if (!newTransactions[storedQuoteInformation?.mintURL]) {
@@ -349,6 +350,7 @@ function formatEcashTx({
   preImage,
   time,
   description = '',
+  invoice = '',
 }) {
   let txObject = {
     id: customUUID(),
@@ -359,6 +361,7 @@ function formatEcashTx({
     paymentType: null,
     fee: null,
     preImage: null,
+    invoice: '',
   };
   txObject['amount'] = amount;
   if (time) {
@@ -368,6 +371,7 @@ function formatEcashTx({
   txObject['paymentType'] = paymentType;
   txObject['fee'] = fee;
   txObject['preImage'] = preImage;
+  txObject['invoice'] = invoice;
 
   return txObject;
 }
@@ -477,6 +481,7 @@ export const payLnInvoiceFromEcash = async ({
       paymentType: 'sent',
       preImage: meltResponse.quote.payment_preimage,
       description: decodedInvoice?.description || description,
+      invoice: invoice,
     };
 
     await removeProofs(proofsToUse);

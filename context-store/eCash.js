@@ -216,6 +216,7 @@ export const GlobaleCashVariables = ({children}) => {
               fee: 0,
               paymentType: 'received',
               description: didMint.prasedInvoice.description,
+              invoice: response.request,
             });
 
             await storeProofs([...didMint.proofs], mintURL);
