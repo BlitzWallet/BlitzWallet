@@ -356,22 +356,21 @@ export default function ChatGPTHome(props) {
   }
 
   async function submitChaMessage(forcedText) {
-    if (forcedText) {
-      if (userChatText.length === 0 || userChatText.trim() === '') return;
+    if (forcedText.length === 0 || forcedText.trim() === '') return;
 
-      if (totalAvailableCredits < 30) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'You have run out of credits.',
-        });
-        return;
-      }
+    if (totalAvailableCredits < 30) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'You have run out of credits.',
+      });
+      return;
     }
+
     const [filteredModel] = AI_MODEL_COST.filter(item => {
       console.log(item);
       return item.shortName.toLowerCase() === model.toLowerCase();
     });
 
-    let textToSend = typeof forcedText === 'object' ? userChatText : forcedText;
+    let textToSend = forcedText;
 
     let userChatObject = {};
     let GPTChatObject = {};

@@ -223,6 +223,7 @@ export default function ManualSwapPopup() {
           </ScrollView>
           {transferInfo.from && transferInfo.to && !!convertedSendAmount && (
             <FormattedSatText
+              neverHideBalance={true}
               frontText={`${
                 convertedSendAmount < minMaxLiquidSwapAmounts.min &&
                 !canDoTransfer

@@ -34,10 +34,10 @@ export default function EcashSettings() {
         });
         return;
       }
-      if (parseValue > MAX_ECASH_RECEIVE) {
+      if (parseValue > ecashWalletSettings.maxEcashBalance) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Cannot set value greater than maximum amount.',
+          errorMessage: 'Cannot set value greater than maximum balance.',
         });
         return;
       }

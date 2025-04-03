@@ -116,17 +116,14 @@ export default function SendPaymentHome({pageViewPage, from}) {
         qrContent: data.value,
         network: process.env.BOLTZ_ENVIRONMENT,
       });
-
-      navigate.reset({
-        index: 0,
-        routes: [
-          {name: 'HomeAdmin', params: {screen: 'Home'}},
-          {
-            name: 'ConfirmPaymentScreen',
-            params: {btcAdress: merchantLNAddress || data.value},
-          },
-        ],
-      });
+      if (from === 'home')
+        navigate.navigate('ConfirmPaymentScreen', {
+          btcAdress: merchantLNAddress || data.value,
+        });
+      else
+        navigate.replace('ConfirmPaymentScreen', {
+          btcAdress: merchantLNAddress || data.value,
+        });
     },
     [navigate],
   );
@@ -175,9 +172,14 @@ export default function SendPaymentHome({pageViewPage, from}) {
       }
 
       if (!response.didWork || !response.btcAdress) return;
-      navigate.replace('ConfirmPaymentScreen', {
-        btcAdress: response.btcAdress,
-      });
+      if (from === 'home')
+        navigate.navigate('ConfirmPaymentScreen', {
+          btcAdress: response.btcAdress,
+        });
+      else
+        navigate.replace('ConfirmPaymentScreen', {
+          btcAdress: response.btcAdress,
+        });
     } catch (err) {
       console.log('Error in getting QR image', err);
     } finally {
@@ -311,7 +313,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
         <View style={styles.overlay}>
           <TouchableOpacity
             onPress={() => {
-              navigateToSendUsingClipboard(navigate, 'sendBTCPage');
+              navigateToSendUsingClipboard(navigate, 'sendBTCPage', from);
             }}
             style={{
               ...styles.pasteBTN,

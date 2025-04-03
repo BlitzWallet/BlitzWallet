@@ -4,7 +4,7 @@ import {getImageFromLibrary} from '../imagePickerWrapper';
 import RNQRGenerator from 'rn-qr-generator';
 import getClipboardText from '../getClipboardText';
 
-async function navigateToSendUsingClipboard(navigate, callLocation) {
+async function navigateToSendUsingClipboard(navigate, callLocation, from) {
   const response = await getClipboardText();
 
   if (!response.didWork) {
@@ -24,10 +24,16 @@ async function navigateToSendUsingClipboard(navigate, callLocation) {
     qrContent: data,
     network: process.env.BOLTZ_ENVIRONEMNT,
   });
-  navigate.replace('ConfirmPaymentScreen', {
-    btcAdress: merchantLNAddress || data,
-    fromPage: callLocation === 'slideCamera' ? 'slideCamera' : '',
-  });
+  if (from === 'home')
+    navigate.navigate('ConfirmPaymentScreen', {
+      btcAdress: merchantLNAddress || data,
+      fromPage: callLocation === 'slideCamera' ? 'slideCamera' : '',
+    });
+  else
+    navigate.replace('ConfirmPaymentScreen', {
+      btcAdress: merchantLNAddress || data,
+      fromPage: callLocation === 'slideCamera' ? 'slideCamera' : '',
+    });
 }
 
 async function getQRImage(navigate, callLocation) {
