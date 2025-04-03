@@ -25,7 +25,7 @@ const SplashScreen = ({onAnimationFinish}) => {
       Animated.timing(opacity, {
         toValue: 0,
         duration: 500,
-        useNativeDriver: false,
+        useNativeDriver: true,
       }).start(() => {
         if (onAnimationFinish) {
           onAnimationFinish();

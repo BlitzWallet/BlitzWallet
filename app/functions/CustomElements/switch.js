@@ -14,7 +14,7 @@ const CustomToggleSwitch = ({
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
-
+  const [textWidth, setTextWidth] = useState(0);
   const isOn =
     page === 'cameraSlider'
       ? masterInfoObject.enabledSlidingCamera
@@ -25,10 +25,17 @@ const CustomToggleSwitch = ({
       : page === 'useTrampoline'
       ? masterInfoObject.useTrampoline
       : false;
-
-  const animatedValue = useRef(new Animated.Value(0)).current;
-
   const localIsOn = stateValue != undefined ? stateValue : isOn;
+
+  console.log(localIsOn, 'LOACAL IS ON');
+
+  const [sliderText, setSliderText] = useState(localIsOn ? 'ON' : 'OFF');
+
+  const animatedValue = useRef(new Animated.Value(localIsOn ? 1 : 0)).current;
+  const opacityTextValue = useRef(
+    new Animated.Value(localIsOn ? 1 : 0),
+  ).current;
+  const isInitialRender = useRef(true);
 
   useEffect(() => {
     Animated.timing(animatedValue, {
@@ -36,6 +43,24 @@ const CustomToggleSwitch = ({
       duration: 300, // Duration of the animation
       useNativeDriver: true, // Enable if animating style properties
     }).start();
+
+    Animated.timing(opacityTextValue, {
+      toValue: isInitialRender.current ? 1 : 0,
+      duration: 150,
+      useNativeDriver: true,
+    }).start(() => {
+      if (isInitialRender.current) {
+        isInitialRender.current = false;
+      } else setSliderText(prev => (prev === 'ON' ? 'OFF' : 'ON'));
+      // Change text after fade out
+
+      // Fade in animation
+      Animated.timing(opacityTextValue, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
   }, [localIsOn]);
 
   const toggleSwitch = () => {
@@ -72,12 +97,9 @@ const CustomToggleSwitch = ({
       darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
     ], // From inactive to active color
   });
-  const animatedTextColor = animatedValue.interpolate({
+  const animatedTextColor = opacityTextValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [
-      textColor,
-      darkModeType && theme ? COLORS.lightsOutBackground : COLORS.white,
-    ], // From inactive to active color
+    outputRange: [0, 1], // From inactive to active color
   });
 
   const circlePosition = animatedValue.interpolate({
@@ -87,7 +109,7 @@ const CustomToggleSwitch = ({
   // Text position animation (now properly initialized)
   const textPosition = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [33, 10], // Adjusted these values for better positioning
+    outputRange: [70 - textWidth - 10, 10], // Adjusted these values for better positioning
     extrapolate: 'clamp',
   });
 
@@ -113,11 +135,20 @@ const CustomToggleSwitch = ({
           ]}
         />
         <Animated.Text
+          onLayout={event => {
+            console.log(event.nativeEvent.layout.width);
+            setTextWidth(event.nativeEvent.layout.width);
+          }}
           style={[
             styles.text,
             {
               // left: circlePosition,
-              color: animatedTextColor,
+              color: localIsOn
+                ? darkModeType && theme
+                  ? COLORS.lightsOutBackground
+                  : COLORS.white
+                : textColor, // From inactive to active color
+              opacity: animatedTextColor,
               transform: [
                 {
                   translateX: textPosition,
@@ -125,7 +156,7 @@ const CustomToggleSwitch = ({
               ],
             },
           ]}>
-          {localIsOn ? 'ON' : 'OFF'}
+          {sliderText}
         </Animated.Text>
       </Animated.View>
     </TouchableOpacity>
@@ -147,6 +178,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: '#fff',
     position: 'absolute',
+    zIndex: 1,
   },
   text: {
     position: 'absolute',
