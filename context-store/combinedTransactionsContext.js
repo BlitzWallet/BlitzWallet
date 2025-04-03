@@ -11,6 +11,7 @@ import {useGlobaleCash} from './eCash';
 import {useGlobalContextProvider} from './context';
 import {mergeArrays} from '../app/functions/mergeArrays';
 import {useNodeContext} from './nodeContext';
+import sha256Hash from '../app/functions/hash';
 
 // Initiate context
 const combinedTxContextManager = createContext(null);
@@ -19,64 +20,100 @@ const GlobalConbinedTxContextProvider = ({children}) => {
   const {masterInfoObject} = useGlobalContextProvider();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {ecashWalletInformation} = useGlobaleCash();
+
   const [combinedTransactions, setCombinedTransactions] = useState([]);
-  const prevDependencies = useRef({arr1, arr2, arr3, n1, n2, n3});
 
-  const didConnectToLiquidNode = liquidNodeInformation.didConnectToNode;
-  const didConnectToLightningNode = nodeInformation.didConnectToNode;
-  const didConnectToEcashNode = ecashWalletInformation.didConnectToNode;
-  const enabledEcash = masterInfoObject.enabledEcash;
-  const enabledLightning =
-    masterInfoObject.liquidWalletSettings?.isLightningEnabled;
-
-  console.log(
-    didConnectToLightningNode !== null,
-    !enabledLightning,
-    didConnectToLiquidNode,
-    didConnectToEcashNode !== null,
-    !enabledEcash,
-  );
+  const prevDependencies = useRef({
+    arr1Hash: null,
+    arr2Hash: null,
+    arr3Hash: null,
+    n1: null,
+    n2: null,
+    n3: null,
+  });
   const shouldStartToMergeArrays = useMemo(() => {
     return (
-      (didConnectToLightningNode !== null || !enabledLightning) &&
-      didConnectToLiquidNode &&
-      (didConnectToEcashNode !== null || !enabledEcash)
+      (nodeInformation.didConnectToNode !== null ||
+        !masterInfoObject.liquidWalletSettings?.isLightningEnabled) &&
+      liquidNodeInformation.didConnectToNode &&
+      (ecashWalletInformation.didConnectToNode !== null ||
+        !masterInfoObject.enabledEcash)
     );
   }, [
-    didConnectToEcashNode,
-    didConnectToLightningNode,
-    didConnectToLiquidNode,
-    enabledEcash,
-    enabledLightning,
+    nodeInformation.didConnectToNode,
+    liquidNodeInformation.didConnectToNode,
+    ecashWalletInformation.didConnectToNode,
+    masterInfoObject.enabledEcash,
+    masterInfoObject.liquidWalletSettings?.isLightningEnabled,
   ]);
 
-  const arr1 = nodeInformation.transactions;
-  const arr2 = liquidNodeInformation.transactions;
-  const arr3 = ecashWalletInformation.transactions;
-  const n1 = nodeInformation.transactions.length;
-  const n2 = liquidNodeInformation.transactions.length;
-  const n3 = ecashWalletInformation.transactions.length;
+  const hashTransactions = useCallback((transactions, fingerprintType) => {
+    try {
+      let array = [];
+      if (fingerprintType === 'liquid') {
+        array = transactions.map(tx => `${tx?.txId}:${tx?.status}`);
+      } else if (fingerprintType === 'lightning') {
+        array = transactions.map(tx => `${tx?.id}:${tx?.status}`);
+      } else {
+        array = transactions.map(tx => `${tx?.id}`);
+      }
+      return sha256Hash(array.join('|'));
+    } catch (err) {
+      console.log('Hash transaction error', err);
+      return '';
+    }
+  }, []);
 
   useEffect(() => {
     console.log('Checking changes in transactions...');
+    if (!shouldStartToMergeArrays) return;
+    const arr1 = nodeInformation.transactions;
+    const arr2 = liquidNodeInformation.transactions;
+    const arr3 = ecashWalletInformation.transactions;
+
+    const arr1Hash = hashTransactions(arr1, 'lightning');
+    const arr2Hash = hashTransactions(arr2, 'liquid');
+    const arr3Hash = hashTransactions(arr3, 'ecash');
+
+    const n1 = arr1.length;
+    const n2 = arr2.length;
+    const n3 = arr3.length;
+
+    console.log(
+      arr1Hash,
+      prevDependencies.current.arr1Hash,
+      arr2Hash,
+      prevDependencies.current.arr2Hash,
+      arr3Hash,
+      prevDependencies.current.arr3Hash,
+      prevDependencies.current.n1,
+      n1,
+      prevDependencies.current.n2,
+      n2,
+      prevDependencies.current.n3,
+      n3,
+    );
+
     const hasChanged =
-      JSON.stringify(prevDependencies.current.arr1) !== JSON.stringify(arr1) ||
-      JSON.stringify(prevDependencies.current.arr2) !== JSON.stringify(arr2) ||
-      JSON.stringify(prevDependencies.current.arr3) !== JSON.stringify(arr3) ||
+      arr1Hash !== prevDependencies.current.arr1Hash ||
+      arr2Hash !== prevDependencies.current.arr2Hash ||
+      arr3Hash !== prevDependencies.current.arr3Hash ||
       prevDependencies.current.n1 !== n1 ||
       prevDependencies.current.n2 !== n2 ||
       prevDependencies.current.n3 !== n3;
 
-    console.log('has changed', hasChanged);
-    console.log('should start to merge', shouldStartToMergeArrays);
-    console.log(n1, n2, n3);
-
-    if (!hasChanged || !shouldStartToMergeArrays) return;
-    console.log('re-filtering transaactins');
+    if (!hasChanged) return;
+    console.log('Merging transactions...');
 
     const txs = mergeArrays({arr1, arr2, arr3, n1, n2, n3});
     setCombinedTransactions(txs);
-  }, [arr1, arr2, arr3, n1, n2, n3, shouldStartToMergeArrays]);
+    prevDependencies.current = {arr1Hash, arr2Hash, arr3Hash, n1, n2, n3};
+  }, [
+    nodeInformation.transactions,
+    liquidNodeInformation.transactions,
+    ecashWalletInformation.transactions,
+    shouldStartToMergeArrays,
+  ]);
 
   const contextValue = useMemo(
     () => ({
