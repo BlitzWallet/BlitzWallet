@@ -61,17 +61,16 @@ export const initEcashDBTables = async () => {
       );`);
     await sqlLiteDB.execAsync('COMMIT;');
 
-    const columnExists = await sqlLiteDB.someAsync(
-      `
-            PRAGMA table_info('${TRANSACTIONS_TABLE_NAME}')
-        `,
-      row => row.name === 'invoice',
-    );
+    const result = await sqlLiteDB.getFirstAsync(`
+            SELECT COUNT(*) AS count FROM pragma_table_info('${TRANSACTIONS_TABLE_NAME}') 
+            WHERE name='invoice';
+          `);
 
-    if (!columnExists) {
-      await sqlLiteDB.runAsync(
-        `ALTER TABLE ${TRANSACTIONS_TABLE_NAME} ADD COLUMN invoice TEXT;`,
-      );
+    if (result.count === 0) {
+      await sqlLiteDB.execAsync(`
+              ALTER TABLE ${TRANSACTIONS_TABLE_NAME} 
+              ADD COLUMN invoice TEXT;
+            `);
     }
 
     console.log('opened or created ecash tables');
