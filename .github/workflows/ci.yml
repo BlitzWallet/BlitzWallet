@@ -17,11 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          set -euxo pipefail
-          yarn install --frozen-lockfile
-
       - name: Run eslint
         run: |
           set -euxo pipefail
