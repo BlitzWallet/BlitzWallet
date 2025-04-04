@@ -125,7 +125,13 @@ export const GlobaleCashVariables = ({children}) => {
             getStoredEcashTransactions(),
             getStoredProofs(),
           ]);
-        if (!selectedMint) return;
+        if (!selectedMint) {
+          toggleEcashWalletInformation({
+            didConnectToNode: true,
+          });
+
+          return;
+        }
         const balance = sumProofsValue(storedProofs);
 
         toggleEcashWalletInformation({
