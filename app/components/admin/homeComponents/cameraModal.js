@@ -14,38 +14,39 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {CENTER, COLORS, ICONS} from '../../../constants';
 import {ThemeText, GlobalThemeView} from '../../../functions/CustomElements';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import {ANDROIDSAFEAREA, backArrow} from '../../../constants/styles';
+import {backArrow} from '../../../constants/styles';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
-import {useIsForeground} from '../../../hooks/isAppForground';
 import {getImageFromLibrary} from '../../../functions/imagePickerWrapper';
 import RNQRGenerator from 'rn-qr-generator';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
 import getClipboardText from '../../../functions/getClipboardText';
+import {CameraPageNavBar} from '../../../functions/CustomElements/camera/cameraPageNavbar';
 
 export default function CameraModal(props) {
   console.log('SCREEN OPTIONS PAGE');
   const navigate = useNavigation();
-  const isFocused = useIsFocused();
-  const isForground = useIsForeground();
   const windowDimensions = Dimensions.get('window');
   const screenDimensions = Dimensions.get('screen');
   const screenAspectRatio = screenDimensions.height / screenDimensions.width;
   const {theme, darkModeType} = useGlobalThemeContext();
-  const insets = useSafeAreaInsets();
   const {hasPermission, requestPermission} = useCameraPermission();
   const device = useCameraDevice('back');
+  const [showCamera, setShowCamera] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setShowCamera(true);
+      return () => setShowCamera(false);
+    }, []),
+  );
 
   const [isFlashOn, setIsFlashOn] = useState(false);
   const didScanRef = useRef(false);
-  const topPadding = Platform.select({
-    ios: insets.top,
-    android: ANDROIDSAFEAREA,
-  });
+
   useHandleBackPressNew();
 
   useEffect(() => {
@@ -70,19 +71,7 @@ export default function CameraModal(props) {
   if (!hasPermission) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <TouchableOpacity
-          style={[
-            styles.topBar,
-            {position: 'absolute', zIndex: 99, top: topPadding},
-          ]}
-          activeOpacity={0.5}
-          onPress={navigate.goBack}>
-          <Image
-            source={ICONS.smallArrowLeft}
-            style={[backArrow]}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
+        <CameraPageNavBar />
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <ThemeText styles={styles.errorText} content="No access to camera" />
           <ThemeText
@@ -96,19 +85,7 @@ export default function CameraModal(props) {
   if (device == null) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        <TouchableOpacity
-          style={[
-            styles.topBar,
-            {position: 'absolute', zIndex: 99, top: topPadding},
-          ]}
-          activeOpacity={0.5}
-          onPress={navigate.goBack}>
-          <Image
-            source={ICONS.smallArrowLeft}
-            style={[backArrow]}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
+        <CameraPageNavBar />
         <FullLoadingScreen
           showLoadingIcon={false}
           text={'You do not have a camera device.'}
@@ -125,12 +102,11 @@ export default function CameraModal(props) {
           position: 'absolute',
           top: 0,
           left: 0,
-          zIndex: -1,
           height: windowDimensions.height,
           width: windowDimensions.width,
         }}
         device={device}
-        isActive={isForground && isFocused}
+        isActive={showCamera}
         format={format}
         torch={isFlashOn ? 'on' : 'off'}
       />
@@ -144,19 +120,7 @@ export default function CameraModal(props) {
           width: windowDimensions.width,
         }}>
         <View style={styles.topOverlay}>
-          <TouchableOpacity
-            style={{
-              ...styles.topBar,
-              paddingTop: topPadding,
-            }}
-            activeOpacity={0.5}
-            onPress={navigate.goBack}>
-            <Image
-              source={ICONS.arrow_small_left_white}
-              style={[backArrow]}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
+          <CameraPageNavBar useFullWidth={false} showWhiteImage={true} />
           <View style={styles.qrVerticalBackground}>
             <TouchableOpacity onPress={toggleFlash}>
               <Image
@@ -234,7 +198,7 @@ export default function CameraModal(props) {
     if (didScanRef.current) return;
     const [data] = codes;
 
-    if (!data.type.includes('qr')) return;
+    if (data.type !== 'qr') return;
     didScanRef.current = true;
 
     navigate.goBack();
@@ -297,7 +261,6 @@ export default function CameraModal(props) {
 }
 
 const styles = StyleSheet.create({
-  topBar: {position: 'absolute', zIndex: 99, left: '2.5%'},
   errorText: {width: '80%', textAlign: 'center'},
   backArrow: {
     width: 30,

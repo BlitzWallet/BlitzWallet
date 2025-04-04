@@ -1,26 +1,15 @@
 import {
   StyleSheet,
   View,
-  Text,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
   Dimensions,
-  SafeAreaView,
-  Alert,
   Platform,
 } from 'react-native';
 
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
-import {
-  CENTER,
-  COLORS,
-  FONT,
-  ICONS,
-  SIZES,
-  WEBSITE_REGEX,
-} from '../../constants';
+import {CENTER, COLORS, ICONS, WEBSITE_REGEX} from '../../constants';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 
 import {
@@ -30,25 +19,21 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import {useIsForeground} from '../../hooks/isAppForground';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {navigateToSendUsingClipboard, getQRImage} from '../../functions';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../constants/theme';
-import {ANDROIDSAFEAREA, backArrow} from '../../constants/styles';
+import {backArrow} from '../../constants/styles';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import {useTranslation} from 'react-i18next';
 import {convertMerchantQRToLightningAddress} from '../../functions/sendBitcoin/getMerchantAddress';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import {CameraPageNavBar} from '../../functions/CustomElements/camera/cameraPageNavbar';
 
 export default function SendPaymentHome({pageViewPage, from}) {
   console.log('SCREEN OPTIONS PAGE');
   const navigate = useNavigation();
   const isFocused = useIsFocused();
-  const isForeground = useIsForeground();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const insets = useSafeAreaInsets();
   const isPhotoeLibraryOpen = useRef(false);
   const {hasPermission, requestPermission} = useCameraPermission();
   const device = useCameraDevice('back');
@@ -65,17 +50,8 @@ export default function SendPaymentHome({pageViewPage, from}) {
     {photoAspectRatio: screenAspectRatio},
   ]);
   const isCameraActive = useMemo(
-    () =>
-      navigate.canGoBack() ? isFocused && isForeground : pageViewPage === 0,
-    [navigate, isFocused, isForeground, pageViewPage],
-  );
-  const topPadding = useMemo(
-    () =>
-      Platform.select({
-        ios: insets.top,
-        android: ANDROIDSAFEAREA,
-      }),
-    [insets],
+    () => (navigate.canGoBack() ? isFocused : pageViewPage === 0),
+    [navigate, isFocused, pageViewPage],
   );
 
   const qrBoxOutlineStyle = useMemo(
@@ -97,43 +73,38 @@ export default function SendPaymentHome({pageViewPage, from}) {
     })();
   }, []);
 
-  const handleBarCodeScanned = useCallback(
-    async codes => {
-      if (didScanRef.current) return;
-      const [data] = codes;
-      if (!data.type.includes('qr')) return;
+  const handleBarCodeScanned = codes => {
+    if (didScanRef.current || codes.length === 0) return;
+    const [data] = codes;
 
-      if (WEBSITE_REGEX.test(data.value)) {
-        navigate.navigate('CustomWebView', {
-          headerText: '',
-          webViewURL: data.value,
-        });
-        return;
-      }
-
-      didScanRef.current = true;
-      const merchantLNAddress = convertMerchantQRToLightningAddress({
-        qrContent: data.value,
-        network: process.env.BOLTZ_ENVIRONMENT,
+    if (data.type !== 'qr') return;
+    didScanRef.current = true;
+    if (WEBSITE_REGEX.test(data.value)) {
+      navigate.navigate('CustomWebView', {
+        headerText: '',
+        webViewURL: data.value,
       });
-      if (from === 'home')
-        navigate.navigate('ConfirmPaymentScreen', {
-          btcAdress: merchantLNAddress || data.value,
-        });
-      else
-        navigate.replace('ConfirmPaymentScreen', {
-          btcAdress: merchantLNAddress || data.value,
-        });
-    },
-    [navigate],
-  );
-  const codeScanner = useMemo(
-    () => ({
-      codeTypes: ['qr'],
-      onCodeScanned: handleBarCodeScanned,
-    }),
-    [handleBarCodeScanned],
-  );
+      return;
+    }
+
+    const merchantLNAddress = convertMerchantQRToLightningAddress({
+      qrContent: data.value,
+      network: process.env.BOLTZ_ENVIRONMENT,
+    });
+    if (from === 'home')
+      navigate.navigate('ConfirmPaymentScreen', {
+        btcAdress: merchantLNAddress || data.value,
+      });
+    else
+      navigate.replace('ConfirmPaymentScreen', {
+        btcAdress: merchantLNAddress || data.value,
+      });
+  };
+
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr'],
+    onCodeScanned: handleBarCodeScanned,
+  });
 
   const toggleFlash = useCallback(() => {
     if (!device?.hasTorch) {
@@ -190,23 +161,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
   if (!hasPermission) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        {from != 'home' && (
-          <TouchableOpacity
-            style={[
-              styles.topBar,
-              {position: 'absolute', zIndex: 99, top: topPadding},
-            ]}
-            activeOpacity={0.5}
-            onPress={() => {
-              navigate.goBack();
-            }}>
-            <Image
-              source={ICONS.smallArrowLeft}
-              style={[backArrow]}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-        )}
+        {from != 'home' && <CameraPageNavBar />}
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <ThemeText
             styles={styles.errorText}
@@ -223,23 +178,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
   if (device == null) {
     return (
       <GlobalThemeView useStandardWidth={true}>
-        {from != 'home' && (
-          <TouchableOpacity
-            style={[
-              styles.topBar,
-              {position: 'absolute', zIndex: 99, top: topPadding},
-            ]}
-            activeOpacity={0.5}
-            onPress={() => {
-              navigate.goBack();
-            }}>
-            <Image
-              source={ICONS.smallArrowLeft}
-              style={[backArrow]}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-        )}
+        {from != 'home' && <CameraPageNavBar />}
         <FullLoadingScreen
           showLoadingIcon={false}
           text={t('wallet.cameraPage.noCameraDevice')}
@@ -272,22 +211,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
         }}>
         <View style={styles.overlay}>
           {from != 'home' && (
-            <TouchableOpacity
-              style={{
-                ...styles.topBar,
-                paddingTop: topPadding,
-              }}
-              activeOpacity={0.5}
-              onPress={() => {
-                if (!navigate.canGoBack()) return;
-                navigate.goBack();
-              }}>
-              <Image
-                source={ICONS.arrow_small_left_white}
-                style={[backArrow]}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
+            <CameraPageNavBar useFullWidth={false} showWhiteImage={true} />
           )}
           <View style={styles.qrVerticalBackground}>
             <TouchableOpacity onPress={toggleFlash}>
@@ -338,11 +262,6 @@ export default function SendPaymentHome({pageViewPage, from}) {
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    width: WINDOWWIDTH,
-
-    ...CENTER,
-  },
   errorText: {width: '80%', textAlign: 'center'},
   qrBoxOutline: {
     width: 250,
