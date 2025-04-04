@@ -171,6 +171,7 @@ export default function SendPaymentScreen(props) {
         scannedAddress: btcAdress,
         nodeInformation,
         liquidNodeInformation,
+        ecashWalletInformation,
       });
       console.log(didPay, 'DID PAY');
       if (didPay) {

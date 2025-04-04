@@ -9,7 +9,7 @@ import * as Crypto from 'react-native-quick-crypto';
 
 import * as TaskManager from 'expo-task-manager';
 
-import messaging from '@react-native-firebase/messaging';
+import {getMessaging} from '@react-native-firebase/messaging';
 import {encriptMessage} from '../app/functions/messaging/encodingAndDecodingMessages';
 import {registerWebhook} from '@breeztech/react-native-breez-sdk';
 import {useGlobalContacts} from './globalContacts';
@@ -34,6 +34,7 @@ const PushNotificationManager = ({children}) => {
     async function initNotification() {
       try {
         const hasGooglePlayServics = checkGooglePlayServices();
+        console.log('has google play store services', hasGooglePlayServics);
         if (!hasGooglePlayServics) return;
 
         if (Platform.OS === 'ios') {
@@ -195,7 +196,9 @@ async function registerForPushNotificationsAsync() {
       projectId: process.env.EXPO_PROJECT_ID,
     };
     if (Platform.OS === 'ios') {
-      const token = await messaging().getAPNSToken();
+      if (!getMessaging().isDeviceRegisteredForRemoteMessages)
+        await getMessaging().registerDeviceForRemoteMessages();
+      const token = await getMessaging().getAPNSToken();
       options.devicePushToken = {type: 'ios', data: token};
     }
 

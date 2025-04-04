@@ -1,10 +1,10 @@
-import {getSignleContact} from '../../../../../../db';
+import {getSingleContact} from '../../../../../../db';
 
 export default async function getDeepLinkUser({deepLinkContent, userProfile}) {
   try {
     const deepLinkUser = deepLinkContent.split('u/')[1];
 
-    const rawUser = await getSignleContact(deepLinkUser);
+    const rawUser = await getSingleContact(deepLinkUser);
     console.log(rawUser);
     if (rawUser.length === 0 || !rawUser)
       return new Promise(resolve =>

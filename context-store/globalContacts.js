@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import {
   addDataToCollection,
-  bulkGetUnownContacts,
+  bulkGetUnknownContacts,
   getUnknownContact,
   syncDatabasePayment,
 } from '../db';
@@ -29,6 +29,14 @@ import {
 } from '../app/functions/messaging/cachedMessages';
 import {db} from '../db/initializeFirebase';
 import {useKeysContext} from './keys';
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  startAfter,
+  where,
+} from '@react-native-firebase/firestore';
 
 // Create a context for the WebView ref
 const GlobalContacts = createContext(null);
@@ -163,15 +171,27 @@ export const GlobalContactsList = ({children}) => {
     if (unsubscribeSentMessagesRef.current) {
       unsubscribeSentMessagesRef.current();
     }
-    unsubscribeMessagesRef.current = db
-      .collection('contactMessages')
-      .where('toPubKey', '==', globalContactsInformation.myProfile.uuid)
-      .orderBy('timestamp')
-      .startAfter(now)
-      .onSnapshot(snapshot => {
-        if (!snapshot?.docChanges) return;
-        snapshot.docChanges().forEach(async change => {
-          console.log('recived a new message', change.type);
+    const inboundMessageQuery = query(
+      collection(db, 'contactMessages'),
+      where('toPubKey', '==', globalContactsInformation.myProfile.uuid),
+      orderBy('timestamp'),
+      startAfter(now),
+    );
+    const outbounddMessageQuery = query(
+      collection(db, 'contactMessages'),
+      where('fromPubKey', '==', globalContactsInformation.myProfile.uuid),
+      orderBy('timestamp'),
+      startAfter(now),
+    );
+
+    // Set up the realtime listener
+    unsubscribeMessagesRef.current = onSnapshot(
+      inboundMessageQuery,
+      snapshot => {
+        if (!snapshot?.docChanges()?.length) return;
+
+        snapshot.docChanges().forEach(change => {
+          console.log('received a new message', change.type);
           if (change.type === 'added') {
             const newMessage = change.doc.data();
             queueSetCashedMessages({
@@ -180,16 +200,14 @@ export const GlobalContactsList = ({children}) => {
             });
           }
         });
-      });
+      },
+    );
 
-    unsubscribeSentMessagesRef.current = db
-      .collection('contactMessages')
-      .where('fromPubKey', '==', globalContactsInformation.myProfile.uuid)
-      .orderBy('timestamp')
-      .startAfter(now)
-      .onSnapshot(snapshot => {
-        if (!snapshot?.docChanges) return;
-        snapshot.docChanges().forEach(async change => {
+    unsubscribeSentMessagesRef.current = onSnapshot(
+      outbounddMessageQuery,
+      snapshot => {
+        if (!snapshot?.docChanges()?.length) return;
+        snapshot.docChanges().forEach(change => {
           console.log('sent a new message', change.type);
           if (change.type === 'added') {
             const newMessage = change.doc.data();
@@ -199,7 +217,8 @@ export const GlobalContactsList = ({children}) => {
             });
           }
         });
-      });
+      },
+    );
 
     return () => {
       if (unsubscribeMessagesRef.current) {
@@ -257,7 +276,9 @@ export const GlobalContactsList = ({children}) => {
 
       // Request database for updated contact addresses
       const bulkResults = (
-        await Promise.all(uuidChunks.map(uuids => bulkGetUnownContacts(uuids)))
+        await Promise.all(
+          uuidChunks.map(uuids => bulkGetUnknownContacts(uuids)),
+        )
       )
         .flat()
         .filter(Boolean);

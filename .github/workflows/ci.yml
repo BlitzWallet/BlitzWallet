@@ -20,7 +20,8 @@ jobs:
       - name: Install dependencies
         run: |
           set -euxo pipefail
-          yarn install --frozen-lockfile
+          yarn config set registry https://registry.npmjs.org/
+          for i in {1..5}; do yarn install && break || sleep 15; done
 
       - name: Run eslint
         run: |

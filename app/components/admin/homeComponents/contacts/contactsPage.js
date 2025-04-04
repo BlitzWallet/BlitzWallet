@@ -14,6 +14,7 @@ import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {encriptMessage} from '../../../../functions/messaging/encodingAndDecodingMessages';
 import {
   CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -52,6 +53,12 @@ export default function ContactsPage({navigation}) {
 
   useHandleBackPressNew(handleBackPressFunction);
 
+  console.log(
+    decodedAddedContacts.filter(
+      contact => !hideUnknownContacts || contact.isAdded,
+    ).length !== 0 && myProfile.didEditProfile,
+    'TESDFSD',
+  );
   const pinnedContacts = useMemo(() => {
     return decodedAddedContacts
       .filter(contact => contact.isFavorite)
@@ -129,7 +136,7 @@ export default function ContactsPage({navigation}) {
               Keyboard.dismiss();
               setTimeout(
                 () => {
-                  navigation.navigate('MyContactProfilePage', {});
+                  navigate.navigate('MyContactProfilePage', {});
                 },
                 Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
               );

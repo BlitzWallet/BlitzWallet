@@ -3,22 +3,31 @@ import {
   getCachedMessages,
   queueSetCashedMessages,
 } from '../app/functions/messaging/cachedMessages';
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  getFirestore,
+  getDoc,
+  doc,
+  setDoc,
+  limit,
+  addDoc,
+} from '@react-native-firebase/firestore';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
 
-export async function addDataToCollection(dataObject, collection, uuid) {
+export async function addDataToCollection(dataObject, collectionName, uuid) {
   try {
     if (!uuid) throw Error('Not authenticated');
-    const docRef = db.collection(collection).doc(uuid);
 
-    await Promise.all([
-      docRef.set(dataObject, {merge: true}),
-      // saveToLocalDB(dataObject),
-    ]);
+    const db = getFirestore();
+    const docRef = doc(db, collectionName, uuid);
 
-    console.log('New document information', dataObject);
-    console.log('Document written with ID: ', uuid);
+    await setDoc(docRef, dataObject, {merge: true});
 
+    console.log('Document merged with ID: ', uuid);
     return true;
   } catch (e) {
     console.error('Error adding document: ', e);
@@ -49,28 +58,40 @@ const saveToLocalDB = async dataObject => {
 export async function getDataFromCollection(collectionName, uuid) {
   try {
     if (!uuid) throw Error('Not authenticated');
-
-    // const existingData = await getLocalStorageItem(LOCAL_STORED_USER_DATA_KEY);
-    // if (existingData) {
-    //   console.log('returning existing data...');
-    //   return JSON.parse(existingData);
-    // }
-
-    const docRef = db.collection(collectionName).doc(uuid);
-    const docSnap = await docRef.get();
-    if (docSnap.exists) {
-      const userData = docSnap.data();
-      // await setLocalStorageItem(
-      //   LOCAL_STORED_USER_DATA_KEY,
-      //   JSON.stringify(userData),
-      // );
-      return userData;
+    try {
+      const docRef = doc(db, collectionName, uuid);
+      const docSnap = await getDoc(docRef);
+      console.log(docSnap.exists);
+      console.log(docSnap.data());
+      if (docSnap.exists) {
+        const userData = docSnap.data();
+        return userData;
+      }
+      return null;
+    } catch (err) {
+      console.error('Error fetching user data:', err);
+      return null;
     }
+
+    // // const existingData = await getLocalStorageItem(LOCAL_STORED_USER_DATA_KEY);
+    // // if (existingData) {
+    // //   console.log('returning existing data...');
+    // //   return JSON.parse(existingData);
+    // // }
+
+    // const docRef = db.collection(collectionName).doc(uuid);
+    // const docSnap = await docRef.get();
+    // if (docSnap.exists) {
+    //   const userData = docSnap.data();
+    //   // await setLocalStorageItem(
+    //   //   LOCAL_STORED_USER_DATA_KEY,
+    //   //   JSON.stringify(userData),
+    //   // );
+    //   return userData;
+    // }
   } catch (err) {
     console.log(err);
-    return new Promise(resolve => {
-      resolve(null);
-    });
+    return null;
   }
 }
 
@@ -78,93 +99,112 @@ export async function isValidUniqueName(
   collectionName = 'blitzWalletUsers',
   wantedName,
 ) {
-  const querySnapshot = await db
-    .collection(collectionName)
-    .where('contacts.myProfile.uniqueNameLower', '==', wantedName.toLowerCase())
-    .get();
-  console.log(querySnapshot.empty);
-  return querySnapshot.empty;
+  try {
+    const usersRef = collection(db, collectionName);
+    const q = query(
+      usersRef,
+      where(
+        'contacts.myProfile.uniqueNameLower',
+        '==',
+        wantedName.toLowerCase(),
+      ),
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.empty;
+  } catch (error) {
+    console.error('Error checking unique name:', error);
+    return false;
+  }
 }
 
-export async function getSignleContact(
+export async function getSingleContact(
   wantedName,
   collectionName = 'blitzWalletUsers',
 ) {
-  const querySnapshot = await db
-    .collection(collectionName)
-    .where('contacts.myProfile.uniqueNameLower', '==', wantedName.toLowerCase())
-    .get();
-  return querySnapshot.docs.map(doc => doc.data());
+  try {
+    const usersRef = collection(db, collectionName);
+    const q = query(
+      usersRef,
+      where(
+        'contacts.myProfile.uniqueNameLower',
+        '==',
+        wantedName.toLowerCase(),
+      ),
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => doc.data());
+  } catch (error) {
+    console.error('Error fetching contact:', error);
+    return [];
+  }
 }
+
 export async function canUsePOSName(
   collectionName = 'blitzWalletUsers',
   wantedName,
 ) {
-  const querySnapshot = await db
-    .collection(collectionName)
-    .where('posSettings.storeNameLower', '==', wantedName.toLowerCase())
-    .get();
-  return querySnapshot.empty;
+  try {
+    const usersRef = collection(db, collectionName);
+    const q = query(
+      usersRef,
+      where('posSettings.storeNameLower', '==', wantedName.toLowerCase()),
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.empty;
+  } catch (error) {
+    console.error('Error checking POS name:', error);
+    return false;
+  }
 }
 
-// Function to search users by username
 export async function searchUsers(
   searchTerm,
   collectionName = 'blitzWalletUsers',
 ) {
-  let parsedSearchTerm = searchTerm.trim();
-  console.log(parsedSearchTerm, 'in function searchterm');
-  if (!parsedSearchTerm || !parsedSearchTerm.length) return []; // Return an empty array if the search term is empty
-  console.log('running search');
-  try {
-    const [uniqueNameSnapshot, nameSnapshot] = await Promise.all([
-      db
-        .collection(collectionName)
-        .where(
-          'contacts.myProfile.uniqueNameLower',
-          '>=',
-          parsedSearchTerm.toLowerCase(),
-        )
-        .where(
-          'contacts.myProfile.uniqueNameLower',
-          '<=',
-          parsedSearchTerm.toLowerCase() + '\uf8ff',
-        )
-        .limit(5)
-        .get()
-        .then(querySnapshot => querySnapshot.docs.map(doc => doc.data())),
+  const parsedSearchTerm = searchTerm.trim();
+  if (!parsedSearchTerm) return [];
 
-      db
-        .collection(collectionName)
-        .where(
-          'contacts.myProfile.nameLower',
-          '>=',
-          parsedSearchTerm.toLowerCase(),
-        )
-        .where(
-          'contacts.myProfile.nameLower',
-          '<=',
-          parsedSearchTerm.toLowerCase() + '\uf8ff',
-        )
-        .limit(5)
-        .get()
-        .then(querySnapshot => querySnapshot.docs.map(doc => doc.data())),
+  try {
+    const usersRef = collection(db, collectionName);
+    const term = parsedSearchTerm.toLowerCase();
+    const endTerm = term + '\uf8ff';
+
+    // Create both queries
+    const uniqueNameQuery = query(
+      usersRef,
+      where('contacts.myProfile.uniqueNameLower', '>=', term),
+      where('contacts.myProfile.uniqueNameLower', '<=', endTerm),
+      limit(5),
+    );
+
+    const nameQuery = query(
+      usersRef,
+      where('contacts.myProfile.nameLower', '>=', term),
+      where('contacts.myProfile.nameLower', '<=', endTerm),
+      limit(5),
+    );
+
+    // Execute both queries in parallel
+    const [uniqueNameSnapshot, nameSnapshot] = await Promise.all([
+      getDocs(uniqueNameQuery).then(snapshot =>
+        snapshot.docs.map(doc => doc.data()),
+      ),
+      getDocs(nameQuery).then(snapshot => snapshot.docs.map(doc => doc.data())),
     ]);
 
+    // Combine and deduplicate results
     const uniqueUsers = new Map();
 
     [...uniqueNameSnapshot, ...nameSnapshot].forEach(doc => {
       const profile = doc.contacts?.myProfile;
-
-      if (profile) {
+      if (profile?.uuid) {
         uniqueUsers.set(profile.uuid, profile);
       }
     });
-    const users = Array.from(uniqueUsers.values());
 
-    return users;
+    return Array.from(uniqueUsers.values());
   } catch (error) {
-    console.error('Error searching users: ', error);
+    console.error('Error searching users:', error);
     return [];
   }
 }
@@ -174,34 +214,56 @@ export async function getUnknownContact(
   collectionName = 'blitzWalletUsers',
 ) {
   try {
-    const unkownContact = await db.collection(collectionName).doc(uuid).get();
+    const docRef = doc(db, collectionName, uuid);
+    const docSnap = await getDoc(docRef);
 
-    if (unkownContact.exists) {
-      const data = unkownContact.data();
-      return data;
-    } else {
-      return false;
+    if (docSnap.exists()) {
+      return docSnap.data();
     }
+    return false;
   } catch (err) {
+    console.error('Error fetching unknown contact:', err);
     return null;
   }
 }
 
-export async function bulkGetUnownContacts(
+export async function bulkGetUnknownContacts(
   uuidList,
   collectionName = 'blitzWalletUsers',
 ) {
+  // Validate input
+  if (!Array.isArray(uuidList) || uuidList.length === 0) {
+    console.warn('Invalid UUID list provided');
+    return [];
+  }
+
+  // Firestore 'in' queries are limited to 10 items in v9
+  const MAX_IN_CLAUSE = 10;
+  const chunks = [];
+
+  // Split into chunks of 10 UUIDs each
+  for (let i = 0; i < uuidList.length; i += MAX_IN_CLAUSE) {
+    chunks.push(uuidList.slice(i, i + MAX_IN_CLAUSE));
+  }
+
   try {
-    const snapshot = await db
-      .collection(collectionName)
-      .where('contacts.myProfile.uuid', 'in', uuidList)
-      .get();
+    const results = [];
 
-    if (snapshot.empty) return null;
+    // Process each chunk sequentially to avoid overwhelming Firestore
+    for (const chunk of chunks) {
+      const usersRef = collection(db, collectionName);
+      const q = query(usersRef, where('contacts.myProfile.uuid', 'in', chunk));
 
-    return snapshot.docs.map(doc => doc.data());
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        results.push(...snapshot.docs.map(doc => doc.data()));
+      }
+    }
+
+    return results.length > 0 ? results : null;
   } catch (err) {
-    console.log('get bulk contacts error', err);
+    console.error('Error fetching bulk contacts:', err);
     return null;
   }
 }
@@ -213,13 +275,12 @@ export async function updateMessage({
   onlySaveToLocal,
 }) {
   try {
-    const docSnap = db.collection('contactMessages');
-
+    const messagesRef = collection(db, 'contactMessages');
     const timestamp = new Date().getTime();
 
     const message = {
-      fromPubKey: fromPubKey,
-      toPubKey: toPubKey,
+      fromPubKey,
+      toPubKey,
       message: newMessage,
       timestamp,
     };
@@ -229,64 +290,67 @@ export async function updateMessage({
         newMessagesList: [message],
         myPubKey: fromPubKey,
       });
-      return;
+      return true;
     }
 
-    await docSnap.add(message);
-    console.log('New messaged was published started:', message);
+    await addDoc(messagesRef, message);
+    console.log('New message was published:', message);
     return true;
   } catch (err) {
-    console.log(err);
+    console.error('Error updating message:', err);
     return false;
   }
 }
-
 export async function syncDatabasePayment(
   myPubKey,
   updatedCachedMessagesStateFunction,
 ) {
   try {
     const cachedConversations = await getCachedMessages();
-
     const savedMillis = cachedConversations.lastMessageTimestamp;
+    console.log('Retrieving docs from timestamp:', savedMillis);
 
-    console.log('retriving docs from this timestamp:', savedMillis);
+    const messagesRef = collection(db, 'contactMessages');
 
-    const [receivedMessages, sentMessages] = await Promise.all([
-      db
-        .collection('contactMessages')
-        .where('toPubKey', '==', myPubKey)
-        .where('timestamp', '>', savedMillis)
-        .get(),
-      db
-        .collection('contactMessages')
-        .where('fromPubKey', '==', myPubKey)
-        .where('timestamp', '>', savedMillis)
-        .get(),
+    // Create queries
+    const receivedQuery = query(
+      messagesRef,
+      where('toPubKey', '==', myPubKey),
+      where('timestamp', '>', savedMillis),
+    );
+
+    const sentQuery = query(
+      messagesRef,
+      where('fromPubKey', '==', myPubKey),
+      where('timestamp', '>', savedMillis),
+    );
+
+    // Execute queries in parallel
+    const [receivedSnapshot, sentSnapshot] = await Promise.all([
+      getDocs(receivedQuery),
+      getDocs(sentQuery),
     ]);
 
-    if (receivedMessages.empty && sentMessages.empty) {
+    if (receivedSnapshot.empty && sentSnapshot.empty) {
       updatedCachedMessagesStateFunction();
       return;
     }
+
     console.log(
-      receivedMessages.docs.length,
-      sentMessages.docs.length,
-      'messages received fromm history',
+      `${receivedSnapshot.size} received, ${sentSnapshot.size} sent messages from history`,
     );
 
-    let messsageList = [];
-
-    for (const doc of receivedMessages.docs.concat(sentMessages.docs)) {
-      const data = doc.data();
-      messsageList.push(data);
-    }
+    // Combine and process messages
+    const messageList = [...receivedSnapshot.docs, ...sentSnapshot.docs].map(
+      doc => doc.data(),
+    );
 
     queueSetCashedMessages({
-      newMessagesList: messsageList,
+      newMessagesList: messageList,
       myPubKey,
     });
   } catch (err) {
-    console.log('sync database payment err', err);
+    console.error('Error syncing database payments:', err);
+    // Consider adding error handling callback if needed
   }
 }

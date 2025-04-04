@@ -105,6 +105,7 @@ export default function AccountInformationPage(props) {
             }}
             style={styles.chooseAccountBTN}>
             <FormattedSatText
+              neverHideBalance={true}
               balance={Math.round(
                 item === 'Lightning'
                   ? userBalanceInformation.lightningBalance

@@ -9,8 +9,13 @@ import displayCorrectDenomination from '../../../../../functions/displayCorrectD
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useCallback} from 'react';
-import {MAX_ECASH_BALANCE, MAX_ECASH_RECEIVE} from '../../../../../constants';
+import {
+  CENTER,
+  MAX_ECASH_BALANCE,
+  MAX_ECASH_RECEIVE,
+} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
+import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 
 export default function EcashSettings() {
   const navigate = useNavigation();
@@ -29,10 +34,10 @@ export default function EcashSettings() {
         });
         return;
       }
-      if (parseValue > MAX_ECASH_RECEIVE) {
+      if (parseValue > ecashWalletSettings.maxEcashBalance) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Cannot set value greater than maximum amount.',
+          errorMessage: 'Cannot set value greater than maximum balance.',
         });
         return;
       }
@@ -74,7 +79,9 @@ export default function EcashSettings() {
   return (
     <CustomKeyboardAvoidingView useStandardWidth={true}>
       <CustomSettingsTopBar shouldDismissKeyboard={true} />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={{width: INSET_WINDOW_WIDTH, ...CENTER}}
+        showsVerticalScrollIndicator={false}>
         <TextInputSettingsItem
           defaultTextInputValue={ecashWalletSettings.maxReceiveAmountSat}
           settingInputTitle="Max receive (sats)"

@@ -1,18 +1,18 @@
-import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
-import functions from '@react-native-firebase/functions';
+import {getAuth} from '@react-native-firebase/auth';
+import {getFirestore} from '@react-native-firebase/firestore';
+import {getFunctions} from '@react-native-firebase/functions';
 import fetchBackend from './handleBackend';
-const db = firestore();
+const db = getFirestore();
 
 export async function initializeFirebase(publicKey, privateKey) {
   try {
     // Initialize App Check first
     // Sign in anonymously
     if (__DEV__) {
-      functions().useEmulator('localhost', 5001);
+      getFunctions().useEmulator('localhost', 5001);
     }
 
-    const currentUser = auth().currentUser;
+    const currentUser = getAuth().currentUser;
     console.log('current auth', {
       currentUser,
       publicKey,
@@ -21,8 +21,8 @@ export async function initializeFirebase(publicKey, privateKey) {
     if (currentUser && currentUser?.uid === publicKey) {
       return currentUser;
     }
-    await auth().signInAnonymously();
-    const isSignedIn = auth().currentUser;
+    await getAuth().signInAnonymously();
+    const isSignedIn = getAuth().currentUser;
     console.log(isSignedIn.uid, 'signed in');
     const token = await fetchBackend(
       'customToken',
@@ -32,9 +32,9 @@ export async function initializeFirebase(publicKey, privateKey) {
     );
     if (!token) throw new Error('Not able to get custom token from backend');
     console.log('custom sign in token from backend', token);
-    await auth().signOut();
+    await getAuth().signOut();
 
-    const customSignIn = await auth().signInWithCustomToken(token);
+    const customSignIn = await getAuth().signInWithCustomToken(token);
     console.log('custom sign in user id', customSignIn.user);
     return customSignIn;
   } catch (error) {

@@ -14,7 +14,7 @@ const CustomToggleSwitch = ({
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
-
+  const [textWidth, setTextWidth] = useState(0);
   const isOn =
     page === 'cameraSlider'
       ? masterInfoObject.enabledSlidingCamera
@@ -25,17 +25,42 @@ const CustomToggleSwitch = ({
       : page === 'useTrampoline'
       ? masterInfoObject.useTrampoline
       : false;
-
-  const animatedValue = useRef(new Animated.Value(0)).current;
-
   const localIsOn = stateValue != undefined ? stateValue : isOn;
+
+  console.log(localIsOn, 'LOACAL IS ON');
+
+  const [sliderText, setSliderText] = useState(localIsOn ? 'ON' : 'OFF');
+
+  const animatedValue = useRef(new Animated.Value(localIsOn ? 1 : 0)).current;
+  const opacityTextValue = useRef(
+    new Animated.Value(localIsOn ? 1 : 0),
+  ).current;
+  const isInitialRender = useRef(true);
 
   useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: localIsOn ? 1 : 0,
       duration: 300, // Duration of the animation
-      useNativeDriver: false, // Enable if animating style properties
+      useNativeDriver: true, // Enable if animating style properties
     }).start();
+
+    Animated.timing(opacityTextValue, {
+      toValue: isInitialRender.current ? 1 : 0,
+      duration: 150,
+      useNativeDriver: true,
+    }).start(() => {
+      if (isInitialRender.current) {
+        isInitialRender.current = false;
+      } else setSliderText(prev => (prev === 'ON' ? 'OFF' : 'ON'));
+      // Change text after fade out
+
+      // Fade in animation
+      Animated.timing(opacityTextValue, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
   }, [localIsOn]);
 
   const toggleSwitch = () => {
@@ -72,17 +97,20 @@ const CustomToggleSwitch = ({
       darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
     ], // From inactive to active color
   });
-  const animatedTextColor = animatedValue.interpolate({
+  const animatedTextColor = opacityTextValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [
-      textColor,
-      darkModeType && theme ? COLORS.lightsOutBackground : COLORS.white,
-    ], // From inactive to active color
+    outputRange: [0, 1], // From inactive to active color
   });
 
   const circlePosition = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: [5, 40], // From left to right position
+  });
+  // Text position animation (now properly initialized)
+  const textPosition = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [70 - textWidth - 10, 10], // Adjusted these values for better positioning
+    extrapolate: 'clamp',
   });
 
   return (
@@ -100,26 +128,35 @@ const CustomToggleSwitch = ({
         <Animated.View
           style={[
             styles.circle,
-            {left: circlePosition, backgroundColor: circleColor},
+            {
+              transform: [{translateX: circlePosition}],
+              backgroundColor: circleColor,
+            },
           ]}
         />
         <Animated.Text
+          onLayout={event => {
+            console.log(event.nativeEvent.layout.width);
+            setTextWidth(event.nativeEvent.layout.width);
+          }}
           style={[
             styles.text,
             {
-              left: circlePosition,
-              color: animatedTextColor,
+              // left: circlePosition,
+              color: localIsOn
+                ? darkModeType && theme
+                  ? COLORS.lightsOutBackground
+                  : COLORS.white
+                : textColor, // From inactive to active color
+              opacity: animatedTextColor,
               transform: [
                 {
-                  translateX: animatedValue.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [30, -28], // Adjust text position relative to the circle
-                  }),
+                  translateX: textPosition,
                 },
               ],
             },
           ]}>
-          {localIsOn ? 'ON' : 'OFF'}
+          {sliderText}
         </Animated.Text>
       </Animated.View>
     </TouchableOpacity>
@@ -137,9 +174,11 @@ const styles = StyleSheet.create({
   circle: {
     width: 24,
     height: 24,
+    padding: 10,
     borderRadius: 12,
     backgroundColor: '#fff',
     position: 'absolute',
+    zIndex: 1,
   },
   text: {
     position: 'absolute',

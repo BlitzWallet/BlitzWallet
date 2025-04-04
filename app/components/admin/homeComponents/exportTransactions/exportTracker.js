@@ -7,6 +7,8 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import writeAndShareFileToFilesystem from '../../../../functions/writeFileToFilesystem';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 import {useGlobalTxContextProvider} from '../../../../../context-store/combinedTransactionsContext';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import {CENTER} from '../../../../constants';
 
 export default function ConfirmExportPayments({
   startExport,
@@ -119,6 +121,7 @@ export default function ConfirmExportPayments({
   return (
     <View style={styles.containerStyle}>
       <ThemeText
+        styles={{width: INSET_WINDOW_WIDTH, ...CENTER}}
         content={
           'Export your payment history in CSV (comma seperated value) format.'
         }

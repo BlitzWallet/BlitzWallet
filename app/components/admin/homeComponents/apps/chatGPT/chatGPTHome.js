@@ -326,7 +326,7 @@ export default function ChatGPTHome(props) {
 
   function closeChat() {
     if (newChats.length === 0) {
-      navigate.navigate('HomeAdmin');
+      navigate.popTo('HomeAdmin');
       return;
     }
     navigate.setOptions({
@@ -339,7 +339,7 @@ export default function ChatGPTHome(props) {
           toggleGlobalAppDataInformation,
           navigate,
         }),
-      doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
+      doesNotWantToSave: () => navigate.popTo('HomeAdmin'),
     });
     navigate.navigate('ConfirmLeaveChatGPT', {
       wantsToSave: () =>
@@ -351,27 +351,26 @@ export default function ChatGPTHome(props) {
           toggleGlobalAppDataInformation,
           navigate,
         }),
-      doesNotWantToSave: () => navigate.navigate('HomeAdmin'),
+      doesNotWantToSave: () => navigate.popTo('HomeAdmin'),
     });
   }
 
   async function submitChaMessage(forcedText) {
-    if (forcedText) {
-      if (userChatText.length === 0 || userChatText.trim() === '') return;
+    if (forcedText.length === 0 || forcedText.trim() === '') return;
 
-      if (totalAvailableCredits < 30) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'You have run out of credits.',
-        });
-        return;
-      }
+    if (totalAvailableCredits < 30) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'You have run out of credits.',
+      });
+      return;
     }
+
     const [filteredModel] = AI_MODEL_COST.filter(item => {
       console.log(item);
       return item.shortName.toLowerCase() === model.toLowerCase();
     });
 
-    let textToSend = typeof forcedText === 'object' ? userChatText : forcedText;
+    let textToSend = forcedText;
 
     let userChatObject = {};
     let GPTChatObject = {};

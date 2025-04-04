@@ -175,6 +175,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     position: 'relative',
     padding: 3,
+    zIndex: 1,
     borderRadius: 3,
   },
   colorSchemeItemContainer: {

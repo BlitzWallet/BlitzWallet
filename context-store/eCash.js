@@ -34,6 +34,7 @@ import {
 } from '../app/functions/eCash/db';
 import EventEmitter from 'events';
 import {addDataToCollection} from '../db';
+import {useGlobalContextProvider} from './context';
 export const ECASH_QUOTE_EVENT_NAME = 'GENERATED_ECASH_QUPTE_EVENT';
 export const ecashEventEmitter = new EventEmitter();
 
@@ -51,8 +52,10 @@ export const GlobaleCashVariables = ({children}) => {
     mintURL: '',
     proofs: [],
   });
+  const {masterInfoObject} = useGlobalContextProvider();
   const [usersMintList, setUesrsMintList] = useState([]);
   const didRunUnclaimedEcashQuotes = useRef(false);
+  const isInitialRender = useRef(true);
   const [pendingNavigation, setPendingNavigation] = useState(null);
 
   const toggleEcashWalletInformation = useCallback(newData => {
@@ -107,6 +110,42 @@ export const GlobaleCashVariables = ({children}) => {
       sqlEventEmitter.off(MINT_EVENT_UPDATE_NAME, updateMint);
     };
   }, []);
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    if (masterInfoObject.enabledEcash) {
+      const loadSavedMint = async () => {
+        const [selectedMint, mintList, storedTransactions, storedProofs] =
+          await Promise.all([
+            getSelectedMint(),
+            getAllMints(),
+            getStoredEcashTransactions(),
+            getStoredProofs(),
+          ]);
+        if (!selectedMint) return;
+        const balance = sumProofsValue(storedProofs);
+
+        toggleEcashWalletInformation({
+          mintURL: selectedMint,
+          balance,
+          transactions: storedTransactions,
+          proofs: storedProofs,
+        });
+        toggleMintList(mintList);
+      };
+      loadSavedMint();
+    } else {
+      toggleEcashWalletInformation({
+        balance: 0,
+        transactions: [],
+        mintURL: '',
+        proofs: [],
+      });
+    }
+  }, [masterInfoObject]);
 
   const toggleGLobalEcashInformation = (newData, writeToDB) => {
     setGlobalEcashInformation(prev => {
@@ -177,6 +216,7 @@ export const GlobaleCashVariables = ({children}) => {
               fee: 0,
               paymentType: 'received',
               description: didMint.prasedInvoice.description,
+              invoice: response.request,
             });
 
             await storeProofs([...didMint.proofs], mintURL);

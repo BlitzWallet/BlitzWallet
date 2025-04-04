@@ -283,6 +283,7 @@ export default function ConnectingToNodeLoadingScreen({
         didConnectToNode?.isConnected,
         !masterInfoObject.liquidWalletSettings.isLightningEnabled,
         didConnectToLiquidNode?.isConnected,
+        'DID CONNECT TO NODE',
       );
       if (
         (didConnectToNode?.isConnected ||
@@ -305,7 +306,12 @@ export default function ConnectingToNodeLoadingScreen({
                 ),
                 setEcashInformationForSession(),
               ]));
-
+        console.log(
+          didSetLightning,
+          didSetLiquid,
+          didSetEcashInformation,
+          'DID SET INFORMATION',
+        );
         if (
           (didSetLightning ||
             !masterInfoObject.liquidWalletSettings.isLightningEnabled) &&
@@ -561,29 +567,59 @@ export default function ConnectingToNodeLoadingScreen({
   }
   async function setEcashInformationForSession() {
     try {
+      if (!masterInfoObject.enabledEcash) {
+        return {
+          transactions: [],
+          balance: 0,
+          proofs: [],
+          mintURL: '',
+          didConnectToNode: false,
+        };
+      }
       const hasSelectedMint = await getSelectedMint();
       if (!hasSelectedMint)
-        return {transactions: [], balance: 0, proofs: [], mintURL: ''};
-      await initEcashWallet(hasSelectedMint);
+        return {
+          transactions: [],
+          balance: 0,
+          proofs: [],
+          mintURL: '',
+          didConnectToNode: false,
+        };
+      const timeoutPromise = new Promise(resolve =>
+        setTimeout(() => {
+          console.log('Timeout reached: Returning fallback data');
+          resolve({
+            transactions: [],
+            balance: 0,
+            proofs: [],
+            mintURL: '',
+            didConnectToNode: false,
+          });
+        }, 15000),
+      );
+      const initPromise = (async () => {
+        await initEcashWallet(hasSelectedMint);
 
-      const [transactions, storedProofs, mintList] = await Promise.all([
-        getStoredEcashTransactions(),
-        getStoredProofs(),
-        getAllMints(),
-      ]);
+        const [transactions, storedProofs, mintList] = await Promise.all([
+          getStoredEcashTransactions(),
+          getStoredProofs(),
+          getAllMints(),
+        ]);
 
-      const balance = sumProofsValue(storedProofs);
+        const balance = sumProofsValue(storedProofs);
 
-      const ecashWalletData = {
-        mintURL: hasSelectedMint,
-        balance: balance || 0,
-        transactions: transactions,
-        proofs: storedProofs,
-        didConnectToNode: true,
-      };
-      toggleEcashWalletInformation(ecashWalletData);
-      toggleMintList(mintList);
-      return ecashWalletData;
+        const ecashWalletData = {
+          mintURL: hasSelectedMint,
+          balance: balance || 0,
+          transactions: transactions,
+          proofs: storedProofs,
+          didConnectToNode: true,
+        };
+        toggleEcashWalletInformation(ecashWalletData);
+        toggleMintList(mintList);
+        return ecashWalletData;
+      })();
+      return await Promise.race([initPromise, timeoutPromise]);
     } catch (err) {
       console.log('setting ecash information error', err);
       return false;

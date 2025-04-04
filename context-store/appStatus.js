@@ -62,18 +62,25 @@ const AppStatusProvider = ({children}) => {
     })();
   }, []);
   useEffect(() => {
+    const networkSubscription = Network.addNetworkStateListener(
+      ({type, isConnected, isInternetReachable}) => {
+        console.log(
+          `Network type: ${type}, Connected: ${isConnected}, Internet Reachable: ${isInternetReachable}`,
+        );
+        setIsConnectedToTheInternet(isConnected);
+      },
+    );
+
     const checkNetworkState = async () => {
       const networkState = await Network.getNetworkStateAsync();
-      if (isConnectedToTheInternet !== networkState.isConnected) {
-        setIsConnectedToTheInternet(networkState.isConnected);
-      }
+      console.log(networkState, 'network state in startup function');
+      setIsConnectedToTheInternet(networkState.isConnected);
     };
 
     checkNetworkState();
-    const interval = setInterval(checkNetworkState, 10000);
 
-    return () => clearInterval(interval);
-  }, [isConnectedToTheInternet]);
+    return () => networkSubscription.remove();
+  }, []);
 
   const contextValue = useMemo(
     () => ({

@@ -11,7 +11,7 @@ export default async function processLNUrlAuth(input, context) {
     if (result.type === LnUrlCallbackStatusVariant.OK) {
       navigate.navigate('ErrorScreen', {
         errorMessage: 'LNURL successfully authenticated',
-        customNavigator: () => navigate.navigate('HomeAdmin', {screen: 'home'}),
+        customNavigator: () => navigate.popTo('HomeAdmin', {screen: 'home'}),
       });
     } else {
       goBackFunction('Failed to authenticate LNURL');

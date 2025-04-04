@@ -303,7 +303,7 @@ export default function EditReceivePaymentInformation(props) {
         description: paymentDescription,
       });
     } else {
-      navigate.navigate('ReceiveBTC', {
+      navigate.popTo('ReceiveBTC', {
         receiveAmount: Number(localSatAmount),
         description: paymentDescription,
       });

@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     flexDirection: 'row',
     position: 'relative',
-
+    zIndex: 1,
     borderRadius: 3,
   },
   colorSchemeItemContainer: {

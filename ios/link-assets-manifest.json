@@ -2,50 +2,6 @@
   "migIndex": 1,
   "data": [
     {
-      "path": "app/assets/fonts/Inter-Bold.ttf",
-      "sha1": "48747b7a60086f97af0d373febcbd1f1bee87f17"
-    },
-    {
-      "path": "app/assets/fonts/Inter-Light.ttf",
-      "sha1": "dd9ec1ae67dd85143bacf7a3cb37e9f0ac979843"
-    },
-    {
-      "path": "app/assets/fonts/Inter-Medium.ttf",
-      "sha1": "a418a8ba73bbcfa8c131c426ab836d78457afa9b"
-    },
-    {
-      "path": "app/assets/fonts/Inter-Regular.ttf",
-      "sha1": "7237d9cf55f177702066a28a4dde1e4c7e8ab576"
-    },
-    {
-      "path": "app/assets/fonts/Lato-Bold.ttf",
-      "sha1": "542498221d97bee5bdbccf86ee8890bf8e8005c9"
-    },
-    {
-      "path": "app/assets/fonts/Lato-Light.ttf",
-      "sha1": "ad0d178564445a535b15d417f5b18019923d3bab"
-    },
-    {
-      "path": "app/assets/fonts/Lato-Regular.ttf",
-      "sha1": "e923c72eda5e50a87e18ff5c71e9ef4b3b6455a3"
-    },
-    {
-      "path": "app/assets/fonts/Montserrat-Bold.ttf",
-      "sha1": "04052dc3b846609216de1e0cbcec337c6b6e74f6"
-    },
-    {
-      "path": "app/assets/fonts/Montserrat-Light.ttf",
-      "sha1": "6f21894a80049259ef71fcba135218695b41b67a"
-    },
-    {
-      "path": "app/assets/fonts/Montserrat-Medium.ttf",
-      "sha1": "6b57d12e018c64352e202f8ef3bf7f431f76d935"
-    },
-    {
-      "path": "app/assets/fonts/Montserrat-Regular.ttf",
-      "sha1": "de57aa03e4821fdbe6c34ec2c895e8b5c914e837"
-    },
-    {
       "path": "app/assets/fonts/Poppins-Black.ttf",
       "sha1": "645e04c53c6b5b35bce654a811ebce16af8aa721"
     },

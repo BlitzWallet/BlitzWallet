@@ -36,7 +36,7 @@ export default function AppStore({navigation}) {
   useHandleBackPressNew(handleBackPressFunction);
 
   const gridGap = Platform.select({
-    ios: '10%',
+    ios: windowWidth.width * 0.95 * 0.05,
     android: windowWidth.width * 0.95 * 0.05,
   });
 

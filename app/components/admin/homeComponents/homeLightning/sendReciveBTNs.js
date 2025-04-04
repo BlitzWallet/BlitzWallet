@@ -5,8 +5,9 @@ import {useTranslation} from 'react-i18next';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {memo, useCallback, useMemo} from 'react';
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
+import {ThemeText} from '../../../../functions/CustomElements';
 
-export const SendRecieveBTNs = memo(function SendRecieveBTNs({
+export function SendRecieveBTNs({
   theme,
   darkModeType,
   isConnectedToTheInternet,
@@ -24,83 +25,73 @@ export const SendRecieveBTNs = memo(function SendRecieveBTNs({
     }
   }, [isConnectedToTheInternet]);
 
-  const buttonElements = useMemo(
-    () =>
-      ['send', 'camera', 'receive'].map(btnType => {
-        const isArrow = btnType === 'send' || btnType === 'receive';
-        if (isArrow) {
-          return CustomSendAndRequsetBTN({
-            btnType,
-            btnFunction: () => {
-              const areSettingsSet = handleSettingsCheck();
-              if (!areSettingsSet) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: t('constants.internetError'),
-                });
-                return;
-              }
-              if (btnType === 'send') {
-                navigate.navigate('CustomHalfModal', {
-                  wantedContent: 'sendOptions',
-                  sliderHight: 0.5,
-                });
-              } else {
-                navigate.navigate('EditReceivePaymentInformation', {
-                  from: 'homepage',
-                });
-              }
-            },
-            arrowColor: theme
-              ? darkModeType
-                ? COLORS.lightsOutBackground
-                : COLORS.darkModeBackground
-              : COLORS.primary,
-            containerBackgroundColor: COLORS.darkModeText,
-          });
-        }
-        return (
-          <TouchableOpacity
-            key={btnType}
-            onPress={() => {
-              const areSettingsSet = handleSettingsCheck();
-              if (!areSettingsSet) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: t('constants.internetError'),
-                });
-                return;
-              }
+  const buttonElements = ['send', 'camera', 'receive'].map(btnType => {
+    const isArrow = btnType === 'send' || btnType === 'receive';
+    if (isArrow) {
+      return CustomSendAndRequsetBTN({
+        btnType,
+        btnFunction: () => {
+          const areSettingsSet = handleSettingsCheck();
+          if (!areSettingsSet) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: t('constants.internetError'),
+            });
+            return;
+          }
+          if (btnType === 'send') {
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'sendOptions',
+              sliderHight: 0.5,
+            });
+          } else {
+            navigate.navigate('EditReceivePaymentInformation', {
+              from: 'homepage',
+            });
+          }
+        },
+        arrowColor: theme
+          ? darkModeType
+            ? COLORS.lightsOutBackground
+            : COLORS.darkModeBackground
+          : COLORS.primary,
+        containerBackgroundColor: COLORS.darkModeText,
+      });
+    }
+    return (
+      <TouchableOpacity
+        key={btnType}
+        onPress={() => {
+          const areSettingsSet = handleSettingsCheck();
+          if (!areSettingsSet) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: t('constants.internetError'),
+            });
+            return;
+          }
 
-              navigate.navigate('SendBTC');
-            }}>
-            <View
-              style={{
-                ...styles.scanQrIcon,
-                backgroundColor: theme
-                  ? darkModeType
-                    ? COLORS.lightsOutBackgroundOffset
-                    : COLORS.darkModeBackgroundOffset
-                  : COLORS.primary,
-              }}>
-              <ThemeImage
-                darkModeIcon={ICONS.scanQrCodeLight}
-                lightsOutIcon={ICONS.scanQrCodeLight}
-                lightModeIcon={ICONS.scanQrCodeLight}
-              />
-            </View>
-          </TouchableOpacity>
-        );
-      }),
-    [
-      isConnectedToTheInternet,
-      theme,
-      darkModeType,
-      handleSettingsCheck,
-      navigate,
-    ],
-  );
+          navigate.navigate('SendBTC');
+        }}>
+        <View
+          style={{
+            ...styles.scanQrIcon,
+            backgroundColor: theme
+              ? darkModeType
+                ? COLORS.lightsOutBackgroundOffset
+                : COLORS.darkModeBackgroundOffset
+              : COLORS.primary,
+          }}>
+          <ThemeImage
+            darkModeIcon={ICONS.scanQrCodeLight}
+            lightsOutIcon={ICONS.scanQrCodeLight}
+            lightModeIcon={ICONS.scanQrCodeLight}
+          />
+        </View>
+      </TouchableOpacity>
+    );
+  });
 
   return <View style={styles.container}>{buttonElements}</View>;
-});
+}
 
 const styles = StyleSheet.create({
   container: {

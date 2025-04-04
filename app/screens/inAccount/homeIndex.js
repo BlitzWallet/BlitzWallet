@@ -30,23 +30,19 @@ export default function AdminHomeIndex() {
     }
   }, []);
 
-  const handlePageScroll = useCallback(
-    e => {
-      const state = e.nativeEvent.pageScrollState;
-      console.log(
-        currentPage,
-        'CURRENT PAGE IN SCROLL',
-        state,
-        state === 'dragging' && currentPage === HOME_PAGE,
-      );
-      if (state === 'dragging' && currentPage === HOME_PAGE) {
-        setIsCameraActive(true);
-      } else if (state === 'idle' && currentPage === HOME_PAGE) {
-        setIsCameraActive(false);
-      }
-    },
-    [currentPage],
-  );
+  const handlePageScroll = e => {
+    const state = e.nativeEvent.pageScrollState;
+    console.log(
+      currentPage,
+      'CURRENT PAGE IN SCROLL',
+      state,
+      state === 'dragging' && currentPage === HOME_PAGE,
+      state === 'idle' && currentPage === HOME_PAGE,
+    );
+    if (state === 'dragging' && currentPage === HOME_PAGE) {
+      setIsCameraActive(true);
+    }
+  };
 
   const MainContent = useCallback(
     () => (

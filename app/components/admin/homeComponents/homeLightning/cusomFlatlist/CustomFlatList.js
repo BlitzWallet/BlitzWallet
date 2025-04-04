@@ -1,12 +1,14 @@
 import React from 'react';
-
-import {Animated, FlatListProps, View} from 'react-native';
+import {FlatListProps, View} from 'react-native';
+import Animated from 'react-native-reanimated';
 import {useCustomFlatListHook} from './useCustomFlatListHooks';
 
 function CustomFlatList({style, ...props}) {
   const [
-    scrollY,
+    scrollHandler,
     styles,
+    stickyElementStyle,
+    topElementStyle,
     onLayoutHeaderElement,
     onLayoutTopListElement,
     onLayoutStickyElement,
@@ -14,14 +16,14 @@ function CustomFlatList({style, ...props}) {
 
   return (
     <View style={style}>
-      <Animated.View // <-- Sticky Component
-        style={styles.stickyElement}
+      <Animated.View
+        style={[styles.stickyElement, stickyElementStyle]}
         onLayout={onLayoutStickyElement}>
         {props.StickyElementComponent}
       </Animated.View>
 
-      <Animated.View // <-- Top of List Component
-        style={styles.topElement}
+      <Animated.View
+        style={[styles.topElement, topElementStyle]}
         onLayout={onLayoutTopListElement}>
         {props.TopListElementComponent}
       </Animated.View>
@@ -33,7 +35,6 @@ function CustomFlatList({style, ...props}) {
         showsVerticalScrollIndicator={false}
         {...props}
         ListHeaderComponent={
-          // <-- Header Component
           <Animated.View onLayout={onLayoutHeaderElement}>
             {props.HeaderComponent}
           </Animated.View>
@@ -42,12 +43,8 @@ function CustomFlatList({style, ...props}) {
           props.ListHeaderComponentStyle,
           styles.header,
         ]}
-        onScroll={Animated.event(
-          [{nativeEvent: {contentOffset: {y: scrollY}}}],
-          {
-            useNativeDriver: true,
-          },
-        )}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
       />
     </View>
   );
