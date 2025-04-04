@@ -129,6 +129,7 @@ export const GlobaleCashVariables = ({children}) => {
         const balance = sumProofsValue(storedProofs);
 
         toggleEcashWalletInformation({
+          didConnectToNode: true,
           mintURL: selectedMint,
           balance,
           transactions: storedTransactions,
@@ -139,6 +140,7 @@ export const GlobaleCashVariables = ({children}) => {
       loadSavedMint();
     } else {
       toggleEcashWalletInformation({
+        didConnectToNode: null,
         balance: 0,
         transactions: [],
         mintURL: '',
