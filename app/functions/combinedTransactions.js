@@ -464,6 +464,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: SIZES.small,
+    fontWeight: 300,
   },
   amountText: {
     fontWeight: 400,
