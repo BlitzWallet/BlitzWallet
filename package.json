@@ -12,7 +12,8 @@
     "build-android": "react-native build-android",
     "build-ios": "react-native build-ios",
     "depCheck": "npx depcheck",
-    "apkBuild": "cd android && ./gradlew clean assembleRelease && cd ..",
+    "apkBuild": "cd android && ./gradlew assembleRelease && cd ..",
+    "apkBuild:clean": "cd android && ./gradlew clean assembleRelease && cd ..",
     "playstoreBuild": "cd android && ./gradlew bundleRelease && cd .."
   },
   "dependencies": {
