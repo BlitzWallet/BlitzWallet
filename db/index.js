@@ -14,6 +14,7 @@ import {
   setDoc,
   limit,
   addDoc,
+  Filter,
 } from '@react-native-firebase/firestore';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
@@ -167,34 +168,29 @@ export async function searchUsers(
     const term = parsedSearchTerm.toLowerCase();
     const endTerm = term + '\uf8ff';
 
-    // Create both queries
-    const uniqueNameQuery = query(
+    const searchQuery = query(
       usersRef,
-      where('contacts.myProfile.uniqueNameLower', '>=', term),
-      where('contacts.myProfile.uniqueNameLower', '<=', endTerm),
-      limit(5),
-    );
-
-    const nameQuery = query(
-      usersRef,
-      where('contacts.myProfile.nameLower', '>=', term),
-      where('contacts.myProfile.nameLower', '<=', endTerm),
-      limit(5),
-    );
-
-    // Execute both queries in parallel
-    const [uniqueNameSnapshot, nameSnapshot] = await Promise.all([
-      getDocs(uniqueNameQuery).then(snapshot =>
-        snapshot.docs.map(doc => doc.data()),
+      where(
+        Filter.or(
+          // First condition: search by uniqueName
+          Filter.and(
+            Filter('contacts.myProfile.uniqueNameLower', '>=', term),
+            Filter('contacts.myProfile.uniqueNameLower', '<=', endTerm),
+          ),
+          // Second condition: search by name
+          Filter.and(
+            Filter('contacts.myProfile.nameLower', '>=', term),
+            Filter('contacts.myProfile.nameLower', '<=', endTerm),
+          ),
+        ),
       ),
-      getDocs(nameQuery).then(snapshot => snapshot.docs.map(doc => doc.data())),
-    ]);
-
-    // Combine and deduplicate results
+      limit(10),
+    );
+    const snapshot = await getDocs(searchQuery);
     const uniqueUsers = new Map();
 
-    [...uniqueNameSnapshot, ...nameSnapshot].forEach(doc => {
-      const profile = doc.contacts?.myProfile;
+    snapshot.docs.forEach(doc => {
+      const profile = doc.data().contacts?.myProfile;
       if (profile?.uuid) {
         uniqueUsers.set(profile.uuid, profile);
       }
