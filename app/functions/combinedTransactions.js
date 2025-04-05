@@ -166,7 +166,11 @@ export default function getFormattedHomepageTxs({
       }
     }
 
-    if (!isBankPage && frompage != 'viewAllTx')
+    if (
+      !isBankPage &&
+      frompage != 'viewAllTx' &&
+      formattedTxs?.length > homepageTxPreferance
+    )
       formattedTxs.push(
         <TouchableOpacity
           key={'view_all_tx_btn'}

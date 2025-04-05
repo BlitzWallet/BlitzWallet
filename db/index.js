@@ -61,13 +61,11 @@ export async function getDataFromCollection(collectionName, uuid) {
     try {
       const docRef = doc(db, collectionName, uuid);
       const docSnap = await getDoc(docRef);
-      console.log(docSnap.exists);
-      console.log(docSnap.data());
+
       if (docSnap.exists) {
         const userData = docSnap.data();
         return userData;
       }
-      return null;
     } catch (err) {
       console.error('Error fetching user data:', err);
       return null;
