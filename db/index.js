@@ -215,7 +215,7 @@ export async function getUnknownContact(
     const docRef = doc(db, collectionName, uuid);
     const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
+    if (docSnap.exists) {
       return docSnap.data();
     }
     return false;
