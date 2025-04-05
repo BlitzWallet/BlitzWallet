@@ -306,45 +306,40 @@ export async function syncDatabasePayment(
 
     const messagesRef = collection(db, 'contactMessages');
 
-    // Create queries
-    const receivedQuery = query(
+    const combinedQuery = query(
       messagesRef,
-      where('toPubKey', '==', myPubKey),
-      where('timestamp', '>', savedMillis),
+      where(
+        Filter.or(
+          // Messages received by the user after savedMillis
+          Filter.and(
+            Filter('toPubKey', '==', myPubKey),
+            Filter('timestamp', '>', savedMillis),
+          ),
+          // Messages sent by the user after savedMillis
+          Filter.and(
+            Filter('fromPubKey', '==', myPubKey),
+            Filter('timestamp', '>', savedMillis),
+          ),
+        ),
+      ),
     );
 
-    const sentQuery = query(
-      messagesRef,
-      where('fromPubKey', '==', myPubKey),
-      where('timestamp', '>', savedMillis),
-    );
+    const snapshot = await getDocs(combinedQuery);
 
-    // Execute queries in parallel
-    const [receivedSnapshot, sentSnapshot] = await Promise.all([
-      getDocs(receivedQuery),
-      getDocs(sentQuery),
-    ]);
-
-    if (receivedSnapshot.empty && sentSnapshot.empty) {
+    if (snapshot.empty) {
       updatedCachedMessagesStateFunction();
       return;
     }
+    console.log(`${snapshot.size} messages received from history`);
 
-    console.log(
-      `${receivedSnapshot.size} received, ${sentSnapshot.size} sent messages from history`,
-    );
-
-    // Combine and process messages
-    const messageList = [...receivedSnapshot.docs, ...sentSnapshot.docs].map(
-      doc => doc.data(),
-    );
-
+    const messages = snapshot.docs.map(doc => doc.data());
     queueSetCashedMessages({
-      newMessagesList: messageList,
+      newMessagesList: messages,
       myPubKey,
     });
   } catch (err) {
     console.error('Error syncing database payments:', err);
     // Consider adding error handling callback if needed
+    updatedCachedMessagesStateFunction();
   }
 }
