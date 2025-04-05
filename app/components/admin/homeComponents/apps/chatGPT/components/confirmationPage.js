@@ -31,10 +31,9 @@ export default function ConfirmChatGPTPage(props) {
       : 0;
 
   const onSwipeSuccess = useCallback(() => {
-    navigate.popTo({
-      name: 'AppStorePageIndex',
-      params: {page: 'ai', purchaseCredits: true},
-      merge: true,
+    navigate.popTo('AppStorePageIndex', {
+      page: 'ai',
+      purchaseCredits: true,
     });
   }, []);
 
