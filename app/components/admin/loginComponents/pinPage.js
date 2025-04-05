@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {getAuth} from '@react-native-firebase/auth';
 import {
@@ -10,7 +10,6 @@ import {
 import {LOGIN_SECUITY_MODE_KEY, SIZES} from '../../../constants';
 import {useTranslation} from 'react-i18next';
 import {ThemeText} from '../../../functions/CustomElements';
-
 import KeyForKeyboard from '../../../functions/CustomElements/key';
 import RNRestart from 'react-native-restart';
 import PinDot from '../../../functions/CustomElements/pinDot';
@@ -18,110 +17,139 @@ import {useNavigation} from '@react-navigation/native';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 
 export default function PinPage() {
-  const [pin, setPin] = useState([null, null, null, null]);
-  const [error, setError] = useState(false);
-  const [pinEnterCount, setPinEnterCount] = useState(0);
-  const [loginSettings, setLoginSettings] = useState({});
+  const [loginSettings, setLoginSettings] = useState({
+    isBiometricEnabled: null,
+    isPinEnabled: null,
+    isSecurityEnabled: null,
+    enteredPin: [null, null, null, null],
+    savedPin: [null, null, null, null],
+    enteredPinCount: 0,
+  });
   const {t} = useTranslation();
 
   const navigate = useNavigation();
 
-  useEffect(() => {
-    const filteredPin = pin.filter(pin => {
+  const handlePinCheck = useCallback(async () => {
+    const filteredPin = loginSettings.enteredPin.filter(pin => {
       if (typeof pin === 'number') return true;
     });
 
     if (filteredPin.length != 4) return;
 
-    (async () => {
-      const stored = JSON.parse(await retrieveData('pin'));
+    if (
+      JSON.stringify(loginSettings.enteredPin) ===
+      JSON.stringify(loginSettings.savedPin)
+    ) {
+      if (loginSettings.isBiometricEnabled) {
+        navigate.navigate('ConfirmActionPage', {
+          confirmMessage:
+            'Since biometric setting are enabled you cannot use the deafult pin login method. Would you like to terminate your account?',
+          confirmFunction: async () => {
+            const deleted = await terminateAccount();
+            if (deleted) {
+              clearSettings();
+              try {
+                await getAuth().signOut();
+              } catch (err) {
+                console.log('pin page sign out error', err);
+              }
+              RNRestart.restart();
+            } else {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: 'Error deleting account.',
+              });
+            }
+          },
+        });
+        return;
+      }
 
-      if (JSON.stringify(pin) === JSON.stringify(stored)) {
-        if (loginSettings.isBiometricEnabled) {
-          navigate.navigate('ConfirmActionPage', {
-            confirmMessage:
-              'Since biometric setting are enabled you cannot use the deafult pin login method. Would you like to terminate your account?',
-            confirmFunction: async () => {
-              const deleted = await terminateAccount();
-              if (deleted) {
-                clearSettings();
-                try {
-                  await getAuth().signOut();
-                } catch (err) {
-                  console.log('pin page sign out error', err);
-                }
-                RNRestart.restart();
-              } else console.log('ERRROR');
-            },
-          });
-          return;
-        }
-
-        clearSettings();
-
+      setTimeout(() => {
         navigate.replace('ConnectingToNodeLoadingScreen', {
           isInitialLoad: false,
         });
-      } else {
-        if (pinEnterCount === 7) {
-          const deleted = await factoryResetWallet();
-          if (deleted) {
-            clearSettings();
-            RNRestart.restart();
-          } else {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: 'Error removing wallet',
-            });
-          }
+      }, 250);
+    } else {
+      if (loginSettings.enteredPinCount >= 7) {
+        const deleted = await factoryResetWallet();
+        if (deleted) {
+          clearSettings();
+          RNRestart.restart();
         } else {
-          if (error) return;
-          setError(true);
-          setPinEnterCount(prev => (prev += 1));
-          setError(false);
-          setPin([null, null, null, null]);
+          navigate.navigate('ErrorScreen', {
+            errorMessage: 'Error removing wallet',
+          });
         }
+      } else {
+        setLoginSettings(prev => {
+          return {
+            ...prev,
+            enteredPinCount: (prev.enteredPinCount += 1),
+            enteredPin: [null, null, null, null],
+          };
+        });
       }
-    })();
-  }, [pin, pinEnterCount, navigate]);
+    }
+  }, [loginSettings, navigate]);
 
   useEffect(() => {
-    (async () => {
-      const storedSettings = JSON.parse(
-        await getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-      );
+    const filteredPin = loginSettings.enteredPin.filter(pin => {
+      if (typeof pin === 'number') return true;
+    });
+    if (filteredPin.length != 4) return;
 
-      setLoginSettings(storedSettings);
+    handlePinCheck();
+  }, [loginSettings.enteredPin, handlePinCheck]);
 
-      if (!storedSettings.isBiometricEnabled) return;
+  useEffect(() => {
+    async function loadPageInformation() {
+      try {
+        const [storedSettings, storedPin] = await Promise.all([
+          getLocalStorageItem(LOGIN_SECUITY_MODE_KEY).then(data =>
+            JSON.parse(data),
+          ),
+          retrieveData('pin').then(data => JSON.parse(data)),
+        ]);
+        setLoginSettings(prev => ({
+          ...prev,
+          ...storedSettings,
+          savedPin: storedPin,
+        }));
+        if (!storedSettings.isBiometricEnabled) return;
 
-      const didLogIn = await handleLogin();
-      if (didLogIn)
-        navigate.replace('ConnectingToNodeLoadingScreen', {
-          isInitialLoad: false,
-        });
-    })();
+        const didLogIn = await handleLogin();
+        if (didLogIn)
+          navigate.replace('ConnectingToNodeLoadingScreen', {
+            isInitialLoad: false,
+          });
+      } catch (err) {
+        console.log('Load pin page information error', err);
+      }
+    }
+    loadPageInformation();
   }, []);
 
   return (
     <View style={styles.contentContainer}>
       <ThemeText
         styles={{...styles.header}}
-        content={
-          error
-            ? t('adminLogin.pinPage.wrongPinError')
-            : t('adminLogin.pinPage.enterPinMessage')
-        }
+        content={t('adminLogin.pinPage.enterPinMessage')}
       />
       <ThemeText
         styles={{...styles.enterText}}
-        content={8 - pinEnterCount + ' ' + t('adminLogin.pinPage.attemptsText')}
+        content={
+          8 -
+          loginSettings.enteredPinCount +
+          ' ' +
+          t('adminLogin.pinPage.attemptsText')
+        }
       />
 
       <View style={styles.dotContainer}>
-        <PinDot pin={pin} dotNum={0} />
-        <PinDot pin={pin} dotNum={1} />
-        <PinDot pin={pin} dotNum={2} />
-        <PinDot pin={pin} dotNum={3} />
+        <PinDot pin={loginSettings.enteredPin} dotNum={0} />
+        <PinDot pin={loginSettings.enteredPin} dotNum={1} />
+        <PinDot pin={loginSettings.enteredPin} dotNum={2} />
+        <PinDot pin={loginSettings.enteredPin} dotNum={3} />
       </View>
       <View style={styles.keyboardContainer}>
         <View style={styles.keyboard_row}>
@@ -151,34 +179,45 @@ export default function PinPage() {
   function addPin(id) {
     if (typeof id != 'number') {
       if (id === null) {
-        setPin(prev => {
-          const nullIndex = pin.indexOf(null);
-
-          return prev.map((item, id) => {
+        setLoginSettings(prev => {
+          let prePin = prev.enteredPin;
+          const nullIndex = prePin.indexOf(null);
+          const newPin = prePin.map((item, id) => {
             if (id === nullIndex - 1) {
               return null;
             } else if (nullIndex === -1 && id === 3) {
               return null;
             } else return item;
           });
+          return {...prev, enteredPin: newPin};
         });
-      } else setPin([null, null, null, null]);
+      } else {
+        setLoginSettings(prev => ({
+          ...prev,
+          enteredPin: [null, null, null, null],
+        }));
+      }
     } else {
-      setPin(prev => {
-        const nullIndex = pin.indexOf(null);
-
-        return prev.map((number, count) => {
+      setLoginSettings(prev => {
+        let prePin = prev.enteredPin;
+        const nullIndex = prePin.indexOf(null);
+        const newPin = prePin.map((number, count) => {
           if (count === nullIndex) {
             return id;
           } else return number;
         });
+        return {...prev, enteredPin: newPin};
       });
     }
   }
   function clearSettings() {
-    setPin([null, null, null, null]);
-    setError(false);
-    setPinEnterCount(0);
+    setLoginSettings(prev => {
+      return {
+        ...prev,
+        enteredPin: [null, null, null, null],
+        enteredPinCount: 0,
+      };
+    });
   }
 }
 

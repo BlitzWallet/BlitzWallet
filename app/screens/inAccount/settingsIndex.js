@@ -250,6 +250,7 @@ export default function SettingsIndex(props) {
                   'refund liquid swap',
                   'experimental',
                   'lsp',
+                  'fast pay',
                 ].includes(element.name?.toLowerCase())
               ) {
                 navigate.navigate('ErrorScreen', {
