@@ -1,17 +1,16 @@
 import {
+  ActivityIndicator,
   FlatList,
-  Keyboard,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import {ThemeText} from '../../../../functions/CustomElements';
-import {CENTER, KEYBOARDTIMEOUT} from '../../../../constants/styles';
+import {CENTER} from '../../../../constants/styles';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {EMAIL_REGEX, FONT, ICONS, SIZES} from '../../../../constants';
+import {COLORS, EMAIL_REGEX, FONT, ICONS, SIZES} from '../../../../constants';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
 import {useRef, useState} from 'react';
@@ -24,12 +23,15 @@ import CustomSearchInput from '../../../../functions/CustomElements/searchInput'
 import customUUID from '../../../../functions/customUUID';
 import {useKeysContext} from '../../../../../context-store/keys';
 import {keyboardNavigate} from '../../../../functions/customNavigation';
+import {useGlobalThemeContext} from '../../../../../context-store/theme';
 
 export default function AddContactsHalfModal(props) {
   const {contactsPrivateKey} = useKeysContext();
+  const {theme, darkModeType} = useGlobalThemeContext();
   const {globalContactsInformation} = useGlobalContacts();
   const [searchInput, setSearchInput] = useState('');
   const [users, setUsers] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const sliderHight = props.slideHeight;
   const navigate = useNavigation();
   const keyboardRef = useRef(null);
@@ -55,12 +57,14 @@ export default function AddContactsHalfModal(props) {
         />
       );
     });
+    setIsSearching(false);
     setUsers(newUsers);
   }, 500);
 
   const handleSearch = term => {
     setSearchInput(term);
     if (term.includes('@')) return;
+    term && setIsSearching(true);
     debouncedSearch(term);
   };
 
@@ -119,16 +123,18 @@ export default function AddContactsHalfModal(props) {
   return (
     <TouchableWithoutFeedback>
       <View style={styles.container}>
-        <View style={{flex: 1, width: '90%', ...CENTER}}>
-          <ThemeText
-            styles={{
-              fontSize: SIZES.large,
-              textAlign: 'left',
-              width: '100%',
-              marginBottom: 10,
-            }}
-            content={'Add contact'}
-          />
+        <View style={styles.innerContainer}>
+          <View style={styles.titleContainer}>
+            <ThemeText styles={styles.titleText} content={'Add contact'} />
+            {isSearching && (
+              <ActivityIndicator
+                size={'small'}
+                color={
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                }
+              />
+            )}
+          </View>
           <CustomSearchInput
             placeholderText={'Search username or LNURL'}
             setInputText={handleSearch}
@@ -252,6 +258,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+  },
+  innerContainer: {flex: 1, width: '90%', ...CENTER},
+
+  titleContainer: {
+    alignItems: 'center',
+    marginBottom: 10,
+    flexDirection: 'row',
+  },
+
+  titleText: {
+    fontSize: SIZES.large,
+    textAlign: 'left',
+    marginRight: 10,
   },
 
   contactListContainer: {
