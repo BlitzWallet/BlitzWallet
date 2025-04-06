@@ -223,7 +223,12 @@ export default function SendOnChainBitcoin({isDoomsday}) {
             />
           </ScrollView>
           <ThemeText
-            styles={{width: '95%', textAlign: 'center'}}
+            styles={{
+              width: '95%',
+              textAlign: 'center',
+              ...CENTER,
+              marginBottom: 10,
+            }}
             content={errorMessage}
           />
           <CustomButton
@@ -304,17 +309,16 @@ export default function SendOnChainBitcoin({isDoomsday}) {
       return new Promise(resolve => {
         resolve({
           didRunError:
-            onChainBalance - prepareRedeemOnchainFundsResp.txFeeSat >
+            onChainBalance - prepareRedeemOnchainFundsResp.txFeeSat <
             DUST_LIMIT_FOR_BTC_CHAIN_PAYMENTS,
           content: prepareRedeemOnchainFundsResp.txFeeSat,
         });
       });
     } catch (err) {
       console.log(err);
-      setErrorMessage('Error calculating transaction fee');
       setTxFeeSat(0);
       return new Promise(resolve => {
-        resolve({didRunError: true, content: ''});
+        resolve({didRunError: true, content: err.message});
       });
     }
   }
@@ -393,7 +397,7 @@ export default function SendOnChainBitcoin({isDoomsday}) {
     const txFee = await calculateTxFee(item);
 
     if (txFee.didRunError) {
-      setErrorMessage('Insufficent Funds');
+      setErrorMessage(txFee.content);
       return;
     }
 
