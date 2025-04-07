@@ -52,6 +52,11 @@ Blitz Wallet is a React Native application that allows users to interact with th
 - [x] Be able to receive money to a liquid wallet from a lightning or liquid payment if the amount is over inbound capacity
 - [x] Add apps to store
 
+## Download Blitz Wallet
+
+[![Google Play](.github/assets/images/google-play.svg)](https://play.google.com/store/apps/details?id=com.blitzwallet)
+[![TestFlight](.github/assets/images/app-store.svg)](https://testflight.apple.com/join/r8MfbNa6)
+
 ## Contribute
 
 We rely on GitHub for bug tracking. Before reporting a new bug, please take a moment to search the <a href='https://github.com/BlitzWallet/BlitzWallet/issues'>existing issues</a> to see if your problem has already been addressed. If you can't find an existing report, feel free to create a new issue.
