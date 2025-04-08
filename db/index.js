@@ -14,7 +14,6 @@ import {
   setDoc,
   limit,
   addDoc,
-  Filter,
 } from '@react-native-firebase/firestore';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
@@ -166,30 +165,41 @@ export async function searchUsers(
   try {
     const usersRef = collection(db, collectionName);
     const term = parsedSearchTerm.toLowerCase();
-    const endTerm = term + '\uf8ff';
 
-    const searchQuery = query(
+    // Execute two separate queries and merge results
+    const uniqueNameQuery = query(
       usersRef,
-      where(
-        Filter.or(
-          // First condition: search by uniqueName
-          Filter.and(
-            Filter('contacts.myProfile.uniqueNameLower', '>=', term),
-            Filter('contacts.myProfile.uniqueNameLower', '<=', endTerm),
-          ),
-          // Second condition: search by name
-          Filter.and(
-            Filter('contacts.myProfile.nameLower', '>=', term),
-            Filter('contacts.myProfile.nameLower', '<=', endTerm),
-          ),
-        ),
-      ),
-      limit(10),
+      where('contacts.myProfile.uniqueNameLower', '>=', term),
+      where('contacts.myProfile.uniqueNameLower', '<=', term + '\uffff'),
+      limit(5),
     );
-    const snapshot = await getDocs(searchQuery);
+
+    const nameQuery = query(
+      usersRef,
+      where('contacts.myProfile.nameLower', '>=', term),
+      where('contacts.myProfile.nameLower', '<=', term + '\uffff'),
+      limit(5),
+    );
+
+    // Execute both queries
+    const [uniqueNameSnapshot, nameSnapshot] = await Promise.all([
+      getDocs(uniqueNameQuery),
+      getDocs(nameQuery),
+    ]);
+
+    // Combine results, removing duplicates using Map
     const uniqueUsers = new Map();
 
-    snapshot.docs.forEach(doc => {
+    // Process uniqueName results
+    uniqueNameSnapshot.docs.forEach(doc => {
+      const profile = doc.data().contacts?.myProfile;
+      if (profile?.uuid) {
+        uniqueUsers.set(profile.uuid, profile);
+      }
+    });
+
+    // Process name results
+    nameSnapshot.docs.forEach(doc => {
       const profile = doc.data().contacts?.myProfile;
       if (profile?.uuid) {
         uniqueUsers.set(profile.uuid, profile);
@@ -303,38 +313,38 @@ export async function syncDatabasePayment(
     const cachedConversations = await getCachedMessages();
     const savedMillis = cachedConversations.lastMessageTimestamp;
     console.log('Retrieving docs from timestamp:', savedMillis);
-
     const messagesRef = collection(db, 'contactMessages');
 
-    const combinedQuery = query(
+    const receivedMessagesQuery = query(
       messagesRef,
-      where(
-        Filter.or(
-          // Messages received by the user after savedMillis
-          Filter.and(
-            Filter('toPubKey', '==', myPubKey),
-            Filter('timestamp', '>', savedMillis),
-          ),
-          // Messages sent by the user after savedMillis
-          Filter.and(
-            Filter('fromPubKey', '==', myPubKey),
-            Filter('timestamp', '>', savedMillis),
-          ),
-        ),
-      ),
+      where('toPubKey', '==', myPubKey),
+      where('timestamp', '>', savedMillis),
     );
 
-    const snapshot = await getDocs(combinedQuery);
+    const sentMessagesQuery = query(
+      messagesRef,
+      where('fromPubKey', '==', myPubKey),
+      where('timestamp', '>', savedMillis),
+    );
 
-    if (snapshot.empty) {
+    const [receivedSnapshot, sentSnapshot] = await Promise.all([
+      getDocs(receivedMessagesQuery),
+      getDocs(sentMessagesQuery),
+    ]);
+
+    const receivedMessages = receivedSnapshot.docs.map(doc => doc.data());
+    const sentMessages = sentSnapshot.docs.map(doc => doc.data());
+    const allMessages = [...receivedMessages, ...sentMessages];
+
+    if (allMessages.length === 0) {
       updatedCachedMessagesStateFunction();
       return;
     }
-    console.log(`${snapshot.size} messages received from history`);
 
-    const messages = snapshot.docs.map(doc => doc.data());
+    console.log(`${allMessages.length} messages received from history`);
+
     queueSetCashedMessages({
-      newMessagesList: messages,
+      newMessagesList: allMessages,
       myPubKey,
     });
   } catch (err) {

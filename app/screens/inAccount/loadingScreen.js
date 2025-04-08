@@ -345,8 +345,11 @@ export default function ConnectingToNodeLoadingScreen({
           console.log('AUTO WORK DATA', resolvedData);
 
           if (!resolvedData.didRun) {
-            replace('HomeAdmin', {screen: 'Home'});
-
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                replace('HomeAdmin', {screen: 'Home'});
+              });
+            });
             return;
           }
 
@@ -371,10 +374,18 @@ export default function ConnectingToNodeLoadingScreen({
               paymentInfo: parsedInvoice,
               paymentDescription: 'Auto Channel Rebalance',
               failureFunction: () => {
-                replace('HomeAdmin', {screen: 'Home'});
+                requestAnimationFrame(() => {
+                  requestAnimationFrame(() => {
+                    replace('HomeAdmin', {screen: 'Home'});
+                  });
+                });
               },
               confirmFunction: () => {
-                replace('HomeAdmin', {screen: 'Home'});
+                requestAnimationFrame(() => {
+                  requestAnimationFrame(() => {
+                    replace('HomeAdmin', {screen: 'Home'});
+                  });
+                });
               },
             });
             // }
@@ -384,7 +395,12 @@ export default function ConnectingToNodeLoadingScreen({
               invoice: resolvedData.invoice.lnInvoice.bolt11,
             });
 
-            if (response) replace('HomeAdmin', {screen: 'Home'});
+            if (response)
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  replace('HomeAdmin', {screen: 'Home'});
+                });
+              });
           }
         } else
           throw new Error(
