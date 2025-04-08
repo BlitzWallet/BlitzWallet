@@ -114,7 +114,7 @@ export default function ReceivePaymentHome(props) {
         ) : (
           <FormattedSatText
             neverHideBalance={true}
-            styles={{includeFontPadding: false}}
+            styles={{paddingBottom: 5}}
             balance={
               addressState.selectedRecieveOption.toLowerCase() === 'bitcoin' &&
               addressState.errorMessageText.text

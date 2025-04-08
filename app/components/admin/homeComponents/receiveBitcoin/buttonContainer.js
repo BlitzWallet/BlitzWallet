@@ -46,10 +46,7 @@ export default function ButtonsContainer(props) {
           {borderColor: theme ? COLORS.darkModeText : COLORS.lightModeText},
         ]}>
         <ThemeText
-          styles={{
-            ...styles.secondaryButtonText,
-            paddingVertical: Platform.OS === 'ios' ? 5 : 2,
-          }}
+          styles={styles.secondaryButtonText}
           content={t('wallet.receivePages.buttonContainer.format')}
         />
       </TouchableOpacity>
@@ -77,11 +74,15 @@ const styles = StyleSheet.create({
 
   secondaryButton: {
     width: 'auto',
+    minHeight: 40,
     borderRadius: 8,
     borderWidth: 1,
     ...CENTER,
+    justifyContent: 'center',
   },
   secondaryButtonText: {
     paddingHorizontal: 12,
+    includeFontPadding: false,
+    paddingVertical: 5,
   },
 });
