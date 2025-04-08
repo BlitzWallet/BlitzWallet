@@ -21,7 +21,8 @@ import {
   applyErrorAnimationTheme,
   updateConfirmAnimation,
 } from '../../functions/lottieViewColorTransformer';
-
+const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
+const errorTxAnimation = require('../../assets/errorTxAnimation.json');
 export default function ConfirmTxPage(props) {
   const navigate = useNavigation();
   const handleBackPressFunction = useCallback(() => {
@@ -88,23 +89,17 @@ export default function ConfirmTxPage(props) {
       : paymentInformation?.amountSat;
   ``;
   const confirmAnimation = useMemo(() => {
-    const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
-
-    const darkThemeAnimation = updateConfirmAnimation(
+    return updateConfirmAnimation(
       confirmTxAnimation,
       theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
     );
-    return darkThemeAnimation;
   }, [theme, darkModeType]);
 
   const errorAnimation = useMemo(() => {
-    const errorAnimation = require('../../assets/errorTxAnimation.json');
-
-    const transformedAnimation = applyErrorAnimationTheme(
-      errorAnimation,
+    return applyErrorAnimationTheme(
+      errorTxAnimation,
       theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
     );
-    return transformedAnimation;
   }, [theme, darkModeType]);
 
   useEffect(() => {

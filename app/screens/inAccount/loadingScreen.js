@@ -71,6 +71,8 @@ import {
   applyErrorAnimationTheme,
   updateMascatWalkingAnimation,
 } from '../../functions/lottieViewColorTransformer';
+const mascotAnimation = require('../../assets/MOSCATWALKING.json');
+const confirmTxAnimationDarkMode = require('../../assets/errorTxAnimation.json');
 
 export default function ConnectingToNodeLoadingScreen({
   navigation: {replace},
@@ -108,22 +110,17 @@ export default function ConnectingToNodeLoadingScreen({
   const isInialredner = useRef(true);
 
   const transformedAnimation = useMemo(() => {
-    const mascotAnimation = require('../../assets/MOSCATWALKING.json');
-    const updatedData = JSON.parse(JSON.stringify(mascotAnimation));
-
-    updateMascatWalkingAnimation(mascotAnimation, theme ? 'white' : 'blue');
-    return updatedData;
+    return updateMascatWalkingAnimation(
+      mascotAnimation,
+      theme ? 'white' : 'blue',
+    );
   }, [theme]);
 
   const errorAnimation = useMemo(() => {
-    const confirmTxAnimationDarkMode = require('../../assets/errorTxAnimation.json');
-
-    const defaultTheme = applyErrorAnimationTheme(
+    return applyErrorAnimationTheme(
       confirmTxAnimationDarkMode,
       theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
     );
-
-    return defaultTheme;
   }, [theme, darkModeType]);
 
   const [message, setMessage] = useState(t('loadingScreen.message1'));

@@ -5,23 +5,31 @@
  * @returns {Object} - Modified animation data with new colors
  */
 export function updateMascatWalkingAnimation(obj, mode) {
-  if (typeof obj !== 'object' || obj === null) return;
+  if (typeof obj !== 'object' || obj === null) return obj;
 
-  for (const key in obj) {
+  // Create a shallow copy if it's an array or object
+  const newObj = Array.isArray(obj) ? [...obj] : {...obj};
+
+  for (const key in newObj) {
     if (
       key === 'c' &&
-      obj[key] &&
-      typeof obj[key] === 'object' &&
-      obj[key].a === 0 &&
-      Array.isArray(obj[key].k)
+      newObj[key] &&
+      typeof newObj[key] === 'object' &&
+      newObj[key].a === 0 &&
+      Array.isArray(newObj[key].k)
     ) {
-      // Apply the modifier function to the k array
-      obj[key].k = mode === 'blue' ? [0.0118, 0.4588, 0.9647] : [1, 1, 1];
-    } else if (typeof obj[key] === 'object') {
+      // Create a new object for this property with the updated k array
+      newObj[key] = {
+        ...newObj[key],
+        k: mode === 'blue' ? [0.0118, 0.4588, 0.9647] : [1, 1, 1],
+      };
+    } else if (typeof newObj[key] === 'object') {
       // Recurse through nested objects/arrays
-      updateMascatWalkingAnimation(obj[key], mode);
+      newObj[key] = updateMascatWalkingAnimation(newObj[key], mode);
     }
   }
+
+  return newObj;
 }
 
 /**
@@ -155,84 +163,6 @@ function processShapes(shapes, colors, isAsset = false) {
       shape.c.k = colors.fillColor;
     }
   });
-}
-
-/**
- * Function to switch the error animation between dark mode and lights out mode
- * @param {Object} lottieJson - The original Lottie JSON object
- * @param {boolean} isDarkMode - Whether to use dark mode (true) or lights out mode (false)
- * @returns {Object} - A new Lottie JSON object with updated colors
- */
-export function switchErrorAnimationMode(lottieJson, mode) {
-  // Create a deep copy of the original JSON to avoid modifying it
-  const newLottieJson = JSON.parse(JSON.stringify(lottieJson));
-
-  // Define the colors based on mode
-
-  const colorValue = {
-    light: {
-      iconColor: [248 / 255, 248 / 255, 248 / 255],
-      fillColor: [0, 0.4706, 1, 1],
-    },
-    dark: {
-      iconColor: [0, 0.145, 0.306],
-      fillColor: [1, 1, 1],
-    },
-    lightsOut: {
-      iconColor: [0, 0, 0],
-      fillColor: [1, 1, 1],
-    },
-  };
-
-  try {
-    // Get the POINT layer
-    const pointLayer = newLottieJson.layers.find(layer => layer.nm === 'POINT');
-    if (pointLayer) {
-      // Find the Ellipse 1 group in shapes
-      const ellipseGroup = pointLayer.shapes.find(
-        shape => shape.nm === 'Ellipse 1',
-      );
-      if (ellipseGroup && ellipseGroup.it) {
-        // Update the Fill color
-        const fillItem = ellipseGroup.it.find(item => item.nm === 'Fill 1');
-        if (fillItem) {
-          fillItem.c.k = colorValue[mode].fillColor;
-        }
-
-        // Update the Stroke color
-        const strokeItem = ellipseGroup.it.find(item => item.nm === 'Stroke 1');
-        if (strokeItem) {
-          strokeItem.c.k = colorValue[mode].iconColor;
-        }
-      }
-    }
-
-    // Get the Ex layer
-    const exLayer = newLottieJson.layers.find(layer => layer.nm === 'Ex');
-    if (exLayer) {
-      // Find the Shape 1 group in shapes
-      const shapeGroup = exLayer.shapes.find(shape => shape.nm === 'Shape 1');
-      if (shapeGroup && shapeGroup.it) {
-        // Update the Stroke color
-        const strokeItem = shapeGroup.it.find(item => item.nm === 'Stroke 1');
-        if (strokeItem) {
-          strokeItem.c.k = colorValue[mode].iconColor;
-        }
-
-        // Update the Fill color
-        const fillItem = shapeGroup.it.find(item => item.nm === 'Fill 1');
-        if (fillItem) {
-          fillItem.c.k = colorValue[mode].iconColor;
-        }
-      }
-    }
-
-    return newLottieJson;
-  } catch (error) {
-    console.error('Error updating animation colors:', error);
-    // Return the original JSON if there's an error
-    return lottieJson;
-  }
 }
 
 /**
