@@ -9,6 +9,7 @@ import {CENTER, SIZES} from '../../../../../constants';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useMemo, useRef} from 'react';
+import {applyErrorAnimationTheme} from '../../../../../functions/lottieViewColorTransformer';
 
 export default function ErrorWithPayment({reason}) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -16,12 +17,15 @@ export default function ErrorWithPayment({reason}) {
   const windowWidth = useWindowDimensions().width;
   const animationRef = useRef(null);
 
-  const animationSource = useMemo(() => {
-    return theme
-      ? darkModeType
-        ? require('../../../../../assets/errorTxAnimationLightsOutMode.json')
-        : require('../../../../../assets/errorTxAnimationDarkMode.json')
-      : require('../../../../../assets/errorTxAnimation.json');
+  const errorAnimation = useMemo(() => {
+    const confirmTxAnimationDarkMode = require('../../../../../assets/errorTxAnimation.json');
+
+    const defaultTheme = applyErrorAnimationTheme(
+      confirmTxAnimationDarkMode,
+      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
+    );
+
+    return defaultTheme;
   }, [theme, darkModeType]);
 
   useEffect(() => {
@@ -31,7 +35,7 @@ export default function ErrorWithPayment({reason}) {
     <GlobalThemeView styles={styles.container} useStandardWidth={true}>
       <LottieView
         ref={animationRef}
-        source={animationSource}
+        source={errorAnimation}
         loop={false}
         style={{
           width: windowWidth / 1.5,

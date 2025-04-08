@@ -17,6 +17,10 @@ import GetThemeColors from '../../hooks/themeColors';
 import {openComposer} from 'react-native-email-link';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import {
+  applyErrorAnimationTheme,
+  updateConfirmAnimation,
+} from '../../functions/lottieViewColorTransformer';
 
 export default function ConfirmTxPage(props) {
   const navigate = useNavigation();
@@ -82,23 +86,31 @@ export default function ConfirmTxPage(props) {
       : formmatingType === 'lightningNode'
       ? Math.round(paymentInformation?.payment?.amountMsat / 1000)
       : paymentInformation?.amountSat;
+  ``;
+  const confirmAnimation = useMemo(() => {
+    const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
+
+    const darkThemeAnimation = updateConfirmAnimation(
+      confirmTxAnimation,
+      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
+    );
+    return darkThemeAnimation;
+  }, [theme, darkModeType]);
+
+  const errorAnimation = useMemo(() => {
+    const errorAnimation = require('../../assets/errorTxAnimation.json');
+
+    const transformedAnimation = applyErrorAnimationTheme(
+      errorAnimation,
+      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
+    );
+    return transformedAnimation;
+  }, [theme, darkModeType]);
 
   useEffect(() => {
     animationRef.current?.play();
   }, []);
-  const animationSource = useMemo(() => {
-    return didSucceed
-      ? theme
-        ? darkModeType
-          ? require('../../assets/confirmTxAnimationLightsOutMode.json')
-          : require('../../assets/confirmTxAnimationDarkMode.json')
-        : require('../../assets/confirmTxAnimation.json')
-      : theme
-      ? darkModeType
-        ? require('../../assets/errorTxAnimationLightsOutMode.json')
-        : require('../../assets/errorTxAnimationDarkMode.json')
-      : require('../../assets/errorTxAnimation.json');
-  }, [theme, darkModeType, didSucceed]);
+
   return (
     <GlobalThemeView
       useStandardWidth={true}
@@ -108,7 +120,7 @@ export default function ConfirmTxPage(props) {
       }}>
       <LottieView
         ref={animationRef}
-        source={animationSource}
+        source={didSucceed ? confirmAnimation : errorAnimation}
         loop={false}
         style={{
           width: useWindowDimensions().width / 1.5,
@@ -145,7 +157,8 @@ export default function ConfirmTxPage(props) {
       <ThemeText
         styles={{
           opacity: 0.6,
-          width: 180,
+          width: '95%',
+          maxWidth: 300,
           textAlign: 'center',
           marginBottom: 40,
         }}
@@ -176,7 +189,8 @@ export default function ConfirmTxPage(props) {
             flex: 1,
             backgroundColor: backgroundOffset,
             borderRadius: 8,
-            width: 250,
+            width: '95%',
+            maxWidth: 300,
             minHeight: 100,
 
             color: 'red',

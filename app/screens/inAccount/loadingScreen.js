@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import {COLORS, FONT, ICONS} from '../../constants';
 import {useGlobalContextProvider} from '../../../context-store/context';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   connectLsp,
   listLsps,
@@ -67,6 +67,11 @@ import {sumProofsValue} from '../../functions/eCash/proofs';
 import {initializePOSTransactionsDatabase} from '../../functions/pos';
 import CustomButton from '../../functions/CustomElements/button';
 import {INSET_WINDOW_WIDTH} from '../../constants/theme';
+import {
+  applyErrorAnimationTheme,
+  updateMascatWalkingAnimation,
+} from '../../functions/lottieViewColorTransformer';
+
 export default function ConnectingToNodeLoadingScreen({
   navigation: {replace},
   route,
@@ -101,6 +106,25 @@ export default function ConnectingToNodeLoadingScreen({
   const [showLNErrorScreen, setShowLNErrorScreen] = useState(false);
   const [loadingLNFailedSettings, setLoadingLNFailedSettings] = useState(false);
   const isInialredner = useRef(true);
+
+  const transformedAnimation = useMemo(() => {
+    const mascotAnimation = require('../../assets/MOSCATWALKING.json');
+    const updatedData = JSON.parse(JSON.stringify(mascotAnimation));
+
+    updateMascatWalkingAnimation(mascotAnimation, theme ? 'white' : 'blue');
+    return updatedData;
+  }, [theme]);
+
+  const errorAnimation = useMemo(() => {
+    const confirmTxAnimationDarkMode = require('../../assets/errorTxAnimation.json');
+
+    const defaultTheme = applyErrorAnimationTheme(
+      confirmTxAnimationDarkMode,
+      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
+    );
+
+    return defaultTheme;
+  }, [theme, darkModeType]);
 
   const [message, setMessage] = useState(t('loadingScreen.message1'));
 
@@ -191,13 +215,7 @@ export default function ConnectingToNodeLoadingScreen({
         {showLNErrorScreen ? (
           <View style={{alignItems: 'center', width: '100%'}}>
             <LottieView
-              source={
-                theme
-                  ? darkModeType
-                    ? require('../../assets/errorTxAnimationLightsOutMode.json')
-                    : require('../../assets/errorTxAnimationDarkMode.json')
-                  : require('../../assets/errorTxAnimation.json')
-              }
+              source={errorAnimation}
               autoPlay
               loop={false}
               style={{
@@ -238,11 +256,7 @@ export default function ConnectingToNodeLoadingScreen({
               </TouchableOpacity>
             )}
             <LottieView
-              source={
-                theme
-                  ? require('../../assets/MOSCATWALKING2White.json')
-                  : require('../../assets/MOSCATWALKING2Blue.json')
-              }
+              source={transformedAnimation}
               autoPlay
               loop={true}
               style={{

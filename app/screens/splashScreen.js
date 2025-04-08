@@ -4,23 +4,39 @@ import {View, StyleSheet, Animated} from 'react-native';
 import LottieView from 'lottie-react-native';
 import {COLORS} from '../constants';
 import {useGlobalThemeContext} from '../../context-store/theme';
+import {updateBlitzAnimationData} from '../functions/lottieViewColorTransformer';
 
 const SplashScreen = ({onAnimationFinish}) => {
   const opacity = useRef(new Animated.Value(1)).current;
   const {theme, darkModeType} = useGlobalThemeContext();
+  const BlitzAnimation = require('../assets/BlitzAnimation.json');
 
   const animationRef = useRef(null);
 
-  const animationSource = useMemo(() => {
-    return theme
-      ? darkModeType
-        ? require('../assets/BlitzAnimationLightsOut.json')
-        : require('../assets/BlitzAnimationDM.json')
-      : require('../assets/BlitzAnimation.json');
-  }, [theme, darkModeType]);
+  const blueModeColor = {
+    rectangleFill: [0.92157, 0.92157, 0.92157], // Dark blue-gray
+    shapeFill: [0.011765, 0.458824, 0.964706, 1], // Same blue as before
+  };
+
+  const darkModeColor = {
+    rectangleFill: [0, 0.1451, 0.3059],
+    shapeFill: [0.011765, 0.458824, 0.964706, 1],
+  };
+  const lightsOutMode = {
+    rectangleFill: [0, 0, 0],
+    shapeFill: [1, 1, 1],
+  };
+
+  const darkModeAnimation = updateBlitzAnimationData(
+    BlitzAnimation,
+    theme ? lightsOutMode : blueModeColor,
+  );
 
   useEffect(() => {
-    animationRef.current?.play();
+    setTimeout(() => {
+      animationRef.current?.play();
+    }, 250);
+
     setTimeout(() => {
       Animated.timing(opacity, {
         toValue: 0,
@@ -31,7 +47,7 @@ const SplashScreen = ({onAnimationFinish}) => {
           onAnimationFinish();
         }
       });
-    }, 2500);
+    }, 2750);
   }, [opacity]);
 
   return (
@@ -53,7 +69,7 @@ const SplashScreen = ({onAnimationFinish}) => {
         ]}>
         <LottieView
           ref={animationRef}
-          source={animationSource}
+          source={darkModeAnimation}
           speed={0.8}
           loop={false}
           style={styles.lottie}
