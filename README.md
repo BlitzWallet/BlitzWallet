@@ -1,4 +1,4 @@
-<img src="/app/assets/wordmark.png" alt="Project Logo" width="100%">
+<img src=".github/assets/images/wordmark.png" alt="Project Logo" width="100%">
 
 <hr/>
 
@@ -10,7 +10,7 @@ Blitz Wallet is a React Native application that allows users to interact with th
 
 ## How it works
 
-<img src="/app/assets/BlitzArchitecture.png" alt="How blitz wallet works" width="100%">
+<img src=".github/assets/images/BlitzArchitecture.png" alt="How blitz wallet works" width="100%">
 
 ## Features
 
