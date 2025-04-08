@@ -186,7 +186,6 @@ export default {
   locationIcon,
   receiptIcon,
   checkIcon,
-  wordmark,
   walletBlueIcon,
   bankIcon,
   Connected,
