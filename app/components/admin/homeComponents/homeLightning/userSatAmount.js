@@ -2,7 +2,7 @@ import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {COLORS, SIZES} from '../../../../constants';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {memo, useRef, useState} from 'react';
+import {memo, useCallback, useEffect, useRef, useState} from 'react';
 import handleDBStateChange from '../../../../functions/handleDBStateChange';
 import Icon from '../../../../functions/CustomElements/Icon';
 import {useNavigation} from '@react-navigation/native';
@@ -15,6 +15,7 @@ export const UserSatAmount = memo(function UserSatAmount({
   darkModeType,
 }) {
   console.log('User sat amount container');
+  const didMount = useRef(null);
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {ecashWalletInformation} = useGlobaleCash();
   const {masterInfoObject, toggleMasterInfoObject, setMasterInfoObject} =
@@ -32,12 +33,23 @@ export const UserSatAmount = memo(function UserSatAmount({
     liquidNodeInformation.userBalance +
     (masterInfoObject.enabledEcash ? eCashBalance : 0);
 
+  useEffect(() => {
+    didMount.current = true;
+    return () => (didMount.current = false);
+  }, []);
+
+  const handleLayout = useCallback(
+    event => {
+      const {width} = event.nativeEvent.layout;
+      if (!didMount.current) return;
+      setBalanceWidth(width);
+    },
+    [didMount],
+  );
+
   return (
     <TouchableOpacity
-      onLayout={event => {
-        const {width} = event.nativeEvent.layout;
-        setBalanceWidth(width);
-      }}
+      onLayout={handleLayout}
       style={styles.balanceContainer}
       onPress={() => {
         if (!isConnectedToTheInternet) {

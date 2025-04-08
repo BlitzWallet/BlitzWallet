@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {Dimensions} from 'react-native';
 
 import Animated, {
@@ -17,6 +17,12 @@ export const useCustomFlatListHook = () => {
     topList: 0,
   });
   const windowHeight = useRef(Dimensions.get('window').height).current;
+  const didMount = useRef(null);
+
+  useEffect(() => {
+    didMount.current = true;
+    return () => (didMount.current = false);
+  }, []);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: event => {
@@ -80,16 +86,19 @@ export const useCustomFlatListHook = () => {
 
   const onLayoutHeaderElement = event => {
     event.persist();
+    if (!didMount.current) return;
     setHeights(prev => ({...prev, header: event.nativeEvent.layout.height}));
   };
 
   const onLayoutTopListElement = event => {
     event.persist();
+    if (!didMount.current) return;
     setHeights(prev => ({...prev, topList: event.nativeEvent.layout.height}));
   };
 
   const onLayoutTopStickyElement = event => {
     event.persist();
+    if (!didMount.current) return;
     setHeights(prev => ({...prev, sticky: event.nativeEvent.layout.height}));
   };
 
