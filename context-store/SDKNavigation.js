@@ -20,11 +20,15 @@ export function LiquidNavigationListener() {
     }
     if (isNavigating.current) return;
     isNavigating.current = true;
-    navigation.reset(pendingNavigation);
     requestAnimationFrame(() => {
-      isNavigating.current = false;
-      setPendingNavigation(null);
+      requestAnimationFrame(() => {
+        navigation.reset(pendingNavigation);
+        isNavigating.current = false;
+        console.log('cleaning up navigation');
+      });
     });
+
+    setPendingNavigation(null);
   }, [pendingNavigation, didGetToHomepage]);
 
   return null;
@@ -44,11 +48,15 @@ export function LightningNavigationListener() {
     }
     if (isNavigating.current) return;
     isNavigating.current = true;
-    navigation.reset(pendingNavigation);
     requestAnimationFrame(() => {
-      isNavigating.current = false;
-      setPendingNavigation(null);
+      requestAnimationFrame(() => {
+        navigation.reset(pendingNavigation);
+        isNavigating.current = false;
+        console.log('cleaning up navigation');
+      });
     });
+
+    setPendingNavigation(null);
   }, [pendingNavigation, didGetToHomepage]);
 
   return null;
@@ -68,11 +76,16 @@ export function EcashNavigationListener() {
     }
     if (isNavigating.current) return;
     isNavigating.current = true;
-    navigation.reset(pendingNavigation);
     requestAnimationFrame(() => {
-      isNavigating.current = false;
-      setPendingNavigation(null);
+      requestAnimationFrame(() => {
+        navigation.reset(pendingNavigation);
+        isNavigating.current = false;
+        console.log('cleaning up navigation');
+      });
     });
+    navigation.reset(pendingNavigation);
+
+    setPendingNavigation(null);
   }, [pendingNavigation, didGetToHomepage]);
 
   return null;

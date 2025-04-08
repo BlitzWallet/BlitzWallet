@@ -236,7 +236,11 @@ export default function ConfirmTxPage(props) {
         actionFunction={() => {
           console.log('POPPING TO TOP');
           // This will go to whatever the base homsecreen is set to
-          navigate.popToTop();
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              navigate.popToTop();
+            });
+          });
         }}
         textContent={'Continue'}
       />
