@@ -7,6 +7,7 @@ import {G, Path, Svg} from 'react-native-svg';
 import LoginNavbar from '../../components/login/navBar';
 import {useTranslation} from 'react-i18next';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
 
 export default function DislaimerPage({navigation: {navigate}}) {
   const {t} = useTranslation();
@@ -81,6 +82,9 @@ export default function DislaimerPage({navigation: {navigate}}) {
         />
         <TouchableOpacity
           onPress={() => {
+            crashlyticsLogReport(
+              'Navigating to custom webview from displaimer page',
+            );
             navigate('CustomWebView', {
               webViewURL: 'https://blitz-wallet.com/pages/terms/',
             });

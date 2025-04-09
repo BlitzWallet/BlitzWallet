@@ -5,17 +5,28 @@ import {useTranslation} from 'react-i18next';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import {createAccountMnemonic} from '../../functions';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../functions/crashlyticsLogs';
 
 export default function CreateAccountHome({navigation: {navigate}}) {
   const {t} = useTranslation();
 
   useEffect(() => {
     try {
+      crashlyticsLogReport('Creating account mnemoinc');
       createAccountMnemonic();
     } catch (err) {
-      console.log(err);
+      console.log('error creating account mnemoinc', err);
+      crashlyticsRecordErrorReport(err.message);
     }
   }, []);
+
+  const navigateFunction = page => {
+    crashlyticsLogReport(`Navigating to ${page} from create account home`);
+    navigate(page);
+  };
   return (
     <GlobalThemeView
       useStandardWidth={true}
@@ -30,13 +41,13 @@ export default function CreateAccountHome({navigation: {navigate}}) {
           }}
           textStyles={{color: COLORS.darkModeText}}
           textContent={t('createAccount.homePage.buttons.button2')}
-          actionFunction={() => navigate('DisclaimerPage')}
+          actionFunction={() => navigateFunction('DisclaimerPage')}
         />
         <CustomButton
           buttonStyles={styles.buttonStyle}
           textStyles={{color: COLORS.lightModeText}}
           textContent={t('createAccount.homePage.buttons.button1')}
-          actionFunction={() => navigate('RestoreWallet')}
+          actionFunction={() => navigateFunction('RestoreWallet')}
         />
 
         <ThemeText
