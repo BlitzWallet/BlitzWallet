@@ -53,6 +53,13 @@ const GENERALOPTIONS = [
     svgName: 'quickPayIcon',
     arrowIcon: ICONS.leftCheveronIcon,
   },
+  {
+    for: 'general',
+    name: 'Crash Reports',
+    svgIcon: true,
+    svgName: 'crashDebugIcon',
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
   // {
   //   for: 'general',
   //   name: 'Send On-chain',

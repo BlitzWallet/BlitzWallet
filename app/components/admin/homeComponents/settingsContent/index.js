@@ -24,6 +24,7 @@ import RestoreChannel from './restoreChannels';
 import FastPay from './fastPay';
 import ViewPOSTransactions from './posPath/transactions';
 import TotalTipsScreen from './posPath/totalTipsScreen';
+import CrashReportingSettingsPage from './crashReporting';
 
 export {
   AboutPage,
@@ -49,4 +50,5 @@ export {
   FastPay,
   ViewPOSTransactions,
   TotalTipsScreen,
+  CrashReportingSettingsPage,
 };

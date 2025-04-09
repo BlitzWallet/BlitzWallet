@@ -18,6 +18,7 @@ import {
   SendOnChainBitcoin,
   ViewAllLiquidSwaps,
   WalletInformation,
+  CrashReportingSettingsPage,
 } from '../../components/admin/homeComponents/settingsContent';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView} from '../../functions/CustomElements';
@@ -117,6 +118,9 @@ export default function SettingsContentIndex(props) {
               <ViewAllLiquidSwaps theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
+            {selectedPage?.toLowerCase() === 'crash reports' && (
+              <CrashReportingSettingsPage />
+            )}
 
             {selectedPage?.toLowerCase() === 'noster wallet connect' && (
               <NosterWalletConnect theme={theme} />
