@@ -9,12 +9,11 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {useMemo} from 'react';
 
-export default function SwitchReceiveOptionPage(props) {
+export default function SwitchReceiveOptionPage() {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
-  const setSelectedRecieveOption = props.route.params.setSelectedRecieveOption;
   useHandleBackPressNew();
 
   const paymentElements = useMemo(() => {
@@ -93,10 +92,15 @@ export default function SwitchReceiveOptionPage(props) {
   );
 
   function handleClick(selectedOption) {
-    setSelectedRecieveOption(prev => {
-      return {...prev, selectedRecieveOption: selectedOption};
-    });
-    navigate.goBack();
+    navigate.popTo(
+      'ReceiveBTC',
+      {
+        selectedRecieveOption: selectedOption,
+      },
+      {
+        merge: true,
+      },
+    );
   }
 }
 
