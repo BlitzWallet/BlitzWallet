@@ -315,7 +315,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
               textContent={params ? t('constants.skip') : 'Paste'}
               actionFunction={() =>
                 params
-                  ? navigate('PinSetup', {isInitialLoad: true})
+                  ? navigate.navigate('PinSetup', {isInitialLoad: true})
                   : handleSeedFromClipboard()
               }
             />
