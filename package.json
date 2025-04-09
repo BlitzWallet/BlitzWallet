@@ -28,6 +28,7 @@
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-firebase/app": "^21.13.0",
     "@react-native-firebase/auth": "^21.13.0",
+    "@react-native-firebase/crashlytics": "^21.13.0",
     "@react-native-firebase/firestore": "^21.13.0",
     "@react-native-firebase/functions": "^21.13.0",
     "@react-native-firebase/messaging": "^21.13.0",
