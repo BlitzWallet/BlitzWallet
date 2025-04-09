@@ -30,6 +30,8 @@ export default function ReceivePaymentHome(props) {
   const initialSendAmount = props.route.params?.receiveAmount;
   const paymentDescription = props.route.params?.description;
   useHandleBackPressNew();
+  const selectedRecieveOption =
+    props.route.params?.selectedRecieveOption || 'lightning';
 
   const [addressState, setAddressState] = useState({
     selectedRecieveOption: 'lightning',
@@ -49,8 +51,6 @@ export default function ReceivePaymentHome(props) {
     fee: 0,
   });
 
-  const receiveOption = addressState.selectedRecieveOption;
-
   useEffect(() => {
     initializeAddressProcess({
       nodeInformation,
@@ -61,25 +61,21 @@ export default function ReceivePaymentHome(props) {
       minMaxSwapAmounts: minMaxLiquidSwapAmounts,
       mintURL: currentMintURL,
       setAddressState: setAddressState,
-      selectedRecieveOption: receiveOption,
+      selectedRecieveOption: selectedRecieveOption,
       navigate,
       eCashBalance,
     });
-  }, [initialSendAmount, paymentDescription, receiveOption]);
+  }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
   return (
     <GlobalThemeView styles={{alignItems: 'center'}} useStandardWidth={true}>
       <TopBar navigate={navigate} />
 
-      <ThemeText
-        styles={{...styles.title}}
-        content={addressState.selectedRecieveOption}
-      />
+      <ThemeText styles={{...styles.title}} content={selectedRecieveOption} />
       <QrCode navigate={navigate} addressState={addressState} />
 
       <ButtonsContainer
         generatingInvoiceQRCode={addressState.isGeneratingInvoice}
         generatedAddress={addressState.generatedAddress}
-        setSelectedRecieveOption={setAddressState}
       />
 
       <View style={{marginBottom: 'auto'}}></View>
@@ -100,7 +96,7 @@ export default function ReceivePaymentHome(props) {
               marginBottom: 0,
             },
           ]}>
-          {addressState.selectedRecieveOption.toLowerCase() === 'bitcoin' &&
+          {selectedRecieveOption.toLowerCase() === 'bitcoin' &&
           addressState.errorMessageText.text
             ? `${
                 addressState.minMaxSwapAmount.min > initialSendAmount
@@ -116,7 +112,7 @@ export default function ReceivePaymentHome(props) {
             neverHideBalance={true}
             styles={{paddingBottom: 5}}
             balance={
-              addressState.selectedRecieveOption.toLowerCase() === 'bitcoin' &&
+              selectedRecieveOption.toLowerCase() === 'bitcoin' &&
               addressState.errorMessageText.text
                 ? addressState.minMaxSwapAmount.min > initialSendAmount
                   ? addressState.minMaxSwapAmount.min

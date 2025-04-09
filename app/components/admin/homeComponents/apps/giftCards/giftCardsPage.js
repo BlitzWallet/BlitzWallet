@@ -1,7 +1,6 @@
 import {
   FlatList,
   Image,
-  Keyboard,
   Platform,
   StyleSheet,
   TouchableOpacity,
@@ -99,14 +98,11 @@ export default function GiftCardPage() {
         (
           <View style={styles.giftCardRowContainer}>
             <Image style={styles.cardLogo} source={{uri: item.logo}} />
-            <View>
+            <View style={styles.titleContinaer}>
               <ThemeText
-                styles={{fontWeight: '500', marginBottom: 5}}
-                content={
-                  item.name.length > 15
-                    ? `${item.name.slice(0, 15)}...`
-                    : item.name
-                }
+                styles={styles.companyNameText}
+                CustomNumberOfLines={1}
+                content={item.name}
               />
               <ThemeText
                 styles={{fontSize: SIZES.small}}
@@ -213,7 +209,6 @@ export default function GiftCardPage() {
             initialNumToRender={20}
             maxToRenderPerBatch={20}
             windowSize={3}
-            removeClippedSubviews={true}
             data={filteredGiftCards}
             getItemLayout={(data, index) => ({
               length: 88,
@@ -221,16 +216,13 @@ export default function GiftCardPage() {
               index,
             })}
             renderItem={renderItem}
-            keyExtractor={item => item.id.toString()} // Assuming each gift card has a unique 'id'
-            contentContainerStyle={{width: '90%', ...CENTER}}
+            keyExtractor={item => item.id.toString()}
+            contentContainerStyle={{
+              width: '90%',
+              ...CENTER,
+              paddingBottom: bottomPadding,
+            }}
             showsVerticalScrollIndicator={false}
-            ListFooterComponent={
-              <View
-                style={{
-                  height: bottomPadding,
-                }}
-              />
-            }
           />
         )}
       </View>
@@ -265,4 +257,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
   },
+  titleContinaer: {flex: 1, marginRight: 10},
+  companyNameText: {fontWeight: '500', marginBottom: 5},
 });

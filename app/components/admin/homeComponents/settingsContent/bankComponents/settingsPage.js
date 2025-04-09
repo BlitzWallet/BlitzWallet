@@ -242,18 +242,16 @@ export default function LiquidSettingsPage() {
         didConnectToNode.reason !== 'BreezServices already initialized'
       )
         throw Error('Not able to connect to node');
-      const node_info = await nodeInfo();
-      if (!node_info.connectedPeers.length) {
-        const availableLsps = await listLsps();
-
-        await connectLsp(availableLsps[0].id);
-      }
 
       const [nodeState, transactions, lspInfo] = await Promise.all([
         nodeInfo(),
         getTransactions(),
         listLsps(),
       ]);
+
+      if (!nodeState.connectedPeers.length) {
+        if (lspInfo[0]?.id) await connectLsp(lspInfo[0]?.id);
+      }
 
       const msatToSat = nodeState.channelsBalanceMsat / 1000;
 
@@ -273,7 +271,7 @@ export default function LiquidSettingsPage() {
       console.log(err, 'HANDLE NODE CONNECTION ERROR');
       return false;
     } finally {
-      console.log('RUNNING IN FINALLY ');
+      console.log('RUNNING IN FINALLY');
       setIsEnablingLightning(false);
     }
   }, []);
