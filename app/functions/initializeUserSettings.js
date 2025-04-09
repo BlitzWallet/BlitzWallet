@@ -55,6 +55,7 @@ export default async function initializeUserSettingsFromHistory({
       hideUnknownContacts,
       useTrampoline,
       fastPaySettings,
+      crashReportingSettings,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -226,6 +227,7 @@ export default async function initializeUserSettingsFromHistory({
     // store in app context
     tempObject['appData'] = appData;
     tempObject[QUICK_PAY_STORAGE_KEY] = fastPaySettings;
+    tempObject['crashReportingSettings'] = crashReportingSettings;
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {
       await sendDataToDB(tempObject, publicKey);
