@@ -9,6 +9,7 @@ import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import {useTranslation} from 'react-i18next';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
+import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 
 export default function HalfModalSendOptions(props) {
   const navigate = useNavigation();
@@ -40,6 +41,9 @@ export default function HalfModalSendOptions(props) {
       <TouchableOpacity
         key={key}
         onPress={async () => {
+          crashlyticsLogReport(
+            `Running in half modal sent options navigation function`,
+          );
           if (item === 'img') {
             const response = await getQRImage(navigate, 'modal');
             if (response.error) {

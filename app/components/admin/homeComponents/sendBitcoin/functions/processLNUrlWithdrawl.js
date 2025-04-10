@@ -1,5 +1,9 @@
 import {withdrawLnurl} from '@breeztech/react-native-breez-sdk';
 import {lnurlWithdraw} from '@breeztech/react-native-breez-sdk-liquid';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../../../../functions/crashlyticsLogs';
 
 export default async function processLNUrlWithdraw(input, context) {
   const {
@@ -9,6 +13,7 @@ export default async function processLNUrlWithdraw(input, context) {
     goBackFunction,
     setLoadingMessage,
   } = context;
+  crashlyticsLogReport('Begining LNURL withdrawl process');
   setLoadingMessage('Starting LNURL withdrawl');
   if (
     nodeInformation.userBalance != 0 &&
@@ -23,6 +28,7 @@ export default async function processLNUrlWithdraw(input, context) {
       });
     } catch (err) {
       console.log(err);
+      crashlyticsRecordErrorReport(err.message);
       goBackFunction(err.message);
     }
   } else if (masterInfoObject.liquidWalletSettings.regulatedChannelOpenSize) {
@@ -35,6 +41,7 @@ export default async function processLNUrlWithdraw(input, context) {
       });
     } catch (err) {
       console.log('process lnurl withdrawls error', err);
+      crashlyticsRecordErrorReport(err.message);
       goBackFunction(err.message);
     }
   }

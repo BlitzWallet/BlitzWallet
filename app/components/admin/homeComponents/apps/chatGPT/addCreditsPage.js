@@ -250,6 +250,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
             creditPrice,
             'Store - chatGPT',
           );
+          if (!lnInvoice) throw new Error('Not able to parse ln invoice');
           const storedProofs = await getStoredProofs();
           const balance = sumProofsValue(storedProofs);
           if (balance > creditPrice + lightningFee) {

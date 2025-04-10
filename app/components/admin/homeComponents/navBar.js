@@ -4,6 +4,7 @@ import {useNavigation} from '@react-navigation/native';
 import {WINDOWWIDTH} from '../../../constants/theme';
 import ThemeImage from '../../../functions/CustomElements/themeImage';
 import {memo} from 'react';
+import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
 
 export const NavBar = memo(function NavBar({theme, toggleTheme}) {
   console.log('NAV BAR PAGE');
@@ -25,6 +26,9 @@ export const NavBar = memo(function NavBar({theme, toggleTheme}) {
 
       <TouchableOpacity
         onPress={() => {
+          crashlyticsLogReport(
+            'Navigating to settings home from homepage navbar',
+          );
           navigate.navigate('SettingsHome');
         }}
         activeOpacity={0.5}>

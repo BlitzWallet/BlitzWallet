@@ -1,4 +1,8 @@
 import {SATSPERBITCOIN} from '../../../../../constants';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../../../../functions/crashlyticsLogs';
 import bip39LiquidAddressDecode from './bip39LiquidAddressDecode';
 
 export default function processLiquidAddress(input, context) {
@@ -12,6 +16,7 @@ export default function processLiquidAddress(input, context) {
     enteredPaymentInfo,
   } = context;
   try {
+    crashlyticsLogReport('Handling decode liquid address');
     let addressInfo = bip39LiquidAddressDecode(
       btcAddress,
       liquidNodeInformation,
@@ -49,5 +54,6 @@ export default function processLiquidAddress(input, context) {
     };
   } catch (err) {
     console.log('process liquid invoice error', err);
+    crashlyticsRecordErrorReport(err.message);
   }
 }

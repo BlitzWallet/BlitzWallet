@@ -7,6 +7,7 @@ import {
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {InputTypeVariant} from '@breeztech/react-native-breez-sdk';
 import {fetchOnchainLimits} from '@breeztech/react-native-breez-sdk-liquid';
+import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 
 export default function SendMaxComponent({
   nodeInformation,
@@ -38,6 +39,7 @@ export default function SendMaxComponent({
   );
   async function sendMax() {
     try {
+      crashlyticsLogReport('Starting send max process');
       setIsGettingMax(true);
       const currentLimits = await fetchOnchainLimits();
 

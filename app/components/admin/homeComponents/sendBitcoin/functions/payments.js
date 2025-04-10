@@ -10,11 +10,6 @@ import {
   breezLiquidLNAddressPaymentWrapper,
   breezLiquidPaymentWrapper,
 } from '../../../../../functions/breezLiquid';
-import {assetIDS} from '../../../../../functions/liquidWallet/assetIDS';
-import {
-  BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
-  SATSPERBITCOIN,
-} from '../../../../../constants';
 import breezLNAddressPaymentWrapper from '../../../../../functions/SDK/lightningAddressPaymentWrapper';
 import {
   AmountVariant,
@@ -29,6 +24,10 @@ import {
   payLnInvoiceFromEcash,
 } from '../../../../../functions/eCash/wallet';
 import formatBip21LiquidAddress from '../../../../../functions/liquidWallet/formatBip21liquidAddress';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../../../../functions/crashlyticsLogs';
 
 export async function sendLiquidPayment_sendPaymentScreen({
   sendingAmount,
@@ -39,6 +38,7 @@ export async function sendLiquidPayment_sendPaymentScreen({
   paymentDescription,
 }) {
   try {
+    crashlyticsLogReport('Begining send liquid payment process');
     const formattedLiquidAddress = formatBip21LiquidAddress({
       address: paymentInfo?.data?.address,
       amount: Number(sendingAmount),
@@ -70,7 +70,8 @@ export async function sendLiquidPayment_sendPaymentScreen({
 
     console.log(payment, fee);
   } catch (err) {
-    console.log(err);
+    console.log('sending liquid payment error', err);
+    crashlyticsRecordErrorReport(err.message);
   }
 }
 
@@ -83,6 +84,7 @@ export async function sendToLNFromLiquid_sendPaymentScreen({
   paymentDescription,
   shouldDrain,
 }) {
+  crashlyticsLogReport('Starting send to Ln from liquid payment process');
   if (paymentInfo.type === InputTypeVariant.LN_URL_PAY) {
     const paymentResponse = await breezLiquidLNAddressPaymentWrapper({
       sendAmountSat: sendingAmount,
@@ -164,6 +166,7 @@ export async function sendLightningPayment_sendPaymentScreen({
   publishMessageFunc,
   paymentDescription,
 }) {
+  crashlyticsLogReport('Starting sent lightning payment process');
   if (paymentInfo.type === InputTypeVariant.LN_URL_PAY) {
     await breezLNAddressPaymentWrapper({
       paymentInfo,
@@ -236,6 +239,7 @@ export async function sendToLiquidFromLightning_sendPaymentScreen({
   paymentDescription,
 }) {
   try {
+    crashlyticsLogReport('Starting send to liquid from lighting process');
     const {data, publicKey, privateKey, keys, preimage, liquidAddress} =
       await contactsLNtoLiquidSwapInfo(
         paymentInfo.data.address,
@@ -259,7 +263,7 @@ export async function sendToLiquidFromLightning_sendPaymentScreen({
       contactsFunction: publishMessageFunc,
     });
     if (!didHandle) throw new Error('Unable to open websocket');
-
+    crashlyticsLogReport('Sending payment');
     try {
       const prasedInput = await parseInput(data.invoice);
       // console.log(data);
@@ -352,6 +356,7 @@ export async function sendPaymentUsingEcash({
   webViewRef,
 }) {
   try {
+    crashlyticsLogReport('Starting send payment using eCash');
     let invoice = null;
     let swapData = null;
     if (isLiquidPayment) {
@@ -476,24 +481,28 @@ export async function getLNAddressForLiquidPayment(
   description,
 ) {
   let invoiceAddress;
+  try {
+    if (paymentInfo.type === InputTypeVariant.LN_URL_PAY) {
+      const url = `${paymentInfo.data.callback}?amount=${sendingValue * 1000}${
+        !!paymentInfo?.data.commentAllowed
+          ? `&comment=${encodeURIComponent(
+              paymentInfo?.data?.message || description || '',
+            )}`
+          : ''
+      }`;
 
-  if (paymentInfo.type === InputTypeVariant.LN_URL_PAY) {
-    const url = `${paymentInfo.data.callback}?amount=${sendingValue * 1000}${
-      !!paymentInfo?.data.commentAllowed
-        ? `&comment=${encodeURIComponent(
-            paymentInfo?.data?.message || description || '',
-          )}`
-        : ''
-    }`;
+      console.log('Generated URL:', url);
+      const response = await fetch(url);
 
-    console.log('Generated URL:', url);
-    const response = await fetch(url);
+      const bolt11Invoice = (await response.json()).pr;
 
-    const bolt11Invoice = (await response.json()).pr;
-
-    invoiceAddress = bolt11Invoice;
-  } else {
-    invoiceAddress = paymentInfo.data.invoice.bolt11;
+      invoiceAddress = bolt11Invoice;
+    } else {
+      invoiceAddress = paymentInfo.data.invoice.bolt11;
+    }
+  } catch (err) {
+    console.log('get ln address for liquid payment error', err);
+    invoiceAddress = '';
   }
 
   return invoiceAddress;
@@ -506,7 +515,9 @@ export async function sendBitcoinPayment({
   from,
 }) {
   try {
+    crashlyticsLogReport('Starting send Bitcoin payment process');
     if (from === 'liquid') {
+      crashlyticsLogReport('Running liquid process');
       const satPerVbyte = (await getMempoolReccomenededFee()) || undefined;
       const prepareResponse = await preparePayOnchain({
         amount: {
@@ -541,6 +552,7 @@ export async function sendBitcoinPayment({
         fees: payOnchainRes.payment.feesSat,
       };
     } else if (from === 'lightning') {
+      crashlyticsLogReport('Running lightning process');
       const breezOnChainResponse = await breezLNOnchainPaymentWrapper({
         amountSat: sendingValue,
         onlyPrepare: onlyPrepare,

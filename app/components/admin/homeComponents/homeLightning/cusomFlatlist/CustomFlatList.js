@@ -7,6 +7,10 @@ import {sync as syncLiquid} from '@breeztech/react-native-breez-sdk-liquid';
 import {sync as syncLightning} from '@breeztech/react-native-breez-sdk';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../../../../functions/crashlyticsLogs';
 
 function CustomFlatList({style, ...props}) {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -23,6 +27,7 @@ function CustomFlatList({style, ...props}) {
   ] = useCustomFlatListHook();
 
   const handleRefresh = useCallback(async () => {
+    crashlyticsLogReport(`Running in handle refresh function on homepage`);
     try {
       setRefreshing(true);
       await Promise.all([
@@ -33,6 +38,7 @@ function CustomFlatList({style, ...props}) {
       ]);
     } catch (err) {
       console.log('error refreshing', err);
+      crashlyticsRecordErrorReport(err.message);
     } finally {
       setRefreshing(false);
     }

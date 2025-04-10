@@ -1,9 +1,12 @@
+import {crashlyticsLogReport} from './crashlyticsLogs';
+
 export default function handleDBStateChange(
   newData,
   setMasterInfoObject,
   toggleMasterInfoObject,
   saveTimeoutRef,
 ) {
+  crashlyticsLogReport('Runnnig state change in handleDBStateChange');
   setMasterInfoObject(prev => ({
     ...prev,
     ...newData,

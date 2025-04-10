@@ -13,6 +13,7 @@ import processLNUrlPay from './processLNUrlPay';
 import processLNUrlWithdraw from './processLNUrlWithdrawl';
 import processLiquidAddress from './processLiquidAddress';
 import getLiquidAddressFromSwap from '../../../../../functions/boltz/magicRoutingHints';
+import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 
 export default async function decodeSendAddress(props) {
   let {
@@ -35,40 +36,57 @@ export default async function decodeSendAddress(props) {
   try {
     // Handle cryptoqr.net special case
     if (btcAdress.includes('cryptoqr.net')) {
-      const [username, domain] = btcAdress.split('@');
-      const response = await fetch(
-        `https://${domain}/.well-known/lnurlp/${username}`,
-      );
-      const data = await response.json();
+      crashlyticsLogReport('Handling crypto qr code');
+      try {
+        const [username, domain] = btcAdress.split('@');
+        const response = await fetch(
+          `https://${domain}/.well-known/lnurlp/${username}`,
+        );
+        const data = await response.json();
 
-      if (data.status === 'ERROR') {
+        if (data.status === 'ERROR') {
+          goBackFunction(
+            'Not able to get merchant payment information from invoice',
+          );
+          return;
+        }
+
+        const bolt11 = await getLNAddressForLiquidPayment(
+          {data, type: InputTypeVariant.LN_URL_PAY},
+          data.minSendable / 1000,
+        );
+
+        if (!bolt11) throw new Error('Not able to parse invoice');
+
+        const parsedInvoice = await parseInvoice(bolt11);
+
+        if (parsedInvoice.amountMsat / 1000 >= maxZeroConf) {
+          goBackFunction(
+            `Cannot send more than ${displayCorrectDenomination({
+              amount: maxZeroConf,
+              nodeInformation,
+              masterInfoObject,
+            })} to a merchant`,
+          );
+          return;
+        }
+        btcAdress = bolt11;
+      } catch (err) {
+        console.log('error getting cryptoQR', err);
         goBackFunction(
-          'Not able to get merchant payment information from invoice',
+          `There was a problem getting the invoice for this address`,
         );
         return;
       }
-
-      const bolt11 = await getLNAddressForLiquidPayment(
-        {data, type: InputTypeVariant.LN_URL_PAY},
-        data.minSendable / 1000,
-      );
-      const parsedInvoice = await parseInvoice(bolt11);
-
-      if (parsedInvoice.amountMsat / 1000 >= maxZeroConf) {
-        goBackFunction(
-          `Cannot send more than ${displayCorrectDenomination({
-            amount: maxZeroConf,
-            nodeInformation,
-            masterInfoObject,
-          })} to a merchant`,
-        );
-        return;
-      }
-      btcAdress = bolt11;
     }
+
+    crashlyticsLogReport('Parsing bitcoin address input');
 
     const input = await parseInput(btcAdress);
     if (input.type === InputTypeVariant.BOLT11) {
+      crashlyticsLogReport(
+        'Running check to see if bolt11 address contains liquid address',
+      );
       const isMagicRoutingHint = await getLiquidAddressFromSwap(
         input.invoice.bolt11,
       );
@@ -143,6 +161,7 @@ export default async function decodeSendAddress(props) {
 async function processInputType(input, context) {
   const {navigate, goBackFunction, setLoadingMessage} = context;
   setLoadingMessage('Getting invoice details');
+  crashlyticsLogReport('Getting invoice detials');
 
   switch (input.type) {
     case InputTypeVariant.BITCOIN_ADDRESS:

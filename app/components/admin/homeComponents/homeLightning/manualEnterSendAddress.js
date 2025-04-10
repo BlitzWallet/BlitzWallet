@@ -15,6 +15,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useTranslation} from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 
 export default function ManualEnterSendAddress(props) {
   const navigate = useNavigation();
@@ -79,6 +80,9 @@ export default function ManualEnterSendAddress(props) {
   );
   function hanldeSubmit() {
     if (!inputValue) return;
+    crashlyticsLogReport(
+      'Running in custom enter send adddress submit function',
+    );
     Keyboard.dismiss();
     setTimeout(
       () => {

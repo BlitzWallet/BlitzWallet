@@ -28,6 +28,8 @@ import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {ANDROIDSAFEAREA, KEYBOARDTIMEOUT} from '../../../../constants/styles';
+import {keyboardNavigate} from '../../../../functions/customNavigation';
+import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 
 export default function ContactsPage({navigation}) {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -97,23 +99,19 @@ export default function ContactsPage({navigation}) {
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => {
-              Keyboard.dismiss();
-              setTimeout(
-                () => {
-                  if (!isConnectedToTheInternet) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage:
-                        'Please connect to the internet to use this feature',
-                    });
-                    return;
-                  }
-                  navigate.navigate('CustomHalfModal', {
-                    wantedContent: 'addContacts',
-                    sliderHight: 0.4,
+              keyboardNavigate(() => {
+                if (!isConnectedToTheInternet) {
+                  navigate.navigate('ErrorScreen', {
+                    errorMessage:
+                      'Please connect to the internet to use this feature',
                   });
-                },
-                Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
-              );
+                  return;
+                }
+                navigate.navigate('CustomHalfModal', {
+                  wantedContent: 'addContacts',
+                  sliderHight: 0.4,
+                });
+              });
             }}>
             <Icon
               name={'addContactsIcon'}
@@ -133,13 +131,9 @@ export default function ContactsPage({navigation}) {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              Keyboard.dismiss();
-              setTimeout(
-                () => {
-                  navigate.navigate('MyContactProfilePage', {});
-                },
-                Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
-              );
+              keyboardNavigate(() => {
+                navigate.navigate('MyContactProfilePage', {});
+              });
             }}>
             <View
               style={{
@@ -527,6 +521,7 @@ async function navigateToExpandedContact(
   publicKey,
   navigate,
 ) {
+  crashlyticsLogReport('Naivgating to exapanded contact from contacts page');
   if (!contact.isAdded) {
     let newAddedContacts = [...decodedAddedContacts];
     const indexOfContact = decodedAddedContacts.findIndex(
