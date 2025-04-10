@@ -1,8 +1,5 @@
 import {SATSPERBITCOIN} from '../../constants';
-import {
-  crashlyticsLogReport,
-  crashlyticsRecordErrorReport,
-} from '../crashlyticsLogs';
+import {crashlyticsLogReport} from '../crashlyticsLogs';
 
 export default function formatBip21LiquidAddress({
   address = '',
@@ -18,7 +15,6 @@ export default function formatBip21LiquidAddress({
     return liquidBip21;
   } catch (err) {
     console.log('format bip21 liquid address error', err);
-    crashlyticsRecordErrorReport(err.message);
     return '';
   }
 }

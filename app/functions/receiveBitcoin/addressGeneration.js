@@ -14,6 +14,7 @@ import {
 } from '../../../context-store/eCash';
 import {lnToLiquidInvoiceDetails} from './invoices';
 import customUUID from '../customUUID';
+import {crashlyticsLogReport} from '../crashlyticsLogs';
 let invoiceTracker = [];
 export async function initializeAddressProcess(wolletInfo) {
   const {setAddressState, selectedRecieveOption} = wolletInfo;
@@ -22,6 +23,11 @@ export async function initializeAddressProcess(wolletInfo) {
   let stateTracker = {};
   let hasGlobalError = false;
   try {
+    crashlyticsLogReport(
+      `Running address geneartion functinon for: ${selectedRecieveOption} with ${JSON.stringify(
+        wolletInfo,
+      )}`,
+    );
     setAddressState(prev => {
       return {
         ...prev,

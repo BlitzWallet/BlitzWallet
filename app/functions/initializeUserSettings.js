@@ -10,6 +10,7 @@ import {MIN_CHANNEL_OPEN_FEE, QUICK_PAY_STORAGE_KEY} from '../constants';
 import {sendDataToDB} from '../../db/interactionManager';
 import {initializeFirebase} from '../../db/initializeFirebase';
 import {fetchLocalStorageItems} from './initializeUserSettingsHelpers';
+import {crashlyticsLogReport} from './crashlyticsLogs';
 
 export default async function initializeUserSettingsFromHistory({
   setContactsPrivateKey,
@@ -19,6 +20,7 @@ export default async function initializeUserSettingsFromHistory({
   toggleGlobalAppDataInformation,
 }) {
   try {
+    crashlyticsLogReport('Begining process of getting user settings');
     let needsToUpdate = false;
     let tempObject = {};
     const mnemonic = await retrieveData('mnemonic');

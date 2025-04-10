@@ -1,7 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {crashlyticsLogReport} from './crashlyticsLogs';
 
 export async function setLocalStorageItem(key, val) {
   try {
+    crashlyticsLogReport('Starting setting local storage item function');
     await AsyncStorage.setItem(key, val);
     return new Promise(resolve => {
       resolve(true);
@@ -14,6 +16,7 @@ export async function setLocalStorageItem(key, val) {
 }
 export async function getLocalStorageItem(key) {
   try {
+    crashlyticsLogReport('Starting get local storage item function');
     const item = await AsyncStorage.getItem(key);
 
     if (item !== null) {
@@ -34,6 +37,7 @@ export async function getLocalStorageItem(key) {
 }
 export async function removeLocalStorageItem(key) {
   try {
+    crashlyticsLogReport('Starting remove local storage item function');
     await AsyncStorage.removeItem(key);
     return new Promise(resolve => {
       resolve(true);
@@ -47,6 +51,7 @@ export async function removeLocalStorageItem(key) {
 
 export async function removeAllLocalData() {
   try {
+    crashlyticsLogReport('Starting remove all local storage item function');
     const keys = await AsyncStorage.getAllKeys();
     await AsyncStorage.multiRemove(keys);
     return true;

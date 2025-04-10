@@ -131,6 +131,9 @@ export default function ContactsPage({navigation}) {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
+              crashlyticsLogReport(
+                'Navigating to mycontacts profile page from contacts page',
+              );
               keyboardNavigate(() => {
                 navigate.navigate('MyContactProfilePage', {});
               });

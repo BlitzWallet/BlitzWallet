@@ -9,6 +9,7 @@ import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 import {useGlobalTxContextProvider} from '../../../../../context-store/combinedTransactionsContext';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {CENTER} from '../../../../constants';
+import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 
 export default function ConfirmExportPayments({
   startExport,
@@ -26,6 +27,7 @@ export default function ConfirmExportPayments({
     async function generateCSV() {
       if (!startExport) return;
       try {
+        crashlyticsLogReport('Stating transaction exporting');
         const headers = [
           [
             'Payment Type',

@@ -2,6 +2,7 @@ import formatBalanceAmount from '../formatNumber';
 import {getSingleContact, updateMessage} from '../../../db';
 import {SATSPERBITCOIN} from '../../constants';
 import fetchBackend from '../../../db/handleBackend';
+import {crashlyticsLogReport} from '../crashlyticsLogs';
 
 export async function publishMessage({
   toPubKey,
@@ -14,6 +15,7 @@ export async function publishMessage({
   privateKey,
 }) {
   try {
+    crashlyticsLogReport('Begining to publish contact message');
     const sendingObj = data;
     await updateMessage({
       newMessage: sendingObj,
@@ -43,6 +45,7 @@ export async function sendPushNotification({
   privateKey,
 }) {
   try {
+    crashlyticsLogReport('Sending push notification');
     console.log(selectedContactUsername);
     const retrivedContact = await getSingleContact(
       selectedContactUsername.toLowerCase(),

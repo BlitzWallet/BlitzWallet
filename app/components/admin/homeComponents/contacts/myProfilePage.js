@@ -39,7 +39,6 @@ export default function MyContactProfilePage({navigation}) {
   useFocusEffect(
     useCallback(() => {
       setShowList(true);
-
       return () => {
         console.log('Screen is unfocused');
         setShowList(false);

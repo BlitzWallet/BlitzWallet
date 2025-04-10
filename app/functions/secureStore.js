@@ -1,14 +1,16 @@
 import * as SecureStore from 'expo-secure-store';
 import {removeAllLocalData} from './localStorage';
+import {crashlyticsLogReport} from './crashlyticsLogs';
 const keychainService = '38WX44YTA6.com.blitzwallet.SharedKeychain';
 
 const KEYCHAIN_OPTION = {
   keychainService: keychainService,
-  keychainAccessible: SecureStore.ALWAYS_THIS_DEVICE_ONLY,
+  keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK,
 };
 
 async function storeData(key, value) {
   try {
+    crashlyticsLogReport('Starting store data to secure store function');
     await SecureStore.setItemAsync(key, value, KEYCHAIN_OPTION);
 
     return new Promise(resolve => {
@@ -24,6 +26,7 @@ async function storeData(key, value) {
 
 async function retrieveData(key) {
   try {
+    crashlyticsLogReport('Starting retrive data from secure store function');
     const [oldPin, oldMnemoinc] = await Promise.all([
       SecureStore.getItemAsync('pin'),
       SecureStore.getItemAsync('mnemonic'),
@@ -61,6 +64,7 @@ async function retrieveData(key) {
 
 async function terminateAccount() {
   try {
+    crashlyticsLogReport('Starting termiate data from secure store function');
     await SecureStore.deleteItemAsync('key', KEYCHAIN_OPTION);
     await SecureStore.deleteItemAsync('pin', KEYCHAIN_OPTION);
     await SecureStore.deleteItemAsync('mnemonic', KEYCHAIN_OPTION);
@@ -80,6 +84,7 @@ async function terminateAccount() {
 
 async function deleteItem(key) {
   try {
+    crashlyticsLogReport('Starting delte item from secure store function');
     await SecureStore.deleteItemAsync(key, KEYCHAIN_OPTION);
 
     return new Promise(Response => {

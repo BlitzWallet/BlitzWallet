@@ -5,6 +5,10 @@ import {LIQUIDAMOUTBUFFER} from '../../constants/math';
 import {calculateBoltzFeeNew} from '../boltz/boltzFeeNew';
 import {LIQUID_DEFAULT_FEE, MIN_CHANNEL_OPEN_FEE} from '../../constants';
 import {valueIsNotANumber} from './autoChannelRebalanceHelpers';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../crashlyticsLogs';
 
 export default async function autoChannelRebalance({
   nodeInformation,
@@ -66,6 +70,7 @@ export default async function autoChannelRebalance({
 
     if (liquid_information.userBalance < channelOpenSizeSats)
       return {didRun: false};
+    crashlyticsLogReport('Running auto channel rebalance channel open');
     const autoChannelInfo = await autoOpenChannel({
       masterInfoObject,
       minMaxLiquidSwapAmounts,
@@ -140,6 +145,7 @@ export default async function autoChannelRebalance({
     };
   }
 
+  crashlyticsLogReport('Trying to auto channel rebalance');
   if (currentChannelBalancePercentage > targetPercentage) {
     const sendAmount =
       offFromTargetSatAmount > lightningBalance
@@ -160,6 +166,7 @@ export default async function autoChannelRebalance({
         didRun: false,
       };
     }
+    crashlyticsLogReport('Starting breeze liquid receive payment');
     const response = await breezLiquidReceivePaymentWrapper({
       sendAmount: Number(actualSendAmount),
       paymentType: 'lightning',
@@ -201,6 +208,7 @@ export default async function autoChannelRebalance({
           didRun: false,
         };
       }
+      crashlyticsLogReport('Starting breeze lightning receive payment');
       const invoice = await receivePayment({
         amountMsat: actualSendAmount * 1000,
         description: 'Auto Channel Rebalance',
@@ -217,6 +225,7 @@ export default async function autoChannelRebalance({
       };
     } catch (err) {
       console.log('AUTO CHANNEL REBALANCE ERR', err);
+      crashlyticsRecordErrorReport(err.message);
       return {
         swapInfo: {},
         privateKey: '',

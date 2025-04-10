@@ -24,7 +24,6 @@ import FormattedSatText from '../../../../functions/CustomElements/satTextDispla
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {assetIDS} from '../../../../functions/liquidWallet/assetIDS';
 import {getFiatRates} from '../../../../functions/SDK';
 import {useGlobaleCash} from '../../../../../context-store/eCash';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
@@ -40,6 +39,7 @@ import {
 } from '../../../../functions/eCash/wallet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import formatBip21LiquidAddress from '../../../../functions/liquidWallet/formatBip21liquidAddress';
+import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -216,6 +216,7 @@ export default function SendAndRequestPage(props) {
     try {
       if (!convertedSendAmount) return;
       if (!canSendPayment) return;
+      crashlyticsLogReport('Submitting send and request payment');
       setIsLoading(true);
       const fiatCurrencies = await getFiatRates();
       const sendingAmountMsat = convertedSendAmount * 1000;

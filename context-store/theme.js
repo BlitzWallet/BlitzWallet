@@ -29,8 +29,10 @@ const GlobalThemeProvider = ({children}) => {
 
   useEffect(() => {
     (async () => {
-      const storedTheme = await getLocalStorageItem('colorScheme');
-      const savedDarkMode = await getLocalStorageItem('darkModeType');
+      const [storedTheme, savedDarkMode] = await Promise.all([
+        getLocalStorageItem('colorScheme'),
+        getLocalStorageItem('darkModeType'),
+      ]);
       const darkModeType =
         savedDarkMode === null ? true : savedDarkMode === 'dim';
       const theme = storedTheme === null ? false : storedTheme !== 'dark';

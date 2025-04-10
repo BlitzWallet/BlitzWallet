@@ -8,6 +8,7 @@ import {
 } from '@breeztech/react-native-breez-sdk-liquid';
 import {getOrCreateDirectory} from './connectToNode';
 import {retrieveData} from './secureStore';
+import {crashlyticsLogReport} from './crashlyticsLogs';
 
 const logHandler = logEntry => {
   if (logEntry.level != 'TRACE') {
@@ -16,6 +17,7 @@ const logHandler = logEntry => {
 };
 let didConnect = false;
 export default async function connectToLiquidNode(breezLiquidEvent) {
+  crashlyticsLogReport('Starting connect to liquid function');
   // Create the default config
 
   // setLogger(logHandler);
@@ -53,6 +55,7 @@ export default async function connectToLiquidNode(breezLiquidEvent) {
 
   didConnect = true;
   try {
+    crashlyticsLogReport('Getting config and mnemoinc');
     // Create the default config, providing your Breez API key
     const [config, mnemonic] = await Promise.all([
       defaultConfig(
@@ -69,6 +72,7 @@ export default async function connectToLiquidNode(breezLiquidEvent) {
       ),
     ]);
 
+    crashlyticsLogReport('Creating directory');
     const directoryPath = await getOrCreateDirectory(
       'liquidFilesystemUUID',
       config.workingDir,
@@ -80,6 +84,7 @@ export default async function connectToLiquidNode(breezLiquidEvent) {
     // subdirectory of the workingDir if managing multiple mnemonics.
     // console.log(`Working directory: ${config.workingDir}`);
     // config.workingDir = "path to writable directory"
+    crashlyticsLogReport('Running connect request');
     await connect({mnemonic, config});
     addEventListener(breezLiquidEvent);
 

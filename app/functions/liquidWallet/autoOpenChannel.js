@@ -2,6 +2,10 @@ import {receivePayment} from '@breeztech/react-native-breez-sdk';
 import {calculateBoltzFeeNew} from '../boltz/boltzFeeNew';
 import {LIQUID_DEFAULT_FEE} from '../../constants';
 import {valueIsNotANumber} from './autoChannelRebalanceHelpers';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../crashlyticsLogs';
 
 export default async function autoOpenChannel({
   masterInfoObject,
@@ -20,6 +24,7 @@ export default async function autoOpenChannel({
     const invoiceAmountSat = channelOpenSizeSats - fee;
     if (valueIsNotANumber(invoiceAmountSat)) return false;
 
+    crashlyticsLogReport('Begining receive payment');
     const invoice = await receivePayment({
       amountMsat: invoiceAmountSat * 1000,
       description: 'Auto Channel Open',
@@ -42,6 +47,7 @@ export default async function autoOpenChannel({
     } else return false;
   } catch (err) {
     console.log(err, 'in auto open');
+    crashlyticsRecordErrorReport(err.message);
     return false;
   }
 }

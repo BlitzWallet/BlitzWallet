@@ -16,11 +16,16 @@ import {
   addDoc,
 } from '@react-native-firebase/firestore';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../app/functions/crashlyticsLogs';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
 
 export async function addDataToCollection(dataObject, collectionName, uuid) {
   try {
     if (!uuid) throw Error('Not authenticated');
+    crashlyticsLogReport('Starting to add data to collection');
 
     const db = getFirestore();
     const docRef = doc(db, collectionName, uuid);
@@ -31,6 +36,7 @@ export async function addDataToCollection(dataObject, collectionName, uuid) {
     return true;
   } catch (e) {
     console.error('Error adding document: ', e);
+    crashlyticsRecordErrorReport(e.message);
     return false;
   }
 }
@@ -57,6 +63,7 @@ const saveToLocalDB = async dataObject => {
 
 export async function getDataFromCollection(collectionName, uuid) {
   try {
+    crashlyticsLogReport('Starting to get data to collection');
     if (!uuid) throw Error('Not authenticated');
     try {
       const docRef = doc(db, collectionName, uuid);
@@ -68,6 +75,7 @@ export async function getDataFromCollection(collectionName, uuid) {
       }
     } catch (err) {
       console.error('Error fetching user data:', err);
+      crashlyticsRecordErrorReport(err.message);
       return null;
     }
 
@@ -98,6 +106,7 @@ export async function isValidUniqueName(
   wantedName,
 ) {
   try {
+    crashlyticsLogReport('Seeing if the unique name exists');
     const usersRef = collection(db, collectionName);
     const q = query(
       usersRef,
@@ -111,6 +120,7 @@ export async function isValidUniqueName(
     return querySnapshot.empty;
   } catch (error) {
     console.error('Error checking unique name:', error);
+    crashlyticsRecordErrorReport(error.message);
     return false;
   }
 }
@@ -120,6 +130,7 @@ export async function getSingleContact(
   collectionName = 'blitzWalletUsers',
 ) {
   try {
+    crashlyticsLogReport('Getting single contact');
     const usersRef = collection(db, collectionName);
     const q = query(
       usersRef,
@@ -133,6 +144,7 @@ export async function getSingleContact(
     return querySnapshot.docs.map(doc => doc.data());
   } catch (error) {
     console.error('Error fetching contact:', error);
+    crashlyticsLogReport(error.message);
     return [];
   }
 }
@@ -142,6 +154,7 @@ export async function canUsePOSName(
   wantedName,
 ) {
   try {
+    crashlyticsLogReport('Seeing if you can use point-of-sale name');
     const usersRef = collection(db, collectionName);
     const q = query(
       usersRef,
@@ -151,6 +164,7 @@ export async function canUsePOSName(
     return querySnapshot.empty;
   } catch (error) {
     console.error('Error checking POS name:', error);
+    crashlyticsLogReport(error.message);
     return false;
   }
 }
@@ -163,6 +177,7 @@ export async function searchUsers(
   if (!parsedSearchTerm) return [];
 
   try {
+    crashlyticsLogReport('Searching database for users');
     const usersRef = collection(db, collectionName);
     const term = parsedSearchTerm.toLowerCase();
 
@@ -209,6 +224,7 @@ export async function searchUsers(
     return Array.from(uniqueUsers.values());
   } catch (error) {
     console.error('Error searching users:', error);
+    crashlyticsRecordErrorReport(error.message);
     return [];
   }
 }
@@ -218,6 +234,7 @@ export async function getUnknownContact(
   collectionName = 'blitzWalletUsers',
 ) {
   try {
+    crashlyticsLogReport('Getting unkown contact');
     const docRef = doc(db, collectionName, uuid);
     const docSnap = await getDoc(docRef);
 
@@ -227,6 +244,7 @@ export async function getUnknownContact(
     return false;
   } catch (err) {
     console.error('Error fetching unknown contact:', err);
+    crashlyticsRecordErrorReport(err.message);
     return null;
   }
 }
@@ -235,6 +253,7 @@ export async function bulkGetUnknownContacts(
   uuidList,
   collectionName = 'blitzWalletUsers',
 ) {
+  crashlyticsLogReport('Starting bunk get unkown contacts');
   // Validate input
   if (!Array.isArray(uuidList) || uuidList.length === 0) {
     console.warn('Invalid UUID list provided');
@@ -268,6 +287,7 @@ export async function bulkGetUnknownContacts(
     return results.length > 0 ? results : null;
   } catch (err) {
     console.error('Error fetching bulk contacts:', err);
+    crashlyticsRecordErrorReport(err.message);
     return null;
   }
 }
@@ -279,6 +299,7 @@ export async function updateMessage({
   onlySaveToLocal,
 }) {
   try {
+    crashlyticsLogReport('Starting updating contact message');
     const messagesRef = collection(db, 'contactMessages');
     const timestamp = new Date().getTime();
 
@@ -302,6 +323,7 @@ export async function updateMessage({
     return true;
   } catch (err) {
     console.error('Error updating message:', err);
+    crashlyticsRecordErrorReport(err.message);
     return false;
   }
 }
@@ -310,6 +332,7 @@ export async function syncDatabasePayment(
   updatedCachedMessagesStateFunction,
 ) {
   try {
+    crashlyticsLogReport('Starting sync database payments');
     const cachedConversations = await getCachedMessages();
     const savedMillis = cachedConversations.lastMessageTimestamp;
     console.log('Retrieving docs from timestamp:', savedMillis);
@@ -349,6 +372,7 @@ export async function syncDatabasePayment(
     });
   } catch (err) {
     console.error('Error syncing database payments:', err);
+    crashlyticsLogReport(err.message);
     // Consider adding error handling callback if needed
     updatedCachedMessagesStateFunction();
   }

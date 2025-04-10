@@ -14,7 +14,6 @@ import {
 import startLiquidUpdateInterval from '../app/functions/liquidBackupUpdate';
 import {AppState} from 'react-native';
 import {useNodeContext} from './nodeContext';
-import {useAppStatus} from './appStatus';
 import {BLOCKED_NAVIGATION_PAYMENT_CODES} from '../app/constants';
 import {shouldBlockNavigation} from '../app/functions/sendBitcoin';
 

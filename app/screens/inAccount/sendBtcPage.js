@@ -28,6 +28,7 @@ import {convertMerchantQRToLightningAddress} from '../../functions/sendBitcoin/g
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {CameraPageNavBar} from '../../functions/CustomElements/camera/cameraPageNavbar';
+import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
 
 export default function SendPaymentHome({pageViewPage, from}) {
   console.log('SCREEN OPTIONS PAGE');
@@ -64,8 +65,10 @@ export default function SendPaymentHome({pageViewPage, from}) {
   useHandleBackPressNew();
 
   useEffect(() => {
+    crashlyticsLogReport('Opening send BTC camera page');
     (async () => {
       try {
+        crashlyticsLogReport('Requesting camera permission');
         await requestPermission();
       } catch (err) {
         console.log(err);
@@ -78,6 +81,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
     const [data] = codes;
 
     if (data.type !== 'qr') return;
+    crashlyticsLogReport('Hanlding scanned baracode');
     didScanRef.current = true;
     if (WEBSITE_REGEX.test(data.value)) {
       navigate.navigate('CustomWebView', {
@@ -91,6 +95,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
       qrContent: data.value,
       network: process.env.BOLTZ_ENVIRONMENT,
     });
+    crashlyticsLogReport('Navigating to confirm payment screen');
     if (from === 'home')
       navigate.navigate('ConfirmPaymentScreen', {
         btcAdress: merchantLNAddress || data.value,
@@ -119,6 +124,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
   const getPhoto = useCallback(async () => {
     try {
       if (isPhotoeLibraryOpen.current) return;
+      crashlyticsLogReport('Getting photoe');
       isPhotoeLibraryOpen.current = true;
       const response = await getQRImage(navigate, 'modal');
       const canGoBack = navigate.canGoBack();
@@ -143,6 +149,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
       }
 
       if (!response.didWork || !response.btcAdress) return;
+      crashlyticsLogReport('Navigating to confirm payment screen');
       if (from === 'home')
         navigate.navigate('ConfirmPaymentScreen', {
           btcAdress: response.btcAdress,
