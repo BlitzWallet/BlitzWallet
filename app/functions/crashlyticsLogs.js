@@ -1,4 +1,5 @@
 import {
+  crash,
   getCrashlytics,
   log,
   recordError,
@@ -32,5 +33,14 @@ export async function toggleCrashCollection(crashReportingSetting) {
   } catch (err) {
     console.log('enable crash reporting setting error', err);
     crashlyticsRecordErrorReport(err.message);
+  }
+}
+
+export function manuallyForceCrash() {
+  try {
+    crash(crashlytics);
+  } catch (err) {
+    console.log('Crashlytics record error report error', err);
+    recordError(crashlytics, new Error(err.message));
   }
 }
