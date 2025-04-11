@@ -22,7 +22,11 @@ export const restoreMintProofs = async mintURL => {
     );
 
     const mint = new CashuMint(mintURL);
-    const allKeysets = await mint.getKeySets();
+    const allKeysets = await Promise.race([
+      mint.getKeySets(),
+      new Promise(res => setTimeout(res, 10000)),
+    ]);
+    if (!allKeysets) throw new Error('Not able to load keysets');
     const keysets = allKeysets.keysets;
 
     progress = 5;

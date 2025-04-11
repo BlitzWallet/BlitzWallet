@@ -1,5 +1,4 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {ThemeText} from '../../../../../functions/CustomElements';
 import {CENTER, COLORS, SIZES} from '../../../../../constants';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useEffect, useState} from 'react';
@@ -12,13 +11,13 @@ import {
   restoreProofsEventListener,
   RESTORE_PROOFS_EVENT_NAME,
 } from '../../../../../functions/eCash/restore';
+import {deleteMint} from '../../../../../functions/eCash/db';
 
 export default function RestoreProofsPopup(props) {
   const {mintURL} = props?.route?.params;
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
-  // const [isRestoring, setIsRestoring] = useState(false);
   const [restoreProcessText, setRestoreProcessText] = useState('');
   const [didFinish, setDidFinish] = useState(false);
 
@@ -28,7 +27,8 @@ export default function RestoreProofsPopup(props) {
         setDidFinish(true);
         return;
       } else if (eventName.toLowerCase().includes('error')) {
-        setRestoreProcessText('An error occured during the restore process.');
+        setRestoreProcessText(eventName);
+        deleteMint(mintURL);
         setTimeout(() => {
           navigate.goBack();
         }, 2000);
@@ -48,7 +48,6 @@ export default function RestoreProofsPopup(props) {
   }, []);
 
   useEffect(() => {
-    // setIsRestoring(true);
     setTimeout(() => {
       restoreMintProofs(mintURL);
     }, 500);
@@ -56,7 +55,6 @@ export default function RestoreProofsPopup(props) {
 
   return (
     <View style={styles.container}>
-      {/* {isRestoring ? ( */}
       <View
         style={[
           styles.content,
@@ -84,45 +82,6 @@ export default function RestoreProofsPopup(props) {
           />
         )}
       </View>
-      {/* ) : (
-        <View
-          style={[
-            styles.content,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundOffset : backgroundColor,
-            },
-          ]}>
-          <ThemeText
-            styles={styles.headerText}
-            content={`Would you like to restore proofs?`}
-          />
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              onPress={() => {
-                setIsRestoring(true);
-                setTimeout(() => {
-                  restoreMintProofs(mintURL);
-                }, 500);
-              }}
-              style={[styles.button]}>
-              <ThemeText styles={styles.buttonText} content={'Yes'} />
-            </TouchableOpacity>
-            <View
-              style={{
-                height: '100%',
-                width: 2,
-                backgroundColor: theme
-                  ? COLORS.darkModeText
-                  : COLORS.lightModeText,
-              }}
-            />
-            <TouchableOpacity onPress={navigate.goBack} style={styles.button}>
-              <ThemeText styles={styles.buttonText} content={'No'} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      )} */}
     </View>
   );
 }
