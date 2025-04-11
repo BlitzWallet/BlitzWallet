@@ -21,7 +21,7 @@ import {
   VALID_URL_REGEX,
 } from '../../../../constants';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobaleCash} from '../../../../../context-store/eCash';
 import {sumProofsValue} from '../../../../functions/eCash/proofs';
@@ -44,9 +44,10 @@ import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
+import {crashlyticsRecordErrorReport} from '../../../../functions/crashlyticsLogs';
 
 export default function ExperimentalItemsPage() {
-  const {masterInfoObject} = useGlobalContextProvider();
+  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {ecashWalletInformation, usersMintList, parsedEcashInformation} =
     useGlobaleCash();
@@ -65,10 +66,115 @@ export default function ExperimentalItemsPage() {
   const enabledEcash = masterInfoObject.enabledEcash;
   const currentMintURL = ecashWalletInformation.mintURL;
 
+  const handleGoBackOnError = () => {
+    toggleMasterInfoObject({
+      enabledEcash: false,
+    });
+    navigate.popTo('SettingsHome');
+  };
+
+  const addMintFunction = () => {
+    try {
+      const parsedURL = mintURL.trim();
+      if (!mintURL || !parsedURL) return;
+      if (!VALID_URL_REGEX.test(mintURL)) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: 'You did not enter a valid URL',
+        });
+        return;
+      }
+      setIsKeyboardActive(false);
+      switchMint(parsedURL, false);
+    } catch (err) {
+      console.log('error adding mint url', err);
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'Error adding mintURL',
+      });
+    }
+  };
+
+  const mintList = useMemo(() => {
+    return savedMintList.map((mint, id) => {
+      try {
+        console.log(mint, 'TESTS');
+        const {mintURL, isCurrentMint, proofs} = mint;
+        const isActiveMint = isCurrentMint && savedMintList.length > 1;
+        const proofValue = sumProofsValue(proofs);
+        return (
+          <TouchableOpacity
+            activeOpacity={isActiveMint ? 1 : 0.4}
+            onPress={() => {
+              if (isActiveMint) return;
+              switchMint(mintURL, true);
+            }}
+            style={{
+              ...styles.mintContianer,
+              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            }}
+            key={id}>
+            <View style={styles.mintURLContainer}>
+              <TouchableOpacity
+                onPress={() => {
+                  copyToClipboard(mintURL, navigate);
+                }}>
+                <ThemeText styles={{fontSize: SIZES.small}} content={mintURL} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={isActiveMint ? 1 : 0.4}
+                onPress={() => {
+                  if (isActiveMint) return;
+                  if (proofValue > 0) {
+                    navigate.navigate('ConfirmActionPage', {
+                      confirmMessage: `You have a balance of ${proofValue} sat${
+                        proofValue === 1 ? '' : 's'
+                      }. If you delete this mint you may lose your sats. Click yes to delete.`,
+                      deleteMint: () => removeMint(mintURL),
+                    });
+                    return;
+                  }
+                  removeMint(mintURL);
+                }}>
+                <Image
+                  style={{width: 25, height: 25}}
+                  source={
+                    isActiveMint
+                      ? theme && darkModeType
+                        ? ICONS.starWhite
+                        : ICONS.starBlue
+                      : theme && darkModeType
+                      ? ICONS.trashIconWhite
+                      : ICONS.trashIcon
+                  }
+                />
+              </TouchableOpacity>
+            </View>
+            <FormattedSatText
+              neverHideBalance={true}
+              frontText={'Balance: '}
+              containerStyles={{marginTop: 10}}
+              styles={{
+                includeFontPadding: false,
+                fontSize: SIZES.small,
+              }}
+              balance={proofValue || 0}
+            />
+          </TouchableOpacity>
+        );
+      } catch (err) {
+        console.log('error buliding mint container');
+        crashlyticsRecordErrorReport(
+          `received ${err.message} inside of mintURL container builder`,
+        );
+        return false;
+      }
+    });
+  }, [savedMintList, navigate, theme, darkModeType]);
+
   const handleBackPressFunction = useCallback(() => {
     if (!currentMintURL && enabledEcash) {
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Must input a mintURL to enable ecash',
+        customNavigator: handleGoBackOnError,
       });
     } else keyboardGoBack(navigate);
   }, [navigate, currentMintURL, enabledEcash]);
@@ -237,125 +343,25 @@ export default function ExperimentalItemsPage() {
                     content={'Click here to find mints'}
                   />
                 </TouchableOpacity>
-                <View
-                  style={{
-                    backgroundColor: backgroundOffset,
-                    borderRadius: 8,
-                    marginTop: 15,
-                  }}>
-                  <CustomSearchInput
-                    onBlurFunction={() => {
-                      const parsedURL = mintURL.trim();
-                      if (!mintURL || !parsedURL) return;
-                      if (!VALID_URL_REGEX.test(mintURL)) {
-                        navigate.navigate('ErrorScreen', {
-                          errorMessage: 'You did not enter a valid URL',
-                        });
-                        return;
-                      }
-                      setIsKeyboardActive(false);
-                      switchMint(parsedURL, false);
-                    }}
-                    placeholderText={'Mint URL'}
-                    setInputText={setMintURL}
-                    inputText={mintURL || ''}
-                    onFocusFunction={() => setIsKeyboardActive(true)}
-                  />
-                </View>
-                {savedMintList.length ? (
-                  <View>
-                    <ThemeText
-                      styles={{marginTop: 20, fontSize: SIZES.large}}
-                      content={'Added Mints'}
-                    />
-                    {savedMintList.map((mint, id) => {
-                      const proofValue = sumProofsValue(mint.proofs);
-                      return (
-                        <TouchableOpacity
-                          activeOpacity={mint.isCurrentMint ? 1 : 0.4}
-                          onPress={() => {
-                            if (mint.isCurrentMint) return;
-                            switchMint(mint.mintURL, true);
-                          }}
-                          style={{
-                            alignItems: 'baseline',
-                            backgroundColor: theme
-                              ? backgroundOffset
-                              : COLORS.darkModeText,
-                            padding: 10,
-                            borderRadius: 8,
-                            marginVertical: 10,
-                          }}
-                          key={id}>
-                          <View
-                            style={{
-                              width: '100%',
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                            }}>
-                            <TouchableOpacity
-                              onPress={() => {
-                                copyToClipboard(mint.mintURL, navigate);
-                              }}>
-                              <ThemeText
-                                styles={{fontSize: SIZES.small}}
-                                content={mint.mintURL}
-                              />
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              activeOpacity={mint.isCurrentMint ? 1 : 0.4}
-                              onPress={() => {
-                                if (mint.isCurrentMint) return;
-                                if (proofValue > 0) {
-                                  navigate.navigate('ConfirmActionPage', {
-                                    confirmMessage: `You have a balance of ${proofValue} sat${
-                                      proofValue === 1 ? '' : 's'
-                                    }. If you delete this mint you may lose your sats. Click yes to delete.`,
-                                    deleteMint: () => removeMint(mint.mintURL),
-                                  });
-                                  return;
-                                }
-                                removeMint(mint.mintURL);
-                              }}>
-                              <Image
-                                style={{width: 25, height: 25}}
-                                source={
-                                  mint.isCurrentMint
-                                    ? theme && darkModeType
-                                      ? ICONS.starWhite
-                                      : ICONS.starBlue
-                                    : theme && darkModeType
-                                    ? ICONS.trashIconWhite
-                                    : ICONS.trashIcon
-                                }
-                              />
-                            </TouchableOpacity>
-                          </View>
-                          <FormattedSatText
-                            neverHideBalance={true}
-                            frontText={'Balance: '}
-                            containerStyles={{marginTop: 10}}
-                            styles={{
-                              includeFontPadding: false,
-                              fontSize: SIZES.small,
-                            }}
-                            balance={proofValue || 0}
-                          />
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                ) : (
-                  <ThemeText
-                    styles={{
-                      marginTop: 20,
-                      fontSize: SIZES.large,
-                      textAlign: 'center',
-                    }}
-                    content={'No added mints'}
-                  />
-                )}
+                <CustomSearchInput
+                  containerStyles={{marginTop: 15}}
+                  onBlurFunction={addMintFunction}
+                  placeholderText={'Mint URL'}
+                  setInputText={setMintURL}
+                  inputText={mintURL || ''}
+                  onFocusFunction={() => setIsKeyboardActive(true)}
+                />
+                <ThemeText
+                  styles={{
+                    marginTop: 20,
+                    fontSize: SIZES.large,
+                    textAlign: savedMintList.length ? 'left' : 'center',
+                  }}
+                  content={
+                    savedMintList.length ? 'Added Mints' : 'No added mints'
+                  }
+                />
+                {mintList}
               </View>
             )}
           </ScrollView>
@@ -404,6 +410,18 @@ export default function ExperimentalItemsPage() {
 }
 
 const styles = StyleSheet.create({
+  mintContianer: {
+    alignItems: 'baseline',
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 10,
+  },
+  mintURLContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   switchContainer: {
     flexDirection: 'row',
     width: '95%',
