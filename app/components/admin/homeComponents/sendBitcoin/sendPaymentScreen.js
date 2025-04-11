@@ -51,6 +51,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import ErrorWithPayment from './components/errorScreen';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
+import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -167,6 +168,7 @@ export default function SendPaymentScreen(props) {
 
   useEffect(() => {
     async function decodePayment() {
+      crashlyticsLogReport('Begining decode payment process');
       const didPay = hasAlredyPaidInvoice({
         scannedAddress: btcAdress,
         nodeInformation,
@@ -178,6 +180,7 @@ export default function SendPaymentScreen(props) {
         errorMessageNavigation('You have already paid this invoice');
         return;
       }
+      crashlyticsLogReport('Starting decode address');
       await decodeSendAddress({
         nodeInformation,
         btcAdress,

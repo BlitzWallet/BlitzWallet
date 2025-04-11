@@ -34,6 +34,7 @@ import {useAppStatus} from '../../../../../context-store/appStatus';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import {useGlobaleCash} from '../../../../../context-store/eCash';
+import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -296,6 +297,7 @@ export default function EditReceivePaymentInformation(props) {
   function handleSubmit() {
     if (!canUseEcash && !canUseLightning && !canUseLiquid) return;
     if (!Number(localSatAmount)) return;
+    crashlyticsLogReport(`Running in edit payment information submit function`);
 
     if (fromPage === 'homepage') {
       navigate.replace('ReceiveBTC', {

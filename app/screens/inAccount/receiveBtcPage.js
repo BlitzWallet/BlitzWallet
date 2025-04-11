@@ -17,6 +17,7 @@ import {useNodeContext} from '../../../context-store/nodeContext';
 import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import CustomButton from '../../functions/CustomElements/button';
+import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -52,6 +53,7 @@ export default function ReceivePaymentHome(props) {
   });
 
   useEffect(() => {
+    crashlyticsLogReport('Begining adddress initialization');
     initializeAddressProcess({
       nodeInformation,
       userBalanceDenomination: masterInfoObject.userBalanceDenomination,

@@ -5,14 +5,14 @@ import {useTranslation} from 'react-i18next';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {memo, useCallback, useMemo} from 'react';
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
-import {ThemeText} from '../../../../functions/CustomElements';
+import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 
 export function SendRecieveBTNs({
   theme,
   darkModeType,
   isConnectedToTheInternet,
 }) {
-  console.log('SENd and receiv btns');
+  console.log('Loading send and receive btns componeent');
   const navigate = useNavigation();
   const {t} = useTranslation();
 
@@ -31,6 +31,9 @@ export function SendRecieveBTNs({
       return CustomSendAndRequsetBTN({
         btnType,
         btnFunction: () => {
+          crashlyticsLogReport(
+            `Running in send and receive buttons on homepage for button type: ${btnType}`,
+          );
           const areSettingsSet = handleSettingsCheck();
           if (!areSettingsSet) {
             navigate.navigate('ErrorScreen', {
@@ -61,6 +64,9 @@ export function SendRecieveBTNs({
       <TouchableOpacity
         key={btnType}
         onPress={() => {
+          crashlyticsLogReport(
+            `Running in send and receive buttons on homepage for button send BTC page`,
+          );
           const areSettingsSet = handleSettingsCheck();
           if (!areSettingsSet) {
             navigate.navigate('ErrorScreen', {

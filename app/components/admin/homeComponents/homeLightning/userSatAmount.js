@@ -8,6 +8,7 @@ import Icon from '../../../../functions/CustomElements/Icon';
 import {useNavigation} from '@react-navigation/native';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useGlobaleCash} from '../../../../../context-store/eCash';
+import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 
 export const UserSatAmount = memo(function UserSatAmount({
   isConnectedToTheInternet,
@@ -88,6 +89,9 @@ export const UserSatAmount = memo(function UserSatAmount({
         !!liquidNodeInformation.pendingSend) && (
         <TouchableOpacity
           onPress={() => {
+            crashlyticsLogReport(
+              'Navigating to information popup page from user sat amount',
+            );
             navigate.navigate('InformationPopup', {
               CustomTextComponent: () => {
                 return (

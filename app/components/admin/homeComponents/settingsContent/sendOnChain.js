@@ -38,6 +38,7 @@ import {recommendedFees} from '@breeztech/react-native-breez-sdk-liquid';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {KEYBOARDTIMEOUT} from '../../../../constants/styles';
+import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 
 export default function SendOnChainBitcoin({isDoomsday}) {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -267,6 +268,9 @@ export default function SendOnChainBitcoin({isDoomsday}) {
 
   async function initPage() {
     try {
+      crashlyticsLogReport(
+        'Starting page for send on-chain which is for closed channels',
+      );
       const [node_info, didSetMempoolFees] = await Promise.all([
         nodeInfo(),
         getMempoolTxFee(),

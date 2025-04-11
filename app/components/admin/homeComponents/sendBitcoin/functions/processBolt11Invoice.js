@@ -1,5 +1,9 @@
 import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import {SATSPERBITCOIN} from '../../../../../constants';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../../../../functions/crashlyticsLogs';
 
 export default function processBolt11Invoice(input, context) {
   const {
@@ -11,6 +15,7 @@ export default function processBolt11Invoice(input, context) {
     enteredPaymentInfo,
   } = context;
   try {
+    crashlyticsLogReport('Handling decode bolt11 invoices');
     const currentTime = Math.floor(Date.now() / 1000);
     const expirationTime = input.invoice.timestamp + input.invoice.expiry;
     const isExpired = currentTime > expirationTime;
@@ -44,5 +49,6 @@ export default function processBolt11Invoice(input, context) {
     };
   } catch (err) {
     console.log('process bolt11 invoice error', err);
+    crashlyticsRecordErrorReport(err.message);
   }
 }

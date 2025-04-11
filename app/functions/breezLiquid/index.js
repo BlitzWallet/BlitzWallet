@@ -10,6 +10,10 @@ import {
   sendPayment,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import {BLITZ_DEFAULT_PAYMENT_DESCRIPTION} from '../../constants';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../crashlyticsLogs';
 
 export async function breezLiquidReceivePaymentWrapper({
   sendAmount,
@@ -17,6 +21,7 @@ export async function breezLiquidReceivePaymentWrapper({
   description,
 }) {
   try {
+    crashlyticsLogReport('Starting prpare receive payment process');
     console.log('Starting prepare receive payment process');
     // Set the amount you wish the payer to send via lightning, which should be within the above limits
 
@@ -54,6 +59,7 @@ export async function breezLiquidReceivePaymentWrapper({
     return {destination, receiveFeesSat};
   } catch (err) {
     console.log(err);
+    crashlyticsRecordErrorReport(err.message);
     return false;
   }
 }
@@ -64,6 +70,7 @@ export async function breezLiquidPaymentWrapper({
   shouldDrain,
 }) {
   try {
+    crashlyticsLogReport('Starting liquid payment process');
     let optionalAmount;
 
     if (paymentType === 'bolt12') {
@@ -95,6 +102,7 @@ export async function breezLiquidPaymentWrapper({
     return {payment, fee: sendFeesSat, didWork: true};
   } catch (err) {
     console.log(err);
+    crashlyticsRecordErrorReport(err.message);
     return {error: err, didWork: false};
   }
 }
@@ -106,6 +114,7 @@ export async function breezLiquidLNAddressPaymentWrapper({
   shouldDrain,
 }) {
   try {
+    crashlyticsLogReport('Starting breez liquid ln address payment wrapper');
     const optionalComment = description;
     const optionalValidateSuccessActionUrl = true;
     console.log('Starting prepare LNURL pay payment process');
@@ -138,6 +147,7 @@ export async function breezLiquidLNAddressPaymentWrapper({
     return {payment, fee: feesSat, didWork: true};
   } catch (err) {
     console.log(err, 'BREEZ LIQUID TO LN ADDRESS PAYMENT WRAPPER');
+    crashlyticsRecordErrorReport(err.message);
     return {error: err, didWork: false};
   }
 }

@@ -1,5 +1,9 @@
 import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import {SATSPERBITCOIN} from '../../../../../constants';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../../../../functions/crashlyticsLogs';
 
 export default async function processLNUrlPay(input, context) {
   const {
@@ -9,6 +13,7 @@ export default async function processLNUrlPay(input, context) {
     enteredPaymentInfo,
   } = context;
   try {
+    crashlyticsLogReport('Beiging decode LNURL pay');
     const amountMsat = comingFromAccept
       ? enteredPaymentInfo.amount * 1000
       : input.data.minSendable;
@@ -34,5 +39,6 @@ export default async function processLNUrlPay(input, context) {
     };
   } catch (err) {
     console.log('error processing lnurl pay');
+    crashlyticsRecordErrorReport(err.message);
   }
 }

@@ -13,6 +13,7 @@ import {useTranslation} from 'react-i18next';
 import Icon from './CustomElements/Icon';
 import {memo, useMemo} from 'react';
 import {mergeArrays} from './mergeArrays';
+import {crashlyticsLogReport} from './crashlyticsLogs';
 
 export default function getFormattedHomepageTxs({
   combinedTransactions,
@@ -34,6 +35,7 @@ export default function getFormattedHomepageTxs({
   darkModeType,
   userBalanceDenomination,
 }) {
+  crashlyticsLogReport('Starting re-rendering of formatted transactions');
   const arr2 = liquidNodeInformation?.transactions;
   const n2 = liquidNodeInformation?.transactions?.length;
 
@@ -266,9 +268,10 @@ export const UserTransaction = memo(function UserTransaction({
       }}
       key={id}
       activeOpacity={0.5}
-      onPress={() =>
-        navigate.navigate('ExpandedTx', {isFailedPayment, transaction})
-      }>
+      onPress={() => {
+        crashlyticsLogReport('Navigatin to expanded tx from user transaction');
+        navigate.navigate('ExpandedTx', {isFailedPayment, transaction});
+      }}>
       <View style={styles.transactionContainer}>
         {showPendingTransactionStatusIcon ? (
           <View style={styles.icons}>

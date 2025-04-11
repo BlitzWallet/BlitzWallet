@@ -1,3 +1,8 @@
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../../../../functions/crashlyticsLogs';
+
 export default function hasAlredyPaidInvoice({
   scannedAddress,
   nodeInformation,
@@ -5,6 +10,7 @@ export default function hasAlredyPaidInvoice({
   ecashWalletInformation,
 }) {
   try {
+    crashlyticsLogReport('Begining already paid invoice function');
     const didPayWithLiquid = liquidNodeInformation.transactions.find(
       tx =>
         tx?.destination === scannedAddress && tx?.details?.type === 'lightning',
@@ -17,7 +23,8 @@ export default function hasAlredyPaidInvoice({
     );
     return !!didPayWithLiquid || !!didPayWithLightning || !!didPayWitheCash;
   } catch (err) {
-    console.log('already paid invoice error');
+    console.log('already paid invoice error', err);
+    crashlyticsRecordErrorReport(err.message);
     return false;
   }
 }

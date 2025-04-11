@@ -7,6 +7,10 @@ import {
   SwapAmountType,
 } from '@breeztech/react-native-breez-sdk';
 import {getMempoolReccomenededFee} from '../getMempoolFeeRates';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../crashlyticsLogs';
 
 export default async function breezLNOnchainPaymentWrapper({
   amountSat,
@@ -14,6 +18,7 @@ export default async function breezLNOnchainPaymentWrapper({
   paymentInfo,
 }) {
   try {
+    crashlyticsLogReport('Starting breez Lightning onchain payment function');
     const [currentLimits, satPerVbyte] = await Promise.all([
       onchainPaymentLimits(),
       getMempoolReccomenededFee(),
@@ -64,6 +69,7 @@ export default async function breezLNOnchainPaymentWrapper({
     };
   } catch (err) {
     console.error(err);
+    crashlyticsRecordErrorReport(err.message);
     return {didWork: false, error: JSON.stringify(err)};
   }
 }

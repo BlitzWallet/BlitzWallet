@@ -71,6 +71,7 @@ import {
   applyErrorAnimationTheme,
   updateMascatWalkingAnimation,
 } from '../../functions/lottieViewColorTransformer';
+import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 const confirmTxAnimationDarkMode = require('../../assets/errorTxAnimation.json');
 
@@ -141,6 +142,9 @@ export default function ConnectingToNodeLoadingScreen({
   useEffect(() => {
     async function startConnectProcess() {
       try {
+        crashlyticsLogReport(
+          'Begining app connnection procress in loading screen',
+        );
         const [didOpen, ecashTablesOpened, posTransactions] = await Promise.all(
           [
             initializeDatabase(),
@@ -150,6 +154,7 @@ export default function ConnectingToNodeLoadingScreen({
         );
         if (!didOpen || !ecashTablesOpened || !posTransactions)
           throw new Error('Database initialization failed');
+        crashlyticsLogReport('Opened all SQL lite tables');
         const didLoadUserSettings = await initializeUserSettingsFromHistory({
           setContactsPrivateKey: toggleContactsPrivateKey,
           setMasterInfoObject,
@@ -159,7 +164,7 @@ export default function ConnectingToNodeLoadingScreen({
         });
         if (!didLoadUserSettings)
           throw new Error('Failed to load user settings');
-
+        crashlyticsLogReport('Loaded users settings from firebase');
         claimUnclaimedBoltzSwaps();
         didOpenDatabases.current = true;
       } catch (err) {
@@ -179,6 +184,7 @@ export default function ConnectingToNodeLoadingScreen({
     )
       return;
     didLoadInformation.current = true;
+    crashlyticsLogReport('Initializing wallet settings');
 
     initWallet();
   }, [masterInfoObject, globalContactsInformation]);
@@ -280,6 +286,7 @@ export default function ConnectingToNodeLoadingScreen({
     // initBalanceAndTransactions(toggleNodeInformation);
 
     try {
+      crashlyticsLogReport('Trying to connect to nodes');
       const [didConnectToNode, didConnectToLiquidNode] = await (masterInfoObject
         .liquidWalletSettings.isLightningEnabled
         ? Promise.all([
@@ -301,6 +308,7 @@ export default function ConnectingToNodeLoadingScreen({
           !masterInfoObject.liquidWalletSettings.isLightningEnabled) &&
         didConnectToLiquidNode?.isConnected
       ) {
+        crashlyticsLogReport('Loading node balances for session');
         const [didSetLightning, didSetLiquid, didSetEcashInformation] =
           await (masterInfoObject.liquidWalletSettings.isLightningEnabled
             ? Promise.all([
@@ -329,6 +337,7 @@ export default function ConnectingToNodeLoadingScreen({
           didSetLiquid &&
           (!masterInfoObject.enabledEcash || didSetEcashInformation)
         ) {
+          crashlyticsLogReport('Trying auto channel rebalance');
           const autoWorkData =
             process.env.BOLTZ_ENVIRONMENT === 'testnet' ||
             AppState.currentState !== 'active'
@@ -418,6 +427,7 @@ export default function ConnectingToNodeLoadingScreen({
       }
     } catch (err) {
       setHasError(String(err.message));
+      crashlyticsLogReport(err.message);
       console.log(err, 'homepage connection to node err');
     }
   }
@@ -458,6 +468,7 @@ export default function ConnectingToNodeLoadingScreen({
 
   async function setNodeInformationForSession(retrivedNodeInfo) {
     try {
+      crashlyticsLogReport('Starting lightning node lookup process');
       const [nodeState, transactions, heath, lspInfo] = await Promise.all([
         retrivedNodeInfo ? Promise.resolve(retrivedNodeInfo) : nodeInfo(),
         getTransactions({}),
@@ -496,6 +507,7 @@ export default function ConnectingToNodeLoadingScreen({
 
   async function setLiquidNodeInformationForSession(retrivedLiquidNodeInfo) {
     try {
+      crashlyticsLogReport('Starting liquid node lookup process');
       const [parsedInformation, payments, fiat_rate, addressResponse] =
         await Promise.all([
           retrivedLiquidNodeInfo
@@ -594,6 +606,7 @@ export default function ConnectingToNodeLoadingScreen({
   }
   async function setEcashInformationForSession() {
     try {
+      crashlyticsLogReport('Starting ecash node lookup process');
       if (!masterInfoObject.enabledEcash) {
         return {
           transactions: [],
@@ -626,7 +639,6 @@ export default function ConnectingToNodeLoadingScreen({
       );
       const initPromise = (async () => {
         await initEcashWallet(hasSelectedMint);
-
         const [transactions, storedProofs, mintList] = await Promise.all([
           getStoredEcashTransactions(),
           getStoredProofs(),

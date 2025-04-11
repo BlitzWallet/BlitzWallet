@@ -26,6 +26,10 @@ import {useGlobalThemeContext} from '../../../../context-store/theme';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import getClipboardText from '../../../functions/getClipboardText';
 import {useNavigation} from '@react-navigation/native';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../../functions/crashlyticsLogs';
 
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -78,6 +82,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
 
   const handleSeedFromClipboard = useCallback(async () => {
     try {
+      crashlyticsLogReport('Starting paste seed from clipboard');
       const response = await getClipboardText();
       if (!response.didWork) throw new Error(response.reason);
 
@@ -96,11 +101,13 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       setInputedKey(newKeys);
     } catch (err) {
       console.log('Error getting data from clipbarod', err);
+      crashlyticsRecordErrorReport(err.message);
       navigateToError(err.message);
     }
   }, [navigateToError]);
 
   const didEnterCorrectSeed = useCallback(async () => {
+    crashlyticsLogReport('Starting seed check');
     try {
       const keys = await retrieveData('mnemonic');
       const didEnterAllKeys =
@@ -119,11 +126,13 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       } else throw new Error(t('createAccount.restoreWallet.home.error3'));
     } catch (err) {
       console.log('did enter correct seed error', err);
+      crashlyticsRecordErrorReport(err.message);
       navigateToError(err.message);
     }
   }, [inputedKey, navigateToError]);
 
   const keyValidation = useCallback(async () => {
+    crashlyticsLogReport('Starting past seed validation');
     try {
       setIsValidating(true);
       const enteredKeys =
@@ -161,6 +170,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       }
     } catch (err) {
       console.log('key validation error', err);
+      crashlyticsRecordErrorReport(err.message);
       navigateToError(err.message);
     } finally {
       setIsValidating(false);
@@ -305,7 +315,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
               textContent={params ? t('constants.skip') : 'Paste'}
               actionFunction={() =>
                 params
-                  ? navigate('PinSetup', {isInitialLoad: true})
+                  ? navigate.navigate('PinSetup', {isInitialLoad: true})
                   : handleSeedFromClipboard()
               }
             />

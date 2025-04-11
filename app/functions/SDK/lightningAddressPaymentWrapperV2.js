@@ -1,5 +1,6 @@
 import {payLnurl} from '@breeztech/react-native-breez-sdk';
 import {getLocalStorageItem} from '../localStorage';
+import {crashlyticsLogReport} from '../crashlyticsLogs';
 
 export default async function breezLNAddressPaymentWrapperV2({
   sendingAmountSat,
@@ -8,6 +9,9 @@ export default async function breezLNAddressPaymentWrapperV2({
 }) {
   let resposne;
   try {
+    crashlyticsLogReport(
+      'Begining breez Lightning address V2 payment function',
+    );
     const useTrampoline =
       JSON.parse(await getLocalStorageItem('useTrampoline')) ?? true;
 

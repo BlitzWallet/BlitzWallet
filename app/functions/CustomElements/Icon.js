@@ -759,6 +759,28 @@ export default function Icon({
             strokeLinecap="round"
           />
         </Svg>
+      ) : name === 'crashDebugIcon' ? (
+        <Svg
+          width={width}
+          height={height}
+          viewBox="0 0 48 48"
+          xmlns="http://www.w3.org/2000/svg">
+          <G id="Layer_2" dataName="Layer 2">
+            <G id="invisible_box" dataName="invisible box">
+              <Rect width="48" height="48" fill="none" />
+            </G>
+            <G id="icons_Q2" dataName="icons Q2">
+              <Path
+                fill={color}
+                d="M24,6.2c5.3,1.5,11.1,3.3,14,4.3V26.2c0,3.4-3.7,9.4-14,15.4-10.3-6.1-14-12-14-15.4V10.5c2.9-1.1,8.7-2.8,14-4.3M24,2S6,7.1,6,8V26.2c0,9.2,13.3,17.3,17,19.5a1.8,1.8,0,0,0,2,0c3.8-2.1,17-10.3,17-19.5V8c0-.9-18-6-18-6Z"
+              />
+              <Path
+                fill={color}
+                d="M19.6,29.4l-5-4.9a2.1,2.1,0,0,1-.2-2.7,1.9,1.9,0,0,1,3-.2L21,25.2l9.6-9.6a2,2,0,0,1,2.8,2.8l-11,11A1.9,1.9,0,0,1,19.6,29.4Z"
+              />
+            </G>
+          </G>
+        </Svg>
       ) : (
         <View></View>
       )}

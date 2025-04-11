@@ -1,9 +1,11 @@
 import {storeData} from './secureStore';
 import {generateMnemonic} from '@scure/bip39';
 import {wordlist} from '@scure/bip39/wordlists/english';
+import {crashlyticsLogReport} from './crashlyticsLogs';
 
 export default async function createAccountMnemonic() {
   try {
+    crashlyticsLogReport('Starting generting account mnemoinc');
     let generatedMnemonic = generateMnemonic(wordlist);
     const unuiqueKeys = new Set(generatedMnemonic.split(' '));
 

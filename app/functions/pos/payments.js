@@ -253,6 +253,7 @@ export async function payPOSLNURL({
           description,
         );
 
+        if (!invoice) throw new Error('Not able to get invoice');
         const storedProofs = await getStoredProofs();
         const balance = sumProofsValue(storedProofs);
 

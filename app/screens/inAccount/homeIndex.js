@@ -8,6 +8,7 @@ import {ContactsDrawer} from '../../../navigation/drawers';
 import AppStore from './appStore';
 import SendPaymentHome from './sendBtcPage';
 import GetThemeColors from '../../hooks/themeColors';
+import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
 
 const CAMERA_PAGE = 0;
 const HOME_PAGE = 1;
@@ -20,6 +21,7 @@ export default function AdminHomeIndex() {
 
   const handlePageChange = useCallback(e => {
     console.log(e.nativeEvent, 'PAGE CHANGE');
+    crashlyticsLogReport('Handling page change with pagerView');
     const newPage = e.nativeEvent.position;
     setCurrentPage(newPage);
 

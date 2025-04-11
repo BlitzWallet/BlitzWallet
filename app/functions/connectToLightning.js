@@ -13,6 +13,7 @@ import {getOrCreateDirectory, unit8ArrayConverter} from './connectToNode';
 import {retrieveData} from './secureStore';
 import {BREEZ_WORKING_DIR_KEY} from '../constants';
 import {setLocalStorageItem} from './localStorage';
+import {crashlyticsLogReport} from './crashlyticsLogs';
 
 const logHandler = logEntry => {
   if (logEntry.level != 'TRACE') {
@@ -21,6 +22,7 @@ const logHandler = logEntry => {
 };
 let didConnect = false;
 export default async function connectToLightningNode(breezEvent) {
+  crashlyticsLogReport('Starting connect to lightning function');
   if (didConnect) {
     console.log('RUNNING IN DID CONNECT');
     let ableToRetrive = false;
@@ -69,13 +71,13 @@ export default async function connectToLightningNode(breezEvent) {
         },
       },
     };
-
+    crashlyticsLogReport('Creating default config');
     const config = await defaultConfig(
       EnvironmentType.PRODUCTION,
       process.env.API_KEY,
       nodeConfig,
     );
-
+    crashlyticsLogReport('Getting directory information');
     const directoryPath = await getOrCreateDirectory(
       'greenlightFilesystemUUID',
       config.workingDir,
@@ -95,6 +97,7 @@ export default async function connectToLightningNode(breezEvent) {
     const seed = await mnemonicToSeed(mnemonic);
     const connectRequest = {config, seed};
     // setLogStream(logHandler);
+    crashlyticsLogReport('Running connect request');
     await connect(connectRequest, breezEvent);
 
     return new Promise(resolve => {

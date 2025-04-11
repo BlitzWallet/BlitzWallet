@@ -1,6 +1,10 @@
 import {fetchOnchainLimits} from '@breeztech/react-native-breez-sdk-liquid';
 import {sendBitcoinPayment} from './payments';
 import {SATSPERBITCOIN} from '../../../../../constants';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../../../../functions/crashlyticsLogs';
 
 export default async function processBitcoinAddress(input, context) {
   const {
@@ -14,6 +18,7 @@ export default async function processBitcoinAddress(input, context) {
     paymentInfo,
   } = context;
   try {
+    crashlyticsLogReport('Begining decode Bitcoin address');
     const choosingLimit = paymentInfo?.data?.limits
       ? Promise.resolve({send: paymentInfo?.data?.limits})
       : fetchOnchainLimits();
@@ -84,6 +89,7 @@ export default async function processBitcoinAddress(input, context) {
     };
   } catch (err) {
     console.log('process bitcoin address error', err);
+    crashlyticsRecordErrorReport(err.message);
     return false;
   }
 }

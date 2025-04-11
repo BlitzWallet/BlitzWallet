@@ -25,6 +25,10 @@ import RNQRGenerator from 'rn-qr-generator';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
 import getClipboardText from '../../../functions/getClipboardText';
 import {CameraPageNavBar} from '../../../functions/CustomElements/camera/cameraPageNavbar';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../../functions/crashlyticsLogs';
 
 export default function CameraModal(props) {
   console.log('SCREEN OPTIONS PAGE');
@@ -39,6 +43,7 @@ export default function CameraModal(props) {
 
   useFocusEffect(
     useCallback(() => {
+      crashlyticsLogReport('Loading camera model page');
       setShowCamera(true);
       return () => setShowCamera(false);
     }, []),
@@ -52,6 +57,7 @@ export default function CameraModal(props) {
   useEffect(() => {
     (async () => {
       try {
+        crashlyticsLogReport('Running request permission in camera model');
         requestPermission();
       } catch (err) {
         console.log(err);
@@ -188,6 +194,7 @@ export default function CameraModal(props) {
         navigate.navigate('ErrorScreen', {errorMessage: response.reason});
         return;
       }
+      crashlyticsLogReport('handling data from clipboard');
       navigate.goBack();
       props.route.params.updateBitcoinAdressFunc(response.data);
     } catch (err) {
@@ -201,6 +208,8 @@ export default function CameraModal(props) {
     if (data.type !== 'qr') return;
     didScanRef.current = true;
 
+    crashlyticsLogReport('handling scanned barcode');
+
     navigate.goBack();
     setTimeout(() => {
       props.route.params.updateBitcoinAdressFunc(data.value);
@@ -212,6 +221,7 @@ export default function CameraModal(props) {
     const {didRun, error, imgURL} = imagePickerResponse;
     if (!didRun) return;
     if (error) {
+      crashlyticsRecordErrorReport(error);
       navigate.goBack();
       setTimeout(() => {
         navigate.navigate('ErrorScreen', {errorMessage: error});
@@ -243,7 +253,7 @@ export default function CameraModal(props) {
         }, 150);
         return;
       }
-
+      crashlyticsLogReport('handling code from qr code');
       navigate.goBack();
       setTimeout(() => {
         props.route.params.updateBitcoinAdressFunc(response.values[0]);

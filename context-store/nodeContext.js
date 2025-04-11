@@ -1,26 +1,9 @@
-import {
-  createContext,
-  useState,
-  useContext,
-  useEffect,
-  useMemo,
-  useCallback,
-} from 'react';
-import {LIGHTNINGAMOUNTBUFFER} from '../app/constants/math';
-import {useGlobaleCash} from './eCash';
-import {
-  getMeltQuote,
-  payLnInvoiceFromEcash,
-} from '../app/functions/eCash/wallet';
-import {receivePayment} from '@breeztech/react-native-breez-sdk';
-import {useAppStatus} from './appStatus';
+import {createContext, useState, useContext, useMemo, useCallback} from 'react';
 
 // Initiate context
 const NodeContextManager = createContext(null);
 
 const GLobalNodeContextProider = ({children}) => {
-  const {didGetToHomepage} = useAppStatus();
-  const {ecashWalletInformation} = useGlobaleCash();
   const [nodeInformation, setNodeInformation] = useState({
     didConnectToNode: null,
     transactions: [],
@@ -43,40 +26,6 @@ const GLobalNodeContextProider = ({children}) => {
   const toggleLiquidNodeInformation = useCallback(newInfo => {
     setLiquidNodeInformation(prev => ({...prev, ...newInfo}));
   }, []);
-
-  // useEffect(() => {
-  //   if (!didGetToHomepage) return;
-  //   if (nodeInformation.userBalance === 0) return;
-  //   if (
-  //     nodeInformation.inboundLiquidityMsat / 1000 + LIGHTNINGAMOUNTBUFFER <
-  //     ecashWalletInformation?.balance
-  //   )
-  //     return;
-
-  //   drainEcashBalance();
-  // }, [didGetToHomepage]);
-
-  // const drainEcashBalance = useCallback(async () => {
-  //   try {
-  //     if (ecashWalletInformation.balance - 5 < 1) return;
-  //     const lightningInvoice = await receivePayment({
-  //       amountMsat: (ecashWalletInformation.balance - 5) * 1000,
-  //       description: 'Auto Channel Rebalance',
-  //     });
-  //     const meltQuote = await getMeltQuote(lightningInvoice.lnInvoice.bolt11);
-  //     if (!meltQuote) throw new Error('unable to create melt quote');
-  //     const didPay = await payLnInvoiceFromEcash({
-  //       quote: meltQuote.quote,
-  //       invoice: lightningInvoice.lnInvoice.bolt11,
-  //       proofsToUse: meltQuote.proofsToUse,
-  //       description: 'Auto Channel Rebalance',
-  //     });
-
-  //     console.log(didPay, 'pay response in drain ecash balance');
-  //   } catch (err) {
-  //     console.log(err, 'draining ecash balance error');
-  //   }
-  // }, [ecashWalletInformation]);
 
   const contextValue = useMemo(
     () => ({

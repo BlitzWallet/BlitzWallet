@@ -5,6 +5,7 @@ import {Buffer} from 'buffer';
 
 import {sha256} from 'liquidjs-lib/src/crypto';
 import {BLITZ_DEFAULT_PAYMENT_DESCRIPTION} from '../../../../../constants';
+import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 
 export async function contactsLNtoLiquidSwapInfo(
   liquidAddress,
@@ -12,6 +13,7 @@ export async function contactsLNtoLiquidSwapInfo(
   description,
 ) {
   try {
+    crashlyticsLogReport('Creating boltz swap keys');
     const {publicKey, privateKeyString, keys} = await createBoltzSwapKeys();
     const preimage = crypto.randomBytes(32);
 

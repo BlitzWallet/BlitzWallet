@@ -1,5 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import {Platform, Share} from 'react-native';
+import {crashlyticsLogReport} from './crashlyticsLogs';
 export default async function writeAndShareFileToFilesystem(
   fileData,
   fileName,
@@ -8,6 +9,7 @@ export default async function writeAndShareFileToFilesystem(
 ) {
   console.log('Running in new filesystem write and share...');
   try {
+    crashlyticsLogReport('Starting write to filesystem process');
     const fileUri = `${FileSystem.documentDirectory}${fileName}`;
     await FileSystem.writeAsStringAsync(fileUri, fileData, {
       encoding: FileSystem.EncodingType.UTF8,

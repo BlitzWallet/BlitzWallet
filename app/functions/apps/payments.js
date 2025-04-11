@@ -6,6 +6,7 @@ import {getMeltQuote, payLnInvoiceFromEcash} from '../eCash/wallet';
 import {getStoredProofs} from '../eCash/db';
 import {sumProofsValue} from '../eCash/proofs';
 import breezPaymentWrapperV2 from '../SDK/breezPaymentWrapperV2';
+import {crashlyticsLogReport} from '../crashlyticsLogs';
 
 export default async function sendStorePayment({
   liquidNodeInformation,
@@ -18,6 +19,7 @@ export default async function sendStorePayment({
   description = '',
 }) {
   try {
+    crashlyticsLogReport('Begining store payment process');
     const liquidFee =
       calculateBoltzFeeNew(
         sendingAmountSats,

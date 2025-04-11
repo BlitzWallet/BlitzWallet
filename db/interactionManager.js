@@ -20,6 +20,11 @@ const PRESET_LOCAL_DATA = {
   savedLiquidSwaps: [],
   cachedContactsList: [],
   liquidSwaps: [],
+  crashReportingSettings: {
+    isCrashReportingEnabled: true,
+    lastChangedInSettings: new Date().getTime(),
+    lastChangedWithFirebase: new Date().getTime(),
+  },
 };
 
 async function sendDataToDB(newObject, uuid) {

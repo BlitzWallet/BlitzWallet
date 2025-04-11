@@ -12,6 +12,7 @@ const keys = [
   'hideUnknownContacts',
   'useTrampoline',
   QUICK_PAY_STORAGE_KEY,
+  'crashReportingSettings',
 ];
 
 const defaultValues = {
@@ -27,6 +28,11 @@ const defaultValues = {
   [QUICK_PAY_STORAGE_KEY]: {
     isFastPayEnabled: false,
     fastPayThresholdSats: 5000,
+  },
+  crashReportingSettings: {
+    isCrashReportingEnabled: true,
+    lastChangedInSettings: new Date().getTime(),
+    lastChangedWithFirebase: new Date().getTime(),
   },
 };
 
@@ -55,5 +61,7 @@ export const fetchLocalStorageItems = async () => {
     hideUnknownContacts: parsedResults[7] ?? defaultValues.hideUnknownContacts,
     useTrampoline: parsedResults[8] ?? defaultValues.useTrampoline,
     fastPaySettings: parsedResults[9] ?? defaultValues[QUICK_PAY_STORAGE_KEY],
+    crashReportingSettings:
+      parsedResults[10] ?? defaultValues.crashReportingSettings,
   };
 };

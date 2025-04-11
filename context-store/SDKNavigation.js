@@ -4,6 +4,7 @@ import {useEffect, useRef} from 'react';
 import {useLightningEvent} from './lightningEventContext';
 import {useAppStatus} from './appStatus';
 import {useGlobaleCash} from './eCash';
+import {crashlyticsLogReport} from '../app/functions/crashlyticsLogs';
 
 export function LiquidNavigationListener() {
   const navigation = useNavigation();
@@ -19,6 +20,11 @@ export function LiquidNavigationListener() {
       return;
     }
     if (isNavigating.current) return;
+    crashlyticsLogReport(
+      `Navigating to confirm tx page in liquid listener with: ${JSON.stringify(
+        pendingNavigation,
+      )}`,
+    );
     isNavigating.current = true;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -47,6 +53,11 @@ export function LightningNavigationListener() {
       return;
     }
     if (isNavigating.current) return;
+    crashlyticsLogReport(
+      `Navigating to confirm tx page in lightning listener with: ${JSON.stringify(
+        pendingNavigation,
+      )}`,
+    );
     isNavigating.current = true;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -75,6 +86,11 @@ export function EcashNavigationListener() {
       return;
     }
     if (isNavigating.current) return;
+    crashlyticsLogReport(
+      `Navigating to confirm tx page in ecash listener with: ${JSON.stringify(
+        pendingNavigation,
+      )}`,
+    );
     isNavigating.current = true;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {

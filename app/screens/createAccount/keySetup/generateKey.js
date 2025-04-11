@@ -11,6 +11,10 @@ import {copyToClipboard} from '../../../functions';
 import {useNavigation} from '@react-navigation/native';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
+import {
+  crashlyticsLogReport,
+  crashlyticsRecordErrorReport,
+} from '../../../functions/crashlyticsLogs';
 
 export default function GenerateKey() {
   const [mnemonic, setMnemonic] = useState([]);
@@ -19,6 +23,7 @@ export default function GenerateKey() {
   useHandleBackPressNew();
 
   useState(() => {
+    crashlyticsLogReport('Loading seed from storage during login');
     async function loadSeed() {
       const keys = await retrieveData('mnemonic');
       setMnemonic(keys.split(' '));
@@ -73,6 +78,9 @@ export default function GenerateKey() {
               textContent={t('constants.copy')}
               actionFunction={() => {
                 if (mnemonic.length !== 12) {
+                  crashlyticsRecordErrorReport(
+                    'Not able to genrate valid seed on create account path',
+                  );
                   hookNavigate.navigate('ErrorScreen', {
                     errorMessage: 'Not able to generate valid seed',
                   });
