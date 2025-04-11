@@ -95,7 +95,7 @@ export default function SwitchReceiveOptionPage() {
     navigate.popTo(
       'ReceiveBTC',
       {
-        selectedRecieveOption: selectedOption,
+        selectedRecieveOption: selectedOption?.toLowerCase(),
       },
       {
         merge: true,
