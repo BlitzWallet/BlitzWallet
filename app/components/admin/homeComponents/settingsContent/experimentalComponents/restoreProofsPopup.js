@@ -11,7 +11,11 @@ import {
   restoreProofsEventListener,
   RESTORE_PROOFS_EVENT_NAME,
 } from '../../../../../functions/eCash/restore';
-import {deleteMint} from '../../../../../functions/eCash/db';
+import {
+  deleteMint,
+  getAllMints,
+  selectMint,
+} from '../../../../../functions/eCash/db';
 
 export default function RestoreProofsPopup(props) {
   const {mintURL} = props?.route?.params;
@@ -22,13 +26,19 @@ export default function RestoreProofsPopup(props) {
   const [didFinish, setDidFinish] = useState(false);
 
   useEffect(() => {
-    function handleRestoreProofEvents(eventName) {
+    async function handleRestoreProofEvents(eventName) {
       if (eventName === 'end') {
         setDidFinish(true);
         return;
       } else if (eventName.toLowerCase().includes('error')) {
         setRestoreProcessText(eventName);
-        deleteMint(mintURL);
+        await deleteMint(mintURL);
+        const mints = await getAllMints();
+
+        if (mints.length) {
+          await selectMint(mints[0].mintURL);
+        }
+
         setTimeout(() => {
           navigate.goBack();
         }, 2000);
