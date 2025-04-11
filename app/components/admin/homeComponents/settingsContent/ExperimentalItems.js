@@ -68,7 +68,7 @@ export default function ExperimentalItemsPage() {
 
   const handleGoBackOnError = () => {
     toggleMasterInfoObject({
-      enabledEcash: !enabledEcash,
+      enabledEcash: false,
     });
     navigate.popTo('SettingsHome');
   };
