@@ -124,7 +124,6 @@ async function generateLightningAddress(wolletInfo) {
       if (eCashInvoice.didWork) {
         ecashEventEmitter.emit(ECASH_QUOTE_EVENT_NAME, {
           quote: eCashInvoice.mintQuote.quote,
-          counter: eCashInvoice.counter,
           mintURL: eCashInvoice.mintURL,
         });
         return {

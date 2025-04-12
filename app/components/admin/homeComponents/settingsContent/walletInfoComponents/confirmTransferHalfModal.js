@@ -74,7 +74,6 @@ export default function ConfirmInternalTransferHalfModal(props) {
             throw new Error('Unable to generate invoice');
           ecashEventEmitter.emit(ECASH_QUOTE_EVENT_NAME, {
             quote: eCashInvoice.mintQuote.quote,
-            counter: eCashInvoice.counter,
             mintURL: eCashInvoice.mintURL,
             shouldNavigate: false,
           });

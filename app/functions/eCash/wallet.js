@@ -108,28 +108,17 @@ async function getECashInvoice({amount, mintURL, descriptoin}) {
       descriptoin || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
     );
 
-    const didMint = await mintEcash({
-      invoice: mintQuote.request,
-      quote: mintQuote.quote,
-      mintURL: mintURL,
-    });
-
-    console.log(didMint);
-    if (!didMint.prasedInvoice && didMint.error !== 'Quote not paid')
-      throw new Error('Not able to create mint quote');
-
-    if (!didMint.counter) throw new Error('Not able to create mint quote');
-    await hanleEcashQuoteStorage(mintQuote, true, didMint.counter);
+    await hanleEcashQuoteStorage(mintQuote, true);
 
     console.log('generated Ecash quote', mintQuote);
-    return {mintQuote, counter: didMint.counter, mintURL, didWork: true};
+    return {mintQuote, mintURL, didWork: true};
   } catch (err) {
     console.log('generating ecash invoice error', err.message);
     return {didWork: false, reason: err.message};
   }
 }
 
-export const hanleEcashQuoteStorage = async (mintQuote, addProof, counter) => {
+export const hanleEcashQuoteStorage = async (mintQuote, addProof) => {
   try {
     const activeMintURL = await getSelectedMint();
     if (!activeMintURL) throw new Error('No selected mint to save to');
@@ -138,7 +127,7 @@ export const hanleEcashQuoteStorage = async (mintQuote, addProof, counter) => {
       JSON.parse(await getLocalStorageItem(ECASH_QUOTE_STORAGE_KEY)) || [];
 
     if (addProof) {
-      localStoredQuotes.push({...mintQuote, mintURL: activeMintURL, counter});
+      localStoredQuotes.push({...mintQuote, mintURL: activeMintURL});
     } else {
       localStoredQuotes = localStoredQuotes.filter(
         quote => quote.quote !== mintQuote,
@@ -174,83 +163,103 @@ export const getEcashBalance = async () => {
 
 async function claimUnclaimedEcashQuotes() {
   try {
-    let localStoredQuotes =
+    const localStoredQuotes =
       JSON.parse(await getLocalStorageItem(ECASH_QUOTE_STORAGE_KEY)) || [];
 
-    console.log(localStoredQuotes, 'STORED ECASH QUOTES');
-    let newTransactions = {};
-    let newProofs = {};
-    const newQuotes = await Promise.all(
-      localStoredQuotes.map(async storedQuoteInformation => {
-        console.log(storedQuoteInformation?.mintURL);
-        if (!storedQuoteInformation?.mintURL || !storedQuoteInformation.counter)
-          return false;
+    if (!localStoredQuotes.length) return;
+
+    console.log('STORED ECASH QUOTES', localStoredQuotes);
+
+    const newTransactions = {};
+    const newProofs = {};
+    const validQuotes = [];
+
+    for (const storedQuoteInformation of localStoredQuotes) {
+      if (!storedQuoteInformation?.mintURL) continue;
+
+      try {
+        const mintURL = storedQuoteInformation.mintURL;
         const minQuoteResponse = await checkMintQuote({
           quote: storedQuoteInformation.quote,
-          mintURL: storedQuoteInformation.mintURL,
+          mintURL,
         });
 
-        if (!minQuoteResponse) return false;
+        console.log('store ecash min quote response', minQuoteResponse);
 
-        const quoteDate = new Date(minQuoteResponse.expiry * 1000);
-        const currentDate = new Date();
+        if (!minQuoteResponse) {
+          validQuotes.push(storedQuoteInformation);
+          continue;
+        }
 
-        if (minQuoteResponse.state === MintQuoteState.UNPAID)
-          return quoteDate < currentDate ? false : minQuoteResponse;
+        const newStorageQuoteObject = {
+          ...storedQuoteInformation,
+          paid: minQuoteResponse.paid,
+          state: minQuoteResponse.state,
+        };
+
+        if (newStorageQuoteObject.state === MintQuoteState.UNPAID) {
+          if (newStorageQuoteObject.expiry) {
+            const quoteDate = new Date(newStorageQuoteObject.expiry * 1000);
+            const currentDate = new Date();
+
+            if (quoteDate > currentDate) {
+              validQuotes.push(newStorageQuoteObject);
+            }
+          } else validQuotes.push(newStorageQuoteObject);
+          continue;
+        }
 
         const didMint = await mintEcash({
-          invoice: minQuoteResponse.request,
-          quote: minQuoteResponse.quote,
-          mintURL: storedQuoteInformation.mintURL,
-          globalCounter: storedQuoteInformation.counter,
+          invoice: newStorageQuoteObject.request,
+          quote: newStorageQuoteObject.quote,
+          mintURL,
         });
+
         if (didMint.prasedInvoice) {
           const formattedEcashTx = formatEcashTx({
             amount: didMint.prasedInvoice.amountMsat / 1000,
             fee: 0,
             paymentType: 'received',
             description: didMint.prasedInvoice.description,
-            invoice: minQuoteResponse.request,
+            invoice: newStorageQuoteObject.request,
           });
 
-          if (!newTransactions[storedQuoteInformation?.mintURL]) {
-            newTransactions[storedQuoteInformation?.mintURL] = [];
-          }
-          newTransactions[storedQuoteInformation?.mintURL].push(
-            formattedEcashTx,
-          );
+          newTransactions[mintURL] = newTransactions[mintURL] || [];
+          newProofs[mintURL] = newProofs[mintURL] || [];
 
-          if (!newProofs[storedQuoteInformation?.mintURL]) {
-            newProofs[storedQuoteInformation?.mintURL] = [];
-          }
-          newProofs[storedQuoteInformation?.mintURL].push(...didMint.proofs);
-          return false;
-        } else {
-          if (
-            minQuoteResponse.state === MintQuoteState.PAID ||
-            minQuoteResponse.state === MintQuoteState.ISSUED
-          )
-            return false;
-
-          return minQuoteResponse;
+          newTransactions[mintURL].push(formattedEcashTx);
+          newProofs[mintURL].push(...didMint.proofs);
+        } else if (
+          newStorageQuoteObject.state !== MintQuoteState.PAID &&
+          newStorageQuoteObject.state !== MintQuoteState.ISSUED
+        ) {
+          validQuotes.push(newStorageQuoteObject);
         }
-      }),
-    );
-    const filterdQuotes = newQuotes.filter(item => !!item);
-
-    setLocalStorageItem(ECASH_QUOTE_STORAGE_KEY, JSON.stringify(filterdQuotes));
-
-    if (!Object.keys(newTransactions).length && !Object.keys(newProofs).length)
-      return;
-    for (const mintURL in newTransactions) {
-      if (newTransactions[mintURL].length) {
-        await storeEcashTransactions(newTransactions[mintURL], mintURL);
+      } catch (quoteError) {
+        console.log('Error processing quote:', quoteError);
+        validQuotes.push(storedQuoteInformation);
       }
     }
 
-    for (const mintURL in newProofs) {
-      if (newProofs[mintURL].length) {
-        await storeProofs(newProofs[mintURL], mintURL);
+    await setLocalStorageItem(
+      ECASH_QUOTE_STORAGE_KEY,
+      JSON.stringify(validQuotes),
+    );
+
+    const mintURLs = new Set([
+      ...Object.keys(newTransactions),
+      ...Object.keys(newProofs),
+    ]);
+    for (const mintURL of mintURLs) {
+      const transactions = newTransactions[mintURL] || [];
+      const proofs = newProofs[mintURL] || [];
+
+      if (transactions.length) {
+        await storeEcashTransactions(transactions, mintURL);
+      }
+
+      if (proofs.length) {
+        await storeProofs(proofs, mintURL);
       }
     }
   } catch (err) {
@@ -258,17 +267,14 @@ async function claimUnclaimedEcashQuotes() {
   }
 }
 
-async function mintEcash({invoice, quote, mintURL, globalCounter}) {
+async function mintEcash({invoice, quote, mintURL}) {
   let counter = 0;
   try {
     const mint = mintURL ? Promise.resolve(mintURL) : getSelectedMint();
     const currentMint = await mint;
     if (!currentMint) throw new Error('No selected mint');
     const wallet = await initEcashWallet(currentMint);
-    const selctingCounter = globalCounter
-      ? Promise.resolve(globalCounter)
-      : incrementMintCounter(currentMint);
-    counter = await selctingCounter;
+    const counter = await incrementMintCounter(currentMint);
     const prasedInvoice = await parseInvoice(invoice);
 
     console.log(prasedInvoice.amountMsat, 'mint ecash amount');

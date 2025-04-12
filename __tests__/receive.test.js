@@ -238,7 +238,6 @@ describe('initializeAddressProcess', () => {
         quote: 'ecash-quote-123',
         request: 'ecash-invoice-123',
       },
-      counter: 1,
       mintURL: 'https://mint.example.com',
     });
 

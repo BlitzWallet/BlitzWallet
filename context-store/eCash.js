@@ -186,7 +186,6 @@ export const GlobaleCashVariables = ({children}) => {
   useEffect(() => {
     function listenForPayment(event) {
       const receiveEcashQuote = event?.quote;
-      const counter = event?.counter;
       const mintURL = event?.mintURL;
       const shouldNavigate =
         typeof event?.shouldNavigate !== 'boolean' || event?.shouldNavigate;
@@ -214,7 +213,6 @@ export const GlobaleCashVariables = ({children}) => {
           const didMint = await mintEcash({
             quote: response.quote,
             invoice: response.request,
-            globalCounter: counter,
             mintURL: mintURL,
           });
 
