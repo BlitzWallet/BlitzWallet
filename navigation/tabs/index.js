@@ -17,6 +17,7 @@ import {useGlobalContacts} from '../../context-store/globalContacts';
 import {ContactsPage} from '../../app/components/admin';
 import GetThemeColors from '../../app/hooks/themeColors';
 import {useGlobalThemeContext} from '../../context-store/theme';
+import ExploreUsers from '../../app/screens/inAccount/explorePage';
 
 const Tab = createBottomTabNavigator();
 
@@ -120,13 +121,21 @@ function MyTabBar({state, descriptors, navigation}) {
                           : isFocused
                           ? ICONS.walletBlueIcon
                           : ICONS.adminHomeWallet
+                        : label === 'App Store'
+                        ? theme && darkModeType
+                          ? isFocused
+                            ? ICONS.appStoreFilled_white
+                            : ICONS.appStore_white
+                          : isFocused
+                          ? ICONS.appstoreFilled
+                          : ICONS.appstore
                         : theme && darkModeType
                         ? isFocused
-                          ? ICONS.appStoreFilled_white
-                          : ICONS.appStore_white
+                          ? ICONS.navigationIconFillWhite
+                          : ICONS.navigationIconWhite
                         : isFocused
-                        ? ICONS.appstoreFilled
-                        : ICONS.appstore
+                        ? ICONS.navigationIconFill
+                        : ICONS.navigationIcon
                     }
                   />
 
@@ -173,6 +182,13 @@ export function MyTabs(props) {
       tabBar={props => <MyTabBar {...props} />}>
       <Tab.Screen name="ContactsPageInit" component={ContactsPage} />
       <Tab.Screen name="Home" component={props.adminHome} />
+      <Tab.Screen
+        screenOptions={{
+          headerShown: true,
+        }}
+        name="Explore"
+        component={ExploreUsers}
+      />
       <Tab.Screen name="App Store" component={props.appStore} />
     </Tab.Navigator>
   );
