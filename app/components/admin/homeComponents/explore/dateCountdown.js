@@ -32,10 +32,6 @@ export default function DateCountdown() {
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
 
-        console.log(
-          `${hours} hours, ${minutes} minutes, ${seconds} seconds until midnight UTC`,
-        );
-
         setMinuteTick(getFommattedTime());
       }, 1000);
 
@@ -51,7 +47,6 @@ export default function DateCountdown() {
     }, []),
   );
 
-  console.log(minuteTick);
   return (
     <ThemeText
       CustomNumberOfLines={1}

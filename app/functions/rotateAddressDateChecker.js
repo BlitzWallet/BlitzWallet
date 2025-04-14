@@ -133,6 +133,13 @@ const formatDateToDayMonthYear = timestamp => {
   }).format(date);
 };
 
+const isNewDaySince = lastDate => {
+  const now = new Date();
+  const last = new Date(lastDate);
+
+  return now.toDateString() !== last.toDateString();
+};
+
 export {
   isMoreThan7DaysPast,
   getCurrentDateFormatted,
@@ -143,4 +150,5 @@ export {
   getTwoWeeksAgoDate,
   formatDateToDayMonthYearTime,
   formatDateToDayMonthYear,
+  isNewDaySince,
 };
