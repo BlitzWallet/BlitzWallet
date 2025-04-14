@@ -138,7 +138,6 @@ export default function AppStore({navigation}) {
   return (
     <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
       <ThemeText content={'Store'} styles={{...styles.headerText}} />
-
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollViewStyles}>
@@ -355,7 +354,7 @@ const styles = StyleSheet.create({
 
   scrollViewStyles: {
     width: '100%',
-    paddingTop: 30,
+    paddingTop: 20,
     paddingBottom: 20,
   },
 });

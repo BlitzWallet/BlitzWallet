@@ -166,7 +166,7 @@ export default function ContactsPage({navigation}) {
       ).length !== 0 && myProfile.didEditProfile ? (
         <View style={{flex: 1}}>
           {pinnedContacts.length != 0 && (
-            <View style={{height: 130, marginBottom: 10}}>
+            <View style={{height: 130}}>
               <ScrollView
                 showsHorizontalScrollIndicator={false}
                 horizontal
@@ -640,10 +640,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-
-    // paddingHorizontal: 5,
     marginBottom: 10,
-    // backgroundColor: 'black',
     ...CENTER,
   },
 
