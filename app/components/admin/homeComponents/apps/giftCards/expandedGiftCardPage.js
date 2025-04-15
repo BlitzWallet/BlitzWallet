@@ -4,7 +4,6 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import {
@@ -58,7 +57,6 @@ export default function ExpandedGiftCardPage(props) {
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const insets = useSafeAreaInsets();
-  const {width} = useWindowDimensions();
   const [numberOfGiftCards, setNumberOfGiftCards] = useState('1');
   const selectedItem = props.route?.params?.selectedItem;
   const [selectedDenomination, setSelectedDenomination] = useState(
@@ -108,6 +106,59 @@ export default function ExpandedGiftCardPage(props) {
       ? veriableArray
       : selectedItem.denominations;
 
+  const demonimationElements = useMemo(() => {
+    return demoninationArray.map((item, index) => {
+      return (
+        <TouchableOpacity
+          onPress={() => setSelectedDenomination(item)}
+          key={item}
+          style={{
+            flexGrow: 1,
+            minWidth: 100,
+            paddingVertical: 10,
+            paddingHorizontal: 10,
+            borderRadius: 8,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor:
+              theme && darkModeType
+                ? selectedDenomination == item
+                  ? COLORS.lightsOutBackground
+                  : COLORS.white
+                : selectedDenomination == item
+                ? theme
+                  ? COLORS.darkModeBackground
+                  : COLORS.primary
+                : theme
+                ? COLORS.darkModeText
+                : COLORS.lightBlueForGiftCards,
+          }}>
+          <ThemeText
+            styles={{
+              color:
+                theme && darkModeType
+                  ? selectedDenomination == item
+                    ? COLORS.darkModeText
+                    : COLORS.lightModeText
+                  : selectedDenomination == item
+                  ? theme
+                    ? COLORS.darkModeText
+                    : COLORS.white
+                  : theme
+                  ? COLORS.lightModeText
+                  : COLORS.white,
+
+              fontSize: SIZES.small,
+              includeFontPadding: false,
+              textAlign: 'center',
+            }}
+            content={`${item} ${selectedItem.currency}`}
+          />
+        </TouchableOpacity>
+      );
+    });
+  }, [demoninationArray, theme, darkModeType, selectedDenomination]);
+
   const canPurchaseCard =
     selectedDenomination >= variableRange[0] &&
     selectedDenomination <= variableRange[1];
@@ -117,7 +168,6 @@ export default function ExpandedGiftCardPage(props) {
     selectedItem.description.includes('br');
   const isTermsHTML =
     selectedItem.terms.includes('<p>') || selectedItem.terms.includes('br');
-  const optionSpacing = (width * 0.95 - 40) * 0.95;
 
   return (
     <CustomKeyboardAvoidingView useStandardWidth={true}>
@@ -220,93 +270,7 @@ export default function ExpandedGiftCardPage(props) {
                 </>
               )}
 
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                }}>
-                {demoninationArray.map((item, index) => {
-                  return (
-                    <TouchableOpacity
-                      onPress={() => setSelectedDenomination(item)}
-                      key={item}
-                      style={{
-                        width: optionSpacing / 3,
-                        minWidth: 100,
-                        paddingVertical: 10,
-                        paddingHorizontal: 5,
-                        borderRadius: 8,
-                        marginBottom: optionSpacing * 0.025,
-                        marginHorizontal: (index - 1) % 3 === 0 ? '2.5%' : 0,
-                        backgroundColor:
-                          theme && darkModeType
-                            ? selectedDenomination == item
-                              ? COLORS.lightsOutBackground
-                              : COLORS.white
-                            : selectedDenomination == item
-                            ? theme
-                              ? COLORS.darkModeBackground
-                              : COLORS.primary
-                            : theme
-                            ? COLORS.darkModeText
-                            : COLORS.lightBlueForGiftCards,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}>
-                      <ThemeText
-                        styles={{
-                          color:
-                            theme && darkModeType
-                              ? selectedDenomination == item
-                                ? COLORS.darkModeText
-                                : COLORS.lightModeText
-                              : selectedDenomination == item
-                              ? theme
-                                ? COLORS.darkModeText
-                                : COLORS.white
-                              : theme
-                              ? COLORS.lightModeText
-                              : COLORS.white,
-
-                          fontSize: SIZES.small,
-                          includeFontPadding: false,
-                          textAlign: 'center',
-                        }}
-                        content={`${item} ${selectedItem.currency}`}
-                      />
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-              {/* <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginVertical: 10,
-                  }}>
-                  <ThemeText content={'Quantity'} />
-                  <CustomSearchInput
-                    keyboardType={'number-pad'}
-                    setInputText={setNumberOfGiftCards}
-                    inputText={numberOfGiftCards}
-                    textInputStyles={{
-                      marginRight: 0,
-                      marginLeft: 0,
-                      marginBottom: 0,
-                      paddingHorizontal: Platform.OS == 'ios' ? 15 : 10,
-                      color: COLORS.lightModeText,
-                      backgroundColor: COLORS.darkModeText,
-                      textAlign: 'center',
-                    }}
-                    containerStyles={{
-                      width: 'auto',
-                      marginRight: 0,
-                      marginLeft: 0,
-                    }}
-                  />
-                 
-                </View> */}
+              <View style={styles.amountContainer}>{demonimationElements}</View>
 
               <ThemeText
                 styles={{marginTop: 20, marginBottom: 5}}
@@ -656,5 +620,11 @@ const styles = StyleSheet.create({
   companyName: {
     fontWeight: '500',
     fontSize: SIZES.xLarge,
+  },
+  amountContainer: {
+    flexDirection: 'row',
+    columnGap: 10,
+    rowGap: 10,
+    flexWrap: 'wrap',
   },
 });
