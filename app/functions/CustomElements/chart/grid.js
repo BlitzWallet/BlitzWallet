@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {G, Line} from 'react-native-svg';
+import {COLORS} from '../../../constants';
 
-const Horizontal = ({ticks = [], y, svg = {}}) => {
+const Horizontal = ({ticks = [], y, svg = {}, fill = COLORS.opaicityGray}) => {
   return (
     <G>
       {ticks.map(tick => (
@@ -13,7 +14,7 @@ const Horizontal = ({ticks = [], y, svg = {}}) => {
           y1={y(tick)}
           y2={y(tick)}
           strokeWidth={1}
-          stroke={'rgba(0,0,0,0.2)'}
+          stroke={fill}
           {...svg}
         />
       ))}
@@ -21,7 +22,7 @@ const Horizontal = ({ticks = [], y, svg = {}}) => {
   );
 };
 
-const Vertical = ({ticks = [], x, svg = {}}) => {
+const Vertical = ({ticks = [], x, svg = {}, fill = COLORS.opaicityGray}) => {
   return (
     <G>
       {ticks.map((tick, index) => (
@@ -32,7 +33,7 @@ const Vertical = ({ticks = [], x, svg = {}}) => {
           x1={x(tick)}
           x2={x(tick)}
           strokeWidth={1}
-          stroke={'rgba(0,0,0,0.2)'}
+          stroke={fill}
           {...svg}
         />
       ))}
