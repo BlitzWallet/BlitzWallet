@@ -6,6 +6,7 @@ import {useState} from 'react';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 
 export default function AcceptButtonSendPage({
   canSendPayment,
@@ -94,26 +95,41 @@ export default function AcceptButtonSendPage({
       });
       return;
     }
+    if (
+      (!canSendPayment &&
+        paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min) ||
+      paymentInfo?.sendAmount > minMaxLiquidSwapAmounts.max
+    ) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: `${
+          paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min
+            ? 'Minimum'
+            : 'Maximum'
+        } send amount ${displayCorrectDenomination({
+          amount:
+            minMaxLiquidSwapAmounts[
+              paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min
+                ? 'min'
+                : 'max'
+            ],
+          nodeInformation,
+          masterInfoObject,
+        })}`,
+      });
+      return;
+    }
+    if (
+      !canSendPayment &&
+      paymentInfo?.type === InputTypeVariant.BOLT12_OFFER
+    ) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'You can only send to Bolt12 offers from Liquid',
+      });
+      return;
+    }
     if (!canSendPayment && !!paymentInfo?.sendAmount) {
       navigate.navigate('ErrorScreen', {
-        errorMessage:
-          paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min ||
-          paymentInfo?.sendAmount > minMaxLiquidSwapAmounts.max
-            ? `${
-                paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min
-                  ? 'Minimum'
-                  : 'Maximum'
-              } send amount ${displayCorrectDenomination({
-                amount:
-                  minMaxLiquidSwapAmounts[
-                    paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min
-                      ? 'min'
-                      : 'max'
-                  ],
-                nodeInformation,
-                masterInfoObject,
-              })}`
-            : 'Not enough funds to cover fees',
+        errorMessage: 'Not enough funds to cover fees',
       });
       return;
     }
