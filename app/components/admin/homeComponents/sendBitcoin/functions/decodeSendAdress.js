@@ -1,8 +1,8 @@
 import {InputTypeVariant, parseInput} from '@breeztech/react-native-breez-sdk';
-import {decodeLiquidAddress} from '../../../../../functions/liquidWallet/decodeLiquidAddress';
 import {getLNAddressForLiquidPayment} from './payments';
 import {
   InputTypeVariant as LiquidTypeVarient,
+  parse,
   parseInvoice,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
@@ -14,6 +14,7 @@ import processLNUrlWithdraw from './processLNUrlWithdrawl';
 import processLiquidAddress from './processLiquidAddress';
 import getLiquidAddressFromSwap from '../../../../../functions/boltz/magicRoutingHints';
 import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
+import processBolt12Offer from './processBolt12Offer';
 
 export default async function decodeSendAddress(props) {
   let {
@@ -82,7 +83,8 @@ export default async function decodeSendAddress(props) {
 
     crashlyticsLogReport('Parsing bitcoin address input');
 
-    const input = await parseInput(btcAdress);
+    const input = await parse(btcAdress);
+
     if (input.type === InputTypeVariant.BOLT11) {
       crashlyticsLogReport(
         'Running check to see if bolt11 address contains liquid address',
@@ -115,46 +117,13 @@ export default async function decodeSendAddress(props) {
 
     if (processedPaymentInfo) {
       setPaymentInfo(processedPaymentInfo);
+    } else {
+      goBackFunction('Unable to to process input');
     }
   } catch (err) {
-    console.log(err, 'LIGHTNING ERROR');
-
-    try {
-      const rawLiquidAddress = btcAdress.startsWith(
-        process.env.BOLTZ_ENVIRONMENT === 'testnet'
-          ? 'liquidtestnet:'
-          : 'liquidnetwork:',
-      )
-        ? btcAdress.split('?')[0].split(':')[1]
-        : btcAdress;
-
-      const input = decodeLiquidAddress(rawLiquidAddress);
-
-      if (input) {
-        const processedLiquidInfo = await processInputType(
-          {...input, type: 'liquidAddress'},
-          {
-            btcAddress: btcAdress,
-            liquidNodeInformation,
-            nodeInformation,
-            masterInfoObject,
-            navigate,
-            goBackFunction,
-            comingFromAccept,
-            enteredPaymentInfo,
-            setLoadingMessage,
-            paymentInfo,
-          },
-        );
-
-        setPaymentInfo(processedLiquidInfo);
-      } else {
-        goBackFunction('Error getting liquid address');
-      }
-    } catch (err) {
-      console.log('error parsing liquid address', err);
-      goBackFunction(err.message);
-    }
+    console.log(err, 'Decoding send address erorr');
+    goBackFunction(err.message);
+    return;
   }
 }
 
@@ -182,6 +151,8 @@ async function processInputType(input, context) {
     case LiquidTypeVarient.LIQUID_ADDRESS:
       return processLiquidAddress(input, context);
 
+    case LiquidTypeVarient.BOLT12_OFFER:
+      return processBolt12Offer(input, context);
     default:
       goBackFunction('Not a valid address type');
       return null;
