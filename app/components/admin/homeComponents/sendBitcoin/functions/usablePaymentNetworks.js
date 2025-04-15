@@ -1,3 +1,4 @@
+import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import {DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS} from '../../../../../constants/math';
 
 export default function usablePaymentNetwork({
@@ -29,7 +30,8 @@ export default function usablePaymentNetwork({
 
     const canUseEcash =
       masterInfoObject.enabledEcash &&
-      eCashBalance >= convertedSendAmount + lnFee;
+      eCashBalance >= convertedSendAmount + lnFee &&
+      paymentInfo?.type !== InputTypeVariant.BOLT12_OFFER;
 
     const canUseLightningWithLNEnabled = isLightningPayment
       ? nodeInformation.userBalance >= convertedSendAmount + lnFee
@@ -49,10 +51,12 @@ export default function usablePaymentNetwork({
         canUseEcash
       : false;
 
-    const canUseLightning = masterInfoObject.liquidWalletSettings
-      .isLightningEnabled
-      ? canUseLightningWithLNEnabled || canUseLightningWithoutLNEnabled
-      : canUseLightningWithoutLNEnabled;
+    const canUseLightning =
+      paymentInfo?.type !== InputTypeVariant.BOLT12_OFFER
+        ? false
+        : masterInfoObject.liquidWalletSettings.isLightningEnabled
+        ? canUseLightningWithLNEnabled || canUseLightningWithoutLNEnabled
+        : canUseLightningWithoutLNEnabled;
 
     return {canUseEcash, canUseLiquid, canUseLightning};
   } catch (err) {

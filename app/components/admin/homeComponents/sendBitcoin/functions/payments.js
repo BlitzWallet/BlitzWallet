@@ -475,6 +475,47 @@ export async function sendPaymentUsingEcash({
   }
 }
 
+export async function sendBolt12Offer_sendPaymentScreen({
+  sendingAmount,
+  paymentInfo,
+  navigate,
+  fromPage,
+  publishMessageFunc,
+}) {
+  try {
+    crashlyticsLogReport('Begining send bolt12 offer payment process');
+
+    console.log(paymentInfo?.data?.offer?.offer);
+    const paymentResponse = await breezLiquidPaymentWrapper({
+      invoice: paymentInfo?.data?.offer?.offer,
+      paymentType: 'bolt12',
+      sendAmount: sendingAmount,
+    });
+
+    if (!paymentResponse.didWork) {
+      handleNavigation({
+        navigate,
+        didWork: false,
+        response: {
+          details: {error: paymentResponse.error, amountSat: sendingAmount},
+        },
+        formattingType: 'liquidNode',
+      });
+      return;
+    }
+    const {payment, fee} = paymentResponse;
+
+    if (fromPage === 'contacts') {
+      publishMessageFunc();
+    }
+
+    console.log(payment, fee);
+  } catch (err) {
+    console.log('sending bolt12 offer payment error', err);
+    crashlyticsRecordErrorReport(err.message);
+  }
+}
+
 export async function getLNAddressForLiquidPayment(
   paymentInfo,
   sendingValue,
