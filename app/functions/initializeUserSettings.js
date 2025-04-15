@@ -217,11 +217,11 @@ export default async function initializeUserSettingsFromHistory({
       );
       if (response) {
         tempObject['exploreData'] = response;
-      }
-      setLocalStorageItem(
-        'savedExploreData',
-        JSON.stringify({lastUpdated: new Date().getTime(), data: response}),
-      );
+        setLocalStorageItem(
+          'savedExploreData',
+          JSON.stringify({lastUpdated: new Date().getTime(), data: response}),
+        );
+      } else tempObject['exploreData'] = null;
     } else {
       tempObject['exploreData'] = lastUpdatedExploreData.data;
     }
