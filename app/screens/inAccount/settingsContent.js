@@ -32,6 +32,7 @@ import {useGlobalContextProvider} from '../../../context-store/context';
 import {useGlobaleCash} from '../../../context-store/eCash';
 import {useCallback} from 'react';
 import {keyboardGoBack} from '../../functions/customNavigation';
+import ExploreUsers from './explorePage';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
@@ -121,6 +122,7 @@ export default function SettingsContentIndex(props) {
             {selectedPage?.toLowerCase() === 'crash reports' && (
               <CrashReportingSettingsPage />
             )}
+            {selectedPage?.toLowerCase() === 'blitz stats' && <ExploreUsers />}
 
             {selectedPage?.toLowerCase() === 'noster wallet connect' && (
               <NosterWalletConnect theme={theme} />

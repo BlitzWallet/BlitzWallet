@@ -182,13 +182,13 @@ export function MyTabs(props) {
       tabBar={props => <MyTabBar {...props} />}>
       <Tab.Screen name="ContactsPageInit" component={ContactsPage} />
       <Tab.Screen name="Home" component={props.adminHome} />
-      <Tab.Screen
+      {/* <Tab.Screen
         screenOptions={{
           headerShown: true,
         }}
         name="Explore"
         component={ExploreUsers}
-      />
+      /> */}
       <Tab.Screen name="App Store" component={props.appStore} />
     </Tab.Navigator>
   );

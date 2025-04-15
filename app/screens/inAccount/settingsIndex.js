@@ -60,6 +60,14 @@ const GENERALOPTIONS = [
     svgName: 'crashDebugIcon',
     arrowIcon: ICONS.leftCheveronIcon,
   },
+  {
+    for: 'general',
+    name: 'Blitz Stats',
+    svgName: 'crashDebugIcon',
+    icon: ICONS.navigationIcon,
+    iconWhite: ICONS.navigationIconWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
   // {
   //   for: 'general',
   //   name: 'Send On-chain',
