@@ -14,6 +14,7 @@ import {useNavigation} from '@react-navigation/native';
 import {
   getLNAddressForLiquidPayment,
   sendBitcoinPayment,
+  sendBolt12Offer_sendPaymentScreen,
   sendLightningPayment_sendPaymentScreen,
   sendLiquidPayment_sendPaymentScreen,
   sendPaymentUsingEcash,
@@ -52,6 +53,7 @@ import {keyboardGoBack} from '../../../../functions/customNavigation';
 import ErrorWithPayment from './components/errorScreen';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -492,6 +494,16 @@ export default function SendPaymentScreen(props) {
           ],
         });
       }
+      return;
+    }
+    if (paymentInfo?.type === InputTypeVariant.BOLT12_OFFER) {
+      await sendBolt12Offer_sendPaymentScreen({
+        sendingAmount: convertedSendAmount,
+        paymentInfo,
+        navigate,
+        fromPage,
+        publishMessageFunc,
+      });
       return;
     }
 
