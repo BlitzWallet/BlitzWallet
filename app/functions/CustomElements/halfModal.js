@@ -1,10 +1,12 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {PanResponder} from 'react-native';
 import {
   Animated,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
   useWindowDimensions,
@@ -50,7 +52,7 @@ export default function CustomHalfModal(props) {
   const translateY = useRef(
     new Animated.Value(windowDimensions.height),
   ).current;
-
+  const panY = useRef(new Animated.Value(0)).current;
   const deviceHeight = useWindowDimensions().height;
 
   const handleBackPressFunction = useCallback(() => {
@@ -198,45 +200,70 @@ export default function CustomHalfModal(props) {
         return <ThemeText content={'TST'} />;
     }
   };
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return gestureState.dy > 5; // Only start gesture if dragging down
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          panY.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 100) {
+          // Consider it a dismiss
+          handleBackPressFunction();
+        } else {
+          // Return to original position
+          Animated.timing(panY, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    }),
+  ).current;
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : null}
       style={styles.keyboardAvoidingView}>
       <TouchableWithoutFeedback onPress={handleBackPressFunction}>
-        <View style={styles.container}>
-          <Animated.View
-            style={[
-              styles.contentContainer,
-              {
-                height: contentHeight
-                  ? contentHeight
-                  : deviceHeight * slideHeight,
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : backgroundColor,
-                paddingBottom:
-                  contentType === 'manualEnterSendAddress'
-                    ? isKeyboardActive
-                      ? CONTENT_KEYBOARD_OFFSET
-                      : bottomPadding
-                    : contentType === 'addContacts'
-                    ? 0
-                    : bottomPadding,
-                transform: [{translateY}],
-              },
-            ]}>
-            <View
-              style={[
-                styles.topBar,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                },
-              ]}
-            />
-            {renderContent()}
-          </Animated.View>
-        </View>
+        <View style={styles.container} />
       </TouchableWithoutFeedback>
+      <Animated.View
+        {...panResponder.panHandlers}
+        style={[
+          styles.contentContainer,
+          {
+            height: contentHeight ? contentHeight : deviceHeight * slideHeight,
+            backgroundColor:
+              theme && darkModeType ? backgroundOffset : backgroundColor,
+            paddingBottom:
+              contentType === 'manualEnterSendAddress'
+                ? isKeyboardActive
+                  ? CONTENT_KEYBOARD_OFFSET
+                  : bottomPadding
+                : contentType === 'addContacts'
+                ? 0
+                : bottomPadding,
+            transform: [{translateY: Animated.add(translateY, panY)}],
+          },
+        ]}>
+        <View
+          style={[
+            styles.topBar,
+            {
+              backgroundColor:
+                theme && darkModeType ? backgroundColor : backgroundOffset,
+            },
+          ]}
+        />
+
+        {renderContent()}
+      </Animated.View>
     </KeyboardAvoidingView>
   );
 }
@@ -244,11 +271,11 @@ export default function CustomHalfModal(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.halfModalBackgroundColor,
-    justifyContent: 'flex-end',
   },
   keyboardAvoidingView: {
     flex: 1,
+    backgroundColor: COLORS.halfModalBackgroundColor,
+    justifyContent: 'flex-end',
   },
   topBar: {
     width: 120,
