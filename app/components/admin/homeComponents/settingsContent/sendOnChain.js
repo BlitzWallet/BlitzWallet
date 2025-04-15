@@ -64,8 +64,6 @@ export default function SendOnChainBitcoin({isDoomsday}) {
     initPage();
   }, []);
 
-  console.log(isDoomsday, 'ISDOMES');
-
   return (
     <CustomKeyboardAvoidingView
       useLocalPadding={true}
@@ -89,7 +87,7 @@ export default function SendOnChainBitcoin({isDoomsday}) {
         label={'Channel Closure'}
       />
 
-      {isLoading || onChainBalance != 0 ? (
+      {isLoading || onChainBalance === 0 ? (
         <FullLoadingScreen
           showLoadingIcon={isLoading}
           textStyles={{textAlign: 'center'}}
