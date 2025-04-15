@@ -5,12 +5,15 @@ import {generateRandomContact} from './contacts';
 import {
   getCurrentDateFormatted,
   getDateXDaysAgo,
+  isNewDaySince,
 } from './rotateAddressDateChecker';
 import {MIN_CHANNEL_OPEN_FEE, QUICK_PAY_STORAGE_KEY} from '../constants';
 import {sendDataToDB} from '../../db/interactionManager';
 import {initializeFirebase} from '../../db/initializeFirebase';
 import {fetchLocalStorageItems} from './initializeUserSettingsHelpers';
 import {crashlyticsLogReport} from './crashlyticsLogs';
+import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
+import fetchBackend from '../../db/handleBackend';
 
 export default async function initializeUserSettingsFromHistory({
   setContactsPrivateKey,
@@ -41,10 +44,12 @@ export default async function initializeUserSettingsFromHistory({
     await initializeFirebase(publicKey, privateKey);
 
     // Wrap both of thses in promise.all to fetch together.
-    let [blitzStoredData, localStoredData] = await Promise.all([
-      getDataFromCollection('blitzWalletUsers', publicKey),
-      fetchLocalStorageItems(),
-    ]);
+    let [blitzStoredData, localStoredData, lastUpdatedExploreData] =
+      await Promise.all([
+        getDataFromCollection('blitzWalletUsers', publicKey),
+        fetchLocalStorageItems(),
+        getLocalStorageItem('savedExploreData').then(data => JSON.parse(data)),
+      ]);
 
     const {
       storedUserTxPereferance,
@@ -200,6 +205,26 @@ export default async function initializeUserSettingsFromHistory({
       needsToUpdate = true;
     }
 
+    if (
+      !lastUpdatedExploreData?.lastUpdated ||
+      isNewDaySince(lastUpdatedExploreData?.lastUpdated)
+    ) {
+      const response = await fetchBackend(
+        'getTotalUserCount',
+        {data: publicKey},
+        privateKey,
+        publicKey,
+      );
+      if (response) {
+        tempObject['exploreData'] = response;
+      }
+      setLocalStorageItem(
+        'savedExploreData',
+        JSON.stringify({lastUpdated: new Date().getTime(), data: response}),
+      );
+    } else {
+      tempObject['exploreData'] = lastUpdatedExploreData.data;
+    }
     tempObject['homepageTxPreferance'] = storedUserTxPereferance;
     tempObject['userBalanceDenomination'] = userBalanceDenomination;
     tempObject['userSelectedLanguage'] = selectedLanguage;
