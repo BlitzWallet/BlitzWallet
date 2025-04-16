@@ -53,7 +53,12 @@ export default function NoDataView() {
   };
   return (
     <GlobalThemeView
-      styles={{alignItems: 'center', justifyContent: 'center'}}
+      styles={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingBottom: 0,
+        paddingTop: 0,
+      }}
       useStandardWidth={true}>
       <LottieView
         ref={animationRef}
@@ -66,7 +71,7 @@ export default function NoDataView() {
         }}
       />
       <ThemeText
-        styles={{marginBottom: 50}}
+        styles={{marginBottom: 'auto'}}
         content={'We were unable to retrive Blitz User count.'}
       />
       <CustomButton
