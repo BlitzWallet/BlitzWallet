@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {
   EnvironmentType,
   NodeConfigVariant,
@@ -9,9 +9,8 @@ import {
 import {btoa, atob, toByteArray} from 'react-native-quick-base64';
 import {generateMnemonic} from '@scure/bip39';
 import {wordlist} from '@scure/bip39/wordlists/english';
-import {GlobalThemeView, ThemeText} from '../functions/CustomElements';
-import CustomButton from '../functions/CustomElements/button';
-import {INSET_WINDOW_WIDTH} from '../constants/theme';
+
+import {COLORS, INSET_WINDOW_WIDTH} from '../constants/theme';
 import {CENTER} from '../constants';
 import {
   LiquidNetwork,
@@ -27,18 +26,17 @@ const onBreezLiquidEvent = e => {
 
 export default function BreezTest() {
   return (
-    <GlobalThemeView styles={styles.container}>
-      <ThemeText
-        styles={styles.labelText}
-        content={
-          'When trying to run the connect function, the app crashes. Click Connect to reproduce.'
-        }
-      />
-      <CustomButton
-        actionFunction={() => connectToLiquidNode(onBreezLiquidEvent)}
-        textContent={'Run connect'}
-      />
-    </GlobalThemeView>
+    <View style={styles.container}>
+      <Text style={styles.labelText}>
+        When trying to run the connect function, the app crashes. Click Connect
+        to reproduce.
+      </Text>
+      <TouchableOpacity
+        style={styles.buttonContainer}
+        onPress={() => connectToLiquidNode(onBreezLiquidEvent)}>
+        <Text> Run connect</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -124,13 +122,20 @@ function unit8ArrayConverter(unitArray) {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: COLORS.lightModeBackground,
   },
   labelText: {
     textAlign: 'center',
     width: INSET_WINDOW_WIDTH,
     marginBottom: 20,
     ...CENTER,
+  },
+  buttonContainer: {
+    backgroundColor: COLORS.darkModeText,
+    padding: 20,
+    borderRadius: 8,
   },
 });
