@@ -2,7 +2,7 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {
   EnvironmentType,
   NodeConfigVariant,
-  connect,
+  // connect,
   // defaultConfig,
   mnemonicToSeed,
 } from '@breeztech/react-native-breez-sdk';
@@ -15,6 +15,8 @@ import {CENTER} from '../constants';
 import {
   LiquidNetwork,
   defaultConfig,
+  addEventListener,
+  connect,
 } from '@breeztech/react-native-breez-sdk-liquid';
 
 const onBreezEvent = e => {
@@ -87,11 +89,13 @@ async function connectToLiquidNode(breezLiquidEvent) {
 
   try {
     // Create the default config, providing your Breez API key
-    const mnemonic = generateMnemonic(wordlist);
+    const mnemonic =
+      'donor amount brass title illegal humor trip they wave typical tide decline';
+    console.log(mnemonic);
 
     const config = await defaultConfig(
       LiquidNetwork.MAINNET,
-      //API KEY GOES HERE,
+      process.env.LIQUID_BREEZ_KEY,
     );
 
     await connect({mnemonic, config});
