@@ -21,6 +21,8 @@ export default function AcceptButtonSendPage({
   canUseLightning,
   canUseLiquid,
   setLoadingMessage,
+  minSendAmount,
+  maxSendAmount,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
@@ -96,22 +98,17 @@ export default function AcceptButtonSendPage({
       return;
     }
     if (
-      (!canSendPayment &&
-        paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min) ||
-      paymentInfo?.sendAmount > minMaxLiquidSwapAmounts.max
+      (!canSendPayment && paymentInfo?.sendAmount < minSendAmount) ||
+      paymentInfo?.sendAmount > maxSendAmount
     ) {
       navigate.navigate('ErrorScreen', {
         errorMessage: `${
-          paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min
-            ? 'Minimum'
-            : 'Maximum'
+          paymentInfo?.sendAmount < minSendAmount ? 'Minimum' : 'Maximum'
         } send amount ${displayCorrectDenomination({
           amount:
-            minMaxLiquidSwapAmounts[
-              paymentInfo?.sendAmount < minMaxLiquidSwapAmounts.min
-                ? 'min'
-                : 'max'
-            ],
+            paymentInfo?.sendAmount < minSendAmount
+              ? minSendAmount
+              : maxSendAmount,
           nodeInformation,
           masterInfoObject,
         })}`,

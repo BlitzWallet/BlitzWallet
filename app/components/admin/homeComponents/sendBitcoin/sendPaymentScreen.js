@@ -57,6 +57,7 @@ import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
+  // FIX MIN AND MAX SEND AMOUNTS HERE.
   const navigate = useNavigation();
   const {
     btcAdress,
@@ -112,6 +113,9 @@ export default function SendPaymentScreen(props) {
   const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
   const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
 
+  const minSendAmount = 1000 || minMaxLiquidSwapAmounts.min;
+  const maxSendAmount = minMaxLiquidSwapAmounts.max || 23000000;
+
   const usedEcashProofs = useMemo(() => {
     const proofsToUse = getProofsToUse(
       ecashWalletInformation.proofs,
@@ -128,14 +132,12 @@ export default function SendPaymentScreen(props) {
     eCashBalance,
     masterInfoObject,
     convertedSendAmount,
-    swapFee,
-    minMaxLiquidSwapAmounts,
     isLiquidPayment,
     isLightningPayment,
     paymentInfo,
     isBitcoinPayment,
-    usedEcashProofs,
-    ecashWalletInformation,
+    minSendAmount,
+    maxSendAmount,
   });
   console.log(canUseEcash, 'CAN USE ECASH');
   const lightningFee = canUseEcash
@@ -334,10 +336,10 @@ export default function SendPaymentScreen(props) {
             setPaymentInfo={setPaymentInfo}
             isLiquidPayment={isLiquidPayment}
             isLightningPayment={isLightningPayment}
-            minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
             masterInfoObject={masterInfoObject}
             isBitcoinPayment={isBitcoinPayment}
             liquidNodeInformation={liquidNodeInformation}
+            minSendAmount={minSendAmount}
           />
 
           <CustomSearchInput
@@ -375,6 +377,8 @@ export default function SendPaymentScreen(props) {
               canUseLightning={canUseLightning}
               canUseLiquid={canUseLiquid}
               setLoadingMessage={setLoadingMessage}
+              minSendAmount={minSendAmount}
+              maxSendAmount={maxSendAmount}
             />
           )}
         </>
@@ -397,7 +401,7 @@ export default function SendPaymentScreen(props) {
                 : isLightningPayment
                 ? canUseLightning
                   ? 1
-                  : convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
+                  : convertedSendAmount >= minSendAmount &&
                     !isUsingSwapWithZeroInvoice
                   ? 1
                   : 0.2
@@ -405,8 +409,7 @@ export default function SendPaymentScreen(props) {
                 ? convertedSendAmount >= DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS
                   ? 1
                   : 0.2
-                : canUseLightning &&
-                  convertedSendAmount >= minMaxLiquidSwapAmounts.min
+                : canUseLightning && convertedSendAmount >= minSendAmount
                 ? 1
                 : 0.2
               : 0.2,
@@ -535,9 +538,9 @@ export default function SendPaymentScreen(props) {
             paymentDescription || paymentInfo?.data.message || '',
         });
       } else if (
-        convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
+        convertedSendAmount >= minSendAmount &&
         !isUsingSwapWithZeroInvoice &&
-        convertedSendAmount <= minMaxLiquidSwapAmounts.max
+        convertedSendAmount <= maxSendAmount
       ) {
         const shouldDrain =
           liquidNodeInformation.userBalance - convertedSendAmount <
@@ -574,8 +577,8 @@ export default function SendPaymentScreen(props) {
       } else if (
         nodeInformation.userBalance >
           convertedSendAmount + LIGHTNINGAMOUNTBUFFER + swapFee &&
-        convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
-        convertedSendAmount <= minMaxLiquidSwapAmounts.max
+        convertedSendAmount >= minSendAmount &&
+        convertedSendAmount <= maxSendAmount
       ) {
         sendToLiquidFromLightning_sendPaymentScreen({
           paymentInfo,

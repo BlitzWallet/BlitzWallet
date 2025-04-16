@@ -19,8 +19,9 @@ export default function SendMaxComponent({
   isLiquidPayment,
   isLightningPayment,
   isBitcoinPayment,
-  minMaxLiquidSwapAmounts,
+  // minMaxLiquidSwapAmounts,
   masterInfoObject,
+  minSendAmount,
 }) {
   const [isGettingMax, setIsGettingMax] = useState(false);
   return (
@@ -96,7 +97,7 @@ export default function SendMaxComponent({
             break;
           } else if (
             paymentInfo.type === InputTypeVariant.LN_URL_PAY &&
-            option.balance >= minMaxLiquidSwapAmounts.min
+            option.balance >= minSendAmount
           ) {
             maxAmountSats = option.balance;
             break;
@@ -117,10 +118,7 @@ export default function SendMaxComponent({
           ) {
             maxAmountSats = option.balance - lnFee;
             break;
-          } else if (
-            isLiquidPayment &&
-            option.balance >= minMaxLiquidSwapAmounts.min
-          ) {
+          } else if (isLiquidPayment && option.balance >= minSendAmount) {
             maxAmountSats = option.balance - lnFee;
             break;
           } else {
@@ -132,7 +130,7 @@ export default function SendMaxComponent({
 
           if (
             (isLightningPayment && option.balance) ||
-            (isLiquidPayment && option.balance >= minMaxLiquidSwapAmounts.min)
+            (isLiquidPayment && option.balance >= minSendAmount)
           ) {
             maxAmountSats =
               Number(option.balance) - lnFee < 0

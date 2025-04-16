@@ -14,6 +14,8 @@ export default function usablePaymentNetwork({
   paymentInfo,
   usedEcashProofs,
   ecashWalletInformation,
+  minSendAmount,
+  maxSendAmount,
 }) {
   try {
     const lnFee = convertedSendAmount * 0.005 + 4;
@@ -22,8 +24,8 @@ export default function usablePaymentNetwork({
         convertedSendAmount >= DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS
       : isLightningPayment
       ? liquidNodeInformation.userBalance >= convertedSendAmount &&
-        convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
-        convertedSendAmount <= minMaxLiquidSwapAmounts.max
+        convertedSendAmount >= minSendAmount &&
+        convertedSendAmount <= maxSendAmount
       : liquidNodeInformation.userBalance >= convertedSendAmount &&
         convertedSendAmount >= paymentInfo?.data?.limits?.minSat &&
         convertedSendAmount <= paymentInfo?.data?.limits?.maxSat;
@@ -36,8 +38,8 @@ export default function usablePaymentNetwork({
     const canUseLightningWithLNEnabled = isLightningPayment
       ? nodeInformation.userBalance >= convertedSendAmount + lnFee
       : isLiquidPayment
-      ? convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
-        convertedSendAmount <= minMaxLiquidSwapAmounts.max &&
+      ? convertedSendAmount >= minSendAmount &&
+        convertedSendAmount <= maxSendAmount &&
         nodeInformation.userBalance >= convertedSendAmount + lnFee
       : nodeInformation.userBalance >= convertedSendAmount &&
         convertedSendAmount >= paymentInfo?.data?.limits?.minSat &&
@@ -46,8 +48,8 @@ export default function usablePaymentNetwork({
     const canUseLightningWithoutLNEnabled = isLightningPayment
       ? canUseEcash
       : isLiquidPayment
-      ? convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
-        convertedSendAmount <= minMaxLiquidSwapAmounts.max &&
+      ? convertedSendAmount >= minSendAmount &&
+        convertedSendAmount <= maxSendAmount &&
         canUseEcash
       : false;
 
