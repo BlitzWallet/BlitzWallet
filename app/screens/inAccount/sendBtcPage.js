@@ -19,6 +19,11 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
+import Reanimated, {
+  useAnimatedProps,
+  useSharedValue,
+} from 'react-native-reanimated';
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {navigateToSendUsingClipboard, getQRImage} from '../../functions';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {backArrow} from '../../constants/styles';
@@ -30,6 +35,11 @@ import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {CameraPageNavBar} from '../../functions/CustomElements/camera/cameraPageNavbar';
 import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
 
+Reanimated.addWhitelistedNativeProps({
+  zoom: true,
+});
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
+
 export default function SendPaymentHome({pageViewPage, from}) {
   console.log('SCREEN OPTIONS PAGE');
   const navigate = useNavigation();
@@ -38,6 +48,8 @@ export default function SendPaymentHome({pageViewPage, from}) {
   const isPhotoeLibraryOpen = useRef(false);
   const {hasPermission, requestPermission} = useCameraPermission();
   const device = useCameraDevice('back');
+  const zoomOffset = useSharedValue(0);
+  const zoom = useSharedValue(device?.neutralZoom || 1);
   const [isFlashOn, setIsFlashOn] = useState(false);
   const didScanRef = useRef(false);
   const {t} = useTranslation();
@@ -62,6 +74,20 @@ export default function SendPaymentHome({pageViewPage, from}) {
     }),
     [theme, darkModeType],
   );
+
+  const gesture = Gesture.Pinch()
+    .onBegin(() => {
+      zoomOffset.value = zoom.value;
+    })
+    .onUpdate(event => {
+      let newZoom = zoomOffset.value * event.scale;
+
+      newZoom = Math.max(device.minZoom, Math.min(newZoom, device.maxZoom));
+
+      zoom.value = newZoom;
+    });
+  console.log(device.minZoom, device.maxZoom);
+  const animatedProps = useAnimatedProps(() => ({zoom: zoom.value}), [zoom]);
   useHandleBackPressNew();
 
   useEffect(() => {
@@ -195,76 +221,81 @@ export default function SendPaymentHome({pageViewPage, from}) {
   }
 
   return (
-    <View style={{flex: 1}}>
-      <Camera
-        codeScanner={codeScanner}
-        style={{
-          flex: 1,
-        }}
-        device={device}
-        isActive={isCameraActive}
-        format={format}
-        torch={isFlashOn ? 'on' : 'off'}
-      />
-      <View
-        style={{
-          position: 'absolute',
-          zIndex: 1,
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          flex: 1,
-        }}>
-        <View style={styles.overlay}>
-          {from != 'home' && (
-            <CameraPageNavBar useFullWidth={false} showWhiteImage={true} />
-          )}
-          <View style={styles.qrVerticalBackground}>
-            <TouchableOpacity onPress={toggleFlash}>
-              <Image
-                style={backArrow}
-                source={
-                  isFlashOn ? ICONS.FlashLightIcon : ICONS.flashlightNoFillWhite
-                }
-              />
-            </TouchableOpacity>
+    <GestureDetector gesture={gesture}>
+      <View style={{flex: 1}}>
+        <ReanimatedCamera
+          codeScanner={codeScanner}
+          style={{
+            flex: 1,
+          }}
+          device={device}
+          isActive={isCameraActive}
+          format={format}
+          animatedProps={animatedProps}
+          torch={isFlashOn ? 'on' : 'off'}
+        />
+        <View
+          style={{
+            position: 'absolute',
+            zIndex: 1,
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            flex: 1,
+          }}>
+          <View style={styles.overlay}>
+            {from != 'home' && (
+              <CameraPageNavBar useFullWidth={false} showWhiteImage={true} />
+            )}
+            <View style={styles.qrVerticalBackground}>
+              <TouchableOpacity onPress={toggleFlash}>
+                <Image
+                  style={backArrow}
+                  source={
+                    isFlashOn
+                      ? ICONS.FlashLightIcon
+                      : ICONS.flashlightNoFillWhite
+                  }
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                disabled={isPhotoeLibraryOpen.current}
+                onPress={getPhoto}>
+                <Image style={backArrow} source={ICONS.ImagesIcon} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.middleRow}>
+            <View style={styles.overlay} />
+            <View style={qrBoxOutlineStyle} />
+            <View style={styles.overlay} />
+          </View>
+          <View style={styles.overlay}>
             <TouchableOpacity
-              disabled={isPhotoeLibraryOpen.current}
-              onPress={getPhoto}>
-              <Image style={backArrow} source={ICONS.ImagesIcon} />
+              onPress={() => {
+                navigateToSendUsingClipboard(navigate, 'sendBTCPage', from);
+              }}
+              style={{
+                ...styles.pasteBTN,
+                borderColor: COLORS.darkModeText,
+                marginTop: 10,
+              }}
+              activeOpacity={0.2}>
+              <ThemeText
+                styles={{
+                  color: COLORS.darkModeText,
+                  includeFontPadding: false,
+                  paddingHorizontal: 40,
+                  paddingVertical: Platform.OS === 'ios' ? 8 : 5,
+                }}
+                content={'Paste'}
+              />
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.middleRow}>
-          <View style={styles.overlay} />
-          <View style={qrBoxOutlineStyle} />
-          <View style={styles.overlay} />
-        </View>
-        <View style={styles.overlay}>
-          <TouchableOpacity
-            onPress={() => {
-              navigateToSendUsingClipboard(navigate, 'sendBTCPage', from);
-            }}
-            style={{
-              ...styles.pasteBTN,
-              borderColor: COLORS.darkModeText,
-              marginTop: 10,
-            }}
-            activeOpacity={0.2}>
-            <ThemeText
-              styles={{
-                color: COLORS.darkModeText,
-                includeFontPadding: false,
-                paddingHorizontal: 40,
-                paddingVertical: Platform.OS === 'ios' ? 8 : 5,
-              }}
-              content={'Paste'}
-            />
-          </TouchableOpacity>
-        </View>
       </View>
-    </View>
+    </GestureDetector>
   );
 }
 
