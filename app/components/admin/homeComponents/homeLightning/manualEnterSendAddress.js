@@ -16,6 +16,7 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useTranslation} from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import testURLForInvoice from '../../../../functions/testURLForInvoice';
 
 export default function ManualEnterSendAddress(props) {
   const navigate = useNavigation();
@@ -84,17 +85,23 @@ export default function ManualEnterSendAddress(props) {
       'Running in custom enter send adddress submit function',
     );
     Keyboard.dismiss();
+    const formattedInput = inputValue.trim();
     setTimeout(
       () => {
-        if (WEBSITE_REGEX.test(inputValue)) {
-          navigate.navigate('CustomWebView', {
-            headerText: '',
-            webViewURL: inputValue,
-          });
-          return;
+        let btcAddress;
+        if (WEBSITE_REGEX.test(formattedInput)) {
+          const invoice = testURLForInvoice(formattedInput);
+          if (!invoice) {
+            navigate.navigate('CustomWebView', {
+              headerText: '',
+              webViewURL: formattedInput,
+            });
+            return;
+          }
+          btcAddress = invoice;
         }
         navigate.replace('ConfirmPaymentScreen', {
-          btcAdress: inputValue,
+          btcAdress: btcAddress || formattedInput,
         });
       },
       Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,

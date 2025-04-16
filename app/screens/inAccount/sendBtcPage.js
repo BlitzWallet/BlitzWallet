@@ -34,6 +34,7 @@ import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {CameraPageNavBar} from '../../functions/CustomElements/camera/cameraPageNavbar';
 import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
+import testURLForInvoice from '../../functions/testURLForInvoice';
 
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
@@ -48,6 +49,8 @@ export default function SendPaymentHome({pageViewPage, from}) {
   const isPhotoeLibraryOpen = useRef(false);
   const {hasPermission, requestPermission} = useCameraPermission();
   const device = useCameraDevice('back');
+  const minZoom = device?.minZoom || 1;
+  const maxZoom = device?.maxZoom || 100;
   const zoomOffset = useSharedValue(0);
   const zoom = useSharedValue(device?.neutralZoom || 1);
   const [isFlashOn, setIsFlashOn] = useState(false);
@@ -82,11 +85,10 @@ export default function SendPaymentHome({pageViewPage, from}) {
     .onUpdate(event => {
       let newZoom = zoomOffset.value * event.scale;
 
-      newZoom = Math.max(device.minZoom, Math.min(newZoom, device.maxZoom));
+      newZoom = Math.max(minZoom, Math.min(newZoom, maxZoom));
 
       zoom.value = newZoom;
     });
-  console.log(device.minZoom, device.maxZoom);
   const animatedProps = useAnimatedProps(() => ({zoom: zoom.value}), [zoom]);
   useHandleBackPressNew();
 
@@ -110,10 +112,23 @@ export default function SendPaymentHome({pageViewPage, from}) {
     crashlyticsLogReport('Hanlding scanned baracode');
     didScanRef.current = true;
     if (WEBSITE_REGEX.test(data.value)) {
-      navigate.navigate('CustomWebView', {
-        headerText: '',
-        webViewURL: data.value,
-      });
+      const invoice = testURLForInvoice(data.value);
+
+      if (!invoice) {
+        navigate.navigate('CustomWebView', {
+          headerText: '',
+          webViewURL: data.value,
+        });
+        return;
+      }
+      if (from === 'home')
+        navigate.navigate('ConfirmPaymentScreen', {
+          btcAdress: invoice,
+        });
+      else
+        navigate.replace('ConfirmPaymentScreen', {
+          btcAdress: invoice,
+        });
       return;
     }
 
