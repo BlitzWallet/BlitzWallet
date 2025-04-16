@@ -93,7 +93,7 @@ async function connectToLiquidNode(breezLiquidEvent) {
 
     const config = await defaultConfig(
       LiquidNetwork.MAINNET,
-      process.env.LIQUID_BREEZ_KEY,
+      //API KEY GOES HERE,
     );
 
     await connect({mnemonic, config});
