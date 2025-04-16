@@ -1198,15 +1198,15 @@ PODS:
   - breez_sdk (0.6.6):
     - BreezSDK (= 0.6.6)
     - React-Core
-  - breez_sdk_liquid (0.7.1):
-    - BreezSDKLiquid (= 0.7.1)
+  - breez_sdk_liquid (0.7.8):
+    - BreezSDKLiquid (= 0.7.8)
     - React-Core
-  - breez_sdk_liquidFFI (0.7.1)
+  - breez_sdk_liquidFFI (0.7.8)
   - breez_sdkFFI (0.6.6)
   - BreezSDK (0.6.6):
     - breez_sdkFFI (= 0.6.6)
-  - BreezSDKLiquid (0.7.1):
-    - breez_sdk_liquidFFI (= 0.7.1)
+  - BreezSDKLiquid (0.7.8):
+    - breez_sdk_liquidFFI (= 0.7.8)
   - DoubleConversion (1.1.6)
   - EXApplication (6.0.2):
     - ExpoModulesCore
@@ -3874,11 +3874,11 @@ SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
   breez_sdk: 7a014a65f7571df233a6e4d86a297bd9962137aa
-  breez_sdk_liquid: 95e3d1f3b49848c85aaa30edeb7ce1bfc8015e76
-  breez_sdk_liquidFFI: b9eb31d4297e317f14f50bea073bc1505e9555e8
+  breez_sdk_liquid: 1c674c15c012037fa0f7a4001325668c3f8e2a46
+  breez_sdk_liquidFFI: a843656a6e839f603401fb84a70cca17b08af9ca
   breez_sdkFFI: 29e336d04cbc07dee77778215117e8b6648a0741
   BreezSDK: 04e53b7e62082deef9da6376f5170960cef57e26
-  BreezSDKLiquid: 6667ae6314694b1dd6c780dc6c83f52b8d527db2
+  BreezSDKLiquid: e848f16b29414c77f1282af4561e022665c0e9eb
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   EXApplication: 4c72f6017a14a65e338c5e74fca418f35141e819
   EXConstants: fcfc75800824ac2d5c592b5bc74130bad17b146b
