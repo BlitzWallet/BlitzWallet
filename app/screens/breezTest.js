@@ -1,43 +1,44 @@
-import {useEffect} from 'react';
-import {SafeAreaView, Text, View, TouchableOpacity} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {
   EnvironmentType,
   NodeConfigVariant,
   connect,
-  defaultConfig,
+  // defaultConfig,
   mnemonicToSeed,
 } from '@breeztech/react-native-breez-sdk';
 import {btoa, atob, toByteArray} from 'react-native-quick-base64';
 import {generateMnemonic} from '@scure/bip39';
 import {wordlist} from '@scure/bip39/wordlists/english';
-import {ThemeText} from '../functions/CustomElements';
-import {startLiquidSession} from '../functions/breezLiquid';
+import {GlobalThemeView, ThemeText} from '../functions/CustomElements';
+import CustomButton from '../functions/CustomElements/button';
+import {INSET_WINDOW_WIDTH} from '../constants/theme';
+import {CENTER} from '../constants';
+import {
+  LiquidNetwork,
+  defaultConfig,
+} from '@breeztech/react-native-breez-sdk-liquid';
 
 const onBreezEvent = e => {
   console.log(`Received event ${e.type}`);
 };
+const onBreezLiquidEvent = e => {
+  console.log(`Received event ${e.type}`);
+};
 
 export default function BreezTest() {
-  // SDK events listener
-
-  useEffect(() => {
-    // connectToBreezNode();
-    // (async () => {
-    //   console.log(await listc());
-    // })();
-  }, []);
   return (
-    <View>
-      <SafeAreaView>
-        <TouchableOpacity
-          onPress={() => {
-            startLiquidSession();
-          }}>
-          <ThemeText content={'connect'} />
-        </TouchableOpacity>
-        <Text>Testing</Text>
-      </SafeAreaView>
-    </View>
+    <GlobalThemeView styles={styles.container}>
+      <ThemeText
+        styles={styles.labelText}
+        content={
+          'When trying to run the connect function, the app crashes. Click Connect to reproduce.'
+        }
+      />
+      <CustomButton
+        actionFunction={() => connectToLiquidNode(onBreezLiquidEvent)}
+        textContent={'Run connect'}
+      />
+    </GlobalThemeView>
   );
 }
 
@@ -83,8 +84,53 @@ async function connectToBreezNode() {
   }
 }
 
+async function connectToLiquidNode(breezLiquidEvent) {
+  // setLogger(logHandler);
+
+  try {
+    // Create the default config, providing your Breez API key
+    const mnemonic = generateMnemonic(wordlist);
+
+    const config = await defaultConfig(
+      LiquidNetwork.MAINNET,
+      process.env.LIQUID_BREEZ_KEY,
+    );
+
+    await connect({mnemonic, config});
+    addEventListener(breezLiquidEvent);
+
+    return new Promise(resolve => {
+      resolve({
+        isConnected: true,
+        reason: null,
+      });
+    });
+  } catch (err) {
+    console.log(err, 'connect to node err LIQUID');
+    return new Promise(resolve => {
+      resolve({
+        isConnected: false,
+        reason: err,
+      });
+    });
+  }
+}
+
 function unit8ArrayConverter(unitArray) {
   return Array.from(
     unitArray.filter(num => Number.isInteger(num) && num >= 0 && num <= 255),
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  labelText: {
+    textAlign: 'center',
+    width: INSET_WINDOW_WIDTH,
+    marginBottom: 20,
+    ...CENTER,
+  },
+});

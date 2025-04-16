@@ -321,7 +321,7 @@ function ResetStack(): JSX.Element | null {
       <Stack.Navigator screenOptions={screenOptions}>
         <Stack.Screen
           name="Home"
-          component={HomeComponent}
+          component={BreezTest}
           options={{
             animation: 'fade',
             gestureEnabled: false,
