@@ -93,12 +93,20 @@ export default function ExploreUsers() {
             ).getDay();
             return WEEK_OPTIONS[dateIndex];
           } else {
-            const pretendWeekToday = new Date().getTime() - WEEK_IN_MILLS;
+            const now = new Date();
+            const todayDay = now.getDay();
+
+            const daysToSunday = 7 - todayDay;
+
+            const endOfWeek = new Date(
+              now.getTime() + daysToSunday * DAY_IN_MILLS,
+            );
+
             const dateIndex = new Date(
-              pretendWeekToday - WEEK_IN_MILLS * Math.abs(6 - index),
+              endOfWeek - WEEK_IN_MILLS * Math.abs(6 - index),
             );
             const day = dateIndex.getDate();
-            const month = dateIndex.getMonth();
+            const month = dateIndex.getMonth() + 1;
             return `${month}/${day}`;
           }
         }}
