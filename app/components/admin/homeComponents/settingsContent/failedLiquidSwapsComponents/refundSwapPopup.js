@@ -137,90 +137,92 @@ export default function RefundLiquidSwapPopup(props) {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <View
-            style={{
-              width: '90%',
-              minHeight: 150,
-              backgroundColor: backgroundOffset,
-              padding: 20,
-              borderRadius: 8,
-            }}>
-            {!Object.keys(refundFeeRates).length ? (
-              <FullLoadingScreen text={'Getting fee rates'} />
-            ) : refundTxId ? (
-              <View style={{flex: 1}}>
-                <ThemeText
-                  styles={{marginBottom: 20}}
-                  content={'Refund transaction id'}
-                />
-                <TouchableOpacity
-                  onPress={() => {
-                    copyToClipboard(refundTxId, navigate);
-                  }}>
-                  <ThemeText content={refundTxId.slice(0, 50)} />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <>
-                <View style={[styles.btcAdressContainer]}>
+          <TouchableWithoutFeedback>
+            <View
+              style={{
+                width: '90%',
+                minHeight: 150,
+                backgroundColor: backgroundOffset,
+                padding: 20,
+                borderRadius: 8,
+              }}>
+              {!Object.keys(refundFeeRates).length ? (
+                <FullLoadingScreen text={'Getting fee rates'} />
+              ) : refundTxId ? (
+                <View style={{flex: 1}}>
                   <ThemeText
-                    styles={styles.btcAdressHeader}
-                    content={'Enter BTC address'}
+                    styles={{marginBottom: 20}}
+                    content={'Refund transaction id'}
                   />
-                  <View style={[styles.inputContainer]}>
-                    <CustomSearchInput
-                      containerStyles={{
-                        marginRight: 10,
-                        marginLeft: 0,
-                        flex: 1,
-                      }}
-                      textInputStyles={{
-                        backgroundColor: theme
-                          ? COLORS.darkModeText
-                          : textInputBackground,
-                        color: theme ? COLORS.lightModeText : textInputColor,
-                      }}
-                      placeholderText={'Bitcon address...'}
-                      placeholderTextColor={
-                        theme ? COLORS.opaicityGray : textInputColor
-                      }
-                      inputText={bitcoinAddress}
-                      setInputText={setBitcoinAddress}
-                    />
-                    <TouchableOpacity
-                      onPress={() => {
-                        if (errorMessage) return;
-                        navigate.navigate('CameraModal', {
-                          updateBitcoinAdressFunc: setBitcoinAddress,
-                        });
-                      }}>
-                      <ThemeImage
-                        styles={styles.scanIcon}
-                        lightModeIcon={ICONS.faceIDIcon}
-                        darkModeIcon={ICONS.faceIDIcon}
-                        lightsOutIcon={ICONS.faceIDIconWhite}
-                      />
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      copyToClipboard(refundTxId, navigate);
+                    }}>
+                    <ThemeText content={refundTxId.slice(0, 50)} />
+                  </TouchableOpacity>
                 </View>
-                <ThemeText
-                  styles={{...styles.btcAdressHeader, marginTop: 20}}
-                  content={'Select a fee rate'}
-                />
-                {feeElements}
+              ) : (
+                <>
+                  <View style={[styles.btcAdressContainer]}>
+                    <ThemeText
+                      styles={styles.btcAdressHeader}
+                      content={'Enter BTC address'}
+                    />
+                    <View style={[styles.inputContainer]}>
+                      <CustomSearchInput
+                        containerStyles={{
+                          marginRight: 10,
+                          marginLeft: 0,
+                          flex: 1,
+                        }}
+                        textInputStyles={{
+                          backgroundColor: theme
+                            ? COLORS.darkModeText
+                            : textInputBackground,
+                          color: theme ? COLORS.lightModeText : textInputColor,
+                        }}
+                        placeholderText={'Bitcon address...'}
+                        placeholderTextColor={
+                          theme ? COLORS.opaicityGray : textInputColor
+                        }
+                        inputText={bitcoinAddress}
+                        setInputText={setBitcoinAddress}
+                      />
+                      <TouchableOpacity
+                        onPress={() => {
+                          if (errorMessage) return;
+                          navigate.navigate('CameraModal', {
+                            updateBitcoinAdressFunc: setBitcoinAddress,
+                          });
+                        }}>
+                        <ThemeImage
+                          styles={styles.scanIcon}
+                          lightModeIcon={ICONS.faceIDIcon}
+                          darkModeIcon={ICONS.faceIDIcon}
+                          lightsOutIcon={ICONS.faceIDIconWhite}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  <ThemeText
+                    styles={{...styles.btcAdressHeader, marginTop: 20}}
+                    content={'Select a fee rate'}
+                  />
+                  {feeElements}
 
-                <CustomButton
-                  buttonStyles={{
-                    ...CENTER,
-                    opacity: !bitcoinAddress ? 0.2 : 1,
-                    marginTop: 20,
-                  }}
-                  actionFunction={refundTransaction}
-                  textContent={'Refund'}
-                />
-              </>
-            )}
-          </View>
+                  <CustomButton
+                    buttonStyles={{
+                      ...CENTER,
+                      opacity: !bitcoinAddress ? 0.2 : 1,
+                      marginTop: 20,
+                    }}
+                    actionFunction={refundTransaction}
+                    textContent={'Refund'}
+                  />
+                </>
+              )}
+            </View>
+          </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
