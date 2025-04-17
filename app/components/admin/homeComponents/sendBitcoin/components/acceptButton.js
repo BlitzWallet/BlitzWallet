@@ -151,6 +151,7 @@ export default function AcceptButtonSendPage({
         },
         paymentInfo,
         setLoadingMessage,
+        parsedInvoice: paymentInfo.decodedInput,
       });
     } catch (err) {
       console.log('accecpt button error', err);

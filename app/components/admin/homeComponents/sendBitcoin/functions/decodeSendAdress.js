@@ -32,6 +32,7 @@ export default async function decodeSendAddress(props) {
     enteredPaymentInfo,
     setLoadingMessage,
     paymentInfo,
+    parsedInvoice,
   } = props;
 
   try {
@@ -83,7 +84,11 @@ export default async function decodeSendAddress(props) {
 
     crashlyticsLogReport('Parsing bitcoin address input');
 
-    const input = await parse(btcAdress);
+    const chosenPath = parsedInvoice
+      ? Promise.resolve(parsedInvoice)
+      : parse(btcAdress);
+    const input = await chosenPath;
+    console.log(input);
 
     if (input.type === InputTypeVariant.BOLT11) {
       crashlyticsLogReport(
@@ -116,7 +121,7 @@ export default async function decodeSendAddress(props) {
     });
 
     if (processedPaymentInfo) {
-      setPaymentInfo(processedPaymentInfo);
+      setPaymentInfo({...processedPaymentInfo, decodedInput: input});
     } else {
       goBackFunction('Unable to to process input');
     }
