@@ -94,7 +94,7 @@ export default function NodeInfo() {
             styles={{color: theme && darkModeType ? textColor : COLORS.primary}}
             content={`Liquid Network atomic swaps `}
           />
-          <ThemeText content={`when you have balance under `} />
+          <ThemeText content={`when you have a balance under `} />
           <ThemeText
             styles={{color: theme && darkModeType ? textColor : COLORS.primary}}
             content={displayCorrectDenomination({
