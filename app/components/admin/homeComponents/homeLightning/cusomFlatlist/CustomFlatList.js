@@ -1,5 +1,5 @@
-import React, {useCallback, useState} from 'react';
-import {RefreshControl, View} from 'react-native';
+import React, {useCallback, useRef, useState} from 'react';
+import {Platform, RefreshControl, View} from 'react-native';
 import Animated from 'react-native-reanimated';
 import {useCustomFlatListHook} from './useCustomFlatListHooks';
 import {COLORS} from '../../../../../constants';
@@ -11,11 +11,13 @@ import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../../../../../functions/crashlyticsLogs';
+import {useFocusEffect} from '@react-navigation/native';
 
 function CustomFlatList({style, ...props}) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
   const [refreshing, setRefreshing] = useState(false);
+  const flatListRef = useRef(null);
   const [
     scrollHandler,
     styles,
@@ -44,6 +46,17 @@ function CustomFlatList({style, ...props}) {
     }
   }, [masterInfoObject]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS === 'ios')
+        flatListRef.current?.scrollToOffset({offset: 0});
+      return () => {
+        if (Platform.OS == 'android')
+          flatListRef.current?.scrollToOffset({offset: 0});
+      };
+    }, []),
+  );
+
   return (
     <View style={style}>
       <Animated.View
@@ -71,6 +84,7 @@ function CustomFlatList({style, ...props}) {
             onRefresh={handleRefresh}
           />
         }
+        ref={flatListRef}
         initialNumToRender={10}
         maxToRenderPerBatch={5}
         updateCellsBatchingPeriod={50}

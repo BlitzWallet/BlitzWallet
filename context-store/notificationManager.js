@@ -17,6 +17,7 @@ import {getPublicKey} from 'nostr-tools';
 import {useAppStatus} from './appStatus';
 import {useKeysContext} from './keys';
 import {checkGooglePlayServices} from '../app/functions/checkGoogleServices';
+import DeviceInfo from 'react-native-device-info';
 
 const PushNotificationManager = ({children}) => {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -172,10 +173,10 @@ async function registerForPushNotificationsAsync() {
       );
     }
 
-    // if (DeviceInfo.isEmulatorSync()) {
-    //   Alert.alert('Must use physical device for Push Notifications');
-    //   return;
-    // }
+    if (DeviceInfo.isEmulatorSync()) {
+      Alert.alert('Must use physical device for Push Notifications');
+      return;
+    }
 
     const permissionsResult = await Notifications.getPermissionsAsync();
 
