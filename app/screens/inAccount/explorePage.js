@@ -1,7 +1,13 @@
 import {ThemeText} from '../../functions/CustomElements';
 import React, {useMemo, useState} from 'react';
 import {LineChart, XAxis, YAxis} from 'react-native-svg-charts';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import GetThemeColors from '../../hooks/themeColors';
 import {BLITZ_GOAL_USER_COUNT, CENTER, COLORS, SIZES} from '../../constants';
 import DateCountdown from '../../components/admin/homeComponents/explore/dateCountdown';
@@ -17,7 +23,7 @@ import {formatBalanceAmount} from '../../functions';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import NoDataView from '../../components/admin/homeComponents/explore/noDataView';
 import Grid from '../../functions/CustomElements/chart/grid';
-import {INSET_WINDOW_WIDTH} from '../../constants/theme';
+import {FONT, INSET_WINDOW_WIDTH} from '../../constants/theme';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import LineChartDot from '../../functions/CustomElements/chart/lineChartDot';
 
@@ -27,8 +33,13 @@ export default function ExploreUsers() {
   const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
   const [targetUserCountBarWidth, setTargetUserCountBarWidth] = useState(0);
+  const [yAxisWidth, setYAxisWidth] = useState(0);
 
-  const axesSvg = {fontSize: SIZES.small, fill: textColor};
+  const axesSvg = {
+    fontSize: SIZES.small,
+    fill: textColor,
+    fontFamily: FONT.Title_Regular,
+  };
   const verticalContentInset = {top: 10, bottom: 10};
   const xAxisHeight = 30;
 
@@ -137,6 +148,14 @@ export default function ExploreUsers() {
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollView}>
+      <Text
+        onLayout={event => {
+          console.log(event.nativeEvent.layout.width);
+          setYAxisWidth(Math.round(event.nativeEvent.layout.width));
+        }}
+        style={styles.sizingText}>
+        {Math.round(totalToday * 1.05)}
+      </Text>
       <View style={{...styles.statsCard, backgroundColor: backgroundOffset}}>
         <ThemeText
           styles={styles.statsCardHeader}
@@ -190,11 +209,14 @@ export default function ExploreUsers() {
       <View style={styles.chartContainer}>
         <YAxis
           data={data.map(data => data.value)}
-          style={{marginBottom: xAxisHeight}}
+          style={{
+            marginBottom: xAxisHeight,
+            width: yAxisWidth + 5,
+          }}
           contentInset={verticalContentInset}
           svg={axesSvg}
-          min={data[0].value * 0.95}
-          max={totalToday * 1.05}
+          min={Math.round(data[0].value * 0.95)}
+          max={Math.round(totalToday * 1.05)}
           numberOfTicks={7}
         />
         <View style={{flex: 1, marginLeft: 5}}>
@@ -207,8 +229,8 @@ export default function ExploreUsers() {
                 theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
               strokeWidth: 3,
             }}
-            yMin={data[0].value * 0.95}
-            yMax={totalToday * 1.05}>
+            yMin={Math.round(data[0].value * 0.95)}
+            yMax={Math.round(totalToday * 1.05)}>
             <Grid />
             <LineChartDot
               color={
@@ -283,5 +305,12 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
     includeFontPadding: false,
     padding: 10,
+  },
+  sizingText: {
+    fontSize: SIZES.small,
+    fontFamily: FONT.Title_Regular,
+    position: 'absolute',
+    zIndex: -1,
+    opacity: 0,
   },
 });
