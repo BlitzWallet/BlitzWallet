@@ -58,6 +58,7 @@ export default function SendOnChainBitcoin({isDoomsday}) {
   const [txFeeSat, setTxFeeSat] = useState(0);
   const {backgroundOffset, textInputBackground, textInputColor} =
     GetThemeColors();
+  const runCountRef = useRef(0);
   const {onLightningBreezEvent} = useLightningEvent();
   useEffect(() => {
     getMempoolTxFee();
@@ -288,6 +289,11 @@ export default function SendOnChainBitcoin({isDoomsday}) {
 
       if (didSetMempoolFees) setIsLoading(false);
     } catch (err) {
+      if (runCountRef.current !== 0) {
+        setIsLoading(false);
+        return;
+      }
+      runCountRef.current = 1;
       const lightningSession = await connectToLightningNode(
         onLightningBreezEvent,
       );
