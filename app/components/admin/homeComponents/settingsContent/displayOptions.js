@@ -1,6 +1,7 @@
 import {
   ScrollView,
   StyleSheet,
+  Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
@@ -29,7 +30,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import {FONT, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function DisplayOptions() {
   const {toggleMasterInfoObject, setMasterInfoObject, masterInfoObject} =
@@ -37,7 +38,8 @@ export default function DisplayOptions() {
   const {isConnectedToTheInternet} = useAppStatus();
   const {nodeInformation} = useNodeContext();
   const {theme, darkModeType, toggleDarkModeType} = useGlobalThemeContext();
-
+  const [labelSize, setLabelSize] = useState(0);
+  console.log(labelSize, 'LABEL SIZE');
   const {backgroundOffset} = GetThemeColors();
 
   const saveTimeoutRef = useRef(null);
@@ -393,9 +395,30 @@ export default function DisplayOptions() {
         content={'Displayed Transactions'}
       />
       <View style={styles.container}>
-        <View style={styles.labelsContainer}>
-          {steps.map(value => (
-            <ThemeText key={value} content={value} />
+        <View
+          style={{
+            ...styles.labelsContainer,
+            width: '100%',
+          }}>
+          {steps.map((value, index) => (
+            <Text
+              onLayout={e => {
+                setLabelSize(Math.round(e.nativeEvent.layout.width));
+              }}
+              style={{
+                fontSize: SIZES.medium,
+                fontFamily: FONT.Title_Regular,
+                position: 'absolute',
+                top: -20,
+                left:
+                  (index / (steps.length - 1)) *
+                    (windowDimensions.width * 0.95 * 0.9 * 0.9 - 25) +
+                  25 / 2 -
+                  labelSize / 2,
+              }}
+              key={value}>
+              {value}
+            </Text>
           ))}
         </View>
         <Slider
@@ -479,6 +502,7 @@ const styles = StyleSheet.create({
     width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 20,
   },
   labelsContainer: {
     width: '100%',
