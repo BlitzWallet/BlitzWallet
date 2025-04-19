@@ -54,7 +54,7 @@ export default function usablePaymentNetwork({
       : false;
 
     const canUseLightning =
-      paymentInfo?.type !== InputTypeVariant.BOLT12_OFFER
+      paymentInfo?.type === InputTypeVariant.BOLT12_OFFER
         ? false
         : masterInfoObject.liquidWalletSettings.isLightningEnabled
         ? canUseLightningWithLNEnabled || canUseLightningWithoutLNEnabled
