@@ -72,7 +72,7 @@ export default function NoDataView() {
       />
       <ThemeText
         styles={{marginBottom: 'auto'}}
-        content={'We were unable to retrive Blitz User count.'}
+        content={'We were unable to retrive Blitz user count.'}
       />
       <CustomButton
         actionFunction={handleSearch}
