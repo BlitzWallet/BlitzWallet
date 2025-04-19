@@ -19,12 +19,7 @@ export default function SuggestedWordContainer({
       .map(word => {
         return (
           <TouchableOpacity
-            style={{
-              minHeight: 60,
-              width: '100%',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            style={styles.keyElementContainer}
             onPress={() => {
               setInputedKey(prev => ({...prev, [`key${selectedKey}`]: word}));
               if (selectedKey === 12) {
@@ -37,19 +32,14 @@ export default function SuggestedWordContainer({
             key={word}>
             <ThemeText
               CustomNumberOfLines={1}
-              styles={{
-                textTransform: 'capitalize',
-                fontSize: SIZES.large,
-                color: COLORS.lightModeText,
-                includeFontPadding: false,
-              }}
+              styles={styles.keyElementText}
               content={word}
             />
           </TouchableOpacity>
         );
       });
   }, [selectedKey, inputedKey, setInputedKey, keyRefs]);
-
+  console.log(suggestedWordElements);
   return (
     <View
       style={{
@@ -78,7 +68,11 @@ export default function SuggestedWordContainer({
         </>
       ) : (
         <View style={{...styles.wordContainer}}>
-          {suggestedWordElements[0]}
+          {suggestedWordElements.length === 0 ? (
+            <View style={styles.keyElementContainer} />
+          ) : (
+            suggestedWordElements[0]
+          )}
         </View>
       )}
     </View>
@@ -92,5 +86,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderColor: COLORS.opaicityGray,
+  },
+  keyElementContainer: {
+    minHeight: 60,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  keyElementText: {
+    textTransform: 'capitalize',
+    fontSize: SIZES.large,
+    color: COLORS.lightModeText,
+    includeFontPadding: false,
   },
 });
