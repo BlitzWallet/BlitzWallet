@@ -6,9 +6,9 @@ import {
   StyleSheet,
   Keyboard,
   TextInput,
-  FlatList,
   Platform,
   useWindowDimensions,
+  ScrollView,
 } from 'react-native';
 import {
   CENTER,
@@ -18,7 +18,7 @@ import {
   SATSPERBITCOIN,
   SIZES,
 } from '../../../../../constants';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {copyToClipboard} from '../../../../../functions';
 import ContextMenu from 'react-native-context-menu-view';
 import {
@@ -40,11 +40,11 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
+import customUUID from '../../../../../functions/customUUID';
 
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
   const {contactsPrivateKey, publicKey} = useKeysContext();
-
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset} = GetThemeColors();
@@ -64,11 +64,11 @@ export default function ChatGPTHome(props) {
   });
   const [newChats, setNewChats] = useState([]);
   const [model, setSearchModel] = useState('Gpt-4o');
+  const [forceUpdate, setForceUpdate] = useState(false);
   const [userChatText, setUserChatText] = useState('');
   const totalAvailableCredits = decodedChatGPT.credits;
   const [showScrollBottomIndicator, setShowScrollBottomIndicator] =
     useState(false);
-  const conjoinedLists = [...chatHistory.conversation, ...newChats];
   const windowDimension = useWindowDimensions();
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(true);
 
@@ -79,73 +79,87 @@ export default function ChatGPTHome(props) {
     setChatHistory(loadedChatHistory);
   }, [chatHistoryFromProps]);
 
-  const flatListItem = ({item}) => {
-    return (
-      <ContextMenu
-        onPress={e => {
-          const targetEvent = e.nativeEvent.name.toLowerCase();
-          if (targetEvent === 'copy') {
-            copyToClipboard(item.content, navigate, 'ChatGPT');
-          } else {
-            setUserChatText(item.content);
-          }
-        }}
-        previewBackgroundColor={backgroundOffset}
-        actions={[{title: 'Copy'}, {title: 'Edit'}]}>
-        <View style={chatObjectStyles.container}>
-          <View
-            style={{
-              ...chatObjectStyles.profileIcon,
-              backgroundColor: theme
-                ? COLORS.darkModeText
-                : COLORS.lightModeBackgroundOffset,
-            }}>
-            {item.role === 'user' ? (
-              <Image
-                style={chatObjectStyles.logoIcon}
-                source={ICONS.logoIcon}
-              />
-            ) : (
-              <Icon
-                name="AiAppIcon"
-                color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-                width={15}
-                height={15}
-              />
-            )}
-          </View>
-          <View style={{flex: 1}}>
-            <ThemeText
-              styles={chatObjectStyles.userLabel}
-              content={
-                item.role === 'user' ? 'You' : item?.responseBot || 'ChatGPT'
-              }
-            />
-            {item.content ? (
+  const conjoinedLists = [...chatHistory.conversation, ...newChats];
+
+  const userChatHistory = useMemo(() => {
+    return conjoinedLists.map(item => {
+      console.log(item, 'CONJONED TX LIST');
+      return (
+        <ContextMenu
+          key={item.uuid}
+          onPress={e => {
+            const targetEvent = e.nativeEvent.name.toLowerCase();
+            if (targetEvent === 'copy') {
+              copyToClipboard(item.content, navigate, 'ChatGPT');
+            } else {
+              setUserChatText(item.content);
+            }
+          }}
+          previewBackgroundColor={backgroundOffset}
+          actions={[{title: 'Copy'}, {title: 'Edit'}]}>
+          <View style={chatObjectStyles.container}>
+            <View
+              style={{
+                ...chatObjectStyles.profileIcon,
+                backgroundColor: theme
+                  ? COLORS.darkModeText
+                  : COLORS.lightModeBackgroundOffset,
+              }}>
+              {item.role === 'user' ? (
+                <Image
+                  style={chatObjectStyles.logoIcon}
+                  source={ICONS.logoIcon}
+                />
+              ) : (
+                <Icon
+                  name="AiAppIcon"
+                  color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+                  width={15}
+                  height={15}
+                />
+              )}
+            </View>
+            <View style={{flex: 1}}>
               <ThemeText
-                styles={{
-                  color:
-                    item.content.toLowerCase() === 'error with request'
-                      ? theme && darkModeType
-                        ? textColor
-                        : COLORS.cancelRed
-                      : textColor,
-                }}
-                content={item.content}
+                styles={chatObjectStyles.userLabel}
+                content={
+                  item.role === 'user' ? 'You' : item?.responseBot || 'ChatGPT'
+                }
               />
-            ) : (
-              <View
-                style={{
-                  width: windowDimension.width * 0.95 * 0.95 - 35,
-                }}>
-                <FullLoadingScreen size="small" showText={false} />
-              </View>
-            )}
+              {item.content ? (
+                <ThemeText
+                  key={`${item.uuid}`}
+                  styles={{
+                    color:
+                      item.content.toLowerCase() === 'error with request'
+                        ? theme && darkModeType
+                          ? textColor
+                          : COLORS.cancelRed
+                        : textColor,
+                  }}
+                  content={item.content}
+                />
+              ) : (
+                <View
+                  style={{
+                    width: windowDimension.width * 0.95 * 0.95 - 35,
+                  }}>
+                  <FullLoadingScreen size="small" showText={false} />
+                </View>
+              )}
+            </View>
           </View>
-        </View>
-      </ContextMenu>
-    );
-  };
+        </ContextMenu>
+      );
+    });
+  }, [
+    conjoinedLists,
+    navigate,
+    theme,
+    darkModeType,
+    windowDimension,
+    forceUpdate,
+  ]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -227,29 +241,26 @@ export default function ChatGPTHome(props) {
           </View>
         ) : (
           <View style={styles.flasListContianer}>
-            <FlatList
-              keyboardShouldPersistTaps="handled"
-              ref={flatListRef}
-              inverted
+            <ScrollView
+              style={{transform: [{scaleY: -1}]}}
+              horizontal={false}
               onScroll={e => {
                 const offset = e.nativeEvent.contentOffset.y;
                 if (offset > 20) setShowScrollBottomIndicator(true);
                 else setShowScrollBottomIndicator(false);
               }}
-              scrollEnabled={true}
-              showsHorizontalScrollIndicator={false}
-              data={conjoinedLists}
-              renderItem={flatListItem}
-              key={item => item.uuid}
-              contentContainerStyle={{
-                flexDirection: 'column-reverse',
-              }}
-            />
+              ref={flatListRef}>
+              <View
+                key={'invertedContainer'}
+                style={{transform: [{scaleY: -1}]}}>
+                {userChatHistory}
+              </View>
+            </ScrollView>
             {showScrollBottomIndicator && (
               <TouchableOpacity
                 activeOpacity={1}
                 onPress={() => {
-                  flatListRef.current.scrollToEnd();
+                  flatListRef.current.scrollTo({x: 0, y: 0, animated: true});
                 }}
                 style={{
                   ...styles.scrollToBottom,
@@ -378,11 +389,13 @@ export default function ChatGPTHome(props) {
     userChatObject['content'] = textToSend;
     userChatObject['role'] = 'user';
     userChatObject['time'] = currentTime;
+    userChatObject['uuid'] = customUUID();
 
     GPTChatObject['role'] = 'assistant';
     GPTChatObject['responseBot'] = filteredModel.name;
     GPTChatObject['content'] = '';
     GPTChatObject['time'] = currentTime;
+    GPTChatObject['uuid'] = customUUID();
 
     setNewChats(prev => [...prev, userChatObject, GPTChatObject]);
     setUserChatText('');
@@ -428,14 +441,18 @@ export default function ChatGPTHome(props) {
 
       setNewChats(prev => {
         let tempArr = [...prev];
-        tempArr.pop();
+        const oldItem = tempArr.pop();
         tempArr.push({
+          ...oldItem,
           content: textInfo.message.content,
           role: textInfo.message.role,
           responseBot: filteredModel.name,
         });
         return tempArr;
       });
+      setTimeout(() => {
+        setForceUpdate(prev => !prev); // Add this
+      }, 50);
 
       toggleGlobalAppDataInformation(
         {
@@ -447,19 +464,21 @@ export default function ChatGPTHome(props) {
         true,
       );
     } catch (err) {
+      console.log('Error with chatGPT request', err);
       setNewChats(prev => {
         let tempArr = [...prev];
-        tempArr.pop();
+        const oldItem = tempArr.pop();
         tempArr.push({
+          ...oldItem,
           role: 'assistant',
           content: 'Error with request',
           responseBot: filteredModel.name,
         });
-
         return tempArr;
       });
-
-      console.log(err, 'ERR');
+      setTimeout(() => {
+        setForceUpdate(prev => !prev); // Add this
+      }, 50);
     }
   }
 }
