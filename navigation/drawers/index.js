@@ -41,12 +41,17 @@ function ChatGPTDrawer({confirmationSliderData}) {
   const drawerElements = useMemo(() => {
     return savedConversations
       .map((element, id) => {
+        const baseLabel = element ? element.firstQuery : 'New Chat';
+        const uniqueName = `chat-${id}`;
         return (
           <Drawer.Screen
             key={id}
+            name={uniqueName}
             initialParams={{chatHistory: element}}
-            name={element ? element.firstQuery : 'New Chat'}
             component={ChatGPTHome}
+            options={{
+              drawerLabel: baseLabel,
+            }}
           />
         );
       })
