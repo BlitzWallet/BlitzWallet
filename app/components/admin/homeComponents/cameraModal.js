@@ -223,9 +223,14 @@ export default function CameraModal(props) {
     if (error) {
       crashlyticsRecordErrorReport(error);
       navigate.goBack();
-      setTimeout(() => {
-        navigate.navigate('ErrorScreen', {errorMessage: error});
-      }, 150);
+      setTimeout(
+        () => {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: error,
+          });
+        },
+        Platform.OS === 'android' ? 350 : 50,
+      );
       return;
     }
 
