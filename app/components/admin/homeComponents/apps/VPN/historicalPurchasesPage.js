@@ -33,49 +33,51 @@ export default function HistoricalVPNPurchases() {
     getSavedPurchases();
   }, [decodedVPNS]);
 
-  const purchaseElements = purchaseList.map((item, index) => {
-    if (!item) return;
-    return (
-      <TouchableOpacity
-        key={item.createdTime}
-        style={styles.container}
-        onPress={() => handleConfigClick(item)}
-        onLongPress={() => {
-          navigate.navigate('ConfirmActionPage', {
-            confirmMessage: 'Are you sure you want to remove this VPN.',
-            confirmFunction: () => removeVPNFromList(item.payment_hash),
-          });
-        }}>
-        <View style={styles.infoContainer}>
-          <ThemeText styles={{...styles.label}} content={'Country:'} />
-          <ThemeText styles={{...styles.value}} content={item.country} />
-        </View>
-        <View style={styles.infoContainer}>
-          <ThemeText styles={{...styles.label}} content={'Created At:'} />
-          <ThemeText
-            styles={{...styles.value}}
-            content={new Date(item.createdTime).toLocaleString()}
-          />
-        </View>
-        <View style={styles.infoContainer}>
-          <ThemeText styles={{...styles.label}} content={'Duration:'} />
-          <ThemeText styles={{...styles.value}} content={item.duration} />
-        </View>
+  const purchaseElements = purchaseList
+    .map((item, index) => {
+      if (!item) return false;
+      return (
         <TouchableOpacity
-          onPress={() => {
-            copyToClipboard(item.payment_hash, navigate);
-          }}
-          style={styles.infoContainer}>
-          <ThemeText styles={{...styles.label}} content={'Payment Hash:'} />
-          <ThemeText
-            CustomNumberOfLines={2}
-            styles={{...styles.value}}
-            content={`${item.payment_hash}`}
-          />
+          key={item.createdTime}
+          style={styles.container}
+          onPress={() => handleConfigClick(item)}
+          onLongPress={() => {
+            navigate.navigate('ConfirmActionPage', {
+              confirmMessage: 'Are you sure you want to remove this VPN.',
+              confirmFunction: () => removeVPNFromList(item.payment_hash),
+            });
+          }}>
+          <View style={styles.infoContainer}>
+            <ThemeText styles={{...styles.label}} content={'Country:'} />
+            <ThemeText styles={{...styles.value}} content={item.country} />
+          </View>
+          <View style={styles.infoContainer}>
+            <ThemeText styles={{...styles.label}} content={'Created At:'} />
+            <ThemeText
+              styles={{...styles.value}}
+              content={new Date(item.createdTime).toLocaleString()}
+            />
+          </View>
+          <View style={styles.infoContainer}>
+            <ThemeText styles={{...styles.label}} content={'Duration:'} />
+            <ThemeText styles={{...styles.value}} content={item.duration} />
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              copyToClipboard(item.payment_hash, navigate);
+            }}
+            style={styles.infoContainer}>
+            <ThemeText styles={{...styles.label}} content={'Payment Hash:'} />
+            <ThemeText
+              CustomNumberOfLines={2}
+              styles={{...styles.value}}
+              content={`${item.payment_hash}`}
+            />
+          </TouchableOpacity>
         </TouchableOpacity>
-      </TouchableOpacity>
-    );
-  });
+      );
+    })
+    .filter(Boolean);
   return (
     <GlobalThemeView>
       <View style={styles.globalContainer}>
@@ -144,9 +146,14 @@ export default function HistoricalVPNPurchases() {
             JSON.stringify(newCardsList),
           );
           toggleGlobalAppDataInformation({VPNplans: em}, true);
-          setTimeout(() => {
-            setIsRetryingConfig(false);
-          }, 2000);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              navigate.navigate('GeneratedVPNFile', {
+                generatedFile: response.config,
+              });
+            });
+          });
+          setIsRetryingConfig(false);
           return;
         }
         setIsRetryingConfig(false);

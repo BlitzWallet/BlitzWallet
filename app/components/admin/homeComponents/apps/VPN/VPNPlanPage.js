@@ -201,6 +201,7 @@ export default function VPNPlanPage({countryList}) {
           country: country,
         });
         setLoadingMessage('Paying invoice');
+        saveVPNConfigsToDB(savedVPNConfigs);
         const parsedInput = await parseInput(invoice.payment_request);
         const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
         const paymentResponse = await sendStorePayment({
@@ -241,7 +242,6 @@ export default function VPNPlanPage({countryList}) {
   async function getVPNConfig({paymentHash, location, savedVPNConfigs}) {
     let didSettleInvoice = false;
     let runCount = 0;
-    saveVPNConfigsToDB(savedVPNConfigs);
 
     while (!didSettleInvoice && runCount < 10) {
       try {
