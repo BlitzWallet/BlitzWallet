@@ -234,7 +234,6 @@ export default function CustomHalfModal(props) {
         <View style={styles.container} />
       </TouchableWithoutFeedback>
       <Animated.View
-        {...panResponder.panHandlers}
         style={[
           styles.contentContainer,
           {
@@ -252,16 +251,17 @@ export default function CustomHalfModal(props) {
             transform: [{translateY: Animated.add(translateY, panY)}],
           },
         ]}>
-        <View
-          style={[
-            styles.topBar,
-            {
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
-          ]}
-        />
-
+        <View {...panResponder.panHandlers} style={styles.topBarConctainer}>
+          <View
+            style={[
+              styles.topBar,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
+              },
+            ]}
+          />
+        </View>
         {renderContent()}
       </Animated.View>
     </KeyboardAvoidingView>
@@ -277,17 +277,22 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.halfModalBackgroundColor,
     justifyContent: 'flex-end',
   },
+  topBarConctainer: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   topBar: {
     width: 120,
     height: 8,
     marginTop: 10,
     borderRadius: 8,
     marginBottom: 20,
-    ...CENTER,
   },
   contentContainer: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingTop: 10,
   },
 });
