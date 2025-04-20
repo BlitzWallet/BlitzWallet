@@ -390,6 +390,7 @@ export default function SendPaymentScreen(props) {
           resetAfterSuccessAnimDuration={true}
           shouldAnimateViewOnSuccess={true}
           shouldResetAfterSuccess={!canSendPayment}
+          shouldDisplaySuccessState={isSendingPayment}
           containerStyles={{
             opacity: isSendingPayment
               ? 1

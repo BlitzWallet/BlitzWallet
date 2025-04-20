@@ -65,6 +65,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
   shouldAnimateViewOnSuccess = SHOULD_ANIMATE_VIEW_ON_SUCCESS,
   width = 0.95,
   maxWidth = 375,
+  shouldDisplaySuccessState = false,
 }) {
   console.log('SWIPE BUTTON IS RENDERING');
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -132,16 +133,24 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
       useNativeDriver: false,
     }).start();
 
-    // Animate back to initial position after successfully swiped
-    const resetDelay =
-      DEFAULT_ANIMATION_DURATION +
-      (resetAfterSuccessAnimDelay !== undefined
-        ? resetAfterSuccessAnimDelay
-        : RESET_AFTER_SUCCESS_DEFAULT_DELAY);
-    setTimeout(() => {
-      shouldResetAfterSuccess && reset();
-    }, resetDelay);
+    if (!shouldDisplaySuccessState && shouldResetAfterSuccess) {
+      const resetDelay =
+        DEFAULT_ANIMATION_DURATION +
+        (resetAfterSuccessAnimDelay !== undefined
+          ? resetAfterSuccessAnimDelay
+          : RESET_AFTER_SUCCESS_DEFAULT_DELAY);
+
+      setTimeout(() => {
+        reset();
+      }, resetDelay);
+    }
   };
+
+  useEffect(() => {
+    if (shouldDisplaySuccessState) {
+      animateViewOnSuccess();
+    }
+  }, [shouldDisplaySuccessState]);
 
   useEffect(() => {
     const handleScreenReaderToggled = isEnabled => {
