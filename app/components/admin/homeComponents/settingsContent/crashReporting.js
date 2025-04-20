@@ -25,7 +25,7 @@ export default function CrashReportingSettingsPage() {
     <View style={styles.container}>
       <SettingsItemWithSlider
         settingsTitle={`${
-          isCrashReportingEnabled ? 'Enable' : 'Disable'
+          isCrashReportingEnabled ? 'Enabled' : 'Disabled'
         } crash reporting`}
         settingDescription={`Crash data helps us improve the stability and performance of our application.\n\nWhen a crash occurs, the device information that is automatically recorded includes:\n\n• Operating System: OS version, device orientation, and jailbreak status\n• Device Details: Model, orientation, and available RAM\n• Crash Information: Date of the crash and the app version`}
         handleSubmit={() => {
