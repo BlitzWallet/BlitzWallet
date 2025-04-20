@@ -87,8 +87,7 @@ export default async function decodeSendAddress(props) {
     const chosenPath = parsedInvoice
       ? Promise.resolve(parsedInvoice)
       : parse(btcAdress);
-    const input = await chosenPath;
-    console.log(input);
+    let input = await chosenPath;
 
     if (input.type === InputTypeVariant.BOLT11) {
       crashlyticsLogReport(
@@ -97,10 +96,9 @@ export default async function decodeSendAddress(props) {
       const isMagicRoutingHint = await getLiquidAddressFromSwap(
         input.invoice.bolt11,
       );
-      console.log(isMagicRoutingHint);
       if (isMagicRoutingHint) {
-        btcAdress = isMagicRoutingHint;
-        throw new Error('Pushing to liquid to pay');
+        const parsed = await parse(isMagicRoutingHint);
+        input = parsed;
       }
     }
 
