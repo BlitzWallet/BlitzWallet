@@ -251,7 +251,7 @@ export default function CustomHalfModal(props) {
             transform: [{translateY: Animated.add(translateY, panY)}],
           },
         ]}>
-        <View {...panResponder.panHandlers} style={styles.topBarConctainer}>
+        <View {...panResponder.panHandlers} style={styles.topBarContainer}>
           <View
             style={[
               styles.topBar,
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.halfModalBackgroundColor,
     justifyContent: 'flex-end',
   },
-  topBarConctainer: {
+  topBarContainer: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingTop: 10,
