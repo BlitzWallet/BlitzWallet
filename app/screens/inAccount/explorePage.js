@@ -26,6 +26,7 @@ import Grid from '../../functions/CustomElements/chart/grid';
 import {FONT, INSET_WINDOW_WIDTH} from '../../constants/theme';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import LineChartDot from '../../functions/CustomElements/chart/lineChartDot';
+import {findLargestByVisualWidth} from '../../components/admin/homeComponents/explore/largestNumber';
 
 export default function ExploreUsers() {
   const [timeFrame, setTimeFrame] = useState('day');
@@ -34,6 +35,11 @@ export default function ExploreUsers() {
   const {theme, darkModeType} = useGlobalThemeContext();
   const [targetUserCountBarWidth, setTargetUserCountBarWidth] = useState(0);
   const [yAxisWidth, setYAxisWidth] = useState(0);
+  const dataObject = JSON.parse(JSON.stringify(masterInfoObject.exploreData));
+  const data = dataObject ? dataObject[timeFrame].reverse() : [];
+
+  const totalToday = masterInfoObject.exploreData['day'][0].value;
+  const totalYesterday = masterInfoObject.exploreData['day'][1].value;
 
   const axesSvg = {
     fontSize: SIZES.small,
@@ -42,6 +48,14 @@ export default function ExploreUsers() {
   };
   const verticalContentInset = {top: 10, bottom: 10};
   const xAxisHeight = 30;
+
+  const largestNumber = useMemo(() => {
+    return findLargestByVisualWidth(
+      Math.round(data[0].value * 0.95),
+      Math.round(totalToday * 1.05),
+      7,
+    );
+  }, [data[0].value, totalToday]);
 
   const timeFrameElements = useMemo(() => {
     return ['day', 'week', 'month', 'year'].map(item => {
@@ -138,11 +152,6 @@ export default function ExploreUsers() {
   ) {
     return <NoDataView />;
   }
-  const dataObject = JSON.parse(JSON.stringify(masterInfoObject.exploreData));
-  const data = dataObject ? dataObject[timeFrame].reverse() : [];
-
-  const totalToday = masterInfoObject.exploreData['day'][0].value;
-  const totalYesterday = masterInfoObject.exploreData['day'][1].value;
 
   return (
     <ScrollView
@@ -154,7 +163,7 @@ export default function ExploreUsers() {
           setYAxisWidth(Math.round(event.nativeEvent.layout.width));
         }}
         style={styles.sizingText}>
-        {Math.round(totalToday * 1.05)}
+        {largestNumber}
       </Text>
       <View style={{...styles.statsCard, backgroundColor: backgroundOffset}}>
         <ThemeText
