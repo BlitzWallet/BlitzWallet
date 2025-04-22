@@ -38,7 +38,18 @@ export default function ExploreUsers() {
   const dataObject = JSON.parse(JSON.stringify(masterInfoObject.exploreData));
   const data = dataObject ? dataObject[timeFrame].reverse() : [];
 
-  const totalToday = masterInfoObject.exploreData['day'][0].value;
+  const min = data.reduce((prev, current) => {
+    console.log(prev, current);
+    if (current?.value < prev) return current.value;
+    else return prev;
+  }, BLITZ_GOAL_USER_COUNT);
+
+  const max = data.reduce((prev, current) => {
+    console.log(prev, current);
+    if (current?.value > prev) return current.value;
+    else return prev;
+  }, 0);
+
   const totalYesterday = masterInfoObject.exploreData['day'][1].value;
 
   const axesSvg = {
@@ -50,12 +61,8 @@ export default function ExploreUsers() {
   const xAxisHeight = 30;
 
   const largestNumber = useMemo(() => {
-    return findLargestByVisualWidth(
-      Math.round(data[0].value * 0.95),
-      Math.round(totalToday * 1.05),
-      7,
-    );
-  }, [data[0].value, totalToday]);
+    return findLargestByVisualWidth(Math.round(min * 0.95), Math.round(max), 7);
+  }, [min, max]);
 
   const timeFrameElements = useMemo(() => {
     return ['day', 'week', 'month', 'year'].map(item => {
@@ -175,12 +182,9 @@ export default function ExploreUsers() {
           <DateCountdown />
           <ThemeText
             styles={styles.statsCardNumberText}
-            content={`${formatBalanceAmount(
-              totalToday,
-            )} of ${formatBalanceAmount(BLITZ_GOAL_USER_COUNT)} (${(
-              (totalToday / BLITZ_GOAL_USER_COUNT) *
-              100
-            ).toFixed(4)}%)`}
+            content={`${formatBalanceAmount(max)} of ${formatBalanceAmount(
+              BLITZ_GOAL_USER_COUNT,
+            )} (${((max / BLITZ_GOAL_USER_COUNT) * 100).toFixed(4)}%)`}
           />
         </View>
         <View
@@ -193,8 +197,7 @@ export default function ExploreUsers() {
           }}>
           <View
             style={{
-              width:
-                targetUserCountBarWidth * (totalToday / BLITZ_GOAL_USER_COUNT),
+              width: targetUserCountBarWidth * (max / BLITZ_GOAL_USER_COUNT),
               backgroundColor:
                 theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
               ...styles.statsCardBarFill,
@@ -224,8 +227,8 @@ export default function ExploreUsers() {
           }}
           contentInset={verticalContentInset}
           svg={axesSvg}
-          min={Math.round(data[0].value * 0.95)}
-          max={Math.round(totalToday * 1.05)}
+          min={Math.round(min * 0.95)}
+          max={Math.round(max * (timeFrame !== 'day' ? 1.2 : 1.05))}
           numberOfTicks={7}
         />
         <View style={{flex: 1, marginLeft: 5}}>
@@ -238,8 +241,8 @@ export default function ExploreUsers() {
                 theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
               strokeWidth: 3,
             }}
-            yMin={Math.round(data[0].value * 0.95)}
-            yMax={Math.round(totalToday * 1.05)}>
+            yMin={Math.round(min * 0.95)}
+            yMax={Math.round(max * (timeFrame !== 'day' ? 1.2 : 1.05))}>
             <Grid />
             <LineChartDot
               color={
