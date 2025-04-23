@@ -57,6 +57,11 @@ function CustomFlatList({style, ...props}) {
     }, []),
   );
 
+  const colors = Platform.select({
+    ios: darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
+    android: darkModeType && theme ? COLORS.lightModeText : COLORS.primary,
+  });
+
   return (
     <View style={style}>
       <Animated.View
@@ -74,9 +79,7 @@ function CustomFlatList({style, ...props}) {
       <Animated.FlatList
         refreshControl={
           <RefreshControl
-            colors={[
-              darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
-            ]}
+            colors={[colors]}
             tintColor={
               darkModeType && theme ? COLORS.darkModeText : COLORS.primary
             }
