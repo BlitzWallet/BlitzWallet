@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     zIndex: 99,
-    left: '50%',
-    transform: [{translateX: '-50%'}],
+    alignSelf: 'center',
   },
 });
