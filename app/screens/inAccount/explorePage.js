@@ -61,7 +61,11 @@ export default function ExploreUsers() {
   const xAxisHeight = 30;
 
   const largestNumber = useMemo(() => {
-    return findLargestByVisualWidth(Math.round(min * 0.95), Math.round(max), 7);
+    return findLargestByVisualWidth(
+      Math.round(min * 0.95),
+      Math.round(max * 1.05),
+      7,
+    );
   }, [min, max]);
 
   const timeFrameElements = useMemo(() => {

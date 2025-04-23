@@ -144,6 +144,11 @@ export default async function initializeUserSettingsFromHistory({
       messagesApp: messagesApp,
     };
 
+    const offlineReceiveAddresses = blitzStoredData.offlineReceiveAddresses || {
+      lastUpdated: new Date().getTime(),
+      addresses: [],
+    };
+
     //added here for legecy people
     liquidWalletSettings.regulatedChannelOpenSize =
       liquidWalletSettings.regulatedChannelOpenSize < MIN_CHANNEL_OPEN_FEE
@@ -244,6 +249,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['hideUnknownContacts'] = hideUnknownContacts;
     tempObject['enabledLNURL'] = enabledLNURL;
     tempObject['useTrampoline'] = useTrampoline;
+    tempObject['offlineReceiveAddresses'] = offlineReceiveAddresses;
 
     // store in contacts context
     tempObject['contacts'] = contacts;
