@@ -515,8 +515,10 @@ export default function ConnectingToNodeLoadingScreen({
             : getInfo(),
           listPayments({}),
           setupFiatCurrencies(),
-          !globalContactsInformation.myProfile.receiveAddress ||
-          isMoreThan7DaysPast(globalContactsInformation.myProfile.lastRotated)
+          !masterInfoObject.offlineReceiveAddresses.addresses.length !== 7 ||
+          isMoreThan7DaysPast(
+            masterInfoObject.offlineReceiveAddresses.lastRotated,
+          )
             ? breezLiquidReceivePaymentWrapper({
                 paymentType: 'liquid',
               })
@@ -530,21 +532,32 @@ export default function ConnectingToNodeLoadingScreen({
         const {destination, receiveFeesSat} = addressResponse;
         console.log('LIQUID DESTINATION ADDRESS', destination);
         console.log(destination);
-        toggleGlobalContactsInformation(
-          {
-            myProfile: {
-              ...globalContactsInformation.myProfile,
-              receiveAddress: destination,
-              lastRotated: getDateXDaysAgo(0),
+        if (!globalContactsInformation.myProfile.receiveAddress) {
+          // For legacy users and legacy functions
+          toggleGlobalContactsInformation(
+            {
+              myProfile: {
+                ...globalContactsInformation.myProfile,
+                receiveAddress: destination,
+                lastRotated: getDateXDaysAgo(0),
+              },
             },
-          },
-          true,
-        );
+            true,
+          );
+        }
+        // Didn't sperate since it only cost one write so there is no reasy not to update
         toggleMasterInfoObject({
           posSettings: {
             ...masterInfoObject.posSettings,
             receiveAddress: destination,
             lastRotated: getDateXDaysAgo(0),
+          },
+          offlineReceiveAddresses: {
+            addresses: [
+              destination,
+              ...masterInfoObject.offlineReceiveAddresses.addresses.slice(0, 6),
+            ],
+            lastRotated: new Date().getTime(),
           },
         });
       }
