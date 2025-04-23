@@ -55,13 +55,6 @@ const GENERALOPTIONS = [
   },
   {
     for: 'general',
-    name: 'Crash Reports',
-    svgIcon: true,
-    svgName: 'crashDebugIcon',
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'general',
     name: 'Blitz Stats',
     svgName: 'crashDebugIcon',
     icon: ICONS.navigationIcon,
@@ -117,6 +110,13 @@ const EXPIRIMENTALFEATURES = [
   },
 ];
 const ADVANCEDOPTIONS = [
+  {
+    for: 'general',
+    name: 'Crash Reports',
+    svgIcon: true,
+    svgName: 'crashDebugIcon',
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
   {
     for: 'general',
     name: 'Node Info',
