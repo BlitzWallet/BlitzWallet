@@ -230,100 +230,101 @@ export const GlobalContactsList = ({children}) => {
     };
   }, [globalContactsInformation?.myProfile?.uuid]);
 
-  useEffect(() => {
-    if (!Object.keys(globalContactsInformation).length) return;
-    if (lookForNewMessages.current) return;
-    lookForNewMessages.current = true;
-    syncDatabasePayment(
-      globalContactsInformation.myProfile.uuid,
-      updatedCachedMessagesStateFunction,
-    );
-  }, [globalContactsInformation, updatedCachedMessagesStateFunction]);
+  // No longer need to handle this manualy as it happens automaticly from peoples activity
+  // useEffect(() => {
+  //   if (!Object.keys(globalContactsInformation).length) return;
+  //   if (lookForNewMessages.current) return;
+  //   lookForNewMessages.current = true;
+  //   syncDatabasePayment(
+  //     globalContactsInformation.myProfile.uuid,
+  //     updatedCachedMessagesStateFunction,
+  //   );
+  // }, [globalContactsInformation, updatedCachedMessagesStateFunction]);
 
-  useEffect(() => {
-    if (
-      !Object.keys(globalContactsInformation).length ||
-      !contactsPrivateKey ||
-      !publicKey
-    )
-      return;
-    if (didTryToUpdate.current) return;
-    didTryToUpdate.current = true;
+  // useEffect(() => {
+  //   if (
+  //     !Object.keys(globalContactsInformation).length ||
+  //     !contactsPrivateKey ||
+  //     !publicKey
+  //   )
+  //     return;
+  //   if (didTryToUpdate.current) return;
+  //   didTryToUpdate.current = true;
 
-    const updateContactsAddresses = async () => {
-      if (
-        !decodedAddedContacts ||
-        decodedAddedContacts.length === 0 ||
-        !isMoreThan21Days(
-          globalContactsInformation.myProfile?.lastRotatedAddedContact,
-        )
-      )
-        return;
+  //   const updateContactsAddresses = async () => {
+  //     if (
+  //       !decodedAddedContacts ||
+  //       decodedAddedContacts.length === 0 ||
+  //       !isMoreThan21Days(
+  //         globalContactsInformation.myProfile?.lastRotatedAddedContact,
+  //       )
+  //     )
+  //       return;
 
-      // break array into size of 10 to meet firestore limits
-      const chunkArray = (arr, size) =>
-        arr.length > size
-          ? [arr.slice(0, size), ...chunkArray(arr.slice(size), size)]
-          : [arr];
+  //     // break array into size of 10 to meet firestore limits
+  //     const chunkArray = (arr, size) =>
+  //       arr.length > size
+  //         ? [arr.slice(0, size), ...chunkArray(arr.slice(size), size)]
+  //         : [arr];
 
-      // take document uuids from valid contacts (LNURL address does not need to be looked up)
-      const uuidChunks = chunkArray(
-        decodedAddedContacts.map(c => !c.isLNURL && c.uuid),
-        10,
-      );
+  //     // take document uuids from valid contacts (LNURL address does not need to be looked up)
+  //     const uuidChunks = chunkArray(
+  //       decodedAddedContacts.map(c => !c.isLNURL && c.uuid),
+  //       10,
+  //     );
 
-      console.log('uuid chunks', uuidChunks);
+  //     console.log('uuid chunks', uuidChunks);
 
-      // Request database for updated contact addresses
-      const bulkResults = (
-        await Promise.all(
-          uuidChunks.map(uuids => bulkGetUnknownContacts(uuids)),
-        )
-      )
-        .flat()
-        .filter(Boolean);
+  //     // Request database for updated contact addresses
+  //     const bulkResults = (
+  //       await Promise.all(
+  //         uuidChunks.map(uuids => bulkGetUnknownContacts(uuids)),
+  //       )
+  //     )
+  //       .flat()
+  //       .filter(Boolean);
 
-      // create an object of {id:address}
-      const uuidToAddressMap = bulkResults.reduce((acc, doc) => {
-        const uuid = doc.contacts.myProfile?.uuid;
-        if (uuid) acc[uuid] = doc.contacts.myProfile.receiveAddress;
-        return acc;
-      }, {});
+  //     // create an object of {id:address}
+  //     const uuidToAddressMap = bulkResults.reduce((acc, doc) => {
+  //       const uuid = doc.contacts.myProfile?.uuid;
+  //       if (uuid) acc[uuid] = doc.contacts.myProfile.receiveAddress;
+  //       return acc;
+  //     }, {});
 
-      console.log('uuid address map', uuidToAddressMap);
-      // Updated saved contacts address to new address if they have changed but skip LNURL
-      const updatedContactsAddress = decodedAddedContacts.map(contact => {
-        const newAddress = uuidToAddressMap[contact.uuid];
-        return newAddress &&
-          newAddress !== contact.receiveAddress &&
-          !contact.isLNURL
-          ? {...contact, receiveAddress: newAddress}
-          : contact;
-      });
+  //     console.log('uuid address map', uuidToAddressMap);
+  //     // Updated saved contacts address to new address if they have changed but skip LNURL
+  //     const updatedContactsAddress = decodedAddedContacts.map(contact => {
+  //       const newAddress = uuidToAddressMap[contact.uuid];
+  //       return newAddress &&
+  //         newAddress !== contact.receiveAddress &&
+  //         !contact.isLNURL
+  //         ? {...contact, receiveAddress: newAddress}
+  //         : contact;
+  //     });
 
-      toggleGlobalContactsInformation(
-        {
-          myProfile: {
-            ...globalContactsInformation.myProfile,
-            lastRotatedAddedContact: getCurrentDateFormatted(),
-          },
-          addedContacts: encriptMessage(
-            contactsPrivateKey,
-            publicKey,
-            JSON.stringify(updatedContactsAddress),
-          ),
-        },
-        true,
-      );
-    };
+  //     toggleGlobalContactsInformation(
+  //       {
+  //         myProfile: {
+  //           ...globalContactsInformation.myProfile,
+  //           lastRotatedAddedContact: getCurrentDateFormatted(),
+  //         },
+  //         addedContacts: encriptMessage(
+  //           contactsPrivateKey,
+  //           publicKey,
+  //           JSON.stringify(updatedContactsAddress),
+  //         ),
+  //       },
+  //       true,
+  //     );
+  //   };
 
-    updateContactsAddresses();
-  }, [
-    globalContactsInformation,
-    decodedAddedContacts,
-    contactsPrivateKey,
-    publicKey,
-  ]);
+  //   updateContactsAddresses();
+  // }, [
+  //   globalContactsInformation,
+  //   decodedAddedContacts,
+  //   contactsPrivateKey,
+  //   publicKey,
+  // ]);
 
   return (
     <GlobalContacts.Provider
