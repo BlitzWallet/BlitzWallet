@@ -515,7 +515,7 @@ export default function ConnectingToNodeLoadingScreen({
             : getInfo(),
           listPayments({}),
           setupFiatCurrencies(),
-          !masterInfoObject.offlineReceiveAddresses.addresses.length !== 7 ||
+          masterInfoObject.offlineReceiveAddresses.addresses.length !== 7 ||
           isMoreThan7DaysPast(
             masterInfoObject.offlineReceiveAddresses.lastRotated,
           )
