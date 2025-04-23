@@ -25,6 +25,10 @@ const PRESET_LOCAL_DATA = {
     lastChangedInSettings: new Date().getTime(),
     lastChangedWithFirebase: new Date().getTime(),
   },
+  exploreData: {
+    lastUpdated: new Date().getTime(),
+    data: null,
+  },
 };
 
 async function sendDataToDB(newObject, uuid) {
