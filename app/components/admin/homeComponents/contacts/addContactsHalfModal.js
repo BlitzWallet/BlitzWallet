@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  unstable_batchedUpdates,
   View,
 } from 'react-native';
 import {ThemeText} from '../../../../functions/CustomElements';
@@ -24,6 +25,7 @@ import customUUID from '../../../../functions/customUUID';
 import {useKeysContext} from '../../../../../context-store/keys';
 import {keyboardNavigate} from '../../../../functions/customNavigation';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import sha256Hash from '../../../../functions/hash';
 
 export default function AddContactsHalfModal(props) {
   const {contactsPrivateKey} = useKeysContext();
@@ -38,27 +40,24 @@ export default function AddContactsHalfModal(props) {
 
   const debouncedSearch = useDebounce(async term => {
     const results = await searchUsers(term);
-    const newUsers = results.map((savedContact, id) => {
-      if (!savedContact) {
-        return false;
-      }
-      if (
-        savedContact.uniqueName ===
-        globalContactsInformation.myProfile.uniqueName
-      )
-        return false;
-      if (!savedContact.receiveAddress) return false;
-      return (
-        <ContactListItem
-          key={savedContact.uniqueName}
-          id={id}
-          savedContact={savedContact}
-          contactsPrivateKey={contactsPrivateKey}
-        />
-      );
+    const newUsers = results
+      .map((savedContact, id) => {
+        if (!savedContact) {
+          return false;
+        }
+        if (
+          savedContact.uniqueName ===
+          globalContactsInformation.myProfile.uniqueName
+        )
+          return false;
+        if (!savedContact.receiveAddress) return false;
+        return savedContact;
+      })
+      .filter(Boolean);
+    unstable_batchedUpdates(() => {
+      setIsSearching(false);
+      setUsers(newUsers);
     });
-    setIsSearching(false);
-    setUsers(newUsers);
   }, 500);
 
   const handleSearch = term => {
@@ -194,9 +193,16 @@ export default function AddContactsHalfModal(props) {
             </ScrollView>
           ) : (
             <FlatList
+              key={sha256Hash(users.join('') + `${isSearching}`)}
               showsVerticalScrollIndicator={false}
               data={users}
-              renderItem={({item}) => item}
+              renderItem={({item}) => (
+                <ContactListItem
+                  savedContact={item}
+                  contactsPrivateKey={contactsPrivateKey}
+                />
+              )}
+              keyExtractor={item => item?.uniqueName}
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="none"
             />
@@ -219,7 +225,6 @@ function ContactListItem(props) {
 
   return (
     <TouchableOpacity
-      key={props.savedContact.uniqueName}
       onPress={() => {
         keyboardNavigate(() =>
           navigate.replace('ExpandedAddContactsPage', {newContact: newContact}),
