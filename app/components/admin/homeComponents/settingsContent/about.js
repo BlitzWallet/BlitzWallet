@@ -18,12 +18,14 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import openWebBrowser from '../../../../functions/openWebBrowser';
+import {useTranslation} from 'react-i18next';
 
 export default function AboutPage() {
   const {masterInfoObject} = useGlobalContextProvider();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor} = GetThemeColors();
+  const {t} = useTranslation();
 
   const navigate = useNavigation();
   const device_info = DeviceInfo.getVersion();
@@ -33,36 +35,36 @@ export default function AboutPage() {
       showsVerticalScrollIndicator={false}
       style={styles.innerContainer}>
       <ThemeText
-        content={'Software'}
+        content={t('settings.about.text1')}
         styles={{...styles.sectionHeader, marginTop: 30}}
       />
       <Text style={styles.contentText}>
-        <ThemeText content={`Blitz is a free and open source app under the `} />
+        <ThemeText content={t('settings.about.text2')} />
         <ThemeText
           styles={{
             color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
           }}
-          content={`Apache License`}
+          content={t('settings.about.text3')}
         />
         <ThemeText content={`,`} />
-        <ThemeText content={` Version 2.0`} />
+        <ThemeText content={t('settings.about.text4')} />
       </Text>
 
       <ThemeText content={'Blitz Wallet'} styles={{...styles.sectionHeader}} />
 
       <ThemeText
-        content={`This is a self-custodial Bitcoin wallet. Blitz does not have access to your funds, if you lose your backup phrase it may result in a loss of funds.`}
+        content={t('settings.about.text5')}
         styles={{
           ...styles.contentText,
         }}
       />
       <Text style={{textAlign: 'center'}}>
-        <ThemeText content={`Blitz uses `} />
+        <ThemeText content={t('settings.about.text6')} />
         <ThemeText
           styles={{
             color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
           }}
-          content={`Breez SDK, `}
+          content={t('settings.about.text7')}
         />
       </Text>
       <Text style={styles.contentText}>
@@ -70,33 +72,34 @@ export default function AboutPage() {
           styles={{
             color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
           }}
-          content={`Liquid Network, `}
+          content={t('settings.about.text8')}
         />
-        <ThemeText content={`and `} />
+        <ThemeText content={t('settings.about.text9')} />
         <ThemeText
           styles={{
             color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
           }}
-          content={`Boltz API.`}
+          content={t('settings.about.text10')}
         />
       </Text>
 
-      <ThemeText content={'Good to know'} styles={{...styles.sectionHeader}} />
+      <ThemeText
+        content={t('settings.about.text11')}
+        styles={{...styles.sectionHeader}}
+      />
 
       <Text
         style={{
           ...styles.contentText,
         }}>
-        <ThemeText content={`Blitz uses `} />
+        <ThemeText content={t('settings.about.text12')} />
         <ThemeText
           styles={{
             color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
           }}
-          content={`liquid atomic swaps `}
+          content={t('settings.about.text13')}
         />
-        <ThemeText
-          content={`in the beginning and will open a lightning channel for you after you reach a balance of `}
-        />
+        <ThemeText content={t('settings.about.text14')} />
         <ThemeText
           styles={{color: theme && darkModeType ? textColor : COLORS.primary}}
           content={displayCorrectDenomination({
@@ -107,13 +110,14 @@ export default function AboutPage() {
           })}
         />
 
-        <ThemeText
-          content={` to help you have a good and consistent experience with the Lightning Network.`}
-        />
+        <ThemeText content={t('settings.about.text15')} />
       </Text>
 
       <View style={{...CENTER, alignItems: 'center'}}>
-        <ThemeText styles={{fontSize: SIZES.large}} content={'Creator'} />
+        <ThemeText
+          styles={{fontSize: SIZES.large}}
+          content={t('settings.about.text16')}
+        />
         <CustomButton
           buttonStyles={{
             ...styles.customButtonContainer,
@@ -151,7 +155,7 @@ export default function AboutPage() {
       </View>
       <ThemeText
         styles={{...CENTER, marginTop: 20}}
-        content={`Version: ${device_info}`}
+        content={`${t('settings.about.text17')} ${device_info}`}
       />
     </ScrollView>
   );

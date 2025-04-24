@@ -17,8 +17,7 @@ import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../functions/CustomElements';
 
-import {useEffect, useRef, useState} from 'react';
-import Icon from '../../../../functions/CustomElements/Icon';
+import {useRef, useState} from 'react';
 
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
 import {Slider} from '@miblanchard/react-native-slider';
@@ -31,6 +30,8 @@ import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {FONT, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import {useTranslation} from 'react-i18next';
+import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 
 export default function DisplayOptions() {
   const {toggleMasterInfoObject, setMasterInfoObject, masterInfoObject} =
@@ -39,7 +40,7 @@ export default function DisplayOptions() {
   const {nodeInformation} = useNodeContext();
   const {theme, darkModeType, toggleDarkModeType} = useGlobalThemeContext();
   const [labelSize, setLabelSize] = useState(0);
-  console.log(labelSize, 'LABEL SIZE');
+  const {t} = useTranslation();
   const {backgroundOffset} = GetThemeColors();
 
   const saveTimeoutRef = useRef(null);
@@ -52,7 +53,6 @@ export default function DisplayOptions() {
     code: currencyText,
   });
   const currencySymbol = formattedCurrency[2];
-  console.log(currencySymbol);
 
   const steps = [15, 20, 25, 30, 35, 40];
   const windowDimensions = useWindowDimensions();
@@ -62,124 +62,55 @@ export default function DisplayOptions() {
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{alignItems: 'center'}}
       style={styles.innerContainer}>
-      <ThemeText styles={{...styles.infoHeaders}} content={'Dark Mode Style'} />
+      <ThemeText
+        styles={styles.infoHeaders}
+        content={t('settings.displayoptions.text1')}
+      />
       <TouchableOpacity
         onPress={() => {
           if (darkModeType) return;
           toggleDarkModeType(!darkModeType);
         }}
-        style={[
-          styles.contentContainer,
-          {
-            // backgroundColor: theme
-            //   ? COLORS.darkModeBackgroundOffset
-            //   : COLORS.darkModeText,
-            minHeight: 0,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 20,
-            paddingHorizontal: 0,
-          },
-        ]}>
-        <ThemeText styles={styles.removeFontPadding} content={`Lights out`} />
-        <View
-          style={{
-            height: 30,
-            width: 30,
-            backgroundColor: darkModeType
-              ? theme
-                ? backgroundOffset
-                : COLORS.primary
-              : 'transparent',
-            borderWidth: darkModeType ? 0 : 2,
-            borderColor: theme ? backgroundOffset : COLORS.white,
-            borderRadius: 15,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          {darkModeType && (
-            <Icon
-              width={15}
-              height={15}
-              color={COLORS.darkModeText}
-              name={'expandedTxCheck'}
-            />
-          )}
-        </View>
+        style={styles.darkModeStyleContainer}>
+        <ThemeText
+          styles={styles.removeFontPadding}
+          content={t('settings.displayoptions.text2')}
+        />
+        <CheckMarkCircle isActive={darkModeType} />
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
           if (!darkModeType) return;
           toggleDarkModeType(!darkModeType);
         }}
-        style={[
-          styles.contentContainer,
-          {
-            // backgroundColor: theme
-            //   ? COLORS.darkModeBackgroundOffset
-            //   : COLORS.darkModeText,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 10,
-            paddingHorizontal: 0,
-            minHeight: 0,
-          },
-        ]}>
-        <ThemeText styles={styles.removeFontPadding} content={`Dim`} />
-        <View
-          style={{
-            height: 30,
-            width: 30,
-            backgroundColor: !darkModeType
-              ? theme
-                ? backgroundOffset
-                : COLORS.primary
-              : 'transparent',
-            borderColor: theme ? backgroundOffset : COLORS.white,
-            borderWidth: !darkModeType ? 0 : 2,
-            borderRadius: 15,
-            alignItems: 'center',
-
-            justifyContent: 'center',
-          }}>
-          {!darkModeType && (
-            <Icon
-              width={15}
-              height={15}
-              color={COLORS.darkModeText}
-              name={'expandedTxCheck'}
-            />
-          )}
-        </View>
+        style={styles.darkModeStyleContainer}>
+        <ThemeText
+          styles={styles.removeFontPadding}
+          content={t('settings.displayoptions.text3')}
+        />
+        <CheckMarkCircle isActive={!darkModeType} />
       </TouchableOpacity>
       <ThemeText
-        styles={{...styles.infoHeaders}}
-        content={'Balance Denomination'}
+        styles={styles.infoHeaders}
+        content={t('settings.displayoptions.text4')}
       />
       <View
         style={[
           styles.contentContainer,
           {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 10,
-            paddingVertical: 10,
           },
         ]}>
         <ThemeText
+          CustomNumberOfLines={1}
           styles={styles.removeFontPadding}
-          content={'Current denomination'}
+          content={t('settings.displayoptions.text5')}
         />
         <TouchableOpacity
           onPress={() => {
             if (!isConnectedToTheInternet) {
               navigate.navigate('ErrorScreen', {
-                errorMessage:
-                  'Please reconnect to the internet to switch your denomination',
+                errorMessage: t('settings.displayoptions.text6'),
               });
               return;
             }
@@ -206,15 +137,10 @@ export default function DisplayOptions() {
               );
           }}
           style={{
-            height: 40,
-            width: 40,
+            ...styles.denominationContainer,
             backgroundColor: theme
               ? COLORS.darkModeText
               : COLORS.lightModeBackground,
-            borderRadius: 8,
-            alignItems: 'center',
-
-            justifyContent: 'center',
           }}>
           <ThemeText
             styles={{
@@ -241,11 +167,6 @@ export default function DisplayOptions() {
           styles.contentContainer,
           {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 10,
-            paddingVertical: 10,
           },
         ]}>
         <ThemeText
@@ -255,10 +176,10 @@ export default function DisplayOptions() {
             flex: 1,
             marginRight: 10,
           }}
-          content={`How to display ${
+          content={`${t('settings.displayoptions.text7')} ${
             masterInfoObject.userBalanceDenomination !== 'fiat'
               ? 'sats'
-              : 'fiat'
+              : `${t('settings.displayoptions.text8')}`
           } `}
         />
         <TouchableOpacity
@@ -267,8 +188,7 @@ export default function DisplayOptions() {
             toggleMasterInfoObject({satDisplay: 'symbol'});
           }}
           style={{
-            height: 40,
-            width: 40,
+            ...styles.denominationContainer,
             backgroundColor:
               masterInfoObject.satDisplay === 'symbol'
                 ? theme && darkModeType
@@ -277,10 +197,6 @@ export default function DisplayOptions() {
                 : theme
                 ? COLORS.darkModeText
                 : COLORS.lightModeBackground,
-            borderRadius: 8,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginLeft: 'auto',
             marginRight: 10,
           }}>
           <ThemeText
@@ -307,9 +223,7 @@ export default function DisplayOptions() {
             toggleMasterInfoObject({satDisplay: 'word'});
           }}
           style={{
-            height: 40,
-            width: 'auto',
-            minWidth: 60,
+            ...styles.denominationContainerWord,
             backgroundColor:
               masterInfoObject.satDisplay === 'word'
                 ? theme && darkModeType
@@ -318,9 +232,6 @@ export default function DisplayOptions() {
                 : theme
                 ? COLORS.darkModeText
                 : COLORS.lightModeBackground,
-            borderRadius: 8,
-            alignItems: 'center',
-            justifyContent: 'center',
           }}>
           <ThemeText
             styles={{
@@ -342,29 +253,21 @@ export default function DisplayOptions() {
           />
         </TouchableOpacity>
       </View>
-      <ThemeText content={'Example'} />
+      <ThemeText content={t('settings.displayoptions.text9')} />
       <FormattedSatText neverHideBalance={true} balance={50} />
 
-      <ThemeText styles={{...styles.infoHeaders}} content={'Home Screen'} />
+      <ThemeText
+        styles={styles.infoHeaders}
+        content={t('settings.displayoptions.text10')}
+      />
       <View
         style={[
           styles.contentContainer,
           {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            flexDirection: 'row',
-            paddingVertical: 10,
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 20,
           },
         ]}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            flex: 1,
-            marginRight: 25,
-          }}>
+        <View style={styles.swipeForCameraContainer}>
           <ThemeText
             CustomNumberOfLines={1}
             styles={{...styles.removeFontPadding, marginRight: 5}}
@@ -373,8 +276,8 @@ export default function DisplayOptions() {
           <TouchableOpacity
             onPress={() => {
               navigate.navigate('InformationPopup', {
-                textContent: `Swipe right from the main screen—whether you're on Contacts, Wallet, or the Home page—to quickly open the camera for scanning.`,
-                buttonText: 'I understand',
+                textContent: t('settings.displayoptions.text12'),
+                buttonText: t('constants.iunderstand'),
               });
             }}>
             <ThemeImage
@@ -392,14 +295,10 @@ export default function DisplayOptions() {
           ...styles.infoHeaders,
           width: windowDimensions.width * 0.95 * 0.9 * 0.9,
         }}
-        content={'Displayed Transactions'}
+        content={t('settings.displayoptions.text13')}
       />
       <View style={styles.container}>
-        <View
-          style={{
-            ...styles.labelsContainer,
-            width: '100%',
-          }}>
+        <View style={styles.labelsContainer}>
           {steps.map((value, index) => (
             <Text
               onLayout={e => {
@@ -450,22 +349,21 @@ export default function DisplayOptions() {
           minimumTrackTintColor={theme ? backgroundOffset : COLORS.darkModeText}
         />
       </View>
-      <ThemeText styles={{...styles.infoHeaders}} content={'Contacts Page'} />
+      <ThemeText
+        styles={styles.infoHeaders}
+        content={t('settings.displayoptions.text14')}
+      />
       <View
         style={[
           styles.contentContainer,
           {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            flexDirection: 'row',
-            paddingVertical: 10,
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 20,
           },
         ]}>
         <ThemeText
+          CustomNumberOfLines={1}
           styles={styles.removeFontPadding}
-          content={`Hide Unknown Senders`}
+          content={t('settings.displayoptions.text15')}
         />
         <CustomToggleSwitch page={'hideUnknownContacts'} />
       </View>
@@ -483,21 +381,49 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 10,
   },
+  darkModeStyleContainer: {
+    width: '100%',
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    paddingHorizontal: 0,
+  },
+
   contentContainer: {
     minHeight: 60,
     width: '100%',
     paddingHorizontal: 10,
     borderRadius: 8,
-  },
-  homeScreenTxOptionContainer: {
-    width: '100%',
-    paddingVertical: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
+    marginBottom: 20,
+    paddingVertical: 10,
   },
-
+  denominationContainer: {
+    height: 40,
+    width: 40,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  denominationContainerWord: {
+    height: 40,
+    width: 'auto',
+    minWidth: 60,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  swipeForCameraContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 25,
+  },
   container: {
     width: '90%',
     justifyContent: 'center',
@@ -509,20 +435,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  label: {
-    fontSize: SIZES.medium,
-    color: '#000',
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-    marginTop: 20,
-    transform: [{scaleY: 2}],
-  },
-  imgIcon: {
-    width: 30,
-    height: 30,
-  },
+
   removeFontPadding: {
     includeFontPadding: false,
   },

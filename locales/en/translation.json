@@ -27,7 +27,8 @@
     "minimum": "Minimum",
     "request": "Request",
     "fee": "Fee",
-    "edit": "Edit"
+    "edit": "Edit",
+    "iunderstand": "I understand"
   },
   "transactionLabelText": {
     "failed": "Payment not sent",
@@ -137,7 +138,44 @@
     }
   },
   "apps": {},
-  "settings": {},
+  "settings": {
+    "about": {
+      "text1": "Software",
+      "text2": "Blitz is a free and open source app under the ",
+      "text3": "Apache License",
+      "text4": " Version 2.0",
+      "text5": "This is a self-custodial Bitcoin wallet. Blitz does not have access to your funds, if you lose your backup phrase it may result in a loss of funds.",
+      "text6": "Blitz uses ",
+      "text7": "Breez SDK, ",
+      "text8": "Liquid Network, ",
+      "text9": "and ",
+      "text10": "Boltz API.",
+      "text11": "Good to know",
+      "text12": "Blitz uses ",
+      "text13": "liquid atomic swaps ",
+      "text14": "in the beginning and will open a lightning channel for you after you reach a balance of ",
+      "text15": " to help you have a good and consistent experience with the Lightning Network.",
+      "text16": "Creator",
+      "text17": "Version:"
+    },
+    "displayoptions": {
+      "text1": "Dark Mode Style",
+      "text2": "Lights out",
+      "text3": "Dim",
+      "text4": "Balance Denomination",
+      "text5": "Current denomination",
+      "text6": "Please reconnect to the internet to switch your denomination",
+      "text7": "How to display",
+      "text8": "fiat",
+      "text9": "Example",
+      "text10": "Home Screen",
+      "text11": "Swipe for camera",
+      "text12": "Swipe right from the main screen—whether you're on Contacts, Wallet, or the Home page—to quickly open the camera for scanning.",
+      "text13": "Displayed Transactions",
+      "text14": "Contacts Page",
+      "text15": "Hide Unknown Senders"
+    }
+  },
   "contacts": {},
 
   "_comment": "General Screens",
