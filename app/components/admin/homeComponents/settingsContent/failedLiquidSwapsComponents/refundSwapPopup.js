@@ -1,5 +1,4 @@
 import {
-  Keyboard,
   KeyboardAvoidingView,
   StyleSheet,
   TouchableOpacity,
@@ -17,15 +16,15 @@ import {
   recommendedFees,
   refund,
 } from '@breeztech/react-native-breez-sdk-liquid';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {copyToClipboard} from '../../../../../functions';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {keyboardGoBack} from '../../../../../functions/customNavigation';
+import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
 
 export default function RefundLiquidSwapPopup(props) {
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const {theme} = useGlobalThemeContext();
   const [bitcoinAddress, setBitcoinAddress] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigation();
@@ -76,50 +75,9 @@ export default function RefundLiquidSwapPopup(props) {
               });
             });
           }}
-          style={[
-            styles.contentContainer,
-            {
-              minHeight: 0,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: 10,
-              paddingHorizontal: 0,
-            },
-          ]}>
+          style={styles.contentContainer}>
           <ThemeText content={key.name} />
-
-          <View
-            style={{
-              height: 25,
-              width: 25,
-              backgroundColor: key.isSelescted
-                ? theme
-                  ? darkModeType
-                    ? COLORS.giftcardlightsout3
-                    : COLORS.giftcarddarkblue3
-                  : COLORS.primary
-                : 'transparent',
-
-              borderWidth: key.isSelescted ? 0 : 2,
-              borderColor: theme
-                ? darkModeType
-                  ? COLORS.giftcardlightsout3
-                  : COLORS.giftcarddarkblue3
-                : COLORS.white,
-              borderRadius: 15,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            {key?.isSelescted && (
-              <Icon
-                width={15}
-                height={15}
-                color={COLORS.darkModeText}
-                name={'expandedTxCheck'}
-              />
-            )}
-          </View>
+          <CheckMarkCircle isActive={key.isSelescted} containerSize={30} />
         </TouchableOpacity>
       );
     });
@@ -129,22 +87,12 @@ export default function RefundLiquidSwapPopup(props) {
         onPress={() => {
           keyboardGoBack(navigate);
         }}>
-        <View
-          style={{
-            backgroundColor: COLORS.halfModalBackgroundColor,
-            flex: 1,
-            width: '100%',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+        <View style={styles.background}>
           <TouchableWithoutFeedback>
             <View
               style={{
-                width: '90%',
-                minHeight: 150,
+                ...styles.selectionContainer,
                 backgroundColor: backgroundOffset,
-                padding: 20,
-                borderRadius: 8,
               }}>
               {!Object.keys(refundFeeRates).length ? (
                 <FullLoadingScreen text={'Getting fee rates'} />
@@ -250,6 +198,19 @@ export default function RefundLiquidSwapPopup(props) {
 }
 
 const styles = StyleSheet.create({
+  background: {
+    backgroundColor: COLORS.halfModalBackgroundColor,
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  selectionContainer: {
+    width: '90%',
+    minHeight: 150,
+    padding: 20,
+    borderRadius: 8,
+  },
   btcAdressContainer: {
     width: '100%',
     borderRadius: 8,
@@ -271,9 +232,13 @@ const styles = StyleSheet.create({
   },
 
   contentContainer: {
-    minHeight: 60,
     width: '100%',
-    paddingHorizontal: 10,
     borderRadius: 8,
+    minHeight: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    paddingHorizontal: 0,
   },
 });
