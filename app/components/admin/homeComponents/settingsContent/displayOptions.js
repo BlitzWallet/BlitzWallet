@@ -41,7 +41,7 @@ export default function DisplayOptions() {
   const {theme, darkModeType, toggleDarkModeType} = useGlobalThemeContext();
   const [labelSize, setLabelSize] = useState(0);
   const {t} = useTranslation();
-  const {backgroundOffset} = GetThemeColors();
+  const {backgroundOffset, textColor} = GetThemeColors();
 
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
@@ -307,6 +307,7 @@ export default function DisplayOptions() {
               style={{
                 fontSize: SIZES.medium,
                 fontFamily: FONT.Title_Regular,
+                color: textColor,
                 position: 'absolute',
                 top: -20,
                 left:
