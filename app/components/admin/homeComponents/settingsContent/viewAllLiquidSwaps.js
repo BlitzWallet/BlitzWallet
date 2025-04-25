@@ -1,10 +1,8 @@
 import {useEffect, useState} from 'react';
 import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
-import {CENTER, COLORS, FONT, SHADOWS, SIZES} from '../../../../constants';
-
+import {COLORS} from '../../../../constants';
 import {ThemeText} from '../../../../functions/CustomElements';
 import {useNavigation} from '@react-navigation/native';
-
 import {
   listRefundables,
   rescanOnchainSwaps,
@@ -13,13 +11,13 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 
 export default function ViewAllLiquidSwaps(props) {
   const [liquidSwaps, setLiquidSwaps] = useState(null);
-  //   [
-  //   // {
-  //   //   amountSat: 50000,
-  //   //   swapAddress:
-  //   //     'bc1p8k4v4xuz55dv49svzjg43qjxq2whur7ync9tm0xgl5t4wjl9ca9snxgmlt',
-  //   //   timestamp: 1714764847,
-  //   // },
+  // [
+  //   {
+  //     amountSat: 50000,
+  //     swapAddress:
+  //       'bc1p8k4v4xuz55dv49svzjg43qjxq2whur7ync9tm0xgl5t4wjl9ca9snxgmlt',
+  //     timestamp: 1714764847,
+  //   },
   // ]
   const navigate = useNavigation();
 
@@ -109,13 +107,6 @@ const styles = StyleSheet.create({
     maxWidth: 250,
     textAlign: 'center',
   },
-  backgroundScrollContainer: {
-    flex: 1,
-    height: 400,
-    maxWidth: 400,
-    padding: 10,
-    borderRadius: 8,
-  },
 
   swapContainer: {
     borderRadius: 8,
@@ -129,9 +120,5 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 17,
     borderRadius: 9,
-  },
-  buttonText: {
-    fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.medium,
   },
 });
