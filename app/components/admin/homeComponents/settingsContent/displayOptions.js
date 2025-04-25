@@ -383,7 +383,6 @@ const styles = StyleSheet.create({
   },
   darkModeStyleContainer: {
     width: '100%',
-    paddingHorizontal: 10,
     borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',

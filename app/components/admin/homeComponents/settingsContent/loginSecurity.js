@@ -179,7 +179,6 @@ const styles = StyleSheet.create({
   },
   toggleSecurityMode: {
     width: '100%',
-    paddingHorizontal: 10,
     borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
