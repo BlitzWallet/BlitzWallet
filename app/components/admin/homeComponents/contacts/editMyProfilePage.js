@@ -42,6 +42,7 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
+import {useTranslation} from 'react-i18next';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -50,6 +51,8 @@ export default function EditMyProfilePage(props) {
     toggleGlobalContactsInformation,
     globalContactsInformation,
   } = useGlobalContacts();
+
+  const {t} = useTranslation();
 
   const pageType = props?.pageType || props.route?.params?.pageType;
   const fromSettings = props.fromSettings || props.route?.params?.fromSettings;
@@ -87,7 +90,7 @@ export default function EditMyProfilePage(props) {
       useStandardWidth={true}>
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
-        label={fromSettings ? 'Edit Contact Profile' : ''}
+        label={fromSettings ? t('settings.editcontactprofile.text1') : ''}
         customBackFunction={() => {
           if (!isFirstTimeEditing) {
             toggleGlobalContactsInformation(
@@ -133,6 +136,7 @@ function InnerContent({
     setMyProfileImage,
     myProfileImage,
   } = useGlobalContacts();
+  const {t} = useTranslation();
 
   const nameRef = useRef(null);
   const uniquenameRef = useRef(null);
@@ -284,11 +288,11 @@ function InnerContent({
           }}>
           <ThemeText
             styles={styles.textInputContainerDescriptionText}
-            content={'Name'}
+            content={t('settings.editcontactprofile.text2')}
           />
           <TextInput
             keyboardAppearance={theme ? 'dark' : 'light'}
-            placeholder="Set Name"
+            placeholder={t('settings.editcontactprofile.text3')}
             placeholderTextColor={COLORS.opaicityGray}
             ref={nameRef}
             style={[
@@ -334,7 +338,7 @@ function InnerContent({
             }}>
             <ThemeText
               styles={styles.textInputContainerDescriptionText}
-              content={'Lightning Address'}
+              content={t('settings.editcontactprofile.text4')}
             />
             <TextInput
               keyboardAppearance={theme ? 'dark' : 'light'}
@@ -353,7 +357,7 @@ function InnerContent({
                 },
               ]}
               value={inputs.receiveAddress || ''}
-              placeholder={'Enter lnurl here...'}
+              placeholder={t('settings.editcontactprofile.text5')}
               onChangeText={text => changeInputText(text, 'receiveAddress')}
               onBlur={() => {
                 setIsKeyboardActive(false);
@@ -386,7 +390,7 @@ function InnerContent({
             }}>
             <ThemeText
               styles={styles.textInputContainerDescriptionText}
-              content={'Username'}
+              content={t('settings.editcontactprofile.text6')}
             />
             <TextInput
               keyboardAppearance={theme ? 'dark' : 'light'}
@@ -437,11 +441,11 @@ function InnerContent({
           }}>
           <ThemeText
             styles={styles.textInputContainerDescriptionText}
-            content={'Bio'}
+            content={t('settings.editcontactprofile.text7')}
           />
           <TextInput
             keyboardAppearance={theme ? 'dark' : 'light'}
-            placeholder="Set Bio"
+            placeholder={t('settings.editcontactprofile.text8')}
             placeholderTextColor={COLORS.opaicityGray}
             ref={bioRef}
             editable
@@ -496,7 +500,11 @@ function InnerContent({
             : paddingBottom,
         }}
         actionFunction={saveChanges}
-        textContent={fromInitialAdd ? 'Add contact' : 'Save'}
+        textContent={
+          fromInitialAdd
+            ? t('settings.editcontactprofile.text9')
+            : t('constants.save')
+        }
       />
     </View>
   );
@@ -525,8 +533,7 @@ function InnerContent({
       } else {
         if (!VALID_USERNAME_REGEX.test(uniqueName)) {
           navigate.navigate('ErrorScreen', {
-            errorMessage:
-              'You can only have letters, numbers, or underscores in your username, and must contain at least 1 letter.',
+            errorMessage: t('settings.editcontactprofile.text10'),
           });
           return;
         }
@@ -537,7 +544,7 @@ function InnerContent({
           );
           if (!isFreeUniqueName) {
             navigate.navigate('ErrorScreen', {
-              errorMessage: 'Username already taken, try again!',
+              errorMessage: t('settings.editcontactprofile.text11'),
             });
             return;
           }
@@ -741,7 +748,7 @@ function InnerContent({
       );
     } catch (err) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Unable to delete image',
+        errorMessage: t('settings.editcontactprofile.text12'),
       });
       console.log(err);
     }

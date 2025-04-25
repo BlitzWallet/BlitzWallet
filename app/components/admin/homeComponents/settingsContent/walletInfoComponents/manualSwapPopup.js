@@ -35,6 +35,7 @@ import {
 } from '../../../../../functions/eCash/wallet';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import calculateCanDoTransfer from './functions/canDoTransfer';
+import {useTranslation} from 'react-i18next';
 
 export default function ManualSwapPopup() {
   const navigate = useNavigation();
@@ -46,6 +47,7 @@ export default function ManualSwapPopup() {
   const [transferInfo, setTransferInfo] = useState({from: '', to: ''});
   const [isDoingTransfer, setIsDoingTransfer] = useState(false);
   const {ecashWalletInformation} = useGlobaleCash();
+  const {t} = useTranslation();
   const eCashBalance = ecashWalletInformation.balance;
 
   const convertedSendAmount =
@@ -150,21 +152,21 @@ export default function ManualSwapPopup() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label="Internal transfer" />
+      <CustomSettingsTopBar
+        label={t('settings.balanceinfo.manualswap.text1')}
+      />
       {!Object.keys(userBalanceInformation).length || isDoingTransfer ? (
         <FullLoadingScreen
           textStyles={{textAlign: 'center'}}
           text={
-            isDoingTransfer
-              ? 'Handling transfer, please do not leave the page.'
-              : ''
+            isDoingTransfer ? t('settings.balanceinfo.manualswap.text2') : ''
           }
         />
       ) : (
         <>
           <ScrollView style={{width: '100%', flex: 1}}>
             <View style={styles.transferAccountRow}>
-              <ThemeText content={'Transfer from:'} />
+              <ThemeText content={t('settings.balanceinfo.manualswap.text3')} />
               <TouchableOpacity
                 onPress={() =>
                   navigate.navigate('AccountInformationPage', {
@@ -177,7 +179,7 @@ export default function ManualSwapPopup() {
                 <ThemeText
                   content={
                     !transferInfo.from
-                      ? 'Select from account'
+                      ? t('settings.balanceinfo.manualswap.text4')
                       : transferInfo.from
                   }
                 />
@@ -190,7 +192,7 @@ export default function ManualSwapPopup() {
               </TouchableOpacity>
             </View>
             <View style={styles.transferAccountRow}>
-              <ThemeText content={'Transfer to:'} />
+              <ThemeText content={t('settings.balanceinfo.manualswap.text5')} />
               <TouchableOpacity
                 activeOpacity={1}
                 style={styles.chooseAccountBTN}>
@@ -227,9 +229,9 @@ export default function ManualSwapPopup() {
               frontText={`${
                 convertedSendAmount < minMaxLiquidSwapAmounts.min &&
                 !canDoTransfer
-                  ? 'Minimum'
-                  : 'Maximum'
-              } transfer amount is  `}
+                  ? t('constants.minimum')
+                  : t('constants.maximum')
+              } ${t('settings.balanceinfo.manualswap.text6')} `}
               balance={
                 convertedSendAmount < minMaxLiquidSwapAmounts.min &&
                 !canDoTransfer
@@ -255,7 +257,7 @@ export default function ManualSwapPopup() {
           />
 
           <CustomButton
-            textContent={'Confirm'}
+            textContent={t('constants.confirm')}
             buttonStyles={{
               ...CENTER,
               opacity:

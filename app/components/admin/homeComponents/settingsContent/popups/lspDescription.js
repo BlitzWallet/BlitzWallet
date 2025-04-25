@@ -9,9 +9,12 @@ import {
 import CustomButton from '../../../../../functions/CustomElements/button';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {useTranslation} from 'react-i18next';
+import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 
 export default function LspDescriptionPopup() {
   const navigate = useNavigation();
+  const {t} = useTranslation();
   useHandleBackPressNew();
   return (
     <GlobalThemeView useStandardWidth={true}>
@@ -22,17 +25,17 @@ export default function LspDescriptionPopup() {
           lightModeIcon={ICONS.smallArrowLeft}
         />
       </TouchableOpacity>
-      <View style={{flex: 1, width: '90%', alignItems: 'center', ...CENTER}}>
+      <View style={styles.textContainer}>
         <ThemeText
-          content={`A Lightning Service Provider (Lsp) is a business that enables a more seamless experience on the Lightning Network. Such services include providing liquidity management and payment routing.`}
+          content={t('settings.lspdescription.text1')}
           styles={{...styles.text, marginTop: 'auto'}}
         />
         <ThemeText
-          content={`Since the Lightning Network operates based on a series of channels, the size of a Lightning channel is naturally constrained. Using an Lsp decreases that constraint, making larger payments more feasible.`}
+          content={t('settings.lspdescription.text2')}
           styles={{...styles.text}}
         />
         <ThemeText
-          content={`It’s important to note that an Lsp DOES NOT HAVE ACCESS TO YOUR FUNDS. They are merely a helper to reduce the impact of the Lightning Network's liquidity constraint.`}
+          content={t('settings.lspdescription.text3')}
           styles={{...styles.text, marginBottom: 'auto'}}
         />
 
@@ -44,7 +47,7 @@ export default function LspDescriptionPopup() {
                 'https://thebitcoinmanual.com/articles/explained-lsp/#:~:text=LSPs%20are%20counterparties%20on%20users%E2%80%99%20payment%20channels%20that,network%20management%20such%20as%3A%20Opening%20and%20closing%20channels',
             });
           }}
-          textContent={'Learn more'}
+          textContent={t('settings.lspdescription.text4')}
         />
       </View>
     </GlobalThemeView>
@@ -52,6 +55,12 @@ export default function LspDescriptionPopup() {
 }
 
 const styles = StyleSheet.create({
+  textContainer: {
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    alignItems: 'center',
+    ...CENTER,
+  },
   text: {
     width: '100%',
     marginBottom: 10,

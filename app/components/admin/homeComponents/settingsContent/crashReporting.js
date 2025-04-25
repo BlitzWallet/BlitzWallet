@@ -5,10 +5,12 @@ import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {CENTER} from '../../../../constants';
 import {useEffect, useRef} from 'react';
 import {toggleCrashCollection} from '../../../../functions/crashlyticsLogs';
+import {useTranslation} from 'react-i18next';
 
 export default function CrashReportingSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
   const isInitialLoad = useRef(true);
+  const {t} = useTranslation();
 
   const isCrashReportingEnabled =
     masterInfoObject.crashReportingSettings.isCrashReportingEnabled;
@@ -25,9 +27,11 @@ export default function CrashReportingSettingsPage() {
     <View style={styles.container}>
       <SettingsItemWithSlider
         settingsTitle={`${
-          isCrashReportingEnabled ? 'Enabled' : 'Disabled'
-        } crash reporting`}
-        settingDescription={`Crash data helps us improve the stability and performance of our application.\n\nWhen a crash occurs, the device information that is automatically recorded includes:\n\n• Operating System: OS version, device orientation, and jailbreak status\n• Device Details: Model, orientation, and available RAM\n• Crash Information: Date of the crash and the app version`}
+          isCrashReportingEnabled
+            ? t('settings.crashreporting.enabled')
+            : t('settings.crashreporting.disabled')
+        } ${t('settings.crashreporting.crashreporting')}`}
+        settingDescription={t('settings.crashreporting.text1')}
         handleSubmit={() => {
           toggleMasterInfoObject({
             crashReportingSettings: {

@@ -17,10 +17,11 @@ import {
   ECASH_QUOTE_EVENT_NAME,
   ecashEventEmitter,
 } from '../../../../../../context-store/eCash';
+import {useTranslation} from 'react-i18next';
 export default function ConfirmInternalTransferHalfModal(props) {
   const {backgroundColor, backgroundOffset, textColor} = GetThemeColors();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
-
+  const {t} = useTranslation();
   const navigate = useNavigation();
   const [invoiceInfo, setInvoiceInfo] = useState({
     fee: null,
@@ -51,7 +52,8 @@ export default function ConfirmInternalTransferHalfModal(props) {
             paymentType: 'lightning',
             description: 'Internal_Transfer',
           });
-          if (!response) throw new Error('Unable to generate invoice');
+          if (!response)
+            throw new Error(t('settings.balanceinfo.confirmpage.text1'));
 
           const {destination, receiveFeesSat} = response;
 
@@ -71,7 +73,7 @@ export default function ConfirmInternalTransferHalfModal(props) {
             descriptoin: 'Internal_Transfer',
           });
           if (!eCashInvoice.didWork)
-            throw new Error('Unable to generate invoice');
+            throw new Error(t('settings.balanceinfo.confirmpage.text1'));
           ecashEventEmitter.emit(ECASH_QUOTE_EVENT_NAME, {
             quote: eCashInvoice.mintQuote.quote,
             mintURL: eCashInvoice.mintURL,
@@ -93,9 +95,7 @@ export default function ConfirmInternalTransferHalfModal(props) {
             description: 'Internal_Transfer',
           });
           if (response.openingFeeMsat)
-            throw new Error(
-              'Payment will create a new channel. Please send a smaller amount.',
-            );
+            throw new Error(t('settings.balanceinfo.confirmpage.text2'));
           address = response.lnInvoice.bolt11;
           receiveFee =
             transferInfo.from.toLowerCase() === 'bank'
@@ -138,10 +138,10 @@ export default function ConfirmInternalTransferHalfModal(props) {
               fontSize: SIZES.xLarge,
               textAlign: 'center',
             }}
-            content={`Confirm transfer`}
+            content={t('settings.balanceinfo.confirmpage.text3')}
           />
           <FormattedSatText
-            frontText={`Amount: `}
+            frontText={t('settings.balanceinfo.confirmpage.text4')}
             containerStyles={{marginTop: 'auto'}}
             styles={{fontSize: SIZES.large}}
             balance={amount}
@@ -149,7 +149,7 @@ export default function ConfirmInternalTransferHalfModal(props) {
 
           <FormattedSatText
             containerStyles={{marginBottom: 'auto'}}
-            frontText={`Fee: `}
+            frontText={t('settings.balanceinfo.confirmpage.text5')}
             balance={invoiceInfo.fee}
           />
           <SwipeButtonNew

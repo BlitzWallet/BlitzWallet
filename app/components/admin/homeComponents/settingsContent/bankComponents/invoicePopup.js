@@ -1,4 +1,4 @@
-import {Platform, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useEffect, useState} from 'react';
 import {copyToClipboard} from '../../../../../functions';
 import {useNavigation} from '@react-navigation/native';
@@ -6,11 +6,12 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import {breezLiquidReceivePaymentWrapper} from '../../../../../functions/breezLiquid';
 import QrCodeWrapper from '../../../../../functions/CustomElements/QrWrapper';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
+import {useTranslation} from 'react-i18next';
 
 export default function LiquidAddressModal() {
   const [receiveAddress, setReceiveAddress] = useState('');
   const {minMaxLiquidSwapAmounts} = useAppStatus();
-
+  const {t} = useTranslation();
   const navigate = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -23,7 +24,7 @@ export default function LiquidAddressModal() {
         });
         if (!addressResponse) {
           navigate.navigate('ErrorScreen', {
-            errorMessage: 'Unable to generate liquid address',
+            errorMessage: t('settings.bank.popup.text1'),
           });
           return;
         }
@@ -36,7 +37,11 @@ export default function LiquidAddressModal() {
       }
     }
 
-    getReceiveAddress();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        getReceiveAddress();
+      });
+    });
   }, []);
 
   return (

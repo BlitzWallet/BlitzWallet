@@ -13,6 +13,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
+import {useTranslation} from 'react-i18next';
 
 const colors = {
   LIGHTNING_COLOR: '#FF9900',
@@ -38,6 +39,7 @@ export default function WalletInformation() {
   const {ecashWalletInformation} = useGlobaleCash();
   const eCashBalance = ecashWalletInformation.balance;
   const navigate = useNavigation();
+  const {t} = useTranslation();
 
   // if ecash is enabled and the ecash balance is grater than the min boltz swap amount (ln-> liquid) or the user has a lightning balance
   const canTransferEcash =
@@ -114,7 +116,7 @@ export default function WalletInformation() {
   ) {
     return (
       <View style={styles.innerContainer}>
-        <ThemeText content={`You have no balance`} />
+        <ThemeText content={t('settings.balanceinfo.text1')} />
       </View>
     );
   }
@@ -126,7 +128,10 @@ export default function WalletInformation() {
 
   return (
     <View style={{flex: 1}}>
-      <ThemeText styles={styles.headingText} content={'Balance break-down'} />
+      <ThemeText
+        styles={styles.headingText}
+        content={t('settings.balanceinfo.text2')}
+      />
       <PieChart
         style={{height: 250}}
         valueAccessor={({item}) => item.amount}
@@ -145,7 +150,7 @@ export default function WalletInformation() {
       {showManualSwap && (
         <CustomButton
           buttonStyles={{width: 'auto', marginTop: 'auto', ...CENTER}}
-          textContent={'Manual Swap'}
+          textContent={t('settings.balanceinfo.text3')}
           actionFunction={() => navigate.navigate('ManualSwapPopup')}
         />
       )}
@@ -222,7 +227,6 @@ function PieChartLegend({
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
-
     alignItems: 'center',
     justifyContent: 'center',
   },

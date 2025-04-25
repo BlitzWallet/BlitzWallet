@@ -27,12 +27,14 @@ import {FONT, INSET_WINDOW_WIDTH} from '../../constants/theme';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import LineChartDot from '../../functions/CustomElements/chart/lineChartDot';
 import {findLargestByVisualWidth} from '../../components/admin/homeComponents/explore/largestNumber';
+import {useTranslation} from 'react-i18next';
 
 export default function ExploreUsers() {
   const [timeFrame, setTimeFrame] = useState('day');
   const {masterInfoObject} = useGlobalContextProvider();
   const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
+  const {t} = useTranslation();
   const [targetUserCountBarWidth, setTargetUserCountBarWidth] = useState(0);
   const [yAxisWidth, setYAxisWidth] = useState(0);
   const dataObject = JSON.parse(JSON.stringify(masterInfoObject.exploreData));
@@ -95,7 +97,7 @@ export default function ExploreUsers() {
                   : textColor,
               ...styles.timeFrameElementText,
             }}
-            content={item === 'day' ? 'Daily' : `${item}ly`}
+            content={t(`settings.blitzstats.${item}`)}
           />
         </TouchableOpacity>
       );
@@ -121,13 +123,13 @@ export default function ExploreUsers() {
             const dateIndex = new Date(
               now - MONTH_IN_MILLS * Math.abs(6 - index),
             ).getMonth();
-            return MONTH_GROUPING[dateIndex];
+            return t(`months.${MONTH_GROUPING[dateIndex]}`).slice(0, 3);
           } else if (timeFrame === 'day') {
             const now = new Date().getTime() - DAY_IN_MILLS;
             const dateIndex = new Date(
               now - DAY_IN_MILLS * Math.abs(7 - index),
             ).getDay();
-            return WEEK_OPTIONS[dateIndex];
+            return t(`weekdays.${WEEK_OPTIONS[dateIndex]}`).slice(0, 3);
           } else {
             const now = new Date();
             const todayDay = now.getDay();
@@ -179,9 +181,12 @@ export default function ExploreUsers() {
       <View style={{...styles.statsCard, backgroundColor: backgroundOffset}}>
         <ThemeText
           styles={styles.statsCardHeader}
-          content={'Blitz Wallet Downloads'}
+          content={t('settings.blitzstats.text1')}
         />
-        <ThemeText styles={{marginBottom: 5}} content={'Today'} />
+        <ThemeText
+          styles={{marginBottom: 5}}
+          content={t('settings.blitzstats.text2')}
+        />
         <View style={styles.statsCardHorizontal}>
           <DateCountdown />
           <ThemeText
@@ -209,7 +214,7 @@ export default function ExploreUsers() {
           />
         </View>
         <View style={styles.statsCardHorizontal}>
-          <ThemeText content={'Yesterday'} />
+          <ThemeText content={t('settings.blitzstats.text3')} />
           <ThemeText
             styles={styles.statsCardNumberText}
             content={`${formatBalanceAmount(

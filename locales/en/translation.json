@@ -28,7 +28,35 @@
     "request": "Request",
     "fee": "Fee",
     "edit": "Edit",
-    "iunderstand": "I understand"
+    "iunderstand": "I understand",
+    "save": "Save",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "balance": "Balance"
+  },
+  "weekdays": {
+    "Mon": "Monday",
+    "Tue": "Tuesday",
+    "Wed": "Wednesday",
+    "Thu": "Thursday",
+    "Fri": "Friday",
+    "Sat": "Saturday",
+    "Sun": "Sunday"
+  },
+  "months": {
+    "Jan": "January",
+    "Feb": "February",
+    "Mar": "March",
+    "Apr": "April",
+    "May": "May",
+    "Jun": "June",
+    "Jul": "July",
+    "Aug": "August",
+    "Sep": "September",
+    "Oct": "October",
+    "Nov": "November",
+    "Dec": "December"
   },
   "transactionLabelText": {
     "failed": "Payment not sent",
@@ -174,9 +202,149 @@
       "text13": "Displayed Transactions",
       "text14": "Contacts Page",
       "text15": "Hide Unknown Senders"
+    },
+    "editcontactprofile": {
+      "text1": "Edit Contact Profile",
+      "text2": "Name",
+      "text3": "Set Name",
+      "text4": "Lightning Address",
+      "text5": "Enter lnurl here...",
+      "text6": "Username",
+      "text7": "Bio",
+      "text8": "Set Bio",
+      "text9": "Add contact",
+      "text10": "You can only have letters, numbers, or underscores in your username, and must contain at least 1 letter.",
+      "text11": "Username already taken, try again!",
+      "text12": "Unable to deleate image."
+    },
+    "fastpay": {
+      "text1": "Error adding inputed value, plase try again.",
+      "text2": "Amount cannot be 0",
+      "text3": "Enable Fast Pay",
+      "text4": "Fast pay threshold (Sats)",
+      "text5": "Fast pay allows you to instantly pay invoices below a specified threshold without needing to swipe for confirmation."
+    },
+    "blitzstats": {
+      "day": "Daily",
+      "week": "Weekly",
+      "month": "Monthly",
+      "year": "Yearly",
+      "text1": "Blitz Wallet Downloads",
+      "text2": "Today",
+      "text3": "Yesterday"
+    },
+    "loginsecurity": {
+      "text1": "Enable Login Security",
+      "text2": "Security Type",
+      "text3": "Pin",
+      "text4": "Biometric",
+      "text5": "Device does not have a Biometric profile. Create one in settings to continue.",
+      "text6": "Error logging in with Biometrics",
+      "text7": "Device does not support Biometric login"
+    },
+    "seedphrase": {
+      "text1": "Keep this phrase in a secure and safe place",
+      "text2": "Do not share it with anyone!",
+      "text3": "Are you sure you want to show your recovery phrase?"
+    },
+    "crashreporting": {
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "crashreporting": "crash reporting",
+      "text1": "Crash data helps us improve the stability and performance of our application.\n\nWhen a crash occurs, the device information that is automatically recorded includes:\n\n• Operating System: OS version, device orientation, and jailbreak status\n• Device Details: Model, orientation, and available RAM\n• Crash Information: Date of the crash and the app version"
+    },
+    "nodeinfo": {
+      "text1": "Good to know",
+      "text2": "You currently do not have Lightning enabled. If you would like to enable Lightning, click the button below.",
+      "text3": "If you enable Lightning, Blitz will automatically open a channel for you when you reach a balance of ",
+      "text4": "Blitz uses ",
+      "text5": "Liquid Network atomic swaps ",
+      "text6": "when you have a balance under ",
+      "text7": " for a smooth onboarding experience and to help users send payments over the Lightning Network with smaller amounts.",
+      "text8": "Enable lightning",
+      "text9": "See node Info",
+      "text10": "Peer ID",
+      "text11": "Node ID",
+      "text12": "Connected Peers",
+      "text13": "On-chain Balance",
+      "text14": "Block Height",
+      "text15": "Use trampoline",
+      "text16": "Trampoline payments let the LSP find payment routes, making transactions faster but less private, as the LSP knows the destination."
+    },
+    "lsppage": {
+      "name": "Name",
+      "id": "ID",
+      "host": "Host",
+      "text1": "What is an Lsp?"
+    },
+    "lspdescription": {
+      "text1": "A Lightning Service Provider (Lsp) is a business that enables a more seamless experience on the Lightning Network. Such services include providing liquidity management and payment routing.",
+      "text2": "Since the Lightning Network operates based on a series of channels, the size of a Lightning channel is naturally constrained. Using an Lsp decreases that constraint, making larger payments more feasible.",
+      "text3": "It’s important to note that an Lsp DOES NOT HAVE ACCESS TO YOUR FUNDS. They are merely a helper to reduce the impact of the Lightning Network's liquidity constraint.",
+      "text4": "Learn more"
+    },
+    "balanceinfo": {
+      "text1": "You have no balance",
+      "text2": "Balance break-down",
+      "text3": "Manual Swap",
+      "manualswap": {
+        "text1": "Internal transfer",
+        "text2": "Handling transfer, please do not leave the page.",
+        "text3": "Transfer from:",
+        "text4": "Select from account",
+        "text5": "Transfer to:",
+        "text6": "transfer amount is "
+      },
+      "confirmpage": {
+        "text1": "Unable to generate invoice",
+        "text2": "Payment will create a new channel. Please send a smaller amount.",
+        "text3": "Confirm transfer",
+        "text4": "Amount: ",
+        "text5": "Fee: "
+      },
+      "accountinfopage": {
+        "text1": "Accounts",
+        "text2": "No accounts available"
+      },
+      "valueslider": {
+        "text1": "Amount",
+        "text2": "Percentage"
+      }
+    },
+    "bank": {
+      "text1": "Bank",
+      "text2": "Get Address",
+      "settings": {
+        "text1": "Error adding inputed value, plase try again.",
+        "text2": "Percentage cannot be 0",
+        "text3": "Minimum channel open size cannot be smaller than",
+        "text4": "Minimum channel open size cannot be larger than",
+        "text5": "Amount can not be less than minimum swap amount",
+        "text6": "Unable to connect to the node at this time. Please try again later",
+        "text7": "Settings",
+        "text8": "Auto channel rebalance",
+        "text9": "Initial percentage",
+        "text10": "By turning on auto channel rebalance, Blitz will automatically swap funds from your channel to the bank or the bank to your channels based on the percentage of outgoing capacity you initially want.",
+        "text11": "Regulate channel open",
+        "text12": "Channel open size (sats)",
+        "text13": "By turning on regulated channel open, if you reach your inbound liquidity limit during a session, new funds will automatically be swapped to your bank for future use without opening a new channel. Once your bank has the amount specified above, a channel will be opened.",
+        "text14": "Enable Lightning",
+        "text15": "By enabling Lightning, you must connect to your Lightning node when loading the app. However, the Lightning node connection tends to fail more often than the Liquid node connection, which may prevent the app from loading.\n\nBy disabling Lightning, you ensure that your balance remains on Liquid, disabling both auto channel rebalancing and regulated channel opening.",
+        "text16": "Max open fee (sats)",
+        "text17": "The Max Channel Open Fee sets the highest amount you’re willing to pay in on-chain fees when opening a Lightning channel. If the network fee exceeds this limit, the channel won’t be opened",
+        "text18": "Minimum rebalance (sats)",
+        "text19": "Minimum Rebalance sets the lowest amount of satoshis required for auto-rebalancing in Blitz Wallet. If the rebalance amount is below this limit, no rebalancing will occur. The amount can not be less than"
+      },
+      "popup": {
+        "text1": "Unable to generate liquid address"
+      }
     }
   },
   "contacts": {},
+
+  "errormessages": {
+    "nointernet": "Please reconnect to the internet to use this feature"
+  },
 
   "_comment": "General Screens",
   "loadingScreen": {

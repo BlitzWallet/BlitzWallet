@@ -1,4 +1,10 @@
-import {Animated, ScrollView, StyleSheet, View} from 'react-native';
+import {
+  Animated,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import {KeyContainer} from '../../../login';
 import {retrieveData} from '../../../../functions';
 import {useEffect, useRef, useState} from 'react';
@@ -9,15 +15,18 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import {INSET_WINDOW_WIDTH, WINDOWWIDTH} from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import {useTranslation} from 'react-i18next';
 
 export default function SeedPhrasePage() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const isInitialRender = useRef(true);
+  const dimentions = useWindowDimensions();
   const [mnemonic, setMnemonic] = useState([]);
   const [showSeed, setShowSeed] = useState(false);
   const navigate = useNavigation();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
+  const {t} = useTranslation();
 
   useEffect(() => {
     if (isInitialRender.current) {
@@ -41,7 +50,7 @@ export default function SeedPhrasePage() {
       <View style={styles.container}>
         <ThemeText
           styles={{...styles.headerPhrase}}
-          content={'Keep this phrase in a secure and safe place'}
+          content={t('settings.seedphrase.text1')}
         />
         <ThemeText
           styles={{
@@ -50,7 +59,7 @@ export default function SeedPhrasePage() {
             marginBottom: 50,
             fontSize: SIZES.large,
           }}
-          content={'Do not share it with anyone!'}
+          content={t('settings.seedphrase.text2')}
         />
         <View style={styles.scrollViewContainer}>
           <ScrollView
@@ -72,7 +81,7 @@ export default function SeedPhrasePage() {
         <View style={styles.confirmPopupInnerContainer}>
           <ThemeText
             styles={{...styles.confirmPopupTitle}}
-            content={'Are you sure you want to show your recovery phrase?'}
+            content={t('settings.seedphrase.text3')}
           />
           <View style={styles.confirmationContainer}>
             <CustomButton
@@ -82,13 +91,13 @@ export default function SeedPhrasePage() {
                 marginRight: 20,
               }}
               textStyles={{color: COLORS.darkModeText}}
-              textContent={'Yes'}
+              textContent={t('constants.yes')}
               actionFunction={() => setShowSeed(true)}
             />
 
             <CustomButton
-              textContent={'No'}
-              actionFunction={() => navigate.goBack()}
+              textContent={t('constants.no')}
+              actionFunction={navigate.goBack}
             />
           </View>
         </View>
@@ -98,8 +107,8 @@ export default function SeedPhrasePage() {
 
   function fadeout() {
     Animated.timing(fadeAnim, {
-      toValue: 900,
-      duration: 200,
+      toValue: dimentions.height * 2,
+      duration: 500,
       useNativeDriver: true,
     }).start();
   }

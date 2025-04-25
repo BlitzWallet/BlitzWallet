@@ -71,12 +71,11 @@ export default function LiquidWallet() {
         leftImageBlue={ICONS.settingsIcon}
         LeftImageDarkMode={ICONS.settingsWhite}
         containerStyles={{marginBottom: 0}}
-        label={'Bank'}
+        label={t('settings.bank.text1')}
         leftImageFunction={() => {
           if (!isConnectedToTheInternet) {
             navigate.navigate('ErrorScreen', {
-              errorMessage:
-                'Please reconnect to the internet to use this feature',
+              errorMessage: t('errormessages.nointernet'),
             });
             return;
           }
@@ -89,7 +88,10 @@ export default function LiquidWallet() {
           ...styles.stickyHeader,
           backgroundColor: backgroundColor,
         }}>
-        <ThemeText content={'Balance'} styles={styles.amountText} />
+        <ThemeText
+          content={t('constants.balance')}
+          styles={styles.amountText}
+        />
         <FormattedSatText
           styles={{...styles.valueText}}
           balance={liquidNodeInformation.userBalance}
@@ -116,7 +118,7 @@ export default function LiquidWallet() {
           position: 'absolute',
           bottom: bottomPadding,
         }}
-        textContent={'Get Address'}
+        textContent={t('settings.bank.text2')}
         actionFunction={() =>
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'liquidAddressModal',

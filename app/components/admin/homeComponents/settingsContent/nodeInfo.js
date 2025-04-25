@@ -26,6 +26,7 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {INSET_WINDOW_WIDTH, WINDOWWIDTH} from '../../../../constants/theme';
+import {useTranslation} from 'react-i18next';
 
 export default function NodeInfo() {
   const [lnNodeInfo, setLNNodeInfo] = useState({});
@@ -39,6 +40,7 @@ export default function NodeInfo() {
     nodeInformation.didConnectToNode,
   );
   const {textColor, backgroundOffset} = GetThemeColors();
+  const {t} = useTranslation();
 
   useEffect(() => {
     (async () => {
@@ -67,17 +69,16 @@ export default function NodeInfo() {
           ...CENTER,
         }}
         contentContainerStyle={{paddingBottom: 20, paddingTop: 50}}>
-        <ThemeText content={'Good to know'} styles={styles.sectionHeader} />
+        <ThemeText
+          content={t('settings.nodeinfo.text1')}
+          styles={styles.sectionHeader}
+        />
         <Text style={{textAlign: 'center'}}>
-          <ThemeText
-            content={`You currently do not have Lightning enabled. If you would like to enable Lightning, click the button below.`}
-          />
+          <ThemeText content={t('settings.nodeinfo.text2')} />
         </Text>
 
         <Text style={{textAlign: 'center', marginTop: 20}}>
-          <ThemeText
-            content={`If you enable Lightning, Blitz will automatically open a channel for you when you reach a balance of `}
-          />
+          <ThemeText content={t('settings.nodeinfo.text3')} />
           <ThemeText
             styles={{color: theme && darkModeType ? textColor : COLORS.primary}}
             content={displayCorrectDenomination({
@@ -89,12 +90,12 @@ export default function NodeInfo() {
           />
         </Text>
         <Text style={{textAlign: 'center', marginTop: 20}}>
-          <ThemeText content={`Blitz uses `} />
+          <ThemeText content={t('settings.nodeinfo.text4')} />
           <ThemeText
             styles={{color: theme && darkModeType ? textColor : COLORS.primary}}
-            content={`Liquid Network atomic swaps `}
+            content={t('settings.nodeinfo.text5')}
           />
-          <ThemeText content={`when you have a balance under `} />
+          <ThemeText content={t('settings.nodeinfo.text6')} />
           <ThemeText
             styles={{color: theme && darkModeType ? textColor : COLORS.primary}}
             content={displayCorrectDenomination({
@@ -104,17 +105,15 @@ export default function NodeInfo() {
               masterInfoObject,
             })}
           />
-          <ThemeText
-            content={` for a smooth onboarding experience and to help users send payments over the Lightning Network with smaller amounts.`}
-          />
+          <ThemeText content={t('settings.nodeinfo.text7')} />
         </Text>
         <CustomButton
           buttonStyles={{width: 'auto', marginTop: 50, ...CENTER}}
           useLoading={isConnectingToLN}
           textContent={
             nodeInformation.didConnectToNode === null
-              ? 'Enable lightning'
-              : 'See node Info'
+              ? t('settings.nodeinfo.text8')
+              : t('settings.nodeinfo.text9')
           }
           actionFunction={async () => {
             if (nodeInformation.didConnectToNode === null) {
@@ -151,9 +150,6 @@ export default function NodeInfo() {
     );
   }
 
-  // if (!Object.keys(lnNodeInfo).length)
-  //   return <FullLoadingScreen text={'Loading node information'} />;
-
   const connectedPeersElements = lnNodeInfo?.connectedPeers?.map((peer, id) => {
     return (
       <View
@@ -166,7 +162,7 @@ export default function NodeInfo() {
         }}>
         <ThemeText
           styles={{...styles.peerTitle, color: textColor}}
-          content={'Peer ID'}
+          content={t('settings.nodeinfo.text10')}
         />
         <TouchableOpacity
           onPress={() => {
@@ -194,7 +190,7 @@ export default function NodeInfo() {
         ]}>
         <ThemeText
           styles={{...styles.itemTitle, color: textColor}}
-          content={'Node ID'}
+          content={t('settings.nodeinfo.text11')}
         />
         <TouchableOpacity
           onPress={() => {
@@ -275,8 +271,14 @@ export default function NodeInfo() {
             justifyContent: 'space-between',
             paddingHorizontal: 5,
           }}>
-          <ThemeText styles={{fontSize: SIZES.large}} content={'Send'} />
-          <ThemeText styles={{fontSize: SIZES.large}} content={'Receive'} />
+          <ThemeText
+            styles={{fontSize: SIZES.large}}
+            content={t('constants.send')}
+          />
+          <ThemeText
+            styles={{fontSize: SIZES.large}}
+            content={t('constants.receive')}
+          />
         </View>
       </View>
 
@@ -289,7 +291,7 @@ export default function NodeInfo() {
         ]}>
         <ThemeText
           styles={{...styles.itemTitle, color: textColor}}
-          content={'Connected Peers'}
+          content={t('settings.nodeinfo.text12')}
         />
 
         <ScrollView style={{height: 120}}>
@@ -316,7 +318,7 @@ export default function NodeInfo() {
         ]}>
         <ThemeText
           styles={{...styles.itemTitle, marginBottom: 0, color: textColor}}
-          content={'On-chain Balance'}
+          content={t('settings.nodeinfo.text13')}
         />
         {!!lnNodeInfo?.onchainBalanceMsat ? (
           <FormattedSatText
@@ -339,7 +341,7 @@ export default function NodeInfo() {
         ]}>
         <ThemeText
           styles={{...styles.itemTitle, marginBottom: 0, color: textColor}}
-          content={'Block Height'}
+          content={t('settings.nodeinfo.text14')}
         />
         <ThemeText
           styles={{color: textColor}}
@@ -363,14 +365,13 @@ export default function NodeInfo() {
         ]}>
         <ThemeText
           styles={{marginRight: 5, includeFontPadding: false}}
-          content={`Use trampoline`}
+          content={t('settings.nodeinfo.text15')}
         />
         <TouchableOpacity
           onPress={() => {
             navigate.navigate('InformationPopup', {
-              textContent:
-                'Trampoline payments let the LSP find payment routes, making transactions faster but less private, as the LSP knows the destination.',
-              buttonText: 'I understand',
+              textContent: t('settings.nodeinfo.text16'),
+              buttonText: t('constants.iunderstand'),
             });
           }}
           style={{marginRight: 'auto'}}>

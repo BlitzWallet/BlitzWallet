@@ -16,11 +16,13 @@ import FormattedSatText from '../../../../../functions/CustomElements/satTextDis
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
+import {useTranslation} from 'react-i18next';
 
 export default function AccountInformationPage(props) {
   const navigate = useNavigation();
   const {masterInfoObject} = useGlobalContextProvider();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
+  const {t} = useTranslation();
   const {setTransferInfo, transferType, userBalanceInformation} =
     props.route.params;
 
@@ -143,7 +145,7 @@ export default function AccountInformationPage(props) {
         <ThemeText
           CustomEllipsizeMode={'tail'}
           CustomNumberOfLines={1}
-          content={'Accounts'}
+          content={t('settings.balanceinfo.accountinfopage.text1')}
           styles={{...styles.topBarText}}
         />
       </View>
@@ -152,7 +154,7 @@ export default function AccountInformationPage(props) {
       ) : (
         <FullLoadingScreen
           showLoadingIcon={false}
-          text={'No accounts available'}
+          text={t('settings.balanceinfo.accountinfopage.text2')}
         />
       )}
     </GlobalThemeView>

@@ -28,26 +28,7 @@ import TextInputWithSliderSettingsItem from '../../../../../functions/CustomElem
 import SettingsItemWithSlider from '../../../../../functions/CustomElements/settings/settingsItemWithSlider';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-
-const SETTINGSITEMS = [
-  {
-    desc: `By turning on auto channel rebalance, Blitz will automatically swap funds from your channel to the bank or the bank to your channels based on the percentage of outgoing capacity you initially want.`,
-    name: 'Auto channel rebalance',
-    inputTitle: 'Initial percentage',
-    id: 'acr', //auto channel rebalance
-  },
-  {
-    desc: `By turning on regulated channel open, if you reach your inbound liquidity limit during a session, new funds will automatically be swapped to your bank for future use without opening a new channel. Once your bank has the amount specified above, a channel will be opened.`,
-    name: 'Regulate channel open',
-    inputTitle: 'Channel open size (sats)',
-    id: 'rco', //regulate channel open
-  },
-  {
-    desc: `By enabling Lightning, you must connect to your Lightning node when loading the app. However, the Lightning node connection tends to fail more often than the Liquid node connection, which may prevent the app from loading.\n\nBy disabling Lightning, you ensure that your balance remains on Liquid, disabling both auto channel rebalancing and regulated channel opening.`,
-    name: 'Enable Lightning',
-    id: 'tln', //toggleLN
-  },
-];
+import {useTranslation} from 'react-i18next';
 
 export default function LiquidSettingsPage() {
   const navigate = useNavigation();
@@ -56,6 +37,7 @@ export default function LiquidSettingsPage() {
   const {toggleNodeInformation} = useNodeContext();
   const {onLightningBreezEvent} = useLightningEvent();
   const [isEnablingLightning, setIsEnablingLightning] = useState(false);
+  const {t} = useTranslation();
   const insets = useSafeAreaInsets();
   useHandleBackPressNew();
   const autoChannelRebalanceState =
@@ -76,14 +58,14 @@ export default function LiquidSettingsPage() {
       if (isNaN(parseValue)) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Error adding inputed value, plase try again.',
+          errorMessage: t('settings.bank.settings.text1'),
         });
         return;
       }
       if (parseValue === 0) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Percentage cannot be 0',
+          errorMessage: t('settings.bank.settings.text2'),
         });
         return;
       }
@@ -103,7 +85,7 @@ export default function LiquidSettingsPage() {
       if (isNaN(parseValue)) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Error adding inputed value, plase try again.',
+          errorMessage: t('settings.bank.settings.text1'),
         });
         return;
       }
@@ -116,10 +98,10 @@ export default function LiquidSettingsPage() {
         navigate.navigate('ErrorScreen', {
           errorMessage: `${
             parseValue <= MAX_CHANNEL_OPEN_FEE
-              ? `Minimum channel open size cannot be smaller than ${formatBalanceAmount(
+              ? `${t('settings.bank.settings.text3')} ${formatBalanceAmount(
                   MIN_CHANNEL_OPEN_FEE,
                 )} sats`
-              : `Minimum channel open size cannot be larger than ${formatBalanceAmount(
+              : `${t('settings.bank.settings.text4')} ${formatBalanceAmount(
                   MAX_CHANNEL_OPEN_FEE,
                 )} sats`
           }`,
@@ -142,7 +124,7 @@ export default function LiquidSettingsPage() {
       if (isNaN(parseValue)) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Error adding inputed value, plase try again.',
+          errorMessage: t('settings.bank.settings.text1'),
         });
         return;
       }
@@ -162,16 +144,16 @@ export default function LiquidSettingsPage() {
       if (isNaN(parseValue)) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Error adding inputed value, plase try again.',
+          errorMessage: t('settings.bank.settings.text1'),
         });
         return;
       }
       if (parseValue < minMaxLiquidSwapAmounts.min) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: `Amount can not be less than minimum swap amount ${formatBalanceAmount(
-            minMaxLiquidSwapAmounts.min,
-          )} sats.`,
+          errorMessage: `${t(
+            'settings.bank.settings.text5',
+          )} ${formatBalanceAmount(minMaxLiquidSwapAmounts.min)} sats.`,
         });
         return;
       }
@@ -207,8 +189,7 @@ export default function LiquidSettingsPage() {
       });
     } else {
       navigate.navigate('ErrorScreen', {
-        errorMessage:
-          'Unable to connect to the node at this time. Please try again later',
+        errorMessage: t('settings.bank.settings.text6'),
       });
     }
     return;
@@ -278,7 +259,10 @@ export default function LiquidSettingsPage() {
 
   return (
     <CustomKeyboardAvoidingView useStandardWidth={true}>
-      <CustomSettingsTopBar shouldDismissKeyboard={true} label={'Settings'} />
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        label={t('settings.bank.settings.text7')}
+      />
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
@@ -288,9 +272,9 @@ export default function LiquidSettingsPage() {
         }}
         showsVerticalScrollIndicator={false}>
         <TextInputWithSliderSettingsItem
-          sliderTitle={SETTINGSITEMS[0].name}
-          settingInputTitle={SETTINGSITEMS[0].inputTitle}
-          settingDescription={SETTINGSITEMS[0].desc}
+          sliderTitle={t('settings.bank.settings.text8')}
+          settingInputTitle={t('settings.bank.settings.text9')}
+          settingDescription={t('settings.bank.settings.text10')}
           defaultTextInputValue={
             masterInfoObject.liquidWalletSettings.autoChannelRebalancePercantage
           }
@@ -300,9 +284,9 @@ export default function LiquidSettingsPage() {
           switchPage="bankSettings"
         />
         <TextInputWithSliderSettingsItem
-          sliderTitle={SETTINGSITEMS[1].name}
-          settingInputTitle={SETTINGSITEMS[1].inputTitle}
-          settingDescription={SETTINGSITEMS[1].desc}
+          sliderTitle={t('settings.bank.settings.text11')}
+          settingInputTitle={t('settings.bank.settings.text12')}
+          settingDescription={t('settings.bank.settings.text13')}
           defaultTextInputValue={
             masterInfoObject.liquidWalletSettings.regulatedChannelOpenSize
           }
@@ -312,16 +296,16 @@ export default function LiquidSettingsPage() {
           switchPage="bankSettings"
         />
         <SettingsItemWithSlider
-          settingsTitle={SETTINGSITEMS[2].name}
-          settingDescription={SETTINGSITEMS[2].desc}
+          settingsTitle={t('settings.bank.settings.text14')}
+          settingDescription={t('settings.bank.settings.text15')}
           switchPageName={'bankSettings'}
           handleSubmit={handleEnableLightningSubmit}
           showLoadingIcon={isEnablingLightning}
           toggleSwitchStateValue={isLightningEnabledState}
         />
         <TextInputSettingsItem
-          settingInputTitle="Max open fee (sats)"
-          settingDescription="The Max Channel Open Fee sets the highest amount you’re willing to pay in on-chain fees when opening a Lightning channel. If the network fee exceeds this limit, the channel won’t be opened"
+          settingInputTitle={t('settings.bank.settings.text16')}
+          settingDescription={t('settings.bank.settings.text17')}
           defaultTextInputValue={
             masterInfoObject.liquidWalletSettings.maxChannelOpenFee === 0 ||
             masterInfoObject.liquidWalletSettings.maxChannelOpenFee
@@ -331,10 +315,10 @@ export default function LiquidSettingsPage() {
           handleSubmit={handleMaxChannelOpenFeeSubmit}
         />
         <TextInputSettingsItem
-          settingInputTitle="Minimum rebalance (sats)"
-          settingDescription={`Minimum Rebalance sets the lowest amount of satoshis required for auto-rebalancing in Blitz Wallet. If the rebalance amount is below this limit, no rebalancing will occur. The amount can not be less than ${formatBalanceAmount(
-            minMaxLiquidSwapAmounts.min,
-          )} sats.`}
+          settingInputTitle={t('settings.bank.settings.text18')}
+          settingDescription={`${t(
+            'settings.bank.settings.text19',
+          )} ${formatBalanceAmount(minMaxLiquidSwapAmounts.min)} sats.`}
           defaultTextInputValue={
             masterInfoObject.liquidWalletSettings.minAutoSwapAmount
           }

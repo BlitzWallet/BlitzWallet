@@ -5,6 +5,7 @@ import {useCallback, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import TextInputWithSliderSettingsItem from '../../../../functions/CustomElements/settings/textInputWIthSliderSettingsItem';
+import {useTranslation} from 'react-i18next';
 
 export default function FastPay() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -12,6 +13,7 @@ export default function FastPay() {
   const fastPayThreshold =
     masterInfoObject[QUICK_PAY_STORAGE_KEY].fastPayThresholdSats;
   const isOn = masterInfoObject[QUICK_PAY_STORAGE_KEY].isFastPayEnabled;
+  const {t} = useTranslation();
 
   const handleSlider = useCallback(() => {
     toggleMasterInfoObject({
@@ -28,14 +30,14 @@ export default function FastPay() {
       if (isNaN(parseValue)) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Error adding inputed value, plase try again.',
+          errorMessage: t('settings.fastpay.text1'),
         });
         return;
       }
       if (parseValue === 0) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Amount cannot be 0',
+          errorMessage: t('settings.fastpay.text2'),
         });
         return;
       }
@@ -53,9 +55,9 @@ export default function FastPay() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={{flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
         <TextInputWithSliderSettingsItem
-          sliderTitle="Enable Fast Pay"
-          settingInputTitle="Fast pay threshold (Sats)"
-          settingDescription="Fast pay allows you to instantly pay invoices below a specified threshold without needing to swipe for confirmation."
+          sliderTitle={t('settings.fastpay.text3')}
+          settingInputTitle={t('settings.fastpay.text4')}
+          settingDescription={t('settings.fastpay.text5')}
           defaultTextInputValue={fastPayThreshold}
           handleSubmit={handleSubmit}
           CustomToggleSwitchFunction={handleSlider}

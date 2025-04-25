@@ -12,6 +12,7 @@ import {ThemeText} from '../../../../../functions/CustomElements';
 
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import {useTranslation} from 'react-i18next';
 
 export default function WalletInfoDenominationSlider({
   setDisplayFormat,
@@ -21,6 +22,7 @@ export default function WalletInfoDenominationSlider({
   const sliderAnim = useRef(new Animated.Value(3)).current;
   const windowDimensions = useWindowDimensions();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {t} = useTranslation();
 
   const sliderWidth = (windowDimensions.width * 0.95 * 0.95) / 2;
 
@@ -57,7 +59,7 @@ export default function WalletInfoDenominationSlider({
                     ? COLORS.darkModeText
                     : COLORS.lightModeText,
               }}
-              content={'Amount'}
+              content={t('settings.balanceinfo.valueslider.text1')}
             />
           </TouchableOpacity>
 
@@ -77,7 +79,7 @@ export default function WalletInfoDenominationSlider({
                     ? COLORS.darkModeText
                     : COLORS.lightModeText,
               }}
-              content={'Percentage'}
+              content={t('settings.balanceinfo.valueslider.text2')}
             />
           </TouchableOpacity>
           <Animated.View

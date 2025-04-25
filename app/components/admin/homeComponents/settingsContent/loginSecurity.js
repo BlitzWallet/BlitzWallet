@@ -1,10 +1,5 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {
-  CENTER,
-  COLORS,
-  LOGIN_SECUITY_MODE_KEY,
-  SIZES,
-} from '../../../../constants';
+import {CENTER, COLORS, LOGIN_SECUITY_MODE_KEY} from '../../../../constants';
 import {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {
@@ -17,9 +12,10 @@ import {
 import {ThemeText} from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
-import Icon from '../../../../functions/CustomElements/Icon';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import {useTranslation} from 'react-i18next';
+import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 
 export default function LoginSecurity() {
   const [securityLoginSettings, setSecurityLoginSettings] = useState({
@@ -28,7 +24,8 @@ export default function LoginSecurity() {
     isBiometricEnabled: null,
   });
   const navigate = useNavigation();
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const {t} = useTranslation();
+  const {theme} = useGlobalThemeContext();
   const {backgroundOffset} = GetThemeColors();
 
   useEffect(() => {
@@ -54,7 +51,7 @@ export default function LoginSecurity() {
         <View style={styles.faceIDContainer}>
           <ThemeText
             styles={{...styles.contentText}}
-            content={'Enable Login Security'}
+            content={t('settings.loginsecurity.text1')}
           />
           <CustomToggleSwitch
             stateValue={securityLoginSettings.isSecurityEnabled}
@@ -66,94 +63,26 @@ export default function LoginSecurity() {
       {securityLoginSettings.isSecurityEnabled && (
         <View style={{width: '90%', ...CENTER}}>
           <ThemeText
-            styles={{...styles.infoHeaders}}
-            content={'Security Type'}
+            styles={styles.infoHeaders}
+            content={t('settings.loginsecurity.text2')}
           />
           <TouchableOpacity
             onPress={() => {
               toggleLoginSecurity('pin');
             }}
-            style={[
-              styles.toggleSecurityMode,
-              {
-                minHeight: 0,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 20,
-                paddingHorizontal: 0,
-              },
-            ]}>
-            <ThemeText content={`Pin`} />
-            <View
-              style={{
-                height: 30,
-                width: 30,
-                backgroundColor: securityLoginSettings.isPinEnabled
-                  ? theme
-                    ? backgroundOffset
-                    : COLORS.primary
-                  : 'transparent',
-                borderWidth: securityLoginSettings.isPinEnabled ? 0 : 2,
-                borderColor: theme ? backgroundOffset : COLORS.white,
-                borderRadius: 15,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              {securityLoginSettings.isPinEnabled && (
-                <Icon
-                  width={15}
-                  height={15}
-                  color={COLORS.darkModeText}
-                  name={'expandedTxCheck'}
-                />
-              )}
-            </View>
+            style={styles.toggleSecurityMode}>
+            <ThemeText content={t('settings.loginsecurity.text3')} />
+            <CheckMarkCircle isActive={securityLoginSettings.isPinEnabled} />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
               toggleLoginSecurity('biometric');
             }}
-            style={[
-              styles.toggleSecurityMode,
-              {
-                // backgroundColor: theme
-                //   ? COLORS.darkModeBackgroundOffset
-                //   : COLORS.darkModeText,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 10,
-                paddingHorizontal: 0,
-                minHeight: 0,
-              },
-            ]}>
-            <ThemeText content={`Biometric`} />
-            <View
-              style={{
-                height: 30,
-                width: 30,
-                backgroundColor: securityLoginSettings.isBiometricEnabled
-                  ? theme
-                    ? backgroundOffset
-                    : COLORS.primary
-                  : 'transparent',
-                borderColor: theme ? backgroundOffset : COLORS.white,
-                borderWidth: securityLoginSettings.isBiometricEnabled ? 0 : 2,
-                borderRadius: 15,
-                alignItems: 'center',
-
-                justifyContent: 'center',
-              }}>
-              {securityLoginSettings.isBiometricEnabled && (
-                <Icon
-                  width={15}
-                  height={15}
-                  color={COLORS.darkModeText}
-                  name={'expandedTxCheck'}
-                />
-              )}
-            </View>
+            style={styles.toggleSecurityMode}>
+            <ThemeText content={t('settings.loginsecurity.text4')} />
+            <CheckMarkCircle
+              isActive={securityLoginSettings.isBiometricEnabled}
+            />
           </TouchableOpacity>
         </View>
       )}
@@ -249,9 +178,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   toggleSecurityMode: {
-    minHeight: 60,
     width: '100%',
     paddingHorizontal: 10,
     borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    paddingHorizontal: 0,
   },
 });

@@ -9,6 +9,7 @@ import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {useMemo} from 'react';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import {useTranslation} from 'react-i18next';
 
 export default function LSPPage() {
   const {nodeInformation} = useNodeContext();
@@ -16,6 +17,7 @@ export default function LSPPage() {
   const navigate = useNavigation();
   const {backgroundOffset} = GetThemeColors();
   console.log(nodeInformation);
+  const {t} = useTranslation();
 
   const lspElement = useMemo(() => {
     return ['Name', 'ID', 'Host'].map(item => {
@@ -28,7 +30,10 @@ export default function LSPPage() {
               backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             },
           ]}>
-          <ThemeText content={item} styles={{...styles.titleText}} />
+          <ThemeText
+            content={t(`settings.lsppage.${item.toLowerCase()}`)}
+            styles={{...styles.titleText}}
+          />
           <TouchableOpacity
             style={styles.descriptionContainer}
             onPress={() => {
@@ -40,7 +45,7 @@ export default function LSPPage() {
             }}>
             <ThemeText
               content={nodeInformation.lsp[0]?.[item.toLowerCase()] || 'N/A'}
-              styles={{...styles.descriptionText}}
+              styles={styles.descriptionText}
             />
           </TouchableOpacity>
         </View>
@@ -56,7 +61,10 @@ export default function LSPPage() {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
           },
         ]}>
-        <ThemeText content={'What is an Lsp?'} styles={{...styles.titleText}} />
+        <ThemeText
+          content={t('settings.lsppage.text1')}
+          styles={styles.titleText}
+        />
         <TouchableOpacity
           onPress={() => navigate.navigate('LspDescriptionPopup')}>
           <ThemeImage
