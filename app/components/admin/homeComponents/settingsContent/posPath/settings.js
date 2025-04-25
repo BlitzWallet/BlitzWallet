@@ -35,6 +35,7 @@ import {
   KEYBOARDTIMEOUT,
 } from '../../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 
 export default function PosSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -170,6 +171,41 @@ export default function PosSettingsPage() {
         </View>
         {CurrencyElements}
       </ScrollView>
+      <View
+        style={{
+          ...styles.addItemContainer,
+          backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+        }}>
+        <ThemeText
+          styles={{includeFontPadding: false, marginRight: 5}}
+          content={`${0} added items`}
+        />
+        <TouchableOpacity
+          onPress={() =>
+            navigate.navigate('InformationPopup', {
+              textContent:
+                'Adding items to your point-of-sale system means employees won’t have to type in prices manually. Instead, they can just click the product names, and the prices you set will be added to the total automatically.',
+              buttonText: 'I understand',
+            })
+          }>
+          <ThemeImage
+            styles={{height: 20, width: 20}}
+            lightModeIcon={ICONS.aboutIcon}
+            darkModeIcon={ICONS.aboutIcon}
+            lightsOutIcon={ICONS.aboutIconWhite}
+          />
+        </TouchableOpacity>
+        <CustomButton
+          buttonStyles={{
+            backgroundColor: theme ? backgroundColor : COLORS.primary,
+            marginLeft: 'auto',
+          }}
+          textStyles={{
+            color: COLORS.darkModeText,
+          }}
+          textContent={'Add item'}
+        />
+      </View>
 
       <CustomButton
         buttonStyles={{
@@ -267,7 +303,6 @@ const styles = StyleSheet.create({
 
   currencyContainer: {
     width: '100%',
-
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -277,9 +312,13 @@ const styles = StyleSheet.create({
 
     paddingVertical: 10,
   },
-
-  topbar: {
+  addItemContainer: {
+    borderRadius: 8,
+    padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 20,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
   },
 });
