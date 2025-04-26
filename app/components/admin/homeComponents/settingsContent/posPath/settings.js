@@ -58,6 +58,7 @@ export default function PosSettingsPage() {
 
   const savedCurrencies = masterInfoObject.fiatCurrenciesList || [];
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
+  const posItemsList = masterInfoObject?.posSettings?.items || [];
 
   const CurrencyElements = useMemo(() => {
     return savedCurrencies
@@ -178,7 +179,9 @@ export default function PosSettingsPage() {
         }}>
         <ThemeText
           styles={{includeFontPadding: false, marginRight: 5}}
-          content={`${0} added items`}
+          content={`${posItemsList.length} added item${
+            posItemsList.length !== 1 ? 's' : ''
+          }`}
         />
         <TouchableOpacity
           onPress={() =>
@@ -203,6 +206,7 @@ export default function PosSettingsPage() {
           textStyles={{
             color: COLORS.darkModeText,
           }}
+          actionFunction={() => navigate.navigate('AddPOSItemsPage')}
           textContent={'Add item'}
         />
       </View>
