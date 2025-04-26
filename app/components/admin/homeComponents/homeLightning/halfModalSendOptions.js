@@ -1,5 +1,5 @@
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {CENTER, ICONS, SIZES} from '../../../../constants';
+import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {navigateToSendUsingClipboard, getQRImage} from '../../../../functions';
@@ -10,9 +10,12 @@ import {useTranslation} from 'react-i18next';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import Icon from '../../../../functions/CustomElements/Icon';
+import {useGlobalThemeContext} from '../../../../../context-store/theme';
 
 export default function HalfModalSendOptions(props) {
   const navigate = useNavigation();
+  const {theme} = useGlobalThemeContext();
   const insets = useSafeAreaInsets();
   const {decodedAddedContacts} = useGlobalContacts();
   const {t} = useTranslation();
@@ -67,12 +70,28 @@ export default function HalfModalSendOptions(props) {
           }
         }}>
         <View style={styles.optionRow}>
-          <ThemeImage
-            styles={styles.icon}
-            lightModeIcon={darkIcon}
-            darkModeIcon={lightIcon}
-            lightsOutIcon={lightIcon}
-          />
+          {item === 'manual' ? (
+            <View
+              style={{
+                ...styles.icon,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Icon
+                color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+                height={30}
+                width={30}
+                name={'editIcon'}
+              />
+            </View>
+          ) : (
+            <ThemeImage
+              styles={styles.icon}
+              lightModeIcon={darkIcon}
+              darkModeIcon={lightIcon}
+              lightsOutIcon={lightIcon}
+            />
+          )}
           <ThemeText styles={styles.optionText} content={itemText} />
         </View>
       </TouchableOpacity>
