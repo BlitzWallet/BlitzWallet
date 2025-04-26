@@ -52,6 +52,7 @@ export default function AddPOSItemsPage() {
           <View>
             <ThemeText styles={styles.posItemName} content={item.name} />
             <ThemeText
+              styles={{includeFontPadding: false}}
               content={
                 formatCurrency({
                   amount: item.price.toFixed(2),
@@ -60,14 +61,7 @@ export default function AddPOSItemsPage() {
               }
             />
           </View>
-          <View
-            style={{
-              width: 80,
-              marginLeft: 'auto',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
+          <View style={styles.buttonsContainer}>
             <TouchableOpacity
               onPress={() =>
                 navigate.navigate('CustomHalfModal', {
@@ -161,6 +155,13 @@ const styles = StyleSheet.create({
   },
   posItemName: {
     textTransform: 'capitalize',
-    // marginBottom: 5,
+    includeFontPadding: false,
+  },
+  buttonsContainer: {
+    width: 80,
+    marginLeft: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });
