@@ -33,6 +33,7 @@ import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {ANDROIDSAFEAREA, CENTER, KEYBOARDTIMEOUT} from '../../constants/styles';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import AddPOSItemHalfModal from '../../components/admin/homeComponents/settingsContent/posPath/items/addItemHalfModal';
 
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -196,6 +197,14 @@ export default function CustomHalfModal(props) {
             startTransferFunction={props.route.params?.startTransferFunction}
           />
         );
+      case 'addPOSItemsHalfModal':
+        return (
+          <AddPOSItemHalfModal
+            isKeyboardActive={isKeyboardActive}
+            setIsKeyboardActive={setIsKeyboardActive}
+            initialSettings={props.route.params?.initialSettings}
+          />
+        );
       default:
         return <ThemeText content={'TST'} />;
     }
@@ -241,7 +250,8 @@ export default function CustomHalfModal(props) {
             backgroundColor:
               theme && darkModeType ? backgroundOffset : backgroundColor,
             paddingBottom:
-              contentType === 'manualEnterSendAddress'
+              contentType === 'manualEnterSendAddress' ||
+              contentType === 'addPOSItemsHalfModal'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : bottomPadding

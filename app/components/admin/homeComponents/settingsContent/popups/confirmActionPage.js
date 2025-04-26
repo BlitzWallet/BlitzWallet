@@ -46,7 +46,6 @@ export default function ConfirmActionPage(props) {
                   } else if (props.route.params.confirmFunction) {
                     navigate.goBack();
                     props.route.params.confirmFunction();
-
                     return;
                   } else props.route.params.wantsToDrainFunc(true);
                   navigate.goBack();

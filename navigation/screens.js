@@ -42,6 +42,7 @@ import EcashSettings from '../app/components/admin/homeComponents/settingsConten
 import MigrateProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
 import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
 import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
+import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import AccountInformationPage from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/AccountInformationPage';
 import ManualSwapPopup from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/manualSwapPopup';
@@ -118,6 +119,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'PinSetup', component: PinSetupPage},
   {name: 'RestoreWallet', component: RestoreWallet},
   {name: 'EcashSettings', component: EcashSettings},
+  {name: 'AddPOSItemsPage', component: AddPOSItemsPage},
 ];
 
 const FADE_SCREENS = [
