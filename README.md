@@ -23,6 +23,7 @@ Blitz Wallet is a React Native application that allows users to interact with th
   - Using a Lightning QR code
   - Using a Bitcoin QR Code
   - Using a Liquid QR Code
+  - Using a Cashu eCash QR Code
 - LNURL pay, withdrawal, and auth support
 - Wallet recovery
 - Support for numerous fiat currencies
@@ -30,8 +31,9 @@ Blitz Wallet is a React Native application that allows users to interact with th
 - View a detailed description of payments (date, time fee, payment type) + technical details (payment hash, payment preimage, payment ID)
 - Change balance denomination between Fiat, Sats, or hidden
 - Opt-in Biometric login
-- Dark mode and Light mode
+- Dark mode, Light mode, and Lights out mode
 - Easy left slide QR code scanning on the wallet page
+- Built in store where you can purchase gift cards, vpns, generative AI, and SMS messages
 
 ## TODO
 
