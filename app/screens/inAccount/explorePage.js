@@ -52,7 +52,7 @@ export default function ExploreUsers() {
     else return prev;
   }, 0);
 
-  const totalYesterday = masterInfoObject.exploreData['day'][1].value;
+  const totalYesterday = masterInfoObject.exploreData['day']?.[1]?.value || 0;
 
   const axesSvg = {
     fontSize: SIZES.small,
@@ -134,7 +134,7 @@ export default function ExploreUsers() {
             const now = new Date();
             const todayDay = now.getDay();
 
-            const daysToSunday = 7 - todayDay;
+            const daysToSunday = 7 - (todayDay === 0 ? 7 : todayDay);
 
             const endOfWeek = new Date(
               now.getTime() + daysToSunday * DAY_IN_MILLS,
