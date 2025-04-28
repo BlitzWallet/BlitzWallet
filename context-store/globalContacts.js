@@ -230,17 +230,17 @@ export const GlobalContactsList = ({children}) => {
     };
   }, [globalContactsInformation?.myProfile?.uuid]);
 
-  // No longer need to handle this manualy as it happens automaticly from peoples activity
-  // useEffect(() => {
-  //   if (!Object.keys(globalContactsInformation).length) return;
-  //   if (lookForNewMessages.current) return;
-  //   lookForNewMessages.current = true;
-  //   syncDatabasePayment(
-  //     globalContactsInformation.myProfile.uuid,
-  //     updatedCachedMessagesStateFunction,
-  //   );
-  // }, [globalContactsInformation, updatedCachedMessagesStateFunction]);
+  useEffect(() => {
+    if (!Object.keys(globalContactsInformation).length) return;
+    if (lookForNewMessages.current) return;
+    lookForNewMessages.current = true;
+    syncDatabasePayment(
+      globalContactsInformation.myProfile.uuid,
+      updatedCachedMessagesStateFunction,
+    );
+  }, [globalContactsInformation, updatedCachedMessagesStateFunction]);
 
+  // No longer need to handle this manualy as it happens automaticly from peoples activity
   // useEffect(() => {
   //   if (
   //     !Object.keys(globalContactsInformation).length ||
