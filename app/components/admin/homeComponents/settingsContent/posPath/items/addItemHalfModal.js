@@ -17,7 +17,6 @@ export default function AddPOSItemHalfModal({
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const items = masterInfoObject.posSettings.items;
   const [itemInformation, setItemInformation] = useState({
     name: initialSettings?.name || '',
     price: initialSettings?.price || '',
@@ -45,6 +44,11 @@ export default function AddPOSItemHalfModal({
   };
   console.log(initialSettings, itemInformation);
 
+  const shouldShowCancel =
+    initialSettings &&
+    initialSettings.name == itemInformation.name &&
+    initialSettings.price == itemInformation.price;
+
   const addNewItem = () => {
     if (!itemInformation.name || !itemInformation.price) return;
     if (itemInformation.name.length > 60) {
@@ -53,16 +57,31 @@ export default function AddPOSItemHalfModal({
       });
       return;
     }
+    if (shouldShowCancel) {
+      navigate.goBack();
+      return;
+    }
     let posObject = JSON.parse(JSON.stringify(masterInfoObject?.posSettings));
     if (!posObject.items) {
       posObject.items = [];
     }
-    posObject.items.push({
-      name: itemInformation.name,
-      price: Number(itemInformation.price),
-      uuid: customUUID(),
-      initialCurrency: masterInfoObject?.posSettings?.storeCurrency,
-    });
+    if (initialSettings) {
+      posObject.items = posObject.items.map(item => {
+        if (item.uuid === initialSettings.uuid)
+          return {
+            ...item,
+            name: itemInformation.name,
+            price: Number(itemInformation.price),
+          };
+        else return item;
+      });
+    } else
+      posObject.items.push({
+        name: itemInformation.name,
+        price: Number(itemInformation.price),
+        uuid: customUUID(),
+        initialCurrency: masterInfoObject?.posSettings?.storeCurrency,
+      });
 
     toggleMasterInfoObject({posSettings: posObject});
     navigate.goBack();
@@ -131,7 +150,9 @@ export default function AddPOSItemHalfModal({
           opacity: !itemInformation.name || !itemInformation.price ? 0.5 : 1,
         }}
         actionFunction={addNewItem}
-        textContent={'Add Item'}
+        textContent={
+          initialSettings ? (shouldShowCancel ? 'Cancel' : 'Save') : 'Add Item'
+        }
       />
     </View>
   );

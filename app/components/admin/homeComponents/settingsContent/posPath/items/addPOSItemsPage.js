@@ -10,7 +10,7 @@ import {useMemo, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../../../context-store/context';
 import {useNavigation} from '@react-navigation/native';
 import GetThemeColors from '../../../../../../hooks/themeColors';
-import {CENTER, COLORS, ICONS} from '../../../../../../constants';
+import {CENTER, COLORS, ICONS, SIZES} from '../../../../../../constants';
 import {formatCurrency} from '../../../../../../functions/formatCurrency';
 import ThemeImage from '../../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../../functions/CustomElements/Icon';
@@ -24,6 +24,8 @@ export default function AddPOSItemsPage() {
   const navigate = useNavigation();
   const posItems = masterInfoObject.posSettings.items || [];
   const {backgroundOffset} = GetThemeColors();
+
+  const currentCurrency = masterInfoObject.posSettings?.storeCurrency;
 
   const removePOSItem = itemUUID => {
     let posObject = JSON.parse(JSON.stringify(masterInfoObject?.posSettings));
@@ -49,7 +51,7 @@ export default function AddPOSItemsPage() {
             backgroundColor: backgroundOffset,
           }}
           key={item.uuid}>
-          <View>
+          <View style={{flex: 1, marginRight: 10}}>
             <ThemeText styles={styles.posItemName} content={item.name} />
             <ThemeText
               styles={{includeFontPadding: false}}
@@ -60,6 +62,19 @@ export default function AddPOSItemsPage() {
                 })[0]
               }
             />
+            {currentCurrency !== item.initialCurrency && (
+              <ThemeText
+                styles={{
+                  includeFontPadding: false,
+                  fontSize: SIZES.small,
+                  color:
+                    theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.cancelRed,
+                }}
+                content={`Price is in ${item.initialCurrency}, but store currency is ${currentCurrency}.`}
+              />
+            )}
           </View>
           <View style={styles.buttonsContainer}>
             <TouchableOpacity
@@ -96,7 +111,7 @@ export default function AddPOSItemsPage() {
         </View>
       );
     });
-  }, [posItemSearch, posItems]);
+  }, [posItemSearch, posItems, currentCurrency]);
 
   return (
     <CustomKeyboardAvoidingView

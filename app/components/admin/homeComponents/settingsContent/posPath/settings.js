@@ -36,6 +36,7 @@ import {
 } from '../../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import Icon from '../../../../../functions/CustomElements/Icon';
 
 export default function PosSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -59,6 +60,10 @@ export default function PosSettingsPage() {
   const savedCurrencies = masterInfoObject.fiatCurrenciesList || [];
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
   const posItemsList = masterInfoObject?.posSettings?.items || [];
+
+  const showErrorIcon = posItemsList.filter(
+    item => item.initialCurrency !== currentCurrency,
+  ).length;
 
   const CurrencyElements = useMemo(() => {
     return savedCurrencies
@@ -186,28 +191,46 @@ export default function PosSettingsPage() {
         <TouchableOpacity
           onPress={() =>
             navigate.navigate('InformationPopup', {
-              textContent:
-                'Adding items to your point-of-sale system means employees won’t have to type in prices manually. Instead, they can just click the product names, and the prices you set will be added to the total automatically.',
+              textContent: showErrorIcon
+                ? `Your current currency is different from ${showErrorIcon} of your saved items. Please update your item prices to ensure you're charging the correct amount.`
+                : 'Adding items to your point-of-sale system means employees won’t have to type in prices manually. Instead, they can just click the product names, and the prices you set will be added to the total automatically.',
               buttonText: 'I understand',
             })
           }>
-          <ThemeImage
-            styles={{height: 20, width: 20}}
-            lightModeIcon={ICONS.aboutIcon}
-            darkModeIcon={ICONS.aboutIcon}
-            lightsOutIcon={ICONS.aboutIconWhite}
-          />
+          {showErrorIcon ? (
+            <Icon
+              color={
+                theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
+              }
+              name={'errorIcon'}
+            />
+          ) : (
+            <ThemeImage
+              styles={{height: 20, width: 20}}
+              lightModeIcon={ICONS.aboutIcon}
+              darkModeIcon={ICONS.aboutIcon}
+              lightsOutIcon={ICONS.aboutIconWhite}
+            />
+          )}
         </TouchableOpacity>
         <CustomButton
           buttonStyles={{
-            backgroundColor: theme ? backgroundColor : COLORS.primary,
+            backgroundColor: theme
+              ? darkModeType
+                ? backgroundColor
+                : showErrorIcon
+                ? COLORS.cancelRed
+                : backgroundColor
+              : showErrorIcon
+              ? COLORS.cancelRed
+              : COLORS.primary,
             marginLeft: 'auto',
           }}
           textStyles={{
             color: COLORS.darkModeText,
           }}
           actionFunction={() => navigate.navigate('AddPOSItemsPage')}
-          textContent={'Add item'}
+          textContent={showErrorIcon ? 'Update Items' : 'Add item'}
         />
       </View>
 
