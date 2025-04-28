@@ -22,7 +22,7 @@ export async function getOrCreateDirectory(uuidKey, workingDir) {
     if (!dirInfo.exists) {
       await FileSystem.makeDirectoryAsync(checkPath, {intermediates: true});
       console.log(`Directory created: ${checkPath}`);
-      await new Promise(resolve => setTimeout(resolve, 5000)); //adds buffer
+      await new Promise(resolve => setTimeout(resolve, 8000)); //adds buffer
     } else {
       console.log(`Directory already exists: ${checkPath}`);
     }
