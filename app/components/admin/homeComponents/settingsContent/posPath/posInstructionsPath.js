@@ -119,7 +119,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   lineItem: {
-    fontSize: SIZES.small,
     textAlign: 'center',
     marginVertical: 10,
     color: COLORS.lightModeText,

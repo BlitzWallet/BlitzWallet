@@ -35,6 +35,8 @@ import {
   KEYBOARDTIMEOUT,
 } from '../../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import Icon from '../../../../../functions/CustomElements/Icon';
 
 export default function PosSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -57,6 +59,44 @@ export default function PosSettingsPage() {
 
   const savedCurrencies = masterInfoObject.fiatCurrenciesList || [];
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
+  const posItemsList = masterInfoObject?.posSettings?.items || [];
+
+  const showErrorIcon = posItemsList.filter(
+    item => item.initialCurrency !== currentCurrency,
+  ).length;
+
+  const savePOSSettings = async (newData, type) => {
+    if (type === 'storeName') {
+      if (
+        newData.storeNameLower === masterInfoObject.posSettings.storeNameLower
+      ) {
+        navigate.navigate('ErrorScreen', {errorMessage: 'Name already in use'});
+        return;
+      }
+      if (!VALID_USERNAME_REGEX.test(newData.storeNameLower)) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: 'Name can only include letters and numbers. ',
+        });
+        return;
+      }
+
+      const isValidPosName = await canUsePOSName(
+        'blitzWalletUsers',
+        newData.storeNameLower,
+      );
+      if (!isValidPosName) {
+        navigate.navigate('ErrorScreen', {errorMessage: 'Name already taken'});
+        setStoreNameInput(masterInfoObject.posSettings.storeName);
+        return;
+      }
+    }
+    toggleMasterInfoObject({
+      posSettings: {
+        ...masterInfoObject.posSettings,
+        ...newData,
+      },
+    });
+  };
 
   const CurrencyElements = useMemo(() => {
     return savedCurrencies
@@ -103,7 +143,7 @@ export default function PosSettingsPage() {
           </TouchableOpacity>
         );
       });
-  }, [textInput, currentCurrency]);
+  }, [textInput, currentCurrency, masterInfoObject]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -170,94 +210,122 @@ export default function PosSettingsPage() {
         </View>
         {CurrencyElements}
       </ScrollView>
+      <View
+        style={{
+          ...styles.addItemContainer,
+          marginBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 20,
+          backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+        }}>
+        <ThemeText
+          styles={{includeFontPadding: false, marginRight: 5}}
+          content={`${posItemsList.length} added item${
+            posItemsList.length !== 1 ? 's' : ''
+          }`}
+        />
+        <TouchableOpacity
+          onPress={() =>
+            navigate.navigate('InformationPopup', {
+              textContent: showErrorIcon
+                ? `Your current currency is different from ${showErrorIcon} of your saved items. Please update your item prices to ensure you're charging the correct amount.`
+                : 'Adding items to your point-of-sale system means employees won’t have to type in prices manually. Instead, they can just click the product names, and the prices you set will be added to the total automatically.',
+              buttonText: 'I understand',
+            })
+          }>
+          {showErrorIcon ? (
+            <Icon
+              color={
+                theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
+              }
+              name={'errorIcon'}
+            />
+          ) : (
+            <ThemeImage
+              styles={{height: 20, width: 20}}
+              lightModeIcon={ICONS.aboutIcon}
+              darkModeIcon={ICONS.aboutIcon}
+              lightsOutIcon={ICONS.aboutIconWhite}
+            />
+          )}
+        </TouchableOpacity>
+        <CustomButton
+          buttonStyles={{
+            backgroundColor: theme
+              ? darkModeType
+                ? backgroundColor
+                : showErrorIcon
+                ? COLORS.cancelRed
+                : backgroundColor
+              : showErrorIcon
+              ? COLORS.cancelRed
+              : COLORS.primary,
+            marginLeft: 'auto',
+          }}
+          textStyles={{
+            color: COLORS.darkModeText,
+          }}
+          actionFunction={() => navigate.navigate('AddPOSItemsPage')}
+          textContent={showErrorIcon ? 'Update Items' : 'Add item'}
+        />
+      </View>
 
-      <CustomButton
-        buttonStyles={{
-          width: INSET_WINDOW_WIDTH,
-          alignSelf: 'center',
-          backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-        }}
-        textStyles={{
-          color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-        }}
-        actionFunction={() => {
-          if (
-            masterInfoObject.posSettings.storeNameLower !==
-            storeNameInput.toLowerCase()
-          ) {
-            savePOSSettings(
-              {
-                storeName: storeNameInput.trim(),
-                storeNameLower: storeNameInput.trim().toLowerCase(),
-              },
-              'storeName',
-            );
-            return;
-          } else {
-            openWebBrowser({
-              navigate,
-              link: `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`,
-            });
-          }
-        }}
-        textContent={
-          masterInfoObject.posSettings.storeName.toLowerCase() !==
-          storeNameInput.toLowerCase()
-            ? 'Save'
-            : 'Open POS'
-        }
-      />
-      <CustomButton
-        buttonStyles={{
-          width: INSET_WINDOW_WIDTH,
-          marginTop: 20,
-          backgroundColor: backgroundOffset,
-          marginBottom: isKeyboardActive
-            ? CONTENT_KEYBOARD_OFFSET
-            : paddingBottom,
-          ...CENTER,
-        }}
-        textStyles={{color: textColor}}
-        actionFunction={() => {
-          navigate.navigate('POSInstructionsPath');
-        }}
-        textContent={'Employee instructions'}
-      />
+      {!isKeyboardActive && (
+        <>
+          <CustomButton
+            buttonStyles={{
+              width: INSET_WINDOW_WIDTH,
+              alignSelf: 'center',
+              backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+            }}
+            textStyles={{
+              color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+            }}
+            actionFunction={() => {
+              if (
+                masterInfoObject.posSettings.storeNameLower !==
+                storeNameInput.toLowerCase()
+              ) {
+                savePOSSettings(
+                  {
+                    storeName: storeNameInput.trim(),
+                    storeNameLower: storeNameInput.trim().toLowerCase(),
+                  },
+                  'storeName',
+                );
+                return;
+              } else {
+                openWebBrowser({
+                  navigate,
+                  link: `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`,
+                });
+              }
+            }}
+            textContent={
+              masterInfoObject.posSettings.storeName.toLowerCase() !==
+              storeNameInput.toLowerCase()
+                ? 'Save'
+                : 'Open POS'
+            }
+          />
+          <CustomButton
+            buttonStyles={{
+              width: INSET_WINDOW_WIDTH,
+              marginTop: 20,
+              backgroundColor: backgroundOffset,
+              marginBottom: isKeyboardActive
+                ? CONTENT_KEYBOARD_OFFSET
+                : paddingBottom,
+              ...CENTER,
+            }}
+            textStyles={{color: textColor}}
+            actionFunction={() => {
+              navigate.navigate('POSInstructionsPath');
+            }}
+            textContent={'Employee instructions'}
+          />
+        </>
+      )}
     </CustomKeyboardAvoidingView>
   );
-
-  async function savePOSSettings(newData, type) {
-    if (type === 'storeName') {
-      if (
-        newData.storeNameLower === masterInfoObject.posSettings.storeNameLower
-      ) {
-        navigate.navigate('ErrorScreen', {errorMessage: 'Name already in use'});
-        return;
-      }
-      if (!VALID_USERNAME_REGEX.test(newData.storeNameLower)) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Name can only include letters and numbers. ',
-        });
-        return;
-      }
-
-      const isValidPosName = await canUsePOSName(
-        'blitzWalletUsers',
-        newData.storeNameLower,
-      );
-      if (!isValidPosName) {
-        navigate.navigate('ErrorScreen', {errorMessage: 'Name already taken'});
-        setStoreNameInput(masterInfoObject.posSettings.storeName);
-        return;
-      }
-    }
-    toggleMasterInfoObject({
-      posSettings: {
-        ...masterInfoObject.posSettings,
-        ...newData,
-      },
-    });
-  }
 }
 
 const styles = StyleSheet.create({
@@ -267,7 +335,6 @@ const styles = StyleSheet.create({
 
   currencyContainer: {
     width: '100%',
-
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -277,9 +344,13 @@ const styles = StyleSheet.create({
 
     paddingVertical: 10,
   },
-
-  topbar: {
+  addItemContainer: {
+    borderRadius: 8,
+    padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 20,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
   },
 });
