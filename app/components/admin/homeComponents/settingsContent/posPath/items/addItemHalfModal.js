@@ -42,12 +42,17 @@ export default function AddPOSItemHalfModal({
 
     setIsKeyboardActive(shouldShow);
   };
-  console.log(initialSettings, itemInformation);
+
+  const needsToUpdateCurrency =
+    initialSettings.initialCurrency !==
+    masterInfoObject?.posSettings?.storeCurrency;
 
   const shouldShowCancel =
     initialSettings &&
     initialSettings.name == itemInformation.name &&
-    initialSettings.price == itemInformation.price;
+    initialSettings.price == itemInformation.price &&
+    initialSettings.initialCurrency ===
+      masterInfoObject?.posSettings?.storeCurrency;
 
   const addNewItem = () => {
     if (!itemInformation.name || !itemInformation.price) return;
@@ -72,6 +77,7 @@ export default function AddPOSItemHalfModal({
             ...item,
             name: itemInformation.name,
             price: Number(itemInformation.price),
+            initialCurrency: masterInfoObject?.posSettings?.storeCurrency,
           };
         else return item;
       });
@@ -151,7 +157,13 @@ export default function AddPOSItemHalfModal({
         }}
         actionFunction={addNewItem}
         textContent={
-          initialSettings ? (shouldShowCancel ? 'Cancel' : 'Save') : 'Add Item'
+          initialSettings
+            ? shouldShowCancel
+              ? 'Cancel'
+              : needsToUpdateCurrency
+              ? 'Update currency'
+              : 'Save'
+            : 'Add Item'
         }
       />
     </View>

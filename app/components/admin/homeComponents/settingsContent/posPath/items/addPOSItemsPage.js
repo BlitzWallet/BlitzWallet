@@ -41,7 +41,6 @@ export default function AddPOSItemsPage() {
     toggleMasterInfoObject({posSettings: posObject});
   };
 
-  console.log(masterInfoObject.posSettings);
   const formattedElements = useMemo(() => {
     return posItems.map(item => {
       return (

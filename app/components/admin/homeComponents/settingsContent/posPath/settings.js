@@ -65,6 +65,39 @@ export default function PosSettingsPage() {
     item => item.initialCurrency !== currentCurrency,
   ).length;
 
+  const savePOSSettings = async (newData, type) => {
+    if (type === 'storeName') {
+      if (
+        newData.storeNameLower === masterInfoObject.posSettings.storeNameLower
+      ) {
+        navigate.navigate('ErrorScreen', {errorMessage: 'Name already in use'});
+        return;
+      }
+      if (!VALID_USERNAME_REGEX.test(newData.storeNameLower)) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: 'Name can only include letters and numbers. ',
+        });
+        return;
+      }
+
+      const isValidPosName = await canUsePOSName(
+        'blitzWalletUsers',
+        newData.storeNameLower,
+      );
+      if (!isValidPosName) {
+        navigate.navigate('ErrorScreen', {errorMessage: 'Name already taken'});
+        setStoreNameInput(masterInfoObject.posSettings.storeName);
+        return;
+      }
+    }
+    toggleMasterInfoObject({
+      posSettings: {
+        ...masterInfoObject.posSettings,
+        ...newData,
+      },
+    });
+  };
+
   const CurrencyElements = useMemo(() => {
     return savedCurrencies
       .filter(currency => {
@@ -110,7 +143,7 @@ export default function PosSettingsPage() {
           </TouchableOpacity>
         );
       });
-  }, [textInput, currentCurrency]);
+  }, [textInput, currentCurrency, masterInfoObject]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -288,39 +321,6 @@ export default function PosSettingsPage() {
       />
     </CustomKeyboardAvoidingView>
   );
-
-  async function savePOSSettings(newData, type) {
-    if (type === 'storeName') {
-      if (
-        newData.storeNameLower === masterInfoObject.posSettings.storeNameLower
-      ) {
-        navigate.navigate('ErrorScreen', {errorMessage: 'Name already in use'});
-        return;
-      }
-      if (!VALID_USERNAME_REGEX.test(newData.storeNameLower)) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Name can only include letters and numbers. ',
-        });
-        return;
-      }
-
-      const isValidPosName = await canUsePOSName(
-        'blitzWalletUsers',
-        newData.storeNameLower,
-      );
-      if (!isValidPosName) {
-        navigate.navigate('ErrorScreen', {errorMessage: 'Name already taken'});
-        setStoreNameInput(masterInfoObject.posSettings.storeName);
-        return;
-      }
-    }
-    toggleMasterInfoObject({
-      posSettings: {
-        ...masterInfoObject.posSettings,
-        ...newData,
-      },
-    });
-  }
 }
 
 const styles = StyleSheet.create({
