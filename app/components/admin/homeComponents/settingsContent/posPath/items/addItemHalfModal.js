@@ -14,6 +14,7 @@ export default function AddPOSItemHalfModal({
   setIsKeyboardActive,
   isKeyboardActive,
   initialSettings,
+  handleBackPressFunction,
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -44,8 +45,9 @@ export default function AddPOSItemHalfModal({
   };
 
   const needsToUpdateCurrency =
+    initialSettings &&
     initialSettings.initialCurrency !==
-    masterInfoObject?.posSettings?.storeCurrency;
+      masterInfoObject?.posSettings?.storeCurrency;
 
   const shouldShowCancel =
     initialSettings &&
@@ -63,7 +65,7 @@ export default function AddPOSItemHalfModal({
       return;
     }
     if (shouldShowCancel) {
-      navigate.goBack();
+      handleBackPressFunction();
       return;
     }
     let posObject = JSON.parse(JSON.stringify(masterInfoObject?.posSettings));
@@ -90,7 +92,7 @@ export default function AddPOSItemHalfModal({
       });
 
     toggleMasterInfoObject({posSettings: posObject});
-    navigate.goBack();
+    handleBackPressFunction();
   };
 
   return (

@@ -203,6 +203,7 @@ export default function CustomHalfModal(props) {
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}
             initialSettings={props.route.params?.initialSettings}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       default:
