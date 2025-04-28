@@ -42,74 +42,78 @@ export default function AddPOSItemsPage() {
   };
 
   const formattedElements = useMemo(() => {
-    return posItems.map(item => {
-      return (
-        <View
-          style={{
-            ...styles.posItemContainer,
-            backgroundColor: backgroundOffset,
-          }}
-          key={item.uuid}>
-          <View style={{flex: 1, marginRight: 10}}>
-            <ThemeText styles={styles.posItemName} content={item.name} />
-            <ThemeText
-              styles={{includeFontPadding: false}}
-              content={
-                formatCurrency({
-                  amount: item.price.toFixed(2),
-                  code: masterInfoObject.posSettings?.storeCurrency,
-                })[0]
-              }
-            />
-            {currentCurrency !== item.initialCurrency && (
+    return posItems
+      .map(item => {
+        if (!item.name?.toLowerCase()?.startsWith(posItemSearch.toLowerCase()))
+          return false;
+        return (
+          <View
+            style={{
+              ...styles.posItemContainer,
+              backgroundColor: backgroundOffset,
+            }}
+            key={item.uuid}>
+            <View style={{flex: 1, marginRight: 10}}>
+              <ThemeText styles={styles.posItemName} content={item.name} />
               <ThemeText
-                styles={{
-                  includeFontPadding: false,
-                  fontSize: SIZES.small,
-                  color:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.cancelRed,
-                }}
-                content={`Price is in ${item.initialCurrency}, but store currency is ${currentCurrency}.`}
-              />
-            )}
-          </View>
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity
-              onPress={() =>
-                navigate.navigate('CustomHalfModal', {
-                  wantedContent: 'addPOSItemsHalfModal',
-                  initialSettings: item,
-                })
-              }>
-              <Icon
-                color={
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                styles={{includeFontPadding: false}}
+                content={
+                  formatCurrency({
+                    amount: item.price.toFixed(2),
+                    code: masterInfoObject.posSettings?.storeCurrency,
+                  })[0]
                 }
-                height={25}
-                width={25}
-                name={'editIcon'}
               />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                navigate.navigate('ConfirmActionPage', {
-                  confirmFunction: () => removePOSItem(item.uuid),
-                  confirmMessage:
-                    'Are you sure you want to delete this point-of-sale item?',
-                });
-              }}>
-              <ThemeImage
-                lightModeIcon={ICONS.trashIcon}
-                darkModeIcon={ICONS.trashIcon}
-                lightsOutIcon={ICONS.trashIconWhite}
-              />
-            </TouchableOpacity>
+              {currentCurrency !== item.initialCurrency && (
+                <ThemeText
+                  styles={{
+                    includeFontPadding: false,
+                    fontSize: SIZES.small,
+                    color:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.cancelRed,
+                  }}
+                  content={`Price is in ${item.initialCurrency}, but store currency is ${currentCurrency}.`}
+                />
+              )}
+            </View>
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigate.navigate('CustomHalfModal', {
+                    wantedContent: 'addPOSItemsHalfModal',
+                    initialSettings: item,
+                  })
+                }>
+                <Icon
+                  color={
+                    theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                  }
+                  height={25}
+                  width={25}
+                  name={'editIcon'}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  navigate.navigate('ConfirmActionPage', {
+                    confirmFunction: () => removePOSItem(item.uuid),
+                    confirmMessage:
+                      'Are you sure you want to delete this point-of-sale item?',
+                  });
+                }}>
+                <ThemeImage
+                  lightModeIcon={ICONS.trashIcon}
+                  darkModeIcon={ICONS.trashIcon}
+                  lightsOutIcon={ICONS.trashIconWhite}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      );
-    });
+        );
+      })
+      .filter(Boolean);
   }, [posItemSearch, posItems, currentCurrency]);
 
   return (
@@ -138,7 +142,11 @@ export default function AddPOSItemsPage() {
           <View style={{marginTop: 20, alignItems: 'center'}}>
             <ThemeText
               styles={{width: '90%', textAlign: 'center'}}
-              content={'Add an item for it to show up here.'}
+              content={
+                posItems
+                  ? 'No items match your search.'
+                  : 'Add an item for it to show up here.'
+              }
             />
           </View>
         )}
