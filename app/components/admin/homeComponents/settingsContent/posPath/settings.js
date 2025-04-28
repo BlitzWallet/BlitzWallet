@@ -213,6 +213,7 @@ export default function PosSettingsPage() {
       <View
         style={{
           ...styles.addItemContainer,
+          marginBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 20,
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
         }}>
         <ThemeText
@@ -267,58 +268,62 @@ export default function PosSettingsPage() {
         />
       </View>
 
-      <CustomButton
-        buttonStyles={{
-          width: INSET_WINDOW_WIDTH,
-          alignSelf: 'center',
-          backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-        }}
-        textStyles={{
-          color: theme ? COLORS.lightModeText : COLORS.darkModeText,
-        }}
-        actionFunction={() => {
-          if (
-            masterInfoObject.posSettings.storeNameLower !==
-            storeNameInput.toLowerCase()
-          ) {
-            savePOSSettings(
-              {
-                storeName: storeNameInput.trim(),
-                storeNameLower: storeNameInput.trim().toLowerCase(),
-              },
-              'storeName',
-            );
-            return;
-          } else {
-            openWebBrowser({
-              navigate,
-              link: `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`,
-            });
-          }
-        }}
-        textContent={
-          masterInfoObject.posSettings.storeName.toLowerCase() !==
-          storeNameInput.toLowerCase()
-            ? 'Save'
-            : 'Open POS'
-        }
-      />
-      <CustomButton
-        buttonStyles={{
-          width: INSET_WINDOW_WIDTH,
-          marginTop: 20,
-          backgroundColor: backgroundOffset,
-          marginBottom: isKeyboardActive
-            ? CONTENT_KEYBOARD_OFFSET
-            : paddingBottom,
-          ...CENTER,
-        }}
-        textStyles={{color: textColor}}
-        actionFunction={() => {
-          navigate.navigate('POSInstructionsPath');
-        }}
-        textContent={'Employee instructions'}
-      />
+      {!isKeyboardActive && (
+        <>
+          <CustomButton
+            buttonStyles={{
+              width: INSET_WINDOW_WIDTH,
+              alignSelf: 'center',
+              backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+            }}
+            textStyles={{
+              color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+            }}
+            actionFunction={() => {
+              if (
+                masterInfoObject.posSettings.storeNameLower !==
+                storeNameInput.toLowerCase()
+              ) {
+                savePOSSettings(
+                  {
+                    storeName: storeNameInput.trim(),
+                    storeNameLower: storeNameInput.trim().toLowerCase(),
+                  },
+                  'storeName',
+                );
+                return;
+              } else {
+                openWebBrowser({
+                  navigate,
+                  link: `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`,
+                });
+              }
+            }}
+            textContent={
+              masterInfoObject.posSettings.storeName.toLowerCase() !==
+              storeNameInput.toLowerCase()
+                ? 'Save'
+                : 'Open POS'
+            }
+          />
+          <CustomButton
+            buttonStyles={{
+              width: INSET_WINDOW_WIDTH,
+              marginTop: 20,
+              backgroundColor: backgroundOffset,
+              marginBottom: isKeyboardActive
+                ? CONTENT_KEYBOARD_OFFSET
+                : paddingBottom,
+              ...CENTER,
+            }}
+            textStyles={{color: textColor}}
+            actionFunction={() => {
+              navigate.navigate('POSInstructionsPath');
+            }}
+            textContent={'Employee instructions'}
+          />
+        </>
+      )}
     </CustomKeyboardAvoidingView>
   );
 }

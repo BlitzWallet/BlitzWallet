@@ -122,7 +122,7 @@ export default function AddPOSItemsPage() {
       useLocalPadding={true}
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}>
-      <CustomSettingsTopBar label={'POS items'} />
+      <CustomSettingsTopBar shouldDismissKeyboard={true} label={'POS items'} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         stickyHeaderIndices={[0]}
