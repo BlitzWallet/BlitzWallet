@@ -52,7 +52,7 @@ export default function ExploreUsers() {
     else return prev;
   }, 0);
 
-  const totalYesterday = masterInfoObject.exploreData['day']?.[1]?.value || 0;
+  const totalYesterday = masterInfoObject.exploreData?.['day']?.[1]?.value || 0;
 
   const axesSvg = {
     fontSize: SIZES.small,
