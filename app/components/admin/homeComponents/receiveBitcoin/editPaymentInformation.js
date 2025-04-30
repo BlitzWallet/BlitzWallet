@@ -35,6 +35,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import {useGlobaleCash} from '../../../../../context-store/eCash';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import convertTextInputValue from '../../../../functions/textInputConvertValue';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -85,23 +86,6 @@ export default function EditReceivePaymentInformation(props) {
         masterInfoObject.liquidWalletSettings.regulatedChannelOpenSize ||
       !liquidWalletSettings.regulateChannelOpen);
 
-  const convertedValue = () =>
-    !amountValue
-      ? ''
-      : inputDenomination === 'fiat'
-      ? String(
-          Math.round(
-            (SATSPERBITCOIN / (nodeInformation.fiatStats?.value || 65000)) *
-              Number(amountValue),
-          ),
-        )
-      : String(
-          (
-            ((nodeInformation.fiatStats?.value || 65000) / SATSPERBITCOIN) *
-            Number(amountValue)
-          ).toFixed(2),
-        );
-
   useHandleBackPressNew();
 
   return (
@@ -136,7 +120,13 @@ export default function EditReceivePaymentInformation(props) {
 
               return newPrev;
             });
-            setAmountValue(convertedValue() || '');
+            setAmountValue(
+              convertTextInputValue(
+                amountValue,
+                nodeInformation,
+                inputDenomination,
+              ),
+            );
           }}
         />
 

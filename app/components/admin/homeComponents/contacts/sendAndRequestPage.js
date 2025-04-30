@@ -41,6 +41,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import formatBip21LiquidAddress from '../../../../functions/liquidWallet/formatBip21liquidAddress';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 import {getSingleContact} from '../../../../../db';
+import convertTextInputValue from '../../../../functions/textInputConvertValue';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -58,13 +59,15 @@ export default function SendAndRequestPage(props) {
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [descriptionValue, setDescriptionValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [inputDenomination, setInputDenomination] = useState(
+    masterInfoObject.userBalanceDenomination,
+  );
   const descriptionRef = useRef(null);
   const selectedContact = props.route.params.selectedContact;
   const paymentType = props.route.params.paymentType;
   const fromPage = props.route.params.fromPage;
   const isBTCdenominated =
-    masterInfoObject.userBalanceDenomination === 'hidden' ||
-    masterInfoObject.userBalanceDenomination === 'sats';
+    inputDenomination == 'hidden' || inputDenomination == 'sats';
 
   const convertedSendAmount = useMemo(
     () =>
@@ -73,7 +76,7 @@ export default function SendAndRequestPage(props) {
         : Math.round(
             (SATSPERBITCOIN / nodeInformation?.fiatStats?.value) * amountValue,
           )) || 0,
-    [amountValue, nodeInformation],
+    [amountValue, nodeInformation, isBTCdenominated],
   );
 
   const boltzFee = useMemo(() => {
@@ -390,7 +393,21 @@ export default function SendAndRequestPage(props) {
           <FormattedBalanceInput
             maxWidth={0.9}
             amountValue={amountValue || 0}
-            inputDenomination={masterInfoObject.userBalanceDenomination}
+            inputDenomination={inputDenomination}
+            containerFunction={() => {
+              setInputDenomination(prev => {
+                const newPrev = prev === 'sats' ? 'fiat' : 'sats';
+
+                return newPrev;
+              });
+              setAmountValue(
+                convertTextInputValue(
+                  amountValue,
+                  nodeInformation,
+                  inputDenomination,
+                ),
+              );
+            }}
           />
           <FormattedSatText
             containerStyles={{
@@ -398,10 +415,7 @@ export default function SendAndRequestPage(props) {
             }}
             neverHideBalance={true}
             globalBalanceDenomination={
-              masterInfoObject.userBalanceDenomination === 'sats' ||
-              masterInfoObject.userBalanceDenomination === 'hidden'
-                ? 'fiat'
-                : 'sats'
+              inputDenomination === 'sats' ? 'fiat' : 'sats'
             }
             balance={convertedSendAmount}
           />
