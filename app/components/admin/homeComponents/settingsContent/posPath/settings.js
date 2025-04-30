@@ -37,6 +37,7 @@ import {
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../functions/CustomElements/Icon';
+import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
 
 export default function PosSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -126,24 +127,52 @@ export default function PosSettingsPage() {
               setTextInput('');
               savePOSSettings({storeCurrency: item.id}, 'currency');
             }}>
+            <CheckMarkCircle
+              color={
+                theme
+                  ? darkModeType
+                    ? COLORS.darkModeText
+                    : COLORS.darkModeText
+                  : COLORS.lightModeText
+              }
+              backgroundColor={
+                theme
+                  ? darkModeType
+                    ? COLORS.darkModeText
+                    : COLORS.darkModeText
+                  : COLORS.primary
+              }
+              checkColor={
+                theme
+                  ? darkModeType
+                    ? COLORS.lightsOutBackground
+                    : COLORS.darkModeBackground
+                  : COLORS.lightModeBackground
+              }
+              isActive={
+                item.id?.toLowerCase() === currentCurrency?.toLowerCase()
+              }
+              containerSize={25}
+            />
             <ThemeText
               styles={{
                 color: theme
                   ? item.id?.toLowerCase() === currentCurrency?.toLowerCase()
                     ? darkModeType
-                      ? COLORS.opaicityGray
+                      ? COLORS.darkModeText
                       : COLORS.primary
                     : COLORS.darkModeText
                   : item.id?.toLowerCase() === currentCurrency?.toLowerCase()
                   ? COLORS.primary
                   : COLORS.lightModeText,
+                marginLeft: 10,
               }}
               content={`${item.id} - ${item.info.name}`}
             />
           </TouchableOpacity>
         );
       });
-  }, [textInput, currentCurrency, masterInfoObject]);
+  }, [textInput, currentCurrency, masterInfoObject, theme, darkModeType]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -336,7 +365,6 @@ const styles = StyleSheet.create({
   currencyContainer: {
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginRight: 'auto',
     marginLeft: 'auto',

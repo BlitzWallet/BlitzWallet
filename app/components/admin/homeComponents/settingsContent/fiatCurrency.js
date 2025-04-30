@@ -16,6 +16,7 @@ import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 
 export default function FiatCurrencyPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -59,17 +60,45 @@ export default function FiatCurrencyPage() {
         onPress={() => {
           saveCurrencySettings(currency.id);
         }}>
+        <CheckMarkCircle
+          color={
+            theme
+              ? darkModeType
+                ? COLORS.darkModeText
+                : COLORS.darkModeText
+              : COLORS.lightModeText
+          }
+          backgroundColor={
+            theme
+              ? darkModeType
+                ? COLORS.darkModeText
+                : COLORS.darkModeText
+              : COLORS.primary
+          }
+          checkColor={
+            theme
+              ? darkModeType
+                ? COLORS.lightsOutBackground
+                : COLORS.darkModeBackground
+              : COLORS.lightModeBackground
+          }
+          isActive={
+            currency.id?.toLowerCase() === currentCurrency?.toLowerCase()
+          }
+          containerSize={25}
+        />
         <ThemeText
           styles={{
             color: theme
               ? currency.id?.toLowerCase() === currentCurrency?.toLowerCase()
                 ? darkModeType
-                  ? COLORS.opaicityGray
+                  ? COLORS.darkModeText
                   : COLORS.primary
                 : COLORS.darkModeText
               : currency.id?.toLowerCase() === currentCurrency?.toLowerCase()
               ? COLORS.primary
               : COLORS.lightModeText,
+            marginLeft: 10,
           }}
           content={`${currency.id} - ${currency.info.name}`}
         />
@@ -153,7 +182,6 @@ const styles = StyleSheet.create({
   currencyContainer: {
     width: '85%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginRight: 'auto',
     marginLeft: 'auto',
