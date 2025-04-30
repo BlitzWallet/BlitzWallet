@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   FlatList,
   ScrollView,
+  Share,
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
@@ -62,7 +63,7 @@ export default function ExpandedContactsPage(props) {
 
   const contactTransactions = contactsMessags[selectedUUID]?.messages || []; //selectedContact?.transactions;
   useHandleBackPressNew();
-
+  console.log(selectedContact);
   useEffect(() => {
     //listening for messages when you're on the contact
     async function updateSeenTransactions() {
@@ -103,7 +104,22 @@ export default function ExpandedContactsPage(props) {
             lightsOutIcon={ICONS.arrow_small_left_white}
           />
         </TouchableOpacity>
-
+        {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
+          <TouchableOpacity
+            style={{marginRight: 5}}
+            onPress={() => {
+              Share.share({
+                title: 'Blitz Contact',
+                message: `https://blitz-wallet.com/u/${selectedContact?.uniqueName}`,
+              });
+            }}>
+            <ThemeImage
+              darkModeIcon={ICONS.share}
+              lightModeIcon={ICONS.share}
+              lightsOutIcon={ICONS.shareWhite}
+            />
+          </TouchableOpacity>
+        )}
         {selectedContact && (
           <TouchableOpacity
             style={{marginRight: 5}}
