@@ -119,6 +119,13 @@ const ADVANCEDOPTIONS = [
   },
   {
     for: 'general',
+    name: 'Accounts',
+    icon: ICONS.sharedBlue,
+    iconWhite: ICONS.sharedWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  {
+    for: 'general',
     name: 'Node Info',
     icon: ICONS.nodeIcon,
     iconWhite: ICONS.nodeIconWhite,
