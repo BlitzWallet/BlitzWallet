@@ -25,6 +25,7 @@ import FastPay from './fastPay';
 import ViewPOSTransactions from './posPath/transactions';
 import TotalTipsScreen from './posPath/totalTipsScreen';
 import CrashReportingSettingsPage from './crashReporting';
+import CreateCustodyAccounts from './accounts';
 
 export {
   AboutPage,
@@ -51,4 +52,5 @@ export {
   ViewPOSTransactions,
   TotalTipsScreen,
   CrashReportingSettingsPage,
+  CreateCustodyAccounts,
 };

@@ -38,6 +38,9 @@ import {
   TotalTipsScreen,
   ViewPOSTransactions,
 } from '../app/components/admin/homeComponents/settingsContent';
+import CreateCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/createAccountPage';
+import ViewCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewAccountPage';
+import ViewCustodyKey from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewCustodyKey';
 import EcashSettings from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/ecashSettings';
 import MigrateProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
 import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
@@ -120,6 +123,8 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'RestoreWallet', component: RestoreWallet},
   {name: 'EcashSettings', component: EcashSettings},
   {name: 'AddPOSItemsPage', component: AddPOSItemsPage},
+  {name: 'CreateCustodyAccount', component: CreateCustodyAccountPage},
+  {name: 'ViewCustodyAccount', component: ViewCustodyAccountPage},
 ];
 
 const FADE_SCREENS = [
@@ -147,6 +152,10 @@ const FADE_SCREENS = [
     name: 'HomeAdmin',
     component: AdminHomeIndex,
     options: {gestureEnabled: false},
+  },
+  {
+    name: 'ViewCustodyKey',
+    component: ViewCustodyKey,
   },
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
