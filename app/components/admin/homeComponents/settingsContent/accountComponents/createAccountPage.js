@@ -1,13 +1,20 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {CENTER, SIZES} from '../../../../../constants';
-import {KeyContainer} from '../../../../login';
+import {
+  Keyboard,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {CENTER, CONTENT_KEYBOARD_OFFSET, SIZES} from '../../../../../constants';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
 import {
@@ -15,12 +22,26 @@ import {
   retrieveData,
   storeData,
 } from '../../../../../functions';
-import {COLORS, FONT, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import {
+  COLORS,
+  FONT,
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../../../../constants/theme';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import {getImageFromLibrary} from '../../../../../functions/imagePickerWrapper';
 import ProfileImageContainer from '../../../../../functions/CustomElements/profileImageContianer';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
+import SuggestedWordContainer from '../../../../login/suggestedWords';
+import isValidMnemonic from '../../../../../functions/isValidMnemonic';
+const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
+const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
+  acc[`key${num}`] = '';
+  return acc;
+}, {});
 
 export default function CreateCustodyAccountPage(props) {
   const [accountInformation, setAccountInformation] = useState({
@@ -32,7 +53,7 @@ export default function CreateCustodyAccountPage(props) {
     imgURL: '',
   });
   const {accounts} = props.route.params;
-  const [isKeyboardActive, stIsKeyboardActive] = useState(false);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -43,11 +64,46 @@ export default function CreateCustodyAccountPage(props) {
       account.name.toLowerCase() === accountInformation.name.toLowerCase(),
   );
 
-  console.log(nameIsAlreadyUsed, 'IS UEDD NAME');
+  const insets = useSafeAreaInsets();
+  const bottomOffset = Platform.select({
+    ios: insets.bottom,
+    android: ANDROIDSAFEAREA,
+  });
+  const [currentFocused, setCurrentFocused] = useState(null);
+  const keyRefs = useRef({});
+  const [inputedKey, setInputedKey] = useState(INITIAL_KEY_STATE);
+  const enteredAllSeeds = Object.values(inputedKey).filter(item => item);
+
+  const handleInputElement = useCallback((text, keyNumber) => {
+    setInputedKey(prev => ({...prev, [`key${keyNumber}`]: text}));
+  }, []);
+
+  const handleFocus = useCallback(keyNumber => {
+    setCurrentFocused(keyNumber); // Update the current focused key
+    setIsKeyboardActive(true);
+  }, []);
+
+  const handleSubmit = useCallback(
+    keyNumber => {
+      if (keyNumber < 12) {
+        const nextKey = keyNumber + 1;
+        keyRefs.current[nextKey]?.focus(); // Focus the next input
+      } else {
+        keyRefs.current[12]?.blur(); // Blur the last input
+      }
+    },
+    [keyRefs],
+  );
+
   useEffect(() => {
     async function initalizeAccount() {
       const mnemoinc = await createAccountMnemonic(true);
-
+      const mnemoincArray = mnemoinc.split(' ');
+      const keyState = NUMARRAY.reduce((acc, num) => {
+        acc[`key${num}`] = mnemoincArray[num - 1];
+        return acc;
+      }, {});
+      setInputedKey(keyState);
       setAccountInformation(prev => ({
         ...prev,
         mnemoinc,
@@ -65,22 +121,41 @@ export default function CreateCustodyAccountPage(props) {
   //       isPasswordEnabled: !prev.isPasswordEnabled,
   //     }));
   //   };
+
   const regenerateSeed = async () => {
     const mnemoinc = await createAccountMnemonic(true);
+    const mnemoincArray = mnemoinc.split(' ');
+    const keyState = NUMARRAY.reduce((acc, num) => {
+      acc[`key${num}`] = mnemoincArray[num - 1];
+      return acc;
+    }, {});
+    setInputedKey(keyState);
     setAccountInformation(prev => ({
       ...prev,
       mnemoinc,
     }));
   };
+
   const createAccount = useCallback(async () => {
     try {
       if (!accountInformation.name) return;
       if (nameIsAlreadyUsed) return;
+      if (enteredAllSeeds.length !== 12) return;
+      const isValidSeed = isValidMnemonic(enteredAllSeeds);
+      if (!isValidSeed) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: 'Did not enter a valid seed',
+        });
+        return;
+      }
       setIsCreatingAccount(true);
       let savedAccountInformation =
         JSON.parse(await retrieveData('CustodyAccounts')) || [];
 
-      savedAccountInformation.push(accountInformation);
+      savedAccountInformation.push({
+        ...accountInformation,
+        mnemoinc: enteredAllSeeds.join(' '),
+      });
 
       console.log(savedAccountInformation);
       await storeData(
@@ -93,12 +168,105 @@ export default function CreateCustodyAccountPage(props) {
       console.log('Create custody account error', err);
       navigate.navigate('ErrorScreen', {errorMessage: err.message});
     }
-  }, [accountInformation]);
+  }, [accountInformation, enteredAllSeeds, nameIsAlreadyUsed]);
+
+  const seedItemBackgroundColor = useMemo(
+    () => (theme ? COLORS.darkModeBackgroundOffset : COLORS.darkModeText),
+    [theme],
+  );
+
+  const inputKeys = useMemo(() => {
+    const rows = [];
+
+    // Process input fields in pairs
+    for (let i = 0; i < NUMARRAY.length; i += 2) {
+      const item1 = NUMARRAY[i];
+      const item2 = NUMARRAY[i + 1];
+
+      rows.push(
+        <View
+          key={`row${item1}`}
+          style={[styles.seedRow, {marginBottom: item2 !== 12 ? 10 : 0}]}>
+          {/* First item in row */}
+          <View
+            style={[
+              styles.seedItem,
+              {backgroundColor: seedItemBackgroundColor},
+            ]}>
+            <ThemeText styles={styles.numberText} content={`${item1}.`} />
+            <TextInput
+              keyboardAppearance={theme ? 'dark' : 'light'}
+              ref={ref => (keyRefs.current[item1] = ref)}
+              value={inputedKey[`key${item1}`]}
+              onFocus={() => handleFocus(item1)}
+              onSubmitEditing={() => handleSubmit(item1)}
+              onChangeText={e => handleInputElement(e, item1)}
+              // blurOnSubmit={false}
+              submitBehavior="submit"
+              cursorColor={COLORS.lightModeText}
+              style={styles.textInputStyle}
+            />
+          </View>
+
+          {/* Second item in row */}
+          <View
+            style={[
+              styles.seedItem,
+              {backgroundColor: seedItemBackgroundColor},
+            ]}>
+            <ThemeText styles={styles.numberText} content={`${item2}.`} />
+            <TextInput
+              keyboardAppearance={theme ? 'dark' : 'light'}
+              ref={ref => (keyRefs.current[item2] = ref)}
+              value={inputedKey[`key${item2}`]}
+              onFocus={() => handleFocus(item2)}
+              onSubmitEditing={() => handleSubmit(item2)}
+              onChangeText={e => handleInputElement(e, item2)}
+              submitBehavior="submit"
+              cursorColor={COLORS.lightModeText}
+              style={styles.textInputStyle}
+            />
+          </View>
+        </View>,
+      );
+    }
+
+    return rows;
+  }, [
+    handleFocus,
+    handleSubmit,
+    handleInputElement,
+    theme,
+    inputedKey,
+    seedItemBackgroundColor,
+  ]);
+
+  useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setCurrentFocused(null);
+        setIsKeyboardActive(false);
+      },
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   return (
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
-      globalThemeViewStyles={{alignItems: 'center', position: 'relative'}}
+      globalThemeViewStyles={{
+        alignItems: 'center',
+        position: 'relative',
+        paddingBottom: isKeyboardActive
+          ? currentFocused
+            ? 0
+            : CONTENT_KEYBOARD_OFFSET
+          : bottomOffset,
+      }}
       isKeyboardActive={isKeyboardActive}
       useLocalPadding={true}
       useStandardWidth={true}>
@@ -183,8 +351,10 @@ export default function CreateCustodyAccountPage(props) {
                 : textColor,
           }}
           placeholderText={'Name...'}
-          onFocusFunction={() => stIsKeyboardActive(true)}
-          onBlurFunction={() => stIsKeyboardActive(false)}
+          onFocusFunction={() => {
+            setIsKeyboardActive(true);
+            setCurrentFocused(null);
+          }}
         />
         <ThemeText
           styles={{
@@ -195,35 +365,65 @@ export default function CreateCustodyAccountPage(props) {
           }}
           content={'Account Seed'}
         />
+        {inputKeys}
 
-        <KeyContainer keys={accountInformation.mnemoinc.split(' ')} />
-        <CustomButton
-          actionFunction={regenerateSeed}
-          textContent={'Regenerate'}
-        />
-        {/*
-        <TextInputWithSliderSettingsItem
-          sliderTitle="Enable Password"
-          settingInputTitle="Password"
-          settingDescription="Adding a password means your seed can only be viewed by entering that password, adding an extra layer of security."
-          defaultTextInputValue={accountInformation.password}
-          handleSubmit={handlePassword}
-          CustomToggleSwitchFunction={handleToggle}
-          switchStateValue={accountInformation.isPasswordEnabled}
-        /> */}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            marginTop: 10,
+            columnGap: 10,
+            rowGap: 10,
+          }}>
+          <CustomButton
+            buttonStyles={{
+              flex: 1,
+              minWidth: 150,
+              backgroundColor: theme ? backgroundOffset : COLORS.primary,
+            }}
+            textStyles={{color: COLORS.darkModeText}}
+            actionFunction={regenerateSeed}
+            textContent={'Regenerate'}
+          />
+          <CustomButton
+            actionFunction={() => setInputedKey(INITIAL_KEY_STATE)}
+            buttonStyles={{
+              flex: 1,
+              minWidth: 150,
+              backgroundColor: theme ? backgroundOffset : COLORS.primary,
+            }}
+            textStyles={{color: COLORS.darkModeText}}
+            textContent={'Restore'}
+          />
+        </View>
       </ScrollView>
 
       {!isKeyboardActive && (
         <CustomButton
           useLoading={isCreatingAccount}
           buttonStyles={{
+            minWidth: 150,
             ...CENTER,
-            opacity: !accountInformation.name || nameIsAlreadyUsed ? 0.5 : 1,
+            opacity:
+              !accountInformation.name ||
+              nameIsAlreadyUsed ||
+              enteredAllSeeds.length !== 12
+                ? 0.5
+                : 1,
             backgroundColor: theme ? backgroundOffset : COLORS.primary,
           }}
           textStyles={{color: COLORS.darkModeText}}
           textContent={'Create Account'}
           actionFunction={createAccount}
+        />
+      )}
+      {currentFocused && (
+        <SuggestedWordContainer
+          inputedKey={inputedKey}
+          setInputedKey={setInputedKey}
+          selectedKey={currentFocused}
+          keyRefs={keyRefs}
         />
       )}
     </CustomKeyboardAvoidingView>
@@ -281,5 +481,71 @@ const styles = StyleSheet.create({
   textInputContainer: {width: '100%'},
   textInputContainerDescriptionText: {
     marginBottom: 5,
+  },
+
+  keyContainer: {
+    flex: 1,
+    width: WINDOWWIDTH,
+    ...CENTER,
+  },
+  navContainer: {
+    marginRight: 'auto',
+  },
+  headerText: {
+    fontSize: SIZES.xLarge,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  contentContainer: {
+    flex: 1,
+    width: '90%',
+    ...CENTER,
+  },
+  pasteButton: {
+    width: 145,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    marginTop: 20,
+    marginBottom: 20,
+    ...CENTER,
+  },
+  pasteButtonRestore: {
+    width: 145,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    marginRight: 10,
+  },
+  seedRow: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  seedItem: {
+    width: '48%',
+    minHeight: 55,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  numberText: {
+    fontSize: SIZES.large,
+    includeFontPadding: false,
+    marginRight: 10,
+  },
+  textInputStyle: {
+    flex: 1,
+    minHeight: Platform.OS === 'ios' ? 0 : 55,
+    fontSize: SIZES.large,
+    fontFamily: FONT.Title_Regular,
+    includeFontPadding: false,
+    color: COLORS.lightModeText,
+  },
+
+  mainBTCContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    ...CENTER,
   },
 });
