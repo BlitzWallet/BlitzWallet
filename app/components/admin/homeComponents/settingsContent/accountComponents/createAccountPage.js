@@ -5,17 +5,20 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {generateMnemonic} from '@scure/bip39';
-import {wordlist} from '@scure/bip39/wordlists/english';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import TextInputWithSliderSettingsItem from '../../../../../functions/CustomElements/settings/textInputWIthSliderSettingsItem';
 import {ScrollView, View} from 'react-native';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {CENTER, ICONS, SIZES} from '../../../../../constants';
 import {KeyContainer} from '../../../../login';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
-import {retrieveData, storeData} from '../../../../../functions';
+import {
+  createAccountMnemonic,
+  retrieveData,
+  storeData,
+} from '../../../../../functions';
+import {COLORS, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import GetThemeColors from '../../../../../hooks/themeColors';
 
 export default function CreateCustodyAccountPage() {
   const [accountInformation, setAccountInformation] = useState({
@@ -28,33 +31,16 @@ export default function CreateCustodyAccountPage() {
   const [isKeyboardActive, stIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+  const {theme} = useGlobalThemeContext();
+  const {backgroundOffset} = GetThemeColors();
 
   useEffect(() => {
     async function initalizeAccount() {
-      let generatedMnemonic = generateMnemonic(wordlist);
-      const unuiqueKeys = new Set(generatedMnemonic.split(' '));
-
-      if (unuiqueKeys.size !== 12) {
-        let runCount = 0;
-        let didFindValidMnemoinc = false;
-        while (runCount < 50 && !didFindValidMnemoinc) {
-          console.log(`Running retry for account mnemoinc count: ${runCount}`);
-          runCount += 1;
-          const newTry = generateMnemonic(wordlist);
-          const uniqueItems = new Set(newTry.split(' '));
-          if (uniqueItems.size != 12) continue;
-          didFindValidMnemoinc = true;
-          generatedMnemonic = newTry;
-        }
-      }
-      const filtedMnemoinc = generatedMnemonic
-        .split(' ')
-        .filter(word => word.length > 2)
-        .join(' ');
+      const mnemoinc = await createAccountMnemonic(true);
 
       setAccountInformation(prev => ({
         ...prev,
-        mnemoinc: filtedMnemoinc,
+        mnemoinc,
         dateCreated: new Date().getTime(),
       }));
     }
@@ -69,6 +55,13 @@ export default function CreateCustodyAccountPage() {
   //       isPasswordEnabled: !prev.isPasswordEnabled,
   //     }));
   //   };
+  const regenerateSeed = async () => {
+    const mnemoinc = await createAccountMnemonic(true);
+    setAccountInformation(prev => ({
+      ...prev,
+      mnemoinc,
+    }));
+  };
   const createAccount = useCallback(async () => {
     try {
       if (!accountInformation.name) return;
@@ -102,7 +95,9 @@ export default function CreateCustodyAccountPage() {
         shouldDismissKeyboard={true}
         label={'Create Account'}
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={{width: INSET_WINDOW_WIDTH}}
+        showsVerticalScrollIndicator={false}>
         {/* <View
           style={{flexDirection: 'row', alignItems: 'center', marginBottom: 5}}>
           <ThemeText content={'Account Name'} />
@@ -143,6 +138,10 @@ export default function CreateCustodyAccountPage() {
         />
 
         <KeyContainer keys={accountInformation.mnemoinc.split(' ')} />
+        <CustomButton
+          actionFunction={regenerateSeed}
+          textContent={'Regenerate'}
+        />
         {/*
         <TextInputWithSliderSettingsItem
           sliderTitle="Enable Password"
@@ -161,7 +160,9 @@ export default function CreateCustodyAccountPage() {
           buttonStyles={{
             ...CENTER,
             opacity: !accountInformation.name ? 0.5 : 1,
+            backgroundColor: theme ? backgroundOffset : COLORS.primary,
           }}
+          textStyles={{color: COLORS.darkModeText}}
           textContent={'Create Account'}
           actionFunction={createAccount}
         />
