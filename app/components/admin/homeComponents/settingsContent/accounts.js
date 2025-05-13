@@ -83,7 +83,7 @@ export default function CreateCustodyAccounts() {
           <ThemeText
             styles={{textAlign: 'center'}}
             content={
-              'The Accounts section lets you create separate wallets within your main wallet. It’s perfect for saving bitcoin for someone else so you can send funds over time and hand them the keys when they’re ready.'
+              'The Accounts section lets you create separate wallets within Blitz. It’s perfect for saving bitcoin for someone else so you can send funds over time and hand them the keys when they’re ready.'
             }
           />
           <ThemeText styles={styles.sectionHeader} content={'Good To Know'} />
