@@ -31,7 +31,7 @@ export default function ViewCustodyAccountPage({route}) {
   return (
     <CustomKeyboardAvoidingView useStandardWidth={true}>
       <CustomSettingsTopBar
-        label={'Account'}
+        label={account.name}
         showLeftImage={true}
         leftImageBlue={ICONS.keyIcon}
         LeftImageDarkMode={ICONS.keyIconWhite}

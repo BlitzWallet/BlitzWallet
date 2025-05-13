@@ -4,7 +4,13 @@ import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {retrieveData, storeData} from '../../../../functions';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {COLORS, INSET_WINDOW_WIDTH, SIZES} from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {formatDateToDayMonthYear} from '../../../../functions/rotateAddressDateChecker';
@@ -13,7 +19,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
-  const {theme} = useGlobalThemeContext();
+  const {theme, darkModeType} = useGlobalThemeContext();
   const [accounts, setAccounts] = useState([]);
   const {backgroundOffset, backgroundColor} = GetThemeColors();
 
@@ -115,6 +121,34 @@ export default function CreateCustodyAccounts() {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             ...styles.accountRow,
           }}>
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              overflow: 'hidden',
+              marginRight: 10,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor,
+            }}>
+            <Image
+              source={
+                account.imgURL
+                  ? {
+                      uri: account.imgURL,
+                    }
+                  : darkModeType && theme
+                  ? ICONS.userWhite
+                  : ICONS.userIcon
+              }
+              style={
+                account.imgURL
+                  ? {width: '100%', aspectRatio: 1}
+                  : {width: '50%', height: '50%'}
+              }
+            />
+          </View>
           <View style={{flex: 1}}>
             <ThemeText
               CustomNumberOfLines={1}

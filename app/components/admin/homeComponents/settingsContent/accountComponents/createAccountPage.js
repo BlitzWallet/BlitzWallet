@@ -6,7 +6,13 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {ScrollView, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {CENTER, ICONS, SIZES} from '../../../../../constants';
 import {KeyContainer} from '../../../../login';
 import CustomButton from '../../../../../functions/CustomElements/button';
@@ -16,11 +22,12 @@ import {
   retrieveData,
   storeData,
 } from '../../../../../functions';
-import {COLORS, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import {COLORS, FONT, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../functions/CustomElements/Icon';
+import {getImageFromLibrary} from '../../../../../functions/imagePickerWrapper';
 
 export default function CreateCustodyAccountPage(props) {
   const [accountInformation, setAccountInformation] = useState({
@@ -29,6 +36,7 @@ export default function CreateCustodyAccountPage(props) {
     dateCreated: '',
     password: '',
     isPasswordEnabled: false,
+    imgURL: '',
   });
   const {accounts} = props.route.params;
   const [isKeyboardActive, stIsKeyboardActive] = useState(false);
@@ -107,7 +115,57 @@ export default function CreateCustodyAccountPage(props) {
       />
       <ScrollView
         style={{width: INSET_WINDOW_WIDTH}}
+        contentContainerStyle={{paddingBottom: 20}}
         showsVerticalScrollIndicator={false}>
+        <TouchableOpacity
+          style={{...CENTER}}
+          onPress={() => {
+            if (!accountInformation.imgURL) {
+              addProfilePicture();
+              return;
+            }
+            navigate.navigate('AddOrDeleteContactImage', {
+              addPhoto: addProfilePicture,
+              deletePhoto: () =>
+                setAccountInformation(prev => ({...prev, imgURL: ''})),
+              hasImage: true,
+            });
+          }}>
+          <View
+            style={[
+              styles.profileImage,
+              {
+                backgroundColor: backgroundOffset,
+              },
+            ]}>
+            <Image
+              source={
+                accountInformation.imgURL
+                  ? {
+                      uri: accountInformation.imgURL,
+                    }
+                  : darkModeType && theme
+                  ? ICONS.userWhite
+                  : ICONS.userIcon
+              }
+              style={
+                accountInformation.imgURL
+                  ? {width: '100%', aspectRatio: 1}
+                  : {width: '50%', height: '50%'}
+              }
+            />
+          </View>
+          <View style={styles.selectFromPhotos}>
+            <Image
+              source={
+                accountInformation.imgURL
+                  ? ICONS.xSmallIconBlack
+                  : ICONS.ImagesIconDark
+              }
+              style={{width: 20, height: 20}}
+            />
+          </View>
+        </TouchableOpacity>
         <View
           style={{
             flexDirection: 'row',
@@ -209,4 +267,58 @@ export default function CreateCustodyAccountPage(props) {
       )}
     </CustomKeyboardAvoidingView>
   );
+  async function addProfilePicture() {
+    const imagePickerResponse = await getImageFromLibrary();
+    const {didRun, error, imgURL} = imagePickerResponse;
+    if (!didRun) return;
+    if (error) {
+      navigate.navigate('ErrorScreen', {errorMessage: error});
+      return;
+    }
+    setAccountInformation(prev => ({...prev, imgURL: imgURL.uri}));
+  }
 }
+
+const styles = StyleSheet.create({
+  innerContainer: {
+    flex: 1,
+    width: '95%',
+    ...CENTER,
+  },
+  selectFromPhotos: {
+    width: 30,
+    height: 30,
+    borderRadius: 20,
+    backgroundColor: COLORS.darkModeText,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 12.5,
+    bottom: 12.5,
+    zIndex: 2,
+  },
+  profileImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 125,
+    backgroundColor: 'red',
+    ...CENTER,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+    overflow: 'hidden',
+  },
+
+  textInput: {
+    fontSize: SIZES.medium,
+    padding: 10,
+    fontFamily: FONT.Title_Regular,
+    includeFontPadding: false,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  textInputContainer: {width: '100%'},
+  textInputContainerDescriptionText: {
+    marginBottom: 5,
+  },
+});
