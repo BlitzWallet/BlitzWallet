@@ -7,15 +7,17 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useEffect, useState} from 'react';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
-import CustomButton from '../../../../../functions/CustomElements/button';
-import {ScrollView, TouchableOpacity, View} from 'react-native';
+import {ScrollView, View} from 'react-native';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import CustomSendAndRequsetBTN from '../../../../../functions/CustomElements/sendRequsetCircleBTN';
+import ProfileImageContainer from '../../../../../functions/CustomElements/profileImageContianer';
+import {getImageFromLibrary} from '../../../../../functions/imagePickerWrapper';
+import {storeData} from '../../../../../functions';
 
 export default function ViewCustodyAccountPage({route}) {
-  const account = route.params?.account;
+  const {account: savedAccount, accounts} = route.params;
   const navigate = useNavigation();
+  const [account, setAccount] = useState(savedAccount);
   const [custodyAccountInfo, setCustodyAccountInfo] = useState({
     didConnect: null,
     balance: 0,
@@ -28,6 +30,32 @@ export default function ViewCustodyAccountPage({route}) {
     // Load wallet here
   }, []);
 
+  const addPhoto = async () => {
+    const imagePickerResponse = await getImageFromLibrary();
+    const {didRun, error, imgURL} = imagePickerResponse;
+    if (!didRun) return;
+    if (error) {
+      navigate.navigate('ErrorScreen', {errorMessage: error});
+      return;
+    }
+    setAccount(prev => ({...prev, imgURL: imgURL.uri}));
+    const newAccounts = accounts.map(savedAccount => {
+      if (savedAccount.dateCreated === account.dateCreated) {
+        return {...savedAccount, imgURL: imgURL.uri};
+      } else return savedAccount;
+    });
+    await storeData('CustodyAccounts', JSON.stringify(newAccounts));
+  };
+  const deletePhoto = async () => {
+    setAccount(prev => ({...prev, imgURL: ''}));
+    const newAccounts = accounts.map(savedAccount => {
+      if (savedAccount.dateCreated === account.dateCreated) {
+        return {...savedAccount, imgURL: ''};
+      } else return savedAccount;
+    });
+    await storeData('CustodyAccounts', JSON.stringify(newAccounts));
+  };
+
   return (
     <CustomKeyboardAvoidingView useStandardWidth={true}>
       <CustomSettingsTopBar
@@ -39,11 +67,27 @@ export default function ViewCustodyAccountPage({route}) {
           navigate.navigate('ViewCustodyKey', {mnemoinc: account.mnemoinc})
         }
       />
+      <ProfileImageContainer
+        containerStyles={{...CENTER}}
+        activeOpacity={0.2}
+        imageURL={account.imgURL}
+        showSelectPhotoIcon={true}
+        containerFunction={() => {
+          if (!account.imgURL) {
+            addPhoto();
+            return;
+          }
+          navigate.navigate('AddOrDeleteContactImage', {
+            addPhoto: addPhoto,
+            deletePhoto: deletePhoto,
+            hasImage: account.imgURL,
+          });
+        }}
+      />
       <FormattedSatText
         styles={{
           fontSize: SIZES.xxLarge,
           includeFontPadding: false,
-          marginTop: 30,
         }}
         neverHideBalance={true}
         balance={custodyAccountInfo.balance}

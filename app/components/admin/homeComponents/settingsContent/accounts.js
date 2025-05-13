@@ -16,6 +16,7 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import {formatDateToDayMonthYear} from '../../../../functions/rotateAddressDateChecker';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import ProfileImageContainer from '../../../../functions/CustomElements/profileImageContianer';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
@@ -121,34 +122,19 @@ export default function CreateCustodyAccounts() {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             ...styles.accountRow,
           }}>
-          <View
-            style={{
+          <ProfileImageContainer
+            activeOpacity={1}
+            imageURL={account.imgURL}
+            showSelectPhotoIcon={false}
+            imageStyles={{
               width: 40,
               height: 40,
               borderRadius: 20,
-              overflow: 'hidden',
-              marginRight: 10,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor,
-            }}>
-            <Image
-              source={
-                account.imgURL
-                  ? {
-                      uri: account.imgURL,
-                    }
-                  : darkModeType && theme
-                  ? ICONS.userWhite
-                  : ICONS.userIcon
-              }
-              style={
-                account.imgURL
-                  ? {width: '100%', aspectRatio: 1}
-                  : {width: '50%', height: '50%'}
-              }
-            />
-          </View>
+              marginBottom: 0,
+              backgroundColor: backgroundColor,
+            }}
+            containerStyles={{marginRight: 10}}
+          />
           <View style={{flex: 1}}>
             <ThemeText
               CustomNumberOfLines={1}
@@ -162,12 +148,15 @@ export default function CreateCustodyAccounts() {
           </View>
           <CustomButton
             actionFunction={() =>
-              navigate.navigate('ViewCustodyAccount', {account})
+              navigate.navigate('ViewCustodyAccount', {account, accounts})
             }
             textContent={'View'}
             buttonStyles={{
               backgroundColor: backgroundColor,
               width: 'auto',
+            }}
+            textStyles={{
+              color: theme ? COLORS.darkModeText : COLORS.lightModeText,
             }}
           />
         </View>

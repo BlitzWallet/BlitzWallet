@@ -1,19 +1,12 @@
 import {useCallback, useEffect, useState} from 'react';
 import {
   CustomKeyboardAvoidingView,
-  GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {CENTER, ICONS, SIZES} from '../../../../../constants';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {CENTER, SIZES} from '../../../../../constants';
 import {KeyContainer} from '../../../../login';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
@@ -25,9 +18,9 @@ import {
 import {COLORS, FONT, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import {getImageFromLibrary} from '../../../../../functions/imagePickerWrapper';
+import ProfileImageContainer from '../../../../../functions/CustomElements/profileImageContianer';
 
 export default function CreateCustodyAccountPage(props) {
   const [accountInformation, setAccountInformation] = useState({
@@ -117,9 +110,8 @@ export default function CreateCustodyAccountPage(props) {
         style={{width: INSET_WINDOW_WIDTH}}
         contentContainerStyle={{paddingBottom: 20}}
         showsVerticalScrollIndicator={false}>
-        <TouchableOpacity
-          style={{...CENTER}}
-          onPress={() => {
+        <ProfileImageContainer
+          containerFunction={() => {
             if (!accountInformation.imgURL) {
               addProfilePicture();
               return;
@@ -130,42 +122,11 @@ export default function CreateCustodyAccountPage(props) {
                 setAccountInformation(prev => ({...prev, imgURL: ''})),
               hasImage: true,
             });
-          }}>
-          <View
-            style={[
-              styles.profileImage,
-              {
-                backgroundColor: backgroundOffset,
-              },
-            ]}>
-            <Image
-              source={
-                accountInformation.imgURL
-                  ? {
-                      uri: accountInformation.imgURL,
-                    }
-                  : darkModeType && theme
-                  ? ICONS.userWhite
-                  : ICONS.userIcon
-              }
-              style={
-                accountInformation.imgURL
-                  ? {width: '100%', aspectRatio: 1}
-                  : {width: '50%', height: '50%'}
-              }
-            />
-          </View>
-          <View style={styles.selectFromPhotos}>
-            <Image
-              source={
-                accountInformation.imgURL
-                  ? ICONS.xSmallIconBlack
-                  : ICONS.ImagesIconDark
-              }
-              style={{width: 20, height: 20}}
-            />
-          </View>
-        </TouchableOpacity>
+          }}
+          imageURL={accountInformation.imgURL}
+          showSelectPhotoIcon={true}
+          containerStyles={{...CENTER}}
+        />
         <View
           style={{
             flexDirection: 'row',
