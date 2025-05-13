@@ -81,7 +81,7 @@ export default function CreateCustodyAccounts() {
           <ThemeText
             styles={{textAlign: 'center'}}
             content={
-              'Blitz is a hot wallet, so keys are online and less secure than hardware storage. For large amounts, use a hardware wallet. If you create an account for someone else, you’ll still know the keys,make sure they know that.'
+              'Blitz is a hot wallet, so keys are online and less secure than hardware storage. For large amounts, use a hardware wallet. If you create an account for someone else, you’ll still know the keys, make sure they know that.'
             }
           />
           <CustomButton
@@ -97,6 +97,7 @@ export default function CreateCustodyAccounts() {
   const accountElements = accounts.map((account, index) => {
     return (
       <TouchableOpacity
+        activeOpacity={1}
         key={index}
         onLongPress={() => {
           navigate.navigate('ConfirmActionPage', {
@@ -146,10 +147,12 @@ export default function CreateCustodyAccounts() {
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         label={'Accounts'}
+        shouldDismissKeyboard={true}
         showLeftImage={true}
         leftImageBlue={ICONS.xSmallIcon}
         LeftImageDarkMode={ICONS.xSmallIconWhite}
         leftImageStyles={{transform: [{rotate: '45deg'}]}}
+        leftImageFunction={() => navigate.navigate('CreateCustodyAccount')}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         {accountElements}

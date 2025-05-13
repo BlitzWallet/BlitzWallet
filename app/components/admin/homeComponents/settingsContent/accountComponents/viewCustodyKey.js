@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: SIZES.large,
     marginBottom: 20,
+    marginTop: 15,
   },
   goBack: {flex: 1, height: '100%', width: '100%'},
 });

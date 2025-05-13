@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import {COLORS, ICONS, SIZES} from '../../../../../constants';
+import {CENTER, COLORS, ICONS, SIZES} from '../../../../../constants';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -68,6 +68,11 @@ export default function ViewCustodyAccountPage({route}) {
           containerBackgroundColor={COLORS.darkModeText}
           btnFunction={() => {
             // Handle send here
+            navigate.navigate('CustodyAccountPaymentPage', {
+              transferType: 'send',
+              account,
+              custodyAccountInfo,
+            });
           }}
         />
         <CustomSendAndRequsetBTN
@@ -82,6 +87,11 @@ export default function ViewCustodyAccountPage({route}) {
           containerBackgroundColor={COLORS.darkModeText}
           btnFunction={() => {
             // Handle receive here
+            navigate.navigate('CustodyAccountPaymentPage', {
+              transferType: 'receive',
+              account,
+              custodyAccountInfo,
+            });
           }}
         />
       </View>

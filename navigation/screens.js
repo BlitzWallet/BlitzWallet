@@ -38,6 +38,7 @@ import {
   TotalTipsScreen,
   ViewPOSTransactions,
 } from '../app/components/admin/homeComponents/settingsContent';
+import AccountPaymentPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/accountPaymentPage';
 import CreateCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/createAccountPage';
 import ViewCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewAccountPage';
 import ViewCustodyKey from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewCustodyKey';
@@ -125,6 +126,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'AddPOSItemsPage', component: AddPOSItemsPage},
   {name: 'CreateCustodyAccount', component: CreateCustodyAccountPage},
   {name: 'ViewCustodyAccount', component: ViewCustodyAccountPage},
+  {name: 'CustodyAccountPaymentPage', component: AccountPaymentPage},
 ];
 
 const FADE_SCREENS = [
