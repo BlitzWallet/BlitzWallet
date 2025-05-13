@@ -25,7 +25,7 @@ import {
   payLnInvoiceFromEcash,
 } from '../../../../../functions/eCash/wallet';
 import {breezLiquidPaymentWrapper} from '../../../../../functions/breezLiquid';
-import {CENTER, COLORS, SIZES} from '../../../../../constants';
+import {CENTER, COLORS, SATSPERBITCOIN, SIZES} from '../../../../../constants';
 import {useTranslation} from 'react-i18next';
 import useDebounce from '../../../../../hooks/useDebounce';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
