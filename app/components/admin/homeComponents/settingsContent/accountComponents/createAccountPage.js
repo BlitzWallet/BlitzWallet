@@ -6,7 +6,7 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {ScrollView, View} from 'react-native';
+import {ScrollView, TouchableOpacity, View} from 'react-native';
 import {CENTER, ICONS, SIZES} from '../../../../../constants';
 import {KeyContainer} from '../../../../login';
 import CustomButton from '../../../../../functions/CustomElements/button';
@@ -19,8 +19,10 @@ import {
 import {COLORS, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
+import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import Icon from '../../../../../functions/CustomElements/Icon';
 
-export default function CreateCustodyAccountPage() {
+export default function CreateCustodyAccountPage(props) {
   const [accountInformation, setAccountInformation] = useState({
     name: '',
     mnemoinc: '',
@@ -28,12 +30,19 @@ export default function CreateCustodyAccountPage() {
     password: '',
     isPasswordEnabled: false,
   });
+  const {accounts} = props.route.params;
   const [isKeyboardActive, stIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
-  const {theme} = useGlobalThemeContext();
-  const {backgroundOffset} = GetThemeColors();
+  const {theme, darkModeType} = useGlobalThemeContext();
+  const {backgroundOffset, textColor} = GetThemeColors();
+  console.log(accounts);
+  const nameIsAlreadyUsed = !!accounts.find(
+    account =>
+      account.name.toLowerCase() === accountInformation.name.toLowerCase(),
+  );
 
+  console.log(nameIsAlreadyUsed, 'IS UEDD NAME');
   useEffect(() => {
     async function initalizeAccount() {
       const mnemoinc = await createAccountMnemonic(true);
@@ -65,6 +74,7 @@ export default function CreateCustodyAccountPage() {
   const createAccount = useCallback(async () => {
     try {
       if (!accountInformation.name) return;
+      if (nameIsAlreadyUsed) return;
       setIsCreatingAccount(true);
       let savedAccountInformation =
         JSON.parse(await retrieveData('CustodyAccounts')) || [];
@@ -83,7 +93,7 @@ export default function CreateCustodyAccountPage() {
       navigate.navigate('ErrorScreen', {errorMessage: err.message});
     }
   }, [accountInformation]);
-  console.log(accountInformation);
+
   return (
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
@@ -98,30 +108,60 @@ export default function CreateCustodyAccountPage() {
       <ScrollView
         style={{width: INSET_WINDOW_WIDTH}}
         showsVerticalScrollIndicator={false}>
-        {/* <View
-          style={{flexDirection: 'row', alignItems: 'center', marginBottom: 5}}>
-          <ThemeText content={'Account Name'} />
-          <ThemeImage
-            styles={{width: 20, height: 20, marginLeft: 5}}
-            lightModeIcon={ICONS.aboutIcon}
-            darkModeIcon={ICONS.aboutIcon}
-            lightsOutIcon={ICONS.aboutIconWhite}
-          />
-        </View> */}
-        <ThemeText
-          styles={{
-            fontSize: SIZES.large,
-
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
             marginBottom: 10,
-          }}
-          content={'Account Name'}
-        />
+          }}>
+          <ThemeText
+            styles={{
+              fontSize: SIZES.large,
+              marginRight: 5,
+            }}
+            content={'Account Name'}
+          />
+          {nameIsAlreadyUsed && (
+            <TouchableOpacity
+              onPress={() => {
+                navigate.navigate('InformationPopup', {
+                  textContent:
+                    'This name is currently in use. Please use a differnt account name',
+                  buttonText: 'I understand',
+                });
+              }}>
+              <Icon
+                color={
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
+                }
+                name={'errorIcon'}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
         <CustomSearchInput
           inputText={accountInformation.name}
           setInputText={e => {
             setAccountInformation(prev => {
               return {...prev, name: e};
             });
+          }}
+          containerStyles={{
+            borderColor: nameIsAlreadyUsed
+              ? theme && darkModeType
+                ? COLORS.darkModeText
+                : COLORS.cancelRed
+              : 'transparent',
+            borderWidth: 1,
+            borderRadius: 8,
+          }}
+          textInputStyles={{
+            color:
+              theme && darkModeType
+                ? COLORS.darkModeText
+                : nameIsAlreadyUsed
+                ? COLORS.cancelRed
+                : textColor,
           }}
           placeholderText={'Name...'}
           onFocusFunction={() => stIsKeyboardActive(true)}
@@ -159,7 +199,7 @@ export default function CreateCustodyAccountPage() {
           useLoading={isCreatingAccount}
           buttonStyles={{
             ...CENTER,
-            opacity: !accountInformation.name ? 0.5 : 1,
+            opacity: !accountInformation.name || nameIsAlreadyUsed ? 0.5 : 1,
             backgroundColor: theme ? backgroundOffset : COLORS.primary,
           }}
           textStyles={{color: COLORS.darkModeText}}

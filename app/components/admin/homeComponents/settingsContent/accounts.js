@@ -45,7 +45,7 @@ export default function CreateCustodyAccounts() {
         await retrieveData('CustodyAccounts'),
       );
       let newAccounts = accountInformation.filter(accounts => {
-        accounts.mnemoinc !== account.mnemoinc;
+        return accounts.mnemoinc !== account.mnemoinc;
       });
       await storeData('CustodyAccounts', JSON.stringify(newAccounts));
       setAccounts(newAccounts);
@@ -64,7 +64,9 @@ export default function CreateCustodyAccounts() {
           leftImageBlue={ICONS.xSmallIcon}
           LeftImageDarkMode={ICONS.xSmallIconWhite}
           leftImageStyles={{transform: [{rotate: '45deg'}]}}
-          leftImageFunction={() => navigate.navigate('CreateCustodyAccount')}
+          leftImageFunction={() =>
+            navigate.navigate('CreateCustodyAccount', {accounts})
+          }
         />
         <ScrollView
           contentContainerStyle={{width: INSET_WINDOW_WIDTH, ...CENTER}}
@@ -86,7 +88,9 @@ export default function CreateCustodyAccounts() {
           />
           <CustomButton
             buttonStyles={{marginTop: 30, ...CENTER}}
-            actionFunction={() => navigate.navigate('CreateCustodyAccount')}
+            actionFunction={() =>
+              navigate.navigate('CreateCustodyAccount', {accounts})
+            }
             textContent={'Create Account'}
           />
         </ScrollView>
@@ -108,14 +112,8 @@ export default function CreateCustodyAccounts() {
         }}>
         <View
           style={{
-            width: INSET_WINDOW_WIDTH,
-            ...CENTER,
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            padding: 10,
-            borderRadius: 8,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            ...styles.accountRow,
           }}>
           <View style={{flex: 1}}>
             <ThemeText
@@ -152,7 +150,9 @@ export default function CreateCustodyAccounts() {
         leftImageBlue={ICONS.xSmallIcon}
         LeftImageDarkMode={ICONS.xSmallIconWhite}
         leftImageStyles={{transform: [{rotate: '45deg'}]}}
-        leftImageFunction={() => navigate.navigate('CreateCustodyAccount')}
+        leftImageFunction={() =>
+          navigate.navigate('CreateCustodyAccount', {accounts})
+        }
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         {accountElements}
@@ -167,5 +167,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
     marginTop: 30,
+  },
+  accountRow: {
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+    padding: 10,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 10,
   },
 });

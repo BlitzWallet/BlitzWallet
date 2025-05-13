@@ -30,6 +30,7 @@ import {useTranslation} from 'react-i18next';
 import useDebounce from '../../../../../hooks/useDebounce';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
+import calculateMaxAccountTransfer from './functions/calculateMaxSend';
 
 export default function AccountPaymentPage(props) {
   const navigate = useNavigation();
@@ -57,27 +58,30 @@ export default function AccountPaymentPage(props) {
             Number(sendingAmount),
         );
 
-  const maxBankTransfer = 0;
+  const sendingBalance =
+    transferType === 'send' ? custodyAccountInfo?.balance : 0; //replace 0 with sparkInformation context
 
-  const maxTransferAmountFromBalance = 0;
+  const maxBankTransfer = sendingBalance - paymentFee.fee;
 
-  const maxAmountCaluclation = 0;
+  const canDoTransfer = sendingBalance > maxBankTransfer;
 
-  const maxTransferAmount = 0;
-
-  const canDoTransfer = false;
-
-  const debouncedSearch = useDebounce(async term => {
+  const debouncedSearch = useDebounce(async () => {
     console.log('RUNNING');
     // Calculate spark payment fee here
 
-    setPaymentFee(prev => ({...prev, isCalculating: false}));
+    const feeResponse = await calculateMaxAccountTransfer(
+      convertedSendAmount,
+      masterInfoObject,
+      custodyAccountInfo?.sparkAddress,
+    );
+
+    setPaymentFee(prev => ({...prev, isCalculating: false, fee: feeResponse}));
   }, 500);
 
   const handleSearch = num => {
     setPaymentFee(prev => ({...prev, isCalculating: true}));
     setSendingAmount(num);
-    debouncedSearch(num);
+    debouncedSearch();
   };
 
   return (
