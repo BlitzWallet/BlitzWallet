@@ -17,52 +17,15 @@ import {formatDateToDayMonthYear} from '../../../../functions/rotateAddressDateC
 import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import ProfileImageContainer from '../../../../functions/CustomElements/profileImageContianer';
+import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const [accounts, setAccounts] = useState([]);
+  const {custodyAccounts, removeAccount} = useActiveCustodyAccount();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
 
-  useFocusEffect(
-    useCallback(() => {
-      async function loadAccounts() {
-        console.log('Loading Accouts');
-
-        try {
-          const accountInformation = JSON.parse(
-            await retrieveData('CustodyAccounts'),
-          );
-          console.log(accountInformation, 'testing');
-          if (!accountInformation) return;
-
-          setAccounts(accountInformation);
-        } catch (err) {
-          console.log(err);
-          navigate.navigate('ErrorScreen', {errorMessage: err.message});
-        }
-      }
-      loadAccounts();
-    }, []),
-  );
-
-  const removeAccount = async account => {
-    try {
-      let accountInformation = JSON.parse(
-        await retrieveData('CustodyAccounts'),
-      );
-      let newAccounts = accountInformation.filter(accounts => {
-        return accounts.mnemoinc !== account.mnemoinc;
-      });
-      await storeData('CustodyAccounts', JSON.stringify(newAccounts));
-      setAccounts(newAccounts);
-    } catch (err) {
-      console.log('Remove account error', err);
-      navigate.navigate('ErrorScreen', {errorMessage: err.message});
-    }
-  };
-
-  if (!accounts.length) {
+  if (!custodyAccounts.length) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <CustomSettingsTopBar
@@ -71,9 +34,7 @@ export default function CreateCustodyAccounts() {
           leftImageBlue={ICONS.xSmallIcon}
           LeftImageDarkMode={ICONS.xSmallIconWhite}
           leftImageStyles={{transform: [{rotate: '45deg'}]}}
-          leftImageFunction={() =>
-            navigate.navigate('CreateCustodyAccount', {accounts})
-          }
+          leftImageFunction={() => navigate.navigate('CreateCustodyAccount')}
         />
         <ScrollView
           contentContainerStyle={{width: INSET_WINDOW_WIDTH, ...CENTER}}
@@ -95,9 +56,7 @@ export default function CreateCustodyAccounts() {
           />
           <CustomButton
             buttonStyles={{marginTop: 30, ...CENTER}}
-            actionFunction={() =>
-              navigate.navigate('CreateCustodyAccount', {accounts})
-            }
+            actionFunction={() => navigate.navigate('CreateCustodyAccount')}
             textContent={'Create Account'}
           />
         </ScrollView>
@@ -105,7 +64,7 @@ export default function CreateCustodyAccounts() {
     );
   }
 
-  const accountElements = accounts.map((account, index) => {
+  const accountElements = custodyAccounts.map((account, index) => {
     return (
       <TouchableOpacity
         activeOpacity={1}
@@ -148,7 +107,9 @@ export default function CreateCustodyAccounts() {
           </View>
           <CustomButton
             actionFunction={() =>
-              navigate.navigate('ViewCustodyAccount', {account, accounts})
+              navigate.navigate('ViewCustodyAccount', {
+                account,
+              })
             }
             textContent={'View'}
             buttonStyles={{
@@ -173,9 +134,7 @@ export default function CreateCustodyAccounts() {
         leftImageBlue={ICONS.xSmallIcon}
         LeftImageDarkMode={ICONS.xSmallIconWhite}
         leftImageStyles={{transform: [{rotate: '45deg'}]}}
-        leftImageFunction={() =>
-          navigate.navigate('CreateCustodyAccount', {accounts})
-        }
+        leftImageFunction={() => navigate.navigate('CreateCustodyAccount')}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         {accountElements}

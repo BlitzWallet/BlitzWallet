@@ -12,12 +12,16 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import CustomSendAndRequsetBTN from '../../../../../functions/CustomElements/sendRequsetCircleBTN';
 import ProfileImageContainer from '../../../../../functions/CustomElements/profileImageContianer';
 import {getImageFromLibrary} from '../../../../../functions/imagePickerWrapper';
-import {storeData} from '../../../../../functions';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 
 export default function ViewCustodyAccountPage({route}) {
-  const {account: savedAccount, accounts} = route.params;
+  const {updateAccount, custodyAccounts} = useActiveCustodyAccount();
+  const {account: passedAccount} = route.params;
+  const account = custodyAccounts.find(
+    savedAccount => savedAccount.uuid === passedAccount.uuid,
+  );
+  console.log(account);
   const navigate = useNavigation();
-  const [account, setAccount] = useState(savedAccount);
   const [custodyAccountInfo, setCustodyAccountInfo] = useState({
     didConnect: null,
     balance: 0,
@@ -38,22 +42,10 @@ export default function ViewCustodyAccountPage({route}) {
       navigate.navigate('ErrorScreen', {errorMessage: error});
       return;
     }
-    setAccount(prev => ({...prev, imgURL: imgURL.uri}));
-    const newAccounts = accounts.map(savedAccount => {
-      if (savedAccount.dateCreated === account.dateCreated) {
-        return {...savedAccount, imgURL: imgURL.uri};
-      } else return savedAccount;
-    });
-    await storeData('CustodyAccounts', JSON.stringify(newAccounts));
+    await updateAccount({...account, imgURL: imgURL.uri});
   };
   const deletePhoto = async () => {
-    setAccount(prev => ({...prev, imgURL: ''}));
-    const newAccounts = accounts.map(savedAccount => {
-      if (savedAccount.dateCreated === account.dateCreated) {
-        return {...savedAccount, imgURL: ''};
-      } else return savedAccount;
-    });
-    await storeData('CustodyAccounts', JSON.stringify(newAccounts));
+    await updateAccount({...account, imgURL: ''});
   };
 
   return (

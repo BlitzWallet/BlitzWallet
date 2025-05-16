@@ -37,13 +37,15 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import SuggestedWordContainer from '../../../../login/suggestedWords';
 import isValidMnemonic from '../../../../../functions/isValidMnemonic';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import customUUID from '../../../../../functions/customUUID';
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   acc[`key${num}`] = '';
   return acc;
 }, {});
 
-export default function CreateCustodyAccountPage(props) {
+export default function CreateCustodyAccountPage() {
   const [accountInformation, setAccountInformation] = useState({
     name: '',
     mnemoinc: '',
@@ -51,8 +53,10 @@ export default function CreateCustodyAccountPage(props) {
     password: '',
     isPasswordEnabled: false,
     imgURL: '',
+    uuid: '',
+    isActive: false,
   });
-  const {accounts} = props.route.params;
+  const {custodyAccounts: accounts, createAccount} = useActiveCustodyAccount();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
@@ -106,6 +110,7 @@ export default function CreateCustodyAccountPage(props) {
       setInputedKey(keyState);
       setAccountInformation(prev => ({
         ...prev,
+        uuid: customUUID(),
         mnemoinc,
         dateCreated: new Date().getTime(),
       }));
@@ -136,7 +141,7 @@ export default function CreateCustodyAccountPage(props) {
     }));
   };
 
-  const createAccount = useCallback(async () => {
+  const handleCreateAccount = async () => {
     try {
       if (!accountInformation.name) return;
       if (nameIsAlreadyUsed) return;
@@ -149,26 +154,19 @@ export default function CreateCustodyAccountPage(props) {
         return;
       }
       setIsCreatingAccount(true);
-      let savedAccountInformation =
-        JSON.parse(await retrieveData('CustodyAccounts')) || [];
-
-      savedAccountInformation.push({
+      const response = await createAccount({
         ...accountInformation,
         mnemoinc: enteredAllSeeds.join(' '),
       });
+      if (!response.didWork) throw new Error(response.err);
 
-      console.log(savedAccountInformation);
-      await storeData(
-        'CustodyAccounts',
-        JSON.stringify(savedAccountInformation),
-      );
       setIsCreatingAccount(false);
       navigate.goBack();
     } catch (err) {
       console.log('Create custody account error', err);
       navigate.navigate('ErrorScreen', {errorMessage: err.message});
     }
-  }, [accountInformation, enteredAllSeeds, nameIsAlreadyUsed]);
+  };
 
   const seedItemBackgroundColor = useMemo(
     () => (theme ? COLORS.darkModeBackgroundOffset : COLORS.darkModeText),
@@ -415,7 +413,7 @@ export default function CreateCustodyAccountPage(props) {
           }}
           textStyles={{color: COLORS.darkModeText}}
           textContent={'Create Account'}
-          actionFunction={createAccount}
+          actionFunction={handleCreateAccount}
         />
       )}
       {currentFocused && (
