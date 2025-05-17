@@ -20,6 +20,7 @@ export default function CustomSettingsTopBar({
   leftImageFunction,
   leftImageBlue,
   LeftImageDarkMode,
+  leftImageStyles = {},
   customBackFunction,
 }) {
   const navigate = useNavigation();
@@ -60,6 +61,7 @@ export default function CustomSettingsTopBar({
           style={{position: 'absolute', top: 0, right: 0, zIndex: 1}}
           onPress={leftImageFunction}>
           <ThemeImage
+            styles={{...leftImageStyles}}
             lightsOutIcon={LeftImageDarkMode}
             darkModeIcon={leftImageBlue}
             lightModeIcon={leftImageBlue}

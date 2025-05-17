@@ -19,6 +19,7 @@ import {
   ViewAllLiquidSwaps,
   WalletInformation,
   CrashReportingSettingsPage,
+  CreateCustodyAccounts,
 } from '../../components/admin/homeComponents/settingsContent';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView} from '../../functions/CustomElements';
@@ -63,7 +64,8 @@ export default function SettingsContentIndex(props) {
       selectedPage?.toLowerCase() === 'bank' ||
       selectedPage?.toLowerCase() === 'point-of-sale' ||
       selectedPage?.toLowerCase() === 'edit contact profile' ||
-      selectedPage?.toLowerCase() === 'channel closure' ? (
+      selectedPage?.toLowerCase() === 'channel closure' ||
+      selectedPage?.toLowerCase() === 'accounts' ? (
         <>
           {selectedPage?.toLowerCase() === 'display currency' && (
             <FiatCurrencyPage theme={theme} />
@@ -82,6 +84,9 @@ export default function SettingsContentIndex(props) {
           )}
           {selectedPage?.toLowerCase() === 'channel closure' && (
             <SendOnChainBitcoin isDoomsday={isDoomsday} theme={theme} />
+          )}
+          {selectedPage?.toLowerCase() === 'accounts' && (
+            <CreateCustodyAccounts />
           )}
         </>
       ) : (

@@ -3,7 +3,7 @@ import {generateMnemonic} from '@scure/bip39';
 import {wordlist} from '@scure/bip39/wordlists/english';
 import {crashlyticsLogReport} from './crashlyticsLogs';
 
-export default async function createAccountMnemonic() {
+export default async function createAccountMnemonic(returnOnly = false) {
   try {
     crashlyticsLogReport('Starting generting account mnemoinc');
     let generatedMnemonic = generateMnemonic(wordlist);
@@ -27,7 +27,9 @@ export default async function createAccountMnemonic() {
       .split(' ')
       .filter(word => word.length > 2)
       .join(' ');
-    await storeData('mnemonic', generatedMnemonic);
+    if (!returnOnly) {
+      await storeData('mnemonic', generatedMnemonic);
+    }
     return filtedMnemoinc;
   } catch (err) {
     console.log('generate mnemoinc error:', err);

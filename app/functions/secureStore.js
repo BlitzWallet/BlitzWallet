@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import {removeAllLocalData} from './localStorage';
 import {crashlyticsLogReport} from './crashlyticsLogs';
+import {CUSTODY_ACCOUNTS_STORAGE_KEY} from '../constants';
 const keychainService = '38WX44YTA6.com.blitzwallet.SharedKeychain';
 
 const KEYCHAIN_OPTION = {
@@ -68,6 +69,10 @@ async function terminateAccount() {
     await SecureStore.deleteItemAsync('key', KEYCHAIN_OPTION);
     await SecureStore.deleteItemAsync('pin', KEYCHAIN_OPTION);
     await SecureStore.deleteItemAsync('mnemonic', KEYCHAIN_OPTION);
+    await SecureStore.deleteItemAsync(
+      CUSTODY_ACCOUNTS_STORAGE_KEY,
+      KEYCHAIN_OPTION,
+    );
 
     const didRemove = await removeAllLocalData();
     if (!didRemove) throw Error('not able to remove local storage data');
