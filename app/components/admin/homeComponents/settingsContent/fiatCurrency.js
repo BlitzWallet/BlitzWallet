@@ -6,6 +6,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {
   CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
@@ -106,6 +107,18 @@ export default function FiatCurrencyPage() {
     );
   };
 
+  if (isLoading) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar
+          shouldDismissKeyboard={true}
+          label={'Display Currency'}
+        />
+        <FullLoadingScreen />
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
@@ -115,34 +128,33 @@ export default function FiatCurrencyPage() {
         label={'Display Currency'}
       />
 
-      <CustomSearchInput
-        setInputText={setTextInput}
-        inputText={textInput}
-        placeholderText={'Search currency'}
-        containerStyles={{width: INSET_WINDOW_WIDTH, marginTop: 20}}
-        onBlurFunction={() => setIsKeyboardActive(false)}
-        onFocusFunction={() => setIsKeyboardActive(true)}
+      <FlatList
+        style={{width: '100%'}}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingTop: 20,
+          paddingBottom: isKeyboardActive
+            ? CONTENT_KEYBOARD_OFFSET
+            : paddingBottom,
+        }}
+        stickyHeaderIndices={[0]}
+        ListHeaderComponent={
+          <CustomSearchInput
+            setInputText={setTextInput}
+            inputText={textInput}
+            placeholderText={'Search currency'}
+            containerStyles={{width: INSET_WINDOW_WIDTH}}
+            onBlurFunction={() => setIsKeyboardActive(false)}
+            onFocusFunction={() => setIsKeyboardActive(true)}
+          />
+        }
+        data={filteredList}
+        renderItem={({item, index}) => (
+          <CurrencyElements id={index} currency={item} />
+        )}
+        keyExtractor={currency => currency.id}
+        showsVerticalScrollIndicator={false}
       />
-
-      {isLoading ? (
-        <FullLoadingScreen />
-      ) : (
-        <FlatList
-          style={{width: '100%'}}
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingBottom: isKeyboardActive
-              ? CONTENT_KEYBOARD_OFFSET
-              : paddingBottom,
-          }}
-          data={filteredList}
-          renderItem={({item, index}) => (
-            <CurrencyElements id={index} currency={item} />
-          )}
-          keyExtractor={currency => currency.id}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
     </CustomKeyboardAvoidingView>
   );
 

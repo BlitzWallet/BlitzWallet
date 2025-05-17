@@ -164,7 +164,11 @@ export default function ContactsPage({navigation}) {
       {decodedAddedContacts.filter(
         contact => !hideUnknownContacts || contact.isAdded,
       ).length !== 0 && myProfile.didEditProfile ? (
-        <View style={{flex: 1}}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{paddingTop: 10, paddingBottom: 10}}
+          style={{flex: 1, overflow: 'hidden'}}
+          stickyHeaderIndices={[pinnedContacts.length ? 1 : 0]}>
           {pinnedContacts.length != 0 && (
             <View style={{height: 130}}>
               <ScrollView
@@ -180,15 +184,8 @@ export default function ContactsPage({navigation}) {
             inputText={inputText}
             setInputText={setInputText}
           />
-          <View style={{flex: 1}}>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{paddingTop: 10, paddingBottom: 10}}
-              style={{flex: 1, overflow: 'hidden'}}>
-              {contactElements}
-            </ScrollView>
-          </View>
-        </View>
+          {contactElements}
+        </ScrollView>
       ) : (
         <View style={styles.noContactsContainer}>
           <Icon
