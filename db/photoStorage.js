@@ -1,9 +1,9 @@
-import storage from '@react-native-firebase/storage';
-import {BLITZ_PROFILE_IMG_STORAGE_REF} from '../constants';
+import {getStorage} from '@react-native-firebase/storage';
+import {BLITZ_PROFILE_IMG_STORAGE_REF} from '../app/constants';
 
 export async function getImageURLFromDatabase(publicKey) {
   try {
-    const reference = storage().ref(
+    const reference = getStorage().ref(
       `${BLITZ_PROFILE_IMG_STORAGE_REF}/${publicKey}.jpg`,
     );
     const imageUrl = await reference.getDownloadURL();
@@ -15,14 +15,30 @@ export async function getImageURLFromDatabase(publicKey) {
 
 export async function setDatabaseIMG(publicKey, imgURL) {
   try {
-    const reference = storage().ref(
+    const reference = getStorage().ref(
       `${BLITZ_PROFILE_IMG_STORAGE_REF}/${publicKey}.jpg`,
     );
-    await reference.putFile(imgURL.uri);
-    const imageUrl = await reference.getDownloadURL();
 
-    return imageUrl;
+    await reference.putFile(imgURL.uri);
+
+    return true;
   } catch (err) {
+    console.log('set database image error', err);
+    return false;
+  }
+}
+export async function deleteDatabaseImage(publicKey) {
+  try {
+    const reference = getStorage().ref(
+      `${BLITZ_PROFILE_IMG_STORAGE_REF}/${publicKey}.jpg`,
+    );
+    await reference.delete();
+    return true;
+  } catch (err) {
+    console.log('delete profime imgage error', err);
+    if (err.message.includes('No object exists at the desired reference')) {
+      return true;
+    }
     return false;
   }
 }

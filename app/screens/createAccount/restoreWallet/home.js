@@ -202,6 +202,9 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
             ]}>
             <ThemeText styles={styles.numberText} content={`${item1}.`} />
             <TextInput
+              autoCorrect={false}
+              autoComplete="off"
+              autoCapitalize="none"
               keyboardAppearance={theme ? 'dark' : 'light'}
               ref={ref => (keyRefs.current[item1] = ref)}
               value={inputedKey[`key${item1}`]}

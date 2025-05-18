@@ -43,7 +43,13 @@ import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import {useTranslation} from 'react-i18next';
+import * as ImageManipulator from 'expo-image-manipulator';
 import ContactProfileImage from './internalComponents/profileImage';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import {
+  deleteDatabaseImage,
+  setDatabaseIMG,
+} from '../../../../../db/photoStorage';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -138,6 +144,7 @@ function InnerContent({
     myProfileImage,
   } = useGlobalContacts();
   const {t} = useTranslation();
+  const [isAddingImage, setIsAddingImage] = useState(false);
 
   const nameRef = useRef(null);
   const uniquenameRef = useRef(null);
@@ -243,16 +250,20 @@ function InnerContent({
                 backgroundColor: backgroundOffset,
               },
             ]}>
-            <ContactProfileImage
-              uri={
-                isEditingMyProfile
-                  ? myProfileImage
-                  : selectedAddedContact?.profileImage
-              }
-              darkModeType={darkModeType}
-              theme={theme}
-              setHasImage={setHasImage}
-            />
+            {isAddingImage ? (
+              <FullLoadingScreen showText={false} />
+            ) : (
+              <ContactProfileImage
+                uri={
+                  isEditingMyProfile
+                    ? myProfileImage
+                    : selectedAddedContact?.profileImage
+                }
+                darkModeType={darkModeType}
+                theme={theme}
+                setHasImage={setHasImage}
+              />
+            )}
           </View>
           <View style={styles.selectFromPhotos}>
             <Image
@@ -652,6 +663,8 @@ function InnerContent({
     }
 
     if (isEditingMyProfile) {
+      const response = await uploadProfileImage({imgURL: imgURL});
+      if (!response) return;
       setMyProfileImage(imgURL.uri);
       setLocalStorageItem('myProfileImage', imgURL.uri);
       return;
@@ -691,9 +704,64 @@ function InnerContent({
       true,
     );
   }
+  async function uploadProfileImage({imgURL, removeImage}) {
+    try {
+      setIsAddingImage(true);
+
+      if (!removeImage) {
+        const imageInfo = await ImageManipulator.manipulateAsync(
+          imgURL.uri,
+          [],
+          {
+            base64: false,
+          },
+        );
+
+        const originalWidth = imageInfo.width;
+        const originalHeight = imageInfo.height;
+
+        // Determine square crop area based on center
+        const size = Math.min(originalWidth, originalHeight); // 1:1 aspect ratio
+        const cropRegion = {
+          originX: (originalWidth - size) / 2,
+          originY: (originalHeight - size) / 2,
+          width: size,
+          height: size,
+        };
+
+        const resized = await ImageManipulator.manipulateAsync(
+          imgURL.uri,
+          [{crop: cropRegion}, {resize: {width: 100, height: 100}}],
+          {
+            compress: 0.1,
+            format: ImageManipulator.SaveFormat.JPEG,
+          },
+        );
+        const response = await setDatabaseIMG(
+          globalContactsInformation.myProfile.uuid,
+          resized,
+        );
+        console.log(response, globalContactsInformation.myProfile.uuid);
+        return response;
+      } else {
+        await deleteDatabaseImage(globalContactsInformation.myProfile.uuid);
+        return true;
+      }
+    } catch (err) {
+      console.log(err);
+
+      navigate.navigate('ErrorScreen', {errorMessage: err.message});
+      return false;
+    } finally {
+      setIsAddingImage(false);
+    }
+  }
   async function deleteProfilePicture() {
     try {
       if (isEditingMyProfile) {
+        const response = await uploadProfileImage({removeImage: true});
+        console.log(response);
+        if (!response) return;
         setMyProfileImage('');
         removeLocalStorageItem('myProfileImage');
         return;
