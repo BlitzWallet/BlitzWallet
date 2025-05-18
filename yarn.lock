@@ -3610,6 +3610,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-firebase/storage@npm:21.13.0":
+  version: 21.13.0
+  resolution: "@react-native-firebase/storage@npm:21.13.0"
+  peerDependencies:
+    "@react-native-firebase/app": 21.13.0
+  checksum: a54b8e267e7e95ba6b746d320dc29ea9175049470e13eaa2804807fce3810dac989e5123bb70889a2b0b765c6ed0046af6ff8b8db5da9628f539ea064499c917
+  languageName: node
+  linkType: hard
+
 "@react-native/assets-registry@npm:0.77.2":
   version: 0.77.2
   resolution: "@react-native/assets-registry@npm:0.77.2"
@@ -4683,6 +4692,7 @@ __metadata:
     "@react-native-firebase/firestore": ^21.13.0
     "@react-native-firebase/functions": ^21.13.0
     "@react-native-firebase/messaging": ^21.13.0
+    "@react-native-firebase/storage": 21.13.0
     "@react-native/babel-preset": 0.77.2
     "@react-native/eslint-config": 0.77.2
     "@react-native/metro-config": 0.77.2
@@ -4709,6 +4719,7 @@ __metadata:
     expo-clipboard: ~7.0.1
     expo-crypto: ~14.0.2
     expo-file-system: ~18.0.12
+    expo-image-manipulator: ~13.0.6
     expo-local-authentication: ~15.0.2
     expo-network: ~7.0.5
     expo-notifications: ~0.29.14
@@ -7826,6 +7837,26 @@ __metadata:
     expo: "*"
     react: "*"
   checksum: 36fa98d333c97a9a309f0ffa45827616167162caaaca6873f04d6e3d658c669da9e894fadd582b9bcc569f3b5b2043553ca204e4333d7496ad2e5843f0373b09
+  languageName: node
+  linkType: hard
+
+"expo-image-loader@npm:~5.0.0":
+  version: 5.0.0
+  resolution: "expo-image-loader@npm:5.0.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 7741b4b926124a1f85e51b0b8c8c9adc37fccf0654eaa0e715cb55cffc716bdc149c0421120f9bec69a69643d3328ec8562899b4aa37a0fdcecfb6fe3cf6f985
+  languageName: node
+  linkType: hard
+
+"expo-image-manipulator@npm:~13.0.6":
+  version: 13.0.6
+  resolution: "expo-image-manipulator@npm:13.0.6"
+  dependencies:
+    expo-image-loader: ~5.0.0
+  peerDependencies:
+    expo: "*"
+  checksum: 5e2c9e0e7f1a57f5aa24429854956db97d38b83e90fba6d6f3c4801dec087222f4845332a3e974bdef93acf6b378a8dff45fd7ba9b47fcbc5291e368a1712742
   languageName: node
   linkType: hard
 
