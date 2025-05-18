@@ -21,6 +21,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import MaxHeap from '../../../../functions/minHeap';
+import ContactProfileImage from './internalComponents/profileImage';
 
 export default function MyContactProfilePage({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -151,21 +152,10 @@ export default function MyContactProfilePage({navigation}) {
                   backgroundColor: backgroundOffset,
                 },
               ]}>
-              <Image
-                source={
-                  myProfileImage
-                    ? {
-                        uri: myProfileImage,
-                      }
-                    : darkModeType && theme
-                    ? ICONS.userWhite
-                    : ICONS.userIcon
-                }
-                style={
-                  myProfileImage
-                    ? {width: '100%', aspectRatio: 1}
-                    : {width: '50%', height: '50%'}
-                }
+              <ContactProfileImage
+                uri={myProfileImage}
+                darkModeType={darkModeType}
+                theme={theme}
               />
             </View>
             <View style={styles.scanProfileImage}>

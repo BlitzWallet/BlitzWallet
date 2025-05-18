@@ -30,6 +30,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {ANDROIDSAFEAREA, KEYBOARDTIMEOUT} from '../../../../constants/styles';
 import {keyboardNavigate} from '../../../../functions/customNavigation';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import ContactProfileImage from './internalComponents/profileImage';
 
 export default function ContactsPage({navigation}) {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -45,7 +46,7 @@ export default function ContactsPage({navigation}) {
   const hideUnknownContacts = masterInfoObject.hideUnknownContacts;
   const tabsNavigate = navigation.navigate;
   const navigate = useNavigation();
-  const {backgroundOffset} = GetThemeColors();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
   const myProfile = globalContactsInformation.myProfile;
   const didEditProfile = globalContactsInformation.myProfile.didEditProfile;
 
@@ -143,19 +144,10 @@ export default function ContactsPage({navigation}) {
                 ...styles.profileImageContainer,
                 backgroundColor: backgroundOffset,
               }}>
-              <Image
-                source={
-                  myProfileImage
-                    ? {uri: myProfileImage}
-                    : darkModeType && theme
-                    ? ICONS.userWhite
-                    : ICONS.userIcon
-                }
-                style={
-                  myProfileImage
-                    ? {width: '100%', aspectRatio: 1}
-                    : {width: '50%', height: '50%'}
-                }
+              <ContactProfileImage
+                uri={myProfileImage}
+                darkModeType={darkModeType}
+                theme={theme}
               />
             </View>
           </TouchableOpacity>
@@ -183,6 +175,7 @@ export default function ContactsPage({navigation}) {
             placeholderText={'Search added contacts'}
             inputText={inputText}
             setInputText={setInputText}
+            containerStyles={{width: '100%', backgroundColor}}
           />
           {contactElements}
         </ScrollView>
@@ -288,19 +281,10 @@ function PinnedContactElement(props) {
               position: 'relative',
             },
           ]}>
-          <Image
-            source={
-              contact.profileImage
-                ? {uri: contact.profileImage}
-                : darkModeType && theme
-                ? ICONS.userWhite
-                : ICONS.userIcon
-            }
-            style={
-              contact.profileImage
-                ? {width: '100%', aspectRatio: 1}
-                : {width: '50%', height: '50%'}
-            }
+          <ContactProfileImage
+            uri={contact.profileImage}
+            darkModeType={darkModeType}
+            theme={theme}
           />
         </View>
 
@@ -393,19 +377,10 @@ export function ContactElement(props) {
                 position: 'relative',
               },
             ]}>
-            <Image
-              source={
-                contact.profileImage
-                  ? {uri: contact.profileImage}
-                  : darkModeType && theme
-                  ? ICONS.userWhite
-                  : ICONS.userIcon
-              }
-              style={
-                contact.profileImage
-                  ? {width: '100%', aspectRatio: 1}
-                  : {width: '50%', height: '50%'}
-              }
+            <ContactProfileImage
+              uri={contact.profileImage}
+              darkModeType={darkModeType}
+              theme={theme}
             />
           </View>
           <View

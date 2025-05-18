@@ -43,6 +43,7 @@ import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import {useTranslation} from 'react-i18next';
+import ContactProfileImage from './internalComponents/profileImage';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -162,6 +163,7 @@ function InnerContent({
     uniquename: '',
     receiveAddress: '',
   });
+  const [hasImage, setHasImage] = useState(false);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const paddingBottom = Platform.select({
     ios: insets.bottom,
@@ -224,19 +226,14 @@ function InnerContent({
         }}>
         <TouchableOpacity
           onPress={() => {
-            if (
-              (!selectedAddedContact?.profileImage && !isEditingMyProfile) ||
-              (!myProfileImage && isEditingMyProfile)
-            ) {
+            if (!hasImage) {
               addProfilePicture();
               return;
             }
             navigate.navigate('AddOrDeleteContactImage', {
               addPhoto: addProfilePicture,
               deletePhoto: deleteProfilePicture,
-              hasImage:
-                (selectedAddedContact?.profileImage && !isEditingMyProfile) ||
-                (myProfileImage && isEditingMyProfile),
+              hasImage: hasImage,
             });
           }}>
           <View
@@ -246,35 +243,20 @@ function InnerContent({
                 backgroundColor: backgroundOffset,
               },
             ]}>
-            <Image
-              source={
-                (selectedAddedContact?.profileImage && !isEditingMyProfile) ||
-                (myProfileImage && isEditingMyProfile)
-                  ? {
-                      uri: isEditingMyProfile
-                        ? myProfileImage
-                        : selectedAddedContact?.profileImage,
-                    }
-                  : darkModeType && theme
-                  ? ICONS.userWhite
-                  : ICONS.userIcon
+            <ContactProfileImage
+              uri={
+                isEditingMyProfile
+                  ? myProfileImage
+                  : selectedAddedContact?.profileImage
               }
-              style={
-                (selectedAddedContact?.profileImage && !isEditingMyProfile) ||
-                (myProfileImage && isEditingMyProfile)
-                  ? {width: '100%', aspectRatio: 1}
-                  : {width: '50%', height: '50%'}
-              }
+              darkModeType={darkModeType}
+              theme={theme}
+              setHasImage={setHasImage}
             />
           </View>
           <View style={styles.selectFromPhotos}>
             <Image
-              source={
-                (selectedAddedContact?.profileImage && !isEditingMyProfile) ||
-                (myProfileImage && isEditingMyProfile)
-                  ? ICONS.xSmallIconBlack
-                  : ICONS.ImagesIconDark
-              }
+              source={hasImage ? ICONS.xSmallIconBlack : ICONS.ImagesIconDark}
               style={{width: 20, height: 20}}
             />
           </View>

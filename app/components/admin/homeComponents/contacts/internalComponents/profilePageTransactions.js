@@ -7,6 +7,7 @@ import {useGlobalContacts} from '../../../../../../context-store/globalContacts'
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import ContactProfileImage from './profileImage';
 
 export default function ProfilePageTransactions({transaction, currentTime}) {
   const profileInfo = transaction;
@@ -55,21 +56,10 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
               ...styles.selectImage,
               backgroundColor: backgroundOffset,
             }}>
-            <Image
-              source={
-                profileInfo.selectedProfileImage
-                  ? {
-                      uri: profileInfo.selectedProfileImage,
-                    }
-                  : darkModeType && theme
-                  ? ICONS.userWhite
-                  : ICONS.userIcon
-              }
-              style={
-                profileInfo.selectedProfileImage
-                  ? {width: '100%', aspectRatio: 1}
-                  : {width: '60%', height: '60%'}
-              }
+            <ContactProfileImage
+              uri={profileInfo.selectedProfileImage}
+              darkModeType={darkModeType}
+              theme={theme}
             />
           </View>
 
@@ -166,21 +156,10 @@ function ConfirmedOrSentTransaction({
                   bottom: 0,
                   left: 0,
                 }}>
-                <Image
-                  source={
-                    myProfileImage
-                      ? {
-                          uri: myProfileImage,
-                        }
-                      : darkModeType && theme
-                      ? ICONS.userWhite
-                      : ICONS.userIcon
-                  }
-                  style={
-                    myProfileImage
-                      ? {width: '100%', aspectRatio: 1}
-                      : {width: '60%', height: '60%'}
-                  }
+                <ContactProfileImage
+                  uri={myProfileImage}
+                  darkModeType={darkModeType}
+                  theme={theme}
                 />
               </View>
               <View
@@ -191,21 +170,10 @@ function ConfirmedOrSentTransaction({
                   top: 0,
                   right: 0,
                 }}>
-                <Image
-                  source={
-                    profileInfo.selectedProfileImage
-                      ? {
-                          uri: profileInfo.selectedProfileImage,
-                        }
-                      : darkModeType && theme
-                      ? ICONS.userWhite
-                      : ICONS.userIcon
-                  }
-                  style={
-                    profileInfo.selectedProfileImage
-                      ? {width: '100%', aspectRatio: 1}
-                      : {width: '60%', height: '60%'}
-                  }
+                <ContactProfileImage
+                  uri={profileInfo.selectedProfileImage}
+                  darkModeType={darkModeType}
+                  theme={theme}
                 />
               </View>
             </>
@@ -221,21 +189,10 @@ function ConfirmedOrSentTransaction({
 
                 backgroundColor: backgroundOffset,
               }}>
-              <Image
-                source={
-                  profileInfo.selectedProfileImage
-                    ? {
-                        uri: profileInfo.selectedProfileImage,
-                      }
-                    : darkModeType && theme
-                    ? ICONS.userWhite
-                    : ICONS.userIcon
-                }
-                style={
-                  profileInfo.selectedProfileImage
-                    ? {width: '100%', aspectRatio: 1}
-                    : {width: '60%', height: '60%'}
-                }
+              <ContactProfileImage
+                uri={profileInfo.selectedProfileImage}
+                darkModeType={darkModeType}
+                theme={theme}
               />
             </View>
           )}

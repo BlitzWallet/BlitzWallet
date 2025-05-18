@@ -1,7 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import {Image} from 'react-native';
 import {ICONS} from '../../../../../constants';
-export default function ContactProfileImage({uri, darkModeType, theme}) {
+export default function ContactProfileImage({
+  uri,
+  darkModeType,
+  theme,
+  setHasImage,
+}) {
   const [loadError, setLoadError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const fallbackIcon = darkModeType && theme ? ICONS.userWhite : ICONS.userIcon;
@@ -14,10 +19,16 @@ export default function ContactProfileImage({uri, darkModeType, theme}) {
       Image.prefetch(uri)
         .then(() => {
           setIsLoading(false);
+          if (setHasImage) {
+            setHasImage(true);
+          }
         })
         .catch(() => {
           setLoadError(true);
           setIsLoading(false);
+          if (setHasImage) {
+            setHasImage(false);
+          }
         });
     }
   }, [uri]);

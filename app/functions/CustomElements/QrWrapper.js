@@ -1,8 +1,9 @@
-import {StyleSheet, View} from 'react-native';
+import {Image, StyleSheet, View} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import {useGlobalContacts} from '../../../context-store/globalContacts';
 import {CENTER, COLORS, ICONS} from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
+import {useEffect, useState} from 'react';
 
 export default function QrCodeWrapper({
   QRData = 'No data available',
@@ -15,6 +16,20 @@ export default function QrCodeWrapper({
 }) {
   const {myProfileImage} = useGlobalContacts();
   const {backgroundOffset} = GetThemeColors();
+  const [hasImage, setHasImage] = useState();
+
+  useEffect(() => {
+    if (myProfileImage) {
+      Image.prefetch(myProfileImage)
+        .then(() => {
+          setHasImage(true);
+        })
+        .catch(() => {
+          setHasImage(false);
+        });
+    }
+  }, [myProfileImage]);
+
   return (
     <View
       style={{
@@ -29,8 +44,8 @@ export default function QrCodeWrapper({
           value={QRData}
           color={COLORS.lightModeText}
           backgroundColor={COLORS.darkModeText}
-          logo={myProfileImage || ICONS.logoWithPadding}
-          logoSize={myProfileImage ? 70 : 50}
+          logo={hasImage ? myProfileImage : ICONS.logoWithPadding}
+          logoSize={hasImage ? 70 : 50}
           logoMargin={logoMargin}
           logoBorderRadius={logoBorderRadius}
           logoBackgroundColor={COLORS.darkModeText}

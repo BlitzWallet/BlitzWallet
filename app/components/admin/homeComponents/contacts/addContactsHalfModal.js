@@ -26,6 +26,7 @@ import {useKeysContext} from '../../../../../context-store/keys';
 import {keyboardNavigate} from '../../../../functions/customNavigation';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import sha256Hash from '../../../../functions/hash';
+import ContactProfileImage from './internalComponents/profileImage';
 
 export default function AddContactsHalfModal(props) {
   const {contactsPrivateKey} = useKeysContext();
@@ -200,6 +201,8 @@ export default function AddContactsHalfModal(props) {
                 <ContactListItem
                   savedContact={item}
                   contactsPrivateKey={contactsPrivateKey}
+                  theme={theme}
+                  darkModeType={darkModeType}
                 />
               )}
               keyExtractor={item => item?.uniqueName}
@@ -215,6 +218,7 @@ export default function AddContactsHalfModal(props) {
 function ContactListItem(props) {
   const {textColor, backgroundOffset} = GetThemeColors();
   const navigate = useNavigation();
+
   const newContact = {
     ...props.savedContact,
     isFavorite: false,
@@ -235,13 +239,13 @@ function ContactListItem(props) {
           style={[
             styles.contactListLetterImage,
             {
-              borderColor: textColor,
               backgroundColor: backgroundOffset,
             },
           ]}>
-          <ThemeText
-            styles={{includeFontPadding: false}}
-            content={newContact.uniqueName[0].toUpperCase()}
+          <ContactProfileImage
+            uri={newContact.profileImage}
+            darkModeType={props.darkModeType}
+            theme={props.theme}
           />
         </View>
         <View>
@@ -292,7 +296,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+
     marginRight: 10,
   },
 });
