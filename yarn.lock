@@ -3610,6 +3610,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-firebase/storage@npm:21.13.0":
+  version: 21.13.0
+  resolution: "@react-native-firebase/storage@npm:21.13.0"
+  peerDependencies:
+    "@react-native-firebase/app": 21.13.0
+  checksum: a54b8e267e7e95ba6b746d320dc29ea9175049470e13eaa2804807fce3810dac989e5123bb70889a2b0b765c6ed0046af6ff8b8db5da9628f539ea064499c917
+  languageName: node
+  linkType: hard
+
 "@react-native/assets-registry@npm:0.77.2":
   version: 0.77.2
   resolution: "@react-native/assets-registry@npm:0.77.2"
@@ -4683,6 +4692,7 @@ __metadata:
     "@react-native-firebase/firestore": ^21.13.0
     "@react-native-firebase/functions": ^21.13.0
     "@react-native-firebase/messaging": ^21.13.0
+    "@react-native-firebase/storage": 21.13.0
     "@react-native/babel-preset": 0.77.2
     "@react-native/eslint-config": 0.77.2
     "@react-native/metro-config": 0.77.2
@@ -4709,6 +4719,7 @@ __metadata:
     expo-clipboard: ~7.0.1
     expo-crypto: ~14.0.2
     expo-file-system: ~18.0.12
+    expo-image-manipulator: ~13.0.6
     expo-local-authentication: ~15.0.2
     expo-network: ~7.0.5
     expo-notifications: ~0.29.14
@@ -4733,6 +4744,7 @@ __metadata:
     react-native-device-info: ^14.0.4
     react-native-dotenv: ^3.4.11
     react-native-email-link: ^1.16.1
+    react-native-fast-image: ^8.6.3
     react-native-gesture-handler: ^2.25.0
     react-native-get-random-values: ^1.11.0
     react-native-image-picker: ^8.2.0
@@ -7826,6 +7838,26 @@ __metadata:
     expo: "*"
     react: "*"
   checksum: 36fa98d333c97a9a309f0ffa45827616167162caaaca6873f04d6e3d658c669da9e894fadd582b9bcc569f3b5b2043553ca204e4333d7496ad2e5843f0373b09
+  languageName: node
+  linkType: hard
+
+"expo-image-loader@npm:~5.0.0":
+  version: 5.0.0
+  resolution: "expo-image-loader@npm:5.0.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 7741b4b926124a1f85e51b0b8c8c9adc37fccf0654eaa0e715cb55cffc716bdc149c0421120f9bec69a69643d3328ec8562899b4aa37a0fdcecfb6fe3cf6f985
+  languageName: node
+  linkType: hard
+
+"expo-image-manipulator@npm:~13.0.6":
+  version: 13.0.6
+  resolution: "expo-image-manipulator@npm:13.0.6"
+  dependencies:
+    expo-image-loader: ~5.0.0
+  peerDependencies:
+    expo: "*"
+  checksum: 5e2c9e0e7f1a57f5aa24429854956db97d38b83e90fba6d6f3c4801dec087222f4845332a3e974bdef93acf6b378a8dff45fd7ba9b47fcbc5291e368a1712742
   languageName: node
   linkType: hard
 
@@ -12587,6 +12619,16 @@ __metadata:
     react: ">=16.8.0"
     react-native: ">=0.40.0"
   checksum: d1bc617df9def627afa85433953c0f950c130100dfd5fa186ca368824919aa04aedf484bf70b39e25dfd9c78b9dded599d4e8877ec217fe6f31a9d7ab2a35fb2
+  languageName: node
+  linkType: hard
+
+"react-native-fast-image@npm:^8.6.3":
+  version: 8.6.3
+  resolution: "react-native-fast-image@npm:8.6.3"
+  peerDependencies:
+    react: ^17 || ^18
+    react-native: ">=0.60.0"
+  checksum: 29289cb6b2eae0983c8922b22e2d9de3be07322bb7991c5def19f95eadefaedb0e308ff0b38cc1d0444e8bd4fe94a7621a99a2d3d9298100bcb60b3144677234
   languageName: node
   linkType: hard
 

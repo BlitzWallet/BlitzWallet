@@ -27,25 +27,23 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import {ANDROIDSAFEAREA, KEYBOARDTIMEOUT} from '../../../../constants/styles';
 import {keyboardNavigate} from '../../../../functions/customNavigation';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import ContactProfileImage from './internalComponents/profileImage';
+import {useImageCache} from '../../../../../context-store/imageCache';
 
 export default function ContactsPage({navigation}) {
   const {masterInfoObject} = useGlobalContextProvider();
+  const {cache} = useImageCache();
   const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {
-    decodedAddedContacts,
-    globalContactsInformation,
-    myProfileImage,
-    contactsMessags,
-  } = useGlobalContacts();
+  const {decodedAddedContacts, globalContactsInformation, contactsMessags} =
+    useGlobalContacts();
   const [inputText, setInputText] = useState('');
   const hideUnknownContacts = masterInfoObject.hideUnknownContacts;
   const tabsNavigate = navigation.navigate;
   const navigate = useNavigation();
-  const {backgroundOffset} = GetThemeColors();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
   const myProfile = globalContactsInformation.myProfile;
   const didEditProfile = globalContactsInformation.myProfile.didEditProfile;
 
@@ -65,7 +63,13 @@ export default function ContactsPage({navigation}) {
     return decodedAddedContacts
       .filter(contact => contact.isFavorite)
       .map((contact, id) => {
-        return <PinnedContactElement key={contact.uuid} contact={contact} />;
+        return (
+          <PinnedContactElement
+            cache={cache}
+            key={contact.uuid}
+            contact={contact}
+          />
+        );
       });
   }, [decodedAddedContacts, contactsMessags]);
 
@@ -87,7 +91,9 @@ export default function ContactsPage({navigation}) {
         return (earliset_B || 0) - (earliset_A || 0);
       })
       .map((contact, id) => {
-        return <ContactElement key={contact.uuid} contact={contact} />;
+        return (
+          <ContactElement cache={cache} key={contact.uuid} contact={contact} />
+        );
       });
   }, [decodedAddedContacts, inputText, hideUnknownContacts, contactsMessags]);
 
@@ -143,19 +149,11 @@ export default function ContactsPage({navigation}) {
                 ...styles.profileImageContainer,
                 backgroundColor: backgroundOffset,
               }}>
-              <Image
-                source={
-                  myProfileImage
-                    ? {uri: myProfileImage}
-                    : darkModeType && theme
-                    ? ICONS.userWhite
-                    : ICONS.userIcon
-                }
-                style={
-                  myProfileImage
-                    ? {width: '100%', aspectRatio: 1}
-                    : {width: '50%', height: '50%'}
-                }
+              <ContactProfileImage
+                updated={cache[masterInfoObject?.uuid]?.updated}
+                uri={cache[masterInfoObject?.uuid]?.localUri}
+                darkModeType={darkModeType}
+                theme={theme}
               />
             </View>
           </TouchableOpacity>
@@ -166,11 +164,14 @@ export default function ContactsPage({navigation}) {
       ).length !== 0 && myProfile.didEditProfile ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingTop: 10, paddingBottom: 10}}
+          contentContainerStyle={{
+            paddingTop: pinnedContacts.length ? 0 : 10,
+            paddingBottom: 10,
+          }}
           style={{flex: 1, overflow: 'hidden'}}
           stickyHeaderIndices={[pinnedContacts.length ? 1 : 0]}>
           {pinnedContacts.length != 0 && (
-            <View style={{height: 130}}>
+            <View style={{height: 120}}>
               <ScrollView
                 showsHorizontalScrollIndicator={false}
                 horizontal
@@ -183,6 +184,7 @@ export default function ContactsPage({navigation}) {
             placeholderText={'Search added contacts'}
             inputText={inputText}
             setInputText={setInputText}
+            containerStyles={{width: '100%', backgroundColor}}
           />
           {contactElements}
         </ScrollView>
@@ -288,19 +290,19 @@ function PinnedContactElement(props) {
               position: 'relative',
             },
           ]}>
-          <Image
-            source={
-              contact.profileImage
-                ? {uri: contact.profileImage}
-                : darkModeType && theme
-                ? ICONS.userWhite
-                : ICONS.userIcon
+          <ContactProfileImage
+            updated={
+              contact.isLNURL
+                ? new Date().toISOString()
+                : props.cache[contact.uuid]?.updated
             }
-            style={
-              contact.profileImage
-                ? {width: '100%', aspectRatio: 1}
-                : {width: '50%', height: '50%'}
+            uri={
+              contact.isLNURL
+                ? contact.profileImage
+                : props.cache[contact.uuid]?.localUri
             }
+            darkModeType={darkModeType}
+            theme={theme}
           />
         </View>
 
@@ -393,19 +395,19 @@ export function ContactElement(props) {
                 position: 'relative',
               },
             ]}>
-            <Image
-              source={
-                contact.profileImage
-                  ? {uri: contact.profileImage}
-                  : darkModeType && theme
-                  ? ICONS.userWhite
-                  : ICONS.userIcon
+            <ContactProfileImage
+              updated={
+                contact.isLNURL
+                  ? new Date().toISOString()
+                  : props.cache[contact.uuid]?.updated
               }
-              style={
-                contact.profileImage
-                  ? {width: '100%', aspectRatio: 1}
-                  : {width: '50%', height: '50%'}
+              uri={
+                contact.isLNURL
+                  ? contact.profileImage
+                  : props.cache[contact.uuid]?.localUri
               }
+              darkModeType={darkModeType}
+              theme={theme}
             />
           </View>
           <View
@@ -661,9 +663,8 @@ const styles = StyleSheet.create({
   },
 
   pinnedContact: {
-    height: 'auto',
-
-    margin: 5,
+    // height: 'auto',
+    marginHorizontal: 5,
     alignItems: 'center',
   },
   pinnedContactsContainer: {

@@ -64,6 +64,7 @@ import getDeepLinkUser from './app/components/admin/homeComponents/contacts/inte
 import {navigationRef} from './navigation/navigationService';
 import {GlobalConbinedTxContextProvider} from './context-store/combinedTransactionsContext';
 import BreezTest from './app/screens/breezTest';
+import {ImageCacheProvider} from './context-store/imageCache';
 
 const Stack = createNativeStackNavigator();
 
@@ -84,10 +85,12 @@ function App(): JSX.Element {
                             <PushNotificationManager>
                               <LiquidEventProvider>
                                 <LightningEventProvider>
-                                  {/* <Suspense
+                                  <ImageCacheProvider>
+                                    {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                  <ResetStack />
-                                  {/* </Suspense> */}
+                                    <ResetStack />
+                                    {/* </Suspense> */}
+                                  </ImageCacheProvider>
                                 </LightningEventProvider>
                               </LiquidEventProvider>
                             </PushNotificationManager>

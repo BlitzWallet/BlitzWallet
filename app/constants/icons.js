@@ -148,6 +148,7 @@ import navigationIcon from '../assets/icons/navigation.png';
 import navigationIconFill from '../assets/icons/navigation_fill.png';
 import navigationIconWhite from '../assets/icons/navigation_white.png';
 import navigationIconFillWhite from '../assets/icons/navigation_fill_white.png';
+import shareBlack from '../assets/icons/shareBlack.png';
 export default {
   Xcircle,
   XcircleLight,
@@ -300,4 +301,5 @@ export default {
   navigationIconFill,
   navigationIconWhite,
   navigationIconFillWhite,
+  shareBlack,
 };

@@ -37,6 +37,8 @@ export default function CustomSearchInput({
     <>
       <View style={{...styles.inputContainer, ...containerStyles}}>
         <TextInput
+          autoComplete="off"
+          autoCorrect={false}
           keyboardAppearance={theme ? 'dark' : 'light'}
           placeholder={placeholderText || ''}
           placeholderTextColor={

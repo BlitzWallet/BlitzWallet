@@ -30,6 +30,8 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import ContactProfileImage from './internalComponents/profileImage';
+import {useContactImage} from '../../../../hooks/useContactImage';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
@@ -37,7 +39,6 @@ export default function ExpandedContactsPage(props) {
   const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {
-    textColor,
     backgroundOffset,
     backgroundColor,
     textInputColor,
@@ -51,7 +52,6 @@ export default function ExpandedContactsPage(props) {
   } = useGlobalContacts();
   const insets = useSafeAreaInsets();
   const currentTime = new Date();
-  const isInitialRender = useRef(true);
   const selectedUUID = props?.route?.params?.uuid || props?.uuid;
   const myProfile = globalContactsInformation?.myProfile;
 
@@ -60,7 +60,7 @@ export default function ExpandedContactsPage(props) {
       decodedAddedContacts.filter(contact => contact?.uuid === selectedUUID),
     [decodedAddedContacts, selectedUUID],
   );
-
+  const imageData = useContactImage(selectedContact.uuid);
   const contactTransactions = contactsMessags[selectedUUID]?.messages || []; //selectedContact?.transactions;
   useHandleBackPressNew();
   console.log(selectedContact);
@@ -104,22 +104,6 @@ export default function ExpandedContactsPage(props) {
             lightsOutIcon={ICONS.arrow_small_left_white}
           />
         </TouchableOpacity>
-        {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
-          <TouchableOpacity
-            style={{marginRight: 5}}
-            onPress={() => {
-              Share.share({
-                title: 'Blitz Contact',
-                message: `https://blitz-wallet.com/u/${selectedContact?.uniqueName}`,
-              });
-            }}>
-            <ThemeImage
-              darkModeIcon={ICONS.share}
-              lightModeIcon={ICONS.share}
-              lightsOutIcon={ICONS.shareWhite}
-            />
-          </TouchableOpacity>
-        )}
         {selectedContact && (
           <TouchableOpacity
             style={{marginRight: 5}}
@@ -211,29 +195,52 @@ export default function ExpandedContactsPage(props) {
         />
       ) : (
         <>
-          <View
-            style={[
-              styles.profileImage,
-              {
-                // borderColor: COLORS.darkModeText,
-                backgroundColor: backgroundOffset,
-              },
-            ]}>
-            <Image
-              source={
-                selectedContact.profileImage
-                  ? {uri: selectedContact.profileImage}
-                  : darkModeType && theme
-                  ? ICONS.userWhite
-                  : ICONS.userIcon
-              }
-              style={
-                selectedContact.profileImage
-                  ? {width: '100%', aspectRatio: 1}
-                  : {width: '50%', height: '50%'}
-              }
-            />
-          </View>
+          <TouchableOpacity
+            activeOpacity={
+              !selectedContact?.isLNURL && selectedContact?.uniqueName ? 0.2 : 1
+            }
+            onPress={() => {
+              if (selectedContact?.isLNURL || !selectedContact?.uniqueName)
+                return;
+              Share.share({
+                title: 'Blitz Contact',
+                message: `https://blitz-wallet.com/u/${selectedContact?.uniqueName}`,
+              });
+            }}
+            style={{...CENTER}}>
+            <View
+              style={[
+                styles.profileImage,
+                {
+                  backgroundColor: backgroundOffset,
+                },
+              ]}>
+              <ContactProfileImage
+                updated={
+                  selectedContact.isLNURL
+                    ? new Date().toISOString()
+                    : imageData?.updated
+                }
+                uri={
+                  selectedContact.isLNURL
+                    ? selectedContact.profileImage
+                    : imageData?.localUri
+                }
+                darkModeType={darkModeType}
+                theme={theme}
+              />
+            </View>
+            {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
+              <View style={styles.selectFromPhotos}>
+                <ThemeImage
+                  styles={{width: 20, height: 20}}
+                  darkModeIcon={ICONS.shareBlack}
+                  lightModeIcon={ICONS.shareBlack}
+                  lightsOutIcon={ICONS.shareBlack}
+                />
+              </View>
+            )}
+          </TouchableOpacity>
           <ThemeText
             styles={styles.profileName}
             content={selectedContact.name || selectedContact.uniqueName}
@@ -407,5 +414,17 @@ const styles = StyleSheet.create({
   bioText: {
     marginBottom: 'auto',
     marginTop: 'auto',
+  },
+  selectFromPhotos: {
+    width: 30,
+    height: 30,
+    borderRadius: 20,
+    backgroundColor: COLORS.darkModeText,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 12.5,
+    bottom: 12.5,
+    zIndex: 2,
   },
 });
