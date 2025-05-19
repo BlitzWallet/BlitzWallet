@@ -3248,6 +3248,10 @@ PODS:
     - Yoga
   - RNDeviceInfo (14.0.4):
     - React-Core
+  - RNFastImage (8.6.3):
+    - React-Core
+    - SDWebImage (~> 5.11.1)
+    - SDWebImageWebPCoder (~> 0.8.4)
   - RNFBApp (21.13.0):
     - Firebase/CoreOnly (= 11.10.0)
     - React-Core
@@ -3509,10 +3513,12 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - SDWebImage/Core (5.21.0)
-  - SDWebImageWebPCoder (0.14.6):
+  - SDWebImage (5.11.1):
+    - SDWebImage/Core (= 5.11.1)
+  - SDWebImage/Core (5.11.1)
+  - SDWebImageWebPCoder (0.8.5):
     - libwebp (~> 1.0)
-    - SDWebImage/Core (~> 5.17)
+    - SDWebImage/Core (~> 5.10)
   - SocketRocket (0.7.1)
   - UMAppLoader (5.0.1)
   - VisionCamera (4.6.4):
@@ -3629,6 +3635,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
+  - RNFastImage (from `../node_modules/react-native-fast-image`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - "RNFBCrashlytics (from `../node_modules/@react-native-firebase/crashlytics`)"
@@ -3888,6 +3895,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNDeviceInfo:
     :path: "../node_modules/react-native-device-info"
+  RNFastImage:
+    :path: "../node_modules/react-native-fast-image"
   RNFBApp:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBAuth:
@@ -4056,6 +4065,7 @@ SPEC CHECKSUMS:
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
   RNCAsyncStorage: 923af351d21a33b6c57ed32ac9c25317ddbb0dd4
   RNDeviceInfo: d863506092aef7e7af3a1c350c913d867d795047
+  RNFastImage: 462a183c4b0b6b26fdfd639e1ed6ba37536c3b87
   RNFBApp: 40dddac677bdc020c7669ffc52ed849930b8c694
   RNFBAuth: 1af20a72de76b03656c15b792e93c503dd23e5fb
   RNFBCrashlytics: 468a67446894a5234a0fd47b99b3263298546729
@@ -4068,8 +4078,8 @@ SPEC CHECKSUMS:
   RNReanimated: b9822df9ff2671c696b1612aa88f27fab168f1fe
   RNScreens: 04304337930029a5d0db297b22eb0f07adc31a2c
   RNSVG: ca46052a4a0216157b3155e571f82d3b2d875452
-  SDWebImage: f84b0feeb08d2d11e6a9b843cb06d75ebf5b8868
-  SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
+  SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
+  SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   UMAppLoader: 7e7e0eaa7854ffd652c00a68c443afb28c3bedba
   VisionCamera: f56eaedde0d3fa095143b78374d29e89e71735f9

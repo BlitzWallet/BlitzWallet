@@ -4744,6 +4744,7 @@ __metadata:
     react-native-device-info: ^14.0.4
     react-native-dotenv: ^3.4.11
     react-native-email-link: ^1.16.1
+    react-native-fast-image: ^8.6.3
     react-native-gesture-handler: ^2.25.0
     react-native-get-random-values: ^1.11.0
     react-native-image-picker: ^8.2.0
@@ -12618,6 +12619,16 @@ __metadata:
     react: ">=16.8.0"
     react-native: ">=0.40.0"
   checksum: d1bc617df9def627afa85433953c0f950c130100dfd5fa186ca368824919aa04aedf484bf70b39e25dfd9c78b9dded599d4e8877ec217fe6f31a9d7ab2a35fb2
+  languageName: node
+  linkType: hard
+
+"react-native-fast-image@npm:^8.6.3":
+  version: 8.6.3
+  resolution: "react-native-fast-image@npm:8.6.3"
+  peerDependencies:
+    react: ^17 || ^18
+    react-native: ">=0.60.0"
+  checksum: 29289cb6b2eae0983c8922b22e2d9de3be07322bb7991c5def19f95eadefaedb0e308ff0b38cc1d0444e8bd4fe94a7621a99a2d3d9298100bcb60b3144677234
   languageName: node
   linkType: hard
 
