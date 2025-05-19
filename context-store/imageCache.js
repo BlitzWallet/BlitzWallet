@@ -53,9 +53,10 @@ export function ImageCacheProvider({children}) {
     didRunContextCacheCheck.current = true;
     console.log(decodedAddedContacts, 'DECIN FUNC');
     async function refreshContactsImages() {
-      await Promise.all(
-        decodedAddedContacts.map(contact => refreshCache(contact.uuid)),
-      );
+      for (let index = 0; index < decodedAddedContacts.length; index++) {
+        const element = decodedAddedContacts[index];
+        await refreshCache(element.uuid);
+      }
     }
     refreshContactsImages();
   }, [decodedAddedContacts, didGetToHomepage]);

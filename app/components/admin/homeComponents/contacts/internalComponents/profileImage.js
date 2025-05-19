@@ -6,7 +6,7 @@ import customUUID from '../../../../../functions/customUUID';
 
 export default function ContactProfileImage({
   priority = FastImage.priority.high,
-  resizeMode = FastImage.resizeMode.contain,
+  resizeMode = FastImage.resizeMode.cover,
   uri,
   darkModeType,
   theme,
@@ -20,33 +20,19 @@ export default function ContactProfileImage({
     updated ? new Date(updated).getTime() : customUUID()
   }`;
 
-  useEffect(() => {
-    if (uri) {
-      Image.prefetch(uri)
-        .then(() => {
-          if (setHasImage) {
-            setHasImage(true);
-          }
-        })
-        .catch(() => {
-          if (setHasImage) {
-            setHasImage(false);
-          }
-        });
-    } else {
-      if (setHasImage) {
-        setHasImage(false);
-      }
-    }
-  }, [customURI]);
-
   return (
     <FastImage
       onLoad={() => {
         setIsLoading(false);
+        if (setHasImage) {
+          setHasImage(true);
+        }
       }}
       onError={() => {
         setLoadError(true);
+        if (setHasImage) {
+          setHasImage(false);
+        }
       }}
       style={
         !loadError && uri && !isLoading

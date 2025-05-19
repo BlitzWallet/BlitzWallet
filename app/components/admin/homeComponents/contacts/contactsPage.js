@@ -288,7 +288,11 @@ function PinnedContactElement(props) {
             },
           ]}>
           <ContactProfileImage
-            updated={props.cache[contact.uuid]?.updated}
+            updated={
+              contact.isLNURL
+                ? new Date().toISOString()
+                : props.cache[contact.uuid]?.updated
+            }
             uri={
               contact.isLNURL
                 ? contact.profileImage
@@ -389,7 +393,11 @@ export function ContactElement(props) {
               },
             ]}>
             <ContactProfileImage
-              updated={props.cache[contact.uuid]?.updated}
+              updated={
+                contact.isLNURL
+                  ? new Date().toISOString()
+                  : props.cache[contact.uuid]?.updated
+              }
               uri={
                 contact.isLNURL
                   ? contact.profileImage

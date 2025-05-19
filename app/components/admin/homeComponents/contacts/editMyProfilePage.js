@@ -30,10 +30,6 @@ import {isValidUniqueName} from '../../../../../db';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {
-  removeLocalStorageItem,
-  setLocalStorageItem,
-} from '../../../../functions/localStorage';
 import {getImageFromLibrary} from '../../../../functions/imagePickerWrapper';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../context-store/keys';
@@ -51,6 +47,7 @@ import {
   setDatabaseIMG,
 } from '../../../../../db/photoStorage';
 import {useImageCache} from '../../../../../context-store/imageCache';
+import {useContactImage} from '../../../../hooks/useContactImage';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -142,7 +139,6 @@ function InnerContent({
     decodedAddedContacts,
     globalContactsInformation,
     toggleGlobalContactsInformation,
-    setMyProfileImage,
   } = useGlobalContacts();
   const {t} = useTranslation();
   const [isAddingImage, setIsAddingImage] = useState(false);
@@ -222,13 +218,20 @@ function InnerContent({
     selectedAddedContactUniqueName,
   ]);
 
+  const myProfileImage = cache[myContact?.uuid];
+  const selectedAddedContactImage = useContactImage(selectedAddedContact?.uuid);
+
+  console.log(myProfileImage, 'd', selectedAddedContactImage);
   console.log(
     hasImage,
+    isEditingMyProfile,
+    selectedAddedContact,
     isEditingMyProfile
       ? cache[myContact.uuid]?.localUri || ''
       : selectedAddedContact.isLNURL
       ? selectedAddedContact.profileImage
       : cache[selectedAddedContact.uuid]?.localUri || '',
+    'profila d',
   );
   return (
     <View style={styles.innerContainer}>
@@ -273,15 +276,17 @@ function InnerContent({
               <ContactProfileImage
                 updated={
                   isEditingMyProfile
-                    ? cache[myContact.uuid]?.updated
-                    : cache[selectedAddedContact.uuid]?.updated
+                    ? myProfileImage?.updated
+                    : selectedAddedContact.isLNURL
+                    ? new Date().toISOString()
+                    : selectedAddedContactImage?.updated
                 }
                 uri={
                   isEditingMyProfile
-                    ? cache[myContact.uuid]?.localUri || ''
+                    ? myProfileImage?.localUri
                     : selectedAddedContact.isLNURL
                     ? selectedAddedContact.profileImage
-                    : cache[selectedAddedContact.uuid]?.localUri || ''
+                    : selectedAddedContactImage?.localUri
                 }
                 darkModeType={darkModeType}
                 theme={theme}
@@ -691,8 +696,17 @@ function InnerContent({
     if (isEditingMyProfile) {
       const response = await uploadProfileImage({imgURL: imgURL});
       if (!response) return;
-      // setMyProfileImage(imgURL.uri);
-      // setLocalStorageItem('myProfileImage', imgURL.uri);
+      toggleGlobalContactsInformation(
+        {
+          myProfile: {
+            ...globalContactsInformation.myProfile,
+            hasProfileImage: true,
+          },
+
+          addedContacts: globalContactsInformation.addedContacts,
+        },
+        true,
+      );
       return;
     }
 
@@ -733,39 +747,19 @@ function InnerContent({
   async function uploadProfileImage({imgURL, removeImage}) {
     try {
       setIsAddingImage(true);
-
       if (!removeImage) {
-        const imageInfo = await ImageManipulator.manipulateAsync(
+        const resized = ImageManipulator.ImageManipulator.manipulate(
           imgURL.uri,
-          [],
-          {
-            base64: false,
-          },
-        );
+        ).resize({width: 350});
+        const image = await resized.renderAsync();
+        const savedImage = await image.saveAsync({
+          compress: 0.4,
+          format: ImageManipulator.SaveFormat.WEBP,
+        });
 
-        const originalWidth = imageInfo.width;
-        const originalHeight = imageInfo.height;
-
-        // Determine square crop area based on center
-        const size = Math.min(originalWidth, originalHeight); // 1:1 aspect ratio
-        const cropRegion = {
-          originX: (originalWidth - size) / 2,
-          originY: (originalHeight - size) / 2,
-          width: size,
-          height: size,
-        };
-
-        const resized = await ImageManipulator.manipulateAsync(
-          imgURL.uri,
-          [{crop: cropRegion}, {resize: {width: 400, height: 400}}],
-          {
-            compress: 0,
-            format: ImageManipulator.SaveFormat.JPEG,
-          },
-        );
         const response = await setDatabaseIMG(
           globalContactsInformation.myProfile.uuid,
-          resized,
+          {uri: savedImage.uri},
         );
 
         if (response) {
@@ -773,8 +767,8 @@ function InnerContent({
             globalContactsInformation.myProfile.uuid,
             response,
           );
-        }
-        return !!response;
+          return true;
+        } else throw new Error('Unable to save image');
       } else {
         await deleteDatabaseImage(globalContactsInformation.myProfile.uuid);
         await removeProfileImageFromCache(
@@ -784,7 +778,6 @@ function InnerContent({
       }
     } catch (err) {
       console.log(err);
-
       navigate.navigate('ErrorScreen', {errorMessage: err.message});
       return false;
     } finally {
@@ -797,8 +790,17 @@ function InnerContent({
         const response = await uploadProfileImage({removeImage: true});
         console.log(response);
         if (!response) return;
-        setMyProfileImage('');
-        removeLocalStorageItem('myProfileImage');
+        toggleGlobalContactsInformation(
+          {
+            myProfile: {
+              ...globalContactsInformation.myProfile,
+              hasProfileImage: false,
+            },
+
+            addedContacts: globalContactsInformation.addedContacts,
+          },
+          true,
+        );
         return;
       }
       if (fromInitialAdd) {

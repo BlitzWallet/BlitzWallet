@@ -218,7 +218,7 @@ export default function ExpandedContactsPage(props) {
               <ContactProfileImage
                 updated={
                   selectedContact.isLNURL
-                    ? selectedContact.profileImage
+                    ? new Date().toISOString()
                     : imageData?.updated
                 }
                 uri={

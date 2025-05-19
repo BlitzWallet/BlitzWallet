@@ -27,6 +27,7 @@ import {keyboardNavigate} from '../../../../functions/customNavigation';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import sha256Hash from '../../../../functions/hash';
 import ContactProfileImage from './internalComponents/profileImage';
+import {getCachedProfileImage} from '../../../../functions/cachedImage';
 
 export default function AddContactsHalfModal(props) {
   const {contactsPrivateKey} = useKeysContext();
@@ -41,25 +42,44 @@ export default function AddContactsHalfModal(props) {
 
   const debouncedSearch = useDebounce(async term => {
     const results = await searchUsers(term);
-    const newUsers = results
-      .map((savedContact, id) => {
-        if (!savedContact) {
-          return false;
-        }
-        if (
-          savedContact.uniqueName ===
-          globalContactsInformation.myProfile.uniqueName
-        )
-          return false;
-        if (!savedContact.receiveAddress) return false;
-        return savedContact;
-      })
-      .filter(Boolean);
+    const newUsers = (
+      await Promise.all(
+        results.map(async savedContact => {
+          if (!savedContact) return false;
+          if (
+            savedContact.uniqueName ===
+            globalContactsInformation.myProfile.uniqueName
+          )
+            return false;
+          if (!savedContact?.uuid) return false;
+
+          let responseData;
+
+          if (
+            savedContact.hasProfileImage ||
+            typeof savedContact.hasProfileImage === 'boolean'
+          ) {
+            responseData = await getCachedProfileImage(savedContact.uuid);
+            console.log(responseData, 'response');
+          }
+
+          if (!responseData) return savedContact;
+          else
+            return {
+              ...savedContact,
+              ...responseData,
+            };
+        }),
+      )
+    ).filter(Boolean);
+    console.log(newUsers, 'test');
     unstable_batchedUpdates(() => {
       setIsSearching(false);
       setUsers(newUsers);
     });
-  }, 500);
+  }, 800);
+
+  console.log(users);
 
   const handleSearch = term => {
     setSearchInput(term);
@@ -193,22 +213,37 @@ export default function AddContactsHalfModal(props) {
               />
             </ScrollView>
           ) : (
-            <FlatList
-              key={sha256Hash(users.join('') + `${isSearching}`)}
-              showsVerticalScrollIndicator={false}
-              data={users}
-              renderItem={({item}) => (
-                <ContactListItem
-                  savedContact={item}
-                  contactsPrivateKey={contactsPrivateKey}
-                  theme={theme}
-                  darkModeType={darkModeType}
+            <>
+              {users.length ? (
+                <FlatList
+                  key={sha256Hash(users.join('') + `${isSearching}`)}
+                  showsVerticalScrollIndicator={false}
+                  data={users}
+                  renderItem={({item}) => (
+                    <ContactListItem
+                      savedContact={item}
+                      contactsPrivateKey={contactsPrivateKey}
+                      theme={theme}
+                      darkModeType={darkModeType}
+                    />
+                  )}
+                  keyExtractor={item => item?.uniqueName}
+                  keyboardShouldPersistTaps="handled"
+                  keyboardDismissMode="none"
+                />
+              ) : (
+                <ThemeText
+                  styles={{textAlign: 'center', marginTop: 20}}
+                  content={
+                    isSearching
+                      ? ''
+                      : searchInput
+                      ? 'No profiles match this search'
+                      : 'Start typing to search for a profile'
+                  }
                 />
               )}
-              keyExtractor={item => item?.uniqueName}
-              keyboardShouldPersistTaps="handled"
-              keyboardDismissMode="none"
-            />
+            </>
           )}
         </View>
       </View>
@@ -243,7 +278,8 @@ function ContactListItem(props) {
             },
           ]}>
           <ContactProfileImage
-            uri={newContact.profileImage}
+            updated={newContact.updated}
+            uri={newContact.localUri}
             darkModeType={props.darkModeType}
             theme={props.theme}
           />
@@ -291,12 +327,12 @@ const styles = StyleSheet.create({
   },
 
   contactListLetterImage: {
-    height: 30,
-    width: 30,
-    borderRadius: 15,
+    height: 40,
+    width: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-
+    overflow: 'hidden',
     marginRight: 10,
   },
 });
