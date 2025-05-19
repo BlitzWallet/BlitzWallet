@@ -54,9 +54,7 @@ export function ImageCacheProvider({children}) {
     console.log(decodedAddedContacts, 'DECIN FUNC');
     async function refreshContactsImages() {
       await Promise.all(
-        decodedAddedContacts.forEach(async contact => {
-          await refreshCache(contact.uuid);
-        }),
+        decodedAddedContacts.map(contact => refreshCache(contact.uuid)),
       );
     }
     refreshContactsImages();
