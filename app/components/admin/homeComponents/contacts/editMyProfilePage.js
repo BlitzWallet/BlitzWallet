@@ -221,18 +221,6 @@ function InnerContent({
   const myProfileImage = cache[myContact?.uuid];
   const selectedAddedContactImage = useContactImage(selectedAddedContact?.uuid);
 
-  console.log(myProfileImage, 'd', selectedAddedContactImage);
-  console.log(
-    hasImage,
-    isEditingMyProfile,
-    selectedAddedContact,
-    isEditingMyProfile
-      ? cache[myContact.uuid]?.localUri || ''
-      : selectedAddedContact.isLNURL
-      ? selectedAddedContact.profileImage
-      : cache[selectedAddedContact.uuid]?.localUri || '',
-    'profila d',
-  );
   return (
     <View style={styles.innerContainer}>
       <ScrollView

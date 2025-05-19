@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react';
-import {Image} from 'react-native';
 import {ICONS} from '../../../../../constants';
 import FastImage from 'react-native-fast-image';
 import customUUID from '../../../../../functions/customUUID';
@@ -25,12 +24,14 @@ export default function ContactProfileImage({
       onLoad={() => {
         setIsLoading(false);
         if (setHasImage) {
-          setHasImage(true);
+          console.log('On load has image', !!customURI);
+          setHasImage(!!uri);
         }
       }}
       onError={() => {
         setLoadError(true);
         if (setHasImage) {
+          console.log('on error has image', !!customURI);
           setHasImage(false);
         }
       }}
