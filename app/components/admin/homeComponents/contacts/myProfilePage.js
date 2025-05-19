@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {useCallback, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -22,21 +22,22 @@ import {useAppStatus} from '../../../../../context-store/appStatus';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import MaxHeap from '../../../../functions/minHeap';
 import ContactProfileImage from './internalComponents/profileImage';
+import {useImageCache} from '../../../../../context-store/imageCache';
 
 export default function MyContactProfilePage({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
+  const {cache} = useImageCache();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {
-    globalContactsInformation,
-    myProfileImage,
-    decodedAddedContacts,
-    contactsMessags,
-  } = useGlobalContacts();
+  const {globalContactsInformation, decodedAddedContacts, contactsMessags} =
+    useGlobalContacts();
   const {backgroundOffset, textInputBackground, textInputColor} =
     GetThemeColors();
   const navigate = useNavigation();
   const currentTime = new Date();
   const [showList, setShowList] = useState(false);
+
+  const myContact = globalContactsInformation.myProfile;
+
   useFocusEffect(
     useCallback(() => {
       setShowList(true);
@@ -46,8 +47,6 @@ export default function MyContactProfilePage({navigation}) {
       };
     }, []),
   );
-
-  const myContact = globalContactsInformation.myProfile;
 
   const createdPayments = useMemo(() => {
     const messageHeap = new MaxHeap();
@@ -153,7 +152,8 @@ export default function MyContactProfilePage({navigation}) {
                 },
               ]}>
               <ContactProfileImage
-                uri={myProfileImage}
+                updated={cache[myContact.uuid]?.updated}
+                uri={cache[myContact.uuid]?.localUri}
                 darkModeType={darkModeType}
                 theme={theme}
               />

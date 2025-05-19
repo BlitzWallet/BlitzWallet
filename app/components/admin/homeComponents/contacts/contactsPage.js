@@ -27,21 +27,18 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import {ANDROIDSAFEAREA, KEYBOARDTIMEOUT} from '../../../../constants/styles';
 import {keyboardNavigate} from '../../../../functions/customNavigation';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 import ContactProfileImage from './internalComponents/profileImage';
+import {useImageCache} from '../../../../../context-store/imageCache';
 
 export default function ContactsPage({navigation}) {
   const {masterInfoObject} = useGlobalContextProvider();
+  const {cache} = useImageCache();
   const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {
-    decodedAddedContacts,
-    globalContactsInformation,
-    myProfileImage,
-    contactsMessags,
-  } = useGlobalContacts();
+  const {decodedAddedContacts, globalContactsInformation, contactsMessags} =
+    useGlobalContacts();
   const [inputText, setInputText] = useState('');
   const hideUnknownContacts = masterInfoObject.hideUnknownContacts;
   const tabsNavigate = navigation.navigate;
@@ -66,7 +63,13 @@ export default function ContactsPage({navigation}) {
     return decodedAddedContacts
       .filter(contact => contact.isFavorite)
       .map((contact, id) => {
-        return <PinnedContactElement key={contact.uuid} contact={contact} />;
+        return (
+          <PinnedContactElement
+            cache={cache}
+            key={contact.uuid}
+            contact={contact}
+          />
+        );
       });
   }, [decodedAddedContacts, contactsMessags]);
 
@@ -88,7 +91,9 @@ export default function ContactsPage({navigation}) {
         return (earliset_B || 0) - (earliset_A || 0);
       })
       .map((contact, id) => {
-        return <ContactElement key={contact.uuid} contact={contact} />;
+        return (
+          <ContactElement cache={cache} key={contact.uuid} contact={contact} />
+        );
       });
   }, [decodedAddedContacts, inputText, hideUnknownContacts, contactsMessags]);
 
@@ -145,7 +150,8 @@ export default function ContactsPage({navigation}) {
                 backgroundColor: backgroundOffset,
               }}>
               <ContactProfileImage
-                uri={myProfileImage}
+                updated={cache[masterInfoObject?.uuid]?.updated}
+                uri={cache[masterInfoObject?.uuid]?.localUri}
                 darkModeType={darkModeType}
                 theme={theme}
               />
@@ -282,7 +288,12 @@ function PinnedContactElement(props) {
             },
           ]}>
           <ContactProfileImage
-            uri={contact.profileImage}
+            updated={props.cache[contact.uuid]?.updated}
+            uri={
+              contact.isLNURL
+                ? contact.profileImage
+                : props.cache[contact.uuid]?.localUri
+            }
             darkModeType={darkModeType}
             theme={theme}
           />
@@ -378,7 +389,12 @@ export function ContactElement(props) {
               },
             ]}>
             <ContactProfileImage
-              uri={contact.profileImage}
+              updated={props.cache[contact.uuid]?.updated}
+              uri={
+                contact.isLNURL
+                  ? contact.profileImage
+                  : props.cache[contact.uuid]?.localUri
+              }
               darkModeType={darkModeType}
               theme={theme}
             />

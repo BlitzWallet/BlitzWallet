@@ -50,6 +50,7 @@ import {
   deleteDatabaseImage,
   setDatabaseIMG,
 } from '../../../../../db/photoStorage';
+import {useImageCache} from '../../../../../context-store/imageCache';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -134,6 +135,7 @@ function InnerContent({
 }) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
+  const {cache, refreshCache, removeProfileImageFromCache} = useImageCache();
   const {backgroundOffset, textInputColor, textInputBackground, textColor} =
     GetThemeColors();
   const {
@@ -141,7 +143,6 @@ function InnerContent({
     globalContactsInformation,
     toggleGlobalContactsInformation,
     setMyProfileImage,
-    myProfileImage,
   } = useGlobalContacts();
   const {t} = useTranslation();
   const [isAddingImage, setIsAddingImage] = useState(false);
@@ -221,6 +222,14 @@ function InnerContent({
     selectedAddedContactUniqueName,
   ]);
 
+  console.log(
+    hasImage,
+    isEditingMyProfile
+      ? cache[myContact.uuid]?.localUri || ''
+      : selectedAddedContact.isLNURL
+      ? selectedAddedContact.profileImage
+      : cache[selectedAddedContact.uuid]?.localUri || '',
+  );
   return (
     <View style={styles.innerContainer}>
       <ScrollView
@@ -232,7 +241,15 @@ function InnerContent({
           ...CENTER,
         }}>
         <TouchableOpacity
+          activeOpacity={
+            (isEditingMyProfile || selectedAddedContact.isLNURL) &&
+            !isAddingImage
+              ? 0.2
+              : 1
+          }
           onPress={() => {
+            if (!isEditingMyProfile && !selectedAddedContact.isLNURL) return;
+            if (isAddingImage) return;
             if (!hasImage) {
               addProfilePicture();
               return;
@@ -254,10 +271,17 @@ function InnerContent({
               <FullLoadingScreen showText={false} />
             ) : (
               <ContactProfileImage
+                updated={
+                  isEditingMyProfile
+                    ? cache[myContact.uuid]?.updated
+                    : cache[selectedAddedContact.uuid]?.updated
+                }
                 uri={
                   isEditingMyProfile
-                    ? myProfileImage
-                    : selectedAddedContact?.profileImage
+                    ? cache[myContact.uuid]?.localUri || ''
+                    : selectedAddedContact.isLNURL
+                    ? selectedAddedContact.profileImage
+                    : cache[selectedAddedContact.uuid]?.localUri || ''
                 }
                 darkModeType={darkModeType}
                 theme={theme}
@@ -265,12 +289,14 @@ function InnerContent({
               />
             )}
           </View>
-          <View style={styles.selectFromPhotos}>
-            <Image
-              source={hasImage ? ICONS.xSmallIconBlack : ICONS.ImagesIconDark}
-              style={{width: 20, height: 20}}
-            />
-          </View>
+          {(isEditingMyProfile || selectedAddedContact.isLNURL) && (
+            <View style={styles.selectFromPhotos}>
+              <Image
+                source={hasImage ? ICONS.xSmallIconBlack : ICONS.ImagesIconDark}
+                style={{width: 20, height: 20}}
+              />
+            </View>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -654,7 +680,7 @@ function InnerContent({
   }
 
   async function addProfilePicture() {
-    const imagePickerResponse = await getImageFromLibrary();
+    const imagePickerResponse = await getImageFromLibrary({quality: 1});
     const {didRun, error, imgURL} = imagePickerResponse;
     if (!didRun) return;
     if (error) {
@@ -665,8 +691,8 @@ function InnerContent({
     if (isEditingMyProfile) {
       const response = await uploadProfileImage({imgURL: imgURL});
       if (!response) return;
-      setMyProfileImage(imgURL.uri);
-      setLocalStorageItem('myProfileImage', imgURL.uri);
+      // setMyProfileImage(imgURL.uri);
+      // setLocalStorageItem('myProfileImage', imgURL.uri);
       return;
     }
 
@@ -731,9 +757,9 @@ function InnerContent({
 
         const resized = await ImageManipulator.manipulateAsync(
           imgURL.uri,
-          [{crop: cropRegion}, {resize: {width: 100, height: 100}}],
+          [{crop: cropRegion}, {resize: {width: 400, height: 400}}],
           {
-            compress: 0.1,
+            compress: 0,
             format: ImageManipulator.SaveFormat.JPEG,
           },
         );
@@ -741,10 +767,19 @@ function InnerContent({
           globalContactsInformation.myProfile.uuid,
           resized,
         );
-        console.log(response, globalContactsInformation.myProfile.uuid);
-        return response;
+
+        if (response) {
+          await refreshCache(
+            globalContactsInformation.myProfile.uuid,
+            response,
+          );
+        }
+        return !!response;
       } else {
         await deleteDatabaseImage(globalContactsInformation.myProfile.uuid);
+        await removeProfileImageFromCache(
+          globalContactsInformation.myProfile.uuid,
+        );
         return true;
       }
     } catch (err) {
