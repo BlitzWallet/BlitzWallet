@@ -1,46 +1,67 @@
 import React, {useState, useEffect} from 'react';
 import {Image} from 'react-native';
 import {ICONS} from '../../../../../constants';
+import FastImage from 'react-native-fast-image';
+import customUUID from '../../../../../functions/customUUID';
+
 export default function ContactProfileImage({
+  priority = FastImage.priority.high,
+  resizeMode = FastImage.resizeMode.contain,
   uri,
   darkModeType,
   theme,
   setHasImage,
+  updated,
 }) {
   const [loadError, setLoadError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const fallbackIcon = darkModeType && theme ? ICONS.userWhite : ICONS.userIcon;
+  const customURI = `${uri}?v=${
+    updated ? new Date(updated).getTime() : customUUID()
+  }`;
 
   useEffect(() => {
     if (uri) {
-      setLoadError(false);
-      setIsLoading(true);
-
       Image.prefetch(uri)
         .then(() => {
-          setIsLoading(false);
           if (setHasImage) {
             setHasImage(true);
           }
         })
         .catch(() => {
-          setLoadError(true);
-          setIsLoading(false);
           if (setHasImage) {
             setHasImage(false);
           }
         });
+    } else {
+      if (setHasImage) {
+        setHasImage(false);
+      }
     }
-  }, [uri]);
+  }, [customURI]);
 
   return (
-    <Image
-      source={!loadError && uri && !isLoading ? {uri} : fallbackIcon}
+    <FastImage
+      onLoad={() => {
+        setIsLoading(false);
+      }}
+      onError={() => {
+        setLoadError(true);
+      }}
       style={
         !loadError && uri && !isLoading
           ? {width: '100%', aspectRatio: 1}
           : {width: '50%', height: '50%'}
       }
+      source={
+        !loadError && uri && !isLoading
+          ? {
+              uri: customURI,
+              priority: priority,
+            }
+          : fallbackIcon
+      }
+      resizeMode={resizeMode}
     />
   );
 }
