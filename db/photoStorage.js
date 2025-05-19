@@ -1,18 +1,6 @@
 import {getStorage} from '@react-native-firebase/storage';
 import {BLITZ_PROFILE_IMG_STORAGE_REF} from '../app/constants';
 
-export async function getImageURLFromDatabase(publicKey) {
-  try {
-    const reference = getStorage().ref(
-      `${BLITZ_PROFILE_IMG_STORAGE_REF}/${publicKey}.jpg`,
-    );
-    const imageUrl = await reference.getDownloadURL();
-    return imageUrl;
-  } catch (err) {
-    return false;
-  }
-}
-
 export async function setDatabaseIMG(publicKey, imgURL) {
   try {
     const reference = getStorage().ref(
@@ -21,7 +9,8 @@ export async function setDatabaseIMG(publicKey, imgURL) {
 
     await reference.putFile(imgURL.uri);
 
-    return true;
+    const downloadURL = await reference.getDownloadURL();
+    return downloadURL;
   } catch (err) {
     console.log('set database image error', err);
     return false;
