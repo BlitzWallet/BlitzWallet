@@ -164,11 +164,14 @@ export default function ContactsPage({navigation}) {
       ).length !== 0 && myProfile.didEditProfile ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingTop: 10, paddingBottom: 10}}
+          contentContainerStyle={{
+            paddingTop: pinnedContacts.length ? 0 : 10,
+            paddingBottom: 10,
+          }}
           style={{flex: 1, overflow: 'hidden'}}
           stickyHeaderIndices={[pinnedContacts.length ? 1 : 0]}>
           {pinnedContacts.length != 0 && (
-            <View style={{height: 130}}>
+            <View style={{height: 120}}>
               <ScrollView
                 showsHorizontalScrollIndicator={false}
                 horizontal
@@ -660,9 +663,8 @@ const styles = StyleSheet.create({
   },
 
   pinnedContact: {
-    height: 'auto',
-
-    margin: 5,
+    // height: 'auto',
+    marginHorizontal: 5,
     alignItems: 'center',
   },
   pinnedContactsContainer: {
