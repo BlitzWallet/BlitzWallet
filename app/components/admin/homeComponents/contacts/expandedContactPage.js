@@ -30,17 +30,15 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import {useImageCache} from '../../../../../context-store/imageCache';
 import ContactProfileImage from './internalComponents/profileImage';
+import {useContactImage} from '../../../../hooks/useContactImage';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {isConnectedToTheInternet} = useAppStatus();
-  const {cache} = useImageCache();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {
-    textColor,
     backgroundOffset,
     backgroundColor,
     textInputColor,
@@ -54,7 +52,6 @@ export default function ExpandedContactsPage(props) {
   } = useGlobalContacts();
   const insets = useSafeAreaInsets();
   const currentTime = new Date();
-  const isInitialRender = useRef(true);
   const selectedUUID = props?.route?.params?.uuid || props?.uuid;
   const myProfile = globalContactsInformation?.myProfile;
 
@@ -63,7 +60,7 @@ export default function ExpandedContactsPage(props) {
       decodedAddedContacts.filter(contact => contact?.uuid === selectedUUID),
     [decodedAddedContacts, selectedUUID],
   );
-
+  const imageData = useContactImage(selectedContact.uuid);
   const contactTransactions = contactsMessags[selectedUUID]?.messages || []; //selectedContact?.transactions;
   useHandleBackPressNew();
   console.log(selectedContact);
@@ -222,12 +219,12 @@ export default function ExpandedContactsPage(props) {
                 updated={
                   selectedContact.isLNURL
                     ? selectedContact.profileImage
-                    : cache[selectedContact.uuid]?.updated
+                    : imageData?.updated
                 }
                 uri={
                   selectedContact.isLNURL
                     ? selectedContact.profileImage
-                    : cache[selectedContact.uuid]?.localUri
+                    : imageData?.localUri
                 }
                 darkModeType={darkModeType}
                 theme={theme}
@@ -237,9 +234,9 @@ export default function ExpandedContactsPage(props) {
               <View style={styles.selectFromPhotos}>
                 <ThemeImage
                   styles={{width: 20, height: 20}}
-                  darkModeIcon={ICONS.share}
-                  lightModeIcon={ICONS.share}
-                  lightsOutIcon={ICONS.shareWhite}
+                  darkModeIcon={ICONS.shareBlack}
+                  lightModeIcon={ICONS.shareBlack}
+                  lightsOutIcon={ICONS.shareBlack}
                 />
               </View>
             )}
