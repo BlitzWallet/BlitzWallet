@@ -3520,6 +3520,9 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.10)
   - SocketRocket (0.7.1)
+  - spark-sdk (0.1.25):
+    - React
+    - React-Core
   - UMAppLoader (5.0.1)
   - VisionCamera (4.6.4):
     - VisionCamera/Core (= 4.6.4)
@@ -3648,6 +3651,7 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
+  - "spark-sdk (from `../node_modules/@buildonspark/spark-sdk`)"
   - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
   - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -3921,6 +3925,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNSVG:
     :path: "../node_modules/react-native-svg"
+  spark-sdk:
+    :path: "../node_modules/@buildonspark/spark-sdk"
   UMAppLoader:
     :path: "../node_modules/unimodules-app-loader/ios"
   VisionCamera:
@@ -4081,6 +4087,7 @@ SPEC CHECKSUMS:
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
+  spark-sdk: 5d217ee971682998fd5ba35f8daa8651120b5ca1
   UMAppLoader: 7e7e0eaa7854ffd652c00a68c443afb28c3bedba
   VisionCamera: f56eaedde0d3fa095143b78374d29e89e71735f9
   Yoga: fdc0542faa3ba87e56f2030b3f3f2e21bc3ba01c
