@@ -10,7 +10,6 @@ import {
 import {btoa, atob, toByteArray} from 'react-native-quick-base64';
 import {generateMnemonic} from '@scure/bip39';
 import {wordlist} from '@scure/bip39/wordlists/english';
-import {ThemeText} from '../functions/CustomElements';
 import {startLiquidSession} from '../functions/breezLiquid';
 
 const onBreezEvent = e => {
@@ -33,7 +32,7 @@ export default function BreezTest() {
           onPress={() => {
             startLiquidSession();
           }}>
-          <ThemeText content={'connect'} />
+          <Text>test</Text>
         </TouchableOpacity>
         <Text>Testing</Text>
       </SafeAreaView>
