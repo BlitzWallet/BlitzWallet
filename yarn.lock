@@ -1622,23 +1622,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@breeztech/react-native-breez-sdk-liquid@npm:0.7.1":
-  version: 0.7.1
-  resolution: "@breeztech/react-native-breez-sdk-liquid@npm:0.7.1"
+"@breeztech/react-native-breez-sdk-liquid@npm:0.9.1":
+  version: 0.9.1
+  resolution: "@breeztech/react-native-breez-sdk-liquid@npm:0.9.1"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: b2cfa6e314496b94c5d3bc42874c56b625794779aeae73637f38b460430b8604aaa1e854278c2078550cc2e74487f5180a7d9e0d466c8512380f6fbc2bd3ae64
+  checksum: c94ba3d5f2717dec57400a054599375364ae58be7ab304dd83f3fe0fe27baa4017c9653ad47f13632fcb12a5f85f368f4e2a7745c926b22f770e2a725dd6d020
   languageName: node
   linkType: hard
 
-"@breeztech/react-native-breez-sdk@npm:^0.6.6":
-  version: 0.6.6
-  resolution: "@breeztech/react-native-breez-sdk@npm:0.6.6"
+"@breeztech/react-native-breez-sdk@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "@breeztech/react-native-breez-sdk@npm:0.8.0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 0cd4c766b09892e63d318ae56691afe6287c34656904740186ca85d963f350f90ade731d774a98da5b90038dbdb4354e8d49f29a5179548a7e1afb8e83de40d6
+  checksum: 394836df28e5e575eb156ae43ddd131d08906fdc5df60367ffdffd4216ea3900533b9d1b6e3de9a305ac92e3dcfd83c4d103e9fc14539c36004bdbb75b8ef2ee
   languageName: node
   linkType: hard
 
@@ -4677,8 +4677,8 @@ __metadata:
     "@babel/preset-env": ^7.25.3
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
-    "@breeztech/react-native-breez-sdk": ^0.6.6
-    "@breeztech/react-native-breez-sdk-liquid": 0.7.1
+    "@breeztech/react-native-breez-sdk": ^0.8.0
+    "@breeztech/react-native-breez-sdk-liquid": 0.9.1
     "@cashu/cashu-ts": 2.4.1
     "@craftzdog/react-native-buffer": ^6.0.5
     "@getalby/sdk": ^4.1.1

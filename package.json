@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.2.0",
-    "@breeztech/react-native-breez-sdk": "^0.6.6",
-    "@breeztech/react-native-breez-sdk-liquid": "0.7.1",
+    "@breeztech/react-native-breez-sdk": "^0.8.0",
+    "@breeztech/react-native-breez-sdk-liquid": "0.9.1",
     "@cashu/cashu-ts": "2.4.1",
     "@craftzdog/react-native-buffer": "^6.0.5",
     "@getalby/sdk": "^4.1.1",

@@ -113,7 +113,7 @@ export default function SendPaymentScreen(props) {
   const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
   const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
 
-  const minSendAmount = 1000 || minMaxLiquidSwapAmounts.min;
+  const minSendAmount = minMaxLiquidSwapAmounts.min || 1000;
   const maxSendAmount = minMaxLiquidSwapAmounts.max || 23000000;
 
   const usedEcashProofs = useMemo(() => {
