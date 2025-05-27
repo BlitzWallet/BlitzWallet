@@ -40,7 +40,7 @@ import {
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import formatBip21LiquidAddress from '../../../../functions/liquidWallet/formatBip21liquidAddress';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
-import {getSingleContact} from '../../../../../db';
+import {getDataFromCollection, getSingleContact} from '../../../../../db';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 
 export default function SendAndRequestPage(props) {
@@ -230,8 +230,9 @@ export default function SendAndRequestPage(props) {
         receiveAddress = address;
         // note do not need to set an amount for lnurl taken care of down below with entered payment information object
       } else {
-        const [payingContact] = await getSingleContact(
-          selectedContact.uniqueName,
+        const payingContact = await getDataFromCollection(
+          'blitzWalletUsers',
+          selectedContact.uuid,
         );
         console.log('Retrived selected contact', payingContact);
         if (!payingContact) {
