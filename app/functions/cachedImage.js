@@ -35,7 +35,7 @@ export async function getCachedProfileImage(uuid) {
 
     return {localUri, updated};
   } catch (e) {
-    console.error('Error caching profile image', e);
+    console.log('Error caching profile image', e);
     return null;
   }
 }
