@@ -71,7 +71,7 @@ export default function ContactsPage({navigation}) {
           />
         );
       });
-  }, [decodedAddedContacts, contactsMessags]);
+  }, [decodedAddedContacts, contactsMessags, cache]);
 
   const contactElements = useMemo(() => {
     return decodedAddedContacts
@@ -95,7 +95,13 @@ export default function ContactsPage({navigation}) {
           <ContactElement cache={cache} key={contact.uuid} contact={contact} />
         );
       });
-  }, [decodedAddedContacts, inputText, hideUnknownContacts, contactsMessags]);
+  }, [
+    decodedAddedContacts,
+    inputText,
+    hideUnknownContacts,
+    contactsMessags,
+    cache,
+  ]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -291,16 +297,8 @@ function PinnedContactElement(props) {
             },
           ]}>
           <ContactProfileImage
-            updated={
-              contact.isLNURL
-                ? new Date().toISOString()
-                : props.cache[contact.uuid]?.updated
-            }
-            uri={
-              contact.isLNURL
-                ? contact.profileImage
-                : props.cache[contact.uuid]?.localUri
-            }
+            updated={props.cache[contact.uuid]?.updated}
+            uri={props.cache[contact.uuid]?.localUri}
             darkModeType={darkModeType}
             theme={theme}
           />
@@ -396,16 +394,8 @@ export function ContactElement(props) {
               },
             ]}>
             <ContactProfileImage
-              updated={
-                contact.isLNURL
-                  ? new Date().toISOString()
-                  : props.cache[contact.uuid]?.updated
-              }
-              uri={
-                contact.isLNURL
-                  ? contact.profileImage
-                  : props.cache[contact.uuid]?.localUri
-              }
+              updated={props.cache[contact.uuid]?.updated}
+              uri={props.cache[contact.uuid]?.localUri}
               darkModeType={darkModeType}
               theme={theme}
             />

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {ICONS} from '../../../../../constants';
 import FastImage from 'react-native-fast-image';
 import customUUID from '../../../../../functions/customUUID';
@@ -9,7 +9,6 @@ export default function ContactProfileImage({
   uri,
   darkModeType,
   theme,
-  setHasImage,
   updated,
 }) {
   const [loadError, setLoadError] = useState(false);
@@ -23,17 +22,9 @@ export default function ContactProfileImage({
     <FastImage
       onLoad={() => {
         setIsLoading(false);
-        if (setHasImage) {
-          console.log('On load has image', !!customURI);
-          setHasImage(!!uri);
-        }
       }}
       onError={() => {
         setLoadError(true);
-        if (setHasImage) {
-          console.log('on error has image', !!customURI);
-          setHasImage(false);
-        }
       }}
       style={
         !loadError && uri && !isLoading

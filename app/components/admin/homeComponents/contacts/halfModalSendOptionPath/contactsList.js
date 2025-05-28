@@ -157,16 +157,8 @@ export default function ChooseContactHalfModal() {
                 },
               ]}>
               <ContactProfileImage
-                updated={
-                  contact.isLNURL
-                    ? new Date().toISOString()
-                    : props.imgCache[contact.uuid]?.updated
-                }
-                uri={
-                  contact.isLNURL
-                    ? contact.profileImage
-                    : props.imgCache[contact.uuid]?.localUri
-                }
+                updated={props.imgCache[contact.uuid]?.updated}
+                uri={props.imgCache[contact.uuid]?.localUri}
                 darkModeType={darkModeType}
                 theme={theme}
               />
