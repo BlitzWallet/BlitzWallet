@@ -26,10 +26,7 @@ import {useGlobalThemeContext} from '../../../../context-store/theme';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import getClipboardText from '../../../functions/getClipboardText';
 import {useNavigation} from '@react-navigation/native';
-import {
-  crashlyticsLogReport,
-  crashlyticsRecordErrorReport,
-} from '../../../functions/crashlyticsLogs';
+import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
 
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -101,7 +98,6 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       setInputedKey(newKeys);
     } catch (err) {
       console.log('Error getting data from clipbarod', err);
-      crashlyticsRecordErrorReport(err.message);
       navigateToError(err.message);
     }
   }, [navigateToError]);
@@ -126,7 +122,6 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       } else throw new Error(t('createAccount.restoreWallet.home.error3'));
     } catch (err) {
       console.log('did enter correct seed error', err);
-      crashlyticsRecordErrorReport(err.message);
       navigateToError(err.message);
     }
   }, [inputedKey, navigateToError]);
@@ -170,7 +165,6 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       }
     } catch (err) {
       console.log('key validation error', err);
-      crashlyticsRecordErrorReport(err.message);
       navigateToError(err.message);
     } finally {
       setIsValidating(false);
