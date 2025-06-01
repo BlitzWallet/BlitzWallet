@@ -1,6 +1,5 @@
 import {
   Image,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -39,12 +38,11 @@ import {
 import CustomButton from '../../../../functions/CustomElements/button';
 import {copyToClipboard, getLocalStorageItem} from '../../../../functions';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
 import {crashlyticsRecordErrorReport} from '../../../../functions/crashlyticsLogs';
+import useAppInsets from '../../../../hooks/useAppInsets';
 
 export default function ExperimentalItemsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -57,11 +55,7 @@ export default function ExperimentalItemsPage() {
   const [savedMintList, setSavedMintList] = useState([]);
   const [hasUserMigrated, setHasUserMigrated] = useState(null);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const insets = useSafeAreaInsets();
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useAppInsets();
 
   const enabledEcash = masterInfoObject.enabledEcash;
   const currentMintURL = ecashWalletInformation.mintURL;
@@ -281,7 +275,7 @@ export default function ExperimentalItemsPage() {
               flexGrow: 1,
               paddingBottom: isKeyboardActive
                 ? CONTENT_KEYBOARD_OFFSET
-                : paddingBottom,
+                : bottomPadding,
             }}
             showsVerticalScrollIndicator={false}>
             <SettingsItemWithSlider

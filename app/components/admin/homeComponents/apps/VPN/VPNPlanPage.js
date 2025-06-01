@@ -1,10 +1,4 @@
-import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useMemo, useState} from 'react';
 import {CENTER, CONTENT_KEYBOARD_OFFSET} from '../../../../../constants';
@@ -21,11 +15,10 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import sendStorePayment from '../../../../../functions/apps/payments';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function VPNPlanPage({countryList}) {
   const [searchInput, setSearchInput] = useState('');
@@ -41,11 +34,7 @@ export default function VPNPlanPage({countryList}) {
   const {textColor} = GetThemeColors();
   const [loadingMessage, setLoadingMessage] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const insets = useSafeAreaInsets();
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useAppInsets();
 
   const countryElements = useMemo(() => {
     return [...countryList]
@@ -76,7 +65,7 @@ export default function VPNPlanPage({countryList}) {
         flex: 1,
         paddingBottom: isKeyboardActive
           ? CONTENT_KEYBOARD_OFFSET
-          : paddingBottom,
+          : bottomPadding,
       }}>
       {isPaying ? (
         <>

@@ -5,9 +5,8 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import GlobalThemeView from './globalThemeView';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../constants/styles';
 import {CONTENT_KEYBOARD_OFFSET} from '../../constants';
+import useAppInsets from '../../hooks/useAppInsets';
 
 export default function CustomKeyboardAvoidingView({
   children,
@@ -18,11 +17,7 @@ export default function CustomKeyboardAvoidingView({
   isKeyboardActive,
   useLocalPadding = false,
 }) {
-  const insets = useSafeAreaInsets();
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useAppInsets();
 
   return (
     <KeyboardAvoidingView
@@ -44,7 +39,7 @@ export default function CustomKeyboardAvoidingView({
               paddingBottom: useLocalPadding
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
-                  : paddingBottom
+                  : bottomPadding
                 : 0,
               ...globalThemeViewStyles,
             }}
@@ -58,7 +53,7 @@ export default function CustomKeyboardAvoidingView({
             paddingBottom: useLocalPadding
               ? isKeyboardActive
                 ? CONTENT_KEYBOARD_OFFSET
-                : paddingBottom
+                : bottomPadding
               : 0,
             ...globalThemeViewStyles,
           }}

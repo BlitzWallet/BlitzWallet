@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import {Back_BTN} from '../../../components/login';
 import {retrieveData, storeData} from '../../../functions';
-import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../constants';
+import {CENTER, COLORS, FONT, SIZES} from '../../../constants';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import isValidMnemonic from '../../../functions/isValidMnemonic';
 import {useTranslation} from 'react-i18next';
@@ -19,14 +19,13 @@ import {
 import SuggestedWordContainer from '../../../components/login/suggestedWords';
 import CustomButton from '../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../constants/styles';
 import {WINDOWWIDTH} from '../../../constants/theme';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import getClipboardText from '../../../functions/getClipboardText';
 import {useNavigation} from '@react-navigation/native';
 import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
+import useAppInsets from '../../../hooks/useAppInsets';
 
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -39,11 +38,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
   const navigate = useNavigation();
   const {t} = useTranslation();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const insets = useSafeAreaInsets();
-  const bottomOffset = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useAppInsets();
   const [isValidating, setIsValidating] = useState(false);
   const [currentFocused, setCurrentFocused] = useState(null);
   const keyRefs = useRef({});
@@ -299,7 +294,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
           <View
             style={{
               ...styles.mainBTCContainer,
-              paddingBottom: bottomOffset,
+              paddingBottom: bottomPadding,
             }}>
             <CustomButton
               buttonStyles={{

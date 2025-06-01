@@ -1,14 +1,12 @@
 import {
   FlatList,
   Keyboard,
-  Platform,
   StyleSheet,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {
   CENTER,
@@ -22,10 +20,7 @@ import {useNavigation} from '@react-navigation/native';
 import {parseInput} from '@breeztech/react-native-breez-sdk';
 import {sendCountryCodes} from './sendCountryCodes';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
-import {
-  ANDROIDSAFEAREA,
-  KEYBOARDTIMEOUT,
-} from '../../../../../constants/styles';
+import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
 import {AsYouType} from 'libphonenumber-js';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
@@ -38,9 +33,9 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import sendStorePayment from '../../../../../functions/apps/payments';
+import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function SMSMessagingSendPage({SMSprices}) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -60,13 +55,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
   const messageRef = useRef(null);
   const navigate = useNavigation();
   const {textColor, backgroundColor} = GetThemeColors();
-
-  const insets = useSafeAreaInsets();
-
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useAppInsets();
 
   const selectedAreaCode = useMemo(() => {
     return sendCountryCodes.filter(
@@ -96,7 +85,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
               ...styles.sendPage,
               paddingBottom: focusedElement
                 ? CONTENT_KEYBOARD_OFFSET
-                : paddingBottom,
+                : bottomPadding,
             }}>
             <TextInput
               style={styles.textInputHidden}

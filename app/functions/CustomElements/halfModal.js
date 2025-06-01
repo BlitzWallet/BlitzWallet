@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {PanResponder} from 'react-native';
 import {
   Animated,
@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
   useWindowDimensions,
@@ -30,10 +29,10 @@ import LiquidAddressModal from '../../components/admin/homeComponents/settingsCo
 import ManualEnterSendAddress from '../../components/admin/homeComponents/homeLightning/manualEnterSendAddress';
 import ConfirmInternalTransferHalfModal from '../../components/admin/homeComponents/settingsContent/walletInfoComponents/confirmTransferHalfModal';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {ANDROIDSAFEAREA, CENTER, KEYBOARDTIMEOUT} from '../../constants/styles';
+import {KEYBOARDTIMEOUT} from '../../constants/styles';
 import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import AddPOSItemHalfModal from '../../components/admin/homeComponents/settingsContent/posPath/items/addItemHalfModal';
+import useAppInsets from '../../hooks/useAppInsets';
 
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -44,11 +43,7 @@ export default function CustomHalfModal(props) {
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const insets = useSafeAreaInsets();
-  const bottomPadding = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useAppInsets();
 
   const translateY = useRef(
     new Animated.Value(windowDimensions.height),

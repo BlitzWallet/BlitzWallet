@@ -9,20 +9,19 @@ import {
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import ProfilePageTransactions from './internalComponents/profilePageTransactions';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import MaxHeap from '../../../../functions/minHeap';
 import ContactProfileImage from './internalComponents/profileImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
+import useAppInsets from '../../../../hooks/useAppInsets';
 
 export default function MyContactProfilePage({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -35,6 +34,7 @@ export default function MyContactProfilePage({navigation}) {
   const navigate = useNavigation();
   const currentTime = new Date();
   const [showList, setShowList] = useState(false);
+  const {bottomPadding} = useAppInsets();
 
   const myContact = globalContactsInformation.myProfile;
 
@@ -87,7 +87,6 @@ export default function MyContactProfilePage({navigation}) {
     return result;
   }, [decodedAddedContacts, contactsMessags]);
 
-  const insets = useSafeAreaInsets();
   useHandleBackPressNew();
 
   return (
@@ -197,8 +196,7 @@ export default function MyContactProfilePage({navigation}) {
           <FlatList
             contentContainerStyle={{
               paddingTop: 10,
-              paddingBottom:
-                insets.bottom < 20 ? ANDROIDSAFEAREA : insets.bottom,
+              paddingBottom: bottomPadding,
             }}
             showsVerticalScrollIndicator={false}
             style={{

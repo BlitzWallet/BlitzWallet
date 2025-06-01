@@ -6,9 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {BTN, CENTER} from '../../../../../constants/styles';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {COLORS, FONT, ICONS, SIZES} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useRef, useState} from 'react';
@@ -17,7 +15,6 @@ import ResturantAppNavigator from '../../../../../../navigation/drawers/resturan
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 
 export default function ResturantHomepage() {
-  const insets = useSafeAreaInsets();
   const {theme, darkModeType} = useGlobalThemeContext();
   const navigate = useNavigation();
   const [APICallAddress, setAPICallAddress] = useState('');

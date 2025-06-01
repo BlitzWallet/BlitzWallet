@@ -1,19 +1,12 @@
 import {useNavigation} from '@react-navigation/native';
 import {
-  Image,
   Keyboard,
-  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  ICONS,
-  SIZES,
-} from '../../../../../constants';
+import {CENTER, CONTENT_KEYBOARD_OFFSET, SIZES} from '../../../../../constants';
 import {useMemo, useState} from 'react';
 import {
   CustomKeyboardAvoidingView,
@@ -26,16 +19,13 @@ import useUnmountKeyboard from '../../../../../hooks/useUnmountKeyboard';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {
-  ANDROIDSAFEAREA,
-  KEYBOARDTIMEOUT,
-} from '../../../../../constants/styles';
+import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {useImageCache} from '../../../../../../context-store/imageCache';
 import ContactProfileImage from '../internalComponents/profileImage';
+import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function ChooseContactHalfModal() {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -43,15 +33,11 @@ export default function ChooseContactHalfModal() {
   useUnmountKeyboard();
   const {decodedAddedContacts} = useGlobalContacts();
   const navigate = useNavigation();
-  const insets = useSafeAreaInsets();
   const [isKeyboardActive, setIskeyboardActive] = useState(false);
   const [inputText, setInputText] = useState('');
   const {t} = useTranslation();
+  const {bottomPadding} = useAppInsets();
 
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
   useHandleBackPressNew();
 
   const contactElements = useMemo(() => {
@@ -105,7 +91,7 @@ export default function ChooseContactHalfModal() {
             flexGrow: 1,
             paddingBottom: isKeyboardActive
               ? CONTENT_KEYBOARD_OFFSET
-              : paddingBottom,
+              : bottomPadding,
           }}>
           {contactElements}
         </ScrollView>

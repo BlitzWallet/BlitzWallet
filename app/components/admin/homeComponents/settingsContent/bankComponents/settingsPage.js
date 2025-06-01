@@ -1,9 +1,9 @@
-import {Platform, ScrollView} from 'react-native';
+import {ScrollView} from 'react-native';
 import {
   MAX_CHANNEL_OPEN_FEE,
   MIN_CHANNEL_OPEN_FEE,
 } from '../../../../../constants';
-import {ANDROIDSAFEAREA, CENTER} from '../../../../../constants/styles';
+import {CENTER} from '../../../../../constants/styles';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useCallback, useState} from 'react';
@@ -13,7 +13,6 @@ import {
 } from '../../../../../functions/CustomElements';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import {formatBalanceAmount} from '../../../../../functions';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import connectToLightningNode from '../../../../../functions/connectToLightning';
 import {
   connectLsp,
@@ -29,6 +28,7 @@ import SettingsItemWithSlider from '../../../../../functions/CustomElements/sett
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useTranslation} from 'react-i18next';
+import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function LiquidSettingsPage() {
   const navigate = useNavigation();
@@ -38,8 +38,9 @@ export default function LiquidSettingsPage() {
   const {onLightningBreezEvent} = useLightningEvent();
   const [isEnablingLightning, setIsEnablingLightning] = useState(false);
   const {t} = useTranslation();
-  const insets = useSafeAreaInsets();
+
   useHandleBackPressNew();
+
   const autoChannelRebalanceState =
     masterInfoObject.liquidWalletSettings.autoChannelRebalance;
   const regulateChannelOpenState =
@@ -47,10 +48,7 @@ export default function LiquidSettingsPage() {
   const isLightningEnabledState =
     masterInfoObject.liquidWalletSettings.isLightningEnabled;
 
-  const bottomPadding = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {paddingBottom} = useAppInsets();
 
   const handleAutoChannelRebalanceSubmit = useCallback(
     (value, resetFunction) => {

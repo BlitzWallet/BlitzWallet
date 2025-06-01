@@ -1,12 +1,12 @@
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ActivityIndicator, Dimensions, View} from 'react-native';
+
+import {Dimensions} from 'react-native';
 import {COLORS} from '../../app/constants';
 
-import {ANDROIDSAFEAREA} from '../../app/constants/styles';
 import MenuPage from '../../app/components/admin/homeComponents/apps/resturantService/menuPage';
 import {useEffect, useState} from 'react';
 import {useGlobalThemeContext} from '../../context-store/theme';
+import useAppInsets from '../../app/hooks/useAppInsets';
 
 const Drawer = createDrawerNavigator();
 
@@ -18,7 +18,7 @@ export default function ResturantAppNavigator({
   const {theme, darkModeType} = useGlobalThemeContext();
   const [drawerElements, setDrawerElements] = useState([]);
 
-  const insets = useSafeAreaInsets();
+  const {bottomPadding, topPadding} = useAppInsets();
 
   const drawerWidth =
     Dimensions.get('screen').width * 0.5 < 150 ||
@@ -85,8 +85,8 @@ export default function ResturantAppNavigator({
             ? COLORS.darkModeBackground
             : COLORS.lightModeBackground,
           width: drawerWidth,
-          paddingTop: insets.top === 0 ? ANDROIDSAFEAREA : 0,
-          paddingBottom: insets.bottom === 0 ? ANDROIDSAFEAREA : 0,
+          paddingTop: topPadding,
+          paddingBottom: bottomPadding,
         },
 
         drawerActiveBackgroundColor: theme

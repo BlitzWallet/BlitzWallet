@@ -1,30 +1,22 @@
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Dimensions, Keyboard, Platform} from 'react-native';
+import {Dimensions} from 'react-native';
 import ChatGPTHome from '../../app/components/admin/homeComponents/apps/chatGPT/chatGPTHome';
 import {AddChatGPTCredits} from '../../app/components/admin';
-import {ANDROIDSAFEAREA} from '../../app/constants/styles';
-import {useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {useGlobalAppData} from '../../context-store/appData';
 import GetThemeColors from '../../app/hooks/themeColors';
 import FullLoadingScreen from '../../app/functions/CustomElements/loadingScreen';
+import useAppInsets from '../../app/hooks/useAppInsets';
 
 const Drawer = createDrawerNavigator();
 
 function ChatGPTDrawer({confirmationSliderData}) {
-  const insets = useSafeAreaInsets();
-  const navigate = useNavigation();
-
   const {decodedChatGPT} = useGlobalAppData();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
 
   const [didLoad, setDidLoad] = useState(false);
+  const {bottomPadding} = useAppInsets();
 
-  const bottomPadding = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
   const chatGPTCoversations = decodedChatGPT.conversation || [];
   const chatGPTCredits = decodedChatGPT.credits;
 

@@ -5,8 +5,6 @@ import {
   Image,
   ScrollView,
   TextInput,
-  Keyboard,
-  Platform,
 } from 'react-native';
 import {
   CENTER,
@@ -18,22 +16,19 @@ import {
   VALID_USERNAME_REGEX,
 } from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
-import {useEffect, useState, useRef, useCallback, useMemo} from 'react';
+import {useEffect, useState, useRef} from 'react';
 import {encriptMessage} from '../../../../functions/messaging/encodingAndDecodingMessages';
-
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import {isValidUniqueName} from '../../../../../db';
-
 import CustomButton from '../../../../functions/CustomElements/button';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {getImageFromLibrary} from '../../../../functions/imagePickerWrapper';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../context-store/keys';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
@@ -47,6 +42,7 @@ import {
   setDatabaseIMG,
 } from '../../../../../db/photoStorage';
 import {useImageCache} from '../../../../../context-store/imageCache';
+import useAppInsets from '../../../../hooks/useAppInsets';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -145,7 +141,6 @@ function InnerContent({
   const selectedAddedContactReceiveAddress =
     selectedAddedContact?.receiveAddress;
 
-  const insets = useSafeAreaInsets();
   const [inputs, setInputs] = useState({
     name: '',
     bio: '',
@@ -154,10 +149,7 @@ function InnerContent({
   });
 
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: CONTENT_KEYBOARD_OFFSET,
-  });
+  const {bottomPadding} = useAppInsets();
 
   const navigate = useNavigation();
 
@@ -492,7 +484,7 @@ function InnerContent({
           marginTop: 10,
           marginBottom: isKeyboardActive
             ? CONTENT_KEYBOARD_OFFSET
-            : paddingBottom,
+            : bottomPadding,
         }}
         actionFunction={saveChanges}
         textContent={
