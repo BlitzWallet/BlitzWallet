@@ -1,16 +1,14 @@
 import {
   View,
   TouchableOpacity,
-  Image,
   StyleSheet,
-  ActivityIndicator,
   FlatList,
   ScrollView,
   Share,
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect, useMemo, useRef} from 'react';
+import {useEffect, useMemo} from 'react';
 import {
   decryptMessage,
   encriptMessage,
@@ -22,8 +20,6 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../functions/CustomElements/Icon';
 import {queueSetCashedMessages} from '../../../../functions/messaging/cachedMessages';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
@@ -32,6 +28,7 @@ import {useKeysContext} from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import ContactProfileImage from './internalComponents/profileImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
+import useAppInsets from '../../../../hooks/useAppInsets';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
@@ -50,7 +47,8 @@ export default function ExpandedContactsPage(props) {
     toggleGlobalContactsInformation,
     contactsMessags,
   } = useGlobalContacts();
-  const insets = useSafeAreaInsets();
+  const {bottomPadding} = useAppInsets();
+
   const {cache} = useImageCache();
 
   const currentTime = new Date();
@@ -332,8 +330,7 @@ export default function ExpandedContactsPage(props) {
                 }}
                 contentContainerStyle={{
                   paddingTop: selectedContact?.bio ? 10 : 20,
-                  paddingBottom:
-                    insets.bottom < 20 ? ANDROIDSAFEAREA : insets.bottom,
+                  paddingBottom: bottomPadding,
                 }}
                 data={contactTransactions.slice(0, 50)}
                 renderItem={({item, index}) => {

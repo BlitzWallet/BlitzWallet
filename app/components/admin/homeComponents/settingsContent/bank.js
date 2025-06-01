@@ -1,13 +1,11 @@
-import {StyleSheet, View, FlatList, Keyboard, Platform} from 'react-native';
-import {FONT, ICONS, SIZES} from '../../../../constants';
+import {StyleSheet, View, FlatList} from 'react-native';
+import {ICONS, SIZES} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
 import getFormattedHomepageTxs from '../../../../functions/combinedTransactions';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import {useTranslation} from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA, CENTER} from '../../../../constants/styles';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
@@ -17,6 +15,7 @@ import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useEffect, useState} from 'react';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import useAppInsets from '../../../../hooks/useAppInsets';
 
 export default function LiquidWallet() {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -25,16 +24,12 @@ export default function LiquidWallet() {
   const {masterInfoObject} = useGlobalContextProvider();
   const navigate = useNavigation();
   const {t} = useTranslation();
-  const insets = useSafeAreaInsets();
   const {backgroundColor} = GetThemeColors();
   const [txs, setTxs] = useState([]);
 
   const currentTime = useUpdateHomepageTransactions();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
-  const bottomPadding = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useAppInsets();
 
   useEffect(() => {
     const formattedTxs = getFormattedHomepageTxs({

@@ -6,15 +6,14 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {FlatList, Platform, StyleSheet, View} from 'react-native';
+import {FlatList, StyleSheet, View} from 'react-native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
 import {usePOSTransactions} from '../../../../../../context-store/pos';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
+import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function ViewPOSTransactions() {
   const {groupedTxs} = usePOSTransactions();
@@ -22,13 +21,7 @@ export default function ViewPOSTransactions() {
   const {masterInfoObject} = useGlobalContextProvider();
   const {nodeInformation} = useNodeContext();
   const navigate = useNavigation();
-
-  const insets = useSafeAreaInsets();
-
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useAppInsets();
 
   const filteredList = useMemo(() => {
     return !groupedTxs
@@ -87,7 +80,7 @@ export default function ViewPOSTransactions() {
         {filteredList.length ? (
           <FlatList
             style={{width: '100%'}}
-            contentContainerStyle={{paddingBottom: paddingBottom + 50}}
+            contentContainerStyle={{paddingBottom: bottomPadding + 50}}
             showsVerticalScrollIndicator={false}
             scrollEnabled={true}
             data={filteredList}

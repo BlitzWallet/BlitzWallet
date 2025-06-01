@@ -1,7 +1,6 @@
 import {
   FlatList,
   Image,
-  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -13,8 +12,6 @@ import {
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {CENTER, COLORS, ICONS} from '../../../../../constants';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {openComposer} from 'react-native-email-link';
@@ -22,18 +19,16 @@ import {copyToClipboard} from '../../../../../functions';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function HistoricalGiftCardPurchases() {
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {contactsPrivateKey, publicKey} = useKeysContext();
 
-  const insets = useSafeAreaInsets();
   const navigate = useNavigation();
 
-  const bottomPadding = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useAppInsets();
+
   useHandleBackPressNew();
 
   const renderItem = ({item}) => (

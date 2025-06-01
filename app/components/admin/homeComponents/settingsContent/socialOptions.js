@@ -1,10 +1,9 @@
-import {StyleSheet, View, TouchableOpacity, Platform} from 'react-native';
+import {StyleSheet, View, TouchableOpacity} from 'react-native';
 import {CENTER, ICONS} from '../../../../constants';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useNavigation} from '@react-navigation/native';
 import openWebBrowser from '../../../../functions/openWebBrowser';
+import useAppInsets from '../../../../hooks/useAppInsets';
 
 const NAVITEMS = [
   //   {name: 'Faucet', link: 'URL', icon: ICONS.faucetIcon, inApp: true},
@@ -33,8 +32,8 @@ const NAVITEMS = [
 ];
 
 export default function BlitzSocialOptions() {
-  const insets = useSafeAreaInsets();
   const navigate = useNavigation();
+  const {bottomPadding} = useAppInsets();
   const navElements = NAVITEMS.map((item, id) => {
     return (
       <TouchableOpacity
@@ -56,11 +55,6 @@ export default function BlitzSocialOptions() {
         />
       </TouchableOpacity>
     );
-  });
-
-  const bottomPadding = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
   });
 
   return (

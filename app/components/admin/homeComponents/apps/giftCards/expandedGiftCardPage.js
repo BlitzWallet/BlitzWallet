@@ -1,6 +1,5 @@
 import {
   Image,
-  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -27,7 +26,6 @@ import {
 import {useMemo, useState} from 'react';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {useNavigation} from '@react-navigation/native';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
@@ -42,10 +40,10 @@ import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../../functions/customNavigation';
 import sendStorePayment from '../../../../../functions/apps/payments';
+import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function ExpandedGiftCardPage(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -56,7 +54,7 @@ export default function ExpandedGiftCardPage(props) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
-  const insets = useSafeAreaInsets();
+  const {bottomPadding} = useAppInsets();
   const [numberOfGiftCards, setNumberOfGiftCards] = useState('1');
   const selectedItem = props.route?.params?.selectedItem;
   const [selectedDenomination, setSelectedDenomination] = useState(
@@ -74,10 +72,6 @@ export default function ExpandedGiftCardPage(props) {
   });
   const [email, setEmail] = useState(decodedGiftCards?.profile?.email || '');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
 
   const variableRange = [
     selectedItem.denominations[0],
@@ -200,7 +194,7 @@ export default function ExpandedGiftCardPage(props) {
             contentContainerStyle={{
               paddingBottom: isKeyboardActive
                 ? CONTENT_KEYBOARD_OFFSET
-                : paddingBottom,
+                : bottomPadding,
             }}
             showsVerticalScrollIndicator={false}>
             <View style={styles.contentContainer}>
