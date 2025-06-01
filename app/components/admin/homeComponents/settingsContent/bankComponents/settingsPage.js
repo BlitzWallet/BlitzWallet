@@ -48,7 +48,7 @@ export default function LiquidSettingsPage() {
   const isLightningEnabledState =
     masterInfoObject.liquidWalletSettings.isLightningEnabled;
 
-  const {paddingBottom} = useAppInsets();
+  const {bottomPadding} = useAppInsets();
 
   const handleAutoChannelRebalanceSubmit = useCallback(
     (value, resetFunction) => {
