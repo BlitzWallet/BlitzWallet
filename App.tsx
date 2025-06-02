@@ -65,6 +65,10 @@ import {navigationRef} from './navigation/navigationService';
 import {GlobalConbinedTxContextProvider} from './context-store/combinedTransactionsContext';
 import BreezTest from './app/screens/breezTest';
 import {ImageCacheProvider} from './context-store/imageCache';
+import {
+  runPinAndMnemoicMigration,
+  runSecureStoreMigrationV2,
+} from './app/functions/secureStore';
 
 const Stack = createNativeStackNavigator();
 
@@ -222,12 +226,14 @@ function ResetStack(): JSX.Element | null {
 
   useEffect(() => {
     async function initWallet() {
+      await runPinAndMnemoicMigration();
+      await runSecureStoreMigrationV2();
       const [initialURL, registerBackground, pin, mnemonic, securitySettings] =
         await Promise.all([
           getInitialURL(),
           registerBackgroundNotificationTask(),
-          retrieveData('pin'),
-          retrieveData('mnemonic'),
+          retrieveData('pinHash'),
+          retrieveData('encryptedMnemonic'),
           getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
         ]);
 
@@ -246,7 +252,7 @@ function ResetStack(): JSX.Element | null {
       setInitSettings(prev => {
         return {
           ...prev,
-          isLoggedIn: pin && mnemonic,
+          isLoggedIn: !!pin && !!mnemonic,
           hasSecurityEnabled: parsedSettings.isSecurityEnabled,
         };
       });
