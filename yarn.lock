@@ -4714,6 +4714,7 @@ __metadata:
     bolt11: ^1.4.1
     boltz-swap-web-context: "github:BlakeKaufman/boltz-swap-web-context"
     buffer: ^6.0.3
+    crypto-es: ^2.1.0
     ecpair: ^3.0.0
     eslint: ^8.19.0
     events: ^3.3.0
@@ -6548,6 +6549,13 @@ __metadata:
     randombytes: ^2.1.0
     randomfill: ^1.0.4
   checksum: 4e643dd5acfff80fbe2cc567feb75a22d726cc4df34772c988f326976c3c1ee1f8a611a33498dab11568cff3e134f0bd44a0e1f4c216585e5877ab5327cdb6fc
+  languageName: node
+  linkType: hard
+
+"crypto-es@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "crypto-es@npm:2.1.0"
+  checksum: 1eb458b4ee07a8e28d03d381f41ef97ed18b7e2a3323ec14f5129bd1dbabf39725fc003b5d8d8fd91413a1a700987ab5d47725ba40286a2afd282c9789af0b70
   languageName: node
   linkType: hard
 
