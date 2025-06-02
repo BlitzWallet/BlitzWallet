@@ -58,7 +58,7 @@ export default function TotalTipsScreen(props) {
   ] = groupedTxs.find(item => item[0] === wantedName);
 
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {contactsPrivateKey} = useKeysContext();
+  const {contactsPrivateKey, accountMnemoinc} = useKeysContext();
   const {liquidNodeInformation, nodeInformation} = useNodeContext();
   const {ecashWalletInformation} = useGlobaleCash();
 
@@ -116,6 +116,7 @@ export default function TotalTipsScreen(props) {
           masterInfoObject,
           description: POINT_OF_SALE_PAYOUT_DESCRIPTION,
           webViewRef,
+          accountMnemoinc,
         });
         if (didPay) {
           setPaymentUpdate(prev => ({
@@ -161,6 +162,7 @@ export default function TotalTipsScreen(props) {
           sendingAmountSats: totalTipAmount,
           masterInfoObject,
           description: POINT_OF_SALE_PAYOUT_DESCRIPTION,
+          accountMnemoinc,
         });
         if (didPay) {
           await updateInteralDBState(unpaidTxs);

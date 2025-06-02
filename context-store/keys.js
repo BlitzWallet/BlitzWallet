@@ -16,6 +16,7 @@ const KeysContextProvider = ({children}) => {
     () => (contactsPrivateKey ? getPublicKey(contactsPrivateKey) : null),
     [contactsPrivateKey],
   );
+  const [accountMnemoinc, setAccountMnemonic] = useState('');
 
   const toggleContactsPrivateKey = useCallback(newKey => {
     setContactsPrivateKey(newKey);
@@ -26,8 +27,16 @@ const KeysContextProvider = ({children}) => {
       contactsPrivateKey,
       publicKey,
       toggleContactsPrivateKey,
+      accountMnemoinc,
+      setAccountMnemonic,
     }),
-    [contactsPrivateKey, publicKey, toggleContactsPrivateKey],
+    [
+      contactsPrivateKey,
+      publicKey,
+      toggleContactsPrivateKey,
+      accountMnemoinc,
+      setAccountMnemonic,
+    ],
   );
 
   return (

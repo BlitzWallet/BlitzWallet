@@ -27,7 +27,6 @@ export default async function createAccountMnemonic() {
       .split(' ')
       .filter(word => word.length > 2)
       .join(' ');
-    await storeData('mnemonic', generatedMnemonic);
     return filtedMnemoinc;
   } catch (err) {
     console.log('generate mnemoinc error:', err);

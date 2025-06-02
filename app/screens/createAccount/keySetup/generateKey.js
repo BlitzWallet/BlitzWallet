@@ -15,9 +15,13 @@ import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../../../functions/crashlyticsLogs';
+import {useKeysContext} from '../../../../context-store/keys';
 
 export default function GenerateKey() {
-  const [mnemonic, setMnemonic] = useState([]);
+  // const [mnemonic, setMnemonic] = useState([]);
+  const {accountMnemoinc} = useKeysContext();
+  const mnemonic = accountMnemoinc.split(' ');
+  console.log(accountMnemoinc);
   const {t} = useTranslation();
   const hookNavigate = useNavigation();
   useHandleBackPressNew();

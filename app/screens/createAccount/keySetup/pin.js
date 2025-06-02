@@ -9,8 +9,12 @@ import KeyForKeyboard from '../../../functions/CustomElements/key';
 import PinDot from '../../../functions/CustomElements/pinDot';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import RNRestart from 'react-native-restart';
+import sha256Hash from '../../../functions/hash';
+import {useKeysContext} from '../../../../context-store/keys';
+import {encryptMnemonic} from '../../../functions/secureStore';
 
 export default function PinPage(props) {
+  const {accountMnemoinc} = useKeysContext();
   const [pin, setPin] = useState([null, null, null, null]);
   const [confirmPin, setConfirmPin] = useState([]);
   const [pinNotMatched, setPinNotMatched] = useState(false);
@@ -21,7 +25,13 @@ export default function PinPage(props) {
   // const fromGiftPath = props.route.params?.from === 'giftPath';
   const isInitialLoad = props.route.params?.isInitialLoad;
   const didRestoreWallet = props.route.params?.didRestoreWallet;
-
+  console.log(
+    'TEst',
+    pin,
+    confirmPin,
+    pin.toString() === confirmPin.toString(),
+    accountMnemoinc,
+  );
   useEffect(() => {
     const filteredPin = pin.filter(pin => {
       if (typeof pin === 'number') return true;
@@ -35,7 +45,15 @@ export default function PinPage(props) {
     }
     (async () => {
       if (pin.toString() === confirmPin.toString()) {
-        storeData('pin', JSON.stringify(confirmPin));
+        await storeData('pinHash', sha256Hash(JSON.stringify(confirmPin)));
+        const encrpipted = encryptMnemonic(
+          accountMnemoinc,
+          JSON.stringify(confirmPin),
+        );
+        await storeData(
+          'encryptedMnemonic',
+          encryptMnemonic(accountMnemoinc, JSON.stringify(confirmPin)),
+        );
         clearSettings();
         navigate.reset({
           index: 0,

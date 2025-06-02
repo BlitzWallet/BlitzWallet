@@ -18,8 +18,10 @@ import {
   ecashEventEmitter,
 } from '../../../../../../context-store/eCash';
 import {useTranslation} from 'react-i18next';
+import {useKeysContext} from '../../../../../../context-store/keys';
 export default function ConfirmInternalTransferHalfModal(props) {
   const {backgroundColor, backgroundOffset, textColor} = GetThemeColors();
+  const {accountMnemoinc} = useKeysContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {t} = useTranslation();
   const navigate = useNavigation();
@@ -71,6 +73,7 @@ export default function ConfirmInternalTransferHalfModal(props) {
           const eCashInvoice = await getECashInvoice({
             amount: amount,
             descriptoin: 'Internal_Transfer',
+            accountMnemoinc,
           });
           if (!eCashInvoice.didWork)
             throw new Error(t('settings.balanceinfo.confirmpage.text1'));

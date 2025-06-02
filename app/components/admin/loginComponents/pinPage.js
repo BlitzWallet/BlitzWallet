@@ -15,6 +15,9 @@ import RNRestart from 'react-native-restart';
 import PinDot from '../../../functions/CustomElements/pinDot';
 import {useNavigation} from '@react-navigation/native';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
+import sha256Hash from '../../../functions/hash';
+import {useKeysContext} from '../../../../context-store/keys';
+import {getDecryptedMnemonic} from '../../../functions/secureStore';
 
 export default function PinPage() {
   const [loginSettings, setLoginSettings] = useState({
@@ -22,9 +25,10 @@ export default function PinPage() {
     isPinEnabled: null,
     isSecurityEnabled: null,
     enteredPin: [null, null, null, null],
-    savedPin: [null, null, null, null],
+    savedPin: '',
     enteredPinCount: 0,
   });
+  const {setAccountMnemonic} = useKeysContext();
   const {t} = useTranslation();
 
   const navigate = useNavigation();
@@ -37,8 +41,8 @@ export default function PinPage() {
     if (filteredPin.length != 4) return;
 
     if (
-      JSON.stringify(loginSettings.enteredPin) ===
-      JSON.stringify(loginSettings.savedPin)
+      loginSettings.savedPin ===
+      sha256Hash(JSON.stringify(loginSettings.enteredPin))
     ) {
       if (loginSettings.isBiometricEnabled) {
         navigate.navigate('ConfirmActionPage', {
@@ -63,6 +67,11 @@ export default function PinPage() {
         });
         return;
       }
+
+      const mnemonicPlain = await getDecryptedMnemonic(
+        JSON.stringify(loginSettings.enteredPin),
+      );
+      setAccountMnemonic(mnemonicPlain);
 
       setTimeout(() => {
         navigate.replace('ConnectingToNodeLoadingScreen', {
@@ -108,7 +117,7 @@ export default function PinPage() {
           getLocalStorageItem(LOGIN_SECUITY_MODE_KEY).then(data =>
             JSON.parse(data),
           ),
-          retrieveData('pin').then(data => JSON.parse(data)),
+          retrieveData('pinHash'),
         ]);
         setLoginSettings(prev => ({
           ...prev,

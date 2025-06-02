@@ -46,7 +46,7 @@ import sendStorePayment from '../../../../../functions/apps/payments';
 import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function ExpandedGiftCardPage(props) {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {contactsPrivateKey, publicKey, accountMnemoinc} = useKeysContext();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -499,6 +499,7 @@ export default function ExpandedGiftCardPage(props) {
         minMaxLiquidSwapAmounts,
         sendingAmountSats: sendingAmountSat,
         masterInfoObject: masterInfoObject,
+        accountMnemoinc,
       });
 
       if (!paymentResponse.didWork) {

@@ -17,6 +17,7 @@ export default async function sendStorePayment({
   sendingAmountSats,
   masterInfoObject,
   description = '',
+  accountMnemoinc,
 }) {
   try {
     crashlyticsLogReport('Begining store payment process');
@@ -35,7 +36,7 @@ export default async function sendStorePayment({
         const storedProofs = await getStoredProofs();
         const balance = sumProofsValue(storedProofs);
         if (balance > sendingAmountSats + lightningFee) {
-          const meltQuote = await getMeltQuote(invoice);
+          const meltQuote = await getMeltQuote(invoice, accountMnemoinc);
           if (!meltQuote.quote)
             throw new Error(
               meltQuote.reason || 'Not able to generate ecash quote',
@@ -45,6 +46,7 @@ export default async function sendStorePayment({
             invoice,
             proofsToUse: meltQuote.proofsToUse,
             description: description,
+            accountMnemoinc,
           });
           if (!didPay.didWork) throw new Error(didPay.message);
           return {

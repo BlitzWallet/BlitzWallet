@@ -38,7 +38,7 @@ import sendStorePayment from '../../../../../functions/apps/payments';
 import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function SMSMessagingSendPage({SMSprices}) {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {contactsPrivateKey, publicKey, accountMnemoinc} = useKeysContext();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {masterInfoObject} = useGlobalContextProvider();
@@ -341,6 +341,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
         minMaxLiquidSwapAmounts,
         sendingAmountSats: sendingAmountSat,
         masterInfoObject: masterInfoObject,
+        accountMnemoinc,
       });
 
       if (!paymentResponse.didWork) {

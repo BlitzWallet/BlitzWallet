@@ -39,6 +39,7 @@ export async function payPOSLiquid({
   masterInfoObject,
   description,
   webViewRef,
+  accountMnemoinc,
 }) {
   try {
     // Calculate fees for different payment methods
@@ -128,7 +129,7 @@ export async function payPOSLiquid({
             throw new Error('Missing invoice for eCash payment');
           }
 
-          const meltQuote = await getMeltQuote(invoice);
+          const meltQuote = await getMeltQuote(invoice, accountMnemoinc);
           if (!meltQuote.quote)
             throw new Error(
               meltQuote.reason || 'Not able to generate eCash quote',
@@ -139,6 +140,7 @@ export async function payPOSLiquid({
             invoice,
             proofsToUse: meltQuote.proofsToUse,
             description,
+            accountMnemoinc,
           });
 
           if (!didPay.didWork) throw new Error(didPay.message);
@@ -207,6 +209,7 @@ export async function payPOSLNURL({
   sendingAmountSats,
   masterInfoObject,
   description,
+  accountMnemoinc,
 }) {
   try {
     // Calculate fees for different payment methods
@@ -258,7 +261,7 @@ export async function payPOSLNURL({
         const balance = sumProofsValue(storedProofs);
 
         if (balance >= sendingAmountSats + lightningFee) {
-          const meltQuote = await getMeltQuote(invoice);
+          const meltQuote = await getMeltQuote(invoice, accountMnemoinc);
           if (!meltQuote.quote)
             throw new Error(
               meltQuote.reason || 'Not able to generate eCash quote',
@@ -269,6 +272,7 @@ export async function payPOSLNURL({
             invoice,
             proofsToUse: meltQuote.proofsToUse,
             description,
+            accountMnemoinc,
           });
 
           if (!didPay.didWork) throw new Error(didPay.message);

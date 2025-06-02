@@ -6,7 +6,6 @@ import {
   View,
 } from 'react-native';
 import {KeyContainer} from '../../../login';
-import {retrieveData} from '../../../../functions';
 import {useEffect, useRef, useState} from 'react';
 import {COLORS, FONT, SIZES, SHADOWS, CENTER} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
@@ -16,12 +15,14 @@ import {INSET_WINDOW_WIDTH, WINDOWWIDTH} from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useTranslation} from 'react-i18next';
+import {useKeysContext} from '../../../../../context-store/keys';
 
 export default function SeedPhrasePage() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const {accountMnemoinc} = useKeysContext();
   const isInitialRender = useRef(true);
   const dimentions = useWindowDimensions();
-  const [mnemonic, setMnemonic] = useState([]);
+  const mnemonic = accountMnemoinc.split(' ');
   const [showSeed, setShowSeed] = useState(false);
   const navigate = useNavigation();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
@@ -34,14 +35,7 @@ export default function SeedPhrasePage() {
       return;
     }
     if (showSeed) {
-      (async () => {
-        const mnemonic = await retrieveData('mnemonic');
-        const sanitizedMnemonic = mnemonic.split(' ').filter(key => {
-          return key && true;
-        });
-        setMnemonic(sanitizedMnemonic);
-        fadeout();
-      })();
+      fadeout();
     }
   }, [showSeed]);
 

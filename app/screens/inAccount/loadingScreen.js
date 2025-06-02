@@ -85,7 +85,7 @@ export default function ConnectingToNodeLoadingScreen({
   const {onLiquidBreezEvent} = useLiquidEvent();
   const {toggleMasterInfoObject, masterInfoObject, setMasterInfoObject} =
     useGlobalContextProvider();
-  const {toggleContactsPrivateKey} = useKeysContext();
+  const {toggleContactsPrivateKey, accountMnemoinc} = useKeysContext();
   const {minMaxLiquidSwapAmounts, toggleMinMaxLiquidSwapAmounts} =
     useAppStatus();
   const {toggleNodeInformation, toggleLiquidNodeInformation} = useNodeContext();
@@ -156,6 +156,7 @@ export default function ConnectingToNodeLoadingScreen({
           throw new Error('Database initialization failed');
         crashlyticsLogReport('Opened all SQL lite tables');
         const didLoadUserSettings = await initializeUserSettingsFromHistory({
+          accountMnemoinc,
           setContactsPrivateKey: toggleContactsPrivateKey,
           setMasterInfoObject,
           toggleGlobalContactsInformation,
@@ -290,12 +291,12 @@ export default function ConnectingToNodeLoadingScreen({
       const [didConnectToNode, didConnectToLiquidNode] = await (masterInfoObject
         .liquidWalletSettings.isLightningEnabled
         ? Promise.all([
-            connectToLightningNode(onLightningBreezEvent),
-            connectToLiquidNode(onLiquidBreezEvent),
+            connectToLightningNode(onLightningBreezEvent, accountMnemoinc),
+            connectToLiquidNode(onLiquidBreezEvent, accountMnemoinc),
           ])
         : Promise.all([
             Promise.resolve({isConnected: true}),
-            connectToLiquidNode(onLiquidBreezEvent),
+            connectToLiquidNode(onLiquidBreezEvent, accountMnemoinc),
           ]));
       console.log(
         didConnectToNode?.isConnected,
@@ -651,7 +652,7 @@ export default function ConnectingToNodeLoadingScreen({
         }, 15000),
       );
       const initPromise = (async () => {
-        await initEcashWallet(hasSelectedMint);
+        await initEcashWallet(hasSelectedMint, accountMnemoinc);
         const [transactions, storedProofs, mintList] = await Promise.all([
           getStoredEcashTransactions(),
           getStoredProofs(),
