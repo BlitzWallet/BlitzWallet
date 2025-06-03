@@ -46,7 +46,6 @@ export const GlobalContactsList = ({children}) => {
   const [globalContactsInformation, setGlobalContactsInformation] = useState(
     {},
   );
-  const [myProfileImage, setMyProfileImage] = useState('');
   const [contactsMessags, setContactsMessagses] = useState({});
 
   const didTryToUpdate = useRef(false);
@@ -119,6 +118,7 @@ export const GlobalContactsList = ({children}) => {
       }));
 
     if (newContats.length > 0) {
+      console.log('NEW CONTACT IN UPDTED CACHED MESSAGES');
       toggleGlobalContactsInformation(
         {
           myProfile: {...globalContactsInformation.myProfile},
@@ -133,12 +133,12 @@ export const GlobalContactsList = ({children}) => {
     }
   }, [globalContactsInformation, decodedAddedContacts, contactsPrivateKey]);
 
-  useEffect(() => {
-    (async () => {
-      const profileImage = (await getLocalStorageItem('myProfileImage')) || '';
-      setMyProfileImage(profileImage);
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     const profileImage = (await getLocalStorageItem('myProfileImage')) || '';
+  //     setMyProfileImage(profileImage);
+  //   })();
+  // }, []);
 
   useEffect(() => {
     async function handleUpdate(updateType) {
@@ -332,8 +332,6 @@ export const GlobalContactsList = ({children}) => {
         decodedAddedContacts,
         globalContactsInformation,
         toggleGlobalContactsInformation,
-        setMyProfileImage,
-        myProfileImage,
         contactsMessags,
         updatedCachedMessagesStateFunction,
       }}>
