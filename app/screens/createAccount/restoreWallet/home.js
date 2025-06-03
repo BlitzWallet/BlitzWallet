@@ -7,7 +7,6 @@ import {
   Platform,
 } from 'react-native';
 import {Back_BTN} from '../../../components/login';
-import {retrieveData, storeData} from '../../../functions';
 import {CENTER, COLORS, FONT, SIZES} from '../../../constants';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import isValidMnemonic from '../../../functions/isValidMnemonic';
@@ -26,6 +25,7 @@ import getClipboardText from '../../../functions/getClipboardText';
 import {useNavigation} from '@react-navigation/native';
 import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
 import useAppInsets from '../../../hooks/useAppInsets';
+import {useKeysContext} from '../../../../context-store/keys';
 
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -37,6 +37,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
   useHandleBackPressNew();
   const navigate = useNavigation();
   const {t} = useTranslation();
+  const {accountMnemoinc, setAccountMnemonic} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {bottomPadding} = useAppInsets();
   const [isValidating, setIsValidating] = useState(false);
@@ -100,7 +101,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
   const didEnterCorrectSeed = useCallback(async () => {
     crashlyticsLogReport('Starting seed check');
     try {
-      const keys = await retrieveData('mnemonic');
+      const keys = accountMnemoinc;
       const didEnterAllKeys =
         Object.keys(inputedKey).filter(value => inputedKey[value]).length ===
         12;
@@ -137,26 +138,12 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       );
 
       const hasAccount = isValidMnemonic(mnemonic);
-      const hasPin = await retrieveData('pin');
 
       if (!hasAccount)
         throw new Error(t('createAccount.restoreWallet.home.error2'));
       else {
-        await storeData('mnemonic', mnemonic.join(' '));
-        if (hasPin) {
-          reset({
-            index: 0,
-            routes: [
-              {
-                name: 'ConnectingToNodeLoadingScreen',
-                params: {
-                  isInitialLoad: true,
-                  didRestoreWallet: true,
-                },
-              },
-            ],
-          });
-        } else navigate.navigate('PinSetup', {didRestoreWallet: true});
+        setAccountMnemonic(mnemonic.join(' '));
+        navigate.navigate('PinSetup', {didRestoreWallet: true});
       }
     } catch (err) {
       console.log('key validation error', err);

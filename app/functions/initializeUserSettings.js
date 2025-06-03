@@ -1,4 +1,3 @@
-import {retrieveData} from './secureStore';
 import * as nostr from 'nostr-tools';
 import {getDataFromCollection} from '../../db';
 import {generateRandomContact} from './contacts';
@@ -16,6 +15,7 @@ import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
 import fetchBackend from '../../db/handleBackend';
 
 export default async function initializeUserSettingsFromHistory({
+  accountMnemoinc,
   setContactsPrivateKey,
   setMasterInfoObject,
   toggleGlobalContactsInformation,
@@ -26,12 +26,7 @@ export default async function initializeUserSettingsFromHistory({
     crashlyticsLogReport('Begining process of getting user settings');
     let needsToUpdate = false;
     let tempObject = {};
-    const mnemonic = await retrieveData('mnemonic');
-    mnemonic &&
-      mnemonic
-        .split(' ')
-        .filter(word => word.length > 0)
-        .join(' ');
+    const mnemonic = accountMnemoinc;
 
     const privateKey = mnemonic
       ? nostr.nip06.privateKeyFromSeedWords(mnemonic)

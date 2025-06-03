@@ -36,9 +36,11 @@ import {
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import calculateCanDoTransfer from './functions/canDoTransfer';
 import {useTranslation} from 'react-i18next';
+import {useKeysContext} from '../../../../../../context-store/keys';
 
 export default function ManualSwapPopup() {
   const navigate = useNavigation();
+  const {accountMnemoinc} = useKeysContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
@@ -333,7 +335,7 @@ export default function ManualSwapPopup() {
           },
         });
       } else if (transferInfo.from.toLowerCase() === 'ecash') {
-        const meltQuote = await getMeltQuote(invoice);
+        const meltQuote = await getMeltQuote(invoice, accountMnemoinc);
         if (!meltQuote.quote) {
           navigate.reset({
             index: 0, // The top-level route index
@@ -370,6 +372,7 @@ export default function ManualSwapPopup() {
           invoice: invoice,
           proofsToUse: meltQuote.proofsToUse,
           description: 'Internal_Transfer',
+          accountMnemoinc,
         });
         navigate.reset({
           index: 0, // The top-level route index

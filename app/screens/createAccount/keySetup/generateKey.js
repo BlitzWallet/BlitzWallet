@@ -1,8 +1,6 @@
 import {StyleSheet, View, ScrollView} from 'react-native';
 import {KeyContainer} from '../../../components/login';
 import {CENTER, COLORS, FONT, SIZES} from '../../../constants';
-import {useState} from 'react';
-import {retrieveData} from '../../../functions/secureStore';
 import {useTranslation} from 'react-i18next';
 import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
 import LoginNavbar from '../../../components/login/navBar';
@@ -11,25 +9,15 @@ import {copyToClipboard} from '../../../functions';
 import {useNavigation} from '@react-navigation/native';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
-import {
-  crashlyticsLogReport,
-  crashlyticsRecordErrorReport,
-} from '../../../functions/crashlyticsLogs';
+import {crashlyticsRecordErrorReport} from '../../../functions/crashlyticsLogs';
+import {useKeysContext} from '../../../../context-store/keys';
 
 export default function GenerateKey() {
-  const [mnemonic, setMnemonic] = useState([]);
+  const {accountMnemoinc} = useKeysContext();
+  const mnemonic = accountMnemoinc.split(' ');
   const {t} = useTranslation();
   const hookNavigate = useNavigation();
   useHandleBackPressNew();
-
-  useState(() => {
-    crashlyticsLogReport('Loading seed from storage during login');
-    async function loadSeed() {
-      const keys = await retrieveData('mnemonic');
-      setMnemonic(keys.split(' '));
-    }
-    loadSeed();
-  }, []);
 
   return (
     <GlobalThemeView useStandardWidth={true}>

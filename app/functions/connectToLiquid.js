@@ -4,10 +4,8 @@ import {
   defaultConfig,
   getInfo,
   LiquidNetwork,
-  setLogger,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import {getOrCreateDirectory} from './connectToNode';
-import {retrieveData} from './secureStore';
 import {crashlyticsLogReport} from './crashlyticsLogs';
 
 const logHandler = logEntry => {
@@ -16,7 +14,10 @@ const logHandler = logEntry => {
   }
 };
 let didConnect = false;
-export default async function connectToLiquidNode(breezLiquidEvent) {
+export default async function connectToLiquidNode(
+  breezLiquidEvent,
+  accountMnemoinc,
+) {
   crashlyticsLogReport('Starting connect to liquid function');
   // Create the default config
 
@@ -64,12 +65,7 @@ export default async function connectToLiquidNode(breezLiquidEvent) {
         ],
         process.env.LIQUID_BREEZ_KEY,
       ),
-      retrieveData('mnemonic').then(data =>
-        data
-          .split(' ')
-          .filter(word => word.length > 0)
-          .join(' '),
-      ),
+      Promise.resolve(accountMnemoinc),
     ]);
 
     crashlyticsLogReport('Creating directory');

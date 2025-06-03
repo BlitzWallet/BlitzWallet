@@ -98,6 +98,7 @@ async function generateLightningAddress(wolletInfo) {
     minMaxSwapAmounts,
     mintURL,
     eCashBalance,
+    accountMnemoinc,
   } = wolletInfo;
   const liquidWalletSettings = masterInfoObject.liquidWalletSettings;
   const eCashSettings = masterInfoObject.ecashWalletSettings;
@@ -119,6 +120,7 @@ async function generateLightningAddress(wolletInfo) {
         amount: receivingAmount,
         mintURL: mintURL,
         descriptoin: description,
+        accountMnemoinc,
       });
 
       if (eCashInvoice.didWork) {

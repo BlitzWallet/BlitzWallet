@@ -54,6 +54,7 @@ import ErrorWithPayment from './components/errorScreen';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
+import {useKeysContext} from '../../../../../context-store/keys';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -67,7 +68,7 @@ export default function SendPaymentScreen(props) {
     enteredPaymentInfo,
     errorMessage,
   } = props.route.params;
-
+  const {accountMnemoinc} = useKeysContext();
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
@@ -523,6 +524,7 @@ export default function SendPaymentScreen(props) {
         paymentDescription:
           paymentDescription || paymentInfo?.data.message || '',
         webViewRef,
+        accountMnemoinc,
       });
       return;
     }

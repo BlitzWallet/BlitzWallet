@@ -22,7 +22,7 @@ import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function VPNPlanPage({countryList}) {
   const [searchInput, setSearchInput] = useState('');
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {contactsPrivateKey, publicKey, accountMnemoinc} = useKeysContext();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {decodedVPNS, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {masterInfoObject} = useGlobalContextProvider();
@@ -200,6 +200,7 @@ export default function VPNPlanPage({countryList}) {
           minMaxLiquidSwapAmounts,
           sendingAmountSats: sendingAmountSat,
           masterInfoObject: masterInfoObject,
+          accountMnemoinc,
         });
 
         if (!paymentResponse.didWork) {

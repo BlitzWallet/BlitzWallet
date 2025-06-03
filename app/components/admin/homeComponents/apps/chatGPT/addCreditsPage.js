@@ -39,6 +39,7 @@ import {
 } from '../../../../../functions/eCash/wallet';
 import breezLNAddressPaymentWrapperV2 from '../../../../../functions/SDK/lightningAddressPaymentWrapperV2';
 import formatBip21LiquidAddress from '../../../../../functions/liquidWallet/formatBip21liquidAddress';
+import {useKeysContext} from '../../../../../../context-store/keys';
 
 const CREDITOPTIONS = [
   {
@@ -70,6 +71,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
     toggleGlobalAppDataInformation,
     globalAppDataInformation,
   } = useGlobalAppData();
+  const {accountMnemoinc} = useKeysContext();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
   const {masterInfoObject} = useGlobalContextProvider();
 
@@ -254,7 +256,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
           const storedProofs = await getStoredProofs();
           const balance = sumProofsValue(storedProofs);
           if (balance > creditPrice + lightningFee) {
-            const meltQuote = await getMeltQuote(lnInvoice);
+            const meltQuote = await getMeltQuote(lnInvoice, accountMnemoinc);
             if (!meltQuote.quote)
               throw new Error(
                 meltQuote.reason || 'Not able to generate ecash quote',
@@ -264,6 +266,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
               invoice: lnInvoice,
               proofsToUse: meltQuote.proofsToUse,
               description: 'Store - chatGPT',
+              accountMnemoinc,
             });
             if (!didPay.didWork) throw new Error(didPay.message);
             toggleGlobalAppDataInformation(

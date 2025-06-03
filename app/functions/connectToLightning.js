@@ -21,7 +21,10 @@ const logHandler = logEntry => {
   }
 };
 let didConnect = false;
-export default async function connectToLightningNode(breezEvent) {
+export default async function connectToLightningNode(
+  breezEvent,
+  accountMnemoinc,
+) {
   crashlyticsLogReport('Starting connect to lightning function');
   if (didConnect) {
     console.log('RUNNING IN DID CONNECT');
@@ -90,10 +93,7 @@ export default async function connectToLightningNode(breezEvent) {
     config.workingDir = directoryPath;
     await setLocalStorageItem(BREEZ_WORKING_DIR_KEY, directoryPath);
     // Connect to the Breez SDK make it ready for use
-    const mnemonic = (await retrieveData('mnemonic'))
-      .split(' ')
-      .filter(word => word.length > 0)
-      .join(' ');
+    const mnemonic = accountMnemoinc;
     const seed = await mnemonicToSeed(mnemonic);
     const connectRequest = {config, seed};
     // setLogStream(logHandler);

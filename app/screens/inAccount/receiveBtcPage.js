@@ -18,6 +18,7 @@ import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import CustomButton from '../../functions/CustomElements/button';
 import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
+import {useKeysContext} from '../../../context-store/keys';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -25,6 +26,7 @@ export default function ReceivePaymentHome(props) {
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {ecashWalletInformation} = useGlobaleCash();
+  const {accountMnemoinc} = useKeysContext();
   const currentMintURL = ecashWalletInformation.mintURL;
   const eCashBalance = ecashWalletInformation.balance;
   const {textColor} = GetThemeColors();
@@ -66,6 +68,7 @@ export default function ReceivePaymentHome(props) {
       selectedRecieveOption: selectedRecieveOption,
       navigate,
       eCashBalance,
+      accountMnemoinc,
     });
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
   return (

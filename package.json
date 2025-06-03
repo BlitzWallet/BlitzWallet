@@ -42,6 +42,7 @@
     "bolt11": "^1.4.1",
     "boltz-swap-web-context": "github:BlakeKaufman/boltz-swap-web-context",
     "buffer": "^6.0.3",
+    "crypto-es": "^2.1.0",
     "ecpair": "^3.0.0",
     "events": "^3.3.0",
     "expo": "^52.0.0",

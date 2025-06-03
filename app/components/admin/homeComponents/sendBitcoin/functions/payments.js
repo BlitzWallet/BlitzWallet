@@ -354,6 +354,7 @@ export async function sendPaymentUsingEcash({
   fromPage,
   paymentDescription = '',
   webViewRef,
+  accountMnemoinc,
 }) {
   try {
     crashlyticsLogReport('Starting send payment using eCash');
@@ -398,7 +399,7 @@ export async function sendPaymentUsingEcash({
     }
     if (!invoice) throw new Error('Unable to parse sending invoice.');
     console.log('Before melt quote');
-    const meltQuote = await getMeltQuote(invoice);
+    const meltQuote = await getMeltQuote(invoice, accountMnemoinc);
     console.log('after melt quote');
     if (!meltQuote.quote)
       throw new Error(
@@ -410,6 +411,7 @@ export async function sendPaymentUsingEcash({
       invoice: invoice,
       proofsToUse: meltQuote.proofsToUse,
       description: paymentInfo?.data?.message || '',
+      accountMnemoinc,
     });
     if (!didPay.didWork)
       throw new Error(didPay.message || 'Unable to pay invoice from eCash');

@@ -42,8 +42,9 @@ export const ecashEventEmitter = new EventEmitter();
 const GlobaleCash = createContext(null);
 
 export const GlobaleCashVariables = ({children}) => {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {contactsPrivateKey, publicKey, accountMnemoinc} = useKeysContext();
   const countersRef = useRef({});
+
   const [globalEcashInformation, setGlobalEcashInformation] = useState([]);
   const [ecashWalletInformation, setEcashWalletInformation] = useState({
     didConnectToNode: null,
@@ -206,6 +207,7 @@ export const GlobaleCashVariables = ({children}) => {
         const response = await checkMintQuote({
           quote: receiveEcashQuote,
           mintURL: mintURL,
+          accountMnemoinc,
         });
         console.log(response);
         if (response.state === MintQuoteState.PAID) {
@@ -214,6 +216,7 @@ export const GlobaleCashVariables = ({children}) => {
             quote: response.quote,
             invoice: response.request,
             mintURL: mintURL,
+            accountMnemoinc,
           });
 
           if (didMint.prasedInvoice) {
@@ -274,7 +277,7 @@ export const GlobaleCashVariables = ({children}) => {
     if (!ecashWalletInformation.mintURL) return;
     if (didRunUnclaimedEcashQuotes.current) return;
     didRunUnclaimedEcashQuotes.current = true;
-    claimUnclaimedEcashQuotes(); //if a receive ecash timeout clears before payment is receve this will try and claim the ecash quote on the next wallet load
+    claimUnclaimedEcashQuotes(accountMnemoinc); //if a receive ecash timeout clears before payment is receve this will try and claim the ecash quote on the next wallet load
   }, [ecashWalletInformation.mintURL]);
 
   const memoedValues = useMemo(() => {
