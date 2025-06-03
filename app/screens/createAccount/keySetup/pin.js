@@ -50,10 +50,7 @@ export default function PinPage(props) {
           accountMnemoinc,
           JSON.stringify(confirmPin),
         );
-        await storeData(
-          'encryptedMnemonic',
-          encryptMnemonic(accountMnemoinc, JSON.stringify(confirmPin)),
-        );
+        await storeData('encryptedMnemonic', encrpipted);
         clearSettings();
         navigate.reset({
           index: 0,
