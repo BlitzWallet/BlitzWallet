@@ -36,7 +36,7 @@ async function retrieveData(key) {
     if (value) return value;
     else return false;
   } catch (error) {
-    console.log('Error storing data to secure store', err);
+    console.log('Error storing data to secure store', error);
     return false;
   }
 }
