@@ -3,17 +3,14 @@ import {mnemonicToSeed} from '@scure/bip39';
 import EventEmitter from 'events';
 import {sumProofsValue} from './proofs';
 import {getStoredProofs, setMintCounter, storeProofs} from './db';
-import {retrieveData} from '../secureStore';
 export const restoreProofsEventListener = new EventEmitter();
 export const RESTORE_PROOFS_EVENT_NAME = 'RESTORING_PROOF_EVENT';
 
 const BATCH_SIZE = 100;
 const MAX_GAP = 3;
-export const restoreMintProofs = async mintURL => {
-  const mnemonic = await retrieveData('mnemonic');
-
+export const restoreMintProofs = async (mintURL, accountMnemoinc) => {
   try {
-    const seed = await mnemonicToSeed(mnemonic);
+    const seed = await mnemonicToSeed(accountMnemoinc);
     let progress = 0;
 
     restoreProofsEventListener.emit(

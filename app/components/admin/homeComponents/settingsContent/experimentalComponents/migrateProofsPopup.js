@@ -37,7 +37,7 @@ export default function MigrateProofsPopup(props) {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {toggleMasterInfoObject} = useGlobalContextProvider();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {contactsPrivateKey, publicKey, accountMnemoinc} = useKeysContext();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const {parsedEcashInformation, toggleGLobalEcashInformation} =
     useGlobaleCash();
@@ -116,7 +116,7 @@ export default function MigrateProofsPopup(props) {
             console.log('selected current mint');
           }
 
-          await restoreMintProofs(mint.mintURL);
+          await restoreMintProofs(mint.mintURL, accountMnemoinc);
 
           if (mint.proofs?.length) {
             console.log('adding proofs to database', mint.proofs);
