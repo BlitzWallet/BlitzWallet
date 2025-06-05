@@ -35,7 +35,7 @@ export default function QrCodeWrapper({
           value={QRData}
           color={COLORS.lightModeText}
           backgroundColor={COLORS.darkModeText}
-          logo={!!image ? {uri: image.localUri} : ICONS.logoWithPadding}
+          logo={!!image ? {uri: image} : ICONS.logoWithPadding}
           logoSize={!!image ? 70 : 50}
           logoMargin={logoMargin}
           logoBorderRadius={logoBorderRadius}
