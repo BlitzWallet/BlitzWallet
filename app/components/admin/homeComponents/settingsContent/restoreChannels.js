@@ -11,9 +11,11 @@ import {useLightningEvent} from '../../../../../context-store/lightningEventCont
 import connectToLightningNode from '../../../../functions/connectToLightning';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import writeAndShareFileToFilesystem from '../../../../functions/writeFileToFilesystem';
+import {useKeysContext} from '../../../../../context-store/keys';
 
 export default function RestoreChannel() {
   const [SCBfile, setSCBfile] = useState(null);
+  const {accountMnemoinc} = useKeysContext();
   const [failedToConnect, setFailedToConnect] = useState(false);
   const navigate = useNavigation();
   const {onLightningBreezEvent} = useLightningEvent();
@@ -34,6 +36,7 @@ export default function RestoreChannel() {
         didRunConnection.current = true;
         const lightningSession = await connectToLightningNode(
           onLightningBreezEvent,
+          accountMnemoinc,
         );
         if (lightningSession?.isConnected) {
           getStaticBackup();

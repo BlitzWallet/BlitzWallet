@@ -39,9 +39,11 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {KEYBOARDTIMEOUT} from '../../../../constants/styles';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import {useKeysContext} from '../../../../../context-store/keys';
 
 export default function SendOnChainBitcoin({isDoomsday}) {
   const {masterInfoObject} = useGlobalContextProvider();
+  const {accountMnemoinc} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigation();
@@ -296,6 +298,7 @@ export default function SendOnChainBitcoin({isDoomsday}) {
       runCountRef.current = 1;
       const lightningSession = await connectToLightningNode(
         onLightningBreezEvent,
+        accountMnemoinc,
       );
       if (lightningSession?.isConnected) {
         const didSet = await setLightningInformationUnderDoomsday();

@@ -29,10 +29,12 @@ import {useAppStatus} from '../../../../../../context-store/appStatus';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useTranslation} from 'react-i18next';
 import useAppInsets from '../../../../../hooks/useAppInsets';
+import {useKeysContext} from '../../../../../../context-store/keys';
 
 export default function LiquidSettingsPage() {
   const navigate = useNavigation();
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
+  const {accountMnemoinc} = useKeysContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {toggleNodeInformation} = useNodeContext();
   const {onLightningBreezEvent} = useLightningEvent();
@@ -214,6 +216,7 @@ export default function LiquidSettingsPage() {
       setIsEnablingLightning(true);
       const didConnectToNode = await connectToLightningNode(
         onLightningBreezEvent,
+        accountMnemoinc,
       );
 
       if (
