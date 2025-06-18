@@ -10,7 +10,6 @@ import {
 
 import {btoa, toByteArray} from 'react-native-quick-base64';
 import {getOrCreateDirectory, unit8ArrayConverter} from './connectToNode';
-import {retrieveData} from './secureStore';
 import {BREEZ_WORKING_DIR_KEY} from '../constants';
 import {setLocalStorageItem} from './localStorage';
 import {crashlyticsLogReport} from './crashlyticsLogs';

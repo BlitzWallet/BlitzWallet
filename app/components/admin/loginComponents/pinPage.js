@@ -17,7 +17,12 @@ import {useNavigation} from '@react-navigation/native';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import sha256Hash from '../../../functions/hash';
 import {useKeysContext} from '../../../../context-store/keys';
-import {getDecryptedMnemonic} from '../../../functions/secureStore';
+import {storeData} from '../../../functions/secureStore';
+import {
+  decryptMnemonicWithBiometrics,
+  decryptMnemonicWithPin,
+  handleLoginSecuritySwitch,
+} from '../../../functions/handleMnemonic';
 
 export default function PinPage() {
   const [loginSettings, setLoginSettings] = useState({
@@ -27,6 +32,7 @@ export default function PinPage() {
     enteredPin: [null, null, null, null],
     savedPin: '',
     enteredPinCount: 0,
+    needsToBeMigrated: null,
   });
   const {setAccountMnemonic} = useKeysContext();
   const {t} = useTranslation();
@@ -40,9 +46,21 @@ export default function PinPage() {
 
     if (filteredPin.length != 4) return;
 
+    let comparisonHash = '';
+    if (loginSettings.needsToBeMigrated) {
+      comparisonHash = sha256Hash(loginSettings.savedPin);
+    } else {
+      comparisonHash = loginSettings.savedPin;
+    }
+
+    console.log(
+      loginSettings,
+      sha256Hash(JSON.stringify(loginSettings.enteredPin)),
+      comparisonHash,
+    );
+
     if (
-      loginSettings.savedPin ===
-      sha256Hash(JSON.stringify(loginSettings.enteredPin))
+      comparisonHash === sha256Hash(JSON.stringify(loginSettings.enteredPin))
     ) {
       if (loginSettings.isBiometricEnabled) {
         navigate.navigate('ConfirmActionPage', {
@@ -68,16 +86,35 @@ export default function PinPage() {
         return;
       }
 
-      const mnemonicPlain = await getDecryptedMnemonic(
-        JSON.stringify(loginSettings.enteredPin),
-      );
-      setAccountMnemonic(mnemonicPlain);
+      if (loginSettings.needsToBeMigrated) {
+        const savedMnemonic = await retrieveData('encryptedMnemonic');
+        const migrationResponse = await handleLoginSecuritySwitch(
+          savedMnemonic.value,
+          loginSettings.enteredPin,
+          'pin',
+        );
+        if (migrationResponse) {
+          setAccountMnemonic(savedMnemonic.value);
+          navigate.replace('ConnectingToNodeLoadingScreen', {
+            isInitialLoad: false,
+          });
+        } else
+          navigate.navigate('ErrorScreen', {
+            errorMessage: 'Failed to decrypt pin',
+          });
+        return;
+      } else {
+        const mnemonicPlain = await decryptMnemonicWithPin(
+          JSON.stringify(loginSettings.enteredPin),
+        );
+        setAccountMnemonic(mnemonicPlain);
 
-      setTimeout(() => {
-        navigate.replace('ConnectingToNodeLoadingScreen', {
-          isInitialLoad: false,
-        });
-      }, 250);
+        setTimeout(() => {
+          navigate.replace('ConnectingToNodeLoadingScreen', {
+            isInitialLoad: false,
+          });
+        }, 250);
+      }
     } else {
       if (loginSettings.enteredPinCount >= 7) {
         const deleted = await factoryResetWallet();
@@ -119,18 +156,58 @@ export default function PinPage() {
           ),
           retrieveData('pinHash'),
         ]);
+
+        let needsToBeMigrated;
+        try {
+          JSON.parse(storedPin.value);
+          needsToBeMigrated = true;
+        } catch (err) {
+          console.log('comparison value error', err);
+          needsToBeMigrated = false;
+        }
         setLoginSettings(prev => ({
           ...prev,
           ...storedSettings,
-          savedPin: storedPin,
+          savedPin: storedPin.value,
+          needsToBeMigrated,
         }));
         if (!storedSettings.isBiometricEnabled) return;
 
-        const didLogIn = await handleLogin();
-        if (didLogIn)
+        if (needsToBeMigrated) {
+          console.log('before login security switch');
+          const savedMnemonic = await retrieveData('encryptedMnemonic');
+          const migrationResponse = await handleLoginSecuritySwitch(
+            savedMnemonic.value,
+            '',
+            'biometric',
+          );
+          console.log('after login security switch');
+          if (migrationResponse) {
+            storeData('pinHash', sha256Hash(storedPin.value));
+            setAccountMnemonic(savedMnemonic.value);
+            navigate.replace('ConnectingToNodeLoadingScreen', {
+              isInitialLoad: false,
+            });
+          } else {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: 'Unable to decode pin with biometrics',
+            });
+          }
+          return;
+        }
+
+        const decryptResponse = await decryptMnemonicWithBiometrics();
+
+        if (decryptResponse) {
+          setAccountMnemonic(decryptResponse);
           navigate.replace('ConnectingToNodeLoadingScreen', {
             isInitialLoad: false,
           });
+        } else {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: 'Unable to decode pin with biometrics',
+          });
+        }
       } catch (err) {
         console.log('Load pin page information error', err);
       }

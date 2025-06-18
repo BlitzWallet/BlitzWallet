@@ -3,27 +3,20 @@ import * as LocalAuthentication from 'expo-local-authentication';
 async function hasHardware() {
   try {
     const compatible = await LocalAuthentication.hasHardwareAsync();
-    return new Promise(resolve => {
-      resolve(compatible);
-    });
+    return compatible;
   } catch (err) {
-    console.log(err);
-    return new Promise(resolve => {
-      resolve(false);
-    });
+    console.log(console.log('error getting hardware status', err));
+    return false;
   }
 }
 async function hasSavedProfile() {
   try {
     const savedBiometrics = await LocalAuthentication.isEnrolledAsync();
 
-    return new Promise(resolve => {
-      resolve(savedBiometrics);
-    });
+    return savedBiometrics;
   } catch (err) {
-    return new Promise(resolve => {
-      resolve(false);
-    });
+    console.log('Error getting saved biometric profile', err);
+    return false;
   }
 }
 async function handleLogin() {
@@ -36,7 +29,7 @@ async function handleLogin() {
         : authenticationTypes[0] === 1
         ? 'Scan Finger'
         : 'FaceID';
-    console.log(authenticationTypes);
+
     const LocalAuthenticationOptions = {
       promptMessage: promtMessage,
       cancelLabel: 'Cancel',
@@ -48,13 +41,10 @@ async function handleLogin() {
       LocalAuthenticationOptions,
     );
 
-    return new Promise(resolve => {
-      resolve(didAuthenticate.success);
-    });
+    return didAuthenticate.success;
   } catch (err) {
-    return new Promise(resolve => {
-      resolve(false);
-    });
+    console.log('error authenicating user with biometrics', err);
+    return false;
   }
 }
 

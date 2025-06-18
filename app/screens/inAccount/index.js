@@ -1,5 +1,4 @@
 import FaceIdPage from '../../components/admin/homeComponents/settingsContent/loginSecurity';
-import toggleSecureStoreData from '../../functions/toggleSecureData';
 import AppStore from './appStore';
 import AppStorePageIndex from './appStorePageIndex';
 import BuyBitcoinHome from './buyBitcoinHome';
@@ -32,7 +31,6 @@ export {
   ViewAllTxPage,
   ConnectingToNodeLoadingScreen,
   TechnicalTransactionDetails,
-  toggleSecureStoreData,
   AdminHomeIndex,
   AppStore,
   AppStorePageIndex,

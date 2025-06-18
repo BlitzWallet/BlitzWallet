@@ -4,22 +4,24 @@ import {
   removeAllLocalData,
   setLocalStorageItem,
 } from './localStorage';
-import * as CryptoES from 'crypto-es';
 import {crashlyticsLogReport} from './crashlyticsLogs';
-import sha256Hash from './hash';
+import {BIOMETRIC_KEY} from '../constants';
 const keychainService = '38WX44YTA6.com.blitzwallet.SharedKeychain';
-const MIGRATION_FLAG = 'secureStoreMigrationComplete';
-const SECURE_MIGRATION_V2_FLAG = 'secureStoreMigrationV2Complete';
+export const MIGRATION_FLAG = 'secureStoreMigrationComplete';
+export const SECURE_MIGRATION_V2_FLAG = 'secureStoreMigrationV2Complete';
 
 const KEYCHAIN_OPTION = {
   keychainService: keychainService,
   keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK,
 };
 
-async function storeData(key, value) {
+async function storeData(key, value, options = {}) {
   try {
     crashlyticsLogReport('Starting store data to secure store function');
-    await SecureStore.setItemAsync(key, value, KEYCHAIN_OPTION);
+    await SecureStore.setItemAsync(key, value, {
+      ...KEYCHAIN_OPTION,
+      ...options,
+    });
     return true;
   } catch (error) {
     console.log(error, 'SECURE STORE ERROR');
@@ -27,17 +29,19 @@ async function storeData(key, value) {
   }
 }
 
-async function retrieveData(key) {
+async function retrieveData(key, options = {}) {
   try {
     crashlyticsLogReport('Starting retrive data from secure store function');
 
-    const value = await SecureStore.getItemAsync(key, KEYCHAIN_OPTION);
+    const value = await SecureStore.getItemAsync(key, {
+      ...KEYCHAIN_OPTION,
+      ...options,
+    });
 
-    if (value) return value;
-    else return false;
+    return {didWork: true, value};
   } catch (error) {
     console.log('Error storing data to secure store', error);
-    return false;
+    return {didWork: false, value: false};
   }
 }
 
@@ -46,6 +50,7 @@ async function terminateAccount() {
     crashlyticsLogReport('Starting termiate data from secure store function');
     await SecureStore.deleteItemAsync('pinHash', KEYCHAIN_OPTION);
     await SecureStore.deleteItemAsync('encryptedMnemonic', KEYCHAIN_OPTION);
+    await SecureStore.deleteItemAsync(BIOMETRIC_KEY, KEYCHAIN_OPTION);
 
     const didRemove = await removeAllLocalData();
     if (!didRemove) throw Error('not able to remove local storage data');
@@ -84,8 +89,8 @@ async function runPinAndMnemoicMigration() {
     ]);
 
     if (oldPin || oldMnemonic) {
-      if (oldPin) await storeData('pin', oldPin);
-      if (oldMnemonic) await storeData('mnemonic', oldMnemonic);
+      if (oldPin) await storeData('pinHash', oldPin);
+      if (oldMnemonic) await storeData('encryptedMnemonic', oldMnemonic);
       await SecureStore.deleteItemAsync('pin');
       await SecureStore.deleteItemAsync('mnemonic');
     }
@@ -96,6 +101,7 @@ async function runPinAndMnemoicMigration() {
     console.log('SECURE STORE MIGRATION ERROR:', error);
   }
 }
+
 async function runSecureStoreMigrationV2() {
   try {
     const hasMigrated = await getLocalStorageItem(SECURE_MIGRATION_V2_FLAG);
@@ -113,17 +119,12 @@ async function runSecureStoreMigrationV2() {
     ]);
 
     if (plainPin && plainMnemonic) {
-      // Hash the PIN and store it
-      const hashedPin = hashPin(plainPin);
-      await storeData('pinHash', hashedPin);
-
-      // Encrypt mnemonic with PIN and store it
-      const encryptedMnemonic = encryptMnemonic(plainMnemonic, plainPin);
-      await storeData('encryptedMnemonic', encryptedMnemonic);
+      await storeData('pinHash', plainPin);
+      await storeData('encryptedMnemonic', plainMnemonic);
 
       // Delete old unencrypted values
-      await SecureStore.deleteItemAsync('pin', KEYCHAIN_OPTION);
-      await SecureStore.deleteItemAsync('mnemonic', KEYCHAIN_OPTION);
+      await deleteItem('pin');
+      await deleteItem('mnemonic');
     }
 
     await setLocalStorageItem(SECURE_MIGRATION_V2_FLAG, 'true');
@@ -133,36 +134,6 @@ async function runSecureStoreMigrationV2() {
   }
 }
 
-function hashPin(pin) {
-  return sha256Hash(pin);
-}
-
-function encryptMnemonic(mnemonic, pin) {
-  try {
-    return CryptoES.default.AES.encrypt(mnemonic, pin).toString();
-  } catch (err) {
-    console.log('error encripting mnemonic', err);
-  }
-}
-
-async function getDecryptedMnemonic(pin) {
-  const cipherText = await retrieveData('encryptedMnemonic');
-  if (!cipherText) return null;
-
-  try {
-    const mnemonic = decryptMnemonic(cipherText, pin);
-    if (!mnemonic) throw new Error('Invalid decryption');
-    return mnemonic;
-  } catch (error) {
-    console.log('Mnemonic decryption failed:', error);
-    return null;
-  }
-}
-function decryptMnemonic(cipherText, pin) {
-  const bytes = CryptoES.default.AES.decrypt(cipherText, pin);
-  return bytes.toString(CryptoES.default.enc.Utf8);
-}
-
 export {
   retrieveData,
   storeData,
@@ -170,6 +141,4 @@ export {
   deleteItem,
   runPinAndMnemoicMigration,
   runSecureStoreMigrationV2,
-  getDecryptedMnemonic,
-  encryptMnemonic,
 };

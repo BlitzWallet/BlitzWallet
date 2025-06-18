@@ -5,7 +5,6 @@ import {
   MeltQuoteState,
   MintQuoteState,
 } from '@cashu/cashu-ts';
-import {retrieveData} from '../secureStore';
 import {mnemonicToSeed} from '@scure/bip39';
 import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 

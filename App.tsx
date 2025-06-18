@@ -133,7 +133,7 @@ function ResetStack(): JSX.Element | null {
   });
   const {theme, darkModeType} = useGlobalThemeContext();
   const {didGetToHomepage} = useAppStatus();
-  const {publicKey} = useKeysContext();
+  const {publicKey, setAccountMnemonic} = useKeysContext();
   const {backgroundColor} = GetThemeColors();
 
   // Memoize handleDeepLink
@@ -249,10 +249,14 @@ function ResetStack(): JSX.Element | null {
           JSON.stringify(parsedSettings),
         );
 
+      if (mnemonic.value && !parsedSettings.isSecurityEnabled) {
+        setAccountMnemonic(mnemonic.value);
+      }
+
       setInitSettings(prev => {
         return {
           ...prev,
-          isLoggedIn: !!pin && !!mnemonic,
+          isLoggedIn: !!pin.value && !!mnemonic.value,
           hasSecurityEnabled: parsedSettings.isSecurityEnabled,
         };
       });
