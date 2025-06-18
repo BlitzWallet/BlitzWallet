@@ -3,12 +3,14 @@ import {wordlist} from '@scure/bip39/wordlists/english';
 import * as CryptoES from 'crypto-es';
 import {BIOMETRIC_KEY, LOGIN_SECUITY_MODE_KEY} from '../constants';
 import {
+  deleteItem,
   MIGRATION_FLAG,
   retrieveData,
   SECURE_MIGRATION_V2_FLAG,
   storeData,
 } from './secureStore';
 import sha256Hash from './hash';
+import * as SecureStorage from 'expo-secure-store';
 import {removeLocalStorageItem, setLocalStorageItem} from './localStorage';
 
 export async function generateAndStoreEncryptionKeyForMnemoinc() {
@@ -174,19 +176,21 @@ export async function resetTest() {
   //   'mnemonic',
   //   'quantum scout spoon rapid confirm sing bicycle dose quarter claim fuel urban',
   // );
-  storeData('pin', JSON.stringify([1, 2, 3, 4]));
-  storeData(
-    'mnemonic',
-    'quantum scout spoon rapid confirm sing bicycle dose quarter claim fuel urban',
-  );
+  // storeData('pin', JSON.stringify([1, 2, 3, 4]));
+  // storeData(
+  //   'mnemonic',
+  //   'quantum scout spoon rapid confirm sing bicycle dose quarter claim fuel urban',
+  // );
   deleteItem('pinHash');
   deleteItem('encryptedMnemonic');
+  SecureStorage.deleteItemAsync('pin');
+  SecureStorage.deleteItemAsync('mnemonic');
   removeLocalStorageItem(SECURE_MIGRATION_V2_FLAG);
   removeLocalStorageItem(MIGRATION_FLAG);
   setLocalStorageItem(
     LOGIN_SECUITY_MODE_KEY,
     JSON.stringify({
-      isSecurityEnabled: false,
+      isSecurityEnabled: true,
       isPinEnabled: true,
       isBiometricEnabled: false,
     }),
