@@ -42,6 +42,7 @@ import EcashSettings from '../app/components/admin/homeComponents/settingsConten
 import MigrateProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
 import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
 import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
+import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import AccountInformationPage from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/AccountInformationPage';
@@ -148,6 +149,7 @@ const FADE_SCREENS = [
     component: AdminHomeIndex,
     options: {gestureEnabled: false},
   },
+  {name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode},
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
   {
