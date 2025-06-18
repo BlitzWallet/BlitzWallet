@@ -1,5 +1,6 @@
 import {QUICK_PAY_STORAGE_KEY} from '../../constants';
 import {getLocalStorageItem} from '../localStorage';
+import {isNewDaySince} from '../rotateAddressDateChecker';
 
 const keys = [
   'homepageTxPreferance',
@@ -65,3 +66,19 @@ export const fetchLocalStorageItems = async () => {
       parsedResults[10] ?? defaultValues.crashReportingSettings,
   };
 };
+
+export function shouldLoadExploreData(savedExploreRawData) {
+  let shouldFetchUserCount = false;
+  try {
+    if (
+      !savedExploreRawData?.lastUpdated ||
+      isNewDaySince(savedExploreRawData?.lastUpdated)
+    ) {
+      shouldFetchUserCount = true;
+    }
+  } catch (err) {
+    console.log('error in should load explore data', err);
+  }
+
+  return shouldFetchUserCount;
+}

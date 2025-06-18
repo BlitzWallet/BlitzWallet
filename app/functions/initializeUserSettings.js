@@ -4,12 +4,14 @@ import {generateRandomContact} from './contacts';
 import {
   getCurrentDateFormatted,
   getDateXDaysAgo,
-  isNewDaySince,
 } from './rotateAddressDateChecker';
 import {MIN_CHANNEL_OPEN_FEE, QUICK_PAY_STORAGE_KEY} from '../constants';
 import {sendDataToDB} from '../../db/interactionManager';
 import {initializeFirebase} from '../../db/initializeFirebase';
-import {fetchLocalStorageItems} from './initializeUserSettingsHelpers';
+import {
+  fetchLocalStorageItems,
+  shouldLoadExploreData,
+} from './initializeUserSettingsHelpers';
 import {crashlyticsLogReport} from './crashlyticsLogs';
 import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
 import fetchBackend from '../../db/handleBackend';
@@ -36,14 +38,26 @@ export default async function initializeUserSettingsFromHistory({
 
     if (!privateKey || !publicKey) throw Error('Failed to retrieve keys');
 
-    await initializeFirebase(publicKey, privateKey);
+    const [_, pastExploreData] = await Promise.all([
+      initializeFirebase(publicKey, privateKey),
+      getLocalStorageItem('savedExploreData').then(data => JSON.parse(data)),
+    ]);
+
+    const shouldLoadExporeDataResp = shouldLoadExploreData(pastExploreData);
 
     // Wrap both of thses in promise.all to fetch together.
-    let [blitzStoredData, localStoredData, lastUpdatedExploreData] =
+    let [blitzStoredData, localStoredData, freshExploreData] =
       await Promise.all([
         getDataFromCollection('blitzWalletUsers', publicKey),
         fetchLocalStorageItems(),
-        getLocalStorageItem('savedExploreData').then(data => JSON.parse(data)),
+        shouldLoadExporeDataResp
+          ? fetchBackend(
+              'getTotalUserCount',
+              {data: publicKey},
+              privateKey,
+              publicKey,
+            )
+          : Promise.resolve(null),
       ]);
 
     const {
@@ -205,25 +219,19 @@ export default async function initializeUserSettingsFromHistory({
       needsToUpdate = true;
     }
 
-    if (
-      !lastUpdatedExploreData?.lastUpdated ||
-      isNewDaySince(lastUpdatedExploreData?.lastUpdated)
-    ) {
-      const response = await fetchBackend(
-        'getTotalUserCount',
-        {data: publicKey},
-        privateKey,
-        publicKey,
-      );
-      if (response) {
-        tempObject['exploreData'] = response;
+    if (shouldLoadExporeDataResp && freshExploreData) {
+      if (freshExploreData) {
+        tempObject['exploreData'] = freshExploreData;
         setLocalStorageItem(
           'savedExploreData',
-          JSON.stringify({lastUpdated: new Date().getTime(), data: response}),
+          JSON.stringify({
+            lastUpdated: new Date().getTime(),
+            data: freshExploreData,
+          }),
         );
       } else tempObject['exploreData'] = null;
     } else {
-      tempObject['exploreData'] = lastUpdatedExploreData.data;
+      tempObject['exploreData'] = pastExploreData.data;
     }
     tempObject['homepageTxPreferance'] = storedUserTxPereferance;
     tempObject['userBalanceDenomination'] = userBalanceDenomination;
