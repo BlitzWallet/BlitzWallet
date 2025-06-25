@@ -63,6 +63,14 @@ const GENERALOPTIONS = [
   },
   // {
   //   for: 'general',
+  //   name: 'Support Our Work',
+  //   svgName: 'crashDebugIcon',
+  //   svgIcon: true,
+  //   svgName: 'developerSupportIcon',
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+  // {
+  //   for: 'general',
   //   name: 'Send On-chain',
   //   svgIcon: true,
   //   svgName: 'swapIcon',
@@ -117,41 +125,41 @@ const ADVANCEDOPTIONS = [
     svgName: 'crashDebugIcon',
     arrowIcon: ICONS.leftCheveronIcon,
   },
-  {
-    for: 'general',
-    name: 'Node Info',
-    icon: ICONS.nodeIcon,
-    iconWhite: ICONS.nodeIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'Security & Customization',
-    name: 'Lsp',
-    icon: ICONS.linkIcon,
-    iconWhite: ICONS.chainLight,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'Security & Customization',
-    name: 'Balance Info',
-    icon: ICONS.adminHomeWallet,
-    iconWhite: ICONS.adminHomeWallet_white,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'Security & Customization',
-    name: 'Bank',
-    icon: ICONS.bankIcon,
-    iconWhite: ICONS.bankWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'general',
-    name: 'Channel Closure',
-    icon: ICONS.settingsBitcoinIcon,
-    iconWhite: ICONS.settingsBitcoinIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
+  // {
+  //   for: 'general',
+  //   name: 'Node Info',
+  //   icon: ICONS.nodeIcon,
+  //   iconWhite: ICONS.nodeIconWhite,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+  // {
+  //   for: 'Security & Customization',
+  //   name: 'Lsp',
+  //   icon: ICONS.linkIcon,
+  //   iconWhite: ICONS.chainLight,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+  // {
+  //   for: 'Security & Customization',
+  //   name: 'Balance Info',
+  //   icon: ICONS.adminHomeWallet,
+  //   iconWhite: ICONS.adminHomeWallet_white,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+  // {
+  //   for: 'Security & Customization',
+  //   name: 'Bank',
+  //   icon: ICONS.bankIcon,
+  //   iconWhite: ICONS.bankWhite,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+  // {
+  //   for: 'general',
+  //   name: 'Channel Closure',
+  //   icon: ICONS.settingsBitcoinIcon,
+  //   iconWhite: ICONS.settingsBitcoinIconWhite,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
   {
     for: 'general',
     name: 'Refund Liquid Swap',
@@ -168,35 +176,42 @@ const ADVANCEDOPTIONS = [
   },
   {
     for: 'Closing Account',
-    name: 'Restore channels',
-    icon: ICONS.share,
-    iconWhite: ICONS.shareWhite,
+    name: 'Spark Info',
+    icon: ICONS.nodeIcon,
+    iconWhite: ICONS.nodeIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
+  // {
+  //   for: 'Closing Account',
+  //   name: 'Restore channels',
+  //   icon: ICONS.share,
+  //   iconWhite: ICONS.shareWhite,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
 ];
 const SETTINGSOPTIONS = [
   [...GENERALOPTIONS],
   [...SECURITYOPTIONS],
   [...ADVANCEDOPTIONS],
-  [...EXPIRIMENTALFEATURES],
+  // [...EXPIRIMENTALFEATURES],
 ];
 const DOOMSDAYSETTINGS = [
-  [
-    {
-      for: 'general',
-      name: 'On-Chain Funds',
-      icon: ICONS.settingsBitcoinIcon,
-      iconWhite: ICONS.settingsBitcoinIconWhite,
-      arrowIcon: ICONS.leftCheveronIcon,
-    },
-    {
-      for: 'general',
-      name: 'View Liquid Swaps',
-      icon: ICONS.liquidIcon,
-      iconWhite: ICONS.liquidIconWhite,
-      arrowIcon: ICONS.leftCheveronIcon,
-    },
-  ],
+  //   [
+  //     //   // {
+  //     //   //   for: 'general',
+  //     //   //   name: 'On-Chain Funds',
+  //     //   //   icon: ICONS.settingsBitcoinIcon,
+  //     //   //   iconWhite: ICONS.settingsBitcoinIconWhite,
+  //     //   //   arrowIcon: ICONS.leftCheveronIcon,
+  //     //   // },
+  //     // {
+  //     //   for: 'general',
+  //     //   name: 'View Liquid Swaps',
+  //     //   icon: ICONS.liquidIcon,
+  //     //   iconWhite: ICONS.liquidIconWhite,
+  //     //   arrowIcon: ICONS.leftCheveronIcon,
+  //     // },
+  //   ],
   [
     {
       for: 'Security & Customization',
@@ -214,13 +229,13 @@ const DOOMSDAYSETTINGS = [
       iconWhite: ICONS.trashIconWhite,
       arrowIcon: ICONS.leftCheveronIcon,
     },
-    {
-      for: 'Closing Account',
-      name: 'Restore channels',
-      icon: ICONS.share,
-      iconWhite: ICONS.shareWhite,
-      arrowIcon: ICONS.leftCheveronIcon,
-    },
+    // {
+    //   for: 'Closing Account',
+    //   name: 'Restore channels',
+    //   icon: ICONS.share,
+    //   iconWhite: ICONS.shareWhite,
+    //   arrowIcon: ICONS.leftCheveronIcon,
+    // },
   ],
 ];
 

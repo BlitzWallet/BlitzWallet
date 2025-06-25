@@ -28,6 +28,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import sha256Hash from '../../../../functions/hash';
 import ContactProfileImage from './internalComponents/profileImage';
 import {getCachedProfileImage} from '../../../../functions/cachedImage';
+import {useImageCache} from '../../../../../context-store/imageCache';
 
 export default function AddContactsHalfModal(props) {
   const {contactsPrivateKey} = useKeysContext();
@@ -39,6 +40,7 @@ export default function AddContactsHalfModal(props) {
   const sliderHight = props.slideHeight;
   const navigate = useNavigation();
   const keyboardRef = useRef(null);
+  const {refreshCacheObject} = useImageCache();
 
   const debouncedSearch = useDebounce(async term => {
     const results = await searchUsers(term);
@@ -72,7 +74,7 @@ export default function AddContactsHalfModal(props) {
         }),
       )
     ).filter(Boolean);
-    console.log(newUsers, 'test');
+    refreshCacheObject();
     unstable_batchedUpdates(() => {
       setIsSearching(false);
       setUsers(newUsers);
@@ -84,8 +86,17 @@ export default function AddContactsHalfModal(props) {
   const handleSearch = term => {
     setSearchInput(term);
     if (term.includes('@')) return;
-    term && setIsSearching(true);
-    debouncedSearch(term);
+
+    if (term.length < 1) {
+      setUsers([]);
+      setIsSearching(false);
+      return;
+    }
+
+    if (term.length >= 1) {
+      setIsSearching(true);
+      debouncedSearch(term);
+    }
   };
 
   const parseContact = data => {
@@ -162,6 +173,7 @@ export default function AddContactsHalfModal(props) {
             textInputRef={keyboardRef}
             blurOnSubmit={false}
             containerStyles={{justifyContent: 'center'}}
+            textInputStyles={{paddingRight: 40}}
             onSubmitEditingFunction={() => {
               clearHalfModalForLNURL();
             }}
@@ -237,9 +249,9 @@ export default function AddContactsHalfModal(props) {
                   content={
                     isSearching
                       ? ''
-                      : searchInput
+                      : searchInput.length >= 1
                       ? 'No profiles match this search'
-                      : 'Start typing to search for a profile'
+                      : 'Start typing to search for a profile (min 2 chars)'
                   }
                 />
               )}

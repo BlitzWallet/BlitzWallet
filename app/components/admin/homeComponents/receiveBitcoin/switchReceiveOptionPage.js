@@ -17,7 +17,7 @@ export default function SwitchReceiveOptionPage() {
   useHandleBackPressNew();
 
   const paymentElements = useMemo(() => {
-    return ['Lightning', 'Bitcoin', 'Liquid'].map(item => {
+    return ['Lightning', 'Bitcoin', 'Spark', 'Liquid'].map((item, index) => {
       return (
         <TouchableOpacity
           key={item}
@@ -28,6 +28,7 @@ export default function SwitchReceiveOptionPage() {
             style={[
               styles.optionItemContainer,
               {
+                marginBottom: index !== 3 ? 20 : 0,
                 backgroundColor: backgroundColor,
               },
             ]}>
@@ -45,6 +46,8 @@ export default function SwitchReceiveOptionPage() {
                         ? 'lightningBoltLight'
                         : item === 'Bitcoin'
                         ? 'chainLight'
+                        : item === 'Spark'
+                        ? 'sparkAsteriskWhite'
                         : 'LiquidLight'
                     ]
                   : ICONS[
@@ -52,16 +55,20 @@ export default function SwitchReceiveOptionPage() {
                         ? 'lightningBoltDark'
                         : item === 'Bitcoin'
                         ? 'chainDark'
+                        : item === 'Spark'
+                        ? 'sparkAsteriskBlack'
                         : 'LiquidDark'
                     ]
               }
             />
             <ThemeText
               styles={{...styles.optionItemText}}
-              content={`${item != 'Liquid' ? item + ' |' : ''} ${
-                item != 'Liquid'
+              content={`${
+                item != 'Liquid' && item != 'Spark' ? item + ' |' : ''
+              } ${
+                item != 'Liquid' && item != 'Spark'
                   ? t(`wallet.switchOption.${item.toLowerCase()}`)
-                  : 'Liquid Network'
+                  : `${item === 'Spark' ? 'Spark' : 'Liquid Network'}`
               }`}
             />
           </View>
@@ -95,7 +102,7 @@ export default function SwitchReceiveOptionPage() {
     navigate.popTo(
       'ReceiveBTC',
       {
-        selectedRecieveOption: selectedOption?.toLowerCase(),
+        selectedRecieveOption: selectedOption,
       },
       {
         merge: true,
@@ -118,7 +125,7 @@ const styles = StyleSheet.create({
   optionItemContainer: {
     padding: 10,
     borderRadius: 8,
-    marginBottom: 20,
+
     flexDirection: 'row',
     alignItems: 'center',
     minHeight: 90,

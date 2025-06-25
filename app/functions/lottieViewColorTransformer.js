@@ -58,7 +58,6 @@ export function updateBlitzAnimationData(animationData, colorSettings) {
         if (shapeGroup.it) {
           shapeGroup.it.forEach(item => {
             if (item.ty === 'gr') {
-              console.log(item, 'ETST');
               item.it.forEach(element => {
                 if (element.ty === 'fl' && element.c && element.c.k) {
                   if (element.c.k.length === 3) {

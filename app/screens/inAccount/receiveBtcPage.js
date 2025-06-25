@@ -18,28 +18,26 @@ import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import CustomButton from '../../functions/CustomElements/button';
 import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
-import {useKeysContext} from '../../../context-store/keys';
+import {useGlobalContacts} from '../../../context-store/globalContacts';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const {masterInfoObject} = useGlobalContextProvider();
+  const {globalContactsInformation} = useGlobalContacts();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {ecashWalletInformation} = useGlobaleCash();
-  const {accountMnemoinc} = useKeysContext();
   const currentMintURL = ecashWalletInformation.mintURL;
   const eCashBalance = ecashWalletInformation.balance;
-  const {textColor} = GetThemeColors();
   const initialSendAmount = props.route.params?.receiveAmount;
   const paymentDescription = props.route.params?.description;
   useHandleBackPressNew();
   const selectedRecieveOption =
-    props.route.params?.selectedRecieveOption || 'lightning';
+    props.route.params?.selectedRecieveOption || 'Lightning';
 
   const [addressState, setAddressState] = useState({
-    selectedRecieveOption: 'lightning',
+    selectedRecieveOption: selectedRecieveOption,
     isReceivingSwap: false,
-    generatedAddress: '',
+    generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`,
     isGeneratingInvoice: false,
     minMaxSwapAmount: {
       min: 0,
@@ -56,8 +54,12 @@ export default function ReceivePaymentHome(props) {
 
   useEffect(() => {
     crashlyticsLogReport('Begining adddress initialization');
+    if (
+      !initialSendAmount &&
+      selectedRecieveOption.toLowerCase() === 'lightning'
+    )
+      return;
     initializeAddressProcess({
-      nodeInformation,
       userBalanceDenomination: masterInfoObject.userBalanceDenomination,
       receivingAmount: initialSendAmount,
       description: paymentDescription,
@@ -68,9 +70,20 @@ export default function ReceivePaymentHome(props) {
       selectedRecieveOption: selectedRecieveOption,
       navigate,
       eCashBalance,
-      accountMnemoinc,
     });
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
+
+  useEffect(() => {
+    if (selectedRecieveOption !== 'Bitcoin') return;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        navigate.navigate('ErrorScreen', {
+          errorMessage:
+            'Currently, on-chain payment addresses are single-use only. Sending more than one payment to the same address will result in a loss of funds.',
+        });
+      });
+    });
+  }, [selectedRecieveOption]);
   return (
     <GlobalThemeView styles={{alignItems: 'center'}} useStandardWidth={true}>
       <TopBar navigate={navigate} />
@@ -88,11 +101,17 @@ export default function ReceivePaymentHome(props) {
       <View
         style={{
           alignItems: 'center',
-          position: 'absolute',
-          [Platform.OS === 'ios' ? 'top' : 'bottom']:
-            Platform.OS === 'ios' ? '100%' : 0,
+          // position: 'absolute',
+          // [Platform.OS === 'ios' ? 'top' : 'bottom']:
+          // Platform.OS === 'ios' ? '100%' : 0,
         }}>
-        <Text
+        <ThemeText content={'Fee:'} />
+        <FormattedSatText
+          neverHideBalance={true}
+          styles={{paddingBottom: 5}}
+          balance={0}
+        />
+        {/* <Text
           style={[
             styles.title,
             {
@@ -109,8 +128,8 @@ export default function ReceivePaymentHome(props) {
                   : 'Maximum'
               } receive amount:`
             : `Fee:`}
-        </Text>
-        {addressState.isGeneratingInvoice ? (
+        </Text> */}
+        {/* {addressState.isGeneratingInvoice ? (
           <ThemeText content={' '} />
         ) : (
           <FormattedSatText
@@ -125,7 +144,7 @@ export default function ReceivePaymentHome(props) {
                 : addressState.fee
             }
           />
-        )}
+        )} */}
       </View>
     </GlobalThemeView>
   );

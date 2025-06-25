@@ -10,9 +10,8 @@ export default function GlobalThemeView({
   useStandardWidth,
   globalContainerStyles,
 }) {
-  const {backgroundColor} = GetThemeColors();
-
   const {topPadding, bottomPadding} = useAppInsets();
+  const {backgroundColor} = GetThemeColors();
 
   if (useStandardWidth) {
     return (

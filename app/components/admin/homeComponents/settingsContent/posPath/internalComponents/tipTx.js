@@ -7,7 +7,7 @@ import {updateDidPayForSingleTx} from '../../../../../../functions/pos';
 import {ThemeText} from '../../../../../../functions/CustomElements';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 
-export default function TipsTXItem({item, masterInfoObject, nodeInformation}) {
+export default function TipsTXItem({item, masterInfoObject, fiatStats}) {
   const [isLoading, setIsLoading] = useState(false);
   return (
     <View style={styles.txContainer}>
@@ -17,7 +17,7 @@ export default function TipsTXItem({item, masterInfoObject, nodeInformation}) {
           content={`Tip: ${displayCorrectDenomination({
             amount: item?.tipAmountSats,
             masterInfoObject,
-            nodeInformation,
+            fiatStats,
           })}`}
         />
         <ThemeText

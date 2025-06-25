@@ -1,30 +1,30 @@
-import {Platform, StyleSheet, useWindowDimensions, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {LIQUID_DEFAULT_FEE, SIZES} from '../../../../../constants';
+import {SIZES} from '../../../../../constants';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import {useNavigation} from '@react-navigation/native';
 import {useCallback, useEffect, useState} from 'react';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
-import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
+// import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {getCountryInfoAsync} from 'react-native-country-picker-modal/lib/CountryService';
-import {LIGHTNINGAMOUNTBUFFER} from '../../../../../constants/math';
+// import {LIGHTNINGAMOUNTBUFFER} from '../../../../../constants/math';
 import fetchBackend from '../../../../../../db/handleBackend';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {useAppStatus} from '../../../../../../context-store/appStatus';
+// import {useNodeContext} from '../../../../../../context-store/nodeContext';
+// import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton';
+import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
 
 export default function ConfirmGiftCardPurchase(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {nodeInformation} = useNodeContext();
+  const {masterInfoObject} = useGlobalContextProvider();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {decodedGiftCards} = useGlobalAppData();
   const navigate = useNavigation();
-  const liquidTxFee =
-    process.env.BOLTZ_ENVIRONMENT === 'testnet' ? 30 : LIQUID_DEFAULT_FEE;
+
   const [retrivedInformation, setRetrivedInformation] = useState({
     countryInfo: {},
     productInfo: {},
@@ -71,9 +71,24 @@ export default function ConfirmGiftCardPurchase(props) {
           return;
         }
 
+        const fee = await sparkPaymenWrapper({
+          getFee: true,
+          address: response.result?.invoice,
+          paymentType: 'lightning',
+          amountSats: Number(productPrice),
+          masterInfoObject,
+        });
+
+        if (!fee.didWork) throw new Error(fee.error);
+
         setRetrivedInformation({
           countryInfo: countryInfo,
-          productInfo: response.result || {},
+          productInfo:
+            {
+              ...response.result,
+              paymentFee: fee.fee,
+              supportFee: fee.supportFee,
+            } || {},
         });
       } catch (err) {
         console.log(err);
@@ -87,15 +102,9 @@ export default function ConfirmGiftCardPurchase(props) {
   }, []);
 
   const fee =
-    nodeInformation.userBalance >
-    retrivedInformation?.productInfo?.amount + LIGHTNINGAMOUNTBUFFER
-      ? Math.round(retrivedInformation?.productInfo?.amount * 0.01)
-      : liquidTxFee +
-        calculateBoltzFeeNew(
-          retrivedInformation?.productInfo?.amount,
-          'liquid-ln',
-          minMaxLiquidSwapAmounts.submarineSwapStats,
-        );
+    (retrivedInformation?.productInfo?.paymentFee || 0) +
+    (retrivedInformation?.productInfo?.supportFee || 0);
+
   const onSwipeSuccess = useCallback(() => {
     navigate.goBack();
     setTimeout(() => {

@@ -1,23 +1,19 @@
 import {SATSPERBITCOIN} from '../constants';
 
-const convertTextInputValue = (
-  amountValue,
-  nodeInformation,
-  inputDenomination,
-) => {
+const convertTextInputValue = (amountValue, fiatStats, inputDenomination) => {
   try {
     return !amountValue
       ? ''
       : inputDenomination === 'fiat'
       ? String(
           Math.round(
-            (SATSPERBITCOIN / (nodeInformation.fiatStats?.value || 80_000)) *
+            (SATSPERBITCOIN / (fiatStats?.value || 80_000)) *
               Number(amountValue),
           ),
         )
       : String(
           (
-            ((nodeInformation.fiatStats?.value || 80_000) / SATSPERBITCOIN) *
+            ((fiatStats?.value || 80_000) / SATSPERBITCOIN) *
             Number(amountValue)
           ).toFixed(2),
         );

@@ -6,10 +6,10 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import writeAndShareFileToFilesystem from '../../../../functions/writeFileToFilesystem';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
-import {useGlobalTxContextProvider} from '../../../../../context-store/combinedTransactionsContext';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {CENTER} from '../../../../constants';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import {useSparkWallet} from '../../../../../context-store/sparkContext';
 
 export default function ConfirmExportPayments({
   startExport,
@@ -17,9 +17,9 @@ export default function ConfirmExportPayments({
   darkModeType,
 }) {
   const navigate = useNavigation();
-  const {combinedTransactions} = useGlobalTxContextProvider();
+  const {sparkInformation} = useSparkWallet();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const totalPayments = combinedTransactions.length;
+  const totalPayments = sparkInformation?.transactions?.length || 10;
 
   const [txNumber, setTxNumber] = useState(0);
 
@@ -39,7 +39,7 @@ export default function ConfirmExportPayments({
           ],
         ];
 
-        const conjoinedTxList = combinedTransactions;
+        const conjoinedTxList = sparkInformation.transactions;
         let formatedData = [];
 
         for (let index = 0; index < conjoinedTxList.length; index++) {
@@ -48,35 +48,16 @@ export default function ConfirmExportPayments({
           setTxNumber(prev => (prev += 1));
 
           try {
-            const txDate = new Date(
-              tx.type === 'ecash'
-                ? tx.time
-                : tx.paymentTime
-                ? tx.paymentTime * 1000
-                : tx.timestamp * 1000,
-            );
+            const txDetails = JSON.parse(tx.details);
+            const txDate = new Date(txDetails.time);
 
             const formattedTx = [
-              tx.type === 'ecash' ? 'Ecash' : tx.details?.type,
-              tx.description ? tx.description : 'No description',
-              txDate.toLocaleString().replace(/,/g, ' '),
-              Math.round(
-                tx.type === 'ecash'
-                  ? tx.fee
-                  : !!tx.timestamp
-                  ? tx.feesSat
-                  : tx.feeMsat / 1000,
-              )
-                .toLocaleString()
-                .replace(/,/g, ' '),
-              Math.round(
-                tx.type === 'ecash'
-                  ? tx.amount * (tx.paymentType === 'sent' ? -1 : 1)
-                  : tx.amountMsat / 1000 || tx.amountSat,
-              )
-                .toLocaleString()
-                .replace(/,/g, ' '),
               tx.paymentType,
+              txDetails.description ? txDetails.description : 'No description',
+              txDate.toLocaleString().replace(/,/g, ' '),
+              Math.round(txDetails.fee).toLocaleString().replace(/,/g, ' '),
+              Math.round(txDetails.amount).toLocaleString().replace(/,/g, ' '),
+              txDetails.direction === 'OUTGOING' ? 'Sent' : 'Receiived',
             ];
             formatedData.push(formattedTx);
           } catch (err) {

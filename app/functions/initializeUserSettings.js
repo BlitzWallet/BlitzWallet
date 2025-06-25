@@ -15,6 +15,7 @@ import {
 import {crashlyticsLogReport} from './crashlyticsLogs';
 import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
 import fetchBackend from '../../db/handleBackend';
+import {getBitcoinKeyPair} from './lnurl';
 
 export default async function initializeUserSettingsFromHistory({
   accountMnemoinc,
@@ -158,6 +159,8 @@ export default async function initializeUserSettingsFromHistory({
       addresses: [],
     };
 
+    let lnurlPubKey = blitzStoredData.lnurlPubKey;
+
     //added here for legecy people
     liquidWalletSettings.regulatedChannelOpenSize =
       liquidWalletSettings.regulatedChannelOpenSize < MIN_CHANNEL_OPEN_FEE
@@ -219,6 +222,11 @@ export default async function initializeUserSettingsFromHistory({
       needsToUpdate = true;
     }
 
+    if (!lnurlPubKey) {
+      lnurlPubKey = getBitcoinKeyPair(mnemonic).publicKey;
+      needsToUpdate = true;
+    }
+
     if (shouldLoadExporeDataResp && freshExploreData) {
       if (freshExploreData) {
         tempObject['exploreData'] = freshExploreData;
@@ -233,6 +241,7 @@ export default async function initializeUserSettingsFromHistory({
     } else {
       tempObject['exploreData'] = pastExploreData.data;
     }
+
     tempObject['homepageTxPreferance'] = storedUserTxPereferance;
     tempObject['userBalanceDenomination'] = userBalanceDenomination;
     tempObject['userSelectedLanguage'] = selectedLanguage;
@@ -253,6 +262,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['enabledLNURL'] = enabledLNURL;
     tempObject['useTrampoline'] = useTrampoline;
     tempObject['offlineReceiveAddresses'] = offlineReceiveAddresses;
+    tempObject['lnurlPubKey'] = lnurlPubKey;
 
     // store in contacts context
     tempObject['contacts'] = contacts;

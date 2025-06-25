@@ -1,4 +1,4 @@
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, Platform} from 'react-native';
 import {CENTER, ICONS} from '../../../../constants';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useNavigation} from '@react-navigation/native';
@@ -33,7 +33,6 @@ const NAVITEMS = [
 
 export default function BlitzSocialOptions() {
   const navigate = useNavigation();
-  const {bottomPadding} = useAppInsets();
   const navElements = NAVITEMS.map((item, id) => {
     return (
       <TouchableOpacity
@@ -56,6 +55,8 @@ export default function BlitzSocialOptions() {
       </TouchableOpacity>
     );
   });
+
+  const {bottomPadding} = useAppInsets();
 
   return (
     <View

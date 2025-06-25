@@ -1,6 +1,6 @@
 import {QUICK_PAY_STORAGE_KEY} from '../../constants';
+import {BLITZ_FEE_PERCET, BLITZ_FEE_SATS} from '../../constants/math';
 import {getLocalStorageItem} from '../localStorage';
-import {isNewDaySince} from '../rotateAddressDateChecker';
 
 const keys = [
   'homepageTxPreferance',
@@ -14,6 +14,7 @@ const keys = [
   'useTrampoline',
   QUICK_PAY_STORAGE_KEY,
   'crashReportingSettings',
+  'enabledDeveloperSupport',
 ];
 
 const defaultValues = {
@@ -34,6 +35,11 @@ const defaultValues = {
     isCrashReportingEnabled: true,
     lastChangedInSettings: new Date().getTime(),
     lastChangedWithFirebase: new Date().getTime(),
+  },
+  enabledDeveloperSupport: {
+    isEnabled: true,
+    baseFee: BLITZ_FEE_SATS,
+    baseFeePercent: BLITZ_FEE_PERCET,
   },
 };
 

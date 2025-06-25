@@ -8,7 +8,7 @@ import {
   FastPay,
   FiatCurrencyPage,
   LSPPage,
-  LiquidWallet,
+  // LiquidWallet,
   NodeInfo,
   NosterWalletConnect,
   PosSettingsPage,
@@ -19,6 +19,8 @@ import {
   ViewAllLiquidSwaps,
   WalletInformation,
   CrashReportingSettingsPage,
+  SparkInfo,
+  SupportWorkPage,
 } from '../../components/admin/homeComponents/settingsContent';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView} from '../../functions/CustomElements';
@@ -41,7 +43,6 @@ export default function SettingsContentIndex(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const selectedPage = props?.route?.params?.for;
   const isDoomsday = props?.route?.params?.isDoomsday;
-  const extraData = props?.route?.params?.extraData;
   const enabledEcash = masterInfoObject?.enabledEcash;
   const currentMintURL = ecashWalletInformation?.mintURL;
   const handleBackPressFunction = useCallback(() => {
@@ -61,10 +62,11 @@ export default function SettingsContentIndex(props) {
     <>
       {selectedPage?.toLowerCase() === 'display currency' ||
       selectedPage?.toLowerCase() === 'experimental' ||
-      selectedPage?.toLowerCase() === 'bank' ||
+      // selectedPage?.toLowerCase() === 'bank' ||
       selectedPage?.toLowerCase() === 'point-of-sale' ||
       selectedPage?.toLowerCase() === 'edit contact profile' ||
-      selectedPage?.toLowerCase() === 'channel closure' ? (
+      selectedPage?.toLowerCase() === 'channel closure' ||
+      selectedPage?.toLowerCase() === 'support our work' ? (
         <>
           {selectedPage?.toLowerCase() === 'display currency' && (
             <FiatCurrencyPage theme={theme} />
@@ -72,9 +74,9 @@ export default function SettingsContentIndex(props) {
           {selectedPage?.toLowerCase() === 'experimental' && (
             <ExperimentalItemsPage />
           )}
-          {selectedPage?.toLowerCase() === 'bank' && (
+          {/* {selectedPage?.toLowerCase() === 'bank' && (
             <LiquidWallet theme={theme} />
-          )}
+          )} */}
           {selectedPage?.toLowerCase() === 'point-of-sale' && (
             <PosSettingsPage />
           )}
@@ -83,6 +85,9 @@ export default function SettingsContentIndex(props) {
           )}
           {selectedPage?.toLowerCase() === 'channel closure' && (
             <SendOnChainBitcoin isDoomsday={isDoomsday} theme={theme} />
+          )}
+          {selectedPage?.toLowerCase() === 'support our work' && (
+            <SupportWorkPage />
           )}
         </>
       ) : (
@@ -112,6 +117,9 @@ export default function SettingsContentIndex(props) {
             {selectedPage?.toLowerCase() === 'display options' && (
               <DisplayOptions theme={theme} />
             )}
+            {/* {selectedPage?.toLowerCase() === 'support our work' && (
+              <SupportWorkPage />
+            )} */}
 
             {selectedPage?.toLowerCase() === 'balance info' && (
               <WalletInformation theme={theme} />
@@ -129,11 +137,14 @@ export default function SettingsContentIndex(props) {
               <NosterWalletConnect theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'login mode' && (
-              <LoginSecurity extraData={extraData} theme={theme} />
+              <LoginSecurity theme={theme} />
             )}
 
             {selectedPage?.toLowerCase() === 'backup wallet' && (
               <SeedPhrasePage theme={theme} />
+            )}
+            {selectedPage?.toLowerCase() === 'spark info' && (
+              <SparkInfo theme={theme} />
             )}
 
             {selectedPage?.toLowerCase() === 'lsp' && <LSPPage theme={theme} />}

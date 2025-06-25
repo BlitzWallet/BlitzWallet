@@ -14,6 +14,9 @@ import {
   setDoc,
   limit,
   addDoc,
+  writeBatch,
+  or,
+  orderBy,
 } from '@react-native-firebase/firestore';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
 import {
@@ -101,6 +104,34 @@ export async function getDataFromCollection(collectionName, uuid) {
   }
 }
 
+export async function batchDeleteLnurlPayments(uuid, paymentIds) {
+  try {
+    if (!uuid) throw Error('User ID missing');
+    if (!paymentIds?.length) throw Error('No payment IDs provided');
+
+    const batch = writeBatch(db);
+
+    paymentIds.forEach(paymentId => {
+      const paymentRef = doc(
+        db,
+        'blitzWalletUsers',
+        uuid,
+        'lnurlPayments',
+        paymentId,
+      );
+      batch.delete(paymentRef);
+    });
+
+    await batch.commit();
+
+    return {success: true, count: paymentIds.length};
+  } catch (err) {
+    console.error('Error batch deleting payments:', err);
+    return {success: false, message: err.message};
+  }
+}
+
+// Might be able to change from get docs to get doc
 export async function isValidUniqueName(
   collectionName = 'blitzWalletUsers',
   wantedName,
@@ -149,6 +180,7 @@ export async function getSingleContact(
   }
 }
 
+// Might be able to change from get docs to get doc
 export async function canUsePOSName(
   collectionName = 'blitzWalletUsers',
   wantedName,
@@ -229,69 +261,6 @@ export async function searchUsers(
   }
 }
 
-export async function getUnknownContact(
-  uuid,
-  collectionName = 'blitzWalletUsers',
-) {
-  try {
-    crashlyticsLogReport('Getting unkown contact');
-    const docRef = doc(db, collectionName, uuid);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists) {
-      return docSnap.data();
-    }
-    return false;
-  } catch (err) {
-    console.error('Error fetching unknown contact:', err);
-    crashlyticsRecordErrorReport(err.message);
-    return null;
-  }
-}
-
-export async function bulkGetUnknownContacts(
-  uuidList,
-  collectionName = 'blitzWalletUsers',
-) {
-  crashlyticsLogReport('Starting bunk get unkown contacts');
-  // Validate input
-  if (!Array.isArray(uuidList) || uuidList.length === 0) {
-    console.warn('Invalid UUID list provided');
-    return [];
-  }
-
-  // Firestore 'in' queries are limited to 10 items in v9
-  const MAX_IN_CLAUSE = 10;
-  const chunks = [];
-
-  // Split into chunks of 10 UUIDs each
-  for (let i = 0; i < uuidList.length; i += MAX_IN_CLAUSE) {
-    chunks.push(uuidList.slice(i, i + MAX_IN_CLAUSE));
-  }
-
-  try {
-    const results = [];
-
-    // Process each chunk sequentially to avoid overwhelming Firestore
-    for (const chunk of chunks) {
-      const usersRef = collection(db, collectionName);
-      const q = query(usersRef, where('contacts.myProfile.uuid', 'in', chunk));
-
-      const snapshot = await getDocs(q);
-
-      if (!snapshot.empty) {
-        results.push(...snapshot.docs.map(doc => doc.data()));
-      }
-    }
-
-    return results.length > 0 ? results : null;
-  } catch (err) {
-    console.error('Error fetching bulk contacts:', err);
-    crashlyticsRecordErrorReport(err.message);
-    return null;
-  }
-}
-
 export async function updateMessage({
   newMessage,
   fromPubKey,
@@ -338,26 +307,19 @@ export async function syncDatabasePayment(
     console.log('Retrieving docs from timestamp:', savedMillis);
     const messagesRef = collection(db, 'contactMessages');
 
-    const receivedMessagesQuery = query(
+    // Single compound query for both sent and received messages
+    const combinedQuery = query(
       messagesRef,
-      where('toPubKey', '==', myPubKey),
       where('timestamp', '>', savedMillis),
+      or(
+        where('toPubKey', '==', myPubKey),
+        where('fromPubKey', '==', myPubKey),
+      ),
+      orderBy('timestamp'),
     );
 
-    const sentMessagesQuery = query(
-      messagesRef,
-      where('fromPubKey', '==', myPubKey),
-      where('timestamp', '>', savedMillis),
-    );
-
-    const [receivedSnapshot, sentSnapshot] = await Promise.all([
-      getDocs(receivedMessagesQuery),
-      getDocs(sentMessagesQuery),
-    ]);
-
-    const receivedMessages = receivedSnapshot.docs.map(doc => doc.data());
-    const sentMessages = sentSnapshot.docs.map(doc => doc.data());
-    const allMessages = [...receivedMessages, ...sentMessages];
+    const snapshot = await getDocs(combinedQuery);
+    const allMessages = snapshot.docs.map(doc => doc.data());
 
     if (allMessages.length === 0) {
       updatedCachedMessagesStateFunction();

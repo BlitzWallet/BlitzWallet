@@ -26,7 +26,6 @@ export default function HistoricalGiftCardPurchases() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
 
   const navigate = useNavigation();
-
   const {bottomPadding} = useAppInsets();
 
   useHandleBackPressNew();

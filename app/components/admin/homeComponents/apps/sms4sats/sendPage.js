@@ -7,6 +7,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {
   CENTER,
@@ -17,7 +18,6 @@ import {
 } from '../../../../../constants';
 import {useMemo, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {parseInput} from '@breeztech/react-native-breez-sdk';
 import {sendCountryCodes} from './sendCountryCodes';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
@@ -26,21 +26,22 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import CountryFlag from 'react-native-country-flag';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import sendStorePayment from '../../../../../functions/apps/payments';
+import {parse} from '@breeztech/react-native-breez-sdk-liquid';
+import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
+import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function SMSMessagingSendPage({SMSprices}) {
-  const {contactsPrivateKey, publicKey, accountMnemoinc} = useKeysContext();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
+  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {fiatStats} = useNodeContext();
+  const {sparkInformation} = useSparkWallet();
   const {masterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {decodedMessages, toggleGlobalAppDataInformation} = useGlobalAppData();
@@ -55,6 +56,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
   const messageRef = useRef(null);
   const navigate = useNavigation();
   const {textColor, backgroundColor} = GetThemeColors();
+
   const {bottomPadding} = useAppInsets();
 
   const selectedAreaCode = useMemo(() => {
@@ -188,12 +190,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
                           messageRef.current?.focus();
                         }, KEYBOARDTIMEOUT);
                       }}>
-                      <CountryFlag isoCode={item.isoCode} size={20} />
-
-                      <ThemeText
-                        styles={{marginLeft: 10}}
-                        content={item.country}
-                      />
+                      <ThemeText content={item.country} />
                     </TouchableOpacity>
                   );
                 }}
@@ -249,7 +246,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
                 setInputValue={setPhoneNumber}
                 frompage={'sendSMSPage'}
                 usingForBalance={false}
-                nodeInformation={nodeInformation}
+                fiatStats={fiatStats}
               />
             )}
           </View>
@@ -295,6 +292,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
           phoneNumber: phoneNumber,
           areaCodeNum: selectedAreaCode[0].cc,
           sendTextMessage: sendTextMessage,
+          message: message,
           sliderHight: 0.5,
         });
       },
@@ -304,7 +302,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
     return;
   }
 
-  async function sendTextMessage() {
+  async function sendTextMessage(invoiceInformation) {
     setIsSending(true);
     const payload = {
       message: message,
@@ -315,33 +313,52 @@ export default function SMSMessagingSendPage({SMSprices}) {
     let savedMessages = JSON.parse(JSON.stringify(decodedMessages));
 
     try {
-      const response = await fetch(
-        `https://api2.sms4sats.com/createsendorder`,
-        {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(payload),
-        },
-      );
-      const data = await response.json();
+      let orderInformation;
+
+      if (invoiceInformation.payreq && invoiceInformation.orderId) {
+        orderInformation = invoiceInformation;
+      } else {
+        const response = await fetch(
+          `https://api2.sms4sats.com/createsendorder`,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload),
+          },
+        );
+        const data = await response.json();
+        if (!data.payreq || !data.orderId) throw new Error(data.reason);
+        const fee = await sparkPaymenWrapper({
+          getFee: true,
+          address: data.payreq,
+          paymentType: 'lightning',
+          amountSats: 1000,
+          masterInfoObject,
+          sparkInformation,
+          userBalance: sparkInformation.balance,
+        });
+        if (!fee.didWork) throw new Error(fee.error);
+
+        orderInformation = {...data, fee: fee.fee, supportFee: fee.supportFee};
+      }
 
       savedMessages.sent.push({
-        orderId: data.orderId,
+        orderId: orderInformation.orderId,
         message: message,
         phone: `${selectedAreaCode[0].cc}${phoneNumber}`,
       });
 
-      const parsedInput = await parseInput(data.payreq);
+      const parsedInput = await parse(orderInformation.payreq);
       const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
       setSendingMessage('Paying...');
       const paymentResponse = await sendStorePayment({
-        liquidNodeInformation,
-        nodeInformation,
-        invoice: data.payreq,
-        minMaxLiquidSwapAmounts,
+        invoice: orderInformation.payreq,
+        masterInfoObject,
         sendingAmountSats: sendingAmountSat,
-        masterInfoObject: masterInfoObject,
-        accountMnemoinc,
+        paymentType: 'lightning',
+        fee: orderInformation.fee + orderInformation.supportFee,
+        userBalance: sparkInformation.balance,
+        sparkInformation,
       });
 
       if (!paymentResponse.didWork) {
@@ -353,7 +370,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
       }
 
       listenForConfirmation(
-        data,
+        orderInformation,
         savedMessages,
         paymentResponse.response,
         paymentResponse.formattingType,

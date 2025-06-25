@@ -1,5 +1,5 @@
 import formatBalanceAmount from '../formatNumber';
-import {getSingleContact, updateMessage} from '../../../db';
+import {updateMessage} from '../../../db';
 import {SATSPERBITCOIN} from '../../constants';
 import fetchBackend from '../../../db/handleBackend';
 import {crashlyticsLogReport} from '../crashlyticsLogs';
@@ -13,6 +13,7 @@ export async function publishMessage({
   fiatCurrencies,
   isLNURLPayment,
   privateKey,
+  retrivedContact,
 }) {
   try {
     crashlyticsLogReport('Begining to publish contact message');
@@ -31,6 +32,7 @@ export async function publishMessage({
       data: data,
       fiatCurrencies: fiatCurrencies,
       privateKey,
+      retrivedContact,
     });
   } catch (err) {
     console.log(err), 'pubishing message to server error';
@@ -43,23 +45,21 @@ export async function sendPushNotification({
   data,
   fiatCurrencies,
   privateKey,
+  retrivedContact,
 }) {
   try {
     crashlyticsLogReport('Sending push notification');
     console.log(selectedContactUsername);
-    const retrivedContact = await getSingleContact(
-      selectedContactUsername.toLowerCase(),
-    );
 
-    if (retrivedContact.length === 0) return;
-    const [selectedContact] = retrivedContact;
+    if (!retrivedContact) return;
+    if (!retrivedContact?.pushNotifications?.key?.encriptedText) return;
 
     const devicePushKey =
-      selectedContact?.pushNotifications?.key?.encriptedText;
-    const deviceType = selectedContact?.pushNotifications?.platform;
-    const sendingContactFiatCurrency = selectedContact?.fiatCurrency || 'USD';
+      retrivedContact?.pushNotifications?.key?.encriptedText;
+    const deviceType = retrivedContact?.pushNotifications?.platform;
+    const sendingContactFiatCurrency = retrivedContact?.fiatCurrency || 'USD';
     const sendingContactDenominationType =
-      selectedContact?.userBalanceDenomination || 'sats';
+      retrivedContact?.userBalanceDenomination || 'sats';
 
     const fiatValue = fiatCurrencies.filter(
       currency =>
@@ -109,7 +109,7 @@ export async function sendPushNotification({
       devicePushKey: devicePushKey,
       deviceType: deviceType,
       message: message,
-      decryptPubKey: selectedContact.uuid,
+      decryptPubKey: retrivedContact.uuid,
     };
 
     console.log(JSON.stringify(requestData));

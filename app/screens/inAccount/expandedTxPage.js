@@ -9,61 +9,31 @@ import {
 import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../constants/theme';
 import Icon from '../../functions/CustomElements/Icon';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../functions/CustomElements/button';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeImage from '../../functions/CustomElements/themeImage';
-import {PaymentState} from '@breeztech/react-native-breez-sdk-liquid';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 
 export default function ExpandedTx(props) {
-  console.log('Transaction Detials Page');
-
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
 
   const transaction = props.route.params.transaction;
-  const usesLightningNode = transaction?.usesLightningNode;
-  const usesLiquidNode = transaction?.usesLiquidNode;
-  const usesEcash = transaction?.usesEcash;
+  console.log(transaction, 'transaction');
+  const transactionPaymentType = transaction.paymentType;
 
-  const isFailedPayment =
-    props.route.params.isFailedPayment && transaction?.type != 'ecash';
+  const isFailedPayment = transaction.paymentStatus === 'failed';
 
-  const isPending =
-    transaction.status === PaymentState.PENDING && !isFailedPayment;
+  const isPending = transaction.paymentStatus === 'pending';
 
-  const selectedTX = transaction;
+  const paymentDate = new Date(transaction.details.time);
 
-  const paymentDate = new Date(
-    usesLiquidNode
-      ? selectedTX.timestamp * 1000
-      : usesEcash
-      ? selectedTX.time
-      : selectedTX.paymentTime * 1000,
-  );
-  const liquidDescription =
-    selectedTX?.details?.lnurlInfo?.lnurlPayComment ||
-    selectedTX?.details?.description;
-  const lightningDescription =
-    (transaction?.details?.data?.lnAddress &&
-      transaction?.details?.data?.label) ||
-    transaction?.description;
-  const description = isFailedPayment
-    ? transaction?.error
-    : usesLiquidNode
-    ? liquidDescription
-    : usesLightningNode
-    ? lightningDescription
-    : usesEcash
-    ? transaction?.description
-    : null;
+  const description = transaction.details.description;
 
-  console.log(selectedTX);
   const month = paymentDate.toLocaleString('default', {month: 'short'});
   const day = paymentDate.getDate();
   const year = paymentDate.getFullYear();
@@ -74,9 +44,7 @@ export default function ExpandedTx(props) {
       <View style={{flex: 1}}>
         <TouchableOpacity
           style={{marginRight: 'auto'}}
-          onPress={() => {
-            navigate.goBack();
-          }}>
+          onPress={navigate.goBack}>
           <ThemeImage
             darkModeIcon={ICONS.smallArrowLeft}
             lightModeIcon={ICONS.smallArrowLeft}
@@ -84,46 +52,20 @@ export default function ExpandedTx(props) {
           />
         </TouchableOpacity>
 
-        <ScrollView
-          contentContainerStyle={{
-            // flex: 1,
-            width: '95%',
-            alignItems: 'center',
-            justifyContent: 'center',
-            // backgroundColor: 'red',
-            ...CENTER,
-          }}>
+        <ScrollView contentContainerStyle={styles.scrollViewContentContainer}>
           <View
             style={{
-              // flex: 1,
-              width: '100%',
-              height: 'auto',
+              ...styles.receiptContainer,
               backgroundColor: theme ? backgroundOffset : COLORS.white,
-              borderTopRightRadius: 20,
-              borderTopLeftRadius: 20,
-              // // overflow: 'visible',
-              padding: 15,
-              paddingTop: 40,
-              ...CENTER,
-              alignItems: 'center',
-              marginTop: 80,
-              marginBottom: 20,
             }}>
             <View
               style={{
-                width: 100,
-                height: 100,
-                position: 'absolute',
+                ...styles.paymentStatusOuterContainer,
                 backgroundColor: backgroundColor,
-                top: -70,
-                borderRadius: 50,
-                alignItems: 'center',
-                justifyContent: 'center',
               }}>
               <View
                 style={{
-                  width: 80,
-                  height: 80,
+                  ...styles.paymentStatusFirstCircle,
                   backgroundColor: isPending
                     ? theme
                       ? COLORS.expandedTxDarkModePendingOuter
@@ -135,15 +77,10 @@ export default function ExpandedTx(props) {
                     : theme
                     ? COLORS.expandedTXDarkModeConfirmd
                     : COLORS.expandedTXLightModeConfirmd,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-
-                  borderRadius: 40,
                 }}>
                 <View
                   style={{
-                    width: 60,
-                    height: 60,
+                    ...styles.paymentStatusSecondCircle,
                     backgroundColor: isPending
                       ? theme
                         ? COLORS.expandedTxDarkModePendingInner
@@ -155,10 +92,6 @@ export default function ExpandedTx(props) {
                       : theme
                       ? COLORS.darkModeText
                       : COLORS.primary,
-
-                    borderRadius: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center',
                   }}>
                   <Icon
                     width={isPending ? 40 : 25}
@@ -188,13 +121,7 @@ export default function ExpandedTx(props) {
                 includeFontPadding: false,
               }}
               content={`${
-                isFailedPayment
-                  ? 'Sent'
-                  : usesLiquidNode
-                  ? transaction.details.paymentType === 'receive'
-                    ? 'Received'
-                    : 'Sent'
-                  : selectedTX.paymentType === 'sent'
+                transaction.details.direction === 'OUTGOING' || isFailedPayment
                   ? 'Sent'
                   : 'Received'
               } amount`}
@@ -206,25 +133,9 @@ export default function ExpandedTx(props) {
                 fontSize: SIZES.xxLarge,
                 includeFontPadding: false,
               }}
-              balance={
-                isFailedPayment
-                  ? 1000 || transaction.invoice.amountMsat / 1000
-                  : usesLiquidNode
-                  ? selectedTX.amountSat
-                  : usesEcash
-                  ? selectedTX.amount
-                  : transaction.amountMsat / 1000
-              }
+              balance={transaction.details.amount}
             />
-            <View
-              style={{
-                width: '100%',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexDirection: 'row',
-                marginTop: 30,
-                marginBottom: 10,
-              }}>
+            <View style={styles.paymentStatusTextContainer}>
               <ThemeText content={'Payment status'} />
               <View
                 style={{
@@ -296,48 +207,20 @@ export default function ExpandedTx(props) {
               <FormattedSatText
                 neverHideBalance={true}
                 styles={{fontSize: SIZES.large}}
-                balance={
-                  isFailedPayment
-                    ? 0
-                    : usesLiquidNode
-                    ? selectedTX.feesSat
-                    : usesEcash
-                    ? selectedTX.fee
-                    : !!transaction?.details?.data?.reverseSwapInfo
-                        ?.onchainAmountSat
-                    ? selectedTX.feeMsat / 1000 +
-                      (transaction.amountMsat / 1000 -
-                        transaction?.details?.data?.reverseSwapInfo
-                          ?.onchainAmountSat)
-                    : selectedTX.feeMsat / 1000
-                }
+                balance={isFailedPayment ? 0 : transaction.details.fee}
               />
             </View>
             <View style={styles.infoLine}>
               <ThemeText content={'Type'} />
               <ThemeText
-                content={
-                  selectedTX?.paymentType === 'closed_channel'
-                    ? 'On-chain'
-                    : usesLiquidNode
-                    ? selectedTX.details.type.slice(0, 1).toUpperCase() +
-                      selectedTX.details.type.slice(1)
-                    : selectedTX.type === 'ecash'
-                    ? 'eCash'
-                    : !!transaction?.details?.data?.reverseSwapInfo
-                    ? 'Bitcon'
-                    : `Lightning`
-                }
-                styles={{fontSize: SIZES.large}}
+                content={transactionPaymentType}
+                styles={{fontSize: SIZES.large, textTransform: 'capitalize'}}
               />
             </View>
 
             {description && (
               <View style={styles.descriptionContainer}>
-                <ThemeText
-                  content={'Memo'}
-                  styles={{...styles.descriptionHeader}}
-                />
+                <ThemeText content={'Memo'} styles={styles.descriptionHeader} />
 
                 <View
                   style={[
@@ -350,8 +233,8 @@ export default function ExpandedTx(props) {
                     horizontal={false}
                     showsVerticalScrollIndicator={false}>
                     <ThemeText
-                      content={String(description)}
-                      styles={{...styles.buttonText}}
+                      content={description}
+                      styles={styles.buttonText}
                     />
                   </ScrollView>
                 </View>
@@ -371,10 +254,7 @@ export default function ExpandedTx(props) {
               textContent={'Technical details'}
               actionFunction={() => {
                 navigate.navigate('TechnicalTransactionDetails', {
-                  selectedTX: selectedTX,
-                  isLiquidPayment: usesLiquidNode,
-                  isFailedPayment: isFailedPayment,
-                  isEcashPayment: usesEcash,
+                  transaction: transaction,
                 });
               }}
             />
@@ -408,17 +288,7 @@ function Border() {
     );
   }
 
-  return (
-    <View
-      style={{
-        width: '100%',
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        marginBottom: 20,
-      }}>
-      {dotElements}
-    </View>
-  );
+  return <View style={styles.borderContainer}>{dotElements}</View>;
 }
 
 function ReceiptDots() {
@@ -441,43 +311,72 @@ function ReceiptDots() {
     );
   }
 
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        bottom: Platform.OS == 'ios' ? -12 : -10,
-        width: '100%',
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-      }}>
-      {dotElements}
-    </View>
-  );
+  return <View style={styles.receiptDotsContainer}>{dotElements}</View>;
 }
 
 const styles = StyleSheet.create({
-  innerContainer: {
-    flex: 1,
-    alignItems: 'center',
-    width: WINDOWWIDTH,
-    ...CENTER,
-  },
-  headerText: {
-    fontSize: SIZES.xxLarge,
-  },
-  didCompleteText: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Descriptoin_Regular,
-    marginBottom: 30,
-  },
-
-  fiatHeaderAmount: {
-    fontSize: SIZES.huge,
-  },
-  satHeaderAmount: {
+  borderContainer: {
+    width: '100%',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
     marginBottom: 20,
   },
-
+  receiptDotsContainer: {
+    position: 'absolute',
+    bottom: Platform.OS == 'ios' ? -12 : -10,
+    width: '100%',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+  },
+  scrollViewContentContainer: {
+    width: '95%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...CENTER,
+  },
+  receiptContainer: {
+    width: '100%',
+    height: 'auto',
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    padding: 15,
+    paddingTop: 40,
+    ...CENTER,
+    alignItems: 'center',
+    marginTop: 80,
+    marginBottom: 20,
+  },
+  paymentStatusOuterContainer: {
+    width: 100,
+    height: 100,
+    position: 'absolute',
+    top: -70,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paymentStatusFirstCircle: {
+    width: 80,
+    height: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 40,
+  },
+  paymentStatusSecondCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  paymentStatusTextContainer: {
+    width: '100%',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginTop: 30,
+    marginBottom: 10,
+  },
   infoLine: {
     width: '100%',
     flexDirection: 'row',
@@ -486,38 +385,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  infoContainer: {
-    width: '100%',
-    maxWidth: 300,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    paddingVertical: 10,
-    marginBottom: 20,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  contentBlock: {
-    width: '45%',
-    alignContent: 'center',
-    justifyContent: 'center',
-  },
-  infoHeaders: {
-    textAlign: 'center',
-    fontSize: SIZES.large,
-    marginBottom: 5,
-  },
-  infoDescriptions: {
-    textAlign: 'center',
-    fontSize: SIZES.small,
-  },
-  failedTransactionText: {
-    fontFamily: FONT.Title_Bold,
-    fontSize: SIZES.large,
-    marginBottom: 5,
-    textTransform: 'uppercase',
-  },
   descriptionContainer: {
     width: '100%',
     maxWidth: 300,
@@ -535,14 +402,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
   },
-  buttonContainer: {
-    marginTop: 'auto',
-    borderRadius: 8,
-    borderWidth: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 5,
-  },
+
   buttonText: {
     fontFamily: FONT.Descriptoin_Regular,
     fontSize: SIZES.medium,

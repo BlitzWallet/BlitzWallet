@@ -99,7 +99,7 @@ const POSTransactionsProvider = ({children}) => {
     );
 
     const unsubscribe = onSnapshot(transaction, snapshot => {
-      snapshot?.docChanges()?.forEach(async change => {
+      snapshot?.docChanges()?.forEach(change => {
         console.log('recived a new pos transaction', change.type);
         if (change.type === 'added') {
           const newTX = change.doc.data();

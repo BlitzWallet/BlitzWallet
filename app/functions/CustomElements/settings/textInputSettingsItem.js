@@ -10,6 +10,7 @@ export default function TextInputSettingsItem({
   settingDescription = '',
   defaultTextInputValue,
   handleSubmit,
+  keyboardType = 'number-pad',
 }) {
   const {theme} = useGlobalThemeContext();
   const [inputValue, setInputValue] = useState(undefined);
@@ -38,7 +39,7 @@ export default function TextInputSettingsItem({
           value={inputValue}
           defaultValue={String(defaultTextInputValue)}
           onChangeText={setInputValue}
-          keyboardType="number-pad"
+          keyboardType={keyboardType}
           onEndEditing={() => {
             if (!inputValue) return;
             if (inputValue == defaultTextInputValue) return;

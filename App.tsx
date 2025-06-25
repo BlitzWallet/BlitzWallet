@@ -9,7 +9,14 @@ import {DefaultTheme, NavigationContainer} from '@react-navigation/native';
 import './pollyfills';
 import './i18n'; // for translation option
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+  JSX,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {registerRootComponent} from 'expo';
 import {
   getLocalStorageItem,
@@ -42,10 +49,11 @@ import {COLORS, LOGIN_SECUITY_MODE_KEY} from './app/constants';
 import {LiquidEventProvider} from './context-store/liquidEventContext';
 import {
   EcashNavigationListener,
-  LightningNavigationListener,
-  LiquidNavigationListener,
+  // LightningNavigationListener,
+  // LiquidNavigationListener,
+  SparkNavigationListener,
 } from './context-store/SDKNavigation';
-import {LightningEventProvider} from './context-store/lightningEventContext';
+// import {LightningEventProvider} from './context-store/lightningEventContext';
 import {
   GlobalThemeProvider,
   useGlobalThemeContext,
@@ -62,54 +70,62 @@ import {
 } from './navigation/screens';
 import getDeepLinkUser from './app/components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import {navigationRef} from './navigation/navigationService';
-import {GlobalConbinedTxContextProvider} from './context-store/combinedTransactionsContext';
-import BreezTest from './app/screens/breezTest';
+// import {GlobalConbinedTxContextProvider} from './context-store/combinedTransactionsContext';
+// import BreezTest from './app/screens/breezTest';
 import {ImageCacheProvider} from './context-store/imageCache';
 import {
   runPinAndMnemoicMigration,
   runSecureStoreMigrationV2,
 } from './app/functions/secureStore';
+import {KeyboardProvider} from 'react-native-keyboard-controller';
+import HandleLNURLPayments from './context-store/lnurl';
+import {SparkConnectionListener} from './context-store/connectToNode';
+import {SparkWalletProvider} from './context-store/sparkContext';
 
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
   return (
     <GestureHandlerRootView>
-      <KeysContextProvider>
-        <GlobalContextProvider>
-          <AppStatusProvider>
-            <GlobalThemeProvider>
-              <GlobaleCashVariables>
-                <GLobalNodeContextProider>
-                  <GlobalConbinedTxContextProvider>
-                    <GlobalAppDataProvider>
-                      <POSTransactionsProvider>
-                        <WebViewProvider>
-                          <GlobalContactsList>
-                            <PushNotificationManager>
-                              <LiquidEventProvider>
-                                <LightningEventProvider>
+      <KeyboardProvider>
+        <KeysContextProvider>
+          <GlobalContactsList>
+            <GlobalContextProvider>
+              <AppStatusProvider>
+                <GlobalThemeProvider>
+                  <GlobaleCashVariables>
+                    <GLobalNodeContextProider>
+                      <SparkWalletProvider>
+                        {/* <GlobalConbinedTxContextProvider> */}
+                        <GlobalAppDataProvider>
+                          <POSTransactionsProvider>
+                            <WebViewProvider>
+                              <PushNotificationManager>
+                                <LiquidEventProvider>
+                                  {/* <LightningEventProvider> */}
                                   <ImageCacheProvider>
                                     {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
                                     <ResetStack />
                                     {/* </Suspense> */}
                                   </ImageCacheProvider>
-                                </LightningEventProvider>
-                              </LiquidEventProvider>
-                            </PushNotificationManager>
-                          </GlobalContactsList>
-                        </WebViewProvider>
-                      </POSTransactionsProvider>
-                    </GlobalAppDataProvider>
-                    {/* <BreezTest /> */}
-                  </GlobalConbinedTxContextProvider>
-                </GLobalNodeContextProider>
-              </GlobaleCashVariables>
-            </GlobalThemeProvider>
-          </AppStatusProvider>
-        </GlobalContextProvider>
-      </KeysContextProvider>
+                                  {/* </LightningEventProvider> */}
+                                </LiquidEventProvider>
+                              </PushNotificationManager>
+                            </WebViewProvider>
+                          </POSTransactionsProvider>
+                        </GlobalAppDataProvider>
+                        {/* <BreezTest /> */}
+                        {/* </GlobalConbinedTxContextProvider> */}
+                      </SparkWalletProvider>
+                    </GLobalNodeContextProider>
+                  </GlobaleCashVariables>
+                </GlobalThemeProvider>
+              </AppStatusProvider>
+            </GlobalContextProvider>
+          </GlobalContactsList>
+        </KeysContextProvider>
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }
@@ -328,9 +344,12 @@ function ResetStack(): JSX.Element | null {
 
   return (
     <NavigationContainer theme={navigationTheme} ref={navigationRef}>
-      <LiquidNavigationListener />
-      <LightningNavigationListener />
+      <HandleLNURLPayments />
+      <SparkNavigationListener />
       <EcashNavigationListener />
+      <SparkConnectionListener />
+      {/* <LiquidNavigationListener /> */}
+      {/* <LightningNavigationListener /> */}
       <Stack.Navigator screenOptions={screenOptions}>
         <Stack.Screen
           name="Home"

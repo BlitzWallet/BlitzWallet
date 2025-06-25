@@ -5,17 +5,17 @@ import numberConverter from './numberConverter';
 
 export default function displayCorrectDenomination({
   amount,
-  nodeInformation,
   masterInfoObject,
+  fiatStats,
 }) {
   try {
     const convertedAmount = numberConverter(
       amount,
       masterInfoObject.userBalanceDenomination,
-      nodeInformation,
       masterInfoObject.userBalanceDenomination === 'fiat' ? 2 : 0,
+      fiatStats,
     );
-    const currencyText = nodeInformation?.fiatStats.coin || 'USD';
+    const currencyText = fiatStats?.coin || 'USD';
     const showSymbol = masterInfoObject.satDisplay === 'symbol';
     const showSats =
       masterInfoObject.userBalanceDenomination === 'sats' ||

@@ -1,7 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
 import {
-  Image,
-  Keyboard,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -14,7 +12,6 @@ import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {encriptMessage} from '../../../../functions/messaging/encodingAndDecodingMessages';
 import {
   CustomKeyboardAvoidingView,
-  GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -46,19 +43,12 @@ export default function ContactsPage({navigation}) {
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const myProfile = globalContactsInformation.myProfile;
   const didEditProfile = globalContactsInformation.myProfile.didEditProfile;
-
   const handleBackPressFunction = useCallback(() => {
     tabsNavigate('Home');
   }, [tabsNavigate]);
 
   useHandleBackPressNew(handleBackPressFunction);
 
-  console.log(
-    decodedAddedContacts.filter(
-      contact => !hideUnknownContacts || contact.isAdded,
-    ).length !== 0 && myProfile.didEditProfile,
-    'TESDFSD',
-  );
   const pinnedContacts = useMemo(() => {
     return decodedAddedContacts
       .filter(contact => contact.isFavorite)
@@ -254,6 +244,7 @@ function PinnedContactElement(props) {
     contactsMessags,
   } = useGlobalContacts();
   const {backgroundOffset} = GetThemeColors();
+  const [textWidth, setTextWidth] = useState(0);
   const contact = props.contact;
   const navigate = useNavigation();
   const dimenions = useWindowDimensions();
@@ -309,6 +300,7 @@ function PinnedContactElement(props) {
             width: '100%',
             alignItems: 'center',
             flexDirection: 'row',
+            justifyContent: 'center',
           }}>
           {hasUnlookedTransaction && (
             <View
@@ -316,20 +308,35 @@ function PinnedContactElement(props) {
                 ...styles.hasNotification,
                 backgroundColor:
                   darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
-                marginRight: 1,
+                position: 'absolute',
+                left: '50%',
+                transform: [{translateX: -(textWidth / 2 + 5 + 10)}],
               }}
             />
           )}
-          <ThemeText
-            CustomEllipsizeMode={'tail'}
-            CustomNumberOfLines={1}
-            styles={{textAlign: 'center', fontSize: SIZES.small, flex: 1}}
-            content={
-              !!contact.name.length
-                ? contact.name.trim()
-                : contact.uniqueName.trim()
-            }
-          />
+          <View
+            style={{
+              maxWidth:
+                (dimenions.width * 0.95) / 4.5 -
+                (hasUnlookedTransaction ? 25 : 0),
+            }}
+            onLayout={event => {
+              setTextWidth(event.nativeEvent.layout.width);
+            }}>
+            <ThemeText
+              CustomEllipsizeMode="tail"
+              CustomNumberOfLines={1}
+              styles={{
+                fontSize: SIZES.small,
+                textAlign: 'center',
+              }}
+              content={
+                !!contact.name.length
+                  ? contact.name.trim()
+                  : contact.uniqueName.trim()
+              }
+            />
+          </View>
         </View>
       </View>
     </TouchableOpacity>

@@ -7,12 +7,12 @@ export default function useAppInsets() {
 
   const topPadding = Platform.select({
     ios: insets.top,
-    android: ANDROIDSAFEAREA,
+    android: insets.top + 5,
   });
 
   const bottomPadding = Platform.select({
     ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
+    android: insets.bottom + 5,
   });
 
   console.log(topPadding, bottomPadding, 'ETSTING');

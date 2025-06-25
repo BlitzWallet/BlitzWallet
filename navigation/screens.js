@@ -42,7 +42,6 @@ import EcashSettings from '../app/components/admin/homeComponents/settingsConten
 import MigrateProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
 import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
 import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
-import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import AccountInformationPage from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/AccountInformationPage';
@@ -76,7 +75,7 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   {name: 'ReceiveBTC', component: ReceivePaymentHome},
   {name: 'ExpandedTx', component: ExpandedTx},
   {name: 'TechnicalTransactionDetails', component: TechnicalTransactionDetails},
-  {name: 'LiquidSettingsPage', component: LiquidSettingsPage},
+  // {name: 'LiquidSettingsPage', component: LiquidSettingsPage},
   {
     name: 'EditReceivePaymentInformation',
     component: EditReceivePaymentInformation,
@@ -111,7 +110,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'CountryList', component: CountryList},
   {name: 'ExpandedGiftCardPage', component: ExpandedGiftCardPage},
   {name: 'HistoricalGiftCardPurchases', component: HistoricalGiftCardPurchases},
-  {name: 'ManualSwapPopup', component: ManualSwapPopup},
+  // {name: 'ManualSwapPopup', component: ManualSwapPopup},
   {name: 'AccountInformationPage', component: AccountInformationPage},
   {name: 'ViewPOSTransactions', component: ViewPOSTransactions},
   {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
@@ -149,7 +148,6 @@ const FADE_SCREENS = [
     component: AdminHomeIndex,
     options: {gestureEnabled: false},
   },
-  {name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode},
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
   {

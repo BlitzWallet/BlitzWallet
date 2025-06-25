@@ -37,7 +37,7 @@ export default function DisplayOptions() {
   const {toggleMasterInfoObject, setMasterInfoObject, masterInfoObject} =
     useGlobalContextProvider();
   const {isConnectedToTheInternet} = useAppStatus();
-  const {nodeInformation} = useNodeContext();
+  const {fiatStats, toggleFiat} = useNodeContext();
   const {theme, darkModeType, toggleDarkModeType} = useGlobalThemeContext();
   const [labelSize, setLabelSize] = useState(0);
   const {t} = useTranslation();
@@ -47,7 +47,7 @@ export default function DisplayOptions() {
   const navigate = useNavigation();
 
   const sliderValue = masterInfoObject.homepageTxPreferance;
-  const currencyText = nodeInformation?.fiatStats?.coin || 'USD';
+  const currencyText = fiatStats?.coin || 'USD';
   const formattedCurrency = formatCurrency({
     amount: 0,
     code: currencyText,

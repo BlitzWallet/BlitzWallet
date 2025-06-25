@@ -1,17 +1,17 @@
-import React, {createContext, useEffect, useRef, useState} from 'react';
+import React, {createContext, use, useEffect, useRef, useState} from 'react';
 import WebView from 'react-native-webview';
-import {AppState, Platform} from 'react-native';
-import handleWebviewClaimMessage from '../app/functions/boltz/handle-webview-claim-message';
+import {Platform} from 'react-native';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
-import {isMoreThanADayOld} from '../app/functions/rotateAddressDateChecker';
-import {useAppStatus} from './appStatus';
+import handleWebviewClaimMessage from '../app/functions/boltz/handle-webview-claim-message';
 
 // Create a context for the WebView ref
 const WebViewContext = createContext(null);
 
 export const WebViewProvider = ({children}) => {
-  const {didGetToHomepage} = useAppStatus();
   const webViewRef = useRef(null);
+  const [isWEbViewReady, setIsWebViewReady] = useState(false);
+  const handleClaimRetryRef = useRef(null);
+  const startClaimRetryRef = useRef(null);
   // const [webViewArgs, setWebViewArgs] = useState({
   //   navigate: null,
   //   page: null,
@@ -19,35 +19,56 @@ export const WebViewProvider = ({children}) => {
   // });
 
   useEffect(() => {
-    if (!didGetToHomepage) {
-      return;
-    }
+    if (!isWEbViewReady) return;
+    if (startClaimRetryRef.current) return;
+    startClaimRetryRef.current = true;
+
     async function handleUnclaimedReverseSwaps() {
+      console.log('Checking for unclaimed reverse swaps');
       let savedClaimInfo =
         JSON.parse(await getLocalStorageItem('savedReverseSwapInfo')) || [];
-      console.log(savedClaimInfo, 'SAVD CLAIM INFORMATION');
+
+      console.log('Saved claim info length:', savedClaimInfo.length);
+      console.log('Saved claim info:', savedClaimInfo);
       if (savedClaimInfo.length === 0) return;
+      let newClaims = [];
+      for (const claim in savedClaimInfo) {
+        const createdOn = new Date(claim.createdOn);
+        const now = new Date();
+        if (!claim?.swapInfo?.id) continue;
+        if (claim.numberOfTries > 15) continue;
+        if (createdOn - now < 1000 * 60 * 3) {
+          // If the claim is less than 3 minutes old, skip it to prevent race condition with the websocket
+          newClaims.push(claim);
+          continue;
+        }
 
-      try {
-        savedClaimInfo.forEach(claim => {
-          const claimInfo = JSON.stringify(claim);
-          webViewRef.current.injectJavaScript(
-            `window.claimReverseSubmarineSwap(${claimInfo}); void(0);`,
-          );
-        });
+        newClaims.push({...claim, numberOfTries: claim.numberOfTries + 1});
 
-        setLocalStorageItem(
-          'savedReverseSwapInfo',
-          JSON.stringify(
-            savedClaimInfo.filter(item => !isMoreThanADayOld(item.createdOn)),
-          ),
+        console.log('Processing claim:', claim);
+        const claimInfo = JSON.stringify(claim);
+        webViewRef.current.injectJavaScript(
+          `window.claimReverseSubmarineSwap(${claimInfo}); void(0);`,
         );
-      } catch (error) {
-        console.error('An error occurred:', error);
+        await new Promise(resolve => setTimeout(resolve, 3000));
       }
+      setLocalStorageItem('savedReverseSwapInfo', JSON.stringify(newClaims));
     }
-    handleUnclaimedReverseSwaps();
-  }, [didGetToHomepage]);
+
+    if (handleClaimRetryRef.current) {
+      console.log(
+        'Clearing previous claim retry interval',
+        handleClaimRetryRef.current,
+      );
+      clearInterval(handleClaimRetryRef.current);
+    }
+
+    console.log('Setting up claim retry interval');
+    handleClaimRetryRef.current = setInterval(
+      handleUnclaimedReverseSwaps,
+      30000,
+    );
+  }, [isWEbViewReady]);
 
   return (
     <WebViewContext.Provider
@@ -76,6 +97,7 @@ export const WebViewProvider = ({children}) => {
             // webViewArgs.function,
           )
         }
+        onLoadEnd={() => setIsWebViewReady(true)}
       />
     </WebViewContext.Provider>
   );

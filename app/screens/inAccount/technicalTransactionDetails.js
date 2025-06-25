@@ -1,4 +1,4 @@
-import {StyleSheet, View, TouchableOpacity, Image} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
 import {CENTER, ICONS} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {copyToClipboard} from '../../functions';
@@ -12,63 +12,57 @@ export default function TechnicalTransactionDetails(props) {
   const navigate = useNavigation();
   useHandleBackPressNew();
 
-  const {selectedTX, isLiquidPayment, isFailedPayment, isEcashPayment} =
-    props.route.params;
+  const {transaction} = props.route.params;
 
-  const isAClosedChannelTx = selectedTX.description
-    ?.toLowerCase()
-    ?.includes('closed channel');
+  const {details, sparkID} = transaction;
 
-  const paymentDetails = isEcashPayment
-    ? ['Mint url', 'Payment Preimage']
-    : isFailedPayment
-    ? ['Payment Hash', 'Payment Preimage', 'Destination Pubkey']
-    : isLiquidPayment
-    ? ['Destination', 'Transaction Id']
-    : isAClosedChannelTx
-    ? ['Closing TxId', 'Funding TxId', 'Short Channel Id']
-    : ['Payment Hash', 'Payment Preimage', 'Destination Pubkey'];
+  const paymentDetails =
+    transaction.paymentType === 'spark'
+      ? ['Payment Id', 'Sender Public Key', 'Payment Address']
+      : transaction.paymentType === 'lightning'
+      ? ['Payment Id', 'Payment Preimage', 'Payment Address']
+      : ['Payment Id', 'Bitcoin Txid', 'Payment Address'];
 
   const infoElements = paymentDetails.map((item, id) => {
-    const txItem = isEcashPayment
-      ? id === 0
-        ? selectedTX?.mintURL
-        : selectedTX?.preImage || ''
-      : isFailedPayment
-      ? id === 0
-        ? selectedTX?.details?.data?.paymentHash
+    const txItem =
+      transaction.paymentType === 'spark'
+        ? id === 0
+          ? sparkID
+          : id === 1
+          ? details.senderIdentityPublicKey
+          : details.address
+        : transaction.paymentType === 'lightning'
+        ? id === 0
+          ? sparkID
+          : id === 1
+          ? details.preimage
+          : details.address
+        : id === 0
+        ? sparkID
         : id === 1
-        ? selectedTX?.details?.data?.paymentPreimage
-        : selectedTX?.details?.data?.destinationPubkey
-      : isLiquidPayment
-      ? id === 0
-        ? selectedTX?.destination
-        : selectedTX?.txId
-      : isAClosedChannelTx
-      ? id === 0
-        ? selectedTX.details?.data?.closingTxid
-        : id === 1
-        ? selectedTX.details?.data?.fundingTxid
-        : selectedTX.details?.data?.shortChannelId
-      : id === 0
-      ? selectedTX.details?.data?.paymentHash
-      : id === 1
-      ? selectedTX.details?.data?.paymentPreimage
-      : selectedTX.details?.data?.destinationPubkey;
+        ? details.onChainTxid
+        : details.address;
+
     return (
       <View key={id}>
         <ThemeText content={item} styles={{...styles.headerText}} />
         <TouchableOpacity
           onPress={() => {
-            if (isLiquidPayment && item === 'Transaction Id') {
+            if (
+              transaction.paymentType === 'bitcoin' &&
+              item === 'Bitcoin Txid'
+            ) {
               navigate.navigate('CustomWebView', {
-                webViewURL: `https://liquid.network/tx/${txItem}`,
+                webViewURL: `https://mempool.space/tx/${txItem}`,
               });
               return;
             }
             copyToClipboard(txItem, navigate);
           }}>
-          <ThemeText content={txItem} styles={{...styles.descriptionText}} />
+          <ThemeText
+            content={txItem || 'N/A'}
+            styles={{...styles.descriptionText}}
+          />
         </TouchableOpacity>
       </View>
     );
@@ -87,7 +81,11 @@ export default function TechnicalTransactionDetails(props) {
             lightsOutIcon={ICONS.arrow_small_left_white}
           />
         </TouchableOpacity>
-        <View style={styles.innerContainer}>{infoElements}</View>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.innerContainer}>
+          {infoElements}
+        </ScrollView>
       </View>
     </GlobalThemeView>
   );

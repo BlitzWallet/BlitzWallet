@@ -3,18 +3,19 @@ import {Platform, RefreshControl, View} from 'react-native';
 import Animated from 'react-native-reanimated';
 import {useCustomFlatListHook} from './useCustomFlatListHooks';
 import {COLORS} from '../../../../../constants';
-import {sync as syncLiquid} from '@breeztech/react-native-breez-sdk-liquid';
-import {sync as syncLightning} from '@breeztech/react-native-breez-sdk';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../../../../../functions/crashlyticsLogs';
 import {useFocusEffect} from '@react-navigation/native';
+import {useSparkWallet} from '../../../../../../context-store/sparkContext';
+
+import {fullRestoreSparkState} from '../../../../../functions/spark/restore';
+import {getSparkBalance} from '../../../../../functions/spark';
 
 function CustomFlatList({style, ...props}) {
-  const {masterInfoObject} = useGlobalContextProvider();
+  const {sparkInformation, setSparkInformation} = useSparkWallet();
   const {theme, darkModeType} = useGlobalThemeContext();
   const [refreshing, setRefreshing] = useState(false);
   const flatListRef = useRef(null);
@@ -31,20 +32,23 @@ function CustomFlatList({style, ...props}) {
   const handleRefresh = useCallback(async () => {
     crashlyticsLogReport(`Running in handle refresh function on homepage`);
     try {
-      setRefreshing(true);
-      await Promise.all([
-        syncLiquid(),
-        masterInfoObject.liquidWalletSettings.isLightningEnabled
-          ? syncLightning()
-          : Promise.resolve(true),
-      ]);
+      // const restoredLengh = await fullRestoreSparkState({
+      //   sparkAddress: sparkInformation.sparkAddress,
+      // });
+      // if (restoredLengh) return;
+      const balance = await getSparkBalance();
+      if (!balance || !Number(balance.balance)) return;
+      setSparkInformation(prev => ({
+        ...prev,
+        balance: Number(balance.balance),
+      }));
     } catch (err) {
-      console.log('error refreshing', err);
+      console.log('error refreshing on homepage', err);
       crashlyticsRecordErrorReport(err.message);
     } finally {
       setRefreshing(false);
     }
-  }, [masterInfoObject]);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {

@@ -20,13 +20,14 @@ import useAppInsets from '../../../../hooks/useAppInsets';
 
 export default function FiatCurrencyPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {toggleNodeInformation} = useNodeContext();
+  const {toggleFiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const currencies = masterInfoObject.fiatCurrenciesList || [];
   const [textInput, setTextInput] = useState('');
   const currentCurrency = masterInfoObject?.fiatCurrency;
-  const {bottomPadding} = useAppInsets();
+
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const {bottomPadding} = useAppInsets();
 
   const navigate = useNavigation();
 
@@ -160,7 +161,8 @@ export default function FiatCurrencyPage() {
       const [fiatRate] = fiat.filter(rate => {
         return rate.coin.toLowerCase() === selectedCurrency.toLowerCase();
       });
-      toggleNodeInformation({fiatStats: fiatRate});
+
+      toggleFiatStats({...fiatRate});
 
       if (fiatRate) {
         navigate.goBack();
