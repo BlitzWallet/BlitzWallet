@@ -73,6 +73,7 @@ export default async function initializeUserSettingsFromHistory({
       useTrampoline,
       fastPaySettings,
       crashReportingSettings,
+      enabledDeveloperSupport,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -274,6 +275,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['appData'] = appData;
     tempObject[QUICK_PAY_STORAGE_KEY] = fastPaySettings;
     tempObject['crashReportingSettings'] = crashReportingSettings;
+    tempObject['enabledDeveloperSupport'] = enabledDeveloperSupport;
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {
       await sendDataToDB(tempObject, publicKey);

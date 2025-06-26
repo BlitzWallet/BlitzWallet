@@ -71,6 +71,8 @@ export const fetchLocalStorageItems = async () => {
     fastPaySettings: parsedResults[9] ?? defaultValues[QUICK_PAY_STORAGE_KEY],
     crashReportingSettings:
       parsedResults[10] ?? defaultValues.crashReportingSettings,
+    enabledDeveloperSupport:
+      parsedResults[11] ?? defaultValues.enabledDeveloperSupport,
   };
 };
 

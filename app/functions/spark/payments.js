@@ -12,6 +12,8 @@ import {SPARK_TO_LN_FEE, SPARK_TO_SPARK_FEE} from '../../constants/math';
 import {
   addSingleUnpaidSparkLightningTransaction,
   bulkUpdateSparkTransactions,
+  SPARK_TX_UPDATE_ENVENT_NAME,
+  sparkTransactionsEventEmitter,
 } from './transactions';
 
 export const sparkPaymenWrapper = async ({
@@ -175,7 +177,7 @@ export const sparkPaymenWrapper = async ({
       if (!sparkPayResponse)
         throw new Error('Error when sending spark payment');
 
-      await handleSupportPayment(masterInfoObject, supportFee);
+      handleSupportPayment(masterInfoObject, supportFee);
 
       const tx = {
         id: sparkPayResponse.id,
@@ -260,6 +262,10 @@ async function handleSupportPayment(masterInfoObject, supportFee) {
         receiverSparkAddress: process.env.BLITZ_SPARK_SUPPORT_ADDRESSS,
         amountSats: supportFee,
       });
+      sparkTransactionsEventEmitter.emit(
+        SPARK_TX_UPDATE_ENVENT_NAME,
+        'supportTx',
+      );
     }
   } catch (err) {
     console.log('Error sending support payment', err);

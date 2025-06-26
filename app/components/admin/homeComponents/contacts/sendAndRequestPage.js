@@ -82,11 +82,11 @@ export default function SendAndRequestPage(props) {
   );
 
   const canSendPayment = useMemo(
-    () =>
-      paymentType === 'request'
-        ? convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
-          convertedSendAmount
-        : convertedSendAmount,
+    () => convertedSendAmount,
+    // paymentType === 'request'
+    //   ? convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
+    //     convertedSendAmount
+    //   : convertedSendAmount,
     [convertedSendAmount, minMaxLiquidSwapAmounts, paymentType],
   );
   useHandleBackPressNew();
@@ -138,7 +138,7 @@ export default function SendAndRequestPage(props) {
           } else {
             navigate.navigate('ErrorScreen', {
               errorMessage:
-                'Contact has not updated thier wallet yet. Please ask them to update their wallet to pay them.',
+                'Contact has not updated thier wallet yet. Please ask them to update their wallet to send this.',
             });
             return;
           }
