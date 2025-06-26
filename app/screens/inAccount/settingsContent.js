@@ -45,6 +45,7 @@ export default function SettingsContentIndex(props) {
   const isDoomsday = props?.route?.params?.isDoomsday;
   const enabledEcash = masterInfoObject?.enabledEcash;
   const currentMintURL = ecashWalletInformation?.mintURL;
+  const extraData = props?.route?.params?.extraData;
   const handleBackPressFunction = useCallback(() => {
     if (selectedPage?.toLowerCase() === 'experimental') {
       if (!currentMintURL && enabledEcash) {
@@ -137,7 +138,7 @@ export default function SettingsContentIndex(props) {
               <NosterWalletConnect theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'login mode' && (
-              <LoginSecurity theme={theme} />
+              <LoginSecurity extraData={extraData} theme={theme} />
             )}
 
             {selectedPage?.toLowerCase() === 'backup wallet' && (
