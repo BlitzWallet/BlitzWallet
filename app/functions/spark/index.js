@@ -27,15 +27,15 @@ export const initializeSparkWallet = async mnemonic => {
 
     return {isConnected: true};
 
-    if (type === 'wallet') {
-      const {wallet} = value;
-      console.log('Wallet initialized:', await wallet.getIdentityPublicKey());
-      sparkWallet = wallet;
+    // if (type === 'wallet') {
+    //   const {wallet} = value;
+    //   console.log('Wallet initialized:', await wallet.getIdentityPublicKey());
+    //   sparkWallet = wallet;
 
-      return {isConnected: true};
-    } else if (type === 'timeout') {
-      return {isConnected: false};
-    }
+    //   return {isConnected: true};
+    // } else if (type === 'timeout') {
+    //   return {isConnected: false};
+    // }
   } catch (err) {
     console.log('Initialize spark wallet error', err);
     return {isConnected: false};
