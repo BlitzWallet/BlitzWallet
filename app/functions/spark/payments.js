@@ -73,10 +73,14 @@ export const sparkPaymenWrapper = async ({
       const lightningPayResponse = await sendSparkLightningPayment({
         invoice: address,
       });
-      if (!lightningPayResponse)
-        throw new Error('Error when sending lightning payment');
+      if (!lightningPayResponse.didWork)
+        throw new Error(
+          lightningPayResponse.error || 'Error when sending lightning payment',
+        );
 
       handleSupportPayment(masterInfoObject, supportFee);
+
+      const data = lightningPayResponse.paymentResponse;
 
       console.log(lightningPayResponse, 'lightning pay response');
       // let sparkQueryResponse = null;
@@ -98,7 +102,7 @@ export const sparkPaymenWrapper = async ({
       // console.log(sparkQueryResponse, 'AFTEWR');
 
       const tx = {
-        id: lightningPayResponse.id,
+        id: data.id,
         paymentStatus: 'pending',
         paymentType: 'lightning',
         accountId: sparkInformation.identityPubKey,
@@ -107,7 +111,7 @@ export const sparkPaymenWrapper = async ({
           amount: amountSats,
           description: memo || '',
           address: address,
-          time: new Date(lightningPayResponse.updatedAt).getTime(),
+          time: new Date(data.updatedAt).getTime(),
           direction: 'OUTGOING',
           preimage: '',
         },
@@ -255,6 +259,7 @@ export const sparkReceivePaymentWrapper = async ({
 async function handleSupportPayment(masterInfoObject, supportFee) {
   try {
     if (masterInfoObject?.enabledDeveloperSupport?.isEnabled) {
+      await new Promise(res => setTimeout(res, 2000));
       await sendSparkPayment({
         receiverSparkAddress: process.env.BLITZ_SPARK_SUPPORT_ADDRESSS,
         amountSats: supportFee,

@@ -291,9 +291,11 @@ export const getSparkLightningPaymentStatus = async ({lightningInvoiceId}) => {
 export const sendSparkLightningPayment = async ({invoice, maxFeeSats}) => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.payLightningInvoice({invoice});
+    const paymentResponse = await sparkWallet.payLightningInvoice({invoice});
+    return {didWork: true, paymentResponse};
   } catch (err) {
     console.log('Send lightning payment error', err);
+    return {didWork: false, error: err.message};
   }
 };
 export const sendSparkBitcoinPayment = async ({
