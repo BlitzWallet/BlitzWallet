@@ -26,6 +26,7 @@ import {useNavigation} from '@react-navigation/native';
 import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
 import useAppInsets from '../../../hooks/useAppInsets';
 import {useKeysContext} from '../../../../context-store/keys';
+import {wordlist} from '@scure/bip39/wordlists/english';
 
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -153,6 +154,33 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
     }
   }, [inputedKey, reset, navigate, navigateToError, t]);
 
+  const handleCameraScan = data => {
+    try {
+      if (!data) return;
+      let indexMnemonic = [];
+
+      for (let index = 0; index < 12; index++) {
+        const start = index * 4;
+        const end = start + 4;
+        indexMnemonic.push(data.slice(start, end));
+      }
+      const seedMnemoinc = indexMnemonic.map(item => {
+        console.log(Number(item));
+        return wordlist.at(Number(item));
+      });
+      const newKeys = {};
+      NUMARRAY.forEach((num, index) => {
+        newKeys[`key${num}`] = seedMnemoinc[index];
+      });
+      setInputedKey(newKeys);
+    } catch (err) {
+      console.log('error getting seed from camera', err);
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'Unable to get seed from QR code',
+      });
+    }
+  };
+
   const seedItemBackgroundColor = useMemo(
     () => (theme ? COLORS.darkModeBackgroundOffset : COLORS.darkModeText),
     [theme],
@@ -270,11 +298,18 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
           }}>
           {inputKeys}
         </ScrollView>
-        {params && !currentFocused && (
+        {!currentFocused && (
           <CustomButton
             buttonStyles={styles.pasteButton}
-            textContent={t('constants.paste')}
-            actionFunction={handleSeedFromClipboard}
+            textContent={params ? t('constants.paste') : 'Scan QR'}
+            actionFunction={
+              params
+                ? handleSeedFromClipboard
+                : () =>
+                    navigate.navigate('CameraModal', {
+                      updateBitcoinAdressFunc: handleCameraScan,
+                    })
+            }
           />
         )}
         {!currentFocused && (
