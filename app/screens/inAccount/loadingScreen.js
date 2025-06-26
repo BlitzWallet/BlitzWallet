@@ -273,14 +273,16 @@ export default function ConnectingToNodeLoadingScreen({
 
     try {
       setStartConnectingToSpark(true);
+
+      // small buffer to smooth transition
+      await new Promise(res => setTimeout(res, 1000));
       crashlyticsLogReport('Trying to connect to nodes');
 
       setNumberOfCachedTxs(txs?.length || 0);
       if (didConnectToLiquidNode.isConnected) {
         crashlyticsLogReport('Loading node balances for session');
-        const didSetLiquid = await setLiquidNodeInformationForSession(
-          didConnectToLiquidNode?.liquid_node_info,
-        );
+        const didSetLiquid = await setLiquidNodeInformationForSession();
+        // didConnectToLiquidNode?.liquid_node_info,
 
         // Same thing for here, if liquid does not set continue on in the process
         if (didSetLiquid) {
@@ -503,25 +505,29 @@ export default function ConnectingToNodeLoadingScreen({
   async function setLiquidNodeInformationForSession(retrivedLiquidNodeInfo) {
     try {
       crashlyticsLogReport('Starting liquid node lookup process');
-      const [parsedInformation, payments, fiat_rate, addressResponse] =
-        await Promise.all([
-          retrivedLiquidNodeInfo
-            ? Promise.resolve(retrivedLiquidNodeInfo)
-            : getInfo(),
-          listPayments({}),
-          setupFiatCurrencies(),
-          masterInfoObject.offlineReceiveAddresses.addresses.length !== 7 ||
-          isMoreThan7DaysPast(
-            masterInfoObject.offlineReceiveAddresses.lastRotated,
-          )
-            ? breezLiquidReceivePaymentWrapper({
-                paymentType: 'liquid',
-              })
-            : Promise.resolve(null),
-        ]);
+      const [
+        // parsedInformation,
+        // payments,
+        fiat_rate,
+        addressResponse,
+      ] = await Promise.all([
+        // retrivedLiquidNodeInfo
+        //   ? Promise.resolve(retrivedLiquidNodeInfo)
+        //   : getInfo(),
+        // listPayments({}),
+        setupFiatCurrencies(),
+        masterInfoObject.offlineReceiveAddresses.addresses.length !== 7 ||
+        isMoreThan7DaysPast(
+          masterInfoObject.offlineReceiveAddresses.lastRotated,
+        )
+          ? breezLiquidReceivePaymentWrapper({
+              paymentType: 'liquid',
+            })
+          : Promise.resolve(null),
+      ]);
 
-      const info = parsedInformation.walletInfo;
-      const balanceSat = info.balanceSat;
+      // const info = parsedInformation.walletInfo;
+      // const balanceSat = info.balanceSat;
 
       if (addressResponse) {
         const {destination, receiveFeesSat} = addressResponse;
@@ -557,12 +563,12 @@ export default function ConnectingToNodeLoadingScreen({
         });
       }
 
-      let liquidNodeObject = {
-        transactions: payments,
-        userBalance: balanceSat,
-        pendingReceive: info.pendingReceiveSat,
-        pendingSend: info.pendingSendSat,
-      };
+      // let liquidNodeObject = {
+      //   transactions: payments,
+      //   userBalance: balanceSat,
+      //   pendingReceive: info.pendingReceiveSat,
+      //   pendingSend: info.pendingSendSat,
+      // };
 
       toggleFiatStats({fiatStats: fiat_rate});
 
@@ -600,11 +606,11 @@ export default function ConnectingToNodeLoadingScreen({
       // }
 
       toggleLiquidNodeInformation({
-        ...liquidNodeObject,
+        // ...liquidNodeObject,
         didConnectToNode: true,
       });
 
-      return liquidNodeObject;
+      return true;
     } catch (err) {
       console.log(err, 'LIQUID INFORMATION ERROR');
       return new Promise(resolve => {
