@@ -24,11 +24,38 @@ export default async function processLNUrlPay(input, context) {
       if (tag === 'text/plain') return true;
     }) || [];
   if (comingFromAccept) {
-    invoice = await getLNAddressForLiquidPayment(
-      input,
-      Number(enteredPaymentInfo.amount),
-      enteredPaymentInfo.description || '',
-    );
+    let numberOfTries = 0;
+    let maxRetries = 3;
+    while (!invoice && numberOfTries < maxRetries) {
+      try {
+        numberOfTries += 1;
+
+        const invoiceResponse = await getLNAddressForLiquidPayment(
+          input,
+          Number(enteredPaymentInfo.amount),
+          enteredPaymentInfo.description || '',
+        );
+
+        if (invoiceResponse) {
+          invoice = invoiceResponse;
+          break;
+        }
+      } catch (err) {
+        console.log(`Invoice generation attempt ${numberOfTries} failed:`, err);
+      }
+
+      if (!invoice && numberOfTries < maxRetries) {
+        console.log(
+          `Waiting to retry invoice generation (attempt ${numberOfTries + 1})`,
+        );
+        await new Promise(res => setTimeout(res, 2000));
+      }
+    }
+
+    if (!invoice)
+      throw new Error(
+        'Unable to retrive invoice from LNURL, please try again.',
+      );
     const fee = await sparkPaymenWrapper({
       getFee: true,
       address: invoice,

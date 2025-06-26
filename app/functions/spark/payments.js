@@ -79,40 +79,37 @@ export const sparkPaymenWrapper = async ({
       handleSupportPayment(masterInfoObject, supportFee);
 
       console.log(lightningPayResponse, 'lightning pay response');
-      let sparkQueryResponse = null;
-      let count = 0;
-      while (!sparkQueryResponse && count < 5) {
-        const sparkResponse = await getSparkLightningSendRequest(
-          lightningPayResponse.id,
-        );
+      // let sparkQueryResponse = null;
+      // let count = 0;
+      // while (!sparkQueryResponse && count < 5) {
+      //   const sparkResponse = await getSparkLightningSendRequest(
+      //     lightningPayResponse.id,
+      //   );
 
-        if (sparkResponse?.transfer) {
-          sparkQueryResponse = sparkResponse;
-        } else {
-          console.log('Waiting for response...');
-          await new Promise(res => setTimeout(res, 2000));
-        }
-        count += 1;
-      }
+      //   if (sparkResponse?.transfer) {
+      //     sparkQueryResponse = sparkResponse;
+      //   } else {
+      //     console.log('Waiting for response...');
+      //     await new Promise(res => setTimeout(res, 2000));
+      //   }
+      //   count += 1;
+      // }
 
-      console.log(sparkQueryResponse, 'AFTEWR');
+      // console.log(sparkQueryResponse, 'AFTEWR');
+
       const tx = {
-        id: sparkQueryResponse
-          ? sparkQueryResponse.transfer.sparkId
-          : lightningPayResponse.id,
-        paymentStatus: sparkQueryResponse ? 'completed' : 'pending',
+        id: lightningPayResponse.id,
+        paymentStatus: 'pending',
         paymentType: 'lightning',
         accountId: sparkInformation.identityPubKey,
         details: {
           fee: fee,
           amount: amountSats,
-          address: lightningPayResponse.encodedInvoice,
+          description: memo || '',
+          address: address,
           time: new Date(lightningPayResponse.updatedAt).getTime(),
           direction: 'OUTGOING',
-          description: memo || '',
-          preimage: sparkQueryResponse
-            ? sparkQueryResponse.paymentPreimage
-            : '',
+          preimage: '',
         },
       };
       response = tx;

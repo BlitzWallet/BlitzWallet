@@ -67,6 +67,14 @@ export const updateSparkTxStatus = async () => {
   try {
     // Get all saved transactions
     const savedTxs = await getAllPendingSparkPayments();
+    console.log(savedTxs);
+    const incluedBitcoin = savedTxs.filter(
+      tx => tx.paymentType !== 'lightning',
+    );
+    let incomingTxs = [];
+    if (incluedBitcoin.length) {
+      incomingTxs = await getSparkTransactions(100);
+    }
 
     console.log('pending tx list', savedTxs);
     let updatedTxs = [];
@@ -104,7 +112,6 @@ export const updateSparkTxStatus = async () => {
         updatedTxs.push(tx);
       } else {
         if (details.direction === 'INCOMING') {
-          const incomingTxs = await getSparkTransactions(999);
           const bitcoinTransfer = incomingTxs.transfers.find(
             tx => tx.id === txStateUpdate.sparkID,
           );
