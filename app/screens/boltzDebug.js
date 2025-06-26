@@ -21,7 +21,7 @@ export default function BotlzDebug() {
         );
       if (!data?.invoice) throw new Error('No Swap invoice genereated');
 
-      const webSocket = new Websock(
+      const webSocket = new WebSocket(
         `${getBoltzWsUrl(process.env.BOLTZ_ENVIRONMENT)}`,
       );
       const didHandle = await handleReverseClaimWSS({
