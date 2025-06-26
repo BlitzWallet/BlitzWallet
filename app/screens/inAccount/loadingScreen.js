@@ -286,6 +286,7 @@ export default function ConnectingToNodeLoadingScreen({
 
         // Same thing for here, if liquid does not set continue on in the process
         if (didSetLiquid) {
+          navigate.preload('HomeAdmin');
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               replace('HomeAdmin', {screen: 'Home'});
