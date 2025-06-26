@@ -53,10 +53,7 @@ export default function RestoreProofsPopup(props) {
       handleRestoreProofEvents,
     );
     return () =>
-      restoreProofsEventListener.off(
-        RESTORE_PROOFS_EVENT_NAME,
-        handleRestoreProofEvents,
-      );
+      restoreProofsEventListener.removeAllListeners(RESTORE_PROOFS_EVENT_NAME);
   }, []);
 
   useEffect(() => {

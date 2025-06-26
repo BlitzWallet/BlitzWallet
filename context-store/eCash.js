@@ -105,9 +105,15 @@ export const GlobaleCashVariables = ({children}) => {
     sqlEventEmitter.on(PROOF_EVENT_UPDATE_NAME, updateBalance);
     sqlEventEmitter.on(MINT_EVENT_UPDATE_NAME, updateMint);
     return () => {
-      sqlEventEmitter.off(TRANSACTIONS_EVENT_UPDATE_NAME, updateTransactions);
-      sqlEventEmitter.off(PROOF_EVENT_UPDATE_NAME, updateBalance);
-      sqlEventEmitter.off(MINT_EVENT_UPDATE_NAME, updateMint);
+      sqlEventEmitter.removeAllListeners(
+        TRANSACTIONS_EVENT_UPDATE_NAME,
+        updateTransactions,
+      );
+      sqlEventEmitter.removeAllListeners(
+        PROOF_EVENT_UPDATE_NAME,
+        updateBalance,
+      );
+      sqlEventEmitter.removeAllListeners(MINT_EVENT_UPDATE_NAME, updateMint);
     };
   }, []);
 
@@ -266,8 +272,7 @@ export const GlobaleCashVariables = ({children}) => {
     }
 
     ecashEventEmitter.on(ECASH_QUOTE_EVENT_NAME, listenForPayment);
-    return () =>
-      ecashEventEmitter.off(ECASH_QUOTE_EVENT_NAME, listenForPayment);
+    return () => ecashEventEmitter.removeAllListeners(ECASH_QUOTE_EVENT_NAME);
   }, []);
 
   useEffect(() => {

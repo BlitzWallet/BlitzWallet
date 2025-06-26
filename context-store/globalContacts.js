@@ -134,13 +134,14 @@ export const GlobalContactsList = ({children}) => {
         console.log('error in contact messages update function', err);
       }
     }
-    contactsSQLEventEmitter.off(CONTACTS_TRANSACTION_UPDATE_NAME, handleUpdate);
+    contactsSQLEventEmitter.removeAllListeners(
+      CONTACTS_TRANSACTION_UPDATE_NAME,
+    );
     contactsSQLEventEmitter.on(CONTACTS_TRANSACTION_UPDATE_NAME, handleUpdate);
 
     return () => {
-      contactsSQLEventEmitter.off(
+      contactsSQLEventEmitter.removeAllListeners(
         CONTACTS_TRANSACTION_UPDATE_NAME,
-        handleUpdate,
       );
     };
   }, [updatedCachedMessagesStateFunction]);

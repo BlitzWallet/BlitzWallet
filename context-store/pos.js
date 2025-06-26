@@ -164,7 +164,7 @@ const POSTransactionsProvider = ({children}) => {
     pointOfSaleEventEmitter.on(DID_OPEN_TABLES_EVENT_NAME, handlePosTableOpen);
     pointOfSaleEventEmitter.on(POS_EVENT_UPDATE, updateTxListFunction);
     return () => {
-      pointOfSaleEventEmitter.off(POS_EVENT_UPDATE, updateTxListFunction);
+      pointOfSaleEventEmitter.removeAllListeners(POS_EVENT_UPDATE);
     };
   }, []);
 

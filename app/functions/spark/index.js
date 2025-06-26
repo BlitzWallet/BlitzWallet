@@ -24,6 +24,7 @@ export const initializeSparkWallet = async mnemonic => {
     //   new Promise(res => setTimeout(() => res(['timeout', false]), 30000)),
     // ]);
     sparkWallet = wallet;
+
     return {isConnected: true};
 
     if (type === 'wallet') {
