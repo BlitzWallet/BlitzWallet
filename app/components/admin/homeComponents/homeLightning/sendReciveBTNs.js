@@ -47,7 +47,7 @@ export function SendRecieveBTNs({
               sliderHight: 0.5,
             });
           } else {
-            navigate.navigate('EditReceivePaymentInformation', {
+            navigate.navigate('ReceiveBTC', {
               from: 'homepage',
             });
           }
