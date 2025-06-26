@@ -64,17 +64,17 @@ export default async function decodeSendAddress(props) {
           throw new Error('Unable to parse invoice from merchant link');
         }
 
-        const parsedInvoice = await parseInvoice(bolt11);
+        // const parsedInvoice = await parseInvoice(bolt11);
 
-        if (parsedInvoice.amountMsat / 1000 >= maxZeroConf) {
-          throw new Error(
-            `Cannot send more than ${displayCorrectDenomination({
-              amount: maxZeroConf,
-              masterInfoObject,
-              fiatStats,
-            })} to a merchant`,
-          );
-        }
+        // if (parsedInvoice.amountMsat / 1000 >= maxZeroConf) {
+        //   throw new Error(
+        //     `Cannot send more than ${displayCorrectDenomination({
+        //       amount: maxZeroConf,
+        //       masterInfoObject,
+        //       fiatStats,
+        //     })} to a merchant`,
+        //   );
+        // }
 
         btcAdress = bolt11;
       } catch (err) {
