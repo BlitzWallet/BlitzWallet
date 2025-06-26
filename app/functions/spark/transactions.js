@@ -142,7 +142,10 @@ export const updateSingleSparkTransaction = async (saved_spark_id, updates) => {
   }
 };
 
-export const bulkUpdateSparkTransactions = async transactions => {
+export const bulkUpdateSparkTransactions = async (
+  transactions,
+  updateType = 'transactions',
+) => {
   if (!Array.isArray(transactions) || transactions.length === 0) return;
 
   try {
@@ -215,10 +218,7 @@ export const bulkUpdateSparkTransactions = async transactions => {
     await sqlLiteDB.execAsync('COMMIT');
 
     // Emit event
-    sparkTransactionsEventEmitter.emit(
-      SPARK_TX_UPDATE_ENVENT_NAME,
-      'transactions',
-    );
+    sparkTransactionsEventEmitter.emit(SPARK_TX_UPDATE_ENVENT_NAME, updateType);
 
     return true;
   } catch (error) {
