@@ -162,7 +162,7 @@ export default function FiatCurrencyPage() {
         return rate.coin.toLowerCase() === selectedCurrency.toLowerCase();
       });
 
-      toggleFiatStats({...fiatRate});
+      toggleFiatStats(fiatRate);
 
       if (fiatRate) {
         navigate.goBack();
