@@ -66,6 +66,8 @@ export default function ConnectingToNodeLoadingScreen({
   const didLoadInformation = useRef(false);
   const didOpenDatabases = useRef(false);
   const didRestoreWallet = route?.params?.didRestoreWallet;
+  const liquidNodeConnectionRef = useRef(null);
+  const numberOfCachedTransactionsRef = useRef(null);
 
   // const window = useWindowDimensions();
   // const {onLightningBreezEvent} = useLightningEvent();=
@@ -126,14 +128,23 @@ export default function ConnectingToNodeLoadingScreen({
           throw new Error('Database initialization failed');
 
         crashlyticsLogReport('Opened all SQL lite tables');
-        const didLoadUserSettings = await initializeUserSettingsFromHistory({
-          accountMnemoinc,
-          setContactsPrivateKey: toggleContactsPrivateKey,
-          setMasterInfoObject,
-          toggleGlobalContactsInformation,
-          toggleGLobalEcashInformation,
-          toggleGlobalAppDataInformation,
-        });
+        const [didConnectToLiquidNode, txs, didLoadUserSettings] =
+          await Promise.all([
+            connectToLiquidNode(onLiquidBreezEvent, accountMnemoinc),
+            getCachedSparkTransactions(),
+            initializeUserSettingsFromHistory({
+              accountMnemoinc,
+              setContactsPrivateKey: toggleContactsPrivateKey,
+              setMasterInfoObject,
+              toggleGlobalContactsInformation,
+              toggleGLobalEcashInformation,
+              toggleGlobalAppDataInformation,
+            }),
+          ]);
+
+        liquidNodeConnectionRef.current = didConnectToLiquidNode;
+        numberOfCachedTransactionsRef.current = txs;
+
         if (!didLoadUserSettings)
           throw new Error('Failed to load user settings');
         crashlyticsLogReport('Loaded users settings from firebase');
@@ -158,7 +169,10 @@ export default function ConnectingToNodeLoadingScreen({
     didLoadInformation.current = true;
     crashlyticsLogReport('Initializing wallet settings');
 
-    initWallet();
+    initWallet(
+      liquidNodeConnectionRef.current,
+      numberOfCachedTransactionsRef.current,
+    );
   }, [masterInfoObject, globalContactsInformation]);
 
   // const continueWithoutLN = useCallback(async () => {
@@ -253,19 +267,13 @@ export default function ConnectingToNodeLoadingScreen({
     </GlobalThemeView>
   );
 
-  async function initWallet() {
+  async function initWallet(didConnectToLiquidNode, txs) {
     console.log('HOME RENDER BREEZ EVENT FIRST LOAD');
     // initBalanceAndTransactions(toggleNodeInformation);
 
     try {
       setStartConnectingToSpark(true);
       crashlyticsLogReport('Trying to connect to nodes');
-
-      crashlyticsLogReport('Trying to connect to nodes');
-      const [didConnectToLiquidNode, txs] = await Promise.all([
-        connectToLiquidNode(onLiquidBreezEvent, accountMnemoinc),
-        getCachedSparkTransactions(),
-      ]);
 
       setNumberOfCachedTxs(txs?.length || 0);
       if (didConnectToLiquidNode.isConnected) {

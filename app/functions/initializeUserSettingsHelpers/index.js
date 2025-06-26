@@ -1,6 +1,7 @@
 import {QUICK_PAY_STORAGE_KEY} from '../../constants';
 import {BLITZ_FEE_PERCET, BLITZ_FEE_SATS} from '../../constants/math';
 import {getLocalStorageItem} from '../localStorage';
+import {isNewDaySince} from '../rotateAddressDateChecker';
 
 const keys = [
   'homepageTxPreferance',
