@@ -15,8 +15,6 @@ export async function initWallet({
   globalContactsInformation,
   mnemonic,
 }) {
-  console.log('HOME RENDER BREEZ EVENT FIRST LOAD');
-
   try {
     crashlyticsLogReport('Trying to connect to nodes');
     const didConnectToSpark = await initializeSparkWallet(mnemonic);

@@ -62,9 +62,10 @@ export default function ConnectingToNodeLoadingScreen({
   const [hasError, setHasError] = useState(null);
   const {t} = useTranslation();
   const [message, setMessage] = useState(t('loadingScreen.message1'));
+  const [didOpenDatabases, setDidOpenDatabases] = useState(false);
 
   const didLoadInformation = useRef(false);
-  const didOpenDatabases = useRef(false);
+
   const didRestoreWallet = route?.params?.didRestoreWallet;
   const liquidNodeConnectionRef = useRef(null);
   const numberOfCachedTransactionsRef = useRef(null);
@@ -124,6 +125,7 @@ export default function ConnectingToNodeLoadingScreen({
             initializePOSTransactionsDatabase(),
             initializeSparkDatabase(),
           ]);
+
         if (!didOpen || !ecashTablesOpened || !posTransactions || !sparkTxs)
           throw new Error('Database initialization failed');
 
@@ -149,7 +151,7 @@ export default function ConnectingToNodeLoadingScreen({
           throw new Error('Failed to load user settings');
         crashlyticsLogReport('Loaded users settings from firebase');
         claimUnclaimedBoltzSwaps();
-        didOpenDatabases.current = true;
+        setDidOpenDatabases(true);
       } catch (err) {
         console.log('intializatiion error', err);
         setHasError(err.message);
@@ -163,7 +165,7 @@ export default function ConnectingToNodeLoadingScreen({
       Object.keys(masterInfoObject).length === 0 ||
       didLoadInformation.current ||
       Object.keys(globalContactsInformation).length === 0 ||
-      !didOpenDatabases.current
+      !didOpenDatabases
     )
       return;
     didLoadInformation.current = true;
@@ -173,7 +175,7 @@ export default function ConnectingToNodeLoadingScreen({
       liquidNodeConnectionRef.current,
       numberOfCachedTransactionsRef.current,
     );
-  }, [masterInfoObject, globalContactsInformation]);
+  }, [masterInfoObject, globalContactsInformation, didOpenDatabases]);
 
   // const continueWithoutLN = useCallback(async () => {
   //   if (loadingLNFailedSettings) return;

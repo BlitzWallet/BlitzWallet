@@ -10,14 +10,21 @@ export let sparkWallet = null;
 
 export const initializeSparkWallet = async mnemonic => {
   try {
-    const [type, value] = await Promise.race([
-      SparkWallet.initialize({
-        signer: new ReactNativeSparkSigner(),
-        mnemonicOrSeed: mnemonic,
-        options: {network: 'MAINNET'},
-      }).then(res => ['wallet', res]),
-      new Promise(res => setTimeout(() => res(['timeout', false]), 30000)),
-    ]);
+    const {wallet} = await SparkWallet.initialize({
+      signer: new ReactNativeSparkSigner(),
+      mnemonicOrSeed: mnemonic,
+      options: {network: 'MAINNET'},
+    });
+    // const [type, value] = await Promise.race([
+    //   SparkWallet.initialize({
+    //     signer: new ReactNativeSparkSigner(),
+    //     mnemonicOrSeed: mnemonic,
+    //     options: {network: 'MAINNET'},
+    //   }).then(res => ['wallet', res]),
+    //   new Promise(res => setTimeout(() => res(['timeout', false]), 30000)),
+    // ]);
+    sparkWallet = wallet;
+    return {isConnected: true};
 
     if (type === 'wallet') {
       const {wallet} = value;

@@ -524,16 +524,16 @@ const SparkWalletProvider = ({children}) => {
           console.log(didWork, 'did connect to spark wallet in context');
 
           if (didWork) return;
-          setNumberOfConnectionTries(prev => (prev += 1));
-          await new Promise(
-            () =>
-              requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                  initProcess();
-                });
-              }),
-            2000,
-          );
+          // setNumberOfConnectionTries(prev => (prev += 1));
+          // await new Promise(
+          //   () =>
+          //     requestAnimationFrame(() => {
+          //       requestAnimationFrame(() => {
+          //         initProcess();
+          //       });
+          //     }),
+          //   2000,
+          // );
         });
       });
     }
