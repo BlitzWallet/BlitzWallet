@@ -81,6 +81,8 @@ import {KeyboardProvider} from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 import {SparkConnectionListener} from './context-store/connectToNode';
 import {SparkWalletProvider} from './context-store/sparkContext';
+import * as NavigationBar from 'expo-navigation-bar';
+import {StatusBar} from 'expo-status-bar';
 
 const Stack = createNativeStackNavigator();
 
@@ -307,25 +309,23 @@ function ResetStack(): JSX.Element | null {
     [theme, backgroundColor],
   );
 
+  useEffect(() => {
+    const setNavigationBar = async () => {
+      if (Platform.OS === 'android') {
+        try {
+          await NavigationBar.setBackgroundColorAsync(backgroundColor);
+          await NavigationBar.setButtonStyleAsync(theme ? 'light' : 'dark');
+        } catch (error) {
+          console.warn('Failed to set navigation bar:', error);
+        }
+      }
+    };
+    setNavigationBar();
+  }, [backgroundColor, theme]);
+
   const screenOptions = useMemo(() => {
     return {
       headerShown: false,
-      statusBarBackgroundColor:
-        Platform.OS === 'android' ? backgroundColor : undefined,
-      statusBarStyle:
-        Platform.OS === 'android'
-          ? ((theme ? 'light' : 'dark') as
-              | 'light'
-              | 'dark'
-              | 'inverted'
-              | 'auto'
-              | undefined)
-          : undefined,
-      statusBarAnimation:
-        Platform.OS === 'android'
-          ? ('fade' as 'fade' | 'none' | 'slide' | undefined)
-          : undefined,
-      navigationBarColor: backgroundColor,
     };
   }, [backgroundColor, theme]);
 
@@ -344,6 +344,7 @@ function ResetStack(): JSX.Element | null {
 
   return (
     <NavigationContainer theme={navigationTheme} ref={navigationRef}>
+      <StatusBar style={theme ? 'light' : 'dark'} translucent={true} />
       <HandleLNURLPayments />
       <SparkNavigationListener />
       <EcashNavigationListener />

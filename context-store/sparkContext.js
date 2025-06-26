@@ -271,11 +271,11 @@ const SparkWalletProvider = ({children}) => {
           transactions: txs || prev.transactions,
         }));
       } else {
-        const balance = (await getSparkBalance()) || {balance: 0};
+        const balance = await getSparkBalance();
 
         setSparkInformation(prev => ({
           ...prev,
-          balance: balance.balance,
+          balance: balance?.balance || prev.balance,
           transactions: txs || prev.transactions,
         }));
       }
