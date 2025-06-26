@@ -4665,6 +4665,7 @@ __metadata:
     expo-secure-store: ~14.2.3
     expo-sqlite: ~15.2.10
     expo-status-bar: ~2.2.3
+    expo-system-ui: ~5.0.9
     expo-task-manager: ~13.1.5
     expo-web-browser: ~14.1.6
     i18next: ^25.2.0
@@ -7854,6 +7855,23 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 37e8a111037a3dc94ada9c0549e1b7bae0d6dcef48392edf7a559f64d5db78560e11165f5a8d5fe3a15e6d0bd3895b782443e7bb3018eb2798a11b509f3acf97
+  languageName: node
+  linkType: hard
+
+"expo-system-ui@npm:~5.0.9":
+  version: 5.0.9
+  resolution: "expo-system-ui@npm:5.0.9"
+  dependencies:
+    "@react-native/normalize-colors": 0.79.4
+    debug: ^4.3.2
+  peerDependencies:
+    expo: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native-web:
+      optional: true
+  checksum: 4f9679d84cadd97acd35855f50f74201151a0f4ee3c957940e1fb17783b7da1742fd53244d92101e63b12706456295b2c3869c759838a576909c9fca308bc1a3
   languageName: node
   linkType: hard
 

@@ -82,7 +82,8 @@ import HandleLNURLPayments from './context-store/lnurl';
 import {SparkConnectionListener} from './context-store/connectToNode';
 import {SparkWalletProvider} from './context-store/sparkContext';
 import * as NavigationBar from 'expo-navigation-bar';
-import {StatusBar} from 'expo-status-bar';
+import {setStatusBarBackgroundColor, setStatusBarStyle} from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 
 const Stack = createNativeStackNavigator();
 
@@ -183,6 +184,20 @@ function ResetStack(): JSX.Element | null {
       console.log('Initial deep link stored:', url);
     }
   }, []);
+
+  const setNavigationBar = useCallback(async () => {
+    if (Platform.OS === 'android') {
+      try {
+        await SystemUI.setBackgroundColorAsync(backgroundColor);
+        await NavigationBar.setBackgroundColorAsync(backgroundColor);
+        await NavigationBar.setButtonStyleAsync(theme ? 'light' : 'dark');
+        setStatusBarBackgroundColor(backgroundColor);
+        setStatusBarStyle(theme ? 'light' : 'dark');
+      } catch (error) {
+        console.warn('Failed to set navigation bar:', error);
+      }
+    }
+  }, [backgroundColor, theme]);
 
   useEffect(() => {
     async function handleDeeplink() {
@@ -310,16 +325,6 @@ function ResetStack(): JSX.Element | null {
   );
 
   useEffect(() => {
-    const setNavigationBar = async () => {
-      if (Platform.OS === 'android') {
-        try {
-          await NavigationBar.setBackgroundColorAsync(backgroundColor);
-          await NavigationBar.setButtonStyleAsync(theme ? 'light' : 'dark');
-        } catch (error) {
-          console.warn('Failed to set navigation bar:', error);
-        }
-      }
-    };
     setNavigationBar();
   }, [backgroundColor, theme]);
 
@@ -327,7 +332,7 @@ function ResetStack(): JSX.Element | null {
     return {
       headerShown: false,
     };
-  }, [backgroundColor, theme]);
+  }, []);
 
   const HomeComponent = useMemo(() => {
     if (initSettings.isLoggedIn) {
@@ -344,7 +349,7 @@ function ResetStack(): JSX.Element | null {
 
   return (
     <NavigationContainer theme={navigationTheme} ref={navigationRef}>
-      <StatusBar style={theme ? 'light' : 'dark'} translucent={true} />
+      {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
       <HandleLNURLPayments />
       <SparkNavigationListener />
       <EcashNavigationListener />

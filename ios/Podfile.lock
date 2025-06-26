@@ -1289,6 +1289,8 @@ PODS:
     - ExpoModulesCore
   - ExpoSQLite (15.2.12):
     - ExpoModulesCore
+  - ExpoSystemUI (5.0.9):
+    - ExpoModulesCore
   - ExpoWebBrowser (14.1.6):
     - ExpoModulesCore
   - EXTaskManager (13.1.5):
@@ -3834,6 +3836,7 @@ DEPENDENCIES:
   - ExpoNetwork (from `../node_modules/expo-network/ios`)
   - ExpoSecureStore (from `../node_modules/expo-secure-store/ios`)
   - ExpoSQLite (from `../node_modules/expo-sqlite/ios`)
+  - ExpoSystemUI (from `../node_modules/expo-system-ui/ios`)
   - ExpoWebBrowser (from `../node_modules/expo-web-browser/ios`)
   - EXTaskManager (from `../node_modules/expo-task-manager/ios`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
@@ -4022,6 +4025,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-secure-store/ios"
   ExpoSQLite:
     :path: "../node_modules/expo-sqlite/ios"
+  ExpoSystemUI:
+    :path: "../node_modules/expo-system-ui/ios"
   ExpoWebBrowser:
     :path: "../node_modules/expo-web-browser/ios"
   EXTaskManager:
@@ -4250,6 +4255,7 @@ SPEC CHECKSUMS:
   ExpoNetwork: 92cac43c13a2d9e9c1470ec8804836574ff34068
   ExpoSecureStore: b367d9f62c9102d808afbeb1561636d4276e439d
   ExpoSQLite: 9b4feb8264559916a9bc37d157fc2e076b00afbe
+  ExpoSystemUI: 8f2979df9afed5bfaa7d69465a07a9f602c1f3a7
   ExpoWebBrowser: 06fb5f767f53ad53944b068cdd207984cb998712
   EXTaskManager: a7a2d34c0fa6a459dcd9f50844ecbec886bd2da8
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
