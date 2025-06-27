@@ -142,7 +142,7 @@ export default function SettingsContentIndex(props) {
             )}
 
             {selectedPage?.toLowerCase() === 'backup wallet' && (
-              <SeedPhrasePage theme={theme} />
+              <SeedPhrasePage extraData={extraData} theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'spark info' && (
               <SparkInfo theme={theme} />
