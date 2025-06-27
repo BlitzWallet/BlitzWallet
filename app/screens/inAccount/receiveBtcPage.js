@@ -19,6 +19,7 @@ import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import CustomButton from '../../functions/CustomElements/button';
 import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
 import {useGlobalContacts} from '../../../context-store/globalContacts';
+import {useLiquidEvent} from '../../../context-store/liquidEventContext';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -26,6 +27,7 @@ export default function ReceivePaymentHome(props) {
   const {globalContactsInformation} = useGlobalContacts();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {ecashWalletInformation} = useGlobaleCash();
+  const {startLiquidEventListener} = useLiquidEvent();
   const currentMintURL = ecashWalletInformation.mintURL;
   const eCashBalance = ecashWalletInformation.balance;
   const initialSendAmount = props.route.params?.receiveAmount;
@@ -59,6 +61,11 @@ export default function ReceivePaymentHome(props) {
       selectedRecieveOption.toLowerCase() === 'lightning'
     )
       return;
+
+    if (selectedRecieveOption.toLowerCase() === 'liquid') {
+      startLiquidEventListener();
+    }
+
     initializeAddressProcess({
       userBalanceDenomination: masterInfoObject.userBalanceDenomination,
       receivingAmount: initialSendAmount,

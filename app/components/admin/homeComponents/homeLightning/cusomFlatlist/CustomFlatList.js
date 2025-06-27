@@ -13,10 +13,12 @@ import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 
 import {fullRestoreSparkState} from '../../../../../functions/spark/restore';
 import {getSparkBalance} from '../../../../../functions/spark';
+import {useLiquidEvent} from '../../../../../../context-store/liquidEventContext';
 
 function CustomFlatList({style, ...props}) {
   const {sparkInformation, setSparkInformation} = useSparkWallet();
   const {theme, darkModeType} = useGlobalThemeContext();
+  const {startLiquidEventListener} = useLiquidEvent();
   const [refreshing, setRefreshing] = useState(false);
   const flatListRef = useRef(null);
   const [
@@ -36,6 +38,7 @@ function CustomFlatList({style, ...props}) {
       //   sparkAddress: sparkInformation.sparkAddress,
       // });
       // if (restoredLengh) return;
+      startLiquidEventListener(2);
       const balance = await getSparkBalance();
       if (!balance || !Number(balance.balance)) return;
       setSparkInformation(prev => ({

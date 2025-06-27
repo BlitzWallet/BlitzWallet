@@ -23,9 +23,7 @@ import {
   listPayments,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import connectToLiquidNode from '../../functions/connectToLiquid';
-import {breezLiquidReceivePaymentWrapper} from '../../functions/breezLiquid';
 import {initializeDatabase} from '../../functions/messaging/cachedMessages';
-import {useLiquidEvent} from '../../../context-store/liquidEventContext';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useNodeContext} from '../../../context-store/nodeContext';
 import {useKeysContext} from '../../../context-store/keys';
@@ -43,7 +41,6 @@ export default function ConnectingToNodeLoadingScreen({
   route,
 }) {
   const navigate = useNavigation();
-  const {onLiquidBreezEvent} = useLiquidEvent();
   const {toggleMasterInfoObject, masterInfoObject, setMasterInfoObject} =
     useGlobalContextProvider();
   const {setNumberOfCachedTxs, setStartConnectingToSpark} = useSparkWallet();
@@ -132,7 +129,7 @@ export default function ConnectingToNodeLoadingScreen({
         crashlyticsLogReport('Opened all SQL lite tables');
         const [didConnectToLiquidNode, txs, didLoadUserSettings] =
           await Promise.all([
-            connectToLiquidNode(onLiquidBreezEvent, accountMnemoinc),
+            connectToLiquidNode(accountMnemoinc),
             getCachedSparkTransactions(),
             initializeUserSettingsFromHistory({
               accountMnemoinc,

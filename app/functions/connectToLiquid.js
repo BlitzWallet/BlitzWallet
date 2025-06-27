@@ -14,10 +14,7 @@ const logHandler = logEntry => {
   }
 };
 let didConnect = false;
-export default async function connectToLiquidNode(
-  breezLiquidEvent,
-  accountMnemoinc,
-) {
+export default async function connectToLiquidNode(accountMnemoinc) {
   crashlyticsLogReport('Starting connect to liquid function');
   // Create the default config
 
@@ -29,7 +26,7 @@ export default async function connectToLiquidNode(
       isConnected: true,
       reason: null,
     };
-    
+
     // let ableToRetrive = false;
     // let runcount = 0;
 
@@ -87,18 +84,18 @@ export default async function connectToLiquidNode(
     // config.workingDir = "path to writable directory"
     crashlyticsLogReport('Running connect request');
     await connect({mnemonic, config});
-    addEventListener(breezLiquidEvent);
+    // addEventListener(breezLiquidEvent);
 
     return {
-        isConnected: true,
-        reason: null,
-      };
+      isConnected: true,
+      reason: null,
+    };
   } catch (err) {
     console.log(err, 'connect to node err LIQUID');
     return {
-        isConnected: false,
-        reason: err,
-      };
+      isConnected: false,
+      reason: err,
+    };
     // return new Promise(resolve => {
     //   resolve({
     //     isConnected: false,
