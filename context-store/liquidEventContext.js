@@ -1,12 +1,22 @@
-import {createContext, useCallback, useContext, useRef} from 'react';
+import {createContext, useCallback, useContext, useEffect, useRef} from 'react';
 import {SdkEventVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import startLiquidUpdateInterval from '../app/functions/liquidBackupUpdate';
 import {useNodeContext} from './nodeContext';
+import {useGlobalContextProvider} from './context';
+import {useGlobalContacts} from './globalContacts';
+import {
+  getDateXDaysAgo,
+  isMoreThan7DaysPast,
+} from '../app/functions/rotateAddressDateChecker';
+import {breezLiquidReceivePaymentWrapper} from '../app/functions/breezLiquid';
 const LiquidEventContext = createContext(null);
 
 // Create a context for the WebView ref
 export function LiquidEventProvider({children}) {
-  const {toggleLiquidNodeInformation} = useNodeContext();
+  const {toggleLiquidNodeInformation, liquidNodeInformation} = useNodeContext();
+  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
+  const {toggleGlobalContactsInformation, globalContactsInformation} =
+    useGlobalContacts();
   const intervalId = useRef(null);
   const debounceTimer = useRef(null);
 
@@ -53,6 +63,65 @@ export function LiquidEventProvider({children}) {
     },
     [syncRunCounter, isInitialSync],
   );
+
+  useEffect(() => {
+    async function addLiquidAddressesToDB() {
+      try {
+        const addressResponse = await (masterInfoObject.offlineReceiveAddresses
+          .addresses.length !== 7 ||
+        isMoreThan7DaysPast(
+          masterInfoObject.offlineReceiveAddresses.lastRotated,
+        )
+          ? breezLiquidReceivePaymentWrapper({
+              paymentType: 'liquid',
+            })
+          : Promise.resolve(null));
+
+        console.log(addressResponse, 'liquid address response');
+        if (addressResponse) {
+          const {destination, receiveFeesSat} = addressResponse;
+          console.log('LIQUID DESTINATION ADDRESS', destination);
+          console.log(destination);
+          if (!globalContactsInformation.myProfile.receiveAddress) {
+            // For legacy users and legacy functions
+            toggleGlobalContactsInformation(
+              {
+                myProfile: {
+                  ...globalContactsInformation.myProfile,
+                  receiveAddress: destination,
+                  lastRotated: getDateXDaysAgo(0),
+                },
+              },
+              true,
+            );
+          }
+          // Didn't sperate since it only cost one write so there is no reasy not to update
+          toggleMasterInfoObject({
+            posSettings: {
+              ...masterInfoObject.posSettings,
+              receiveAddress: destination,
+              lastRotated: getDateXDaysAgo(0),
+            },
+            offlineReceiveAddresses: {
+              addresses: [
+                destination,
+                ...masterInfoObject.offlineReceiveAddresses.addresses.slice(
+                  0,
+                  6,
+                ),
+              ],
+              lastRotated: new Date().getTime(),
+            },
+          });
+        }
+      } catch (err) {
+        console.log('Error adding liquid address to db', err);
+      }
+    }
+    if (!liquidNodeInformation.didConnectToNode) return;
+    console.log('Running add liquid address to db');
+    addLiquidAddressesToDB();
+  }, [liquidNodeInformation.didConnectToNode]);
 
   return (
     <LiquidEventContext.Provider

@@ -275,7 +275,7 @@ const SparkWalletProvider = ({children}) => {
 
         setSparkInformation(prev => ({
           ...prev,
-          balance: balance?.balance || prev.balance,
+          balance: Number(balance?.balance) || prev.balance,
           transactions: txs || prev.transactions,
         }));
       }

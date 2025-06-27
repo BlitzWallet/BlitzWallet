@@ -512,59 +512,59 @@ export default function ConnectingToNodeLoadingScreen({
         // parsedInformation,
         // payments,
         fiat_rate,
-        addressResponse,
+        // addressResponse,
       ] = await Promise.all([
         // retrivedLiquidNodeInfo
         //   ? Promise.resolve(retrivedLiquidNodeInfo)
         //   : getInfo(),
         // listPayments({}),
         setupFiatCurrencies(),
-        masterInfoObject.offlineReceiveAddresses.addresses.length !== 7 ||
-        isMoreThan7DaysPast(
-          masterInfoObject.offlineReceiveAddresses.lastRotated,
-        )
-          ? breezLiquidReceivePaymentWrapper({
-              paymentType: 'liquid',
-            })
-          : Promise.resolve(null),
+        // masterInfoObject.offlineReceiveAddresses.addresses.length !== 7 ||
+        // isMoreThan7DaysPast(
+        //   masterInfoObject.offlineReceiveAddresses.lastRotated,
+        // )
+        //   ? breezLiquidReceivePaymentWrapper({
+        //       paymentType: 'liquid',
+        //     })
+        //   : Promise.resolve(null),
       ]);
 
       // const info = parsedInformation.walletInfo;
       // const balanceSat = info.balanceSat;
 
-      if (addressResponse) {
-        const {destination, receiveFeesSat} = addressResponse;
-        console.log('LIQUID DESTINATION ADDRESS', destination);
-        console.log(destination);
-        if (!globalContactsInformation.myProfile.receiveAddress) {
-          // For legacy users and legacy functions
-          toggleGlobalContactsInformation(
-            {
-              myProfile: {
-                ...globalContactsInformation.myProfile,
-                receiveAddress: destination,
-                lastRotated: getDateXDaysAgo(0),
-              },
-            },
-            true,
-          );
-        }
-        // Didn't sperate since it only cost one write so there is no reasy not to update
-        toggleMasterInfoObject({
-          posSettings: {
-            ...masterInfoObject.posSettings,
-            receiveAddress: destination,
-            lastRotated: getDateXDaysAgo(0),
-          },
-          offlineReceiveAddresses: {
-            addresses: [
-              destination,
-              ...masterInfoObject.offlineReceiveAddresses.addresses.slice(0, 6),
-            ],
-            lastRotated: new Date().getTime(),
-          },
-        });
-      }
+      // if (addressResponse) {
+      //   const {destination, receiveFeesSat} = addressResponse;
+      //   console.log('LIQUID DESTINATION ADDRESS', destination);
+      //   console.log(destination);
+      //   if (!globalContactsInformation.myProfile.receiveAddress) {
+      //     // For legacy users and legacy functions
+      //     toggleGlobalContactsInformation(
+      //       {
+      //         myProfile: {
+      //           ...globalContactsInformation.myProfile,
+      //           receiveAddress: destination,
+      //           lastRotated: getDateXDaysAgo(0),
+      //         },
+      //       },
+      //       true,
+      //     );
+      //   }
+      //   // Didn't sperate since it only cost one write so there is no reasy not to update
+      //   toggleMasterInfoObject({
+      //     posSettings: {
+      //       ...masterInfoObject.posSettings,
+      //       receiveAddress: destination,
+      //       lastRotated: getDateXDaysAgo(0),
+      //     },
+      //     offlineReceiveAddresses: {
+      //       addresses: [
+      //         destination,
+      //         ...masterInfoObject.offlineReceiveAddresses.addresses.slice(0, 6),
+      //       ],
+      //       lastRotated: new Date().getTime(),
+      //     },
+      //   });
+      // }
 
       // let liquidNodeObject = {
       //   transactions: payments,
