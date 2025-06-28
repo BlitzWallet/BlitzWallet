@@ -9,6 +9,7 @@ import {
 } from '.';
 
 import {SPARK_TO_LN_FEE, SPARK_TO_SPARK_FEE} from '../../constants/math';
+import calculateProgressiveBracketFee from './calculateSupportFee';
 import {
   addSingleUnpaidSparkLightningTransaction,
   bulkUpdateSparkTransactions,
@@ -31,10 +32,7 @@ export const sparkPaymenWrapper = async ({
   try {
     console.log('Begining spark payment');
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    const supportFee =
-      Math.ceil(
-        amountSats * masterInfoObject?.enabledDeveloperSupport.baseFeePercent,
-      ) + Number(masterInfoObject?.enabledDeveloperSupport?.baseFee);
+    const supportFee = calculateProgressiveBracketFee(amountSats);
     if (getFee) {
       console.log('Calculating spark payment fee');
       let calculatedFee = 0;
