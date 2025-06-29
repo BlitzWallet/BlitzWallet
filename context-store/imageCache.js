@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   useRef,
+  useMemo,
 } from 'react';
 import {getStorage} from '@react-native-firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -128,14 +129,18 @@ export function ImageCacheProvider({children}) {
     }
   }
 
+  const contextValue = useMemo(
+    () => ({
+      cache,
+      refreshCache,
+      removeProfileImageFromCache,
+      refreshCacheObject,
+    }),
+    [cache, refreshCache, removeProfileImageFromCache, refreshCacheObject],
+  );
+
   return (
-    <ImageCacheContext.Provider
-      value={{
-        cache,
-        refreshCache,
-        removeProfileImageFromCache,
-        refreshCacheObject,
-      }}>
+    <ImageCacheContext.Provider value={contextValue}>
       {children}
     </ImageCacheContext.Provider>
   );
