@@ -28,7 +28,11 @@ import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
-import {payPOSLiquid, payPOSLNURL} from '../../../../../functions/pos/payments';
+import {
+  payPOSContact,
+  // payPOSLiquid,
+  payPOSLNURL,
+} from '../../../../../functions/pos/payments';
 import {useGlobaleCash} from '../../../../../../context-store/eCash';
 import customUUID from '../../../../../functions/customUUID';
 import {publishMessage} from '../../../../../functions/messaging/publishMessage';
@@ -39,6 +43,7 @@ import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import TipsTXItem from './internalComponents/tipTx';
 import {usePOSTransactions} from '../../../../../../context-store/pos';
 import {useWebView} from '../../../../../../context-store/webViewContext';
+import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 
 export default function TotalTipsScreen(props) {
   const {decodedAddedContacts, globalContactsInformation} = useGlobalContacts();
@@ -58,10 +63,9 @@ export default function TotalTipsScreen(props) {
   ] = groupedTxs.find(item => item[0] === wantedName);
 
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {contactsPrivateKey, accountMnemoinc} = useKeysContext();
-  const {liquidNodeInformation, nodeInformation} = useNodeContext();
-  const {ecashWalletInformation} = useGlobaleCash();
-
+  const {contactsPrivateKey} = useKeysContext();
+  const {fiatStats} = useNodeContext();
+  const {sparkInformation} = useSparkWallet();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {masterInfoObject} = useGlobalContextProvider();
   const navigate = useNavigation();
@@ -76,7 +80,7 @@ export default function TotalTipsScreen(props) {
   const [viewTips, setViewTips] = useState(false);
   const {webViewRef} = useWebView();
 
-  const eCashBalance = ecashWalletInformation.balance;
+  // const eCashBalance = ecashWalletInformation.balance;
 
   const handlePayment = useCallback(async () => {
     try {
@@ -84,8 +88,8 @@ export default function TotalTipsScreen(props) {
         navigate.navigate('ErrorScreen', {
           errorMessage: `Must have over ${displayCorrectDenomination({
             amount: minMaxLiquidSwapAmounts.min,
-            nodeInformation,
             masterInfoObject,
+            fiatStats,
           })} in order payout tips.`,
         });
         return;
@@ -96,7 +100,8 @@ export default function TotalTipsScreen(props) {
         contact => contact?.uniqueName?.toLowerCase() === name?.toLowerCase(),
       );
       if (blitzContact) {
-        const address = blitzContact.receiveAddress;
+        //  use pay pos contact payment here
+        // const address = blitzContact.receiveAddress;
         const pubKey = blitzContact.uuid;
         const fromPubKey = globalContactsInformation.myProfile.uuid;
 
@@ -105,20 +110,27 @@ export default function TotalTipsScreen(props) {
           updateMessage: `Paying...`,
         }));
         // is blitz contact
-        const didPay = await payPOSLiquid({
-          liquidNodeInformation,
-          eCashBalance,
-          nodeInformation,
-          address, // liquid address
-          payingStateUpdate: setPaymentUpdate,
-          minMaxLiquidSwapAmounts,
+        const paymentResponse = await payPOSContact({
+          blitzContact,
           sendingAmountSats: totalTipAmount,
           masterInfoObject,
           description: POINT_OF_SALE_PAYOUT_DESCRIPTION,
           webViewRef,
-          accountMnemoinc,
+          sparkInformation,
         });
-        if (didPay) {
+        // const didPay = await payPOSLiquid({
+        //   liquidNodeInformation,
+        //   eCashBalance,
+        //   nodeInformation,
+        //   address, // liquid address
+        //   payingStateUpdate: setPaymentUpdate,
+        //   minMaxLiquidSwapAmounts,
+        //   sendingAmountSats: totalTipAmount,
+        //   masterInfoObject,
+        //   description: POINT_OF_SALE_PAYOUT_DESCRIPTION,
+        //   webViewRef,
+        // });
+        if (paymentResponse) {
           setPaymentUpdate(prev => ({
             ...prev,
             updateMessage: `Notifiying...`,
@@ -155,14 +167,14 @@ export default function TotalTipsScreen(props) {
           updateMessage: `Paying...`,
         }));
         const didPay = await payPOSLNURL({
-          liquidNodeInformation,
-          nodeInformation,
           LNURLAddress: name,
-          minMaxLiquidSwapAmounts,
           sendingAmountSats: totalTipAmount,
           masterInfoObject,
           description: POINT_OF_SALE_PAYOUT_DESCRIPTION,
-          accountMnemoinc,
+          sparkInformation,
+          // liquidNodeInformation,
+          // nodeInformation,
+          // minMaxLiquidSwapAmounts,
         });
         if (didPay) {
           await updateInteralDBState(unpaidTxs);
@@ -196,11 +208,11 @@ export default function TotalTipsScreen(props) {
         <TipsTXItem
           item={item}
           masterInfoObject={masterInfoObject}
-          nodeInformation={nodeInformation}
+          fiatStats={fiatStats}
         />
       );
     },
-    [masterInfoObject, nodeInformation],
+    [masterInfoObject, fiatStats],
   );
 
   const viewHeight = useMemo(() => height * 0.5, [height]);
@@ -315,7 +327,7 @@ export default function TotalTipsScreen(props) {
                   content={`${displayCorrectDenomination({
                     amount: totalTipAmount,
                     masterInfoObject,
-                    nodeInformation,
+                    fiatStats,
                   })}`}
                 />
               </View>

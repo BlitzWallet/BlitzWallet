@@ -30,8 +30,8 @@ export default function FormattedBalanceInput({
   const [isScrolling, setIsScrolling] = useState(false);
   const windowWidth = useWindowDimensions().width;
   const {masterInfoObject} = useGlobalContextProvider();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const currencyText = nodeInformation?.fiatStats.coin || 'USD';
+  const {fiatStats} = useNodeContext();
+  const currencyText = fiatStats.coin || 'USD';
   const showSymbol = masterInfoObject.satDisplay != 'word';
 
   const currencyInfo = useMemo(

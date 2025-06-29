@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {useCallback, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -34,7 +34,6 @@ export default function MyContactProfilePage({navigation}) {
   const navigate = useNavigation();
   const currentTime = new Date();
   const [showList, setShowList] = useState(false);
-  const {bottomPadding} = useAppInsets();
 
   const myContact = globalContactsInformation.myProfile;
 
@@ -87,6 +86,7 @@ export default function MyContactProfilePage({navigation}) {
     return result;
   }, [decodedAddedContacts, contactsMessags]);
 
+  const {bottomPadding} = useAppInsets();
   useHandleBackPressNew();
 
   return (

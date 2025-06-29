@@ -1,12 +1,8 @@
-import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import {Keyboard, Platform, TouchableWithoutFeedback} from 'react-native';
 import GlobalThemeView from './globalThemeView';
 import {CONTENT_KEYBOARD_OFFSET} from '../../constants';
 import useAppInsets from '../../hooks/useAppInsets';
+import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 
 export default function CustomKeyboardAvoidingView({
   children,
@@ -21,10 +17,10 @@ export default function CustomKeyboardAvoidingView({
 
   return (
     <KeyboardAvoidingView
+      behavior={'padding'}
       style={{
         flex: 1,
-      }}
-      behavior={Platform.OS === 'ios' ? 'padding' : null}>
+      }}>
       {useTouchableWithoutFeedback ? (
         <TouchableWithoutFeedback
           onPress={() => {

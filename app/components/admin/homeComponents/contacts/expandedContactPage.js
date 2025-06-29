@@ -48,9 +48,7 @@ export default function ExpandedContactsPage(props) {
     contactsMessags,
   } = useGlobalContacts();
   const {bottomPadding} = useAppInsets();
-
   const {cache} = useImageCache();
-
   const currentTime = new Date();
   const selectedUUID = props?.route?.params?.uuid || props?.uuid;
   const myProfile = globalContactsInformation?.myProfile;

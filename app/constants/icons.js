@@ -149,6 +149,9 @@ import navigationIconFill from '../assets/icons/navigation_fill.png';
 import navigationIconWhite from '../assets/icons/navigation_white.png';
 import navigationIconFillWhite from '../assets/icons/navigation_fill_white.png';
 import shareBlack from '../assets/icons/shareBlack.png';
+import sparkAsteriskBlack from '../assets/icons/SparkAsteriskBlack.png';
+import sparkAsteriskWhite from '../assets/icons/SparkAsteriskWhite.png';
+import clipboardBlue from '../assets/icons/clipboardBlue.png';
 export default {
   Xcircle,
   XcircleLight,
@@ -302,4 +305,7 @@ export default {
   navigationIconWhite,
   navigationIconFillWhite,
   shareBlack,
+  sparkAsteriskBlack,
+  sparkAsteriskWhite,
+  clipboardBlue,
 };

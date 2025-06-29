@@ -100,8 +100,7 @@ export default function HalfModalSendOptions(props) {
     <View style={styles.containerStyles}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: bottomPadding}}>
+        showsHorizontalScrollIndicator={false}>
         {sendOptionElements}
         {decodedAddedContacts.length != 0 && (
           <TouchableOpacity
@@ -122,6 +121,11 @@ export default function HalfModalSendOptions(props) {
             </View>
           </TouchableOpacity>
         )}
+        <View
+          style={{
+            height: bottomPadding,
+          }}
+        />
       </ScrollView>
     </View>
   );

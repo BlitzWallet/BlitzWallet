@@ -2,20 +2,15 @@ import {getAuth} from '@react-native-firebase/auth';
 import {getFirestore} from '@react-native-firebase/firestore';
 import {getFunctions} from '@react-native-firebase/functions';
 import fetchBackend from './handleBackend';
-import DeviceInfo from 'react-native-device-info';
-import {Platform} from 'react-native';
 const db = getFirestore();
 
 export async function initializeFirebase(publicKey, privateKey) {
   try {
     // Initialize App Check first
     // Sign in anonymously
-    if (
-      (__DEV__ && Platform.OS === 'ios' && DeviceInfo.isEmulatorSync()) ||
-      (__DEV__ && Platform.OS === 'android')
-    ) {
-      getFunctions().useEmulator('localhost', 5001);
-    }
+    // if (__DEV__) {
+    //   getFunctions().useEmulator('localhost', 5001);
+    // }
 
     const currentUser = getAuth().currentUser;
     console.log('current auth', {

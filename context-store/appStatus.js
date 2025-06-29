@@ -82,6 +82,8 @@ const AppStatusProvider = ({children}) => {
     return () => networkSubscription.remove();
   }, []);
 
+  console.log(minMaxLiquidSwapAmounts, 'min max liquid swap amounts');
+
   const contextValue = useMemo(
     () => ({
       minMaxLiquidSwapAmounts,

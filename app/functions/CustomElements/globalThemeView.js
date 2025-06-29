@@ -1,18 +1,18 @@
+import React, {memo} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {CENTER} from '../../constants/styles';
 import {WINDOWWIDTH} from '../../constants/theme';
 import GetThemeColors from '../../hooks/themeColors';
 import useAppInsets from '../../hooks/useAppInsets';
 
-export default function GlobalThemeView({
+const GlobalThemeView = memo(function GlobalThemeView({
   children,
   styles,
   useStandardWidth,
   globalContainerStyles,
 }) {
-  const {backgroundColor} = GetThemeColors();
-
   const {topPadding, bottomPadding} = useAppInsets();
+  const {backgroundColor} = GetThemeColors();
 
   if (useStandardWidth) {
     return (
@@ -24,7 +24,7 @@ export default function GlobalThemeView({
         }}>
         <View
           style={{
-            ...referanceStyles.widthContainer,
+            ...referenceStyles.widthContainer,
             paddingTop: topPadding,
             paddingBottom: bottomPadding,
             ...styles,
@@ -34,6 +34,7 @@ export default function GlobalThemeView({
       </View>
     );
   }
+
   return (
     <View
       style={{
@@ -46,12 +47,14 @@ export default function GlobalThemeView({
       {children}
     </View>
   );
-}
+});
 
-const referanceStyles = StyleSheet.create({
+const referenceStyles = StyleSheet.create({
   widthContainer: {
     width: WINDOWWIDTH,
     flex: 1,
     ...CENTER,
   },
 });
+
+export default GlobalThemeView;

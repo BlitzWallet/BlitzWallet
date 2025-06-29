@@ -32,7 +32,6 @@ export default function GiftCardPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [giftCardSearch, setGiftCardSearch] = useState('');
   const navigate = useNavigation();
-  const {bottomPadding} = useAppInsets();
   const [showList, setShowList] = useState(false);
 
   useFocusEffect(
@@ -65,6 +64,7 @@ export default function GiftCardPage() {
       };
     }, []),
   );
+  const {bottomPadding} = useAppInsets();
 
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const giftCards = giftCardsList;

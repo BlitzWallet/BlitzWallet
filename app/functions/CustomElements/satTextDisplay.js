@@ -21,10 +21,10 @@ export default function FormattedSatText({
   useBalance,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
-  const {nodeInformation} = useNodeContext();
+  const {fiatStats} = useNodeContext();
   const localBalanceDenomination =
     globalBalanceDenomination || masterInfoObject.userBalanceDenomination;
-  const currencyText = nodeInformation.fiatStats.coin || 'USD';
+  const currencyText = fiatStats.coin || 'USD';
   const formattedBalance = useMemo(
     () =>
       useBalance
@@ -33,11 +33,11 @@ export default function FormattedSatText({
             numberConverter(
               balance,
               localBalanceDenomination,
-              nodeInformation,
               localBalanceDenomination === 'fiat' ? 2 : 0,
+              fiatStats,
             ),
           ),
-    [balance, useBalance, localBalanceDenomination, nodeInformation],
+    [balance, useBalance, localBalanceDenomination, fiatStats],
   );
 
   const currencyOptions = useMemo(

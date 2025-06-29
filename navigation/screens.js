@@ -76,7 +76,7 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   {name: 'ReceiveBTC', component: ReceivePaymentHome},
   {name: 'ExpandedTx', component: ExpandedTx},
   {name: 'TechnicalTransactionDetails', component: TechnicalTransactionDetails},
-  {name: 'LiquidSettingsPage', component: LiquidSettingsPage},
+  // {name: 'LiquidSettingsPage', component: LiquidSettingsPage},
   {
     name: 'EditReceivePaymentInformation',
     component: EditReceivePaymentInformation,
@@ -111,7 +111,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'CountryList', component: CountryList},
   {name: 'ExpandedGiftCardPage', component: ExpandedGiftCardPage},
   {name: 'HistoricalGiftCardPurchases', component: HistoricalGiftCardPurchases},
-  {name: 'ManualSwapPopup', component: ManualSwapPopup},
+  // {name: 'ManualSwapPopup', component: ManualSwapPopup},
   {name: 'AccountInformationPage', component: AccountInformationPage},
   {name: 'ViewPOSTransactions', component: ViewPOSTransactions},
   {name: 'LspDescriptionPopup', component: LspDescriptionPopup},

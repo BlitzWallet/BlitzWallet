@@ -3,12 +3,12 @@ import {
   CENTER,
   COLORS,
   ICONS,
-  LIQUID_DEFAULT_FEE,
+  // LIQUID_DEFAULT_FEE,
   SIZES,
 } from '../../../../../constants';
 import {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {parseInput} from '@breeztech/react-native-breez-sdk';
+
 import {
   GlobalThemeView,
   ThemeText,
@@ -18,28 +18,30 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {
-  LIGHTNINGAMOUNTBUFFER,
-  LIQUIDAMOUTBUFFER,
-  SATSPERBITCOIN,
-} from '../../../../../constants/math';
+// import {
+//   LIGHTNINGAMOUNTBUFFER,
+//   LIQUIDAMOUTBUFFER,
+//   SATSPERBITCOIN,
+// } from '../../../../../constants/math';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {AI_MODEL_COST} from './contants/AIModelCost';
 import {getLNAddressForLiquidPayment} from '../../sendBitcoin/functions/payments';
-import {breezPaymentWrapper} from '../../../../../functions/SDK';
-import {breezLiquidPaymentWrapper} from '../../../../../functions/breezLiquid';
+// import {breezPaymentWrapper} from '../../../../../functions/SDK';
+// import {breezLiquidPaymentWrapper} from '../../../../../functions/breezLiquid';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
+// import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {getStoredProofs} from '../../../../../functions/eCash/db';
-import {sumProofsValue} from '../../../../../functions/eCash/proofs';
-import {
-  getMeltQuote,
-  payLnInvoiceFromEcash,
-} from '../../../../../functions/eCash/wallet';
-import breezLNAddressPaymentWrapperV2 from '../../../../../functions/SDK/lightningAddressPaymentWrapperV2';
-import formatBip21LiquidAddress from '../../../../../functions/liquidWallet/formatBip21liquidAddress';
-import {useKeysContext} from '../../../../../../context-store/keys';
+// import {getStoredProofs} from '../../../../../functions/eCash/db';
+// import {sumProofsValue} from '../../../../../functions/eCash/proofs';
+// import {
+//   getMeltQuote,
+//   payLnInvoiceFromEcash,
+// } from '../../../../../functions/eCash/wallet';
+// import breezLNAddressPaymentWrapperV2 from '../../../../../functions/SDK/lightningAddressPaymentWrapperV2';
+// import formatBip21LiquidAddress from '../../../../../functions/liquidWallet/formatBip21liquidAddress';
+import {parse} from '@breeztech/react-native-breez-sdk-liquid';
+import {useSparkWallet} from '../../../../../../context-store/sparkContext';
+import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 
 const CREDITOPTIONS = [
   {
@@ -64,14 +66,14 @@ const CREDITOPTIONS = [
 //price is in sats
 
 export default function AddChatGPTCredits({confirmationSliderData}) {
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
+  const {sparkInformation} = useSparkWallet();
+  // const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {
     decodedChatGPT,
     toggleGlobalAppDataInformation,
     globalAppDataInformation,
   } = useGlobalAppData();
-  const {accountMnemoinc} = useKeysContext();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
   const {masterInfoObject} = useGlobalContextProvider();
 
@@ -84,7 +86,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
     // FUNCTION TO PURCHASE CREDITS
     if (!confirmationSliderData?.purchaseCredits) return;
     navigate.setParams({purchaseCredits: null});
-    payForChatGPTCredits();
+    payForChatGPTCredits(confirmationSliderData?.invoiceInformation);
   }, [confirmationSliderData?.purchaseCredits]);
 
   const subscriptionElements = selectedSubscription.map((subscription, id) => {
@@ -231,135 +233,197 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
     </GlobalThemeView>
   );
 
-  async function payForChatGPTCredits() {
+  async function payForChatGPTCredits(invoiceInformation) {
     try {
       setIsPaying(true);
-      const [selectedPlan] = selectedSubscription.filter(
-        subscription => subscription.isSelected,
+      let invoice = '';
+      let fee;
+      let creditPrice;
+      let selectedPlan;
+
+      if (invoiceInformation.invoice) {
+        invoice = invoiceInformation.invoice;
+      } else {
+        selectedPlan = selectedSubscription.filter(
+          subscription => subscription.isSelected,
+        )[0];
+        creditPrice = selectedPlan.price;
+        creditPrice += 150; //blitz flat fee
+        creditPrice += Math.ceil(creditPrice * 0.005);
+
+        // const lightningFee = creditPrice * 0.005 + 4;
+        const lnPayoutLNURL = process.env.GPT_PAYOUT_LNURL;
+        const input = await parse(lnPayoutLNURL);
+        const lnInvoice = await getLNAddressForLiquidPayment(
+          input,
+          creditPrice,
+          'Store - chatGPT',
+        );
+        invoice = lnInvoice;
+      }
+
+      if (invoiceInformation.fee && invoiceInformation.supportFee) {
+        fee = invoiceInformation.fee + invoiceInformation.supportFee;
+      } else {
+        const feeResponse = await sparkPaymenWrapper({
+          getFee: true,
+          address: invoice,
+          paymentType: 'lightning',
+          amountSats: creditPrice,
+          masterInfoObject,
+          sparkInformation,
+          userBalance: sparkInformation.balance,
+        });
+
+        if (!feeResponse.didWork) throw new Error(feeResponse.error);
+
+        fee = feeResponse.fee + feeResponse.supportFee;
+      }
+
+      if (sparkInformation.balance < fee)
+        throw new Error('Insufficent balance');
+
+      const paymentResponse = await sparkPaymenWrapper({
+        getFee: false,
+        address: invoice,
+        paymentType: 'lightning',
+        amountSats: creditPrice,
+        fee: fee,
+        memo: 'Store - chatGPT',
+        masterInfoObject,
+        sparkInformation,
+        userBalance: sparkInformation.balance,
+      });
+      if (!paymentResponse.didWork) throw new Error(paymentResponse.error);
+
+      toggleGlobalAppDataInformation(
+        {
+          chatGPT: {
+            conversation: globalAppDataInformation.chatGPT.conversation || [],
+            credits: decodedChatGPT.credits + selectedPlan.price,
+          },
+        },
+        true,
       );
 
-      let creditPrice = selectedPlan.price;
-      creditPrice += 150; //blitz flat fee
-      creditPrice += Math.ceil(creditPrice * 0.005);
+      // if (masterInfoObject.enabledEcash) {
+      //   try {
+      //     const input = await parse(lnPayoutLNURL);
 
-      const lightningFee = creditPrice * 0.005 + 4;
-      const lnPayoutLNURL = process.env.GPT_PAYOUT_LNURL;
-      if (masterInfoObject.enabledEcash) {
-        try {
-          const input = await parseInput(lnPayoutLNURL);
-          const lnInvoice = await getLNAddressForLiquidPayment(
-            input,
-            creditPrice,
-            'Store - chatGPT',
-          );
-          if (!lnInvoice) throw new Error('Not able to parse ln invoice');
-          const storedProofs = await getStoredProofs();
-          const balance = sumProofsValue(storedProofs);
-          if (balance > creditPrice + lightningFee) {
-            const meltQuote = await getMeltQuote(lnInvoice, accountMnemoinc);
-            if (!meltQuote.quote)
-              throw new Error(
-                meltQuote.reason || 'Not able to generate ecash quote',
-              );
-            const didPay = await payLnInvoiceFromEcash({
-              quote: meltQuote.quote,
-              invoice: lnInvoice,
-              proofsToUse: meltQuote.proofsToUse,
-              description: 'Store - chatGPT',
-              accountMnemoinc,
-            });
-            if (!didPay.didWork) throw new Error(didPay.message);
-            toggleGlobalAppDataInformation(
-              {
-                chatGPT: {
-                  conversation:
-                    globalAppDataInformation.chatGPT.conversation || [],
-                  credits: decodedChatGPT.credits + selectedPlan.price,
-                },
-              },
-              true,
-            );
-            setIsPaying(false);
-            return;
-          }
-        } catch (err) {
-          console.warn('eCash payment failed:', err.message);
-        }
-      }
+      //     const lnInvoice = await getLNAddressForLiquidPayment(
+      //       input,
+      //       creditPrice,
+      //       'Store - chatGPT',
+      //     );
+      //     if (!lnInvoice) throw new Error('Not able to parse ln invoice');
+      //     const storedProofs = await getStoredProofs();
+      //     const balance = sumProofsValue(storedProofs);
+      //     if (balance > creditPrice + lightningFee) {
+      //       const meltQuote = await getMeltQuote(lnInvoice);
+      //       if (!meltQuote.quote)
+      //         throw new Error(
+      //           meltQuote.reason || 'Not able to generate ecash quote',
+      //         );
+      //       const didPay = await payLnInvoiceFromEcash({
+      //         quote: meltQuote.quote,
+      //         invoice: lnInvoice,
+      //         proofsToUse: meltQuote.proofsToUse,
+      //         description: 'Store - chatGPT',
+      //       });
+      //       if (!didPay.didWork) throw new Error(didPay.message);
+      //       toggleGlobalAppDataInformation(
+      //         {
+      //           chatGPT: {
+      //             conversation:
+      //               globalAppDataInformation.chatGPT.conversation || [],
+      //             credits: decodedChatGPT.credits + selectedPlan.price,
+      //           },
+      //         },
+      //         true,
+      //       );
+      //       setIsPaying(false);
+      //       return;
+      //     }
+      //   } catch (err) {
+      //     console.warn('eCash payment failed:', err.message);
+      //   }
+      // }
 
-      if (
-        liquidNodeInformation.userBalance -
-          LIQUIDAMOUTBUFFER -
-          LIQUID_DEFAULT_FEE >
-        creditPrice
-      ) {
-        const liquidBip21 = formatBip21LiquidAddress({
-          address: process.env.BLITZ_LIQUID_ADDRESS,
-          amount: creditPrice,
-          message: 'Store - chatGPT',
-        });
+      // if (
+      //   liquidNodeInformation.userBalance -
+      //     LIQUIDAMOUTBUFFER -
+      //     LIQUID_DEFAULT_FEE >
+      //   creditPrice
+      // ) {
+      //   const liquidBip21 = formatBip21LiquidAddress({
+      //     address: process.env.BLITZ_LIQUID_ADDRESS,
+      //     amount: creditPrice,
+      //     message: 'Store - chatGPT',
+      //   });
 
-        const response = await breezLiquidPaymentWrapper({
-          paymentType: 'liquid',
-          invoice: liquidBip21,
-        });
+      //   const response = await breezLiquidPaymentWrapper({
+      //     paymentType: 'liquid',
+      //     invoice: liquidBip21,
+      //   });
 
-        if (!response.didWork) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: 'Error completing payment',
-          });
-          setIsPaying(false);
-          return;
-        }
-        await toggleGlobalAppDataInformation(
-          {
-            chatGPT: {
-              conversation: globalAppDataInformation.chatGPT.conversation || [],
-              credits: decodedChatGPT.credits + selectedPlan.price,
-            },
-          },
-          true,
-        );
-        setIsPaying(false);
-        return;
-      }
+      //   if (!response.didWork) {
+      //     navigate.navigate('ErrorScreen', {
+      //       errorMessage: 'Error completing payment',
+      //     });
+      //     setIsPaying(false);
+      //     return;
+      //   }
+      //   await toggleGlobalAppDataInformation(
+      //     {
+      //       chatGPT: {
+      //         conversation: globalAppDataInformation.chatGPT.conversation || [],
+      //         credits: decodedChatGPT.credits + selectedPlan.price,
+      //       },
+      //     },
+      //     true,
+      //   );
+      //   setIsPaying(false);
+      //   return;
+      // }
 
-      if (
-        nodeInformation.userBalance - LIGHTNINGAMOUNTBUFFER - lightningFee >
-        creditPrice
-      ) {
-        const input = await parseInput(lnPayoutLNURL);
-        const paymentResponse = await breezLNAddressPaymentWrapperV2({
-          sendingAmountSat: creditPrice,
-          paymentInfo: input,
-          paymentDescription: 'Store - chatGPT',
-        });
-        if (!paymentResponse.didWork) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: 'Error completing payment',
-          });
-          setIsPaying(false);
-          return;
-        }
-        await toggleGlobalAppDataInformation(
-          {
-            chatGPT: {
-              conversation: globalAppDataInformation.chatGPT.conversation || [],
-              credits: decodedChatGPT.credits + selectedPlan.price,
-            },
-          },
-          true,
-        );
-        setIsPaying(false);
-      } else {
-        navigate.navigate('ErrorScreen', {errorMessage: 'Not enough funds.'});
-        setIsPaying(false);
-      }
+      // if (
+      //   nodeInformation.userBalance - LIGHTNINGAMOUNTBUFFER - lightningFee >
+      //   creditPrice
+      // ) {
+      //   const input = await parse(lnPayoutLNURL);
+
+      //   const paymentResponse = await breezLNAddressPaymentWrapperV2({
+      //     sendingAmountSat: creditPrice,
+      //     paymentInfo: input,
+      //     paymentDescription: 'Store - chatGPT',
+      //   });
+      //   if (!paymentResponse.didWork) {
+      //     navigate.navigate('ErrorScreen', {
+      //       errorMessage: 'Error completing payment',
+      //     });
+      //     setIsPaying(false);
+      //     return;
+      //   }
+      //   await toggleGlobalAppDataInformation(
+      //     {
+      //       chatGPT: {
+      //         conversation: globalAppDataInformation.chatGPT.conversation || [],
+      //         credits: decodedChatGPT.credits + selectedPlan.price,
+      //       },
+      //     },
+      //     true,
+      //   );
+      //   setIsPaying(false);
+      // } else {
+      //   navigate.navigate('ErrorScreen', {errorMessage: 'Not enough funds.'});
+      //   setIsPaying(false);
+      // }
     } catch (err) {
       console.log(err);
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Error processing payment. Try again.',
       });
+    } finally {
       setIsPaying(false);
     }
   }

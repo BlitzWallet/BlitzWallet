@@ -99,7 +99,7 @@ const POSTransactionsProvider = ({children}) => {
     );
 
     const unsubscribe = onSnapshot(transaction, snapshot => {
-      snapshot?.docChanges()?.forEach(async change => {
+      snapshot?.docChanges()?.forEach(change => {
         console.log('recived a new pos transaction', change.type);
         if (change.type === 'added') {
           const newTX = change.doc.data();
@@ -164,7 +164,7 @@ const POSTransactionsProvider = ({children}) => {
     pointOfSaleEventEmitter.on(DID_OPEN_TABLES_EVENT_NAME, handlePosTableOpen);
     pointOfSaleEventEmitter.on(POS_EVENT_UPDATE, updateTxListFunction);
     return () => {
-      pointOfSaleEventEmitter.off(POS_EVENT_UPDATE, updateTxListFunction);
+      pointOfSaleEventEmitter.removeAllListeners(POS_EVENT_UPDATE);
     };
   }, []);
 

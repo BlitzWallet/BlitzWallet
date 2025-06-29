@@ -11,7 +11,6 @@ import * as TaskManager from 'expo-task-manager';
 
 import {getMessaging} from '@react-native-firebase/messaging';
 import {encriptMessage} from '../app/functions/messaging/encodingAndDecodingMessages';
-import {registerWebhook} from '@breeztech/react-native-breez-sdk';
 import {useGlobalContacts} from './globalContacts';
 import {getPublicKey} from 'nostr-tools';
 import {useAppStatus} from './appStatus';
@@ -37,11 +36,6 @@ const PushNotificationManager = ({children}) => {
         const hasGooglePlayServics = checkGooglePlayServices();
         console.log('has google play store services', hasGooglePlayServics);
         if (!hasGooglePlayServics) return;
-
-        if (Platform.OS === 'ios') {
-          const url = `${process.env.NDS_TEST_BACKEND}?platform=${Platform.OS}&token=${globalContactsInformation.myProfile.uniqueName}`;
-          await registerWebhook(url);
-        }
       } catch (err) {
         console.log(err, 'error regerstering webhook for ln notifications');
       }

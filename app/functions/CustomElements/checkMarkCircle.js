@@ -4,14 +4,8 @@ import GetThemeColors from '../../hooks/themeColors';
 import {COLORS} from '../../constants';
 import Icon from './Icon';
 
-export default function CheckMarkCircle({
-  isActive,
-  containerSize = 30,
-  color,
-  backgroundColor,
-  checkColor,
-}) {
-  const {theme, darkModeType} = useGlobalThemeContext();
+export default function CheckMarkCircle({isActive, containerSize = 30}) {
+  const {theme} = useGlobalThemeContext();
   const {backgroundOffset} = GetThemeColors();
   return (
     <View
@@ -20,13 +14,11 @@ export default function CheckMarkCircle({
         width: containerSize,
         backgroundColor: isActive
           ? theme
-            ? backgroundColor || backgroundOffset
-            : backgroundColor || COLORS.primary
+            ? backgroundOffset
+            : COLORS.primary
           : 'transparent',
         borderWidth: isActive ? 0 : 2,
-        borderColor: theme
-          ? color || COLORS.darkModeText
-          : color || COLORS.white,
+        borderColor: theme ? backgroundOffset : COLORS.white,
         borderRadius: containerSize,
         alignItems: 'center',
         justifyContent: 'center',
@@ -35,7 +27,7 @@ export default function CheckMarkCircle({
         <Icon
           width={containerSize / 2}
           height={containerSize / 2}
-          color={checkColor || COLORS.darkModeText}
+          color={COLORS.darkModeText}
           name={'expandedTxCheck'}
         />
       )}

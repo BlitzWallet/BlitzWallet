@@ -17,19 +17,20 @@ import {deleteEcashDBTables} from '../../../../functions/eCash/db';
 import {deletePOSTransactionsTable} from '../../../../functions/pos';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {removeAllLocalData} from '../../../../functions/localStorage';
-import {useGlobaleCash} from '../../../../../context-store/eCash';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
+import {
+  deleteSparkTransactionTable,
+  deleteUnpaidSparkLightningTransactionTable,
+} from '../../../../functions/spark/transactions';
+import {useSparkWallet} from '../../../../../context-store/sparkContext';
 
 export default function ResetPage(props) {
   const [selectedOptions, setSelectedOptions] = useState({
     securedItems: false,
     localStoredItems: false,
   });
+  const {sparkInformation} = useSparkWallet();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {ecashWalletInformation} = useGlobaleCash();
-  const eCashBalance = ecashWalletInformation.balance;
+  const {liquidNodeInformation} = useNodeContext();
 
   const {backgroundOffset} = GetThemeColors();
   const navigate = useNavigation();
@@ -170,9 +171,7 @@ export default function ResetPage(props) {
           styles={{fontSize: SIZES.large}}
           neverHideBalance={true}
           balance={
-            nodeInformation.userBalance +
-            liquidNodeInformation.userBalance +
-            (masterInfoObject.enabledEcash ? eCashBalance : 0)
+            Number(sparkInformation.balance) + liquidNodeInformation.userBalance
           }
         />
       </View>
@@ -211,11 +210,15 @@ export default function ResetPage(props) {
           didClearMessages,
           didClearEcash,
           didClearPos,
+          didClearTxTable,
+          didClearPendingTxTable,
         ] = await Promise.all([
           removeAllLocalData(),
           deleteTable(),
           deleteEcashDBTables(),
           deletePOSTransactionsTable(),
+          deleteSparkTransactionTable(),
+          deleteUnpaidSparkLightningTransactionTable(),
         ]);
 
         if (!didClearLocalStoreage)

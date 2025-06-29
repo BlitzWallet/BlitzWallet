@@ -15,6 +15,7 @@ import {
 import {crashlyticsLogReport} from './crashlyticsLogs';
 import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
 import fetchBackend from '../../db/handleBackend';
+import {getBitcoinKeyPair} from './lnurl';
 
 export default async function initializeUserSettingsFromHistory({
   accountMnemoinc,
@@ -72,6 +73,7 @@ export default async function initializeUserSettingsFromHistory({
       useTrampoline,
       fastPaySettings,
       crashReportingSettings,
+      enabledDeveloperSupport,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -158,6 +160,8 @@ export default async function initializeUserSettingsFromHistory({
       addresses: [],
     };
 
+    let lnurlPubKey = blitzStoredData.lnurlPubKey;
+
     //added here for legecy people
     liquidWalletSettings.regulatedChannelOpenSize =
       liquidWalletSettings.regulatedChannelOpenSize < MIN_CHANNEL_OPEN_FEE
@@ -219,6 +223,11 @@ export default async function initializeUserSettingsFromHistory({
       needsToUpdate = true;
     }
 
+    if (!lnurlPubKey) {
+      lnurlPubKey = getBitcoinKeyPair(mnemonic).publicKey;
+      needsToUpdate = true;
+    }
+
     if (shouldLoadExporeDataResp && freshExploreData) {
       if (freshExploreData) {
         tempObject['exploreData'] = freshExploreData;
@@ -233,6 +242,7 @@ export default async function initializeUserSettingsFromHistory({
     } else {
       tempObject['exploreData'] = pastExploreData.data;
     }
+
     tempObject['homepageTxPreferance'] = storedUserTxPereferance;
     tempObject['userBalanceDenomination'] = userBalanceDenomination;
     tempObject['userSelectedLanguage'] = selectedLanguage;
@@ -253,6 +263,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['enabledLNURL'] = enabledLNURL;
     tempObject['useTrampoline'] = useTrampoline;
     tempObject['offlineReceiveAddresses'] = offlineReceiveAddresses;
+    tempObject['lnurlPubKey'] = lnurlPubKey;
 
     // store in contacts context
     tempObject['contacts'] = contacts;
@@ -264,6 +275,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['appData'] = appData;
     tempObject[QUICK_PAY_STORAGE_KEY] = fastPaySettings;
     tempObject['crashReportingSettings'] = crashReportingSettings;
+    tempObject['enabledDeveloperSupport'] = enabledDeveloperSupport;
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {
       await sendDataToDB(tempObject, publicKey);

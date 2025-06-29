@@ -42,9 +42,8 @@ export const ecashEventEmitter = new EventEmitter();
 const GlobaleCash = createContext(null);
 
 export const GlobaleCashVariables = ({children}) => {
-  const {contactsPrivateKey, publicKey, accountMnemoinc} = useKeysContext();
+  const {contactsPrivateKey, publicKey} = useKeysContext();
   const countersRef = useRef({});
-
   const [globalEcashInformation, setGlobalEcashInformation] = useState([]);
   const [ecashWalletInformation, setEcashWalletInformation] = useState({
     didConnectToNode: null,
@@ -106,9 +105,15 @@ export const GlobaleCashVariables = ({children}) => {
     sqlEventEmitter.on(PROOF_EVENT_UPDATE_NAME, updateBalance);
     sqlEventEmitter.on(MINT_EVENT_UPDATE_NAME, updateMint);
     return () => {
-      sqlEventEmitter.off(TRANSACTIONS_EVENT_UPDATE_NAME, updateTransactions);
-      sqlEventEmitter.off(PROOF_EVENT_UPDATE_NAME, updateBalance);
-      sqlEventEmitter.off(MINT_EVENT_UPDATE_NAME, updateMint);
+      sqlEventEmitter.removeAllListeners(
+        TRANSACTIONS_EVENT_UPDATE_NAME,
+        updateTransactions,
+      );
+      sqlEventEmitter.removeAllListeners(
+        PROOF_EVENT_UPDATE_NAME,
+        updateBalance,
+      );
+      sqlEventEmitter.removeAllListeners(MINT_EVENT_UPDATE_NAME, updateMint);
     };
   }, []);
 
@@ -207,7 +212,6 @@ export const GlobaleCashVariables = ({children}) => {
         const response = await checkMintQuote({
           quote: receiveEcashQuote,
           mintURL: mintURL,
-          accountMnemoinc,
         });
         console.log(response);
         if (response.state === MintQuoteState.PAID) {
@@ -216,7 +220,6 @@ export const GlobaleCashVariables = ({children}) => {
             quote: response.quote,
             invoice: response.request,
             mintURL: mintURL,
-            accountMnemoinc,
           });
 
           if (didMint.prasedInvoice) {
@@ -269,15 +272,14 @@ export const GlobaleCashVariables = ({children}) => {
     }
 
     ecashEventEmitter.on(ECASH_QUOTE_EVENT_NAME, listenForPayment);
-    return () =>
-      ecashEventEmitter.off(ECASH_QUOTE_EVENT_NAME, listenForPayment);
+    return () => ecashEventEmitter.removeAllListeners(ECASH_QUOTE_EVENT_NAME);
   }, []);
 
   useEffect(() => {
     if (!ecashWalletInformation.mintURL) return;
     if (didRunUnclaimedEcashQuotes.current) return;
     didRunUnclaimedEcashQuotes.current = true;
-    claimUnclaimedEcashQuotes(accountMnemoinc); //if a receive ecash timeout clears before payment is receve this will try and claim the ecash quote on the next wallet load
+    claimUnclaimedEcashQuotes(); //if a receive ecash timeout clears before payment is receve this will try and claim the ecash quote on the next wallet load
   }, [ecashWalletInformation.mintURL]);
 
   const memoedValues = useMemo(() => {

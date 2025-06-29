@@ -1,17 +1,11 @@
 import {SATSPERBITCOIN} from '../constants';
 
-export default function numberConverter(
-  num,
-  denomination,
-  nodeInformation,
-  toFixed,
-) {
+export default function numberConverter(num, denomination, toFixed, fiatStats) {
   try {
     const converter = Number(num);
     const number =
       denomination === 'fiat'
-        ? converter *
-          ((nodeInformation?.fiatStats?.value || 65000) / SATSPERBITCOIN)
+        ? converter * ((fiatStats?.value || 65000) / SATSPERBITCOIN)
         : converter;
 
     if (typeof number === 'string') throw new Error('Cannot convert');

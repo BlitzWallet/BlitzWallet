@@ -1,4 +1,3 @@
-import {InputTypeVariant, parseInput} from '@breeztech/react-native-breez-sdk';
 import {
   getBoltzApiUrl,
   getBoltzWsUrl,
@@ -13,6 +12,8 @@ import {
 import breezLNAddressPaymentWrapper from '../../../../../functions/SDK/lightningAddressPaymentWrapper';
 import {
   AmountVariant,
+  InputTypeVariant,
+  parse,
   PayAmountVariant,
   payOnchain,
   preparePayOnchain,
@@ -265,7 +266,7 @@ export async function sendToLiquidFromLightning_sendPaymentScreen({
     if (!didHandle) throw new Error('Unable to open websocket');
     crashlyticsLogReport('Sending payment');
     try {
-      const prasedInput = await parseInput(data.invoice);
+      const prasedInput = await parse(data.invoice);
       // console.log(data);
       breezPaymentWrapper({
         paymentInfo: prasedInput,
@@ -354,7 +355,6 @@ export async function sendPaymentUsingEcash({
   fromPage,
   paymentDescription = '',
   webViewRef,
-  accountMnemoinc,
 }) {
   try {
     crashlyticsLogReport('Starting send payment using eCash');
@@ -399,7 +399,7 @@ export async function sendPaymentUsingEcash({
     }
     if (!invoice) throw new Error('Unable to parse sending invoice.');
     console.log('Before melt quote');
-    const meltQuote = await getMeltQuote(invoice, accountMnemoinc);
+    const meltQuote = await getMeltQuote(invoice);
     console.log('after melt quote');
     if (!meltQuote.quote)
       throw new Error(
@@ -411,7 +411,6 @@ export async function sendPaymentUsingEcash({
       invoice: invoice,
       proofsToUse: meltQuote.proofsToUse,
       description: paymentInfo?.data?.message || '',
-      accountMnemoinc,
     });
     if (!didPay.didWork)
       throw new Error(didPay.message || 'Unable to pay invoice from eCash');
