@@ -262,7 +262,8 @@ const styles = StyleSheet.create({
   scrollViewStyles: {
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
-    paddingVertical: 10,
+    paddingTop: 40,
+    paddingBottom: 10,
     alignItems: 'center',
   },
   confirmBTN: {
