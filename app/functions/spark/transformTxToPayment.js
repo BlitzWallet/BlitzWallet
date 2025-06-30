@@ -88,7 +88,7 @@ export async function transformTxToPaymentObject(
   if (paymentType === 'spark') {
     return {
       id: tx.id,
-      paymentStatus: getSparkPaymentStatus(tx.status),
+      paymentStatus: 'completed',
       paymentType: 'spark',
       accountId: tx.receiverIdentityPublicKey,
       details: {

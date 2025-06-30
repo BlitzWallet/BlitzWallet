@@ -85,9 +85,14 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
 
       const restoredSeed = handleRestoreFromText(data);
 
-      if (!restoredSeed.didWork) throw new Error(restoredSeed.error);
+      if (!restoredSeed.didWork || !restoredSeed?.seed?.length) {
+        const QRSeedResponse = handleCameraScan(data);
+        if (QRSeedResponse) return;
+        throw new Error('Unable to find seed in string');
+      }
 
       const splitSeed = restoredSeed.seed;
+      console.log(splitSeed);
 
       if (!splitSeed.every(word => word.trim().length > 0))
         throw new Error('Not every word is of valid length');
@@ -162,7 +167,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
     }
   }, [inputedKey, reset, navigate, navigateToError, t]);
 
-  const handleCameraScan = data => {
+  const handleCameraScan = (data, localTry = false) => {
     try {
       if (!data) return;
       let indexMnemonic = [];
@@ -173,7 +178,6 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
         indexMnemonic.push(data.slice(start, end));
       }
       const seedMnemoinc = indexMnemonic.map(item => {
-        console.log(Number(item));
         return wordlist.at(Number(item));
       });
       const newKeys = {};
@@ -181,8 +185,10 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
         newKeys[`key${num}`] = seedMnemoinc[index];
       });
       setInputedKey(newKeys);
+      return true;
     } catch (err) {
       console.log('error getting seed from camera', err);
+      if (localTry) return false;
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Unable to get seed from QR code',
       });
@@ -316,6 +322,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
                 : () =>
                     navigate.navigate('CameraModal', {
                       updateBitcoinAdressFunc: handleCameraScan,
+                      fromPage: 'addContact',
                     })
             }
           />

@@ -62,7 +62,7 @@ export default function HandleLNURLPayments() {
           isInitialLoad = false;
         } else {
           // Handle real-time updates
-          snapshot.docChanges().forEach(change => {
+          snapshot?.docChanges().forEach(change => {
             if (change.type === 'added') {
               const payment = change.doc.data();
               paymentQueueRef.current.push({
@@ -74,7 +74,7 @@ export default function HandleLNURLPayments() {
             }
           });
 
-          if (snapshot.docChanges().length > 0) {
+          if (snapshot?.docChanges().length > 0) {
             processQueue();
           }
         }

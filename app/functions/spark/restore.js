@@ -2,7 +2,6 @@ import {
   getSparkBitcoinPaymentRequest,
   getSparkLightningPaymentStatus,
   getSparkLightningSendRequest,
-  getSparkPaymentStatus,
   getSparkTransactions,
 } from '.';
 import {LAST_LOADED_BLITZ_LOCAL_STOREAGE_KEY} from '../../constants';
@@ -80,7 +79,7 @@ export const updateSparkTxStatus = async () => {
     let updatedTxs = [];
     for (const txStateUpdate of savedTxs) {
       const details = JSON.parse(txStateUpdate.details);
-      // no need to do spark here since it wont ever be shown as pending
+
       if (txStateUpdate.paymentType === 'lightning') {
         if (details.isRestore) {
           const tx = {
@@ -117,6 +116,19 @@ export const updateSparkTxStatus = async () => {
             ...details,
             preimage: sparkResponse ? sparkResponse.paymentPreimage : '',
           },
+        };
+        updatedTxs.push(tx);
+      } else if (txStateUpdate.paymentType === 'spark') {
+        const sparkTransfer = incomingTxs.transfers.find(
+          tx => tx.id === txStateUpdate.sparkID,
+        );
+        console.log(sparkTransfer, 'spark transfer in pending');
+        if (!sparkTransfer) continue;
+        const tx = {
+          id: txStateUpdate.sparkID,
+          paymentStatus: 'completed',
+          paymentType: 'spark',
+          accountId: txStateUpdate.accountId,
         };
         updatedTxs.push(tx);
       } else {
