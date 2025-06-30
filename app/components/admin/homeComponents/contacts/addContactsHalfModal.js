@@ -41,8 +41,15 @@ export default function AddContactsHalfModal(props) {
   const navigate = useNavigation();
   const keyboardRef = useRef(null);
   const {refreshCacheObject} = useImageCache();
+  const searchTrackerRef = useRef(null);
 
-  const debouncedSearch = useDebounce(async term => {
+  const handleSearchTrackerRef = () => {
+    const requestUUID = customUUID();
+    searchTrackerRef.current = requestUUID; // Simply store the latest UUID
+    return requestUUID;
+  };
+
+  const debouncedSearch = useDebounce(async (term, requestUUID) => {
     const results = await searchUsers(term);
     const newUsers = (
       await Promise.all(
@@ -75,27 +82,37 @@ export default function AddContactsHalfModal(props) {
       )
     ).filter(Boolean);
     refreshCacheObject();
+
+    if (searchTrackerRef.current !== requestUUID) {
+      return;
+    }
+
     unstable_batchedUpdates(() => {
       setIsSearching(false);
       setUsers(newUsers);
     });
   }, 800);
 
-  console.log(users);
-
   const handleSearch = term => {
     setSearchInput(term);
-    if (term.includes('@')) return;
+    handleSearchTrackerRef();
+    if (term.includes('@')) {
+      searchTrackerRef.current = null;
+      setIsSearching(false);
+      return;
+    }
 
-    if (term.length < 1) {
+    if (term.length <= 2) {
+      searchTrackerRef.current = null;
       setUsers([]);
       setIsSearching(false);
       return;
     }
 
-    if (term.length >= 1) {
+    if (term.length > 2) {
+      const requestUUID = handleSearchTrackerRef();
       setIsSearching(true);
-      debouncedSearch(term);
+      debouncedSearch(term, requestUUID);
     }
   };
 
@@ -247,9 +264,9 @@ export default function AddContactsHalfModal(props) {
                 <ThemeText
                   styles={{textAlign: 'center', marginTop: 20}}
                   content={
-                    isSearching
+                    isSearching && searchInput.length > 2
                       ? ''
-                      : searchInput.length >= 1
+                      : searchInput.length > 2
                       ? 'No profiles match this search'
                       : 'Start typing to search for a profile (min 2 chars)'
                   }
