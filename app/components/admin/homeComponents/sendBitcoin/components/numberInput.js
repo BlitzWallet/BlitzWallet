@@ -11,8 +11,17 @@ export default function NumberInputSendPage({
   const [amount, setAmount] = useState(paymentInfo?.sendAmount);
 
   useEffect(() => {
+    console.log(amount, 'amount input');
+
+    let value = amount.trim();
+
+    if (value.startsWith('.')) {
+      value = '0' + value;
+    }
+    value = value.replace(/^(-?)0+(?=\d)/, '$1'); //only have at max 1 leading 0. If a number comes then remove the 0 and replace with number
+
     setPaymentInfo(prev => {
-      return {...prev, sendAmount: amount};
+      return {...prev, sendAmount: value};
     });
   }, [amount]);
 
