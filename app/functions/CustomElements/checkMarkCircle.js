@@ -18,7 +18,7 @@ export default function CheckMarkCircle({isActive, containerSize = 30}) {
             : COLORS.primary
           : 'transparent',
         borderWidth: isActive ? 0 : 2,
-        borderColor: theme ? backgroundOffset : COLORS.white,
+        borderColor: theme ? backgroundOffset : COLORS.lightModeText,
         borderRadius: containerSize,
         alignItems: 'center',
         justifyContent: 'center',

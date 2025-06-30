@@ -118,27 +118,6 @@ export default function PosSettingsPage() {
               savePOSSettings({storeCurrency: item.id}, 'currency');
             }}>
             <CheckMarkCircle
-              color={
-                theme
-                  ? darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.darkModeText
-                  : COLORS.lightModeText
-              }
-              backgroundColor={
-                theme
-                  ? darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.darkModeText
-                  : COLORS.primary
-              }
-              checkColor={
-                theme
-                  ? darkModeType
-                    ? COLORS.lightsOutBackground
-                    : COLORS.darkModeBackground
-                  : COLORS.lightModeBackground
-              }
               isActive={
                 item.id?.toLowerCase() === currentCurrency?.toLowerCase()
               }

@@ -57,27 +57,6 @@ export default function FiatCurrencyPage() {
           saveCurrencySettings(currency.id);
         }}>
         <CheckMarkCircle
-          color={
-            theme
-              ? darkModeType
-                ? COLORS.darkModeText
-                : COLORS.darkModeText
-              : COLORS.lightModeText
-          }
-          backgroundColor={
-            theme
-              ? darkModeType
-                ? COLORS.darkModeText
-                : COLORS.darkModeText
-              : COLORS.primary
-          }
-          checkColor={
-            theme
-              ? darkModeType
-                ? COLORS.lightsOutBackground
-                : COLORS.darkModeBackground
-              : COLORS.lightModeBackground
-          }
           isActive={
             currency.id?.toLowerCase() === currentCurrency?.toLowerCase()
           }
