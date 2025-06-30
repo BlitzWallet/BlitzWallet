@@ -1399,8 +1399,8 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 8.1)
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
-  - FirebaseSharedSwift (11.14.0)
-  - FirebaseStorage (11.13.0):
+  - FirebaseSharedSwift (11.13.0)
+  - FirebaseStorage (11.11.0):
     - FirebaseAppCheckInterop (~> 11.0)
     - FirebaseAuthInterop (~> 11.0)
     - FirebaseCore (~> 11.13.0)
