@@ -81,13 +81,15 @@ export default async function processLNUrlPay(input, context) {
     supportFee,
     type: InputTypeVariant.LN_URL_PAY,
     paymentNetwork: 'lightning',
-    sendAmount: `${
-      masterInfoObject.userBalanceDenomination != 'fiat'
-        ? `${Math.round(amountMsat / 1000)}`
-        : fiatValue < 0.01
-        ? ''
-        : `${fiatValue.toFixed(2)}`
-    }`,
+    sendAmount: comingFromAccept
+      ? `${
+          masterInfoObject.userBalanceDenomination != 'fiat'
+            ? `${Math.round(amountMsat / 1000)}`
+            : fiatValue < 0.01
+            ? ''
+            : `${fiatValue.toFixed(2)}`
+        }`
+      : '',
     canEditPayment: !comingFromAccept,
   };
 }

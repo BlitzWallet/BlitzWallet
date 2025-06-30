@@ -6,6 +6,7 @@ import {useState} from 'react';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 
 export default function AcceptButtonSendPage({
   isUsingSwapWithZeroInvoice,
@@ -22,6 +23,8 @@ export default function AcceptButtonSendPage({
   fromPage,
   publishMessageFunc,
   webViewRef,
+  minLNURLSatAmount,
+  maxLNURLSatAmount,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {liquidNodeInformation, fiatStats} = useNodeContext();
@@ -39,6 +42,11 @@ export default function AcceptButtonSendPage({
             isLiquidPayment &&
             (convertedSendAmount < minMaxLiquidSwapAmounts.min ||
               convertedSendAmount > minMaxLiquidSwapAmounts.max)
+          ) &&
+          !(
+            paymentInfo?.type === 'lnUrlPay' &&
+            (convertedSendAmount < minLNURLSatAmount ||
+              convertedSendAmount > maxLNURLSatAmount)
           )
             ? 1
             : 0.5,
@@ -80,6 +88,25 @@ export default function AcceptButtonSendPage({
             convertedSendAmount < minMaxLiquidSwapAmounts.min
               ? minMaxLiquidSwapAmounts.min
               : minMaxLiquidSwapAmounts.max,
+          fiatStats,
+          masterInfoObject,
+        })}`,
+      });
+      return;
+    }
+    if (
+      paymentInfo?.type === InputTypeVariant.LN_URL_PAY &&
+      (convertedSendAmount < minLNURLSatAmount ||
+        convertedSendAmount > maxLNURLSatAmount)
+    ) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: `${
+          convertedSendAmount < minLNURLSatAmount ? 'Minimum' : 'Maximum'
+        } send amount ${displayCorrectDenomination({
+          amount:
+            convertedSendAmount < minLNURLSatAmount
+              ? minLNURLSatAmount
+              : maxLNURLSatAmount,
           fiatStats,
           masterInfoObject,
         })}`,

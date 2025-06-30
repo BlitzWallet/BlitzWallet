@@ -108,13 +108,19 @@ export default function SendPaymentScreen(props) {
   //   ],
   // );
 
-  console.log(convertedSendAmount, 'CONVETTED SEND AMOUNT');
-
   const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
   const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
   const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
   const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
+  const isLNURLPayment = paymentInfo?.type === InputTypeVariant.LN_URL_PAY;
+  const minLNURLSatAmount = isLNURLPayment
+    ? paymentInfo?.data?.minSendable / 1000
+    : 0;
+  const maxLNURLSatAmount = isLNURLPayment
+    ? paymentInfo?.data?.maxSendable / 1000
+    : 0;
 
+  console.log(minLNURLSatAmount, maxLNURLSatAmount);
   // const minSendAmount = 1000 || minMaxLiquidSwapAmounts.min;
   // const maxSendAmount = minMaxLiquidSwapAmounts.max || 23000000;
 
@@ -151,8 +157,8 @@ export default function SendPaymentScreen(props) {
   const paymentFee =
     (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
   const canSendPayment =
-    Number(sparkInformation.balance) >= Number(sendingAmount) + paymentFee &&
-    sendingAmount != 0; //ecash is built into ln
+    Number(sparkInformation.balance) >=
+      Number(convertedSendAmount) + paymentFee && sendingAmount != 0; //ecash is built into ln
   console.log(
     canSendPayment,
     'can send payment',
@@ -371,6 +377,8 @@ export default function SendPaymentScreen(props) {
               fromPage={fromPage}
               publishMessageFunc={publishMessageFunc}
               webViewRef={webViewRef}
+              minLNURLSatAmount={minLNURLSatAmount}
+              maxLNURLSatAmount={maxLNURLSatAmount}
             />
           )}
         </>
