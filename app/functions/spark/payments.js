@@ -62,7 +62,10 @@ export const sparkPaymenWrapper = async ({
       };
     }
     let response;
-    if (userBalance < amountSats + (paymentType === 'bitcoin' ? 0 : fee))
+    if (
+      userBalance <
+      amountSats + (paymentType === 'bitcoin' ? supportFee : fee)
+    )
       throw new Error('Insufficient funds');
 
     let supportFeeResponse;
@@ -79,25 +82,6 @@ export const sparkPaymenWrapper = async ({
       handleSupportPayment(masterInfoObject, supportFee);
 
       const data = lightningPayResponse.paymentResponse;
-
-      console.log(lightningPayResponse, 'lightning pay response');
-      // let sparkQueryResponse = null;
-      // let count = 0;
-      // while (!sparkQueryResponse && count < 5) {
-      //   const sparkResponse = await getSparkLightningSendRequest(
-      //     lightningPayResponse.id,
-      //   );
-
-      //   if (sparkResponse?.transfer) {
-      //     sparkQueryResponse = sparkResponse;
-      //   } else {
-      //     console.log('Waiting for response...');
-      //     await new Promise(res => setTimeout(res, 2000));
-      //   }
-      //   count += 1;
-      // }
-
-      // console.log(sparkQueryResponse, 'AFTEWR');
 
       const tx = {
         id: data.id,
@@ -116,7 +100,7 @@ export const sparkPaymenWrapper = async ({
       };
       response = tx;
 
-      await bulkUpdateSparkTransactions([tx], 'blocked');
+      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx');
     } else if (paymentType === 'bitcoin') {
       // make sure to import exist speed
       const onChainPayResponse = await sendSparkBitcoinPayment({
@@ -157,7 +141,7 @@ export const sparkPaymenWrapper = async ({
         paymentType: 'bitcoin',
         accountId: sparkInformation.identityPubKey,
         details: {
-          fee: fee,
+          fee: fee + supportFee,
           amount: amountSats,
           address: address,
           time: new Date(onChainPayResponse.updatedAt).getTime(),
@@ -167,7 +151,7 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      await bulkUpdateSparkTransactions([tx], 'blocked');
+      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx');
     } else {
       const sparkPayResponse = await sendSparkPayment({
         receiverSparkAddress: address,
@@ -194,7 +178,7 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      await bulkUpdateSparkTransactions([tx], 'blocked');
+      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx');
     }
     console.log(response, 'resonse in send function');
     return {didWork: true, response};
@@ -257,7 +241,7 @@ export const sparkReceivePaymentWrapper = async ({
 async function handleSupportPayment(masterInfoObject, supportFee) {
   try {
     if (masterInfoObject?.enabledDeveloperSupport?.isEnabled) {
-      await new Promise(res => setTimeout(res, 2000));
+      await new Promise(res => setTimeout(res, 1000));
       await sendSparkPayment({
         receiverSparkAddress: process.env.BLITZ_SPARK_SUPPORT_ADDRESSS,
         amountSats: supportFee,
