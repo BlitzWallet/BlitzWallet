@@ -21,7 +21,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import MaxHeap from '../../../../functions/minHeap';
 import ContactProfileImage from './internalComponents/profileImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
-import useAppInsets from '../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 export default function MyContactProfilePage({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -86,7 +86,7 @@ export default function MyContactProfilePage({navigation}) {
     return result;
   }, [decodedAddedContacts, contactsMessags]);
 
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
   useHandleBackPressNew();
 
   return (

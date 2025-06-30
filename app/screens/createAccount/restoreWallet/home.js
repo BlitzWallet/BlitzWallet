@@ -24,10 +24,10 @@ import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import getClipboardText from '../../../functions/getClipboardText';
 import {useNavigation} from '@react-navigation/native';
 import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
-import useAppInsets from '../../../hooks/useAppInsets';
 import {useKeysContext} from '../../../../context-store/keys';
 import {wordlist} from '@scure/bip39/wordlists/english';
 import {handleRestoreFromText} from '../../../functions/seed';
+import {useGlobalInsets} from '../../../../context-store/insetsProvider';
 
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -41,7 +41,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
   const {t} = useTranslation();
   const {accountMnemoinc, setAccountMnemonic} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
   const [isValidating, setIsValidating] = useState(false);
   const [currentFocused, setCurrentFocused] = useState(null);
   const keyRefs = useRef({});

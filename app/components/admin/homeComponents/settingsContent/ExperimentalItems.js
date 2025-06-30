@@ -44,7 +44,7 @@ import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
 import {crashlyticsRecordErrorReport} from '../../../../functions/crashlyticsLogs';
-import useAppInsets from '../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 export default function ExperimentalItemsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -57,7 +57,7 @@ export default function ExperimentalItemsPage() {
   const [savedMintList, setSavedMintList] = useState([]);
   const [hasUserMigrated, setHasUserMigrated] = useState(null);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const enabledEcash = masterInfoObject.enabledEcash;
   const currentMintURL = ecashWalletInformation.mintURL;

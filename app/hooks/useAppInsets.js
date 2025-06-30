@@ -17,25 +17,23 @@ export default function useAppInsets() {
       return {
         topPadding: Platform.select({
           ios: insets.top,
-          android: 0 + 5,
+          android: insets.top,
         }),
         bottomPadding: Platform.select({
           ios: insets.bottom,
-          android: 0 + 5,
+          android: insets.bottom,
         }),
       };
     }
     const topPadding = Platform.select({
       ios: insets.top,
-      android: insets.top + 5,
+      android: insets.top,
     });
 
     const bottomPadding = Platform.select({
       ios: insets.bottom,
-      android: insets.bottom + 5,
+      android: insets.bottom,
     });
-
-    console.log(topPadding, bottomPadding, 'TESTING');
 
     return {
       topPadding: topPadding !== 0 ? topPadding : ANDROIDSAFEAREA,
@@ -43,5 +41,6 @@ export default function useAppInsets() {
     };
   }, [insets.top, insets.bottom, isStable]);
 
+  console.log(topPadding, bottomPadding, 'TESTING');
   return {topPadding, bottomPadding};
 }

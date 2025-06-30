@@ -1,8 +1,8 @@
 import {Keyboard, Platform, TouchableWithoutFeedback} from 'react-native';
 import GlobalThemeView from './globalThemeView';
 import {CONTENT_KEYBOARD_OFFSET} from '../../constants';
-import useAppInsets from '../../hooks/useAppInsets';
 import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
+import {useGlobalInsets} from '../../../context-store/insetsProvider';
 
 export default function CustomKeyboardAvoidingView({
   children,
@@ -13,7 +13,7 @@ export default function CustomKeyboardAvoidingView({
   isKeyboardActive,
   useLocalPadding = false,
 }) {
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   return (
     <KeyboardAvoidingView

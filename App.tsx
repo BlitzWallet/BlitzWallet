@@ -84,51 +84,57 @@ import {SparkWalletProvider} from './context-store/sparkContext';
 import * as NavigationBar from 'expo-navigation-bar';
 import {setStatusBarBackgroundColor, setStatusBarStyle} from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
+import {InsetsProvider} from './context-store/insetsProvider';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
   return (
     <GestureHandlerRootView>
-      <KeyboardProvider>
-        <KeysContextProvider>
-          <GlobalContactsList>
-            <GlobalContextProvider>
-              <AppStatusProvider>
-                <GlobalThemeProvider>
-                  <GlobaleCashVariables>
-                    <GLobalNodeContextProider>
-                      <SparkWalletProvider>
-                        {/* <GlobalConbinedTxContextProvider> */}
-                        <GlobalAppDataProvider>
-                          <POSTransactionsProvider>
-                            <WebViewProvider>
-                              <PushNotificationManager>
-                                <LiquidEventProvider>
-                                  {/* <LightningEventProvider> */}
-                                  <ImageCacheProvider>
-                                    {/* <Suspense
+      <SafeAreaProvider>
+        <InsetsProvider>
+          <KeyboardProvider>
+            <KeysContextProvider>
+              <GlobalContactsList>
+                <GlobalContextProvider>
+                  <AppStatusProvider>
+                    <GlobalThemeProvider>
+                      <GlobaleCashVariables>
+                        <GLobalNodeContextProider>
+                          <SparkWalletProvider>
+                            {/* <GlobalConbinedTxContextProvider> */}
+                            <GlobalAppDataProvider>
+                              <POSTransactionsProvider>
+                                <WebViewProvider>
+                                  <PushNotificationManager>
+                                    <LiquidEventProvider>
+                                      {/* <LightningEventProvider> */}
+                                      <ImageCacheProvider>
+                                        {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                    <ResetStack />
-                                    {/* </Suspense> */}
-                                  </ImageCacheProvider>
-                                  {/* </LightningEventProvider> */}
-                                </LiquidEventProvider>
-                              </PushNotificationManager>
-                            </WebViewProvider>
-                          </POSTransactionsProvider>
-                        </GlobalAppDataProvider>
-                        {/* <BreezTest /> */}
-                        {/* </GlobalConbinedTxContextProvider> */}
-                      </SparkWalletProvider>
-                    </GLobalNodeContextProider>
-                  </GlobaleCashVariables>
-                </GlobalThemeProvider>
-              </AppStatusProvider>
-            </GlobalContextProvider>
-          </GlobalContactsList>
-        </KeysContextProvider>
-      </KeyboardProvider>
+                                        <ResetStack />
+                                        {/* </Suspense> */}
+                                      </ImageCacheProvider>
+                                      {/* </LightningEventProvider> */}
+                                    </LiquidEventProvider>
+                                  </PushNotificationManager>
+                                </WebViewProvider>
+                              </POSTransactionsProvider>
+                            </GlobalAppDataProvider>
+                            {/* <BreezTest /> */}
+                            {/* </GlobalConbinedTxContextProvider> */}
+                          </SparkWalletProvider>
+                        </GLobalNodeContextProider>
+                      </GlobaleCashVariables>
+                    </GlobalThemeProvider>
+                  </AppStatusProvider>
+                </GlobalContextProvider>
+              </GlobalContactsList>
+            </KeysContextProvider>
+          </KeyboardProvider>
+        </InsetsProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

@@ -36,7 +36,7 @@ import sendStorePayment from '../../../../../functions/apps/payments';
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import useAppInsets from '../../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function SMSMessagingSendPage({SMSprices}) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -57,7 +57,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
   const navigate = useNavigation();
   const {textColor, backgroundColor} = GetThemeColors();
 
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const selectedAreaCode = useMemo(() => {
     return sendCountryCodes.filter(

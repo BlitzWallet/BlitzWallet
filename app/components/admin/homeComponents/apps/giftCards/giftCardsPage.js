@@ -22,7 +22,7 @@ import getGiftCardsList from './giftCardAPI';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
-import useAppInsets from '../../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function GiftCardPage() {
   const {decodedGiftCards, toggleGiftCardsList, giftCardsList} =
@@ -64,7 +64,7 @@ export default function GiftCardPage() {
       };
     }, []),
   );
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const giftCards = giftCardsList;

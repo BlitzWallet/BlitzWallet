@@ -44,7 +44,7 @@ import {keyboardGoBack} from '../../../../../functions/customNavigation';
 import sendStorePayment from '../../../../../functions/apps/payments';
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import useAppInsets from '../../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function ExpandedGiftCardPage(props) {
   const {sparkInformation} = useSparkWallet();
@@ -73,7 +73,7 @@ export default function ExpandedGiftCardPage(props) {
   });
   const [email, setEmail] = useState(decodedGiftCards?.profile?.email || '');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const variableRange = [
     selectedItem.denominations[0],

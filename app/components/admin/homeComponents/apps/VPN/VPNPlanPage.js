@@ -19,7 +19,7 @@ import {useGlobalContextProvider} from '../../../../../../context-store/context'
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import useAppInsets from '../../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function VPNPlanPage({countryList}) {
   const [searchInput, setSearchInput] = useState('');
@@ -36,7 +36,7 @@ export default function VPNPlanPage({countryList}) {
   const {textColor} = GetThemeColors();
   const [loadingMessage, setLoadingMessage] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const countryElements = useMemo(() => {
     return [...countryList]

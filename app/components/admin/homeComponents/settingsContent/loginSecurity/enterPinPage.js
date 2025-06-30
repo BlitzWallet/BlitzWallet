@@ -10,12 +10,12 @@ import {
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useNavigation} from '@react-navigation/native';
 import {CENTER, COLORS, SIZES} from '../../../../../constants';
-import useAppInsets from '../../../../../hooks/useAppInsets';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import PinDot from '../../../../../functions/CustomElements/pinDot';
 import KeyForKeyboard from '../../../../../functions/CustomElements/key';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function ConfirmPinForLoginMode() {
   const navigate = useNavigation();
@@ -28,7 +28,7 @@ export default function ConfirmPinForLoginMode() {
   });
   const [errorMessage, setErrorMessage] = useState('');
 
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
   const translateY = useRef(
     new Animated.Value(windowDimensions.height),
   ).current;

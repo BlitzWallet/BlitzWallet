@@ -19,14 +19,14 @@ import {copyToClipboard} from '../../../../../functions';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import useAppInsets from '../../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function HistoricalGiftCardPurchases() {
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {contactsPrivateKey, publicKey} = useKeysContext();
 
   const navigate = useNavigation();
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   useHandleBackPressNew();
 

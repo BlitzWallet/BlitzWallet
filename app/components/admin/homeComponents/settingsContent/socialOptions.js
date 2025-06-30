@@ -3,7 +3,7 @@ import {CENTER, ICONS} from '../../../../constants';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useNavigation} from '@react-navigation/native';
 import openWebBrowser from '../../../../functions/openWebBrowser';
-import useAppInsets from '../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 const NAVITEMS = [
   //   {name: 'Faucet', link: 'URL', icon: ICONS.faucetIcon, inApp: true},
@@ -56,7 +56,7 @@ export default function BlitzSocialOptions() {
     );
   });
 
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   return (
     <View

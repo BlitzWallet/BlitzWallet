@@ -13,7 +13,7 @@ import {useEffect, useState} from 'react';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import getFormattedHomepageTxsForSpark from '../../functions/combinedTransactionsSpark';
 import {useSparkWallet} from '../../../context-store/sparkContext';
-import useAppInsets from '../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../context-store/insetsProvider';
 
 export default function ViewAllTxPage() {
   const navigate = useNavigation();
@@ -25,7 +25,7 @@ export default function ViewAllTxPage() {
   const {t} = useTranslation();
   useHandleBackPressNew();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   useEffect(() => {
     const txs = getFormattedHomepageTxsForSpark({

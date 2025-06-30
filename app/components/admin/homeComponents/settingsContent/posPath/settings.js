@@ -31,8 +31,8 @@ import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
-import useAppInsets from '../../../../../hooks/useAppInsets';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function PosSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -46,7 +46,7 @@ export default function PosSettingsPage() {
     masterInfoObject?.posSettings?.storeName,
   );
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const savedCurrencies = masterInfoObject.fiatCurrenciesList || [];
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;

@@ -3,7 +3,7 @@ import {StyleSheet, View} from 'react-native';
 import {CENTER} from '../../constants/styles';
 import {WINDOWWIDTH} from '../../constants/theme';
 import GetThemeColors from '../../hooks/themeColors';
-import useAppInsets from '../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../context-store/insetsProvider';
 
 const GlobalThemeView = memo(function GlobalThemeView({
   children,
@@ -11,9 +11,10 @@ const GlobalThemeView = memo(function GlobalThemeView({
   useStandardWidth,
   globalContainerStyles,
 }) {
-  const {topPadding, bottomPadding} = useAppInsets();
+  const {topPadding, bottomPadding} = useGlobalInsets();
   const {backgroundColor} = GetThemeColors();
 
+  console.log(topPadding, bottomPadding, 'GLOBAL THEME VIEW');
   if (useStandardWidth) {
     return (
       <View

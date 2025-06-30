@@ -33,7 +33,7 @@ import {KEYBOARDTIMEOUT} from '../../constants/styles';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 
 import AddPOSItemHalfModal from '../../components/admin/homeComponents/settingsContent/posPath/items/addItemHalfModal';
-import useAppInsets from '../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../context-store/insetsProvider';
 
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -44,7 +44,7 @@ export default function CustomHalfModal(props) {
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const translateY = useRef(
     new Animated.Value(windowDimensions.height),

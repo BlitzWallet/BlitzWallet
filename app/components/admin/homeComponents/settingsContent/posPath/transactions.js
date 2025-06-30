@@ -13,7 +13,7 @@ import {usePOSTransactions} from '../../../../../../context-store/pos';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import useAppInsets from '../../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function ViewPOSTransactions() {
   const {groupedTxs} = usePOSTransactions();
@@ -21,7 +21,7 @@ export default function ViewPOSTransactions() {
   const {masterInfoObject} = useGlobalContextProvider();
   const {fiatStats} = useNodeContext();
   const navigate = useNavigation();
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const filteredList = useMemo(() => {
     return !groupedTxs
