@@ -10,6 +10,7 @@ import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useCallback} from 'react';
 import {
+  BITCOIN_SAT_TEXT,
   CENTER,
   MAX_ECASH_BALANCE,
   MAX_ECASH_RECEIVE,
@@ -84,7 +85,7 @@ export default function EcashSettings() {
         showsVerticalScrollIndicator={false}>
         <TextInputSettingsItem
           defaultTextInputValue={ecashWalletSettings.maxReceiveAmountSat}
-          settingInputTitle="Max receive (sats)"
+          settingInputTitle={`Max receive (${BITCOIN_SAT_TEXT})`}
           settingDescription={`This is the maximum receive limit for eCash transactions. If a payment exceeds the set limit, it will automatically be directed to a different network. The highest limit you can set for this feature is ${displayCorrectDenomination(
             {amount: MAX_ECASH_RECEIVE, nodeInformation, masterInfoObject},
           )}.`}
@@ -92,7 +93,7 @@ export default function EcashSettings() {
         />
         <TextInputSettingsItem
           defaultTextInputValue={ecashWalletSettings.maxEcashBalance}
-          settingInputTitle="Max balance (sats)"
+          settingInputTitle={`Max balance (${BITCOIN_SAT_TEXT})`}
           settingDescription={`This is the maximum balance limit for eCash. If your exceeds the set limit, you will no longer be able to receive to eCash. The highest limit you can set for this feature is ${displayCorrectDenomination(
             {amount: MAX_ECASH_BALANCE, nodeInformation, masterInfoObject},
           )}.`}

@@ -1,4 +1,4 @@
-import {BITCOIN_SATS_ICON} from '../constants';
+import {BITCOIN_SAT_TEXT, BITCOIN_SATS_ICON} from '../constants';
 import {formatCurrency} from './formatCurrency';
 import formatBalanceAmount from './formatNumber';
 import numberConverter from './numberConverter';
@@ -31,7 +31,7 @@ export default function displayCorrectDenomination({
 
     if (showSats) {
       if (showSymbol) return BITCOIN_SATS_ICON + formatedSat;
-      else return formatedSat + ' sats';
+      else return formatedSat + ` ${BITCOIN_SAT_TEXT}`;
     } else {
       if (showSymbol && isSymbolInFront)
         return currencySymbol + formattedCurrency[1];

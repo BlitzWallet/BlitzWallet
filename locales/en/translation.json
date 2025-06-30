@@ -326,13 +326,13 @@
         "text9": "Initial percentage",
         "text10": "By turning on auto channel rebalance, Blitz will automatically swap funds from your channel to the bank or the bank to your channels based on the percentage of outgoing capacity you initially want.",
         "text11": "Regulate channel open",
-        "text12": "Channel open size (sats)",
+        "text12": "Channel open size (SAT)",
         "text13": "By turning on regulated channel open, if you reach your inbound liquidity limit during a session, new funds will automatically be swapped to your bank for future use without opening a new channel. Once your bank has the amount specified above, a channel will be opened.",
         "text14": "Enable Lightning",
         "text15": "By enabling Lightning, you must connect to your Lightning node when loading the app. However, the Lightning node connection tends to fail more often than the Liquid node connection, which may prevent the app from loading.\n\nBy disabling Lightning, you ensure that your balance remains on Liquid, disabling both auto channel rebalancing and regulated channel opening.",
-        "text16": "Max open fee (sats)",
+        "text16": "Max open fee (SAT)",
         "text17": "The Max Channel Open Fee sets the highest amount you’re willing to pay in on-chain fees when opening a Lightning channel. If the network fee exceeds this limit, the channel won’t be opened",
-        "text18": "Minimum rebalance (sats)",
+        "text18": "Minimum rebalance (SAT)",
         "text19": "Minimum Rebalance sets the lowest amount of satoshis required for auto-rebalancing in Blitz Wallet. If the rebalance amount is below this limit, no rebalancing will occur. The amount can not be less than"
       },
       "popup": {

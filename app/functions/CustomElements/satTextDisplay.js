@@ -1,6 +1,10 @@
 import {StyleSheet, View} from 'react-native';
 import {useGlobalContextProvider} from '../../../context-store/context';
-import {BITCOIN_SATS_ICON, HIDDEN_BALANCE_TEXT} from '../../constants';
+import {
+  BITCOIN_SAT_TEXT,
+  BITCOIN_SATS_ICON,
+  HIDDEN_BALANCE_TEXT,
+} from '../../constants';
 import ThemeText from './textTheme';
 import {formatCurrency} from '../formatCurrency';
 import {useNodeContext} from '../../../context-store/nodeContext';
@@ -117,7 +121,7 @@ export default function FormattedSatText({
         {!showSymbol && (
           <ThemeText
             styles={{includeFontPadding: false, ...styles}}
-            content={' sats'}
+            content={` ${BITCOIN_SAT_TEXT}`}
           />
         )}
 

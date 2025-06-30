@@ -1,6 +1,6 @@
 import formatBalanceAmount from '../formatNumber';
 import {updateMessage} from '../../../db';
-import {SATSPERBITCOIN} from '../../constants';
+import {BITCOIN_SAT_TEXT, SATSPERBITCOIN} from '../../constants';
 import fetchBackend from '../../../db/handleBackend';
 import {crashlyticsLogReport} from '../crashlyticsLogs';
 
@@ -89,7 +89,7 @@ export async function sendPushNotification({
           : fiatAmount,
       )} ${
         sendingContactDenominationType != 'fiat' || !fiatAmount
-          ? 'sats'
+          ? BITCOIN_SAT_TEXT
           : sendingContactFiatCurrency
       }`;
     } else {
@@ -101,7 +101,7 @@ export async function sendPushNotification({
           : fiatAmount,
       )} ${
         sendingContactDenominationType != 'fiat' || !fiatAmount
-          ? 'sats'
+          ? BITCOIN_SAT_TEXT
           : sendingContactFiatCurrency
       }`;
     }

@@ -8,7 +8,13 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import {BITCOIN_SATS_ICON, CENTER, FONT, SIZES} from '../../constants';
+import {
+  BITCOIN_SAT_TEXT,
+  BITCOIN_SATS_ICON,
+  CENTER,
+  FONT,
+  SIZES,
+} from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import formatBalanceAmount from '../formatNumber';
@@ -101,7 +107,7 @@ export default function FormattedBalanceInput({
       )}
 
       {!showSymbol && showSats && (
-        <ThemeText content="sats" styles={styles.satText} />
+        <ThemeText content={`${BITCOIN_SAT_TEXT}`} styles={styles.satText} />
       )}
       {/* Hidden Text for Measuring Width stupid but works */}
       <Text

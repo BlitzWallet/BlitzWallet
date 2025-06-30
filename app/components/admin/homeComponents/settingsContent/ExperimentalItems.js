@@ -12,6 +12,7 @@ import {
   ThemeText,
 } from '../../../../functions/CustomElements';
 import {
+  BITCOIN_SAT_TEXT,
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
@@ -122,7 +123,7 @@ export default function ExperimentalItemsPage() {
                     navigate.navigate('ConfirmActionPage', {
                       confirmMessage: `You have a balance of ${proofValue} sat${
                         proofValue === 1 ? '' : 's'
-                      }. If you delete this mint you may lose your sats. Click yes to delete.`,
+                      }. If you delete this mint you may lose your ${BITCOIN_SAT_TEXT} balance. Click yes to delete.`,
                       deleteMint: () => removeMint(mintURL),
                     });
                     return;
