@@ -13,7 +13,7 @@ import formatBalanceAmount from './formatNumber';
 import copyToClipboard from './copyToClipboard';
 import {navigateToSendUsingClipboard, getQRImage} from './sendBitcoin';
 import numberConverter from './numberConverter';
-import createAccountMnemonic from './seed';
+import {createAccountMnemonic} from './seed';
 
 export {
   retrieveData,

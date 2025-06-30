@@ -27,6 +27,7 @@ import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
 import useAppInsets from '../../../hooks/useAppInsets';
 import {useKeysContext} from '../../../../context-store/keys';
 import {wordlist} from '@scure/bip39/wordlists/english';
+import {handleRestoreFromText} from '../../../functions/seed';
 
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -81,9 +82,16 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       if (!response.didWork) throw new Error(response.reason);
 
       const data = response.data;
-      const splitSeed = data.split(' ');
+
+      const restoredSeed = handleRestoreFromText(data);
+
+      if (!restoredSeed.didWork) throw new Error(restoredSeed.error);
+
+      const splitSeed = restoredSeed.seed;
+
       if (!splitSeed.every(word => word.trim().length > 0))
         throw new Error('Not every word is of valid length');
+
       if (splitSeed.length != 12)
         throw new Error('Unable to find 12 words from copied recovery phrase.');
       console.log(Object.entries(inputedKey));

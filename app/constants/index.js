@@ -26,6 +26,8 @@ const VALID_URL_REGEX =
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const VALID_USERNAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
+
+const IS_LETTER_REGEX = /^[A-Za-z]$/;
 const BITCOIN_SATS_ICON = '\u20BF';
 const HIDDEN_BALANCE_TEXT = `* * * * *`;
 
@@ -108,4 +110,5 @@ export {
   BLITZ_PROFILE_IMG_STORAGE_REF,
   SKELETON_ANIMATION_SPEED,
   BIOMETRIC_KEY,
+  IS_LETTER_REGEX,
 };
