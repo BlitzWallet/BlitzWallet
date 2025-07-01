@@ -12,6 +12,8 @@ import * as FileSystem from 'expo-file-system';
 import {useGlobalContacts} from './globalContacts';
 import {useAppStatus} from './appStatus';
 import {BLITZ_PROFILE_IMG_STORAGE_REF} from '../app/constants';
+import {useGlobalContextProvider} from './context';
+import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
 const FILE_DIR = FileSystem.cacheDirectory + 'profile_images/';
 
 const ImageCacheContext = createContext();
@@ -20,6 +22,7 @@ export function ImageCacheProvider({children}) {
   const [cache, setCache] = useState({});
   const {didGetToHomepage} = useAppStatus();
   const {decodedAddedContacts} = useGlobalContacts();
+  const {masterInfoObject} = useGlobalContextProvider();
   const didRunContextCacheCheck = useRef(null);
 
   console.log(cache, 'imgaes cache');
@@ -52,16 +55,26 @@ export function ImageCacheProvider({children}) {
   useEffect(() => {
     if (!didGetToHomepage) return;
     if (didRunContextCacheCheck.current) return;
+    if (!masterInfoObject.uuid) return;
     didRunContextCacheCheck.current = true;
-    console.log(decodedAddedContacts, 'DECIN FUNC');
     async function refreshContactsImages() {
-      for (let index = 0; index < decodedAddedContacts.length; index++) {
-        const element = decodedAddedContacts[index];
+      const didCheckForProfileImage = await getLocalStorageItem(
+        'didCheckForProfileImage',
+      );
+
+      let refreshArray = [...decodedAddedContacts];
+      if (didCheckForProfileImage !== 'true') {
+        refreshArray.push({uuid: masterInfoObject.uuid});
+        setLocalStorageItem('didCheckForProfileImage', 'true');
+      }
+      for (let index = 0; index < refreshArray.length; index++) {
+        const element = refreshArray[index];
+        if (element.isLNURL) continue;
         await refreshCache(element.uuid);
       }
     }
     refreshContactsImages();
-  }, [decodedAddedContacts, didGetToHomepage]);
+  }, [decodedAddedContacts, didGetToHomepage, masterInfoObject?.uuid]);
 
   async function refreshCache(uuid, hasdownloadURL) {
     try {
