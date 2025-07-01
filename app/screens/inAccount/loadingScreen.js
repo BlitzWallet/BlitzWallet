@@ -6,10 +6,10 @@ import {useTranslation} from 'react-i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
 import claimUnclaimedBoltzSwaps from '../../functions/boltz/claimUnclaimedTxs';
 import {useGlobalContacts} from '../../../context-store/globalContacts';
-// import {
-//   getDateXDaysAgo,
-//   isMoreThan7DaysPast,
-// } from '../../functions/rotateAddressDateChecker';
+import {
+  getDateXDaysAgo,
+  isMoreThan7DaysPast,
+} from '../../functions/rotateAddressDateChecker';
 import {useGlobaleCash} from '../../../context-store/eCash';
 import {useGlobalAppData} from '../../../context-store/appData';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
@@ -18,7 +18,7 @@ import {useNavigation} from '@react-navigation/native';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import {
   fetchFiatRates,
-  // getInfo,
+  getInfo,
   listFiatCurrencies,
   // listPayments,
 } from '@breeztech/react-native-breez-sdk-liquid';
@@ -504,70 +504,73 @@ export default function ConnectingToNodeLoadingScreen({
   async function setLiquidNodeInformationForSession(retrivedLiquidNodeInfo) {
     try {
       crashlyticsLogReport('Starting liquid node lookup process');
-      const [
-        // parsedInformation,
-        // payments,
-        fiat_rate,
-        // addressResponse,
-      ] = await Promise.all([
-        // retrivedLiquidNodeInfo
-        //   ? Promise.resolve(retrivedLiquidNodeInfo)
-        //   : getInfo(),
-        // listPayments({}),
-        setupFiatCurrencies(),
-        // masterInfoObject.offlineReceiveAddresses.addresses.length !== 7 ||
-        // isMoreThan7DaysPast(
-        //   masterInfoObject.offlineReceiveAddresses.lastRotated,
-        // )
-        //   ? breezLiquidReceivePaymentWrapper({
-        //       paymentType: 'liquid',
-        //     })
-        //   : Promise.resolve(null),
-      ]);
+      const [parsedInformation, fiat_rate, addressResponse] = await Promise.all(
+        [
+          withTimeout(
+            retrivedLiquidNodeInfo
+              ? Promise.resolve(retrivedLiquidNodeInfo)
+              : getInfo(),
+            8000,
+            {},
+          ),
+          withTimeout(setupFiatCurrencies(), 8000, null),
+          withTimeout(
+            masterInfoObject.offlineReceiveAddresses.addresses.length !== 7 ||
+              isMoreThan7DaysPast(
+                masterInfoObject.offlineReceiveAddresses.lastRotated,
+              )
+              ? breezLiquidReceivePaymentWrapper({paymentType: 'liquid'})
+              : Promise.resolve(null),
+            8000,
+            null,
+          ),
+        ],
+      );
 
-      // const info = parsedInformation.walletInfo;
-      // const balanceSat = info.balanceSat;
+      console.log(parsedInformation, fiat_rate, addressResponse, 'hty');
 
-      // if (addressResponse) {
-      //   const {destination, receiveFeesSat} = addressResponse;
-      //   console.log('LIQUID DESTINATION ADDRESS', destination);
-      //   console.log(destination);
-      //   if (!globalContactsInformation.myProfile.receiveAddress) {
-      //     // For legacy users and legacy functions
-      //     toggleGlobalContactsInformation(
-      //       {
-      //         myProfile: {
-      //           ...globalContactsInformation.myProfile,
-      //           receiveAddress: destination,
-      //           lastRotated: getDateXDaysAgo(0),
-      //         },
-      //       },
-      //       true,
-      //     );
-      //   }
-      //   // Didn't sperate since it only cost one write so there is no reasy not to update
-      //   toggleMasterInfoObject({
-      //     posSettings: {
-      //       ...masterInfoObject.posSettings,
-      //       receiveAddress: destination,
-      //       lastRotated: getDateXDaysAgo(0),
-      //     },
-      //     offlineReceiveAddresses: {
-      //       addresses: [
-      //         destination,
-      //         ...masterInfoObject.offlineReceiveAddresses.addresses.slice(0, 6),
-      //       ],
-      //       lastRotated: new Date().getTime(),
-      //     },
-      //   });
-      // }
+      const info = parsedInformation.walletInfo;
+      const balanceSat = info?.balanceSat;
 
-      // let liquidNodeObject = {
-      //   transactions: payments,
-      //   userBalance: balanceSat,
-      //   pendingReceive: info.pendingReceiveSat,
-      //   pendingSend: info.pendingSendSat,
-      // };
+      if (addressResponse) {
+        const {destination, receiveFeesSat} = addressResponse;
+        console.log('LIQUID DESTINATION ADDRESS', destination);
+        console.log(destination);
+        if (!globalContactsInformation.myProfile.receiveAddress) {
+          // For legacy users and legacy functions
+          toggleGlobalContactsInformation(
+            {
+              myProfile: {
+                ...globalContactsInformation.myProfile,
+                receiveAddress: destination,
+                lastRotated: getDateXDaysAgo(0),
+              },
+            },
+            true,
+          );
+        }
+        // Didn't sperate since it only cost one write so there is no reasy not to update
+        toggleMasterInfoObject({
+          posSettings: {
+            ...masterInfoObject.posSettings,
+            receiveAddress: destination,
+            lastRotated: getDateXDaysAgo(0),
+          },
+          offlineReceiveAddresses: {
+            addresses: [
+              destination,
+              ...masterInfoObject.offlineReceiveAddresses.addresses.slice(0, 6),
+            ],
+            lastRotated: new Date().getTime(),
+          },
+        });
+      }
+
+      let liquidNodeObject = {
+        userBalance: balanceSat || 0,
+        pendingReceive: info?.pendingReceiveSat || 0,
+        pendingSend: info?.pendingSendSat || 0,
+      };
 
       toggleFiatStats(fiat_rate);
 
@@ -605,7 +608,7 @@ export default function ConnectingToNodeLoadingScreen({
       // }
 
       toggleLiquidNodeInformation({
-        // ...liquidNodeObject,
+        ...liquidNodeObject,
         didConnectToNode: true,
       });
 
@@ -677,6 +680,12 @@ export default function ConnectingToNodeLoadingScreen({
   //     return false;
   //   }
   // }
+}
+function withTimeout(promise, ms, fallback = null) {
+  return Promise.race([
+    promise,
+    new Promise(resolve => setTimeout(() => resolve(fallback), ms)),
+  ]);
 }
 
 const styles = StyleSheet.create({

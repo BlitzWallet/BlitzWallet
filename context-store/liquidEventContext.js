@@ -8,33 +8,21 @@ import {
 } from 'react';
 import {
   addEventListener,
-  getInfo,
   removeEventListener,
   SdkEventVariant,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import startLiquidUpdateInterval from '../app/functions/liquidBackupUpdate';
 import {useNodeContext} from './nodeContext';
-import {useGlobalContextProvider} from './context';
-import {useGlobalContacts} from './globalContacts';
-import {
-  getDateXDaysAgo,
-  isMoreThan7DaysPast,
-} from '../app/functions/rotateAddressDateChecker';
-import {breezLiquidReceivePaymentWrapper} from '../app/functions/breezLiquid';
+
 const LiquidEventContext = createContext(null);
 
 const DEFAULT_EVENT_LIMIT = 15;
 const DEBOUNCE_DELAY = 2000;
 const REQUIRED_SYNC_COUNT = 2;
-const MAX_ADDRESSES = 7;
-const KEEP_ADDRESSES = 6;
 
 // Create a context for the WebView ref
 export function LiquidEventProvider({children}) {
-  const {toggleLiquidNodeInformation, liquidNodeInformation} = useNodeContext();
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {toggleGlobalContactsInformation, globalContactsInformation} =
-    useGlobalContacts();
+  const {toggleLiquidNodeInformation} = useNodeContext();
 
   const liquidEventRunCounter = useRef(0);
   const numberOfLiquidEvents = useRef(DEFAULT_EVENT_LIMIT);
@@ -133,96 +121,6 @@ export function LiquidEventProvider({children}) {
     },
     [onLiquidBreezEvent],
   );
-
-  const shouldRotateAddress = useMemo(() => {
-    if (!Object.keys(masterInfoObject).length) return;
-    const {offlineReceiveAddresses} = masterInfoObject;
-    return (
-      offlineReceiveAddresses.addresses.length !== MAX_ADDRESSES ||
-      isMoreThan7DaysPast(offlineReceiveAddresses.lastRotated)
-    );
-  }, [masterInfoObject?.offlineReceiveAddresses]);
-
-  useEffect(() => {
-    if (!Object.keys(masterInfoObject).length) return;
-    if (!Object.keys(globalContactsInformation).length) return;
-    if (!liquidNodeInformation.didConnectToNode) return;
-
-    const addLiquidAddressesToDB = async () => {
-      try {
-        console.log('Running add liquid address to db');
-
-        const promises = [getInfo()];
-
-        if (shouldRotateAddress) {
-          promises.push(
-            breezLiquidReceivePaymentWrapper({paymentType: 'liquid'}),
-          );
-        }
-
-        const [restoreWalletInfo, addressResponse] = await Promise.all(
-          promises,
-        );
-
-        if (addressResponse) {
-          const {destination} = addressResponse;
-          console.log('LIQUID DESTINATION ADDRESS', destination);
-
-          const currentDate = new Date().getTime();
-          const dateXDaysAgo = getDateXDaysAgo(0);
-
-          // Update global contacts if needed (legacy support)
-          if (!globalContactsInformation.myProfile.receiveAddress) {
-            toggleGlobalContactsInformation(
-              {
-                myProfile: {
-                  ...globalContactsInformation.myProfile,
-                  receiveAddress: destination,
-                  lastRotated: dateXDaysAgo,
-                },
-              },
-              true,
-            );
-          }
-
-          toggleMasterInfoObject({
-            posSettings: {
-              ...masterInfoObject.posSettings,
-              receiveAddress: destination,
-              lastRotated: dateXDaysAgo,
-            },
-            offlineReceiveAddresses: {
-              addresses: [
-                destination,
-                ...masterInfoObject.offlineReceiveAddresses.addresses.slice(
-                  0,
-                  KEEP_ADDRESSES,
-                ),
-              ],
-              lastRotated: currentDate,
-            },
-          });
-        }
-
-        toggleLiquidNodeInformation({
-          balance: restoreWalletInfo?.walletInfo?.balanceSat || 0,
-        });
-      } catch (error) {
-        console.error('Error adding liquid address to db:', error);
-      }
-    };
-
-    addLiquidAddressesToDB();
-  }, [
-    liquidNodeInformation.didConnectToNode,
-    shouldRotateAddress,
-    toggleLiquidNodeInformation,
-    toggleMasterInfoObject,
-    toggleGlobalContactsInformation,
-    masterInfoObject?.posSettings,
-    masterInfoObject?.offlineReceiveAddresses,
-    globalContactsInformation?.myProfile?.receiveAddress,
-  ]);
 
   useEffect(() => {
     return cleanup;
