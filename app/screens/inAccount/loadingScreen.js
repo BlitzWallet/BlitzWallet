@@ -6,10 +6,10 @@ import {useTranslation} from 'react-i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
 import claimUnclaimedBoltzSwaps from '../../functions/boltz/claimUnclaimedTxs';
 import {useGlobalContacts} from '../../../context-store/globalContacts';
-import {
-  getDateXDaysAgo,
-  isMoreThan7DaysPast,
-} from '../../functions/rotateAddressDateChecker';
+// import {
+//   getDateXDaysAgo,
+//   isMoreThan7DaysPast,
+// } from '../../functions/rotateAddressDateChecker';
 import {useGlobaleCash} from '../../../context-store/eCash';
 import {useGlobalAppData} from '../../../context-store/appData';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
@@ -18,9 +18,9 @@ import {useNavigation} from '@react-navigation/native';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import {
   fetchFiatRates,
-  getInfo,
+  // getInfo,
   listFiatCurrencies,
-  listPayments,
+  // listPayments,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import connectToLiquidNode from '../../functions/connectToLiquid';
 import {initializeDatabase} from '../../functions/messaging/cachedMessages';
@@ -63,7 +63,7 @@ export default function ConnectingToNodeLoadingScreen({
 
   const didLoadInformation = useRef(false);
 
-  const didRestoreWallet = route?.params?.didRestoreWallet;
+  // const didRestoreWallet = route?.params?.didRestoreWallet;
   const liquidNodeConnectionRef = useRef(null);
   const numberOfCachedTransactionsRef = useRef(null);
 
@@ -283,7 +283,6 @@ export default function ConnectingToNodeLoadingScreen({
         const didSetLiquid = await setLiquidNodeInformationForSession();
         // didConnectToLiquidNode?.liquid_node_info,
 
-        // Same thing for here, if liquid does not set continue on in the process
         if (didSetLiquid) {
           // navigate.preload('HomeAdmin');
           requestAnimationFrame(() => {

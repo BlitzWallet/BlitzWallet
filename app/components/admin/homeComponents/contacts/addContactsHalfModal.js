@@ -50,6 +50,11 @@ export default function AddContactsHalfModal(props) {
   };
 
   const debouncedSearch = useDebounce(async (term, requestUUID) => {
+    // Block request if user has moved on
+    if (searchTrackerRef.current !== requestUUID) {
+      return;
+    }
+
     const results = await searchUsers(term);
     const newUsers = (
       await Promise.all(
@@ -81,16 +86,10 @@ export default function AddContactsHalfModal(props) {
         }),
       )
     ).filter(Boolean);
+
     refreshCacheObject();
-
-    if (searchTrackerRef.current !== requestUUID) {
-      return;
-    }
-
-    unstable_batchedUpdates(() => {
-      setIsSearching(false);
-      setUsers(newUsers);
-    });
+    setIsSearching(false);
+    setUsers(newUsers);
   }, 800);
 
   const handleSearch = term => {
@@ -102,14 +101,14 @@ export default function AddContactsHalfModal(props) {
       return;
     }
 
-    if (term.length <= 2) {
+    if (term.length === 0) {
       searchTrackerRef.current = null;
       setUsers([]);
       setIsSearching(false);
       return;
     }
 
-    if (term.length > 2) {
+    if (term.length > 0) {
       const requestUUID = handleSearchTrackerRef();
       setIsSearching(true);
       debouncedSearch(term, requestUUID);
@@ -264,11 +263,11 @@ export default function AddContactsHalfModal(props) {
                 <ThemeText
                   styles={{textAlign: 'center', marginTop: 20}}
                   content={
-                    isSearching && searchInput.length > 2
+                    isSearching && searchInput.length > 0
                       ? ''
-                      : searchInput.length > 2
+                      : searchInput.length > 0
                       ? 'No profiles match this search'
-                      : 'Start typing to search for a profile (min 2 chars)'
+                      : 'Start typing to search for a profile'
                   }
                 />
               )}
