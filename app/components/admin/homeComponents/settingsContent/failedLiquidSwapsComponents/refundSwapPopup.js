@@ -41,18 +41,17 @@ export default function RefundLiquidSwapPopup(props) {
   const [isSending, setIsSending] = useState(false);
   const [refundFeeRates, setRefundFeeRates] = useState([]);
 
-  const showLoadingScreen =
-    !Object.keys(refundFeeRates).length || errorMessage || isSending;
+  const showLoadingScreen = !refundFeeRates.length || errorMessage || isSending;
 
   useEffect(() => {
-    async function getRefundFeeRaes() {
+    async function getRefundFeeRates() {
       try {
         const fees = await recommendedFees();
         let newFeeObject = [];
         for (let index = 0; index < Object.keys(fees).length; index++) {
           const element = Object.keys(fees)[index];
           const newObject = {
-            isSelescted: element === 'hourFee',
+            isSelected: element === 'hourFee', // Fixed typo: isSelescted -> isSelected
             name: element,
             feeRate: fees[element],
           };
@@ -65,7 +64,7 @@ export default function RefundLiquidSwapPopup(props) {
       }
     }
 
-    getRefundFeeRaes();
+    getRefundFeeRates();
   }, []);
 
   const feeElements = useMemo(() => {
@@ -79,14 +78,14 @@ export default function RefundLiquidSwapPopup(props) {
               setRefundFeeRates(prev => {
                 return prev.map(item => {
                   if (item.name === key.name) {
-                    return {...item, isSelescted: true};
-                  } else return {...item, isSelescted: false};
+                    return {...item, isSelected: true};
+                  } else return {...item, isSelected: false};
                 });
               });
             }}
             style={styles.contentContainer}>
             <ThemeText content={key.name} />
-            <CheckMarkCircle isActive={key.isSelescted} containerSize={30} />
+            <CheckMarkCircle isActive={key.isSelected} containerSize={30} />
           </TouchableOpacity>
         );
       })
@@ -218,17 +217,29 @@ export default function RefundLiquidSwapPopup(props) {
   async function refundTransaction() {
     try {
       if (!bitcoinAddress) return;
+
+      // Find the selected fee rate with proper error handling
+      const selectedFeeRate = refundFeeRates.find(item => item.isSelected);
+
+      // If no fee rate is selected, show an error or use a default
+      if (!selectedFeeRate) {
+        setErrorMessage('Please select a fee rate');
+        return;
+      }
+
       setIsSending(true);
       const destinationAddress = bitcoinAddress;
-      const [feeRateSatPerVbyte] = refundFeeRates.filter(
-        item => item.isSelescted,
-      );
+
+      if (!refund) {
+        setErrorMessage('Refund function is not set');
+        return;
+      }
 
       const refundResponse = await refund({
         swapAddress: swapAddress,
         refundAddress: destinationAddress,
         feeRateSatPerVbyte:
-          feeRateSatPerVbyte.feeRate < 4 ? 4 : feeRateSatPerVbyte.feeRate,
+          selectedFeeRate.feeRate < 4 ? 4 : selectedFeeRate.feeRate,
       });
       setIsSending(false);
       setRefundTxId(refundResponse);
