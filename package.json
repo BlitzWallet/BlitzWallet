@@ -76,7 +76,7 @@
     "react-native-device-info": "^14.0.4",
     "react-native-email-link": "^1.16.1",
     "react-native-fast-image": "^8.6.3",
-    "react-native-gesture-handler": "~2.24.0",
+    "react-native-gesture-handler": "^2.27.1",
     "react-native-get-random-values": "~1.11.0",
     "react-native-image-picker": "^8.2.1",
     "react-native-keyboard-controller": "^1.17.5",

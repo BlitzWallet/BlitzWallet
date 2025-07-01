@@ -1399,8 +1399,8 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 8.1)
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
-  - FirebaseSharedSwift (11.13.0)
-  - FirebaseStorage (11.11.0):
+  - FirebaseSharedSwift (11.14.0)
+  - FirebaseStorage (11.13.0):
     - FirebaseAppCheckInterop (~> 11.0)
     - FirebaseAuthInterop (~> 11.0)
     - FirebaseCore (~> 11.13.0)
@@ -3540,7 +3540,7 @@ PODS:
     - Firebase/Storage (= 11.13.0)
     - React-Core
     - RNFBApp
-  - RNGestureHandler (2.24.0):
+  - RNGestureHandler (2.27.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -4378,7 +4378,7 @@ SPEC CHECKSUMS:
   RNFBFunctions: 64a4959c445770eb1325b0558cea97dc817ab8a8
   RNFBMessaging: de62448d205095171915d622ed5fb45c2be5e075
   RNFBStorage: 0dd6286c06c9a57dc349dcf500bf5662c3903ce3
-  RNGestureHandler: 8ff2b1434b0ff8bab28c8242a656fb842990bbc8
+  RNGestureHandler: 6b48571964d1b4302f531bb07f8360399a02200a
   RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
   RNReanimated: a3f55346df73f35c38bf0b446294d3d0b1ac8cf9
   RNScreens: a25b818417609cbd805474dffd2d28b229704cfc

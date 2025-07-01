@@ -4686,7 +4686,7 @@ __metadata:
     react-native-dotenv: ^3.4.11
     react-native-email-link: ^1.16.1
     react-native-fast-image: ^8.6.3
-    react-native-gesture-handler: ~2.24.0
+    react-native-gesture-handler: ^2.27.1
     react-native-get-random-values: ~1.11.0
     react-native-image-picker: ^8.2.1
     react-native-keyboard-controller: ^1.17.5
@@ -12264,9 +12264,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-gesture-handler@npm:~2.24.0":
-  version: 2.24.0
-  resolution: "react-native-gesture-handler@npm:2.24.0"
+"react-native-gesture-handler@npm:^2.27.1":
+  version: 2.27.1
+  resolution: "react-native-gesture-handler@npm:2.27.1"
   dependencies:
     "@egjs/hammerjs": ^2.0.17
     hoist-non-react-statics: ^3.3.0
@@ -12274,7 +12274,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 65abaeef68180fee2811d01d88ff50c231a91faca05279222fcaaa55349e758b68a7d6a9ac3eddfb1887f6b4c4790ac195b99989f1ad8a2a1f3f3bdff3ba0a76
+  checksum: 45a9ba24dd6fa370a4f4d6a58dcd58eaa9937a1fcc7db7e6b3c9020dcde41f335c1b80eb2eda0c73dc43e32cd5f151ebc5f90ae7179028e7c3490f4df4ef7817
   languageName: node
   linkType: hard
 
