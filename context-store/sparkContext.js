@@ -548,7 +548,7 @@ const SparkWalletProvider = ({children}) => {
     }
     if (!accountMnemoinc) return;
     if (!startConnectingToSpark) return;
-    initProcess();
+    // initProcess();
   }, [startConnectingToSpark, accountMnemoinc]);
 
   // This function checks to see if there are any liquid funds that need to be sent to spark
