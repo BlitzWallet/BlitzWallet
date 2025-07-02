@@ -17,7 +17,6 @@ import CustomButton from '../../../../../../functions/CustomElements/button';
 import {SIZES, WINDOWWIDTH} from '../../../../../../constants/theme';
 import {backArrow} from '../../../../../../constants/styles';
 import GetThemeColors from '../../../../../../hooks/themeColors';
-import {useGlobalContacts} from '../../../../../../../context-store/globalContacts';
 import QrCodeWrapper from '../../../../../../functions/CustomElements/QrWrapper';
 import writeAndShareFileToFilesystem from '../../../../../../functions/writeFileToFilesystem';
 
@@ -110,12 +109,15 @@ async function downloadVPNFile({generatedFile, navigate}) {
   const content = generatedFile.join('\n');
   const fileName = `blitzVPN.conf`;
 
-  await writeAndShareFileToFilesystem(
+  const response = await writeAndShareFileToFilesystem(
     content,
     fileName,
     'application/octet-stream',
     navigate,
   );
+  if (!response.success) {
+    navigate.navigate('ErrorScreen', {errorMessage: response.error});
+  }
 }
 
 const styles = StyleSheet.create({

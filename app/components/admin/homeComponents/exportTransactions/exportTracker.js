@@ -68,13 +68,19 @@ export default function ConfirmExportPayments({
         const csvData = headers.concat(formatedData).join('\n');
         const fileName = 'BlitzWallet.csv';
 
-        await writeAndShareFileToFilesystem(
+        const response = await writeAndShareFileToFilesystem(
           csvData,
           fileName,
           'text/csv',
           navigate,
         );
+
         navigate.goBack();
+        if (!response.success) {
+          setTimeout(() => {
+            navigate.navigate('ErrorScreen', {errorMessage: response.error});
+          }, 200);
+        }
       } catch (err) {
         console.log(err);
         navigate.navigate('ErrorScreen', {
