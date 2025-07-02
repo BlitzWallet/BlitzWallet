@@ -82,21 +82,21 @@ import HandleLNURLPayments from './context-store/lnurl';
 import {SparkConnectionListener} from './context-store/connectToNode';
 import {SparkWalletProvider} from './context-store/sparkContext';
 
-let setStatusBarBackgroundColor: ((color: string) => void) | undefined;
-let setStatusBarStyle: ((style: 'light' | 'dark') => void) | undefined;
-let SystemUI: any;
-let NavigationBar: any;
+// let setStatusBarBackgroundColor: ((color: string) => void) | undefined;
+// let setStatusBarStyle: ((style: 'light' | 'dark') => void) | undefined;
+// let SystemUI: any;
+// let NavigationBar: any;
 
-if (Platform.OS === 'android') {
-  const statusBar = require('expo-status-bar');
-  setStatusBarBackgroundColor = statusBar.setStatusBarBackgroundColor;
-  setStatusBarStyle = statusBar.setStatusBarStyle;
-  SystemUI = require('expo-system-ui');
-  NavigationBar = require('expo-navigation-bar');
-}
-// import * as NavigationBar from 'expo-navigation-bar';
-// import {setStatusBarBackgroundColor, setStatusBarStyle} from 'expo-status-bar';
-// import * as SystemUI from 'expo-system-ui';
+// if (Platform.OS === 'android') {
+//   const statusBar = require('expo-status-bar');
+//   setStatusBarBackgroundColor = statusBar.setStatusBarBackgroundColor;
+//   setStatusBarStyle = statusBar.setStatusBarStyle;
+//   SystemUI = require('expo-system-ui');
+//   NavigationBar = require('expo-navigation-bar');
+// }
+import * as NavigationBar from 'expo-navigation-bar';
+import {setStatusBarBackgroundColor, setStatusBarStyle} from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 import {InsetsProvider} from './context-store/insetsProvider';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
@@ -210,12 +210,8 @@ function ResetStack(): JSX.Element | null {
         await SystemUI.setBackgroundColorAsync(backgroundColor);
         await NavigationBar.setBackgroundColorAsync(backgroundColor);
         await NavigationBar.setButtonStyleAsync(theme ? 'light' : 'dark');
-        if (setStatusBarBackgroundColor) {
-          setStatusBarBackgroundColor(backgroundColor);
-        }
-        if (setStatusBarStyle) {
-          setStatusBarStyle(theme ? 'light' : 'dark');
-        }
+        setStatusBarBackgroundColor(backgroundColor);
+        setStatusBarStyle(theme ? 'light' : 'dark');
       } catch (error) {
         console.warn('Failed to set navigation bar:', error);
       }

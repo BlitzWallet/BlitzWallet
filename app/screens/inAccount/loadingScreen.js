@@ -34,6 +34,7 @@ import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
 import {useSparkWallet} from '../../../context-store/sparkContext';
 import {initializeSparkDatabase} from '../../functions/spark/transactions';
 import {getCachedSparkTransactions} from '../../functions/spark';
+import {breezLiquidReceivePaymentWrapper} from '../../functions/breezLiquid';
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
 export default function ConnectingToNodeLoadingScreen({

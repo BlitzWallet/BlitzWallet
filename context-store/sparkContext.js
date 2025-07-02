@@ -504,10 +504,10 @@ const SparkWalletProvider = ({children}) => {
     };
     // Run restore logic once
     const restoreTxState = async () => {
-      // const isFirstWalletLoad = await getLocalStorageItem('isFirstWalletLoad');
-      // console.log(isFirstWalletLoad, 'is first wallet load');
-      // if (isFirstWalletLoad === 'true') return;
-      // await setLocalStorageItem('isFirstWalletLoad', 'true');
+      const isFirstWalletLoad = await getLocalStorageItem('isFirstWalletLoad');
+      console.log(isFirstWalletLoad, 'is first wallet load');
+      if (isFirstWalletLoad === 'true') return;
+      await setLocalStorageItem('isFirstWalletLoad', 'true');
       await fullRestoreSparkState({
         sparkAddress: sparkInformation.sparkAddress,
       });
@@ -548,7 +548,7 @@ const SparkWalletProvider = ({children}) => {
     }
     if (!accountMnemoinc) return;
     if (!startConnectingToSpark) return;
-    // initProcess();
+    initProcess();
   }, [startConnectingToSpark, accountMnemoinc]);
 
   // This function checks to see if there are any liquid funds that need to be sent to spark
