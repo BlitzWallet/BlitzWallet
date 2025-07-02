@@ -2,6 +2,7 @@ import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 import * as SQLite from 'expo-sqlite';
 import {getTwoWeeksAgoDate} from '../rotateAddressDateChecker';
 import EventEmitter from 'events';
+import {handleEventEmitterPost} from '../handleEventEmitters';
 export const CACHED_MESSAGES_KEY = 'CASHED_CONTACTS_MESSAGES';
 export const SQL_TABLE_NAME = 'messagesTable';
 export const LOCALSTORAGE_LAST_RECEIVED_TIME_KEY =
@@ -196,7 +197,8 @@ const setCashedMessages = async ({newMessagesList, myPubKey}) => {
       LOCALSTORAGE_LAST_RECEIVED_TIME_KEY,
       JSON.stringify(newTimesatmp),
     );
-    contactsSQLEventEmitter.emit(
+    handleEventEmitterPost(
+      contactsSQLEventEmitter,
       CONTACTS_TRANSACTION_UPDATE_NAME,
       'addedMessage',
     );
@@ -211,10 +213,12 @@ export const deleteCachedMessages = async contactPubKey => {
     );
 
     console.log(`Deleted all messages for contactPubKey: ${contactPubKey}`);
-    contactsSQLEventEmitter.emit(
+    handleEventEmitterPost(
+      contactsSQLEventEmitter,
       CONTACTS_TRANSACTION_UPDATE_NAME,
       'deleatedMessage',
     );
+
     return true;
   } catch (error) {
     console.error('Error deleting messages:', error);
