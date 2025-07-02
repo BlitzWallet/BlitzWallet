@@ -134,10 +134,8 @@ export const updateSingleSparkTransaction = async (saved_spark_id, updates) => {
       saved_spark_id,
     );
     // Emit event
-    sparkTransactionsEventEmitter.emit(
-      SPARK_TX_UPDATE_ENVENT_NAME,
-      'transactions',
-    );
+    handleEventEmitterPost('transactions');
+
     return true;
   } catch (error) {
     console.error(`Error updating transaction:`, error);
@@ -224,49 +222,7 @@ export const bulkUpdateSparkTransactions = async (
       // Commit transaction
       await sqlLiteDB.execAsync('COMMIT');
       console.log('running sql event emitter');
-
-      if (AppState.currentState === 'active') {
-        sparkTransactionsEventEmitter.emit(
-          SPARK_TX_UPDATE_ENVENT_NAME,
-          updateType,
-        );
-      } else {
-        let subscription;
-
-        const handleAppStateChange = nextAppState => {
-          if (nextAppState === 'active') {
-            const listenerCount = sparkTransactionsEventEmitter.listenerCount?.(
-              SPARK_TX_UPDATE_ENVENT_NAME,
-            );
-            if (!listenerCount) {
-              console.log('No listeners found, starting interval fallback');
-              let attempts = 0;
-              const maxAttempts = 3;
-              const intervalId = setInterval(() => {
-                if (attempts >= maxAttempts) {
-                  clearInterval(intervalId);
-                } else {
-                  console.log(`Fallback emit attempt ${attempts + 1}`);
-                  const response = sparkTransactionsEventEmitter.emit(
-                    SPARK_TX_UPDATE_ENVENT_NAME,
-                    updateType,
-                  );
-                  if (response) clearInterval(intervalId);
-                  attempts++;
-                }
-              }, 2000);
-            }
-
-            subscription?.remove();
-          }
-        };
-
-        console.log('adding subscription');
-        subscription = AppState.addEventListener(
-          'change',
-          handleAppStateChange,
-        );
-      }
+      handleEventEmitterPost(updateType);
 
       return true;
     } catch (error) {
@@ -305,10 +261,8 @@ export const addSingleSparkTransaction = async tx => {
       ],
     );
     // Emit event
-    sparkTransactionsEventEmitter.emit(
-      SPARK_TX_UPDATE_ENVENT_NAME,
-      'transactions',
-    );
+    handleEventEmitterPost('transactions');
+
     return true;
   } catch (error) {
     console.error('Error adding spark transaction:', error);
@@ -323,10 +277,8 @@ export const deleteSparkTransaction = async sparkID => {
       sparkID,
     );
     // Emit event
-    sparkTransactionsEventEmitter.emit(
-      SPARK_TX_UPDATE_ENVENT_NAME,
-      'transactions',
-    );
+    handleEventEmitterPost('transactions');
+
     return true;
   } catch (error) {
     console.error(`Error deleting transaction ${sparkID}:`, error);
@@ -438,4 +390,56 @@ const processBulkUpdateQueue = async () => {
   }
 
   isProcessingBulkUpdate = false;
+};
+
+const handleEventEmitterPost = updateType => {
+  try {
+    if (AppState.currentState === 'active') {
+      sparkTransactionsEventEmitter.emit(
+        SPARK_TX_UPDATE_ENVENT_NAME,
+        updateType,
+      );
+    } else {
+      let subscription;
+
+      const handleAppStateChange = nextAppState => {
+        if (nextAppState === 'active') {
+          const listenerCount = sparkTransactionsEventEmitter.listenerCount?.(
+            SPARK_TX_UPDATE_ENVENT_NAME,
+          );
+          if (!listenerCount) {
+            console.log('No listeners found, starting interval fallback');
+            let attempts = 0;
+            const maxAttempts = 3;
+            const intervalId = setInterval(() => {
+              if (attempts >= maxAttempts) {
+                clearInterval(intervalId);
+              } else {
+                console.log(`Fallback emit attempt ${attempts + 1}`);
+                const response = sparkTransactionsEventEmitter.emit(
+                  SPARK_TX_UPDATE_ENVENT_NAME,
+                  updateType,
+                );
+                if (response) clearInterval(intervalId);
+                attempts++;
+              }
+            }, 2000);
+          } else {
+            sparkTransactionsEventEmitter.emit(
+              SPARK_TX_UPDATE_ENVENT_NAME,
+              updateType,
+            );
+          }
+
+          subscription?.remove();
+        }
+      };
+
+      console.log('adding subscription');
+      subscription = AppState.addEventListener('change', handleAppStateChange);
+    }
+  } catch (err) {
+    console.log('error handling event emitter', err);
+    sparkTransactionsEventEmitter.emit(SPARK_TX_UPDATE_ENVENT_NAME, updateType);
+  }
 };
