@@ -45,7 +45,10 @@ import PushNotificationManager, {
 } from './context-store/notificationManager';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import GetThemeColors from './app/hooks/themeColors';
-import {COLORS, LOGIN_SECUITY_MODE_KEY} from './app/constants';
+import {
+  LOGIN_SECUITY_MODE_KEY,
+  LOGIN_SECURITY_MODE_TYPE_KEY,
+} from './app/constants';
 import {LiquidEventProvider} from './context-store/liquidEventContext';
 import {
   EcashNavigationListener,
@@ -280,20 +283,33 @@ function ResetStack(): JSX.Element | null {
     async function initWallet() {
       await runPinAndMnemoicMigration();
       await runSecureStoreMigrationV2();
-      const [initialURL, registerBackground, pin, mnemonic, securitySettings] =
-        await Promise.all([
-          getInitialURL(),
-          registerBackgroundNotificationTask(),
-          retrieveData('pinHash'),
-          retrieveData('encryptedMnemonic'),
-          getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-        ]);
+      const [
+        initialURL,
+        registerBackground,
+        loginModeType,
+        pin,
+        mnemonic,
+        securitySettings,
+      ] = await Promise.all([
+        getInitialURL(),
+        registerBackgroundNotificationTask(),
+        retrieveData(LOGIN_SECURITY_MODE_TYPE_KEY),
+        retrieveData('pinHash'),
+        retrieveData('encryptedMnemonic'),
+        getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
+      ]);
 
       const storedSettings = JSON.parse(securitySettings);
+
+      const isPinFromMode = loginModeType?.value === 'pin';
+      const isBiometricFromMode = loginModeType?.value === 'biometric';
+      console.log(storedSettings, 'stored security setttings');
+      console.log(isPinFromMode, 'stored security setttings');
+      console.log(isBiometricFromMode, 'stored security setttings');
       const parsedSettings = storedSettings ?? {
         isSecurityEnabled: true,
-        isPinEnabled: true,
-        isBiometricEnabled: false,
+        isPinEnabled: isPinFromMode || (!isPinFromMode && !isBiometricFromMode),
+        isBiometricEnabled: isBiometricFromMode,
       };
       if (!storedSettings)
         setLocalStorageItem(

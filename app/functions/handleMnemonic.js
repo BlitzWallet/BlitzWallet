@@ -1,7 +1,11 @@
 import {generateMnemonic} from '@scure/bip39';
 import {wordlist} from '@scure/bip39/wordlists/english';
 import * as CryptoES from 'crypto-es';
-import {BIOMETRIC_KEY, LOGIN_SECUITY_MODE_KEY} from '../constants';
+import {
+  BIOMETRIC_KEY,
+  LOGIN_SECUITY_MODE_KEY,
+  LOGIN_SECURITY_MODE_TYPE_KEY,
+} from '../constants';
 import {
   deleteItem,
   MIGRATION_FLAG,
@@ -144,7 +148,7 @@ export async function handleLoginSecuritySwitch(mnemoinc, pin, storageType) {
       if (!response)
         throw new Error('Unable to save mnemoinc with no biometrics');
     }
-
+    await storeData(LOGIN_SECURITY_MODE_TYPE_KEY, storageType);
     return true;
   } catch (error) {
     console.log('SecureStore Migration Error:', error);
