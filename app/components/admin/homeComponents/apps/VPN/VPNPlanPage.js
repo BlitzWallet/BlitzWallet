@@ -235,6 +235,7 @@ export default function VPNPlanPage({countryList}) {
           userBalance: sparkInformation.balance,
           fee: invoice.fee + invoice.supportFee,
           sparkInformation,
+          description: 'Store - VPN',
         });
 
         if (!paymentResponse.didWork) {

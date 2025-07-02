@@ -359,6 +359,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
         fee: orderInformation.fee + orderInformation.supportFee,
         userBalance: sparkInformation.balance,
         sparkInformation,
+        description: 'Store - SMS',
       });
 
       if (!paymentResponse.didWork) {
@@ -373,7 +374,6 @@ export default function SMSMessagingSendPage({SMSprices}) {
         orderInformation,
         savedMessages,
         paymentResponse.response,
-        paymentResponse.formattingType,
       );
     } catch (err) {
       setSendingMessage(err.message);
@@ -381,12 +381,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
     }
   }
 
-  async function listenForConfirmation(
-    data,
-    savedMessages,
-    paymentResponse,
-    formmatingType,
-  ) {
+  async function listenForConfirmation(data, savedMessages, paymentResponse) {
     saveMessagesToDB(savedMessages);
 
     let didSettleInvoice = false;
@@ -416,8 +411,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
                 name: 'ConfirmTxPage',
                 params: {
                   for: 'paymentSucceed',
-                  information: paymentResponse,
-                  formattingType: formmatingType,
+                  transaction: paymentResponse,
                 },
               },
             ],

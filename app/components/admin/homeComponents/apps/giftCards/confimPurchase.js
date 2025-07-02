@@ -17,6 +17,7 @@ import {useKeysContext} from '../../../../../../context-store/keys';
 import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 
 export default function ConfirmGiftCardPurchase(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -71,11 +72,13 @@ export default function ConfirmGiftCardPurchase(props) {
           return;
         }
 
+        const parsedInput = await parse(response.result?.invoice);
+
         const fee = await sparkPaymenWrapper({
           getFee: true,
           address: response.result?.invoice,
           paymentType: 'lightning',
-          amountSats: Number(productPrice),
+          amountSats: Number(parsedInput.invoice.amountMsat / 1000),
           masterInfoObject,
         });
 
@@ -88,6 +91,7 @@ export default function ConfirmGiftCardPurchase(props) {
               ...response.result,
               paymentFee: fee.fee,
               supportFee: fee.supportFee,
+              parsedInput,
             } || {},
         });
       } catch (err) {

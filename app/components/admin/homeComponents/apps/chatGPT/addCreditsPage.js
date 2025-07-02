@@ -236,17 +236,19 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
   async function payForChatGPTCredits(invoiceInformation) {
     try {
       setIsPaying(true);
+      const selectedPlan = selectedSubscription.filter(
+        subscription => subscription.isSelected,
+      )[0];
       let invoice = '';
       let fee;
       let creditPrice;
-      let selectedPlan;
+      creditPrice = selectedPlan.price;
+      creditPrice += 150; //blitz flat fee
+      creditPrice += Math.ceil(creditPrice * 0.005);
 
       if (invoiceInformation.invoice) {
         invoice = invoiceInformation.invoice;
       } else {
-        selectedPlan = selectedSubscription.filter(
-          subscription => subscription.isSelected,
-        )[0];
         creditPrice = selectedPlan.price;
         creditPrice += 150; //blitz flat fee
         creditPrice += Math.ceil(creditPrice * 0.005);

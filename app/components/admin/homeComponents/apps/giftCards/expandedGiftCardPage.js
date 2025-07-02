@@ -440,15 +440,21 @@ export default function ExpandedGiftCardPage(props) {
         return {...prev, isPurasing: true};
       });
       const responseInvoice = responseObject.invoice;
+      const parsedInput = responseObject.parsedInput;
 
-      const [parsedInput, fiatRates, dailyPurchaseAmount] = await Promise.all([
-        parse(responseInvoice),
+      const [
+        // parsedInput,
+        fiatRates,
+        dailyPurchaseAmount,
+      ] = await Promise.all([
+        // parse(responseInvoice),
         getFiatRates(),
         getLocalStorageItem('dailyPurchaeAmount').then(JSON.parse),
       ]);
 
       const USDBTCValue = fiatRates.find(currency => currency.coin === 'USD');
       const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
+      const memo = parsedInput.invoice.description;
       const currentTime = new Date();
 
       if (dailyPurchaseAmount) {
@@ -501,6 +507,7 @@ export default function ExpandedGiftCardPage(props) {
         fee: responseObject?.supportFee + responseObject?.paymentFee,
         userBalance: sparkInformation.balance,
         sparkInformation: sparkInformation,
+        description: memo,
       });
 
       if (!paymentResponse.didWork) {
@@ -520,7 +527,10 @@ export default function ExpandedGiftCardPage(props) {
 
       saveClaimInformation({
         responseObject,
-        paymentObject: paymentResponse.response,
+        paymentObject: {
+          ...paymentResponse.response,
+          date: currentTime,
+        },
       });
       return;
     } catch (err) {
