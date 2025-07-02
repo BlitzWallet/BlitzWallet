@@ -40,6 +40,11 @@ export default async function decodeSendAddress(props) {
   } = props;
 
   try {
+    if (typeof btcAdress !== 'string')
+      throw new Error(
+        'Addresses should be text only. Please check and try again.',
+      );
+
     if (btcAdress.includes('cryptoqr.net')) {
       crashlyticsLogReport('Handling crypto qr code');
       try {
@@ -99,7 +104,7 @@ export default async function decodeSendAddress(props) {
             message: processedAddress.options.message,
             label: processedAddress.options.label,
             network: 'Spark',
-            amount: processedAddress.options.amount * SATSPERBITCOIN,
+            amount: processedAddress.options.amount,
           },
         };
       } else {

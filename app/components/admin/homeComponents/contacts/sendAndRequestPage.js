@@ -130,7 +130,7 @@ export default function SendAndRequestPage(props) {
           if (retrivedContact?.contacts?.myProfile?.sparkAddress) {
             receiveAddress = formatBip21SparkAddress({
               address: retrivedContact?.contacts?.myProfile?.sparkAddress,
-              amount: convertedSendAmount,
+              amountSat: convertedSendAmount,
               message: `Paying ${
                 selectedContact.name || selectedContact.uniqueName
               }`,
