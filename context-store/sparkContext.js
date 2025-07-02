@@ -51,7 +51,7 @@ import {useKeysContext} from './keys';
 
 // Initiate context
 const SparkWalletManager = createContext(null);
-
+const sessionTime = new Date().getTime();
 const SparkWalletProvider = ({children}) => {
   const {accountMnemoinc} = useKeysContext();
   const {didGetToHomepage, minMaxLiquidSwapAmounts} = useAppStatus();
@@ -188,7 +188,13 @@ const SparkWalletProvider = ({children}) => {
         throw new Error('Not able to get recent transfer');
       await bulkUpdateSparkTransactions([paymentObject]);
       const savedTxs = await getAllSparkTransactions();
-      return {txs: savedTxs, paymentObject};
+      return {
+        txs: savedTxs,
+        paymentObject,
+        paymentCreatedTime: new Date(
+          selectedSparkTransaction.createdTime,
+        ).getTime(),
+      };
     } catch (err) {
       console.log('Handle incoming transaction error', err);
     }
@@ -217,6 +223,7 @@ const SparkWalletProvider = ({children}) => {
     const details = JSON.parse(selectedStoredPayment.details);
     if (details?.shouldNavigate) return;
     if (details.isRestore) return;
+    if (storedTransaction.paymentCreatedTime < sessionTime) return;
     // Handle confirm animation here
     setPendingNavigation({
       routes: [
