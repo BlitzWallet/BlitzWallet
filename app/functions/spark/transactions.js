@@ -1,10 +1,13 @@
 import * as SQLite from 'expo-sqlite';
 import EventEmitter from 'events';
+import {AppState} from 'react-native';
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
 export const SPARK_TRANSACTIONS_TABLE_NAME = 'SPARK_TRANSACTIONS';
 export const LIGHTNING_REQUEST_IDS_TABLE_NAME = 'LIGHTNING_REQUEST_IDS';
 export const sparkTransactionsEventEmitter = new EventEmitter();
 export const SPARK_TX_UPDATE_ENVENT_NAME = 'UPDATE_SPARK_STATE';
+let bulkUpdateTransactionQueue = [];
+let isProcessingBulkUpdate = false;
 
 let sqlLiteDB;
 
@@ -146,93 +149,139 @@ export const bulkUpdateSparkTransactions = async (
   transactions,
   updateType = 'transactions',
 ) => {
+  console.log(transactions, 'transactions list in bulk updats');
   if (!Array.isArray(transactions) || transactions.length === 0) return;
 
-  try {
-    // Begin transaction
-    await sqlLiteDB.execAsync('BEGIN TRANSACTION');
+  return addToBulkUpdateQueue(async () => {
+    try {
+      console.log('Running bulk updats', updateType);
+      console.log(transactions);
+      // Begin transaction
+      await sqlLiteDB.execAsync('BEGIN TRANSACTION');
 
-    for (const tx of transactions) {
-      const tempSparkId = tx.useTempId ? tx.tempId : tx.id;
-      const sparkID = tx.id;
+      for (const tx of transactions) {
+        const tempSparkId = tx.useTempId ? tx.tempId : tx.id;
+        const sparkID = tx.id;
 
-      // Check if transaction exists
-      const existingTx = await sqlLiteDB.getFirstAsync(
-        `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} 
+        // Check if transaction exists
+        const existingTx = await sqlLiteDB.getFirstAsync(
+          `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} 
          WHERE sparkID = ? 
          LIMIT 1`,
-        [tempSparkId],
-      );
+          [tempSparkId],
+        );
 
-      const newDetails = tx.details;
+        const newDetails = tx.details;
 
-      if (existingTx) {
-        // Update existing transaction
-        let existingDetails;
-        try {
-          existingDetails = JSON.parse(existingTx.details);
-        } catch {
-          existingDetails = {};
-        }
-
-        let mergedDetails = {...existingDetails};
-
-        for (const key in newDetails) {
-          const value = newDetails[key];
-          if (value !== '' && value !== null && value !== undefined) {
-            mergedDetails[key] = value;
+        if (existingTx) {
+          // Update existing transaction
+          let existingDetails;
+          try {
+            existingDetails = JSON.parse(existingTx.details);
+          } catch {
+            existingDetails = {};
           }
-        }
 
-        await sqlLiteDB.runAsync(
-          `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
+          let mergedDetails = {...existingDetails};
+
+          for (const key in newDetails) {
+            const value = newDetails[key];
+            if (value !== '' && value !== null && value !== undefined) {
+              mergedDetails[key] = value;
+            }
+          }
+
+          await sqlLiteDB.runAsync(
+            `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
            SET sparkID = ?, paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
            WHERE sparkID = ?`,
-          [
-            sparkID,
-            tx.paymentStatus,
-            tx.paymentType ?? 'unknown',
-            tx.accountId ?? 'unknown',
-            JSON.stringify(mergedDetails),
-            tempSparkId,
-          ],
-        );
-      } else {
-        // Insert new transaction
-        await sqlLiteDB.runAsync(
-          `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}
+            [
+              sparkID,
+              tx.paymentStatus,
+              tx.paymentType ?? 'unknown',
+              tx.accountId ?? 'unknown',
+              JSON.stringify(mergedDetails),
+              tempSparkId,
+            ],
+          );
+        } else {
+          // Insert new transaction
+          await sqlLiteDB.runAsync(
+            `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}
            (sparkID, paymentStatus, paymentType, accountId, details)
            VALUES (?, ?, ?, ?, ?)`,
-          [
-            sparkID,
-            tx.paymentStatus,
-            tx.paymentType ?? 'unknown',
-            tx.accountId ?? 'unknown',
-            JSON.stringify(newDetails),
-          ],
+            [
+              sparkID,
+              tx.paymentStatus,
+              tx.paymentType ?? 'unknown',
+              tx.accountId ?? 'unknown',
+              JSON.stringify(newDetails),
+            ],
+          );
+        }
+      }
+      console.log('commiting transcations');
+      // Commit transaction
+      await sqlLiteDB.execAsync('COMMIT');
+      console.log('running sql event emitter');
+
+      if (AppState.currentState === 'active') {
+        sparkTransactionsEventEmitter.emit(
+          SPARK_TX_UPDATE_ENVENT_NAME,
+          updateType,
+        );
+      } else {
+        let subscription;
+
+        const handleAppStateChange = nextAppState => {
+          if (nextAppState === 'active') {
+            const listenerCount = sparkTransactionsEventEmitter.listenerCount?.(
+              SPARK_TX_UPDATE_ENVENT_NAME,
+            );
+            if (!listenerCount) {
+              console.log('No listeners found, starting interval fallback');
+              let attempts = 0;
+              const maxAttempts = 3;
+              const intervalId = setInterval(() => {
+                if (attempts >= maxAttempts) {
+                  clearInterval(intervalId);
+                } else {
+                  console.log(`Fallback emit attempt ${attempts + 1}`);
+                  const response = sparkTransactionsEventEmitter.emit(
+                    SPARK_TX_UPDATE_ENVENT_NAME,
+                    updateType,
+                  );
+                  if (response) clearInterval(intervalId);
+                  attempts++;
+                }
+              }, 2000);
+            }
+
+            subscription?.remove();
+          }
+        };
+
+        console.log('adding subscription');
+        subscription = AppState.addEventListener(
+          'change',
+          handleAppStateChange,
         );
       }
+
+      return true;
+    } catch (error) {
+      console.error('Error upserting transactions batch:', error);
+
+      // Rollback on error
+      try {
+        await sqlLiteDB.execAsync('ROLLBACK');
+      } catch (rollbackError) {
+        console.error('Error rolling back transaction:', rollbackError);
+      }
+
+      return false;
     }
-
-    // Commit transaction
-    await sqlLiteDB.execAsync('COMMIT');
-
-    // Emit event
-    sparkTransactionsEventEmitter.emit(SPARK_TX_UPDATE_ENVENT_NAME, updateType);
-
-    return true;
-  } catch (error) {
-    console.error('Error upserting transactions batch:', error);
-
-    // Rollback on error
-    try {
-      await sqlLiteDB.execAsync('ROLLBACK');
-    } catch (rollbackError) {
-      console.error('Error rolling back transaction:', rollbackError);
-    }
-
-    return false;
-  }
+  });
 };
 
 export const addSingleSparkTransaction = async tx => {
@@ -352,4 +401,41 @@ const formatDetailsJSON = tx => {
     paymentHash: tx.paymentHash ?? null,
   };
   return newDetails;
+};
+
+const addToBulkUpdateQueue = async operation => {
+  console.log('Adding transaction to bulk updates que');
+  return new Promise((resolve, reject) => {
+    bulkUpdateTransactionQueue.push({
+      operation,
+      resolve,
+      reject,
+    });
+
+    if (!isProcessingBulkUpdate) {
+      processBulkUpdateQueue();
+    }
+  });
+};
+
+const processBulkUpdateQueue = async () => {
+  console.log('Processing bulk updates que');
+  if (isProcessingBulkUpdate || bulkUpdateTransactionQueue.length === 0) {
+    return;
+  }
+
+  isProcessingBulkUpdate = true;
+
+  while (bulkUpdateTransactionQueue.length > 0) {
+    const {operation, resolve, reject} = bulkUpdateTransactionQueue.shift();
+
+    try {
+      const result = await operation();
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  }
+
+  isProcessingBulkUpdate = false;
 };
