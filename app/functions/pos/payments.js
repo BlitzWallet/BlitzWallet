@@ -17,7 +17,7 @@ import handleReverseClaimWSS from '../boltz/handle-reverse-claim-wss';
 import {getPaymentaddressForBlitzUniqueName} from '../../../db';
 import {sparkPaymenWrapper} from '../spark/payments';
 import {decodeBip21Address} from '../bip21AddressFormmating';
-import {parse} from 'react-native-svg';
+import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 
 // /**
 //  * Pay to a Liquid address using the most efficient available payment method
@@ -212,7 +212,9 @@ export async function payPOSLNURL({
 }) {
   try {
     // Parse the LNURL address first as it's needed for all payment methods
-    const parsedInput = parse(LNURLAddress);
+
+    const parsedInput = await parse(LNURLAddress);
+
     const invoice = await getLNAddressForLiquidPayment(
       parsedInput,
       sendingAmountSats,
@@ -232,7 +234,10 @@ export async function payPOSLNURL({
     });
     if (!feeResponse.didWork) throw new Error(feeResponse.error);
 
-    if (sparkInformation.balance <= sendingAmountSats + feeResponse.fee)
+    if (
+      sparkInformation.balance <=
+      sendingAmountSats + feeResponse.fee + feeResponse.supportFee
+    )
       throw new Error('Insufficent balance');
 
     const paymentResponse = await sparkPaymenWrapper({
@@ -240,8 +245,10 @@ export async function payPOSLNURL({
       paymentType: 'lightning',
       amountSats: sendingAmountSats,
       masterInfoObject,
-      fee: feeResponse.fee,
-      description,
+      fee: feeResponse.fee + feeResponse.supportFee,
+      memo: description,
+      sparkInformation,
+      userBalance: sparkInformation.balance,
     });
 
     if (!paymentResponse.didWork) throw new Error('Unable to send payment');
@@ -372,75 +379,108 @@ export async function payPOSContact({
   sendingAmountSats,
   masterInfoObject,
   description,
-  webViewRef,
+  // webViewRef,
   sparkInformation,
 }) {
   try {
-    const paymentAddressResponse = await getPaymentaddressForBlitzUniqueName(
-      blitzContact,
-      sendingAmountSats,
-      description,
-    );
-    if (!paymentAddressResponse)
-      throw new Error('Unable to retrive contact payment address');
-    let {address: bip21Address, didUseSpark} = paymentAddressResponse;
-    let {address} = decodeBip21Address(
-      bip21Address,
-      didUseSpark ? 'spark' : 'liquidnetwork',
-    );
-
-    if (!didUseSpark) {
-      const {data, publicKey, privateKey, keys, preimage, liquidAddress} =
-        await contactsLNtoLiquidSwapInfo(
-          address,
-          sendingAmountSats,
-          description,
-        );
-
-      if (!data?.invoice) throw new Error('No Boltz invoice genereated');
-
-      const webSocket = new WebSocket(
-        `${getBoltzWsUrl(process.env.BOLTZ_ENVIRONMENT)}`,
-      );
-      const didHandle = await handleReverseClaimWSS({
-        ref: webViewRef,
-        webSocket: webSocket,
-        liquidAddress: liquidAddress,
-        swapInfo: data,
-        preimage: preimage,
-        privateKey: privateKey,
-      });
-      if (!didHandle) throw new Error('Unable to open websocket');
-
-      address = data.invoice;
-    }
-
+    const address = blitzContact.contacts.myProfile.sparkAddress;
     const feeResponse = await sparkPaymenWrapper({
       getFee: true,
       address: address,
-      paymentType: didUseSpark ? 'spark' : 'lightning',
+      paymentType: 'spark',
       amountSats: sendingAmountSats,
       masterInfoObject,
       fee: 0,
       description: '',
     });
+
     if (!feeResponse.didWork) throw new Error(feeResponse.error);
 
-    if (sparkInformation.balance <= sendingAmountSats + feeResponse.fee)
+    if (
+      sparkInformation.balance <=
+      sendingAmountSats + feeResponse.fee + feeResponse.supportFee
+    )
       throw new Error('Insufficent balance');
 
     const paymentResponse = await sparkPaymenWrapper({
       address: address,
-      paymentType: didUseSpark ? 'spark' : 'lightning',
+      paymentType: 'spark',
       amountSats: sendingAmountSats,
       masterInfoObject,
-      fee: feeResponse.fee,
-      description,
+      fee: feeResponse.fee + feeResponse.supportFee,
+      memo: description,
+      sparkInformation,
+      userBalance: sparkInformation.balance,
     });
 
     if (!paymentResponse.didWork) throw new Error('Unable to send payment');
 
     return true;
+    // const paymentAddressResponse = await getPaymentaddressForBlitzUniqueName(
+    //   blitzContact,
+    //   sendingAmountSats,
+    //   description,
+    // );
+    // if (!paymentAddressResponse)
+    //   throw new Error('Unable to retrive contact payment address');
+    // let {address: bip21Address, didUseSpark} = paymentAddressResponse;
+    // let {address} = decodeBip21Address(
+    //   bip21Address,
+    //   didUseSpark ? 'spark' : 'liquidnetwork',
+    // );
+
+    // if (!didUseSpark) {
+    //   const {data, publicKey, privateKey, keys, preimage, liquidAddress} =
+    //     await contactsLNtoLiquidSwapInfo(
+    //       address,
+    //       sendingAmountSats,
+    //       description,
+    //     );
+
+    //   if (!data?.invoice) throw new Error('No Boltz invoice genereated');
+
+    //   const webSocket = new WebSocket(
+    //     `${getBoltzWsUrl(process.env.BOLTZ_ENVIRONMENT)}`,
+    //   );
+    //   const didHandle = await handleReverseClaimWSS({
+    //     ref: webViewRef,
+    //     webSocket: webSocket,
+    //     liquidAddress: liquidAddress,
+    //     swapInfo: data,
+    //     preimage: preimage,
+    //     privateKey: privateKey,
+    //   });
+    //   if (!didHandle) throw new Error('Unable to open websocket');
+
+    //   address = data.invoice;
+    // }
+
+    // const feeResponse = await sparkPaymenWrapper({
+    //   getFee: true,
+    //   address: address,
+    //   paymentType: didUseSpark ? 'spark' : 'lightning',
+    //   amountSats: sendingAmountSats,
+    //   masterInfoObject,
+    //   fee: 0,
+    //   description: '',
+    // });
+    // if (!feeResponse.didWork) throw new Error(feeResponse.error);
+
+    // if (sparkInformation.balance <= sendingAmountSats + feeResponse.fee)
+    //   throw new Error('Insufficent balance');
+
+    // const paymentResponse = await sparkPaymenWrapper({
+    //   address: address,
+    //   paymentType: didUseSpark ? 'spark' : 'lightning',
+    //   amountSats: sendingAmountSats,
+    //   masterInfoObject,
+    //   fee: feeResponse.fee,
+    //   description,
+    // });
+
+    // if (!paymentResponse.didWork) throw new Error('Unable to send payment');
+
+    // return true;
   } catch (err) {
     console.error('Payment error in payPOSContact:', err);
     return false;

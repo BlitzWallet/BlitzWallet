@@ -42,8 +42,9 @@ import {bulkUpdateDidPay, deleteEmployee} from '../../../../../functions/pos';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import TipsTXItem from './internalComponents/tipTx';
 import {usePOSTransactions} from '../../../../../../context-store/pos';
-import {useWebView} from '../../../../../../context-store/webViewContext';
+// import {useWebView} from '../../../../../../context-store/webViewContext';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
+import {getSingleContact} from '../../../../../../db';
 
 export default function TotalTipsScreen(props) {
   const {decodedAddedContacts, globalContactsInformation} = useGlobalContacts();
@@ -78,31 +79,35 @@ export default function TotalTipsScreen(props) {
     didComplete: false,
   });
   const [viewTips, setViewTips] = useState(false);
-  const {webViewRef} = useWebView();
+  // const {webViewRef} = useWebView();
 
   // const eCashBalance = ecashWalletInformation.balance;
 
   const handlePayment = useCallback(async () => {
     try {
-      if (totalTipAmount < minMaxLiquidSwapAmounts.min) {
+      if (totalTipAmount < 1) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: `Must have over ${displayCorrectDenomination({
-            amount: minMaxLiquidSwapAmounts.min,
-            masterInfoObject,
-            fiatStats,
-          })} in order payout tips.`,
+          errorMessage: `User does not have any tips balance.`,
         });
         return;
       }
       setPaymentUpdate(prev => ({...prev, isSending: true}));
-      const fiatCurrencies = await getFiatRates();
-      const blitzContact = decodedAddedContacts?.find(
-        contact => contact?.uniqueName?.toLowerCase() === name?.toLowerCase(),
-      );
-      if (blitzContact) {
+      const [fiatCurrencies, blitzContact] = await Promise.all([
+        getFiatRates(),
+        getSingleContact(name?.toLowerCase()),
+      ]);
+
+      if (blitzContact.length) {
+        const selectedContact = blitzContact[0];
+
+        if (!selectedContact.contacts.myProfile.sparkAddress)
+          throw new Error(
+            'The recipient needs to update their Blitz app to get paid',
+          );
+
         //  use pay pos contact payment here
         // const address = blitzContact.receiveAddress;
-        const pubKey = blitzContact.uuid;
+        const pubKey = selectedContact.uuid;
         const fromPubKey = globalContactsInformation.myProfile.uuid;
 
         setPaymentUpdate(prev => ({
@@ -111,11 +116,11 @@ export default function TotalTipsScreen(props) {
         }));
         // is blitz contact
         const paymentResponse = await payPOSContact({
-          blitzContact,
+          blitzContact: selectedContact,
           sendingAmountSats: totalTipAmount,
           masterInfoObject,
           description: POINT_OF_SALE_PAYOUT_DESCRIPTION,
-          webViewRef,
+          // webViewRef,
           sparkInformation,
         });
         // const didPay = await payPOSLiquid({
@@ -179,10 +184,7 @@ export default function TotalTipsScreen(props) {
         if (didPay) {
           await updateInteralDBState(unpaidTxs);
         } else throw new Error('Unable to pay LNURL address. Try again later.');
-      } else
-        throw new Error(
-          'Name is not an LNURL or an addded Blitz contact. Please add this user as a contact or ask for a valid LNURL.',
-        );
+      } else throw new Error('Name is not an LNURL or a Blitz user.');
     } catch (err) {
       console.log('handle tips payment error', err);
       navigate.navigate('ErrorScreen', {errorMessage: err.message});
