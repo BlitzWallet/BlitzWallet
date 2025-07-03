@@ -22,7 +22,7 @@ export default async function initializeUserSettingsFromHistory({
   setContactsPrivateKey,
   setMasterInfoObject,
   toggleGlobalContactsInformation,
-  toggleGLobalEcashInformation,
+  // toggleGLobalEcashInformation,
   toggleGlobalAppDataInformation,
 }) {
   try {
@@ -128,16 +128,16 @@ export default async function initializeUserSettingsFromHistory({
     };
     let ecashWalletSettings = blitzStoredData.ecashWalletSettings;
 
-    const eCashInformation =
-      blitzStoredData.eCashInformation ||
-      [
-        // {
-        //   proofs: [],
-        //   transactions: [],
-        //   mintURL: '',
-        //   isCurrentMint: null,
-        // },
-      ];
+    // const eCashInformation =
+    //   blitzStoredData.eCashInformation ||
+    //   [
+    //     // {
+    //     //   proofs: [],
+    //     //   transactions: [],
+    //     //   mintURL: '',
+    //     //   isCurrentMint: null,
+    //     // },
+    //   ];
     const messagesApp = blitzStoredData.messagesApp || {sent: [], received: []};
     const VPNplans = blitzStoredData.VPNplans || [];
 
@@ -269,7 +269,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['contacts'] = contacts;
 
     // Store in ecash context
-    tempObject['eCashInformation'] = eCashInformation;
+    // tempObject['eCashInformation'] = eCashInformation;
 
     // store in app context
     tempObject['appData'] = appData;
@@ -281,11 +281,11 @@ export default async function initializeUserSettingsFromHistory({
       await sendDataToDB(tempObject, publicKey);
     }
     delete tempObject['contacts'];
-    delete tempObject['eCashInformation'];
+    // delete tempObject['eCashInformation'];
     delete tempObject['appData'];
 
     toggleGlobalAppDataInformation(appData);
-    toggleGLobalEcashInformation(eCashInformation);
+    // toggleGLobalEcashInformation(eCashInformation);
     toggleGlobalContactsInformation(contacts);
     setMasterInfoObject(tempObject);
 

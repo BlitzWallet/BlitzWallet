@@ -27,9 +27,7 @@ export default function SendMaxComponent({
         marginBottom: 25,
       }}
       useLoading={isGettingMax}
-      actionFunction={() => {
-        sendMax();
-      }}
+      actionFunction={sendMax}
       textContent={'Send Max'}
     />
   );
@@ -80,8 +78,8 @@ export default function SendMaxComponent({
 
       const maxAmountSats =
         Number(sparkInformation.balance) -
-        (feeResponse.fee + feeResponse.supportFee) * 1.2;
-      console.log(maxAmountSats);
+        (feeResponse.fee + feeResponse.supportFee) * 1.1;
+
       const convertedMax =
         masterInfoObject.userBalanceDenomination != 'fiat'
           ? Math.round(Number(maxAmountSats))

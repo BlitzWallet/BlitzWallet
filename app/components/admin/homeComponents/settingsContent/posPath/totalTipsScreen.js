@@ -33,7 +33,7 @@ import {
   // payPOSLiquid,
   payPOSLNURL,
 } from '../../../../../functions/pos/payments';
-import {useGlobaleCash} from '../../../../../../context-store/eCash';
+// import {useGlobaleCash} from '../../../../../../context-store/eCash';
 import customUUID from '../../../../../functions/customUUID';
 import {publishMessage} from '../../../../../functions/messaging/publishMessage';
 import {useKeysContext} from '../../../../../../context-store/keys';

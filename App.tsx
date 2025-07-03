@@ -37,7 +37,7 @@ import {Linking, Platform} from 'react-native';
 import SplashScreen from './app/screens/splashScreen';
 import {GlobalContactsList} from './context-store/globalContacts';
 
-import {GlobaleCashVariables} from './context-store/eCash';
+// import {GlobaleCashVariables} from './context-store/eCash';
 import {CreateAccountHome} from './app/screens/createAccount';
 import {GlobalAppDataProvider} from './context-store/appData';
 import PushNotificationManager, {
@@ -51,7 +51,7 @@ import {
 } from './app/constants';
 import {LiquidEventProvider} from './context-store/liquidEventContext';
 import {
-  EcashNavigationListener,
+  // EcashNavigationListener,
   // LightningNavigationListener,
   // LiquidNavigationListener,
   SparkNavigationListener,
@@ -116,33 +116,33 @@ function App(): JSX.Element {
                 <GlobalContextProvider>
                   <AppStatusProvider>
                     <GlobalThemeProvider>
-                      <GlobaleCashVariables>
-                        <GLobalNodeContextProider>
-                          <SparkWalletProvider>
-                            {/* <GlobalConbinedTxContextProvider> */}
-                            <GlobalAppDataProvider>
-                              <POSTransactionsProvider>
-                                <WebViewProvider>
-                                  <PushNotificationManager>
-                                    <LiquidEventProvider>
-                                      {/* <LightningEventProvider> */}
-                                      <ImageCacheProvider>
-                                        {/* <Suspense
+                      {/* <GlobaleCashVariables> */}
+                      <GLobalNodeContextProider>
+                        <SparkWalletProvider>
+                          {/* <GlobalConbinedTxContextProvider> */}
+                          <GlobalAppDataProvider>
+                            <POSTransactionsProvider>
+                              <WebViewProvider>
+                                <PushNotificationManager>
+                                  <LiquidEventProvider>
+                                    {/* <LightningEventProvider> */}
+                                    <ImageCacheProvider>
+                                      {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                        <ResetStack />
-                                        {/* </Suspense> */}
-                                      </ImageCacheProvider>
-                                      {/* </LightningEventProvider> */}
-                                    </LiquidEventProvider>
-                                  </PushNotificationManager>
-                                </WebViewProvider>
-                              </POSTransactionsProvider>
-                            </GlobalAppDataProvider>
-                            {/* <BreezTest /> */}
-                            {/* </GlobalConbinedTxContextProvider> */}
-                          </SparkWalletProvider>
-                        </GLobalNodeContextProider>
-                      </GlobaleCashVariables>
+                                      <ResetStack />
+                                      {/* </Suspense> */}
+                                    </ImageCacheProvider>
+                                    {/* </LightningEventProvider> */}
+                                  </LiquidEventProvider>
+                                </PushNotificationManager>
+                              </WebViewProvider>
+                            </POSTransactionsProvider>
+                          </GlobalAppDataProvider>
+                          {/* <BreezTest /> */}
+                          {/* </GlobalConbinedTxContextProvider> */}
+                        </SparkWalletProvider>
+                      </GLobalNodeContextProider>
+                      {/* </GlobaleCashVariables> */}
                     </GlobalThemeProvider>
                   </AppStatusProvider>
                 </GlobalContextProvider>
@@ -387,7 +387,7 @@ function ResetStack(): JSX.Element | null {
       {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
       <HandleLNURLPayments />
       <SparkNavigationListener />
-      <EcashNavigationListener />
+      {/* <EcashNavigationListener /> */}
       <SparkConnectionListener />
       {/* <LiquidNavigationListener /> */}
       {/* <LightningNavigationListener /> */}

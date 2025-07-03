@@ -50,11 +50,11 @@ export default function ConnectingToNodeLoadingScreen({
   const {theme, darkModeType} = useGlobalThemeContext();
   const {toggleGlobalContactsInformation, globalContactsInformation} =
     useGlobalContacts();
-  const {
-    toggleGLobalEcashInformation,
-    // toggleEcashWalletInformation,
-    // toggleMintList,
-  } = useGlobaleCash();
+  // const {
+  //   toggleGLobalEcashInformation,
+  //   toggleEcashWalletInformation,
+  //   toggleMintList,
+  // } = useGlobaleCash();
 
   const {toggleGlobalAppDataInformation} = useGlobalAppData();
   const [hasError, setHasError] = useState(null);
@@ -137,7 +137,7 @@ export default function ConnectingToNodeLoadingScreen({
               setContactsPrivateKey: toggleContactsPrivateKey,
               setMasterInfoObject,
               toggleGlobalContactsInformation,
-              toggleGLobalEcashInformation,
+              // toggleGLobalEcashInformation,
               toggleGlobalAppDataInformation,
             }),
           ]);

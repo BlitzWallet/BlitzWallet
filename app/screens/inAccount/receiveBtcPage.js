@@ -7,7 +7,7 @@ import {useGlobalContextProvider} from '../../../context-store/context';
 import {ButtonsContainer} from '../../components/admin/homeComponents/receiveBitcoin';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
-import {useGlobaleCash} from '../../../context-store/eCash';
+// import {useGlobaleCash} from '../../../context-store/eCash';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import {initializeAddressProcess} from '../../functions/receiveBitcoin/addressGeneration';
@@ -28,10 +28,10 @@ export default function ReceivePaymentHome(props) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {globalContactsInformation} = useGlobalContacts();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const {ecashWalletInformation} = useGlobaleCash();
+  // const {ecashWalletInformation} = useGlobaleCash();
   const {startLiquidEventListener} = useLiquidEvent();
-  const currentMintURL = ecashWalletInformation.mintURL;
-  const eCashBalance = ecashWalletInformation.balance;
+  // const currentMintURL = ecashWalletInformation.mintURL;
+  // const eCashBalance = ecashWalletInformation.balance;
   const initialSendAmount = props.route.params?.receiveAmount;
   const paymentDescription = props.route.params?.description;
   useHandleBackPressNew();
@@ -74,11 +74,11 @@ export default function ReceivePaymentHome(props) {
       description: paymentDescription,
       masterInfoObject,
       minMaxSwapAmounts: minMaxLiquidSwapAmounts,
-      mintURL: currentMintURL,
+      // mintURL: currentMintURL,
       setAddressState: setAddressState,
       selectedRecieveOption: selectedRecieveOption,
       navigate,
-      eCashBalance,
+      // eCashBalance,
     });
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
 

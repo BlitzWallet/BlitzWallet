@@ -26,7 +26,7 @@ import {
   DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS,
   LIGHTNINGAMOUNTBUFFER,
 } from '../../../../constants/math';
-import {useGlobaleCash} from '../../../../../context-store/eCash';
+// import {useGlobaleCash} from '../../../../../context-store/eCash';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {calculateBoltzFeeNew} from '../../../../functions/boltz/boltzFeeNew';

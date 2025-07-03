@@ -7,7 +7,7 @@ import {breezLiquidReceivePaymentWrapper} from '../breezLiquid';
 import customUUID from '../customUUID';
 import {crashlyticsLogReport} from '../crashlyticsLogs';
 import {sparkReceivePaymentWrapper} from '../spark/payments';
-import * as bip21 from 'bip21';
+// import * as bip21 from 'bip21';
 
 let invoiceTracker = [];
 export async function initializeAddressProcess(wolletInfo) {
