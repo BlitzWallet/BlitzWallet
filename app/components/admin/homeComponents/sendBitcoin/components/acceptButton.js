@@ -25,6 +25,7 @@ export default function AcceptButtonSendPage({
   webViewRef,
   minLNURLSatAmount,
   maxLNURLSatAmount,
+  sparkInformation,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {liquidNodeInformation, fiatStats} = useNodeContext();
@@ -143,7 +144,9 @@ export default function AcceptButtonSendPage({
         fromPage,
         publishMessageFunc,
         webViewRef,
+        sparkInformation,
       });
+      setIsGeneratingInvoice(false);
     } catch (err) {
       console.log('accecpt button error', err);
     }

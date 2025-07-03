@@ -206,6 +206,7 @@ export default function SendPaymentScreen(props) {
         paymentInfo,
         fromPage,
         publishMessageFunc,
+        sparkInformation,
       });
     }
     setTimeout(decodePayment, 1000);
@@ -379,6 +380,7 @@ export default function SendPaymentScreen(props) {
               webViewRef={webViewRef}
               minLNURLSatAmount={minLNURLSatAmount}
               maxLNURLSatAmount={maxLNURLSatAmount}
+              sparkInformation={sparkInformation}
             />
           )}
         </>

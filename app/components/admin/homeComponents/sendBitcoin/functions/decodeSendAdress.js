@@ -37,6 +37,7 @@ export default async function decodeSendAddress(props) {
     fiatStats,
     fromPage,
     publishMessageFunc,
+    sparkInformation,
   } = props;
 
   try {
@@ -163,13 +164,33 @@ export default async function decodeSendAddress(props) {
         setLoadingMessage,
         paymentInfo,
         fromPage,
-        publishMessageFunc,
       });
     } catch (err) {
       return goBackFunction(err.message || 'Error processing payment info');
     }
 
     if (processedPaymentInfo) {
+      if (
+        comingFromAccept &&
+        sparkInformation.balance <
+          processedPaymentInfo.paymentFee +
+            processedPaymentInfo.supportFee +
+            enteredPaymentInfo.amount
+      ) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: `Sending amount is too low to cover the payment and fees. Maximum send amount is ${displayCorrectDenomination(
+            {
+              amount:
+                sparkInformation.balance -
+                (processedPaymentInfo.paymentFee +
+                  processedPaymentInfo.supportFee),
+              masterInfoObject,
+              fiatStats,
+            },
+          )} `,
+        });
+        return;
+      }
       setPaymentInfo({...processedPaymentInfo, decodedInput: input});
     } else {
       return goBackFunction('Unable to process input');
