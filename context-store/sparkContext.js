@@ -39,15 +39,15 @@ import {transformTxToPaymentObject} from '../app/functions/spark/transformTxToPa
 import {useGlobalContacts} from './globalContacts';
 import {initWallet} from '../app/functions/initiateWalletConnection';
 import {useNodeContext} from './nodeContext';
-import {calculateBoltzFeeNew} from '../app/functions/boltz/boltzFeeNew';
-import {sparkReceivePaymentWrapper} from '../app/functions/spark/payments';
-import {breezLiquidPaymentWrapper} from '../app/functions/breezLiquid';
+
+import {breezLiquidLNAddressPaymentWrapper} from '../app/functions/breezLiquid';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
 import {AppState} from 'react-native';
 import getDepositAddressTxIds, {
   handleTxIdState,
 } from '../app/functions/spark/getDepositAdressTxIds';
 import {useKeysContext} from './keys';
+import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 
 // Initiate context
 const SparkWalletManager = createContext(null);
@@ -567,31 +567,14 @@ const SparkWalletProvider = ({children}) => {
           minMaxLiquidSwapAmounts.min,
         );
         if (liquidNodeInformation.userBalance > minMaxLiquidSwapAmounts.min) {
-          const liquidFee = calculateBoltzFeeNew(
-            liquidNodeInformation.userBalance,
-            'liquid-ln',
-            minMaxLiquidSwapAmounts.submarineSwapStats,
+          const parsed = await parse(
+            `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`,
           );
-          console.log(liquidFee);
-          const feeBuffer = liquidFee * 3.5;
-          const sendAmount = Math.round(
-            liquidNodeInformation.userBalance - feeBuffer,
-          );
-          console.log(liquidFee, 'liquid fee');
-          console.log(sendAmount, 'send amount');
-          console.log(liquidNodeInformation.userBalance, 'user balance');
-          if (sendAmount < minMaxLiquidSwapAmounts.min) return;
-          const sparkLnReceiveAddress = await sparkReceivePaymentWrapper({
-            amountSats: sendAmount,
-            memo: 'Liquid to Spark Swap',
-            paymentType: 'lightning',
-            shouldNavigate: false,
-          });
-          if (!sparkLnReceiveAddress.didWork) return;
-          await breezLiquidPaymentWrapper({
-            paymentType: 'lightning',
-            sendAmount: sendAmount,
-            invoice: sparkLnReceiveAddress.invoice,
+
+          await breezLiquidLNAddressPaymentWrapper({
+            description: 'Liquid to Spark Swap',
+            paymentInfo: parsed.data,
+            shouldDrain: true,
           });
         }
       } catch (err) {
