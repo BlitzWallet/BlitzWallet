@@ -16,6 +16,8 @@ export default function TechnicalTransactionDetails(props) {
 
   const {details, sparkID} = transaction;
 
+  const isPending = transaction.paymentStatus === 'pending';
+
   const paymentDetails =
     transaction.paymentType === 'spark'
       ? ['Payment Id', 'Sender Public Key', 'Payment Address']
@@ -45,7 +47,25 @@ export default function TechnicalTransactionDetails(props) {
 
     return (
       <View key={id}>
-        <ThemeText content={item} styles={{...styles.headerText}} />
+        <View style={styles.headerContainer}>
+          <ThemeText content={item} styles={{...styles.headerText}} />
+          {!isPending && !txItem && (
+            <TouchableOpacity
+              onPress={() => {
+                navigate.navigate('InformationPopup', {
+                  textContent: `${item} is not shown since this payment was restored from history.`,
+                  buttonText: 'I understand',
+                });
+              }}>
+              <ThemeImage
+                styles={{width: 20, height: 20}}
+                lightModeIcon={ICONS.aboutIcon}
+                darkModeIcon={ICONS.aboutIcon}
+                lightsOutIcon={ICONS.aboutIconWhite}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
         <TouchableOpacity
           onPress={() => {
             if (
@@ -98,9 +118,12 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     ...CENTER,
   },
-  headerText: {
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
   },
+  headerText: {includeFontPadding: false, marginRight: 5},
   descriptionText: {
     marginBottom: 30,
   },
