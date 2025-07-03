@@ -149,8 +149,26 @@ export const updateSparkTxStatus = async () => {
           const sparkResponse = await getSparkBitcoinPaymentRequest(
             txStateUpdate.sparkID,
           );
-          if (!sparkResponse?.transfer) continue;
-          const details = JSON.parse(txStateUpdate.details);
+
+          if (!sparkResponse?.transfer) {
+            if (!details.onChainTxid && sparkResponse.coopExitTxid) {
+              const tx = {
+                useTempId: true,
+                tempId: txStateUpdate.sparkID,
+                id: txStateUpdate.sparkID,
+                paymentStatus: 'pending',
+                paymentType: 'bitcoin',
+                accountId: txStateUpdate.accountId,
+                details: {
+                  ...details,
+                  onChainTxid: sparkResponse.coopExitTxid,
+                },
+              };
+              updatedTxs.push(tx);
+            }
+            continue;
+          }
+
           const tx = {
             useTempId: true,
             tempId: txStateUpdate.sparkID,
@@ -162,7 +180,7 @@ export const updateSparkTxStatus = async () => {
             accountId: txStateUpdate.accountId,
             details: {
               ...details,
-              onchainTxid: sparkResponse.coopExitTxid,
+              onChainTxid: sparkResponse.coopExitTxid,
             },
           };
           updatedTxs.push(tx);

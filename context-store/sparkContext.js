@@ -381,7 +381,9 @@ const SparkWalletProvider = ({children}) => {
             console.log('Deposit address quote:', quote);
             if (!didwork) {
               console.log(error, 'Error getting deposit address quote');
-              if (error.includes('UTXO is spent or not found.')) {
+              if (
+                error.includes('UTXO is already claimed by the current user.')
+              ) {
                 await handleTxIdState(txid, true, address);
               }
               continue;
@@ -464,6 +466,7 @@ const SparkWalletProvider = ({children}) => {
     if (depositAddressIntervalRef.current) {
       clearInterval(depositAddressIntervalRef.current);
     }
+    setTimeout(handleDepositAddressCheck, 1_000 * 5);
     depositAddressIntervalRef.current = setInterval(
       handleDepositAddressCheck,
       1_000 * 60,
