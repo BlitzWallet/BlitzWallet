@@ -13,6 +13,9 @@ export default async function processBolt11Invoice(input, context) {
   const isExpired = currentTime > expirationTime;
   if (isExpired) throw new Error('This lightning invoice has expired');
 
+  if (!input.invoice.amountMsat)
+    throw new Error('Lightning invoices must include an amount.');
+
   const amountMsat = comingFromAccept
     ? enteredPaymentInfo.amount * 1000
     : input.invoice.amountMsat;
@@ -31,7 +34,7 @@ export default async function processBolt11Invoice(input, context) {
   if (!fee.didWork) throw new Error(fee.error);
 
   return {
-    data: input,
+    data: {...input, message: input.invoice.description},
     type: InputTypeVariant.BOLT11,
     paymentNetwork: 'lightning',
     paymentFee: fee.fee,

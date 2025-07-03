@@ -52,6 +52,7 @@ export default function EditReceivePaymentInformation(props) {
   // const liquidWalletSettings = masterInfoObject.liquidWalletSettings;
   // const hasLightningChannel = !!nodeInformation.userBalance;
   const fromPage = props.route.params.from;
+  const receiveType = props.route.params.receiveType;
   // const eCashBalance = ecashWalletInformation.balance;
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination != 'fiat' ? 'sats' : 'fiat',
@@ -256,16 +257,18 @@ export default function EditReceivePaymentInformation(props) {
         )}*/}
       </ScrollView>
 
-      <CustomSearchInput
-        setInputText={setPaymentDescription}
-        placeholderText={t(
-          'wallet.receivePages.editPaymentInfo.descriptionInputPlaceholder',
-        )}
-        inputText={paymentDescription}
-        textInputStyles={styles.textInputStyles}
-        onFocusFunction={() => setIsKeyboardFocused(true)}
-        onBlurFunction={() => setIsKeyboardFocused(false)}
-      />
+      {receiveType.toLowerCase() === 'lightning' && (
+        <CustomSearchInput
+          setInputText={setPaymentDescription}
+          placeholderText={t(
+            'wallet.receivePages.editPaymentInfo.descriptionInputPlaceholder',
+          )}
+          inputText={paymentDescription}
+          textInputStyles={styles.textInputStyles}
+          onFocusFunction={() => setIsKeyboardFocused(true)}
+          onBlurFunction={() => setIsKeyboardFocused(false)}
+        />
+      )}
 
       {!isKeyboardFocused && (
         <>

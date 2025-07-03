@@ -108,6 +108,7 @@ export default function ReceivePaymentHome(props) {
       <ButtonsContainer
         generatingInvoiceQRCode={addressState.isGeneratingInvoice}
         generatedAddress={addressState.generatedAddress}
+        selectedRecieveOption={selectedRecieveOption}
       />
 
       <View style={{marginBottom: 'auto'}}></View>
