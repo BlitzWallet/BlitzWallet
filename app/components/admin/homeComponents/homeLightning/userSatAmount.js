@@ -28,6 +28,7 @@ export const UserSatAmount = memo(function UserSatAmount({
   const navigate = useNavigation();
   const [balanceWidth, setBalanceWidth] = useState(0);
   const userBalance = sparkInformation.balance;
+  const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
 
   useEffect(() => {
     didMount.current = true;
@@ -77,6 +78,7 @@ export const UserSatAmount = memo(function UserSatAmount({
             setMasterInfoObject,
             toggleMasterInfoObject,
             saveTimeoutRef,
+            initialValueRef,
           );
         else if (masterInfoObject.userBalanceDenomination === 'fiat')
           handleDBStateChange(
@@ -84,6 +86,7 @@ export const UserSatAmount = memo(function UserSatAmount({
             setMasterInfoObject,
             toggleMasterInfoObject,
             saveTimeoutRef,
+            initialValueRef,
           );
         else
           handleDBStateChange(
@@ -91,6 +94,7 @@ export const UserSatAmount = memo(function UserSatAmount({
             setMasterInfoObject,
             toggleMasterInfoObject,
             saveTimeoutRef,
+            initialValueRef,
           );
       }}>
       <SkeletonTextPlaceholder

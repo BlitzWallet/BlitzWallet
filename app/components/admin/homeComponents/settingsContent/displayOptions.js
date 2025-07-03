@@ -42,6 +42,7 @@ export default function DisplayOptions() {
   const [labelSize, setLabelSize] = useState(0);
   const {t} = useTranslation();
   const {backgroundOffset, textColor} = GetThemeColors();
+  const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
 
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
@@ -120,6 +121,7 @@ export default function DisplayOptions() {
                 setMasterInfoObject,
                 toggleMasterInfoObject,
                 saveTimeoutRef,
+                initialValueRef,
               );
             else if (masterInfoObject.userBalanceDenomination === 'fiat')
               handleDBStateChange(
@@ -127,6 +129,7 @@ export default function DisplayOptions() {
                 setMasterInfoObject,
                 toggleMasterInfoObject,
                 saveTimeoutRef,
+                initialValueRef,
               );
             else
               handleDBStateChange(
@@ -134,6 +137,7 @@ export default function DisplayOptions() {
                 setMasterInfoObject,
                 toggleMasterInfoObject,
                 saveTimeoutRef,
+                initialValueRef,
               );
           }}
           style={{
