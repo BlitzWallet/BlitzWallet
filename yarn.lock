@@ -1581,9 +1581,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/lrc20-sdk@npm:0.0.57":
-  version: 0.0.57
-  resolution: "@buildonspark/lrc20-sdk@npm:0.0.57"
+"@buildonspark/lrc20-sdk@npm:0.0.58":
+  version: 0.0.58
+  resolution: "@buildonspark/lrc20-sdk@npm:0.0.58"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@noble/curves": ^1.8.0
@@ -1597,18 +1597,18 @@ __metadata:
     class-transformer: ^0.5.1
     ts-proto: ^2.6.1
     varuint-bitcoin: ^1.1.2
-  checksum: 68ca78561e7b6e109d136d47b2ac721f0ab07c415da33eeea43b4c77f868495230fb22004de13bbe60d8a48603f493bb27e402b69bc2de4644c6234fb2d9a747
+  checksum: 6c420822a60a3bf037e5a9a553de6ad4bfffebdff70e6fca403bc5ced224aecbdb17139b8308c010c7f6526d8e6c79a9699e5eb61539deb01e5a48082f123c2b
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.1.41":
-  version: 0.1.41
-  resolution: "@buildonspark/spark-sdk@npm:0.1.41"
+"@buildonspark/spark-sdk@npm:^0.1.43":
+  version: 0.1.43
+  resolution: "@buildonspark/spark-sdk@npm:0.1.43"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@bufbuild/protobuf": ^2.2.5
-    "@buildonspark/lrc20-sdk": 0.0.57
-    "@lightsparkdev/core": ^1.4.1
+    "@buildonspark/lrc20-sdk": 0.0.58
+    "@lightsparkdev/core": ^1.4.2
     "@noble/curves": ^1.8.0
     "@noble/hashes": ^1.7.1
     "@opentelemetry/api": ^1.9.0
@@ -1637,7 +1637,7 @@ __metadata:
     react: ">=18.2.0"
     react-native: ">=0.71.0"
     react-native-get-random-values: ">=1.11.0"
-  checksum: 27a4ac5240afc4767533691a1253e7ed55bc281493b316de8c94da150fe82d5e38d8db56ba048b2882863a59e10b3cb65a423cd7d1395a4e3a360a8ecc9c4642
+  checksum: b47a929f6e1623635cd2933fad059e54d9af4e5385501ef6ab262e144c1d35cca6f405138cca05b4a169955a192fd5088482eab487e646f1776b9e8e69a7d824
   languageName: node
   linkType: hard
 
@@ -3130,9 +3130,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lightsparkdev/core@npm:^1.4.1":
-  version: 1.4.1
-  resolution: "@lightsparkdev/core@npm:1.4.1"
+"@lightsparkdev/core@npm:^1.4.2":
+  version: 1.4.2
+  resolution: "@lightsparkdev/core@npm:1.4.2"
   dependencies:
     dayjs: ^1.11.7
     graphql: ^16.6.0
@@ -3140,7 +3140,7 @@ __metadata:
     secp256k1: ^5.0.1
     ws: ^8.12.1
     zen-observable-ts: ^1.1.0
-  checksum: f87985d05752f1483a49f04998543f1f896d70f82c2677bf5a0abb82a041c93b800780c5478e261e07e8bdcc058ff09ca2fa69117cfe78031ef2c66d51de5528
+  checksum: ed1f99b7f454fdfcc5df45506331295c094f1cefdea2b45bc51a0860417b2e257454086d251f0b14d37952f7e6a453961f131fcba21095d2b25875d51bc41022
   languageName: node
   linkType: hard
 
@@ -4048,7 +4048,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/bip32@npm:^1.1.5, @scure/bip32@npm:^1.5.0, @scure/bip32@npm:^1.6.2":
+"@scure/bip32@npm:^1.1.5, @scure/bip32@npm:^1.5.0, @scure/bip32@npm:^1.6.2, @scure/bip32@npm:^1.7.0":
   version: 1.7.0
   resolution: "@scure/bip32@npm:1.7.0"
   dependencies:
@@ -4581,10 +4581,11 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.9.1
-    "@buildonspark/spark-sdk": ^0.1.41
+    "@buildonspark/spark-sdk": ^0.1.43
     "@cashu/cashu-ts": ^2.5.2
     "@craftzdog/react-native-buffer": ^6.0.5
     "@miblanchard/react-native-slider": ^2.6.0
+    "@noble/hashes": ^1.8.0
     "@noble/secp256k1": ^2.2.3
     "@react-native-async-storage/async-storage": 2.1.2
     "@react-native-community/cli": 18.0.0
@@ -4606,6 +4607,7 @@ __metadata:
     "@react-navigation/drawer": ^7.3.12
     "@react-navigation/native": ^7.1.9
     "@react-navigation/native-stack": ^7.3.13
+    "@scure/bip32": ^1.7.0
     "@scure/bip39": ^1.6.0
     "@types/jest": ^29.5.13
     "@types/react": ~19.0.10
