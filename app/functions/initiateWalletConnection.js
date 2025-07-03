@@ -11,8 +11,8 @@ import {cleanStalePendingSparkLightningTransactions} from './spark/transactions'
 
 export async function initWallet({
   setSparkInformation,
-  toggleGlobalContactsInformation,
-  globalContactsInformation,
+  // toggleGlobalContactsInformation,
+  // globalContactsInformation,
   mnemonic,
 }) {
   try {
@@ -23,8 +23,8 @@ export async function initWallet({
       crashlyticsLogReport('Loading node balances for session');
       const didSetSpark = await initializeSparkSession({
         setSparkInformation,
-        globalContactsInformation,
-        toggleGlobalContactsInformation,
+        // globalContactsInformation,
+        // toggleGlobalContactsInformation,
       });
 
       if (!didSetSpark)
@@ -46,8 +46,8 @@ export async function initWallet({
 
 async function initializeSparkSession({
   setSparkInformation,
-  globalContactsInformation,
-  toggleGlobalContactsInformation,
+  // globalContactsInformation,
+  // toggleGlobalContactsInformation,
 }) {
   try {
     // Clean DB state but do not hold up process
@@ -63,21 +63,21 @@ async function initializeSparkSession({
     if (balance === undefined || transactions === undefined)
       throw new Error('Unable to initialize spark from history');
 
-    if (
-      !globalContactsInformation.myProfile.sparkAddress ||
-      !globalContactsInformation.myProfile.sparkIdentityPubKey
-    ) {
-      toggleGlobalContactsInformation(
-        {
-          myProfile: {
-            ...globalContactsInformation.myProfile,
-            sparkAddress: sparkAddress,
-            sparkIdentityPubKey: identityPubKey,
-          },
-        },
-        true,
-      );
-    }
+    // if (
+    //   !globalContactsInformation.myProfile.sparkAddress ||
+    //   !globalContactsInformation.myProfile.sparkIdentityPubKey
+    // ) {
+    //   toggleGlobalContactsInformation(
+    //     {
+    //       myProfile: {
+    //         ...globalContactsInformation.myProfile,
+    //         sparkAddress: sparkAddress,
+    //         sparkIdentityPubKey: identityPubKey,
+    //       },
+    //     },
+    //     true,
+    //   );
+    // }
     const storageObject = {
       balance: Number(balance.balance),
       transactions: transactions,

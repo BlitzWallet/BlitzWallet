@@ -69,7 +69,7 @@ const SparkWalletProvider = ({children}) => {
   const [pendingNavigation, setPendingNavigation] = useState(null);
   const depositAddressIntervalRef = useRef(null);
   const restoreOffllineStateRef = useRef(null);
-  const sparkPaymentActionsRef = useRef(null);
+  const sparkDBaddress = useRef(null);
   const [blockedIdentityPubKeys, setBlockedIdentityPubKeys] = useState([]);
   const blockedIdentityPubKeysRef = useRef([]);
   const isFirstSparkUpdateStateInterval = useRef(true);
@@ -87,10 +87,10 @@ const SparkWalletProvider = ({children}) => {
   }, [blockedIdentityPubKeys]);
 
   // This is a function that handles incoming transactions and formmataes it to reqirued formation
-  const handleTransactionUpdate = async recevedTxId => {
+  const handleTransactionUpdate = async (recevedTxId, transactions) => {
     try {
       // First we need to get recent spark transfers
-      const transactions = await getSparkTransactions(50, undefined);
+      // const transactions = await getSparkTransactions(50, undefined);
       if (!transactions)
         throw new Error('Unable to get transactions from spark');
       const {transfers} = transactions;
@@ -199,8 +199,11 @@ const SparkWalletProvider = ({children}) => {
     }
   };
 
-  const handleIncomingPayment = async transferId => {
-    let storedTransaction = await handleTransactionUpdate(transferId);
+  const handleIncomingPayment = async (transferId, transactions) => {
+    let storedTransaction = await handleTransactionUpdate(
+      transferId,
+      transactions,
+    );
     // block incoming paymetns here
     // console.log(blockedIdentityPubKeysRef.current, 'blocked identy puib keys');
     // const isLNURLPayment = blockedIdentityPubKeysRef.current.find(
@@ -262,11 +265,11 @@ const SparkWalletProvider = ({children}) => {
       'Processing debounced incoming payments:',
       transferIdsToProcess,
     );
-
+    const transactions = await getSparkTransactions(50, undefined);
     // Process all pending transfer IDs
     for (const transferId of transferIdsToProcess) {
       try {
-        await handleIncomingPayment(transferId);
+        await handleIncomingPayment(transferId, transactions);
       } catch (error) {
         console.error('Error processing incoming payment:', transferId, error);
       }
@@ -353,6 +356,7 @@ const SparkWalletProvider = ({children}) => {
   }, [currentAppState]);
 
   useEffect(() => {
+    if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
     const handleAppStateChange = nextAppState => {
       console.log(nextAppState);
@@ -363,9 +367,10 @@ const SparkWalletProvider = ({children}) => {
     if (AppState.currentState === 'active') {
       setCurrentAppState('active');
     }
-  }, [sparkInformation.didConnect]);
+  }, [sparkInformation.didConnect, didGetToHomepage]);
 
   useEffect(() => {
+    if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
     // Interval to check deposit addresses to see if they were paid
     const handleDepositAddressCheck = async () => {
@@ -480,11 +485,12 @@ const SparkWalletProvider = ({children}) => {
       handleDepositAddressCheck,
       1_000 * 60,
     );
-  }, [sparkInformation.didConnect]);
+  }, [sparkInformation.didConnect, didGetToHomepage]);
 
   useEffect(() => {
     // This function runs once per load and check to see if a user received any payments while offline. It also starts a timeout to update payment status of paymetns every 30 seconds.
-    if (!sparkInformation.didConnect || !didGetToHomepage) return;
+    if (!didGetToHomepage) return;
+    if (!sparkInformation.didConnect) return;
     if (restoreOffllineStateRef.current) return;
     restoreOffllineStateRef.current = true;
     let intervalId = null;
@@ -546,22 +552,12 @@ const SparkWalletProvider = ({children}) => {
         requestAnimationFrame(async () => {
           const {didWork} = await initWallet({
             setSparkInformation,
-            toggleGlobalContactsInformation,
-            globalContactsInformation,
+            // toggleGlobalContactsInformation,
+            // globalContactsInformation,
             mnemonic: accountMnemoinc,
           });
           console.log(didWork, 'did connect to spark wallet in context');
-          if (didWork) return;
-          // setNumberOfConnectionTries(prev => (prev += 1));
-          // await new Promise(
-          //   () =>
-          //     requestAnimationFrame(() => {
-          //       requestAnimationFrame(() => {
-          //         initProcess();
-          //       });
-          //     }),
-          //   2000,
-          // );
+          // if (didWork) return;
         });
       });
     }
@@ -569,6 +565,31 @@ const SparkWalletProvider = ({children}) => {
     if (!startConnectingToSpark) return;
     initProcess();
   }, [startConnectingToSpark, accountMnemoinc]);
+
+  // Function to update db when all reqiured information is loaded
+  useEffect(() => {
+    if (!sparkInformation.didConnect) return;
+    if (!globalContactsInformation?.myProfile) return;
+
+    if (sparkDBaddress.current) return;
+    sparkDBaddress.current = true;
+
+    if (
+      !globalContactsInformation.myProfile.sparkAddress ||
+      !globalContactsInformation.myProfile.sparkIdentityPubKey
+    ) {
+      toggleGlobalContactsInformation(
+        {
+          myProfile: {
+            ...globalContactsInformation.myProfile,
+            sparkAddress: sparkInformation.sparkAddress,
+            sparkIdentityPubKey: sparkInformation.identityPubKey,
+          },
+        },
+        true,
+      );
+    }
+  }, [globalContactsInformation.myProfile, sparkInformation]);
 
   // This function checks to see if there are any liquid funds that need to be sent to spark
   useEffect(() => {

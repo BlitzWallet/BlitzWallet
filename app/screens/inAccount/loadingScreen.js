@@ -116,6 +116,7 @@ export default function ConnectingToNodeLoadingScreen({
         crashlyticsLogReport(
           'Begining app connnection procress in loading screen',
         );
+        setStartConnectingToSpark(true);
         const [didOpen, ecashTablesOpened, posTransactions, sparkTxs] =
           await Promise.all([
             initializeDatabase(),
@@ -272,8 +273,6 @@ export default function ConnectingToNodeLoadingScreen({
     // initBalanceAndTransactions(toggleNodeInformation);
 
     try {
-      setStartConnectingToSpark(true);
-
       // small buffer to smooth transition
       await new Promise(res => setTimeout(res, 1000));
       crashlyticsLogReport('Trying to connect to nodes');
