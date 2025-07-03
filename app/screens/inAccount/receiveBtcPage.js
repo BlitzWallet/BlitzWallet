@@ -20,9 +20,11 @@ import CustomButton from '../../functions/CustomElements/button';
 import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
 import {useGlobalContacts} from '../../../context-store/globalContacts';
 import {useLiquidEvent} from '../../../context-store/liquidEventContext';
+import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
+  const {fiatStats} = useNodeContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {globalContactsInformation} = useGlobalContacts();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
@@ -81,12 +83,17 @@ export default function ReceivePaymentHome(props) {
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
 
   useEffect(() => {
-    if (selectedRecieveOption !== 'Bitcoin') return;
+    if (selectedRecieveOption !== 'Liquid') return;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         navigate.navigate('ErrorScreen', {
-          errorMessage:
-            'Currently, on-chain payment addresses are single-use only. Sending more than one payment to the same address will result in a loss of funds.',
+          errorMessage: `Liquid payments must be swapped into Spark. Payments below ${displayCorrectDenomination(
+            {
+              amount: minMaxLiquidSwapAmounts.min,
+              masterInfoObject,
+              fiatStats,
+            },
+          )} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.`,
         });
       });
     });
