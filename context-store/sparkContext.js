@@ -90,7 +90,7 @@ const SparkWalletProvider = ({children}) => {
   const handleTransactionUpdate = async recevedTxId => {
     try {
       // First we need to get recent spark transfers
-      const transactions = await getSparkTransactions(5, undefined);
+      const transactions = await getSparkTransactions(50, undefined);
       if (!transactions)
         throw new Error('Unable to get transactions from spark');
       const {transfers} = transactions;
@@ -206,6 +206,16 @@ const SparkWalletProvider = ({children}) => {
     // const isLNURLPayment = blockedIdentityPubKeysRef.current.find(
     //   blocked => blocked.transferResponse.id === transferId,
     // );
+    // if the tx storage fails at least update the balance
+    if (!storedTransaction) {
+      const balance = await getSparkBalance();
+      setSparkInformation(prev => ({
+        ...prev,
+        balance: Number(balance?.balance) || prev.balance,
+      }));
+
+      return;
+    }
     const selectedStoredPayment = storedTransaction.txs.find(
       tx => tx.sparkID === transferId,
     );
