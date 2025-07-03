@@ -341,7 +341,8 @@ export const getCachedSparkTransactions = async () => {
 export const sparkPaymentType = tx => {
   try {
     const isLightningPayment = tx.type === 'PREIMAGE_SWAP';
-    const isBitcoinPayment = tx.type == 'COOPERATIVE_EXIT';
+    const isBitcoinPayment =
+      tx.type == 'COOPERATIVE_EXIT' || tx.type === 'UTXO_SWAP';
     const isSparkPayment = tx.type === 'TRANSFER';
 
     return isLightningPayment

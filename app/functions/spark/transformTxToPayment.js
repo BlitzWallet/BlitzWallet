@@ -83,9 +83,7 @@ export async function transformTxToPaymentObject(
         isRestore,
       },
     };
-  }
-
-  if (paymentType === 'spark') {
+  } else if (paymentType === 'spark') {
     return {
       id: tx.id,
       paymentStatus: 'completed',
@@ -104,18 +102,19 @@ export async function transformTxToPaymentObject(
         isRestore,
       },
     };
-  }
-
-  if (paymentType === 'bitcoin') {
+  } else {
     return {
       id: tx.id,
       paymentStatus: getSparkPaymentStatus(tx.status),
       paymentType: 'bitcoin',
-      accountId: tx.ownerIdentityPublicKey,
+      accountId:
+        tx.transferDirection === 'OUTGOING'
+          ? tx.senderIdentityPublicKey
+          : tx.receiverIdentityPublicKey,
       details: {
         fee: 0,
-        amount: tx.value,
-        address: tx.address,
+        amount: tx.totalValue,
+        address: tx.address || '',
         time: tx.updatedTime
           ? new Date(tx.updatedTime).getTime()
           : new Date().getTime(),

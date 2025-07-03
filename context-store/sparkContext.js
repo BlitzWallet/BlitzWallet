@@ -35,7 +35,6 @@ import {
   fullRestoreSparkState,
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
-import {transformTxToPaymentObject} from '../app/functions/spark/transformTxToPayment';
 import {useGlobalContacts} from './globalContacts';
 import {initWallet} from '../app/functions/initiateWalletConnection';
 import {useNodeContext} from './nodeContext';
