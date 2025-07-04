@@ -19,19 +19,20 @@ import {removeLocalStorageItem, setLocalStorageItem} from './localStorage';
 
 export async function generateAndStoreEncryptionKeyForMnemoinc() {
   try {
-    const existingKey = await retrieveData(BIOMETRIC_KEY);
-    console.log(existingKey, 'existing key');
+    // const existingKey = await retrieveData(BIOMETRIC_KEY);
+    // console.log(existingKey, 'existing key');
 
-    if (!existingKey.didWork)
-      throw new Error('Unable to authenticate with biomentrics');
+    // if (!existingKey.didWork)
+    //   throw new Error('Unable to authenticate with biomentrics');
 
-    if (existingKey.value) return existingKey.value;
+    // if (existingKey.value) return existingKey.value;
 
     const key = generateMnemonic(wordlist).toString();
 
-    await storeData(BIOMETRIC_KEY, key, {
+    const response = await storeData(BIOMETRIC_KEY, key, {
       requireAuthentication: true,
     });
+    if (!response) throw new Error('Error saving with biometric');
 
     return key;
   } catch (err) {
