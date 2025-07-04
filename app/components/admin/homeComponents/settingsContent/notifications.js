@@ -86,7 +86,7 @@ export default function NotificationPreferances() {
             style={styles.notificaionChoicesContainer}
             showsVerticalScrollIndicator={false}>
             <SettingsItemWithSlider
-              settingsTitle={`Contact notifications`}
+              settingsTitle={`Contact`}
               showDescription={false}
               handleSubmit={() =>
                 toggleNotificationPreferance('contactPayments')
@@ -97,7 +97,7 @@ export default function NotificationPreferances() {
               containerStyles={styles.toggleContainers}
             />
             <SettingsItemWithSlider
-              settingsTitle={`LNURL notifications`}
+              settingsTitle={`LNURL`}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('lnurlPayments')}
               toggleSwitchStateValue={
@@ -106,7 +106,7 @@ export default function NotificationPreferances() {
               containerStyles={styles.toggleContainers}
             />
             <SettingsItemWithSlider
-              settingsTitle={`Nostr LNURL notifications`}
+              settingsTitle={`Nostr zaps`}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('nostrPayments')}
               toggleSwitchStateValue={
@@ -115,7 +115,7 @@ export default function NotificationPreferances() {
               containerStyles={styles.toggleContainers}
             />
             <SettingsItemWithSlider
-              settingsTitle={`Point-of-sale notifications`}
+              settingsTitle={`Point-of-sale`}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('pointOfSale')}
               toggleSwitchStateValue={
