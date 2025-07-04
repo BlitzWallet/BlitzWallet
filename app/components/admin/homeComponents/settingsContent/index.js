@@ -27,6 +27,7 @@ import TotalTipsScreen from './posPath/totalTipsScreen';
 import CrashReportingSettingsPage from './crashReporting';
 import SparkInfo from './sparkInfo';
 import SupportWorkPage from './supportWorkPage';
+import NotificationPreferances from './notifications';
 
 export {
   AboutPage,
@@ -55,4 +56,5 @@ export {
   CrashReportingSettingsPage,
   SparkInfo,
   SupportWorkPage,
+  NotificationPreferances,
 };

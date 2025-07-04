@@ -21,6 +21,7 @@ import {
   CrashReportingSettingsPage,
   SparkInfo,
   SupportWorkPage,
+  NotificationPreferances,
 } from '../../components/admin/homeComponents/settingsContent';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView} from '../../functions/CustomElements';
@@ -136,6 +137,9 @@ export default function SettingsContentIndex(props) {
             {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
             {selectedPage?.toLowerCase() === 'crash reports' && (
               <CrashReportingSettingsPage />
+            )}
+            {selectedPage?.toLowerCase() === 'notifications' && (
+              <NotificationPreferances />
             )}
             {selectedPage?.toLowerCase() === 'blitz stats' && <ExploreUsers />}
 

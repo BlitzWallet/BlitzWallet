@@ -38,7 +38,6 @@ const GENERALOPTIONS = [
     iconWhite: ICONS.colorIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
-
   {
     for: 'general',
     name: 'Edit Contact Profile',
@@ -59,6 +58,13 @@ const GENERALOPTIONS = [
     svgName: 'crashDebugIcon',
     icon: ICONS.navigationIcon,
     iconWhite: ICONS.navigationIconWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  {
+    for: 'general',
+    name: 'Notifications',
+    icon: ICONS.notification,
+    iconWhite: ICONS.notificationWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
   // {

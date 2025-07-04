@@ -20,7 +20,8 @@ export default function HomeLightning() {
   const {sparkInformation, numberOfCachedTxs} = useSparkWallet();
   const {theme, darkModeType, toggleTheme} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
-  const {toggleDidGetToHomepage, isConnectedToTheInternet} = useAppStatus();
+  const {toggleDidGetToHomepage, isConnectedToTheInternet, didGetToHomepage} =
+    useAppStatus();
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
   const {t} = useTranslation();
@@ -50,6 +51,7 @@ export default function HomeLightning() {
       darkModeType,
       userBalanceDenomination,
       numberOfCachedTxs,
+      didGetToHomepage,
     });
   }, [
     sparkInformation.transactions,
@@ -60,6 +62,7 @@ export default function HomeLightning() {
     darkModeType,
     userBalanceDenomination,
     numberOfCachedTxs,
+    didGetToHomepage,
   ]);
 
   return (

@@ -109,7 +109,19 @@ export default async function initializeUserSettingsFromHistory({
 
     const selectedLanguage = blitzStoredData.userSelectedLanguage || 'en';
 
-    const pushNotifications = blitzStoredData.pushNotifications || {};
+    let pushNotifications = blitzStoredData.pushNotifications || {
+      isEnabled: false,
+      pushNotifications: {
+        hash: '',
+        key: {},
+      },
+      enabledServices: {
+        contactPayments: false,
+        lnurlPayments: false,
+        nostrPayments: false,
+        pointOfSale: false,
+      },
+    };
 
     const liquidSwaps = blitzStoredData.liquidSwaps || [];
 
@@ -220,6 +232,24 @@ export default async function initializeUserSettingsFromHistory({
         maxReceiveAmountSat: 10_000,
         maxEcashBalance: 25_000,
       };
+      needsToUpdate = true;
+    }
+    if (pushNotifications.isEnabled === undefined) {
+      const hasNotificationsStored = Object.keys(pushNotifications).length > 0;
+
+      pushNotifications = {
+        isEnabled: hasNotificationsStored,
+        hash: pushNotifications?.hash || '',
+        key: pushNotifications?.key || {},
+        platform: pushNotifications?.platform || '',
+        enabledServices: {
+          contactPayments: hasNotificationsStored,
+          lnurlPayments: hasNotificationsStored,
+          nostrPayments: hasNotificationsStored,
+          pointOfSale: hasNotificationsStored,
+        },
+      };
+
       needsToUpdate = true;
     }
 

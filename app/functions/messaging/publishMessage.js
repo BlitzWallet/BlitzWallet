@@ -51,8 +51,19 @@ export async function sendPushNotification({
     crashlyticsLogReport('Sending push notification');
     console.log(selectedContactUsername);
 
+    // Check if there is a selected contact
     if (!retrivedContact) return;
-    if (!retrivedContact?.pushNotifications?.key?.encriptedText) return;
+    const pushNotificationData = retrivedContact.pushNotifications;
+
+    // check if the person has a push token saved
+    if (!pushNotificationData?.key?.encriptedText) return;
+
+    // If a user has updated thier settings and they have chosen to not receive notification for contact payments
+    if (
+      pushNotificationData?.enabledServices?.contactPayments !== undefined &&
+      !pushNotificationData?.enabledServices?.contactPayments
+    )
+      return;
 
     const devicePushKey =
       retrivedContact?.pushNotifications?.key?.encriptedText;

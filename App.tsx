@@ -40,7 +40,8 @@ import {GlobalContactsList} from './context-store/globalContacts';
 // import {GlobaleCashVariables} from './context-store/eCash';
 import {CreateAccountHome} from './app/screens/createAccount';
 import {GlobalAppDataProvider} from './context-store/appData';
-import PushNotificationManager, {
+import {
+  PushNotificationProvider,
   registerBackgroundNotificationTask,
 } from './context-store/notificationManager';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -123,7 +124,7 @@ function App(): JSX.Element {
                           <GlobalAppDataProvider>
                             <POSTransactionsProvider>
                               <WebViewProvider>
-                                <PushNotificationManager>
+                                <PushNotificationProvider>
                                   <LiquidEventProvider>
                                     {/* <LightningEventProvider> */}
                                     <ImageCacheProvider>
@@ -134,7 +135,7 @@ function App(): JSX.Element {
                                     </ImageCacheProvider>
                                     {/* </LightningEventProvider> */}
                                   </LiquidEventProvider>
-                                </PushNotificationManager>
+                                </PushNotificationProvider>
                               </WebViewProvider>
                             </POSTransactionsProvider>
                           </GlobalAppDataProvider>
