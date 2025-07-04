@@ -44,6 +44,7 @@ export default function ViewAllTxPage() {
       theme,
       darkModeType,
       userBalanceDenomination,
+      didGetToHomepage: true,
     });
 
     setTxs(txs);

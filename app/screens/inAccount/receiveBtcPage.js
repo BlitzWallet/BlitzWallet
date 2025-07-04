@@ -57,47 +57,64 @@ export default function ReceivePaymentHome(props) {
   });
 
   useEffect(() => {
-    crashlyticsLogReport('Begining adddress initialization');
-    if (
-      !initialSendAmount &&
-      selectedRecieveOption.toLowerCase() === 'lightning'
-    )
-      return;
+    async function runAddressInit() {
+      crashlyticsLogReport('Begining adddress initialization');
+      if (
+        !initialSendAmount &&
+        selectedRecieveOption.toLowerCase() === 'lightning'
+      )
+        return;
 
-    if (selectedRecieveOption.toLowerCase() === 'liquid') {
-      startLiquidEventListener();
-    }
+      if (selectedRecieveOption.toLowerCase() === 'liquid') {
+        startLiquidEventListener();
+      }
 
-    initializeAddressProcess({
-      userBalanceDenomination: masterInfoObject.userBalanceDenomination,
-      receivingAmount: initialSendAmount,
-      description: paymentDescription,
-      masterInfoObject,
-      minMaxSwapAmounts: minMaxLiquidSwapAmounts,
-      // mintURL: currentMintURL,
-      setAddressState: setAddressState,
-      selectedRecieveOption: selectedRecieveOption,
-      navigate,
-      // eCashBalance,
-    });
-  }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
-
-  useEffect(() => {
-    if (selectedRecieveOption !== 'Liquid') return;
-    requestAnimationFrame(() => {
+      await initializeAddressProcess({
+        userBalanceDenomination: masterInfoObject.userBalanceDenomination,
+        receivingAmount: initialSendAmount,
+        description: paymentDescription,
+        masterInfoObject,
+        minMaxSwapAmounts: minMaxLiquidSwapAmounts,
+        // mintURL: currentMintURL,
+        setAddressState: setAddressState,
+        selectedRecieveOption: selectedRecieveOption,
+        navigate,
+        // eCashBalance,
+      });
+      if (selectedRecieveOption !== 'Liquid') return;
       requestAnimationFrame(() => {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: `Liquid payments must be swapped into Spark. Payments below ${displayCorrectDenomination(
-            {
-              amount: minMaxLiquidSwapAmounts.min,
-              masterInfoObject,
-              fiatStats,
-            },
-          )} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.`,
+        requestAnimationFrame(() => {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: `Liquid payments will be swapped into Spark. Payments below ${displayCorrectDenomination(
+              {
+                amount: minMaxLiquidSwapAmounts.min,
+                masterInfoObject,
+                fiatStats,
+              },
+            )} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.`,
+          });
         });
       });
-    });
-  }, [selectedRecieveOption]);
+    }
+    runAddressInit();
+  }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
+
+  // useEffect(() => {
+  //   if (selectedRecieveOption !== 'Liquid') return;
+  //   requestAnimationFrame(() => {
+  //     requestAnimationFrame(() => {
+  //       navigate.navigate('ErrorScreen', {
+  //         errorMessage: `Liquid payments must be swapped into Spark. Payments below ${displayCorrectDenomination(
+  //           {
+  //             amount: minMaxLiquidSwapAmounts.min,
+  //             masterInfoObject,
+  //             fiatStats,
+  //           },
+  //         )} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.`,
+  //       });
+  //     });
+  //   });
+  // }, [selectedRecieveOption]);
   return (
     <GlobalThemeView styles={{alignItems: 'center'}} useStandardWidth={true}>
       <TopBar navigate={navigate} />

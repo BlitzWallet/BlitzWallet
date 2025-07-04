@@ -94,6 +94,7 @@ export default function HandleLNURLPayments() {
 
   // Process payment queue
   const processQueue = useCallback(async () => {
+    if (!masterInfoObject?.uuid) return;
     if (!sparkAddress) return;
     if (isProcessingRef.current) return;
 
