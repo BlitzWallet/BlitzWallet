@@ -2,7 +2,7 @@ import {ScrollView, StyleSheet, View} from 'react-native';
 import {ThemeText} from '../../../../functions/CustomElements';
 import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {INSET_WINDOW_WIDTH, SIZES} from '../../../../constants/theme';
 import {CENTER} from '../../../../constants';
 import {usePushNotification} from '../../../../../context-store/notificationManager';
@@ -15,8 +15,20 @@ export default function NotificationPreferances() {
   const {
     registerForPushNotificationsAsync,
     checkAndSavePushNotificationToDatabase,
+    getCurrentPushNotifiicationPermissions,
   } = usePushNotification();
+  const [currnetPushState, setCurrentPushState] = useState(null);
   const notificationData = masterInfoObject.pushNotifications;
+  const pushNotificationStatus = notificationData.isEnabled && currnetPushState;
+
+  const loadCurrentNotificationPermission = async () => {
+    const resposne = await getCurrentPushNotifiicationPermissions();
+
+    setCurrentPushState(resposne === 'granted');
+  };
+  useEffect(() => {
+    loadCurrentNotificationPermission();
+  }, []);
 
   const toggleNotificationPreferance = useCallback(
     async toggleType => {
@@ -48,6 +60,7 @@ export default function NotificationPreferances() {
               newObject['platform'] = data.platform;
             }
           }
+          loadCurrentNotificationPermission();
           newObject['isEnabled'] = !newObject.isEnabled;
         } else {
           newObject.enabledServices[toggleType] =
@@ -70,16 +83,16 @@ export default function NotificationPreferances() {
       <SettingsItemWithSlider
         showLoadingIcon={isUpdating}
         settingsTitle={`${
-          !notificationData.isEnabled ? 'Disabled' : 'Enabled'
+          !pushNotificationStatus ? 'Disabled' : 'Enabled'
         } notifications`}
         showDescription={false}
         handleSubmit={() => toggleNotificationPreferance('isEnabled')}
-        toggleSwitchStateValue={notificationData.isEnabled}
+        toggleSwitchStateValue={pushNotificationStatus}
         showInformationPopup={true}
-        informationPopupText="If you recently switched to a new device, you may need to toggle notifications off and back on to make them work again."
+        informationPopupText="Notifications let you stay informed about important events and updates happening in the app."
         informationPopupBTNText="Continue"
       />
-      {notificationData.isEnabled && (
+      {pushNotificationStatus && (
         <>
           <ThemeText content={'Notification options'} />
           <ScrollView

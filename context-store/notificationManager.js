@@ -18,6 +18,7 @@ export const PushNotificationProvider = ({children}) => {
   const {masterInfoObject} = useGlobalContextProvider();
   const {contactsPrivateKey} = useKeysContext();
   const pushNotificationData = masterInfoObject?.pushNotifications;
+
   // const {didGetToHomepage} = useAppStatus();
   // const {globalContactsInformation} = useGlobalContacts();
   // const didRunRef = useRef(false);
@@ -65,6 +66,17 @@ export const PushNotificationProvider = ({children}) => {
     if (Platform.OS === 'ios') Notifications.setBadgeCountAsync(0);
   }, [pushNotificationData]);
 
+  const getCurrentPushNotifiicationPermissions = async () => {
+    try {
+      const permissionsResult = await Notifications.getPermissionsAsync();
+
+      let finalStatus = permissionsResult.status;
+      return finalStatus;
+    } catch (err) {
+      console.log('Error getting pussh notification settings', err);
+      return false;
+    }
+  };
   const checkAndSavePushNotificationToDatabase = async deviceToken => {
     try {
       if (
@@ -139,6 +151,7 @@ export const PushNotificationProvider = ({children}) => {
         registerNotificationHandlers,
         registerBackgroundNotificationTask,
         registerForPushNotificationsAsync,
+        getCurrentPushNotifiicationPermissions,
       }}>
       <View style={{flex: 1}}>{children}</View>
     </PushNotificationContext.Provider>
