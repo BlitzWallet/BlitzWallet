@@ -9,6 +9,7 @@ import {useGlobalContacts} from '../../../context-store/globalContacts';
 import {
   getDateXDaysAgo,
   isMoreThan7DaysPast,
+  isMoreThanADayOld,
 } from '../../functions/rotateAddressDateChecker';
 import {useGlobaleCash} from '../../../context-store/eCash';
 import {useGlobalAppData} from '../../../context-store/appData';
@@ -35,6 +36,8 @@ import {useSparkWallet} from '../../../context-store/sparkContext';
 import {initializeSparkDatabase} from '../../functions/spark/transactions';
 import {getCachedSparkTransactions} from '../../functions/spark';
 import {breezLiquidReceivePaymentWrapper} from '../../functions/breezLiquid';
+import {getLocalStorageItem, setLocalStorageItem} from '../../functions';
+import {useLiquidEvent} from '../../../context-store/liquidEventContext';
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
 export default function ConnectingToNodeLoadingScreen({
@@ -50,6 +53,7 @@ export default function ConnectingToNodeLoadingScreen({
   const {theme, darkModeType} = useGlobalThemeContext();
   const {toggleGlobalContactsInformation, globalContactsInformation} =
     useGlobalContacts();
+  const {startLiquidEventListener} = useLiquidEvent();
   // const {
   //   toggleGLobalEcashInformation,
   //   toggleEcashWalletInformation,
@@ -447,19 +451,71 @@ export default function ConnectingToNodeLoadingScreen({
   // }
 
   async function setupFiatCurrencies() {
-    const fiat = await fetchFiatRates();
+    const fetchResponse = JSON.parse(
+      await getLocalStorageItem('didFetchFiatRateToday'),
+    ) || {
+      lastFetched: new Date().getTime() - 1000 * 60 * 60 * 24 * 30,
+      rates: [],
+    };
+
     const currency = masterInfoObject.fiatCurrency;
 
-    const [fiatRate] = fiat.filter(rate => {
-      return rate.coin.toLowerCase() === currency.toLowerCase();
-    });
-    if (masterInfoObject?.fiatCurrenciesList?.length < 1) {
-      const currenies = await listFiatCurrencies();
-      const sourted = currenies.sort((a, b) => a.id.localeCompare(b.id));
-      toggleMasterInfoObject({fiatCurrenciesList: sourted});
+    // Return cached data if still fresh
+    if (!isMoreThanADayOld(fetchResponse.lastFetched)) {
+      const [fiatRate] = fetchResponse.rates.filter(
+        rate => rate.coin.toLowerCase() === currency.toLowerCase(),
+      );
+      if (fiatRate) return fiatRate;
     }
 
-    return fiatRate;
+    let [fiat, fiatCurrencies] = await Promise.all([
+      withTimeout(fetchFiatRates(), 5000, null),
+      masterInfoObject?.fiatCurrenciesList?.length < 1
+        ? listFiatCurrencies()
+        : Promise.resolve(null),
+    ]);
+
+    if (!fiat) {
+      try {
+        const response = await fetch(process.env.FALLBACK_FIAT_PRICE_DATA);
+        const data = await response.json();
+        fiat = Object.keys(data).map(coin => ({
+          coin: coin,
+          value: data[coin]['15m'],
+        }));
+      } catch (error) {
+        console.error('Failed to fetch fallback fiat data:', error);
+        return {coin: 'USD', value: 100_000};
+      }
+    }
+
+    const [fiatRate] = fiat.filter(
+      rate => rate.coin.toLowerCase() === currency.toLowerCase(),
+    );
+    const [usdRate] = fiat.filter(rate => rate.coin.toLowerCase() === 'usd');
+
+    if (!fiatRate && usdRate) {
+      toggleMasterInfoObject({fiatCurrency: 'USD'});
+    }
+
+    await setLocalStorageItem(
+      'didFetchFiatRateToday',
+      JSON.stringify({
+        lastFetched: new Date().getTime(),
+        rates: fiat,
+      }),
+    );
+
+    if (fiatCurrencies) {
+      try {
+        const sorted = fiatCurrencies.sort((a, b) => a.id.localeCompare(b.id));
+        toggleMasterInfoObject({fiatCurrenciesList: sorted});
+      } catch (error) {
+        console.error('Failed to fetch currencies list:', error);
+      }
+    }
+
+    return fiatRate || usdRate;
   }
 
   // async function setNodeInformationForSession(retrivedNodeInfo) {
@@ -504,73 +560,67 @@ export default function ConnectingToNodeLoadingScreen({
   async function setLiquidNodeInformationForSession(retrivedLiquidNodeInfo) {
     try {
       crashlyticsLogReport('Starting liquid node lookup process');
-      const [parsedInformation, fiat_rate, addressResponse] = await Promise.all(
-        [
-          withTimeout(
-            retrivedLiquidNodeInfo
-              ? Promise.resolve(retrivedLiquidNodeInfo)
-              : getInfo(),
-            8000,
-            {},
-          ),
-          withTimeout(setupFiatCurrencies(), 8000, null),
-          withTimeout(
-            masterInfoObject.offlineReceiveAddresses.addresses.length !== 7 ||
-              isMoreThan7DaysPast(
-                masterInfoObject.offlineReceiveAddresses.lastRotated,
-              )
-              ? breezLiquidReceivePaymentWrapper({paymentType: 'liquid'})
-              : Promise.resolve(null),
-            8000,
-            null,
-          ),
-        ],
-      );
+      const [
+        // parsedInformation,
+        fiat_rate,
+        //  addressResponse
+      ] = await Promise.all([
+        // withTimeout(
+        //   retrivedLiquidNodeInfo
+        //     ? Promise.resolve(retrivedLiquidNodeInfo)
+        //     : getInfo(),
+        //   8000,
+        //   {},
+        // ),
+        setupFiatCurrencies(),
+        // !globalContactsInformation.myProfile.receiveAddress
+        //   ? breezLiquidReceivePaymentWrapper({paymentType: 'liquid'})
+        //   : Promise.resolve(null),
+      ]);
+      startLiquidEventListener(3);
+      console.log(fiat_rate, 'hty');
 
-      console.log(parsedInformation, fiat_rate, addressResponse, 'hty');
+      // const info = parsedInformation.walletInfo;
+      // const balanceSat = info?.balanceSat;
 
-      const info = parsedInformation.walletInfo;
-      const balanceSat = info?.balanceSat;
+      // if (addressResponse) {
+      //   const {destination, receiveFeesSat} = addressResponse;
+      //   console.log('LIQUID DESTINATION ADDRESS', destination);
+      //   console.log(destination);
+      //   // For legacy users and legacy functions
+      //   toggleGlobalContactsInformation(
+      //     {
+      //       myProfile: {
+      //         ...globalContactsInformation.myProfile,
+      //         receiveAddress: destination,
+      //         lastRotated: getDateXDaysAgo(0),
+      //       },
+      //     },
+      //     true,
+      //   );
 
-      if (addressResponse) {
-        const {destination, receiveFeesSat} = addressResponse;
-        console.log('LIQUID DESTINATION ADDRESS', destination);
-        console.log(destination);
-        if (!globalContactsInformation.myProfile.receiveAddress) {
-          // For legacy users and legacy functions
-          toggleGlobalContactsInformation(
-            {
-              myProfile: {
-                ...globalContactsInformation.myProfile,
-                receiveAddress: destination,
-                lastRotated: getDateXDaysAgo(0),
-              },
-            },
-            true,
-          );
-        }
-        // Didn't sperate since it only cost one write so there is no reasy not to update
-        toggleMasterInfoObject({
-          posSettings: {
-            ...masterInfoObject.posSettings,
-            receiveAddress: destination,
-            lastRotated: getDateXDaysAgo(0),
-          },
-          offlineReceiveAddresses: {
-            addresses: [
-              destination,
-              ...masterInfoObject.offlineReceiveAddresses.addresses.slice(0, 6),
-            ],
-            lastRotated: new Date().getTime(),
-          },
-        });
-      }
+      //   // Didn't sperate since it only cost one write so there is no reasy not to update
+      //   // toggleMasterInfoObject({
+      //   //   posSettings: {
+      //   //     ...masterInfoObject.posSettings,
+      //   //     receiveAddress: destination,
+      //   //     lastRotated: getDateXDaysAgo(0),
+      //   //   },
+      //   //   offlineReceiveAddresses: {
+      //   //     addresses: [
+      //   //       destination,
+      //   //       ...masterInfoObject.offlineReceiveAddresses.addresses.slice(0, 6),
+      //   //     ],
+      //   //     lastRotated: new Date().getTime(),
+      //   //   },
+      //   // });
+      // }
 
-      let liquidNodeObject = {
-        userBalance: balanceSat || 0,
-        pendingReceive: info?.pendingReceiveSat || 0,
-        pendingSend: info?.pendingSendSat || 0,
-      };
+      // let liquidNodeObject = {
+      //   userBalance: balanceSat || 0,
+      //   pendingReceive: info?.pendingReceiveSat || 0,
+      //   pendingSend: info?.pendingSendSat || 0,
+      // };
 
       toggleFiatStats(fiat_rate);
 
@@ -608,7 +658,7 @@ export default function ConnectingToNodeLoadingScreen({
       // }
 
       toggleLiquidNodeInformation({
-        ...liquidNodeObject,
+        // ...liquidNodeObject,
         didConnectToNode: true,
       });
 
