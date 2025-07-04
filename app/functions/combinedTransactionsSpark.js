@@ -34,6 +34,7 @@ export default function getFormattedHomepageTxsForSpark({
   darkModeType,
   userBalanceDenomination,
   numberOfCachedTxs,
+  didGetToHomepage,
 }) {
   crashlyticsLogReport('Starting re-rendering of formatted transactions');
   const sparkTransactions = sparkInformation?.transactions;
@@ -42,6 +43,9 @@ export default function getFormattedHomepageTxsForSpark({
   console.log(sparkTransactionsLength);
   console.log('re-rendering transactions');
 
+  if (!didGetToHomepage) {
+    return;
+  }
   if (!sparkInformation.didConnect && numberOfCachedTxs) {
     const arraryLength = numberOfCachedTxs >= 20 ? 20 : numberOfCachedTxs;
     const loadingTxElements = Array.from(
