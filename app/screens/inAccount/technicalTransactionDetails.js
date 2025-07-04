@@ -20,7 +20,7 @@ export default function TechnicalTransactionDetails(props) {
 
   const paymentDetails =
     transaction.paymentType === 'spark'
-      ? ['Payment Id', 'Sender Public Key', 'Payment Address']
+      ? ['Payment Id']
       : transaction.paymentType === 'lightning'
       ? ['Payment Id', 'Payment Preimage', 'Payment Address']
       : ['Payment Id', 'Bitcoin Txid', 'Payment Address'];
@@ -28,11 +28,7 @@ export default function TechnicalTransactionDetails(props) {
   const infoElements = paymentDetails.map((item, id) => {
     const txItem =
       transaction.paymentType === 'spark'
-        ? id === 0
-          ? sparkID
-          : id === 1
-          ? details.senderIdentityPublicKey
-          : details.address
+        ? sparkID
         : transaction.paymentType === 'lightning'
         ? id === 0
           ? sparkID
@@ -105,6 +101,13 @@ export default function TechnicalTransactionDetails(props) {
           showsVerticalScrollIndicator={false}
           style={styles.innerContainer}>
           {infoElements}
+          {transaction.paymentType === 'spark' && (
+            <ThemeText
+              content={
+                'To preserve the receiver’s privacy, all other information is hidden.'
+              }
+            />
+          )}
         </ScrollView>
       </View>
     </GlobalThemeView>
