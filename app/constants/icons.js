@@ -152,6 +152,8 @@ import shareBlack from '../assets/icons/shareBlack.png';
 import sparkAsteriskBlack from '../assets/icons/SparkAsteriskBlack.png';
 import sparkAsteriskWhite from '../assets/icons/SparkAsteriskWhite.png';
 import clipboardBlue from '../assets/icons/clipboardBlue.png';
+import notification from '../assets/icons/bell.png';
+import notificationWhite from '../assets/icons/bellWhite.png';
 export default {
   Xcircle,
   XcircleLight,
@@ -308,4 +310,6 @@ export default {
   sparkAsteriskBlack,
   sparkAsteriskWhite,
   clipboardBlue,
+  notification,
+  notificationWhite,
 };
