@@ -12,7 +12,7 @@ import {addSingleUnpaidSparkLightningTransaction} from '../app/functions/spark/t
 export default function HandleLNURLPayments() {
   const {sparkInformation, setNumberOfIncomingLNURLPayments} = useSparkWallet();
   const {masterInfoObject} = useGlobalContextProvider();
-  const sparkAddress = sparkInformation.sparkAddress;
+  const sparkAddress = sparkInformation?.sparkAddress;
 
   // Initialize refs
   const loadListener = useRef(false); // Changed to boolean for clarity
@@ -24,6 +24,7 @@ export default function HandleLNURLPayments() {
   const deleteActiveLNURLPaymentsRef = useRef([]);
 
   useEffect(() => {
+    if (!masterInfoObject.uuid) return;
     if (!sparkAddress || loadListener.current) return;
     loadListener.current = true;
 
@@ -108,19 +109,30 @@ export default function HandleLNURLPayments() {
 
       for (const payment of currentQueue) {
         console.log(`Processing LNURL payment ${payment.id}`, payment);
-        await addSingleUnpaidSparkLightningTransaction({
-          id: payment.sparkID,
-          amount: payment.amountSats,
-          expiration: payment.expiredTime,
-          description: payment.description,
-          shouldNavigate: payment.shouldNavigate,
-          details: {
-            sharedPublicKey: payment.sharedPublicKey,
-            sparkPubKey: payment.sparkPubKey,
-          },
-        });
-        processedIds.push(payment.id);
-        deleteActiveLNURLPaymentsRef.current.push(payment.id);
+
+        if (!payment.sparkID) {
+          console.warn(`Skipping payment ${payment.id} - missing sparkID`);
+          continue;
+        }
+
+        try {
+          await addSingleUnpaidSparkLightningTransaction({
+            id: payment.sparkID,
+            amount: payment.amountSats,
+            expiration: payment.expiredTime,
+            description: payment.description || '',
+            shouldNavigate: payment.shouldNavigate,
+            details: {
+              sharedPublicKey: payment.sharedPublicKey || '',
+              sparkPubKey: payment.sparkPubKey || '',
+            },
+          });
+          processedIds.push(payment.id);
+          deleteActiveLNURLPaymentsRef.current.push(payment.id);
+        } catch (error) {
+          console.error(`Error processing payment ${payment.id}:`, error);
+          // Don't add to processedIds so it can be retried
+        }
       }
 
       // Update queue and clean up processed payments
