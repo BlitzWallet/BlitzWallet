@@ -235,14 +235,14 @@ export const UserTransaction = memo(function UserTransaction({
   }, [timeDifferenceMs]);
 
   const paymentImage = useMemo(() => {
-    return transaction.paymentStatus === 'completed'
+    return !isFailedPayment
       ? darkModeType && theme
         ? ICONS.arrow_small_left_white
         : ICONS.smallArrowLeft
       : darkModeType && theme
       ? ICONS.failedTransactionWhite
       : ICONS.failedTransaction;
-  }, [transactionPaymentType, transaction, darkModeType, theme]);
+  }, [darkModeType, theme]);
 
   const showPendingTransactionStatusIcon =
     transaction.paymentStatus === 'pending';
@@ -283,11 +283,12 @@ export const UserTransaction = memo(function UserTransaction({
               {
                 transform: [
                   {
-                    rotate: showPendingTransactionStatusIcon
-                      ? '0deg'
-                      : transaction.details.direction === 'INCOMING'
-                      ? '310deg'
-                      : '130deg',
+                    rotate:
+                      showPendingTransactionStatusIcon || isFailedPayment
+                        ? '0deg'
+                        : transaction.details.direction === 'INCOMING'
+                        ? '310deg'
+                        : '130deg',
                   },
                 ],
               },
