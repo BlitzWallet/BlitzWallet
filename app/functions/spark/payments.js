@@ -32,7 +32,7 @@ export const sparkPaymenWrapper = async ({
   try {
     console.log('Begining spark payment');
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    const supportFee = calculateProgressiveBracketFee(amountSats);
+    const supportFee = calculateProgressiveBracketFee(amountSats, paymentType);
     if (getFee) {
       console.log('Calculating spark payment fee');
       let calculatedFee = 0;
