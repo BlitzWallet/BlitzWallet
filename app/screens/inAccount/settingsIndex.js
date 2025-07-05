@@ -14,6 +14,7 @@ import {useNodeContext} from '../../../context-store/nodeContext';
 import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useGlobalContextProvider} from '../../../context-store/context';
+import openWebBrowser from '../../functions/openWebBrowser';
 
 const GENERALOPTIONS = [
   {
@@ -230,7 +231,7 @@ const DOOMSDAYSETTINGS = [
   [
     {
       for: 'Closing Account',
-      name: 'Reset Wallet',
+      name: 'Delete Wallet',
       icon: ICONS.trashIcon,
       iconWhite: ICONS.trashIconWhite,
       arrowIcon: ICONS.leftCheveronIcon,
@@ -370,6 +371,32 @@ export default function SettingsIndex(props) {
         contentContainerStyle={{alignItems: 'center'}}
         style={styles.settingsContainer}>
         {settingsElements}
+
+        {isDoomsday && (
+          <TouchableOpacity
+            onPress={() => {
+              openWebBrowser({
+                navigate,
+                link: 'https://recover.blitz-wallet.com/',
+              });
+            }}
+            style={{
+              ...styles.posContainer,
+              borderColor:
+                theme && darkModeType ? COLORS.white : COLORS.primary,
+              marginTop: 30,
+            }}>
+            <ThemeText
+              styles={{
+                color: theme && darkModeType ? COLORS.white : COLORS.primary,
+                fontSize: SIZES.xLarge,
+                marginLeft: 10,
+                includeFontPadding: false,
+              }}
+              content={'Blitz Restore'}
+            />
+          </TouchableOpacity>
+        )}
         {!isDoomsday && (
           <>
             <TouchableOpacity

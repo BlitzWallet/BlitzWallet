@@ -39,6 +39,8 @@ export default function ResetPage(props) {
     return theme ? backgroundOffset : COLORS.darkModeText;
   }, [theme, backgroundOffset]);
 
+  const isDoomsday = props.isDoomsday;
+
   return (
     <View
       style={{
@@ -156,25 +158,28 @@ export default function ResetPage(props) {
           </View>
         </View>
       </View>
-      <View
-        style={[
-          styles.infoContainer,
-          {
-            backgroundColor: backgroundColor,
-          },
-        ]}>
-        <ThemeText
-          styles={{...styles.infoTitle, textAlign: 'center'}}
-          content={'Your balance is'}
-        />
-        <FormattedSatText
-          styles={{fontSize: SIZES.large}}
-          neverHideBalance={true}
-          balance={
-            Number(sparkInformation.balance) + liquidNodeInformation.userBalance
-          }
-        />
-      </View>
+      {!isDoomsday && (
+        <View
+          style={[
+            styles.infoContainer,
+            {
+              backgroundColor: backgroundColor,
+            },
+          ]}>
+          <ThemeText
+            styles={{...styles.infoTitle, textAlign: 'center'}}
+            content={'Your balance is'}
+          />
+          <FormattedSatText
+            styles={{fontSize: SIZES.large}}
+            neverHideBalance={true}
+            balance={
+              Number(sparkInformation.balance) +
+              liquidNodeInformation.userBalance
+            }
+          />
+        </View>
+      )}
 
       <CustomButton
         buttonStyles={{

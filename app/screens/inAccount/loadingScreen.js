@@ -71,6 +71,7 @@ export default function ConnectingToNodeLoadingScreen({
   // const didRestoreWallet = route?.params?.didRestoreWallet;
   const liquidNodeConnectionRef = useRef(null);
   const numberOfCachedTransactionsRef = useRef(null);
+  const didStartConnectionRef = useRef(null);
 
   // const window = useWindowDimensions();
   // const {onLightningBreezEvent} = useLightningEvent();=
@@ -120,6 +121,7 @@ export default function ConnectingToNodeLoadingScreen({
         crashlyticsLogReport(
           'Begining app connnection procress in loading screen',
         );
+        console.log('Process 1', new Date().getTime());
         setStartConnectingToSpark(true);
         const [didOpen, ecashTablesOpened, posTransactions, sparkTxs] =
           await Promise.all([
@@ -128,10 +130,12 @@ export default function ConnectingToNodeLoadingScreen({
             initializePOSTransactionsDatabase(),
             initializeSparkDatabase(),
           ]);
+        // DO tables need to open before these other processes???/
 
         if (!didOpen || !ecashTablesOpened || !posTransactions || !sparkTxs)
           throw new Error('Database initialization failed');
 
+        console.log('Process 2', new Date().getTime());
         crashlyticsLogReport('Opened all SQL lite tables');
         const [didConnectToLiquidNode, txs, didLoadUserSettings] =
           await Promise.all([
@@ -155,11 +159,14 @@ export default function ConnectingToNodeLoadingScreen({
         crashlyticsLogReport('Loaded users settings from firebase');
         claimUnclaimedBoltzSwaps();
         setDidOpenDatabases(true);
+        console.log('Process 3', new Date().getTime());
       } catch (err) {
         console.log('intializatiion error', err);
         setHasError(err.message);
       }
     }
+    if (didStartConnectionRef.current) return;
+    didStartConnectionRef.current = true;
     startConnectProcess();
   }, []);
 
@@ -174,6 +181,7 @@ export default function ConnectingToNodeLoadingScreen({
     didLoadInformation.current = true;
     crashlyticsLogReport('Initializing wallet settings');
 
+    console.log('Process 4', new Date().getTime());
     initWallet(
       liquidNodeConnectionRef.current,
       numberOfCachedTransactionsRef.current,
@@ -277,20 +285,22 @@ export default function ConnectingToNodeLoadingScreen({
     // initBalanceAndTransactions(toggleNodeInformation);
 
     try {
-      // small buffer to smooth transition
-      await new Promise(res => setTimeout(res, 1000));
+      console.log('Process 5', new Date().getTime());
       crashlyticsLogReport('Trying to connect to nodes');
-
       setNumberOfCachedTxs(txs?.length || 0);
       if (didConnectToLiquidNode.isConnected) {
         crashlyticsLogReport('Loading node balances for session');
+        console.log('Process 6', new Date().getTime());
         const didSetLiquid = await setLiquidNodeInformationForSession();
         // didConnectToLiquidNode?.liquid_node_info,
 
+        console.log('Process 19', new Date().getTime());
         if (didSetLiquid) {
+          console.log('Process 20', new Date().getTime());
           // navigate.preload('HomeAdmin');
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
+              console.log('Process 21', new Date().getTime());
               replace('HomeAdmin', {screen: 'Home'});
             });
           });
@@ -451,6 +461,7 @@ export default function ConnectingToNodeLoadingScreen({
   // }
 
   async function setupFiatCurrencies() {
+    console.log('Process 8', new Date().getTime());
     const fetchResponse = JSON.parse(
       await getLocalStorageItem('didFetchFiatRateToday'),
     ) || {
@@ -460,6 +471,7 @@ export default function ConnectingToNodeLoadingScreen({
 
     const currency = masterInfoObject.fiatCurrency;
 
+    console.log('Process 9', new Date().getTime());
     // Return cached data if still fresh
     if (!isMoreThanADayOld(fetchResponse.lastFetched)) {
       const [fiatRate] = fetchResponse.rates.filter(
@@ -468,6 +480,7 @@ export default function ConnectingToNodeLoadingScreen({
       if (fiatRate) return fiatRate;
     }
 
+    console.log('Process 10', new Date().getTime());
     let [fiat, fiatCurrencies] = await Promise.all([
       withTimeout(fetchFiatRates(), 5000, null),
       masterInfoObject?.fiatCurrenciesList?.length < 1
@@ -475,6 +488,7 @@ export default function ConnectingToNodeLoadingScreen({
         : Promise.resolve(null),
     ]);
 
+    console.log('Process 11', new Date().getTime());
     if (!fiat) {
       try {
         const response = await fetch(process.env.FALLBACK_FIAT_PRICE_DATA);
@@ -489,6 +503,7 @@ export default function ConnectingToNodeLoadingScreen({
       }
     }
 
+    console.log('Process 12', new Date().getTime());
     const [fiatRate] = fiat.filter(
       rate => rate.coin.toLowerCase() === currency.toLowerCase(),
     );
@@ -498,6 +513,7 @@ export default function ConnectingToNodeLoadingScreen({
       toggleMasterInfoObject({fiatCurrency: 'USD'});
     }
 
+    console.log('Process 13', new Date().getTime());
     await setLocalStorageItem(
       'didFetchFiatRateToday',
       JSON.stringify({
@@ -506,6 +522,7 @@ export default function ConnectingToNodeLoadingScreen({
       }),
     );
 
+    console.log('Process 14', new Date().getTime());
     if (fiatCurrencies) {
       try {
         const sorted = fiatCurrencies.sort((a, b) => a.id.localeCompare(b.id));
@@ -515,6 +532,7 @@ export default function ConnectingToNodeLoadingScreen({
       }
     }
 
+    console.log('Process 15', new Date().getTime());
     return fiatRate || usdRate;
   }
 
@@ -560,6 +578,7 @@ export default function ConnectingToNodeLoadingScreen({
   async function setLiquidNodeInformationForSession(retrivedLiquidNodeInfo) {
     try {
       crashlyticsLogReport('Starting liquid node lookup process');
+      console.log('Process 7', new Date().getTime());
       const [
         // parsedInformation,
         fiat_rate,
@@ -577,7 +596,11 @@ export default function ConnectingToNodeLoadingScreen({
         //   ? breezLiquidReceivePaymentWrapper({paymentType: 'liquid'})
         //   : Promise.resolve(null),
       ]);
+
+      console.log('Process 16', new Date().getTime());
       startLiquidEventListener(3);
+
+      console.log('Process 17', new Date().getTime());
       console.log(fiat_rate, 'hty');
 
       // const info = parsedInformation.walletInfo;
@@ -622,6 +645,7 @@ export default function ConnectingToNodeLoadingScreen({
       //   pendingSend: info?.pendingSendSat || 0,
       // };
 
+      console.log('Process 18', new Date().getTime());
       toggleFiatStats(fiat_rate);
 
       // console.log(
