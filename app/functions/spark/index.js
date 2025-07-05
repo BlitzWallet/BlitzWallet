@@ -259,6 +259,7 @@ export const getSparkPaymentFeeEstimate = async amountSats => {
     return feeResponse.feeEstimate.originalValue || SPARK_TO_SPARK_FEE;
   } catch (err) {
     console.log('Get bitcoin payment fee estimate error', err);
+    return SPARK_TO_SPARK_FEE;
   }
 };
 

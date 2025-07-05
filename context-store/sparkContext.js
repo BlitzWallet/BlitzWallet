@@ -276,22 +276,26 @@ const SparkWalletProvider = ({children}) => {
     }
   }, []);
 
-  const handleUpdate = async updateType => {
+  const handleUpdate = async (...args) => {
     try {
+      const [updateType = 'transactions', fee = 0] = args;
       console.log(
         'running update in spark context from db changes',
         updateType,
       );
+      if (updateType === 'supportTx') return;
       const txs = await getAllSparkTransactions();
+      const balance = await getSparkBalance();
 
-      if (updateType === 'blocked') {
+      console.log(balance, 'TESTING BALANE');
+
+      if (updateType === 'paymentWrapperTx') {
         setSparkInformation(prev => ({
           ...prev,
           transactions: txs || prev.transactions,
+          balance: Math.round((Number(balance?.balance) || prev.balance) - fee),
         }));
       } else {
-        const balance = await getSparkBalance();
-
         setSparkInformation(prev => ({
           ...prev,
           balance: Number(balance?.balance) || prev.balance,

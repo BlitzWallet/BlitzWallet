@@ -1,9 +1,14 @@
+import {getSparkPaymentFeeEstimate} from '.';
+
 /**
  * Calculates fee based on progressive brackets.
  * @param {number} amount - amount in sats to send
  * @returns {number} fee in sats
  */
-export default function calculateProgressiveBracketFee(amount, paymentType) {
+export default async function calculateProgressiveBracketFee(
+  amount,
+  paymentType,
+) {
   // Lightning brackets
   const lightningBrackets = [
     {upTo: 50, fixedFee: 1, percentage: 0}, // 0% + 1 sat
@@ -35,7 +40,10 @@ export default function calculateProgressiveBracketFee(amount, paymentType) {
   for (const bracket of brackets) {
     if (amount <= bracket.upTo) {
       const fee = Math.ceil(amount * bracket.percentage) + bracket.fixedFee;
-      return fee;
+
+      const sparkFeeResponse = await getSparkPaymentFeeEstimate(fee);
+
+      return Math.max(0, fee - sparkFeeResponse);
     }
   }
 

@@ -32,7 +32,10 @@ export const sparkPaymenWrapper = async ({
   try {
     console.log('Begining spark payment');
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    const supportFee = calculateProgressiveBracketFee(amountSats, paymentType);
+    const supportFee = await calculateProgressiveBracketFee(
+      amountSats,
+      paymentType,
+    );
     if (getFee) {
       console.log('Calculating spark payment fee');
       let calculatedFee = 0;
@@ -102,7 +105,7 @@ export const sparkPaymenWrapper = async ({
       };
       response = tx;
 
-      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx');
+      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
     } else if (paymentType === 'bitcoin') {
       // make sure to import exist speed
       const onChainPayResponse = await sendSparkBitcoinPayment({
@@ -132,7 +135,7 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx');
+      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
     } else {
       const sparkPayResponse = await sendSparkPayment({
         receiverSparkAddress: address,
@@ -159,7 +162,7 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx');
+      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
     }
     console.log(response, 'resonse in send function');
     return {didWork: true, response};
@@ -221,6 +224,7 @@ export const sparkReceivePaymentWrapper = async ({
 
 async function handleSupportPayment(masterInfoObject, supportFee) {
   try {
+    if (!supportFee) return;
     if (masterInfoObject?.enabledDeveloperSupport?.isEnabled) {
       await new Promise(res => setTimeout(res, 1000));
       await sendSparkPayment({
