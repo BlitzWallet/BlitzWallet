@@ -15,13 +15,14 @@ import {
 import {crashlyticsLogReport} from './crashlyticsLogs';
 import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
 import fetchBackend from '../../db/handleBackend';
+// import {getBitcoinKeyPair} from './lnurl';
 
 export default async function initializeUserSettingsFromHistory({
   accountMnemoinc,
   setContactsPrivateKey,
   setMasterInfoObject,
   toggleGlobalContactsInformation,
-  toggleGLobalEcashInformation,
+  // toggleGLobalEcashInformation,
   toggleGlobalAppDataInformation,
 }) {
   try {
@@ -72,6 +73,7 @@ export default async function initializeUserSettingsFromHistory({
       useTrampoline,
       fastPaySettings,
       crashReportingSettings,
+      enabledDeveloperSupport,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -107,7 +109,19 @@ export default async function initializeUserSettingsFromHistory({
 
     const selectedLanguage = blitzStoredData.userSelectedLanguage || 'en';
 
-    const pushNotifications = blitzStoredData.pushNotifications || {};
+    let pushNotifications = blitzStoredData.pushNotifications || {
+      isEnabled: false,
+      pushNotifications: {
+        hash: '',
+        key: {},
+      },
+      enabledServices: {
+        contactPayments: false,
+        lnurlPayments: false,
+        nostrPayments: false,
+        pointOfSale: false,
+      },
+    };
 
     const liquidSwaps = blitzStoredData.liquidSwaps || [];
 
@@ -126,16 +140,16 @@ export default async function initializeUserSettingsFromHistory({
     };
     let ecashWalletSettings = blitzStoredData.ecashWalletSettings;
 
-    const eCashInformation =
-      blitzStoredData.eCashInformation ||
-      [
-        // {
-        //   proofs: [],
-        //   transactions: [],
-        //   mintURL: '',
-        //   isCurrentMint: null,
-        // },
-      ];
+    // const eCashInformation =
+    //   blitzStoredData.eCashInformation ||
+    //   [
+    //     // {
+    //     //   proofs: [],
+    //     //   transactions: [],
+    //     //   mintURL: '',
+    //     //   isCurrentMint: null,
+    //     // },
+    //   ];
     const messagesApp = blitzStoredData.messagesApp || {sent: [], received: []};
     const VPNplans = blitzStoredData.VPNplans || [];
 
@@ -157,6 +171,8 @@ export default async function initializeUserSettingsFromHistory({
       lastUpdated: new Date().getTime(),
       addresses: [],
     };
+
+    // let lnurlPubKey = blitzStoredData.lnurlPubKey;
 
     //added here for legecy people
     liquidWalletSettings.regulatedChannelOpenSize =
@@ -218,6 +234,29 @@ export default async function initializeUserSettingsFromHistory({
       };
       needsToUpdate = true;
     }
+    if (pushNotifications.isEnabled === undefined) {
+      const hasNotificationsStored = Object.keys(pushNotifications).length > 0;
+
+      pushNotifications = {
+        isEnabled: hasNotificationsStored,
+        hash: pushNotifications?.hash || '',
+        key: pushNotifications?.key || {},
+        platform: pushNotifications?.platform || '',
+        enabledServices: {
+          contactPayments: hasNotificationsStored,
+          lnurlPayments: hasNotificationsStored,
+          nostrPayments: hasNotificationsStored,
+          pointOfSale: hasNotificationsStored,
+        },
+      };
+
+      needsToUpdate = true;
+    }
+
+    // if (!lnurlPubKey) {
+    //   lnurlPubKey = getBitcoinKeyPair(mnemonic).publicKey;
+    //   needsToUpdate = true;
+    // }
 
     if (shouldLoadExporeDataResp && freshExploreData) {
       if (freshExploreData) {
@@ -233,6 +272,7 @@ export default async function initializeUserSettingsFromHistory({
     } else {
       tempObject['exploreData'] = pastExploreData.data;
     }
+
     tempObject['homepageTxPreferance'] = storedUserTxPereferance;
     tempObject['userBalanceDenomination'] = userBalanceDenomination;
     tempObject['userSelectedLanguage'] = selectedLanguage;
@@ -253,27 +293,29 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['enabledLNURL'] = enabledLNURL;
     tempObject['useTrampoline'] = useTrampoline;
     tempObject['offlineReceiveAddresses'] = offlineReceiveAddresses;
+    // tempObject['lnurlPubKey'] = lnurlPubKey;
 
     // store in contacts context
     tempObject['contacts'] = contacts;
 
     // Store in ecash context
-    tempObject['eCashInformation'] = eCashInformation;
+    // tempObject['eCashInformation'] = eCashInformation;
 
     // store in app context
     tempObject['appData'] = appData;
     tempObject[QUICK_PAY_STORAGE_KEY] = fastPaySettings;
     tempObject['crashReportingSettings'] = crashReportingSettings;
+    tempObject['enabledDeveloperSupport'] = enabledDeveloperSupport;
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {
       await sendDataToDB(tempObject, publicKey);
     }
     delete tempObject['contacts'];
-    delete tempObject['eCashInformation'];
+    // delete tempObject['eCashInformation'];
     delete tempObject['appData'];
 
     toggleGlobalAppDataInformation(appData);
-    toggleGLobalEcashInformation(eCashInformation);
+    // toggleGLobalEcashInformation(eCashInformation);
     toggleGlobalContactsInformation(contacts);
     setMasterInfoObject(tempObject);
 

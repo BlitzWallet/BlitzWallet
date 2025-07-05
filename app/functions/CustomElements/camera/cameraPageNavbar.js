@@ -1,15 +1,16 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {Platform, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {memo} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {ICONS} from '../../../constants';
 import ThemeImage from '../themeImage';
 import {WINDOWWIDTH} from '../../../constants/theme';
-import useAppInsets from '../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../context-store/insetsProvider';
 
 export const CameraPageNavBar = memo(
   ({showWhiteImage, useFullWidth = true}) => {
     const navigation = useNavigation();
-    const {topPadding} = useAppInsets();
+
+    const {topPadding} = useGlobalInsets();
 
     const handleGoBack = () => {
       if (navigation.canGoBack()) {

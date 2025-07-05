@@ -28,6 +28,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import sha256Hash from '../../../../functions/hash';
 import ContactProfileImage from './internalComponents/profileImage';
 import {getCachedProfileImage} from '../../../../functions/cachedImage';
+import {useImageCache} from '../../../../../context-store/imageCache';
 
 export default function AddContactsHalfModal(props) {
   const {contactsPrivateKey} = useKeysContext();
@@ -39,8 +40,21 @@ export default function AddContactsHalfModal(props) {
   const sliderHight = props.slideHeight;
   const navigate = useNavigation();
   const keyboardRef = useRef(null);
+  const {refreshCacheObject} = useImageCache();
+  const searchTrackerRef = useRef(null);
 
-  const debouncedSearch = useDebounce(async term => {
+  const handleSearchTrackerRef = () => {
+    const requestUUID = customUUID();
+    searchTrackerRef.current = requestUUID; // Simply store the latest UUID
+    return requestUUID;
+  };
+
+  const debouncedSearch = useDebounce(async (term, requestUUID) => {
+    // Block request if user has moved on
+    if (searchTrackerRef.current !== requestUUID) {
+      return;
+    }
+
     const results = await searchUsers(term);
     const newUsers = (
       await Promise.all(
@@ -72,20 +86,33 @@ export default function AddContactsHalfModal(props) {
         }),
       )
     ).filter(Boolean);
-    console.log(newUsers, 'test');
-    unstable_batchedUpdates(() => {
-      setIsSearching(false);
-      setUsers(newUsers);
-    });
-  }, 800);
 
-  console.log(users);
+    refreshCacheObject();
+    setIsSearching(false);
+    setUsers(newUsers);
+  }, 800);
 
   const handleSearch = term => {
     setSearchInput(term);
-    if (term.includes('@')) return;
-    term && setIsSearching(true);
-    debouncedSearch(term);
+    handleSearchTrackerRef();
+    if (term.includes('@')) {
+      searchTrackerRef.current = null;
+      setIsSearching(false);
+      return;
+    }
+
+    if (term.length === 0) {
+      searchTrackerRef.current = null;
+      setUsers([]);
+      setIsSearching(false);
+      return;
+    }
+
+    if (term.length > 0) {
+      const requestUUID = handleSearchTrackerRef();
+      setIsSearching(true);
+      debouncedSearch(term, requestUUID);
+    }
   };
 
   const parseContact = data => {
@@ -162,6 +189,7 @@ export default function AddContactsHalfModal(props) {
             textInputRef={keyboardRef}
             blurOnSubmit={false}
             containerStyles={{justifyContent: 'center'}}
+            textInputStyles={{paddingRight: 40}}
             onSubmitEditingFunction={() => {
               clearHalfModalForLNURL();
             }}
@@ -235,9 +263,9 @@ export default function AddContactsHalfModal(props) {
                 <ThemeText
                   styles={{textAlign: 'center', marginTop: 20}}
                   content={
-                    isSearching
+                    isSearching && searchInput.length > 0
                       ? ''
-                      : searchInput
+                      : searchInput.length > 0
                       ? 'No profiles match this search'
                       : 'Start typing to search for a profile'
                   }

@@ -15,7 +15,7 @@ import {sendPushNotification} from '../../../../../functions/messaging/publishMe
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import formatBip21LiquidAddress from '../../../../../functions/liquidWallet/formatBip21liquidAddress';
+import getReceiveAddressForContactPayment from './getReceiveAddressAndKindForPayment';
 
 export default function ContactsTransactionItem(props) {
   const {selectedContact, transaction, myProfile, currentTime} = props;
@@ -252,14 +252,19 @@ export default function ContactsTransactionItem(props) {
   async function acceptPayRequest(transaction, selectedContact) {
     const sendingAmount = transaction.message.amountMsat / 1000;
 
-    const receiveAddress = formatBip21LiquidAddress({
-      address: selectedContact.receiveAddress,
-      amount: sendingAmount,
-      message: `Paying ${selectedContact.name || selectedContact.uniqueName}`,
-    });
+    const receiveAddress = await getReceiveAddressForContactPayment(
+      sendingAmount,
+      selectedContact,
+    );
+    if (!receiveAddress.didWork) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'Unable to pay contact, try again.',
+      });
+      return;
+    }
 
     navigate.navigate('ConfirmPaymentScreen', {
-      btcAdress: receiveAddress,
+      btcAdress: receiveAddress.receiveAddress,
       fromPage: 'contacts',
       publishMessageFunc: () => updatePaymentStatus(transaction, false, true),
     });

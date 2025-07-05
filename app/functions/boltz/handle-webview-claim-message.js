@@ -8,6 +8,7 @@ export default function handleWebviewClaimMessage(
   // confirmFunction,
   // saveBotlzSwapIdFunction,
 ) {
+  console.log(event.nativeEvent.data, 'Webview claim message');
   (async () => {
     const data = JSON.parse(event.nativeEvent.data);
     try {
@@ -51,25 +52,32 @@ export default function handleWebviewClaimMessage(
           }
         }
 
-        if (didPost) return;
+        let [savedClaimInfo, claimTxs] = await Promise.all([
+          getLocalStorageItem('savedReverseSwapInfo')
+            .then(JSON.parse)
+            .catch(() => []),
+          getLocalStorageItem('boltzClaimTxs')
+            .then(JSON.parse)
+            .catch(() => []),
+        ]);
 
-        let claimTxs =
-          JSON.parse(await getLocalStorageItem('boltzClaimTxs')) || [];
+        savedClaimInfo = savedClaimInfo.filter(
+          claim => claim?.swapInfo?.id !== data.id,
+        );
+
+        setLocalStorageItem(
+          'savedReverseSwapInfo',
+          JSON.stringify(savedClaimInfo),
+        );
+
+        if (didPost) return;
 
         claimTxs.push([data.tx, new Date()]);
 
         setLocalStorageItem('boltzClaimTxs', JSON.stringify(claimTxs));
       }
     } catch (err) {
-      console.log(err, 'WEBVIEW ERROR');
-      if (typeof data === 'object' && data?.tx) {
-        let claimTxs =
-          JSON.parse(await getLocalStorageItem('boltzClaimTxs')) || [];
-
-        claimTxs.push([data.tx, new Date()]);
-
-        setLocalStorageItem('boltzClaimTxs', JSON.stringify(claimTxs));
-      }
+      console.log(err, 'Webview claim error');
     }
   })();
 }

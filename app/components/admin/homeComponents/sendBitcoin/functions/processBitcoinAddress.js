@@ -1,95 +1,57 @@
-import {fetchOnchainLimits} from '@breeztech/react-native-breez-sdk-liquid';
-import {sendBitcoinPayment} from './payments';
 import {SATSPERBITCOIN} from '../../../../../constants';
-import {
-  crashlyticsLogReport,
-  crashlyticsRecordErrorReport,
-} from '../../../../../functions/crashlyticsLogs';
+import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
+import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 
 export default async function processBitcoinAddress(input, context) {
-  const {
-    nodeInformation,
-    liquidNodeInformation,
-    masterInfoObject,
-    navigate,
-    goBackFunction,
-    comingFromAccept,
-    enteredPaymentInfo,
-    paymentInfo,
-  } = context;
-  try {
-    crashlyticsLogReport('Begining decode Bitcoin address');
-    const choosingLimit = paymentInfo?.data?.limits
-      ? Promise.resolve({send: paymentInfo?.data?.limits})
-      : fetchOnchainLimits();
-    const currentLimits = await choosingLimit;
+  const {masterInfoObject, comingFromAccept, enteredPaymentInfo, fiatStats} =
+    context;
 
-    const amountSat = comingFromAccept
-      ? enteredPaymentInfo.amount
-      : input.address.amountSat || 0;
+  crashlyticsLogReport('Begining decode Bitcoin address');
 
-    const fromNetwork = comingFromAccept
-      ? enteredPaymentInfo.from
-      : liquidNodeInformation.userBalance > amountSat
-      ? 'liquid'
-      : nodeInformation.userBalance > amountSat
-      ? 'lightning'
-      : 'none';
+  const amountSat = comingFromAccept
+    ? enteredPaymentInfo.amount
+    : input.address.amountSat || 0;
 
-    const shouldDrain =
-      fromNetwork === 'liquid'
-        ? liquidNodeInformation.userBalance - amountSat < 500
-        : nodeInformation.userBalance - amountSat < 500;
-
-    const fiatValue =
-      Number(amountSat) /
-      (SATSPERBITCOIN / (nodeInformation.fiatStats?.value || 65000));
-    let newPaymentInfo = {
+  const fiatValue =
+    Number(amountSat) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
+  let newPaymentInfo = {
+    address: input.address.address,
+    amount: amountSat,
+    label: input.address.label || '',
+  };
+  let paymentFee = 0;
+  let supportFee = 0;
+  if (amountSat) {
+    const paymentFeeResponse = await sparkPaymenWrapper({
+      getFee: true,
       address: input.address.address,
-      amount: amountSat,
-      label: input.address.label || '',
-      limits: currentLimits.send,
-      shouldDrain,
-    };
-    let paymentFee = 0;
-    if (amountSat) {
-      const paymentFeeResponse = await sendBitcoinPayment({
-        paymentInfo: {data: newPaymentInfo},
-        sendingValue: amountSat,
-        onlyPrepare: true,
-        from: fromNetwork,
-      });
-      if (paymentFeeResponse.didWork) {
-        paymentFee = paymentFeeResponse.fees;
-      } else {
-        goBackFunction(`Sending amount is above your balance`);
-        return;
-      }
-    }
-    newPaymentInfo = {
-      ...newPaymentInfo,
-      fee: paymentFee,
-    };
+      paymentType: 'bitcoin',
+      amountSats: amountSat,
+      masterInfoObject,
+    });
 
-    return {
-      data: newPaymentInfo,
-      type: 'Bitcoin',
-      paymentNetwork: 'Bitcoin',
-      sendAmount: !amountSat
-        ? ''
-        : `${
-            masterInfoObject.userBalanceDenomination != 'fiat'
-              ? `${amountSat}`
-              : fiatValue < 0.01
-              ? ''
-              : `${fiatValue.toFixed(2)}`
-          }`,
-      canEditPayment:
-        comingFromAccept || input.address.amountSat ? false : true,
-    };
-  } catch (err) {
-    console.log('process bitcoin address error', err);
-    crashlyticsRecordErrorReport(err.message);
-    return false;
+    if (!paymentFeeResponse.didWork) throw new Error(paymentFeeResponse.error);
+
+    paymentFee = paymentFeeResponse.fee;
+    supportFee = paymentFeeResponse.supportFee;
   }
+
+  return {
+    data: newPaymentInfo,
+    type: 'Bitcoin',
+    paymentNetwork: 'Bitcoin',
+    address: input.address.address,
+    paymentFee: paymentFee,
+    supportFee: supportFee,
+    sendAmount: !amountSat
+      ? ''
+      : `${
+          masterInfoObject.userBalanceDenomination != 'fiat'
+            ? `${amountSat}`
+            : fiatValue < 0.01
+            ? ''
+            : `${fiatValue.toFixed(2)}`
+        }`,
+    canEditPayment: comingFromAccept || input.address.amountSat ? false : true,
+  };
 }

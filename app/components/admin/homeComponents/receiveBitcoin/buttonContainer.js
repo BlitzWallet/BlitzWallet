@@ -19,6 +19,7 @@ export default function ButtonsContainer(props) {
           actionFunction={() =>
             navigate.navigate('EditReceivePaymentInformation', {
               from: 'receivePage',
+              receiveType: props.selectedRecieveOption,
             })
           }
           textContent={t('constants.edit')}

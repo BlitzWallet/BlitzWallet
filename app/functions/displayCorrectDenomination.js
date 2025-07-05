@@ -1,21 +1,21 @@
-import {BITCOIN_SATS_ICON} from '../constants';
+import {BITCOIN_SAT_TEXT, BITCOIN_SATS_ICON} from '../constants';
 import {formatCurrency} from './formatCurrency';
 import formatBalanceAmount from './formatNumber';
 import numberConverter from './numberConverter';
 
 export default function displayCorrectDenomination({
   amount,
-  nodeInformation,
   masterInfoObject,
+  fiatStats,
 }) {
   try {
     const convertedAmount = numberConverter(
       amount,
       masterInfoObject.userBalanceDenomination,
-      nodeInformation,
       masterInfoObject.userBalanceDenomination === 'fiat' ? 2 : 0,
+      fiatStats,
     );
-    const currencyText = nodeInformation?.fiatStats.coin || 'USD';
+    const currencyText = fiatStats?.coin || 'USD';
     const showSymbol = masterInfoObject.satDisplay === 'symbol';
     const showSats =
       masterInfoObject.userBalanceDenomination === 'sats' ||
@@ -31,7 +31,7 @@ export default function displayCorrectDenomination({
 
     if (showSats) {
       if (showSymbol) return BITCOIN_SATS_ICON + formatedSat;
-      else return formatedSat + ' sats';
+      else return formatedSat + ` ${BITCOIN_SAT_TEXT}`;
     } else {
       if (showSymbol && isSymbolInFront)
         return currencySymbol + formattedCurrency[1];

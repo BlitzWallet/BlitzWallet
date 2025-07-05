@@ -42,7 +42,7 @@ import {
   setDatabaseIMG,
 } from '../../../../../db/photoStorage';
 import {useImageCache} from '../../../../../context-store/imageCache';
-import useAppInsets from '../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -149,7 +149,7 @@ function InnerContent({
   });
 
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const navigate = useNavigation();
 

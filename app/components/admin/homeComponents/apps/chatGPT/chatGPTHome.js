@@ -45,7 +45,7 @@ import customUUID from '../../../../../functions/customUUID';
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
   const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
+  const {fiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset} = GetThemeColors();
   const chatHistoryFromProps = props.route.params?.chatHistory;
@@ -426,8 +426,7 @@ export default function ChatGPTHome(props) {
       // calculate price
       const data = response;
       const [textInfo] = data.choices;
-      const satsPerDollar =
-        SATSPERBITCOIN / (nodeInformation.fiatStats.value || 60000);
+      const satsPerDollar = SATSPERBITCOIN / (fiatStats.value || 60000);
 
       const price =
         filteredModel.input * data.usage.prompt_tokens +

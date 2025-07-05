@@ -3,13 +3,20 @@ import {deleteTable} from './messaging/cachedMessages';
 import {deletePOSTransactionsTable} from './pos';
 import {terminateAccount} from './secureStore';
 import {getAuth} from '@react-native-firebase/auth';
+import {
+  deleteSparkTransactionTable,
+  deleteUnpaidSparkLightningTransactionTable,
+} from './spark/transactions';
 
 export default async function factoryResetWallet() {
   try {
     await deleteTable();
     await deleteEcashDBTables();
     await deletePOSTransactionsTable();
+    await deleteSparkTransactionTable();
+    await deleteUnpaidSparkLightningTransactionTable();
     await terminateAccount();
+
     try {
       await getAuth().signOut();
     } catch (err) {

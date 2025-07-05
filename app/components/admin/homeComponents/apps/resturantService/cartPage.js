@@ -8,11 +8,11 @@ import {
 } from 'react-native';
 import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
-import {BTN} from '../../../../../constants/styles';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ANDROIDSAFEAREA, BTN} from '../../../../../constants/styles';
 import {formatBalanceAmount} from '../../../../../functions';
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function ResturantCartPage({
   route: {
@@ -21,7 +21,8 @@ export default function ResturantCartPage({
 }) {
   const {theme} = useGlobalThemeContext();
   const navigate = useNavigation();
-  const {bottomPadding, topPadding} = useAppInsets();
+  const insets = useSafeAreaInsets();
+
   const [localCartTracker, setLocalCartTracker] = useState([...cartItems]);
 
   const totalPrice = localCartTracker.reduce((prev, current) => {
@@ -34,8 +35,8 @@ export default function ResturantCartPage({
     <View
       style={{
         flex: 1,
-        paddingTop: topPadding,
-        paddingBottom: bottomPadding,
+        paddingTop: insets.top < 20 ? ANDROIDSAFEAREA : insets.top,
+        paddingBottom: insets.bottom < 20 ? ANDROIDSAFEAREA : insets.bottom,
         backgroundColor: theme
           ? COLORS.darkModeBackground
           : COLORS.lightModeBackground,

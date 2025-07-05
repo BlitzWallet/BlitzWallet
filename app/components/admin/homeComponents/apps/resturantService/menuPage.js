@@ -6,15 +6,25 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  FONT,
+  ICONS,
+  SATSPERBITCOIN,
+  SIZES,
+} from '../../../../../constants';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import {
   formatBalanceAmount,
   getLocalStorageItem,
+  numberConverter,
 } from '../../../../../functions';
 import {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
+import {removeLocalStorageItem} from '../../../../../functions/localStorage';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import useAppInsets from '../../../../../hooks/useAppInsets';
 
 export default function MenuPage({
   route: {
@@ -23,9 +33,9 @@ export default function MenuPage({
   navigation,
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
+  const insets = useSafeAreaInsets();
   const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigation();
-  const {topPadding, bottomPadding} = useAppInsets();
 
   useEffect(() => {
     (async () => {
@@ -42,7 +52,8 @@ export default function MenuPage({
         backgroundColor: theme
           ? COLORS.darkModeBackground
           : COLORS.lightModeBackground,
-        paddingTop: topPadding,
+        paddingTop: insets.top < 20 ? ANDROIDSAFEAREA : insets.top,
+        // paddingBottom: insets.bottom < 20 ? ANDROIDSAFEAREA : insets.bottom,
       }}>
       <View style={styles.topBar}>
         <TouchableOpacity
@@ -108,7 +119,7 @@ export default function MenuPage({
           alignItems: 'center',
           justifyContent: 'center',
           position: 'absolute',
-          bottom: bottomPadding,
+          bottom: insets.bottom < 20 ? ANDROIDSAFEAREA : insets.bottom,
           left: '50%',
           transform: [{translateX: -25}],
           zIndex: 1,

@@ -1,30 +1,26 @@
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import {
-  CENTER,
-  COLORS,
-  FONT,
-  MIN_CHANNEL_OPEN_FEE,
-  SIZES,
-} from '../../../../constants';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import {CENTER, COLORS, SIZES} from '../../../../constants';
 
 import {ThemeText} from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
 import DeviceInfo from 'react-native-device-info';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import GetThemeColors from '../../../../hooks/themeColors';
+
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
+
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import openWebBrowser from '../../../../functions/openWebBrowser';
 import {useTranslation} from 'react-i18next';
 
 export default function AboutPage() {
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor} = GetThemeColors();
+
   const {t} = useTranslation();
 
   const navigate = useNavigation();
@@ -100,18 +96,24 @@ export default function AboutPage() {
           content={t('settings.about.text13')}
         />
         <ThemeText content={t('settings.about.text14')} />
-        <ThemeText
-          styles={{color: theme && darkModeType ? textColor : COLORS.primary}}
-          content={displayCorrectDenomination({
-            amount:
-              masterInfoObject.liquidWalletSettings.regulatedChannelOpenSize,
-            nodeInformation,
-            masterInfoObject,
-          })}
-        />
-
         <ThemeText content={t('settings.about.text15')} />
       </Text>
+
+      <TouchableOpacity
+        style={{...CENTER, marginBottom: 20}}
+        onPress={() =>
+          navigate.navigate('CustomWebView', {
+            headerText: 'Spark',
+            webViewURL: 'https://docs.spark.money/spark/spark-tldr',
+          })
+        }>
+        <ThemeText
+          styles={{
+            color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+          }}
+          content={'Learn more'}
+        />
+      </TouchableOpacity>
 
       <View style={{...CENTER, alignItems: 'center'}}>
         <ThemeText
