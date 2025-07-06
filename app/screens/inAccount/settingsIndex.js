@@ -126,6 +126,13 @@ const EXPIRIMENTALFEATURES = [
 ];
 const ADVANCEDOPTIONS = [
   {
+    for: 'Closing Account',
+    name: 'Blitz Fee Details',
+    icon: ICONS.receiptIcon,
+    iconWhite: ICONS.receiptWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  {
     for: 'general',
     name: 'Crash Reports',
     svgIcon: true,
@@ -167,6 +174,7 @@ const ADVANCEDOPTIONS = [
   //   iconWhite: ICONS.settingsBitcoinIconWhite,
   //   arrowIcon: ICONS.leftCheveronIcon,
   // },
+
   {
     for: 'general',
     name: 'Refund Liquid Swap',

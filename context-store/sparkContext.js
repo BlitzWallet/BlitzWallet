@@ -360,6 +360,10 @@ const SparkWalletProvider = ({children}) => {
     // sparkWallet.on('deposit:confirmed', transferHandler);
 
     await updateSparkTxStatus(50, isFirstSparkUpdateStateInterval.current);
+    if (updatePendingPaymentsIntervalRef.current) {
+      console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
+      return;
+    }
     updatePendingPaymentsIntervalRef.current = setInterval(async () => {
       try {
         console.log(

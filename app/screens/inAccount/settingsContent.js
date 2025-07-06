@@ -22,6 +22,7 @@ import {
   SparkInfo,
   SupportWorkPage,
   NotificationPreferances,
+  BlitzFeeInformation,
 } from '../../components/admin/homeComponents/settingsContent';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView} from '../../functions/CustomElements';
@@ -135,6 +136,9 @@ export default function SettingsContentIndex(props) {
               <ViewAllLiquidSwaps theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
+            {selectedPage?.toLowerCase() === 'blitz fee details' && (
+              <BlitzFeeInformation />
+            )}
             {selectedPage?.toLowerCase() === 'crash reports' && (
               <CrashReportingSettingsPage />
             )}
