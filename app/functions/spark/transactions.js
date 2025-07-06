@@ -148,7 +148,7 @@ export const updateSingleSparkTransaction = async (saved_spark_id, updates) => {
 };
 
 export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
-  const [updateType = 'transactions', fee = 0] = data;
+  const [updateType = 'transactions', fee = 0, passedBalance = 0] = data;
   console.log(transactions, 'transactions list in bulk updats');
   if (!Array.isArray(transactions) || transactions.length === 0) return;
 
@@ -229,6 +229,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
         SPARK_TX_UPDATE_ENVENT_NAME,
         updateType,
         fee,
+        passedBalance,
       );
 
       return true;

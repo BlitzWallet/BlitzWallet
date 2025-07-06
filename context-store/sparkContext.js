@@ -47,6 +47,7 @@ import getDepositAddressTxIds, {
 } from '../app/functions/spark/getDepositAdressTxIds';
 import {useKeysContext} from './keys';
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
+import {navigationRef} from '../navigation/navigationService';
 
 // Initiate context
 const SparkWalletManager = createContext(null);
@@ -87,7 +88,11 @@ const SparkWalletProvider = ({children}) => {
   }, [blockedIdentityPubKeys]);
 
   // This is a function that handles incoming transactions and formmataes it to reqirued formation
-  const handleTransactionUpdate = async (recevedTxId, transactions) => {
+  const handleTransactionUpdate = async (
+    recevedTxId,
+    transactions,
+    balance,
+  ) => {
     try {
       // First we need to get recent spark transfers
       // const transactions = await getSparkTransactions(50, undefined);
@@ -160,6 +165,7 @@ const SparkWalletProvider = ({children}) => {
               savedInvoice?.shouldNavigate === undefined
                 ? 0 //if not specified navigate to confirm screen
                 : savedInvoice?.shouldNavigate,
+            isLNULR: JSON.parse(savedInvoice.details)?.isLNURL || false,
           },
         };
         console.log('lightning payment object', paymentObject);
@@ -185,7 +191,12 @@ const SparkWalletProvider = ({children}) => {
       }
       if (!selectedSparkTransaction)
         throw new Error('Not able to get recent transfer');
-      await bulkUpdateSparkTransactions([paymentObject]);
+      await bulkUpdateSparkTransactions(
+        [paymentObject],
+        'incomingPayment',
+        0,
+        balance,
+      );
       const savedTxs = await getAllSparkTransactions();
       return {
         txs: savedTxs,
@@ -199,10 +210,11 @@ const SparkWalletProvider = ({children}) => {
     }
   };
 
-  const handleIncomingPayment = async (transferId, transactions) => {
+  const handleIncomingPayment = async (transferId, transactions, balance) => {
     let storedTransaction = await handleTransactionUpdate(
       transferId,
       transactions,
+      balance,
     );
     // block incoming paymetns here
     // console.log(blockedIdentityPubKeysRef.current, 'blocked identy puib keys');
@@ -211,10 +223,9 @@ const SparkWalletProvider = ({children}) => {
     // );
     // if the tx storage fails at least update the balance
     if (!storedTransaction) {
-      const balance = await getSparkBalance();
       setSparkInformation(prev => ({
         ...prev,
-        balance: Number(balance?.balance) || prev.balance,
+        balance: balance,
       }));
 
       return;
@@ -233,7 +244,15 @@ const SparkWalletProvider = ({children}) => {
     //   await bulkUpdateSparkTransactions([newPayent]);
     // }
     const details = JSON.parse(selectedStoredPayment.details);
-    if (details?.shouldNavigate) return;
+
+    if (details?.shouldNavigate && !details.isLNULR) return;
+    if (
+      details.isLNULR &&
+      navigationRef
+        .getRootState()
+        .routes?.filter(item => item.name === 'ReceiveBTC').length !== 1
+    )
+      return;
     if (details.isRestore) return;
     if (storedTransaction.paymentCreatedTime < sessionTime) return;
     // Handle confirm animation here
@@ -255,39 +274,54 @@ const SparkWalletProvider = ({children}) => {
   };
 
   // Debounced version of handleIncomingPayment
-  const debouncedHandleIncomingPayment = useCallback(async () => {
-    if (pendingTransferIds.current.size === 0) return;
+  const debouncedHandleIncomingPayment = useCallback(
+    async balance => {
+      if (pendingTransferIds.current.size === 0) return;
 
-    const transferIdsToProcess = Array.from(pendingTransferIds.current);
-    pendingTransferIds.current.clear();
+      const transferIdsToProcess = Array.from(pendingTransferIds.current);
+      pendingTransferIds.current.clear();
 
-    console.log(
-      'Processing debounced incoming payments:',
-      transferIdsToProcess,
-    );
-    const transactions = await getSparkTransactions(50, undefined);
-    // Process all pending transfer IDs
-    for (const transferId of transferIdsToProcess) {
-      try {
-        await handleIncomingPayment(transferId, transactions);
-      } catch (error) {
-        console.error('Error processing incoming payment:', transferId, error);
+      console.log(
+        'Processing debounced incoming payments:',
+        transferIdsToProcess,
+      );
+      const transactions = await getSparkTransactions(50, undefined);
+      // Process all pending transfer IDs
+      for (const transferId of transferIdsToProcess) {
+        try {
+          await handleIncomingPayment(transferId, transactions, balance);
+        } catch (error) {
+          console.error(
+            'Error processing incoming payment:',
+            transferId,
+            error,
+          );
+        }
       }
-    }
-  }, []);
+    },
+    [navigationRef],
+  );
 
   const handleUpdate = async (...args) => {
     try {
-      const [updateType = 'transactions', fee = 0] = args;
+      const [updateType = 'transactions', fee = 0, passedBalance = 0] = args;
       console.log(
         'running update in spark context from db changes',
         updateType,
       );
       if (updateType === 'supportTx') return;
-      const txs = await getAllSparkTransactions();
-      const balance = await getSparkBalance();
 
-      console.log(balance, 'TESTING BALANE');
+      const txs = await getAllSparkTransactions();
+
+      if (updateType === 'incomingPayment') {
+        setSparkInformation(prev => ({
+          ...prev,
+          transactions: txs || prev.transactions,
+          balance: passedBalance,
+        }));
+        return;
+      }
+      const balance = await getSparkBalance();
 
       if (updateType === 'paymentWrapperTx') {
         setSparkInformation(prev => ({
@@ -320,7 +354,7 @@ const SparkWalletProvider = ({children}) => {
 
     // Set new timeout for debounced execution (500ms delay)
     debounceTimeoutRef.current = setTimeout(() => {
-      debouncedHandleIncomingPayment();
+      debouncedHandleIncomingPayment(balance);
     }, 500);
   };
 
@@ -363,7 +397,6 @@ const SparkWalletProvider = ({children}) => {
     if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
     const handleAppStateChange = nextAppState => {
-      console.log(nextAppState);
       setCurrentAppState(nextAppState);
     };
     AppState.addEventListener('change', handleAppStateChange);

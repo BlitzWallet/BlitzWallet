@@ -126,6 +126,7 @@ export default function HandleLNURLPayments() {
             details: {
               sharedPublicKey: payment.sharedPublicKey || '',
               sparkPubKey: payment.sparkPubKey || '',
+              isLNURL: true,
             },
           });
           processedIds.push(payment.id);
