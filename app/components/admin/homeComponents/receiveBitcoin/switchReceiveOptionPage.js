@@ -201,7 +201,7 @@ export default function SwitchReceiveOptionPage({
       showsVerticalScrollIndicator={false}
       style={{flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
       <ThemeText
-        styles={{marginTop: 20, marginBottom: 20}}
+        styles={{marginTop: 10, marginBottom: 20}}
         content={'Choose Network'}
       />
 
@@ -211,7 +211,7 @@ export default function SwitchReceiveOptionPage({
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          paddingVertical: 10,
+          paddingVertical: 20,
           marginBottom: 20,
         }}
         onPress={toggleExpanded}>

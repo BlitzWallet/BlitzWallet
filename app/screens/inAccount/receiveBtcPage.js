@@ -260,7 +260,9 @@ function QrCode(props) {
             }}
             style={{
               width: '80%',
-              marginTop: 10,
+
+              paddingTop: 10,
+              paddingBottom: 20,
               alignItems: 'center',
               flexDirection: 'row',
               justifyContent: 'center',

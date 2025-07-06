@@ -61,8 +61,8 @@ export default function ButtonsContainer(props) {
 const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
-
-    marginVertical: 30,
+    marginTop: 10,
+    marginBottom: 30,
     overflow: 'hidden',
   },
   buttonRow: {
