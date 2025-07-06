@@ -24,7 +24,7 @@ export default function QrCodeWrapper({
   const image = cache[masterInfoObject.uuid]?.localUri;
 
   const customURI = `${image}?v=${
-    imageData.updated ? new Date(imageData.updated).getTime() : customUUID()
+    imageData?.updated ? new Date(imageData.updated).getTime() : customUUID()
   }`;
 
   return (

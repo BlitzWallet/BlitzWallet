@@ -25,8 +25,6 @@ export function ImageCacheProvider({children}) {
   const {masterInfoObject} = useGlobalContextProvider();
   const didRunContextCacheCheck = useRef(null);
 
-  console.log(cache, 'imgaes cache');
-
   const refreshCacheObject = async () => {
     try {
       const keys = await AsyncStorage.getAllKeys();

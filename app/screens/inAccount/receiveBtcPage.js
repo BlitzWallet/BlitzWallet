@@ -286,7 +286,7 @@ function QrCode(props) {
               });
             }}
             style={{
-              width: '100%',
+              width: '80%',
               marginTop: 10,
               alignItems: 'center',
               flexDirection: 'row',

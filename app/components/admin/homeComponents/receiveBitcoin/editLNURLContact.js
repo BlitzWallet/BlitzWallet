@@ -183,7 +183,7 @@ export default function EditLNURLContactOnReceivePage({
               <FullLoadingScreen showText={false} />
             ) : (
               <ContactProfileImage
-                updated={imageData.updated}
+                updated={imageData?.updated}
                 uri={image}
                 darkModeType={darkModeType}
                 theme={theme}
