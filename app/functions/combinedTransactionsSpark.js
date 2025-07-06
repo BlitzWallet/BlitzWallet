@@ -287,8 +287,8 @@ export const UserTransaction = memo(function UserTransaction({
                       showPendingTransactionStatusIcon || isFailedPayment
                         ? '0deg'
                         : transaction.details.direction === 'INCOMING'
-                        ? '310deg'
-                        : '130deg',
+                        ? '270deg'
+                        : '90deg',
                   },
                 ],
               },
@@ -418,11 +418,13 @@ const styles = StyleSheet.create({
   },
 
   descriptionText: {
+    includeFontPadding: false,
     fontWeight: 400,
     marginRight: 20,
   },
   dateText: {
     fontSize: SIZES.small,
+    includeFontPadding: false,
   },
   amountText: {
     fontWeight: 400,

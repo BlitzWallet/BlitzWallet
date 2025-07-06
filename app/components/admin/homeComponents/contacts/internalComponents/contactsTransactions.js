@@ -87,7 +87,7 @@ export default function ContactsTransactionItem(props) {
                   ...styles.icons,
                   transform: [
                     {
-                      rotate: '130deg',
+                      rotate: '270deg',
                     },
                   ],
                 }}
@@ -306,8 +306,8 @@ function ConfirmedOrSentTransaction({
                 rotate: didDeclinePayment
                   ? '180deg'
                   : txParsed.didSend && !txParsed.isRequest
-                  ? '130deg'
-                  : '310deg',
+                  ? '90deg'
+                  : '270deg',
               },
             ],
           }}
