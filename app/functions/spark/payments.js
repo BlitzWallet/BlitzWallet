@@ -76,7 +76,7 @@ export const sparkPaymenWrapper = async ({
     if (paymentType === 'lightning') {
       const initialFee = Math.round(fee - supportFee);
       const lightningPayResponse = await sendSparkLightningPayment({
-        maxFeeSats: Math.round(initialFee * 1.2),
+        maxFeeSats: Math.ceil(initialFee * 1.2), //addding 20% buffer so we dont undershoot it
         invoice: address,
       });
       if (!lightningPayResponse.didWork)
