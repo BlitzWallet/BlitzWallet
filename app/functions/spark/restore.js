@@ -231,7 +231,7 @@ export async function fullRestoreSparkState({sparkAddress}) {
   }
 }
 
-export const findSignleTxFromHistory = async (txid, start) => {
+export const findSignleTxFromHistory = async (txid, BATCH_SIZE) => {
   let restoredTx;
   try {
     // here we do not want to save any tx to be shown, we only want to flag that it came from restore and then when we get the actual notification of it we can block the navigation
