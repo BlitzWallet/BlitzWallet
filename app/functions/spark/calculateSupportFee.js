@@ -22,8 +22,8 @@ export default async function calculateProgressiveBracketFee(
     {upTo: Infinity, fixedFee: 4, percentage: 0.004}, // fallback: 0.4% + 4 sats
   ];
   const bitcoinBrackets = [
-    {upTo: 30000, fixedFee: 3, percentage: 0.001}, // 0.3% + 3 sats
-    {upTo: Infinity, fixedFee: 4, percentage: 0.004}, // fallback: 0.2% + 4 sats
+    {upTo: 30000, fixedFee: 3, percentage: 0.003}, // 0.3% + 3 sats
+    {upTo: Infinity, fixedFee: 4, percentage: 0.004}, // fallback: 0.4% + 4 sats
   ];
 
   let brackets;

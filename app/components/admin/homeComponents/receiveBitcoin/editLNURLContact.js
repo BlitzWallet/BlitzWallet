@@ -40,6 +40,7 @@ export default function EditLNURLContactOnReceivePage({
   isKeyboardActive,
   setIsKeyboardActive,
   setContentHeight,
+  handleBackPressFunction,
 }) {
   const navigate = useNavigation();
   const {cache, refreshCache} = useImageCache();
@@ -114,19 +115,21 @@ export default function EditLNURLContactOnReceivePage({
 
   const saveProfileName = useCallback(async () => {
     try {
+      if (
+        !username ||
+        !username.length ||
+        globalContactsInformation.myProfile.uniqueName.toLowerCase() ===
+          username.toLowerCase()
+      ) {
+        handleBackPressFunction();
+        return;
+      }
+
       if (username.length > 30) throw new Error('Username is too long');
       if (!VALID_USERNAME_REGEX.test(username))
         throw new Error(
           'You can only have letters, numbers, or underscores in your username, and must contain at least 1 letter.',
         );
-
-      if (
-        globalContactsInformation.myProfile.uniqueName.toLowerCase() ===
-        username.toLowerCase()
-      ) {
-        navigate.goBack();
-        return;
-      }
 
       const isFreeUniqueName = await isValidUniqueName(
         'blitzWalletUsers',

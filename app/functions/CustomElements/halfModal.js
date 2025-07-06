@@ -214,6 +214,7 @@ export default function CustomHalfModal(props) {
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}
             setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       default:
