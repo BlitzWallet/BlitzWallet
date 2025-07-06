@@ -41,9 +41,11 @@ import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
 import customUUID from '../../../../../functions/customUUID';
+import {useToast} from '../../../../../../context-store/toastManager';
 
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
+  const {showToast} = useToast();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {fiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -90,7 +92,7 @@ export default function ChatGPTHome(props) {
           onPress={e => {
             const targetEvent = e.nativeEvent.name.toLowerCase();
             if (targetEvent === 'copy') {
-              copyToClipboard(item.content, navigate, 'ChatGPT');
+              copyToClipboard(item.content, showToast, 'ChatGPT');
             } else {
               setUserChatText(item.content);
             }

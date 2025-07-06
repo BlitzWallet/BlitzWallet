@@ -6,9 +6,11 @@ import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {WINDOWWIDTH} from '../../constants/theme';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import {useToast} from '../../../context-store/toastManager';
 
 export default function TechnicalTransactionDetails(props) {
   console.log('Transaction Detials Page');
+  const {showToast} = useToast();
   const navigate = useNavigation();
   useHandleBackPressNew();
 
@@ -73,7 +75,7 @@ export default function TechnicalTransactionDetails(props) {
               });
               return;
             }
-            copyToClipboard(txItem, navigate);
+            copyToClipboard(txItem, showToast);
           }}>
           <ThemeText
             content={txItem || 'N/A'}

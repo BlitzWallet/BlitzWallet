@@ -20,12 +20,13 @@ import {
   applyErrorAnimationTheme,
   updateConfirmAnimation,
 } from '../../functions/lottieViewColorTransformer';
+import {useToast} from '../../../context-store/toastManager';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
 export default function ConfirmTxPage(props) {
   const navigate = useNavigation();
-
+  const {showToast} = useToast();
   const {backgroundOffset} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
   const animationRef = useRef(null);
@@ -163,7 +164,7 @@ export default function ConfirmTxPage(props) {
                 body: errorMessage,
               });
             } catch (err) {
-              copyToClipboard('blake@blitz-wallet.com', navigate);
+              copyToClipboard('blake@blitz-wallet.com', showToast);
             }
           }}>
           <ThemeText

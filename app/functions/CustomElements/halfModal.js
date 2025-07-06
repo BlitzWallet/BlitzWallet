@@ -28,7 +28,7 @@ import AddContactsHalfModal from '../../components/admin/homeComponents/contacts
 import GetThemeColors from '../../hooks/themeColors';
 import MyProfileQRCode from '../../components/admin/homeComponents/contacts/internalComponents/profilePageQrPopup';
 import ExpandedMessageHalfModal from '../../components/admin/homeComponents/contacts/expandedMessageHalfModal';
-import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
+// import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 import ManualEnterSendAddress from '../../components/admin/homeComponents/homeLightning/manualEnterSendAddress';
 import ConfirmInternalTransferHalfModal from '../../components/admin/homeComponents/settingsContent/walletInfoComponents/confirmTransferHalfModal';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
@@ -176,8 +176,8 @@ export default function CustomHalfModal(props) {
             slideHeight={slideHeight}
           />
         );
-      case 'liquidAddressModal':
-        return <LiquidAddressModal />;
+      // case 'liquidAddressModal':
+      //   return <LiquidAddressModal />;
       case 'manualEnterSendAddress':
         return (
           <ManualEnterSendAddress

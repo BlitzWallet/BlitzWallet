@@ -18,11 +18,12 @@ import {ICONS} from '../../../../../constants';
 import QRCode from 'react-native-qrcode-svg';
 import React, {useRef} from 'react';
 import {copyToClipboard} from '../../../../../functions';
+import {useToast} from '../../../../../../context-store/toastManager';
 
 export default function POSInstructionsPath() {
   const {masterInfoObject} = useGlobalContextProvider();
   const navigate = useNavigation();
-
+  const {showToast} = useToast();
   const posURL = `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`;
 
   return (
@@ -43,7 +44,7 @@ export default function POSInstructionsPath() {
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={() => {
-          copyToClipboard(posURL, navigate);
+          copyToClipboard(posURL, showToast);
         }}
         style={styles.qrCodeContainer}>
         <View style={styles.qrCodeBorder}>
@@ -59,7 +60,7 @@ export default function POSInstructionsPath() {
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={() => {
-          copyToClipboard(posURL, navigate);
+          copyToClipboard(posURL, showToast);
         }}>
         <ThemeText
           styles={{

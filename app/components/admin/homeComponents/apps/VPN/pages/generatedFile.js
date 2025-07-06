@@ -19,6 +19,7 @@ import {backArrow} from '../../../../../../constants/styles';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import QrCodeWrapper from '../../../../../../functions/CustomElements/QrWrapper';
 import writeAndShareFileToFilesystem from '../../../../../../functions/writeFileToFilesystem';
+import {useToast} from '../../../../../../../context-store/toastManager';
 
 export default function GeneratedVPNFile(props) {
   const navigate = useNavigation();
@@ -58,6 +59,7 @@ export default function GeneratedVPNFile(props) {
 }
 
 function VPNFileDisplay({generatedFile}) {
+  const {showToast} = useToast();
   const navigate = useNavigation();
   const {backgroundOffset} = GetThemeColors();
 
@@ -72,7 +74,7 @@ function VPNFileDisplay({generatedFile}) {
 
       <TouchableOpacity
         onPress={() => {
-          copyToClipboard(generatedFile.join('\n'), navigate);
+          copyToClipboard(generatedFile.join('\n'), showToast);
         }}>
         <QrCodeWrapper QRData={generatedFile.join('\n')} />
       </TouchableOpacity>
@@ -89,7 +91,7 @@ function VPNFileDisplay({generatedFile}) {
           buttonStyles={{...CENTER, with: 'auto'}}
           textContent={'Copy'}
           actionFunction={() => {
-            copyToClipboard(generatedFile.join('\n'), navigate);
+            copyToClipboard(generatedFile.join('\n'), showToast);
           }}
         />
       </View>

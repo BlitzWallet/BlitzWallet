@@ -20,8 +20,10 @@ import {useKeysContext} from '../../../../../context-store/keys';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import calculateSeedQR from './seedQR';
 import {copyToClipboard} from '../../../../functions';
+import {useToast} from '../../../../../context-store/toastManager';
 
 export default function SeedPhrasePage({extraData}) {
+  const {showToast} = useToast();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const {accountMnemoinc} = useKeysContext();
   const isInitialRender = useRef(true);
@@ -172,7 +174,7 @@ export default function SeedPhrasePage({extraData}) {
           actionFunction={() =>
             copyToClipboard(
               selectedDisplayOption === 'words' ? accountMnemoinc : qrValue,
-              navigate,
+              showToast,
             )
           }
           textContent={'Copy'}

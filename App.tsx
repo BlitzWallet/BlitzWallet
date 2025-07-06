@@ -103,6 +103,7 @@ import {setStatusBarBackgroundColor, setStatusBarStyle} from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import {InsetsProvider} from './context-store/insetsProvider';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {ToastContainer, ToastProvider} from './context-store/toastManager';
 
 const Stack = createNativeStackNavigator();
 
@@ -112,43 +113,45 @@ function App(): JSX.Element {
       <SafeAreaProvider>
         <InsetsProvider>
           <KeyboardProvider>
-            <KeysContextProvider>
-              <GlobalContactsList>
-                <GlobalContextProvider>
-                  <AppStatusProvider>
-                    <GlobalThemeProvider>
-                      {/* <GlobaleCashVariables> */}
-                      <GLobalNodeContextProider>
-                        <SparkWalletProvider>
-                          {/* <GlobalConbinedTxContextProvider> */}
-                          <GlobalAppDataProvider>
-                            <POSTransactionsProvider>
-                              <WebViewProvider>
-                                <PushNotificationProvider>
-                                  <LiquidEventProvider>
-                                    {/* <LightningEventProvider> */}
-                                    <ImageCacheProvider>
-                                      {/* <Suspense
+            <ToastProvider>
+              <KeysContextProvider>
+                <GlobalContactsList>
+                  <GlobalContextProvider>
+                    <AppStatusProvider>
+                      <GlobalThemeProvider>
+                        {/* <GlobaleCashVariables> */}
+                        <GLobalNodeContextProider>
+                          <SparkWalletProvider>
+                            {/* <GlobalConbinedTxContextProvider> */}
+                            <GlobalAppDataProvider>
+                              <POSTransactionsProvider>
+                                <WebViewProvider>
+                                  <PushNotificationProvider>
+                                    <LiquidEventProvider>
+                                      {/* <LightningEventProvider> */}
+                                      <ImageCacheProvider>
+                                        {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                      <ResetStack />
-                                      {/* </Suspense> */}
-                                    </ImageCacheProvider>
-                                    {/* </LightningEventProvider> */}
-                                  </LiquidEventProvider>
-                                </PushNotificationProvider>
-                              </WebViewProvider>
-                            </POSTransactionsProvider>
-                          </GlobalAppDataProvider>
-                          {/* <BreezTest /> */}
-                          {/* </GlobalConbinedTxContextProvider> */}
-                        </SparkWalletProvider>
-                      </GLobalNodeContextProider>
-                      {/* </GlobaleCashVariables> */}
-                    </GlobalThemeProvider>
-                  </AppStatusProvider>
-                </GlobalContextProvider>
-              </GlobalContactsList>
-            </KeysContextProvider>
+                                        <ResetStack />
+                                        {/* </Suspense> */}
+                                      </ImageCacheProvider>
+                                      {/* </LightningEventProvider> */}
+                                    </LiquidEventProvider>
+                                  </PushNotificationProvider>
+                                </WebViewProvider>
+                              </POSTransactionsProvider>
+                            </GlobalAppDataProvider>
+                            {/* <BreezTest /> */}
+                            {/* </GlobalConbinedTxContextProvider> */}
+                          </SparkWalletProvider>
+                        </GLobalNodeContextProider>
+                        {/* </GlobaleCashVariables> */}
+                      </GlobalThemeProvider>
+                    </AppStatusProvider>
+                  </GlobalContextProvider>
+                </GlobalContactsList>
+              </KeysContextProvider>
+            </ToastProvider>
           </KeyboardProvider>
         </InsetsProvider>
       </SafeAreaProvider>
@@ -388,6 +391,7 @@ function ResetStack(): JSX.Element | null {
       {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
       <HandleLNURLPayments />
       <SparkNavigationListener />
+      <ToastContainer />
       {/* <EcashNavigationListener /> */}
       {/* <SparkConnectionListener /> */}
       {/* <LiquidNavigationListener /> */}

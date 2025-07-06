@@ -22,10 +22,10 @@ import {useGlobalContacts} from '../../../context-store/globalContacts';
 import {useLiquidEvent} from '../../../context-store/liquidEventContext';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import {useToast} from '../../../context-store/toastManager';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
-
   const {fiatStats} = useNodeContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {globalContactsInformation} = useGlobalContacts();
@@ -169,6 +169,7 @@ function QrCode(props) {
     globalContactsInformation,
     initialSendAmount,
   } = props;
+  const {showToast} = useToast();
   const {theme} = useGlobalThemeContext();
   const {backgroundOffset, textColor} = GetThemeColors();
   if (addressState.isGeneratingInvoice) {
@@ -228,7 +229,7 @@ function QrCode(props) {
     <View style={styles.qrCodeContainer}>
       <TouchableOpacity
         onPress={() => {
-          copyToClipboard(addressState.generatedAddress, navigate);
+          copyToClipboard(addressState.generatedAddress, showToast);
         }}
         style={[
           styles.qrCodeContainer,

@@ -4,18 +4,18 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {CENTER, COLORS, ICONS} from '../../../../constants';
 import {copyToClipboard} from '../../../../functions';
-import {useNavigation} from '@react-navigation/native';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import {useToast} from '../../../../../context-store/toastManager';
 
 export default function SparkInfo() {
+  const {showToast} = useToast();
   const {sparkInformation} = useSparkWallet();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset} = GetThemeColors();
   const {sparkAddress, identityPubKey} = sparkInformation;
 
-  const navigate = useNavigation();
   return (
     <View
       style={{
@@ -32,7 +32,7 @@ export default function SparkInfo() {
         <TouchableOpacity
           style={styles.buttonContainer}
           onPress={() => {
-            copyToClipboard(sparkAddress, navigate);
+            copyToClipboard(sparkAddress, showToast);
           }}>
           <ThemeText
             content={
@@ -58,7 +58,7 @@ export default function SparkInfo() {
         <TouchableOpacity
           style={styles.buttonContainer}
           onPress={() => {
-            copyToClipboard(identityPubKey, navigate);
+            copyToClipboard(identityPubKey, showToast);
           }}>
           <ThemeText
             content={

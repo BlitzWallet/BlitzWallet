@@ -20,10 +20,12 @@ import {encriptMessage} from '../../../../../functions/messaging/encodingAndDeco
 import {useKeysContext} from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useToast} from '../../../../../../context-store/toastManager';
 
 export default function HistoricalGiftCardPurchases() {
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {showToast} = useToast();
 
   const navigate = useNavigation();
   const {bottomPadding} = useGlobalInsets();
@@ -112,7 +114,7 @@ export default function HistoricalGiftCardPurchases() {
               } catch (err) {
                 copyToClipboard(
                   'support@thebitcoincompany.com',
-                  navigate,
+                  showToast,
                   null,
                   'Support email copied',
                 );

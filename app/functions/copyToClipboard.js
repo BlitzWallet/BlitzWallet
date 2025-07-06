@@ -2,23 +2,24 @@ import * as Clipboard from 'expo-clipboard';
 
 export default async function copyToClipboard(
   data,
-  navigate,
+  showToast,
   page,
   customText,
 ) {
   try {
     await Clipboard.setStringAsync(data);
     if (page === 'ChatGPT') return;
-    navigate.navigate('ClipboardCopyPopup', {
-      didCopy: true,
-      customText: customText,
+    showToast({
+      type: 'clipboard',
+      title: 'Copied to clipboard',
+      duration: 3000,
     });
-    return;
-
-    // Alert.alert('Text Copied to Clipboard');
   } catch (err) {
     if (page === 'ChatGPT') return;
-    navigate.navigate('ClipboardCopyPopup', {didCopy: false});
-    // Alert.alert('ERROR WITH COPYING');
+    showToast({
+      type: 'clipboard',
+      title: 'Failed to copy',
+      duration: 3000,
+    });
   }
 }
