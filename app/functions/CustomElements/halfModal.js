@@ -34,6 +34,7 @@ import {useGlobalThemeContext} from '../../../context-store/theme';
 
 import AddPOSItemHalfModal from '../../components/admin/homeComponents/settingsContent/posPath/items/addItemHalfModal';
 import {useGlobalInsets} from '../../../context-store/insetsProvider';
+import EditLNURLContactOnReceivePage from '../../components/admin/homeComponents/receiveBitcoin/editLNURLContact';
 
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -44,7 +45,7 @@ export default function CustomHalfModal(props) {
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useGlobalInsets();
+  const {bottomPadding, topPadding} = useGlobalInsets();
 
   const translateY = useRef(
     new Animated.Value(windowDimensions.height),
@@ -203,6 +204,18 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
+
+      case 'editLNULROnReceive':
+        return (
+          <EditLNURLContactOnReceivePage
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+            isKeyboardActive={isKeyboardActive}
+            setIsKeyboardActive={setIsKeyboardActive}
+            setContentHeight={setContentHeight}
+          />
+        );
       default:
         return <ThemeText content={'TST'} />;
     }
@@ -249,13 +262,15 @@ export default function CustomHalfModal(props) {
               theme && darkModeType ? backgroundOffset : backgroundColor,
             paddingBottom:
               contentType === 'manualEnterSendAddress' ||
-              contentType === 'addPOSItemsHalfModal'
+              contentType === 'addPOSItemsHalfModal' ||
+              'editLNULROnReceive'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : bottomPadding
                 : contentType === 'addContacts'
                 ? 0
                 : bottomPadding,
+            marginTop: topPadding,
             transform: [{translateY: Animated.add(translateY, panY)}],
           },
         ]}>
@@ -302,5 +317,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    flexShrink: 1,
   },
 });

@@ -1,5 +1,5 @@
 import {StyleSheet, Text, View, TouchableOpacity, Platform} from 'react-native';
-import {CENTER, SIZES, ICONS} from '../../constants';
+import {CENTER, SIZES, ICONS, COLORS} from '../../constants';
 import {useEffect, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {copyToClipboard} from '../../functions';
@@ -21,9 +21,11 @@ import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
 import {useGlobalContacts} from '../../../context-store/globalContacts';
 import {useLiquidEvent} from '../../../context-store/liquidEventContext';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
+import {useGlobalThemeContext} from '../../../context-store/theme';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
+
   const {fiatStats} = useNodeContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {globalContactsInformation} = useGlobalContacts();
@@ -120,7 +122,13 @@ export default function ReceivePaymentHome(props) {
       <TopBar navigate={navigate} />
 
       <ThemeText styles={{...styles.title}} content={selectedRecieveOption} />
-      <QrCode navigate={navigate} addressState={addressState} />
+      <QrCode
+        globalContactsInformation={globalContactsInformation}
+        selectedRecieveOption={selectedRecieveOption}
+        navigate={navigate}
+        addressState={addressState}
+        initialSendAmount={initialSendAmount}
+      />
 
       <ButtonsContainer
         generatingInvoiceQRCode={addressState.isGeneratingInvoice}
@@ -183,7 +191,13 @@ export default function ReceivePaymentHome(props) {
 }
 
 function QrCode(props) {
-  const {addressState, navigate} = props;
+  const {
+    addressState,
+    navigate,
+    selectedRecieveOption,
+    globalContactsInformation,
+    initialSendAmount,
+  } = props;
   const {backgroundOffset} = GetThemeColors();
   if (addressState.isGeneratingInvoice) {
     return (
@@ -263,6 +277,37 @@ function QrCode(props) {
           />
         )}
       </TouchableOpacity>
+      {selectedRecieveOption.toLowerCase() === 'lightning' &&
+        !initialSendAmount && (
+          <TouchableOpacity
+            onPress={() => {
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'editLNULROnReceive',
+              });
+            }}
+            style={{
+              width: '100%',
+              marginTop: 10,
+              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}>
+            <ThemeText
+              styles={{
+                includeFontPadding: false,
+                marginRight: 5,
+              }}
+              CustomNumberOfLines={1}
+              content={`${globalContactsInformation?.myProfile?.uniqueName}@blitz-wallet.com`}
+            />
+            <ThemeImage
+              styles={{height: 20, width: 20}}
+              lightModeIcon={ICONS.editIcon}
+              darkModeIcon={ICONS.editIconLight}
+              lightsOutIcon={ICONS.editIconLight}
+            />
+          </TouchableOpacity>
+        )}
     </View>
   );
 }
