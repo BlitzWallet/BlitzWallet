@@ -72,7 +72,6 @@ const SparkWalletProvider = ({children}) => {
   const [pendingNavigation, setPendingNavigation] = useState(null);
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
-  const isFirstSparkUpdateStateInterval = useRef(true);
   const updatePendingPaymentsIntervalRef = useRef(null);
   const [numberOfCachedTxs, setNumberOfCachedTxs] = useState(0);
   const [currentAppState, setCurrentAppState] = useState('');
@@ -81,15 +80,13 @@ const SparkWalletProvider = ({children}) => {
   const debounceTimeoutRef = useRef(null);
   const pendingTransferIds = useRef(new Set());
 
-  // This is a function that handles incoming transactions and formmataes it to reqirued formation
+  // This is a function that handles incoming transactions and formats it to required format
   const handleTransactionUpdate = async (
     recevedTxId,
     transactions,
     balance,
   ) => {
     try {
-      // First we need to get recent spark transfers
-      // const transactions = await getSparkTransactions(50, undefined);
       if (!transactions)
         throw new Error('Unable to get transactions from spark');
       const {transfers} = transactions;
@@ -189,9 +186,9 @@ const SparkWalletProvider = ({children}) => {
             description: '',
           },
         };
-      } else {
-        //Don't need to do anything here for bitcoin This gets hanldes by the payment state update which will turn it from pending to confirmed once one confirmation happens
       }
+      //Don't need to do anything here for bitcoin This gets hanldes by the payment state update which will turn it from pending to confirmed once one confirmation happens
+
       if (!selectedSparkTransaction)
         throw new Error('Not able to get recent transfer');
       await bulkUpdateSparkTransactions(
@@ -359,19 +356,14 @@ const SparkWalletProvider = ({children}) => {
     sparkWallet.on('transfer:claimed', transferHandler);
     // sparkWallet.on('deposit:confirmed', transferHandler);
 
-    await updateSparkTxStatus(50, isFirstSparkUpdateStateInterval.current);
+    await updateSparkTxStatus();
     if (updatePendingPaymentsIntervalRef.current) {
       console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
       return;
     }
     updatePendingPaymentsIntervalRef.current = setInterval(async () => {
       try {
-        console.log(
-          'Is first interval',
-          isFirstSparkUpdateStateInterval.current,
-        );
-        await updateSparkTxStatus(50, isFirstSparkUpdateStateInterval.current);
-        isFirstSparkUpdateStateInterval.current = false;
+        await updateSparkTxStatus();
       } catch (err) {
         console.error('Error during periodic restore:', err);
       }
@@ -530,11 +522,11 @@ const SparkWalletProvider = ({children}) => {
     if (depositAddressIntervalRef.current) {
       clearInterval(depositAddressIntervalRef.current);
     }
-    // setTimeout(handleDepositAddressCheck, 1_000 * 5);
-    // depositAddressIntervalRef.current = setInterval(
-    //   handleDepositAddressCheck,
-    //   1_000 * 60,
-    // );
+    setTimeout(handleDepositAddressCheck, 1_000 * 5);
+    depositAddressIntervalRef.current = setInterval(
+      handleDepositAddressCheck,
+      1_000 * 60,
+    );
   }, [sparkInformation.didConnect, didGetToHomepage]);
 
   useEffect(() => {
