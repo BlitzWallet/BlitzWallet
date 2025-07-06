@@ -33,7 +33,7 @@ export default function SeedPhrasePage({extraData}) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {t} = useTranslation();
   const [seedContainerHeight, setSeedContainerHeight] = useState();
-  const sliderAnimation = useRef(new Animated.Value(0)).current;
+  const sliderAnimation = useRef(new Animated.Value(3)).current;
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('words');
   const canViewQrCode = extraData?.canViewQrCode;
   const qrValue = calculateSeedQR(accountMnemoinc);
