@@ -6,6 +6,7 @@ import GetThemeColors from '../../hooks/themeColors';
 
 import {useGlobalContextProvider} from '../../../context-store/context';
 import {useImageCache} from '../../../context-store/imageCache';
+import customUUID from '../customUUID';
 
 export default function QrCodeWrapper({
   QRData = 'No data available',
@@ -19,7 +20,12 @@ export default function QrCodeWrapper({
   const {cache} = useImageCache();
   const {masterInfoObject} = useGlobalContextProvider();
   const {backgroundOffset} = GetThemeColors();
+  const imageData = cache[masterInfoObject.uuid];
   const image = cache[masterInfoObject.uuid]?.localUri;
+
+  const customURI = `${image}?v=${
+    imageData.updated ? new Date(imageData.updated).getTime() : customUUID()
+  }`;
 
   return (
     <View
@@ -35,7 +41,7 @@ export default function QrCodeWrapper({
           value={QRData}
           color={COLORS.lightModeText}
           backgroundColor={COLORS.darkModeText}
-          logo={!!image ? {uri: image} : ICONS.logoWithPadding}
+          logo={!!image ? {uri: customURI} : ICONS.logoWithPadding}
           logoSize={!!image ? 70 : 50}
           logoMargin={logoMargin}
           logoBorderRadius={logoBorderRadius}
