@@ -12,7 +12,7 @@ import processLNUrlAuth from './processLNUrlAuth';
 import processLNUrlPay from './processLNUrlPay';
 import processLNUrlWithdraw from './processLNUrlWithdrawl';
 import processLiquidAddress from './processLiquidAddress';
-import getLiquidAddressFromSwap from '../../../../../functions/boltz/magicRoutingHints';
+// import getLiquidAddressFromSwap from '../../../../../functions/boltz/magicRoutingHints';
 import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import processSparkAddress from './processSparkAddress';
 import {decodeBip21SparkAddress} from '../../../../../functions/spark/handleBip21SparkAddress';
@@ -133,20 +133,20 @@ export default async function decodeSendAddress(props) {
       return goBackFunction('Unable to parse address');
     }
 
-    if (input.type === InputTypeVariant.BOLT11) {
-      crashlyticsLogReport('Checking if bolt11 contains magic routing hint');
-      try {
-        const isMagicRoutingHint = await getLiquidAddressFromSwap(
-          input.invoice.bolt11,
-        );
-        if (isMagicRoutingHint) {
-          const parsed = await parse(isMagicRoutingHint);
-          input = parsed;
-        }
-      } catch (err) {
-        return goBackFunction('Failed to resolve embedded liquid address');
-      }
-    }
+    // if (input.type === InputTypeVariant.BOLT11) {
+    //   crashlyticsLogReport('Checking if bolt11 contains magic routing hint');
+    //   try {
+    //     const isMagicRoutingHint = await getLiquidAddressFromSwap(
+    //       input.invoice.bolt11,
+    //     );
+    //     if (isMagicRoutingHint) {
+    //       const parsed = await parse(isMagicRoutingHint);
+    //       input = parsed;
+    //     }
+    //   } catch (err) {
+    //     return goBackFunction('Failed to resolve embedded liquid address');
+    //   }
+    // }
 
     let processedPaymentInfo;
     try {
