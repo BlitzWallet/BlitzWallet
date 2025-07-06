@@ -38,7 +38,10 @@ export default function ButtonsContainer(props) {
       </View>
       <TouchableOpacity
         onPress={() => {
-          navigate.navigate('SwitchReceiveOptionPage');
+          navigate.navigate('CustomHalfModal', {
+            wantedContent: 'switchReceiveOption',
+            sliderHight: 0.8,
+          });
         }}
         style={[
           styles.secondaryButton,

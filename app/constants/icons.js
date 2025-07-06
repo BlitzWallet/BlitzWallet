@@ -154,6 +154,11 @@ import sparkAsteriskWhite from '../assets/icons/SparkAsteriskWhite.png';
 import clipboardBlue from '../assets/icons/clipboardBlue.png';
 import notification from '../assets/icons/bell.png';
 import notificationWhite from '../assets/icons/bellWhite.png';
+import bitcoinReceiveIcon from '../assets/icons/bitcoinReceiveIcon.png';
+import botanixReceiveOption from '../assets/icons/botanixReceiveOption.png';
+import lightningReceiveIcon from '../assets/icons/lightningReceiveIcon.png';
+import sparkReceiveIcon from '../assets/icons/sparkReceiveIcon.png';
+import liquidReceiveIcon from '../assets/icons/liquidReceiveIcon.png';
 export default {
   Xcircle,
   XcircleLight,
@@ -312,4 +317,9 @@ export default {
   clipboardBlue,
   notification,
   notificationWhite,
+  bitcoinReceiveIcon,
+  botanixReceiveOption,
+  lightningReceiveIcon,
+  sparkReceiveIcon,
+  liquidReceiveIcon,
 };

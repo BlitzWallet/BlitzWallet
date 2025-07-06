@@ -84,39 +84,10 @@ export default function ReceivePaymentHome(props) {
         // eCashBalance,
       });
       if (selectedRecieveOption !== 'Liquid') return;
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: `Liquid payments will be swapped into Spark. Payments below ${displayCorrectDenomination(
-              {
-                amount: minMaxLiquidSwapAmounts.min,
-                masterInfoObject,
-                fiatStats,
-              },
-            )} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.`,
-          });
-        });
-      });
     }
     runAddressInit();
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
 
-  // useEffect(() => {
-  //   if (selectedRecieveOption !== 'Liquid') return;
-  //   requestAnimationFrame(() => {
-  //     requestAnimationFrame(() => {
-  //       navigate.navigate('ErrorScreen', {
-  //         errorMessage: `Liquid payments must be swapped into Spark. Payments below ${displayCorrectDenomination(
-  //           {
-  //             amount: minMaxLiquidSwapAmounts.min,
-  //             masterInfoObject,
-  //             fiatStats,
-  //           },
-  //         )} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.`,
-  //       });
-  //     });
-  //   });
-  // }, [selectedRecieveOption]);
   return (
     <GlobalThemeView styles={{alignItems: 'center'}} useStandardWidth={true}>
       <TopBar navigate={navigate} />
@@ -198,7 +169,8 @@ function QrCode(props) {
     globalContactsInformation,
     initialSendAmount,
   } = props;
-  const {backgroundOffset} = GetThemeColors();
+  const {theme} = useGlobalThemeContext();
+  const {backgroundOffset, textColor} = GetThemeColors();
   if (addressState.isGeneratingInvoice) {
     return (
       <View
@@ -296,6 +268,7 @@ function QrCode(props) {
               styles={{
                 includeFontPadding: false,
                 marginRight: 5,
+                color: theme ? textColor : COLORS.primary,
               }}
               CustomNumberOfLines={1}
               content={`${globalContactsInformation?.myProfile?.uniqueName}@blitz-wallet.com`}

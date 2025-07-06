@@ -12,7 +12,10 @@ import {
 import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {useNavigation} from '@react-navigation/native';
 import {COLORS, CONTENT_KEYBOARD_OFFSET} from '../../constants';
-import {HalfModalSendOptions} from '../../components/admin';
+import {
+  HalfModalSendOptions,
+  SwitchReceiveOptionPage,
+} from '../../components/admin';
 import {
   ConfirmSMSPayment,
   ConfirmVPNPage,
@@ -204,7 +207,6 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
-
       case 'editLNULROnReceive':
         return (
           <EditLNURLContactOnReceivePage
@@ -215,6 +217,16 @@ export default function CustomHalfModal(props) {
             setIsKeyboardActive={setIsKeyboardActive}
             setContentHeight={setContentHeight}
             handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'switchReceiveOption':
+        return (
+          <SwitchReceiveOptionPage
+            slideOut={slideOut}
+            theme={theme}
+            darkModeType={darkModeType}
+            didWarnSpark={props?.route?.params?.didWarnSpark}
+            didWarnLiquid={props?.route?.params?.didWarnLiquid}
           />
         );
       default:

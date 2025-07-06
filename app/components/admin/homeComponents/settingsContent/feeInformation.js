@@ -71,6 +71,8 @@ export default function BlitzFeeInformation() {
       contentContainerStyle={{
         marginTop: 20,
         alignItems: 'center',
+        width: INSET_WINDOW_WIDTH,
+        ...CENTER,
       }}>
       <ThemeText
         styles={{textAlign: 'center', marginBottom: 30}}

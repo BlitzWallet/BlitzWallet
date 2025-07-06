@@ -530,11 +530,11 @@ const SparkWalletProvider = ({children}) => {
     if (depositAddressIntervalRef.current) {
       clearInterval(depositAddressIntervalRef.current);
     }
-    setTimeout(handleDepositAddressCheck, 1_000 * 5);
-    depositAddressIntervalRef.current = setInterval(
-      handleDepositAddressCheck,
-      1_000 * 60,
-    );
+    // setTimeout(handleDepositAddressCheck, 1_000 * 5);
+    // depositAddressIntervalRef.current = setInterval(
+    //   handleDepositAddressCheck,
+    //   1_000 * 60,
+    // );
   }, [sparkInformation.didConnect, didGetToHomepage]);
 
   useEffect(() => {
