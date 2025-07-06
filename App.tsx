@@ -83,7 +83,7 @@ import {
 } from './app/functions/secureStore';
 import {KeyboardProvider} from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
-import {SparkConnectionListener} from './context-store/connectToNode';
+// import {SparkConnectionListener} from './context-store/connectToNode';
 import {SparkWalletProvider} from './context-store/sparkContext';
 
 // let setStatusBarBackgroundColor: ((color: string) => void) | undefined;
@@ -389,7 +389,7 @@ function ResetStack(): JSX.Element | null {
       <HandleLNURLPayments />
       <SparkNavigationListener />
       {/* <EcashNavigationListener /> */}
-      <SparkConnectionListener />
+      {/* <SparkConnectionListener /> */}
       {/* <LiquidNavigationListener /> */}
       {/* <LightningNavigationListener /> */}
       <Stack.Navigator screenOptions={screenOptions}>

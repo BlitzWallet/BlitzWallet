@@ -230,3 +230,42 @@ export async function fullRestoreSparkState({sparkAddress}) {
     return false;
   }
 }
+
+export const findSignleTxFromHistory = async (txid, start) => {
+  let restoredTx;
+  try {
+    // here we do not want to save any tx to be shown, we only want to flag that it came from restore and then when we get the actual notification of it we can block the navigation
+    let start = 0;
+
+    let foundOverlap = false;
+
+    do {
+      const txs = await getSparkTransactions(start + BATCH_SIZE, start);
+      const batchTxs = txs.transfers || [];
+
+      if (!batchTxs.length) {
+        console.log('No more transactions found, ending restore.');
+        break;
+      }
+
+      // Check for overlap with saved transactions
+      const overlap = batchTxs.find(tx => tx.id === txid);
+
+      if (overlap) {
+        console.log('Found overlap with saved transactions, stopping restore.');
+        foundOverlap = true;
+        restoredTx = overlap;
+      }
+
+      start += BATCH_SIZE;
+    } while (!foundOverlap);
+
+    // Filter out any already-saved txs or dontation payments
+    console.log(`Restored transaction`, restoredTx);
+
+    return {tx: restoredTx};
+  } catch (error) {
+    console.error('Error in spark restore history state:', error);
+    return {tx: null};
+  }
+};

@@ -38,7 +38,7 @@ export async function transformTxToPaymentObject(
           break;
         }
 
-        await new Promise(res => setTimeout(res, 1000));
+        await new Promise(res => setTimeout(res, 500));
         attempts++;
       }
 

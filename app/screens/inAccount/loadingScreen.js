@@ -47,7 +47,7 @@ export default function ConnectingToNodeLoadingScreen({
   const navigate = useNavigation();
   const {toggleMasterInfoObject, masterInfoObject, setMasterInfoObject} =
     useGlobalContextProvider();
-  const {setNumberOfCachedTxs, setStartConnectingToSpark} = useSparkWallet();
+  const {setNumberOfCachedTxs, connectToSparkWallet} = useSparkWallet();
   const {toggleContactsPrivateKey, accountMnemoinc} = useKeysContext();
   const {toggleLiquidNodeInformation, toggleFiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -122,7 +122,7 @@ export default function ConnectingToNodeLoadingScreen({
           'Begining app connnection procress in loading screen',
         );
         console.log('Process 1', new Date().getTime());
-        setStartConnectingToSpark(true);
+        connectToSparkWallet();
         const [didOpen, ecashTablesOpened, posTransactions, sparkTxs] =
           await Promise.all([
             initializeDatabase(),

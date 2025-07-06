@@ -168,12 +168,7 @@ export default function HandleLNURLPayments() {
     } finally {
       isProcessingRef.current = false;
     }
-  }, [
-    sparkAddress,
-    masterInfoObject.uuid,
-    setNumberOfIncomingLNURLPayments,
-    // setBlockedIdentityPubKeys,
-  ]);
+  }, [sparkAddress, masterInfoObject.uuid, setNumberOfIncomingLNURLPayments]);
 
   return null;
 }
