@@ -177,7 +177,7 @@ const ADVANCEDOPTIONS = [
 
   {
     for: 'general',
-    name: 'Refund Liquid Swap',
+    name: 'Liquid Swaps',
     icon: ICONS.liquidIcon,
     iconWhite: ICONS.liquidIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,

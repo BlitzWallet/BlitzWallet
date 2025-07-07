@@ -132,7 +132,7 @@ export default function SettingsContentIndex(props) {
             {selectedPage?.toLowerCase() === 'balance info' && (
               <WalletInformation theme={theme} />
             )}
-            {selectedPage?.toLowerCase() === 'refund liquid swap' && (
+            {selectedPage?.toLowerCase() === 'liquid swaps' && (
               <ViewAllLiquidSwaps theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
