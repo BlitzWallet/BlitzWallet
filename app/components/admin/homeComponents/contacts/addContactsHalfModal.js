@@ -115,31 +115,29 @@ export default function AddContactsHalfModal(props) {
     }
   };
 
-  const parseContact = data => {
+  const parseContact = async data => {
     try {
+      setIsSearching(true);
       const decoded = atob(data);
       const parsedData = JSON.parse(decoded);
-      if (!parsedData?.receiveAddress) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Not able to find contact',
-        });
-        return;
-      }
+
+      await getCachedProfileImage(parsedData.uuid);
 
       const newContact = {
         name: parsedData.name || '',
         bio: parsedData.bio || '',
         uniqueName: parsedData.uniqueName,
         isFavorite: false,
-        transactions: [],
+        // transactions: [],
         unlookedTransactions: 0,
         uuid: parsedData.uuid,
-        receiveAddress: parsedData.receiveAddress,
+        // receiveAddress: parsedData.receiveAddress,
         isAdded: true,
-        profileImage: '',
+        // profileImage: '',
       };
       navigate.replace('ExpandedAddContactsPage', {newContact: newContact});
     } catch (err) {
+      setIsSearching(false);
       console.log('parse contact half modal error', err);
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Not able to find contact',

@@ -113,7 +113,8 @@ function InnerContent({
 }) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {cache, refreshCache, removeProfileImageFromCache} = useImageCache();
+  const {cache, refreshCache, removeProfileImageFromCache, refreshCacheObject} =
+    useImageCache();
   const {backgroundOffset, textInputColor, textInputBackground, textColor} =
     GetThemeColors();
   const {
@@ -200,6 +201,13 @@ function InnerContent({
   const hasImage = isEditingMyProfile
     ? !!myProfileImage?.localUri
     : !!selectedAddedContactImage?.localUri;
+
+  useEffect(() => {
+    if (!fromInitialAdd) return;
+    if (hasImage) return;
+    // Making sure to update UI for new contacts image
+    refreshCacheObject();
+  }, []);
 
   return (
     <View style={styles.innerContainer}>
