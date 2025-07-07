@@ -48,18 +48,31 @@ export default function HistoricalGiftCardPurchases() {
       }}
       style={styles.rowContainer}>
       <Image style={styles.companyLogo} source={{uri: item.logo}} />
-      <View>
+      <View style={{flex: 1}}>
         <ThemeText
+          CustomNumberOfLines={1}
           styles={{fontWeight: '500', marginBottom: 5}}
           content={item.name}
         />
         <ThemeText
-          styles={{
-            marginLeft: 'auto',
-          }}
+          CustomNumberOfLines={1}
           content={`Purchased: ${new Date(item.date).toDateString()}`}
         />
       </View>
+      <TouchableOpacity
+        onPress={() =>
+          navigate.navigate('ConfirmActionPage', {
+            confirmMessage:
+              'Are you sure you want to remove this purchased card.',
+            confirmFunction: () => removeGiftCardFromList(item.uuid),
+          })
+        }>
+        <ThemeImage
+          lightModeIcon={ICONS.xSmallIcon}
+          darkModeIcon={ICONS.xSmallIcon}
+          lightsOutIcon={ICONS.xSmallIconWhite}
+        />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
