@@ -221,7 +221,7 @@
       "text1": "Error adding inputed value, plase try again.",
       "text2": "Amount cannot be 0",
       "text3": "Enable Fast Pay",
-      "text4": "Fast pay threshold (Sats)",
+      "text4": "Fast pay threshold (SAT)",
       "text5": "Fast pay allows you to instantly pay invoices below a specified threshold without needing to swipe for confirmation."
     },
     "blitzstats": {

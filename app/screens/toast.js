@@ -1,37 +1,48 @@
 import React, {useEffect, useRef} from 'react';
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  PanResponder,
-} from 'react-native';
+import {View, StyleSheet, Animated, PanResponder} from 'react-native';
 import {ThemeText} from '../functions/CustomElements';
 import ThemeImage from '../functions/CustomElements/themeImage';
 import {COLORS, ICONS} from '../constants';
-import useAppInsets from '../hooks/useAppInsets';
+import {useGlobalInsets} from '../../context-store/insetsProvider';
 
-export function Toast({toast, onHide}) {
-  const slideAnim = useRef(new Animated.Value(-100)).current;
+export function Toast({toast, onHide, expiredToasts}) {
+  const slideAnim = useRef(new Animated.Value(50)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
-  const {topPadding} = useAppInsets();
+  const {topPadding} = useGlobalInsets();
 
   useEffect(() => {
     // Slide in animation
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 300,
+        duration: 500,
         useNativeDriver: true,
       }),
       Animated.timing(opacityAnim, {
         toValue: 1,
-        duration: 300,
+        duration: 600,
         useNativeDriver: true,
       }),
     ]).start();
   }, []);
+
+  useEffect(() => {
+    if (!expiredToasts) return;
+    if (expiredToasts !== toast.id) return;
+    Animated.parallel([
+      Animated.timing(translateY, {
+        toValue: -100, // Slide up off screen
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start(() => onHide());
+  }, [expiredToasts]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -45,18 +56,18 @@ export function Toast({toast, onHide}) {
         }
       },
       onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy < -50) {
+        if (gestureState.dy < -topPadding) {
           // Swipe up threshold of 50px
           // Swipe to dismiss - slide up and fade out
           Animated.parallel([
             Animated.timing(translateY, {
               toValue: -100, // Slide up off screen
-              duration: 200,
+              duration: 500,
               useNativeDriver: true,
             }),
             Animated.timing(opacityAnim, {
               toValue: 0,
-              duration: 200,
+              duration: 400,
               useNativeDriver: true,
             }),
           ]).start(() => onHide());
@@ -103,8 +114,6 @@ export function Toast({toast, onHide}) {
         return '•';
     }
   };
-
-  console.log(topPadding, 'padding');
 
   return (
     <Animated.View

@@ -1,4 +1,10 @@
-import React, {createContext, useContext, useReducer, useCallback} from 'react';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useCallback,
+  useState,
+} from 'react';
 import {View} from 'react-native';
 import {Toast} from '../app/screens/toast';
 
@@ -32,6 +38,7 @@ const toastReducer = (state, action) => {
 
 export const ToastProvider = ({children}) => {
   const [state, dispatch] = useReducer(toastReducer, initialState);
+  const [expiredToasts, setExpiredToasts] = useState('');
 
   const showToast = useCallback(toast => {
     const id = Date.now() + Math.random();
@@ -47,7 +54,8 @@ export const ToastProvider = ({children}) => {
 
     if (toastWithId.duration > 0) {
       setTimeout(() => {
-        dispatch({type: 'REMOVE_TOAST', payload: id});
+        setExpiredToasts(id);
+        // dispatch({type: 'REMOVE_TOAST', payload: id});
       }, toastWithId.duration);
     }
 
@@ -69,6 +77,7 @@ export const ToastProvider = ({children}) => {
         showToast,
         hideToast,
         clearToasts,
+        expiredToasts,
       }}>
       {children}
     </ToastContext.Provider>
@@ -84,7 +93,7 @@ export const useToast = () => {
 };
 
 export const ToastContainer = () => {
-  const {toasts, hideToast} = useToast();
+  const {toasts, hideToast, expiredToasts} = useToast();
 
   return (
     <View pointerEvents="box-none">
@@ -93,6 +102,7 @@ export const ToastContainer = () => {
           key={toast.id}
           toast={toast}
           onHide={() => hideToast(toast.id)}
+          expiredToasts={expiredToasts}
         />
       ))}
     </View>
