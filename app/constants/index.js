@@ -27,6 +27,9 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const VALID_USERNAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
 
+const IS_SPARK_REQUEST_ID =
+  /^SparkLightning(?:Receive|Send)Request:[0-9a-fA-F\-]+$/;
+
 const IS_LETTER_REGEX = /^[A-Za-z]$/;
 const BITCOIN_SATS_ICON = '\u20BF';
 const HIDDEN_BALANCE_TEXT = `* * * * *`;
@@ -115,4 +118,5 @@ export {
   IS_LETTER_REGEX,
   BITCOIN_SAT_TEXT,
   LOGIN_SECURITY_MODE_TYPE_KEY,
+  IS_SPARK_REQUEST_ID,
 };

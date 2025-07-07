@@ -4,8 +4,7 @@ import {
   getSparkLightningSendRequest,
   getSparkTransactions,
 } from '.';
-import {LAST_LOADED_BLITZ_LOCAL_STOREAGE_KEY} from '../../constants';
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
+import {IS_SPARK_REQUEST_ID} from '../../constants';
 import {
   bulkUpdateSparkTransactions,
   getAllPendingSparkPayments,
@@ -81,7 +80,7 @@ export const updateSparkTxStatus = async () => {
       const details = JSON.parse(txStateUpdate.details);
 
       if (txStateUpdate.paymentType === 'lightning') {
-        if (details.isRestore) {
+        if (!IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID)) {
           const tx = {
             id: txStateUpdate.sparkID,
             paymentStatus: 'completed',
