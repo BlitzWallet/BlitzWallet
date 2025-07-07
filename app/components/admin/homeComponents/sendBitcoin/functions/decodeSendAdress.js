@@ -189,7 +189,8 @@ export default async function decodeSendAddress(props) {
             },
           )} `,
         });
-        return;
+
+        if (fromPage !== 'contacts') return;
       }
       setPaymentInfo({...processedPaymentInfo, decodedInput: input});
     } else {
