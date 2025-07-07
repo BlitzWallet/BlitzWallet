@@ -266,7 +266,11 @@ export const getSparkPaymentFeeEstimate = async amountSats => {
 export const receiveSparkLightningPayment = async ({amountSats, memo}) => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.createLightningInvoice({amountSats, memo});
+    return await sparkWallet.createLightningInvoice({
+      amountSats,
+      memo,
+      expirySeconds: 60 * 60 * 12, // 12 hour invoice expiry
+    });
   } catch (err) {
     console.log('Receive lightning payment error', err);
   }
