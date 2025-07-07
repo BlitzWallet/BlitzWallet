@@ -385,7 +385,12 @@ const SparkWalletProvider = ({children}) => {
     }
     // Clear pending transfer IDs
     pendingTransferIds.current.clear();
-    clearInterval(updatePendingPaymentsIntervalRef.current);
+
+    // Clear update payment state timer
+    if (updatePendingPaymentsIntervalRef.current) {
+      clearInterval(updatePendingPaymentsIntervalRef.current);
+      updatePendingPaymentsIntervalRef.current = null;
+    }
   };
 
   // Add event listeners to listen for bitcoin and lightning or spark transfers when receiving does not handle sending
