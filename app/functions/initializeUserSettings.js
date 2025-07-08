@@ -103,6 +103,7 @@ export default async function initializeUserSettingsFromHistory({
     const fiatCurrency = blitzStoredData.fiatCurrency || 'USD';
 
     let enabledLNURL = blitzStoredData.enabledLNURL;
+    let isUsingEncriptedMessaging = blitzStoredData.isUsingEncriptedMessaging;
 
     const userBalanceDenomination =
       blitzStoredData.userBalanceDenomination || 'sats';
@@ -252,6 +253,10 @@ export default async function initializeUserSettingsFromHistory({
 
       needsToUpdate = true;
     }
+    if (isUsingEncriptedMessaging === undefined) {
+      isUsingEncriptedMessaging = true;
+      needsToUpdate = true;
+    }
 
     // if (!lnurlPubKey) {
     //   lnurlPubKey = getBitcoinKeyPair(mnemonic).publicKey;
@@ -294,6 +299,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['useTrampoline'] = useTrampoline;
     tempObject['offlineReceiveAddresses'] = offlineReceiveAddresses;
     // tempObject['lnurlPubKey'] = lnurlPubKey;
+    tempObject['isUsingEncriptedMessaging'] = isUsingEncriptedMessaging;
 
     // store in contacts context
     tempObject['contacts'] = contacts;

@@ -23,6 +23,8 @@ export async function publishMessage({
       fromPubKey,
       toPubKey,
       onlySaveToLocal: isLNURLPayment,
+      retrivedContact,
+      privateKey,
     });
 
     if (isLNURLPayment) return;

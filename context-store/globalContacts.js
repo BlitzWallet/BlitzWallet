@@ -171,14 +171,29 @@ export const GlobalContactsList = ({children}) => {
         if (!snapshot?.docChanges()?.length) return;
         let newMessages = [];
         snapshot.docChanges().forEach(change => {
-          console.log('received a new message', change.type);
           if (change.type === 'added') {
             const newMessage = change.doc.data();
-            newMessages.push(newMessage);
             // Log whether it's sent or received
             const isReceived =
               newMessage.toPubKey === globalContactsInformation.myProfile.uuid;
-            console.log(`${isReceived ? 'received' : 'sent'} a new message`);
+            console.log(
+              `${isReceived ? 'received' : 'sent'} a new message`,
+              newMessage,
+            );
+            if (typeof newMessage.message === 'string') {
+              const sendersPubkey =
+                newMessage.toPubKey === globalContactsInformation.myProfile.uuid
+                  ? newMessage.fromPubKey
+                  : newMessage.toPubKey;
+              const decoded = decryptMessage(
+                contactsPrivateKey,
+                sendersPubkey,
+                newMessage.message,
+              );
+              if (!decoded) return;
+              const parsedMessage = JSON.parse(decoded);
+              newMessages.push({...newMessage, message: parsedMessage});
+            } else newMessages.push(newMessage);
           }
         });
         if (newMessages.length > 0) {
@@ -195,7 +210,7 @@ export const GlobalContactsList = ({children}) => {
         unsubscribeMessagesRef.current();
       }
     };
-  }, [globalContactsInformation?.myProfile?.uuid]);
+  }, [globalContactsInformation?.myProfile?.uuid, contactsPrivateKey]);
 
   useEffect(() => {
     if (!Object.keys(globalContactsInformation).length) return;
@@ -204,8 +219,13 @@ export const GlobalContactsList = ({children}) => {
     syncDatabasePayment(
       globalContactsInformation.myProfile.uuid,
       updatedCachedMessagesStateFunction,
+      contactsPrivateKey,
     );
-  }, [globalContactsInformation, updatedCachedMessagesStateFunction]);
+  }, [
+    globalContactsInformation,
+    updatedCachedMessagesStateFunction,
+    contactsPrivateKey,
+  ]);
 
   return (
     <GlobalContacts.Provider

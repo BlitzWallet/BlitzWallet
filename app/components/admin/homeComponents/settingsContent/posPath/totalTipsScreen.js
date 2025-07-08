@@ -157,10 +157,11 @@ export default function TotalTipsScreen(props) {
             fromPubKey: fromPubKey,
             data: sendObject,
             globalContactsInformation,
-            selectedContact: blitzContact,
+            selectedContact: selectedContact.contacts.myProfile,
             fiatCurrencies,
             isLNURLPayment: false,
             privateKey: contactsPrivateKey,
+            retrivedContact: selectedContact,
           });
           // update internal db state of paid tips so you dont pay a tip twice
           await updateInteralDBState(unpaidTxs);

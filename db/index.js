@@ -23,6 +23,10 @@ import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../app/functions/crashlyticsLogs';
+import {
+  decryptMessage,
+  encriptMessage,
+} from '../app/functions/messaging/encodingAndDecodingMessages';
 export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
 
 export async function addDataToCollection(dataObject, collectionName, uuid) {
@@ -266,13 +270,16 @@ export async function updateMessage({
   fromPubKey,
   toPubKey,
   onlySaveToLocal,
+  retrivedContact,
+  privateKey,
 }) {
   try {
     crashlyticsLogReport('Starting updating contact message');
     const messagesRef = collection(db, 'contactMessages');
     const timestamp = new Date().getTime();
+    const useEncription = retrivedContact.isUsingEncriptedMessaging;
 
-    const message = {
+    let message = {
       fromPubKey,
       toPubKey,
       message: newMessage,
@@ -287,6 +294,15 @@ export async function updateMessage({
       return true;
     }
 
+    if (useEncription) {
+      let messgae =
+        typeof message.message === 'string'
+          ? message.message
+          : JSON.stringify(message.message);
+      const encripted = encriptMessage(privateKey, toPubKey, messgae);
+      message.message = encripted;
+    }
+
     await addDoc(messagesRef, message);
     console.log('New message was published:', message);
     return true;
@@ -299,6 +315,7 @@ export async function updateMessage({
 export async function syncDatabasePayment(
   myPubKey,
   updatedCachedMessagesStateFunction,
+  privateKey,
 ) {
   try {
     crashlyticsLogReport('Starting sync database payments');
@@ -328,8 +345,33 @@ export async function syncDatabasePayment(
 
     console.log(`${allMessages.length} messages received from history`);
 
+    const formattedMessages = allMessages
+      .map(message => {
+        try {
+          console.log(message);
+          if (typeof message.message === 'string') {
+            const sendersPubkey =
+              message.toPubKey === myPubKey
+                ? message.fromPubKey
+                : message.toPubKey;
+            const decoded = decryptMessage(
+              privateKey,
+              sendersPubkey,
+              message.message,
+            );
+            if (!decoded) return;
+            const parsedMessage = JSON.parse(decoded);
+            return {...message, message: parsedMessage};
+          }
+          return message;
+        } catch (err) {
+          console.log('error decoding incoming request from history');
+        }
+      })
+      .filter(Boolean);
+
     queueSetCashedMessages({
-      newMessagesList: allMessages,
+      newMessagesList: formattedMessages,
       myPubKey,
     });
   } catch (err) {
