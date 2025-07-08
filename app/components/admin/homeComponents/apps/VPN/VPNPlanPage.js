@@ -28,7 +28,6 @@ export default function VPNPlanPage({countryList}) {
   const {fiatStats} = useNodeContext();
   const {decodedVPNS, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {masterInfoObject} = useGlobalContextProvider();
-
   const [selectedDuration, setSelectedDuration] = useState('week');
   const [isPaying, setIsPaying] = useState(false);
   const [generatedFile, setGeneratedFile] = useState(null);
@@ -88,7 +87,7 @@ export default function VPNPlanPage({countryList}) {
             setSelectedDuration={setSelectedDuration}
             selectedDuration={selectedDuration}
           />
-          <View style={{flex: 1, marginTop: 10}}>
+          <View style={{flex: 1, marginTop: 0}}>
             <CustomSearchInput
               inputText={searchInput}
               setInputText={setSearchInput}
@@ -123,7 +122,11 @@ export default function VPNPlanPage({countryList}) {
 
                   const cost = Math.round(
                     (SATSPERBITCOIN / fiatStats.value) *
-                      (selectedDuration === 'week'
+                      (selectedDuration === 'hour'
+                        ? 0.1
+                        : selectedDuration === 'day'
+                        ? 0.5
+                        : selectedDuration === 'week'
                         ? 1.5
                         : selectedDuration === 'month'
                         ? 4
@@ -156,14 +159,6 @@ export default function VPNPlanPage({countryList}) {
       return item.country === searchInput;
     });
 
-    console.log(
-      selectedDuration,
-      selectedDuration === 'week'
-        ? '1'
-        : selectedDuration === 'month'
-        ? '4'
-        : '9',
-    );
     try {
       let invoice = '';
 
@@ -177,7 +172,11 @@ export default function VPNPlanPage({countryList}) {
           method: 'POST',
           body: new URLSearchParams({
             duration:
-              selectedDuration === 'week'
+              selectedDuration === 'hour'
+                ? 0.1
+                : selectedDuration === 'day'
+                ? 0.5
+                : selectedDuration === 'week'
                 ? 1.5
                 : selectedDuration === 'month'
                 ? 4

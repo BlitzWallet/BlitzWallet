@@ -34,7 +34,16 @@ export default function ConfirmVPNPage(props) {
         const response = await fetch('https://lnvpn.net/api/v1/getInvoice', {
           method: 'POST',
           body: new URLSearchParams({
-            duration: duration === 'week' ? 1.5 : duration === 'month' ? 4 : 9,
+            duration:
+              duration === 'hour'
+                ? 0.1
+                : duration === 'day'
+                ? 0.5
+                : duration === 'week'
+                ? 1.5
+                : duration === 'month'
+                ? 4
+                : 9,
           }).toString(),
           headers: {
             Accept: 'application/json',
