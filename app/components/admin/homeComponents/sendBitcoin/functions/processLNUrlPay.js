@@ -5,8 +5,13 @@ import {getLNAddressForLiquidPayment} from './payments';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 
 export default async function processLNUrlPay(input, context) {
-  const {masterInfoObject, comingFromAccept, enteredPaymentInfo, fiatStats} =
-    context;
+  const {
+    masterInfoObject,
+    comingFromAccept,
+    enteredPaymentInfo,
+    fiatStats,
+    paymentInfo,
+  } = context;
 
   crashlyticsLogReport('Beiging decode LNURL pay');
   const amountMsat = comingFromAccept
@@ -56,17 +61,22 @@ export default async function processLNUrlPay(input, context) {
       throw new Error(
         'Unable to retrive invoice from LNURL, please try again.',
       );
-    const fee = await sparkPaymenWrapper({
-      getFee: true,
-      address: invoice,
-      amountSats: Number(enteredPaymentInfo.amount),
-      paymentType: 'lightning',
-      masterInfoObject,
-    });
+    if (paymentInfo.paymentFee && paymentInfo.supportFee) {
+      paymentFee = paymentInfo.paymentFee;
+      supportFee = paymentInfo.supportFee;
+    } else {
+      const fee = await sparkPaymenWrapper({
+        getFee: true,
+        address: invoice,
+        amountSats: Number(enteredPaymentInfo.amount),
+        paymentType: 'lightning',
+        masterInfoObject,
+      });
 
-    if (!fee.didWork) throw new Error(fee.error);
-    paymentFee = fee.fee;
-    supportFee = fee.supportFee;
+      if (!fee.didWork) throw new Error(fee.error);
+      paymentFee = fee.fee;
+      supportFee = fee.supportFee;
+    }
   }
 
   return {

@@ -32,17 +32,22 @@ export default async function processSparkAddress(input, context) {
     Number(amountMsat / 1000) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
 
   if ((!paymentInfo.paymentFee || paymentInfo?.supportFee) && !!amountMsat) {
-    const fee = await sparkPaymenWrapper({
-      getFee: true,
-      address: addressInfo.address,
-      paymentType: 'spark',
-      amountSats: amountMsat / 1000,
-      masterInfoObject,
-    });
-    if (!fee.didWork) throw new Error(fee.error);
+    if (paymentInfo.paymentFee && paymentInfo.supportFee) {
+      addressInfo.paymentFee = paymentInfo.paymentFee;
+      addressInfo.supportFee = paymentInfo.supportFee;
+    } else {
+      const fee = await sparkPaymenWrapper({
+        getFee: true,
+        address: addressInfo.address,
+        paymentType: 'spark',
+        amountSats: amountMsat / 1000,
+        masterInfoObject,
+      });
+      if (!fee.didWork) throw new Error(fee.error);
 
-    addressInfo.paymentFee = fee.fee;
-    addressInfo.supportFee = fee.supportFee;
+      addressInfo.paymentFee = fee.fee;
+      addressInfo.supportFee = fee.supportFee;
+    }
   }
 
   return {
