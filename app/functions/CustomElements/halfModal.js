@@ -264,7 +264,7 @@ export default function CustomHalfModal(props) {
       behavior={'padding'}
       style={styles.keyboardAvoidingView}>
       <TouchableWithoutFeedback onPress={handleBackPressFunction}>
-        <View style={styles.container} />
+        <View style={{...styles.container, paddingBottom: topPadding}} />
       </TouchableWithoutFeedback>
       <Animated.View
         style={[
@@ -283,7 +283,6 @@ export default function CustomHalfModal(props) {
                 : contentType === 'addContacts'
                 ? 0
                 : bottomPadding,
-            marginTop: topPadding,
             transform: [{translateY: Animated.add(translateY, panY)}],
           },
         ]}>
