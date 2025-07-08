@@ -90,6 +90,9 @@ export default function SendMaxComponent({
       setPaymentInfo(prev => ({
         ...prev,
         sendAmount: String(convertedMax),
+        feeQuote: feeResponse.feeQuote,
+        paymentFee: feeResponse.fee,
+        supportFee: feeResponse.supportFee,
       }));
       return;
     } catch (err) {
