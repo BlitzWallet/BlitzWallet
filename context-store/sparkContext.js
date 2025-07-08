@@ -162,7 +162,7 @@ const SparkWalletProvider = ({children}) => {
               savedInvoice?.shouldNavigate === undefined
                 ? 0 //if not specified navigate to confirm screen
                 : savedInvoice?.shouldNavigate,
-            isLNULR: JSON.parse(savedInvoice.details)?.isLNURL || false,
+            isLNULR: JSON.parse(savedInvoice?.details)?.isLNURL || false,
           },
         };
         console.log('lightning payment object', paymentObject);
