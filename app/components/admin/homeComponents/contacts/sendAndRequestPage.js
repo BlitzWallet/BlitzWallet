@@ -300,7 +300,7 @@ export default function SendAndRequestPage(props) {
             setIsAmountFocused(true);
           }}
           textInputRef={descriptionRef}
-          placeholderText={"What's this for?"}
+          placeholderText={'Payment description'}
           setInputText={setDescriptionValue}
           inputText={descriptionValue}
           textInputMultiline={true}
