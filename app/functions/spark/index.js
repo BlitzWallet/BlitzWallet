@@ -15,7 +15,6 @@ export const initializeSparkWallet = async mnemonic => {
       mnemonicOrSeed: mnemonic,
       options: {network: 'MAINNET'},
     });
-
     // const [type, value] = await Promise.race([
     //   SparkWallet.initialize({
     //     signer: new ReactNativeSparkSigner(),
@@ -181,9 +180,11 @@ export const claimnSparkStaticDepositAddress = async ({
 export const getSparkAddress = async () => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.getSparkAddress();
+    const response = await sparkWallet.getSparkAddress();
+    return {didWork: true, response};
   } catch (err) {
     console.log('Get spark address error', err);
+    return {didWork: false, error: err.message};
   }
 };
 
@@ -276,13 +277,15 @@ export const getSparkPaymentFeeEstimate = async amountSats => {
 export const receiveSparkLightningPayment = async ({amountSats, memo}) => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.createLightningInvoice({
+    const response = await sparkWallet.createLightningInvoice({
       amountSats,
       memo,
       expirySeconds: 60 * 60 * 12, // 12 hour invoice expiry
     });
+    return {didWork: true, response};
   } catch (err) {
     console.log('Receive lightning payment error', err);
+    return {didWork: false, error: err.message};
   }
 };
 export const getSparkLightningSendRequest = async id => {

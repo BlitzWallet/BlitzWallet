@@ -3,9 +3,11 @@ import {
   getSparkLightningPaymentFeeEstimate,
   getSparkPaymentFeeEstimate,
   getSparkStaticBitcoinL1Address,
+  receiveSparkLightningPayment,
   sendSparkBitcoinPayment,
   sendSparkLightningPayment,
   sendSparkPayment,
+  getSparkAddress,
   sparkWallet,
 } from '.';
 import calculateProgressiveBracketFee from './calculateSupportFee';
@@ -202,11 +204,13 @@ export const sparkReceivePaymentWrapper = async ({
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
 
     if (paymentType === 'lightning') {
-      const invoice = await sparkWallet.createLightningInvoice({
+      const invoiceResponse = await receiveSparkLightningPayment({
         amountSats,
         memo,
-        expirySeconds: 60 * 60 * 24, //Add 24 hours validity to invoice
       });
+
+      if (!invoiceResponse.didWork) throw new Error(invoiceResponse.error);
+      const invoice = invoiceResponse.response;
 
       const tempTransaction = {
         id: invoice.id,
@@ -230,10 +234,14 @@ export const sparkReceivePaymentWrapper = async ({
       };
     } else {
       // No need to save address since it is constant
-      const sparkAddress = await sparkWallet.getSparkAddress();
+      const sparkAddress = await getSparkAddress();
+      if (!sparkAddress.didWork) throw new Error(sparkAddress.error);
+
+      const data = sparkAddress.response;
+
       return {
         didWork: true,
-        invoice: sparkAddress,
+        invoice: data,
       };
     }
   } catch (err) {
