@@ -51,7 +51,7 @@ export default function TechnicalTransactionDetails(props) {
             <TouchableOpacity
               onPress={() => {
                 navigate.navigate('InformationPopup', {
-                  textContent: `${item} is not shown since this payment was restored from history.`,
+                  textContent: `${item} is not shown since this payment was restored from history or used a zero amount invoice.`,
                   buttonText: 'I understand',
                 });
               }}>

@@ -145,6 +145,9 @@ const SparkWalletProvider = ({children}) => {
           // removes invoice from the unpaid list
           deleteUnpaidSparkLightningTransaction(savedInvoice.sparkID);
         }
+        const details = savedInvoice?.details
+          ? JSON.parse(savedInvoice?.details)
+          : {};
         paymentObject = {
           id: recevedTxId,
           paymentStatus: 'completed',
@@ -162,7 +165,7 @@ const SparkWalletProvider = ({children}) => {
               savedInvoice?.shouldNavigate === undefined
                 ? 0 //if not specified navigate to confirm screen
                 : savedInvoice?.shouldNavigate,
-            isLNULR: JSON.parse(savedInvoice?.details)?.isLNURL || false,
+            isLNULR: details?.isLNURL || false,
           },
         };
         console.log('lightning payment object', paymentObject);
