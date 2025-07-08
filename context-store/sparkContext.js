@@ -9,15 +9,12 @@ import {
 } from 'react';
 import {
   claimnSparkStaticDepositAddress,
-  claimSparkBitcoinL1Transaction,
   getSparkBalance,
   getSparkLightningPaymentStatus,
   getSparkStaticBitcoinL1Address,
   getSparkStaticBitcoinL1AddressQuote,
   getSparkTransactions,
-  getUnusedSparkBitcoinL1Address,
   queryAllStaticDepositAddresses,
-  querySparkBitcoinL1Transaction,
   sparkWallet,
   sparkPaymentType,
 } from '../app/functions/spark';
@@ -375,7 +372,7 @@ const SparkWalletProvider = ({children}) => {
     sparkTransactionsEventEmitter.removeAllListeners(
       SPARK_TX_UPDATE_ENVENT_NAME,
     );
-    sparkWallet.removeAllListeners('transfer:claimed');
+    sparkWallet?.removeAllListeners('transfer:claimed');
     // sparkWallet.off('deposit:confirmed', transferHandler);
 
     // Clear debounce timeout when removing listeners
