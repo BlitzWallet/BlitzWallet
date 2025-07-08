@@ -15,6 +15,7 @@ export const initializeSparkWallet = async mnemonic => {
       mnemonicOrSeed: mnemonic,
       options: {network: 'MAINNET'},
     });
+
     // const [type, value] = await Promise.race([
     //   SparkWallet.initialize({
     //     signer: new ReactNativeSparkSigner(),
@@ -73,14 +74,14 @@ export const getSparkBalance = async () => {
   }
 };
 
-export const getSparkBitcoinL1Address = async () => {
-  try {
-    if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.getSingleUseDepositAddress();
-  } catch (err) {
-    console.log('Get Bitcoin mainchain address error', err);
-  }
-};
+// export const getSparkBitcoinL1Address = async () => {
+//   try {
+//     if (!sparkWallet) throw new Error('sparkWallet not initialized');
+//     return await sparkWallet.getSingleUseDepositAddress();
+//   } catch (err) {
+//     console.log('Get Bitcoin mainchain address error', err);
+//   }
+// };
 
 export const getSparkStaticBitcoinL1Address = async () => {
   try {
@@ -146,36 +147,36 @@ export const claimnSparkStaticDepositAddress = async ({
   }
 };
 
-export const getUnusedSparkBitcoinL1Address = async () => {
-  try {
-    if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return (await sparkWallet.getUnusedDepositAddresses()) || [];
-  } catch (err) {
-    console.log('Get Bitcoin mainchain address error', err);
-  }
-};
+// export const getUnusedSparkBitcoinL1Address = async () => {
+//   try {
+//     if (!sparkWallet) throw new Error('sparkWallet not initialized');
+//     return (await sparkWallet.getUnusedDepositAddresses()) || [];
+//   } catch (err) {
+//     console.log('Get Bitcoin mainchain address error', err);
+//   }
+// };
 
-export const querySparkBitcoinL1Transaction = async depositAddress => {
-  try {
-    if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await getLatestDepositTxId(depositAddress);
-  } catch (err) {
-    console.log('Get latest deposit address information error', err);
-  }
-};
+// export const querySparkBitcoinL1Transaction = async depositAddress => {
+//   try {
+//     if (!sparkWallet) throw new Error('sparkWallet not initialized');
+//     return await getLatestDepositTxId(depositAddress);
+//   } catch (err) {
+//     console.log('Get latest deposit address information error', err);
+//   }
+// };
 
-export const claimSparkBitcoinL1Transaction = async depositAddress => {
-  try {
-    if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    const txId = await querySparkBitcoinL1Transaction(depositAddress);
-    const claimResponse = await (txId
-      ? sparkWallet.claimDeposit(txId)
-      : Promise.resolve(null));
-    return [txId, claimResponse];
-  } catch (err) {
-    console.log('Claim bitcoin mainnet payment error', err);
-  }
-};
+// export const claimSparkBitcoinL1Transaction = async depositAddress => {
+//   try {
+//     if (!sparkWallet) throw new Error('sparkWallet not initialized');
+//     const txId = await querySparkBitcoinL1Transaction(depositAddress);
+//     const claimResponse = await (txId
+//       ? sparkWallet.claimDeposit(txId)
+//       : Promise.resolve(null));
+//     return [txId, claimResponse];
+//   } catch (err) {
+//     console.log('Claim bitcoin mainnet payment error', err);
+//   }
+// };
 
 export const getSparkAddress = async () => {
   try {
@@ -194,9 +195,10 @@ export const sendSparkPayment = async ({receiverSparkAddress, amountSats}) => {
       amountSats,
     });
     console.log('spark payment response', response);
-    return response;
+    return {didWork: true, response};
   } catch (err) {
     console.log('Send spark payment error', err);
+    return {didWork: false, error: err.message};
   }
 };
 
@@ -217,14 +219,20 @@ export const sendSparkTokens = async ({
   }
 };
 
-export const getSparkLightningPaymentFeeEstimate = async invoice => {
+export const getSparkLightningPaymentFeeEstimate = async (
+  invoice,
+  amountSat,
+) => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.getLightningSendFeeEstimate({
+    const response = await sparkWallet.getLightningSendFeeEstimate({
       encodedInvoice: invoice,
+      amountSats: amountSat,
     });
+    return {didWork: true, response};
   } catch (err) {
     console.log('Get lightning payment fee error', err);
+    return {didWork: false, error: err.message};
   }
 };
 
@@ -243,12 +251,14 @@ export const getSparkBitcoinPaymentFeeEstimate = async ({
 }) => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.getCoopExitFeeEstimate({
+    const response = await sparkWallet.getWithdrawalFeeQuote({
       amountSats,
       withdrawalAddress,
     });
+    return {didWork: true, response};
   } catch (err) {
     console.log('Get bitcoin payment fee estimate error', err);
+    return {didWork: false, error: err.message};
   }
 };
 
@@ -293,12 +303,17 @@ export const getSparkLightningPaymentStatus = async ({lightningInvoiceId}) => {
   }
 };
 
-export const sendSparkLightningPayment = async ({invoice, maxFeeSats}) => {
+export const sendSparkLightningPayment = async ({
+  invoice,
+  maxFeeSats,
+  amountSats,
+}) => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
     const paymentResponse = await sparkWallet.payLightningInvoice({
       invoice,
       maxFeeSats: maxFeeSats,
+      amountSatsToSend: amountSats,
     });
     return {didWork: true, paymentResponse};
   } catch (err) {
@@ -310,16 +325,22 @@ export const sendSparkBitcoinPayment = async ({
   onchainAddress,
   exitSpeed,
   amountSats,
+  feeQuote,
+  deductFeeFromWithdrawalAmount = false,
 }) => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.withdraw({
+    const response = await sparkWallet.withdraw({
       onchainAddress,
       exitSpeed,
       amountSats,
+      feeQuote,
+      deductFeeFromWithdrawalAmount,
     });
+    return {didWork: true, response};
   } catch (err) {
     console.log('Send Bitcoin payment error', err);
+    return {didWork: false, error: err.message};
   }
 };
 
