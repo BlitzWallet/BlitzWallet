@@ -167,11 +167,7 @@ export default function SendPaymentScreen(props) {
     paymentFee,
     sendingAmount,
     paymentInfo,
-  ); //ecash is built into ln);
-  const isUsingSwapWithZeroInvoice =
-    paymentInfo?.paymentNetwork === 'lightning' &&
-    paymentInfo.type === 'bolt11' &&
-    !paymentInfo?.data?.invoice.amountMsat;
+  );
 
   useHandleBackPressNew(goBackFunction);
 
@@ -364,7 +360,6 @@ export default function SendPaymentScreen(props) {
           )}
           {isAmountFocused && (
             <AcceptButtonSendPage
-              isUsingSwapWithZeroInvoice={isUsingSwapWithZeroInvoice}
               isLiquidPayment={isLiquidPayment}
               canSendPayment={canSendPayment}
               decodeSendAddress={decodeSendAddress}
@@ -456,6 +451,8 @@ export default function SendPaymentScreen(props) {
       memo: paymentDescription || paymentInfo?.data.message || '',
       userBalance: sparkInformation.balance,
       sparkInformation,
+      feeQuote: paymentInfo.feeQuote,
+      usingZeroAmountInvoice: paymentInfo.usingZeroAmountInvoice,
     };
 
     // Shouuld be same for all paymetns
