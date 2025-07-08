@@ -348,7 +348,6 @@ export async function syncDatabasePayment(
     const formattedMessages = allMessages
       .map(message => {
         try {
-          console.log(message);
           if (typeof message.message === 'string') {
             const sendersPubkey =
               message.toPubKey === myPubKey
@@ -359,8 +358,14 @@ export async function syncDatabasePayment(
               sendersPubkey,
               message.message,
             );
-            if (!decoded) return;
-            const parsedMessage = JSON.parse(decoded);
+            if (!decoded) return false;
+            let parsedMessage;
+            try {
+              parsedMessage = JSON.parse(decoded);
+            } catch (err) {
+              console.log('error parsing decoded message', err);
+              return false;
+            }
             return {...message, message: parsedMessage};
           }
           return message;

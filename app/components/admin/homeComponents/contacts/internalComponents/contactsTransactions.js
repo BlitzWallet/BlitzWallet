@@ -18,7 +18,7 @@ import getReceiveAddressForContactPayment from './getReceiveAddressAndKindForPay
 export default function ContactsTransactionItem(props) {
   const {selectedContact, transaction, myProfile, currentTime} = props;
 
-  const {contactsPrivateKey} = useKeysContext();
+  const {contactsPrivateKey, publicKey} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundColor} = GetThemeColors();
   const navigate = useNavigation();
@@ -230,13 +230,22 @@ export default function ContactsTransactionItem(props) {
           privateKey: contactsPrivateKey,
           retrivedContact,
         }),
-        await updateMessage({
-          newMessage,
-          fromPubKey: transaction.fromPubKey,
-          toPubKey: transaction.toPubKey,
-          retrivedContact,
-          privateKey: contactsPrivateKey,
-        }),
+
+        retrivedContact.isUsingEncriptedMessaging
+          ? updateMessage({
+              newMessage,
+              fromPubKey: publicKey,
+              toPubKey: selectedContact.uuid,
+              retrivedContact,
+              privateKey: contactsPrivateKey,
+            })
+          : updateMessage({
+              newMessage,
+              fromPubKey: transaction.fromPubKey,
+              toPubKey: transaction.toPubKey,
+              retrivedContact,
+              privateKey: contactsPrivateKey,
+            }),
       ]);
       if (!didUpdateMessage && usingOnPage) {
         navigate.navigate('ErrorScreen', {

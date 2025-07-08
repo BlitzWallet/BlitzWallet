@@ -190,8 +190,15 @@ export const GlobalContactsList = ({children}) => {
                 sendersPubkey,
                 newMessage.message,
               );
+
               if (!decoded) return;
-              const parsedMessage = JSON.parse(decoded);
+              let parsedMessage;
+              try {
+                parsedMessage = JSON.parse(decoded);
+              } catch (err) {
+                console.log('error parsing decoded message', err);
+                return;
+              }
               newMessages.push({...newMessage, message: parsedMessage});
             } else newMessages.push(newMessage);
           }
