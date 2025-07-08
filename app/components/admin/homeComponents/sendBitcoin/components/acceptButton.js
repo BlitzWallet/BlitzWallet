@@ -1,6 +1,9 @@
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {CENTER, SATSPERBITCOIN} from '../../../../../constants';
+import {
+  CENTER,
+  SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
+} from '../../../../../constants';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useState} from 'react';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
@@ -9,7 +12,6 @@ import displayCorrectDenomination from '../../../../../functions/displayCorrectD
 import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 
 export default function AcceptButtonSendPage({
-  isUsingSwapWithZeroInvoice,
   canSendPayment,
   decodeSendAddress,
   errorMessageNavigation,
@@ -38,7 +40,6 @@ export default function AcceptButtonSendPage({
       buttonStyles={{
         opacity:
           canSendPayment &&
-          !(paymentInfo?.data?.invoice?.amountMsat === null) &&
           !(
             isLiquidPayment &&
             (convertedSendAmount < minMaxLiquidSwapAmounts.min ||
@@ -48,6 +49,10 @@ export default function AcceptButtonSendPage({
             paymentInfo?.type === 'lnUrlPay' &&
             (convertedSendAmount < minLNURLSatAmount ||
               convertedSendAmount > maxLNURLSatAmount)
+          ) &&
+          !(
+            paymentInfo?.type === 'Bitcoin' &&
+            convertedSendAmount < SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT
           )
             ? 1
             : 0.5,
@@ -65,12 +70,6 @@ export default function AcceptButtonSendPage({
     if (!paymentInfo?.sendAmount) {
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Please enter a send amount',
-      });
-      return;
-    }
-    if (isUsingSwapWithZeroInvoice) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: 'Cannot send payment to a 0 amount lightning invoice.',
       });
       return;
     }
@@ -92,6 +91,21 @@ export default function AcceptButtonSendPage({
           fiatStats,
           masterInfoObject,
         })}`,
+      });
+      return;
+    }
+    if (
+      paymentInfo?.type === 'Bitcoin' &&
+      convertedSendAmount < SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT
+    ) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: `Minimum on-chain send amount is ${displayCorrectDenomination(
+          {
+            amount: SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
+            fiatStats,
+            masterInfoObject,
+          },
+        )}`,
       });
       return;
     }
