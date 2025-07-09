@@ -56,6 +56,24 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
   );
 
   const handleInputElement = useCallback((text, keyNumber) => {
+    const restoredSeed = handleRestoreFromText(text);
+    const QRSeedResponse = handleCameraScan(text, true);
+
+    if (
+      (restoredSeed.didWork && restoredSeed?.seed?.length === 12) ||
+      QRSeedResponse
+    ) {
+      const splitSeed = restoredSeed.didWork
+        ? restoredSeed.seed
+        : QRSeedResponse;
+      const newKeys = {};
+      NUMARRAY.forEach((num, index) => {
+        newKeys[`key${num}`] = splitSeed[index];
+      });
+      setInputedKey(newKeys);
+      return;
+    }
+
     setInputedKey(prev => ({...prev, [`key${keyNumber}`]: text}));
   }, []);
 
@@ -177,9 +195,14 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
         const end = start + 4;
         indexMnemonic.push(data.slice(start, end));
       }
-      const seedMnemoinc = indexMnemonic.map(item => {
-        return wordlist.at(Number(item));
-      });
+      const seedMnemoinc = indexMnemonic
+        .map(item => {
+          if (isNaN(Number(item))) return false;
+          return wordlist.at(Number(item));
+        })
+        .filter(Boolean);
+      if (seedMnemoinc.length !== 12)
+        throw new Error('Unable to find seed in number array');
       const newKeys = {};
       NUMARRAY.forEach((num, index) => {
         newKeys[`key${num}`] = seedMnemoinc[index];
