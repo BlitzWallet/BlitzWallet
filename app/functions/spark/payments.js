@@ -127,6 +127,7 @@ export const sparkPaymenWrapper = async ({
         exitSpeed,
         amountSats,
         feeQuote,
+        deductFeeFromWithdrawalAmount: true,
       });
 
       if (!onChainPayResponse.didWork)

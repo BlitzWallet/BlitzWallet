@@ -1575,9 +1575,9 @@ __metadata:
   linkType: hard
 
 "@bufbuild/protobuf@npm:^2.0.0, @bufbuild/protobuf@npm:^2.2.5":
-  version: 2.4.0
-  resolution: "@bufbuild/protobuf@npm:2.4.0"
-  checksum: 2fe978d0914a6a95136efa8081125aa5c95741f1c96bb4f8f499a336f1aead13ca06f9daee99175778ef04f62deb4d0c68f35f1664d7c46293b90d6e40b6f9aa
+  version: 2.6.0
+  resolution: "@bufbuild/protobuf@npm:2.6.0"
+  checksum: 9337e89052a0e4b6a1ca099f09801243055c7027a9ecb2e2d22ae25926f8730d32f5e2e8222214155de2847324b0f07fee0318621147f229da8f2fb595ff6802
   languageName: node
   linkType: hard
 
@@ -1677,11 +1677,11 @@ __metadata:
   linkType: hard
 
 "@ecies/ciphers@npm:^0.2.3":
-  version: 0.2.3
-  resolution: "@ecies/ciphers@npm:0.2.3"
+  version: 0.2.4
+  resolution: "@ecies/ciphers@npm:0.2.4"
   peerDependencies:
     "@noble/ciphers": ^1.0.0
-  checksum: fdf01fd5e687a74802df60d21ff9be5aa6cdf692dcf671186e94eb17e9c260a4652b64c7127b277af20c35d3ccc733003cefb2fdaee93e8b516fa71d317d503f
+  checksum: 6300075ffce01765ad0ddcc26ed6150301cd448bc79b7a046cbd659c4bd6e3a05f207df2a09396cdf529bcc6ab921b26cb50483703c57f80f2d8898c369284f3
   languageName: node
   linkType: hard
 
@@ -3170,12 +3170,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:^1.6.0, @noble/curves@npm:^1.7.0, @noble/curves@npm:^1.8.0, @noble/curves@npm:^1.9.1, @noble/curves@npm:~1.9.0":
+"@noble/curves@npm:^1.6.0, @noble/curves@npm:^1.7.0, @noble/curves@npm:~1.9.0":
   version: 1.9.1
   resolution: "@noble/curves@npm:1.9.1"
   dependencies:
     "@noble/hashes": 1.8.0
   checksum: 4f3483a1001538d2f55516cdcb19319d1eaef79550633f670e7d570b989cdbc0129952868b72bb67643329746b8ffefe8e4cd791c8cc35574e05a37f873eef42
+  languageName: node
+  linkType: hard
+
+"@noble/curves@npm:^1.8.0, @noble/curves@npm:^1.9.1":
+  version: 1.9.2
+  resolution: "@noble/curves@npm:1.9.2"
+  dependencies:
+    "@noble/hashes": 1.8.0
+  checksum: bac582aefe951032cb04ed7627f139c3351ddfefd2625a25fe7f7a8043e7d781be4fad320d4ae75e31fa5d7e05ba643f16139877375130fd3cff86d81512e0f2
   languageName: node
   linkType: hard
 
@@ -4041,10 +4050,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/base@npm:^1.1.1, @scure/base@npm:^1.2.4, @scure/base@npm:~1.2.5":
+"@scure/base@npm:^1.1.1, @scure/base@npm:~1.2.5":
   version: 1.2.5
   resolution: "@scure/base@npm:1.2.5"
   checksum: 79f76781d4f55fa2ce36e4d6f950a76234a81f81c9f5f33794ee82077e5c8005e84a1491684a0643e77734e3dd1cd8367930d2a165a9c0af4d3c526ffe7407f8
+  languageName: node
+  linkType: hard
+
+"@scure/base@npm:^1.2.4":
+  version: 1.2.6
+  resolution: "@scure/base@npm:1.2.6"
+  checksum: 1058cb26d5e4c1c46c9cc0ae0b67cc66d306733baf35d6ebdd8ddaba242b80c3807b726e3b48cb0411bb95ec10d37764969063ea62188f86ae9315df8ea6b325
   languageName: node
   linkType: hard
 
@@ -4070,14 +4086,14 @@ __metadata:
   linkType: hard
 
 "@scure/btc-signer@npm:^1.5.0":
-  version: 1.8.0
-  resolution: "@scure/btc-signer@npm:1.8.0"
+  version: 1.8.1
+  resolution: "@scure/btc-signer@npm:1.8.1"
   dependencies:
     "@noble/curves": ~1.9.0
     "@noble/hashes": ~1.8.0
     "@scure/base": ~1.2.5
     micro-packed: ~0.7.3
-  checksum: 3712cb436a7e566b5ddc578d2d3bf8d84360f2058f2fa7a5e23e18ef1094562d114a35e101c3813cb44718ad48c87f75ca5ecb8a507690b864fa20326d7a3f58
+  checksum: a417586eace5faf9bf6ee58f5fd2d95fc2042842d376d55ef10b5465cc5d244ade10995036cd1772a61e42dc30f4fb9944b18f8e6b974332ce12dad2ece1a645
   languageName: node
   linkType: hard
 
@@ -13870,12 +13886,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-poet@npm:^6.7.0":
-  version: 6.11.0
-  resolution: "ts-poet@npm:6.11.0"
+"ts-poet@npm:^6.12.0":
+  version: 6.12.0
+  resolution: "ts-poet@npm:6.12.0"
   dependencies:
     dprint-node: ^1.0.8
-  checksum: 059df95050d5ce9e235a6dc2e80f97988682465db5f9220c76c16d1091340428a0e1fe65d885acc6e68aebaf265289455e23d53727b3139dfb1924080b60c16d
+  checksum: 05fec86d188a0727433ae2deea950161c43ee433526702b75cc19858b90a20642b075d99e1029efcafccb59d9e98492c8e41fbbc945615bbff0e58922f820e1c
   languageName: node
   linkType: hard
 
@@ -13889,16 +13905,16 @@ __metadata:
   linkType: hard
 
 "ts-proto@npm:^2.6.1":
-  version: 2.7.0
-  resolution: "ts-proto@npm:2.7.0"
+  version: 2.7.5
+  resolution: "ts-proto@npm:2.7.5"
   dependencies:
     "@bufbuild/protobuf": ^2.0.0
     case-anything: ^2.1.13
-    ts-poet: ^6.7.0
+    ts-poet: ^6.12.0
     ts-proto-descriptors: 2.0.0
   bin:
     protoc-gen-ts_proto: protoc-gen-ts_proto
-  checksum: 90327aafdc83797d50c400bbf5af7d3b8173d81f070bd67b0cccdc6e00d349abd1fd650f897ece5fd8905c2ea0dc30c03802b9be35aeec3ff2bdb27315b71e90
+  checksum: 2057ddbe492856adf78a4e615663944af7bd261d5135eb2fd5e86cb93df054230b25a65de29558a55c127a9fd86581299651be87248cc47b29ec27682e929f3a
   languageName: node
   linkType: hard
 
