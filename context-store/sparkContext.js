@@ -11,7 +11,6 @@ import {
   claimnSparkStaticDepositAddress,
   getSparkBalance,
   getSparkLightningPaymentStatus,
-  getSparkStaticBitcoinL1Address,
   getSparkStaticBitcoinL1AddressQuote,
   getSparkTransactions,
   queryAllStaticDepositAddresses,

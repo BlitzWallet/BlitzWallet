@@ -52,7 +52,9 @@ export default function ExpandedTx(props) {
           />
         </TouchableOpacity>
 
-        <ScrollView contentContainerStyle={styles.scrollViewContentContainer}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollViewContentContainer}>
           <View
             style={{
               ...styles.receiptContainer,

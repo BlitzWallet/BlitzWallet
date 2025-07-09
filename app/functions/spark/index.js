@@ -50,19 +50,19 @@ export const getSparkIdentityPubKey = async () => {
     console.log('Get spark balance error', err);
   }
 };
-export const initializeTempSparkWallet = async mnemoinc => {
-  try {
-    const {wallet: w} = await SparkWallet.initialize({
-      signer: new ReactNativeSparkSigner(),
-      mnemonicOrSeed: mnemoinc,
-      options: {network: 'MAINNET'},
-    });
+// export const initializeTempSparkWallet = async mnemoinc => {
+//   try {
+//     const {wallet: w} = await SparkWallet.initialize({
+//       signer: new ReactNativeSparkSigner(),
+//       mnemonicOrSeed: mnemoinc,
+//       options: {network: 'MAINNET'},
+//     });
 
-    return w;
-  } catch (err) {
-    console.log('Initialize spark wallet error', err);
-  }
-};
+//     return w;
+//   } catch (err) {
+//     console.log('Initialize spark wallet error', err);
+//   }
+// };
 
 export const getSparkBalance = async () => {
   try {
