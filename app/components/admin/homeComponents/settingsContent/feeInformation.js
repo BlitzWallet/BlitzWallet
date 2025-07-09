@@ -69,7 +69,7 @@ export default function BlitzFeeInformation() {
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{
-        marginTop: 20,
+        paddingTop: 20,
         alignItems: 'center',
         width: INSET_WINDOW_WIDTH,
         ...CENTER,

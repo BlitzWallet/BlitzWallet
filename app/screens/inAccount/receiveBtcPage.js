@@ -1,4 +1,10 @@
-import {StyleSheet, Text, View, TouchableOpacity, Platform} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  useWindowDimensions,
+} from 'react-native';
 import {CENTER, SIZES, ICONS, COLORS} from '../../constants';
 import {useEffect, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
@@ -30,6 +36,8 @@ export default function ReceivePaymentHome(props) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {globalContactsInformation} = useGlobalContacts();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
+  const windowDimentions = useWindowDimensions().height;
+  const [contentHeight, setContentHeight] = useState(0);
   // const {ecashWalletInformation} = useGlobaleCash();
   const {startLiquidEventListener} = useLiquidEvent();
   // const currentMintURL = ecashWalletInformation.mintURL;
@@ -89,40 +97,58 @@ export default function ReceivePaymentHome(props) {
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
 
   return (
-    <GlobalThemeView styles={{alignItems: 'center'}} useStandardWidth={true}>
-      <TopBar navigate={navigate} />
+    <GlobalThemeView useStandardWidth={true}>
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: contentHeight > windowDimentions ? 0 : 1,
+        }}
+        showsVerticalScrollIndicator={false}>
+        <View
+          onLayout={e => {
+            if (!e.nativeEvent.layout.height) return;
+            setContentHeight(e.nativeEvent.layout.height);
+          }}
+          style={{
+            width: '100%',
+            alignItems: 'center',
+            flexGrow: contentHeight > windowDimentions ? 0 : 1,
+          }}>
+          <TopBar navigate={navigate} />
 
-      <ThemeText styles={{...styles.title}} content={selectedRecieveOption} />
-      <QrCode
-        globalContactsInformation={globalContactsInformation}
-        selectedRecieveOption={selectedRecieveOption}
-        navigate={navigate}
-        addressState={addressState}
-        initialSendAmount={initialSendAmount}
-      />
+          <ThemeText
+            styles={{...styles.title}}
+            content={selectedRecieveOption}
+          />
+          <QrCode
+            globalContactsInformation={globalContactsInformation}
+            selectedRecieveOption={selectedRecieveOption}
+            navigate={navigate}
+            addressState={addressState}
+            initialSendAmount={initialSendAmount}
+          />
 
-      <ButtonsContainer
-        generatingInvoiceQRCode={addressState.isGeneratingInvoice}
-        generatedAddress={addressState.generatedAddress}
-        selectedRecieveOption={selectedRecieveOption}
-      />
+          <ButtonsContainer
+            generatingInvoiceQRCode={addressState.isGeneratingInvoice}
+            generatedAddress={addressState.generatedAddress}
+            selectedRecieveOption={selectedRecieveOption}
+          />
 
-      <View style={{marginBottom: 'auto'}}></View>
+          <View style={{marginBottom: 'auto'}}></View>
 
-      <View
-        style={{
-          alignItems: 'center',
-          // position: 'absolute',
-          // [Platform.OS === 'ios' ? 'top' : 'bottom']:
-          // Platform.OS === 'ios' ? '100%' : 0,
-        }}>
-        <ThemeText content={'Fee:'} />
-        <FormattedSatText
-          neverHideBalance={true}
-          styles={{paddingBottom: 5}}
-          balance={0}
-        />
-        {/* <Text
+          <View
+            style={{
+              alignItems: 'center',
+              // position: 'absolute',
+              // [Platform.OS === 'ios' ? 'top' : 'bottom']:
+              // Platform.OS === 'ios' ? '100%' : 0,
+            }}>
+            <ThemeText content={'Fee:'} />
+            <FormattedSatText
+              neverHideBalance={true}
+              styles={{paddingBottom: 5}}
+              balance={0}
+            />
+            {/* <Text
           style={[
             styles.title,
             {
@@ -140,7 +166,7 @@ export default function ReceivePaymentHome(props) {
               } receive amount:`
             : `Fee:`}
         </Text> */}
-        {/* {addressState.isGeneratingInvoice ? (
+            {/* {addressState.isGeneratingInvoice ? (
           <ThemeText content={' '} />
         ) : (
           <FormattedSatText
@@ -156,7 +182,9 @@ export default function ReceivePaymentHome(props) {
             }
           />
         )} */}
-      </View>
+          </View>
+        </View>
+      </ScrollView>
     </GlobalThemeView>
   );
 }

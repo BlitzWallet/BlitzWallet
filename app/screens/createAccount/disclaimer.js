@@ -22,20 +22,25 @@ export default function DislaimerPage({navigation: {navigate}}) {
   const {t} = useTranslation();
   useHandleBackPressNew();
 
+  console.log(contentHeight, windowDimentiosn);
   return (
     <GlobalThemeView useStandardWidth={true}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           ...styles.contentContainer,
-          flex: contentHeight > windowDimentiosn ? 0 : 1,
+          flexGrow: contentHeight > windowDimentiosn ? 0 : 1,
         }}>
         <View
           onLayout={e => {
             if (!e.nativeEvent.layout.height) return;
             setContentHeight(e.nativeEvent.layout.height);
           }}
-          style={{alignItems: 'center', width: '100%'}}>
+          style={{
+            alignItems: 'center',
+            width: '100%',
+            flexGrow: contentHeight > windowDimentiosn ? 0 : 1,
+          }}>
           <LoginNavbar />
 
           <ThemeText

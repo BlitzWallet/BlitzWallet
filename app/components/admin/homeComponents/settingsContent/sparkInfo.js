@@ -14,7 +14,7 @@ export default function SparkInfo() {
   const {sparkInformation} = useSparkWallet();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset} = GetThemeColors();
-  const {sparkAddress, identityPubKey} = sparkInformation;
+  const {sparkAddress = '', identityPubKey = ''} = sparkInformation;
 
   return (
     <View

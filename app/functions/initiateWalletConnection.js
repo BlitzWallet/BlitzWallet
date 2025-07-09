@@ -82,7 +82,7 @@ async function initializeSparkSession({
       balance: Number(balance.balance),
       transactions: transactions,
       identityPubKey,
-      sparkAddress,
+      sparkAddress: sparkAddress.response,
       didConnect: true,
     };
     console.log('Spark storage object', storageObject);

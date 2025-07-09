@@ -1,4 +1,10 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import {CENTER, COLORS, SIZES} from '../../../../constants';
 import {useMemo, useState} from 'react';
 import {terminateAccount} from '../../../../functions/secureStore';
@@ -31,9 +37,10 @@ export default function ResetPage(props) {
   const {sparkInformation} = useSparkWallet();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {liquidNodeInformation} = useNodeContext();
-
+  const [contentHeight, setContentHeight] = useState(0);
   const {backgroundOffset} = GetThemeColors();
   const navigate = useNavigation();
+  const windowDimentions = useWindowDimensions();
 
   const backgroundColor = useMemo(() => {
     return theme ? backgroundOffset : COLORS.darkModeText;
@@ -42,123 +49,40 @@ export default function ResetPage(props) {
   const isDoomsday = props.isDoomsday;
 
   return (
-    <View
-      style={{
-        flex: 1,
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{
+        flexGrow: contentHeight > windowDimentions ? 0 : 1,
         width: INSET_WINDOW_WIDTH,
         ...CENTER,
-        alignItems: 'center',
       }}>
       <View
-        style={[
-          styles.infoContainer,
-          {
-            marginTop: 30,
-            backgroundColor: backgroundColor,
-          },
-        ]}>
-        <ThemeText
-          styles={{
-            ...styles.warningHeader,
-            color:
-              theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
-          }}
-          content={'Are you sure?'}
-        />
-      </View>
-      <View
-        style={[
-          styles.infoContainer,
-          {
-            backgroundColor: backgroundColor,
-          },
-        ]}>
-        <ThemeText
-          styles={{...styles.infoTitle}}
-          content={'Select data to delete from this device.'}
-        />
-        <ThemeText
-          styles={{marginBottom: 15}}
-          content={
-            'Any option that is selected will be removed forever. If your seed is forgotten, you WILL lose your funds.'
-          }
-        />
-
+        style={{
+          width: '100%',
+          alignItems: 'center',
+          flexGrow: contentHeight > windowDimentions ? 0 : 1,
+        }}
+        onLayout={e => {
+          if (!e.nativeEvent.layout.height) return;
+          setContentHeight(e.nativeEvent.layout.height);
+        }}>
         <View
           style={[
-            styles.borderView,
+            styles.infoContainer,
             {
-              backgroundColor: theme
-                ? COLORS.darkModeText
-                : COLORS.lightModeText,
+              marginTop: 30,
+              backgroundColor: backgroundColor,
             },
-          ]}></View>
-        <View style={{marginTop: 15}}>
-          <View style={styles.selectorContainer}>
-            <TouchableOpacity
-              onPress={() => handleSelectedItems('securedItems')}
-              style={[
-                styles.selectorDot,
-                {
-                  backgroundColor: selectedOptions.securedItems
-                    ? theme
-                      ? COLORS.darkModeText
-                      : COLORS.lightModeText
-                    : 'transparent',
-                  borderWidth: selectedOptions.securedItems ? 0 : 2,
-                  borderColor: theme
-                    ? COLORS.darkModeText
-                    : COLORS.lightModeText,
-                },
-              ]}>
-              {selectedOptions.securedItems && (
-                <Icon
-                  width={15}
-                  height={15}
-                  color={theme ? COLORS.lightModeText : COLORS.darkModeText}
-                  name={'expandedTxCheck'}
-                />
-              )}
-            </TouchableOpacity>
-            <ThemeText
-              styles={{...styles.selectorText}}
-              content={'Delete seed phrase and pin from my device'}
-            />
-          </View>
-          <View style={{...styles.selectorContainer, marginBottom: 0}}>
-            <TouchableOpacity
-              onPress={() => handleSelectedItems('localStoredItems')}
-              style={[
-                styles.selectorDot,
-                {
-                  backgroundColor: selectedOptions.localStoredItems
-                    ? theme
-                      ? COLORS.darkModeText
-                      : COLORS.lightModeText
-                    : 'transparent',
-                  borderWidth: selectedOptions.localStoredItems ? 0 : 2,
-                  borderColor: theme
-                    ? COLORS.darkModeText
-                    : COLORS.lightModeText,
-                },
-              ]}>
-              {selectedOptions.localStoredItems && (
-                <Icon
-                  width={15}
-                  height={15}
-                  color={theme ? COLORS.lightModeText : COLORS.darkModeText}
-                  name={'expandedTxCheck'}
-                />
-              )}
-            </TouchableOpacity>
-            <ThemeText
-              styles={{...styles.selectorText}}
-              content={'Delete locally stored data from my device'}
-            />
-          </View>
+          ]}>
+          <ThemeText
+            styles={{
+              ...styles.warningHeader,
+              color:
+                theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
+            }}
+            content={'Are you sure?'}
+          />
         </View>
-      </View>
-      {!isDoomsday && (
         <View
           style={[
             styles.infoContainer,
@@ -167,33 +91,127 @@ export default function ResetPage(props) {
             },
           ]}>
           <ThemeText
-            styles={{...styles.infoTitle, textAlign: 'center'}}
-            content={'Your balance is'}
+            styles={{...styles.infoTitle}}
+            content={'Select data to delete from this device.'}
           />
-          <FormattedSatText
-            styles={{fontSize: SIZES.large}}
-            neverHideBalance={true}
-            balance={
-              Number(sparkInformation.balance) +
-              liquidNodeInformation.userBalance
+          <ThemeText
+            styles={{marginBottom: 15}}
+            content={
+              'Any option that is selected will be removed forever. If your seed is forgotten, you WILL lose your funds.'
             }
           />
-        </View>
-      )}
 
-      <CustomButton
-        buttonStyles={{
-          opacity:
-            selectedOptions.securedItems || selectedOptions.localStoredItems
-              ? 1
-              : 0.5,
-          width: 'auto',
-          marginTop: 'auto',
-        }}
-        actionFunction={resetWallet}
-        textContent={'Reset'}
-      />
-    </View>
+          <View
+            style={[
+              styles.borderView,
+              {
+                backgroundColor: theme
+                  ? COLORS.darkModeText
+                  : COLORS.lightModeText,
+              },
+            ]}></View>
+          <View style={{marginTop: 15}}>
+            <View style={styles.selectorContainer}>
+              <TouchableOpacity
+                onPress={() => handleSelectedItems('securedItems')}
+                style={[
+                  styles.selectorDot,
+                  {
+                    backgroundColor: selectedOptions.securedItems
+                      ? theme
+                        ? COLORS.darkModeText
+                        : COLORS.lightModeText
+                      : 'transparent',
+                    borderWidth: selectedOptions.securedItems ? 0 : 2,
+                    borderColor: theme
+                      ? COLORS.darkModeText
+                      : COLORS.lightModeText,
+                  },
+                ]}>
+                {selectedOptions.securedItems && (
+                  <Icon
+                    width={15}
+                    height={15}
+                    color={theme ? COLORS.lightModeText : COLORS.darkModeText}
+                    name={'expandedTxCheck'}
+                  />
+                )}
+              </TouchableOpacity>
+              <ThemeText
+                styles={{...styles.selectorText}}
+                content={'Delete seed phrase and pin from my device'}
+              />
+            </View>
+            <View style={{...styles.selectorContainer, marginBottom: 0}}>
+              <TouchableOpacity
+                onPress={() => handleSelectedItems('localStoredItems')}
+                style={[
+                  styles.selectorDot,
+                  {
+                    backgroundColor: selectedOptions.localStoredItems
+                      ? theme
+                        ? COLORS.darkModeText
+                        : COLORS.lightModeText
+                      : 'transparent',
+                    borderWidth: selectedOptions.localStoredItems ? 0 : 2,
+                    borderColor: theme
+                      ? COLORS.darkModeText
+                      : COLORS.lightModeText,
+                  },
+                ]}>
+                {selectedOptions.localStoredItems && (
+                  <Icon
+                    width={15}
+                    height={15}
+                    color={theme ? COLORS.lightModeText : COLORS.darkModeText}
+                    name={'expandedTxCheck'}
+                  />
+                )}
+              </TouchableOpacity>
+              <ThemeText
+                styles={{...styles.selectorText}}
+                content={'Delete locally stored data from my device'}
+              />
+            </View>
+          </View>
+        </View>
+        {!isDoomsday && (
+          <View
+            style={[
+              styles.infoContainer,
+              {
+                backgroundColor: backgroundColor,
+              },
+            ]}>
+            <ThemeText
+              styles={{...styles.infoTitle, textAlign: 'center'}}
+              content={'Your balance is'}
+            />
+            <FormattedSatText
+              styles={{fontSize: SIZES.large}}
+              neverHideBalance={true}
+              balance={
+                Number(sparkInformation.balance) +
+                liquidNodeInformation.userBalance
+              }
+            />
+          </View>
+        )}
+
+        <CustomButton
+          buttonStyles={{
+            opacity:
+              selectedOptions.securedItems || selectedOptions.localStoredItems
+                ? 1
+                : 0.5,
+            width: 'auto',
+            marginTop: 'auto',
+          }}
+          actionFunction={resetWallet}
+          textContent={'Reset'}
+        />
+      </View>
+    </ScrollView>
   );
 
   function handleSelectedItems(item) {
