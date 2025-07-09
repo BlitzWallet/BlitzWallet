@@ -4,7 +4,7 @@ import {
   getSparkLightningSendRequest,
   getSparkTransactions,
 } from '.';
-import {IS_SPARK_REQUEST_ID} from '../../constants';
+import {IS_BITCOIN_REQUEST_ID, IS_SPARK_REQUEST_ID} from '../../constants';
 import {
   bulkUpdateSparkTransactions,
   getAllPendingSparkPayments,
@@ -131,7 +131,10 @@ export const updateSparkTxStatus = async () => {
         };
         updatedTxs.push(tx);
       } else {
-        if (details.direction === 'INCOMING') {
+        if (
+          details.direction === 'INCOMING' ||
+          !IS_BITCOIN_REQUEST_ID.test(txStateUpdate.sparkID)
+        ) {
           const bitcoinTransfer = incomingTxs.transfers.find(
             tx => tx.id === txStateUpdate.sparkID,
           );
@@ -150,7 +153,7 @@ export const updateSparkTxStatus = async () => {
           );
 
           if (!sparkResponse?.transfer) {
-            if (!details.onChainTxid && sparkResponse.coopExitTxid) {
+            if (!details.onChainTxid && sparkResponse?.coopExitTxid) {
               const tx = {
                 useTempId: true,
                 tempId: txStateUpdate.sparkID,

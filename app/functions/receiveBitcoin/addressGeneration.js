@@ -11,7 +11,8 @@ import {sparkReceivePaymentWrapper} from '../spark/payments';
 
 let invoiceTracker = [];
 export async function initializeAddressProcess(wolletInfo) {
-  const {setAddressState, selectedRecieveOption} = wolletInfo;
+  const {setAddressState, selectedRecieveOption, startLiquidEventListener} =
+    wolletInfo;
   const requestUUID = customUUID();
   invoiceTracker.push(requestUUID);
   let stateTracker = {};
@@ -77,6 +78,7 @@ export async function initializeAddressProcess(wolletInfo) {
     } else {
       const response = await generateLiquidAddress(wolletInfo);
       if (!response) throw new Error('Error with bitcoin');
+      startLiquidEventListener();
       stateTracker = response;
     }
   } catch (error) {

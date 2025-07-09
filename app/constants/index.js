@@ -29,6 +29,7 @@ const VALID_USERNAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
 
 const IS_SPARK_REQUEST_ID =
   /^SparkLightning(?:Receive|Send)Request:[0-9a-fA-F\-]+$/;
+const IS_BITCOIN_REQUEST_ID = /^SparkCoopExitRequest:[0-9a-fA-F\-]+$/;
 
 const IS_LETTER_REGEX = /^[A-Za-z]$/;
 const BITCOIN_SATS_ICON = '\u20BF';
@@ -121,4 +122,5 @@ export {
   LOGIN_SECURITY_MODE_TYPE_KEY,
   IS_SPARK_REQUEST_ID,
   SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
+  IS_BITCOIN_REQUEST_ID,
 };

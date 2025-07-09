@@ -75,10 +75,6 @@ export default function ReceivePaymentHome(props) {
       )
         return;
 
-      if (selectedRecieveOption.toLowerCase() === 'liquid') {
-        startLiquidEventListener();
-      }
-
       await initializeAddressProcess({
         userBalanceDenomination: masterInfoObject.userBalanceDenomination,
         receivingAmount: initialSendAmount,
@@ -89,6 +85,7 @@ export default function ReceivePaymentHome(props) {
         setAddressState: setAddressState,
         selectedRecieveOption: selectedRecieveOption,
         navigate,
+        startLiquidEventListener,
         // eCashBalance,
       });
       if (selectedRecieveOption !== 'Liquid') return;
