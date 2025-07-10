@@ -70,6 +70,7 @@ export default function VPNDurationSlider({
                     ? COLORS.lightModeText
                     : COLORS.darkModeText
                   : textColor,
+              includeFontPadding: false,
             }}
             content={name}
           />
