@@ -1,13 +1,12 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {PanResponder} from 'react-native';
 import {
   Animated,
   Keyboard,
-  Platform,
   StyleSheet,
-  TouchableWithoutFeedback,
   View,
   useWindowDimensions,
+  PanResponder,
+  TouchableOpacity,
 } from 'react-native';
 import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {useNavigation} from '@react-navigation/native';
@@ -63,16 +62,14 @@ export default function CustomHalfModal(props) {
       () => {
         navigation.goBack();
       },
-      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 100,
+      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 200,
     );
   }, [navigation]);
 
   useHandleBackPressNew(handleBackPressFunction);
 
   useEffect(() => {
-    setTimeout(() => {
-      slideIn();
-    }, 100);
+    slideIn();
   }, []);
 
   const slideIn = () => {
@@ -264,14 +261,23 @@ export default function CustomHalfModal(props) {
     <KeyboardAvoidingView
       behavior={'padding'}
       style={styles.keyboardAvoidingView}>
-      <TouchableWithoutFeedback onPress={handleBackPressFunction}>
-        <View style={{...styles.container, paddingBottom: topPadding}} />
-      </TouchableWithoutFeedback>
+      <TouchableOpacity
+        style={styles.backdrop}
+        activeOpacity={1}
+        onPress={handleBackPressFunction}
+      />
       <Animated.View
         style={[
           styles.contentContainer,
           {
             height: contentHeight ? contentHeight : deviceHeight * slideHeight,
+            backgroundColor: 'black', //removes opacity background
+            transform: [{translateY: Animated.add(translateY, panY)}],
+          },
+        ]}>
+        <View
+          style={{
+            flex: 1,
             backgroundColor:
               theme && darkModeType ? backgroundOffset : backgroundColor,
             paddingBottom:
@@ -284,21 +290,21 @@ export default function CustomHalfModal(props) {
                 : contentType === 'addContacts'
                 ? 0
                 : bottomPadding,
-            transform: [{translateY: Animated.add(translateY, panY)}],
-          },
-        ]}>
-        <View {...panResponder.panHandlers} style={styles.topBarContainer}>
-          <View
-            style={[
-              styles.topBar,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-          />
+          }}>
+          <View {...panResponder.panHandlers} style={styles.topBarContainer}>
+            <View
+              style={[
+                styles.topBar,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            />
+          </View>
+
+          {renderContent()}
         </View>
-        {renderContent()}
       </Animated.View>
     </KeyboardAvoidingView>
   );
@@ -310,8 +316,11 @@ const styles = StyleSheet.create({
   },
   keyboardAvoidingView: {
     flex: 1,
-    backgroundColor: COLORS.halfModalBackgroundColor,
     justifyContent: 'flex-end',
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: COLORS.halfModalBackgroundColor,
   },
   topBarContainer: {
     borderTopLeftRadius: 20,
@@ -331,5 +340,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     flexShrink: 1,
+    overflow: 'hidden',
   },
 });
