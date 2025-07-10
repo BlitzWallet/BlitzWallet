@@ -12,14 +12,14 @@ export default async function copyToClipboard(
     showToast({
       type: 'clipboard',
       title: 'Copied to clipboard',
-      duration: 3000,
+      duration: 2000,
     });
   } catch (err) {
     if (page === 'ChatGPT') return;
     showToast({
       type: 'clipboard',
       title: 'Failed to copy',
-      duration: 3000,
+      duration: 2000,
     });
   }
 }

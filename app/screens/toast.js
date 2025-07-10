@@ -4,6 +4,7 @@ import {ThemeText} from '../functions/CustomElements';
 import ThemeImage from '../functions/CustomElements/themeImage';
 import {COLORS, ICONS} from '../constants';
 import {useGlobalInsets} from '../../context-store/insetsProvider';
+import {WINDOWWIDTH} from '../constants/theme';
 
 export function Toast({toast, onHide, expiredToasts}) {
   const slideAnim = useRef(new Animated.Value(50)).current;
@@ -16,12 +17,12 @@ export function Toast({toast, onHide, expiredToasts}) {
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 500,
+        duration: 200,
         useNativeDriver: true,
       }),
       Animated.timing(opacityAnim, {
         toValue: 1,
-        duration: 600,
+        duration: 300,
         useNativeDriver: true,
       }),
     ]).start();
@@ -33,12 +34,12 @@ export function Toast({toast, onHide, expiredToasts}) {
     Animated.parallel([
       Animated.timing(translateY, {
         toValue: -100, // Slide up off screen
-        duration: 500,
+        duration: 300,
         useNativeDriver: true,
       }),
       Animated.timing(opacityAnim, {
         toValue: 0,
-        duration: 400,
+        duration: 200,
         useNativeDriver: true,
       }),
     ]).start(() => onHide());
@@ -62,12 +63,12 @@ export function Toast({toast, onHide, expiredToasts}) {
           Animated.parallel([
             Animated.timing(translateY, {
               toValue: -100, // Slide up off screen
-              duration: 500,
+              duration: 300,
               useNativeDriver: true,
             }),
             Animated.timing(opacityAnim, {
               toValue: 0,
-              duration: 400,
+              duration: 200,
               useNativeDriver: true,
             }),
           ]).start(() => onHide());
@@ -152,9 +153,11 @@ export function Toast({toast, onHide, expiredToasts}) {
 // Styles
 const styles = StyleSheet.create({
   toastContainer: {
+    width: WINDOWWIDTH,
+    flex: 1,
     position: 'absolute',
-    left: 20,
-    right: 20,
+    left: '2.5%',
+    right: '2.5%',
     zIndex: 1000,
   },
   toast: {
