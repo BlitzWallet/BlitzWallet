@@ -281,9 +281,9 @@ export default function EditReceivePaymentInformation(props) {
 
           <CustomButton
             buttonStyles={{
-              opacity:
-                // (canUseEcash || canUseLightning || canUseLiquid) &&
-                !!Number(localSatAmount) ? 1 : 0.5,
+              // opacity:
+              //   // (canUseEcash || canUseLightning || canUseLiquid) &&
+              //   !!Number(localSatAmount) ? 1 : 0.5,
               ...CENTER,
             }}
             actionFunction={handleSubmit}
@@ -296,17 +296,18 @@ export default function EditReceivePaymentInformation(props) {
 
   function handleSubmit() {
     // if (!canUseEcash && !canUseLightning && !canUseLiquid) return;
-    if (!Number(localSatAmount)) return;
+    // if (!Number(localSatAmount)) return;
+    const sendAmount = !Number(localSatAmount) ? 0 : Number(localSatAmount);
     crashlyticsLogReport(`Running in edit payment information submit function`);
 
     if (fromPage === 'homepage') {
       navigate.replace('ReceiveBTC', {
-        receiveAmount: Number(localSatAmount),
+        receiveAmount: sendAmount,
         description: paymentDescription,
       });
     } else {
       navigate.popTo('ReceiveBTC', {
-        receiveAmount: Number(localSatAmount),
+        receiveAmount: sendAmount,
         description: paymentDescription,
       });
     }

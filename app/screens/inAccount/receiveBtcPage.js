@@ -29,6 +29,8 @@ import {useLiquidEvent} from '../../../context-store/liquidEventContext';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useToast} from '../../../context-store/toastManager';
+import {useKeysContext} from '../../../context-store/keys';
+import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -36,6 +38,8 @@ export default function ReceivePaymentHome(props) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {globalContactsInformation} = useGlobalContacts();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
+  const {signer, startRootstockEventListener} = useRootstockProvider();
+
   const windowDimentions = useWindowDimensions().height;
   const [contentHeight, setContentHeight] = useState(0);
   // const {ecashWalletInformation} = useGlobaleCash();
@@ -85,10 +89,14 @@ export default function ReceivePaymentHome(props) {
         setAddressState: setAddressState,
         selectedRecieveOption: selectedRecieveOption,
         navigate,
-        startLiquidEventListener,
+        signer,
         // eCashBalance,
       });
-      if (selectedRecieveOption !== 'Liquid') return;
+      if (selectedRecieveOption === 'Liquid') {
+        startLiquidEventListener();
+      } else if (selectedRecieveOption === 'Rootstock') {
+        startRootstockEventListener({durationMs: 1200000});
+      }
     }
     runAddressInit();
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
@@ -199,53 +207,71 @@ function QrCode(props) {
   const {backgroundOffset, textColor} = GetThemeColors();
   if (addressState.isGeneratingInvoice) {
     return (
-      <View
-        style={{
-          ...styles.qrCodeContainer,
-          backgroundColor: backgroundOffset,
-        }}>
-        <FullLoadingScreen text={'Generating Invoice'} />
+      <View style={styles.qrCodeContainer}>
+        <View
+          style={{
+            ...styles.qrCodeContainer,
+            backgroundColor: backgroundOffset,
+          }}>
+          <FullLoadingScreen text={'Generating Invoice'} />
+        </View>
+        <LNURLContainer
+          theme={theme}
+          textColor={textColor}
+          selectedRecieveOption={selectedRecieveOption}
+          initialSendAmount={initialSendAmount}
+          globalContactsInformation={globalContactsInformation}
+        />
       </View>
     );
   }
   if (!addressState.generatedAddress) {
     return (
-      <View
-        style={{
-          ...styles.qrCodeContainer,
-          backgroundColor: backgroundOffset,
-        }}>
-        <ThemeText
-          styles={styles.errorText}
-          content={
-            addressState.errorMessageText.text || 'Unable to generate address'
-          }
-        />
-        {addressState.errorMessageText.showButton && (
-          <CustomButton
-            buttonStyles={{width: '90%', marginTop: 20}}
-            textContent={'Open transfer page'}
-            actionFunction={() => {
-              navigate.reset({
-                routes: [
-                  {
-                    name: 'HomeAdmin',
-                    params: {screen: 'Home'},
-                  },
-                  {
-                    name: 'SettingsHome',
-                  },
-                  {
-                    name: 'SettingsContentHome',
-                    params: {
-                      for: 'Balance Info',
-                    },
-                  },
-                ],
-              });
-            }}
+      <View style={styles.qrCodeContainer}>
+        <View
+          style={{
+            ...styles.qrCodeContainer,
+            backgroundColor: backgroundOffset,
+          }}>
+          <ThemeText
+            styles={styles.errorText}
+            content={
+              addressState.errorMessageText.text || 'Unable to generate address'
+            }
           />
-        )}
+          {addressState.errorMessageText.showButton && (
+            <CustomButton
+              buttonStyles={{width: '90%', marginTop: 20}}
+              textContent={'Open transfer page'}
+              actionFunction={() => {
+                navigate.reset({
+                  routes: [
+                    {
+                      name: 'HomeAdmin',
+                      params: {screen: 'Home'},
+                    },
+                    {
+                      name: 'SettingsHome',
+                    },
+                    {
+                      name: 'SettingsContentHome',
+                      params: {
+                        for: 'Balance Info',
+                      },
+                    },
+                  ],
+                });
+              }}
+            />
+          )}
+        </View>
+        <LNURLContainer
+          theme={theme}
+          textColor={textColor}
+          selectedRecieveOption={selectedRecieveOption}
+          initialSendAmount={initialSendAmount}
+          globalContactsInformation={globalContactsInformation}
+        />
       </View>
     );
   }
@@ -275,41 +301,77 @@ function QrCode(props) {
           />
         )}
       </TouchableOpacity>
+
+      <LNURLContainer
+        theme={theme}
+        textColor={textColor}
+        selectedRecieveOption={selectedRecieveOption}
+        initialSendAmount={initialSendAmount}
+        globalContactsInformation={globalContactsInformation}
+      />
+    </View>
+  );
+}
+
+function LNURLContainer({
+  theme,
+  textColor,
+  selectedRecieveOption,
+  initialSendAmount,
+  globalContactsInformation,
+}) {
+  return (
+    <TouchableOpacity
+      activeOpacity={
+        selectedRecieveOption.toLowerCase() === 'lightning' &&
+        !initialSendAmount
+          ? 0.2
+          : 1
+      }
+      onPress={() => {
+        if (
+          !(
+            selectedRecieveOption.toLowerCase() === 'lightning' &&
+            !initialSendAmount
+          )
+        )
+          return;
+        navigate.navigate('CustomHalfModal', {
+          wantedContent: 'editLNULROnReceive',
+        });
+      }}
+      style={{
+        width: '80%',
+        paddingTop: 10,
+        paddingBottom: 20,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'center',
+      }}>
+      <ThemeText
+        styles={{
+          includeFontPadding: false,
+          marginRight: 5,
+          color: theme ? textColor : COLORS.primary,
+        }}
+        CustomNumberOfLines={1}
+        content={
+          selectedRecieveOption.toLowerCase() === 'lightning' &&
+          !initialSendAmount
+            ? `${globalContactsInformation?.myProfile?.uniqueName}@blitz-wallet.com`
+            : ' '
+        }
+      />
       {selectedRecieveOption.toLowerCase() === 'lightning' &&
         !initialSendAmount && (
-          <TouchableOpacity
-            onPress={() => {
-              navigate.navigate('CustomHalfModal', {
-                wantedContent: 'editLNULROnReceive',
-              });
-            }}
-            style={{
-              width: '80%',
-
-              paddingTop: 10,
-              paddingBottom: 20,
-              alignItems: 'center',
-              flexDirection: 'row',
-              justifyContent: 'center',
-            }}>
-            <ThemeText
-              styles={{
-                includeFontPadding: false,
-                marginRight: 5,
-                color: theme ? textColor : COLORS.primary,
-              }}
-              CustomNumberOfLines={1}
-              content={`${globalContactsInformation?.myProfile?.uniqueName}@blitz-wallet.com`}
-            />
-            <ThemeImage
-              styles={{height: 20, width: 20}}
-              lightModeIcon={ICONS.editIcon}
-              darkModeIcon={ICONS.editIconLight}
-              lightsOutIcon={ICONS.editIconLight}
-            />
-          </TouchableOpacity>
+          <ThemeImage
+            styles={{height: 20, width: 20}}
+            lightModeIcon={ICONS.editIcon}
+            darkModeIcon={ICONS.editIconLight}
+            lightsOutIcon={ICONS.editIconLight}
+          />
         )}
-    </View>
+    </TouchableOpacity>
   );
 }
 
