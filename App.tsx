@@ -104,6 +104,7 @@ import * as SystemUI from 'expo-system-ui';
 import {InsetsProvider} from './context-store/insetsProvider';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {ToastContainer, ToastProvider} from './context-store/toastManager';
+import {RootstockSwapProvider} from './context-store/rootstockSwapContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -128,14 +129,16 @@ function App(): JSX.Element {
                                 <WebViewProvider>
                                   <PushNotificationProvider>
                                     <LiquidEventProvider>
-                                      {/* <LightningEventProvider> */}
-                                      <ImageCacheProvider>
-                                        {/* <Suspense
+                                      <RootstockSwapProvider>
+                                        {/* <LightningEventProvider> */}
+                                        <ImageCacheProvider>
+                                          {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                        <ResetStack />
-                                        {/* </Suspense> */}
-                                      </ImageCacheProvider>
-                                      {/* </LightningEventProvider> */}
+                                          <ResetStack />
+                                          {/* </Suspense> */}
+                                        </ImageCacheProvider>
+                                        {/* </LightningEventProvider> */}
+                                      </RootstockSwapProvider>
                                     </LiquidEventProvider>
                                   </PushNotificationProvider>
                                 </WebViewProvider>
