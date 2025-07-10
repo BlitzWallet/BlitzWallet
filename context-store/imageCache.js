@@ -55,6 +55,7 @@ export function ImageCacheProvider({children}) {
     if (didRunContextCacheCheck.current) return;
     if (!masterInfoObject.uuid) return;
     didRunContextCacheCheck.current = true;
+    return;
     async function refreshContactsImages() {
       const didCheckForProfileImage = await getLocalStorageItem(
         'didCheckForProfileImage',

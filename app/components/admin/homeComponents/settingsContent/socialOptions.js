@@ -6,8 +6,6 @@ import openWebBrowser from '../../../../functions/openWebBrowser';
 import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 const NAVITEMS = [
-  //   {name: 'Faucet', link: 'URL', icon: ICONS.faucetIcon, inApp: true},
-  // {name: 'Drain', link: 'URL', icon: ICONS.Checkcircle, inApp: true},
   {
     name: 'Telegram',
     link: 'https://t.me/+-VIAPa9ObHM4YWQx',

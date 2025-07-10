@@ -172,7 +172,7 @@ export default function SwitchReceiveOptionPage({
                     : name === 'Spark'
                     ? 'sparkAsteriskWhite'
                     : name === 'Liquid'
-                    ? 'liquidReceiveIcon'
+                    ? 'blockstreamLiquid'
                     : 'rootstockLogo'
                 ]
               }
