@@ -7,12 +7,12 @@ import {breezLiquidReceivePaymentWrapper} from '../breezLiquid';
 import customUUID from '../customUUID';
 import {crashlyticsLogReport} from '../crashlyticsLogs';
 import {sparkReceivePaymentWrapper} from '../spark/payments';
+import {getRootstockAddress} from '../boltz/rootstock/submarineSwap';
 // import * as bip21 from 'bip21';
 
 let invoiceTracker = [];
 export async function initializeAddressProcess(wolletInfo) {
-  const {setAddressState, selectedRecieveOption, startLiquidEventListener} =
-    wolletInfo;
+  const {setAddressState, selectedRecieveOption} = wolletInfo;
   const requestUUID = customUUID();
   invoiceTracker.push(requestUUID);
   let stateTracker = {};
@@ -75,10 +75,13 @@ export async function initializeAddressProcess(wolletInfo) {
         generatedAddress: response.invoice,
         fee: 0,
       };
-    } else {
+    } else if (selectedRecieveOption.toLowerCase() === 'liquid') {
       const response = await generateLiquidAddress(wolletInfo);
       if (!response) throw new Error('Error with bitcoin');
-      startLiquidEventListener();
+      stateTracker = response;
+    } else if (selectedRecieveOption.toLowerCase() === 'rootstock') {
+      const response = await generateRootstockAddress(wolletInfo);
+      if (!response) throw new Error('Error with Rootstock');
       stateTracker = response;
     }
   } catch (error) {
@@ -365,6 +368,24 @@ async function generateLiquidAddress(wolletInfo) {
   return {
     generatedAddress: destination,
     fee: receiveFeesSat,
+  };
+}
+
+async function generateRootstockAddress(wolletInfo) {
+  const {signer} = wolletInfo;
+
+  const address = await getRootstockAddress(signer);
+  if (!address)
+    return {
+      generatedAddress: null,
+      errorMessageText: {
+        type: 'stop',
+        text: `Unable to generate liquid address`,
+      },
+    };
+  return {
+    generatedAddress: address,
+    fee: 0,
   };
 }
 

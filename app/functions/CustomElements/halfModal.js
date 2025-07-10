@@ -227,6 +227,7 @@ export default function CustomHalfModal(props) {
             darkModeType={darkModeType}
             didWarnSpark={props?.route?.params?.didWarnSpark}
             didWarnLiquid={props?.route?.params?.didWarnLiquid}
+            didWarnRootstock={props?.route?.params?.didWarnRootstock}
           />
         );
       default:

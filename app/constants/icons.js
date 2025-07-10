@@ -159,6 +159,7 @@ import botanixReceiveOption from '../assets/icons/botanixReceiveOption.png';
 import lightningReceiveIcon from '../assets/icons/lightningReceiveIcon.png';
 import sparkReceiveIcon from '../assets/icons/sparkReceiveIcon.png';
 import liquidReceiveIcon from '../assets/icons/liquidReceiveIcon.png';
+import rootstockLogo from '../assets/icons/rootstockLogo.png';
 export default {
   Xcircle,
   XcircleLight,
@@ -322,4 +323,5 @@ export default {
   lightningReceiveIcon,
   sparkReceiveIcon,
   liquidReceiveIcon,
+  rootstockLogo,
 };

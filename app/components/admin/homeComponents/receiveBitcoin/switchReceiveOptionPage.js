@@ -28,6 +28,7 @@ const MAIN_PAYMENTS = [
   ['Bitcoin', '~ 10 minutes'],
   ['Spark', 'Instant'],
   ['Liquid', '~ 1 minute'],
+  ['Rootstock', '~ 1 minute'],
 ];
 
 export default function SwitchReceiveOptionPage({
@@ -36,6 +37,7 @@ export default function SwitchReceiveOptionPage({
   darkModeType,
   didWarnSpark,
   didWarnLiquid,
+  didWarnRootstock,
 }) {
   const {fiatStats} = useNodeContext();
   const navigate = useNavigation();
@@ -61,13 +63,15 @@ export default function SwitchReceiveOptionPage({
   }, [contentHeight]);
 
   useEffect(() => {
-    if (!didWarnSpark && !didWarnLiquid) return;
+    if (!didWarnSpark && !didWarnLiquid && !didWarnRootstock) return;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        handleGoBack(didWarnLiquid ? 'Liquid' : 'Spark');
+        handleGoBack(
+          didWarnLiquid ? 'Liquid' : didWarnSpark ? 'Spark' : 'Rootstock',
+        );
       });
     });
-  }, [didWarnSpark, didWarnLiquid]);
+  }, [didWarnSpark, didWarnLiquid, didWarnRootstock]);
 
   const handleGoBack = selectedOption => {
     slideOut();
@@ -134,7 +138,7 @@ export default function SwitchReceiveOptionPage({
           style={[
             styles.optionItemContainer,
             {
-              marginBottom: index !== 3 ? 20 : 0,
+              marginBottom: index !== 4 ? 20 : 0,
               backgroundColor:
                 theme && darkModeType ? backgroundColor : backgroundOffset,
             },
@@ -167,7 +171,9 @@ export default function SwitchReceiveOptionPage({
                     ? 'bitcoinReceiveIcon'
                     : name === 'Spark'
                     ? 'sparkAsteriskWhite'
-                    : 'liquidReceiveIcon'
+                    : name === 'Liquid'
+                    ? 'liquidReceiveIcon'
+                    : 'rootstockLogo'
                 ]
               }
             />
@@ -182,7 +188,9 @@ export default function SwitchReceiveOptionPage({
                   ? 'On-Chain'
                   : name === 'Liquid'
                   ? 'Liquid Network'
-                  : 'Spark'
+                  : name === 'Spark'
+                  ? 'Spark'
+                  : 'Rootstock'
               }
             />
             <ThemeText
@@ -287,6 +295,24 @@ export default function SwitchReceiveOptionPage({
             wantedContent: 'switchReceiveOption',
             sliderHeight: 0.8,
             didWarnLiquid: true,
+          }),
+      });
+      return;
+    } else if (selectedOption === 'Rootstock') {
+      navigate.navigate('InformationPopup', {
+        textContent: `Rootstock payments will be swapped into Spark. Payments below ${displayCorrectDenomination(
+          {
+            amount: minMaxLiquidSwapAmounts.rsk.min,
+            masterInfoObject,
+            fiatStats,
+          },
+        )} won’t be swapped. Funds will only be swapped after the Rootsock payment is confirmed.`,
+        buttonText: 'I understand',
+        customNavigation: () =>
+          navigate.popTo('CustomHalfModal', {
+            wantedContent: 'switchReceiveOption',
+            sliderHeight: 0.8,
+            didWarnRootstock: true,
           }),
       });
       return;
