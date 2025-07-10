@@ -221,6 +221,7 @@ function QrCode(props) {
           selectedRecieveOption={selectedRecieveOption}
           initialSendAmount={initialSendAmount}
           globalContactsInformation={globalContactsInformation}
+          navigate={navigate}
         />
       </View>
     );
@@ -271,6 +272,7 @@ function QrCode(props) {
           selectedRecieveOption={selectedRecieveOption}
           initialSendAmount={initialSendAmount}
           globalContactsInformation={globalContactsInformation}
+          navigate={navigate}
         />
       </View>
     );
@@ -308,6 +310,7 @@ function QrCode(props) {
         selectedRecieveOption={selectedRecieveOption}
         initialSendAmount={initialSendAmount}
         globalContactsInformation={globalContactsInformation}
+        navigate={navigate}
       />
     </View>
   );
@@ -319,6 +322,7 @@ function LNURLContainer({
   selectedRecieveOption,
   initialSendAmount,
   globalContactsInformation,
+  navigate,
 }) {
   return (
     <TouchableOpacity
