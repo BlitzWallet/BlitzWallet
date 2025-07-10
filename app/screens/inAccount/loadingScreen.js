@@ -38,6 +38,8 @@ import {getCachedSparkTransactions} from '../../functions/spark';
 import {breezLiquidReceivePaymentWrapper} from '../../functions/breezLiquid';
 import {getLocalStorageItem, setLocalStorageItem} from '../../functions';
 import {useLiquidEvent} from '../../../context-store/liquidEventContext';
+import {initRootstockSwapDB} from '../../functions/boltz/rootstock/swapDb';
+import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
 export default function ConnectingToNodeLoadingScreen({
@@ -50,6 +52,7 @@ export default function ConnectingToNodeLoadingScreen({
   const {setNumberOfCachedTxs, connectToSparkWallet} = useSparkWallet();
   const {toggleContactsPrivateKey, accountMnemoinc} = useKeysContext();
   const {toggleLiquidNodeInformation, toggleFiatStats} = useNodeContext();
+  const {createSigner} = useRootstockProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {toggleGlobalContactsInformation, globalContactsInformation} =
     useGlobalContacts();
@@ -123,33 +126,50 @@ export default function ConnectingToNodeLoadingScreen({
         );
         console.log('Process 1', new Date().getTime());
         connectToSparkWallet();
-        const [didOpen, ecashTablesOpened, posTransactions, sparkTxs] =
-          await Promise.all([
-            initializeDatabase(),
-            initEcashDBTables(),
-            initializePOSTransactionsDatabase(),
-            initializeSparkDatabase(),
-          ]);
+        const [
+          didOpen,
+          ecashTablesOpened,
+          posTransactions,
+          sparkTxs,
+          rootstockSwaps,
+        ] = await Promise.all([
+          initializeDatabase(),
+          initEcashDBTables(),
+          initializePOSTransactionsDatabase(),
+          initializeSparkDatabase(),
+          initRootstockSwapDB(),
+        ]);
         // DO tables need to open before these other processes???/
 
-        if (!didOpen || !ecashTablesOpened || !posTransactions || !sparkTxs)
+        if (
+          !didOpen ||
+          !ecashTablesOpened ||
+          !posTransactions ||
+          !sparkTxs ||
+          !rootstockSwaps
+        )
           throw new Error('Database initialization failed');
 
         console.log('Process 2', new Date().getTime());
         crashlyticsLogReport('Opened all SQL lite tables');
-        const [didConnectToLiquidNode, txs, didLoadUserSettings] =
-          await Promise.all([
-            connectToLiquidNode(accountMnemoinc),
-            getCachedSparkTransactions(),
-            initializeUserSettingsFromHistory({
-              accountMnemoinc,
-              setContactsPrivateKey: toggleContactsPrivateKey,
-              setMasterInfoObject,
-              toggleGlobalContactsInformation,
-              // toggleGLobalEcashInformation,
-              toggleGlobalAppDataInformation,
-            }),
-          ]);
+        const [
+          didConnectToLiquidNode,
+          txs,
+          didLoadUserSettings,
+          signerResponse,
+        ] = await Promise.all([
+          connectToLiquidNode(accountMnemoinc),
+          getCachedSparkTransactions(),
+          initializeUserSettingsFromHistory({
+            accountMnemoinc,
+            setContactsPrivateKey: toggleContactsPrivateKey,
+            setMasterInfoObject,
+            toggleGlobalContactsInformation,
+            // toggleGLobalEcashInformation,
+            toggleGlobalAppDataInformation,
+          }),
+          createSigner(),
+        ]);
 
         liquidNodeConnectionRef.current = didConnectToLiquidNode;
         numberOfCachedTransactionsRef.current = txs;
