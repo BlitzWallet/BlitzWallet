@@ -20,7 +20,8 @@ const SplashScreen = ({onAnimationFinish}) => {
 
   const darkModeColor = {
     rectangleFill: [0, 0.1451, 0.3059],
-    shapeFill: [0.011765, 0.458824, 0.964706, 1],
+    shapeFill: [1, 1, 1],
+    // shapeFill: [0.011765, 0.458824, 0.964706, 1],
   };
   const lightsOutMode = {
     rectangleFill: [0, 0, 0],
@@ -29,7 +30,7 @@ const SplashScreen = ({onAnimationFinish}) => {
 
   const darkModeAnimation = updateBlitzAnimationData(
     BlitzAnimation,
-    theme ? lightsOutMode : blueModeColor,
+    theme ? (darkModeType ? lightsOutMode : darkModeColor) : blueModeColor,
   );
 
   useEffect(() => {

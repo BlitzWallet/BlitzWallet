@@ -309,11 +309,8 @@ export default function PinPage() {
 
 const styles = StyleSheet.create({
   contentContainer: {
-    width: '100%',
     flex: 1,
     alignItems: 'center',
-    marginRight: 'auto',
-    marginLeft: 'auto',
   },
   header: {
     fontSize: SIZES.xLarge,

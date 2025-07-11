@@ -12,9 +12,11 @@ import {copyToClipboard} from '../../../../../functions';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {openInbox} from 'react-native-email-link';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {useToast} from '../../../../../../context-store/toastManager';
 
 export default function GiftCardOrderDetails(props) {
   const {backgroundColor} = GetThemeColors();
+  const {showToast} = useToast();
 
   const item = props.route.params?.item;
   const navigate = useNavigation();
@@ -37,7 +39,7 @@ export default function GiftCardOrderDetails(props) {
             <TouchableOpacity
               style={styles.itemContainer}
               onPress={() => {
-                copyToClipboard(item.invoice, navigate);
+                copyToClipboard(item.invoice, showToast);
               }}>
               <ThemeText CustomNumberOfLines={2} content={item.invoice} />
             </TouchableOpacity>
@@ -45,7 +47,7 @@ export default function GiftCardOrderDetails(props) {
             <TouchableOpacity
               style={styles.itemContainer}
               onPress={() => {
-                copyToClipboard(JSON.stringify(item.id), navigate);
+                copyToClipboard(JSON.stringify(item.id), showToast);
               }}>
               <ThemeText content={item.id} />
             </TouchableOpacity>
@@ -53,7 +55,7 @@ export default function GiftCardOrderDetails(props) {
             <TouchableOpacity
               style={styles.itemContainer}
               onPress={() => {
-                copyToClipboard(item.uuid, navigate);
+                copyToClipboard(item.uuid, showToast);
               }}>
               <ThemeText CustomNumberOfLines={1} content={item.uuid} />
             </TouchableOpacity>

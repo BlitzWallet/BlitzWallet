@@ -38,9 +38,9 @@ import {
   TotalTipsScreen,
   ViewPOSTransactions,
 } from '../app/components/admin/homeComponents/settingsContent';
-import EcashSettings from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/ecashSettings';
-import MigrateProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
-import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
+// import EcashSettings from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/ecashSettings';
+// import MigrateProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
+// import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
 import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
@@ -76,7 +76,7 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   {name: 'ReceiveBTC', component: ReceivePaymentHome},
   {name: 'ExpandedTx', component: ExpandedTx},
   {name: 'TechnicalTransactionDetails', component: TechnicalTransactionDetails},
-  {name: 'LiquidSettingsPage', component: LiquidSettingsPage},
+  // {name: 'LiquidSettingsPage', component: LiquidSettingsPage},
   {
     name: 'EditReceivePaymentInformation',
     component: EditReceivePaymentInformation,
@@ -111,7 +111,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'CountryList', component: CountryList},
   {name: 'ExpandedGiftCardPage', component: ExpandedGiftCardPage},
   {name: 'HistoricalGiftCardPurchases', component: HistoricalGiftCardPurchases},
-  {name: 'ManualSwapPopup', component: ManualSwapPopup},
+  // {name: 'ManualSwapPopup', component: ManualSwapPopup},
   {name: 'AccountInformationPage', component: AccountInformationPage},
   {name: 'ViewPOSTransactions', component: ViewPOSTransactions},
   {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
@@ -119,7 +119,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'GenerateKey', component: GenerateKey},
   {name: 'PinSetup', component: PinSetupPage},
   {name: 'RestoreWallet', component: RestoreWallet},
-  {name: 'EcashSettings', component: EcashSettings},
+  // {name: 'EcashSettings', component: EcashSettings},
   {name: 'AddPOSItemsPage', component: AddPOSItemsPage},
 ];
 
@@ -135,8 +135,8 @@ const FADE_SCREENS = [
     name: 'ContactsPageLongPressActions',
     component: ContactsPageLongPressActions,
   },
-  {name: 'RestoreProofsPopup', component: RestoreProofsPopup},
-  {name: 'MigrateProofsPopup', component: MigrateProofsPopup},
+  // {name: 'RestoreProofsPopup', component: RestoreProofsPopup},
+  // {name: 'MigrateProofsPopup', component: MigrateProofsPopup},
   {name: 'AddOrDeleteContactImage', component: AddOrDeleteContactImage},
   {
     name: 'SkipCreateAccountPathMessage',

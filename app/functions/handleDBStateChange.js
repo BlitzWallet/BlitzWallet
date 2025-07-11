@@ -5,6 +5,7 @@ export default function handleDBStateChange(
   setMasterInfoObject,
   toggleMasterInfoObject,
   saveTimeoutRef,
+  initialValueRef,
 ) {
   crashlyticsLogReport('Runnnig state change in handleDBStateChange');
   setMasterInfoObject(prev => ({
@@ -17,6 +18,8 @@ export default function handleDBStateChange(
   }
 
   saveTimeoutRef.current = setTimeout(() => {
+    if (initialValueRef.current === newData.userBalanceDenomination) return;
+    initialValueRef.current = newData.userBalanceDenomination;
     toggleMasterInfoObject(newData);
   }, 800);
 }

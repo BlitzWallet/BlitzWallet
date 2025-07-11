@@ -6,21 +6,19 @@ import {useState} from 'react';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {SATSPERBITCOIN} from '../../../../../constants/math';
-import {assetIDS} from '../../../../../functions/liquidWallet/assetIDS';
 import {ThemeText} from '../../../../../functions/CustomElements';
-import {updateMessage} from '../../../../../../db';
+import {getDataFromCollection, updateMessage} from '../../../../../../db';
 import {getFiatRates} from '../../../../../functions/SDK';
 import {sendPushNotification} from '../../../../../functions/messaging/publishMessage';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import formatBip21LiquidAddress from '../../../../../functions/liquidWallet/formatBip21liquidAddress';
+import getReceiveAddressForContactPayment from './getReceiveAddressAndKindForPayment';
 
 export default function ContactsTransactionItem(props) {
   const {selectedContact, transaction, myProfile, currentTime} = props;
 
-  const {contactsPrivateKey} = useKeysContext();
+  const {contactsPrivateKey, publicKey} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundColor} = GetThemeColors();
   const navigate = useNavigation();
@@ -87,7 +85,7 @@ export default function ContactsTransactionItem(props) {
                   ...styles.icons,
                   transform: [
                     {
-                      rotate: '130deg',
+                      rotate: '270deg',
                     },
                   ],
                 }}
@@ -212,7 +210,11 @@ export default function ContactsTransactionItem(props) {
       };
       delete newMessage.didSend;
       delete newMessage.wasSeen;
-      const fiatCurrencies = await getFiatRates();
+      const [fiatCurrencies, retrivedContact] = await Promise.all([
+        getFiatRates(),
+        getDataFromCollection('blitzWalletUsers', selectedContact.uuid),
+      ]);
+      if (!retrivedContact) throw new Error('Unable to get user from database');
 
       const [didPublishNotification, didUpdateMessage] = await Promise.all([
         sendPushNotification({
@@ -226,12 +228,24 @@ export default function ContactsTransactionItem(props) {
           },
           fiatCurrencies: fiatCurrencies,
           privateKey: contactsPrivateKey,
+          retrivedContact,
         }),
-        await updateMessage({
-          newMessage,
-          fromPubKey: transaction.fromPubKey,
-          toPubKey: transaction.toPubKey,
-        }),
+
+        retrivedContact.isUsingEncriptedMessaging
+          ? updateMessage({
+              newMessage,
+              fromPubKey: publicKey,
+              toPubKey: selectedContact.uuid,
+              retrivedContact,
+              privateKey: contactsPrivateKey,
+            })
+          : updateMessage({
+              newMessage,
+              fromPubKey: transaction.fromPubKey,
+              toPubKey: transaction.toPubKey,
+              retrivedContact,
+              privateKey: contactsPrivateKey,
+            }),
       ]);
       if (!didUpdateMessage && usingOnPage) {
         navigate.navigate('ErrorScreen', {
@@ -252,14 +266,19 @@ export default function ContactsTransactionItem(props) {
   async function acceptPayRequest(transaction, selectedContact) {
     const sendingAmount = transaction.message.amountMsat / 1000;
 
-    const receiveAddress = formatBip21LiquidAddress({
-      address: selectedContact.receiveAddress,
-      amount: sendingAmount,
-      message: `Paying ${selectedContact.name || selectedContact.uniqueName}`,
-    });
+    const receiveAddress = await getReceiveAddressForContactPayment(
+      sendingAmount,
+      selectedContact,
+    );
+    if (!receiveAddress.didWork) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'Unable to pay contact, try again.',
+      });
+      return;
+    }
 
     navigate.navigate('ConfirmPaymentScreen', {
-      btcAdress: receiveAddress,
+      btcAdress: receiveAddress.receiveAddress,
       fromPage: 'contacts',
       publishMessageFunc: () => updatePaymentStatus(transaction, false, true),
     });
@@ -301,8 +320,8 @@ function ConfirmedOrSentTransaction({
                 rotate: didDeclinePayment
                   ? '180deg'
                   : txParsed.didSend && !txParsed.isRequest
-                  ? '130deg'
-                  : '310deg',
+                  ? '90deg'
+                  : '270deg',
               },
             ],
           }}

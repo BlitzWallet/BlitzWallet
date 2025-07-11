@@ -1,13 +1,11 @@
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, Platform} from 'react-native';
 import {CENTER, ICONS} from '../../../../constants';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useNavigation} from '@react-navigation/native';
 import openWebBrowser from '../../../../functions/openWebBrowser';
-import useAppInsets from '../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 const NAVITEMS = [
-  //   {name: 'Faucet', link: 'URL', icon: ICONS.faucetIcon, inApp: true},
-  // {name: 'Drain', link: 'URL', icon: ICONS.Checkcircle, inApp: true},
   {
     name: 'Telegram',
     link: 'https://t.me/+-VIAPa9ObHM4YWQx',
@@ -33,7 +31,6 @@ const NAVITEMS = [
 
 export default function BlitzSocialOptions() {
   const navigate = useNavigation();
-  const {bottomPadding} = useAppInsets();
   const navElements = NAVITEMS.map((item, id) => {
     return (
       <TouchableOpacity
@@ -56,6 +53,8 @@ export default function BlitzSocialOptions() {
       </TouchableOpacity>
     );
   });
+
+  const {bottomPadding} = useGlobalInsets();
 
   return (
     <View

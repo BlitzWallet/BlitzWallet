@@ -19,8 +19,10 @@ import {parsePhoneNumber} from 'libphonenumber-js';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import {useToast} from '../../../../../../context-store/toastManager';
 
 export default function HistoricalSMSMessagingPage() {
+  const {showToast} = useToast();
   const navigate = useNavigation();
   const dimensions = useWindowDimensions();
   const [notificationElements, setNotificationElements] = useState([]);
@@ -40,7 +42,7 @@ export default function HistoricalSMSMessagingPage() {
           <View style={styles.orderIdContainer} key={element.orderId}>
             <TouchableOpacity
               onPress={() => {
-                copyToClipboard(element.orderId, navigate);
+                copyToClipboard(element.orderId, showToast);
               }}>
               <View
                 style={{
@@ -64,7 +66,7 @@ export default function HistoricalSMSMessagingPage() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                copyToClipboard(element.orderId, navigate);
+                copyToClipboard(element.orderId, showToast);
               }}
               style={[
                 styles.idStatus,
@@ -99,7 +101,7 @@ export default function HistoricalSMSMessagingPage() {
         {notificationElements.length > 1 && (
           <TouchableOpacity
             onPress={() => {
-              copyToClipboard('support@sms4sats.com', navigate);
+              copyToClipboard('support@sms4sats.com', showToast);
             }}>
             <ThemeText
               styles={{textAlign: 'center'}}

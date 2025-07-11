@@ -1,6 +1,10 @@
 import {StyleSheet, View} from 'react-native';
 import {useGlobalContextProvider} from '../../../context-store/context';
-import {BITCOIN_SATS_ICON, HIDDEN_BALANCE_TEXT} from '../../constants';
+import {
+  BITCOIN_SAT_TEXT,
+  BITCOIN_SATS_ICON,
+  HIDDEN_BALANCE_TEXT,
+} from '../../constants';
 import ThemeText from './textTheme';
 import {formatCurrency} from '../formatCurrency';
 import {useNodeContext} from '../../../context-store/nodeContext';
@@ -21,10 +25,10 @@ export default function FormattedSatText({
   useBalance,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
-  const {nodeInformation} = useNodeContext();
+  const {fiatStats} = useNodeContext();
   const localBalanceDenomination =
     globalBalanceDenomination || masterInfoObject.userBalanceDenomination;
-  const currencyText = nodeInformation.fiatStats.coin || 'USD';
+  const currencyText = fiatStats.coin || 'USD';
   const formattedBalance = useMemo(
     () =>
       useBalance
@@ -33,11 +37,11 @@ export default function FormattedSatText({
             numberConverter(
               balance,
               localBalanceDenomination,
-              nodeInformation,
               localBalanceDenomination === 'fiat' ? 2 : 0,
+              fiatStats,
             ),
           ),
-    [balance, useBalance, localBalanceDenomination, nodeInformation],
+    [balance, useBalance, localBalanceDenomination, fiatStats],
   );
 
   const currencyOptions = useMemo(
@@ -117,7 +121,7 @@ export default function FormattedSatText({
         {!showSymbol && (
           <ThemeText
             styles={{includeFontPadding: false, ...styles}}
-            content={' sats'}
+            content={` ${BITCOIN_SAT_TEXT}`}
           />
         )}
 

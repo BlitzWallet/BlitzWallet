@@ -37,17 +37,18 @@ export default function DisplayOptions() {
   const {toggleMasterInfoObject, setMasterInfoObject, masterInfoObject} =
     useGlobalContextProvider();
   const {isConnectedToTheInternet} = useAppStatus();
-  const {nodeInformation} = useNodeContext();
+  const {fiatStats, toggleFiat} = useNodeContext();
   const {theme, darkModeType, toggleDarkModeType} = useGlobalThemeContext();
   const [labelSize, setLabelSize] = useState(0);
   const {t} = useTranslation();
   const {backgroundOffset, textColor} = GetThemeColors();
+  const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
 
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
 
   const sliderValue = masterInfoObject.homepageTxPreferance;
-  const currencyText = nodeInformation?.fiatStats?.coin || 'USD';
+  const currencyText = fiatStats?.coin || 'USD';
   const formattedCurrency = formatCurrency({
     amount: 0,
     code: currencyText,
@@ -120,6 +121,7 @@ export default function DisplayOptions() {
                 setMasterInfoObject,
                 toggleMasterInfoObject,
                 saveTimeoutRef,
+                initialValueRef,
               );
             else if (masterInfoObject.userBalanceDenomination === 'fiat')
               handleDBStateChange(
@@ -127,6 +129,7 @@ export default function DisplayOptions() {
                 setMasterInfoObject,
                 toggleMasterInfoObject,
                 saveTimeoutRef,
+                initialValueRef,
               );
             else
               handleDBStateChange(
@@ -134,6 +137,7 @@ export default function DisplayOptions() {
                 setMasterInfoObject,
                 toggleMasterInfoObject,
                 saveTimeoutRef,
+                initialValueRef,
               );
           }}
           style={{
