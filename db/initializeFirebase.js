@@ -8,9 +8,9 @@ export async function initializeFirebase(publicKey, privateKey) {
   try {
     // Initialize App Check first
     // Sign in anonymously
-    // if (__DEV__) {
-    //   getFunctions().useEmulator('localhost', 5001);
-    // }
+    if (__DEV__) {
+      getFunctions().useEmulator('localhost', 5001);
+    }
 
     const currentUser = getAuth().currentUser;
     console.log('current auth', {

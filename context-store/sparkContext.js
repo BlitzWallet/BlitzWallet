@@ -50,7 +50,7 @@ import {navigationRef} from '../navigation/navigationService';
 const SparkWalletManager = createContext(null);
 const sessionTime = new Date().getTime();
 const SparkWalletProvider = ({children}) => {
-  const {accountMnemoinc} = useKeysContext();
+  const {accountMnemoinc, contactsPrivateKey, publicKey} = useKeysContext();
   const {didGetToHomepage, minMaxLiquidSwapAmounts} = useAppStatus();
   const {liquidNodeInformation} = useNodeContext();
   const {toggleGlobalContactsInformation, globalContactsInformation} =
@@ -429,7 +429,11 @@ const SparkWalletProvider = ({children}) => {
           console.log('Checking deposit address:', address);
           if (!address) continue;
           // Get new txids for an address
-          const txids = await getDepositAddressTxIds(address);
+          const txids = await getDepositAddressTxIds(
+            address,
+            contactsPrivateKey,
+            publicKey,
+          );
           console.log('Deposit address txids:', txids);
           if (!txids || !txids.length) continue;
           const unpaidTxids = txids.filter(txid => !txid.didClaim);

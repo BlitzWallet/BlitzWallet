@@ -1,9 +1,11 @@
-import Storage, {
-  getLocalStorageItem,
-  setLocalStorageItem,
-} from '../localStorage';
+import fetchBackend from '../../../db/handleBackend';
+import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 
-export default async function getDepositAddressTxIds(address) {
+export default async function getDepositAddressTxIds(
+  address,
+  contactsPrivateKey,
+  publicKey,
+) {
   const savedDepositTxids =
     JSON.parse(await getLocalStorageItem('depositAddressTxIds')) || {};
   let savedTxIds = savedDepositTxids[address];
@@ -11,7 +13,12 @@ export default async function getDepositAddressTxIds(address) {
     savedTxIds = [];
   }
 
-  const ids = await fetchTxidsFromBlockstream(address, savedTxIds);
+  const ids = await fetchTxidsFromBlockstream(
+    address,
+    savedTxIds,
+    contactsPrivateKey,
+    publicKey,
+  );
   if (ids.length > 0) {
     savedTxIds.push(...ids);
     savedDepositTxids[address] = savedTxIds;
@@ -24,7 +31,12 @@ export default async function getDepositAddressTxIds(address) {
   return savedDepositTxids[address] || [];
 }
 
-async function fetchTxidsFromBlockstream(address, savedTxIds) {
+async function fetchTxidsFromBlockstream(
+  address,
+  savedTxIds,
+  contactsPrivateKey,
+  publicKey,
+) {
   const apis = [
     {
       name: 'Blockstream',
@@ -34,12 +46,27 @@ async function fetchTxidsFromBlockstream(address, savedTxIds) {
       name: 'Mempool.space',
       url: `https://mempool.space/api/address/${address}/txs`,
     },
+    {
+      name: 'fbBLockstream',
+    },
   ];
 
   for (const api of apis) {
     try {
-      const response = await fetch(api.url);
-      const data = await response.json();
+      let data;
+      if (api.name === 'fbBLockstream') {
+        const response = await fetchBackend(
+          'enterpriseBlockstreamEsploraData',
+          {address},
+          contactsPrivateKey,
+          publicKey,
+        );
+        data = response;
+      } else {
+        const response = await fetch(api.url);
+        data = await response.json();
+        console.log('api response data', data);
+      }
       if (!Array.isArray(data)) {
         throw new Error(`Invalid response from ${api.name} API`);
       }
