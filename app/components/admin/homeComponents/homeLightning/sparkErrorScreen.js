@@ -36,11 +36,6 @@ export default function SparkErrorScreen(props) {
           mnemonic: accountMnemoinc,
         });
 
-        console.log(
-          didWork,
-          'did connect to spark wallet in error screen',
-          error,
-        );
         if (!didWork) {
           setRetryCount(retryCount + 1);
         } else {
@@ -52,7 +47,7 @@ export default function SparkErrorScreen(props) {
         const didRun = await openComposer({
           to: 'blake@blitz-wallet.com',
           subject: 'Spark Wallet Error Report',
-          message:
+          body:
             errorMessage ||
             'An error occurred while connecting to Spark Wallet.',
         });
@@ -77,7 +72,7 @@ export default function SparkErrorScreen(props) {
         ]}>
         <TouchableOpacity
           onPress={navigate.goBack}
-          style={{marginLeft: 'auto', marginBottom: 10}}>
+          style={{marginLeft: 'auto'}}>
           <ThemeImage
             lightModeIcon={ICONS.xSmallIcon}
             darkModeIcon={ICONS.xSmallIcon}
@@ -88,15 +83,15 @@ export default function SparkErrorScreen(props) {
           styles={styles.headerText}
           content={
             retryCount < 1
-              ? 'We ran into an error loading your wallet, please try again.'
-              : 'Unable to connect to your wallet, please report this error.'
+              ? 'We couldn’t load your wallet right now. Please try again. \n\nYour funds are safe as long as you have your seed phrase.'
+              : 'We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your seed phrase keeps your funds safe.'
           }
         />
         <CustomButton
           buttonStyles={{
             width: 'auto',
             backgroundColor: COLORS.darkModeText,
-            marginTop: 30,
+
             ...CENTER,
           }}
           textStyles={{
@@ -130,5 +125,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     includeFontPadding: false,
     marginBottom: 20,
+    marginTop: 20,
   },
 });
