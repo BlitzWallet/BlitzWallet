@@ -114,6 +114,7 @@ export default function SendAndRequestPage(props) {
       let retrivedContact;
       if (selectedContact.isLNURL) {
         receiveAddress = address;
+        retrivedContact = selectedContact;
         // note do not need to set an amount for lnurl taken care of down below with entered payment information object
       } else {
         retrivedContact = await getDataFromCollection(
