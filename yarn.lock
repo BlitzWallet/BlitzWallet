@@ -1608,9 +1608,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.1.44":
-  version: 0.1.44
-  resolution: "@buildonspark/spark-sdk@npm:0.1.44"
+"@buildonspark/spark-sdk@npm:^0.1.45":
+  version: 0.1.45
+  resolution: "@buildonspark/spark-sdk@npm:0.1.45"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@bufbuild/protobuf": ^2.2.5
@@ -1633,6 +1633,7 @@ __metadata:
     eciesjs: ^0.4.13
     eventemitter3: ^5.0.1
     js-base64: ^3.7.7
+    light-bolt11-decoder: ^3.2.0
     nice-grpc: ^2.1.10
     nice-grpc-client-middleware-retry: ^3.1.10
     nice-grpc-common: ^2.0.2
@@ -1644,7 +1645,14 @@ __metadata:
     react: ">=18.2.0"
     react-native: ">=0.71.0"
     react-native-get-random-values: ">=1.11.0"
-  checksum: b83a11531b3d72e74a05592cd3a0794b2c7a55fb815c9bb71b3727c5dd04840ea883b7524470382dc5ba85beeccaa421324d47c0a649a5a0bca3040b22e9a09e
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-native:
+      optional: true
+    react-native-get-random-values:
+      optional: true
+  checksum: 2f7fcce820a20bc52dc9dd40d9a696a6514e0477973ccf7823b0daaa0c5322047c4296a32206e3f0179bd2f167c7ba75521153fa371b67a01228a137d78cd3f4
   languageName: node
   linkType: hard
 
@@ -4073,6 +4081,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scure/base@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@scure/base@npm:1.1.1"
+  checksum: b4fc810b492693e7e8d0107313ac74c3646970c198bbe26d7332820886fa4f09441991023ec9aa3a2a51246b74409ab5ebae2e8ef148bbc253da79ac49130309
+  languageName: node
+  linkType: hard
+
 "@scure/base@npm:^1.1.1, @scure/base@npm:~1.2.5":
   version: 1.2.5
   resolution: "@scure/base@npm:1.2.5"
@@ -4629,7 +4644,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.10.1
-    "@buildonspark/spark-sdk": ^0.1.44
+    "@buildonspark/spark-sdk": ^0.1.45
     "@cashu/cashu-ts": ^2.5.2
     "@craftzdog/react-native-buffer": ^6.0.5
     "@miblanchard/react-native-slider": ^2.6.0
@@ -10113,6 +10128,15 @@ __metadata:
   version: 1.12.8
   resolution: "libphonenumber-js@npm:1.12.8"
   checksum: b3a50a9b5f63e43ad368ea88712a1d6cf38f7b26c01fdafb0c114e4c2f977fb1a7c19303bf09ce89680b8acfbbfaf127e848550999b43628c9d1573c816d68d5
+  languageName: node
+  linkType: hard
+
+"light-bolt11-decoder@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "light-bolt11-decoder@npm:3.2.0"
+  dependencies:
+    "@scure/base": 1.1.1
+  checksum: 33c9f8b202f2428b747c3849b9501a3b1fba7f594061f7c0a72229840593a9106355843c29d3025b6eeb5a954650de6fabe501fa5b129e15c061d0430b07f341
   languageName: node
   linkType: hard
 

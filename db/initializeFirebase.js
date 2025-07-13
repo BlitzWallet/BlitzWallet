@@ -2,13 +2,14 @@ import {getAuth} from '@react-native-firebase/auth';
 import {getFirestore} from '@react-native-firebase/firestore';
 import {getFunctions} from '@react-native-firebase/functions';
 import fetchBackend from './handleBackend';
+import {Platform} from 'react-native';
 const db = getFirestore();
 
 export async function initializeFirebase(publicKey, privateKey) {
   try {
     // Initialize App Check first
     // Sign in anonymously
-    if (__DEV__) {
+    if (__DEV__ && Platform.OS === 'android') {
       getFunctions().useEmulator('localhost', 5001);
     }
 
