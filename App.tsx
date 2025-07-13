@@ -105,6 +105,7 @@ import {InsetsProvider} from './context-store/insetsProvider';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {ToastContainer, ToastProvider} from './context-store/toastManager';
 import {RootstockSwapProvider} from './context-store/rootstockSwapContext';
+import {SparkConnectionManager} from './context-store/sparkConnection';
 
 const Stack = createNativeStackNavigator();
 
@@ -395,6 +396,7 @@ function ResetStack(): JSX.Element | null {
       <HandleLNURLPayments />
       <SparkNavigationListener />
       <ToastContainer />
+      <SparkConnectionManager />
       {/* <EcashNavigationListener /> */}
       {/* <SparkConnectionListener /> */}
       {/* <LiquidNavigationListener /> */}

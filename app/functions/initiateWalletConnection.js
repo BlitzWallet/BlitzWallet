@@ -33,7 +33,8 @@ export async function initWallet({
         );
     } else {
       throw new Error(
-        'We were unable to connect to the spark node. Please try again.',
+        didConnectToSpark.error ||
+          'We were unable to connect to the spark node. Please try again.',
       );
     }
     return {didWork: true};

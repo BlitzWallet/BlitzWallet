@@ -30,6 +30,7 @@ import {
   MyContactProfilePage,
   SendAndRequestPage,
 } from '../app/components/admin/homeComponents/contacts';
+import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightning/sparkErrorScreen';
 import ExplainBalanceScreen from '../app/components/admin/homeComponents/sendBitcoin/components/balanceExplainerScreen';
 import {
   ConfirmActionPage,
@@ -129,6 +130,7 @@ const FADE_SCREENS = [
   {name: 'ConfirmLeaveChatGPT', component: ConfirmLeaveChatGPT},
   {name: 'ClipboardCopyPopup', component: ClipboardCopyPopup},
   {name: 'ErrorScreen', component: ErrorScreen},
+  {name: 'SparkErrorScreen', component: SparkErrorScreen},
   {name: 'ExplainBalanceScreen', component: ExplainBalanceScreen},
   {name: 'GiftCardOrderDetails', component: GiftCardOrderDetails},
   {

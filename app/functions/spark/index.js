@@ -38,7 +38,7 @@ export const initializeSparkWallet = async mnemonic => {
     // }
   } catch (err) {
     console.log('Initialize spark wallet error', err);
-    return {isConnected: false};
+    return {isConnected: false, error: err.message};
   }
 };
 
