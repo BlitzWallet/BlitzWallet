@@ -79,10 +79,9 @@ export default function AppStore({navigation}) {
           height:
             (windowWidth.width * 0.95 * (Platform.OS === 'ios' ? 0.95 : 0.95)) /
             2,
+          flexGrow: 1,
           overflow: 'scroll',
           backgroundColor: backgroundOffset,
-          maxWidth: 200,
-          maxHeight: 200,
         }}>
         <View
           style={{
