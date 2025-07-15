@@ -106,6 +106,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {ToastContainer, ToastProvider} from './context-store/toastManager';
 import {RootstockSwapProvider} from './context-store/rootstockSwapContext';
 import {SparkConnectionManager} from './context-store/sparkConnection';
+import {GlobalNostrWalletConnectProvider} from './context-store/NWC';
 
 const Stack = createNativeStackNavigator();
 
@@ -131,14 +132,16 @@ function App(): JSX.Element {
                                   <PushNotificationProvider>
                                     <LiquidEventProvider>
                                       <RootstockSwapProvider>
-                                        {/* <LightningEventProvider> */}
-                                        <ImageCacheProvider>
-                                          {/* <Suspense
+                                        <GlobalNostrWalletConnectProvider>
+                                          {/* <LightningEventProvider> */}
+                                          <ImageCacheProvider>
+                                            {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                          <ResetStack />
-                                          {/* </Suspense> */}
-                                        </ImageCacheProvider>
-                                        {/* </LightningEventProvider> */}
+                                            <ResetStack />
+                                            {/* </Suspense> */}
+                                          </ImageCacheProvider>
+                                          {/* </LightningEventProvider> */}
+                                        </GlobalNostrWalletConnectProvider>
                                       </RootstockSwapProvider>
                                     </LiquidEventProvider>
                                   </PushNotificationProvider>

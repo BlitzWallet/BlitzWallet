@@ -44,6 +44,9 @@ import {
 // import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
 import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
+import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
+import NWCWallet from '../app/components/admin/homeComponents/settingsContent/nwc/NWCWalletPage';
+import NWCWalletSetup from '../app/components/admin/homeComponents/settingsContent/nwc/showSeedPage';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import AccountInformationPage from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/AccountInformationPage';
@@ -122,6 +125,9 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'RestoreWallet', component: RestoreWallet},
   // {name: 'EcashSettings', component: EcashSettings},
   {name: 'AddPOSItemsPage', component: AddPOSItemsPage},
+  {name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount},
+  {name: 'NWCWallet', component: NWCWallet},
+  {name: 'NWCWalletSetup', component: NWCWalletSetup},
 ];
 
 const FADE_SCREENS = [

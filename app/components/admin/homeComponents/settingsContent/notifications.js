@@ -10,7 +10,8 @@ import {useNavigation} from '@react-navigation/native';
 
 export default function NotificationPreferances() {
   const navigate = useNavigation();
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
+  const {masterInfoObject, toggleMasterInfoObject, toggleNWCInformation} =
+    useGlobalContextProvider();
   const [isUpdating, setIsUpdating] = useState(false);
   const {
     registerForPushNotificationsAsync,
@@ -20,6 +21,8 @@ export default function NotificationPreferances() {
   const [currnetPushState, setCurrentPushState] = useState(null);
   const notificationData = masterInfoObject.pushNotifications;
   const pushNotificationStatus = notificationData.isEnabled && currnetPushState;
+
+  console.log(masterInfoObject.pushNotifications.hash, masterInfoObject.NWC);
 
   const loadCurrentNotificationPermission = async () => {
     const resposne = await getCurrentPushNotifiicationPermissions();
@@ -47,12 +50,12 @@ export default function NotificationPreferances() {
             const checkResponse = await checkAndSavePushNotificationToDatabase(
               response.token,
             );
-            console.log(checkResponse, 'check response');
 
             if (!checkResponse.didWork) {
               navigate.navigate('ErrorScreen', {errorMessage: response.error});
               return;
             }
+
             if (checkResponse.shouldUpdate) {
               const data = checkResponse.data;
               newObject['hash'] = data.hash;
@@ -68,6 +71,22 @@ export default function NotificationPreferances() {
         }
 
         toggleMasterInfoObject({pushNotifications: newObject});
+
+        if (
+          newObject.hash !== masterInfoObject.NWC?.pushNotifications?.hash ||
+          newObject.enabledServices.NWC !==
+            masterInfoObject.NWC?.pushNotifications?.enabledServices?.NWC
+        ) {
+          toggleNWCInformation({
+            pushNotifications: {
+              hash: newObject.hash,
+              platform: newObject.platform,
+              key: newObject.key,
+              isEnabled: newObject.enabledServices.NWC,
+            },
+          });
+        }
+
         console.log('RUNNING', toggleType);
       } catch (err) {
         console.log('Error updating notification state', err);
@@ -125,6 +144,13 @@ export default function NotificationPreferances() {
               toggleSwitchStateValue={
                 notificationData.enabledServices.nostrPayments
               }
+              containerStyles={styles.toggleContainers}
+            />
+            <SettingsItemWithSlider
+              settingsTitle={`Nostr Connect`}
+              showDescription={false}
+              handleSubmit={() => toggleNotificationPreferance('NWC')}
+              toggleSwitchStateValue={notificationData.enabledServices.NWC}
               containerStyles={styles.toggleContainers}
             />
             <SettingsItemWithSlider

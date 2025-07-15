@@ -117,7 +117,14 @@ export default function getFormattedHomepageTxsForSpark({
       try {
         const currentTransaction = sparkTransactions[transactionIndex];
         const transactionPaymentType = currentTransaction.paymentType;
-        const paymentDetials = JSON.parse(currentTransaction.details);
+        const paymentDetials =
+          frompage === 'sparkWallet'
+            ? {
+                time: currentTransaction.createdTime,
+                direction: currentTransaction.transferDirection,
+                amount: currentTransaction.totalValue,
+              }
+            : JSON.parse(currentTransaction.details);
 
         const isFailedPayment = currentTransaction.paymentStatus === 'failed';
 
@@ -258,8 +265,9 @@ export const UserTransaction = memo(function UserTransaction({
         ...CENTER,
       }}
       key={id}
-      activeOpacity={0.5}
+      activeOpacity={frompage === 'sparkWallet' ? 1 : 0.5}
       onPress={() => {
+        if (frompage === 'sparkWallet') return;
         crashlyticsLogReport('Navigatin to expanded tx from user transaction');
         navigate.navigate('ExpandedTx', {isFailedPayment: {}, transaction});
       }}>

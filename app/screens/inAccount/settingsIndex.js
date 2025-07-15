@@ -91,12 +91,6 @@ const GENERALOPTIONS = [
   //   arrowIcon: ICONS.leftCheveronIcon,
   //   usesStandAlonePath: true,
   // },
-  // {
-  //   for: 'general',
-  //   name: 'Noster Wallet Connect',
-  //   icon: ICONS.Connected,
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  // },
 ];
 const SECURITYOPTIONS = [
   {
@@ -125,6 +119,13 @@ const EXPIRIMENTALFEATURES = [
   },
 ];
 const ADVANCEDOPTIONS = [
+  {
+    for: 'general',
+    name: 'Noster Connect',
+    svgIcon: true,
+    svgName: 'linkIcon',
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
   {
     for: 'Closing Account',
     name: 'Blitz Fee Details',

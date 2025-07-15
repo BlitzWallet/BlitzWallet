@@ -16,8 +16,9 @@ export const UserSatAmount = memo(function UserSatAmount({
   isConnectedToTheInternet,
   theme,
   darkModeType,
+  sparkInformation,
 }) {
-  const {sparkInformation, numberOfIncomingLNURLPayments} = useSparkWallet();
+  const {numberOfIncomingLNURLPayments} = useSparkWallet();
   const didMount = useRef(null);
 
   const {masterInfoObject, toggleMasterInfoObject, setMasterInfoObject} =

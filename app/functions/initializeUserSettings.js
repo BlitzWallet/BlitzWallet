@@ -1,4 +1,5 @@
-import * as nostr from 'nostr-tools';
+import {privateKeyFromSeedWords} from './nostrCompatability';
+import {getPublicKey} from 'nostr-tools';
 import {getDataFromCollection} from '../../db';
 import {generateRandomContact} from './contacts';
 import {
@@ -15,6 +16,7 @@ import {
 import {crashlyticsLogReport} from './crashlyticsLogs';
 import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
 import fetchBackend from '../../db/handleBackend';
+import {getNWCData} from './nwc';
 // import {getBitcoinKeyPair} from './lnurl';
 
 export default async function initializeUserSettingsFromHistory({
@@ -31,17 +33,18 @@ export default async function initializeUserSettingsFromHistory({
     let tempObject = {};
     const mnemonic = accountMnemoinc;
 
-    const privateKey = mnemonic
-      ? nostr.nip06.privateKeyFromSeedWords(mnemonic)
-      : null;
+    const privateKey = mnemonic ? privateKeyFromSeedWords(mnemonic) : null;
 
-    const publicKey = privateKey ? nostr.getPublicKey(privateKey) : null;
+    const publicKey = privateKey ? getPublicKey(privateKey) : null;
+
+    console.log(privateKey, publicKey);
 
     if (!privateKey || !publicKey) throw Error('Failed to retrieve keys');
 
-    const [_, pastExploreData] = await Promise.all([
+    const [_, pastExploreData, savedNWCData] = await Promise.all([
       initializeFirebase(publicKey, privateKey),
       getLocalStorageItem('savedExploreData').then(data => JSON.parse(data)),
+      getNWCData().then(data => data || {}),
     ]);
 
     const shouldLoadExporeDataResp = shouldLoadExploreData(pastExploreData);
@@ -303,6 +306,7 @@ export default async function initializeUserSettingsFromHistory({
 
     // store in contacts context
     tempObject['contacts'] = contacts;
+    tempObject['NWC'] = savedNWCData;
 
     // Store in ecash context
     // tempObject['eCashInformation'] = eCashInformation;

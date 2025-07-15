@@ -84,6 +84,7 @@ export default function HomeLightning() {
               isConnectedToTheInternet={isConnectedToTheInternet}
               theme={theme}
               darkModeType={darkModeType}
+              sparkInformation={sparkInformation}
             />
           </GlobalThemeView>
         }

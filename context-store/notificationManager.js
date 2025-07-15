@@ -9,6 +9,7 @@ import {useGlobalContextProvider} from './context';
 import {useKeysContext} from './keys';
 import {checkGooglePlayServices} from '../app/functions/checkGoogleServices';
 import DeviceInfo from 'react-native-device-info';
+import handleNWCBackgroundEvent from '../app/functions/nwc/backgroundNofifications';
 
 // Create the context
 const PushNotificationContext = createContext({});
@@ -220,6 +221,7 @@ TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async ({data, error}) => {
     return;
   }
   if (data) {
+    await handleNWCBackgroundEvent(data);
     console.log(data, 'RUNNING IN BACKGROUND');
   }
 });

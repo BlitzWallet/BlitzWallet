@@ -37,6 +37,8 @@ import {useGlobalThemeContext} from '../../../context-store/theme';
 import AddPOSItemHalfModal from '../../components/admin/homeComponents/settingsContent/posPath/items/addItemHalfModal';
 import {useGlobalInsets} from '../../../context-store/insetsProvider';
 import EditLNURLContactOnReceivePage from '../../components/admin/homeComponents/receiveBitcoin/editLNURLContact';
+import CustomInputHalfModal from './CustomInputHalfModal';
+import CustomQrCode from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -173,8 +175,8 @@ export default function CustomHalfModal(props) {
             slideHeight={slideHeight}
           />
         );
-      // case 'liquidAddressModal':
-      //   return <LiquidAddressModal />;
+      case 'customQrCode':
+        return <CustomQrCode data={props.route.params?.data} />;
       case 'manualEnterSendAddress':
         return (
           <ManualEnterSendAddress
@@ -227,6 +229,18 @@ export default function CustomHalfModal(props) {
             didWarnRootstock={props?.route?.params?.didWarnRootstock}
           />
         );
+      case 'customInputText':
+        return (
+          <CustomInputHalfModal
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+            setContentHeight={setContentHeight}
+            message={props?.route?.params?.message}
+            type={props?.route?.params?.type}
+            returnLocation={props?.route?.params?.returnLocation}
+          />
+        );
       default:
         return <ThemeText content={'TST'} />;
     }
@@ -273,6 +287,7 @@ export default function CustomHalfModal(props) {
             height: contentHeight ? contentHeight : deviceHeight * slideHeight,
             backgroundColor: 'black', //removes opacity background
             transform: [{translateY: Animated.add(translateY, panY)}],
+            marginTop: topPadding,
           },
         ]}>
         <View

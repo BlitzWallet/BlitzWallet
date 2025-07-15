@@ -10,14 +10,12 @@ import {
 } from '../../../../../functions/crashlyticsLogs';
 import {useFocusEffect} from '@react-navigation/native';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-
-import {fullRestoreSparkState} from '../../../../../functions/spark/restore';
 import {getSparkBalance} from '../../../../../functions/spark';
 import {useLiquidEvent} from '../../../../../../context-store/liquidEventContext';
 import {useRootstockProvider} from '../../../../../../context-store/rootstockSwapContext';
 
 function CustomFlatList({style, ...props}) {
-  const {sparkInformation, setSparkInformation} = useSparkWallet();
+  const {setSparkInformation} = useSparkWallet();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {startLiquidEventListener} = useLiquidEvent();
   const {startRootstockEventListener} = useRootstockProvider();
@@ -36,10 +34,6 @@ function CustomFlatList({style, ...props}) {
   const handleRefresh = useCallback(async () => {
     crashlyticsLogReport(`Running in handle refresh function on homepage`);
     try {
-      // const restoredLengh = await fullRestoreSparkState({
-      //   sparkAddress: sparkInformation.sparkAddress,
-      // });
-      // if (restoredLengh) return;
       startLiquidEventListener(2);
       startRootstockEventListener({intervalMs: 30000});
       const balance = await getSparkBalance();
@@ -88,14 +82,16 @@ function CustomFlatList({style, ...props}) {
 
       <Animated.FlatList
         refreshControl={
-          <RefreshControl
-            colors={[colors]}
-            tintColor={
-              darkModeType && theme ? COLORS.darkModeText : COLORS.primary
-            }
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-          />
+          props.frompage === 'sparkWallet' ? undefined : (
+            <RefreshControl
+              colors={[colors]}
+              tintColor={
+                darkModeType && theme ? COLORS.darkModeText : COLORS.primary
+              }
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+            />
+          )
         }
         ref={flatListRef}
         initialNumToRender={10}
