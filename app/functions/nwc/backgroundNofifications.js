@@ -1,5 +1,4 @@
 import {
-  getNWCAccountInformation,
   getNWCData,
   getSupportedMethods,
   isWithinNWCBalanceTimeFrame,
@@ -19,15 +18,12 @@ import {
   sendNWCSparkLightningPayment,
 } from './wallet';
 import sha256Hash from '../hash';
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 import bolt11 from 'bolt11';
 
 const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
 
 const RELAY_URL = 'wss://relay.damus.io';
-
-let walletConnection = null;
 
 const ERROR_CODES = {
   INTERNAL: 'INTERNAL',
@@ -188,6 +184,7 @@ const handlePayInvoice = async (
   );
 
   if (
+    selectedNWCAccount.budgetRenewalSettings.amount !== 'Unlimited' &&
     selectedNWCAccount.budgetRenewalSettings.amount <
       selectedNWCAccount.totalSent + paymentAmount &&
     timeFrame

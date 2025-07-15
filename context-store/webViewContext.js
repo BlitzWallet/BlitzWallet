@@ -3,11 +3,13 @@ import WebView from 'react-native-webview';
 import {Platform} from 'react-native';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
 import handleWebviewClaimMessage from '../app/functions/boltz/handle-webview-claim-message';
+import {useAppStatus} from './appStatus';
 
 // Create a context for the WebView ref
 const WebViewContext = createContext(null);
 
 export const WebViewProvider = ({children}) => {
+  const {didGetToHomepage} = useAppStatus();
   const webViewRef = useRef(null);
   const [isWEbViewReady, setIsWebViewReady] = useState(false);
   const handleClaimRetryRef = useRef(null);
@@ -19,6 +21,7 @@ export const WebViewProvider = ({children}) => {
   // });
 
   useEffect(() => {
+    if (!didGetToHomepage) return;
     if (!isWEbViewReady) return;
     if (startClaimRetryRef.current) return;
     startClaimRetryRef.current = true;
@@ -68,7 +71,7 @@ export const WebViewProvider = ({children}) => {
       handleUnclaimedReverseSwaps,
       30000,
     );
-  }, [isWEbViewReady]);
+  }, [isWEbViewReady, didGetToHomepage]);
 
   return (
     <WebViewContext.Provider

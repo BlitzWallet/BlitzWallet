@@ -30,12 +30,12 @@ import NWCWalletSetup from './nwc/showSeedPage';
 export default function NosterWalletConnect() {
   const navigate = useNavigation();
   const {masterInfoObject, toggleNWCInformation} = useGlobalContextProvider();
-  const {theme} = useGlobalThemeContext();
+  const {theme, darkModeType} = useGlobalThemeContext();
   const {getCurrentPushNotifiicationPermissions} = usePushNotification();
   const [currnetPushState, setCurrentPushState] = useState(null);
   const [hasSeenMnemoinc, setHasSeenMnemoinc] = useState('');
   const [accountName, setAccountName] = useState('');
-  const {baackgroundOffset} = GetThemeColors();
+  const {backgroundOffset} = GetThemeColors();
   const savedNWCAccounts = masterInfoObject.NWC;
   const notificationData = masterInfoObject.pushNotifications;
   const hasEnabledPushNotifications =
@@ -91,9 +91,7 @@ export default function NosterWalletConnect() {
               key={key}
               style={{
                 ...styles.contentItemContainer,
-                backgroundColor: theme
-                  ? baackgroundOffset
-                  : COLORS.darkModeText,
+                backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
               }}>
               <View style={styles.contentItemTop}>
                 <ThemeText

@@ -1,7 +1,5 @@
 import {SimplePool} from 'nostr-tools';
-import {useWebSocketImplementation} from 'nostr-tools/pool';
 
-useWebSocketImplementation(WebSocket);
 // Configuration
 const RELAY_TIMEOUT = 5000; // 5 seconds timeout per message
 

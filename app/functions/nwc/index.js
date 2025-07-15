@@ -65,8 +65,6 @@ export async function getNWCData() {
     retrieveData(NWC_SECURE_STORE_KEY).then(data => data.value),
     getLocalStorageItem(NWC_LOACAL_STORE_KEY),
   ]);
-  console.log(sensitiveJson);
-  console.log(nonSensitiveJson);
 
   if (!nonSensitiveJson) return {};
 
