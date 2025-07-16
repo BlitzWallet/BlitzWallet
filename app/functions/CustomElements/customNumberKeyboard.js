@@ -1,7 +1,7 @@
 import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {SATSPERBITCOIN, SIZES} from '../../constants';
 import KeyForKeyboard from './key';
-import {useCallback} from 'react';
+import {useCallback, useMemo} from 'react';
 import numberConverter from '../numberConverter';
 
 export default function CustomNumberKeyboard({
@@ -64,19 +64,22 @@ export default function CustomNumberKeyboard({
     },
     [frompage, setInputValue, showDot, usingForBalance, fiatStats],
   );
+
+  const keyboardContainerStyles = useMemo(() => {
+    return [
+      styles.keyboardContainer,
+      {
+        marginTop:
+          frompage === 'sendContactsPage' ||
+          frompage === 'contactsAutomatedPayments' ||
+          frompage === 'sendSMSPage'
+            ? 0
+            : 'auto',
+      },
+    ];
+  }, [frompage]);
   return (
-    <View
-      style={[
-        styles.keyboardContainer,
-        {
-          marginTop:
-            frompage === 'sendContactsPage' ||
-            frompage === 'contactsAutomatedPayments' ||
-            frompage === 'sendSMSPage'
-              ? 0
-              : 'auto',
-        },
-      ]}>
+    <View style={keyboardContainerStyles}>
       <View style={styles.keyboard_row}>
         <KeyForKeyboard num={1} addPin={addPin} />
         <KeyForKeyboard num={2} addPin={addPin} />

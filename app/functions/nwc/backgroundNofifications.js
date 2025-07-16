@@ -20,7 +20,7 @@ import {
 import sha256Hash from '../hash';
 import bolt11 from 'bolt11';
 
-const handledEventIds = new Set();
+// const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
 
 const RELAY_URL = 'wss://relay.damus.io';
@@ -451,28 +451,26 @@ export default async function handleNWCBackgroundEvent(notificationData) {
     } = notificationData;
     console.log('background nwc event', nwcEvent);
     console.log(nwcAccounts);
+    if (!nwcEvent) return;
 
-    // Filter out already handled events upfront
-    const newEvents = nwcEvent.events.filter(event => {
-      console.log(event, handledEventIds);
-      if (handledEventIds.has(event.id)) return false;
-      handledEventIds.add(event.id);
-      return true;
-    });
+    // // Filter out already handled events upfront
+    const newEvents = nwcEvent.events;
+    // nwcEvent.events.filter(event => {
+    //   console.log(event, handledEventIds);
+    //   if (handledEventIds.has(event.id)) return false;
+    //   handledEventIds.add(event.id);
+    //   return true;
+    // });
 
-    console.log(newEvents);
-    if (newEvents.length === 0) {
-      console.log('No new events to process');
-      return;
-    }
+    // console.log(newEvents);
+    // if (newEvents.length === 0) {
+    //   console.log('No new events to process');
+    //   return;
+    // }
 
     const eventPromises = newEvents.map(async (event, index) => {
-      console.log(event);
-
       const selectedNWCAccount = nwcAccounts[event.pubkey];
       if (!selectedNWCAccount) return null;
-
-      console.log(selectedNWCAccount);
 
       try {
         const eventTimeout = Math.max(
@@ -491,7 +489,7 @@ export default async function handleNWCBackgroundEvent(notificationData) {
           ),
         ]);
 
-        console.log(returnObject);
+        console.log(returnObject, 'NWC return object');
 
         const eventTemplate = {
           kind: 23195,

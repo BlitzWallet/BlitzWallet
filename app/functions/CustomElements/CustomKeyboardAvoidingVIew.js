@@ -1,9 +1,9 @@
-import {Keyboard, Platform, TouchableWithoutFeedback} from 'react-native';
+import {Keyboard, StyleSheet, TouchableWithoutFeedback} from 'react-native';
 import GlobalThemeView from './globalThemeView';
 import {CONTENT_KEYBOARD_OFFSET} from '../../constants';
 import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {useGlobalInsets} from '../../../context-store/insetsProvider';
-import {useMemo} from 'react';
+import {useCallback, useMemo} from 'react';
 
 export default function CustomKeyboardAvoidingView({
   children,
@@ -37,21 +37,19 @@ export default function CustomKeyboardAvoidingView({
       ...globalThemeViewStyles,
     };
   }, [useLocalPadding, isKeyboardActive, bottomPadding, globalThemeViewStyles]);
+
+  const touchableOnPress = useCallback(() => {
+    if (touchableWithoutFeedbackFunction) {
+      touchableWithoutFeedbackFunction();
+      return;
+    }
+    Keyboard.dismiss();
+  }, [touchableWithoutFeedbackFunction]);
+
   return (
-    <KeyboardAvoidingView
-      behavior={'padding'}
-      style={{
-        flex: 1,
-      }}>
+    <KeyboardAvoidingView behavior={'padding'} style={styles.globalContainer}>
       {useTouchableWithoutFeedback ? (
-        <TouchableWithoutFeedback
-          onPress={() => {
-            if (touchableWithoutFeedbackFunction) {
-              touchableWithoutFeedbackFunction();
-              return;
-            }
-            Keyboard.dismiss();
-          }}>
+        <TouchableWithoutFeedback onPress={touchableOnPress}>
           <GlobalThemeView
             styles={memoizedStylesTochable}
             useStandardWidth={useStandardWidth}>
@@ -68,3 +66,9 @@ export default function CustomKeyboardAvoidingView({
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  globalContainer: {
+    flex: 1,
+  },
+});

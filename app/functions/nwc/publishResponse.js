@@ -1,7 +1,7 @@
 import {SimplePool} from 'nostr-tools';
 
 // Configuration
-const RELAY_TIMEOUT = 5000; // 5 seconds timeout per message
+const RELAY_TIMEOUT = 10000; // 5 seconds timeout per message
 
 /**
  * Publishes an array of messages to a single relay
@@ -40,11 +40,10 @@ export async function publishToSingleRelay(events, relayUrl) {
 
     // Process results
     publishResults.forEach((result, index) => {
-      if (result.status === 'fulfilled' && result.value.success) {
+      if (result.status === 'fulfilled') {
         results.successful++;
         results.details.push({
           eventIndex: index,
-          eventId: result.value.eventId,
           success: true,
         });
       } else {
@@ -52,7 +51,6 @@ export async function publishToSingleRelay(events, relayUrl) {
         const error = result.reason || result.value?.error || 'Unknown error';
         results.details.push({
           eventIndex: index,
-          eventId: result.value?.eventId || events[index]?.id,
           success: false,
           error: error,
         });

@@ -233,16 +233,10 @@ export default function SendAndRequestPage(props) {
           lightsOutIcon={ICONS.arrow_small_left_white}
         />
       </TouchableOpacity>
-
-      <View
-        style={{
-          flex: 1,
-        }}>
+      <View style={styles.globalContainer}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingBottom: 20,
-          }}>
+          contentContainerStyle={styles.scrollViewContainer}>
           <View
             style={[
               styles.profileImage,
@@ -339,6 +333,10 @@ export default function SendAndRequestPage(props) {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {flex: 1},
+  scrollViewContainer: {
+    paddingBottom: 20,
+  },
   profileImage: {
     width: 100,
     height: 100,

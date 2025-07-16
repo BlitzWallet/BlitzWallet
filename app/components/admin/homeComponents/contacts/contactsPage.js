@@ -237,6 +237,10 @@ export default function ContactsPage({navigation}) {
       contact => !hideUnknownContacts || contact.isAdded,
     ).length !== 0;
 
+  const stickyHeaderIndicesValue = useMemo(() => {
+    return [pinnedContacts.length ? 1 : 0];
+  }, [pinnedContacts]);
+
   return (
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
@@ -280,10 +284,10 @@ export default function ContactsPage({navigation}) {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={scrollContentStyle}
-          style={{flex: 1, overflow: 'hidden'}}
-          stickyHeaderIndices={[pinnedContacts.length ? 1 : 0]}>
+          style={memoizedStyles.contactsPageWithContactsScrollview}
+          stickyHeaderIndices={stickyHeaderIndicesValue}>
           {pinnedContacts.length !== 0 && (
-            <View style={{height: 120}}>
+            <View style={memoizedStyles.pinnedContactsContainer}>
               <ScrollView
                 showsHorizontalScrollIndicator={false}
                 horizontal
@@ -364,6 +368,12 @@ const PinnedContactElement = memo(
       [containerSize],
     );
 
+    const pinnedContactTextContinaer = useMemo(() => {
+      return {
+        maxWidth: containerSize - (hasUnlookedTransaction ? 25 : 0),
+      };
+    }, [containerSize]);
+
     const notificationStyle = useMemo(
       () => ({
         ...memoizedStyles.hasNotification,
@@ -403,18 +413,10 @@ const PinnedContactElement = memo(
             />
           </View>
 
-          <View
-            style={{
-              width: '100%',
-              alignItems: 'center',
-              flexDirection: 'row',
-              justifyContent: 'center',
-            }}>
+          <View style={memoizedStyles.pinnedContactNotificationContainer}>
             {hasUnlookedTransaction && <View style={notificationStyle} />}
             <View
-              style={{
-                maxWidth: containerSize - (hasUnlookedTransaction ? 25 : 0),
-              }}
+              style={pinnedContactTextContinaer}
               onLayout={handleTextLayout}>
               <ThemeText
                 CustomEllipsizeMode="tail"
@@ -488,89 +490,71 @@ const ContactElement = memo(
 
     return (
       <TouchableOpacity onLongPress={handleLongPress} onPress={handlePress}>
-        <View style={{marginTop: 10}}>
-          <View style={memoizedStyles.contactRowContainer}>
-            <View style={imageContainerStyle}>
-              <ContactProfileImage
-                updated={cache[contact.uuid]?.updated}
-                uri={cache[contact.uuid]?.localUri}
-                darkModeType={darkModeType}
-                theme={theme}
+        <View style={memoizedStyles.contactRowContainer}>
+          <View style={imageContainerStyle}>
+            <ContactProfileImage
+              updated={cache[contact.uuid]?.updated}
+              uri={cache[contact.uuid]?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
+          <View style={memoizedStyles.globalContainer}>
+            <View style={memoizedStyles.contactsRowInlineStyle}>
+              <ThemeText
+                CustomEllipsizeMode={'tail'}
+                CustomNumberOfLines={1}
+                styles={{
+                  flex: 1,
+                  width: '100%',
+                  marginRight: 5,
+                }}
+                content={
+                  contact.name?.length ? contact.name : contact.uniqueName
+                }
               />
-            </View>
-            <View style={{flex: 1}}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}>
+              {hasUnlookedTransaction && <View style={notificationStyle} />}
+              <View style={memoizedStyles.contactsRowInlineStyle}>
                 <ThemeText
-                  CustomEllipsizeMode={'tail'}
-                  CustomNumberOfLines={1}
-                  styles={{
-                    flex: 1,
-                    width: '100%',
-                    marginRight: 5,
-                  }}
-                  content={
-                    contact.name?.length ? contact.name : contact.uniqueName
-                  }
-                />
-                {hasUnlookedTransaction && <View style={notificationStyle} />}
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}>
-                  <ThemeText
-                    styles={{
-                      fontSize: SIZES.small,
-                      marginRight: 5,
-                    }}
-                    content={
-                      lastUpdated ? createFormattedDate(lastUpdated) : ''
-                    }
-                  />
-                  <ThemeImage
-                    styles={{
-                      width: 20,
-                      height: 20,
-                      transform: [{rotate: '180deg'}],
-                    }}
-                    darkModeIcon={ICONS.leftCheveronIcon}
-                    lightModeIcon={ICONS.leftCheveronIcon}
-                    lightsOutIcon={ICONS.left_cheveron_white}
-                  />
-                </View>
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}>
-                <ThemeText
-                  CustomNumberOfLines={2}
                   styles={{
                     fontSize: SIZES.small,
+                    marginRight: 5,
                   }}
-                  content={
-                    lastUpdated ? formatMessage(firstMessage) || ' ' : ' '
-                  }
+                  content={lastUpdated ? createFormattedDate(lastUpdated) : ''}
                 />
-                {!contact.isAdded && (
-                  <ThemeText
-                    styles={{
-                      fontSize: SIZES.small,
-                      color:
-                        darkModeType && theme
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
-                      marginLeft: 'auto',
-                    }}
-                    content={'Unknown sender'}
-                  />
-                )}
+                <ThemeImage
+                  styles={{
+                    width: 20,
+                    height: 20,
+                    transform: [{rotate: '180deg'}],
+                  }}
+                  darkModeIcon={ICONS.leftCheveronIcon}
+                  lightModeIcon={ICONS.leftCheveronIcon}
+                  lightsOutIcon={ICONS.left_cheveron_white}
+                />
               </View>
+            </View>
+            <View style={memoizedStyles.contactsRowInlineStyle}>
+              <ThemeText
+                CustomNumberOfLines={2}
+                styles={{
+                  fontSize: SIZES.small,
+                }}
+                content={lastUpdated ? formatMessage(firstMessage) || ' ' : ' '}
+              />
+              {!contact.isAdded && (
+                <ThemeText
+                  styles={{
+                    fontSize: SIZES.small,
+                    color:
+                      darkModeType && theme
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                    marginLeft: 'auto',
+                  }}
+                  content={'Unknown sender'}
+                />
+              )}
             </View>
           </View>
         </View>
@@ -583,6 +567,7 @@ const memoizedStyles = StyleSheet.create({
   globalContainer: {
     flex: 1,
   },
+  contactsPageWithContactsScrollview: {flex: 1, overflow: 'hidden'},
   profileImageContainer: {
     position: 'relative',
     width: 35,
@@ -618,6 +603,7 @@ const memoizedStyles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
   },
+  pinnedContactsContainer: {height: 120},
   pinnedContact: {
     marginHorizontal: 5,
     alignItems: 'center',
@@ -625,6 +611,13 @@ const memoizedStyles = StyleSheet.create({
   pinnedContactsContainer: {
     flexDirection: 'row',
   },
+  pinnedContactNotificationContainer: {
+    width: '100%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+
   pinnedContactImageContainer: {
     width: '100%',
     height: '100%',
@@ -634,11 +627,18 @@ const memoizedStyles = StyleSheet.create({
     marginBottom: 5,
     overflow: 'hidden',
   },
+
   contactRowContainer: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
+
     ...CENTER,
+    marginTop: 10,
+  },
+  contactsRowInlineStyle: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   contactImageContainer: {
     width: 45,
