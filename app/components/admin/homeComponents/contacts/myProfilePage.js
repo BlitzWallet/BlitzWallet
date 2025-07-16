@@ -34,6 +34,7 @@ export default function MyContactProfilePage({navigation}) {
   const navigate = useNavigation();
   const currentTime = new Date();
   const [showList, setShowList] = useState(false);
+  const [createdPayments, setCreatedPayments] = useState([]);
 
   const myContact = globalContactsInformation.myProfile;
 
@@ -47,7 +48,7 @@ export default function MyContactProfilePage({navigation}) {
     }, []),
   );
 
-  const createdPayments = useMemo(() => {
+  useEffect(() => {
     const messageHeap = new MaxHeap();
     const MAX_MESSAGES = 50;
 
@@ -83,7 +84,7 @@ export default function MyContactProfilePage({navigation}) {
 
     console.log(result.length, 'LENGTH OF RESULT ARRAY');
 
-    return result;
+    setCreatedPayments(result);
   }, [decodedAddedContacts, contactsMessags]);
 
   const {bottomPadding} = useGlobalInsets();
@@ -202,6 +203,9 @@ export default function MyContactProfilePage({navigation}) {
             style={{
               width: '95%',
             }}
+            initialNumToRender={10}
+            windowSize={5}
+            maxToRenderPerBatch={10}
             data={createdPayments}
             renderItem={({item, index}) => {
               return (

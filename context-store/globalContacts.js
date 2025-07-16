@@ -15,7 +15,6 @@ import {
   decryptMessage,
   encriptMessage,
 } from '../app/functions/messaging/encodingAndDecodingMessages';
-import {getLocalStorageItem} from '../app/functions';
 
 import {
   CONTACTS_TRANSACTION_UPDATE_NAME,
@@ -45,7 +44,6 @@ export const GlobalContactsList = ({children}) => {
   const [contactsMessags, setContactsMessagses] = useState({});
   const lookForNewMessages = useRef(false);
   const unsubscribeMessagesRef = useRef(null);
-
   const addedContacts = globalContactsInformation.addedContacts;
 
   const toggleGlobalContactsInformation = useCallback(

@@ -330,6 +330,9 @@ export default function ExpandedContactsPage(props) {
                   paddingTop: selectedContact?.bio ? 10 : 20,
                   paddingBottom: bottomPadding,
                 }}
+                initialNumToRender={10}
+                windowSize={5}
+                maxToRenderPerBatch={10}
                 data={contactTransactions.slice(0, 50)}
                 renderItem={({item, index}) => {
                   return (
