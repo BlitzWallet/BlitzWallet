@@ -66,7 +66,7 @@ export default function HomeLightning() {
   ]);
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0, paddintTop: 0}}>
+    <GlobalThemeView styles={style.globalContainer}>
       <CustomFlatList
         style={{overflow: 'hidden', flex: 1}}
         data={flatListDataForSpark}
@@ -106,5 +106,6 @@ export default function HomeLightning() {
 }
 
 const style = StyleSheet.create({
+  globalContainer: {paddingBottom: 0, paddintTop: 0},
   balanceContainer: {paddingTop: 0, paddingBottom: 10, alignItems: 'center'},
 });

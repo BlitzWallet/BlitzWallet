@@ -138,7 +138,7 @@ export default function GiftCardPage() {
   );
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
+    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
       <View style={{flex: 1}}>
         <View style={styles.topBar}>
           <TouchableOpacity
@@ -224,6 +224,7 @@ export default function GiftCardPage() {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {paddingBottom: 0},
   topBar: {
     width: '100%',
     flexDirection: 'row',

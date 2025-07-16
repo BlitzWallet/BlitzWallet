@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import {FlatList, Platform, View} from 'react-native';
+import {FlatList, Platform, StyleSheet, View} from 'react-native';
 import {ICONS} from '../../constants';
 import {GlobalThemeView} from '../../functions/CustomElements';
 import {useTranslation} from 'react-i18next';
@@ -58,7 +58,7 @@ export default function ViewAllTxPage() {
   ]);
 
   return (
-    <GlobalThemeView useStandardWidth={true} styles={{paddingBottom: 0}}>
+    <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <CustomSettingsTopBar
         showLeftImage={true}
         leftImageBlue={ICONS.share}
@@ -96,3 +96,6 @@ export default function ViewAllTxPage() {
     </GlobalThemeView>
   );
 }
+const styles = StyleSheet.create({
+  globalContainer: {paddingBottom: 0},
+});

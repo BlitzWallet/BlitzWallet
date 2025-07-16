@@ -90,7 +90,7 @@ export default function ExpandedContactsPage(props) {
   }, [contactTransactions]);
 
   return (
-    <GlobalThemeView useStandardWidth={true} styles={{paddingBottom: 0}}>
+    <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={styles.topBar}>
         <TouchableOpacity
           style={{marginRight: 'auto'}}
@@ -357,6 +357,7 @@ export default function ExpandedContactsPage(props) {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {paddingBottom: 0},
   topBar: {
     width: '100%',
     flexDirection: 'row',

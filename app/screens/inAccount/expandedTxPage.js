@@ -40,7 +40,7 @@ export default function ExpandedTx(props) {
   useHandleBackPressNew();
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
+    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
       <View style={{flex: 1}}>
         <TouchableOpacity
           style={{marginRight: 'auto'}}
@@ -317,6 +317,7 @@ function ReceiptDots() {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {paddingBottom: 0},
   borderContainer: {
     width: '100%',
     justifyContent: 'space-between',

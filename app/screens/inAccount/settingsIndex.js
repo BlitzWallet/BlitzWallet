@@ -371,9 +371,7 @@ export default function SettingsIndex(props) {
   ]);
 
   return (
-    <GlobalThemeView
-      useStandardWidth={true}
-      styles={{alignItems: 'center', paddingBottom: 0}}>
+    <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <CustomSettingsTopBar label={'Settings'} />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -452,6 +450,7 @@ export default function SettingsIndex(props) {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {alignItems: 'center', paddingBottom: 0},
   settingsContainer: {
     flex: 1,
     width: INSET_WINDOW_WIDTH,

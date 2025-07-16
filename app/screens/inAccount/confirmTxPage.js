@@ -66,12 +66,7 @@ export default function ConfirmTxPage(props) {
   }, []);
 
   return (
-    <GlobalThemeView
-      useStandardWidth={true}
-      styles={{
-        flex: 1,
-        alignItems: 'center',
-      }}>
+    <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
       <LottieView
         ref={animationRef}
         source={didSucceed ? confirmAnimation : errorAnimation}
@@ -203,6 +198,10 @@ export default function ConfirmTxPage(props) {
 }
 
 const styles = StyleSheet.create({
+  globalConatianer: {
+    flex: 1,
+    alignItems: 'center',
+  },
   buttonText: {
     fontFamily: FONT.Descriptoin_Regular,
   },

@@ -62,7 +62,7 @@ export default function ViewPOSTransactions() {
   }, []);
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
+    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
         showLeftImage={false}
@@ -96,6 +96,7 @@ export default function ViewPOSTransactions() {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {paddingBottom: 0},
   container: {
     flex: 1,
     width: '95%',

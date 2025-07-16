@@ -179,7 +179,7 @@ export default function NWCWallet(props) {
   }, [sendingAmount, sendingType]);
 
   return (
-    <GlobalThemeView styles={{paddintTop: 0}}>
+    <GlobalThemeView styles={style.globalContainer}>
       <CustomSettingsTopBar
         containerStyles={{width: INSET_WINDOW_WIDTH, ...CENTER}}
         showLeftImage={true}
@@ -233,5 +233,6 @@ export default function NWCWallet(props) {
 }
 
 const style = StyleSheet.create({
+  globalContainer: {paddintTop: 0},
   balanceContainer: {paddingTop: 0, paddingBottom: 10, alignItems: 'center'},
 });

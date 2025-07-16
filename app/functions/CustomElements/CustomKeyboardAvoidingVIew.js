@@ -3,6 +3,7 @@ import GlobalThemeView from './globalThemeView';
 import {CONTENT_KEYBOARD_OFFSET} from '../../constants';
 import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {useGlobalInsets} from '../../../context-store/insetsProvider';
+import {useMemo} from 'react';
 
 export default function CustomKeyboardAvoidingView({
   children,
@@ -15,6 +16,27 @@ export default function CustomKeyboardAvoidingView({
 }) {
   const {bottomPadding} = useGlobalInsets();
 
+  const memoizedStylesTochable = useMemo(() => {
+    return {
+      paddingBottom: useLocalPadding
+        ? isKeyboardActive
+          ? CONTENT_KEYBOARD_OFFSET
+          : bottomPadding
+        : 0,
+      ...globalThemeViewStyles,
+    };
+  }, [useLocalPadding, isKeyboardActive, bottomPadding, globalThemeViewStyles]);
+
+  const memoizedStylesNoTochable = useMemo(() => {
+    return {
+      paddingBottom: useLocalPadding
+        ? isKeyboardActive
+          ? CONTENT_KEYBOARD_OFFSET
+          : bottomPadding
+        : 0,
+      ...globalThemeViewStyles,
+    };
+  }, [useLocalPadding, isKeyboardActive, bottomPadding, globalThemeViewStyles]);
   return (
     <KeyboardAvoidingView
       behavior={'padding'}
@@ -31,28 +53,14 @@ export default function CustomKeyboardAvoidingView({
             Keyboard.dismiss();
           }}>
           <GlobalThemeView
-            styles={{
-              paddingBottom: useLocalPadding
-                ? isKeyboardActive
-                  ? CONTENT_KEYBOARD_OFFSET
-                  : bottomPadding
-                : 0,
-              ...globalThemeViewStyles,
-            }}
+            styles={memoizedStylesTochable}
             useStandardWidth={useStandardWidth}>
             {children}
           </GlobalThemeView>
         </TouchableWithoutFeedback>
       ) : (
         <GlobalThemeView
-          styles={{
-            paddingBottom: useLocalPadding
-              ? isKeyboardActive
-                ? CONTENT_KEYBOARD_OFFSET
-                : bottomPadding
-              : 0,
-            ...globalThemeViewStyles,
-          }}
+          styles={memoizedStylesNoTochable}
           useStandardWidth={useStandardWidth}>
           {children}
         </GlobalThemeView>

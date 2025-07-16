@@ -99,7 +99,7 @@ export default function SettingsContentIndex(props) {
           )}
         </>
       ) : (
-        <GlobalThemeView styles={{alignItems: 'center'}}>
+        <GlobalThemeView styles={styles.globalContainer}>
           <View style={styles.innerContainer}>
             <CustomSettingsTopBar
               showLeftImage={selectedPage?.toLowerCase() === 'channel closure'}
@@ -177,6 +177,7 @@ export default function SettingsContentIndex(props) {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {alignItems: 'center'},
   innerContainer: {
     flex: 1,
     width: WINDOWWIDTH,

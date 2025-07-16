@@ -137,7 +137,7 @@ export default function AppStore({navigation}) {
   });
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
+    <GlobalThemeView styles={styles.globalConatiner} useStandardWidth={true}>
       <ThemeText content={'Store'} styles={{...styles.headerText}} />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -279,6 +279,7 @@ export default function AppStore({navigation}) {
 }
 
 const styles = StyleSheet.create({
+  globalConatiner: {paddingBottom: 0},
   headerText: {fontSize: SIZES.large, ...CENTER},
 
   giftCardContainer: {
