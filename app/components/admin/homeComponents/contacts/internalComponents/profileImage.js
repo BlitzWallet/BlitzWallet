@@ -10,10 +10,15 @@ export default function ContactProfileImage({
   darkModeType,
   theme,
   updated,
+  fromCustomQR = false,
 }) {
   const [loadError, setLoadError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const fallbackIcon = darkModeType && theme ? ICONS.userWhite : ICONS.userIcon;
+  const fallbackIcon = fromCustomQR
+    ? ICONS.logoWithPadding
+    : darkModeType && theme
+    ? ICONS.userWhite
+    : ICONS.userIcon;
   const customURI = `${uri}?v=${
     updated ? new Date(updated).getTime() : customUUID()
   }`;
@@ -29,7 +34,10 @@ export default function ContactProfileImage({
       style={
         !loadError && uri && !isLoading
           ? {width: '100%', aspectRatio: 1}
-          : {width: '50%', height: '50%'}
+          : {
+              width: fromCustomQR ? '100%' : '50%',
+              height: fromCustomQR ? '100%' : '50%',
+            }
       }
       source={
         !loadError && uri && !isLoading
