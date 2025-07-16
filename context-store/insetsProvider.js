@@ -1,5 +1,11 @@
 // InsetsContext.js
-import React, {createContext, useState, useContext, useEffect} from 'react';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../app/constants/styles';
 
@@ -27,15 +33,17 @@ export function InsetsProvider({children}) {
     });
   }, [safeInsets]);
 
+  const contextValues = useMemo(() => {
+    return {
+      ...insets,
+      topPadding: insets.topPadding !== 0 ? insets.topPadding : ANDROIDSAFEAREA,
+      bottomPadding:
+        insets.bottomPadding !== 0 ? insets.bottomPadding : ANDROIDSAFEAREA,
+    };
+  }, [insets]);
+
   return (
-    <InsetsContext.Provider
-      value={{
-        ...insets,
-        topPadding:
-          insets.topPadding !== 0 ? insets.topPadding : ANDROIDSAFEAREA,
-        bottomPadding:
-          insets.bottomPadding !== 0 ? insets.bottomPadding : ANDROIDSAFEAREA,
-      }}>
+    <InsetsContext.Provider value={contextValues}>
       {children}
     </InsetsContext.Provider>
   );

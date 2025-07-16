@@ -232,16 +232,25 @@ export const GlobalContactsList = ({children}) => {
     contactsPrivateKey,
   ]);
 
-  return (
-    <GlobalContacts.Provider
-      value={{
-        decodedAddedContacts,
-        globalContactsInformation,
-        toggleGlobalContactsInformation,
+  const contextValue = useMemo(
+    () => ({
+      decodedAddedContacts,
+      globalContactsInformation,
+      toggleGlobalContactsInformation,
+      contactsMessags,
+      updatedCachedMessagesStateFunction,
+    }),
+    [
+      decodedAddedContacts,
+      globalContactsInformation,
+      toggleGlobalContactsInformation,
+      contactsMessags,
+      updatedCachedMessagesStateFunction,
+    ],
+  );
 
-        contactsMessags,
-        updatedCachedMessagesStateFunction,
-      }}>
+  return (
+    <GlobalContacts.Provider value={contextValue}>
       {children}
     </GlobalContacts.Provider>
   );

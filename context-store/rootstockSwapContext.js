@@ -264,14 +264,17 @@ export const RootstockSwapProvider = ({children}) => {
       cleanupRootstockListener();
     };
   }, [cleanupRootstockListener]);
+
+  const contextValue = useMemo(() => {
+    return {
+      provider,
+      signer,
+      createSigner,
+      startRootstockEventListener,
+    };
+  }, [provider, signer, createSigner, startRootstockEventListener]);
   return (
-    <RootstockSwapContext.Provider
-      value={{
-        provider,
-        signer,
-        createSigner,
-        startRootstockEventListener,
-      }}>
+    <RootstockSwapContext.Provider value={contextValue}>
       {children}
     </RootstockSwapContext.Provider>
   );

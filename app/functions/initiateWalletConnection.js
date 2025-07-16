@@ -6,6 +6,7 @@ import {
   getSparkIdentityPubKey,
   initializeSparkWallet,
 } from './spark';
+import handleBalanceCache from './spark/handleBalanceCache';
 
 import {cleanStalePendingSparkLightningTransactions} from './spark/transactions';
 
@@ -79,8 +80,51 @@ async function initializeSparkSession({
     //     true,
     //   );
     // }
+
+    let didLoadCorrectBalance = false;
+    let runCount = 0;
+    let maxRunCount = 5;
+    let initialBalanceResponse = balance;
+    let correctBalance = 0;
+
+    while (runCount < maxRunCount && !didLoadCorrectBalance) {
+      runCount += 1;
+      let currentBalance = 0;
+
+      if (runCount === 1) {
+        currentBalance = Number(initialBalanceResponse.balance);
+      } else {
+        const retryResponse = await getSparkBalance();
+        currentBalance = Number(retryResponse.balance);
+      }
+
+      const response = await handleBalanceCache({
+        isCheck: true,
+        passedBalance: currentBalance,
+      });
+
+      if (response.didWork) {
+        correctBalance = response.balance;
+        didLoadCorrectBalance = true;
+      } else {
+        console.log('Waiting for correct balance resposne');
+        await new Promise(res => setTimeout(res, 2000));
+      }
+    }
+
+    const finalBalanceToUse = didLoadCorrectBalance
+      ? correctBalance
+      : Number(initialBalanceResponse.balance);
+    console.log(
+      didLoadCorrectBalance,
+      runCount,
+      initialBalanceResponse,
+      correctBalance,
+      finalBalanceToUse,
+      'balancasldfkjasdlfkjasdf',
+    );
     const storageObject = {
-      balance: Number(balance.balance),
+      balance: finalBalanceToUse,
       transactions: transactions,
       identityPubKey,
       sparkAddress: sparkAddress.response,
