@@ -77,6 +77,7 @@ export default async function initializeUserSettingsFromHistory({
       fastPaySettings,
       crashReportingSettings,
       enabledDeveloperSupport,
+      didViewNWCMessage,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -316,6 +317,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject[QUICK_PAY_STORAGE_KEY] = fastPaySettings;
     tempObject['crashReportingSettings'] = crashReportingSettings;
     tempObject['enabledDeveloperSupport'] = enabledDeveloperSupport;
+    tempObject['didViewNWCMessage'] = didViewNWCMessage;
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {
       await sendDataToDB(tempObject, publicKey);

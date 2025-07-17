@@ -16,6 +16,7 @@ const keys = [
   QUICK_PAY_STORAGE_KEY,
   'crashReportingSettings',
   'enabledDeveloperSupport',
+  'didViewNWCMessage',
 ];
 
 const defaultValues = {
@@ -42,6 +43,7 @@ const defaultValues = {
     baseFee: BLITZ_FEE_SATS,
     baseFeePercent: BLITZ_FEE_PERCET,
   },
+  didViewNWCMessage: false,
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -73,6 +75,7 @@ export const fetchLocalStorageItems = async () => {
       parsedResults[10] ?? defaultValues.crashReportingSettings,
     enabledDeveloperSupport:
       parsedResults[11] ?? defaultValues.enabledDeveloperSupport,
+    didViewNWCMessage: parsedResults[12] ?? defaultValues.didViewNWCMessage,
   };
 };
 

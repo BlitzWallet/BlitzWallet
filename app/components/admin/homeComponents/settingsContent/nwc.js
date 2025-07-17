@@ -26,6 +26,7 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../functions/CustomElements/Icon';
 import {retrieveData} from '../../../../functions';
 import NWCWalletSetup from './nwc/showSeedPage';
+import HasNoNostrAccounts from './nwc/hasNoAccounts';
 
 export default function NosterWalletConnect() {
   const navigate = useNavigation();
@@ -38,6 +39,7 @@ export default function NosterWalletConnect() {
   const {backgroundOffset} = GetThemeColors();
   const savedNWCAccounts = masterInfoObject.NWC;
   const notificationData = masterInfoObject.pushNotifications;
+  const didViewWarningMessage = masterInfoObject.didViewNWCMessage;
   const hasEnabledPushNotifications =
     notificationData.enabledServices.NWC && currnetPushState;
 
@@ -69,7 +71,11 @@ export default function NosterWalletConnect() {
   if (!hasEnabledPushNotifications) {
     return <NostrWalletConnectNoNotifications />;
   }
-  console.log(savedNWCAccounts);
+
+  if (!didViewWarningMessage) {
+    return <HasNoNostrAccounts />;
+  }
+
   const nwcElements = savedNWCAccounts?.accounts
     ? Object.entries(savedNWCAccounts?.accounts)
         .filter(([key, value]) => {
