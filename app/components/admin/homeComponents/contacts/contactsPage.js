@@ -287,7 +287,7 @@ export default function ContactsPage({navigation}) {
           style={memoizedStyles.contactsPageWithContactsScrollview}
           stickyHeaderIndices={stickyHeaderIndicesValue}>
           {pinnedContacts.length !== 0 && (
-            <View style={memoizedStyles.pinnedContactsContainer}>
+            <View style={memoizedStyles.pinnedContactsScrollviewContainer}>
               <ScrollView
                 showsHorizontalScrollIndicator={false}
                 horizontal
@@ -603,7 +603,7 @@ const memoizedStyles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
   },
-  pinnedContactsContainer: {height: 120},
+  pinnedContactsScrollviewContainer: {height: 120},
   pinnedContact: {
     marginHorizontal: 5,
     alignItems: 'center',
