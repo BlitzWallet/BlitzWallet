@@ -9,13 +9,14 @@ import {
   crashlyticsRecordErrorReport,
 } from '../../../../../functions/crashlyticsLogs';
 import {useFocusEffect} from '@react-navigation/native';
-import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import {getSparkBalance} from '../../../../../functions/spark';
 import {useLiquidEvent} from '../../../../../../context-store/liquidEventContext';
 import {useRootstockProvider} from '../../../../../../context-store/rootstockSwapContext';
+import {
+  SPARK_TX_UPDATE_ENVENT_NAME,
+  sparkTransactionsEventEmitter,
+} from '../../../../../functions/spark/transactions';
 
 function CustomFlatList({style, ...props}) {
-  const {setSparkInformation} = useSparkWallet();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {startLiquidEventListener} = useLiquidEvent();
   const {startRootstockEventListener} = useRootstockProvider();
@@ -36,12 +37,7 @@ function CustomFlatList({style, ...props}) {
     try {
       startLiquidEventListener(2);
       startRootstockEventListener({intervalMs: 30000});
-      const balance = await getSparkBalance();
-      if (!balance || !Number(balance.balance)) return;
-      setSparkInformation(prev => ({
-        ...prev,
-        balance: Number(balance.balance),
-      }));
+      sparkTransactionsEventEmitter.emit(SPARK_TX_UPDATE_ENVENT_NAME, {});
     } catch (err) {
       console.log('error refreshing on homepage', err);
       crashlyticsRecordErrorReport(err.message);

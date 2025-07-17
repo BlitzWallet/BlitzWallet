@@ -356,6 +356,7 @@ export const getSparkTransactions = async (
     return await sparkWallet.getTransfers(transferCount, offsetIndex);
   } catch (err) {
     console.log('get spark transactions error', err);
+    return {transfers: []};
   }
 };
 export const getCachedSparkTransactions = async () => {
@@ -435,5 +436,56 @@ export const isSparkDonationPayment = (currentTx, currentTxDetails) => {
   } catch (err) {
     console.log('Error finding is payment method is pending', err);
     return false;
+  }
+};
+
+export const findTransactionTxFromTxHistory = async (
+  sparkTxId,
+  previousOffset = 0,
+  previousTxs = [],
+) => {
+  try {
+    // First check cached transactions
+    const cachedTx = previousTxs.find(tx => tx.id === sparkTxId);
+    if (cachedTx) {
+      console.log('Using cache tx history');
+      return {
+        didWork: true,
+        offset: previousOffset,
+        foundTransfers: previousTxs,
+        bitcoinTransfer: cachedTx,
+      };
+    }
+
+    let offset = previousOffset;
+    let foundTransfers = [];
+    let bitcoinTransfer = undefined;
+    const maxAttempts = 20;
+    while (offset < maxAttempts) {
+      const transfers = await getSparkTransactions(100, 100 * offset);
+      foundTransfers = transfers.transfers;
+
+      if (!foundTransfers.length) {
+        throw new Error('No more transactions found, ending lookup.');
+      }
+
+      const includesTx = foundTransfers.find(tx => tx.id === sparkTxId);
+      if (includesTx) {
+        bitcoinTransfer = includesTx;
+        break;
+      }
+
+      // Stop if no more transactions returned
+      if (!foundTransfers.length) {
+        break;
+      }
+
+      offset += 1;
+    }
+
+    return {didWork: true, offset, foundTransfers, bitcoinTransfer};
+  } catch (err) {
+    console.log('Error finding bitcoin tx from history', err);
+    return {didWork: false, error: err.message};
   }
 };
