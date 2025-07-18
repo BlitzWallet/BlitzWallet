@@ -146,13 +146,13 @@ export default function NotificationPreferances() {
               }
               containerStyles={styles.toggleContainers}
             />
-            <SettingsItemWithSlider
+            {/* <SettingsItemWithSlider
               settingsTitle={`Nostr Connect`}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('NWC')}
               toggleSwitchStateValue={notificationData.enabledServices.NWC}
               containerStyles={styles.toggleContainers}
-            />
+            /> */}
             <SettingsItemWithSlider
               settingsTitle={`Point-of-sale`}
               showDescription={false}
