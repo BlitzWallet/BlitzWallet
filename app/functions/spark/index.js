@@ -425,20 +425,6 @@ export const useIsSparkPaymentFailed = (tx, transactionPaymentType) => {
   }
 };
 
-export const isSparkDonationPayment = (currentTx, currentTxDetails) => {
-  try {
-    return (
-      currentTxDetails.direction === 'OUTGOING' &&
-      currentTx === 'spark' &&
-      currentTxDetails.address === process.env.BLITZ_SPARK_SUPPORT_ADDRESSS &&
-      currentTxDetails.receiverPubKey === process.env.BLITZ_SPARK_PUBLICKEY
-    );
-  } catch (err) {
-    console.log('Error finding is payment method is pending', err);
-    return false;
-  }
-};
-
 export const findTransactionTxFromTxHistory = async (
   sparkTxId,
   previousOffset = 0,
@@ -466,7 +452,7 @@ export const findTransactionTxFromTxHistory = async (
       foundTransfers = transfers.transfers;
 
       if (!foundTransfers.length) {
-        throw new Error('No more transactions found, ending lookup.');
+        break;
       }
 
       const includesTx = foundTransfers.find(tx => tx.id === sparkTxId);
@@ -475,8 +461,8 @@ export const findTransactionTxFromTxHistory = async (
         break;
       }
 
-      // Stop if no more transactions returned
-      if (!foundTransfers.length) {
+      if (transfers.offset === -1) {
+        console.log('Reached end of transactions (offset: -1)');
         break;
       }
 

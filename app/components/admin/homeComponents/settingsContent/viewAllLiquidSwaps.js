@@ -22,11 +22,14 @@ import {useNodeContext} from '../../../../../context-store/nodeContext';
 
 export default function ViewAllLiquidSwaps(props) {
   const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const [liquidBalance, setLiquidBalance] = useState(null);
+  // const [liquidBalance, setLiquidBalance] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const {globalContactsInformation} = useGlobalContacts();
   const {masterInfoObject} = useGlobalContextProvider();
   const {fiatStats} = useNodeContext();
+  const [liquidInfoResponse, setLiquidInfoResponse] = useState({});
+
+  const liquidBalance = liquidInfoResponse?.walletInfo?.balanceSat || 0;
   // const [liquidSwaps, setLiquidSwaps] = useState(null);
   // [
   //   {
@@ -36,6 +39,7 @@ export default function ViewAllLiquidSwaps(props) {
   //     timestamp: 1714764847,
   //   },
   // ]
+  console.log(liquidInfoResponse);
   const navigate = useNavigation();
 
   const retriveLiquidBalance = async () => {
@@ -43,7 +47,8 @@ export default function ViewAllLiquidSwaps(props) {
       setIsLoading(true);
       const infoResponse = await getInfo();
       console.log(infoResponse);
-      setLiquidBalance(infoResponse.walletInfo.balanceSat || 0);
+      // setLiquidBalance(infoResponse.walletInfo.balanceSat || 0);
+      setLiquidInfoResponse(infoResponse);
     } catch (err) {
       console.log(err);
       navigate.navigate('ErrorScreen', {errorMessage: err.message});
@@ -147,7 +152,15 @@ export default function ViewAllLiquidSwaps(props) {
         <>
           <ThemeText
             styles={styles.noTxText}
-            content={'You have no confirmed liquid balance'}
+            content={`You have ${displayCorrectDenomination({
+              amount: liquidInfoResponse?.walletInfo.balanceSat,
+              masterInfoObject,
+              fiatStats,
+            })} confirmed and ${displayCorrectDenomination({
+              amount: liquidInfoResponse?.walletInfo.pendingReceiveSat,
+              masterInfoObject,
+              fiatStats,
+            })} pending.`}
           />
           <CustomButton
             actionFunction={retriveLiquidBalance}
@@ -202,7 +215,7 @@ const styles = StyleSheet.create({
     width: '95%',
     maxWidth: 250,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 30,
   },
 
   swapContainer: {

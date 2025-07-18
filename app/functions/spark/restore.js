@@ -4,8 +4,14 @@ import {
   getSparkLightningPaymentStatus,
   getSparkLightningSendRequest,
   getSparkTransactions,
+  sparkPaymentType,
 } from '.';
-import {IS_BITCOIN_REQUEST_ID, IS_SPARK_REQUEST_ID} from '../../constants';
+import {
+  IS_BITCOIN_REQUEST_ID,
+  IS_SPARK_ID,
+  IS_SPARK_REQUEST_ID,
+} from '../../constants';
+import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 import {
   bulkUpdateSparkTransactions,
   deleteUnpaidSparkLightningTransaction,
@@ -19,6 +25,11 @@ export const restoreSparkTxState = async (BATCH_SIZE, savedTxs) => {
 
   try {
     const savedIds = new Set(savedTxs?.map(tx => tx.sparkID) || []);
+    const pendingTxs = await getAllPendingSparkPayments();
+
+    const txsByType = {
+      bitcoin: pendingTxs.filter(tx => tx.paymentType === 'bitcoin'),
+    };
 
     let offset = 0;
     let localBatchSize = !savedIds.size ? 100 : BATCH_SIZE;
@@ -36,7 +47,6 @@ export const restoreSparkTxState = async (BATCH_SIZE, savedTxs) => {
       // Process batch and check for overlap simultaneously
       let foundOverlap = false;
       const newBatchTxs = [];
-
       for (const tx of batchTxs) {
         // Check for overlap first (most likely to break early)
         if (savedIds.has(tx.id)) {
@@ -53,6 +63,21 @@ export const restoreSparkTxState = async (BATCH_SIZE, savedTxs) => {
           tx.receiverIdentityPublicKey === donationPubKey
         ) {
           continue;
+        }
+
+        const type = sparkPaymentType(tx);
+
+        if (type === 'bitcoin') {
+          const response = txsByType.bitcoin.find(item => {
+            const details = JSON.parse(item.details);
+            return (
+              tx.transferDirection === details.direction &&
+              tx.totalValue === details.amount &&
+              details.time - new Date(tx.createdTime) < 1000 * 60 * 10
+            );
+          });
+
+          if (response) continue;
         }
 
         newBatchTxs.push(tx);
@@ -376,8 +401,20 @@ async function getPaymentDetailsWithRetry(lightningInvoiceId, maxAttempts = 2) {
 }
 
 async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
+  const lastRun = await getLocalStorageItem('lastRunBitcoinTxUpdate');
+
+  const now = Date.now();
+  const cooldownPeriod = 1000 * 60; // 60 seconds
+
+  if (lastRun && now - JSON.parse(lastRun) < cooldownPeriod) {
+    console.log('Blocking bitcoin transaction processing');
+    return [];
+  } else {
+    console.log('Updating bitcoin transaction processing last run time');
+    await setLocalStorageItem('lastRunBitcoinTxUpdate', JSON.stringify(now));
+  }
   const updatedTxs = [];
-  let transfersOffset = 1;
+  let transfersOffset = 0;
   let cachedTransfers = Array.from(incomingTxsMap.values());
 
   for (const txStateUpdate of bitcoinTxs) {
@@ -387,11 +424,18 @@ async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
       details.direction === 'INCOMING' ||
       !IS_BITCOIN_REQUEST_ID.test(txStateUpdate.sparkID)
     ) {
+      if (!IS_SPARK_ID.test(txStateUpdate.sparkID)) continue;
+
       const findTxResponse = await findTransactionTxFromTxHistory(
         txStateUpdate.sparkID,
         transfersOffset,
         cachedTransfers,
       );
+
+      if (findTxResponse.offset && findTxResponse.foundTransfers) {
+        transfersOffset = findTxResponse.offset;
+        cachedTransfers = findTxResponse.foundTransfers;
+      }
 
       if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer) continue;
 
