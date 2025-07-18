@@ -27,6 +27,9 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const VALID_USERNAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
 
+const IS_SPARK_ID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const IS_SPARK_REQUEST_ID =
   /^SparkLightning(?:Receive|Send)Request:[0-9a-fA-F\-]+$/;
 const IS_BITCOIN_REQUEST_ID = /^SparkCoopExitRequest:[0-9a-fA-F\-]+$/;
@@ -131,4 +134,5 @@ export {
   NWC_SECURE_STORE_MNEMOINC,
   NWC_LOACAL_STORE_KEY,
   SPARK_CACHED_BALANCE_KEY,
+  IS_SPARK_ID,
 };

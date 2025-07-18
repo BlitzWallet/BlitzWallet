@@ -6,8 +6,7 @@ export default async function getDepositAddressTxIds(
   contactsPrivateKey,
   publicKey,
 ) {
-  const savedDepositTxids =
-    JSON.parse(await getLocalStorageItem('depositAddressTxIds')) || {};
+  const savedDepositTxids = {};
   let savedTxIds = savedDepositTxids[address];
   if (!savedTxIds) {
     savedTxIds = [];
@@ -15,17 +14,12 @@ export default async function getDepositAddressTxIds(
 
   const ids = await fetchTxidsFromBlockstream(
     address,
-    savedTxIds,
     contactsPrivateKey,
     publicKey,
   );
   if (ids.length > 0) {
     savedTxIds.push(...ids);
     savedDepositTxids[address] = savedTxIds;
-    await setLocalStorageItem(
-      'depositAddressTxIds',
-      JSON.stringify(savedDepositTxids),
-    );
   }
 
   return savedDepositTxids[address] || [];
@@ -33,7 +27,6 @@ export default async function getDepositAddressTxIds(
 
 async function fetchTxidsFromBlockstream(
   address,
-  savedTxIds,
   contactsPrivateKey,
   publicKey,
 ) {
@@ -86,8 +79,7 @@ async function fetchTxidsFromBlockstream(
           const isIncomingTx = tx.vout.some(
             vout => vout.scriptpubkey_address === address,
           );
-          const isAlreadySaved = savedTxIds.some(item => item.txid === tx.txid);
-          if (!isIncomingTx || isAlreadySaved) {
+          if (!isIncomingTx) {
             return null;
           }
           // Check if this transaction has any unspent outputs to our address
@@ -98,7 +90,13 @@ async function fetchTxidsFromBlockstream(
             }
             return false;
           });
-          return hasUnspentOutputs ? {txid: tx.txid, didClaim: false} : null;
+          if (!hasUnspentOutputs) return null;
+
+          const isConfirmed = tx.status?.confirmed || false;
+
+          return hasUnspentOutputs
+            ? {txid: tx.txid, didClaim: false, isConfirmed}
+            : null;
         })
         .filter(Boolean);
     } catch (err) {

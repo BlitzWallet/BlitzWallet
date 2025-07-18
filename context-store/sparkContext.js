@@ -341,7 +341,7 @@ const SparkWalletProvider = ({children}) => {
       SPARK_TX_UPDATE_ENVENT_NAME,
     );
     sparkWallet?.removeAllListeners('transfer:claimed');
-    // sparkWallet.off('deposit:confirmed', transferHandler);
+    // sparkWallet?.removeAllListeners('deposit:confirmed');
 
     // Clear debounce timeout when removing listeners
     if (debounceTimeoutRef.current) {
@@ -443,6 +443,8 @@ const SparkWalletProvider = ({children}) => {
               };
               await addSingleSparkTransaction(pendingTx);
             }
+
+            if (!txid.isConfirmed) return;
             // If the address has been paid, claim the transaction
             const claimTx = await claimnSparkStaticDepositAddress({
               ...quote,
