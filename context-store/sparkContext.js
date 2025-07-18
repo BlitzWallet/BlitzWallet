@@ -296,6 +296,7 @@ const SparkWalletProvider = ({children}) => {
 
   const addListeners = async () => {
     console.log('Adding Spark listeners...');
+    if (AppState.currentState !== 'active') return;
 
     sparkTransactionsEventEmitter.on(SPARK_TX_UPDATE_ENVENT_NAME, handleUpdate);
     sparkWallet.on('transfer:claimed', transferHandler);
@@ -305,11 +306,6 @@ const SparkWalletProvider = ({children}) => {
       isInitialRestore.current = false;
     }
 
-    if (updatePendingPaymentsIntervalRef.current) {
-      console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
-      return;
-    }
-
     await fullRestoreSparkState({
       sparkAddress: sparkInformation.sparkAddress,
       batchSize: isInitialRestore.current ? 15 : 5,
@@ -317,6 +313,11 @@ const SparkWalletProvider = ({children}) => {
     });
 
     await updateSparkTxStatus();
+
+    if (updatePendingPaymentsIntervalRef.current) {
+      console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
+      return;
+    }
     updatePendingPaymentsIntervalRef.current = setInterval(async () => {
       try {
         await updateSparkTxStatus();
@@ -328,6 +329,14 @@ const SparkWalletProvider = ({children}) => {
 
   const removeListeners = () => {
     console.log('Removing spark listeners');
+    console.log(
+      sparkTransactionsEventEmitter.listenerCount(SPARK_TX_UPDATE_ENVENT_NAME),
+      'Nymber of event emiitter litsenrs',
+    );
+    console.log(
+      sparkWallet.listenerCount('transfer:claimed'),
+      'number of spark wallet listenre',
+    );
     sparkTransactionsEventEmitter.removeAllListeners(
       SPARK_TX_UPDATE_ENVENT_NAME,
     );
