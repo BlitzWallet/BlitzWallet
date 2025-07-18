@@ -29,7 +29,10 @@ export default function ViewAllLiquidSwaps(props) {
   const {fiatStats} = useNodeContext();
   const [liquidInfoResponse, setLiquidInfoResponse] = useState({});
 
-  const liquidBalance = liquidInfoResponse?.walletInfo?.balanceSat || 0;
+  const liquidBalance =
+    liquidInfoResponse?.walletInfo?.balanceSat !== 'undefined'
+      ? liquidInfoResponse?.walletInfo?.balanceSat
+      : null;
   // const [liquidSwaps, setLiquidSwaps] = useState(null);
   // [
   //   {
@@ -153,11 +156,11 @@ export default function ViewAllLiquidSwaps(props) {
           <ThemeText
             styles={styles.noTxText}
             content={`You have ${displayCorrectDenomination({
-              amount: liquidInfoResponse?.walletInfo.balanceSat,
+              amount: liquidInfoResponse?.walletInfo?.balanceSat || 0,
               masterInfoObject,
               fiatStats,
             })} confirmed and ${displayCorrectDenomination({
-              amount: liquidInfoResponse?.walletInfo.pendingReceiveSat,
+              amount: liquidInfoResponse?.walletInfo?.pendingReceiveSat || 0,
               masterInfoObject,
               fiatStats,
             })} pending.`}
