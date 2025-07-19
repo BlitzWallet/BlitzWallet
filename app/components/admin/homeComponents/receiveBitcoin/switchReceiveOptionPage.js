@@ -28,7 +28,7 @@ const MAIN_PAYMENTS = [
   ['Bitcoin', '~ 10 minutes'],
   ['Spark', 'Instant'],
   ['Liquid', '~ 1 minute'],
-  ['Rootstock', '~ 1 minute'],
+  // ['Rootstock', '~ 1 minute'],
 ];
 
 export default function SwitchReceiveOptionPage({
