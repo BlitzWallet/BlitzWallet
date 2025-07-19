@@ -38,6 +38,9 @@ export async function transformTxToPaymentObject(
         description: '',
         preimage: '',
         isRestore,
+        isBlitzContactPayment: foundInvoice
+          ? JSON.parse(foundInvoice.details).isBlitzContactPayment
+          : undefined,
         shouldNavigate: foundInvoice ? foundInvoice.shouldNavigate : undefined,
         isLNULR: foundInvoice
           ? JSON.parse(foundInvoice.details).isLNURL

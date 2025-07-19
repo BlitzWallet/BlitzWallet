@@ -14,6 +14,7 @@ export async function publishMessage({
   isLNURLPayment,
   privateKey,
   retrivedContact,
+  currentTime,
 }) {
   try {
     crashlyticsLogReport('Begining to publish contact message');
@@ -25,6 +26,7 @@ export async function publishMessage({
       onlySaveToLocal: isLNURLPayment,
       retrivedContact,
       privateKey,
+      currentTime,
     });
 
     if (isLNURLPayment) return;

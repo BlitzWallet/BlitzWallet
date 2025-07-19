@@ -45,6 +45,7 @@ import {usePOSTransactions} from '../../../../../../context-store/pos';
 // import {useWebView} from '../../../../../../context-store/webViewContext';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {getSingleContact} from '../../../../../../db';
+import {useServerTimeOnly} from '../../../../../../context-store/serverTime';
 
 export default function TotalTipsScreen(props) {
   const {decodedAddedContacts, globalContactsInformation} = useGlobalContacts();
@@ -62,7 +63,7 @@ export default function TotalTipsScreen(props) {
       unpaidTxs,
     },
   ] = groupedTxs.find(item => item[0] === wantedName);
-
+  const getServerTime = useServerTimeOnly();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {contactsPrivateKey} = useKeysContext();
   const {fiatStats} = useNodeContext();
@@ -142,6 +143,7 @@ export default function TotalTipsScreen(props) {
           }));
           // First notify employee that tips have been paid and update contacts transactions
           const UUID = customUUID();
+          const currentTime = getServerTime();
           const sendObject = {
             amountMsat: totalTipAmount * 1000,
             description: POINT_OF_SALE_PAYOUT_DESCRIPTION,
@@ -162,6 +164,7 @@ export default function TotalTipsScreen(props) {
             isLNURLPayment: false,
             privateKey: contactsPrivateKey,
             retrivedContact: selectedContact,
+            currentTime,
           });
           // update internal db state of paid tips so you dont pay a tip twice
           await updateInteralDBState(unpaidTxs);
@@ -198,6 +201,7 @@ export default function TotalTipsScreen(props) {
     name,
     totalTipAmount,
     unpaidTxs,
+    getServerTime,
   ]);
 
   const updateInteralDBState = useCallback(async txList => {

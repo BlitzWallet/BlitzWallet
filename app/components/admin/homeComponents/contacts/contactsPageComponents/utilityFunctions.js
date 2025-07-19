@@ -1,7 +1,7 @@
 // Utility functions remain the same
-export function createFormattedDate(time) {
+export function createFormattedDate(time, currentTime) {
   const date = new Date(time);
-  const currentDate = new Date();
+  const currentDate = currentTime;
   const differenceMs = currentDate - date;
   const differenceDays = differenceMs / (1000 * 60 * 60 * 24);
 

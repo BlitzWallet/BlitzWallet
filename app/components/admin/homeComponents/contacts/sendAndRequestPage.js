@@ -1,31 +1,20 @@
-import {
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  ScrollView,
-} from 'react-native';
+import {StyleSheet, TouchableOpacity, View, ScrollView} from 'react-native';
 import {CENTER, ICONS, SATSPERBITCOIN} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useMemo, useRef, useState} from 'react';
 import {publishMessage} from '../../../../functions/messaging/publishMessage';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
-// import {
-//   DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS,
-//   LIGHTNINGAMOUNTBUFFER,
-// } from '../../../../constants/math';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {getFiatRates} from '../../../../functions/SDK';
-// import {useGlobaleCash} from '../../../../../context-store/eCash';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import customUUID from '../../../../functions/customUUID';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
@@ -33,18 +22,13 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
-// import {
-//   calculateEcashFees,
-//   getProofsToUse,
-// } from '../../../../functions/eCash/wallet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import formatBip21LiquidAddress from '../../../../functions/liquidWallet/formatBip21liquidAddress';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
-import {getDataFromCollection} from '../../../../../db';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
-import {formatBip21SparkAddress} from '../../../../functions/spark/handleBip21SparkAddress';
 import {useImageCache} from '../../../../../context-store/imageCache';
 import ContactProfileImage from './internalComponents/profileImage';
+import getReceiveAddressForContactPayment from './internalComponents/getReceiveAddressAndKindForPayment';
+import {useServerTimeOnly} from '../../../../../context-store/serverTime';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -55,8 +39,9 @@ export default function SendAndRequestPage(props) {
   const {fiatStats} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor, backgroundOffset} = GetThemeColors();
+  const {backgroundOffset} = GetThemeColors();
   const {globalContactsInformation} = useGlobalContacts();
+  const getServerTime = useServerTimeOnly();
   // const {ecashWalletInformation} = useGlobaleCash();
   // const eCashBalance = ecashWalletInformation.balance;
   const [amountValue, setAmountValue] = useState('');
@@ -110,6 +95,18 @@ export default function SendAndRequestPage(props) {
       const fiatCurrencies = await getFiatRates();
       const sendingAmountMsat = convertedSendAmount * 1000;
       const address = selectedContact.receiveAddress;
+
+      const contactMessage = descriptionValue;
+      const myProfileMessage = !!descriptionValue
+        ? descriptionValue
+        : `Paying ${selectedContact.name || selectedContact.uniqueName}`;
+      const payingContactMessage = !!descriptionValue
+        ? descriptionValue
+        : `${
+            globalContactsInformation.myProfile.name ||
+            globalContactsInformation.myProfile.uniqueName
+          } paid you`;
+
       let receiveAddress;
       let retrivedContact;
       if (selectedContact.isLNURL) {
@@ -117,40 +114,30 @@ export default function SendAndRequestPage(props) {
         retrivedContact = selectedContact;
         // note do not need to set an amount for lnurl taken care of down below with entered payment information object
       } else {
-        retrivedContact = await getDataFromCollection(
-          'blitzWalletUsers',
-          selectedContact.uuid,
+        const addressResposne = await getReceiveAddressForContactPayment(
+          convertedSendAmount,
+          selectedContact,
+          myProfileMessage,
+          payingContactMessage,
         );
-        console.log('Retrived selected contact', retrivedContact);
-        if (!retrivedContact) {
+
+        if (!addressResposne.didWork) {
           navigate.navigate('ErrorScreen', {
-            errorMessage: 'Error retrieving contact information',
+            errorMessage: addressResposne.error,
           });
           return;
         } else {
-          if (retrivedContact?.contacts?.myProfile?.sparkAddress) {
-            receiveAddress = formatBip21SparkAddress({
-              address: retrivedContact?.contacts?.myProfile?.sparkAddress,
-              amountSat: convertedSendAmount,
-              message: `Paying ${
-                selectedContact.name || selectedContact.uniqueName
-              }`,
-            });
-          } else {
-            navigate.navigate('ErrorScreen', {
-              errorMessage:
-                'Contact has not updated thier wallet yet. Please ask them to update their wallet to send this.',
-            });
-            return;
-          }
+          retrivedContact = addressResposne.retrivedContact;
+          receiveAddress = addressResposne.receiveAddress;
         }
       }
 
+      const currentTime = getServerTime();
       const UUID = customUUID();
       let sendObject = {};
       if (paymentType === 'send') {
         sendObject['amountMsat'] = sendingAmountMsat;
-        sendObject['description'] = descriptionValue;
+        sendObject['description'] = contactMessage;
         sendObject['uuid'] = UUID;
         sendObject['isRequest'] = false;
         sendObject['isRedeemed'] = null;
@@ -162,7 +149,7 @@ export default function SendAndRequestPage(props) {
           comingFromAccept: true,
           enteredPaymentInfo: {
             amount: sendingAmountMsat / 1000,
-            description: descriptionValue,
+            description: myProfileMessage,
           },
           fromPage: 'contacts',
           publishMessageFunc: () =>
@@ -176,6 +163,7 @@ export default function SendAndRequestPage(props) {
               isLNURLPayment: selectedContact?.isLNURL,
               privateKey: contactsPrivateKey,
               retrivedContact,
+              currentTime,
             }),
         });
       } else {
@@ -196,6 +184,7 @@ export default function SendAndRequestPage(props) {
           isLNURLPayment: selectedContact?.isLNURL,
           privateKey: contactsPrivateKey,
           retrivedContact,
+          currentTime,
         });
         navigate.goBack();
       }
@@ -219,6 +208,7 @@ export default function SendAndRequestPage(props) {
     descriptionValue,
     paymentType,
     globalContactsInformation,
+    getServerTime,
   ]);
 
   return (
@@ -300,7 +290,7 @@ export default function SendAndRequestPage(props) {
           inputText={descriptionValue}
           textInputMultiline={true}
           textAlignVertical={'center'}
-          maxLength={150}
+          maxLength={149}
           containerStyles={{
             width: '90%',
           }}

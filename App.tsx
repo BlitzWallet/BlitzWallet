@@ -107,6 +107,7 @@ import {ToastContainer, ToastProvider} from './context-store/toastManager';
 import {RootstockSwapProvider} from './context-store/rootstockSwapContext';
 import {SparkConnectionManager} from './context-store/sparkConnection';
 import {GlobalNostrWalletConnectProvider} from './context-store/NWC';
+import {GlobalServerTimeProvider} from './context-store/serverTime';
 
 const Stack = createNativeStackNavigator();
 
@@ -135,10 +136,12 @@ function App(): JSX.Element {
                                         <GlobalNostrWalletConnectProvider>
                                           {/* <LightningEventProvider> */}
                                           <ImageCacheProvider>
-                                            {/* <Suspense
+                                            <GlobalServerTimeProvider>
+                                              {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                            <ResetStack />
-                                            {/* </Suspense> */}
+                                              <ResetStack />
+                                              {/* </Suspense> */}
+                                            </GlobalServerTimeProvider>
                                           </ImageCacheProvider>
                                           {/* </LightningEventProvider> */}
                                         </GlobalNostrWalletConnectProvider>

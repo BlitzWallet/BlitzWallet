@@ -29,6 +29,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import ContactProfileImage from './internalComponents/profileImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
 import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
+import {useServerTimeOnly} from '../../../../../context-store/serverTime';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
@@ -49,7 +50,8 @@ export default function ExpandedContactsPage(props) {
   } = useGlobalContacts();
   const {bottomPadding} = useGlobalInsets();
   const {cache} = useImageCache();
-  const currentTime = new Date();
+  const getServerTime = useServerTimeOnly();
+  const currentTime = getServerTime();
   const selectedUUID = props?.route?.params?.uuid || props?.uuid;
   const myProfile = globalContactsInformation?.myProfile;
 

@@ -36,6 +36,10 @@ import {
   useFilteredContacts,
   useProcessedContacts,
 } from './contactsPageComponents/hooks';
+import {
+  useServerTime,
+  useServerTimeOnly,
+} from '../../../../../context-store/serverTime';
 
 export default function ContactsPage({navigation}) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -49,6 +53,10 @@ export default function ContactsPage({navigation}) {
     contactsMessags,
     toggleGlobalContactsInformation,
   } = useGlobalContacts();
+  const {serverTimeOffset} = useServerTime();
+  const getServerTime = useServerTimeOnly();
+
+  const currentTime = getServerTime();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const dimensions = useWindowDimensions();
   const [inputText, setInputText] = useState('');
@@ -174,6 +182,8 @@ export default function ContactsPage({navigation}) {
         navigateToExpandedContact={navigateToExpandedContact}
         isConnectedToTheInternet={isConnectedToTheInternet}
         navigate={navigate}
+        currentTime={currentTime}
+        serverTimeOffset={serverTimeOffset}
       />
     ));
   }, [
@@ -185,6 +195,8 @@ export default function ContactsPage({navigation}) {
     navigateToExpandedContact,
     isConnectedToTheInternet,
     navigate,
+    currentTime,
+    serverTimeOffset,
   ]);
 
   const goToAddContact = useCallback(() => {
@@ -452,6 +464,8 @@ const ContactElement = memo(
     navigateToExpandedContact,
     isConnectedToTheInternet,
     navigate,
+    currentTime,
+    serverTimeOffset,
   }) => {
     const imageContainerStyle = useMemo(
       () => ({
@@ -520,7 +534,14 @@ const ContactElement = memo(
                     fontSize: SIZES.small,
                     marginRight: 5,
                   }}
-                  content={lastUpdated ? createFormattedDate(lastUpdated) : ''}
+                  content={
+                    lastUpdated
+                      ? createFormattedDate(
+                          lastUpdated - serverTimeOffset,
+                          currentTime - serverTimeOffset,
+                        )
+                      : ''
+                  }
                 />
                 <ThemeImage
                   styles={{

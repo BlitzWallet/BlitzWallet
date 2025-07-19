@@ -272,6 +272,7 @@ export async function updateMessage({
   onlySaveToLocal,
   retrivedContact,
   privateKey,
+  currentTime,
 }) {
   try {
     crashlyticsLogReport('Starting updating contact message');
@@ -284,6 +285,7 @@ export async function updateMessage({
       toPubKey,
       message: newMessage,
       timestamp,
+      serverTimestamp: currentTime,
     };
 
     if (onlySaveToLocal) {

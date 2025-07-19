@@ -67,7 +67,7 @@ export default function SendPaymentScreen(props) {
     fromPage,
     publishMessageFunc,
     comingFromAccept,
-    enteredPaymentInfo,
+    enteredPaymentInfo = {},
     errorMessage,
   } = props.route.params;
 
@@ -167,6 +167,7 @@ export default function SendPaymentScreen(props) {
     paymentFee,
     sendingAmount,
     paymentInfo,
+    enteredPaymentInfo,
   );
 
   useHandleBackPressNew(goBackFunction);
@@ -439,6 +440,14 @@ export default function SendPaymentScreen(props) {
     }
     console.log(formmateedSparkPaymentInfo, 'manual spark information');
 
+    const memo =
+      paymentInfo.type === 'bolt11'
+        ? enteredPaymentInfo.description ||
+          paymentDescription ||
+          paymentInfo?.data.message ||
+          ''
+        : paymentDescription || paymentInfo?.data.message || '';
+
     const paymentObject = {
       getFee: false,
       ...formmateedSparkPaymentInfo,
@@ -448,7 +457,7 @@ export default function SendPaymentScreen(props) {
           : convertedSendAmount,
       masterInfoObject,
       fee: paymentFee,
-      memo: paymentDescription || paymentInfo?.data.message || '',
+      memo,
       userBalance: sparkInformation.balance,
       sparkInformation,
       feeQuote: paymentInfo.feeQuote,

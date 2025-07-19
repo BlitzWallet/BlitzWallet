@@ -151,7 +151,7 @@ const setCashedMessages = async ({newMessagesList, myPubKey}) => {
             contactsPubKey,
             JSON.stringify(insertedMessage),
             newMessage.message.uuid,
-            newMessage.timestamp,
+            newMessage.serverTimestamp || newMessage.timestamp,
           ],
         );
         console.log('Message created:', insertedMessage);
@@ -162,7 +162,7 @@ const setCashedMessages = async ({newMessagesList, myPubKey}) => {
             ...parsedMessage.message,
             ...newMessage.message,
           },
-          timestamp: newMessage.timestamp,
+          timestamp: newMessage.serverTimestamp || newMessage.timestamp,
         };
 
         await sqlLiteDB.runAsync(
@@ -171,7 +171,7 @@ const setCashedMessages = async ({newMessagesList, myPubKey}) => {
            WHERE messageUUID = ?;`,
           [
             JSON.stringify(updatedMessage),
-            newMessage.timestamp,
+            newMessage.serverTimestamp || newMessage.timestamp,
             parsedMessage.message.uuid,
           ],
         );
