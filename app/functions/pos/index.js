@@ -3,6 +3,7 @@ import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 import {getTwoWeeksAgoDate} from '../rotateAddressDateChecker';
 import {decryptMessage} from '../messaging/encodingAndDecodingMessages';
 import EventEmitter from 'events';
+import {handleEventEmitterPost} from '../handleEventEmitters';
 export const POS_TRANSACTION_TABLE_NAME = 'POS_TRANSACTIONS';
 
 export const POS_LAST_RECEIVED_TIME = 'LAST_RECEIVED_POS_EVENT';
@@ -54,11 +55,21 @@ export const initializePOSTransactionsDatabase = async () => {
     }
 
     console.log('POS TRANSACTIONS TABLE READY');
-    pointOfSaleEventEmitter.emit(DID_OPEN_TABLES_EVENT_NAME, 'opened');
+
+    handleEventEmitterPost(
+      pointOfSaleEventEmitter,
+      DID_OPEN_TABLES_EVENT_NAME,
+      'opened',
+    );
     return true;
   } catch (err) {
     console.log(err);
-    pointOfSaleEventEmitter.emit(DID_OPEN_TABLES_EVENT_NAME, 'not opened');
+    handleEventEmitterPost(
+      pointOfSaleEventEmitter,
+      DID_OPEN_TABLES_EVENT_NAME,
+      'not opened',
+    );
+
     return false;
   }
 };
@@ -167,7 +178,11 @@ const setPOSTransactions = async ({transactionsList, privateKey}) => {
       POS_LAST_RECEIVED_TIME,
       JSON.stringify(newTimesatmp),
     );
-    pointOfSaleEventEmitter.emit(POS_EVENT_UPDATE, 'set pos transaction');
+    handleEventEmitterPost(
+      pointOfSaleEventEmitter,
+      POS_EVENT_UPDATE,
+      'set pos transaction',
+    );
   }
 };
 export const bulkUpdateDidPay = async dbDateAddedArray => {
@@ -190,7 +205,11 @@ export const bulkUpdateDidPay = async dbDateAddedArray => {
     console.log(
       `Updated ${dbDateAddedArray.length} transactions to didPay = 1`,
     );
-    pointOfSaleEventEmitter.emit(POS_EVENT_UPDATE, 'bulk updated did pay');
+    handleEventEmitterPost(
+      pointOfSaleEventEmitter,
+      POS_EVENT_UPDATE,
+      'bulk updated did pay',
+    );
   } catch (err) {
     console.error('Error updating transactions:', err);
   }
@@ -212,7 +231,8 @@ export const updateDidPayForSingleTx = async (didPaySetting, dbDateAdded) => {
     console.log(
       `Updated ${dbDateAdded} transactions to didPay = ${didPaySetting}`,
     );
-    pointOfSaleEventEmitter.emit(
+    handleEventEmitterPost(
+      pointOfSaleEventEmitter,
       POS_EVENT_UPDATE,
       'updated did pay for sinlge tx',
     );
@@ -229,7 +249,12 @@ export const deleteEmployee = async employeeName => {
     );
 
     console.log(`Deleted all messages for employee: ${employeeName}`);
-    pointOfSaleEventEmitter.emit(POS_EVENT_UPDATE, 'delted employee');
+    handleEventEmitterPost(
+      pointOfSaleEventEmitter,
+      POS_EVENT_UPDATE,
+      'delted employee',
+    );
+
     return true;
   } catch (error) {
     console.error('Error deleting messages:', error);

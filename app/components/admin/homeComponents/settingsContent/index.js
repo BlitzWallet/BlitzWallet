@@ -14,7 +14,7 @@ import LoginSecurity from './loginSecurity';
 import SendOnChainBitcoin from './sendOnChain';
 import BlitzSocialOptions from './socialOptions';
 
-import LiquidWallet from './bank';
+// import LiquidWallet from './bank';
 import ViewAllLiquidSwaps from './viewAllLiquidSwaps';
 import WalletInformation from './walletInformation';
 import ExperimentalItemsPage from './ExperimentalItems';
@@ -25,6 +25,10 @@ import FastPay from './fastPay';
 import ViewPOSTransactions from './posPath/transactions';
 import TotalTipsScreen from './posPath/totalTipsScreen';
 import CrashReportingSettingsPage from './crashReporting';
+import SparkInfo from './sparkInfo';
+import SupportWorkPage from './supportWorkPage';
+import NotificationPreferances from './notifications';
+import BlitzFeeInformation from './feeInformation';
 
 export {
   AboutPage,
@@ -42,7 +46,7 @@ export {
   SendOnChainBitcoin,
   BlitzSocialOptions,
   ViewAllLiquidSwaps,
-  LiquidWallet,
+  // LiquidWallet,
   ExperimentalItemsPage,
   PosSettingsPage,
   HistoricalOnChainPayments,
@@ -51,4 +55,8 @@ export {
   ViewPOSTransactions,
   TotalTipsScreen,
   CrashReportingSettingsPage,
+  SparkInfo,
+  SupportWorkPage,
+  NotificationPreferances,
+  BlitzFeeInformation,
 };

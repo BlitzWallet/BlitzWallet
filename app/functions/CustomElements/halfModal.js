@@ -1,18 +1,20 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {PanResponder} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Animated,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   StyleSheet,
-  TouchableWithoutFeedback,
   View,
   useWindowDimensions,
+  PanResponder,
+  TouchableOpacity,
 } from 'react-native';
+import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {useNavigation} from '@react-navigation/native';
 import {COLORS, CONTENT_KEYBOARD_OFFSET} from '../../constants';
-import {HalfModalSendOptions} from '../../components/admin';
+import {
+  HalfModalSendOptions,
+  SwitchReceiveOptionPage,
+} from '../../components/admin';
 import {
   ConfirmSMSPayment,
   ConfirmVPNPage,
@@ -25,14 +27,18 @@ import AddContactsHalfModal from '../../components/admin/homeComponents/contacts
 import GetThemeColors from '../../hooks/themeColors';
 import MyProfileQRCode from '../../components/admin/homeComponents/contacts/internalComponents/profilePageQrPopup';
 import ExpandedMessageHalfModal from '../../components/admin/homeComponents/contacts/expandedMessageHalfModal';
-import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
+// import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 import ManualEnterSendAddress from '../../components/admin/homeComponents/homeLightning/manualEnterSendAddress';
 import ConfirmInternalTransferHalfModal from '../../components/admin/homeComponents/settingsContent/walletInfoComponents/confirmTransferHalfModal';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {KEYBOARDTIMEOUT} from '../../constants/styles';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+
 import AddPOSItemHalfModal from '../../components/admin/homeComponents/settingsContent/posPath/items/addItemHalfModal';
-import useAppInsets from '../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../context-store/insetsProvider';
+import EditLNURLContactOnReceivePage from '../../components/admin/homeComponents/receiveBitcoin/editLNURLContact';
+import CustomInputHalfModal from './CustomInputHalfModal';
+import CustomQrCode from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -43,7 +49,7 @@ export default function CustomHalfModal(props) {
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding, topPadding} = useGlobalInsets();
 
   const translateY = useRef(
     new Animated.Value(windowDimensions.height),
@@ -58,16 +64,14 @@ export default function CustomHalfModal(props) {
       () => {
         navigation.goBack();
       },
-      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 100,
+      Keyboard.isVisible() ? KEYBOARDTIMEOUT : 200,
     );
   }, [navigation]);
 
   useHandleBackPressNew(handleBackPressFunction);
 
   useEffect(() => {
-    setTimeout(() => {
-      slideIn();
-    }, 100);
+    slideIn();
   }, []);
 
   const slideIn = () => {
@@ -102,6 +106,7 @@ export default function CustomHalfModal(props) {
             theme={theme}
             darkModeType={darkModeType}
             prices={props.route.params?.prices}
+            message={props.route.params?.message}
             phoneNumber={props.route.params?.phoneNumber}
             areaCodeNum={props.route.params?.areaCodeNum}
             sendTextMessage={props.route.params?.sendTextMessage}
@@ -170,8 +175,8 @@ export default function CustomHalfModal(props) {
             slideHeight={slideHeight}
           />
         );
-      case 'liquidAddressModal':
-        return <LiquidAddressModal />;
+      case 'customQrCode':
+        return <CustomQrCode data={props.route.params?.data} />;
       case 'manualEnterSendAddress':
         return (
           <ManualEnterSendAddress
@@ -199,6 +204,41 @@ export default function CustomHalfModal(props) {
             setIsKeyboardActive={setIsKeyboardActive}
             initialSettings={props.route.params?.initialSettings}
             handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'editLNULROnReceive':
+        return (
+          <EditLNURLContactOnReceivePage
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+            isKeyboardActive={isKeyboardActive}
+            setIsKeyboardActive={setIsKeyboardActive}
+            setContentHeight={setContentHeight}
+            handleBackPressFunction={handleBackPressFunction}
+          />
+        );
+      case 'switchReceiveOption':
+        return (
+          <SwitchReceiveOptionPage
+            slideOut={slideOut}
+            theme={theme}
+            darkModeType={darkModeType}
+            didWarnSpark={props?.route?.params?.didWarnSpark}
+            didWarnLiquid={props?.route?.params?.didWarnLiquid}
+            didWarnRootstock={props?.route?.params?.didWarnRootstock}
+          />
+        );
+      case 'customInputText':
+        return (
+          <CustomInputHalfModal
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+            setContentHeight={setContentHeight}
+            message={props?.route?.params?.message}
+            type={props?.route?.params?.type}
+            returnLocation={props?.route?.params?.returnLocation}
           />
         );
       default:
@@ -233,42 +273,53 @@ export default function CustomHalfModal(props) {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : null}
+      behavior={'padding'}
       style={styles.keyboardAvoidingView}>
-      <TouchableWithoutFeedback onPress={handleBackPressFunction}>
-        <View style={styles.container} />
-      </TouchableWithoutFeedback>
+      <TouchableOpacity
+        style={styles.backdrop}
+        activeOpacity={1}
+        onPress={handleBackPressFunction}
+      />
       <Animated.View
         style={[
           styles.contentContainer,
           {
             height: contentHeight ? contentHeight : deviceHeight * slideHeight,
+            backgroundColor: 'black', //removes opacity background
+            transform: [{translateY: Animated.add(translateY, panY)}],
+            marginTop: topPadding,
+          },
+        ]}>
+        <View
+          style={{
+            flex: 1,
             backgroundColor:
               theme && darkModeType ? backgroundOffset : backgroundColor,
             paddingBottom:
               contentType === 'manualEnterSendAddress' ||
-              contentType === 'addPOSItemsHalfModal'
+              contentType === 'addPOSItemsHalfModal' ||
+              'editLNULROnReceive'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : bottomPadding
                 : contentType === 'addContacts'
                 ? 0
                 : bottomPadding,
-            transform: [{translateY: Animated.add(translateY, panY)}],
-          },
-        ]}>
-        <View {...panResponder.panHandlers} style={styles.topBarContainer}>
-          <View
-            style={[
-              styles.topBar,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-          />
+          }}>
+          <View {...panResponder.panHandlers} style={styles.topBarContainer}>
+            <View
+              style={[
+                styles.topBar,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            />
+          </View>
+
+          {renderContent()}
         </View>
-        {renderContent()}
       </Animated.View>
     </KeyboardAvoidingView>
   );
@@ -280,8 +331,11 @@ const styles = StyleSheet.create({
   },
   keyboardAvoidingView: {
     flex: 1,
-    backgroundColor: COLORS.halfModalBackgroundColor,
     justifyContent: 'flex-end',
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: COLORS.halfModalBackgroundColor,
   },
   topBarContainer: {
     borderTopLeftRadius: 20,
@@ -300,5 +354,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    flexShrink: 1,
+    overflow: 'hidden',
   },
 });

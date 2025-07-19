@@ -2,6 +2,7 @@ import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 import * as SQLite from 'expo-sqlite';
 import {getTwoWeeksAgoDate} from '../rotateAddressDateChecker';
 import EventEmitter from 'events';
+import {handleEventEmitterPost} from '../handleEventEmitters';
 export const CACHED_MESSAGES_KEY = 'CASHED_CONTACTS_MESSAGES';
 export const SQL_TABLE_NAME = 'messagesTable';
 export const LOCALSTORAGE_LAST_RECEIVED_TIME_KEY =
@@ -113,90 +114,106 @@ export const queueSetCashedMessages = ({newMessagesList, myPubKey}) => {
 };
 
 const setCashedMessages = async ({newMessagesList, myPubKey}) => {
+  const BATCH_SIZE = 25;
   try {
-    // Start a database transaction for better performance
-    await sqlLiteDB.execAsync('BEGIN TRANSACTION;');
+    for (let i = 0; i < newMessagesList.length; i += BATCH_SIZE) {
+      const batch = newMessagesList.slice(i, i + BATCH_SIZE);
 
-    for (const newMessage of newMessagesList) {
-      const hasSavedMessage = await sqlLiteDB.getFirstAsync(
-        `SELECT * FROM ${SQL_TABLE_NAME} WHERE messageUUID = $newMessageUUID;`,
-        {$newMessageUUID: newMessage.message.uuid},
-      );
+      await sqlLiteDB.execAsync('BEGIN TRANSACTION;');
 
-      const parsedMessage = !!hasSavedMessage
-        ? JSON.parse(hasSavedMessage.message)
-        : null;
+      for (const newMessage of batch) {
+        try {
+          const hasSavedMessage = await sqlLiteDB.getFirstAsync(
+            `SELECT * FROM ${SQL_TABLE_NAME} WHERE messageUUID = $newMessageUUID;`,
+            {$newMessageUUID: newMessage.message.uuid},
+          );
 
-      const addedProperties =
-        newMessage.toPubKey === myPubKey
-          ? {wasSeen: false, didSend: false}
-          : {wasSeen: true, didSend: true};
+          const parsedMessage = !!hasSavedMessage
+            ? JSON.parse(hasSavedMessage.message)
+            : null;
 
-      const contactsPubKey =
-        newMessage.toPubKey === myPubKey
-          ? newMessage.fromPubKey
-          : newMessage.toPubKey;
+          const addedProperties =
+            newMessage.toPubKey === myPubKey
+              ? {wasSeen: false, didSend: false}
+              : {wasSeen: true, didSend: true};
 
-      if (!parsedMessage) {
-        // Insert new message if it doesn't exist
-        const insertedMessage = {
-          ...newMessage,
-          message: {...newMessage.message, ...addedProperties},
-        };
-        await sqlLiteDB.runAsync(
-          `INSERT INTO ${SQL_TABLE_NAME} (contactPubKey, message, messageUUID, timestamp)
-          VALUES (?, ?, ?, ?);`,
-          [
-            contactsPubKey,
-            JSON.stringify(insertedMessage),
-            newMessage.message.uuid,
+          const contactsPubKey =
+            newMessage.toPubKey === myPubKey
+              ? newMessage.fromPubKey
+              : newMessage.toPubKey;
+
+          const timestamp =
+            typeof newMessage.serverTimestamp === 'object' ||
+            !newMessage.serverTimestamp
+              ? newMessage.timestamp
+              : newMessage.serverTimestamp;
+
+          if (!parsedMessage) {
+            const insertedMessage = {
+              ...newMessage,
+              message: {...newMessage.message, ...addedProperties},
+            };
+            await sqlLiteDB.runAsync(
+              `INSERT INTO ${SQL_TABLE_NAME} (contactPubKey, message, messageUUID, timestamp)
+              VALUES (?, ?, ?, ?);`,
+              [
+                contactsPubKey,
+                JSON.stringify(insertedMessage),
+                newMessage.message.uuid,
+                timestamp,
+              ],
+            );
+          } else {
+            const updatedMessage = {
+              ...parsedMessage,
+              message: {
+                ...parsedMessage.message,
+                ...newMessage.message,
+              },
+              timestamp: timestamp,
+            };
+
+            await sqlLiteDB.runAsync(
+              `UPDATE ${SQL_TABLE_NAME} 
+               SET message = ?, timestamp = ? 
+               WHERE messageUUID = ?;`,
+              [
+                JSON.stringify(updatedMessage),
+                timestamp,
+                parsedMessage.message.uuid,
+              ],
+            );
+          }
+        } catch (innerErr) {
+          console.error(
+            'Error inserting/updating message:',
             newMessage.timestamp,
-          ],
-        );
-        console.log('Message created:', insertedMessage);
-      } else {
-        const updatedMessage = {
-          ...parsedMessage,
-          message: {
-            ...parsedMessage.message,
-            ...newMessage.message,
-          },
-          timestamp: newMessage.timestamp,
-        };
-
-        await sqlLiteDB.runAsync(
-          `UPDATE ${SQL_TABLE_NAME} 
-           SET message = ?, timestamp = ? 
-           WHERE messageUUID = ?;`,
-          [
-            JSON.stringify(updatedMessage),
-            newMessage.timestamp,
-            parsedMessage.message.uuid,
-          ],
-        );
-        console.log('Message updated:', updatedMessage);
+            innerErr,
+          );
+        }
       }
+
+      await sqlLiteDB.execAsync('COMMIT;');
     }
 
-    // Commit the transaction after all operations
-    await sqlLiteDB.execAsync('COMMIT;');
-    console.log('Bulk messages processed successfully');
+    console.log('All message batches processed successfully');
     return true;
   } catch (err) {
-    // Rollback the transaction in case of an error
     await sqlLiteDB.execAsync('ROLLBACK;');
-    console.error(err, 'set cached messages SQL error');
+    console.error('Fatal error in setCashedMessages:', err);
     return false;
   } finally {
-    const newTimesatmp = newMessagesList.sort((a, b) => {
-      return b.timestamp - a.timestamp;
-    })[0].timestamp;
-    console.log(newTimesatmp, 'TIME BEING SET IN SET FUNCTION ');
-    await setLocalStorageItem(
-      LOCALSTORAGE_LAST_RECEIVED_TIME_KEY,
-      JSON.stringify(newTimesatmp),
-    );
-    contactsSQLEventEmitter.emit(
+    if (newMessagesList?.length) {
+      const newTimestamp = newMessagesList.sort(
+        (a, b) => b.timestamp - a.timestamp,
+      )[0].timestamp;
+      await setLocalStorageItem(
+        LOCALSTORAGE_LAST_RECEIVED_TIME_KEY,
+        JSON.stringify(newTimestamp),
+      );
+    }
+    handleEventEmitterPost(
+      contactsSQLEventEmitter,
       CONTACTS_TRANSACTION_UPDATE_NAME,
       'addedMessage',
     );
@@ -211,10 +228,12 @@ export const deleteCachedMessages = async contactPubKey => {
     );
 
     console.log(`Deleted all messages for contactPubKey: ${contactPubKey}`);
-    contactsSQLEventEmitter.emit(
+    handleEventEmitterPost(
+      contactsSQLEventEmitter,
       CONTACTS_TRANSACTION_UPDATE_NAME,
       'deleatedMessage',
     );
+
     return true;
   } catch (error) {
     console.error('Error deleting messages:', error);

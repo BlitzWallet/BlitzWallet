@@ -9,12 +9,12 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 import Icon from '../../../../functions/CustomElements/Icon';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import useAppInsets from '../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 export default function HalfModalSendOptions(props) {
   const navigate = useNavigation();
   const {theme} = useGlobalThemeContext();
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
   const {decodedAddedContacts} = useGlobalContacts();
   const {t} = useTranslation();
 
@@ -100,8 +100,7 @@ export default function HalfModalSendOptions(props) {
     <View style={styles.containerStyles}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: bottomPadding}}>
+        showsHorizontalScrollIndicator={false}>
         {sendOptionElements}
         {decodedAddedContacts.length != 0 && (
           <TouchableOpacity
@@ -122,6 +121,11 @@ export default function HalfModalSendOptions(props) {
             </View>
           </TouchableOpacity>
         )}
+        <View
+          style={{
+            height: bottomPadding,
+          }}
+        />
       </ScrollView>
     </View>
   );

@@ -11,6 +11,7 @@ export function SendRecieveBTNs({
   theme,
   darkModeType,
   isConnectedToTheInternet,
+  isNWCWallet = false,
 }) {
   console.log('Loading send and receive btns componeent');
   const navigate = useNavigation();
@@ -26,6 +27,7 @@ export function SendRecieveBTNs({
   }, [isConnectedToTheInternet]);
 
   const buttonElements = ['send', 'camera', 'receive'].map(btnType => {
+    if (isNWCWallet && btnType === 'camera') return;
     const isArrow = btnType === 'send' || btnType === 'receive';
     if (isArrow) {
       return CustomSendAndRequsetBTN({
@@ -41,13 +43,28 @@ export function SendRecieveBTNs({
             });
             return;
           }
+
+          if (isNWCWallet) {
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'customInputText',
+              message: `Transfer funds ${
+                btnType === 'send'
+                  ? 'from nostr connect to main wallet'
+                  : 'from main to nostr connect wallet'
+              }`,
+              type: btnType,
+              returnLocation: 'NWCWallet',
+              sliderHight: 0.5,
+            });
+            return;
+          }
           if (btnType === 'send') {
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'sendOptions',
               sliderHight: 0.5,
             });
           } else {
-            navigate.navigate('EditReceivePaymentInformation', {
+            navigate.navigate('ReceiveBTC', {
               from: 'homepage',
             });
           }
@@ -96,7 +113,16 @@ export function SendRecieveBTNs({
     );
   });
 
-  return <View style={styles.container}>{buttonElements}</View>;
+  return (
+    <View
+      style={{
+        ...styles.container,
+        marginBottom: isNWCWallet ? 0 : 70,
+        width: isNWCWallet ? 160 : 220,
+      }}>
+      {buttonElements}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

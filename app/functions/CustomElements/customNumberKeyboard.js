@@ -1,7 +1,7 @@
 import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {SATSPERBITCOIN, SIZES} from '../../constants';
 import KeyForKeyboard from './key';
-import {useCallback} from 'react';
+import {useCallback, useMemo} from 'react';
 import numberConverter from '../numberConverter';
 
 export default function CustomNumberKeyboard({
@@ -9,7 +9,7 @@ export default function CustomNumberKeyboard({
   frompage,
   showDot,
   usingForBalance,
-  nodeInformation,
+  fiatStats,
 }) {
   const addPin = useCallback(
     id => {
@@ -42,17 +42,16 @@ export default function CustomNumberKeyboard({
           if (usingForBalance) {
             const convertedValue =
               showDot || showDot === undefined
-                ? (SATSPERBITCOIN /
-                    (nodeInformation?.fiatStats?.value || 65000)) *
-                  newNumber
+                ? (SATSPERBITCOIN / (fiatStats?.value || 65000)) * newNumber
                 : newNumber;
 
             numberConverter(
               newNumber,
               showDot || showDot === undefined ? 'fiat' : 'sats',
-              nodeInformation,
+              undefined,
+              fiatStats,
             );
-            console.log(nodeInformation?.fiatStats?.value);
+            console.log(fiatStats?.value);
             console.log(convertedValue, 'CONVERTED VAL');
             const numberLength = integerPartLength(convertedValue);
             console.log(numberLength, 'NUMBER LENGTH');
@@ -63,21 +62,24 @@ export default function CustomNumberKeyboard({
         });
       }
     },
-    [frompage, setInputValue, showDot, usingForBalance, nodeInformation],
+    [frompage, setInputValue, showDot, usingForBalance, fiatStats],
   );
+
+  const keyboardContainerStyles = useMemo(() => {
+    return [
+      styles.keyboardContainer,
+      {
+        marginTop:
+          frompage === 'sendContactsPage' ||
+          frompage === 'contactsAutomatedPayments' ||
+          frompage === 'sendSMSPage'
+            ? 0
+            : 'auto',
+      },
+    ];
+  }, [frompage]);
   return (
-    <View
-      style={[
-        styles.keyboardContainer,
-        {
-          marginTop:
-            frompage === 'sendContactsPage' ||
-            frompage === 'contactsAutomatedPayments' ||
-            frompage === 'sendSMSPage'
-              ? 0
-              : 'auto',
-        },
-      ]}>
+    <View style={keyboardContainerStyles}>
       <View style={styles.keyboard_row}>
         <KeyForKeyboard num={1} addPin={addPin} />
         <KeyForKeyboard num={2} addPin={addPin} />

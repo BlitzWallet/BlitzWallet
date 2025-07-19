@@ -1,14 +1,14 @@
-// Must be the first import
 import 'react-native-get-random-values';
 
 import 'react-native-gesture-handler';
 
-// Buffer polyfill
+import '@azure/core-asynciterator-polyfill';
+
 import {Buffer} from '@craftzdog/react-native-buffer';
 global.Buffer = Buffer;
 
-// Text encoder/decoder polyfill (if needed)
-import 'text-encoding-polyfill';
+// import 'text-encoding-polyfill';
+import 'text-encoding'; // needed for spark
 
 // Process polyfill
 global.process = global.process || {};

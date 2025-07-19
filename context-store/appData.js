@@ -1,4 +1,10 @@
-import React, {createContext, useCallback, useMemo, useState} from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {addDataToCollection} from '../db';
 import {decryptMessage} from '../app/functions/messaging/encodingAndDecodingMessages';
 import {useKeysContext} from './keys';
@@ -11,6 +17,10 @@ export const GlobalAppDataProvider = ({children}) => {
 
   const [globalAppDataInformation, setGlobalAppDatasInformation] = useState({});
   const [giftCardsList, setGiftCardsList] = useState([]);
+  const [decodedChatGPT, setDecodedChatGPT] = useState(null);
+  const [decodedMessages, setDecodedMessages] = useState(null);
+  const [decodedVPNS, setDecodedVPNS] = useState(null);
+  const [decodedGiftCards, setDecodedGiftCards] = useState(null);
 
   const toggleGlobalAppDataInformation = (newData, writeToDB) => {
     setGlobalAppDatasInformation(prev => {
@@ -26,9 +36,11 @@ export const GlobalAppDataProvider = ({children}) => {
       return newAppData;
     });
   };
+
   const toggleGiftCardsList = useCallback(giftCards => {
     setGiftCardsList(giftCards);
   }, []);
+
   const decryptData = (key, defaultValue) => {
     let data;
     if (key === 'chatGPT') {
@@ -39,38 +51,54 @@ export const GlobalAppDataProvider = ({children}) => {
     if (!publicKey || typeof data !== 'string') return defaultValue;
     return JSON.parse(decryptMessage(contactsPrivateKey, publicKey, data));
   };
-  const decodedChatGPT = useMemo(() => {
-    const decryptedConversations = decryptData('chatGPT', []);
-    return {
-      conversation: decryptedConversations,
+
+  useEffect(() => {
+    if (!publicKey || !contactsPrivateKey) return;
+    const data = decryptData('chatGPT', []);
+    setDecodedChatGPT({
+      conversation: data,
       credits: globalAppDataInformation?.chatGPT?.credits || 0,
-    };
+    });
   }, [globalAppDataInformation.chatGPT, publicKey, contactsPrivateKey]);
-  const decodedVPNS = useMemo(
-    () => decryptData('VPNplans', []),
-    [globalAppDataInformation.VPNplans, publicKey, contactsPrivateKey],
-  );
-  const decodedGiftCards = useMemo(
-    () => decryptData('giftCards', {}),
-    [globalAppDataInformation.giftCards, publicKey, contactsPrivateKey],
-  );
-  const decodedMessages = useMemo(
-    () => decryptData('messagesApp', {received: [], sent: []}),
-    [globalAppDataInformation.messagesApp, publicKey, contactsPrivateKey],
+
+  useEffect(() => {
+    if (!publicKey || !contactsPrivateKey) return;
+    setDecodedMessages(decryptData('messagesApp', {received: [], sent: []}));
+  }, [globalAppDataInformation.messagesApp, publicKey, contactsPrivateKey]);
+
+  useEffect(() => {
+    if (!publicKey || !contactsPrivateKey) return;
+    setDecodedVPNS(decryptData('VPNplans', []));
+  }, [globalAppDataInformation.VPNplans, publicKey, contactsPrivateKey]);
+
+  useEffect(() => {
+    if (!publicKey || !contactsPrivateKey) return;
+    setDecodedGiftCards(decryptData('giftCards', {}));
+  }, [globalAppDataInformation.giftCards, publicKey, contactsPrivateKey]);
+
+  const contextValue = useMemo(
+    () => ({
+      decodedChatGPT,
+      decodedMessages,
+      decodedVPNS,
+      decodedGiftCards,
+      globalAppDataInformation,
+      toggleGlobalAppDataInformation,
+      giftCardsList,
+      toggleGiftCardsList,
+    }),
+    [
+      decodedChatGPT,
+      decodedMessages,
+      decodedVPNS,
+      decodedGiftCards,
+      globalAppDataInformation,
+      giftCardsList,
+    ],
   );
 
   return (
-    <GlobalAppData.Provider
-      value={{
-        decodedChatGPT,
-        decodedMessages,
-        decodedVPNS,
-        globalAppDataInformation,
-        decodedGiftCards,
-        toggleGlobalAppDataInformation,
-        giftCardsList,
-        toggleGiftCardsList,
-      }}>
+    <GlobalAppData.Provider value={contextValue}>
       {children}
     </GlobalAppData.Provider>
   );

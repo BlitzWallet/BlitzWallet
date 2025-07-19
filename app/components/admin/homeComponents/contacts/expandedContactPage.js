@@ -28,7 +28,8 @@ import {useKeysContext} from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import ContactProfileImage from './internalComponents/profileImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
-import useAppInsets from '../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
+import {useServerTimeOnly} from '../../../../../context-store/serverTime';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
@@ -47,11 +48,10 @@ export default function ExpandedContactsPage(props) {
     toggleGlobalContactsInformation,
     contactsMessags,
   } = useGlobalContacts();
-  const {bottomPadding} = useAppInsets();
-
+  const {bottomPadding} = useGlobalInsets();
   const {cache} = useImageCache();
-
-  const currentTime = new Date();
+  const getServerTime = useServerTimeOnly();
+  const currentTime = getServerTime();
   const selectedUUID = props?.route?.params?.uuid || props?.uuid;
   const myProfile = globalContactsInformation?.myProfile;
 
@@ -92,7 +92,7 @@ export default function ExpandedContactsPage(props) {
   }, [contactTransactions]);
 
   return (
-    <GlobalThemeView useStandardWidth={true} styles={{paddingBottom: 0}}>
+    <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={styles.topBar}>
         <TouchableOpacity
           style={{marginRight: 'auto'}}
@@ -332,6 +332,9 @@ export default function ExpandedContactsPage(props) {
                   paddingTop: selectedContact?.bio ? 10 : 20,
                   paddingBottom: bottomPadding,
                 }}
+                initialNumToRender={10}
+                windowSize={5}
+                maxToRenderPerBatch={10}
                 data={contactTransactions.slice(0, 50)}
                 renderItem={({item, index}) => {
                   return (
@@ -359,6 +362,7 @@ export default function ExpandedContactsPage(props) {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {paddingBottom: 0},
   topBar: {
     width: '100%',
     flexDirection: 'row',

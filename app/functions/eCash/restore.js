@@ -3,6 +3,7 @@ import {mnemonicToSeed} from '@scure/bip39';
 import EventEmitter from 'events';
 import {sumProofsValue} from './proofs';
 import {getStoredProofs, setMintCounter, storeProofs} from './db';
+import {handleEventEmitterPost} from '../handleEventEmitters';
 export const restoreProofsEventListener = new EventEmitter();
 export const RESTORE_PROOFS_EVENT_NAME = 'RESTORING_PROOF_EVENT';
 
@@ -13,7 +14,8 @@ export const restoreMintProofs = async (mintURL, accountMnemoinc) => {
     const seed = await mnemonicToSeed(accountMnemoinc);
     let progress = 0;
 
-    restoreProofsEventListener.emit(
+    handleEventEmitterPost(
+      restoreProofsEventListener,
       RESTORE_PROOFS_EVENT_NAME,
       'Loading mint keysets...',
     );
@@ -41,7 +43,11 @@ export const restoreMintProofs = async (mintURL, accountMnemoinc) => {
       }
 
       const statusMessage = `Keyset ${i + 1} of ${ksLen}`;
-      restoreProofsEventListener.emit(RESTORE_PROOFS_EVENT_NAME, statusMessage);
+      handleEventEmitterPost(
+        restoreProofsEventListener,
+        RESTORE_PROOFS_EVENT_NAME,
+        statusMessage,
+      );
 
       // Restore keyset proofs
       const {restoredProofs, count} = await restoreKeyset(mint, keyset, seed);
@@ -58,21 +64,28 @@ export const restoreMintProofs = async (mintURL, accountMnemoinc) => {
       if (restoredAmount > 0) {
         console.log(`Restored ${restoredAmount} for keyset ${keyset.id}`);
         restoredSomething = true;
-        restoreProofsEventListener.emit(
+        handleEventEmitterPost(
+          restoreProofsEventListener,
           RESTORE_PROOFS_EVENT_NAME,
           `Restored ${restoredAmount} for keyset ${keyset.id} (${progress}%)`,
         );
       }
     }
+    handleEventEmitterPost(
+      restoreProofsEventListener,
+      RESTORE_PROOFS_EVENT_NAME,
+      `end`,
+    );
 
-    restoreProofsEventListener.emit(RESTORE_PROOFS_EVENT_NAME, 'end');
     return true;
   } catch (error) {
     console.error('Error restoring proofs:', error);
-    restoreProofsEventListener.emit(
+    handleEventEmitterPost(
+      restoreProofsEventListener,
       RESTORE_PROOFS_EVENT_NAME,
       `Error: ${error.message}`,
     );
+
     return null;
   }
 };
@@ -87,7 +100,8 @@ const restoreKeyset = async (mint, keyset, seed) => {
       bip39seed: Uint8Array.from(seed),
     });
 
-    restoreProofsEventListener.emit(
+    handleEventEmitterPost(
+      restoreProofsEventListener,
       RESTORE_PROOFS_EVENT_NAME,
       `Loading keys for keyset ${keyset.id}`,
     );
@@ -95,7 +109,8 @@ const restoreKeyset = async (mint, keyset, seed) => {
     const {keysetProofs, count} = await restoreBatch(wallet, keyset.id);
 
     // Check proof states similar to the original
-    restoreProofsEventListener.emit(
+    handleEventEmitterPost(
+      restoreProofsEventListener,
       RESTORE_PROOFS_EVENT_NAME,
       `Checking proof states for keyset ${keyset.id}`,
     );

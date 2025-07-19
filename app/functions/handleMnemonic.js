@@ -1,7 +1,11 @@
 import {generateMnemonic} from '@scure/bip39';
 import {wordlist} from '@scure/bip39/wordlists/english';
 import * as CryptoES from 'crypto-es';
-import {BIOMETRIC_KEY, LOGIN_SECUITY_MODE_KEY} from '../constants';
+import {
+  BIOMETRIC_KEY,
+  LOGIN_SECUITY_MODE_KEY,
+  LOGIN_SECURITY_MODE_TYPE_KEY,
+} from '../constants';
 import {
   deleteItem,
   MIGRATION_FLAG,
@@ -15,19 +19,20 @@ import {removeLocalStorageItem, setLocalStorageItem} from './localStorage';
 
 export async function generateAndStoreEncryptionKeyForMnemoinc() {
   try {
-    const existingKey = await retrieveData(BIOMETRIC_KEY);
-    console.log(existingKey, 'existing key');
+    // const existingKey = await retrieveData(BIOMETRIC_KEY);
+    // console.log(existingKey, 'existing key');
 
-    if (!existingKey.didWork)
-      throw new Error('Unable to authenticate with biomentrics');
+    // if (!existingKey.didWork)
+    //   throw new Error('Unable to authenticate with biomentrics');
 
-    if (existingKey.value) return existingKey.value;
+    // if (existingKey.value) return existingKey.value;
 
     const key = generateMnemonic(wordlist).toString();
 
-    await storeData(BIOMETRIC_KEY, key, {
+    const response = await storeData(BIOMETRIC_KEY, key, {
       requireAuthentication: true,
     });
+    if (!response) throw new Error('Error saving with biometric');
 
     return key;
   } catch (err) {
@@ -144,7 +149,7 @@ export async function handleLoginSecuritySwitch(mnemoinc, pin, storageType) {
       if (!response)
         throw new Error('Unable to save mnemoinc with no biometrics');
     }
-
+    await storeData(LOGIN_SECURITY_MODE_TYPE_KEY, storageType);
     return true;
   } catch (error) {
     console.log('SecureStore Migration Error:', error);

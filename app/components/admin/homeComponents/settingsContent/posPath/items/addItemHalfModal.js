@@ -97,7 +97,10 @@ export default function AddPOSItemHalfModal({
 
   return (
     <View style={styles.halfModalContainer}>
-      <ScrollView keyboardDismissMode="none">
+      <ScrollView
+        contentContainerStyle={{paddingBottom: 10}}
+        showsVerticalScrollIndicator={false}
+        keyboardDismissMode="none">
         <ThemeText
           styles={{fontSize: SIZES.large}}
           content={initialSettings ? 'Edit item' : `Add New Item`}

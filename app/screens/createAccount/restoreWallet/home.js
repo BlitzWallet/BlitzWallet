@@ -24,8 +24,10 @@ import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import getClipboardText from '../../../functions/getClipboardText';
 import {useNavigation} from '@react-navigation/native';
 import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
-import useAppInsets from '../../../hooks/useAppInsets';
 import {useKeysContext} from '../../../../context-store/keys';
+import {wordlist} from '@scure/bip39/wordlists/english';
+import {handleRestoreFromText} from '../../../functions/seed';
+import {useGlobalInsets} from '../../../../context-store/insetsProvider';
 
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
@@ -39,7 +41,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
   const {t} = useTranslation();
   const {accountMnemoinc, setAccountMnemonic} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
   const [isValidating, setIsValidating] = useState(false);
   const [currentFocused, setCurrentFocused] = useState(null);
   const keyRefs = useRef({});
@@ -54,6 +56,24 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
   );
 
   const handleInputElement = useCallback((text, keyNumber) => {
+    const restoredSeed = handleRestoreFromText(text);
+    const QRSeedResponse = handleCameraScan(text, true);
+
+    if (
+      (restoredSeed.didWork && restoredSeed?.seed?.length === 12) ||
+      QRSeedResponse
+    ) {
+      const splitSeed = restoredSeed.didWork
+        ? restoredSeed.seed
+        : QRSeedResponse;
+      const newKeys = {};
+      NUMARRAY.forEach((num, index) => {
+        newKeys[`key${num}`] = splitSeed[index];
+      });
+      setInputedKey(newKeys);
+      return;
+    }
+
     setInputedKey(prev => ({...prev, [`key${keyNumber}`]: text}));
   }, []);
 
@@ -80,9 +100,21 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       if (!response.didWork) throw new Error(response.reason);
 
       const data = response.data;
-      const splitSeed = data.split(' ');
+
+      const restoredSeed = handleRestoreFromText(data);
+
+      if (!restoredSeed.didWork || !restoredSeed?.seed?.length) {
+        const QRSeedResponse = handleCameraScan(data);
+        if (QRSeedResponse) return;
+        throw new Error('Unable to find seed in string');
+      }
+
+      const splitSeed = restoredSeed.seed;
+      console.log(splitSeed);
+
       if (!splitSeed.every(word => word.trim().length > 0))
         throw new Error('Not every word is of valid length');
+
       if (splitSeed.length != 12)
         throw new Error('Unable to find 12 words from copied recovery phrase.');
       console.log(Object.entries(inputedKey));
@@ -152,6 +184,39 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       setIsValidating(false);
     }
   }, [inputedKey, reset, navigate, navigateToError, t]);
+
+  const handleCameraScan = (data, localTry = false) => {
+    try {
+      if (!data) return;
+      let indexMnemonic = [];
+
+      for (let index = 0; index < 12; index++) {
+        const start = index * 4;
+        const end = start + 4;
+        indexMnemonic.push(data.slice(start, end));
+      }
+      const seedMnemoinc = indexMnemonic
+        .map(item => {
+          if (isNaN(Number(item))) return false;
+          return wordlist.at(Number(item));
+        })
+        .filter(Boolean);
+      if (seedMnemoinc.length !== 12)
+        throw new Error('Unable to find seed in number array');
+      const newKeys = {};
+      NUMARRAY.forEach((num, index) => {
+        newKeys[`key${num}`] = seedMnemoinc[index];
+      });
+      setInputedKey(newKeys);
+      return true;
+    } catch (err) {
+      console.log('error getting seed from camera', err);
+      if (localTry) return false;
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'Unable to get seed from QR code',
+      });
+    }
+  };
 
   const seedItemBackgroundColor = useMemo(
     () => (theme ? COLORS.darkModeBackgroundOffset : COLORS.darkModeText),
@@ -270,11 +335,19 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
           }}>
           {inputKeys}
         </ScrollView>
-        {params && !currentFocused && (
+        {!currentFocused && (
           <CustomButton
             buttonStyles={styles.pasteButton}
-            textContent={t('constants.paste')}
-            actionFunction={handleSeedFromClipboard}
+            textContent={params ? t('constants.paste') : 'Scan QR'}
+            actionFunction={
+              params
+                ? handleSeedFromClipboard
+                : () =>
+                    navigate.navigate('CameraModal', {
+                      updateBitcoinAdressFunc: handleCameraScan,
+                      fromPage: 'addContact',
+                    })
+            }
           />
         )}
         {!currentFocused && (

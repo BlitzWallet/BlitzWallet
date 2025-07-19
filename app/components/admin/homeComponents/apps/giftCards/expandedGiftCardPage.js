@@ -29,32 +29,33 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {useNavigation} from '@react-navigation/native';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {parseInput} from '@breeztech/react-native-breez-sdk';
 import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {isMoreThanADayOld} from '../../../../../functions/rotateAddressDateChecker';
 import {getFiatRates} from '../../../../../functions/SDK';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {useAppStatus} from '../../../../../../context-store/appStatus';
+// import {useNodeContext} from '../../../../../../context-store/nodeContext';
+// import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../../functions/customNavigation';
 import sendStorePayment from '../../../../../functions/apps/payments';
-import useAppInsets from '../../../../../hooks/useAppInsets';
+import {parse} from '@breeztech/react-native-breez-sdk-liquid';
+import {useSparkWallet} from '../../../../../../context-store/sparkContext';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function ExpandedGiftCardPage(props) {
-  const {contactsPrivateKey, publicKey, accountMnemoinc} = useKeysContext();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
+  const {sparkInformation} = useSparkWallet();
+  const {contactsPrivateKey, publicKey} = useKeysContext();
+  // const {nodeInformation, liquidNodeInformation} = useNodeContext();
+  // const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {globalContactsInformation} = useGlobalContacts();
   const {masterInfoObject} = useGlobalContextProvider();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
-  const {bottomPadding} = useAppInsets();
   const [numberOfGiftCards, setNumberOfGiftCards] = useState('1');
   const selectedItem = props.route?.params?.selectedItem;
   const [selectedDenomination, setSelectedDenomination] = useState(
@@ -72,6 +73,7 @@ export default function ExpandedGiftCardPage(props) {
   });
   const [email, setEmail] = useState(decodedGiftCards?.profile?.email || '');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const {bottomPadding} = useGlobalInsets();
 
   const variableRange = [
     selectedItem.denominations[0],
@@ -438,15 +440,21 @@ export default function ExpandedGiftCardPage(props) {
         return {...prev, isPurasing: true};
       });
       const responseInvoice = responseObject.invoice;
+      const parsedInput = responseObject.parsedInput;
 
-      const [parsedInput, fiatRates, dailyPurchaseAmount] = await Promise.all([
-        parseInput(responseInvoice),
+      const [
+        // parsedInput,
+        fiatRates,
+        dailyPurchaseAmount,
+      ] = await Promise.all([
+        // parse(responseInvoice),
         getFiatRates(),
         getLocalStorageItem('dailyPurchaeAmount').then(JSON.parse),
       ]);
 
       const USDBTCValue = fiatRates.find(currency => currency.coin === 'USD');
       const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
+      const memo = parsedInput.invoice.description;
       const currentTime = new Date();
 
       if (dailyPurchaseAmount) {
@@ -493,13 +501,13 @@ export default function ExpandedGiftCardPage(props) {
       }
 
       const paymentResponse = await sendStorePayment({
-        liquidNodeInformation,
-        nodeInformation,
         invoice: responseInvoice,
-        minMaxLiquidSwapAmounts,
-        sendingAmountSats: sendingAmountSat,
         masterInfoObject: masterInfoObject,
-        accountMnemoinc,
+        sendingAmountSats: sendingAmountSat,
+        fee: responseObject?.supportFee + responseObject?.paymentFee,
+        userBalance: sparkInformation.balance,
+        sparkInformation: sparkInformation,
+        description: memo,
       });
 
       if (!paymentResponse.didWork) {
@@ -519,8 +527,10 @@ export default function ExpandedGiftCardPage(props) {
 
       saveClaimInformation({
         responseObject,
-        paymentObject: paymentResponse.response,
-        nodeType: paymentResponse.formattingType,
+        paymentObject: {
+          ...paymentResponse.response,
+          date: currentTime,
+        },
       });
       return;
     } catch (err) {
@@ -575,8 +585,7 @@ export default function ExpandedGiftCardPage(props) {
           name: 'ConfirmTxPage',
           params: {
             for: 'paymentSucceed',
-            information: paymentObject,
-            formattingType: nodeType,
+            transaction: paymentObject,
           },
         },
       ],

@@ -7,8 +7,8 @@ export default function ThemeText({
   content,
   styles,
   reversed,
-  CustomEllipsizeMode,
-  CustomNumberOfLines,
+  CustomEllipsizeMode = 'tail',
+  CustomNumberOfLines = null,
 }) {
   const {theme} = useGlobalThemeContext();
 
@@ -22,17 +22,16 @@ export default function ThemeText({
         : reversed
         ? COLORS.darkModeText
         : COLORS.lightModeText,
+      ...styles,
     }),
-    [theme],
+    [theme, styles],
   );
+
   return (
     <Text
-      ellipsizeMode={CustomEllipsizeMode || 'tail'}
-      numberOfLines={CustomNumberOfLines || null}
-      style={{
-        ...memorizedStyles,
-        ...styles,
-      }}>
+      ellipsizeMode={CustomEllipsizeMode}
+      numberOfLines={CustomNumberOfLines}
+      style={memorizedStyles}>
       {content}
     </Text>
   );

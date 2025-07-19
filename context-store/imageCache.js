@@ -4,16 +4,16 @@ import React, {
   useState,
   useEffect,
   useRef,
+  useMemo,
 } from 'react';
 import {getStorage} from '@react-native-firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 import {useGlobalContacts} from './globalContacts';
 import {useAppStatus} from './appStatus';
+import {BLITZ_PROFILE_IMG_STORAGE_REF} from '../app/constants';
 import {useGlobalContextProvider} from './context';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
-
-const BLITZ_PROFILE_IMG_STORAGE_REF = 'profile_pictures';
 const FILE_DIR = FileSystem.cacheDirectory + 'profile_images/';
 
 const ImageCacheContext = createContext();
@@ -25,48 +25,50 @@ export function ImageCacheProvider({children}) {
   const {masterInfoObject} = useGlobalContextProvider();
   const didRunContextCacheCheck = useRef(null);
 
-  console.log(cache, 'imgaes cache');
+  const refreshCacheObject = async () => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const imgKeys = keys.filter(k =>
+        k.startsWith(BLITZ_PROFILE_IMG_STORAGE_REF),
+      );
+      const stores = await AsyncStorage.multiGet(imgKeys);
+      const initialCache = {};
+      stores.forEach(([key, value]) => {
+        if (value) {
+          const uuid = key.replace(BLITZ_PROFILE_IMG_STORAGE_REF + '/', '');
+          const parsed = JSON.parse(value);
+          initialCache[uuid] = parsed;
+        }
+      });
+      setCache(initialCache);
+    } catch (e) {
+      console.error('Error loading image cache from storage', e);
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const keys = await AsyncStorage.getAllKeys();
-        const imgKeys = keys.filter(k =>
-          k.startsWith(BLITZ_PROFILE_IMG_STORAGE_REF),
-        );
-        const stores = await AsyncStorage.multiGet(imgKeys);
-        const initialCache = {};
-        stores.forEach(([key, value]) => {
-          if (value) {
-            const uuid = key.replace(BLITZ_PROFILE_IMG_STORAGE_REF + '/', '');
-            const parsed = JSON.parse(value);
-            initialCache[uuid] = parsed;
-          }
-        });
-        setCache(initialCache);
-      } catch (e) {
-        console.error('Error loading image cache from storage', e);
-      }
-    })();
-  }, []);
+    refreshCacheObject();
+  }, [decodedAddedContacts]); //rerun the cache when adding or removing contacts
 
   useEffect(() => {
     if (!didGetToHomepage) return;
     if (didRunContextCacheCheck.current) return;
     if (!masterInfoObject.uuid) return;
     didRunContextCacheCheck.current = true;
+
     async function refreshContactsImages() {
       const didCheckForProfileImage = await getLocalStorageItem(
         'didCheckForProfileImage',
       );
+
       let refreshArray = [...decodedAddedContacts];
       if (didCheckForProfileImage !== 'true') {
         refreshArray.push({uuid: masterInfoObject.uuid});
         setLocalStorageItem('didCheckForProfileImage', 'true');
       }
-      console.log(refreshArray, 'refresh array for images');
       for (let index = 0; index < refreshArray.length; index++) {
         const element = refreshArray[index];
+        if (element.isLNURL) continue;
         await refreshCache(element.uuid);
       }
     }
@@ -139,9 +141,18 @@ export function ImageCacheProvider({children}) {
     }
   }
 
+  const contextValue = useMemo(
+    () => ({
+      cache,
+      refreshCache,
+      removeProfileImageFromCache,
+      refreshCacheObject,
+    }),
+    [cache, refreshCache, removeProfileImageFromCache, refreshCacheObject],
+  );
+
   return (
-    <ImageCacheContext.Provider
-      value={{cache, refreshCache, removeProfileImageFromCache}}>
+    <ImageCacheContext.Provider value={contextValue}>
       {children}
     </ImageCacheContext.Provider>
   );

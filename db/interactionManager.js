@@ -29,6 +29,7 @@ const PRESET_LOCAL_DATA = {
     lastUpdated: new Date().getTime(),
     data: null,
   },
+  didViewNWCMessage: false,
 };
 
 async function sendDataToDB(newObject, uuid) {

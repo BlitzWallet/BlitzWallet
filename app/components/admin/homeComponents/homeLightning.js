@@ -1,11 +1,8 @@
 import {StyleSheet, View} from 'react-native';
 import {UserSatAmount} from './homeLightning/userSatAmount';
-// import {SendRecieveBTNs} from './homeLightning/sendReciveBTNs';
-
 import {useGlobalContextProvider} from '../../../../context-store/context';
 import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
 import CustomFlatList from './homeLightning/cusomFlatlist/CustomFlatList';
-import getFormattedHomepageTxs from '../../../functions/combinedTransactions';
 import {NavBar} from './navBar';
 
 import {useNavigation} from '@react-navigation/native';
@@ -14,33 +11,31 @@ import {useEffect, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useAppStatus} from '../../../../context-store/appStatus';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
-import {useGlobalTxContextProvider} from '../../../../context-store/combinedTransactionsContext';
 import {SendRecieveBTNs} from './homeLightning/sendReciveBTNs';
+import {useSparkWallet} from '../../../../context-store/sparkContext';
+import getFormattedHomepageTxsForSpark from '../../../functions/combinedTransactionsSpark';
 
 export default function HomeLightning() {
   console.log('HOME LIGHTNING PAGE');
+  const {sparkInformation, numberOfCachedTxs} = useSparkWallet();
   const {theme, darkModeType, toggleTheme} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
-  const {toggleDidGetToHomepage, isConnectedToTheInternet} = useAppStatus();
-  const {combinedTransactions} = useGlobalTxContextProvider();
+  const {toggleDidGetToHomepage, isConnectedToTheInternet, didGetToHomepage} =
+    useAppStatus();
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
   const {t} = useTranslation();
-  console.log(currentTime);
 
-  const masterFailedTransactions = masterInfoObject.failedTransactions;
-  const enabledEcash = masterInfoObject.enabledEcash;
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
 
   useEffect(() => {
     toggleDidGetToHomepage(true);
   }, []);
-
-  const flatListData = useMemo(() => {
-    return getFormattedHomepageTxs({
-      combinedTransactions,
+  const flatListDataForSpark = useMemo(() => {
+    return getFormattedHomepageTxsForSpark({
       currentTime,
+      sparkInformation,
       homepageTxPreferance,
       navigate,
       frompage: 'home',
@@ -55,24 +50,26 @@ export default function HomeLightning() {
       theme,
       darkModeType,
       userBalanceDenomination,
+      numberOfCachedTxs,
+      didGetToHomepage,
     });
   }, [
-    masterFailedTransactions,
-    enabledEcash,
+    sparkInformation.transactions,
     homepageTxPreferance,
     navigate,
-    combinedTransactions,
     currentTime,
     theme,
     darkModeType,
     userBalanceDenomination,
+    numberOfCachedTxs,
+    didGetToHomepage,
   ]);
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0, paddintTop: 0}}>
+    <GlobalThemeView styles={style.globalContainer}>
       <CustomFlatList
         style={{overflow: 'hidden', flex: 1}}
-        data={flatListData}
+        data={flatListDataForSpark}
         renderItem={({item}) => item}
         HeaderComponent={<NavBar theme={theme} toggleTheme={toggleTheme} />}
         StickyElementComponent={
@@ -87,6 +84,7 @@ export default function HomeLightning() {
               isConnectedToTheInternet={isConnectedToTheInternet}
               theme={theme}
               darkModeType={darkModeType}
+              sparkInformation={sparkInformation}
             />
           </GlobalThemeView>
         }
@@ -108,5 +106,6 @@ export default function HomeLightning() {
 }
 
 const style = StyleSheet.create({
+  globalContainer: {paddingBottom: 0, paddintTop: 0},
   balanceContainer: {paddingTop: 0, paddingBottom: 10, alignItems: 'center'},
 });
