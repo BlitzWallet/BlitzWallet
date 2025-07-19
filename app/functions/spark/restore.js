@@ -110,16 +110,18 @@ export async function fullRestoreSparkState({
 }) {
   try {
     const restored = await restoreSparkTxState(batchSize, savedTxs);
+    const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
 
     const newPaymentObjects = [];
 
     for (const tx of restored.txs) {
       try {
-        const paymentObject = transformTxToPaymentObject(
+        const paymentObject = await transformTxToPaymentObject(
           tx,
           sparkAddress,
           undefined,
           true,
+          unpaidInvoices,
         );
         if (paymentObject) {
           newPaymentObjects.push(paymentObject);
@@ -318,6 +320,7 @@ async function processLightningTransaction(
         accountId: txStateUpdate.accountId,
         details: {
           ...savedDetails,
+          description: matchResult.savedInvoice.description || '',
           address:
             matchResult.matchedUnpaidInvoice?.invoice?.encodedInvoice || '',
           preimage: matchResult.matchedUnpaidInvoice?.paymentPreimage || '',

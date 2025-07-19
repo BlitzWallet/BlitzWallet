@@ -1,10 +1,11 @@
 import {sparkPaymentType} from '.';
 
-export function transformTxToPaymentObject(
+export async function transformTxToPaymentObject(
   tx,
   sparkAddress,
   forcePaymentType,
   isRestore,
+  unpaidLNInvoices,
 ) {
   // Defer all payments to the 10 second interval to be updated
   const paymentType = forcePaymentType
@@ -12,6 +13,15 @@ export function transformTxToPaymentObject(
     : sparkPaymentType(tx);
 
   if (paymentType === 'lightning') {
+    const foundInvoice = unpaidLNInvoices.find(item => {
+      const details = JSON.parse(item.details);
+      return (
+        item.amount === tx.totalValue &&
+        Math.abs(details.createdTime - new Date(tx.createdTime).getTime()) <
+          1000 * 30
+      );
+    });
+
     return {
       id: tx.id,
       paymentStatus: 'pending',
@@ -28,6 +38,10 @@ export function transformTxToPaymentObject(
         description: '',
         preimage: '',
         isRestore,
+        shouldNavigate: foundInvoice ? foundInvoice.shouldNavigate : undefined,
+        isLNULR: foundInvoice
+          ? JSON.parse(foundInvoice.details).isLNURL
+          : undefined,
       },
     };
   } else if (paymentType === 'spark') {

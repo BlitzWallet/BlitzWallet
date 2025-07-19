@@ -124,6 +124,7 @@ export default function HandleLNURLPayments() {
             description: payment.description || '',
             shouldNavigate: payment.shouldNavigate,
             details: {
+              createdTime: payment.createdAt,
               sharedPublicKey: payment.sharedPublicKey || '',
               sparkPubKey: payment.sparkPubKey || '',
               isLNURL: true,

@@ -48,6 +48,7 @@ import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {navigationRef} from '../navigation/navigationService';
 import {transformTxToPaymentObject} from '../app/functions/spark/transformTxToPayment';
 import handleBalanceCache from '../app/functions/spark/handleBalanceCache';
+import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
 
 // Initiate context
 const SparkWalletManager = createContext(null);
@@ -108,11 +109,14 @@ const SparkWalletProvider = ({children}) => {
       );
       if (!selectedSparkTransaction)
         throw new Error('Not able to get recent transfer');
-      const paymentObject = transformTxToPaymentObject(
+
+      const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
+      const paymentObject = await transformTxToPaymentObject(
         selectedSparkTransaction,
         sparkInformation.sparkAddress,
         undefined,
         false,
+        unpaidInvoices,
       );
 
       await bulkUpdateSparkTransactions(
@@ -574,15 +578,9 @@ const SparkWalletProvider = ({children}) => {
     async function swapLiquidToSpark() {
       try {
         if (liquidNodeInformation.userBalance > minMaxLiquidSwapAmounts.min) {
-          const parsed = await parse(
-            `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`,
+          await liquidToSparkSwap(
+            globalContactsInformation.myProfile.uniqueName,
           );
-
-          await breezLiquidLNAddressPaymentWrapper({
-            description: 'Liquid to Spark Swap',
-            paymentInfo: parsed.data,
-            shouldDrain: true,
-          });
         }
       } catch (err) {
         console.log('transfering liquid to spark error', err);
@@ -596,6 +594,7 @@ const SparkWalletProvider = ({children}) => {
     liquidNodeInformation,
     minMaxLiquidSwapAmounts,
     sparkInformation.didConnect,
+    globalContactsInformation?.myProfile?.uniqueName,
   ]);
 
   // Cleanup on unmount
