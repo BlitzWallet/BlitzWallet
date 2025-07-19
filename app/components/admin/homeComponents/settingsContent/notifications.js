@@ -39,7 +39,7 @@ export default function NotificationPreferances() {
         setIsUpdating(true);
         let newObject = {...masterInfoObject.pushNotifications};
         if (toggleType === 'isEnabled') {
-          if (!newObject.isEnabled) {
+          if (!newObject.isEnabled || !currnetPushState) {
             const response = await registerForPushNotificationsAsync();
 
             console.log('push notifiations response', response);
