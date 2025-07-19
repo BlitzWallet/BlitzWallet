@@ -6,7 +6,7 @@ import {useNavigation} from '@react-navigation/native';
 import {
   getInfo,
   // listRefundables,
-  parse,
+  // parse,
   // rescanOnchainSwaps,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
@@ -15,10 +15,10 @@ import FormattedSatText from '../../../../functions/CustomElements/satTextDispla
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
-import {breezLiquidLNAddressPaymentWrapper} from '../../../../functions/breezLiquid';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
+import liquidToSparkSwap from '../../../../functions/spark/liquidToSparkSwap';
 
 export default function ViewAllLiquidSwaps(props) {
   const {minMaxLiquidSwapAmounts} = useAppStatus();
@@ -30,7 +30,7 @@ export default function ViewAllLiquidSwaps(props) {
   const [liquidInfoResponse, setLiquidInfoResponse] = useState({});
 
   const liquidBalance =
-    liquidInfoResponse?.walletInfo?.balanceSat !== 'undefined'
+    liquidInfoResponse?.walletInfo?.balanceSat !== undefined
       ? liquidInfoResponse?.walletInfo?.balanceSat
       : null;
   // const [liquidSwaps, setLiquidSwaps] = useState(null);
@@ -42,16 +42,19 @@ export default function ViewAllLiquidSwaps(props) {
   //     timestamp: 1714764847,
   //   },
   // ]
-  console.log(liquidInfoResponse);
+
   const navigate = useNavigation();
 
-  const retriveLiquidBalance = async () => {
+  const retriveLiquidBalance = async isRescan => {
     try {
       setIsLoading(true);
       const infoResponse = await getInfo();
       console.log(infoResponse);
-      // setLiquidBalance(infoResponse.walletInfo.balanceSat || 0);
+
       setLiquidInfoResponse(infoResponse);
+      if (isRescan) {
+        navigate.navigate('ErrorScreen', {errorMessage: 'Rescan complete'});
+      }
     } catch (err) {
       console.log(err);
       navigate.navigate('ErrorScreen', {errorMessage: err.message});
@@ -64,21 +67,18 @@ export default function ViewAllLiquidSwaps(props) {
     try {
       if (liquidBalance > minMaxLiquidSwapAmounts.min) {
         setIsLoading(true);
-        const parsed = await parse(
-          `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`,
+
+        const paymentResponse = await liquidToSparkSwap(
+          globalContactsInformation.myProfile.uniqueName,
         );
 
-        await breezLiquidLNAddressPaymentWrapper({
-          description: 'Liquid to Spark Swap',
-          paymentInfo: parsed.data,
-          shouldDrain: true,
-        });
+        if (!paymentResponse.didWork) throw new Error(paymentResponse.error);
 
         navigate.navigate('ErrorScreen', {
           errorMessage:
             'The swap has started. It may take 10–20 seconds for the payment to show up.',
         });
-        retriveLiquidBalance();
+        retriveLiquidBalance(false);
       } else
         throw new Error(
           `Current liquid balance is ${displayCorrectDenomination({
@@ -100,7 +100,7 @@ export default function ViewAllLiquidSwaps(props) {
   };
 
   useEffect(() => {
-    retriveLiquidBalance();
+    retriveLiquidBalance(false);
   }, []);
 
   // const transectionElements =
@@ -166,7 +166,7 @@ export default function ViewAllLiquidSwaps(props) {
             })} pending.`}
           />
           <CustomButton
-            actionFunction={retriveLiquidBalance}
+            actionFunction={() => retriveLiquidBalance(true)}
             textContent={'Rescan'}
             useLoading={isLoading}
           />
