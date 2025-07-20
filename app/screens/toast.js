@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useCallback} from 'react';
 import {View, StyleSheet, Animated, PanResponder} from 'react-native';
 import {ThemeText} from '../functions/CustomElements';
 import ThemeImage from '../functions/CustomElements/themeImage';
@@ -6,11 +6,36 @@ import {COLORS, ICONS} from '../constants';
 import {useGlobalInsets} from '../../context-store/insetsProvider';
 import {WINDOWWIDTH} from '../constants/theme';
 
-export function Toast({toast, onHide, expiredToasts}) {
+export function Toast({toast, onHide}) {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(0)).current;
   const {topPadding} = useGlobalInsets();
+  const isAnimatingOut = useRef(false);
+
+  // Memoize the hide animation to prevent recreating it
+  const animateOut = useCallback(
+    callback => {
+      if (isAnimatingOut.current) return; // Prevent multiple animations
+      isAnimatingOut.current = true;
+
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: -100,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        if (callback) callback();
+      });
+    },
+    [translateY, opacityAnim],
+  );
 
   useEffect(() => {
     // Slide in animation
@@ -26,54 +51,22 @@ export function Toast({toast, onHide, expiredToasts}) {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
-
-  useEffect(() => {
-    if (!expiredToasts) return;
-    if (expiredToasts !== toast.id) return;
-    Animated.parallel([
-      Animated.timing(translateY, {
-        toValue: -100, // Slide up off screen
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start(() => onHide());
-  }, [expiredToasts]);
+  }, [slideAnim, opacityAnim]);
 
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        return Math.abs(gestureState.dy) > 5; // Only start gesture if dragging vertically
+        return Math.abs(gestureState.dy) > 5;
       },
       onPanResponderMove: (_, gestureState) => {
-        // Only allow upward movement (negative dy) to dismiss
         if (gestureState.dy < 0) {
           translateY.setValue(gestureState.dy);
         }
       },
       onPanResponderRelease: (_, gestureState) => {
         if (gestureState.dy < -topPadding) {
-          // Swipe up threshold of 50px
-          // Swipe to dismiss - slide up and fade out
-          Animated.parallel([
-            Animated.timing(translateY, {
-              toValue: -100, // Slide up off screen
-              duration: 300,
-              useNativeDriver: true,
-            }),
-            Animated.timing(opacityAnim, {
-              toValue: 0,
-              duration: 200,
-              useNativeDriver: true,
-            }),
-          ]).start(() => onHide());
+          animateOut(() => onHide());
         } else {
-          // Bounce back to original position
           Animated.spring(translateY, {
             toValue: 0,
             useNativeDriver: true,
@@ -122,9 +115,7 @@ export function Toast({toast, onHide, expiredToasts}) {
         styles.toastContainer,
         {
           top: topPadding,
-          transform: [
-            {translateY: Animated.add(slideAnim, translateY)}, // Combine slide-in and pan animations
-          ],
+          transform: [{translateY: Animated.add(slideAnim, translateY)}],
           opacity: opacityAnim,
         },
       ]}

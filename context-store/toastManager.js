@@ -38,7 +38,6 @@ const toastReducer = (state, action) => {
 
 export const ToastProvider = ({children}) => {
   const [state, dispatch] = useReducer(toastReducer, initialState);
-  const [expiredToasts, setExpiredToasts] = useState('');
 
   const showToast = useCallback(toast => {
     const id = Date.now() + Math.random();
@@ -54,8 +53,7 @@ export const ToastProvider = ({children}) => {
 
     if (toastWithId.duration > 0) {
       setTimeout(() => {
-        setExpiredToasts(id);
-        // dispatch({type: 'REMOVE_TOAST', payload: id});
+        dispatch({type: 'REMOVE_TOAST', payload: id});
       }, toastWithId.duration);
     }
 
@@ -77,7 +75,6 @@ export const ToastProvider = ({children}) => {
         showToast,
         hideToast,
         clearToasts,
-        expiredToasts,
       }}>
       {children}
     </ToastContext.Provider>
@@ -93,7 +90,7 @@ export const useToast = () => {
 };
 
 export const ToastContainer = () => {
-  const {toasts, hideToast, expiredToasts} = useToast();
+  const {toasts, hideToast} = useToast();
 
   return (
     <View pointerEvents="box-none">
@@ -102,7 +99,6 @@ export const ToastContainer = () => {
           key={toast.id}
           toast={toast}
           onHide={() => hideToast(toast.id)}
-          expiredToasts={expiredToasts}
         />
       ))}
     </View>
