@@ -10,6 +10,8 @@ import {
 import {useAppStatus} from './appStatus';
 import fetchBackend from '../db/handleBackend';
 import {useKeysContext} from './keys';
+import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
+import {isMoreThanADayOld} from '../app/functions/rotateAddressDateChecker';
 
 // Initiate context
 const ServerTimeManager = createContext(null);
@@ -31,6 +33,23 @@ const GlobalServerTimeProvider = ({children}) => {
 
       try {
         const clientRequestTime = Date.now();
+        const savedServerTimeOffset = JSON.parse(
+          await getLocalStorageItem('savedServerTimeOffset'),
+        );
+
+        if (
+          savedServerTimeOffset &&
+          savedServerTimeOffset?.offset !== undefined &&
+          !isMoreThanADayOld(savedServerTimeOffset.lastRotated)
+        ) {
+          console.log(
+            'Using cached server time offset',
+            savedServerTimeOffset.offset,
+          );
+          setServerTimeOffset(savedServerTimeOffset.offset);
+          setIsInitialized(true);
+          return;
+        }
 
         const response = await fetchBackend(
           'serverTime',
@@ -60,14 +79,18 @@ const GlobalServerTimeProvider = ({children}) => {
         const offset = serverTimeMs - adjustedClientTime;
 
         setServerTimeOffset(offset);
+        await setLocalStorageItem(
+          'savedServerTimeOffset',
+          JSON.stringify({offset, lastRotated: new Date().getTime()}),
+        );
 
         setIsInitialized(true);
       } catch (error) {
-        console.error('❌ Failed to sync server time:', error);
+        console.error('Failed to sync server time:', error);
 
         if (!isRetry && !isInitialized) {
           // Only retry once for initial sync
-          console.log('🔄 Retrying server time sync in 20 seconds...');
+          console.log('Retrying server time sync in 20 seconds...');
           retryTimeoutRef.current = setTimeout(() => {
             syncServerTime(true);
           }, 30000);
@@ -85,7 +108,7 @@ const GlobalServerTimeProvider = ({children}) => {
 
   const getServerTime = useCallback(() => {
     if (!isInitialized) {
-      console.warn('⚠️  Server time not initialized, using device time');
+      console.warn('Server time not initialized, using device time');
       return Date.now();
     }
 
@@ -95,7 +118,7 @@ const GlobalServerTimeProvider = ({children}) => {
   useEffect(() => {
     if (!didGetToHomepage || isInitialized || isSyncing) return;
 
-    console.log('🚀 Initializing server time sync...');
+    console.log('Initializing server time sync...');
     syncServerTime();
 
     return () => {
