@@ -119,16 +119,19 @@ const SparkWalletProvider = ({children}) => {
         unpaidInvoices,
       );
 
-      await bulkUpdateSparkTransactions(
-        [paymentObject],
-        'incomingPayment',
-        0,
-        balance,
-      );
+      if (paymentObject) {
+        await bulkUpdateSparkTransactions(
+          [paymentObject],
+          'incomingPayment',
+          0,
+          balance,
+        );
+      }
+
       const savedTxs = await getAllSparkTransactions();
       return {
         txs: savedTxs,
-        paymentObject,
+        paymentObject: paymentObject || {},
         paymentCreatedTime: new Date(
           selectedSparkTransaction.createdTime,
         ).getTime(),
