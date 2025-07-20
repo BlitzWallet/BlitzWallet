@@ -81,6 +81,8 @@ export default function SwitchReceiveOptionPage({
           'ReceiveBTC',
           {
             selectedRecieveOption: selectedOption,
+            receiveAmount: 0,
+            description: '',
           },
           {
             merge: true,

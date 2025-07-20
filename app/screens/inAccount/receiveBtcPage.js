@@ -76,8 +76,13 @@ export default function ReceivePaymentHome(props) {
       if (
         !initialSendAmount &&
         selectedRecieveOption.toLowerCase() === 'lightning'
-      )
+      ) {
+        setAddressState(prev => ({
+          ...prev,
+          generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`,
+        }));
         return;
+      }
 
       await initializeAddressProcess({
         userBalanceDenomination: masterInfoObject.userBalanceDenomination,
