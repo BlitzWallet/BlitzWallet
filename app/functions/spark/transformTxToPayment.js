@@ -7,8 +7,6 @@ export async function transformTxToPaymentObject(
   isRestore,
   unpaidLNInvoices,
 ) {
-  // only applies to incoming txs
-  if (tx.transferDirection === 'OUTGOING') return null;
   // Defer all payments to the 10 second interval to be updated
   const paymentType = forcePaymentType
     ? forcePaymentType

@@ -28,6 +28,7 @@ export const restoreSparkTxState = async (BATCH_SIZE, savedTxs) => {
     const pendingTxs = await getAllPendingSparkPayments();
 
     const txsByType = {
+      lightning: pendingTxs.filter(tx => tx.paymentType === 'lightning'),
       bitcoin: pendingTxs.filter(tx => tx.paymentType === 'bitcoin'),
     };
 
@@ -74,6 +75,16 @@ export const restoreSparkTxState = async (BATCH_SIZE, savedTxs) => {
               tx.transferDirection === details.direction &&
               tx.totalValue === details.amount &&
               details.time - new Date(tx.createdTime) < 1000 * 60 * 10
+            );
+          });
+
+          if (response) continue;
+        } else if (type === 'lightning') {
+          const response = txsByType.lightning.find(item => {
+            const details = JSON.parse(item.details);
+            return (
+              tx.transferDirection === details.direction &&
+              details?.createdAt - new Date(tx.createdTime) < 1000 * 30
             );
           });
 

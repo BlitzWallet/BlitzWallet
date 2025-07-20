@@ -113,6 +113,7 @@ export const sparkPaymenWrapper = async ({
           description: memo || '',
           address: address,
           time: new Date(data.updatedAt).getTime(),
+          createdAt: new Date(data.createdAt).getTime(),
           direction: 'OUTGOING',
           preimage: '',
         },
