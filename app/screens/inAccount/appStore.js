@@ -38,8 +38,8 @@ export default function AppStore({navigation}) {
   useHandleBackPressNew(handleBackPressFunction);
 
   const gridGap = Platform.select({
-    ios: windowWidth.width * 0.95 * 0.05,
-    android: windowWidth.width * 0.95 * 0.05,
+    ios: Math.round(windowWidth.width * 0.95 * 0.05),
+    android: Math.round(windowWidth.width * 0.95 * 0.05),
   });
 
   const appElements = APPLIST.map((app, id) => {
@@ -75,10 +75,12 @@ export default function AppStore({navigation}) {
           ...styles.appRowContainer,
           width:
             (windowWidth.width * 0.95 * (Platform.OS === 'ios' ? 0.95 : 0.95)) /
-            2,
+              2 -
+            gridGap,
           height:
             (windowWidth.width * 0.95 * (Platform.OS === 'ios' ? 0.95 : 0.95)) /
-            2,
+              2 -
+            gridGap,
           flexGrow: 1,
           overflow: 'scroll',
           backgroundColor: backgroundOffset,
@@ -339,7 +341,7 @@ const styles = StyleSheet.create({
   },
 
   appRowContainer: {
-    minWidth: 150,
+    minWidth: 100,
     minHeight: 150,
 
     paddingBottom: 30,
