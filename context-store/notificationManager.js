@@ -62,9 +62,9 @@ export const PushNotificationProvider = ({children}) => {
   // }, [didGetToHomepage]);
 
   useEffect(() => {
+    if (Platform.OS === 'ios') Notifications.setBadgeCountAsync(0);
     if (!pushNotificationData?.isEnabled) return;
     registerNotificationHandlers();
-    if (Platform.OS === 'ios') Notifications.setBadgeCountAsync(0);
   }, [pushNotificationData]);
 
   const getCurrentPushNotifiicationPermissions = async () => {
