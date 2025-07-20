@@ -219,6 +219,12 @@ export const sparkReceivePaymentWrapper = async ({
         expiration: invoice.invoice.expiresAt,
         description: memo || '',
         shouldNavigate,
+        details: {
+          createdTime: new Date(invoice.createdAt).getTime(),
+          isLNURL: false,
+          shouldNavigate: true,
+          isBlitzContactPayment: false,
+        },
       };
       await addSingleUnpaidSparkLightningTransaction(tempTransaction);
       return {

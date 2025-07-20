@@ -320,7 +320,7 @@ async function processLightningTransaction(
         accountId: txStateUpdate.accountId,
         details: {
           ...savedDetails,
-          description: matchResult.savedInvoice.description || '',
+          description: matchResult.savedInvoice?.description || '',
           address:
             matchResult.matchedUnpaidInvoice?.invoice?.encodedInvoice || '',
           preimage: matchResult.matchedUnpaidInvoice?.paymentPreimage || '',

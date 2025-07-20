@@ -17,7 +17,7 @@ export async function transformTxToPaymentObject(
       const details = JSON.parse(item.details);
       return (
         item.amount === tx.totalValue &&
-        Math.abs(details.createdTime - new Date(tx.createdTime).getTime()) <
+        Math.abs(details?.createdTime - new Date(tx.createdTime).getTime()) <
           1000 * 30
       );
     });
@@ -35,15 +35,15 @@ export async function transformTxToPaymentObject(
           ? new Date(tx.updatedTime).getTime()
           : new Date().getTime(),
         direction: tx.transferDirection,
-        description: '',
+        description: foundInvoice?.description || '',
         preimage: '',
         isRestore,
         isBlitzContactPayment: foundInvoice
-          ? JSON.parse(foundInvoice.details).isBlitzContactPayment
+          ? JSON.parse(foundInvoice.details)?.isBlitzContactPayment
           : undefined,
-        shouldNavigate: foundInvoice ? foundInvoice.shouldNavigate : undefined,
+        shouldNavigate: foundInvoice ? foundInvoice?.shouldNavigate : undefined,
         isLNULR: foundInvoice
-          ? JSON.parse(foundInvoice.details).isLNURL
+          ? JSON.parse(foundInvoice.details)?.isLNURL
           : undefined,
       },
     };
