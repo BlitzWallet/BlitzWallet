@@ -3,6 +3,14 @@ import {
   ReactNativeSparkSigner,
   getLatestDepositTxId,
 } from '@buildonspark/spark-sdk/native';
+import {
+  LightningSendRequestStatus,
+  SparkCoopExitRequestStatus,
+  LightningReceiveRequestStatus,
+  SparkLeavesSwapRequestStatus,
+  SparkUserRequestStatus,
+  ClaimStaticDepositStatus,
+} from '@buildonspark/spark-sdk/types';
 import {getAllSparkTransactions} from './transactions';
 import {SPARK_TO_SPARK_FEE} from '../../constants/math';
 
@@ -386,10 +394,31 @@ export const sparkPaymentType = tx => {
 };
 
 export const getSparkPaymentStatus = status => {
-  return status === 'TRANSFER_STATUS_COMPLETED'
+  return status === 'TRANSFER_STATUS_COMPLETED' ||
+    status === LightningSendRequestStatus.TRANSFER_COMPLETED ||
+    status === SparkCoopExitRequestStatus.SUCCEEDED ||
+    status === LightningReceiveRequestStatus.TRANSFER_COMPLETED ||
+    status === SparkLeavesSwapRequestStatus.SUCCEEDED ||
+    status === SparkUserRequestStatus.SUCCEEDED ||
+    status === ClaimStaticDepositStatus.TRANSFER_COMPLETED
     ? 'completed'
     : status === 'TRANSFER_STATUS_RETURNED' ||
-      status === 'TRANSFER_STATUS_EXPIRED'
+      status === 'TRANSFER_STATUS_EXPIRED' ||
+      status === LightningSendRequestStatus.LIGHTNING_PAYMENT_FAILED ||
+      status === SparkCoopExitRequestStatus.FAILED ||
+      status === SparkCoopExitRequestStatus.EXPIRED ||
+      status === LightningReceiveRequestStatus.TRANSFER_FAILED ||
+      status ===
+        LightningReceiveRequestStatus.PAYMENT_PREIMAGE_RECOVERING_FAILED ||
+      status ===
+        LightningReceiveRequestStatus.REFUND_SIGNING_COMMITMENTS_QUERYING_FAILED ||
+      status === LightningReceiveRequestStatus.REFUND_SIGNING_FAILED ||
+      status === SparkLeavesSwapRequestStatus.FAILED ||
+      status === SparkLeavesSwapRequestStatus.EXPIRED ||
+      status === SparkUserRequestStatus.FAILED ||
+      status === ClaimStaticDepositStatus.TRANSFER_CREATION_FAILED ||
+      status === ClaimStaticDepositStatus.REFUND_SIGNING_FAILED ||
+      status === ClaimStaticDepositStatus.UTXO_SWAPPING_FAILED
     ? 'failed'
     : 'pending';
 };
