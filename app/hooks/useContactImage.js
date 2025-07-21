@@ -20,7 +20,6 @@ export function useContactImage(uuid) {
           initialCache[uuid] = parsed;
         }
       });
-      console.log(initialCache, uuid);
       if (initialCache[uuid]?.localUri) {
         setUri(initialCache[uuid]);
       }

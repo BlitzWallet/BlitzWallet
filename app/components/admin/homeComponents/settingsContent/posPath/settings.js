@@ -31,8 +31,8 @@ import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
-import useAppInsets from '../../../../../hooks/useAppInsets';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function PosSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -46,7 +46,7 @@ export default function PosSettingsPage() {
     masterInfoObject?.posSettings?.storeName,
   );
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const savedCurrencies = masterInfoObject.fiatCurrenciesList || [];
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
@@ -95,8 +95,8 @@ export default function PosSettingsPage() {
         if (
           currency.info.name
             .toLowerCase()
-            .startsWith(textInput.toLocaleLowerCase()) ||
-          currency.id.toLowerCase().startsWith(textInput.toLocaleLowerCase())
+            .startsWith(textInput.toLowerCase()) ||
+          currency.id.toLowerCase().startsWith(textInput.toLowerCase())
         )
           return currency;
         else return false;
@@ -118,27 +118,6 @@ export default function PosSettingsPage() {
               savePOSSettings({storeCurrency: item.id}, 'currency');
             }}>
             <CheckMarkCircle
-              color={
-                theme
-                  ? darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.darkModeText
-                  : COLORS.lightModeText
-              }
-              backgroundColor={
-                theme
-                  ? darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.darkModeText
-                  : COLORS.primary
-              }
-              checkColor={
-                theme
-                  ? darkModeType
-                    ? COLORS.lightsOutBackground
-                    : COLORS.darkModeBackground
-                  : COLORS.lightModeBackground
-              }
               isActive={
                 item.id?.toLowerCase() === currentCurrency?.toLowerCase()
               }

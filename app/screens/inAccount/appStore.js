@@ -20,8 +20,10 @@ import {copyToClipboard} from '../../functions';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import {useToast} from '../../../context-store/toastManager';
 
 export default function AppStore({navigation}) {
+  const {showToast} = useToast();
   const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset} = GetThemeColors();
@@ -36,8 +38,8 @@ export default function AppStore({navigation}) {
   useHandleBackPressNew(handleBackPressFunction);
 
   const gridGap = Platform.select({
-    ios: windowWidth.width * 0.95 * 0.05,
-    android: windowWidth.width * 0.95 * 0.05,
+    ios: Math.round(windowWidth.width * 0.95 * 0.05),
+    android: Math.round(windowWidth.width * 0.95 * 0.05),
   });
 
   const appElements = APPLIST.map((app, id) => {
@@ -47,10 +49,10 @@ export default function AppStore({navigation}) {
         onPress={() => {
           if (
             !isConnectedToTheInternet &&
-            (app.pageName.toLocaleLowerCase() === 'ai' ||
-              app.pageName.toLocaleLowerCase() === 'pos' ||
-              app.pageName.toLocaleLowerCase() === 'sms4sats' ||
-              app.pageName.toLocaleLowerCase() === 'lnvpn')
+            (app.pageName.toLowerCase() === 'ai' ||
+              app.pageName.toLowerCase() === 'pos' ||
+              app.pageName.toLowerCase() === 'sms4sats' ||
+              app.pageName.toLowerCase() === 'lnvpn')
           ) {
             navigate.navigate('ErrorScreen', {
               errorMessage:
@@ -59,7 +61,7 @@ export default function AppStore({navigation}) {
             return;
           }
 
-          if (app.pageName.toLocaleLowerCase() === 'soon') {
+          if (app.pageName.toLowerCase() === 'soon') {
             navigate.navigate('ErrorScreen', {
               errorMessage:
                 'We love that you want more apps. Suggest them below!',
@@ -73,14 +75,15 @@ export default function AppStore({navigation}) {
           ...styles.appRowContainer,
           width:
             (windowWidth.width * 0.95 * (Platform.OS === 'ios' ? 0.95 : 0.95)) /
-            2,
+              2 -
+            gridGap,
           height:
             (windowWidth.width * 0.95 * (Platform.OS === 'ios' ? 0.95 : 0.95)) /
-            2,
+              2 -
+            gridGap,
+          flexGrow: 1,
           overflow: 'scroll',
           backgroundColor: backgroundOffset,
-          maxWidth: 200,
-          maxHeight: 200,
         }}>
         <View
           style={{
@@ -136,7 +139,7 @@ export default function AppStore({navigation}) {
   });
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
+    <GlobalThemeView styles={styles.globalConatiner} useStandardWidth={true}>
       <ThemeText content={'Store'} styles={{...styles.headerText}} />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -266,7 +269,7 @@ export default function AppStore({navigation}) {
                 });
                 console.log(didRun);
               } catch (err) {
-                copyToClipboard('blake@blitz-wallet.com', navigate);
+                copyToClipboard('blake@blitz-wallet.com', showToast);
               }
             }}
           />
@@ -278,6 +281,7 @@ export default function AppStore({navigation}) {
 }
 
 const styles = StyleSheet.create({
+  globalConatiner: {paddingBottom: 0},
   headerText: {fontSize: SIZES.large, ...CENTER},
 
   giftCardContainer: {
@@ -337,7 +341,7 @@ const styles = StyleSheet.create({
   },
 
   appRowContainer: {
-    minWidth: 150,
+    minWidth: 100,
     minHeight: 150,
 
     paddingBottom: 30,

@@ -10,8 +10,10 @@ import {useEffect, useState} from 'react';
 import {copyToClipboard, getLocalStorageItem} from '../../../../../functions';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {Buffer} from 'buffer';
+import {useToast} from '../../../../../../context-store/toastManager';
 
 export default function HistoricalOnChainPayments() {
+  const {showToast} = useToast();
   const navigate = useNavigation();
   const [historicalTransactions, setHistoricalTransactions] = useState([]);
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function HistoricalOnChainPayments() {
           onPress={() => {
             copyToClipboard(
               Buffer.from(transaction.txid).toString('hex'),
-              navigate,
+              showToast,
             );
           }}>
           <ThemeText

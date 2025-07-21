@@ -12,4 +12,8 @@ module.exports = {
     'no-unreachable': 'off',
     quotes: 'off',
   },
+  globals: {
+    BigInt: 'readonly',
+    Buffer: 'readonly',
+  },
 };

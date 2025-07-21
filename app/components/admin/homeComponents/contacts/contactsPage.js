@@ -1,7 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
 import {
-  Image,
-  Keyboard,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -9,12 +7,11 @@ import {
   View,
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {encriptMessage} from '../../../../functions/messaging/encodingAndDecodingMessages';
 import {
   CustomKeyboardAvoidingView,
-  GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -31,100 +28,238 @@ import {keyboardNavigate} from '../../../../functions/customNavigation';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 import ContactProfileImage from './internalComponents/profileImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
+import {
+  createFormattedDate,
+  formatMessage,
+} from './contactsPageComponents/utilityFunctions';
+import {
+  useFilteredContacts,
+  useProcessedContacts,
+} from './contactsPageComponents/hooks';
+import {
+  useServerTime,
+  useServerTimeOnly,
+} from '../../../../../context-store/serverTime';
 
 export default function ContactsPage({navigation}) {
+  const {contactsPrivateKey, publicKey} = useKeysContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {cache} = useImageCache();
   const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {decodedAddedContacts, globalContactsInformation, contactsMessags} =
-    useGlobalContacts();
+  const {
+    decodedAddedContacts,
+    globalContactsInformation,
+    contactsMessags,
+    toggleGlobalContactsInformation,
+  } = useGlobalContacts();
+  const {serverTimeOffset} = useServerTime();
+  const getServerTime = useServerTimeOnly();
+
+  const currentTime = getServerTime();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const dimensions = useWindowDimensions();
   const [inputText, setInputText] = useState('');
   const hideUnknownContacts = masterInfoObject.hideUnknownContacts;
   const tabsNavigate = navigation.navigate;
   const navigate = useNavigation();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
   const myProfile = globalContactsInformation.myProfile;
-  const didEditProfile = globalContactsInformation.myProfile.didEditProfile;
+  const didEditProfile = myProfile.didEditProfile;
+
+  // Use custom hooks for processed data
+  const contactInfoList = useProcessedContacts(
+    decodedAddedContacts,
+    contactsMessags,
+  );
+  const filteredContacts = useFilteredContacts(
+    contactInfoList,
+    inputText,
+    hideUnknownContacts,
+  );
+
+  const profileContainerStyle = useMemo(
+    () => ({
+      backgroundColor: backgroundOffset,
+    }),
+    [backgroundOffset],
+  );
+
+  const searchInputStyle = useMemo(
+    () => ({
+      width: '100%',
+      backgroundColor,
+    }),
+    [backgroundColor],
+  );
+
+  const scrollContentStyle = useMemo(
+    () => ({
+      paddingTop: contactInfoList.some(c => c.contact.isFavorite) ? 0 : 10,
+      paddingBottom: 10,
+    }),
+    [contactInfoList],
+  );
+
+  const navigateToExpandedContact = useCallback(
+    async contact => {
+      crashlyticsLogReport('Navigating to expanded contact from contacts page');
+      if (!contact.isAdded) {
+        let newAddedContacts = [...decodedAddedContacts];
+        const indexOfContact = decodedAddedContacts.findIndex(
+          obj => obj.uuid === contact.uuid,
+        );
+
+        let newContact = newAddedContacts[indexOfContact];
+        newContact['isAdded'] = true;
+
+        toggleGlobalContactsInformation(
+          {
+            myProfile: {...globalContactsInformation.myProfile},
+            addedContacts: encriptMessage(
+              contactsPrivateKey,
+              publicKey,
+              JSON.stringify(newAddedContacts),
+            ),
+          },
+          true,
+        );
+      }
+
+      navigate.navigate('ExpandedContactsPage', {
+        uuid: contact.uuid,
+      });
+    },
+    [
+      decodedAddedContacts,
+      globalContactsInformation,
+      toggleGlobalContactsInformation,
+      contactsPrivateKey,
+      publicKey,
+      navigate,
+    ],
+  );
+
+  const pinnedContacts = useMemo(() => {
+    return contactInfoList
+      .filter(contact => contact.contact.isFavorite)
+      .map(contact => (
+        <PinnedContactElement
+          key={contact.contact.uuid}
+          contact={contact.contact}
+          hasUnlookedTransaction={contact.hasUnlookedTransaction}
+          cache={cache}
+          darkModeType={darkModeType}
+          theme={theme}
+          backgroundOffset={backgroundOffset}
+          navigateToExpandedContact={navigateToExpandedContact}
+          dimensions={dimensions}
+          navigate={navigate}
+        />
+      ));
+  }, [
+    contactInfoList,
+    cache,
+    darkModeType,
+    theme,
+    backgroundOffset,
+    navigateToExpandedContact,
+    dimensions,
+    navigate,
+  ]);
+
+  const contactElements = useMemo(() => {
+    return filteredContacts.map(item => (
+      <ContactElement
+        key={item.contact.uuid}
+        contact={item.contact}
+        hasUnlookedTransaction={item.hasUnlookedTransaction}
+        lastUpdated={item.lastUpdated}
+        firstMessage={item.firstMessage}
+        cache={cache}
+        darkModeType={darkModeType}
+        theme={theme}
+        backgroundOffset={backgroundOffset}
+        navigateToExpandedContact={navigateToExpandedContact}
+        isConnectedToTheInternet={isConnectedToTheInternet}
+        navigate={navigate}
+        currentTime={currentTime}
+        serverTimeOffset={serverTimeOffset}
+      />
+    ));
+  }, [
+    filteredContacts,
+    cache,
+    darkModeType,
+    theme,
+    backgroundOffset,
+    navigateToExpandedContact,
+    isConnectedToTheInternet,
+    navigate,
+    currentTime,
+    serverTimeOffset,
+  ]);
+
+  const goToAddContact = useCallback(() => {
+    if (!isConnectedToTheInternet) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'Please connect to the internet to use this feature',
+      });
+    } else {
+      keyboardNavigate(() =>
+        navigate.navigate('CustomHalfModal', {
+          wantedContent: 'addContacts',
+          sliderHight: 0.4,
+        }),
+      );
+    }
+  }, [isConnectedToTheInternet, navigate]);
+
+  const goToMyProfile = useCallback(() => {
+    keyboardNavigate(() => navigate.navigate('MyContactProfilePage', {}));
+  }, [navigate]);
 
   const handleBackPressFunction = useCallback(() => {
     tabsNavigate('Home');
   }, [tabsNavigate]);
 
+  const handleButtonPress = useCallback(() => {
+    if (!isConnectedToTheInternet) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'Please connect to the internet to use this feature',
+      });
+      return;
+    }
+    if (didEditProfile) {
+      navigation.navigate('CustomHalfModal', {
+        wantedContent: 'addContacts',
+        sliderHight: 0.4,
+      });
+    } else {
+      navigation.navigate('EditMyProfilePage', {
+        pageType: 'myProfile',
+        fromSettings: false,
+      });
+    }
+  }, [isConnectedToTheInternet, didEditProfile, navigate, navigation]);
+
   useHandleBackPressNew(handleBackPressFunction);
 
-  console.log(
+  const hasContacts =
     decodedAddedContacts.filter(
       contact => !hideUnknownContacts || contact.isAdded,
-    ).length !== 0 && myProfile.didEditProfile,
-    'TESDFSD',
-  );
-  const pinnedContacts = useMemo(() => {
-    return decodedAddedContacts
-      .filter(contact => contact.isFavorite)
-      .map((contact, id) => {
-        return (
-          <PinnedContactElement
-            cache={cache}
-            key={contact.uuid}
-            contact={contact}
-          />
-        );
-      });
-  }, [decodedAddedContacts, contactsMessags, cache]);
+    ).length !== 0;
 
-  const contactElements = useMemo(() => {
-    return decodedAddedContacts
-      .filter(contact => {
-        return (
-          (contact.name?.toLowerCase()?.startsWith(inputText.toLowerCase()) ||
-            contact?.uniqueName
-              ?.toLowerCase()
-              ?.startsWith(inputText.toLowerCase())) &&
-          !contact.isFavorite &&
-          (!hideUnknownContacts || contact.isAdded)
-        );
-      })
-      .sort((a, b) => {
-        const earliset_A = contactsMessags[a.uuid]?.lastUpdated;
-        const earliset_B = contactsMessags[b.uuid]?.lastUpdated;
-        return (earliset_B || 0) - (earliset_A || 0);
-      })
-      .map((contact, id) => {
-        return (
-          <ContactElement cache={cache} key={contact.uuid} contact={contact} />
-        );
-      });
-  }, [
-    decodedAddedContacts,
-    inputText,
-    hideUnknownContacts,
-    contactsMessags,
-    cache,
-  ]);
+  const stickyHeaderIndicesValue = useMemo(() => {
+    return [pinnedContacts.length ? 1 : 0];
+  }, [pinnedContacts]);
 
   return (
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}>
-      {myProfile.didEditProfile && (
-        <View style={styles.topBar}>
-          <TouchableOpacity
-            onPress={() => {
-              keyboardNavigate(() => {
-                if (!isConnectedToTheInternet) {
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage:
-                      'Please connect to the internet to use this feature',
-                  });
-                  return;
-                }
-                navigate.navigate('CustomHalfModal', {
-                  wantedContent: 'addContacts',
-                  sliderHight: 0.4,
-                });
-              });
-            }}>
+      {didEditProfile && (
+        <View style={memoizedStyles.topBar}>
+          <TouchableOpacity onPress={goToAddContact}>
             <Icon
               name={'addContactsIcon'}
               width={30}
@@ -141,20 +276,12 @@ export default function ContactsPage({navigation}) {
               }
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              crashlyticsLogReport(
-                'Navigating to mycontacts profile page from contacts page',
-              );
-              keyboardNavigate(() => {
-                navigate.navigate('MyContactProfilePage', {});
-              });
-            }}>
+          <TouchableOpacity onPress={goToMyProfile}>
             <View
-              style={{
-                ...styles.profileImageContainer,
-                backgroundColor: backgroundOffset,
-              }}>
+              style={[
+                memoizedStyles.profileImageContainer,
+                profileContainerStyle,
+              ]}>
               <ContactProfileImage
                 updated={cache[masterInfoObject?.uuid]?.updated}
                 uri={cache[masterInfoObject?.uuid]?.localUri}
@@ -165,23 +292,18 @@ export default function ContactsPage({navigation}) {
           </TouchableOpacity>
         </View>
       )}
-      {decodedAddedContacts.filter(
-        contact => !hideUnknownContacts || contact.isAdded,
-      ).length !== 0 && myProfile.didEditProfile ? (
+      {hasContacts && myProfile.didEditProfile ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingTop: pinnedContacts.length ? 0 : 10,
-            paddingBottom: 10,
-          }}
-          style={{flex: 1, overflow: 'hidden'}}
-          stickyHeaderIndices={[pinnedContacts.length ? 1 : 0]}>
-          {pinnedContacts.length != 0 && (
-            <View style={{height: 120}}>
+          contentContainerStyle={scrollContentStyle}
+          style={memoizedStyles.contactsPageWithContactsScrollview}
+          stickyHeaderIndices={stickyHeaderIndicesValue}>
+          {pinnedContacts.length !== 0 && (
+            <View style={memoizedStyles.pinnedContactsScrollviewContainer}>
               <ScrollView
                 showsHorizontalScrollIndicator={false}
                 horizontal
-                contentContainerStyle={styles.pinnedContactsContainer}>
+                contentContainerStyle={memoizedStyles.pinnedContactsContainer}>
                 {pinnedContacts}
               </ScrollView>
             </View>
@@ -190,12 +312,12 @@ export default function ContactsPage({navigation}) {
             placeholderText={'Search added contacts'}
             inputText={inputText}
             setInputText={setInputText}
-            containerStyles={{width: '100%', backgroundColor}}
+            containerStyles={searchInputStyle}
           />
           {contactElements}
         </ScrollView>
       ) : (
-        <View style={styles.noContactsContainer}>
+        <View style={memoizedStyles.noContactsContainer}>
           <Icon
             width={250}
             height={200}
@@ -203,212 +325,196 @@ export default function ContactsPage({navigation}) {
             name={'qusetionContacts'}
           />
           <ThemeText
-            styles={{...styles.noContactsText}}
+            styles={memoizedStyles.noContactsText}
             content={
               didEditProfile
                 ? 'You have no contacts.'
                 : 'Edit your profile to begin using contacts.'
             }
           />
-
           <CustomButton
-            buttonStyles={{
-              ...CENTER,
-              width: 'auto',
-            }}
-            actionFunction={() => {
-              if (!isConnectedToTheInternet) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage:
-                    'Please connect to the internet to use this feature',
-                });
-                return;
-              }
-              if (didEditProfile) {
-                //navigate to add contacts popup
-                navigation.navigate('CustomHalfModal', {
-                  wantedContent: 'addContacts',
-                  sliderHight: 0.4,
-                });
-              } else {
-                navigation.navigate('EditMyProfilePage', {
-                  pageType: 'myProfile',
-                  fromSettings: false,
-                });
-              }
-            }}
-            textContent={`${didEditProfile ? 'Add contact' : 'Edit profile'}`}
+            buttonStyles={CENTER}
+            actionFunction={handleButtonPress}
+            textContent={didEditProfile ? 'Add contact' : 'Edit profile'}
           />
         </View>
       )}
     </CustomKeyboardAvoidingView>
   );
 }
-function PinnedContactElement(props) {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {
-    decodedAddedContacts,
-    globalContactsInformation,
-    toggleGlobalContactsInformation,
-    contactsMessags,
-  } = useGlobalContacts();
-  const {backgroundOffset} = GetThemeColors();
-  const contact = props.contact;
-  const navigate = useNavigation();
-  const dimenions = useWindowDimensions();
-  const hasUnlookedTransaction =
-    contactsMessags[contact.uuid]?.messages.length &&
-    contactsMessags[contact.uuid]?.messages.filter(
-      savedMessage => !savedMessage.message.wasSeen,
-    ).length > 0;
-  return (
-    <TouchableOpacity
-      onLongPress={() => {
-        if (!contact.isAdded) return;
-        navigate.navigate('ContactsPageLongPressActions', {
-          contact: contact,
-        });
-      }}
-      key={contact.uuid}
-      onPress={() =>
-        navigateToExpandedContact(
-          contact,
-          decodedAddedContacts,
-          globalContactsInformation,
-          toggleGlobalContactsInformation,
-          contactsPrivateKey,
-          publicKey,
-          navigate,
-        )
-      }>
-      <View
-        style={{
-          ...styles.pinnedContact,
-          width: (dimenions.width * 0.95) / 4.5,
-          height: (dimenions.width * 0.95) / 4.5,
-        }}>
-        <View
-          style={[
-            styles.pinnedContactImageContainer,
-            {
-              backgroundColor: backgroundOffset,
-              position: 'relative',
-            },
-          ]}>
-          <ContactProfileImage
-            updated={props.cache[contact.uuid]?.updated}
-            uri={props.cache[contact.uuid]?.localUri}
-            darkModeType={darkModeType}
-            theme={theme}
-          />
-        </View>
 
-        <View
-          style={{
-            width: '100%',
-            alignItems: 'center',
-            flexDirection: 'row',
-          }}>
-          {hasUnlookedTransaction && (
-            <View
-              style={{
-                ...styles.hasNotification,
-                backgroundColor:
-                  darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
-                marginRight: 1,
-              }}
-            />
-          )}
-          <ThemeText
-            CustomEllipsizeMode={'tail'}
-            CustomNumberOfLines={1}
-            styles={{textAlign: 'center', fontSize: SIZES.small, flex: 1}}
-            content={
-              !!contact.name.length
-                ? contact.name.trim()
-                : contact.uniqueName.trim()
-            }
-          />
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-}
-export function ContactElement(props) {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset} = GetThemeColors();
-  const {
-    decodedAddedContacts,
-    globalContactsInformation,
-    toggleGlobalContactsInformation,
-    contactsMessags,
-  } = useGlobalContacts();
+const PinnedContactElement = memo(
+  ({
+    contact,
+    hasUnlookedTransaction,
+    cache,
+    darkModeType,
+    theme,
+    backgroundOffset,
+    navigateToExpandedContact,
+    dimensions,
+    navigate,
+  }) => {
+    const [textWidth, setTextWidth] = useState(0);
 
-  const contact = props.contact;
-  const navigate = useNavigation();
-  const hasUnlookedTransaction =
-    contactsMessags[contact.uuid]?.messages.length &&
-    contactsMessags[contact.uuid]?.messages.filter(
-      savedMessage => !savedMessage.message.wasSeen,
-    ).length > 0;
+    // Memoize calculated dimensions
+    const containerSize = useMemo(
+      () => (dimensions.width * 0.95) / 4.5,
+      [dimensions.width],
+    );
 
-  return (
-    <TouchableOpacity
-      onLongPress={() => {
-        if (!contact.isAdded) return;
-        if (!isConnectedToTheInternet) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage:
-              'Please reconnect to the internet to use this feature',
-          });
-          return;
-        }
+    const imageContainerStyle = useMemo(
+      () => ({
+        ...memoizedStyles.pinnedContactImageContainer,
+        backgroundColor: backgroundOffset,
+      }),
+      [backgroundOffset],
+    );
 
-        navigate.navigate('ContactsPageLongPressActions', {
-          contact: contact,
-        });
-      }}
-      key={contact.uuid}
-      onPress={() =>
-        navigateToExpandedContact(
-          contact,
-          decodedAddedContacts,
-          globalContactsInformation,
-          toggleGlobalContactsInformation,
-          contactsPrivateKey,
-          publicKey,
-          navigate,
-        )
-      }>
-      <View style={{marginTop: 10}}>
-        <View style={styles.contactRowContainer}>
-          <View
-            style={[
-              styles.contactImageContainer,
-              {
-                backgroundColor: backgroundOffset,
-                position: 'relative',
-              },
-            ]}>
+    const pinnedContactStyle = useMemo(
+      () => ({
+        ...memoizedStyles.pinnedContact,
+        width: containerSize,
+        height: containerSize,
+      }),
+      [containerSize],
+    );
+
+    const pinnedContactTextContinaer = useMemo(() => {
+      return {
+        maxWidth: containerSize - (hasUnlookedTransaction ? 25 : 0),
+      };
+    }, [containerSize]);
+
+    const notificationStyle = useMemo(
+      () => ({
+        ...memoizedStyles.hasNotification,
+        backgroundColor:
+          darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
+        position: 'absolute',
+        left: '50%',
+        transform: [{translateX: -(textWidth / 2 + 5 + 10)}],
+      }),
+      [darkModeType, theme, textWidth],
+    );
+
+    const handleLongPress = useCallback(() => {
+      if (!contact.isAdded) return;
+      navigate.navigate('ContactsPageLongPressActions', {
+        contact: contact,
+      });
+    }, [contact, navigate]);
+
+    const handlePress = useCallback(() => {
+      navigateToExpandedContact(contact);
+    }, [contact, navigateToExpandedContact]);
+
+    const handleTextLayout = useCallback(event => {
+      setTextWidth(event.nativeEvent.layout.width);
+    }, []);
+
+    return (
+      <TouchableOpacity onLongPress={handleLongPress} onPress={handlePress}>
+        <View style={pinnedContactStyle}>
+          <View style={imageContainerStyle}>
             <ContactProfileImage
-              updated={props.cache[contact.uuid]?.updated}
-              uri={props.cache[contact.uuid]?.localUri}
+              updated={cache[contact.uuid]?.updated}
+              uri={cache[contact.uuid]?.localUri}
               darkModeType={darkModeType}
               theme={theme}
             />
           </View>
-          <View
-            style={{
-              flex: 1,
-            }}>
+
+          <View style={memoizedStyles.pinnedContactNotificationContainer}>
+            {hasUnlookedTransaction && <View style={notificationStyle} />}
             <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
+              style={pinnedContactTextContinaer}
+              onLayout={handleTextLayout}>
+              <ThemeText
+                CustomEllipsizeMode="tail"
+                CustomNumberOfLines={1}
+                styles={{
+                  fontSize: SIZES.small,
+                  textAlign: 'center',
+                }}
+                content={
+                  contact.name?.length
+                    ? contact.name.trim()
+                    : contact.uniqueName.trim()
+                }
+              />
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  },
+);
+
+const ContactElement = memo(
+  ({
+    contact,
+    hasUnlookedTransaction,
+    lastUpdated,
+    firstMessage,
+    cache,
+    darkModeType,
+    theme,
+    backgroundOffset,
+    navigateToExpandedContact,
+    isConnectedToTheInternet,
+    navigate,
+    currentTime,
+    serverTimeOffset,
+  }) => {
+    const imageContainerStyle = useMemo(
+      () => ({
+        ...memoizedStyles.contactImageContainer,
+        backgroundColor: backgroundOffset,
+      }),
+      [backgroundOffset],
+    );
+
+    const notificationStyle = useMemo(
+      () => ({
+        ...memoizedStyles.hasNotification,
+        marginRight: 5,
+        backgroundColor:
+          darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
+      }),
+      [darkModeType, theme],
+    );
+
+    const handleLongPress = useCallback(() => {
+      if (!contact.isAdded) return;
+      if (!isConnectedToTheInternet) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: 'Please reconnect to the internet to use this feature',
+        });
+        return;
+      }
+      navigate.navigate('ContactsPageLongPressActions', {
+        contact: contact,
+      });
+    }, [contact, isConnectedToTheInternet, navigate]);
+
+    const handlePress = useCallback(() => {
+      navigateToExpandedContact(contact);
+    }, [contact, navigateToExpandedContact]);
+
+    return (
+      <TouchableOpacity onLongPress={handleLongPress} onPress={handlePress}>
+        <View style={memoizedStyles.contactRowContainer}>
+          <View style={imageContainerStyle}>
+            <ContactProfileImage
+              updated={cache[contact.uuid]?.updated}
+              uri={cache[contact.uuid]?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
+          <View style={memoizedStyles.globalContainer}>
+            <View style={memoizedStyles.contactsRowInlineStyle}>
               <ThemeText
                 CustomEllipsizeMode={'tail'}
                 CustomNumberOfLines={1}
@@ -418,37 +524,21 @@ export function ContactElement(props) {
                   marginRight: 5,
                 }}
                 content={
-                  !!contact.name.length ? contact.name : contact.uniqueName
+                  contact.name?.length ? contact.name : contact.uniqueName
                 }
               />
-              {hasUnlookedTransaction && (
-                <View
-                  style={[
-                    styles.hasNotification,
-                    {
-                      marginRight: 5,
-                      backgroundColor:
-                        darkModeType && theme
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
-                    },
-                  ]}
-                />
-              )}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}>
+              {hasUnlookedTransaction && <View style={notificationStyle} />}
+              <View style={memoizedStyles.contactsRowInlineStyle}>
                 <ThemeText
                   styles={{
                     fontSize: SIZES.small,
                     marginRight: 5,
                   }}
                   content={
-                    !!contactsMessags[contact.uuid]?.messages?.length
+                    lastUpdated
                       ? createFormattedDate(
-                          contactsMessags[contact.uuid].lastUpdated,
+                          lastUpdated - serverTimeOffset,
+                          currentTime - serverTimeOffset,
                         )
                       : ''
                   }
@@ -465,23 +555,13 @@ export function ContactElement(props) {
                 />
               </View>
             </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
+            <View style={memoizedStyles.contactsRowInlineStyle}>
               <ThemeText
                 CustomNumberOfLines={2}
                 styles={{
                   fontSize: SIZES.small,
                 }}
-                content={
-                  !!contactsMessags[contact.uuid]?.messages?.length
-                    ? formatMessage(
-                        contactsMessags[contact.uuid]?.messages[0],
-                      ) || ' '
-                    : ' '
-                }
+                content={lastUpdated ? formatMessage(firstMessage) || ' ' : ' '}
               />
               {!contact.isAdded && (
                 <ThemeText
@@ -499,120 +579,16 @@ export function ContactElement(props) {
             </View>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-async function navigateToExpandedContact(
-  contact,
-  decodedAddedContacts,
-  globalContactsInformation,
-  toggleGlobalContactsInformation,
-  contactsPrivateKey,
-  publicKey,
-  navigate,
-) {
-  crashlyticsLogReport('Naivgating to exapanded contact from contacts page');
-  if (!contact.isAdded) {
-    let newAddedContacts = [...decodedAddedContacts];
-    const indexOfContact = decodedAddedContacts.findIndex(
-      obj => obj.uuid === contact.uuid,
+      </TouchableOpacity>
     );
+  },
+);
 
-    let newContact = newAddedContacts[indexOfContact];
-
-    newContact['isAdded'] = true;
-
-    toggleGlobalContactsInformation(
-      {
-        myProfile: {...globalContactsInformation.myProfile},
-        addedContacts: encriptMessage(
-          contactsPrivateKey,
-          publicKey,
-          JSON.stringify(newAddedContacts),
-        ),
-      },
-      true,
-    );
-  }
-
-  navigate.navigate('ExpandedContactsPage', {
-    uuid: contact.uuid,
-  });
-}
-
-function createFormattedDate(time) {
-  const date = new Date(time);
-
-  // Get the current date
-  const currentDate = new Date();
-
-  // Calculate the difference in milliseconds between the current date and the timestamp
-  const differenceMs = currentDate - date;
-
-  // Convert milliseconds to days
-  const differenceDays = differenceMs / (1000 * 60 * 60 * 24);
-
-  // Define an array of day names
-  const daysOfWeek = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-  ];
-
-  // Format the time if it's more than one day old
-  let formattedTime;
-
-  if (differenceDays < 1) {
-    // Extract hours, minutes, and AM/PM from the date
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-
-    // Convert hours from 24-hour to 12-hour format
-    const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-
-    // Add leading zero to minutes if necessary
-    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-
-    // Create the formatted time string
-    formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
-  } else if (differenceDays < 2) {
-    formattedTime = 'Yesterday';
-  } else {
-    if (differenceDays <= 7) {
-      formattedTime = daysOfWeek[date.getDay()];
-    } else {
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
-      const year = date.getFullYear() % 100;
-      formattedTime = `${month}/${day}/${year}`;
-    }
-  }
-
-  return formattedTime;
-}
-
-function formatMessage(message) {
-  let formattedMessage = ' ';
-  const savedMessageDescription = message.message.description;
-  const messageData = message.message;
-
-  if (savedMessageDescription) {
-    formattedMessage = savedMessageDescription;
-  }
-  return String(formattedMessage);
-}
-
-const styles = StyleSheet.create({
+const memoizedStyles = StyleSheet.create({
   globalContainer: {
     flex: 1,
   },
+  contactsPageWithContactsScrollview: {flex: 1, overflow: 'hidden'},
   profileImageContainer: {
     position: 'relative',
     width: 35,
@@ -623,7 +599,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     overflow: 'hidden',
   },
-
   topBar: {
     width: '100%',
     flexDirection: 'row',
@@ -632,14 +607,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     ...CENTER,
   },
-
   hasNotification: {
     width: 10,
     height: 10,
     borderRadius: 5,
     backgroundColor: COLORS.primary,
   },
-
   noContactsContainer: {
     flex: 1,
     alignItems: 'center',
@@ -651,15 +624,21 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
   },
-
+  pinnedContactsScrollviewContainer: {height: 120},
   pinnedContact: {
-    // height: 'auto',
     marginHorizontal: 5,
     alignItems: 'center',
   },
   pinnedContactsContainer: {
     flexDirection: 'row',
   },
+  pinnedContactNotificationContainer: {
+    width: '100%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+
   pinnedContactImageContainer: {
     width: '100%',
     height: '100%',
@@ -672,21 +651,22 @@ const styles = StyleSheet.create({
 
   contactRowContainer: {
     width: '100%',
-
-    // overflow: 'hidden',
     flexDirection: 'row',
     alignItems: 'center',
-    ...CENTER,
-    // marginVertical: 5,
-  },
 
+    ...CENTER,
+    marginTop: 10,
+  },
+  contactsRowInlineStyle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   contactImageContainer: {
     width: 45,
     height: 45,
     backgroundColor: COLORS.opaicityGray,
     alignItems: 'center',
     justifyContent: 'center',
-
     borderRadius: 30,
     marginRight: 10,
     overflow: 'hidden',

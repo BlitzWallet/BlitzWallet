@@ -42,7 +42,7 @@ import {
   setDatabaseIMG,
 } from '../../../../../db/photoStorage';
 import {useImageCache} from '../../../../../context-store/imageCache';
-import useAppInsets from '../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -113,7 +113,8 @@ function InnerContent({
 }) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {cache, refreshCache, removeProfileImageFromCache} = useImageCache();
+  const {cache, refreshCache, removeProfileImageFromCache, refreshCacheObject} =
+    useImageCache();
   const {backgroundOffset, textInputColor, textInputBackground, textColor} =
     GetThemeColors();
   const {
@@ -149,7 +150,7 @@ function InnerContent({
   });
 
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const navigate = useNavigation();
 
@@ -200,6 +201,13 @@ function InnerContent({
   const hasImage = isEditingMyProfile
     ? !!myProfileImage?.localUri
     : !!selectedAddedContactImage?.localUri;
+
+  useEffect(() => {
+    if (!fromInitialAdd) return;
+    if (hasImage) return;
+    // Making sure to update UI for new contacts image
+    refreshCacheObject();
+  }, []);
 
   return (
     <View style={styles.innerContainer}>

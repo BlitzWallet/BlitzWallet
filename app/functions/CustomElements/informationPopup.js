@@ -17,7 +17,7 @@ export default function InformationPopup(props) {
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {
     route: {
-      params: {textContent, buttonText, CustomTextComponent},
+      params: {textContent, buttonText, CustomTextComponent, customNavigation},
     },
   } = props;
 
@@ -36,7 +36,11 @@ export default function InformationPopup(props) {
         duration: 500,
         useNativeDriver: true,
       }).start(() => {
-        navigate.goBack();
+        if (customNavigation) {
+          customNavigation();
+        } else {
+          navigate.goBack();
+        }
       });
     }
   }, [goBack]);

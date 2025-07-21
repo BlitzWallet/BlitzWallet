@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import EventEmitter from 'events';
+import {handleEventEmitterPost} from '../handleEventEmitters';
 export const ECASH_DB_NAME = 'ECASH_STORAGE';
 export const PROOF_TABLE_NAME = 'PROOFS_TABLE';
 export const MINTS_TABLE_NAME = 'MINTS_TABLE';
@@ -128,7 +129,11 @@ export const storeProofs = async (proofs, mintURL) => {
       );
     }
     await sqlLiteDB.execAsync('COMMIT;');
-    sqlEventEmitter.emit(PROOF_EVENT_UPDATE_NAME, 'storeProofs');
+    handleEventEmitterPost(
+      sqlEventEmitter,
+      PROOF_EVENT_UPDATE_NAME,
+      'storeProofs',
+    );
     console.log('Bulk proofs processed successfully');
     return true;
   } catch (err) {
@@ -195,7 +200,12 @@ export const removeProofs = async proofsToRemove => {
         );
       }
     }
-    sqlEventEmitter.emit(PROOF_EVENT_UPDATE_NAME, 'removeProofs');
+    handleEventEmitterPost(
+      sqlEventEmitter,
+      PROOF_EVENT_UPDATE_NAME,
+      'removeProofs',
+    );
+
     await sqlLiteDB.execAsync('COMMIT;');
     console.log('Bulk remove proofs processed successfully');
     return true;

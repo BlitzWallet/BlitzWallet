@@ -2,17 +2,12 @@ module.exports = api => {
   const isProduction = api.env('production');
 
   return {
-    presets: ['module:@react-native/babel-preset'],
+    presets: ['babel-preset-expo'],
     plugins: [
       ['module:react-native-dotenv'],
 
       isProduction && ['transform-remove-console'],
-      // [
-      //   'transform-inline-environment-variables',
-      //   {
-      //     include: ['GL_CUSTOM_NOBODY_CERT', 'GL_CUSTOM_NOBODY_KEY', 'API_KEY'],
-      //   },
-      // ],
+
       [
         'module-resolver',
         {
@@ -23,6 +18,8 @@ module.exports = api => {
           },
         },
       ],
+
+      // 👇 MUST be last
       ['react-native-reanimated/plugin'],
     ].filter(Boolean),
   };

@@ -9,7 +9,14 @@ import {DefaultTheme, NavigationContainer} from '@react-navigation/native';
 import './pollyfills';
 import './i18n'; // for translation option
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+  JSX,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {registerRootComponent} from 'expo';
 import {
   getLocalStorageItem,
@@ -30,22 +37,27 @@ import {Linking, Platform} from 'react-native';
 import SplashScreen from './app/screens/splashScreen';
 import {GlobalContactsList} from './context-store/globalContacts';
 
-import {GlobaleCashVariables} from './context-store/eCash';
+// import {GlobaleCashVariables} from './context-store/eCash';
 import {CreateAccountHome} from './app/screens/createAccount';
 import {GlobalAppDataProvider} from './context-store/appData';
-import PushNotificationManager, {
+import {
+  PushNotificationProvider,
   registerBackgroundNotificationTask,
 } from './context-store/notificationManager';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import GetThemeColors from './app/hooks/themeColors';
-import {COLORS, LOGIN_SECUITY_MODE_KEY} from './app/constants';
+import {
+  LOGIN_SECUITY_MODE_KEY,
+  LOGIN_SECURITY_MODE_TYPE_KEY,
+} from './app/constants';
 import {LiquidEventProvider} from './context-store/liquidEventContext';
 import {
-  EcashNavigationListener,
-  LightningNavigationListener,
-  LiquidNavigationListener,
+  // EcashNavigationListener,
+  // LightningNavigationListener,
+  // LiquidNavigationListener,
+  SparkNavigationListener,
 } from './context-store/SDKNavigation';
-import {LightningEventProvider} from './context-store/lightningEventContext';
+// import {LightningEventProvider} from './context-store/lightningEventContext';
 import {
   GlobalThemeProvider,
   useGlobalThemeContext,
@@ -62,54 +74,97 @@ import {
 } from './navigation/screens';
 import getDeepLinkUser from './app/components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import {navigationRef} from './navigation/navigationService';
-import {GlobalConbinedTxContextProvider} from './context-store/combinedTransactionsContext';
-import BreezTest from './app/screens/breezTest';
+// import {GlobalConbinedTxContextProvider} from './context-store/combinedTransactionsContext';
+// import BreezTest from './app/screens/breezTest';
 import {ImageCacheProvider} from './context-store/imageCache';
 import {
   runPinAndMnemoicMigration,
   runSecureStoreMigrationV2,
 } from './app/functions/secureStore';
+import {KeyboardProvider} from 'react-native-keyboard-controller';
+import HandleLNURLPayments from './context-store/lnurl';
+// import {SparkConnectionListener} from './context-store/connectToNode';
+import {SparkWalletProvider} from './context-store/sparkContext';
+
+// let setStatusBarBackgroundColor: ((color: string) => void) | undefined;
+// let setStatusBarStyle: ((style: 'light' | 'dark') => void) | undefined;
+// let SystemUI: any;
+// let NavigationBar: any;
+
+// if (Platform.OS === 'android') {
+//   const statusBar = require('expo-status-bar');
+//   setStatusBarBackgroundColor = statusBar.setStatusBarBackgroundColor;
+//   setStatusBarStyle = statusBar.setStatusBarStyle;
+//   SystemUI = require('expo-system-ui');
+//   NavigationBar = require('expo-navigation-bar');
+// }
+import * as NavigationBar from 'expo-navigation-bar';
+import {setStatusBarBackgroundColor, setStatusBarStyle} from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
+import {InsetsProvider} from './context-store/insetsProvider';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {ToastContainer, ToastProvider} from './context-store/toastManager';
+import {RootstockSwapProvider} from './context-store/rootstockSwapContext';
+import {SparkConnectionManager} from './context-store/sparkConnection';
+import {GlobalNostrWalletConnectProvider} from './context-store/NWC';
+import {GlobalServerTimeProvider} from './context-store/serverTime';
 
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
   return (
     <GestureHandlerRootView>
-      <KeysContextProvider>
-        <GlobalContextProvider>
-          <AppStatusProvider>
-            <GlobalThemeProvider>
-              <GlobaleCashVariables>
-                <GLobalNodeContextProider>
-                  <GlobalConbinedTxContextProvider>
-                    <GlobalAppDataProvider>
-                      <POSTransactionsProvider>
-                        <WebViewProvider>
-                          <GlobalContactsList>
-                            <PushNotificationManager>
-                              <LiquidEventProvider>
-                                <LightningEventProvider>
-                                  <ImageCacheProvider>
-                                    {/* <Suspense
+      <SafeAreaProvider>
+        <InsetsProvider>
+          <KeyboardProvider>
+            <ToastProvider>
+              <KeysContextProvider>
+                <GlobalContactsList>
+                  <GlobalContextProvider>
+                    <AppStatusProvider>
+                      <GlobalThemeProvider>
+                        {/* <GlobaleCashVariables> */}
+                        <GLobalNodeContextProider>
+                          <SparkWalletProvider>
+                            {/* <GlobalConbinedTxContextProvider> */}
+                            <GlobalAppDataProvider>
+                              <POSTransactionsProvider>
+                                <WebViewProvider>
+                                  <PushNotificationProvider>
+                                    <LiquidEventProvider>
+                                      <RootstockSwapProvider>
+                                        <GlobalNostrWalletConnectProvider>
+                                          {/* <LightningEventProvider> */}
+                                          <ImageCacheProvider>
+                                            <GlobalServerTimeProvider>
+                                              {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                    <ResetStack />
-                                    {/* </Suspense> */}
-                                  </ImageCacheProvider>
-                                </LightningEventProvider>
-                              </LiquidEventProvider>
-                            </PushNotificationManager>
-                          </GlobalContactsList>
-                        </WebViewProvider>
-                      </POSTransactionsProvider>
-                    </GlobalAppDataProvider>
-                    {/* <BreezTest /> */}
-                  </GlobalConbinedTxContextProvider>
-                </GLobalNodeContextProider>
-              </GlobaleCashVariables>
-            </GlobalThemeProvider>
-          </AppStatusProvider>
-        </GlobalContextProvider>
-      </KeysContextProvider>
+                                              <ResetStack />
+                                              {/* </Suspense> */}
+                                            </GlobalServerTimeProvider>
+                                          </ImageCacheProvider>
+                                          {/* </LightningEventProvider> */}
+                                        </GlobalNostrWalletConnectProvider>
+                                      </RootstockSwapProvider>
+                                    </LiquidEventProvider>
+                                  </PushNotificationProvider>
+                                </WebViewProvider>
+                              </POSTransactionsProvider>
+                            </GlobalAppDataProvider>
+                            {/* <BreezTest /> */}
+                            {/* </GlobalConbinedTxContextProvider> */}
+                          </SparkWalletProvider>
+                        </GLobalNodeContextProider>
+                        {/* </GlobaleCashVariables> */}
+                      </GlobalThemeProvider>
+                    </AppStatusProvider>
+                  </GlobalContextProvider>
+                </GlobalContactsList>
+              </KeysContextProvider>
+            </ToastProvider>
+          </KeyboardProvider>
+        </InsetsProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
@@ -165,6 +220,20 @@ function ResetStack(): JSX.Element | null {
       console.log('Initial deep link stored:', url);
     }
   }, []);
+
+  const setNavigationBar = useCallback(async () => {
+    if (Platform.OS === 'android') {
+      try {
+        await SystemUI.setBackgroundColorAsync(backgroundColor);
+        await NavigationBar.setBackgroundColorAsync(backgroundColor);
+        await NavigationBar.setButtonStyleAsync(theme ? 'light' : 'dark');
+        setStatusBarBackgroundColor(backgroundColor);
+        setStatusBarStyle(theme ? 'light' : 'dark');
+      } catch (error) {
+        console.warn('Failed to set navigation bar:', error);
+      }
+    }
+  }, [backgroundColor, theme]);
 
   useEffect(() => {
     async function handleDeeplink() {
@@ -228,20 +297,33 @@ function ResetStack(): JSX.Element | null {
     async function initWallet() {
       await runPinAndMnemoicMigration();
       await runSecureStoreMigrationV2();
-      const [initialURL, registerBackground, pin, mnemonic, securitySettings] =
-        await Promise.all([
-          getInitialURL(),
-          registerBackgroundNotificationTask(),
-          retrieveData('pinHash'),
-          retrieveData('encryptedMnemonic'),
-          getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-        ]);
+      const [
+        initialURL,
+        registerBackground,
+        loginModeType,
+        pin,
+        mnemonic,
+        securitySettings,
+      ] = await Promise.all([
+        getInitialURL(),
+        registerBackgroundNotificationTask(),
+        retrieveData(LOGIN_SECURITY_MODE_TYPE_KEY),
+        retrieveData('pinHash'),
+        retrieveData('encryptedMnemonic'),
+        getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
+      ]);
 
       const storedSettings = JSON.parse(securitySettings);
+
+      const isPinFromMode = loginModeType?.value === 'pin';
+      const isBiometricFromMode = loginModeType?.value === 'biometric';
+      console.log(storedSettings, 'stored security setttings');
+      console.log(isPinFromMode, 'stored security setttings');
+      console.log(isBiometricFromMode, 'stored security setttings');
       const parsedSettings = storedSettings ?? {
         isSecurityEnabled: true,
-        isPinEnabled: true,
-        isBiometricEnabled: false,
+        isPinEnabled: isPinFromMode || (!isPinFromMode && !isBiometricFromMode),
+        isBiometricEnabled: isBiometricFromMode,
       };
       if (!storedSettings)
         setLocalStorageItem(
@@ -291,27 +373,15 @@ function ResetStack(): JSX.Element | null {
     [theme, backgroundColor],
   );
 
+  useEffect(() => {
+    setNavigationBar();
+  }, [backgroundColor, theme]);
+
   const screenOptions = useMemo(() => {
     return {
       headerShown: false,
-      statusBarBackgroundColor:
-        Platform.OS === 'android' ? backgroundColor : undefined,
-      statusBarStyle:
-        Platform.OS === 'android'
-          ? ((theme ? 'light' : 'dark') as
-              | 'light'
-              | 'dark'
-              | 'inverted'
-              | 'auto'
-              | undefined)
-          : undefined,
-      statusBarAnimation:
-        Platform.OS === 'android'
-          ? ('fade' as 'fade' | 'none' | 'slide' | undefined)
-          : undefined,
-      navigationBarColor: backgroundColor,
     };
-  }, [backgroundColor, theme]);
+  }, []);
 
   const HomeComponent = useMemo(() => {
     if (initSettings.isLoggedIn) {
@@ -328,9 +398,15 @@ function ResetStack(): JSX.Element | null {
 
   return (
     <NavigationContainer theme={navigationTheme} ref={navigationRef}>
-      <LiquidNavigationListener />
-      <LightningNavigationListener />
-      <EcashNavigationListener />
+      {/* <StatusBar style={theme ? 'light' : 'dark'} translucent={true} /> */}
+      <HandleLNURLPayments />
+      <SparkNavigationListener />
+      <ToastContainer />
+      <SparkConnectionManager />
+      {/* <EcashNavigationListener /> */}
+      {/* <SparkConnectionListener /> */}
+      {/* <LiquidNavigationListener /> */}
+      {/* <LightningNavigationListener /> */}
       <Stack.Navigator screenOptions={screenOptions}>
         <Stack.Screen
           name="Home"

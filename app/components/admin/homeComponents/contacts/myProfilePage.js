@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {useCallback, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -21,7 +21,7 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import MaxHeap from '../../../../functions/minHeap';
 import ContactProfileImage from './internalComponents/profileImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
-import useAppInsets from '../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 export default function MyContactProfilePage({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -34,7 +34,7 @@ export default function MyContactProfilePage({navigation}) {
   const navigate = useNavigation();
   const currentTime = new Date();
   const [showList, setShowList] = useState(false);
-  const {bottomPadding} = useAppInsets();
+  const [createdPayments, setCreatedPayments] = useState([]);
 
   const myContact = globalContactsInformation.myProfile;
 
@@ -48,7 +48,7 @@ export default function MyContactProfilePage({navigation}) {
     }, []),
   );
 
-  const createdPayments = useMemo(() => {
+  useEffect(() => {
     const messageHeap = new MaxHeap();
     const MAX_MESSAGES = 50;
 
@@ -84,9 +84,10 @@ export default function MyContactProfilePage({navigation}) {
 
     console.log(result.length, 'LENGTH OF RESULT ARRAY');
 
-    return result;
+    setCreatedPayments(result);
   }, [decodedAddedContacts, contactsMessags]);
 
+  const {bottomPadding} = useGlobalInsets();
   useHandleBackPressNew();
 
   return (
@@ -202,6 +203,9 @@ export default function MyContactProfilePage({navigation}) {
             style={{
               width: '95%',
             }}
+            initialNumToRender={10}
+            windowSize={5}
+            maxToRenderPerBatch={10}
             data={createdPayments}
             renderItem={({item, index}) => {
               return (

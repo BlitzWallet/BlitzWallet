@@ -19,8 +19,9 @@ const GLobalNodeContextProider = ({children}) => {
     transactions: [],
     userBalance: 0,
   });
-  const toggleNodeInformation = useCallback(newInfo => {
-    setNodeInformation(prev => ({...prev, ...newInfo}));
+  const [fiatStats, setFiatStats] = useState({});
+  const toggleFiatStats = useCallback(newInfo => {
+    setFiatStats(prev => ({...prev, ...newInfo}));
   }, []);
 
   const toggleLiquidNodeInformation = useCallback(newInfo => {
@@ -30,14 +31,16 @@ const GLobalNodeContextProider = ({children}) => {
   const contextValue = useMemo(
     () => ({
       nodeInformation,
-      toggleNodeInformation,
       liquidNodeInformation,
       toggleLiquidNodeInformation,
+      toggleFiatStats,
+      fiatStats,
     }),
     [
       nodeInformation,
-      toggleNodeInformation,
       liquidNodeInformation,
+      fiatStats,
+      toggleFiatStats,
       toggleLiquidNodeInformation,
     ],
   );

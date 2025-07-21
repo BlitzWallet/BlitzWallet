@@ -15,6 +15,7 @@ export default function CustomButton({
   actionFunction,
   textContent,
   useLoading,
+  loadingColor = COLORS.lightModeText,
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   return (
@@ -32,7 +33,7 @@ export default function CustomButton({
         <FullLoadingScreen
           showText={false}
           size="small"
-          loadingColor={COLORS.lightModeText}
+          loadingColor={loadingColor}
         />
       ) : (
         <ThemeText

@@ -16,78 +16,37 @@ import {copyToClipboard} from '../../functions';
 import GetThemeColors from '../../hooks/themeColors';
 import {openComposer} from 'react-native-email-link';
 import {useGlobalThemeContext} from '../../../context-store/theme';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {
   applyErrorAnimationTheme,
   updateConfirmAnimation,
 } from '../../functions/lottieViewColorTransformer';
+import {useToast} from '../../../context-store/toastManager';
+
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
 export default function ConfirmTxPage(props) {
   const navigate = useNavigation();
-  const handleBackPressFunction = useCallback(() => {
-    navigate.popToTop();
-  }, []);
-
-  useHandleBackPressNew(handleBackPressFunction);
+  const {showToast} = useToast();
   const {backgroundOffset} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
   const animationRef = useRef(null);
-  const paymentType = props.route.params?.for;
-  const paymentInformation = props.route.params?.information;
-  const formmatingType = props.route.params?.formattingType;
 
-  console.log(props.route.params);
-  console.log(props.route.params?.information);
+  const transaction = props.route.params?.transaction;
+  const hasError = props.route.params?.error;
+  const paymentInformation = transaction?.details;
 
-  const didSucceed =
-    paymentInformation == undefined
-      ? false
-      : formmatingType === 'liquidNode'
-      ? paymentInformation?.status === 'pending'
-      : formmatingType === 'lightningNode'
-      ? paymentInformation?.payment?.status === 'complete'
-      : paymentInformation?.status === 'complete';
+  const didSucceed = !hasError;
 
-  const showPendingMessage =
-    paymentInformation?.details?.type === 'liquid' ||
-    !!paymentInformation?.details?.swapId ||
-    paymentInformation?.details?.type === 'Bitcoin';
+  const paymentNetwork = transaction?.paymentType;
 
-  const paymentFee =
-    paymentInformation == undefined
-      ? 0
-      : formmatingType === 'liquidNode'
-      ? paymentInformation?.feesSat
-      : formmatingType === 'lightningNode'
-      ? Math.round(paymentInformation?.payment?.feeMsat / 1000)
-      : paymentInformation?.feeSat;
-  const paymentNetwork =
-    formmatingType === 'liquidNode'
-      ? paymentInformation?.details?.type
-      : formmatingType === 'lightningNode'
-      ? 'Lightning'
-      : 'eCash';
-  const errorMessage =
-    paymentInformation == undefined
-      ? 'Error sending payment, no information about the error provided'
-      : !didSucceed && formmatingType === 'liquidNode'
-      ? JSON.stringify(paymentInformation?.details?.error)
-      : formmatingType === 'lightningNode'
-      ? JSON.stringify(
-          paymentInformation?.reason || paymentInformation?.payment?.error,
-        )
-      : JSON.stringify(paymentInformation?.details?.error);
+  const showPendingMessage = transaction?.paymentStatus === 'pending';
 
-  const amount =
-    paymentInformation == undefined
-      ? 0
-      : formmatingType === 'liquidNode'
-      ? paymentInformation?.amountSat
-      : formmatingType === 'lightningNode'
-      ? Math.round(paymentInformation?.payment?.amountMsat / 1000)
-      : paymentInformation?.amountSat;
-  ``;
+  const paymentFee = paymentInformation?.fee;
+
+  const errorMessage = hasError;
+
+  const amount = paymentInformation?.amount || 0;
+
   const confirmAnimation = useMemo(() => {
     return updateConfirmAnimation(
       confirmTxAnimation,
@@ -107,12 +66,7 @@ export default function ConfirmTxPage(props) {
   }, []);
 
   return (
-    <GlobalThemeView
-      useStandardWidth={true}
-      styles={{
-        flex: 1,
-        alignItems: 'center',
-      }}>
+    <GlobalThemeView useStandardWidth={true} styles={styles.globalConatianer}>
       <LottieView
         ref={animationRef}
         source={didSucceed ? confirmAnimation : errorAnimation}
@@ -128,7 +82,7 @@ export default function ConfirmTxPage(props) {
           !didSucceed
             ? 'Failed to send'
             : `${
-                paymentType?.toLowerCase() === 'paymentsucceed'
+                paymentInformation.direction?.toLowerCase() === 'outgoing'
                   ? 'Sent'
                   : 'Received'
               } succesfully`
@@ -159,9 +113,7 @@ export default function ConfirmTxPage(props) {
         }}
         content={
           didSucceed
-            ? showPendingMessage
-              ? 'Your balance will be updated shortly'
-              : ''
+            ? ''
             : 'There was an issue sending this payment, please try again.'
         }
       />
@@ -205,7 +157,7 @@ export default function ConfirmTxPage(props) {
                 body: errorMessage,
               });
             } catch (err) {
-              copyToClipboard('blake@blitz-wallet.com', navigate);
+              copyToClipboard('blake@blitz-wallet.com', showToast);
             }
           }}>
           <ThemeText
@@ -244,6 +196,10 @@ export default function ConfirmTxPage(props) {
 }
 
 const styles = StyleSheet.create({
+  globalConatianer: {
+    flex: 1,
+    alignItems: 'center',
+  },
   buttonText: {
     fontFamily: FONT.Descriptoin_Regular,
   },

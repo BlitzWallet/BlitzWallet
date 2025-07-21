@@ -1,5 +1,11 @@
-import {StyleSheet, Text, View, TouchableOpacity, Platform} from 'react-native';
-import {CENTER, SIZES, ICONS} from '../../constants';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  useWindowDimensions,
+} from 'react-native';
+import {CENTER, SIZES, ICONS, COLORS} from '../../constants';
 import {useEffect, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {copyToClipboard} from '../../functions';
@@ -7,7 +13,7 @@ import {useGlobalContextProvider} from '../../../context-store/context';
 import {ButtonsContainer} from '../../components/admin/homeComponents/receiveBitcoin';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
-import {useGlobaleCash} from '../../../context-store/eCash';
+// import {useGlobaleCash} from '../../../context-store/eCash';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import {initializeAddressProcess} from '../../functions/receiveBitcoin/addressGeneration';
@@ -18,28 +24,38 @@ import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import CustomButton from '../../functions/CustomElements/button';
 import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
+import {useGlobalContacts} from '../../../context-store/globalContacts';
+import {useLiquidEvent} from '../../../context-store/liquidEventContext';
+import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
+import {useGlobalThemeContext} from '../../../context-store/theme';
+import {useToast} from '../../../context-store/toastManager';
 import {useKeysContext} from '../../../context-store/keys';
+import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
+  const {fiatStats} = useNodeContext();
   const {masterInfoObject} = useGlobalContextProvider();
+  const {globalContactsInformation} = useGlobalContacts();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {ecashWalletInformation} = useGlobaleCash();
-  const {accountMnemoinc} = useKeysContext();
-  const currentMintURL = ecashWalletInformation.mintURL;
-  const eCashBalance = ecashWalletInformation.balance;
-  const {textColor} = GetThemeColors();
+  const {signer, startRootstockEventListener} = useRootstockProvider();
+
+  const windowDimentions = useWindowDimensions().height;
+  const [contentHeight, setContentHeight] = useState(0);
+  // const {ecashWalletInformation} = useGlobaleCash();
+  const {startLiquidEventListener} = useLiquidEvent();
+  // const currentMintURL = ecashWalletInformation.mintURL;
+  // const eCashBalance = ecashWalletInformation.balance;
   const initialSendAmount = props.route.params?.receiveAmount;
   const paymentDescription = props.route.params?.description;
   useHandleBackPressNew();
   const selectedRecieveOption =
-    props.route.params?.selectedRecieveOption || 'lightning';
+    props.route.params?.selectedRecieveOption || 'Lightning';
 
   const [addressState, setAddressState] = useState({
-    selectedRecieveOption: 'lightning',
+    selectedRecieveOption: selectedRecieveOption,
     isReceivingSwap: false,
-    generatedAddress: '',
+    generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`,
     isGeneratingInvoice: false,
     minMaxSwapAmount: {
       min: 0,
@@ -55,44 +71,94 @@ export default function ReceivePaymentHome(props) {
   });
 
   useEffect(() => {
-    crashlyticsLogReport('Begining adddress initialization');
-    initializeAddressProcess({
-      nodeInformation,
-      userBalanceDenomination: masterInfoObject.userBalanceDenomination,
-      receivingAmount: initialSendAmount,
-      description: paymentDescription,
-      masterInfoObject,
-      minMaxSwapAmounts: minMaxLiquidSwapAmounts,
-      mintURL: currentMintURL,
-      setAddressState: setAddressState,
-      selectedRecieveOption: selectedRecieveOption,
-      navigate,
-      eCashBalance,
-      accountMnemoinc,
-    });
+    async function runAddressInit() {
+      crashlyticsLogReport('Begining adddress initialization');
+      if (
+        !initialSendAmount &&
+        selectedRecieveOption.toLowerCase() === 'lightning'
+      ) {
+        setAddressState(prev => ({
+          ...prev,
+          generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`,
+        }));
+        return;
+      }
+
+      await initializeAddressProcess({
+        userBalanceDenomination: masterInfoObject.userBalanceDenomination,
+        receivingAmount: initialSendAmount,
+        description: paymentDescription,
+        masterInfoObject,
+        minMaxSwapAmounts: minMaxLiquidSwapAmounts,
+        // mintURL: currentMintURL,
+        setAddressState: setAddressState,
+        selectedRecieveOption: selectedRecieveOption,
+        navigate,
+        signer,
+        // eCashBalance,
+      });
+      if (selectedRecieveOption === 'Liquid') {
+        startLiquidEventListener();
+      } else if (selectedRecieveOption === 'Rootstock') {
+        startRootstockEventListener({durationMs: 1200000});
+      }
+    }
+    runAddressInit();
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
+
   return (
-    <GlobalThemeView styles={{alignItems: 'center'}} useStandardWidth={true}>
-      <TopBar navigate={navigate} />
+    <GlobalThemeView useStandardWidth={true}>
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: contentHeight > windowDimentions ? 0 : 1,
+        }}
+        showsVerticalScrollIndicator={false}>
+        <View
+          onLayout={e => {
+            if (!e.nativeEvent.layout.height) return;
+            setContentHeight(e.nativeEvent.layout.height);
+          }}
+          style={{
+            width: '100%',
+            alignItems: 'center',
+            flexGrow: contentHeight > windowDimentions ? 0 : 1,
+          }}>
+          <TopBar navigate={navigate} />
 
-      <ThemeText styles={{...styles.title}} content={selectedRecieveOption} />
-      <QrCode navigate={navigate} addressState={addressState} />
+          <ThemeText
+            styles={{...styles.title}}
+            content={selectedRecieveOption}
+          />
+          <QrCode
+            globalContactsInformation={globalContactsInformation}
+            selectedRecieveOption={selectedRecieveOption}
+            navigate={navigate}
+            addressState={addressState}
+            initialSendAmount={initialSendAmount}
+          />
 
-      <ButtonsContainer
-        generatingInvoiceQRCode={addressState.isGeneratingInvoice}
-        generatedAddress={addressState.generatedAddress}
-      />
+          <ButtonsContainer
+            generatingInvoiceQRCode={addressState.isGeneratingInvoice}
+            generatedAddress={addressState.generatedAddress}
+            selectedRecieveOption={selectedRecieveOption}
+          />
 
-      <View style={{marginBottom: 'auto'}}></View>
+          <View style={{marginBottom: 'auto'}}></View>
 
-      <View
-        style={{
-          alignItems: 'center',
-          position: 'absolute',
-          [Platform.OS === 'ios' ? 'top' : 'bottom']:
-            Platform.OS === 'ios' ? '100%' : 0,
-        }}>
-        <Text
+          <View
+            style={{
+              alignItems: 'center',
+              // position: 'absolute',
+              // [Platform.OS === 'ios' ? 'top' : 'bottom']:
+              // Platform.OS === 'ios' ? '100%' : 0,
+            }}>
+            <ThemeText content={'Fee:'} />
+            <FormattedSatText
+              neverHideBalance={true}
+              styles={{paddingBottom: 5}}
+              balance={0}
+            />
+            {/* <Text
           style={[
             styles.title,
             {
@@ -109,8 +175,8 @@ export default function ReceivePaymentHome(props) {
                   : 'Maximum'
               } receive amount:`
             : `Fee:`}
-        </Text>
-        {addressState.isGeneratingInvoice ? (
+        </Text> */}
+            {/* {addressState.isGeneratingInvoice ? (
           <ThemeText content={' '} />
         ) : (
           <FormattedSatText
@@ -125,64 +191,94 @@ export default function ReceivePaymentHome(props) {
                 : addressState.fee
             }
           />
-        )}
-      </View>
+        )} */}
+          </View>
+        </View>
+      </ScrollView>
     </GlobalThemeView>
   );
 }
 
 function QrCode(props) {
-  const {addressState, navigate} = props;
-  const {backgroundOffset} = GetThemeColors();
+  const {
+    addressState,
+    navigate,
+    selectedRecieveOption,
+    globalContactsInformation,
+    initialSendAmount,
+  } = props;
+  const {showToast} = useToast();
+  const {theme} = useGlobalThemeContext();
+  const {backgroundOffset, textColor} = GetThemeColors();
   if (addressState.isGeneratingInvoice) {
     return (
-      <View
-        style={{
-          ...styles.qrCodeContainer,
-          backgroundColor: backgroundOffset,
-        }}>
-        <FullLoadingScreen text={'Generating Invoice'} />
+      <View style={styles.qrCodeContainer}>
+        <View
+          style={{
+            ...styles.qrCodeContainer,
+            backgroundColor: backgroundOffset,
+          }}>
+          <FullLoadingScreen text={'Generating Invoice'} />
+        </View>
+        <LNURLContainer
+          theme={theme}
+          textColor={textColor}
+          selectedRecieveOption={selectedRecieveOption}
+          initialSendAmount={initialSendAmount}
+          globalContactsInformation={globalContactsInformation}
+          navigate={navigate}
+        />
       </View>
     );
   }
   if (!addressState.generatedAddress) {
     return (
-      <View
-        style={{
-          ...styles.qrCodeContainer,
-          backgroundColor: backgroundOffset,
-        }}>
-        <ThemeText
-          styles={styles.errorText}
-          content={
-            addressState.errorMessageText.text || 'Unable to generate address'
-          }
-        />
-        {addressState.errorMessageText.showButton && (
-          <CustomButton
-            buttonStyles={{width: '90%', marginTop: 20}}
-            textContent={'Open transfer page'}
-            actionFunction={() => {
-              navigate.reset({
-                routes: [
-                  {
-                    name: 'HomeAdmin',
-                    params: {screen: 'Home'},
-                  },
-                  {
-                    name: 'SettingsHome',
-                  },
-                  {
-                    name: 'SettingsContentHome',
-                    params: {
-                      for: 'Balance Info',
-                    },
-                  },
-                ],
-              });
-            }}
+      <View style={styles.qrCodeContainer}>
+        <View
+          style={{
+            ...styles.qrCodeContainer,
+            backgroundColor: backgroundOffset,
+          }}>
+          <ThemeText
+            styles={styles.errorText}
+            content={
+              addressState.errorMessageText.text || 'Unable to generate address'
+            }
           />
-        )}
+          {addressState.errorMessageText.showButton && (
+            <CustomButton
+              buttonStyles={{width: '90%', marginTop: 20}}
+              textContent={'Open transfer page'}
+              actionFunction={() => {
+                navigate.reset({
+                  routes: [
+                    {
+                      name: 'HomeAdmin',
+                      params: {screen: 'Home'},
+                    },
+                    {
+                      name: 'SettingsHome',
+                    },
+                    {
+                      name: 'SettingsContentHome',
+                      params: {
+                        for: 'Balance Info',
+                      },
+                    },
+                  ],
+                });
+              }}
+            />
+          )}
+        </View>
+        <LNURLContainer
+          theme={theme}
+          textColor={textColor}
+          selectedRecieveOption={selectedRecieveOption}
+          initialSendAmount={initialSendAmount}
+          globalContactsInformation={globalContactsInformation}
+          navigate={navigate}
+        />
       </View>
     );
   }
@@ -191,7 +287,7 @@ function QrCode(props) {
     <View style={styles.qrCodeContainer}>
       <TouchableOpacity
         onPress={() => {
-          copyToClipboard(addressState.generatedAddress, navigate);
+          copyToClipboard(addressState.generatedAddress, showToast);
         }}
         style={[
           styles.qrCodeContainer,
@@ -212,7 +308,79 @@ function QrCode(props) {
           />
         )}
       </TouchableOpacity>
+
+      <LNURLContainer
+        theme={theme}
+        textColor={textColor}
+        selectedRecieveOption={selectedRecieveOption}
+        initialSendAmount={initialSendAmount}
+        globalContactsInformation={globalContactsInformation}
+        navigate={navigate}
+      />
     </View>
+  );
+}
+
+function LNURLContainer({
+  theme,
+  textColor,
+  selectedRecieveOption,
+  initialSendAmount,
+  globalContactsInformation,
+  navigate,
+}) {
+  return (
+    <TouchableOpacity
+      activeOpacity={
+        selectedRecieveOption.toLowerCase() === 'lightning' &&
+        !initialSendAmount
+          ? 0.2
+          : 1
+      }
+      onPress={() => {
+        if (
+          !(
+            selectedRecieveOption.toLowerCase() === 'lightning' &&
+            !initialSendAmount
+          )
+        )
+          return;
+        navigate.navigate('CustomHalfModal', {
+          wantedContent: 'editLNULROnReceive',
+        });
+      }}
+      style={{
+        width: '80%',
+        paddingTop: 10,
+        paddingBottom: 20,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'center',
+      }}>
+      <ThemeText
+        styles={{
+          includeFontPadding: false,
+          marginRight: 5,
+          color: theme ? textColor : COLORS.primary,
+        }}
+        CustomNumberOfLines={1}
+        content={
+          selectedRecieveOption.toLowerCase() === 'lightning' &&
+          !initialSendAmount
+            ? `${globalContactsInformation?.myProfile?.uniqueName}@blitz-wallet.com`
+            : ' '
+        }
+      />
+      {selectedRecieveOption.toLowerCase() === 'lightning' &&
+        !initialSendAmount && (
+          <ThemeImage
+            styles={{height: 20, width: 20}}
+            lightModeIcon={ICONS.editIcon}
+            darkModeIcon={ICONS.editIconLight}
+            lightsOutIcon={ICONS.editIconLight}
+          />
+        )}
+    </TouchableOpacity>
   );
 }
 

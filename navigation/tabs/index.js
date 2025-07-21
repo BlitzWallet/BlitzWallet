@@ -2,10 +2,12 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {
   Dimensions,
   Image,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import {COLORS, ICONS, SIZES} from '../../app/constants';
 import {useMemo} from 'react';
 import {CENTER} from '../../app/constants/styles';
@@ -15,15 +17,16 @@ import {ContactsPage} from '../../app/components/admin';
 import GetThemeColors from '../../app/hooks/themeColors';
 import {useGlobalThemeContext} from '../../context-store/theme';
 import ExploreUsers from '../../app/screens/inAccount/explorePage';
-import useAppInsets from '../../app/hooks/useAppInsets';
+import {useGlobalInsets} from '../../context-store/insetsProvider';
 
 const Tab = createBottomTabNavigator();
 
 function MyTabBar({state, descriptors, navigation}) {
-  const {bottomPadding} = useAppInsets();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {contactsMessags} = useGlobalContacts();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+
+  const {bottomPadding} = useGlobalInsets();
 
   const hasUnlookedTransactions = useMemo(() => {
     return (
