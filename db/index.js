@@ -324,9 +324,8 @@ export async function syncDatabasePayment(
     const cachedConversations = await getCachedMessages();
     const savedMillis = cachedConversations.lastMessageTimestamp;
     console.log('Retrieving docs from timestamp:', savedMillis);
-    const messagesRef = collection(db, 'contactMessages');
 
-    // Single compound query for both sent and received messages
+    const messagesRef = collection(db, 'contactMessages');
     const combinedQuery = query(
       messagesRef,
       where('timestamp', '>', savedMillis),
@@ -347,8 +346,38 @@ export async function syncDatabasePayment(
 
     console.log(`${allMessages.length} messages received from history`);
 
-    const formattedMessages = allMessages
-      .map(message => {
+    const processedMessages = await processWithRAF(
+      allMessages,
+      myPubKey,
+      privateKey,
+    );
+
+    queueSetCashedMessages({
+      newMessagesList: processedMessages,
+      myPubKey,
+    });
+  } catch (err) {
+    console.error('Error syncing database payments:', err);
+    crashlyticsLogReport(err.message);
+    updatedCachedMessagesStateFunction();
+  }
+}
+
+function processWithRAF(allMessages, myPubKey, privateKey) {
+  return new Promise(resolve => {
+    const processedMessages = [];
+    let currentIndex = 0;
+    const MESSAGES_PER_FRAME = 50;
+
+    function processChunk() {
+      console.log('processsing contact messages', currentIndex);
+      const endIndex = Math.min(
+        currentIndex + MESSAGES_PER_FRAME,
+        allMessages.length,
+      );
+
+      for (let i = currentIndex; i < endIndex; i++) {
+        const message = allMessages[i];
         try {
           if (typeof message.message === 'string') {
             const sendersPubkey =
@@ -360,31 +389,33 @@ export async function syncDatabasePayment(
               sendersPubkey,
               message.message,
             );
-            if (!decoded) return false;
+            if (!decoded) continue;
+
             let parsedMessage;
             try {
               parsedMessage = JSON.parse(decoded);
             } catch (err) {
               console.log('error parsing decoded message', err);
-              return false;
+              continue;
             }
-            return {...message, message: parsedMessage};
+            processedMessages.push({...message, message: parsedMessage});
+          } else {
+            processedMessages.push(message);
           }
-          return message;
         } catch (err) {
           console.log('error decoding incoming request from history');
         }
-      })
-      .filter(Boolean);
+      }
 
-    queueSetCashedMessages({
-      newMessagesList: formattedMessages,
-      myPubKey,
-    });
-  } catch (err) {
-    console.error('Error syncing database payments:', err);
-    crashlyticsLogReport(err.message);
-    // Consider adding error handling callback if needed
-    updatedCachedMessagesStateFunction();
-  }
+      currentIndex = endIndex;
+
+      if (currentIndex < allMessages.length) {
+        requestAnimationFrame(processChunk);
+      } else {
+        resolve(processedMessages);
+      }
+    }
+
+    requestAnimationFrame(processChunk);
+  });
 }
