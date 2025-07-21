@@ -170,12 +170,12 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
          LIMIT 1`,
           [tempSparkId],
         );
-        const existingFinalTx = await sqlLiteDB.getFirstAsync(
-          `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} 
-         WHERE sparkID = ? 
-         LIMIT 1`,
-          [sparkID],
-        );
+        // const existingFinalTx = await sqlLiteDB.getFirstAsync(
+        //   `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+        //  WHERE sparkID = ?
+        //  LIMIT 1`,
+        //   [sparkID],
+        // );
 
         const newDetails = tx.details;
 
@@ -197,35 +197,35 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
             }
           }
 
-          if (existingFinalTx) {
-            await sqlLiteDB.runAsync(
-              `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
-           SET paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
-           WHERE sparkID = ?`,
-              [
-                tx.paymentStatus,
-                tx.paymentType ?? 'unknown',
-                tx.accountId ?? 'unknown',
-                JSON.stringify(mergedDetails),
-                sparkID,
-              ],
-            );
-            await deleteSparkTransaction(tempSparkId);
-          } else {
-            await sqlLiteDB.runAsync(
-              `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
+          // if (existingFinalTx) {
+          //   await sqlLiteDB.runAsync(
+          //     `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
+          //  SET paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
+          //  WHERE sparkID = ?`,
+          //     [
+          //       tx.paymentStatus,
+          //       tx.paymentType ?? 'unknown',
+          //       tx.accountId ?? 'unknown',
+          //       JSON.stringify(mergedDetails),
+          //       sparkID,
+          //     ],
+          //   );
+          //   await deleteSparkTransaction(tempSparkId);
+          // } else {
+          await sqlLiteDB.runAsync(
+            `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
            SET sparkID = ?, paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
            WHERE sparkID = ?`,
-              [
-                sparkID,
-                tx.paymentStatus,
-                tx.paymentType ?? 'unknown',
-                tx.accountId ?? 'unknown',
-                JSON.stringify(mergedDetails),
-                tempSparkId,
-              ],
-            );
-          }
+            [
+              sparkID,
+              tx.paymentStatus,
+              tx.paymentType ?? 'unknown',
+              tx.accountId ?? 'unknown',
+              JSON.stringify(mergedDetails),
+              tempSparkId,
+            ],
+          );
+          // }
         } else {
           // Insert new transaction
           await sqlLiteDB.runAsync(

@@ -339,9 +339,10 @@ async function processLightningTransaction(
         id: matchResult.matchedUnpaidInvoice
           ? matchResult.matchedUnpaidInvoice.transfer.sparkId
           : txStateUpdate.sparkID,
-        paymentStatus: getSparkPaymentStatus(
-          matchResult.matchedUnpaidInvoice.status,
-        ), //'completed',
+        paymentStatus: 'completed',
+        // getSparkPaymentStatus(
+        //   matchResult.matchedUnpaidInvoice.status,
+        // ),
         paymentType: 'lightning',
         accountId: txStateUpdate.accountId,
         details: {
@@ -369,7 +370,7 @@ async function processLightningTransaction(
       useTempId: true,
       tempId: txStateUpdate.sparkID,
       id: sparkResponse.transfer.sparkId,
-      paymentStatus: getSparkPaymentStatus(sparkResponse.status), //'completed',
+      paymentStatus: 'completed', // getSparkPaymentStatus(sparkResponse.status)
       paymentType: 'lightning',
       accountId: txStateUpdate.accountId,
       details: {
@@ -477,7 +478,7 @@ async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
 
       updatedTxs.push({
         id: txStateUpdate.sparkID,
-        paymentStatus: getSparkPaymentStatus(bitcoinTransfer.status), // 'completed',
+        paymentStatus: 'completed', // getSparkPaymentStatus(bitcoinTransfer.status),
         paymentType: 'bitcoin',
         accountId: txStateUpdate.accountId,
       });
@@ -509,7 +510,7 @@ async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
         useTempId: true,
         tempId: txStateUpdate.sparkID,
         id: sparkResponse.transfer.sparkId,
-        paymentStatus: getSparkPaymentStatus(sparkResponse.status), // 'completed',
+        paymentStatus: 'completed', // getSparkPaymentStatus(sparkResponse.status)
         paymentType: 'bitcoin',
         accountId: txStateUpdate.accountId,
         details: {
