@@ -8,6 +8,10 @@ import {
   sparkPaymentType,
 } from '.';
 import {
+  LightningSendRequestStatus,
+  SparkCoopExitRequestStatus,
+} from '@buildonspark/spark-sdk/types';
+import {
   IS_BITCOIN_REQUEST_ID,
   IS_SPARK_ID,
   IS_SPARK_REQUEST_ID,
@@ -365,6 +369,20 @@ async function processLightningTransaction(
           })
         : await getSparkLightningSendRequest(txStateUpdate.sparkID);
 
+    if (
+      details.direction === 'OUTGOING' &&
+      sparkResponse.status ===
+        LightningSendRequestStatus.LIGHTNING_PAYMENT_FAILED
+    ) {
+      return {
+        id: txStateUpdate.sparkID,
+        paymentStatus: 'failed',
+        paymentType: 'lightning',
+        accountId: txStateUpdate.accountId,
+        details,
+      };
+    }
+
     if (!sparkResponse?.transfer) return null;
     return {
       useTempId: true,
@@ -489,7 +507,10 @@ async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
       );
 
       if (!sparkResponse?.transfer) {
-        if (!details.onChainTxid && sparkResponse?.coopExitTxid) {
+        if (
+          sparkResponse?.coopExitTxid &&
+          (!details.onChainTxid || !details.expiresAt)
+        ) {
           updatedTxs.push({
             useTempId: true,
             tempId: txStateUpdate.sparkID,
@@ -500,7 +521,21 @@ async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
             details: {
               ...details,
               onChainTxid: sparkResponse.coopExitTxid,
+              expiresAt: sparkResponse.expiresAt || '',
             },
+          });
+        }
+
+        if (
+          sparkResponse.status === SparkCoopExitRequestStatus.EXPIRED ||
+          sparkResponse.status === SparkCoopExitRequestStatus.FAILED
+        ) {
+          updatedTxs.push({
+            id: txStateUpdate.sparkID,
+            paymentStatus: 'failed',
+            paymentType: 'bitcoin',
+            accountId: txStateUpdate.accountId,
+            details,
           });
         }
         continue;

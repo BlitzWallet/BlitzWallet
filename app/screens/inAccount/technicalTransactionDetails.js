@@ -25,7 +25,7 @@ export default function TechnicalTransactionDetails(props) {
       ? ['Payment Id']
       : transaction.paymentType === 'lightning'
       ? ['Payment Id', 'Payment Preimage', 'Payment Address']
-      : ['Payment Id', 'Bitcoin Txid', 'Payment Address'];
+      : ['Payment Id', 'Bitcoin Txid', 'Payment Address', 'Payment Expiry'];
 
   const infoElements = paymentDetails.map((item, id) => {
     const txItem =
@@ -41,7 +41,9 @@ export default function TechnicalTransactionDetails(props) {
         ? sparkID
         : id === 1
         ? details.onChainTxid
-        : details.address;
+        : id === 2
+        ? details.address
+        : details.expiresAt || 'N/A';
 
     return (
       <View key={id}>

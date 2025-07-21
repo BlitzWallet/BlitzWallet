@@ -480,6 +480,7 @@ const SparkWalletProvider = ({children}) => {
                 'claimedBitcoinTxs',
                 JSON.stringify(claimedTxs),
               );
+              await handleTxIdState(txid, true, address);
             }
             await new Promise(res => setTimeout(res, 2000));
             const findBitcoinTxResponse = await findTransactionTxFromTxHistory(
