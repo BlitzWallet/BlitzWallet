@@ -3,6 +3,7 @@ import {
   getSparkBitcoinPaymentRequest,
   getSparkLightningPaymentStatus,
   getSparkLightningSendRequest,
+  getSparkPaymentStatus,
   getSparkTransactions,
   sparkPaymentType,
 } from '.';
@@ -326,7 +327,9 @@ async function processLightningTransaction(
         id: matchResult.matchedUnpaidInvoice
           ? matchResult.matchedUnpaidInvoice.transfer.sparkId
           : txStateUpdate.sparkID,
-        paymentStatus: 'completed',
+        paymentStatus: getSparkPaymentStatus(
+          matchResult.matchedUnpaidInvoice.status,
+        ), //'completed',
         paymentType: 'lightning',
         accountId: txStateUpdate.accountId,
         details: {
@@ -350,12 +353,11 @@ async function processLightningTransaction(
         : await getSparkLightningSendRequest(txStateUpdate.sparkID);
 
     if (!sparkResponse?.transfer) return null;
-
     return {
       useTempId: true,
       tempId: txStateUpdate.sparkID,
       id: sparkResponse.transfer.sparkId,
-      paymentStatus: 'completed',
+      paymentStatus: getSparkPaymentStatus(sparkResponse.status), //'completed',
       paymentType: 'lightning',
       accountId: txStateUpdate.accountId,
       details: {
@@ -419,12 +421,14 @@ async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
 
   const now = Date.now();
   const cooldownPeriod = 1000 * 60; // 60 seconds
+  let shouldBlockSendCheck = null;
 
   if (lastRun && now - JSON.parse(lastRun) < cooldownPeriod) {
     console.log('Blocking bitcoin transaction processing');
-    return [];
+    shouldBlockSendCheck = true;
   } else {
     console.log('Updating bitcoin transaction processing last run time');
+    shouldBlockSendCheck = false;
     await setLocalStorageItem('lastRunBitcoinTxUpdate', JSON.stringify(now));
   }
   const updatedTxs = [];
@@ -461,11 +465,12 @@ async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
 
       updatedTxs.push({
         id: txStateUpdate.sparkID,
-        paymentStatus: 'completed',
+        paymentStatus: getSparkPaymentStatus(bitcoinTransfer.status), // 'completed',
         paymentType: 'bitcoin',
         accountId: txStateUpdate.accountId,
       });
     } else {
+      if (shouldBlockSendCheck) continue;
       const sparkResponse = await getSparkBitcoinPaymentRequest(
         txStateUpdate.sparkID,
       );
@@ -492,7 +497,7 @@ async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
         useTempId: true,
         tempId: txStateUpdate.sparkID,
         id: sparkResponse.transfer.sparkId,
-        paymentStatus: 'completed',
+        paymentStatus: getSparkPaymentStatus(sparkResponse.status), // 'completed',
         paymentType: 'bitcoin',
         accountId: txStateUpdate.accountId,
         details: {
