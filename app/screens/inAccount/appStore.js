@@ -49,10 +49,10 @@ export default function AppStore({navigation}) {
         onPress={() => {
           if (
             !isConnectedToTheInternet &&
-            (app.pageName.toLocaleLowerCase() === 'ai' ||
-              app.pageName.toLocaleLowerCase() === 'pos' ||
-              app.pageName.toLocaleLowerCase() === 'sms4sats' ||
-              app.pageName.toLocaleLowerCase() === 'lnvpn')
+            (app.pageName.toLowerCase() === 'ai' ||
+              app.pageName.toLowerCase() === 'pos' ||
+              app.pageName.toLowerCase() === 'sms4sats' ||
+              app.pageName.toLowerCase() === 'lnvpn')
           ) {
             navigate.navigate('ErrorScreen', {
               errorMessage:
@@ -61,7 +61,7 @@ export default function AppStore({navigation}) {
             return;
           }
 
-          if (app.pageName.toLocaleLowerCase() === 'soon') {
+          if (app.pageName.toLowerCase() === 'soon') {
             navigate.navigate('ErrorScreen', {
               errorMessage:
                 'We love that you want more apps. Suggest them below!',

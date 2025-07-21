@@ -35,10 +35,8 @@ export default function FiatCurrencyPage() {
 
   const filteredList = currencies.filter(currency => {
     if (
-      currency.info.name
-        .toLowerCase()
-        .startsWith(textInput.toLocaleLowerCase()) ||
-      currency.id.toLowerCase().startsWith(textInput.toLocaleLowerCase())
+      currency.info.name.toLowerCase().startsWith(textInput.toLowerCase()) ||
+      currency.id.toLowerCase().startsWith(textInput.toLowerCase())
     )
       return currency;
     else return false;

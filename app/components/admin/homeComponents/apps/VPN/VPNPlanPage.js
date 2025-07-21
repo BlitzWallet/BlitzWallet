@@ -43,7 +43,7 @@ export default function VPNPlanPage({countryList}) {
         item.country
           .slice(5)
           .toLowerCase()
-          .startsWith(searchInput.toLocaleLowerCase()),
+          .startsWith(searchInput.toLowerCase()),
       )
       .map(item => {
         if (item.cc === 2) return <View key={item.country} />;

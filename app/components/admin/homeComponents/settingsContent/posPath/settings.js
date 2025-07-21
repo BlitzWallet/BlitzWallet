@@ -95,8 +95,8 @@ export default function PosSettingsPage() {
         if (
           currency.info.name
             .toLowerCase()
-            .startsWith(textInput.toLocaleLowerCase()) ||
-          currency.id.toLowerCase().startsWith(textInput.toLocaleLowerCase())
+            .startsWith(textInput.toLowerCase()) ||
+          currency.id.toLowerCase().startsWith(textInput.toLowerCase())
         )
           return currency;
         else return false;
