@@ -224,8 +224,8 @@ async function processInputType(input, context) {
     case InputTypeVariant.LN_URL_WITHDRAW:
       return await processLNUrlWithdraw(input, context);
 
-    case LiquidTypeVarient.LIQUID_ADDRESS:
-      return processLiquidAddress(input, context);
+    // case LiquidTypeVarient.LIQUID_ADDRESS:
+    // return processLiquidAddress(input, context);
 
     // case LiquidTypeVarient.BOLT12_OFFER:
     //   return processBolt12Offer(input, context);
