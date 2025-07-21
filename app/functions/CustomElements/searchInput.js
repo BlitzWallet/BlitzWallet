@@ -2,16 +2,16 @@ import {StyleSheet, TextInput, View} from 'react-native';
 import {CENTER, COLORS, FONT, SIZES} from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useMemo} from 'react';
+import {useCallback, useMemo} from 'react';
 
 export default function CustomSearchInput({
   inputText,
   setInputText,
-  placeholderText,
+  placeholderText = '',
   containerStyles,
   textInputStyles,
   buttonComponent,
-  keyboardType,
+  keyboardType = 'default',
   textInputRef,
   blurOnSubmit,
   onSubmitEditingFunction,
@@ -30,58 +30,80 @@ export default function CustomSearchInput({
       ...styles.searchInput,
       color: textInputColor,
       backgroundColor: textInputBackground,
+      ...textInputStyles,
     }),
-    [theme, darkModeType],
+    [theme, darkModeType, textInputStyles],
   );
+
+  const viewContainerStyles = useMemo(() => {
+    return {...styles.inputContainer, ...containerStyles};
+  }, [containerStyles]);
+
+  const keyboardAppearance = useMemo(() => {
+    return theme ? 'dark' : 'light';
+  }, [theme]);
+  const placeholderTextColorStyles = useMemo(() => {
+    return placeholderTextColor != undefined
+      ? placeholderTextColor
+      : theme && !darkModeType
+      ? COLORS.blueDarkmodeTextInputPlaceholder
+      : COLORS.opaicityGray;
+  }, [theme, darkModeType, placeholderTextColor]);
+
+  const blurOnSubmitValue = useMemo(() => {
+    return blurOnSubmit != undefined ? blurOnSubmit : true;
+  }, [blurOnSubmit]);
+
+  const mutlilineValue = useMemo(() => {
+    return textInputMultiline != undefined ? textInputMultiline : false;
+  }, [textInputMultiline]);
+  const textAlignVerticalValue = useMemo(() => {
+    return textAlignVertical != undefined ? textAlignVertical : 'center';
+  }, [textAlignVertical]);
+  const maxLenValue = useMemo(() => {
+    return maxLength != undefined ? maxLength : null;
+  }, [maxLength]);
+  const submitEditingFunction = useCallback(() => {
+    if (onSubmitEditingFunction) {
+      onSubmitEditingFunction();
+    }
+  }, [onSubmitEditingFunction]);
+  const focusFunction = useCallback(() => {
+    if (onFocusFunction) {
+      onFocusFunction();
+    }
+  }, [onFocusFunction]);
+
+  const blurFunction = useCallback(() => {
+    if (!onBlurFunction) return;
+    if (shouldDelayBlur) {
+      setTimeout(() => {
+        onBlurFunction();
+      }, 150);
+    } else onBlurFunction();
+  }, [onBlurFunction, shouldDelayBlur]);
+
   return (
-    <>
-      <View style={{...styles.inputContainer, ...containerStyles}}>
-        <TextInput
-          autoComplete="off"
-          autoCorrect={false}
-          keyboardAppearance={theme ? 'dark' : 'light'}
-          placeholder={placeholderText || ''}
-          placeholderTextColor={
-            placeholderTextColor != undefined
-              ? placeholderTextColor
-              : theme && !darkModeType
-              ? COLORS.blueDarkmodeTextInputPlaceholder
-              : COLORS.opaicityGray
-          }
-          value={inputText}
-          ref={textInputRef}
-          onChangeText={setInputText}
-          blurOnSubmit={blurOnSubmit != undefined ? blurOnSubmit : true}
-          keyboardType={keyboardType || 'default'}
-          onSubmitEditing={() => {
-            onSubmitEditingFunction && onSubmitEditingFunction();
-          }}
-          onFocus={() => {
-            onFocusFunction && onFocusFunction();
-          }}
-          onBlur={() => {
-            if (!onBlurFunction) return;
-            if (shouldDelayBlur) {
-              setTimeout(() => {
-                onBlurFunction();
-              }, 150);
-            } else onBlurFunction();
-          }}
-          multiline={
-            textInputMultiline != undefined ? textInputMultiline : false
-          }
-          textAlignVertical={
-            textAlignVertical != undefined ? textAlignVertical : 'center'
-          }
-          maxLength={maxLength != undefined ? maxLength : null}
-          style={{
-            ...memorizedStyles,
-            ...textInputStyles,
-          }}
-        />
-        {buttonComponent && buttonComponent}
-      </View>
-    </>
+    <View style={viewContainerStyles}>
+      <TextInput
+        keyboardAppearance={keyboardAppearance}
+        placeholder={placeholderText}
+        placeholderTextColor={placeholderTextColorStyles}
+        value={inputText}
+        ref={textInputRef}
+        onChangeText={setInputText}
+        blurOnSubmit={blurOnSubmitValue}
+        keyboardType={keyboardType}
+        onSubmitEditing={submitEditingFunction}
+        onFocus={focusFunction}
+        onBlur={blurFunction}
+        multiline={mutlilineValue}
+        textAlignVertical={textAlignVerticalValue}
+        maxLength={maxLenValue}
+        style={memorizedStyles}
+      />
+      {buttonComponent && buttonComponent}
+    </View>
   );
 }
 

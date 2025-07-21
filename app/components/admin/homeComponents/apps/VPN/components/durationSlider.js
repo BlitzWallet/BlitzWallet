@@ -1,11 +1,5 @@
-import {
-  Animated,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
-} from 'react-native';
-import {useRef} from 'react';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {useMemo} from 'react';
 import {COLORS, SATSPERBITCOIN, SIZES} from '../../../../../../constants';
 import {ThemeText} from '../../../../../../functions/CustomElements';
 import FormattedSatText from '../../../../../../functions/CustomElements/satTextDisplay';
@@ -17,183 +11,113 @@ export default function VPNDurationSlider({
   setSelectedDuration,
   selectedDuration,
 }) {
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
+  const {fiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const sliderAnim = useRef(new Animated.Value(3)).current;
-  const windowDimensions = useWindowDimensions();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {textColor} = GetThemeColors();
 
   const satValues = {
+    hour: {
+      value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 0.1),
+      code: 0.1,
+    },
+    day: {
+      value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 0.5),
+      code: 0.5,
+    },
     week: {
-      value: Math.round(
-        (SATSPERBITCOIN / (nodeInformation.fiatStats.value || 60000)) * 1.5,
-      ),
+      value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 1.5),
       code: 1,
     },
     month: {
-      value: Math.round(
-        (SATSPERBITCOIN / (nodeInformation.fiatStats.value || 60000)) * 4,
-      ),
+      value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 4),
       code: 4,
     },
     quarter: {
-      value: Math.round(
-        (SATSPERBITCOIN / (nodeInformation.fiatStats.value || 60000)) * 9,
-      ),
+      value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 9),
       code: 9,
     },
   };
 
-  const sliderWidth = (windowDimensions.width * 0.95 * 0.95) / 3.333 + 12;
-  console.log(selectedDuration);
-  return (
-    <View style={{marginBottom: 20, marginTop: 20, alignItems: 'center'}}>
-      <ThemeText styles={{...styles.infoHeaders}} content={'Duration'} />
-      <View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: backgroundOffset,
-            alignItems: 'center',
-          },
-        ]}>
-        <View style={[styles.colorSchemeContainer]}>
-          <TouchableOpacity
-            style={styles.colorSchemeItemContainer}
-            activeOpacity={1}
-            onPress={() => {
-              setSelectedDuration('week');
-              handleSlide('week');
-            }}>
-            <ThemeText
-              styles={{
-                ...styles.colorSchemeText,
-                color:
-                  selectedDuration === 'week'
-                    ? COLORS.darkModeText
-                    : theme
-                    ? COLORS.darkModeText
-                    : COLORS.lightModeText,
-              }}
-              content={'1 Week'}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.colorSchemeItemContainer}
-            activeOpacity={1}
-            onPress={() => {
-              setSelectedDuration('month');
-              handleSlide('month');
-            }}>
-            <ThemeText
-              styles={{
-                ...styles.colorSchemeText,
-                color:
-                  selectedDuration === 'month'
-                    ? COLORS.darkModeText
-                    : theme
-                    ? COLORS.darkModeText
-                    : COLORS.lightModeText,
-              }}
-              content={'1 Month'}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.colorSchemeItemContainer}
-            activeOpacity={1}
-            onPress={() => {
-              setSelectedDuration('quarter');
-              handleSlide('quarter');
-            }}>
-            <ThemeText
-              styles={{
-                ...styles.colorSchemeText,
-                color:
-                  selectedDuration === 'quarter'
-                    ? COLORS.darkModeText
-                    : theme
-                    ? COLORS.darkModeText
-                    : COLORS.lightModeText,
-              }}
-              content={'1 Quarter'}
-            />
-          </TouchableOpacity>
-          <Animated.View
-            style={[
-              styles.activeSchemeStyle,
-
-              {
-                transform: [{translateX: sliderAnim}, {translateY: 3}],
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : COLORS.primary,
-              },
-            ]}
+  const durationOption = useMemo(() => {
+    return [
+      ['1 hour', 'hour'],
+      ['1 day', 'day'],
+      ['1 week', 'week'],
+      ['1 month', 'month'],
+      ['1 quarter', 'quarter'],
+    ].map(item => {
+      const [name, itemSelector] = item;
+      return (
+        <TouchableOpacity
+          onPress={() => setSelectedDuration(itemSelector)}
+          style={{
+            ...styles.durationButton,
+            borderColor: theme ? COLORS.darkModeText : COLORS.primary,
+            backgroundColor:
+              selectedDuration === itemSelector
+                ? theme
+                  ? COLORS.darkModeText
+                  : COLORS.primary
+                : 'transparent',
+          }}
+          key={name}>
+          <ThemeText
+            styles={{
+              padding: 10,
+              color:
+                selectedDuration === itemSelector
+                  ? theme
+                    ? COLORS.lightModeText
+                    : COLORS.darkModeText
+                  : textColor,
+              includeFontPadding: false,
+            }}
+            content={name}
           />
-        </View>
-      </View>
+        </TouchableOpacity>
+      );
+    });
+  }, [selectedDuration, theme]);
+
+  return (
+    <View style={styles.durationContainer}>
       <FormattedSatText
         neverHideBalance={true}
-        containerStyles={{marginTop: 10}}
+        containerStyles={{marginBottom: 20}}
         styles={{
-          fontSize: SIZES.large,
+          fontSize: SIZES.xLarge,
           textAlign: 'center',
         }}
         frontText={'Price: '}
         balance={satValues[selectedDuration].value}
       />
+      <ThemeText styles={{...styles.infoHeaders}} content={'Duration'} />
+      <View style={styles.durationInnerContianer}>{durationOption}</View>
     </View>
   );
-
-  function handleSlide(type) {
-    Animated.timing(sliderAnim, {
-      toValue:
-        type === 'week'
-          ? 3
-          : type === 'quarter'
-          ? sliderWidth * 2
-          : sliderWidth,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  }
 }
 
 const styles = StyleSheet.create({
+  durationContainer: {
+    marginBottom: 20,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  durationInnerContianer: {
+    columnGap: 10,
+    rowGap: 10,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  durationButton: {
+    borderWidth: 2,
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+  },
   infoHeaders: {
     width: '100%',
     marginBottom: 5,
-  },
-  contentContainer: {
-    width: '100%',
-    paddingVertical: 5,
-    borderRadius: 8,
-  },
-  colorSchemeContainer: {
-    width: '95%',
-    height: 'auto',
-    flexDirection: 'row',
-    position: 'relative',
-    padding: 3,
-    zIndex: 1,
-    borderRadius: 3,
-  },
-  colorSchemeItemContainer: {
-    width: '33.333%',
-    paddingVertical: 8,
-    alignItems: 'center',
-  },
-  colorSchemeText: {
-    includeFontPadding: false,
-  },
-  activeSchemeStyle: {
-    backgroundColor: COLORS.primary,
-    position: 'absolute',
-    height: '100%',
-    width: '33.333%',
-    top: 0,
-    left: 0,
-    borderRadius: 3,
-    zIndex: -1,
   },
 });

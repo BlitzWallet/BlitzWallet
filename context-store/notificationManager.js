@@ -1,100 +1,110 @@
-import React, {useEffect, useRef} from 'react';
+import React, {createContext, useContext, useEffect, useRef} from 'react';
 import {Alert, Platform, View} from 'react-native';
 import * as Notifications from 'expo-notifications';
-import WebView from 'react-native-webview';
-import handleWebviewClaimMessage from '../app/functions/boltz/handle-webview-claim-message';
-import {addDataToCollection} from '../db';
-import {useGlobalContextProvider} from './context';
 import * as Crypto from 'react-native-quick-crypto';
-
 import * as TaskManager from 'expo-task-manager';
-
 import {getMessaging} from '@react-native-firebase/messaging';
 import {encriptMessage} from '../app/functions/messaging/encodingAndDecodingMessages';
-import {registerWebhook} from '@breeztech/react-native-breez-sdk';
-import {useGlobalContacts} from './globalContacts';
-import {getPublicKey} from 'nostr-tools';
-import {useAppStatus} from './appStatus';
+import {useGlobalContextProvider} from './context';
 import {useKeysContext} from './keys';
 import {checkGooglePlayServices} from '../app/functions/checkGoogleServices';
 import DeviceInfo from 'react-native-device-info';
+import handleNWCBackgroundEvent from '../app/functions/nwc/backgroundNofifications';
 
-const PushNotificationManager = ({children}) => {
+// Create the context
+const PushNotificationContext = createContext({});
+
+// Provider component
+export const PushNotificationProvider = ({children}) => {
   const {masterInfoObject} = useGlobalContextProvider();
   const {contactsPrivateKey} = useKeysContext();
-  const {didGetToHomepage} = useAppStatus();
-  const {globalContactsInformation} = useGlobalContacts();
+  const pushNotificationData = masterInfoObject?.pushNotifications;
 
-  const webViewRef = useRef(null);
-  const didRunRef = useRef(false);
+  // const {didGetToHomepage} = useAppStatus();
+  // const {globalContactsInformation} = useGlobalContacts();
+  // const didRunRef = useRef(false);
+
+  // useEffect(() => {
+  //   if (!didGetToHomepage || didRunRef.current) return;
+  //   didRunRef.current = true;
+
+  //   async function initNotification() {
+  //     try {
+  //       const hasGooglePlayServics = checkGooglePlayServices();
+  //       console.log('has google play store services', hasGooglePlayServics);
+  //       if (!hasGooglePlayServics) return;
+  //     } catch (err) {
+  //       console.log(err, 'error registering webhook for ln notifications');
+  //     }
+
+  //     const {status} = await Notifications.requestPermissionsAsync();
+  //     console.log('notifications permission', status);
+  //     if (status !== 'granted') {
+  //       console.log('Notification permission denied');
+  //       return;
+  //     }
+
+  //     console.log('clearing notification badge');
+  //     if (Platform.OS === 'ios') Notifications.setBadgeCountAsync(0);
+
+  //     console.log('retrieving device token');
+  //     const deviceToken = await registerForPushNotificationsAsync();
+
+  //     if (deviceToken) {
+  //       await checkAndSavePushNotificationToDatabase(deviceToken);
+  //     } else {
+  //       return;
+  //     }
+
+  //     registerNotificationHandlers();
+  //   }
+  //   setTimeout(initNotification, 1000);
+  // }, [didGetToHomepage]);
 
   useEffect(() => {
-    if (!didGetToHomepage || didRunRef.current) return;
-    didRunRef.current = true;
+    if (Platform.OS === 'ios') Notifications.setBadgeCountAsync(0);
+    if (!pushNotificationData?.isEnabled) return;
+    registerNotificationHandlers();
+  }, [pushNotificationData]);
 
-    async function initNotification() {
-      try {
-        const hasGooglePlayServics = checkGooglePlayServices();
-        console.log('has google play store services', hasGooglePlayServics);
-        if (!hasGooglePlayServics) return;
+  const getCurrentPushNotifiicationPermissions = async () => {
+    try {
+      const permissionsResult = await Notifications.getPermissionsAsync();
 
-        if (Platform.OS === 'ios') {
-          const url = `${process.env.NDS_TEST_BACKEND}?platform=${Platform.OS}&token=${globalContactsInformation.myProfile.uniqueName}`;
-          await registerWebhook(url);
-        }
-      } catch (err) {
-        console.log(err, 'error regerstering webhook for ln notifications');
-      }
-
-      const {status} = await Notifications.requestPermissionsAsync();
-      console.log('notifications permission', status);
-      if (status !== 'granted') {
-        console.log('Notification permission denied');
-        return;
-      }
-
-      console.log('clearing notification badge');
-      if (Platform.OS === 'ios') Notifications.setBadgeCountAsync(0);
-
-      console.log('retriving device token');
-      const deviceToken = await registerForPushNotificationsAsync();
-
-      if (deviceToken) {
-        await checkAndSavePushNotificationToDatabase(deviceToken);
-      } else {
-        return;
-        // Alert.alert('No device token generated');
-      }
-
-      registerNotificationHandlers();
+      let finalStatus = permissionsResult.status;
+      return finalStatus;
+    } catch (err) {
+      console.log('Error getting pussh notification settings', err);
+      return false;
     }
-    setTimeout(initNotification, 1000);
-  }, [didGetToHomepage]);
-
+  };
   const checkAndSavePushNotificationToDatabase = async deviceToken => {
     try {
       if (
-        masterInfoObject?.pushNotifications?.hash &&
-        typeof masterInfoObject?.pushNotifications?.key.encriptedText ===
-          'string'
+        pushNotificationData?.hash &&
+        typeof pushNotificationData?.key.encriptedText === 'string'
       ) {
         const hashedPushKey = Crypto.default
           .createHash('sha256')
           .update(deviceToken)
           .digest('hex');
         console.log(
-          'saved noticication token hash',
-          masterInfoObject?.pushNotifications?.hash,
+          'saved notification token hash',
+          pushNotificationData?.hash,
         );
-        console.log('current notifiaction token hash', hashedPushKey);
+        console.log('current notification token hash', hashedPushKey);
 
-        if (masterInfoObject?.pushNotifications?.hash === hashedPushKey) return;
+        if (pushNotificationData?.hash === hashedPushKey)
+          return {shouldUpdate: false, error: '', didWork: true};
       }
 
-      savePushNotificationToDatabase(deviceToken);
+      const response = await savePushNotificationToDatabase(deviceToken);
+      if (!response.didWork) throw new Error(response.error);
+
+      return {shouldUpdate: true, didWork: true, data: response.data};
     } catch (error) {
-      // Alert.alert('Error checking push notification', JSON.stringify(error));
       console.error('Error in checkAndSavePushNotificationToDatabase', error);
+      return {shouldUpdate: false, error: error.message, didWork: false};
     }
   };
 
@@ -110,20 +120,18 @@ const PushNotificationManager = ({children}) => {
         process.env.BACKEND_PUB_KEY,
         pushKey,
       );
-      const publicKey = getPublicKey(contactsPrivateKey);
-      await addDataToCollection(
-        {
-          pushNotifications: {
-            platform: Platform.OS,
-            key: {encriptedText: encriptedPushKey},
-            hash: hashedPushKey,
-          },
+
+      return {
+        data: {
+          platform: Platform.OS,
+          key: {encriptedText: encriptedPushKey},
+          hash: hashedPushKey,
         },
-        'blitzWalletUsers',
-        publicKey,
-      );
+        didWork: true,
+      };
     } catch (error) {
       console.error('Error saving push notification to database', error);
+      return {didWork: false, error: error.message};
     }
   };
 
@@ -138,29 +146,27 @@ const PushNotificationManager = ({children}) => {
   };
 
   return (
-    <View style={{flex: 1}}>
-      <WebView
-        domStorageEnabled
-        javaScriptEnabled
-        ref={webViewRef}
-        containerStyle={{position: 'absolute', top: 1000, left: 1000}}
-        source={
-          Platform.OS === 'ios'
-            ? require('boltz-swap-web-context')
-            : {uri: 'file:///android_asset/boltzSwap.html'}
-        }
-        originWhitelist={['*']}
-        onMessage={event =>
-          handleWebviewClaimMessage(null, event, 'savedClaimInformation', null)
-        }
-      />
-      {children}
-    </View>
+    <PushNotificationContext.Provider
+      value={{
+        checkAndSavePushNotificationToDatabase,
+        registerNotificationHandlers,
+        registerBackgroundNotificationTask,
+        registerForPushNotificationsAsync,
+        getCurrentPushNotifiicationPermissions,
+      }}>
+      <View style={{flex: 1}}>{children}</View>
+    </PushNotificationContext.Provider>
   );
 };
 
 async function registerForPushNotificationsAsync() {
   try {
+    const hasGooglePlayServics = checkGooglePlayServices();
+    if (!hasGooglePlayServics)
+      throw new Error(
+        'Google Play Services are required to receive notifications.',
+      );
+
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync(
         'blitzWalletNotifications',
@@ -174,28 +180,24 @@ async function registerForPushNotificationsAsync() {
     }
 
     if (DeviceInfo.isEmulatorSync()) {
-      Alert.alert('Must use physical device for Push Notifications');
-      return;
+      throw new Error('Must use physical device for Push Notifications');
     }
 
     const permissionsResult = await Notifications.getPermissionsAsync();
-
     let finalStatus = permissionsResult.status;
 
-    if (finalStatus !== 'granted') {
+    if (finalStatus !== 'granted' && permissionsResult.canAskAgain) {
       const requestResult = await Notifications.requestPermissionsAsync();
-
       finalStatus = requestResult.status;
     }
 
     if (finalStatus !== 'granted') {
-      console.log('PERMISSIONS NOT GRANTED');
-      return false;
+      throw new Error(
+        'Blitz doesn’t have notification permissions. Enable them in settings to use notifications.',
+      );
     }
 
-    let options = {
-      projectId: process.env.EXPO_PROJECT_ID,
-    };
+    let options = {projectId: process.env.EXPO_PROJECT_ID};
     if (Platform.OS === 'ios') {
       if (!getMessaging().isDeviceRegisteredForRemoteMessages)
         await getMessaging().registerDeviceForRemoteMessages();
@@ -204,33 +206,26 @@ async function registerForPushNotificationsAsync() {
     }
 
     const pushToken = await Notifications.getExpoPushTokenAsync(options);
-
-    return pushToken.data;
+    return {didWork: true, token: pushToken.data};
   } catch (err) {
     console.error('UNEXPECTED ERROR IN FUNCTION', err);
-    return false;
+    return {didWork: false, error: err.message};
   }
 }
 
-// Define the task name
+// Background task registration
 const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';
+TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async ({data, error}) => {
+  if (error) {
+    console.error('Background task error:', error);
+    return;
+  }
+  if (data) {
+    await handleNWCBackgroundEvent(data);
+    console.log(data, 'RUNNING IN BACKGROUND');
+  }
+});
 
-// Register background task
-TaskManager.defineTask(
-  BACKGROUND_NOTIFICATION_TASK,
-  async ({data, error, executionInfo}) => {
-    if (error) {
-      console.error('Background task error:', error);
-      return;
-    }
-    console.log('RUNNING IN BACKGROUHND');
-    if (data) {
-      console.log(data, 'RUNNING IN BACKGROUHND');
-    }
-  },
-);
-
-// Register the background notification task
 export async function registerBackgroundNotificationTask() {
   try {
     await Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
@@ -239,4 +234,5 @@ export async function registerBackgroundNotificationTask() {
   }
 }
 
-export default PushNotificationManager;
+// --- Export hook to use the context --- //
+export const usePushNotification = () => useContext(PushNotificationContext);

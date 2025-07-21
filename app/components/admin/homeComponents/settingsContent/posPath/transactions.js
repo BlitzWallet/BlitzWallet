@@ -13,15 +13,15 @@ import {usePOSTransactions} from '../../../../../../context-store/pos';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import useAppInsets from '../../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function ViewPOSTransactions() {
   const {groupedTxs} = usePOSTransactions();
   const [employeeName, setEmployeeName] = useState('');
   const {masterInfoObject} = useGlobalContextProvider();
-  const {nodeInformation} = useNodeContext();
+  const {fiatStats} = useNodeContext();
   const navigate = useNavigation();
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const filteredList = useMemo(() => {
     return !groupedTxs
@@ -48,7 +48,7 @@ export default function ViewPOSTransactions() {
             content={`Unpaid tips: ${displayCorrectDenomination({
               amount: totalTipAmount,
               masterInfoObject,
-              nodeInformation,
+              fiatStats,
             })}`}
             CustomNumberOfLines={1}
           />
@@ -62,7 +62,7 @@ export default function ViewPOSTransactions() {
   }, []);
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
+    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
         showLeftImage={false}
@@ -96,6 +96,7 @@ export default function ViewPOSTransactions() {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {paddingBottom: 0},
   container: {
     flex: 1,
     width: '95%',

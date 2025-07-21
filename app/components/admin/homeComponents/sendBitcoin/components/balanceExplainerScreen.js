@@ -11,7 +11,7 @@ export default function ExplainBalanceScreen() {
   const {backgroundColor} = GetThemeColors();
 
   const navigate = useNavigation();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
+  const {nodeInformation} = useNodeContext();
   const {masterInfoObject} = useGlobalContextProvider();
   useHandleBackPressNew();
 

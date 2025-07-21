@@ -38,7 +38,7 @@ export async function contactsLNtoLiquidSwapInfo(
           invoiceAmount: swapAmountSats,
           preimageHash: preimageHash,
           to: 'L-BTC',
-          referralId: 'blitzWallet',
+          // referralId: 'blitzWallet',
           description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
         }),
       },

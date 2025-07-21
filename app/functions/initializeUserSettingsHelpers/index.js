@@ -1,4 +1,5 @@
 import {QUICK_PAY_STORAGE_KEY} from '../../constants';
+import {BLITZ_FEE_PERCET, BLITZ_FEE_SATS} from '../../constants/math';
 import {getLocalStorageItem} from '../localStorage';
 import {isNewDaySince} from '../rotateAddressDateChecker';
 
@@ -14,6 +15,8 @@ const keys = [
   'useTrampoline',
   QUICK_PAY_STORAGE_KEY,
   'crashReportingSettings',
+  'enabledDeveloperSupport',
+  'didViewNWCMessage',
 ];
 
 const defaultValues = {
@@ -35,6 +38,12 @@ const defaultValues = {
     lastChangedInSettings: new Date().getTime(),
     lastChangedWithFirebase: new Date().getTime(),
   },
+  enabledDeveloperSupport: {
+    isEnabled: true,
+    baseFee: BLITZ_FEE_SATS,
+    baseFeePercent: BLITZ_FEE_PERCET,
+  },
+  didViewNWCMessage: false,
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -64,6 +73,9 @@ export const fetchLocalStorageItems = async () => {
     fastPaySettings: parsedResults[9] ?? defaultValues[QUICK_PAY_STORAGE_KEY],
     crashReportingSettings:
       parsedResults[10] ?? defaultValues.crashReportingSettings,
+    enabledDeveloperSupport:
+      parsedResults[11] ?? defaultValues.enabledDeveloperSupport,
+    didViewNWCMessage: parsedResults[12] ?? defaultValues.didViewNWCMessage,
   };
 };
 

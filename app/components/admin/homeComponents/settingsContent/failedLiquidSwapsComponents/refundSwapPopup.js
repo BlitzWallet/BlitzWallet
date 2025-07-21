@@ -27,8 +27,10 @@ import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {keyboardGoBack} from '../../../../../functions/customNavigation';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
+import {useToast} from '../../../../../../context-store/toastManager';
 
 export default function RefundLiquidSwapPopup(props) {
+  const {showToast} = useToast();
   const {theme} = useGlobalThemeContext();
   const [bitcoinAddress, setBitcoinAddress] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -142,7 +144,7 @@ export default function RefundLiquidSwapPopup(props) {
               />
               <TouchableOpacity
                 onPress={() => {
-                  copyToClipboard(refundTxId, navigate);
+                  copyToClipboard(refundTxId, showToast);
                 }}>
                 <ThemeText content={refundTxId.slice(0, 50)} />
               </TouchableOpacity>

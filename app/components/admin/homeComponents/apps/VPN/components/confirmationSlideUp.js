@@ -2,21 +2,19 @@ import {StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useCallback, useEffect, useState} from 'react';
 import {ThemeText} from '../../../../../../functions/CustomElements';
-import {LIQUID_DEFAULT_FEE, SIZES} from '../../../../../../constants';
+import {SIZES} from '../../../../../../constants';
 import FormattedSatText from '../../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../../hooks/themeColors';
-import {calculateBoltzFeeNew} from '../../../../../../functions/boltz/boltzFeeNew';
-import {KEYBOARDTIMEOUT} from '../../../../../../constants/styles';
-import {LIGHTNINGAMOUNTBUFFER} from '../../../../../../constants/math';
 import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
-import {useNodeContext} from '../../../../../../../context-store/nodeContext';
-import {useAppStatus} from '../../../../../../../context-store/appStatus';
 import SwipeButtonNew from '../../../../../../functions/CustomElements/sliderButton';
+import {sparkPaymenWrapper} from '../../../../../../functions/spark/payments';
+import {useGlobalContextProvider} from '../../../../../../../context-store/context';
+import {useSparkWallet} from '../../../../../../../context-store/sparkContext';
 
 export default function ConfirmVPNPage(props) {
   const navigate = useNavigation();
-  const {nodeInformation} = useNodeContext();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
+  const {masterInfoObject} = useGlobalContextProvider();
+  const {sparkInformation} = useSparkWallet();
   const {
     duration,
     country,
@@ -28,44 +26,81 @@ export default function ConfirmVPNPage(props) {
   } = props;
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
 
-  // const [liquidTxFee, setLiquidTxFee] = useState(null);
-  const liquidTxFee =
-    process.env.BOLTZ_ENVIRONMENT === 'testnet' ? 30 : LIQUID_DEFAULT_FEE;
+  const [invoiceInformation, setInvoiceInformation] = useState(null);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const txFee = await getLiquidTxFee({
-  //         amountSat: price,
-  //       });
-  //       setLiquidTxFee(Number(txFee) || 250);
-  //     } catch (err) {
-  //       console.log(err);
-  //       setLiquidTxFee(250);
-  //     }
-  //   })();
-  // }, []);
+  useEffect(() => {
+    async function fetchInvoice() {
+      try {
+        const response = await fetch('https://lnvpn.net/api/v1/getInvoice', {
+          method: 'POST',
+          body: new URLSearchParams({
+            duration:
+              duration === 'hour'
+                ? 0.1
+                : duration === 'day'
+                ? 0.5
+                : duration === 'week'
+                ? 1.5
+                : duration === 'month'
+                ? 4
+                : 9,
+          }).toString(),
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+        const invoice = await response.json();
+        if (!invoice || !invoice.payment_hash || !invoice.payment_request)
+          throw new Error('Not able to fetch invoice information');
 
-  const fee =
-    nodeInformation.userBalance > price + LIGHTNINGAMOUNTBUFFER
-      ? Math.round(price * 0.005) + 4
-      : liquidTxFee +
-        calculateBoltzFeeNew(
-          price,
-          'liquid-ln',
-          minMaxLiquidSwapAmounts.submarineSwapStats,
-        );
+        const fee = await sparkPaymenWrapper({
+          getFee: true,
+          address: invoice.payment_request,
+          paymentType: 'lightning',
+          amountSats: price,
+          masterInfoObject,
+          sparkInformation,
+          userBalance: sparkInformation.balance,
+        });
+        if (!fee.didWork) throw new Error(fee.error);
+        if (sparkInformation.balance < fee.supportFee + fee.fee) {
+          throw new Error('Insufficient balance to purchase credits');
+        }
+
+        setInvoiceInformation({
+          payment_hash: invoice.payment_hash,
+          payment_request: invoice.payment_request,
+          supportFee: fee.supportFee,
+          fee: fee.fee,
+        });
+      } catch (err) {
+        console.log('Error fetching invoice information:', err);
+        navigate.goBack();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: err.message,
+            });
+          });
+        });
+      }
+    }
+    fetchInvoice();
+  }, []);
 
   const onSwipeSuccess = useCallback(() => {
     navigate.goBack();
-    setTimeout(() => {
-      createVPN();
-    }, KEYBOARDTIMEOUT);
-  }, []);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        createVPN(invoiceInformation);
+      });
+    });
+  }, [invoiceInformation]);
 
   return (
     <View style={styles.container}>
-      {!liquidTxFee ? (
+      {!invoiceInformation ? (
         <FullLoadingScreen />
       ) : (
         <>
@@ -105,7 +140,7 @@ export default function ConfirmVPNPage(props) {
               textAlign: 'center',
             }}
             frontText={'Fee: '}
-            balance={fee}
+            balance={invoiceInformation.fee + invoiceInformation.supportFee}
           />
 
           <SwipeButtonNew

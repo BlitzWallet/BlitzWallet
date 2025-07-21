@@ -89,9 +89,7 @@ export default function CountryList() {
   );
 
   const countries = allCountries.filter(item =>
-    item.countryName
-      .toLocaleLowerCase()
-      .startsWith(searchInput.toLocaleLowerCase()),
+    item.countryName.toLowerCase().startsWith(searchInput.toLowerCase()),
   );
 
   const flatListElement = useCallback(

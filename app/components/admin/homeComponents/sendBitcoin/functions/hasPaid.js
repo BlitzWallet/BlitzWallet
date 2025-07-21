@@ -5,26 +5,19 @@ import {
 
 export default function hasAlredyPaidInvoice({
   scannedAddress,
-  nodeInformation,
-  liquidNodeInformation,
-  ecashWalletInformation,
+  sparkInformation,
 }) {
   try {
     crashlyticsLogReport('Begining already paid invoice function');
-    const didPayWithLiquid = liquidNodeInformation.transactions.find(tx => {
+
+    const didPayWithSpark = sparkInformation.transactions.find(tx => {
       return (
-        tx?.destination === scannedAddress?.trim() &&
-        tx?.details?.type === 'lightning' &&
-        !tx?.details?.bolt12Offer
+        tx.paymentType === 'lightning' &&
+        JSON.parse(tx.details).address?.trim() === scannedAddress?.trim()
       );
     });
-    const didPayWithLightning = nodeInformation.transactions.find(
-      tx => tx.details.data.bolt11 === scannedAddress?.trim(),
-    );
-    const didPayWitheCash = ecashWalletInformation.transactions?.find(
-      tx => tx?.invoice === scannedAddress?.trim(),
-    );
-    return !!didPayWithLiquid || !!didPayWithLightning || !!didPayWitheCash;
+
+    return !!didPayWithSpark;
   } catch (err) {
     console.log('already paid invoice error', err);
     crashlyticsRecordErrorReport(err.message);

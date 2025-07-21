@@ -45,7 +45,7 @@ export default function ManualEnterSendAddress(props) {
             onPress={() => {
               navigate.navigate('InformationPopup', {
                 textContent:
-                  'Blitz wallet can send to liquid, on-chain, LNURL and BOLT 11 addresses',
+                  'Blitz wallet can send to spark, on-chain, LNURL and BOLT 11 addresses',
                 buttonText: 'I understand',
               });
             }}>

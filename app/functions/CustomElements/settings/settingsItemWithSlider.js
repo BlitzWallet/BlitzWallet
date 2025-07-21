@@ -21,6 +21,7 @@ export default function SettingsItemWithSlider({
   informationPopupBTNText = '',
   showLoadingIcon = false,
   toggleSwitchStateValue,
+  containerStyles = {},
 }) {
   const {theme} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor, textColor} = GetThemeColors();
@@ -32,6 +33,7 @@ export default function SettingsItemWithSlider({
         styles.contentContainer,
         {
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+          ...containerStyles,
         },
       ]}>
       <View
@@ -48,14 +50,18 @@ export default function SettingsItemWithSlider({
           CustomNumberOfLines={1}
           styles={{
             ...styles.settingsTitle,
-            flex: showInformationPopup ? 1 : 0,
+            flex: showInformationPopup ? 0 : 1,
             marginRight: showInformationPopup ? 5 : 0,
           }}
           content={settingsTitle}
         />
         {showLoadingIcon && (
           <FullLoadingScreen
-            containerStyles={styles.loadingContainer}
+            containerStyles={{
+              ...styles.loadingContainer,
+              marginLeft: showInformationPopup ? 5 : 10,
+              marginRight: showInformationPopup ? 5 : 'auto',
+            }}
             size="small"
             showText={false}
             loadingColor={theme ? textColor : COLORS.primary}
@@ -132,8 +138,7 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     alignItems: 'left',
-    marginLeft: 10,
-    marginRight: 'auto',
+
     flex: 0,
   },
 });

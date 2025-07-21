@@ -3,19 +3,23 @@ import {Platform, RefreshControl, View} from 'react-native';
 import Animated from 'react-native-reanimated';
 import {useCustomFlatListHook} from './useCustomFlatListHooks';
 import {COLORS} from '../../../../../constants';
-import {sync as syncLiquid} from '@breeztech/react-native-breez-sdk-liquid';
-import {sync as syncLightning} from '@breeztech/react-native-breez-sdk';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../../../../../functions/crashlyticsLogs';
 import {useFocusEffect} from '@react-navigation/native';
+import {useLiquidEvent} from '../../../../../../context-store/liquidEventContext';
+import {useRootstockProvider} from '../../../../../../context-store/rootstockSwapContext';
+import {
+  SPARK_TX_UPDATE_ENVENT_NAME,
+  sparkTransactionsEventEmitter,
+} from '../../../../../functions/spark/transactions';
 
 function CustomFlatList({style, ...props}) {
-  const {masterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
+  const {startLiquidEventListener} = useLiquidEvent();
+  const {startRootstockEventListener} = useRootstockProvider();
   const [refreshing, setRefreshing] = useState(false);
   const flatListRef = useRef(null);
   const [
@@ -31,20 +35,16 @@ function CustomFlatList({style, ...props}) {
   const handleRefresh = useCallback(async () => {
     crashlyticsLogReport(`Running in handle refresh function on homepage`);
     try {
-      setRefreshing(true);
-      await Promise.all([
-        syncLiquid(),
-        masterInfoObject.liquidWalletSettings.isLightningEnabled
-          ? syncLightning()
-          : Promise.resolve(true),
-      ]);
+      startLiquidEventListener(2);
+      startRootstockEventListener({intervalMs: 30000});
+      sparkTransactionsEventEmitter.emit(SPARK_TX_UPDATE_ENVENT_NAME, {});
     } catch (err) {
-      console.log('error refreshing', err);
+      console.log('error refreshing on homepage', err);
       crashlyticsRecordErrorReport(err.message);
     } finally {
       setRefreshing(false);
     }
-  }, [masterInfoObject]);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -78,14 +78,16 @@ function CustomFlatList({style, ...props}) {
 
       <Animated.FlatList
         refreshControl={
-          <RefreshControl
-            colors={[colors]}
-            tintColor={
-              darkModeType && theme ? COLORS.darkModeText : COLORS.primary
-            }
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-          />
+          props.frompage === 'sparkWallet' ? undefined : (
+            <RefreshControl
+              colors={[colors]}
+              tintColor={
+                darkModeType && theme ? COLORS.darkModeText : COLORS.primary
+              }
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+            />
+          )
         }
         ref={flatListRef}
         initialNumToRender={10}

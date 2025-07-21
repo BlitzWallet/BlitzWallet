@@ -25,7 +25,7 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {useImageCache} from '../../../../../../context-store/imageCache';
 import ContactProfileImage from '../internalComponents/profileImage';
-import useAppInsets from '../../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function ChooseContactHalfModal() {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -36,7 +36,7 @@ export default function ChooseContactHalfModal() {
   const [isKeyboardActive, setIskeyboardActive] = useState(false);
   const [inputText, setInputText] = useState('');
   const {t} = useTranslation();
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   useHandleBackPressNew();
 

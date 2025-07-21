@@ -16,17 +16,18 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
-import useAppInsets from '../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 export default function FiatCurrencyPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {toggleNodeInformation} = useNodeContext();
+  const {toggleFiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const currencies = masterInfoObject.fiatCurrenciesList || [];
   const [textInput, setTextInput] = useState('');
   const currentCurrency = masterInfoObject?.fiatCurrency;
-  const {bottomPadding} = useAppInsets();
+
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const {bottomPadding} = useGlobalInsets();
 
   const navigate = useNavigation();
 
@@ -34,10 +35,8 @@ export default function FiatCurrencyPage() {
 
   const filteredList = currencies.filter(currency => {
     if (
-      currency.info.name
-        .toLowerCase()
-        .startsWith(textInput.toLocaleLowerCase()) ||
-      currency.id.toLowerCase().startsWith(textInput.toLocaleLowerCase())
+      currency.info.name.toLowerCase().startsWith(textInput.toLowerCase()) ||
+      currency.id.toLowerCase().startsWith(textInput.toLowerCase())
     )
       return currency;
     else return false;
@@ -56,27 +55,6 @@ export default function FiatCurrencyPage() {
           saveCurrencySettings(currency.id);
         }}>
         <CheckMarkCircle
-          color={
-            theme
-              ? darkModeType
-                ? COLORS.darkModeText
-                : COLORS.darkModeText
-              : COLORS.lightModeText
-          }
-          backgroundColor={
-            theme
-              ? darkModeType
-                ? COLORS.darkModeText
-                : COLORS.darkModeText
-              : COLORS.primary
-          }
-          checkColor={
-            theme
-              ? darkModeType
-                ? COLORS.lightsOutBackground
-                : COLORS.darkModeBackground
-              : COLORS.lightModeBackground
-          }
           isActive={
             currency.id?.toLowerCase() === currentCurrency?.toLowerCase()
           }
@@ -160,7 +138,8 @@ export default function FiatCurrencyPage() {
       const [fiatRate] = fiat.filter(rate => {
         return rate.coin.toLowerCase() === selectedCurrency.toLowerCase();
       });
-      toggleNodeInformation({fiatStats: fiatRate});
+
+      toggleFiatStats(fiatRate);
 
       if (fiatRate) {
         navigate.goBack();

@@ -2,11 +2,11 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import {Dimensions} from 'react-native';
 import ChatGPTHome from '../../app/components/admin/homeComponents/apps/chatGPT/chatGPTHome';
 import {AddChatGPTCredits} from '../../app/components/admin';
-import {useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useGlobalAppData} from '../../context-store/appData';
 import GetThemeColors from '../../app/hooks/themeColors';
 import FullLoadingScreen from '../../app/functions/CustomElements/loadingScreen';
-import useAppInsets from '../../app/hooks/useAppInsets';
+import {useGlobalInsets} from '../../context-store/insetsProvider';
 
 const Drawer = createDrawerNavigator();
 
@@ -15,7 +15,7 @@ function ChatGPTDrawer({confirmationSliderData}) {
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
 
   const [didLoad, setDidLoad] = useState(false);
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   const chatGPTCoversations = decodedChatGPT.conversation || [];
   const chatGPTCredits = decodedChatGPT.credits;

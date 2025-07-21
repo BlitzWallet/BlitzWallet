@@ -1,4 +1,5 @@
-import * as nostr from 'nostr-tools';
+import {privateKeyFromSeedWords} from './nostrCompatability';
+import {getPublicKey} from 'nostr-tools';
 import {getDataFromCollection} from '../../db';
 import {generateRandomContact} from './contacts';
 import {
@@ -15,13 +16,15 @@ import {
 import {crashlyticsLogReport} from './crashlyticsLogs';
 import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
 import fetchBackend from '../../db/handleBackend';
+import {getNWCData} from './nwc';
+// import {getBitcoinKeyPair} from './lnurl';
 
 export default async function initializeUserSettingsFromHistory({
   accountMnemoinc,
   setContactsPrivateKey,
   setMasterInfoObject,
   toggleGlobalContactsInformation,
-  toggleGLobalEcashInformation,
+  // toggleGLobalEcashInformation,
   toggleGlobalAppDataInformation,
 }) {
   try {
@@ -30,17 +33,18 @@ export default async function initializeUserSettingsFromHistory({
     let tempObject = {};
     const mnemonic = accountMnemoinc;
 
-    const privateKey = mnemonic
-      ? nostr.nip06.privateKeyFromSeedWords(mnemonic)
-      : null;
+    const privateKey = mnemonic ? privateKeyFromSeedWords(mnemonic) : null;
 
-    const publicKey = privateKey ? nostr.getPublicKey(privateKey) : null;
+    const publicKey = privateKey ? getPublicKey(privateKey) : null;
+
+    console.log(privateKey, publicKey);
 
     if (!privateKey || !publicKey) throw Error('Failed to retrieve keys');
 
-    const [_, pastExploreData] = await Promise.all([
+    const [_, pastExploreData, savedNWCData] = await Promise.all([
       initializeFirebase(publicKey, privateKey),
       getLocalStorageItem('savedExploreData').then(data => JSON.parse(data)),
+      getNWCData().then(data => data || {}),
     ]);
 
     const shouldLoadExporeDataResp = shouldLoadExploreData(pastExploreData);
@@ -72,6 +76,8 @@ export default async function initializeUserSettingsFromHistory({
       useTrampoline,
       fastPaySettings,
       crashReportingSettings,
+      enabledDeveloperSupport,
+      didViewNWCMessage,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -82,10 +88,10 @@ export default async function initializeUserSettingsFromHistory({
     const generatedUniqueName = blitzStoredData?.contacts?.uniqueName
       ? ''
       : generateRandomContact();
-    const contacts = blitzStoredData.contacts || {
+    let contacts = blitzStoredData.contacts || {
       myProfile: {
         uniqueName: generatedUniqueName.uniqueName,
-        uniqueNameLower: generatedUniqueName.uniqueName.toLocaleLowerCase(),
+        uniqueNameLower: generatedUniqueName.uniqueName.toLowerCase(),
         bio: '',
         name: '',
         nameLower: '',
@@ -101,13 +107,26 @@ export default async function initializeUserSettingsFromHistory({
     const fiatCurrency = blitzStoredData.fiatCurrency || 'USD';
 
     let enabledLNURL = blitzStoredData.enabledLNURL;
+    let isUsingEncriptedMessaging = blitzStoredData.isUsingEncriptedMessaging;
 
     const userBalanceDenomination =
       blitzStoredData.userBalanceDenomination || 'sats';
 
     const selectedLanguage = blitzStoredData.userSelectedLanguage || 'en';
 
-    const pushNotifications = blitzStoredData.pushNotifications || {};
+    let pushNotifications = blitzStoredData.pushNotifications || {
+      isEnabled: false,
+      pushNotifications: {
+        hash: '',
+        key: {},
+      },
+      enabledServices: {
+        contactPayments: false,
+        lnurlPayments: false,
+        nostrPayments: false,
+        pointOfSale: false,
+      },
+    };
 
     const liquidSwaps = blitzStoredData.liquidSwaps || [];
 
@@ -126,16 +145,16 @@ export default async function initializeUserSettingsFromHistory({
     };
     let ecashWalletSettings = blitzStoredData.ecashWalletSettings;
 
-    const eCashInformation =
-      blitzStoredData.eCashInformation ||
-      [
-        // {
-        //   proofs: [],
-        //   transactions: [],
-        //   mintURL: '',
-        //   isCurrentMint: null,
-        // },
-      ];
+    // const eCashInformation =
+    //   blitzStoredData.eCashInformation ||
+    //   [
+    //     // {
+    //     //   proofs: [],
+    //     //   transactions: [],
+    //     //   mintURL: '',
+    //     //   isCurrentMint: null,
+    //     // },
+    //   ];
     const messagesApp = blitzStoredData.messagesApp || {sent: [], received: []};
     const VPNplans = blitzStoredData.VPNplans || [];
 
@@ -158,6 +177,8 @@ export default async function initializeUserSettingsFromHistory({
       addresses: [],
     };
 
+    // let lnurlPubKey = blitzStoredData.lnurlPubKey;
+
     //added here for legecy people
     liquidWalletSettings.regulatedChannelOpenSize =
       liquidWalletSettings.regulatedChannelOpenSize < MIN_CHANNEL_OPEN_FEE
@@ -171,7 +192,7 @@ export default async function initializeUserSettingsFromHistory({
 
     if (!contacts.myProfile?.uniqueNameLower) {
       contacts.myProfile.uniqueNameLower =
-        contacts.myProfile.uniqueName.toLocaleLowerCase();
+        contacts.myProfile.uniqueName.toLowerCase();
       needsToUpdate = true;
     }
     if (!contacts.myProfile.lastRotated) {
@@ -218,6 +239,46 @@ export default async function initializeUserSettingsFromHistory({
       };
       needsToUpdate = true;
     }
+    if (pushNotifications.isEnabled === undefined) {
+      const hasNotificationsStored = Object.keys(pushNotifications).length > 0;
+
+      pushNotifications = {
+        isEnabled: hasNotificationsStored,
+        hash: pushNotifications?.hash || '',
+        key: pushNotifications?.key || {},
+        platform: pushNotifications?.platform || '',
+        enabledServices: {
+          contactPayments: hasNotificationsStored,
+          lnurlPayments: hasNotificationsStored,
+          nostrPayments: hasNotificationsStored,
+          pointOfSale: hasNotificationsStored,
+        },
+      };
+
+      needsToUpdate = true;
+    }
+    if (isUsingEncriptedMessaging === undefined) {
+      isUsingEncriptedMessaging = true;
+      needsToUpdate = true;
+    }
+
+    if (
+      contacts.myProfile.uniqueName &&
+      contacts.myProfile.uniqueNameLower &&
+      (contacts.myProfile.uniqueName.trim() !== contacts.myProfile.uniqueName ||
+        contacts.myProfile.uniqueNameLower.trim() !==
+          contacts.myProfile.uniqueNameLower)
+    ) {
+      contacts.myProfile.uniqueName = contacts.myProfile.uniqueName.trim();
+      contacts.myProfile.uniqueNameLower =
+        contacts.myProfile.uniqueNameLower.trim();
+      needsToUpdate = true;
+    }
+
+    // if (!lnurlPubKey) {
+    //   lnurlPubKey = getBitcoinKeyPair(mnemonic).publicKey;
+    //   needsToUpdate = true;
+    // }
 
     if (shouldLoadExporeDataResp && freshExploreData) {
       if (freshExploreData) {
@@ -233,6 +294,7 @@ export default async function initializeUserSettingsFromHistory({
     } else {
       tempObject['exploreData'] = pastExploreData.data;
     }
+
     tempObject['homepageTxPreferance'] = storedUserTxPereferance;
     tempObject['userBalanceDenomination'] = userBalanceDenomination;
     tempObject['userSelectedLanguage'] = selectedLanguage;
@@ -253,27 +315,32 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['enabledLNURL'] = enabledLNURL;
     tempObject['useTrampoline'] = useTrampoline;
     tempObject['offlineReceiveAddresses'] = offlineReceiveAddresses;
+    // tempObject['lnurlPubKey'] = lnurlPubKey;
+    tempObject['isUsingEncriptedMessaging'] = isUsingEncriptedMessaging;
 
     // store in contacts context
     tempObject['contacts'] = contacts;
+    tempObject['NWC'] = savedNWCData;
 
     // Store in ecash context
-    tempObject['eCashInformation'] = eCashInformation;
+    // tempObject['eCashInformation'] = eCashInformation;
 
     // store in app context
     tempObject['appData'] = appData;
     tempObject[QUICK_PAY_STORAGE_KEY] = fastPaySettings;
     tempObject['crashReportingSettings'] = crashReportingSettings;
+    tempObject['enabledDeveloperSupport'] = enabledDeveloperSupport;
+    tempObject['didViewNWCMessage'] = didViewNWCMessage;
 
     if (needsToUpdate || Object.keys(blitzStoredData).length === 0) {
       await sendDataToDB(tempObject, publicKey);
     }
     delete tempObject['contacts'];
-    delete tempObject['eCashInformation'];
+    // delete tempObject['eCashInformation'];
     delete tempObject['appData'];
 
     toggleGlobalAppDataInformation(appData);
-    toggleGLobalEcashInformation(eCashInformation);
+    // toggleGLobalEcashInformation(eCashInformation);
     toggleGlobalContactsInformation(contacts);
     setMasterInfoObject(tempObject);
 

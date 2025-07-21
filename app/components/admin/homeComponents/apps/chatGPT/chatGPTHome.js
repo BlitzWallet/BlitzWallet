@@ -41,11 +41,13 @@ import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
 import customUUID from '../../../../../functions/customUUID';
+import {useToast} from '../../../../../../context-store/toastManager';
 
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
+  const {showToast} = useToast();
   const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
+  const {fiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset} = GetThemeColors();
   const chatHistoryFromProps = props.route.params?.chatHistory;
@@ -90,7 +92,7 @@ export default function ChatGPTHome(props) {
           onPress={e => {
             const targetEvent = e.nativeEvent.name.toLowerCase();
             if (targetEvent === 'copy') {
-              copyToClipboard(item.content, navigate, 'ChatGPT');
+              copyToClipboard(item.content, showToast, 'ChatGPT');
             } else {
               setUserChatText(item.content);
             }
@@ -426,8 +428,7 @@ export default function ChatGPTHome(props) {
       // calculate price
       const data = response;
       const [textInfo] = data.choices;
-      const satsPerDollar =
-        SATSPERBITCOIN / (nodeInformation.fiatStats.value || 60000);
+      const satsPerDollar = SATSPERBITCOIN / (fiatStats.value || 60000);
 
       const price =
         filteredModel.input * data.usage.prompt_tokens +

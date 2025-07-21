@@ -11,8 +11,10 @@ import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import {crashlyticsRecordErrorReport} from '../../../functions/crashlyticsLogs';
 import {useKeysContext} from '../../../../context-store/keys';
+import {useToast} from '../../../../context-store/toastManager';
 
 export default function GenerateKey() {
+  const {showToast} = useToast();
   const {accountMnemoinc} = useKeysContext();
   const mnemonic = accountMnemoinc.split(' ');
   const {t} = useTranslation();
@@ -74,7 +76,7 @@ export default function GenerateKey() {
                   });
                   return;
                 }
-                copyToClipboard(mnemonic.join(' '), hookNavigate);
+                copyToClipboard(mnemonic.join(' '), showToast);
               }}
             />
             <CustomButton

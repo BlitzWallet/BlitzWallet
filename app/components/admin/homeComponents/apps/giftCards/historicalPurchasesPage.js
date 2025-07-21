@@ -19,15 +19,16 @@ import {copyToClipboard} from '../../../../../functions';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import useAppInsets from '../../../../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useToast} from '../../../../../../context-store/toastManager';
 
 export default function HistoricalGiftCardPurchases() {
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {showToast} = useToast();
 
   const navigate = useNavigation();
-
-  const {bottomPadding} = useAppInsets();
+  const {bottomPadding} = useGlobalInsets();
 
   useHandleBackPressNew();
 
@@ -47,18 +48,31 @@ export default function HistoricalGiftCardPurchases() {
       }}
       style={styles.rowContainer}>
       <Image style={styles.companyLogo} source={{uri: item.logo}} />
-      <View>
+      <View style={{flex: 1}}>
         <ThemeText
+          CustomNumberOfLines={1}
           styles={{fontWeight: '500', marginBottom: 5}}
           content={item.name}
         />
         <ThemeText
-          styles={{
-            marginLeft: 'auto',
-          }}
+          CustomNumberOfLines={1}
           content={`Purchased: ${new Date(item.date).toDateString()}`}
         />
       </View>
+      <TouchableOpacity
+        onPress={() =>
+          navigate.navigate('ConfirmActionPage', {
+            confirmMessage:
+              'Are you sure you want to remove this purchased card.',
+            confirmFunction: () => removeGiftCardFromList(item.uuid),
+          })
+        }>
+        <ThemeImage
+          lightModeIcon={ICONS.xSmallIcon}
+          darkModeIcon={ICONS.xSmallIcon}
+          lightsOutIcon={ICONS.xSmallIconWhite}
+        />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
@@ -113,7 +127,7 @@ export default function HistoricalGiftCardPurchases() {
               } catch (err) {
                 copyToClipboard(
                   'support@thebitcoincompany.com',
-                  navigate,
+                  showToast,
                   null,
                   'Support email copied',
                 );

@@ -6,8 +6,10 @@ import CustomButton from '../../../../functions/CustomElements/button';
 import {ThemeText} from '../../../../functions/CustomElements';
 import {useTranslation} from 'react-i18next';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import {useToast} from '../../../../../context-store/toastManager';
 
 export default function ButtonsContainer(props) {
+  const {showToast} = useToast();
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {t} = useTranslation();
@@ -19,6 +21,7 @@ export default function ButtonsContainer(props) {
           actionFunction={() =>
             navigate.navigate('EditReceivePaymentInformation', {
               from: 'receivePage',
+              receiveType: props.selectedRecieveOption,
             })
           }
           textContent={t('constants.edit')}
@@ -30,14 +33,17 @@ export default function ButtonsContainer(props) {
           }}
           actionFunction={() => {
             if (props.generatingInvoiceQRCode) return;
-            copyToClipboard(props.generatedAddress, navigate);
+            copyToClipboard(props.generatedAddress, showToast);
           }}
           textContent={t('constants.copy')}
         />
       </View>
       <TouchableOpacity
         onPress={() => {
-          navigate.navigate('SwitchReceiveOptionPage');
+          navigate.navigate('CustomHalfModal', {
+            wantedContent: 'switchReceiveOption',
+            sliderHight: 0.8,
+          });
         }}
         style={[
           styles.secondaryButton,
@@ -55,8 +61,8 @@ export default function ButtonsContainer(props) {
 const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
-
-    marginVertical: 30,
+    marginTop: 10,
+    marginBottom: 30,
     overflow: 'hidden',
   },
   buttonRow: {

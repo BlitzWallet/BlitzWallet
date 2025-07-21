@@ -4,21 +4,25 @@ import {
   AboutPage,
   LoginSecurity,
   DisplayOptions,
-  ExperimentalItemsPage,
+  // ExperimentalItemsPage,
   FastPay,
   FiatCurrencyPage,
   LSPPage,
-  LiquidWallet,
+  // LiquidWallet,
   NodeInfo,
   NosterWalletConnect,
   PosSettingsPage,
   ResetPage,
   RestoreChannel,
   SeedPhrasePage,
-  SendOnChainBitcoin,
+  // SendOnChainBitcoin,
   ViewAllLiquidSwaps,
   WalletInformation,
   CrashReportingSettingsPage,
+  SparkInfo,
+  SupportWorkPage,
+  NotificationPreferances,
+  BlitzFeeInformation,
 } from '../../components/admin/homeComponents/settingsContent';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView} from '../../functions/CustomElements';
@@ -28,65 +32,74 @@ import {EditMyProfilePage} from '../../components/admin';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {useGlobalContextProvider} from '../../../context-store/context';
-import {useGlobaleCash} from '../../../context-store/eCash';
+// import {useGlobalContextProvider} from '../../../context-store/context';
+// import {useGlobaleCash} from '../../../context-store/eCash';
 import {useCallback} from 'react';
-import {keyboardGoBack} from '../../functions/customNavigation';
+// import {keyboardGoBack} from '../../functions/customNavigation';
 import ExploreUsers from './explorePage';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {ecashWalletInformation} = useGlobaleCash();
+  // const {masterInfoObject} = useGlobalContextProvider();
+  // const {ecashWalletInformation} = useGlobaleCash();
   const {theme, darkModeType} = useGlobalThemeContext();
   const selectedPage = props?.route?.params?.for;
   const isDoomsday = props?.route?.params?.isDoomsday;
+  // const enabledEcash = masterInfoObject?.enabledEcash;
+  // const currentMintURL = ecashWalletInformation?.mintURL;
   const extraData = props?.route?.params?.extraData;
-  const enabledEcash = masterInfoObject?.enabledEcash;
-  const currentMintURL = ecashWalletInformation?.mintURL;
   const handleBackPressFunction = useCallback(() => {
-    if (selectedPage?.toLowerCase() === 'experimental') {
-      if (!currentMintURL && enabledEcash) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Must input a mintURL to enable ecash',
-        });
-      } else keyboardGoBack(navigate);
-    } else {
-      navigate.goBack();
-    }
-  }, [navigate, currentMintURL, enabledEcash, selectedPage]);
+    // if (selectedPage?.toLowerCase() === 'experimental') {
+    //   if (!currentMintURL && enabledEcash) {
+    //     navigate.navigate('ErrorScreen', {
+    //       errorMessage: 'Must input a mintURL to enable ecash',
+    //     });
+    //   } else keyboardGoBack(navigate);
+    // } else {
+    navigate.goBack();
+    // }
+  }, [
+    navigate,
+    //  currentMintURL,
+    // enabledEcash,
+    // selectedPage
+  ]);
   useHandleBackPressNew(handleBackPressFunction);
 
   return (
     <>
       {selectedPage?.toLowerCase() === 'display currency' ||
-      selectedPage?.toLowerCase() === 'experimental' ||
-      selectedPage?.toLowerCase() === 'bank' ||
+      // selectedPage?.toLowerCase() === 'experimental' ||
+      // selectedPage?.toLowerCase() === 'bank' ||
       selectedPage?.toLowerCase() === 'point-of-sale' ||
       selectedPage?.toLowerCase() === 'edit contact profile' ||
-      selectedPage?.toLowerCase() === 'channel closure' ? (
+      // selectedPage?.toLowerCase() === 'channel closure' ||
+      selectedPage?.toLowerCase() === 'support our work' ? (
         <>
           {selectedPage?.toLowerCase() === 'display currency' && (
             <FiatCurrencyPage theme={theme} />
           )}
-          {selectedPage?.toLowerCase() === 'experimental' && (
+          {/* {selectedPage?.toLowerCase() === 'experimental' && (
             <ExperimentalItemsPage />
-          )}
-          {selectedPage?.toLowerCase() === 'bank' && (
+          )} */}
+          {/* {selectedPage?.toLowerCase() === 'bank' && (
             <LiquidWallet theme={theme} />
-          )}
+          )} */}
           {selectedPage?.toLowerCase() === 'point-of-sale' && (
             <PosSettingsPage />
           )}
           {selectedPage?.toLowerCase() === 'edit contact profile' && (
             <EditMyProfilePage fromSettings={true} pageType="myProfile" />
           )}
-          {selectedPage?.toLowerCase() === 'channel closure' && (
+          {/* {selectedPage?.toLowerCase() === 'channel closure' && (
             <SendOnChainBitcoin isDoomsday={isDoomsday} theme={theme} />
+          )} */}
+          {selectedPage?.toLowerCase() === 'support our work' && (
+            <SupportWorkPage />
           )}
         </>
       ) : (
-        <GlobalThemeView styles={{alignItems: 'center'}}>
+        <GlobalThemeView styles={styles.globalContainer}>
           <View style={styles.innerContainer}>
             <CustomSettingsTopBar
               showLeftImage={selectedPage?.toLowerCase() === 'channel closure'}
@@ -112,20 +125,29 @@ export default function SettingsContentIndex(props) {
             {selectedPage?.toLowerCase() === 'display options' && (
               <DisplayOptions theme={theme} />
             )}
+            {/* {selectedPage?.toLowerCase() === 'support our work' && (
+              <SupportWorkPage />
+            )} */}
 
             {selectedPage?.toLowerCase() === 'balance info' && (
               <WalletInformation theme={theme} />
             )}
-            {selectedPage?.toLowerCase() === 'refund liquid swap' && (
+            {selectedPage?.toLowerCase() === 'liquid swaps' && (
               <ViewAllLiquidSwaps theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
+            {selectedPage?.toLowerCase() === 'blitz fee details' && (
+              <BlitzFeeInformation />
+            )}
             {selectedPage?.toLowerCase() === 'crash reports' && (
               <CrashReportingSettingsPage />
             )}
+            {selectedPage?.toLowerCase() === 'notifications' && (
+              <NotificationPreferances />
+            )}
             {selectedPage?.toLowerCase() === 'blitz stats' && <ExploreUsers />}
 
-            {selectedPage?.toLowerCase() === 'noster wallet connect' && (
+            {selectedPage?.toLowerCase() === 'noster connect' && (
               <NosterWalletConnect theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'login mode' && (
@@ -133,12 +155,17 @@ export default function SettingsContentIndex(props) {
             )}
 
             {selectedPage?.toLowerCase() === 'backup wallet' && (
-              <SeedPhrasePage theme={theme} />
+              <SeedPhrasePage extraData={extraData} theme={theme} />
+            )}
+            {selectedPage?.toLowerCase() === 'spark info' && (
+              <SparkInfo theme={theme} />
             )}
 
             {selectedPage?.toLowerCase() === 'lsp' && <LSPPage theme={theme} />}
 
-            {selectedPage?.toLowerCase() === 'delete wallet' && <ResetPage />}
+            {selectedPage?.toLowerCase() === 'delete wallet' && (
+              <ResetPage isDoomsday={isDoomsday} />
+            )}
             {selectedPage?.toLowerCase() === 'restore channels' && (
               <RestoreChannel isDoomsday={isDoomsday} />
             )}
@@ -150,6 +177,7 @@ export default function SettingsContentIndex(props) {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {alignItems: 'center'},
   innerContainer: {
     flex: 1,
     width: WINDOWWIDTH,

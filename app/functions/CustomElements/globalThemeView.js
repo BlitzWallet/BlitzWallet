@@ -1,57 +1,63 @@
+import React, {memo, useMemo} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {CENTER} from '../../constants/styles';
 import {WINDOWWIDTH} from '../../constants/theme';
 import GetThemeColors from '../../hooks/themeColors';
-import useAppInsets from '../../hooks/useAppInsets';
+import {useGlobalInsets} from '../../../context-store/insetsProvider';
 
-export default function GlobalThemeView({
+const GlobalThemeView = memo(function GlobalThemeView({
   children,
   styles,
   useStandardWidth,
   globalContainerStyles,
 }) {
+  const {topPadding, bottomPadding} = useGlobalInsets();
   const {backgroundColor} = GetThemeColors();
 
-  const {topPadding, bottomPadding} = useAppInsets();
+  console.log(topPadding, bottomPadding, 'GLOBAL THEME VIEW');
+  const useStandardWidthOuterStyles = useMemo(() => {
+    return {
+      flex: 1,
+      backgroundColor: backgroundColor,
+      ...globalContainerStyles,
+    };
+  }, [globalContainerStyles, backgroundColor]);
+  const useStandardWidthInnerStyles = useMemo(() => {
+    return {
+      ...referenceStyles.widthContainer,
+      paddingTop: topPadding,
+      paddingBottom: bottomPadding,
+      ...styles,
+    };
+  }, [referenceStyles, styles, topPadding, bottomPadding]);
+
+  const nonStandardWithStyles = useMemo(() => {
+    return {
+      flex: 1,
+      backgroundColor: backgroundColor,
+      paddingTop: topPadding,
+      paddingBottom: bottomPadding,
+      ...styles,
+    };
+  }, [backgroundColor, styles, topPadding, bottomPadding]);
 
   if (useStandardWidth) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: backgroundColor,
-          ...globalContainerStyles,
-        }}>
-        <View
-          style={{
-            ...referanceStyles.widthContainer,
-            paddingTop: topPadding,
-            paddingBottom: bottomPadding,
-            ...styles,
-          }}>
-          {children}
-        </View>
+      <View style={useStandardWidthOuterStyles}>
+        <View style={useStandardWidthInnerStyles}>{children}</View>
       </View>
     );
   }
-  return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: backgroundColor,
-        paddingTop: topPadding,
-        paddingBottom: bottomPadding,
-        ...styles,
-      }}>
-      {children}
-    </View>
-  );
-}
 
-const referanceStyles = StyleSheet.create({
+  return <View style={nonStandardWithStyles}>{children}</View>;
+});
+
+const referenceStyles = StyleSheet.create({
   widthContainer: {
     width: WINDOWWIDTH,
     flex: 1,
     ...CENTER,
   },
 });
+
+export default GlobalThemeView;

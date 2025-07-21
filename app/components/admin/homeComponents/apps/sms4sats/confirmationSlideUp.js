@@ -1,25 +1,24 @@
-import {Platform, StyleSheet, View, useWindowDimensions} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../../functions/CustomElements';
-import {LIQUID_DEFAULT_FEE, SIZES} from '../../../../../constants';
+import {SIZES} from '../../../../../constants';
 import {parsePhoneNumberWithError} from 'libphonenumber-js';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
-import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {LIGHTNINGAMOUNTBUFFER} from '../../../../../constants/math';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {useAppStatus} from '../../../../../../context-store/appStatus';
 import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton';
-import {useCallback} from 'react';
+import {useCallback, useEffect, useState} from 'react';
+import {useSparkWallet} from '../../../../../../context-store/sparkContext';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 
 export default function ConfirmSMSPayment(props) {
   const navigate = useNavigation();
-  const {nodeInformation} = useNodeContext();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
+  const {sparkInformation} = useSparkWallet();
+  const {masterInfoObject} = useGlobalContextProvider();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {
+    message,
     areaCodeNum,
     phoneNumber,
     prices,
@@ -28,8 +27,8 @@ export default function ConfirmSMSPayment(props) {
     theme,
     darkModeType,
   } = props;
-  const liquidTxFee =
-    process.env.BOLTZ_ENVIRONMENT === 'testnet' ? 30 : LIQUID_DEFAULT_FEE;
+
+  const [invoiceInformation, setInvoiceInformation] = useState(null);
 
   const price = page === 'sendSMS' ? 1000 : prices[page];
 
@@ -46,25 +45,74 @@ export default function ConfirmSMSPayment(props) {
     }
   };
 
-  const fee =
-    nodeInformation.userBalance > price + LIGHTNINGAMOUNTBUFFER
-      ? Math.round(price * 0.005) + 4
-      : liquidTxFee +
-        calculateBoltzFeeNew(
-          price,
-          'liquid-ln',
-          minMaxLiquidSwapAmounts.submarineSwapStats,
-        );
   const onSwipeSuccess = useCallback(() => {
     navigate.goBack();
-    setTimeout(() => {
-      sendTextMessage();
-    }, KEYBOARDTIMEOUT);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        sendTextMessage(invoiceInformation);
+      });
+    });
+  }, [invoiceInformation]);
+
+  useEffect(() => {
+    async function fetchInvoice() {
+      try {
+        const payload = {
+          message: message,
+          phone: `${areaCodeNum}${phoneNumber}`,
+          ref: process.env.GPT_PAYOUT_LNURL,
+        };
+
+        const response = await fetch(
+          `https://api2.sms4sats.com/createsendorder`,
+          {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload),
+          },
+        );
+
+        const data = await response.json();
+
+        if (!data.payreq || !data.orderId) throw new Error(data.reason);
+
+        const fee = await sparkPaymenWrapper({
+          getFee: true,
+          address: data.payreq,
+          paymentType: 'lightning',
+          amountSats: price,
+          masterInfoObject,
+          sparkInformation,
+          userBalance: sparkInformation.balance,
+        });
+        if (!fee.didWork) throw new Error(fee.error);
+        if (sparkInformation.balance < fee.supportFee + fee.fee) {
+          throw new Error('Insufficient balance to purchase credits');
+        }
+        setInvoiceInformation({
+          fee: fee.fee,
+          supportFee: fee.supportFee,
+          payreq: data.payreq,
+          orderId: data.orderId,
+        });
+      } catch (err) {
+        console.log('Error fetching invoice:', err);
+        navigate.goBack();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: err.message,
+            });
+          });
+        });
+      }
+    }
+    fetchInvoice();
   }, []);
 
   return (
     <View style={styles.halfModalContainer}>
-      {!liquidTxFee ? (
+      {!invoiceInformation ? (
         <FullLoadingScreen />
       ) : (
         <>
@@ -96,7 +144,7 @@ export default function ConfirmSMSPayment(props) {
               textAlign: 'center',
             }}
             frontText={'Fee: '}
-            balance={fee}
+            balance={invoiceInformation.fee + invoiceInformation.supportFee}
           />
           <SwipeButtonNew
             onSwipeSuccess={onSwipeSuccess}
