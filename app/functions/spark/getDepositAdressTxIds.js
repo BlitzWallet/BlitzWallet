@@ -74,7 +74,7 @@ async function fetchTxidsFromBlockstream(
         });
       });
 
-      return data
+      const exploraData = data
         .map(tx => {
           const isIncomingTx = tx.vout.some(
             vout => vout.scriptpubkey_address === address,
@@ -99,6 +99,19 @@ async function fetchTxidsFromBlockstream(
             : null;
         })
         .filter(Boolean);
+
+      let savedDepositTxids =
+        JSON.parse(await getLocalStorageItem('alreadyClaimedTxs')) || {};
+
+      let savedTxIds = savedDepositTxids[address] || [];
+      let updatedExploraData = exploraData;
+      if (savedTxIds.length) {
+        updatedExploraData = exploraData.filter(
+          item => !savedTxIds.includes(item.txid),
+        );
+      }
+
+      return updatedExploraData;
     } catch (err) {
       console.log(`fetching data from ${api.name.toLowerCase()} failed`, err);
 
@@ -113,11 +126,10 @@ async function fetchTxidsFromBlockstream(
 
 export async function handleTxIdState(txId, didClaim, address) {
   let savedDepositTxids =
-    JSON.parse(await getLocalStorageItem('depositAddressTxIds')) || {};
+    JSON.parse(await getLocalStorageItem('alreadyClaimedTxs')) || {};
 
   let savedTxIds = savedDepositTxids[address] || [];
 
-  if (!savedTxIds || !savedTxIds.length) return;
   if (!txId) {
     console.warn('No txId provided to handleTxIdState');
     return;
@@ -127,17 +139,11 @@ export async function handleTxIdState(txId, didClaim, address) {
     return;
   }
 
-  // Update the txId state in the savedDepositTxids
-  const newState = savedTxIds.map(tx => {
-    if (tx.txid === txId.txid) {
-      return {...tx, didClaim};
-    }
-    return tx;
-  });
-  savedTxIds = newState;
+  if (savedTxIds.includes(txId.txid)) return;
+  savedTxIds.push(txId.txid);
   savedDepositTxids[address] = savedTxIds;
   await setLocalStorageItem(
-    'depositAddressTxIds',
+    'alreadyClaimedTxs',
     JSON.stringify(savedDepositTxids),
   );
 }
