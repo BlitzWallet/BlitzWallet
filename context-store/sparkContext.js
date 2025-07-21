@@ -163,11 +163,10 @@ const SparkWalletProvider = ({children}) => {
     );
 
     const details = JSON.parse(selectedStoredPayment.details);
-
     if (details?.shouldNavigate && !details.isLNULR) return;
-    if (details?.isLNULR && !details.isBlitzContactPayment) return;
     if (
       details.isLNULR &&
+      !details.isBlitzContactPayment &&
       navigationRef
         .getRootState()
         .routes?.filter(item => item.name === 'ReceiveBTC').length !== 1
