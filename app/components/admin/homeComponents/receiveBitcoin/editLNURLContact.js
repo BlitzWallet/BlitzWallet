@@ -1,10 +1,8 @@
 import {
   Image,
-  Keyboard,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import * as ImageManipulator from 'expo-image-manipulator';
@@ -12,8 +10,6 @@ import {ThemeText} from '../../../../functions/CustomElements';
 import ContactProfileImage from '../contacts/internalComponents/profileImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {
   CENTER,
   COLORS,
@@ -24,14 +20,14 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import {useCallback, useRef, useState} from 'react';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import {INSET_WINDOW_WIDTH, SIZES} from '../../../../constants/theme';
-import {useKeysContext} from '../../../../../context-store/keys';
+import {SIZES} from '../../../../constants/theme';
 import {useNavigation} from '@react-navigation/native';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import {getImageFromLibrary} from '../../../../functions/imagePickerWrapper';
 import {setDatabaseIMG} from '../../../../../db/photoStorage';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {isValidUniqueName} from '../../../../../db';
+import ThemeImage from '../../../../functions/CustomElements/themeImage';
 
 export default function EditLNURLContactOnReceivePage({
   theme,
@@ -159,17 +155,17 @@ export default function EditLNURLContactOnReceivePage({
   }, [globalContactsInformation, username]);
 
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      onLayout={e => {
-        const {height} = e.nativeEvent.layout;
-        if (!initialValue.current) {
-          initialValue.current = height;
-          console.log(height, 'height');
-          setContentHeight(height + 55);
-        }
-      }}>
-      <View style={styles.popupContainer}>
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View
+        onLayout={e => {
+          const {height} = e.nativeEvent.layout;
+          if (!initialValue.current) {
+            initialValue.current = height;
+            console.log(height, 'height');
+            setContentHeight(height + 90);
+          }
+        }}
+        style={styles.popupContainer}>
         <TouchableOpacity
           onPress={() => {
             if (isAddingImage) return;
@@ -201,15 +197,36 @@ export default function EditLNURLContactOnReceivePage({
           </View>
         </TouchableOpacity>
 
-        <ThemeText
-          styles={{
-            width: '100%',
-            paddingTop: 10,
-            paddingBottom: 10,
-            fontSize: SIZES.medium,
+        <TouchableOpacity
+          onPress={() => {
+            navigate.navigate('InformationPopup', {
+              textContent:
+                'Changing your username updates how others find you in Blitz Contacts and your Lightning address (username @blitz-wallet.com).\n\nA Lightning address lets others easily send you Bitcoin. Just share your address (username@blitz-wallet.com) to get paid.',
+              buttonText: 'I understand',
+            });
           }}
-          content={'Edit Username'}
-        />
+          style={{
+            width: '100%',
+            height: 45,
+            marginVertical: 10,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}>
+          <ThemeText
+            styles={{
+              includeFontPadding: false,
+              marginRight: 5,
+            }}
+            content={'Edit Username'}
+          />
+
+          <ThemeImage
+            styles={{width: 20, height: 20}}
+            lightModeIcon={ICONS.aboutIcon}
+            darkModeIcon={ICONS.aboutIcon}
+            lightsOutIcon={ICONS.aboutIconWhite}
+          />
+        </TouchableOpacity>
         <View style={{width: '100%'}}>
           <CustomSearchInput
             textInputStyles={{
