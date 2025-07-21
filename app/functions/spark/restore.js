@@ -21,7 +21,11 @@ import {
 } from './transactions';
 import {transformTxToPaymentObject} from './transformTxToPayment';
 
-export const restoreSparkTxState = async (BATCH_SIZE, savedTxs) => {
+export const restoreSparkTxState = async (
+  BATCH_SIZE,
+  savedTxs,
+  isSendingPayment,
+) => {
   const restoredTxs = [];
 
   try {
@@ -66,6 +70,9 @@ export const restoreSparkTxState = async (BATCH_SIZE, savedTxs) => {
         ) {
           continue;
         }
+
+        // This would cause a double transaction to be listed untill the pending items were clear
+        if (tx.transferDirection === 'OUTGOING' && isSendingPayment) continue;
 
         const type = sparkPaymentType(tx);
 
@@ -119,9 +126,14 @@ export async function fullRestoreSparkState({
   sparkAddress,
   batchSize = 50,
   savedTxs,
+  isSendingPayment,
 }) {
   try {
-    const restored = await restoreSparkTxState(batchSize, savedTxs);
+    const restored = await restoreSparkTxState(
+      batchSize,
+      savedTxs,
+      isSendingPayment,
+    );
     const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
 
     const newPaymentObjects = [];

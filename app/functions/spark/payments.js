@@ -10,6 +10,10 @@ import {
   getSparkAddress,
   sparkWallet,
 } from '.';
+import {
+  isSendingPayingEventEmiiter,
+  SENDING_PAYMENT_EVENT_NAME,
+} from '../../../context-store/sparkContext';
 import calculateProgressiveBracketFee from './calculateSupportFee';
 import {
   addSingleUnpaidSparkLightningTransaction,
@@ -86,6 +90,7 @@ export const sparkPaymenWrapper = async ({
     )
       throw new Error('Insufficient funds');
 
+    isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, true);
     if (paymentType === 'lightning') {
       const initialFee = Math.round(fee - supportFee);
       const lightningPayResponse = await sendSparkLightningPayment({
@@ -193,6 +198,10 @@ export const sparkPaymenWrapper = async ({
   } catch (err) {
     console.log('Send lightning payment error', err);
     return {didWork: false, error: err.message};
+  } finally {
+    if (!getFee) {
+      isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, false);
+    }
   }
 };
 

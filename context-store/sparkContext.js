@@ -10,18 +10,15 @@ import {
 import {
   claimnSparkStaticDepositAddress,
   getSparkBalance,
-  getSparkLightningPaymentStatus,
   getSparkStaticBitcoinL1AddressQuote,
   getSparkTransactions,
   queryAllStaticDepositAddresses,
   sparkWallet,
-  sparkPaymentType,
   findTransactionTxFromTxHistory,
 } from '../app/functions/spark';
 import {
   addSingleSparkTransaction,
   bulkUpdateSparkTransactions,
-  deleteUnpaidSparkLightningTransaction,
   getAllSparkTransactions,
   getAllUnpaidSparkLightningInvoices,
   SPARK_TX_UPDATE_ENVENT_NAME,
@@ -36,19 +33,20 @@ import {
 import {useGlobalContacts} from './globalContacts';
 import {initWallet} from '../app/functions/initiateWalletConnection';
 import {useNodeContext} from './nodeContext';
-
-import {breezLiquidLNAddressPaymentWrapper} from '../app/functions/breezLiquid';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
 import {AppState} from 'react-native';
 import getDepositAddressTxIds, {
   handleTxIdState,
 } from '../app/functions/spark/getDepositAdressTxIds';
 import {useKeysContext} from './keys';
-import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {navigationRef} from '../navigation/navigationService';
 import {transformTxToPaymentObject} from '../app/functions/spark/transformTxToPayment';
 import handleBalanceCache from '../app/functions/spark/handleBalanceCache';
 import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
+import EventEmitter from 'events';
+
+export const isSendingPayingEventEmiiter = new EventEmitter();
+export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
 
 // Initiate context
 const SparkWalletManager = createContext(null);
@@ -57,6 +55,7 @@ const SparkWalletProvider = ({children}) => {
   const {accountMnemoinc, contactsPrivateKey, publicKey} = useKeysContext();
   const {didGetToHomepage, minMaxLiquidSwapAmounts} = useAppStatus();
   const {liquidNodeInformation} = useNodeContext();
+  const [isSendingPayment, setIsSendingPayment] = useState(false);
   const {toggleGlobalContactsInformation, globalContactsInformation} =
     useGlobalContacts();
   const [sparkConnectionError, setSparkConnectionError] = useState(null);
@@ -74,12 +73,28 @@ const SparkWalletProvider = ({children}) => {
   const sparkDBaddress = useRef(null);
   const updatePendingPaymentsIntervalRef = useRef(null);
   const isInitialRestore = useRef(true);
+  const didInitializeSendingPaymentEvent = useRef(false);
   const [numberOfCachedTxs, setNumberOfCachedTxs] = useState(0);
   const [currentAppState, setCurrentAppState] = useState('');
 
   // Debounce refs
   const debounceTimeoutRef = useRef(null);
   const pendingTransferIds = useRef(new Set());
+
+  const toggleIsSendingPayment = isSending => {
+    console.log('Sending vaeriable', isSending);
+    setIsSendingPayment(isSending);
+  };
+
+  useEffect(() => {
+    if (didInitializeSendingPaymentEvent.current) return;
+    didInitializeSendingPaymentEvent.current = true;
+
+    isSendingPayingEventEmiiter.addListener(
+      SENDING_PAYMENT_EVENT_NAME,
+      toggleIsSendingPayment,
+    );
+  }, []);
 
   // This is a function that handles incoming transactions and formats it to required format
   const handleTransactionUpdate = async (
@@ -317,6 +332,7 @@ const SparkWalletProvider = ({children}) => {
       sparkAddress: sparkInformation.sparkAddress,
       batchSize: isInitialRestore.current ? 15 : 5,
       savedTxs: sparkInformation.transactions,
+      isSendingPayment: isSendingPayment,
     });
 
     await updateSparkTxStatus();
