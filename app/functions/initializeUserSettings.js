@@ -88,10 +88,10 @@ export default async function initializeUserSettingsFromHistory({
     const generatedUniqueName = blitzStoredData?.contacts?.uniqueName
       ? ''
       : generateRandomContact();
-    const contacts = blitzStoredData.contacts || {
+    let contacts = blitzStoredData.contacts || {
       myProfile: {
         uniqueName: generatedUniqueName.uniqueName,
-        uniqueNameLower: generatedUniqueName.uniqueName.toLocaleLowerCase(),
+        uniqueNameLower: generatedUniqueName.uniqueName.toLowerCase(),
         bio: '',
         name: '',
         nameLower: '',
@@ -192,7 +192,7 @@ export default async function initializeUserSettingsFromHistory({
 
     if (!contacts.myProfile?.uniqueNameLower) {
       contacts.myProfile.uniqueNameLower =
-        contacts.myProfile.uniqueName.toLocaleLowerCase();
+        contacts.myProfile.uniqueName.toLowerCase();
       needsToUpdate = true;
     }
     if (!contacts.myProfile.lastRotated) {
@@ -259,6 +259,19 @@ export default async function initializeUserSettingsFromHistory({
     }
     if (isUsingEncriptedMessaging === undefined) {
       isUsingEncriptedMessaging = true;
+      needsToUpdate = true;
+    }
+
+    if (
+      contacts.myProfile.uniqueName &&
+      contacts.myProfile.uniqueNameLower &&
+      (contacts.myProfile.uniqueName.trim() !== contacts.myProfile.uniqueName ||
+        contacts.myProfile.uniqueNameLower.trim() !==
+          contacts.myProfile.uniqueNameLower)
+    ) {
+      contacts.myProfile.uniqueName = contacts.myProfile.uniqueName.trim();
+      contacts.myProfile.uniqueNameLower =
+        contacts.myProfile.uniqueNameLower.trim();
       needsToUpdate = true;
     }
 
