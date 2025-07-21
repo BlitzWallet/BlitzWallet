@@ -113,9 +113,7 @@ export default function ConfirmTxPage(props) {
         }}
         content={
           didSucceed
-            ? showPendingMessage
-              ? 'Your balance will be updated shortly'
-              : ''
+            ? ''
             : 'There was an issue sending this payment, please try again.'
         }
       />

@@ -20,12 +20,19 @@ export default function TechnicalTransactionDetails(props) {
 
   const isPending = transaction.paymentStatus === 'pending';
 
+  console.log(details);
+
   const paymentDetails =
     transaction.paymentType === 'spark'
       ? ['Payment Id']
       : transaction.paymentType === 'lightning'
       ? ['Payment Id', 'Payment Preimage', 'Payment Address']
-      : ['Payment Id', 'Bitcoin Txid', 'Payment Address', 'Payment Expiry'];
+      : [
+          'Payment Id',
+          'Bitcoin Txid',
+          'Payment Address',
+          'Payment Expiry',
+        ].slice(0, details.direction === 'OUTGOING' && isPending ? 4 : 3);
 
   const infoElements = paymentDetails.map((item, id) => {
     const txItem =
