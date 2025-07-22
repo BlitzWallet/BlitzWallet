@@ -63,8 +63,14 @@ export default function NotificationPreferances() {
               newObject['platform'] = data.platform;
             }
           }
+
+          if (!currnetPushState) {
+            newObject['isEnabled'] = true;
+          } else {
+            newObject['isEnabled'] = !newObject.isEnabled;
+          }
+
           loadCurrentNotificationPermission();
-          newObject['isEnabled'] = !newObject.isEnabled;
         } else {
           newObject.enabledServices[toggleType] =
             !newObject.enabledServices?.[toggleType];
