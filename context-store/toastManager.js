@@ -39,7 +39,7 @@ const toastReducer = (state, action) => {
 export const ToastProvider = ({children}) => {
   const [state, dispatch] = useReducer(toastReducer, initialState);
 
-  const showToast = useCallback(toast => {
+  const showToast = toast => {
     const id = Date.now() + Math.random();
     const toastWithId = {
       id,
@@ -58,15 +58,15 @@ export const ToastProvider = ({children}) => {
     }
 
     return id;
-  }, []);
+  };
 
-  const hideToast = useCallback(id => {
+  const hideToast = id => {
     dispatch({type: 'REMOVE_TOAST', payload: id});
-  }, []);
+  };
 
-  const clearToasts = useCallback(() => {
+  const clearToasts = () => {
     dispatch({type: 'CLEAR_TOASTS'});
-  }, []);
+  };
 
   return (
     <ToastContext.Provider
