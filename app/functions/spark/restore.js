@@ -302,7 +302,10 @@ async function processLightningTransactions(
   let cachedTransfers = [];
 
   for (const result of updatedTxs) {
-    if (!result.lookThroughTxHistory) newTxs.push(result);
+    if (!result.lookThroughTxHistory) {
+      newTxs.push(result);
+      continue;
+    }
 
     const findTxResponse = await findTransactionTxFromTxHistory(
       result.id,
