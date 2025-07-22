@@ -296,7 +296,46 @@ async function processLightningTransactions(
     updatedTxs.push(...validResults);
   }
 
-  return updatedTxs;
+  let newTxs = [];
+
+  let transfersOffset = 0;
+  let cachedTransfers = [];
+
+  for (const result of updatedTxs) {
+    if (!result.lookThroughTxHistory) newTxs.push(result);
+
+    const findTxResponse = await findTransactionTxFromTxHistory(
+      result.id,
+      transfersOffset,
+      cachedTransfers,
+    );
+
+    if (findTxResponse.offset && findTxResponse.foundTransfers) {
+      transfersOffset = findTxResponse.offset;
+      cachedTransfers = findTxResponse.foundTransfers;
+    }
+
+    if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer) continue;
+
+    const {offset, foundTransfers, bitcoinTransfer} = findTxResponse;
+    transfersOffset = offset;
+    cachedTransfers = foundTransfers;
+
+    if (!bitcoinTransfer) continue;
+
+    newTxs.push({
+      ...result,
+      paymentStatus: getSparkPaymentStatus(bitcoinTransfer.status),
+      details: {
+        amount: bitcoinTransfer.totalValue,
+        direction: bitcoinTransfer.transferDirection,
+        preimage: '',
+        address: '',
+      },
+    });
+  }
+
+  return newTxs;
 }
 
 async function processLightningTransaction(
@@ -314,9 +353,10 @@ async function processLightningTransaction(
     ) {
       return {
         id: txStateUpdate.sparkID,
-        paymentStatus: 'completed',
+        paymentStatus: '',
         paymentType: 'lightning',
         accountId: txStateUpdate.accountId,
+        lookThroughTxHistory: true,
       };
     }
 
@@ -373,15 +413,8 @@ async function processLightningTransaction(
       details.direction === 'OUTGOING' &&
       sparkResponse.status ===
         LightningSendRequestStatus.LIGHTNING_PAYMENT_FAILED
-    ) {
-      return {
-        id: txStateUpdate.sparkID,
-        paymentStatus: 'failed',
-        paymentType: 'lightning',
-        accountId: txStateUpdate.accountId,
-        details,
-      };
-    }
+    )
+      return null;
 
     if (!sparkResponse?.transfer) return null;
     return {
@@ -496,7 +529,7 @@ async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
 
       updatedTxs.push({
         id: txStateUpdate.sparkID,
-        paymentStatus: 'completed', // getSparkPaymentStatus(bitcoinTransfer.status),
+        paymentStatus: getSparkPaymentStatus(bitcoinTransfer.status),
         paymentType: 'bitcoin',
         accountId: txStateUpdate.accountId,
       });

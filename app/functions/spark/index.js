@@ -406,6 +406,7 @@ export const getSparkPaymentStatus = status => {
     ? 'completed'
     : status === 'TRANSFER_STATUS_RETURNED' ||
       status === 'TRANSFER_STATUS_EXPIRED' ||
+      status === 'TRANSFER_STATUS_SENDER_INITIATED' ||
       status === LightningSendRequestStatus.LIGHTNING_PAYMENT_FAILED ||
       status === SparkCoopExitRequestStatus.FAILED ||
       status === SparkCoopExitRequestStatus.EXPIRED ||
