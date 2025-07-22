@@ -3,13 +3,20 @@ import {Alert, Platform, View} from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Crypto from 'react-native-quick-crypto';
 import * as TaskManager from 'expo-task-manager';
-import {getMessaging} from '@react-native-firebase/messaging';
+import {
+  getAPNSToken,
+  getMessaging,
+  isDeviceRegisteredForRemoteMessages,
+  registerDeviceForRemoteMessages,
+} from '@react-native-firebase/messaging';
 import {encriptMessage} from '../app/functions/messaging/encodingAndDecodingMessages';
 import {useGlobalContextProvider} from './context';
 import {useKeysContext} from './keys';
 import {checkGooglePlayServices} from '../app/functions/checkGoogleServices';
 import DeviceInfo from 'react-native-device-info';
 import handleNWCBackgroundEvent from '../app/functions/nwc/backgroundNofifications';
+
+const firebaseMessaging = getMessaging();
 
 // Create the context
 const PushNotificationContext = createContext({});
@@ -199,9 +206,9 @@ async function registerForPushNotificationsAsync() {
 
     let options = {projectId: process.env.EXPO_PROJECT_ID};
     if (Platform.OS === 'ios') {
-      if (!getMessaging().isDeviceRegisteredForRemoteMessages)
-        await getMessaging().registerDeviceForRemoteMessages();
-      const token = await getMessaging().getAPNSToken();
+      const isRegisted = isDeviceRegisteredForRemoteMessages(firebaseMessaging);
+      if (!isRegisted) await registerDeviceForRemoteMessages(firebaseMessaging);
+      const token = await getAPNSToken(firebaseMessaging);
       options.devicePushToken = {type: 'ios', data: token};
     }
 
