@@ -32,7 +32,13 @@ export default function ConfirmChatGPTPage(props) {
         creditPrice += 150; //blitz flat fee
         creditPrice += Math.ceil(creditPrice * 0.005);
         const lnPayoutLNURL = process.env.GPT_PAYOUT_LNURL;
-        const input = await parse(lnPayoutLNURL);
+        let input;
+        try {
+          input = await parse(lnPayoutLNURL);
+        } catch (err) {
+          setError('Unable to retrive invoice for payment');
+          return;
+        }
         const lnInvoice = await getLNAddressForLiquidPayment(
           input,
           creditPrice,
