@@ -6,7 +6,7 @@ import React, {
   useRef,
   useMemo,
 } from 'react';
-import {getStorage} from '@react-native-firebase/storage';
+import {getDownloadURL, ref} from '@react-native-firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 import {useGlobalContacts} from './globalContacts';
@@ -84,9 +84,7 @@ export function ImageCacheProvider({children}) {
       let updated;
 
       if (!hasdownloadURL) {
-        const reference = getStorage().ref(
-          `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}.jpg`,
-        );
+        const reference = ref(`${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}.jpg`);
 
         metadata = await reference.getMetadata();
         updated = metadata.updated;
@@ -97,7 +95,7 @@ export function ImageCacheProvider({children}) {
           if (fileInfo.exists) return;
         }
 
-        url = await reference.getDownloadURL();
+        url = await getDownloadURL(reference);
       } else {
         url = hasdownloadURL;
         updated = new Date().toISOString();
