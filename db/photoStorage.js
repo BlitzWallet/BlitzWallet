@@ -1,15 +1,22 @@
-import {getStorage} from '@react-native-firebase/storage';
+import {
+  getDownloadURL,
+  putFile,
+  ref,
+  deleteObject,
+} from '@react-native-firebase/storage';
 import {BLITZ_PROFILE_IMG_STORAGE_REF} from '../app/constants';
+import {storage} from './initializeFirebase';
 
 export async function setDatabaseIMG(publicKey, imgURL) {
   try {
-    const reference = getStorage().ref(
+    const reference = ref(
+      storage,
       `${BLITZ_PROFILE_IMG_STORAGE_REF}/${publicKey}.jpg`,
     );
 
-    await reference.putFile(imgURL.uri);
+    await putFile(reference, imgURL.uri);
 
-    const downloadURL = await reference.getDownloadURL();
+    const downloadURL = await getDownloadURL(reference);
     return downloadURL;
   } catch (err) {
     console.log('set database image error', err);
@@ -18,10 +25,12 @@ export async function setDatabaseIMG(publicKey, imgURL) {
 }
 export async function deleteDatabaseImage(publicKey) {
   try {
-    const reference = getStorage().ref(
+    const reference = ref(
+      storage,
       `${BLITZ_PROFILE_IMG_STORAGE_REF}/${publicKey}.jpg`,
     );
-    await reference.delete();
+
+    await deleteObject(reference);
     return true;
   } catch (err) {
     console.log('delete profime imgage error', err);

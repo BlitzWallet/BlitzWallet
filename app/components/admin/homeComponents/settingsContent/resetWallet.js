@@ -16,7 +16,7 @@ import {useNavigation} from '@react-navigation/native';
 import Icon from '../../../../functions/CustomElements/Icon';
 import {deleteTable} from '../../../../functions/messaging/cachedMessages';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {getAuth} from '@react-native-firebase/auth';
+import {signOut} from '@react-native-firebase/auth';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {deleteEcashDBTables} from '../../../../functions/eCash/db';
@@ -28,6 +28,7 @@ import {
   deleteUnpaidSparkLightningTransactionTable,
 } from '../../../../functions/spark/transactions';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
+import {firebaseAuth} from '../../../../../db/initializeFirebase';
 
 export default function ResetPage(props) {
   const [selectedOptions, setSelectedOptions] = useState({
@@ -253,7 +254,7 @@ export default function ResetPage(props) {
           throw Error('Not able to delete secure stored information');
       }
       try {
-        await getAuth().signOut();
+        await signOut(firebaseAuth);
       } catch (err) {
         console.log('reset wallet sign out error', err);
       }

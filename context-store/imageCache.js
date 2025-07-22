@@ -6,7 +6,7 @@ import React, {
   useRef,
   useMemo,
 } from 'react';
-import {getDownloadURL, ref} from '@react-native-firebase/storage';
+import {getDownloadURL, getMetadata, ref} from '@react-native-firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 import {useGlobalContacts} from './globalContacts';
@@ -14,8 +14,8 @@ import {useAppStatus} from './appStatus';
 import {BLITZ_PROFILE_IMG_STORAGE_REF} from '../app/constants';
 import {useGlobalContextProvider} from './context';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
+import {storage} from '../db/initializeFirebase';
 const FILE_DIR = FileSystem.cacheDirectory + 'profile_images/';
-
 const ImageCacheContext = createContext();
 
 export function ImageCacheProvider({children}) {
@@ -84,9 +84,12 @@ export function ImageCacheProvider({children}) {
       let updated;
 
       if (!hasdownloadURL) {
-        const reference = ref(`${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}.jpg`);
+        const reference = ref(
+          storage,
+          `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}.jpg`,
+        );
 
-        metadata = await reference.getMetadata();
+        metadata = await getMetadata(reference);
         updated = metadata.updated;
 
         const cached = cache[uuid];

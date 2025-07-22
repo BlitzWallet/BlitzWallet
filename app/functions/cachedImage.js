@@ -1,7 +1,8 @@
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BLITZ_PROFILE_IMG_STORAGE_REF} from '../constants';
-import {getStorage} from '@react-native-firebase/storage';
+import {getDownloadURL, getMetadata, ref} from '@react-native-firebase/storage';
+import {storage} from '../../db/initializeFirebase';
 
 const FILE_DIR = FileSystem.cacheDirectory + 'profileImages/';
 const CACHE_KEY = uuid => `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}`;
@@ -9,10 +10,12 @@ const CACHE_KEY = uuid => `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}`;
 export async function getCachedProfileImage(uuid) {
   try {
     const key = `${CACHE_KEY(uuid)}`;
-    const ref = getStorage().ref(
+    const reference = ref(
+      storage,
       `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}.jpg`,
     );
-    const metadata = await ref.getMetadata();
+
+    const metadata = await getMetadata(reference);
     const updated = metadata.updated;
 
     // Check for cached image info
@@ -25,7 +28,7 @@ export async function getCachedProfileImage(uuid) {
         return {localUri: parsed.localUri, updated: parsed?.updated};
     }
 
-    const url = await ref.getDownloadURL();
+    const url = await getDownloadURL(reference);
     await FileSystem.makeDirectoryAsync(FILE_DIR, {intermediates: true});
     const localUri = `${FILE_DIR}${uuid}.jpg`;
 

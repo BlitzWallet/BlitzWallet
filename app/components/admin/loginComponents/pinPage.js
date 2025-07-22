@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
-import {getAuth} from '@react-native-firebase/auth';
+import {signOut} from '@react-native-firebase/auth';
 import {
   getLocalStorageItem,
   handleLogin,
@@ -23,6 +23,7 @@ import {
   decryptMnemonicWithPin,
   handleLoginSecuritySwitch,
 } from '../../../functions/handleMnemonic';
+import {firebaseAuth} from '../../../../db/initializeFirebase';
 
 export default function PinPage() {
   const [loginSettings, setLoginSettings] = useState({
@@ -71,7 +72,7 @@ export default function PinPage() {
             if (deleted) {
               clearSettings();
               try {
-                await getAuth().signOut();
+                await signOut(firebaseAuth);
               } catch (err) {
                 console.log('pin page sign out error', err);
               }
