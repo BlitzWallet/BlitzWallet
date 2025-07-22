@@ -180,10 +180,12 @@ export default async function decodeSendAddress(props) {
         navigate.navigate('ErrorScreen', {
           errorMessage: `Sending amount is too low to cover the payment and fees. Maximum send amount is ${displayCorrectDenomination(
             {
-              amount:
+              amount: Math.max(
                 sparkInformation.balance -
-                (processedPaymentInfo.paymentFee +
-                  processedPaymentInfo.supportFee),
+                  (processedPaymentInfo.paymentFee +
+                    processedPaymentInfo.supportFee),
+                0,
+              ),
               masterInfoObject,
               fiatStats,
             },
