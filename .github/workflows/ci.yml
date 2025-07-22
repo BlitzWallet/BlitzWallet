@@ -21,6 +21,7 @@ jobs:
         run: |
           set -euxo pipefail
           yarn config set registry https://registry.npmjs.org/
+          rm -f yarn.lock
           for i in {1..5}; do yarn install && break || sleep 15; done
 
       - name: Run eslint
