@@ -31,7 +31,8 @@ export default function ViewAllLiquidSwaps(props) {
 
   const liquidBalance =
     liquidInfoResponse?.walletInfo?.balanceSat !== undefined
-      ? liquidInfoResponse?.walletInfo?.balanceSat
+      ? liquidInfoResponse?.walletInfo?.balanceSat -
+        (liquidInfoResponse?.walletInfo?.pendingSendSat || 0)
       : null;
   // const [liquidSwaps, setLiquidSwaps] = useState(null);
   // [
@@ -49,7 +50,6 @@ export default function ViewAllLiquidSwaps(props) {
     try {
       setIsLoading(true);
       const infoResponse = await getInfo();
-      console.log(infoResponse);
 
       setLiquidInfoResponse(infoResponse);
       if (isRescan) {
@@ -150,20 +150,36 @@ export default function ViewAllLiquidSwaps(props) {
   return (
     <View style={styles.globalContainer}>
       {liquidBalance === null ? (
-        <FullLoadingScreen text={'Getting failed liquid swaps'} />
-      ) : liquidBalance === 0 ? (
+        <FullLoadingScreen text={'Getting liquid info'} />
+      ) : liquidBalance <= 0 ? (
         <>
           <ThemeText
-            styles={styles.noTxText}
-            content={`You have ${displayCorrectDenomination({
-              amount: liquidInfoResponse?.walletInfo?.balanceSat || 0,
-              masterInfoObject,
-              fiatStats,
-            })} confirmed and ${displayCorrectDenomination({
+            styles={styles.balanceText}
+            content={`Balance Breakdown`}
+          />
+          <ThemeText
+            styles={styles.balanceText}
+            content={`${displayCorrectDenomination({
               amount: liquidInfoResponse?.walletInfo?.pendingReceiveSat || 0,
               masterInfoObject,
               fiatStats,
-            })} pending.`}
+            })} pending incoming`}
+          />
+          <ThemeText
+            styles={styles.balanceText}
+            content={`${displayCorrectDenomination({
+              amount: liquidInfoResponse?.walletInfo?.pendingSendSat || 0,
+              masterInfoObject,
+              fiatStats,
+            })} pending outgoing`}
+          />
+          <ThemeText
+            styles={{...styles.balanceText, marginBottom: 30}}
+            content={`${displayCorrectDenomination({
+              amount: liquidInfoResponse?.walletInfo?.balanceSat || 0,
+              masterInfoObject,
+              fiatStats,
+            })} confirmed`}
           />
           <CustomButton
             actionFunction={() => retriveLiquidBalance(true)}
@@ -214,11 +230,12 @@ const styles = StyleSheet.create({
     fontSize: SIZES.xxLarge,
     includeFontPadding: false,
   },
-  noTxText: {
+
+  balanceText: {
     width: '95%',
     maxWidth: 250,
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 10,
   },
 
   swapContainer: {
