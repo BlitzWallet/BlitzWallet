@@ -10,6 +10,7 @@ import SwipeButtonNew from '../../../../../../functions/CustomElements/sliderBut
 import {sparkPaymenWrapper} from '../../../../../../functions/spark/payments';
 import {useGlobalContextProvider} from '../../../../../../../context-store/context';
 import {useSparkWallet} from '../../../../../../../context-store/sparkContext';
+import StoreErrorPage from '../../components/errorScreen';
 
 export default function ConfirmVPNPage(props) {
   const navigate = useNavigation();
@@ -27,6 +28,7 @@ export default function ConfirmVPNPage(props) {
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
 
   const [invoiceInformation, setInvoiceInformation] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     async function fetchInvoice() {
@@ -76,14 +78,7 @@ export default function ConfirmVPNPage(props) {
         });
       } catch (err) {
         console.log('Error fetching invoice information:', err);
-        navigate.goBack();
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: err.message,
-            });
-          });
-        });
+        setError(err.message);
       }
     }
     fetchInvoice();
@@ -97,6 +92,10 @@ export default function ConfirmVPNPage(props) {
       });
     });
   }, [invoiceInformation]);
+
+  if (error) {
+    return <StoreErrorPage error={error} />;
+  }
 
   return (
     <View style={styles.container}>

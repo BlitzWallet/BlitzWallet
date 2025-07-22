@@ -11,6 +11,7 @@ import {useCallback, useEffect, useState} from 'react';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
+import StoreErrorPage from '../components/errorScreen';
 
 export default function ConfirmSMSPayment(props) {
   const navigate = useNavigation();
@@ -29,6 +30,7 @@ export default function ConfirmSMSPayment(props) {
   } = props;
 
   const [invoiceInformation, setInvoiceInformation] = useState(null);
+  const [error, setError] = useState('');
 
   const price = page === 'sendSMS' ? 1000 : prices[page];
 
@@ -97,18 +99,15 @@ export default function ConfirmSMSPayment(props) {
         });
       } catch (err) {
         console.log('Error fetching invoice:', err);
-        navigate.goBack();
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: err.message,
-            });
-          });
-        });
+        setError(err.message);
       }
     }
     fetchInvoice();
   }, []);
+
+  if (error) {
+    return <StoreErrorPage error={error} />;
+  }
 
   return (
     <View style={styles.halfModalContainer}>

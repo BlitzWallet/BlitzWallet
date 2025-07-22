@@ -18,6 +18,7 @@ import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
+import StoreErrorPage from '../components/errorScreen';
 
 export default function ConfirmGiftCardPurchase(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -25,6 +26,7 @@ export default function ConfirmGiftCardPurchase(props) {
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
   const {decodedGiftCards} = useGlobalAppData();
   const navigate = useNavigation();
+  const [error, setError] = useState('');
 
   const [retrivedInformation, setRetrivedInformation] = useState({
     countryInfo: {},
@@ -63,14 +65,10 @@ export default function ConfirmGiftCardPurchase(props) {
           }),
         ]);
 
-        if (!response) {
-          navigate.goBack();
-          navigate.navigate('ErrorScreen', {
-            errorMessage:
-              'Not able to generate invoice for gift card. Please try again later.',
-          });
-          return;
-        }
+        if (!response)
+          throw new Error(
+            'Not able to generate invoice for gift card. Please try again later.',
+          );
 
         const parsedInput = await parse(response.result?.invoice);
 
@@ -96,10 +94,7 @@ export default function ConfirmGiftCardPurchase(props) {
         });
       } catch (err) {
         console.log(err);
-        navigate.goBack();
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Error getting payment detials',
-        });
+        setError(err.message);
       }
     }
     getGiftCardInfo();
@@ -115,6 +110,11 @@ export default function ConfirmGiftCardPurchase(props) {
       props.purchaseGiftCard(retrivedInformation.productInfo);
     }, 200);
   }, [retrivedInformation]);
+
+  if (error) {
+    return <StoreErrorPage error={error} />;
+  }
+
   return (
     <View style={styles.halfModalContainer}>
       {Object.keys(retrivedInformation.productInfo).length === 0 ? (

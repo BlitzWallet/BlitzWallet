@@ -1,4 +1,4 @@
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, useWindowDimensions, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../../../functions/CustomElements';
 import {SIZES} from '../../../../../../constants';
@@ -12,6 +12,7 @@ import {sparkPaymenWrapper} from '../../../../../../functions/spark/payments';
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {useGlobalContextProvider} from '../../../../../../../context-store/context';
 import {useSparkWallet} from '../../../../../../../context-store/sparkContext';
+import StoreErrorPage from '../../components/errorScreen';
 
 export default function ConfirmChatGPTPage(props) {
   const navigate = useNavigation();
@@ -20,6 +21,7 @@ export default function ConfirmChatGPTPage(props) {
   const theme = props?.theme;
   const darkModeType = props?.darkModeType;
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const [error, setError] = useState('');
 
   const [invoiceInformation, setInvoiceInformation] = useState(null);
 
@@ -56,14 +58,8 @@ export default function ConfirmChatGPTPage(props) {
         });
       } catch (err) {
         console.log('Error generating invoice and fee for chatGPT:', err);
-        navigate.goBack();
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: err.message,
-            });
-          });
-        });
+        setError(err.message);
+        return;
       }
     }
     requestAnimationFrame(() => {
@@ -80,6 +76,10 @@ export default function ConfirmChatGPTPage(props) {
       invoiceInformation,
     });
   }, [invoiceInformation]);
+
+  if (error) {
+    return <StoreErrorPage error={error} />;
+  }
 
   return (
     <View style={styles.container}>
