@@ -407,6 +407,7 @@ const SparkWalletProvider = ({children}) => {
   useEffect(() => {
     if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
+
     // Interval to check deposit addresses to see if they were paid
     const handleDepositAddressCheck = async () => {
       try {
@@ -414,9 +415,11 @@ const SparkWalletProvider = ({children}) => {
         const allTxs = await getAllSparkTransactions();
         const savedTxMap = new Map(allTxs.map(tx => [tx.sparkID, tx]));
         const depoistAddress = await queryAllStaticDepositAddresses();
+
         for (const address of depoistAddress) {
           console.log('Checking deposit address:', address);
           if (!address) continue;
+
           // Get new txids for an address
           const txids = await getDepositAddressTxIds(
             address,
@@ -425,13 +428,16 @@ const SparkWalletProvider = ({children}) => {
           );
           console.log('Deposit address txids:', txids);
           if (!txids || !txids.length) continue;
+
           const unpaidTxids = txids.filter(txid => !txid.didClaim);
           let claimedTxs =
             JSON.parse(await getLocalStorageItem('claimedBitcoinTxs')) || [];
+
           for (const txid of unpaidTxids) {
             const {didwork, quote, error} =
               await getSparkStaticBitcoinL1AddressQuote(txid.txid);
             console.log('Deposit address quote:', quote);
+
             if (!didwork || !quote) {
               console.log(error, 'Error getting deposit address quote');
               if (
@@ -441,39 +447,50 @@ const SparkWalletProvider = ({children}) => {
               }
               continue;
             }
+
             if (claimedTxs?.includes(quote.signature)) {
               continue;
             }
+
             const hasAlreadySaved = savedTxMap.has(quote.transactionId);
             console.log('Has already saved transaction:', hasAlreadySaved);
-            if (!hasAlreadySaved) {
-              const pendingTx = {
-                id: quote.transactionId,
-                paymentStatus: 'pending',
-                paymentType: 'bitcoin',
-                accountId: sparkInformation.identityPubKey,
-                details: {
-                  fee: 0,
-                  amount: quote.creditAmountSats,
-                  address: address,
-                  time: new Date().getTime(),
-                  direction: 'INCOMING',
-                  description: 'Deposit address payment',
-                  onChainTxid: quote.transactionId,
-                  isRestore: true, // This is a restore payment
-                },
-              };
-              await addSingleSparkTransaction(pendingTx);
+
+            // Add transaction if not already saved (regardless of claim status)
+            if (!txid.isConfirmed) {
+              if (!hasAlreadySaved) {
+                await addPendingTransaction(quote, address, sparkInformation);
+              }
+              continue; // Don't attempt claiming until confirmed
             }
 
-            if (!txid.isConfirmed) return;
-            // If the address has been paid, claim the transaction
-            const claimTx = await claimnSparkStaticDepositAddress({
+            // Case 2: Transaction is confirmed - attempt to claim
+            const {
+              didWork,
+              error: claimError,
+              response: claimTx,
+            } = await claimnSparkStaticDepositAddress({
               ...quote,
               sspSignature: quote.signature,
             });
-            if (!claimTx) continue;
+
+            if (!claimTx || !didWork) {
+              console.log('Claim static deposit address error', claimError);
+              if (
+                claimError.includes('Static deposit has already been claimed')
+              ) {
+                await handleTxIdState(txid, true, address);
+              }
+              // For any other claim errors (like utxo not found), don't add to DB
+              continue;
+            }
+
+            // Add pending transaction if not already saved (after successful claim)
+            if (!hasAlreadySaved) {
+              await addPendingTransaction(quote, address, sparkInformation);
+            }
+
             console.log('Claimed deposit address transaction:', claimTx);
+
             if (!claimedTxs?.includes(quote.signature)) {
               claimedTxs.push(quote.signature);
               await setLocalStorageItem(
@@ -482,7 +499,9 @@ const SparkWalletProvider = ({children}) => {
               );
               await handleTxIdState(txid, true, address);
             }
+
             await new Promise(res => setTimeout(res, 2000));
+
             const findBitcoinTxResponse = await findTransactionTxFromTxHistory(
               claimTx.transferId,
               0,
@@ -536,10 +555,33 @@ const SparkWalletProvider = ({children}) => {
         console.log('Handle deposit address check error', err);
       }
     };
+
+    const addPendingTransaction = async (quote, address, sparkInformation) => {
+      const pendingTx = {
+        id: quote.transactionId,
+        paymentStatus: 'pending',
+        paymentType: 'bitcoin',
+        accountId: sparkInformation.identityPubKey,
+        details: {
+          fee: 0,
+          amount: quote.creditAmountSats,
+          address: address,
+          time: new Date().getTime(),
+          direction: 'INCOMING',
+          description: 'Deposit address payment',
+          onChainTxid: quote.transactionId,
+          isRestore: true, // This is a restore payment
+        },
+      };
+      await addSingleSparkTransaction(pendingTx);
+    };
+
     if (depositAddressIntervalRef.current) {
       clearInterval(depositAddressIntervalRef.current);
     }
+
     setTimeout(handleDepositAddressCheck, 1_000 * 5);
+
     depositAddressIntervalRef.current = setInterval(
       handleDepositAddressCheck,
       1_000 * 60,

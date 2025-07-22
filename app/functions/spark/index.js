@@ -144,13 +144,15 @@ export const claimnSparkStaticDepositAddress = async ({
 }) => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.claimStaticDeposit({
+    const response = await sparkWallet.claimStaticDeposit({
       creditAmountSats,
       sspSignature,
       transactionId,
     });
+    return {didWork: true, response};
   } catch (err) {
     console.log('claim static deposit address error', err);
+    return {didWork: false, error: err.message};
   }
 };
 
