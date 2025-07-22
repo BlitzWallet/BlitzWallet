@@ -249,7 +249,7 @@ export const UserTransaction = memo(function UserTransaction({
       : darkModeType && theme
       ? ICONS.failedTransactionWhite
       : ICONS.failedTransaction;
-  }, [darkModeType, theme]);
+  }, [darkModeType, theme, isFailedPayment]);
 
   const showPendingTransactionStatusIcon =
     transaction.paymentStatus === 'pending';
