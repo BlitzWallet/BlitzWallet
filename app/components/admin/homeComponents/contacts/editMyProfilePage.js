@@ -569,6 +569,8 @@ function InnerContent({
         tempContact.name = inputs.name.trim();
         tempContact.nameLower = inputs.name.trim().toLowerCase();
         tempContact.bio = inputs.bio;
+        tempContact.isAdded = true;
+        tempContact.unlookedTransactions = 0;
         if (selectedAddedContact.isLNURL) {
           tempContact.receiveAddress = inputs.receiveAddress;
         }
@@ -583,9 +585,9 @@ function InnerContent({
             if (addedContact.uuid === tempContact.uuid) {
               return {
                 ...addedContact,
-                name: inputs.name,
-                nameLower: inputs.name.toLowerCase(),
-                bio: inputs.bio,
+                name: tempContact.name,
+                nameLower: tempContact.nameLower,
+                bio: tempContact.bio,
                 unlookedTransactions: 0,
                 isAdded: true,
               };
