@@ -32,6 +32,7 @@ import {
   query,
   where,
 } from '@react-native-firebase/firestore';
+import {getCachedProfileImage} from '../app/functions/cachedImage';
 
 // Create a context for the WebView ref
 const GlobalContacts = createContext(null);
@@ -109,6 +110,10 @@ export const GlobalContactsList = ({children}) => {
       }));
 
     if (newContats.length > 0) {
+      await Promise.allSettled(
+        newContats.map(contact => getCachedProfileImage(contact.uuid)),
+      );
+
       toggleGlobalContactsInformation(
         {
           myProfile: {...globalContactsInformation.myProfile},
