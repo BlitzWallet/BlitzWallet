@@ -30,7 +30,7 @@ export async function publishMessage({
     });
 
     if (isLNURLPayment) return;
-    await sendPushNotification({
+    sendPushNotification({
       selectedContactUsername: selectedContact.uniqueName,
       myProfile: globalContactsInformation.myProfile,
       data: data,
