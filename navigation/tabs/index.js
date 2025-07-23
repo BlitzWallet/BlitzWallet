@@ -23,7 +23,7 @@ const Tab = createBottomTabNavigator();
 
 function MyTabBar({state, descriptors, navigation}) {
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {contactsMessags} = useGlobalContacts();
+  const {contactsMessags, globalContactsInformation} = useGlobalContacts();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
 
   const {bottomPadding} = useGlobalInsets();
@@ -31,16 +31,21 @@ function MyTabBar({state, descriptors, navigation}) {
   const hasUnlookedTransactions = useMemo(() => {
     return (
       Object.keys(contactsMessags).filter(contactUUID => {
-        if (contactUUID === 'lastMessageTimestamp') return false;
+        if (
+          contactUUID === 'lastMessageTimestamp' ||
+          globalContactsInformation?.myProfile?.uuid
+        )
+          return false;
         const hasUnlookedTx =
           contactsMessags[contactUUID]?.messages?.length &&
           contactsMessags[contactUUID].messages.filter(savedMessage => {
             return !savedMessage.message.wasSeen;
           }).length > 0;
+        console.log(hasUnlookedTx, contactsMessags[contactUUID], contactUUID);
         return hasUnlookedTx;
       }).length > 0
     );
-  }, [contactsMessags]);
+  }, [contactsMessags, globalContactsInformation?.myProfile?.uuid]);
 
   return (
     <View>
