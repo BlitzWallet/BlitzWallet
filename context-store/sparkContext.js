@@ -502,14 +502,13 @@ const SparkWalletProvider = ({children}) => {
 
             await new Promise(res => setTimeout(res, 2000));
 
-            const findBitcoinTxResponse = await findTransactionTxFromTxHistory(
+            const findBitcoinTxResponse = await findSignleTxFromHistory(
               claimTx.transferId,
-              0,
-              [],
+              5,
             );
 
             let updatedTx = {};
-            if (!findBitcoinTxResponse.didWork) {
+            if (!findBitcoinTxResponse.tx) {
               updatedTx = {
                 useTempId: true,
                 id: claimTx.transferId,
@@ -519,7 +518,7 @@ const SparkWalletProvider = ({children}) => {
                 accountId: sparkInformation.identityPubKey,
               };
             } else {
-              const {bitcoinTransfer} = findBitcoinTxResponse;
+              const {tx: bitcoinTransfer} = findBitcoinTxResponse;
               if (!bitcoinTransfer) {
                 updatedTx = {
                   useTempId: true,

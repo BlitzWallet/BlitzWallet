@@ -227,12 +227,9 @@ export const updateSparkTxStatus = async () => {
       spark: savedTxs.filter(tx => tx.paymentType === 'spark'),
     };
 
-    const [unpaidInvoices, incomingTxs] = await Promise.all([
+    const [unpaidInvoices] = await Promise.all([
       txsByType.lightning.length
         ? getAllUnpaidSparkLightningInvoices()
-        : Promise.resolve([]),
-      txsByType.bitcoin.length
-        ? getSparkTransactions(100, 0).then(data => data.transfers || [])
         : Promise.resolve([]),
     ]);
 
@@ -245,14 +242,12 @@ export const updateSparkTxStatus = async () => {
       unpaidInvoicesByAmount.get(amount).push(invoice);
     });
 
-    const incomingTxsMap = new Map(incomingTxs.map(tx => [tx.id, tx]));
-
     console.log('pending tx list', savedTxs);
 
     // Process different transaction types in parallel
     const [lightningUpdates, bitcoinUpdates, sparkUpdates] = await Promise.all([
       processLightningTransactions(txsByType.lightning, unpaidInvoicesByAmount),
-      processBitcoinTransactions(txsByType.bitcoin, incomingTxsMap),
+      processBitcoinTransactions(txsByType.bitcoin),
       processSparkTransactions(txsByType.spark),
     ]);
 
@@ -483,7 +478,7 @@ async function getPaymentDetailsWithRetry(lightningInvoiceId, maxAttempts = 2) {
   return null;
 }
 
-async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
+async function processBitcoinTransactions(bitcoinTxs) {
   const lastRun = await getLocalStorageItem('lastRunBitcoinTxUpdate');
 
   const now = Date.now();
@@ -500,7 +495,7 @@ async function processBitcoinTransactions(bitcoinTxs, incomingTxsMap) {
   }
   const updatedTxs = [];
   let transfersOffset = 0;
-  let cachedTransfers = Array.from(incomingTxsMap.values());
+  let cachedTransfers = [];
 
   for (const txStateUpdate of bitcoinTxs) {
     const details = JSON.parse(txStateUpdate.details);
