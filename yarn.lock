@@ -1610,9 +1610,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/lrc20-sdk@npm:0.0.59":
-  version: 0.0.59
-  resolution: "@buildonspark/lrc20-sdk@npm:0.0.59"
+"@buildonspark/lrc20-sdk@npm:0.0.60":
+  version: 0.0.60
+  resolution: "@buildonspark/lrc20-sdk@npm:0.0.60"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@noble/curves": ^1.8.0
@@ -1626,17 +1626,17 @@ __metadata:
     class-transformer: ^0.5.1
     ts-proto: ^2.6.1
     varuint-bitcoin: ^1.1.2
-  checksum: 7556f83ac26eae049bc080d553d83f021d1182bd29fed261f222ec3797da247260c37bd7d1d28c53fd3b6fd5c1fadc85dd9395451277131e116a477abcf44502
+  checksum: 842084267d6933386f847ce81c622f6975aaa175c3b4cd7c19a3d6cfb3ebb84bd005d4ffc7e1c061ca36028899e2ec446cf1245e557e55cafbca6e63015394c9
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.1.47":
-  version: 0.1.47
-  resolution: "@buildonspark/spark-sdk@npm:0.1.47"
+"@buildonspark/spark-sdk@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "@buildonspark/spark-sdk@npm:0.2.2"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@bufbuild/protobuf": ^2.2.5
-    "@buildonspark/lrc20-sdk": 0.0.59
+    "@buildonspark/lrc20-sdk": 0.0.60
     "@lightsparkdev/core": ^1.4.2
     "@noble/curves": ^1.8.0
     "@noble/hashes": ^1.7.1
@@ -1674,7 +1674,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 6fbb139402f4e5ebfe2712d1b9a445bde0060163bd6310ca1375d677f12252471a31ec898968da85828caf2f1657fc09e0108a9a8c0b88feb9188dc47ec6cf77
+  checksum: 2170b8cd6ae4ed4436656acd2e985ca00cc7b0051e105bec1fc98a2346762e2a41d2bf96833b4aa3a5d2afe931b6201ed4349a15846c0d93957f15733ea1241d
   languageName: node
   linkType: hard
 
@@ -4771,7 +4771,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.10.1
-    "@buildonspark/spark-sdk": ^0.1.47
+    "@buildonspark/spark-sdk": ^0.2.2
     "@cashu/cashu-ts": ^2.5.2
     "@craftzdog/react-native-buffer": ^6.0.5
     "@getalby/sdk": ^5.1.1
