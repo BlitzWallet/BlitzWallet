@@ -219,7 +219,7 @@ const SparkWalletProvider = ({children}) => {
         'Processing debounced incoming payments:',
         transferIdsToProcess,
       );
-      const transactions = await getSparkTransactions(10, undefined);
+      const transactions = await getSparkTransactions(5, undefined);
       // Process all pending transfer IDs
       for (const transferId of transferIdsToProcess) {
         try {
