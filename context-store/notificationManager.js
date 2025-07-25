@@ -186,9 +186,9 @@ async function registerForPushNotificationsAsync() {
       );
     }
 
-    if (DeviceInfo.isEmulatorSync()) {
-      throw new Error('Must use physical device for Push Notifications');
-    }
+    // if (DeviceInfo.isEmulatorSync()) {
+    //   throw new Error('Must use physical device for Push Notifications');
+    // }
 
     const permissionsResult = await Notifications.getPermissionsAsync();
     let finalStatus = permissionsResult.status;

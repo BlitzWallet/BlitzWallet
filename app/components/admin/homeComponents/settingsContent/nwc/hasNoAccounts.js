@@ -12,7 +12,7 @@ export default function HasNoNostrAccounts() {
       <ThemeText
         styles={{textAlign: 'center', marginBottom: 50}}
         content={
-          'To keep your main wallet safe, Nostr Connect makes a separate wallet using a key from your original wallet’s seed, based on the 2nd index.\n\nTTo send money from your Nostr Connect wallet, first add funds to it by receiving money or transferring some from your main wallet.'
+          'To keep your main wallet safe, Nostr Connect makes a separate wallet using a key from your original wallet’s seed, based on the 2nd index.\n\nTo send money from your Nostr Connect wallet, first add funds to it by receiving money or transferring some from your main wallet.'
         }
       />
       <CustomButton

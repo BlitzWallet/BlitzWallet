@@ -181,7 +181,7 @@ export default function NWCWallet(props) {
   return (
     <GlobalThemeView styles={style.globalContainer}>
       <CustomSettingsTopBar
-        containerStyles={{width: INSET_WINDOW_WIDTH, ...CENTER}}
+        containerStyles={{width: '95%', ...CENTER}}
         showLeftImage={true}
         leftImageBlue={ICONS.keyIcon}
         LeftImageDarkMode={ICONS.keyIconWhite}

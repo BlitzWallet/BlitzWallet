@@ -25,6 +25,7 @@ import sha256Hash from '../../../../../functions/hash';
 import {nwc} from '@getalby/sdk';
 import {getSupportedMethods} from '../../../../../functions/nwc';
 import {privateKeyFromSeedWords} from '../../../../../functions/nostrCompatability';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 const BUDGET_RENEWAL_OPTIONS = [
   {label: 'Daily', value: 'Daily'},
@@ -43,11 +44,15 @@ export default function CreateNostrConnectAccount(props) {
   const [accountName, setAccountName] = useState(
     isEditing ? savedData.accountName : '',
   );
+
   const [outerScrollEnabled, setOuterScrollEnabled] = useState(true);
   const [accountPermissions, setAccountPermissions] = useState({
     receivePayments: isEditing ? savedData.permissions.receivePayments : false,
     sendPayments: isEditing ? savedData.permissions.sendPayments : false,
     getBalance: isEditing ? savedData.permissions.getBalance : false,
+    transactionHistory: isEditing
+      ? savedData.permissions.transactionHistory
+      : false,
   });
   const [budgetRenewalSettings, setBudgetRenewalSettings] = useState({
     option: isEditing ? savedData.budgetRenewalSettings.option : null,
@@ -56,9 +61,10 @@ export default function CreateNostrConnectAccount(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const {textColor, backgroundOffset} = GetThemeColors();
+  const {bottomPadding} = useGlobalInsets();
 
   const {theme, darkModeType} = useGlobalThemeContext();
-
+  console.log(accountPermissions, 'account permission');
   const handleDropdownScrollStart = () => {
     setOuterScrollEnabled(false);
   };
@@ -76,6 +82,8 @@ export default function CreateNostrConnectAccount(props) {
       savedData.permissions.receivePayments ===
         accountPermissions.receivePayments &&
       savedData.permissions.sendPayments === accountPermissions.sendPayments &&
+      savedData.permissions.transactionHistory ===
+        accountPermissions.transactionHistory &&
       savedData.permissions.getBalance === accountPermissions.getBalance &&
       savedData.budgetRenewalSettings.option === budgetRenewalSettings.option &&
       savedData.budgetRenewalSettings.amount === budgetRenewalSettings.amount
@@ -92,7 +100,8 @@ export default function CreateNostrConnectAccount(props) {
     if (
       !accountPermissions.receivePayments &&
       !accountPermissions.sendPayments &&
-      !accountPermissions.getBalance
+      !accountPermissions.getBalance &&
+      !accountPermissions.transactionHistory
     ) {
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Please enable at least one permission.',
@@ -186,7 +195,8 @@ export default function CreateNostrConnectAccount(props) {
           }));
         }}
         style={{
-          maxWidth: '48%',
+          // maxWidth: '48%',
+          minWidth: '48%',
           flexGrow: 1,
           borderWidth: 1,
           borderColor:
@@ -205,6 +215,7 @@ export default function CreateNostrConnectAccount(props) {
         key={option.toString()}>
         {typeof option === 'number' ? (
           <ThemeText
+            styles={{includeFontPadding: false}}
             content={displayCorrectDenomination({
               amount: option,
               masterInfoObject,
@@ -213,6 +224,7 @@ export default function CreateNostrConnectAccount(props) {
           />
         ) : (
           <ThemeText
+            styles={{includeFontPadding: false}}
             content={
               option === 'Custom...' && props?.route?.params?.amount
                 ? displayCorrectDenomination({
@@ -248,6 +260,7 @@ export default function CreateNostrConnectAccount(props) {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingTop: 10,
+              paddingBottom: 20,
               width: INSET_WINDOW_WIDTH,
               ...CENTER,
             }}>
@@ -274,6 +287,7 @@ export default function CreateNostrConnectAccount(props) {
               }
               toggleSwitchStateValue={accountPermissions.receivePayments}
               containerStyles={styles.toggleContainers}
+              switchPageName="nwcAccount"
             />
             <SettingsItemWithSlider
               settingsTitle={`Send payments`}
@@ -286,6 +300,7 @@ export default function CreateNostrConnectAccount(props) {
               }
               toggleSwitchStateValue={accountPermissions.sendPayments}
               containerStyles={styles.toggleContainers}
+              switchPageName="nwcAccount"
             />
             <SettingsItemWithSlider
               settingsTitle={`Get balance`}
@@ -297,7 +312,21 @@ export default function CreateNostrConnectAccount(props) {
                 }))
               }
               toggleSwitchStateValue={accountPermissions.getBalance}
+              containerStyles={{marginTop: 0}}
+              switchPageName="nwcAccount"
+            />
+            <SettingsItemWithSlider
+              settingsTitle={`Transactions`}
+              showDescription={false}
+              handleSubmit={() =>
+                setAccountPermissions(prev => ({
+                  ...prev,
+                  transactionHistory: !prev.transactionHistory,
+                }))
+              }
+              toggleSwitchStateValue={accountPermissions.transactionHistory}
               containerStyles={{marginTop: 0, marginBottom: 0}}
+              switchPageName="nwcAccount"
             />
             <ThemeText
               styles={{marginTop: 30, marginBottom: 10}}
@@ -331,7 +360,9 @@ export default function CreateNostrConnectAccount(props) {
           {!isKeyboardActive && (
             <CustomButton
               actionFunction={handleAccountCreation}
-              buttonStyles={{...CENTER}}
+              buttonStyles={{
+                ...CENTER,
+              }}
               textContent={'Save'}
             />
           )}

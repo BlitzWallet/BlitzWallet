@@ -65,7 +65,7 @@ export default function NosterWalletConnect() {
   };
 
   if (!hasSeenMnemoinc) {
-    return <NWCWalletSetup />;
+    return <NWCWalletSetup setHasSeenMnemoinc={setHasSeenMnemoinc} />;
   }
 
   if (!hasEnabledPushNotifications) {

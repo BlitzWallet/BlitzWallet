@@ -53,7 +53,7 @@ const SparkWalletManager = createContext(null);
 const sessionTime = new Date().getTime();
 const SparkWalletProvider = ({children}) => {
   const {accountMnemoinc, contactsPrivateKey, publicKey} = useKeysContext();
-  const {didGetToHomepage, minMaxLiquidSwapAmounts} = useAppStatus();
+  const {didGetToHomepage, minMaxLiquidSwapAmounts, appState} = useAppStatus();
   const {liquidNodeInformation} = useNodeContext();
   const [isSendingPayment, setIsSendingPayment] = useState(false);
   const {toggleGlobalContactsInformation, globalContactsInformation} =
@@ -75,7 +75,6 @@ const SparkWalletProvider = ({children}) => {
   const isInitialRestore = useRef(true);
   const didInitializeSendingPaymentEvent = useRef(false);
   const [numberOfCachedTxs, setNumberOfCachedTxs] = useState(0);
-  const [currentAppState, setCurrentAppState] = useState('');
 
   // Debounce refs
   const debounceTimeoutRef = useRef(null);
@@ -383,26 +382,21 @@ const SparkWalletProvider = ({children}) => {
 
   // Add event listeners to listen for bitcoin and lightning or spark transfers when receiving does not handle sending
   useEffect(() => {
-    if (!currentAppState) return;
-    if (currentAppState === 'active') {
-      addListeners();
-    } else if (currentAppState.match(/inactive|background/)) {
-      removeListeners();
-    }
-  }, [currentAppState]);
-
-  useEffect(() => {
+    console.log(
+      appState,
+      sparkInformation.didConnect,
+      didGetToHomepage,
+      'inside of spark app state',
+    );
+    if (!appState) return;
     if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
-    const handleAppStateChange = nextAppState => {
-      setCurrentAppState(nextAppState);
-    };
-    AppState.addEventListener('change', handleAppStateChange);
-    // Add on mount if app is already active
-    if (AppState.currentState === 'active') {
-      setCurrentAppState('active');
+    if (appState === 'active') {
+      addListeners();
+    } else if (appState.match(/inactive|background/)) {
+      removeListeners();
     }
-  }, [sparkInformation.didConnect, didGetToHomepage]);
+  }, [appState, sparkInformation.didConnect, didGetToHomepage]);
 
   useEffect(() => {
     if (!didGetToHomepage) return;
@@ -412,6 +406,8 @@ const SparkWalletProvider = ({children}) => {
     const handleDepositAddressCheck = async () => {
       try {
         console.log('l1Deposit check running....');
+        console.log(AppState.currentState);
+        if (AppState.currentState !== 'active') return;
         const allTxs = await getAllSparkTransactions();
         const savedTxMap = new Map(allTxs.map(tx => [tx.sparkID, tx]));
         const depoistAddress = await queryAllStaticDepositAddresses();

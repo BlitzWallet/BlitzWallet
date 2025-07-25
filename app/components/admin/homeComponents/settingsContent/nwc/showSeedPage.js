@@ -139,7 +139,7 @@ export default function NWCWalletSetup(props) {
               }}
               textStyles={{color: COLORS.darkModeText}}
               textContent={'Continue'}
-              actionFunction={navigate.goBack}
+              actionFunction={() => props.setHasSeenMnemoinc(true)}
             />
           )}
         </View>
