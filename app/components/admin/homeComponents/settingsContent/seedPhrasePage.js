@@ -58,6 +58,12 @@ export default function SeedPhrasePage({extraData}) {
     }).start();
   }
 
+  useEffect(() => {
+    if (!canViewQrCode) return;
+    setSelectedDisplayOption('qrcode');
+    handleSlide('qrcode');
+  }, [canViewQrCode]);
+
   const sliderWidth = 102;
   return (
     <View style={styles.globalContainer}>
