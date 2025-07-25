@@ -5,7 +5,6 @@ import {
   MeltQuoteState,
   MintQuoteState,
 } from '@cashu/cashu-ts';
-import {retrieveData} from '../secureStore';
 import {mnemonicToSeed} from '@scure/bip39';
 import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 
@@ -29,13 +28,13 @@ export const ECASH_QUOTE_STORAGE_KEY = 'UNPAID_ECASH_QUOTES';
 
 let eCashWallets = {};
 
-export const initEcashWallet = async mintURL => {
+export const initEcashWallet = async (mintURL, accountMnemoinc) => {
   try {
     const selctingMint = mintURL ? Promise.resolve(mintURL) : getSelectedMint();
     const activeMintURL = await selctingMint;
     if (!activeMintURL) throw new Error('No selected mint to save to');
     if (eCashWallets[activeMintURL]) return eCashWallets[activeMintURL];
-    const mnemonic = await retrieveData('mnemonic');
+    const mnemonic = accountMnemoinc;
     const mint = new CashuMint(activeMintURL);
     const keysets = (await mint.getKeySets()).keysets.filter(
       ks => ks.unit === 'sat',
@@ -97,9 +96,14 @@ export const calculateEcashFees = (mintURL, proofs) => {
   }
 };
 
-async function getECashInvoice({amount, mintURL, descriptoin}) {
+async function getECashInvoice({
+  amount,
+  mintURL,
+  descriptoin,
+  accountMnemoinc,
+}) {
   try {
-    const wallet = await initEcashWallet(mintURL);
+    const wallet = await initEcashWallet(mintURL, accountMnemoinc);
     if (!wallet)
       throw new Error('Not able to connect to your selected eCash mint.');
 
@@ -161,7 +165,7 @@ export const getEcashBalance = async () => {
   }
 };
 
-async function claimUnclaimedEcashQuotes() {
+async function claimUnclaimedEcashQuotes(accountMnemoinc) {
   try {
     const localStoredQuotes =
       JSON.parse(await getLocalStorageItem(ECASH_QUOTE_STORAGE_KEY)) || [];
@@ -213,6 +217,7 @@ async function claimUnclaimedEcashQuotes() {
           invoice: newStorageQuoteObject.request,
           quote: newStorageQuoteObject.quote,
           mintURL,
+          accountMnemoinc,
         });
 
         if (didMint.prasedInvoice) {
@@ -267,13 +272,13 @@ async function claimUnclaimedEcashQuotes() {
   }
 }
 
-async function mintEcash({invoice, quote, mintURL}) {
+async function mintEcash({invoice, quote, mintURL, accountMnemoinc}) {
   let counter = 0;
   try {
     const mint = mintURL ? Promise.resolve(mintURL) : getSelectedMint();
     const currentMint = await mint;
     if (!currentMint) throw new Error('No selected mint');
-    const wallet = await initEcashWallet(currentMint);
+    const wallet = await initEcashWallet(currentMint, accountMnemoinc);
     const counter = await incrementMintCounter(currentMint);
     const prasedInvoice = await parseInvoice(invoice);
 
@@ -297,12 +302,12 @@ async function mintEcash({invoice, quote, mintURL}) {
     return {prasedInvoice: null, error: err.message, counter};
   }
 }
-export const checkMintQuote = async ({quote, mintURL}) => {
+export const checkMintQuote = async ({quote, mintURL, accountMnemoinc}) => {
   try {
     const mint = mintURL ? Promise.resolve(mintURL) : getSelectedMint();
     const currentMint = await mint;
     if (!currentMint) throw new Error('No selected mint');
-    const wallet = await initEcashWallet(currentMint);
+    const wallet = await initEcashWallet(currentMint, accountMnemoinc);
     const mintQuote = await wallet.checkMintQuote(quote);
     console.log(mintQuote, 'mint quote');
     return mintQuote;
@@ -312,29 +317,11 @@ export const checkMintQuote = async ({quote, mintURL}) => {
   }
 };
 
-export async function cleanEcashWalletState(mintURL) {
-  try {
-    const storedProofs = await getStoredProofs(mintURL);
-    const wallet = await initEcashWallet(mintURL);
-
-    const proofsState = await wallet.checkProofsStates(storedProofs);
-
-    const spendProofs = proofsState.filter(proof => {
-      return proof.state === CheckStateEnum.SPENT;
-    });
-    await removeProofs(spendProofs);
-    return true;
-  } catch (err) {
-    console.log('clean wallet state error', err);
-    return false;
-  }
-}
-
-export const getMeltQuote = async bolt11Invoice => {
+export const getMeltQuote = async (bolt11Invoice, accountMnemoinc) => {
   try {
     const mintURL = await getSelectedMint();
     if (!mintURL) throw new Error('No seleected mint url');
-    const wallet = await initEcashWallet(mintURL);
+    const wallet = await initEcashWallet(mintURL, accountMnemoinc);
     const storedProofs = await getStoredProofs(mintURL);
     const meltQuote = await wallet.createMeltQuote(bolt11Invoice);
     const {proofsToUse} = getProofsToUse(
@@ -412,9 +399,10 @@ export const payLnInvoiceFromEcash = async ({
   invoice,
   proofsToUse,
   description = '',
+  accountMnemoinc,
 }) => {
   const mintURL = await getSelectedMint();
-  const wallet = await initEcashWallet(mintURL);
+  const wallet = await initEcashWallet(mintURL, accountMnemoinc);
   if (!wallet)
     return {
       didWork: false,

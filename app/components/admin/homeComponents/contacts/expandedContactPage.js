@@ -1,16 +1,14 @@
 import {
   View,
   TouchableOpacity,
-  Image,
   StyleSheet,
-  ActivityIndicator,
   FlatList,
   ScrollView,
   Share,
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect, useMemo, useRef} from 'react';
+import {useEffect, useMemo} from 'react';
 import {
   decryptMessage,
   encriptMessage,
@@ -22,14 +20,16 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../functions/CustomElements/Icon';
 import {queueSetCashedMessages} from '../../../../functions/messaging/cachedMessages';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
+import ContactProfileImage from './internalComponents/profileImage';
+import {useImageCache} from '../../../../../context-store/imageCache';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
+import {useServerTimeOnly} from '../../../../../context-store/serverTime';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
@@ -37,7 +37,6 @@ export default function ExpandedContactsPage(props) {
   const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {
-    textColor,
     backgroundOffset,
     backgroundColor,
     textInputColor,
@@ -49,9 +48,10 @@ export default function ExpandedContactsPage(props) {
     toggleGlobalContactsInformation,
     contactsMessags,
   } = useGlobalContacts();
-  const insets = useSafeAreaInsets();
-  const currentTime = new Date();
-  const isInitialRender = useRef(true);
+  const {bottomPadding} = useGlobalInsets();
+  const {cache} = useImageCache();
+  const getServerTime = useServerTimeOnly();
+  const currentTime = getServerTime();
   const selectedUUID = props?.route?.params?.uuid || props?.uuid;
   const myProfile = globalContactsInformation?.myProfile;
 
@@ -60,10 +60,9 @@ export default function ExpandedContactsPage(props) {
       decodedAddedContacts.filter(contact => contact?.uuid === selectedUUID),
     [decodedAddedContacts, selectedUUID],
   );
-
+  const imageData = cache[selectedContact.uuid];
   const contactTransactions = contactsMessags[selectedUUID]?.messages || []; //selectedContact?.transactions;
   useHandleBackPressNew();
-  console.log(selectedContact);
   useEffect(() => {
     //listening for messages when you're on the contact
     async function updateSeenTransactions() {
@@ -93,7 +92,7 @@ export default function ExpandedContactsPage(props) {
   }, [contactTransactions]);
 
   return (
-    <GlobalThemeView useStandardWidth={true} styles={{paddingBottom: 0}}>
+    <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={styles.topBar}>
         <TouchableOpacity
           style={{marginRight: 'auto'}}
@@ -104,22 +103,6 @@ export default function ExpandedContactsPage(props) {
             lightsOutIcon={ICONS.arrow_small_left_white}
           />
         </TouchableOpacity>
-        {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
-          <TouchableOpacity
-            style={{marginRight: 5}}
-            onPress={() => {
-              Share.share({
-                title: 'Blitz Contact',
-                message: `https://blitz-wallet.com/u/${selectedContact?.uniqueName}`,
-              });
-            }}>
-            <ThemeImage
-              darkModeIcon={ICONS.share}
-              lightModeIcon={ICONS.share}
-              lightsOutIcon={ICONS.shareWhite}
-            />
-          </TouchableOpacity>
-        )}
         {selectedContact && (
           <TouchableOpacity
             style={{marginRight: 5}}
@@ -211,29 +194,44 @@ export default function ExpandedContactsPage(props) {
         />
       ) : (
         <>
-          <View
-            style={[
-              styles.profileImage,
-              {
-                // borderColor: COLORS.darkModeText,
-                backgroundColor: backgroundOffset,
-              },
-            ]}>
-            <Image
-              source={
-                selectedContact.profileImage
-                  ? {uri: selectedContact.profileImage}
-                  : darkModeType && theme
-                  ? ICONS.userWhite
-                  : ICONS.userIcon
-              }
-              style={
-                selectedContact.profileImage
-                  ? {width: '100%', aspectRatio: 1}
-                  : {width: '50%', height: '50%'}
-              }
-            />
-          </View>
+          <TouchableOpacity
+            activeOpacity={
+              !selectedContact?.isLNURL && selectedContact?.uniqueName ? 0.2 : 1
+            }
+            onPress={() => {
+              if (selectedContact?.isLNURL || !selectedContact?.uniqueName)
+                return;
+              Share.share({
+                title: 'Blitz Contact',
+                message: `https://blitz-wallet.com/u/${selectedContact?.uniqueName}`,
+              });
+            }}
+            style={{...CENTER}}>
+            <View
+              style={[
+                styles.profileImage,
+                {
+                  backgroundColor: backgroundOffset,
+                },
+              ]}>
+              <ContactProfileImage
+                updated={imageData?.updated}
+                uri={imageData?.localUri}
+                darkModeType={darkModeType}
+                theme={theme}
+              />
+            </View>
+            {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
+              <View style={styles.selectFromPhotos}>
+                <ThemeImage
+                  styles={{width: 20, height: 20}}
+                  darkModeIcon={ICONS.shareBlack}
+                  lightModeIcon={ICONS.shareBlack}
+                  lightsOutIcon={ICONS.shareBlack}
+                />
+              </View>
+            )}
+          </TouchableOpacity>
           <ThemeText
             styles={styles.profileName}
             content={selectedContact.name || selectedContact.uniqueName}
@@ -332,9 +330,11 @@ export default function ExpandedContactsPage(props) {
                 }}
                 contentContainerStyle={{
                   paddingTop: selectedContact?.bio ? 10 : 20,
-                  paddingBottom:
-                    insets.bottom < 20 ? ANDROIDSAFEAREA : insets.bottom,
+                  paddingBottom: bottomPadding,
                 }}
+                initialNumToRender={10}
+                windowSize={5}
+                maxToRenderPerBatch={10}
                 data={contactTransactions.slice(0, 50)}
                 renderItem={({item, index}) => {
                   return (
@@ -362,6 +362,7 @@ export default function ExpandedContactsPage(props) {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {paddingBottom: 0},
   topBar: {
     width: '100%',
     flexDirection: 'row',
@@ -407,5 +408,17 @@ const styles = StyleSheet.create({
   bioText: {
     marginBottom: 'auto',
     marginTop: 'auto',
+  },
+  selectFromPhotos: {
+    width: 30,
+    height: 30,
+    borderRadius: 20,
+    backgroundColor: COLORS.darkModeText,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 12.5,
+    bottom: 12.5,
+    zIndex: 2,
   },
 });

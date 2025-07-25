@@ -1,4 +1,3 @@
-import {InputTypeVariant, parseInput} from '@breeztech/react-native-breez-sdk';
 import {
   getBoltzApiUrl,
   getBoltzWsUrl,
@@ -13,6 +12,8 @@ import {
 import breezLNAddressPaymentWrapper from '../../../../../functions/SDK/lightningAddressPaymentWrapper';
 import {
   AmountVariant,
+  InputTypeVariant,
+  parse,
   PayAmountVariant,
   payOnchain,
   preparePayOnchain,
@@ -265,7 +266,7 @@ export async function sendToLiquidFromLightning_sendPaymentScreen({
     if (!didHandle) throw new Error('Unable to open websocket');
     crashlyticsLogReport('Sending payment');
     try {
-      const prasedInput = await parseInput(data.invoice);
+      const prasedInput = await parse(data.invoice);
       // console.log(data);
       breezPaymentWrapper({
         paymentInfo: prasedInput,

@@ -9,33 +9,35 @@ import {
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {useCallback, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import ProfilePageTransactions from './internalComponents/profilePageTransactions';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import MaxHeap from '../../../../functions/minHeap';
+import ContactProfileImage from './internalComponents/profileImage';
+import {useImageCache} from '../../../../../context-store/imageCache';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 export default function MyContactProfilePage({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
+  const {cache} = useImageCache();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {
-    globalContactsInformation,
-    myProfileImage,
-    decodedAddedContacts,
-    contactsMessags,
-  } = useGlobalContacts();
+  const {globalContactsInformation, decodedAddedContacts, contactsMessags} =
+    useGlobalContacts();
   const {backgroundOffset, textInputBackground, textInputColor} =
     GetThemeColors();
   const navigate = useNavigation();
   const currentTime = new Date();
   const [showList, setShowList] = useState(false);
+  const [createdPayments, setCreatedPayments] = useState([]);
+
+  const myContact = globalContactsInformation.myProfile;
+
   useFocusEffect(
     useCallback(() => {
       setShowList(true);
@@ -46,9 +48,7 @@ export default function MyContactProfilePage({navigation}) {
     }, []),
   );
 
-  const myContact = globalContactsInformation.myProfile;
-
-  const createdPayments = useMemo(() => {
+  useEffect(() => {
     const messageHeap = new MaxHeap();
     const MAX_MESSAGES = 50;
 
@@ -84,10 +84,10 @@ export default function MyContactProfilePage({navigation}) {
 
     console.log(result.length, 'LENGTH OF RESULT ARRAY');
 
-    return result;
+    setCreatedPayments(result);
   }, [decodedAddedContacts, contactsMessags]);
 
-  const insets = useSafeAreaInsets();
+  const {bottomPadding} = useGlobalInsets();
   useHandleBackPressNew();
 
   return (
@@ -151,21 +151,11 @@ export default function MyContactProfilePage({navigation}) {
                   backgroundColor: backgroundOffset,
                 },
               ]}>
-              <Image
-                source={
-                  myProfileImage
-                    ? {
-                        uri: myProfileImage,
-                      }
-                    : darkModeType && theme
-                    ? ICONS.userWhite
-                    : ICONS.userIcon
-                }
-                style={
-                  myProfileImage
-                    ? {width: '100%', aspectRatio: 1}
-                    : {width: '50%', height: '50%'}
-                }
+              <ContactProfileImage
+                updated={cache[myContact.uuid]?.updated}
+                uri={cache[myContact.uuid]?.localUri}
+                darkModeType={darkModeType}
+                theme={theme}
               />
             </View>
             <View style={styles.scanProfileImage}>
@@ -207,13 +197,15 @@ export default function MyContactProfilePage({navigation}) {
           <FlatList
             contentContainerStyle={{
               paddingTop: 10,
-              paddingBottom:
-                insets.bottom < 20 ? ANDROIDSAFEAREA : insets.bottom,
+              paddingBottom: bottomPadding,
             }}
             showsVerticalScrollIndicator={false}
             style={{
               width: '95%',
             }}
+            initialNumToRender={10}
+            windowSize={5}
+            maxToRenderPerBatch={10}
             data={createdPayments}
             renderItem={({item, index}) => {
               return (
@@ -243,6 +235,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 15,
   },
 
   innerContainer: {

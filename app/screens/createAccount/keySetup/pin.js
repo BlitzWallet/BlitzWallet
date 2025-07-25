@@ -9,8 +9,11 @@ import KeyForKeyboard from '../../../functions/CustomElements/key';
 import PinDot from '../../../functions/CustomElements/pinDot';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import RNRestart from 'react-native-restart';
+import {useKeysContext} from '../../../../context-store/keys';
+import {storeMnemonicWithPinSecurity} from '../../../functions/handleMnemonic';
 
 export default function PinPage(props) {
+  const {accountMnemoinc} = useKeysContext();
   const [pin, setPin] = useState([null, null, null, null]);
   const [confirmPin, setConfirmPin] = useState([]);
   const [pinNotMatched, setPinNotMatched] = useState(false);
@@ -21,7 +24,12 @@ export default function PinPage(props) {
   // const fromGiftPath = props.route.params?.from === 'giftPath';
   const isInitialLoad = props.route.params?.isInitialLoad;
   const didRestoreWallet = props.route.params?.didRestoreWallet;
-
+  console.log(
+    'TEst',
+    pin,
+    confirmPin,
+    pin.toString() === confirmPin.toString(),
+  );
   useEffect(() => {
     const filteredPin = pin.filter(pin => {
       if (typeof pin === 'number') return true;
@@ -35,7 +43,23 @@ export default function PinPage(props) {
     }
     (async () => {
       if (pin.toString() === confirmPin.toString()) {
-        storeData('pin', JSON.stringify(confirmPin));
+        const resposne = await storeMnemonicWithPinSecurity(
+          accountMnemoinc,
+          confirmPin,
+        );
+        if (!resposne) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: 'Unable to save pin',
+            customNavigator: () => {
+              factoryResetWallet();
+              setTimeout(() => {
+                RNRestart.restart();
+              }, 300);
+            },
+          });
+          return;
+        }
+
         clearSettings();
         navigate.reset({
           index: 0,

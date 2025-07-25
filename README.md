@@ -2,15 +2,11 @@
 
 <hr/>
 
-Blitz Wallet is a React Native application that allows users to interact with the Bitcoin Lighting Network in a self-custodial way. Combining Breez, Boltz, and Blockstream, Blitz Wallet aims to create a seamless and simple payment experience for its users.
+Blitz Wallet is a React Native application that allows users to interact with the Bitcoin Lighting Network in a self-custodial way. By using the Spark network, Blitz Wallet aims to create a seamless and simple payment experience for its users.
 
 <hr>
 
-⚠️ This is a SELF-CUSTODIAL Bitcoin Lightning wallet. Neither Blitz, Boltz, or Blockstream has access to your seed phrase or funds. If you lose your seed phrase, access to your funds will be lost. Also, do not share your seed phrase with anyone. If you do, they will be able to steal your funds.
-
-## How it works
-
-<img src=".github/assets/images/BlitzArchitecture.png" alt="How blitz wallet works" width="100%">
+⚠️ This is a SELF-CUSTODIAL Bitcoin Lightning wallet. Blitz, nor Spark has access to your seed phrase or funds. If you lose your seed phrase, access to your funds will be lost. Also, do not share your seed phrase with anyone. If you do, they will be able to steal your funds.
 
 ## Features
 
@@ -23,7 +19,7 @@ Blitz Wallet is a React Native application that allows users to interact with th
   - Using a Lightning QR code
   - Using a Bitcoin QR Code
   - Using a Liquid QR Code
-  - Using a Cashu eCash QR Code
+  - Using a Spark QR code
 - LNURL pay, withdrawal, and auth support
 - Wallet recovery
 - Support for numerous fiat currencies
@@ -40,19 +36,13 @@ Blitz Wallet is a React Native application that allows users to interact with th
 - [x] Migrate from local storage to Google Firebase
 - [x] Contacts
 - [ ] Translation option
-- [x] Be able to send to a Bitcoin address from Lightning balance and also a Liquid address from Lightning balance
-- [x] Gift wallet feature
-- [x] Savings account option
 - [x] Suggested words when restoring the wallet
 - [x] migrate from expo 49 to 51
-- [x] Split bill option in contacts
-- [x] Giveaway feature in contacts
 - [x] Integrate Bitcoin Liquid Wallet
-- [x] Have channels auto-rebalance to and from liquid
-- [x] Smart channel openings using liquid
-- [x] Be able to send money from your liquid wallet to a Lightning address
-- [x] Be able to receive money to a liquid wallet from a lightning or liquid payment if the amount is over inbound capacity
 - [x] Add apps to store
+- [ ] Add Rootstock as a receive option
+- [ ] Ability to create sub accounts within wallet
+- [ ] NWC 
 
 ## Download Blitz Wallet
 

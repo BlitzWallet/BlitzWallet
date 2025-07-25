@@ -5,7 +5,7 @@ import {applyErrorAnimationTheme} from '../../../../functions/lottieViewColorTra
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import LottieView from 'lottie-react-native';
-import {useWindowDimensions} from 'react-native';
+import {StyleSheet, useWindowDimensions} from 'react-native';
 import fetchBackend from '../../../../../db/handleBackend';
 import {useKeysContext} from '../../../../../context-store/keys';
 import {setLocalStorageItem} from '../../../../functions';
@@ -52,14 +52,7 @@ export default function NoDataView() {
     }
   };
   return (
-    <GlobalThemeView
-      styles={{
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingBottom: 0,
-        paddingTop: 0,
-      }}
-      useStandardWidth={true}>
+    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
       <LottieView
         ref={animationRef}
         source={errorAnimation}
@@ -83,3 +76,11 @@ export default function NoDataView() {
     </GlobalThemeView>
   );
 }
+const styles = StyleSheet.create({
+  globalContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 0,
+    paddingTop: 0,
+  },
+});

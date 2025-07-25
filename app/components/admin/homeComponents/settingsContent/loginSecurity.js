@@ -1,10 +1,9 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {CENTER, COLORS, LOGIN_SECUITY_MODE_KEY} from '../../../../constants';
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {
   getLocalStorageItem,
-  handleLogin,
   hasHardware,
   hasSavedProfile,
   setLocalStorageItem,
@@ -16,28 +15,141 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {useTranslation} from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
+import {handleLoginSecuritySwitch} from '../../../../functions/handleMnemonic';
+import {useKeysContext} from '../../../../../context-store/keys';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
-export default function LoginSecurity() {
+export default function LoginSecurity({extraData}) {
   const [securityLoginSettings, setSecurityLoginSettings] = useState({
     isSecurityEnabled: null,
     isPinEnabled: null,
     isBiometricEnabled: null,
   });
+  const [isSwitching, setIsSwitching] = useState(false);
+  const {accountMnemoinc} = useKeysContext();
   const navigate = useNavigation();
   const {t} = useTranslation();
   const {theme} = useGlobalThemeContext();
   const {backgroundOffset} = GetThemeColors();
 
-  useEffect(() => {
-    async function getSavedBiometricSettings() {
-      const storedSettings = JSON.parse(
-        await getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
-      );
+  const updateSecuritySettings = async newSettings => {
+    setSecurityLoginSettings(newSettings);
+    await setLocalStorageItem(
+      LOGIN_SECUITY_MODE_KEY,
+      JSON.stringify(newSettings),
+    );
+  };
 
-      setSecurityLoginSettings(storedSettings);
-    }
-    getSavedBiometricSettings();
+  useEffect(() => {
+    (async () => {
+      const saved = await getLocalStorageItem(LOGIN_SECUITY_MODE_KEY);
+      if (saved) setSecurityLoginSettings(JSON.parse(saved));
+    })();
   }, []);
+
+  useEffect(() => {
+    if (!extraData?.pin) return;
+    (async () => {
+      try {
+        setIsSwitching(true);
+        const success = await handleLoginSecuritySwitch(
+          accountMnemoinc,
+          extraData.pin,
+          'pin',
+        );
+        if (!success) throw new Error('Unable to switch login type');
+
+        await updateSecuritySettings({
+          isSecurityEnabled: true,
+          isPinEnabled: true,
+          isBiometricEnabled: false,
+        });
+      } catch (err) {
+        console.log('PIN switch error:', err);
+        navigate.navigate('ErrorScreen', {errorMessage: err.message});
+      } finally {
+        setIsSwitching(false);
+      }
+    })();
+  }, [extraData]);
+
+  const toggleSecurityEnabled = useCallback(async () => {
+    try {
+      setIsSwitching(true);
+      if (!securityLoginSettings.isSecurityEnabled) {
+        navigate.navigate('ConfirmPinForLoginMode');
+        return;
+      }
+
+      const success = await handleLoginSecuritySwitch(
+        accountMnemoinc,
+        '',
+        'plain',
+      );
+      if (!success) throw new Error('Toggle failed');
+
+      await updateSecuritySettings({
+        ...securityLoginSettings,
+        isSecurityEnabled: false,
+      });
+    } catch (err) {
+      console.log('Toggle switch error:', err);
+      navigate.navigate('ErrorScreen', {errorMessage: err.message});
+    } finally {
+      setIsSwitching(false);
+    }
+  }, [securityLoginSettings]);
+
+  const toggleLoginSecurity = useCallback(
+    async type => {
+      try {
+        setIsSwitching(true);
+        if (type === 'biometric') {
+          if (!(await hasHardware())) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: 'Device does not support Biometric login',
+            });
+            return;
+          }
+
+          if (!(await hasSavedProfile())) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage:
+                'Device does not have a Biometric profile. Create one in settings to continue.',
+            });
+            return;
+          }
+
+          const success = await handleLoginSecuritySwitch(
+            accountMnemoinc,
+            '',
+            'biometric',
+          );
+          if (!success) throw new Error('Error logging in with Biometrics');
+        } else {
+          navigate.navigate('ConfirmPinForLoginMode');
+          return;
+        }
+
+        const updatedSettings = {
+          ...securityLoginSettings,
+          isBiometricEnabled: type === 'biometric',
+          isPinEnabled: type === 'pin',
+        };
+        await updateSecuritySettings(updatedSettings);
+      } catch (err) {
+        console.log('Toggle security error:', err);
+        navigate.navigate('ErrorScreen', {errorMessage: err.message});
+      } finally {
+        setIsSwitching(false);
+      }
+    },
+    [securityLoginSettings],
+  );
+
+  if (isSwitching) {
+    return <FullLoadingScreen text={'Migrating storage to new security.'} />;
+  }
 
   return (
     <View style={styles.innerContainer}>
@@ -55,7 +167,7 @@ export default function LoginSecurity() {
           />
           <CustomToggleSwitch
             stateValue={securityLoginSettings.isSecurityEnabled}
-            toggleSwitchFunction={handleSwitch}
+            toggleSwitchFunction={toggleSecurityEnabled}
             page={'LoginSecurityMode'}
           />
         </View>
@@ -67,17 +179,13 @@ export default function LoginSecurity() {
             content={t('settings.loginsecurity.text2')}
           />
           <TouchableOpacity
-            onPress={() => {
-              toggleLoginSecurity('pin');
-            }}
+            onPress={() => toggleLoginSecurity('pin')}
             style={styles.toggleSecurityMode}>
             <ThemeText content={t('settings.loginsecurity.text3')} />
             <CheckMarkCircle isActive={securityLoginSettings.isPinEnabled} />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => {
-              toggleLoginSecurity('biometric');
-            }}
+            onPress={() => toggleLoginSecurity('biometric')}
             style={styles.toggleSecurityMode}>
             <ThemeText content={t('settings.loginsecurity.text4')} />
             <CheckMarkCircle
@@ -88,66 +196,6 @@ export default function LoginSecurity() {
       )}
     </View>
   );
-  async function handleSwitch() {
-    setSecurityLoginSettings(prev => {
-      const newStorageSettings = {
-        ...prev,
-        isSecurityEnabled: !prev.isSecurityEnabled,
-      };
-      setLocalStorageItem(
-        LOGIN_SECUITY_MODE_KEY,
-        JSON.stringify(newStorageSettings),
-      );
-      return newStorageSettings;
-    });
-
-    return;
-  }
-  async function toggleLoginSecurity(selectedLoginType) {
-    if (selectedLoginType === 'biometric') {
-      const canUseFaceID = await hasHardware();
-
-      if (canUseFaceID) {
-        const hasProfile = await hasSavedProfile();
-        if (!hasProfile) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage:
-              'Device does not have a Biometric profile. Create one in settings to continue.',
-          });
-          return;
-        } else {
-          const didLogin = await handleLogin();
-          if (!didLogin) {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: 'Error logging in with Biometrics',
-            });
-          }
-        }
-      } else {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Device does not support Biometric login',
-        });
-        return;
-      }
-    }
-    setSecurityLoginSettings(prev => {
-      const newStorageSettings = {
-        ...prev,
-        [selectedLoginType === 'pin'
-          ? 'isBiometricEnabled'
-          : 'isPinEnabled']: false,
-
-        [selectedLoginType === 'pin'
-          ? 'isPinEnabled'
-          : 'isBiometricEnabled']: true,
-      };
-      setLocalStorageItem(
-        LOGIN_SECUITY_MODE_KEY,
-        JSON.stringify(newStorageSettings),
-      );
-      return newStorageSettings;
-    });
-  }
 }
 
 const styles = StyleSheet.create({

@@ -83,9 +83,10 @@ const styles = StyleSheet.create({
   keyDot: {
     width: 45,
     height: 45,
-    borderRadius: 50,
+    borderRadius: 22.5,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   keyText: {
     fontSize: SIZES.xLarge,

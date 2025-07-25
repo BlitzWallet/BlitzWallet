@@ -1,13 +1,14 @@
 import * as FileSystem from 'expo-file-system';
 import {Platform, Share} from 'react-native';
 import {crashlyticsLogReport} from './crashlyticsLogs';
+
 export default async function writeAndShareFileToFilesystem(
   fileData,
   fileName,
   fileType,
-  navigate,
 ) {
   console.log('Running in new filesystem write and share...');
+
   try {
     crashlyticsLogReport('Starting write to filesystem process');
     const fileUri = `${FileSystem.documentDirectory}${fileName}`;
@@ -21,46 +22,55 @@ export default async function writeAndShareFileToFilesystem(
         url: `${fileUri}`,
         type: fileType,
       });
+      return {success: true, error: null};
     } else {
       try {
         const permissions =
           await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+
         if (permissions.granted) {
           const data =
             await FileSystem.StorageAccessFramework.readAsStringAsync(fileUri);
 
-          await FileSystem.StorageAccessFramework.createFileAsync(
-            permissions.directoryUri,
-            fileName,
-            fileType,
-          )
-            .then(async uri => {
-              await FileSystem.writeAsStringAsync(uri, data);
-            })
-            .catch(err => {
-              console.log('writting file to filesystem for android err', err);
-              navigate.navigate('ErrorScreen', {
-                errorMessage: 'Error saving file to document',
-              });
-            });
+          try {
+            const uri = await FileSystem.StorageAccessFramework.createFileAsync(
+              permissions.directoryUri,
+              fileName,
+              fileType,
+            );
+            await FileSystem.writeAsStringAsync(uri, data);
+            return {success: true, error: null};
+          } catch (err) {
+            console.log('writting file to filesystem for android err', err);
+            return {
+              success: false,
+              error: 'Error saving file to document',
+              originalError: err,
+            };
+          }
         } else {
           await Share.share({
             title: `${fileName}`,
             url: `${fileUri}`,
             type: fileType,
           });
+          return {success: true, error: null};
         }
       } catch (err) {
         console.log('android permission error', err);
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Error gettings permissions',
-        });
+        return {
+          success: false,
+          error: 'Error getting permissions',
+          originalError: err,
+        };
       }
     }
   } catch (e) {
     console.log('saving to filesystem error', e);
-    navigate.navigate('ErrorScreen', {
-      errorMessage: 'Error writting file to filesystem',
-    });
+    return {
+      success: false,
+      error: 'Error writing file to filesystem',
+      originalError: e,
+    };
   }
 }

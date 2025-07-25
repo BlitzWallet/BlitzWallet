@@ -1,4 +1,5 @@
 import {getSingleContact} from '../../../../../../db';
+import {getCachedProfileImage} from '../../../../../functions/cachedImage';
 
 export default async function getDeepLinkUser({deepLinkContent, userProfile}) {
   try {
@@ -17,11 +18,11 @@ export default async function getDeepLinkUser({deepLinkContent, userProfile}) {
       name: user.contacts.myProfile.name,
       uuid: user.contacts.myProfile.uuid,
       uniqueName: user.contacts.myProfile.uniqueName,
-      receiveAddress: user.contacts.myProfile.receiveAddress,
+      // receiveAddress: user.contacts.myProfile.receiveAddress,
       isFavorite: false,
       transactions: [],
       unlookedTransactions: 0,
-      isAdded: true,
+      isAdded: false,
     };
 
     if (userProfile.uuid === newContact.uuid) {
@@ -29,6 +30,8 @@ export default async function getDeepLinkUser({deepLinkContent, userProfile}) {
         resolve({didWork: false, reason: 'Cannot add yourself'}),
       );
     }
+    // look to see if new added user has a profile iamge saved
+    await getCachedProfileImage(newContact.uuid);
 
     return new Promise(resolve =>
       resolve(resolve({didWork: true, reason: '', data: newContact})),

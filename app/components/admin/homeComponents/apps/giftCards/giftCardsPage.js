@@ -1,7 +1,6 @@
 import {
   FlatList,
   Image,
-  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -16,8 +15,6 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import {formatBalanceAmount} from '../../../../../functions';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../../constants';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import CountryFlag from 'react-native-country-flag';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
@@ -25,13 +22,13 @@ import getGiftCardsList from './giftCardAPI';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function GiftCardPage() {
   const {decodedGiftCards, toggleGiftCardsList, giftCardsList} =
     useGlobalAppData();
 
   const {backgroundOffset} = GetThemeColors();
-  const insets = useSafeAreaInsets();
   const [errorMessage, setErrorMessage] = useState('');
   const [giftCardSearch, setGiftCardSearch] = useState('');
   const navigate = useNavigation();
@@ -67,11 +64,7 @@ export default function GiftCardPage() {
       };
     }, []),
   );
-
-  const bottomPadding = Platform.select({
-    ios: insets.bottom + 20,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useGlobalInsets();
 
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const giftCards = giftCardsList;
@@ -145,7 +138,7 @@ export default function GiftCardPage() {
   );
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
+    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
       <View style={{flex: 1}}>
         <View style={styles.topBar}>
           <TouchableOpacity
@@ -231,6 +224,7 @@ export default function GiftCardPage() {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {paddingBottom: 0},
   topBar: {
     width: '100%',
     flexDirection: 'row',

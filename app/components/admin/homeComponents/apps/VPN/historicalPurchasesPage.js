@@ -15,8 +15,10 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import {useKeysContext} from '../../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
+import {useToast} from '../../../../../../context-store/toastManager';
 
 export default function HistoricalVPNPurchases() {
+  const {showToast} = useToast();
   const [purchaseList, setPurchaseList] = useState([]);
   const navigate = useNavigation();
   const {decodedVPNS, toggleGlobalAppDataInformation} = useGlobalAppData();
@@ -64,7 +66,7 @@ export default function HistoricalVPNPurchases() {
           </View>
           <TouchableOpacity
             onPress={() => {
-              copyToClipboard(item.payment_hash, navigate);
+              copyToClipboard(item.payment_hash, showToast);
             }}
             style={styles.infoContainer}>
             <ThemeText styles={{...styles.label}} content={'Payment Hash:'} />

@@ -9,18 +9,25 @@ import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../../functions/crashlyticsLogs';
+import {useKeysContext} from '../../../context-store/keys';
 
 export default function CreateAccountHome({navigation: {navigate}}) {
   const {t} = useTranslation();
+  const {setAccountMnemonic} = useKeysContext();
 
   useEffect(() => {
-    try {
-      crashlyticsLogReport('Creating account mnemoinc');
-      createAccountMnemonic();
-    } catch (err) {
-      console.log('error creating account mnemoinc', err);
-      crashlyticsRecordErrorReport(err.message);
+    async function initializeWallet() {
+      try {
+        crashlyticsLogReport('Creating account mnemoinc');
+
+        const mnemoinc = await createAccountMnemonic();
+        setAccountMnemonic(mnemoinc);
+      } catch (err) {
+        console.log('error creating account mnemoinc', err);
+        crashlyticsRecordErrorReport(err.message);
+      }
     }
+    initializeWallet();
   }, []);
 
   const navigateFunction = page => {

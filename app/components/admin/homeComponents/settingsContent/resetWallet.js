@@ -1,4 +1,10 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import {CENTER, COLORS, SIZES} from '../../../../constants';
 import {useMemo, useState} from 'react';
 import {terminateAccount} from '../../../../functions/secureStore';
@@ -10,186 +16,203 @@ import {useNavigation} from '@react-navigation/native';
 import Icon from '../../../../functions/CustomElements/Icon';
 import {deleteTable} from '../../../../functions/messaging/cachedMessages';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {getAuth} from '@react-native-firebase/auth';
+import {signOut} from '@react-native-firebase/auth';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {deleteEcashDBTables} from '../../../../functions/eCash/db';
 import {deletePOSTransactionsTable} from '../../../../functions/pos';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {removeAllLocalData} from '../../../../functions/localStorage';
-import {useGlobaleCash} from '../../../../../context-store/eCash';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
+import {
+  deleteSparkTransactionTable,
+  deleteUnpaidSparkLightningTransactionTable,
+} from '../../../../functions/spark/transactions';
+import {useSparkWallet} from '../../../../../context-store/sparkContext';
+import {firebaseAuth} from '../../../../../db/initializeFirebase';
 
 export default function ResetPage(props) {
   const [selectedOptions, setSelectedOptions] = useState({
     securedItems: false,
     localStoredItems: false,
   });
+  const {sparkInformation} = useSparkWallet();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {nodeInformation, liquidNodeInformation} = useNodeContext();
-  const {ecashWalletInformation} = useGlobaleCash();
-  const eCashBalance = ecashWalletInformation.balance;
-
+  const {liquidNodeInformation} = useNodeContext();
+  const [contentHeight, setContentHeight] = useState(0);
   const {backgroundOffset} = GetThemeColors();
   const navigate = useNavigation();
+  const windowDimentions = useWindowDimensions();
 
   const backgroundColor = useMemo(() => {
     return theme ? backgroundOffset : COLORS.darkModeText;
   }, [theme, backgroundOffset]);
 
+  const isDoomsday = props.isDoomsday;
+
   return (
-    <View
-      style={{
-        flex: 1,
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{
+        flexGrow: contentHeight > windowDimentions ? 0 : 1,
         width: INSET_WINDOW_WIDTH,
         ...CENTER,
-        alignItems: 'center',
       }}>
       <View
-        style={[
-          styles.infoContainer,
-          {
-            marginTop: 30,
-            backgroundColor: backgroundColor,
-          },
-        ]}>
-        <ThemeText
-          styles={{
-            ...styles.warningHeader,
-            color:
-              theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
-          }}
-          content={'Are you sure?'}
-        />
-      </View>
-      <View
-        style={[
-          styles.infoContainer,
-          {
-            backgroundColor: backgroundColor,
-          },
-        ]}>
-        <ThemeText
-          styles={{...styles.infoTitle}}
-          content={'Select data to delete from this device.'}
-        />
-        <ThemeText
-          styles={{marginBottom: 15}}
-          content={
-            'Any option that is selected will be removed forever. If your seed is forgotten, you WILL lose your funds.'
-          }
-        />
-
+        style={{
+          width: '100%',
+          alignItems: 'center',
+          flexGrow: contentHeight > windowDimentions ? 0 : 1,
+        }}
+        onLayout={e => {
+          if (!e.nativeEvent.layout.height) return;
+          setContentHeight(e.nativeEvent.layout.height);
+        }}>
         <View
           style={[
-            styles.borderView,
+            styles.infoContainer,
             {
-              backgroundColor: theme
-                ? COLORS.darkModeText
-                : COLORS.lightModeText,
+              marginTop: 30,
+              backgroundColor: backgroundColor,
             },
-          ]}></View>
-        <View style={{marginTop: 15}}>
-          <View style={styles.selectorContainer}>
-            <TouchableOpacity
-              onPress={() => handleSelectedItems('securedItems')}
-              style={[
-                styles.selectorDot,
-                {
-                  backgroundColor: selectedOptions.securedItems
-                    ? theme
+          ]}>
+          <ThemeText
+            styles={{
+              ...styles.warningHeader,
+              color:
+                theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
+            }}
+            content={'Are you sure?'}
+          />
+        </View>
+        <View
+          style={[
+            styles.infoContainer,
+            {
+              backgroundColor: backgroundColor,
+            },
+          ]}>
+          <ThemeText
+            styles={{...styles.infoTitle}}
+            content={'Select data to delete from this device.'}
+          />
+          <ThemeText
+            styles={{marginBottom: 15}}
+            content={
+              'Any option that is selected will be removed forever. If your seed is forgotten, you WILL lose your funds.'
+            }
+          />
+
+          <View
+            style={[
+              styles.borderView,
+              {
+                backgroundColor: theme
+                  ? COLORS.darkModeText
+                  : COLORS.lightModeText,
+              },
+            ]}></View>
+          <View style={{marginTop: 15}}>
+            <View style={styles.selectorContainer}>
+              <TouchableOpacity
+                onPress={() => handleSelectedItems('securedItems')}
+                style={[
+                  styles.selectorDot,
+                  {
+                    backgroundColor: selectedOptions.securedItems
+                      ? theme
+                        ? COLORS.darkModeText
+                        : COLORS.lightModeText
+                      : 'transparent',
+                    borderWidth: selectedOptions.securedItems ? 0 : 2,
+                    borderColor: theme
                       ? COLORS.darkModeText
-                      : COLORS.lightModeText
-                    : 'transparent',
-                  borderWidth: selectedOptions.securedItems ? 0 : 2,
-                  borderColor: theme
-                    ? COLORS.darkModeText
-                    : COLORS.lightModeText,
-                },
-              ]}>
-              {selectedOptions.securedItems && (
-                <Icon
-                  width={15}
-                  height={15}
-                  color={theme ? COLORS.lightModeText : COLORS.darkModeText}
-                  name={'expandedTxCheck'}
-                />
-              )}
-            </TouchableOpacity>
-            <ThemeText
-              styles={{...styles.selectorText}}
-              content={'Delete seed phrase and pin from my device'}
-            />
-          </View>
-          <View style={{...styles.selectorContainer, marginBottom: 0}}>
-            <TouchableOpacity
-              onPress={() => handleSelectedItems('localStoredItems')}
-              style={[
-                styles.selectorDot,
-                {
-                  backgroundColor: selectedOptions.localStoredItems
-                    ? theme
+                      : COLORS.lightModeText,
+                  },
+                ]}>
+                {selectedOptions.securedItems && (
+                  <Icon
+                    width={15}
+                    height={15}
+                    color={theme ? COLORS.lightModeText : COLORS.darkModeText}
+                    name={'expandedTxCheck'}
+                  />
+                )}
+              </TouchableOpacity>
+              <ThemeText
+                styles={{...styles.selectorText}}
+                content={'Delete seed phrase and pin from my device'}
+              />
+            </View>
+            <View style={{...styles.selectorContainer, marginBottom: 0}}>
+              <TouchableOpacity
+                onPress={() => handleSelectedItems('localStoredItems')}
+                style={[
+                  styles.selectorDot,
+                  {
+                    backgroundColor: selectedOptions.localStoredItems
+                      ? theme
+                        ? COLORS.darkModeText
+                        : COLORS.lightModeText
+                      : 'transparent',
+                    borderWidth: selectedOptions.localStoredItems ? 0 : 2,
+                    borderColor: theme
                       ? COLORS.darkModeText
-                      : COLORS.lightModeText
-                    : 'transparent',
-                  borderWidth: selectedOptions.localStoredItems ? 0 : 2,
-                  borderColor: theme
-                    ? COLORS.darkModeText
-                    : COLORS.lightModeText,
-                },
-              ]}>
-              {selectedOptions.localStoredItems && (
-                <Icon
-                  width={15}
-                  height={15}
-                  color={theme ? COLORS.lightModeText : COLORS.darkModeText}
-                  name={'expandedTxCheck'}
-                />
-              )}
-            </TouchableOpacity>
-            <ThemeText
-              styles={{...styles.selectorText}}
-              content={'Delete locally stored data from my device'}
-            />
+                      : COLORS.lightModeText,
+                  },
+                ]}>
+                {selectedOptions.localStoredItems && (
+                  <Icon
+                    width={15}
+                    height={15}
+                    color={theme ? COLORS.lightModeText : COLORS.darkModeText}
+                    name={'expandedTxCheck'}
+                  />
+                )}
+              </TouchableOpacity>
+              <ThemeText
+                styles={{...styles.selectorText}}
+                content={'Delete locally stored data from my device'}
+              />
+            </View>
           </View>
         </View>
-      </View>
-      <View
-        style={[
-          styles.infoContainer,
-          {
-            backgroundColor: backgroundColor,
-          },
-        ]}>
-        <ThemeText
-          styles={{...styles.infoTitle, textAlign: 'center'}}
-          content={'Your balance is'}
-        />
-        <FormattedSatText
-          styles={{fontSize: SIZES.large}}
-          neverHideBalance={true}
-          balance={
-            nodeInformation.userBalance +
-            liquidNodeInformation.userBalance +
-            (masterInfoObject.enabledEcash ? eCashBalance : 0)
-          }
-        />
-      </View>
+        {!isDoomsday && (
+          <View
+            style={[
+              styles.infoContainer,
+              {
+                backgroundColor: backgroundColor,
+              },
+            ]}>
+            <ThemeText
+              styles={{...styles.infoTitle, textAlign: 'center'}}
+              content={'Your balance is'}
+            />
+            <FormattedSatText
+              styles={{fontSize: SIZES.large}}
+              neverHideBalance={true}
+              balance={
+                Number(sparkInformation.balance) +
+                liquidNodeInformation.userBalance
+              }
+            />
+          </View>
+        )}
 
-      <CustomButton
-        buttonStyles={{
-          opacity:
-            selectedOptions.securedItems || selectedOptions.localStoredItems
-              ? 1
-              : 0.5,
-          width: 'auto',
-          marginTop: 'auto',
-        }}
-        actionFunction={resetWallet}
-        textContent={'Reset'}
-      />
-    </View>
+        <CustomButton
+          buttonStyles={{
+            opacity:
+              selectedOptions.securedItems || selectedOptions.localStoredItems
+                ? 1
+                : 0.5,
+            width: 'auto',
+            marginTop: 'auto',
+          }}
+          actionFunction={resetWallet}
+          textContent={'Reset'}
+        />
+      </View>
+    </ScrollView>
   );
 
   function handleSelectedItems(item) {
@@ -211,11 +234,15 @@ export default function ResetPage(props) {
           didClearMessages,
           didClearEcash,
           didClearPos,
+          didClearTxTable,
+          didClearPendingTxTable,
         ] = await Promise.all([
           removeAllLocalData(),
           deleteTable(),
           deleteEcashDBTables(),
           deletePOSTransactionsTable(),
+          deleteSparkTransactionTable(),
+          deleteUnpaidSparkLightningTransactionTable(),
         ]);
 
         if (!didClearLocalStoreage)
@@ -227,7 +254,7 @@ export default function ResetPage(props) {
           throw Error('Not able to delete secure stored information');
       }
       try {
-        await getAuth().signOut();
+        await signOut(firebaseAuth);
       } catch (err) {
         console.log('reset wallet sign out error', err);
       }

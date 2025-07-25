@@ -26,6 +26,9 @@ import {useKeysContext} from '../../../../../context-store/keys';
 import {keyboardNavigate} from '../../../../functions/customNavigation';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import sha256Hash from '../../../../functions/hash';
+import ContactProfileImage from './internalComponents/profileImage';
+import {getCachedProfileImage} from '../../../../functions/cachedImage';
+import {useImageCache} from '../../../../../context-store/imageCache';
 
 export default function AddContactsHalfModal(props) {
   const {contactsPrivateKey} = useKeysContext();
@@ -37,61 +40,104 @@ export default function AddContactsHalfModal(props) {
   const sliderHight = props.slideHeight;
   const navigate = useNavigation();
   const keyboardRef = useRef(null);
+  const {refreshCacheObject} = useImageCache();
+  const searchTrackerRef = useRef(null);
 
-  const debouncedSearch = useDebounce(async term => {
+  const handleSearchTrackerRef = () => {
+    const requestUUID = customUUID();
+    searchTrackerRef.current = requestUUID; // Simply store the latest UUID
+    return requestUUID;
+  };
+
+  const debouncedSearch = useDebounce(async (term, requestUUID) => {
+    // Block request if user has moved on
+    if (searchTrackerRef.current !== requestUUID) {
+      return;
+    }
+
     const results = await searchUsers(term);
-    const newUsers = results
-      .map((savedContact, id) => {
-        if (!savedContact) {
-          return false;
-        }
-        if (
-          savedContact.uniqueName ===
-          globalContactsInformation.myProfile.uniqueName
-        )
-          return false;
-        if (!savedContact.receiveAddress) return false;
-        return savedContact;
-      })
-      .filter(Boolean);
-    unstable_batchedUpdates(() => {
-      setIsSearching(false);
-      setUsers(newUsers);
-    });
-  }, 500);
+    const newUsers = (
+      await Promise.all(
+        results.map(async savedContact => {
+          if (!savedContact) return false;
+          if (
+            savedContact.uniqueName ===
+            globalContactsInformation.myProfile.uniqueName
+          )
+            return false;
+          if (!savedContact?.uuid) return false;
+
+          let responseData;
+
+          if (
+            savedContact.hasProfileImage ||
+            typeof savedContact.hasProfileImage === 'boolean'
+          ) {
+            responseData = await getCachedProfileImage(savedContact.uuid);
+            console.log(responseData, 'response');
+          }
+
+          if (!responseData) return savedContact;
+          else
+            return {
+              ...savedContact,
+              ...responseData,
+            };
+        }),
+      )
+    ).filter(Boolean);
+
+    refreshCacheObject();
+    setIsSearching(false);
+    setUsers(newUsers);
+  }, 800);
 
   const handleSearch = term => {
     setSearchInput(term);
-    if (term.includes('@')) return;
-    term && setIsSearching(true);
-    debouncedSearch(term);
+    handleSearchTrackerRef();
+    if (term.includes('@')) {
+      searchTrackerRef.current = null;
+      setIsSearching(false);
+      return;
+    }
+
+    if (term.length === 0) {
+      searchTrackerRef.current = null;
+      setUsers([]);
+      setIsSearching(false);
+      return;
+    }
+
+    if (term.length > 0) {
+      const requestUUID = handleSearchTrackerRef();
+      setIsSearching(true);
+      debouncedSearch(term, requestUUID);
+    }
   };
 
-  const parseContact = data => {
+  const parseContact = async data => {
     try {
+      setIsSearching(true);
       const decoded = atob(data);
       const parsedData = JSON.parse(decoded);
-      if (!parsedData?.receiveAddress) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: 'Not able to find contact',
-        });
-        return;
-      }
+
+      await getCachedProfileImage(parsedData.uuid);
 
       const newContact = {
         name: parsedData.name || '',
         bio: parsedData.bio || '',
         uniqueName: parsedData.uniqueName,
         isFavorite: false,
-        transactions: [],
+        // transactions: [],
         unlookedTransactions: 0,
         uuid: parsedData.uuid,
-        receiveAddress: parsedData.receiveAddress,
+        // receiveAddress: parsedData.receiveAddress,
         isAdded: true,
-        profileImage: '',
+        // profileImage: '',
       };
       navigate.replace('ExpandedAddContactsPage', {newContact: newContact});
     } catch (err) {
+      setIsSearching(false);
       console.log('parse contact half modal error', err);
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Not able to find contact',
@@ -141,6 +187,7 @@ export default function AddContactsHalfModal(props) {
             textInputRef={keyboardRef}
             blurOnSubmit={false}
             containerStyles={{justifyContent: 'center'}}
+            textInputStyles={{paddingRight: 40}}
             onSubmitEditingFunction={() => {
               clearHalfModalForLNURL();
             }}
@@ -192,20 +239,37 @@ export default function AddContactsHalfModal(props) {
               />
             </ScrollView>
           ) : (
-            <FlatList
-              key={sha256Hash(users.join('') + `${isSearching}`)}
-              showsVerticalScrollIndicator={false}
-              data={users}
-              renderItem={({item}) => (
-                <ContactListItem
-                  savedContact={item}
-                  contactsPrivateKey={contactsPrivateKey}
+            <>
+              {users.length ? (
+                <FlatList
+                  key={sha256Hash(users.join('') + `${isSearching}`)}
+                  showsVerticalScrollIndicator={false}
+                  data={users}
+                  renderItem={({item}) => (
+                    <ContactListItem
+                      savedContact={item}
+                      contactsPrivateKey={contactsPrivateKey}
+                      theme={theme}
+                      darkModeType={darkModeType}
+                    />
+                  )}
+                  keyExtractor={item => item?.uniqueName}
+                  keyboardShouldPersistTaps="handled"
+                  keyboardDismissMode="none"
+                />
+              ) : (
+                <ThemeText
+                  styles={{textAlign: 'center', marginTop: 20}}
+                  content={
+                    isSearching && searchInput.length > 0
+                      ? ''
+                      : searchInput.length > 0
+                      ? 'No profiles match this search'
+                      : 'Start typing to search for a profile'
+                  }
                 />
               )}
-              keyExtractor={item => item?.uniqueName}
-              keyboardShouldPersistTaps="handled"
-              keyboardDismissMode="none"
-            />
+            </>
           )}
         </View>
       </View>
@@ -215,6 +279,7 @@ export default function AddContactsHalfModal(props) {
 function ContactListItem(props) {
   const {textColor, backgroundOffset} = GetThemeColors();
   const navigate = useNavigation();
+
   const newContact = {
     ...props.savedContact,
     isFavorite: false,
@@ -235,13 +300,14 @@ function ContactListItem(props) {
           style={[
             styles.contactListLetterImage,
             {
-              borderColor: textColor,
               backgroundColor: backgroundOffset,
             },
           ]}>
-          <ThemeText
-            styles={{includeFontPadding: false}}
-            content={newContact.uniqueName[0].toUpperCase()}
+          <ContactProfileImage
+            updated={newContact.updated}
+            uri={newContact.localUri}
+            darkModeType={props.darkModeType}
+            theme={props.theme}
           />
         </View>
         <View>
@@ -287,12 +353,12 @@ const styles = StyleSheet.create({
   },
 
   contactListLetterImage: {
-    height: 30,
-    width: 30,
-    borderRadius: 15,
+    height: 40,
+    width: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    overflow: 'hidden',
     marginRight: 10,
   },
 });

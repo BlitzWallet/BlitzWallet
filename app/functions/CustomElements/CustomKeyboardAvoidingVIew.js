@@ -1,13 +1,9 @@
-import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-} from 'react-native';
+import {Keyboard, StyleSheet, TouchableWithoutFeedback} from 'react-native';
 import GlobalThemeView from './globalThemeView';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../constants/styles';
 import {CONTENT_KEYBOARD_OFFSET} from '../../constants';
+import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
+import {useGlobalInsets} from '../../../context-store/insetsProvider';
+import {useCallback, useMemo} from 'react';
 
 export default function CustomKeyboardAvoidingView({
   children,
@@ -18,50 +14,51 @@ export default function CustomKeyboardAvoidingView({
   isKeyboardActive,
   useLocalPadding = false,
 }) {
-  const insets = useSafeAreaInsets();
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useGlobalInsets();
+
+  const memoizedStylesTochable = useMemo(() => {
+    return {
+      paddingBottom: useLocalPadding
+        ? isKeyboardActive
+          ? CONTENT_KEYBOARD_OFFSET
+          : bottomPadding
+        : 0,
+      ...globalThemeViewStyles,
+    };
+  }, [useLocalPadding, isKeyboardActive, bottomPadding, globalThemeViewStyles]);
+
+  const memoizedStylesNoTochable = useMemo(() => {
+    return {
+      paddingBottom: useLocalPadding
+        ? isKeyboardActive
+          ? CONTENT_KEYBOARD_OFFSET
+          : bottomPadding
+        : 0,
+      ...globalThemeViewStyles,
+    };
+  }, [useLocalPadding, isKeyboardActive, bottomPadding, globalThemeViewStyles]);
+
+  const touchableOnPress = useCallback(() => {
+    if (touchableWithoutFeedbackFunction) {
+      touchableWithoutFeedbackFunction();
+      return;
+    }
+    Keyboard.dismiss();
+  }, [touchableWithoutFeedbackFunction]);
 
   return (
-    <KeyboardAvoidingView
-      style={{
-        flex: 1,
-      }}
-      behavior={Platform.OS === 'ios' ? 'padding' : null}>
+    <KeyboardAvoidingView behavior={'padding'} style={styles.globalContainer}>
       {useTouchableWithoutFeedback ? (
-        <TouchableWithoutFeedback
-          onPress={() => {
-            if (touchableWithoutFeedbackFunction) {
-              touchableWithoutFeedbackFunction();
-              return;
-            }
-            Keyboard.dismiss();
-          }}>
+        <TouchableWithoutFeedback onPress={touchableOnPress}>
           <GlobalThemeView
-            styles={{
-              paddingBottom: useLocalPadding
-                ? isKeyboardActive
-                  ? CONTENT_KEYBOARD_OFFSET
-                  : paddingBottom
-                : 0,
-              ...globalThemeViewStyles,
-            }}
+            styles={memoizedStylesTochable}
             useStandardWidth={useStandardWidth}>
             {children}
           </GlobalThemeView>
         </TouchableWithoutFeedback>
       ) : (
         <GlobalThemeView
-          styles={{
-            paddingBottom: useLocalPadding
-              ? isKeyboardActive
-                ? CONTENT_KEYBOARD_OFFSET
-                : paddingBottom
-              : 0,
-            ...globalThemeViewStyles,
-          }}
+          styles={memoizedStylesNoTochable}
           useStandardWidth={useStandardWidth}>
           {children}
         </GlobalThemeView>
@@ -69,3 +66,9 @@ export default function CustomKeyboardAvoidingView({
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  globalContainer: {
+    flex: 1,
+  },
+});

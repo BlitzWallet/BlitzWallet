@@ -1,7 +1,6 @@
 import {
   FlatList,
   Image,
-  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -13,8 +12,6 @@ import {
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {CENTER, COLORS, ICONS} from '../../../../../constants';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {openComposer} from 'react-native-email-link';
@@ -22,18 +19,17 @@ import {copyToClipboard} from '../../../../../functions';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useToast} from '../../../../../../context-store/toastManager';
 
 export default function HistoricalGiftCardPurchases() {
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {showToast} = useToast();
 
-  const insets = useSafeAreaInsets();
   const navigate = useNavigation();
+  const {bottomPadding} = useGlobalInsets();
 
-  const bottomPadding = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
   useHandleBackPressNew();
 
   const renderItem = ({item}) => (
@@ -52,18 +48,31 @@ export default function HistoricalGiftCardPurchases() {
       }}
       style={styles.rowContainer}>
       <Image style={styles.companyLogo} source={{uri: item.logo}} />
-      <View>
+      <View style={{flex: 1}}>
         <ThemeText
+          CustomNumberOfLines={1}
           styles={{fontWeight: '500', marginBottom: 5}}
           content={item.name}
         />
         <ThemeText
-          styles={{
-            marginLeft: 'auto',
-          }}
+          CustomNumberOfLines={1}
           content={`Purchased: ${new Date(item.date).toDateString()}`}
         />
       </View>
+      <TouchableOpacity
+        onPress={() =>
+          navigate.navigate('ConfirmActionPage', {
+            confirmMessage:
+              'Are you sure you want to remove this purchased card.',
+            confirmFunction: () => removeGiftCardFromList(item.uuid),
+          })
+        }>
+        <ThemeImage
+          lightModeIcon={ICONS.xSmallIcon}
+          darkModeIcon={ICONS.xSmallIcon}
+          lightsOutIcon={ICONS.xSmallIconWhite}
+        />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
@@ -118,7 +127,7 @@ export default function HistoricalGiftCardPurchases() {
               } catch (err) {
                 copyToClipboard(
                   'support@thebitcoincompany.com',
-                  navigate,
+                  showToast,
                   null,
                   'Support email copied',
                 );

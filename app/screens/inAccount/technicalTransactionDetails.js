@@ -1,4 +1,4 @@
-import {StyleSheet, View, TouchableOpacity, Image} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
 import {CENTER, ICONS} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {copyToClipboard} from '../../functions';
@@ -6,69 +6,90 @@ import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {WINDOWWIDTH} from '../../constants/theme';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import {useToast} from '../../../context-store/toastManager';
 
 export default function TechnicalTransactionDetails(props) {
   console.log('Transaction Detials Page');
+  const {showToast} = useToast();
   const navigate = useNavigation();
   useHandleBackPressNew();
 
-  const {selectedTX, isLiquidPayment, isFailedPayment, isEcashPayment} =
-    props.route.params;
+  const {transaction} = props.route.params;
 
-  const isAClosedChannelTx = selectedTX.description
-    ?.toLowerCase()
-    ?.includes('closed channel');
+  const {details, sparkID} = transaction;
 
-  const paymentDetails = isEcashPayment
-    ? ['Mint url', 'Payment Preimage']
-    : isFailedPayment
-    ? ['Payment Hash', 'Payment Preimage', 'Destination Pubkey']
-    : isLiquidPayment
-    ? ['Destination', 'Transaction Id']
-    : isAClosedChannelTx
-    ? ['Closing TxId', 'Funding TxId', 'Short Channel Id']
-    : ['Payment Hash', 'Payment Preimage', 'Destination Pubkey'];
+  const isPending = transaction.paymentStatus === 'pending';
+
+  console.log(details);
+
+  const paymentDetails =
+    transaction.paymentType === 'spark'
+      ? ['Payment Id']
+      : transaction.paymentType === 'lightning'
+      ? ['Payment Id', 'Payment Preimage', 'Payment Address']
+      : [
+          'Payment Id',
+          'Bitcoin Txid',
+          'Payment Address',
+          'Payment Expiry',
+        ].slice(0, details.direction === 'OUTGOING' && isPending ? 4 : 3);
 
   const infoElements = paymentDetails.map((item, id) => {
-    const txItem = isEcashPayment
-      ? id === 0
-        ? selectedTX?.mintURL
-        : selectedTX?.preImage || ''
-      : isFailedPayment
-      ? id === 0
-        ? selectedTX?.details?.data?.paymentHash
+    const txItem =
+      transaction.paymentType === 'spark'
+        ? sparkID
+        : transaction.paymentType === 'lightning'
+        ? id === 0
+          ? sparkID
+          : id === 1
+          ? details.preimage
+          : details.address
+        : id === 0
+        ? sparkID
         : id === 1
-        ? selectedTX?.details?.data?.paymentPreimage
-        : selectedTX?.details?.data?.destinationPubkey
-      : isLiquidPayment
-      ? id === 0
-        ? selectedTX?.destination
-        : selectedTX?.txId
-      : isAClosedChannelTx
-      ? id === 0
-        ? selectedTX.details?.data?.closingTxid
-        : id === 1
-        ? selectedTX.details?.data?.fundingTxid
-        : selectedTX.details?.data?.shortChannelId
-      : id === 0
-      ? selectedTX.details?.data?.paymentHash
-      : id === 1
-      ? selectedTX.details?.data?.paymentPreimage
-      : selectedTX.details?.data?.destinationPubkey;
+        ? details.onChainTxid
+        : id === 2
+        ? details.address
+        : details.expiresAt || 'N/A';
+
     return (
       <View key={id}>
-        <ThemeText content={item} styles={{...styles.headerText}} />
+        <View style={styles.headerContainer}>
+          <ThemeText content={item} styles={{...styles.headerText}} />
+          {!isPending && !txItem && (
+            <TouchableOpacity
+              onPress={() => {
+                navigate.navigate('InformationPopup', {
+                  textContent: `${item} is not shown since this payment was restored from history or used a zero amount invoice.`,
+                  buttonText: 'I understand',
+                });
+              }}>
+              <ThemeImage
+                styles={{width: 20, height: 20}}
+                lightModeIcon={ICONS.aboutIcon}
+                darkModeIcon={ICONS.aboutIcon}
+                lightsOutIcon={ICONS.aboutIconWhite}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
         <TouchableOpacity
           onPress={() => {
-            if (isLiquidPayment && item === 'Transaction Id') {
+            if (
+              transaction.paymentType === 'bitcoin' &&
+              item === 'Bitcoin Txid'
+            ) {
               navigate.navigate('CustomWebView', {
-                webViewURL: `https://liquid.network/tx/${txItem}`,
+                webViewURL: `https://mempool.space/tx/${txItem}`,
               });
               return;
             }
-            copyToClipboard(txItem, navigate);
+            copyToClipboard(txItem, showToast);
           }}>
-          <ThemeText content={txItem} styles={{...styles.descriptionText}} />
+          <ThemeText
+            content={txItem || 'N/A'}
+            styles={{...styles.descriptionText}}
+          />
         </TouchableOpacity>
       </View>
     );
@@ -87,7 +108,18 @@ export default function TechnicalTransactionDetails(props) {
             lightsOutIcon={ICONS.arrow_small_left_white}
           />
         </TouchableOpacity>
-        <View style={styles.innerContainer}>{infoElements}</View>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.innerContainer}>
+          {infoElements}
+          {transaction.paymentType === 'spark' && (
+            <ThemeText
+              content={
+                'To preserve the receiver’s privacy, all other information is hidden.'
+              }
+            />
+          )}
+        </ScrollView>
       </View>
     </GlobalThemeView>
   );
@@ -100,9 +132,12 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     ...CENTER,
   },
-  headerText: {
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 5,
   },
+  headerText: {includeFontPadding: false, marginRight: 5},
   descriptionText: {
     marginBottom: 30,
   },

@@ -7,10 +7,13 @@ import {useGlobalContacts} from '../../../../../../context-store/globalContacts'
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import ContactProfileImage from './profileImage';
+import {useImageCache} from '../../../../../../context-store/imageCache';
 
 export default function ProfilePageTransactions({transaction, currentTime}) {
   const profileInfo = transaction;
   const transactionData = transaction.transaction;
+  const {cache} = useImageCache();
 
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset} = GetThemeColors();
@@ -47,6 +50,7 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
           timeDifferenceHours={timeDifferenceHours}
           timeDifferenceDays={timeDifferenceDays}
           profileInfo={profileInfo}
+          cache={cache}
         />
       ) : (
         <View style={{...styles.transactionContainer}}>
@@ -55,21 +59,11 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
               ...styles.selectImage,
               backgroundColor: backgroundOffset,
             }}>
-            <Image
-              source={
-                profileInfo.selectedProfileImage
-                  ? {
-                      uri: profileInfo.selectedProfileImage,
-                    }
-                  : darkModeType && theme
-                  ? ICONS.userWhite
-                  : ICONS.userIcon
-              }
-              style={
-                profileInfo.selectedProfileImage
-                  ? {width: '100%', aspectRatio: 1}
-                  : {width: '60%', height: '60%'}
-              }
+            <ContactProfileImage
+              updated={cache[profileInfo.contactUUID]?.updated}
+              uri={cache[profileInfo.contactUUID]?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
             />
           </View>
 
@@ -130,10 +124,10 @@ function ConfirmedOrSentTransaction({
   timeDifferenceHours,
   timeDifferenceDays,
   profileInfo,
+  cache,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {myProfileImage} = useGlobalContacts();
   const {textColor, backgroundOffset} = GetThemeColors();
   const didDeclinePayment = txParsed.isRedeemed != null && !txParsed.isRedeemed;
 
@@ -166,21 +160,11 @@ function ConfirmedOrSentTransaction({
                   bottom: 0,
                   left: 0,
                 }}>
-                <Image
-                  source={
-                    myProfileImage
-                      ? {
-                          uri: myProfileImage,
-                        }
-                      : darkModeType && theme
-                      ? ICONS.userWhite
-                      : ICONS.userIcon
-                  }
-                  style={
-                    myProfileImage
-                      ? {width: '100%', aspectRatio: 1}
-                      : {width: '60%', height: '60%'}
-                  }
+                <ContactProfileImage
+                  updated={cache[masterInfoObject.uuid]?.updated}
+                  uri={cache[masterInfoObject.uuid]?.localUri}
+                  darkModeType={darkModeType}
+                  theme={theme}
                 />
               </View>
               <View
@@ -191,21 +175,11 @@ function ConfirmedOrSentTransaction({
                   top: 0,
                   right: 0,
                 }}>
-                <Image
-                  source={
-                    profileInfo.selectedProfileImage
-                      ? {
-                          uri: profileInfo.selectedProfileImage,
-                        }
-                      : darkModeType && theme
-                      ? ICONS.userWhite
-                      : ICONS.userIcon
-                  }
-                  style={
-                    profileInfo.selectedProfileImage
-                      ? {width: '100%', aspectRatio: 1}
-                      : {width: '60%', height: '60%'}
-                  }
+                <ContactProfileImage
+                  updated={cache[profileInfo.contactUUID]?.updated}
+                  uri={cache[profileInfo.contactUUID]?.localUri}
+                  darkModeType={darkModeType}
+                  theme={theme}
                 />
               </View>
             </>
@@ -221,21 +195,11 @@ function ConfirmedOrSentTransaction({
 
                 backgroundColor: backgroundOffset,
               }}>
-              <Image
-                source={
-                  profileInfo.selectedProfileImage
-                    ? {
-                        uri: profileInfo.selectedProfileImage,
-                      }
-                    : darkModeType && theme
-                    ? ICONS.userWhite
-                    : ICONS.userIcon
-                }
-                style={
-                  profileInfo.selectedProfileImage
-                    ? {width: '100%', aspectRatio: 1}
-                    : {width: '60%', height: '60%'}
-                }
+              <ContactProfileImage
+                updated={cache[profileInfo.contactUUID]?.updated}
+                uri={cache[profileInfo.contactUUID]?.localUri}
+                darkModeType={darkModeType}
+                theme={theme}
               />
             </View>
           )}

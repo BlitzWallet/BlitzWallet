@@ -8,7 +8,6 @@ import {
   View,
 } from 'react-native';
 
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {COLORS, ICONS, SIZES} from '../../app/constants';
 import {useMemo} from 'react';
 import {CENTER} from '../../app/constants/styles';
@@ -18,33 +17,35 @@ import {ContactsPage} from '../../app/components/admin';
 import GetThemeColors from '../../app/hooks/themeColors';
 import {useGlobalThemeContext} from '../../context-store/theme';
 import ExploreUsers from '../../app/screens/inAccount/explorePage';
+import {useGlobalInsets} from '../../context-store/insetsProvider';
 
 const Tab = createBottomTabNavigator();
 
 function MyTabBar({state, descriptors, navigation}) {
-  const insets = useSafeAreaInsets();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {contactsMessags} = useGlobalContacts();
+  const {contactsMessags, globalContactsInformation} = useGlobalContacts();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
 
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: 0,
-  });
+  const {bottomPadding} = useGlobalInsets();
 
   const hasUnlookedTransactions = useMemo(() => {
     return (
       Object.keys(contactsMessags).filter(contactUUID => {
-        if (contactUUID === 'lastMessageTimestamp') return false;
+        if (
+          contactUUID === 'lastMessageTimestamp' ||
+          globalContactsInformation?.myProfile?.uuid
+        )
+          return false;
         const hasUnlookedTx =
           contactsMessags[contactUUID]?.messages?.length &&
           contactsMessags[contactUUID].messages.filter(savedMessage => {
             return !savedMessage.message.wasSeen;
           }).length > 0;
+        console.log(hasUnlookedTx, contactsMessags[contactUUID], contactUUID);
         return hasUnlookedTx;
       }).length > 0
     );
-  }, [contactsMessags]);
+  }, [contactsMessags, globalContactsInformation?.myProfile?.uuid]);
 
   return (
     <View>
@@ -63,7 +64,7 @@ function MyTabBar({state, descriptors, navigation}) {
         }}>
         <View
           style={{
-            paddingBottom: paddingBottom,
+            paddingBottom: bottomPadding,
             ...styles.tabsInnerContainer,
           }}>
           {state.routes.map((route, index) => {

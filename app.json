@@ -3,5 +3,9 @@
   "displayName": "Blitz Wallet",
   "slug": "BlitzWallet",
   "scheme": "BlitzWallet",
-  "version": "0.2.7"
+  "version": "0.2.7",
+  "plugins": [
+    "expo-sqlite",
+    "expo-web-browser"
+  ]
 }

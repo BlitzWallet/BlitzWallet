@@ -1,7 +1,6 @@
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useMemo, useState} from 'react';
 import {
   Keyboard,
-  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -16,7 +15,6 @@ import {
   ICONS,
   VALID_USERNAME_REGEX,
 } from '../../../../../constants';
-
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -29,15 +27,12 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {
-  ANDROIDSAFEAREA,
-  KEYBOARDTIMEOUT,
-} from '../../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
+import {keyboardNavigate} from '../../../../../functions/customNavigation';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function PosSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -51,12 +46,7 @@ export default function PosSettingsPage() {
     masterInfoObject?.posSettings?.storeName,
   );
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const insets = useSafeAreaInsets();
-
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useGlobalInsets();
 
   const savedCurrencies = masterInfoObject.fiatCurrenciesList || [];
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
@@ -105,8 +95,8 @@ export default function PosSettingsPage() {
         if (
           currency.info.name
             .toLowerCase()
-            .startsWith(textInput.toLocaleLowerCase()) ||
-          currency.id.toLowerCase().startsWith(textInput.toLocaleLowerCase())
+            .startsWith(textInput.toLowerCase()) ||
+          currency.id.toLowerCase().startsWith(textInput.toLowerCase())
         )
           return currency;
         else return false;
@@ -128,27 +118,6 @@ export default function PosSettingsPage() {
               savePOSSettings({storeCurrency: item.id}, 'currency');
             }}>
             <CheckMarkCircle
-              color={
-                theme
-                  ? darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.darkModeText
-                  : COLORS.lightModeText
-              }
-              backgroundColor={
-                theme
-                  ? darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.darkModeText
-                  : COLORS.primary
-              }
-              checkColor={
-                theme
-                  ? darkModeType
-                    ? COLORS.lightsOutBackground
-                    : COLORS.darkModeBackground
-                  : COLORS.lightModeBackground
-              }
               isActive={
                 item.id?.toLowerCase() === currentCurrency?.toLowerCase()
               }
@@ -186,19 +155,15 @@ export default function PosSettingsPage() {
         containerStyles={{marginBottom: 0}}
         label={'Point-of-sale'}
         leftImageFunction={() => {
-          Keyboard.dismiss();
-          setTimeout(
-            () => {
-              if (!isConnectedToTheInternet) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: 'Please reconnect to the internet',
-                });
-                return;
-              }
-              navigate.navigate('ViewPOSTransactions');
-            },
-            Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
-          );
+          keyboardNavigate(() => {
+            if (!isConnectedToTheInternet) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: 'Please reconnect to the internet',
+              });
+              return;
+            }
+            navigate.navigate('ViewPOSTransactions');
+          });
         }}
       />
       <ScrollView
@@ -206,7 +171,7 @@ export default function PosSettingsPage() {
         contentContainerStyle={{
           paddingBottom: isKeyboardActive
             ? CONTENT_KEYBOARD_OFFSET
-            : paddingBottom,
+            : bottomPadding,
         }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -342,7 +307,7 @@ export default function PosSettingsPage() {
               backgroundColor: backgroundOffset,
               marginBottom: isKeyboardActive
                 ? CONTENT_KEYBOARD_OFFSET
-                : paddingBottom,
+                : bottomPadding,
               ...CENTER,
             }}
             textStyles={{color: textColor}}

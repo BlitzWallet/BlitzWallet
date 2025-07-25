@@ -1,19 +1,12 @@
 import {useNavigation} from '@react-navigation/native';
 import {
-  Image,
   Keyboard,
-  Platform,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  ICONS,
-  SIZES,
-} from '../../../../../constants';
+import {CENTER, CONTENT_KEYBOARD_OFFSET, SIZES} from '../../../../../constants';
 import {useMemo, useState} from 'react';
 import {
   CustomKeyboardAvoidingView,
@@ -26,29 +19,25 @@ import useUnmountKeyboard from '../../../../../hooks/useUnmountKeyboard';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {
-  ANDROIDSAFEAREA,
-  KEYBOARDTIMEOUT,
-} from '../../../../../constants/styles';
+import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {useImageCache} from '../../../../../../context-store/imageCache';
+import ContactProfileImage from '../internalComponents/profileImage';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function ChooseContactHalfModal() {
   const {theme, darkModeType} = useGlobalThemeContext();
+  const {cache} = useImageCache();
   useUnmountKeyboard();
   const {decodedAddedContacts} = useGlobalContacts();
   const navigate = useNavigation();
-  const insets = useSafeAreaInsets();
   const [isKeyboardActive, setIskeyboardActive] = useState(false);
   const [inputText, setInputText] = useState('');
   const {t} = useTranslation();
+  const {bottomPadding} = useGlobalInsets();
 
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
   useHandleBackPressNew();
 
   const contactElements = useMemo(() => {
@@ -63,9 +52,15 @@ export default function ChooseContactHalfModal() {
         );
       })
       .map((contact, id) => {
-        return <ContactElement key={contact.uuid} contact={contact} />;
+        return (
+          <ContactElement
+            key={contact.uuid}
+            contact={contact}
+            imgCache={cache}
+          />
+        );
       });
-  }, [decodedAddedContacts, inputText]);
+  }, [decodedAddedContacts, inputText, cache]);
 
   return (
     <CustomKeyboardAvoidingView
@@ -96,7 +91,7 @@ export default function ChooseContactHalfModal() {
             flexGrow: 1,
             paddingBottom: isKeyboardActive
               ? CONTENT_KEYBOARD_OFFSET
-              : paddingBottom,
+              : bottomPadding,
           }}>
           {contactElements}
         </ScrollView>
@@ -120,6 +115,7 @@ export default function ChooseContactHalfModal() {
 
   function ContactElement(props) {
     const {isConnectedToTheInternet} = useAppStatus();
+
     const {t} = useTranslation();
     const {backgroundOffset} = GetThemeColors();
     const contact = props.contact;
@@ -146,19 +142,11 @@ export default function ChooseContactHalfModal() {
                   position: 'relative',
                 },
               ]}>
-              <Image
-                source={
-                  contact.profileImage
-                    ? {uri: contact.profileImage}
-                    : darkModeType && theme
-                    ? ICONS.userWhite
-                    : ICONS.userIcon
-                }
-                style={
-                  contact.profileImage
-                    ? {width: '100%', aspectRatio: 1}
-                    : {width: '50%', height: '50%'}
-                }
+              <ContactProfileImage
+                updated={props.imgCache[contact.uuid]?.updated}
+                uri={props.imgCache[contact.uuid]?.localUri}
+                darkModeType={darkModeType}
+                theme={theme}
               />
             </View>
 

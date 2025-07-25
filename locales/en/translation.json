@@ -12,6 +12,7 @@
     "receive": "Receive",
     "accept": "Accept",
     "total_balance": "Total Balance",
+    "amount": "Amount",
     "sent": "Sent",
     "received": "Received",
     "store": "Store",
@@ -157,7 +158,7 @@
         "descriptionInputPlaceholder": "Description..."
       },
       "buttonContainer": {
-        "format": "Choose format"
+        "format": "Choose Network"
       }
     },
     "switchOption": {
@@ -172,17 +173,17 @@
       "text2": "Blitz is a free and open source app under the ",
       "text3": "Apache License",
       "text4": " Version 2.0",
-      "text5": "This is a self-custodial Bitcoin wallet. Blitz does not have access to your funds, if you lose your backup phrase it may result in a loss of funds.",
+      "text5": "This is a self-custodial Bitcoin Lightning wallet. Blitz does not have access to your funds, if you lose your backup phrase it may result in a loss of funds.",
       "text6": "Blitz uses ",
-      "text7": "Breez SDK, ",
-      "text8": "Liquid Network, ",
+      "text7": "Breez Liquid SDK, ",
+      "text8": "Spark, ",
       "text9": "and ",
       "text10": "Boltz API.",
       "text11": "Good to know",
-      "text12": "Blitz uses ",
-      "text13": "liquid atomic swaps ",
-      "text14": "in the beginning and will open a lightning channel for you after you reach a balance of ",
-      "text15": " to help you have a good and consistent experience with the Lightning Network.",
+      "text12": "Blitz is a powered by the Spark protocol. Spark is an ",
+      "text13": "off-chain protocol ",
+      "text14": "where Spark Operators update the state of Bitcoin ownership off-chain ",
+      "text15": "allowing for fast, low-fee, and non-custodial transfers without touching the blockchain.",
       "text16": "Creator",
       "text17": "Version:"
     },
@@ -221,7 +222,7 @@
       "text1": "Error adding inputed value, plase try again.",
       "text2": "Amount cannot be 0",
       "text3": "Enable Fast Pay",
-      "text4": "Fast pay threshold (Sats)",
+      "text4": "Fast pay threshold (SAT)",
       "text5": "Fast pay allows you to instantly pay invoices below a specified threshold without needing to swipe for confirmation."
     },
     "blitzstats": {
@@ -326,13 +327,13 @@
         "text9": "Initial percentage",
         "text10": "By turning on auto channel rebalance, Blitz will automatically swap funds from your channel to the bank or the bank to your channels based on the percentage of outgoing capacity you initially want.",
         "text11": "Regulate channel open",
-        "text12": "Channel open size (sats)",
+        "text12": "Channel open size (SAT)",
         "text13": "By turning on regulated channel open, if you reach your inbound liquidity limit during a session, new funds will automatically be swapped to your bank for future use without opening a new channel. Once your bank has the amount specified above, a channel will be opened.",
         "text14": "Enable Lightning",
         "text15": "By enabling Lightning, you must connect to your Lightning node when loading the app. However, the Lightning node connection tends to fail more often than the Liquid node connection, which may prevent the app from loading.\n\nBy disabling Lightning, you ensure that your balance remains on Liquid, disabling both auto channel rebalancing and regulated channel opening.",
-        "text16": "Max open fee (sats)",
+        "text16": "Max open fee (SAT)",
         "text17": "The Max Channel Open Fee sets the highest amount you’re willing to pay in on-chain fees when opening a Lightning channel. If the network fee exceeds this limit, the channel won’t be opened",
-        "text18": "Minimum rebalance (sats)",
+        "text18": "Minimum rebalance (SAT)",
         "text19": "Minimum Rebalance sets the lowest amount of satoshis required for auto-rebalancing in Blitz Wallet. If the rebalance amount is below this limit, no rebalancing will occur. The amount can not be less than"
       },
       "popup": {

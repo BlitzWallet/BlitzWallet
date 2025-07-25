@@ -2,11 +2,11 @@ import {
   Animated,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
 import {KeyContainer} from '../../../login';
-import {retrieveData} from '../../../../functions';
 import {useEffect, useRef, useState} from 'react';
 import {COLORS, FONT, SIZES, SHADOWS, CENTER} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
@@ -16,17 +16,29 @@ import {INSET_WINDOW_WIDTH, WINDOWWIDTH} from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useTranslation} from 'react-i18next';
+import {useKeysContext} from '../../../../../context-store/keys';
+import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
+import calculateSeedQR from './seedQR';
+import {copyToClipboard} from '../../../../functions';
+import {useToast} from '../../../../../context-store/toastManager';
 
-export default function SeedPhrasePage() {
+export default function SeedPhrasePage({extraData}) {
+  const {showToast} = useToast();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const {accountMnemoinc} = useKeysContext();
   const isInitialRender = useRef(true);
   const dimentions = useWindowDimensions();
-  const [mnemonic, setMnemonic] = useState([]);
+  const mnemonic = accountMnemoinc.split(' ');
   const [showSeed, setShowSeed] = useState(false);
   const navigate = useNavigation();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {t} = useTranslation();
+  const [seedContainerHeight, setSeedContainerHeight] = useState();
+  const sliderAnimation = useRef(new Animated.Value(3)).current;
+  const [selectedDisplayOption, setSelectedDisplayOption] = useState('words');
+  const canViewQrCode = extraData?.canViewQrCode;
+  const qrValue = calculateSeedQR(accountMnemoinc);
 
   useEffect(() => {
     if (isInitialRender.current) {
@@ -34,20 +46,30 @@ export default function SeedPhrasePage() {
       return;
     }
     if (showSeed) {
-      (async () => {
-        const mnemonic = await retrieveData('mnemonic');
-        const sanitizedMnemonic = mnemonic.split(' ').filter(key => {
-          return key && true;
-        });
-        setMnemonic(sanitizedMnemonic);
-        fadeout();
-      })();
+      fadeout();
     }
   }, [showSeed]);
 
+  function handleSlide(type) {
+    Animated.timing(sliderAnimation, {
+      toValue: type === 'words' ? 3 : sliderWidth,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }
+
+  useEffect(() => {
+    if (!canViewQrCode) return;
+    setSelectedDisplayOption('qrcode');
+    handleSlide('qrcode');
+  }, [canViewQrCode]);
+
+  const sliderWidth = 102;
   return (
     <View style={styles.globalContainer}>
-      <View style={styles.container}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollViewStyles}>
         <ThemeText
           styles={{...styles.headerPhrase}}
           content={t('settings.seedphrase.text1')}
@@ -61,14 +83,109 @@ export default function SeedPhrasePage() {
           }}
           content={t('settings.seedphrase.text2')}
         />
-        <View style={styles.scrollViewContainer}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollViewStyles}>
+        {selectedDisplayOption === 'qrcode' && canViewQrCode ? (
+          <View
+            style={{
+              height: seedContainerHeight,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <QrCodeWrapper QRData={qrValue} />
+          </View>
+        ) : (
+          <View
+            onLayout={event => {
+              setSeedContainerHeight(event.nativeEvent.layout.height);
+            }}
+            style={styles.scrollViewContainer}>
             <KeyContainer keys={mnemonic} />
-          </ScrollView>
+          </View>
+        )}
+        <View
+          style={[
+            styles.sliderContainer,
+            {
+              backgroundColor: backgroundOffset,
+              alignItems: 'center',
+            },
+          ]}>
+          <View style={styles.colorSchemeContainer}>
+            <TouchableOpacity
+              style={styles.colorSchemeItemContainer}
+              activeOpacity={1}
+              onPress={() => {
+                setSelectedDisplayOption('words');
+                handleSlide('words');
+              }}>
+              <ThemeText
+                styles={{
+                  ...styles.colorSchemeText,
+                  color:
+                    selectedDisplayOption === 'words'
+                      ? COLORS.darkModeText
+                      : theme
+                      ? COLORS.darkModeText
+                      : COLORS.lightModeText,
+                }}
+                content={'Words'}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.colorSchemeItemContainer}
+              activeOpacity={1}
+              onPress={() => {
+                if (!canViewQrCode) {
+                  navigate.navigate('InformationPopup', {
+                    textContent: `Are you sure you want to show this QR Code?\n\nScanning your seed is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe.`,
+                    buttonText: 'I understand',
+                    customNavigation: () =>
+                      navigate.popTo('SettingsContentHome', {
+                        for: 'Backup wallet',
+                        extraData: {canViewQrCode: true},
+                      }),
+                  });
+                  return;
+                }
+                setSelectedDisplayOption('qrcode');
+                handleSlide('qrcode');
+              }}>
+              <ThemeText
+                styles={{
+                  ...styles.colorSchemeText,
+                  color:
+                    selectedDisplayOption === 'qrcode'
+                      ? COLORS.darkModeText
+                      : theme
+                      ? COLORS.darkModeText
+                      : COLORS.lightModeText,
+                }}
+                content={'QR Code'}
+              />
+            </TouchableOpacity>
+            <Animated.View
+              style={[
+                styles.activeSchemeStyle,
+
+                {
+                  transform: [{translateX: sliderAnimation}, {translateY: 3}],
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : COLORS.primary,
+                },
+              ]}
+            />
+          </View>
         </View>
-      </View>
+        <CustomButton
+          buttonStyles={{marginTop: 10}}
+          actionFunction={() =>
+            copyToClipboard(
+              selectedDisplayOption === 'words' ? accountMnemoinc : qrValue,
+              showToast,
+            )
+          }
+          textContent={'Copy'}
+        />
+      </ScrollView>
 
       <Animated.View
         style={[
@@ -118,13 +235,6 @@ const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
   },
-  container: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...CENTER,
-  },
 
   headerPhrase: {
     marginBottom: 15,
@@ -156,11 +266,13 @@ const styles = StyleSheet.create({
     fontSize: SIZES.large,
     textAlign: 'center',
   },
-  scrollViewContainer: {flex: 1, maxHeight: 450},
+  scrollViewContainer: {},
   scrollViewStyles: {
-    width: '100%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
-    paddingVertical: 10,
+    paddingTop: 40,
+    paddingBottom: 10,
+    alignItems: 'center',
   },
   confirmBTN: {
     flex: 1,
@@ -174,5 +286,40 @@ const styles = StyleSheet.create({
   confirmBTNText: {
     color: 'white',
     paddingVertical: 10,
+  },
+
+  // slider contianer
+  sliderContainer: {
+    width: 200,
+    paddingVertical: 5,
+    borderRadius: 40,
+    marginTop: 20,
+  },
+  colorSchemeContainer: {
+    height: 'auto',
+    flexDirection: 'row',
+    position: 'relative',
+    zIndex: 1,
+  },
+  colorSchemeItemContainer: {
+    width: '50%',
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  colorSchemeText: {
+    width: '100%',
+    includeFontPadding: false,
+    textAlign: 'center',
+  },
+  activeSchemeStyle: {
+    backgroundColor: COLORS.primary,
+    position: 'absolute',
+    height: '100%',
+    width: 95,
+    top: -3,
+    left: 0,
+
+    zIndex: -1,
+    borderRadius: 30,
   },
 });

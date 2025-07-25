@@ -1,11 +1,12 @@
-import {FlatList, StyleSheet, TouchableOpacity, Platform} from 'react-native';
-import {CENTER, COLORS, CONTENT_KEYBOARD_OFFSET} from '../../../../constants';
+import {FlatList, StyleSheet, TouchableOpacity} from 'react-native';
+import {COLORS, CONTENT_KEYBOARD_OFFSET} from '../../../../constants';
 import {fetchFiatRates} from '@breeztech/react-native-breez-sdk-liquid';
 import {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {
   CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
@@ -13,25 +14,20 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../constants/styles';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
+import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 
 export default function FiatCurrencyPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {toggleNodeInformation} = useNodeContext();
+  const {toggleFiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const currencies = masterInfoObject.fiatCurrenciesList || [];
   const [textInput, setTextInput] = useState('');
   const currentCurrency = masterInfoObject?.fiatCurrency;
 
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const insets = useSafeAreaInsets();
-  const paddingBottom = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useGlobalInsets();
 
   const navigate = useNavigation();
 
@@ -39,10 +35,8 @@ export default function FiatCurrencyPage() {
 
   const filteredList = currencies.filter(currency => {
     if (
-      currency.info.name
-        .toLowerCase()
-        .startsWith(textInput.toLocaleLowerCase()) ||
-      currency.id.toLowerCase().startsWith(textInput.toLocaleLowerCase())
+      currency.info.name.toLowerCase().startsWith(textInput.toLowerCase()) ||
+      currency.id.toLowerCase().startsWith(textInput.toLowerCase())
     )
       return currency;
     else return false;
@@ -61,27 +55,6 @@ export default function FiatCurrencyPage() {
           saveCurrencySettings(currency.id);
         }}>
         <CheckMarkCircle
-          color={
-            theme
-              ? darkModeType
-                ? COLORS.darkModeText
-                : COLORS.darkModeText
-              : COLORS.lightModeText
-          }
-          backgroundColor={
-            theme
-              ? darkModeType
-                ? COLORS.darkModeText
-                : COLORS.darkModeText
-              : COLORS.primary
-          }
-          checkColor={
-            theme
-              ? darkModeType
-                ? COLORS.lightsOutBackground
-                : COLORS.darkModeBackground
-              : COLORS.lightModeBackground
-          }
           isActive={
             currency.id?.toLowerCase() === currentCurrency?.toLowerCase()
           }
@@ -106,6 +79,18 @@ export default function FiatCurrencyPage() {
     );
   };
 
+  if (isLoading) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar
+          shouldDismissKeyboard={true}
+          label={'Display Currency'}
+        />
+        <FullLoadingScreen />
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
@@ -115,34 +100,33 @@ export default function FiatCurrencyPage() {
         label={'Display Currency'}
       />
 
-      <CustomSearchInput
-        setInputText={setTextInput}
-        inputText={textInput}
-        placeholderText={'Search currency'}
-        containerStyles={{width: INSET_WINDOW_WIDTH, marginTop: 20}}
-        onBlurFunction={() => setIsKeyboardActive(false)}
-        onFocusFunction={() => setIsKeyboardActive(true)}
+      <FlatList
+        style={{width: '100%'}}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingTop: 20,
+          paddingBottom: isKeyboardActive
+            ? CONTENT_KEYBOARD_OFFSET
+            : bottomPadding,
+        }}
+        stickyHeaderIndices={[0]}
+        ListHeaderComponent={
+          <CustomSearchInput
+            setInputText={setTextInput}
+            inputText={textInput}
+            placeholderText={'Search currency'}
+            containerStyles={{width: INSET_WINDOW_WIDTH}}
+            onBlurFunction={() => setIsKeyboardActive(false)}
+            onFocusFunction={() => setIsKeyboardActive(true)}
+          />
+        }
+        data={filteredList}
+        renderItem={({item, index}) => (
+          <CurrencyElements id={index} currency={item} />
+        )}
+        keyExtractor={currency => currency.id}
+        showsVerticalScrollIndicator={false}
       />
-
-      {isLoading ? (
-        <FullLoadingScreen />
-      ) : (
-        <FlatList
-          style={{width: '100%'}}
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingBottom: isKeyboardActive
-              ? CONTENT_KEYBOARD_OFFSET
-              : paddingBottom,
-          }}
-          data={filteredList}
-          renderItem={({item, index}) => (
-            <CurrencyElements id={index} currency={item} />
-          )}
-          keyExtractor={currency => currency.id}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
     </CustomKeyboardAvoidingView>
   );
 
@@ -154,7 +138,8 @@ export default function FiatCurrencyPage() {
       const [fiatRate] = fiat.filter(rate => {
         return rate.coin.toLowerCase() === selectedCurrency.toLowerCase();
       });
-      toggleNodeInformation({fiatStats: fiatRate});
+
+      toggleFiatStats(fiatRate);
 
       if (fiatRate) {
         navigate.goBack();

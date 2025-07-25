@@ -17,9 +17,9 @@ import CustomButton from '../../../../../../functions/CustomElements/button';
 import {SIZES, WINDOWWIDTH} from '../../../../../../constants/theme';
 import {backArrow} from '../../../../../../constants/styles';
 import GetThemeColors from '../../../../../../hooks/themeColors';
-import {useGlobalContacts} from '../../../../../../../context-store/globalContacts';
 import QrCodeWrapper from '../../../../../../functions/CustomElements/QrWrapper';
 import writeAndShareFileToFilesystem from '../../../../../../functions/writeFileToFilesystem';
+import {useToast} from '../../../../../../../context-store/toastManager';
 
 export default function GeneratedVPNFile(props) {
   const navigate = useNavigation();
@@ -59,7 +59,7 @@ export default function GeneratedVPNFile(props) {
 }
 
 function VPNFileDisplay({generatedFile}) {
-  const {myProfileImage} = useGlobalContacts();
+  const {showToast} = useToast();
   const navigate = useNavigation();
   const {backgroundOffset} = GetThemeColors();
 
@@ -74,7 +74,7 @@ function VPNFileDisplay({generatedFile}) {
 
       <TouchableOpacity
         onPress={() => {
-          copyToClipboard(generatedFile.join('\n'), navigate);
+          copyToClipboard(generatedFile.join('\n'), showToast);
         }}>
         <QrCodeWrapper QRData={generatedFile.join('\n')} />
       </TouchableOpacity>
@@ -91,7 +91,7 @@ function VPNFileDisplay({generatedFile}) {
           buttonStyles={{...CENTER, with: 'auto'}}
           textContent={'Copy'}
           actionFunction={() => {
-            copyToClipboard(generatedFile.join('\n'), navigate);
+            copyToClipboard(generatedFile.join('\n'), showToast);
           }}
         />
       </View>
@@ -111,12 +111,15 @@ async function downloadVPNFile({generatedFile, navigate}) {
   const content = generatedFile.join('\n');
   const fileName = `blitzVPN.conf`;
 
-  await writeAndShareFileToFilesystem(
+  const response = await writeAndShareFileToFilesystem(
     content,
     fileName,
     'application/octet-stream',
     navigate,
   );
+  if (!response.success) {
+    navigate.navigate('ErrorScreen', {errorMessage: response.error});
+  }
 }
 
 const styles = StyleSheet.create({

@@ -1,5 +1,6 @@
 package com.blitzwallet
 import expo.modules.ReactActivityDelegateWrapper
+
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -18,9 +19,9 @@ class MainActivity : ReactActivity() {
    * For react-native-screens
    * 
    */
-   override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(null)
-  }
+  override fun onCreate(savedInstanceState: Bundle?) {
+      super.onCreate(null);
+    }
 
   /**
    * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]

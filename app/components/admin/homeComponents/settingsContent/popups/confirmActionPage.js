@@ -45,7 +45,12 @@ export default function ConfirmActionPage(props) {
                     props.route.params.deleteMint();
                   } else if (props.route.params.confirmFunction) {
                     navigate.goBack();
-                    props.route.params.confirmFunction();
+                    requestAnimationFrame(() => {
+                      requestAnimationFrame(() => {
+                        props.route.params.confirmFunction();
+                      });
+                    });
+
                     return;
                   } else props.route.params.wantsToDrainFunc(true);
                   navigate.goBack();

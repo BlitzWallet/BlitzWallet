@@ -14,6 +14,7 @@ import {useNodeContext} from '../../../context-store/nodeContext';
 import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useGlobalContextProvider} from '../../../context-store/context';
+import openWebBrowser from '../../functions/openWebBrowser';
 
 const GENERALOPTIONS = [
   {
@@ -38,7 +39,6 @@ const GENERALOPTIONS = [
     iconWhite: ICONS.colorIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
-
   {
     for: 'general',
     name: 'Edit Contact Profile',
@@ -61,6 +61,21 @@ const GENERALOPTIONS = [
     iconWhite: ICONS.navigationIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
+  {
+    for: 'general',
+    name: 'Notifications',
+    icon: ICONS.notification,
+    iconWhite: ICONS.notificationWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  // {
+  //   for: 'general',
+  //   name: 'Support Our Work',
+  //   svgName: 'crashDebugIcon',
+  //   svgIcon: true,
+  //   svgName: 'developerSupportIcon',
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
   // {
   //   for: 'general',
   //   name: 'Send On-chain',
@@ -75,12 +90,6 @@ const GENERALOPTIONS = [
   //   icon: ICONS.adminHomeWallet,
   //   arrowIcon: ICONS.leftCheveronIcon,
   //   usesStandAlonePath: true,
-  // },
-  // {
-  //   for: 'general',
-  //   name: 'Noster Wallet Connect',
-  //   icon: ICONS.Connected,
-  //   arrowIcon: ICONS.leftCheveronIcon,
   // },
 ];
 const SECURITYOPTIONS = [
@@ -110,6 +119,20 @@ const EXPIRIMENTALFEATURES = [
   },
 ];
 const ADVANCEDOPTIONS = [
+  // {
+  //   for: 'general',
+  //   name: 'Noster Connect',
+  //   svgIcon: true,
+  //   svgName: 'linkIcon',
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+  {
+    for: 'Closing Account',
+    name: 'Blitz Fee Details',
+    icon: ICONS.receiptIcon,
+    iconWhite: ICONS.receiptWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
   {
     for: 'general',
     name: 'Crash Reports',
@@ -124,44 +147,45 @@ const ADVANCEDOPTIONS = [
     iconWhite: ICONS.sharedWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
+  // {
+  //   for: 'general',
+  //   name: 'Node Info',
+  //   icon: ICONS.nodeIcon,
+  //   iconWhite: ICONS.nodeIconWhite,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+  // {
+  //   for: 'Security & Customization',
+  //   name: 'Lsp',
+  //   icon: ICONS.linkIcon,
+  //   iconWhite: ICONS.chainLight,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+  // {
+  //   for: 'Security & Customization',
+  //   name: 'Balance Info',
+  //   icon: ICONS.adminHomeWallet,
+  //   iconWhite: ICONS.adminHomeWallet_white,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+  // {
+  //   for: 'Security & Customization',
+  //   name: 'Bank',
+  //   icon: ICONS.bankIcon,
+  //   iconWhite: ICONS.bankWhite,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+  // {
+  //   for: 'general',
+  //   name: 'Channel Closure',
+  //   icon: ICONS.settingsBitcoinIcon,
+  //   iconWhite: ICONS.settingsBitcoinIconWhite,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+
   {
     for: 'general',
-    name: 'Node Info',
-    icon: ICONS.nodeIcon,
-    iconWhite: ICONS.nodeIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'Security & Customization',
-    name: 'Lsp',
-    icon: ICONS.linkIcon,
-    iconWhite: ICONS.chainLight,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'Security & Customization',
-    name: 'Balance Info',
-    icon: ICONS.adminHomeWallet,
-    iconWhite: ICONS.adminHomeWallet_white,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'Security & Customization',
-    name: 'Bank',
-    icon: ICONS.bankIcon,
-    iconWhite: ICONS.bankWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'general',
-    name: 'Channel Closure',
-    icon: ICONS.settingsBitcoinIcon,
-    iconWhite: ICONS.settingsBitcoinIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'general',
-    name: 'Refund Liquid Swap',
+    name: 'Liquid Swaps',
     icon: ICONS.liquidIcon,
     iconWhite: ICONS.liquidIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
@@ -175,35 +199,42 @@ const ADVANCEDOPTIONS = [
   },
   {
     for: 'Closing Account',
-    name: 'Restore channels',
-    icon: ICONS.share,
-    iconWhite: ICONS.shareWhite,
+    name: 'Spark Info',
+    icon: ICONS.nodeIcon,
+    iconWhite: ICONS.nodeIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
+  // {
+  //   for: 'Closing Account',
+  //   name: 'Restore channels',
+  //   icon: ICONS.share,
+  //   iconWhite: ICONS.shareWhite,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
 ];
 const SETTINGSOPTIONS = [
   [...GENERALOPTIONS],
   [...SECURITYOPTIONS],
   [...ADVANCEDOPTIONS],
-  [...EXPIRIMENTALFEATURES],
+  // [...EXPIRIMENTALFEATURES],
 ];
 const DOOMSDAYSETTINGS = [
-  [
-    {
-      for: 'general',
-      name: 'On-Chain Funds',
-      icon: ICONS.settingsBitcoinIcon,
-      iconWhite: ICONS.settingsBitcoinIconWhite,
-      arrowIcon: ICONS.leftCheveronIcon,
-    },
-    {
-      for: 'general',
-      name: 'View Liquid Swaps',
-      icon: ICONS.liquidIcon,
-      iconWhite: ICONS.liquidIconWhite,
-      arrowIcon: ICONS.leftCheveronIcon,
-    },
-  ],
+  //   [
+  //     //   // {
+  //     //   //   for: 'general',
+  //     //   //   name: 'On-Chain Funds',
+  //     //   //   icon: ICONS.settingsBitcoinIcon,
+  //     //   //   iconWhite: ICONS.settingsBitcoinIconWhite,
+  //     //   //   arrowIcon: ICONS.leftCheveronIcon,
+  //     //   // },
+  //     // {
+  //     //   for: 'general',
+  //     //   name: 'View Liquid Swaps',
+  //     //   icon: ICONS.liquidIcon,
+  //     //   iconWhite: ICONS.liquidIconWhite,
+  //     //   arrowIcon: ICONS.leftCheveronIcon,
+  //     // },
+  //   ],
   [
     {
       for: 'Security & Customization',
@@ -216,18 +247,18 @@ const DOOMSDAYSETTINGS = [
   [
     {
       for: 'Closing Account',
-      name: 'Reset Wallet',
+      name: 'Delete Wallet',
       icon: ICONS.trashIcon,
       iconWhite: ICONS.trashIconWhite,
       arrowIcon: ICONS.leftCheveronIcon,
     },
-    {
-      for: 'Closing Account',
-      name: 'Restore channels',
-      icon: ICONS.share,
-      iconWhite: ICONS.shareWhite,
-      arrowIcon: ICONS.leftCheveronIcon,
-    },
+    // {
+    //   for: 'Closing Account',
+    //   name: 'Restore channels',
+    //   icon: ICONS.share,
+    //   iconWhite: ICONS.shareWhite,
+    //   arrowIcon: ICONS.leftCheveronIcon,
+    // },
   ],
 ];
 
@@ -347,15 +378,39 @@ export default function SettingsIndex(props) {
   ]);
 
   return (
-    <GlobalThemeView
-      useStandardWidth={true}
-      styles={{alignItems: 'center', paddingBottom: 0}}>
+    <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <CustomSettingsTopBar label={'Settings'} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{alignItems: 'center'}}
         style={styles.settingsContainer}>
         {settingsElements}
+
+        {isDoomsday && (
+          <TouchableOpacity
+            onPress={() => {
+              openWebBrowser({
+                navigate,
+                link: 'https://recover.blitz-wallet.com/',
+              });
+            }}
+            style={{
+              ...styles.posContainer,
+              borderColor:
+                theme && darkModeType ? COLORS.white : COLORS.primary,
+              marginTop: 30,
+            }}>
+            <ThemeText
+              styles={{
+                color: theme && darkModeType ? COLORS.white : COLORS.primary,
+                fontSize: SIZES.xLarge,
+                marginLeft: 10,
+                includeFontPadding: false,
+              }}
+              content={'Blitz Restore'}
+            />
+          </TouchableOpacity>
+        )}
         {!isDoomsday && (
           <>
             <TouchableOpacity
@@ -402,6 +457,7 @@ export default function SettingsIndex(props) {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {alignItems: 'center', paddingBottom: 0},
   settingsContainer: {
     flex: 1,
     width: INSET_WINDOW_WIDTH,
