@@ -12,13 +12,29 @@ import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import {crashlyticsRecordErrorReport} from '../../../functions/crashlyticsLogs';
 import {useKeysContext} from '../../../../context-store/keys';
 import {useToast} from '../../../../context-store/toastManager';
+import {useState} from 'react';
+import GetThemeColors from '../../../hooks/themeColors';
 
 export default function GenerateKey() {
   const {showToast} = useToast();
   const {accountMnemoinc} = useKeysContext();
   const mnemonic = accountMnemoinc.split(' ');
+  const [showSeed, setShowSeed] = useState(false);
+  const [keyContainerDimensions, setKeyContainerDimensions] = useState({
+    height: 0,
+    width: 0,
+  });
+  const [scrollViewDimensions, setScrollViewDimensions] = useState({
+    height: 0,
+    width: 0,
+  });
+  const [warningViewDimensions, setWarningViewDimensions] = useState({
+    height: 0,
+    width: 0,
+  });
   const {t} = useTranslation();
   const hookNavigate = useNavigation();
+  const {backgroundColor} = GetThemeColors();
   useHandleBackPressNew();
 
   return (
@@ -38,9 +54,60 @@ export default function GenerateKey() {
             />
           ) : (
             <ScrollView
+              onLayout={e => {
+                setScrollViewDimensions(e.nativeEvent.layout);
+              }}
               showsHorizontalScrollIndicator={false}
               style={styles.scrollViewContainer}>
-              <KeyContainer keys={mnemonic} />
+              <View
+                onLayout={e => {
+                  setKeyContainerDimensions(e.nativeEvent.layout);
+                }}>
+                <KeyContainer keys={mnemonic} />
+              </View>
+              {!showSeed && (
+                <View
+                  style={{
+                    height: keyContainerDimensions.height,
+                    width: keyContainerDimensions.width,
+                    backgroundColor,
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    alignItems: 'center',
+                  }}>
+                  <View
+                    onLayout={e => {
+                      setWarningViewDimensions(e.nativeEvent.layout);
+                    }}
+                    style={{
+                      backgroundColor: COLORS.darkModeText,
+                      padding: 15,
+                      borderRadius: 8,
+                      position: 'absolute',
+                      top: Math.max(
+                        0,
+                        (scrollViewDimensions.height -
+                          warningViewDimensions.height) /
+                          2,
+                      ),
+                    }}>
+                    <ThemeText
+                      styles={{textAlign: 'center', marginBottom: 20}}
+                      content={
+                        'Make sure no one is around who can see your screen.'
+                      }
+                    />
+                    <CustomButton
+                      actionFunction={() => {
+                        setShowSeed(true);
+                      }}
+                      buttonStyles={{backgroundColor: backgroundColor}}
+                      textContent={'Show it'}
+                    />
+                  </View>
+                </View>
+              )}
             </ScrollView>
           )}
 
