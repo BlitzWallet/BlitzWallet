@@ -135,6 +135,8 @@ export default function ReceivePaymentHome(props) {
             navigate={navigate}
             addressState={addressState}
             initialSendAmount={initialSendAmount}
+            masterInfoObject={masterInfoObject}
+            fiatStats={fiatStats}
           />
 
           <ButtonsContainer
@@ -206,6 +208,8 @@ function QrCode(props) {
     selectedRecieveOption,
     globalContactsInformation,
     initialSendAmount,
+    masterInfoObject,
+    fiatStats,
   } = props;
   const {showToast} = useToast();
   const {theme} = useGlobalThemeContext();
@@ -227,6 +231,8 @@ function QrCode(props) {
           initialSendAmount={initialSendAmount}
           globalContactsInformation={globalContactsInformation}
           navigate={navigate}
+          masterInfoObject={masterInfoObject}
+          fiatStats={fiatStats}
         />
       </View>
     );
@@ -278,6 +284,8 @@ function QrCode(props) {
           initialSendAmount={initialSendAmount}
           globalContactsInformation={globalContactsInformation}
           navigate={navigate}
+          masterInfoObject={masterInfoObject}
+          fiatStats={fiatStats}
         />
       </View>
     );
@@ -316,6 +324,8 @@ function QrCode(props) {
         initialSendAmount={initialSendAmount}
         globalContactsInformation={globalContactsInformation}
         navigate={navigate}
+        masterInfoObject={masterInfoObject}
+        fiatStats={fiatStats}
       />
     </View>
   );
@@ -328,6 +338,8 @@ function LNURLContainer({
   initialSendAmount,
   globalContactsInformation,
   navigate,
+  masterInfoObject,
+  fiatStats,
 }) {
   return (
     <TouchableOpacity
@@ -361,14 +373,20 @@ function LNURLContainer({
         styles={{
           includeFontPadding: false,
           marginRight: 5,
-          color: theme ? textColor : COLORS.primary,
+          color: theme || initialSendAmount ? textColor : COLORS.primary,
         }}
         CustomNumberOfLines={1}
         content={
           selectedRecieveOption.toLowerCase() === 'lightning' &&
           !initialSendAmount
             ? `${globalContactsInformation?.myProfile?.uniqueName}@blitz-wallet.com`
-            : ' '
+            : selectedRecieveOption.toLowerCase() !== 'lightning'
+            ? ' '
+            : displayCorrectDenomination({
+                amount: initialSendAmount,
+                masterInfoObject,
+                fiatStats,
+              })
         }
       />
       {selectedRecieveOption.toLowerCase() === 'lightning' &&

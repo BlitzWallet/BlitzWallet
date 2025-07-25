@@ -17,14 +17,14 @@ export default function ButtonsContainer(props) {
     <View style={styles.buttonContainer}>
       <View style={styles.buttonRow}>
         <CustomButton
-          buttonStyles={{...styles.mainButtons, marginRight: 10}}
+          buttonStyles={styles.mainButtons}
           actionFunction={() =>
             navigate.navigate('EditReceivePaymentInformation', {
               from: 'receivePage',
               receiveType: props.selectedRecieveOption,
             })
           }
-          textContent={t('constants.edit')}
+          textContent={t('constants.amount')}
         />
         <CustomButton
           buttonStyles={{
@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
+    columnGap: 10,
   },
   mainButtons: {
     width: 125,

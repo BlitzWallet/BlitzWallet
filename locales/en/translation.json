@@ -12,6 +12,7 @@
     "receive": "Receive",
     "accept": "Accept",
     "total_balance": "Total Balance",
+    "amount": "Amount",
     "sent": "Sent",
     "received": "Received",
     "store": "Store",
@@ -157,7 +158,7 @@
         "descriptionInputPlaceholder": "Description..."
       },
       "buttonContainer": {
-        "format": "Choose format"
+        "format": "Choose Network"
       }
     },
     "switchOption": {
