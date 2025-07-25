@@ -12,6 +12,7 @@ import {
 import {publishToSingleRelay} from './publishResponse';
 import {
   getNWCSparkBalance,
+  getNWCSparkTransactions,
   initializeNWCWallet,
   NWCSparkLightningPaymentStatus,
   receiveNWCSparkLightningPayment,
@@ -19,6 +20,7 @@ import {
 } from './wallet';
 import sha256Hash from '../hash';
 import bolt11 from 'bolt11';
+import {sparkPaymentType} from '../spark';
 
 // const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
@@ -110,6 +112,102 @@ const handleGetInfo = selectedNWCAccount => ({
     methods: getSupportedMethods(selectedNWCAccount.permissions),
   },
 });
+
+const handleGetTransactions = async requestParams => {
+  const connectResponse = await ensureWalletConnection();
+  if (!connectResponse.isConnected) {
+    return createErrorResponse(
+      'list_transactions',
+      ERROR_CODES.INTERNAL,
+      'Unable to connect to wallet',
+    );
+  }
+
+  const {from, until, limit = 20, offset = 0, type} = requestParams;
+
+  let allTransactions = [];
+  let currentOffset = 0;
+  const chunkSize = 100;
+  let hasMore = true;
+
+  while (hasMore) {
+    const chunk = await getNWCSparkTransactions(chunkSize, currentOffset);
+
+    if (!chunk || chunk.transfers.length === 0) {
+      hasMore = false;
+      break;
+    }
+
+    allTransactions = allTransactions.concat(chunk.transfers);
+    currentOffset += chunkSize;
+
+    // Stop fetching if we have enough for this request (with buffer for filtering)
+    if (allTransactions.length >= offset + limit) {
+      break;
+    }
+
+    // Stop if we got less than requested (end of data)
+    if (chunk.transfers.length < chunkSize) {
+      hasMore = false;
+    }
+  }
+
+  let filteredTransactions = allTransactions.filter(tx => {
+    // Filter by timestamp range if provided
+    const type = sparkPaymentType(tx);
+    if (tx === 'sparl') return false;
+    if (from || until) {
+      const txTime = tx.createdTime
+        ? new Date(tx.createdTime).getTime() / 1000
+        : null;
+      if (!txTime) return false;
+
+      if (from && txTime < from) return false;
+      if (until && txTime > until) return false;
+    }
+
+    // Filter by transaction type if specified
+    if (type) {
+      const isIncoming = tx.transferDirection === 'INCOMING';
+      const isOutgoing = tx.transferDirection === 'OUTGOING';
+
+      if (type === 'incoming' && !isIncoming) return false;
+      if (type === 'outgoing' && !isOutgoing) return false;
+    }
+
+    return true;
+  });
+
+  const paginatedTransactions = filteredTransactions.slice(
+    offset,
+    offset + limit,
+  );
+
+  const formatted = paginatedTransactions.map(tx => ({
+    type: tx.transferDirection?.toLowerCase() || 'unknown',
+    invoice: '',
+    description: '',
+    description_hash: null,
+    preimage: '',
+    payment_hash: '',
+    amount: tx.totalValue * 1000,
+    fees_paid: 0,
+    created_at: tx.createdTime
+      ? Math.floor(new Date(tx.createdTime).getTime() / 1000)
+      : null,
+    settled_at: tx.expiryTime
+      ? Math.floor(new Date(tx.updatedTime).getTime() / 1000)
+      : null,
+    metadata: {},
+  }));
+
+  return {
+    result_type: 'list_transactions',
+    result: {
+      transactions: formatted,
+    },
+  };
+};
 
 const handleMakeInvoice = async (
   requestParams,
@@ -380,6 +478,17 @@ const processEvent = async (event, selectedNWCAccount) => {
       returnObject = handleGetInfo(selectedNWCAccount);
       break;
 
+    case 'list_transactions':
+      if (!selectedNWCAccount.permissions.transactionHistory) {
+        returnObject = createErrorResponse(
+          requestMethod,
+          ERROR_CODES.RESTRICTED,
+          'Requested service is not authorized',
+        );
+        break;
+      }
+      returnObject = await handleGetTransactions(requestParams);
+      break;
     case 'make_invoice':
       if (!selectedNWCAccount.permissions.receivePayments) {
         returnObject = createErrorResponse(
@@ -455,6 +564,7 @@ export default async function handleNWCBackgroundEvent(notificationData) {
 
     // // Filter out already handled events upfront
     const newEvents = nwcEvent.events;
+    console.log('new NWC events', newEvents);
     // nwcEvent.events.filter(event => {
     //   console.log(event, handledEventIds);
     //   if (handledEventIds.has(event.id)) return false;
@@ -470,6 +580,7 @@ export default async function handleNWCBackgroundEvent(notificationData) {
 
     const eventPromises = newEvents.map(async (event, index) => {
       const selectedNWCAccount = nwcAccounts[event.pubkey];
+      console.log(selectedNWCAccount, 'SELECTED NWC ACCOUNT');
       if (!selectedNWCAccount) return null;
 
       try {
