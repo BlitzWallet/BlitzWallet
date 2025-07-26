@@ -147,7 +147,7 @@ export default function SettingsContentIndex(props) {
             )}
             {selectedPage?.toLowerCase() === 'blitz stats' && <ExploreUsers />}
 
-            {selectedPage?.toLowerCase() === 'noster connect' && (
+            {selectedPage?.toLowerCase() === 'nostr connect' && (
               <NosterWalletConnect theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'login mode' && (

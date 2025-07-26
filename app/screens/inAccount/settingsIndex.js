@@ -121,7 +121,7 @@ const EXPIRIMENTALFEATURES = [
 const ADVANCEDOPTIONS = [
   {
     for: 'general',
-    name: 'Noster Connect',
+    name: 'Nostr Connect',
     svgIcon: true,
     svgName: 'linkIcon',
     arrowIcon: ICONS.leftCheveronIcon,
