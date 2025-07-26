@@ -239,6 +239,7 @@ export default function CustomHalfModal(props) {
             message={props?.route?.params?.message}
             type={props?.route?.params?.type}
             returnLocation={props?.route?.params?.returnLocation}
+            passedParams={props?.route?.params?.passedParams}
           />
         );
       default:

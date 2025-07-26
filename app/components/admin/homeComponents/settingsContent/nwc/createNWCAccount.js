@@ -5,7 +5,7 @@ import {
 } from '../../../../../functions/CustomElements';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {COLORS, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import {CENTER} from '../../../../../constants';
@@ -38,8 +38,9 @@ const BUDGET_AMOUNT_OPTIONS = [50_000, 100_000, 'Unlimited', 'Custom...'];
 export default function CreateNostrConnectAccount(props) {
   const navigate = useNavigation();
   const {masterInfoObject, toggleNWCInformation} = useGlobalContextProvider();
-  const isEditing = props.route?.params?.accountID;
-  const savedData = props.route?.params?.data;
+  const passedParams = props.route?.params;
+  const isEditing = passedParams?.accountID;
+  const savedData = passedParams?.data;
   const {fiatStats} = useNodeContext();
   const [accountName, setAccountName] = useState(
     isEditing ? savedData.accountName : '',
@@ -174,6 +175,18 @@ export default function CreateNostrConnectAccount(props) {
       setIsCreatingAccount(false);
     }
   };
+  console.log(budgetRenewalSettings);
+
+  useEffect(() => {
+    if (props?.route?.params?.amount) {
+      setBudgetRenewalSettings(prev => ({
+        ...prev,
+        amount: props?.route?.params?.amount,
+      }));
+    }
+  }, [props?.route?.params?.amount]);
+
+  console.log(props?.route?.params, 'test');
 
   const budgetElements = BUDGET_AMOUNT_OPTIONS.map(option => {
     return (
@@ -183,12 +196,14 @@ export default function CreateNostrConnectAccount(props) {
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'customInputText',
               //   sliderHight: 0.5,
+              returnLocation: 'CreateNostrConnectAccount',
+              passedParams,
             });
             return;
           }
-          if (props?.route?.params?.amount) {
-            navigate.setParams({amount: ''});
-          }
+          navigate.setParams({
+            amount: '',
+          });
           setBudgetRenewalSettings(prev => ({
             ...prev,
             amount: prev.amount === option ? '' : option,
