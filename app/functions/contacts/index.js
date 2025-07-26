@@ -13,6 +13,7 @@ export async function getBolt11InvoiceForContact(
   contactUniqueName,
   sendingValue,
   description,
+  useBlitzContact = true,
 ) {
   try {
     let runCount = 0;
@@ -23,12 +24,12 @@ export async function getBolt11InvoiceForContact(
       try {
         const url = `https://blitz-wallet.com/.well-known/lnurlp/${contactUniqueName}?amount=${
           sendingValue * 1000
-        }&isBlitzContact=true${
+        }&isBlitzContact=${useBlitzContact ? true : false}${
           !!description
             ? `&comment=${encodeURIComponent(description || '')}`
             : ''
         }`;
-
+        console.log(url);
         const response = await fetch(url);
         const data = await response.json();
         if (data.status !== 'OK') throw new Error('Not able to get invoice');

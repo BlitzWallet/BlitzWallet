@@ -101,7 +101,7 @@ export const sendNWCSparkLightningPayment = async ({
     if (!nwcWallet) throw new Error('sparkWallet not initialized');
     const paymentResponse = await nwcWallet.payLightningInvoice({
       invoice,
-      maxFeeSats: maxFeeSats,
+      maxFeeSats: Math.round(maxFeeSats * 1.2),
       amountSatsToSend: amountSats,
     });
     return {didWork: true, paymentResponse};
