@@ -21,6 +21,7 @@ import {
 import sha256Hash from '../hash';
 import bolt11 from 'bolt11';
 import {sparkPaymentType} from '../spark';
+import {pushInstantNotification} from '../notifications';
 
 // const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
@@ -565,6 +566,12 @@ export default async function handleNWCBackgroundEvent(notificationData) {
     // // Filter out already handled events upfront
     const newEvents = nwcEvent.events;
     console.log('new NWC events', newEvents);
+
+    pushInstantNotification(
+      `Received ${newEvents.length} event${newEvents.length === 1 ? '' : 's'}`,
+      'Nostr Connect',
+    );
+
     // nwcEvent.events.filter(event => {
     //   console.log(event, handledEventIds);
     //   if (handledEventIds.has(event.id)) return false;
