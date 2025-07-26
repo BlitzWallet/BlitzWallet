@@ -177,9 +177,9 @@ const SparkWalletProvider = ({children}) => {
     );
 
     const details = JSON.parse(selectedStoredPayment.details);
-    if (details?.shouldNavigate && !details.isLNULR) return;
+    if (details?.shouldNavigate && !details.isLNURL) return;
     if (
-      details.isLNULR &&
+      details.isLNURL &&
       !details.isBlitzContactPayment &&
       navigationRef
         .getRootState()
