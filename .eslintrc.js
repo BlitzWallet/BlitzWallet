@@ -15,5 +15,7 @@ module.exports = {
   globals: {
     BigInt: 'readonly',
     Buffer: 'readonly',
+    btoa: 'readonly', // both are native to Hermes now
+    atob: 'readonly',
   },
 };
