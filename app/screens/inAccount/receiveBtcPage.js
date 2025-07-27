@@ -31,6 +31,7 @@ import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useToast} from '../../../context-store/toastManager';
 import {useKeysContext} from '../../../context-store/keys';
 import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
+import {encodeLNURL} from '../../functions/lnurl/bench32Formmater';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -55,7 +56,9 @@ export default function ReceivePaymentHome(props) {
   const [addressState, setAddressState] = useState({
     selectedRecieveOption: selectedRecieveOption,
     isReceivingSwap: false,
-    generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`,
+    generatedAddress: encodeLNURL(
+      globalContactsInformation.myProfile.uniqueName,
+    ),
     isGeneratingInvoice: false,
     minMaxSwapAmount: {
       min: 0,
@@ -79,7 +82,9 @@ export default function ReceivePaymentHome(props) {
       ) {
         setAddressState(prev => ({
           ...prev,
-          generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`,
+          generatedAddress: encodeLNURL(
+            globalContactsInformation.myProfile.uniqueName,
+          ),
         }));
         return;
       }
@@ -143,6 +148,7 @@ export default function ReceivePaymentHome(props) {
             generatingInvoiceQRCode={addressState.isGeneratingInvoice}
             generatedAddress={addressState.generatedAddress}
             selectedRecieveOption={selectedRecieveOption}
+            initialSendAmount={initialSendAmount}
           />
 
           <View style={{marginBottom: 'auto'}}></View>
@@ -295,6 +301,15 @@ function QrCode(props) {
     <View style={styles.qrCodeContainer}>
       <TouchableOpacity
         onPress={() => {
+          if (
+            selectedRecieveOption?.toLowerCase() === 'lightning' &&
+            !initialSendAmount
+          ) {
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'chooseLNURLCopyFormat',
+            });
+            return;
+          }
           copyToClipboard(addressState.generatedAddress, showToast);
         }}
         style={[
