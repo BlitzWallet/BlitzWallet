@@ -42,6 +42,7 @@
     "@react-navigation/native-stack": "^7.3.13",
     "@scure/bip32": "^1.7.0",
     "@scure/bip39": "^1.6.0",
+    "bech32": "^2.0.0",
     "bip21": "^3.0.0",
     "bolt11": "^1.4.1",
     "boltz-core": "^3.0.0",

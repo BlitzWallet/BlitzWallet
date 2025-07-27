@@ -39,6 +39,7 @@ import {useGlobalInsets} from '../../../context-store/insetsProvider';
 import EditLNURLContactOnReceivePage from '../../components/admin/homeComponents/receiveBitcoin/editLNURLContact';
 import CustomInputHalfModal from './CustomInputHalfModal';
 import CustomQrCode from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
+import ChooseLNURLCopyFormat from '../../components/admin/homeComponents/receiveBitcoin/lnurlCopyType';
 
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -239,6 +240,15 @@ export default function CustomHalfModal(props) {
             message={props?.route?.params?.message}
             type={props?.route?.params?.type}
             returnLocation={props?.route?.params?.returnLocation}
+          />
+        );
+      case 'chooseLNURLCopyFormat':
+        return (
+          <ChooseLNURLCopyFormat
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+            setContentHeight={setContentHeight}
           />
         );
       default:

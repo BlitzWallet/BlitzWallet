@@ -32,6 +32,15 @@ export default function ButtonsContainer(props) {
             opacity: props.generatingInvoiceQRCode ? 0.5 : 1,
           }}
           actionFunction={() => {
+            if (
+              props.selectedRecieveOption?.toLowerCase() === 'lightning' &&
+              !props.initialSendAmount
+            ) {
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'chooseLNURLCopyFormat',
+              });
+              return;
+            }
             if (props.generatingInvoiceQRCode) return;
             copyToClipboard(props.generatedAddress, showToast);
           }}
