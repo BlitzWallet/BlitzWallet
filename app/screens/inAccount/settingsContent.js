@@ -37,6 +37,7 @@ import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useCallback} from 'react';
 // import {keyboardGoBack} from '../../functions/customNavigation';
 import ExploreUsers from './explorePage';
+import NostrHome from '../../components/admin/homeComponents/settingsContent/nostrHome';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
@@ -147,8 +148,8 @@ export default function SettingsContentIndex(props) {
             )}
             {selectedPage?.toLowerCase() === 'blitz stats' && <ExploreUsers />}
 
-            {selectedPage?.toLowerCase() === 'nostr connect' && (
-              <NosterWalletConnect theme={theme} />
+            {selectedPage?.toLowerCase() === 'nostr' && (
+              <NostrHome theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'login mode' && (
               <LoginSecurity extraData={extraData} theme={theme} />
