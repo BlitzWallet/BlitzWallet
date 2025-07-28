@@ -17,6 +17,10 @@ import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import processSparkAddress from './processSparkAddress';
 import {decodeBip21SparkAddress} from '../../../../../functions/spark/handleBip21SparkAddress';
 import {SATSPERBITCOIN} from '../../../../../constants';
+import {decodeBip21Address} from '../../../../../functions/bip21AddressFormmating';
+import {address} from 'liquidjs-lib';
+import {decodeLNURL} from '../../../../../functions/lnurl/bench32Formmater';
+import {formatLightningAddress} from '../../../../../functions/lnurl';
 // import processBolt12Offer from './processBolt12Offer';
 
 export default async function decodeSendAddress(props) {
@@ -41,6 +45,7 @@ export default async function decodeSendAddress(props) {
   } = props;
 
   try {
+    console.log(btcAdress, 'scanned address');
     if (typeof btcAdress !== 'string')
       throw new Error(
         'Addresses should be text only. Please check and try again.',
@@ -122,6 +127,36 @@ export default async function decodeSendAddress(props) {
       }
     }
 
+    if (
+      btcAdress.toLowerCase().startsWith('lightning') ||
+      btcAdress.toLowerCase().startsWith('bitcoin') ||
+      btcAdress.toLowerCase().startsWith('lnurl')
+    ) {
+      const decodedAddress = btcAdress.toLowerCase().startsWith('lnurl')
+        ? btcAdress
+        : decodeBip21Address(
+            btcAdress,
+            btcAdress.toLowerCase().startsWith('lightning')
+              ? 'lightning'
+              : 'bitcoin',
+          );
+      const lnurl = btcAdress.toLowerCase().startsWith('lnurl')
+        ? decodedAddress
+        : btcAdress.toLowerCase().startsWith('lightning')
+        ? decodedAddress.address.toUpperCase()
+        : decodedAddress.options.lightning.toUpperCase();
+
+      const decodedLNULR = decodeLNURL(lnurl);
+      if (!decodedLNULR)
+        throw new Error(
+          'Not able to get lightning address from lightning link.',
+        );
+
+      const lightningAddress = formatLightningAddress(decodedLNULR);
+
+      btcAdress = lightningAddress;
+    }
+
     const chosenPath = parsedInvoice
       ? Promise.resolve(parsedInvoice)
       : parse(btcAdress);
@@ -130,6 +165,7 @@ export default async function decodeSendAddress(props) {
     try {
       input = await chosenPath;
     } catch (err) {
+      console.log(err, 'parse error');
       return goBackFunction('Unable to parse address');
     }
 

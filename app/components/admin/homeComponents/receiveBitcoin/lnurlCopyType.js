@@ -17,7 +17,7 @@ export default function ChooseLNURLCopyFormat(props) {
   const lightningAddress = `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`;
   const lightningString = `${encodeLNURL(
     globalContactsInformation.myProfile.uniqueName,
-  )}@blitz-wallet.com`;
+  )}`;
   return (
     <View style={styles.container}>
       <ThemeText styles={styles.header} content={'Copy'} />
