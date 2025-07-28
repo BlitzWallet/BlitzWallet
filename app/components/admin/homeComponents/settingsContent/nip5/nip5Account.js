@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
@@ -11,16 +11,20 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import {INSET_WINDOW_WIDTH, SIZES} from '../../../../../constants/theme';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useState} from 'react';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
 import {addNip5toCollection, isValidNip5Name} from '../../../../../../db';
-import isValidNpub from '../../../../../functions/nostr';
+import {npubToHex} from '../../../../../functions/nostr';
+import {copyToClipboard} from '../../../../../functions';
+import {useToast} from '../../../../../../context-store/toastManager';
+import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 
 export default function Nip5VerificationPage() {
+  const {showToast} = useToast();
   const navigate = useNavigation();
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
   const [isLoading, setIsLoading] = useState('');
@@ -53,12 +57,12 @@ export default function Nip5VerificationPage() {
 
       if (!NOSTR_NAME_REGEX.test(parsedName))
         throw new Error('Name can only include letters or numbers.');
-
-      const isValid =
-        name.toLowerCase() === inputs.name.toLowerCase()
-          ? true
-          : isValidNpub(inputs.pubkey);
-      if (!isValid) throw new Error('Public key is not valid');
+      const formattedHexData = npubToHex(inputs.pubkey);
+      if (!formattedHexData?.didWork) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: formattedHexData.error,
+        });
+      }
 
       const isNameFree = await isValidNip5Name(inputs.name);
       if (!isNameFree) throw new Error('Name already taken');
@@ -66,14 +70,15 @@ export default function Nip5VerificationPage() {
       toggleMasterInfoObject({
         nip5Settings: {
           name: parsedName,
-          pubkey: inputs.pubkey.trim(),
+          pubkey: formattedHexData.data,
         },
       });
       await addNip5toCollection(
         {
           name: parsedName,
           nameLower: parsedName.toLowerCase(),
-          pubkey: inputs.pubkey.trim(),
+          pubkey: formattedHexData.data,
+          didUpdate: true,
         },
         masterInfoObject.uuid,
       );
@@ -127,6 +132,26 @@ export default function Nip5VerificationPage() {
                 placeholderText="Npub..."
               />
             </View>
+            <TouchableOpacity
+              style={styles.nip5AddressContainer}
+              onPress={() => {
+                if (!inputs.name.length) return;
+                copyToClipboard(`${inputs.name}@blitz-wallet.com`, showToast);
+              }}>
+              <ThemeImage
+                styles={{width: 25, height: 25}}
+                lightModeIcon={ICONS.clipboardBlue}
+                darkModeIcon={ICONS.clipboardBlue}
+                lightsOutIcon={ICONS.clipboardLight}
+              />
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.nip5AddressText}
+                content={`${
+                  inputs.name.length ? inputs.name : '...'
+                }@blitz-wallet.com`}
+              />
+            </TouchableOpacity>
           </ScrollView>
           <CustomButton
             useLoading={isLoading}
@@ -160,5 +185,19 @@ const styles = StyleSheet.create({
     width: '100%',
     textAlign: 'right',
     marginTop: 5,
+  },
+  nip5AddressContainer: {
+    width: '90%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+    ...CENTER,
+    marginBottom: 10,
+  },
+  nip5AddressText: {
+    fontSize: SIZES.large,
+    textAlign: 'center',
+    flexShrink: 1,
   },
 });
