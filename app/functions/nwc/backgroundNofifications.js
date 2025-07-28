@@ -556,12 +556,16 @@ export default async function handleNWCBackgroundEvent(notificationData) {
     fullStorageObject = await getNWCData();
     nwcAccounts = fullStorageObject.accounts;
 
-    const {
+    let {
       data: {body: nwcEvent},
     } = notificationData;
     console.log('background nwc event', nwcEvent);
     console.log(nwcAccounts);
     if (!nwcEvent) return;
+
+    try {
+      nwcEvent = JSON.parse(nwcEvent);
+    } catch (err) {}
 
     // // Filter out already handled events upfront
     const newEvents = nwcEvent.events;
