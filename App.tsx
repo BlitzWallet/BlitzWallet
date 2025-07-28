@@ -108,7 +108,7 @@ import {RootstockSwapProvider} from './context-store/rootstockSwapContext';
 import {SparkConnectionManager} from './context-store/sparkConnection';
 import {GlobalNostrWalletConnectProvider} from './context-store/NWC';
 import {GlobalServerTimeProvider} from './context-store/serverTime';
-
+registerBackgroundNotificationTask();
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
@@ -299,14 +299,14 @@ function ResetStack(): JSX.Element | null {
       await runSecureStoreMigrationV2();
       const [
         initialURL,
-        registerBackground,
+        // registerBackground,
         loginModeType,
         pin,
         mnemonic,
         securitySettings,
       ] = await Promise.all([
         getInitialURL(),
-        registerBackgroundNotificationTask(),
+        // registerBackgroundNotificationTask(),
         retrieveData(LOGIN_SECURITY_MODE_TYPE_KEY),
         retrieveData('pinHash'),
         retrieveData('encryptedMnemonic'),
