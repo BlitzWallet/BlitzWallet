@@ -153,7 +153,7 @@ export default function NotificationPreferances() {
               containerStyles={styles.toggleContainers}
             />
             <SettingsItemWithSlider
-              settingsTitle={`Nostr Connect`}
+              settingsTitle={`Nostr Wallet Connect`}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('NWC')}
               toggleSwitchStateValue={notificationData.enabledServices.NWC}

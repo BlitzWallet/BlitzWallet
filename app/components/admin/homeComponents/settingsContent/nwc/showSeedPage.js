@@ -156,7 +156,7 @@ export default function NWCWalletSetup(props) {
         <View style={styles.confirmPopupInnerContainer}>
           <ThemeText
             styles={styles.confirmPopupTitle}
-            content={`To keep your wallet safe, Nostr Connect creates a separate seed phrase from your main wallet's seed.\n\nThis wallet uses the second derivation path and can always be recovered using your main wallet's seed.\n\nIf you're not tech-savvy and unsure about recovering the wallet address, please write down this seed phrase.`}
+            content={`To keep your wallet safe, Nostr Wallet Connect creates a separate seed phrase from your main wallet's seed.\n\nThis wallet uses the second derivation path and can always be recovered using your main wallet's seed.\n\nIf you're not tech-savvy and unsure about recovering the wallet address, please write down this seed phrase.`}
           />
           <View style={styles.confirmationContainer}>
             <CustomButton

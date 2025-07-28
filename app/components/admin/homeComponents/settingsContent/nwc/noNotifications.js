@@ -11,7 +11,7 @@ export default function NostrWalletConnectNoNotifications() {
       <ThemeText
         styles={styles.textStyles}
         content={
-          'In order to use Nostr Connect you need to have push notification for Nostr Connect enabled.\n\nPlease enable push notifications in the settings and try again.'
+          'In order to use Nostr Wallet Connect you need to have push notification for Nostr Wallet Connect enabled.\n\nPlease enable push notifications in the settings and try again.'
         }
       />
       <CustomButton

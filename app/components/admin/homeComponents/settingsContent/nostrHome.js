@@ -95,8 +95,9 @@ const styles = StyleSheet.create({
   },
   itemHeader: {
     marginBottom: 10,
+    includeFontPadding: false,
   },
-  itemDescription: {fontSize: SIZES.small},
+  itemDescription: {fontSize: SIZES.small, includeFontPadding: false},
   clickContainer: {
     borderRadius: 8,
     width: 40,

@@ -49,8 +49,8 @@ export function SendRecieveBTNs({
               wantedContent: 'customInputText',
               message: `Transfer funds ${
                 btnType === 'send'
-                  ? 'from nostr connect to main wallet'
-                  : 'from main to nostr connect wallet'
+                  ? 'from Nostr Wallet Connect to main wallet'
+                  : 'from main to Nostr Wallet Connects wallet'
               }`,
               type: btnType,
               returnLocation: 'NWCWallet',
