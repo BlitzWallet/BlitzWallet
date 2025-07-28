@@ -8,11 +8,13 @@ import {encodeLNURL} from '../../../../functions/lnurl/bench32Formmater';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {useToast} from '../../../../../context-store/toastManager';
 import {copyToClipboard} from '../../../../functions';
+import {useGlobalThemeContext} from '../../../../../context-store/theme';
 
 export default function ChooseLNURLCopyFormat(props) {
   const {showToast} = useToast();
+  const {theme, darkModeType} = useGlobalThemeContext();
   const {globalContactsInformation} = useGlobalContacts();
-  const {backgroundOffset} = GetThemeColors();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
 
   const lightningAddress = `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`;
   const lightningString = `${encodeLNURL(
@@ -25,7 +27,11 @@ export default function ChooseLNURLCopyFormat(props) {
         onPress={() => {
           copyToClipboard(lightningAddress, showToast);
         }}
-        style={{...styles.copyRow, backgroundColor: backgroundOffset}}>
+        style={{
+          ...styles.copyRow,
+          backgroundColor:
+            theme && darkModeType ? backgroundColor : backgroundOffset,
+        }}>
         <ThemeImage
           styles={styles.copyIcon}
           lightModeIcon={ICONS.clipboardBlue}
@@ -45,7 +51,11 @@ export default function ChooseLNURLCopyFormat(props) {
         onPress={() => {
           copyToClipboard(lightningString, showToast);
         }}
-        style={{...styles.copyRow, backgroundColor: backgroundOffset}}>
+        style={{
+          ...styles.copyRow,
+          backgroundColor:
+            theme && darkModeType ? backgroundColor : backgroundOffset,
+        }}>
         <ThemeImage
           styles={styles.copyIcon}
           lightModeIcon={ICONS.clipboardBlue}
