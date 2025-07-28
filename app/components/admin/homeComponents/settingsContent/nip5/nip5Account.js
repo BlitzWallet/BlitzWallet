@@ -71,11 +71,9 @@ export default function Nip5VerificationPage() {
       });
       await addNip5toCollection(
         {
-          nip5Settings: {
-            name: parsedName,
-            nameLower: parsedName.toLowerCase(),
-            pubkey: inputs.pubkey.trim(),
-          },
+          name: parsedName,
+          nameLower: parsedName.toLowerCase(),
+          pubkey: inputs.pubkey.trim(),
         },
         masterInfoObject.uuid,
       );
