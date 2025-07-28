@@ -108,6 +108,7 @@ import {RootstockSwapProvider} from './context-store/rootstockSwapContext';
 import {SparkConnectionManager} from './context-store/sparkConnection';
 import {GlobalNostrWalletConnectProvider} from './context-store/NWC';
 import {GlobalServerTimeProvider} from './context-store/serverTime';
+import {ActiveCustodyAccountProvider} from './context-store/activeAccount';
 
 const Stack = createNativeStackNavigator();
 
@@ -118,49 +119,51 @@ function App(): JSX.Element {
         <InsetsProvider>
           <KeyboardProvider>
             <ToastProvider>
-              <KeysContextProvider>
-                <GlobalContactsList>
-                  <GlobalContextProvider>
-                    <AppStatusProvider>
-                      <GlobalThemeProvider>
-                        {/* <GlobaleCashVariables> */}
-                        <GLobalNodeContextProider>
-                          <SparkWalletProvider>
-                            {/* <GlobalConbinedTxContextProvider> */}
-                            <GlobalAppDataProvider>
-                              <POSTransactionsProvider>
-                                <WebViewProvider>
-                                  <PushNotificationProvider>
-                                    <LiquidEventProvider>
-                                      <RootstockSwapProvider>
-                                        <GlobalNostrWalletConnectProvider>
-                                          {/* <LightningEventProvider> */}
-                                          <ImageCacheProvider>
-                                            <GlobalServerTimeProvider>
-                                              {/* <Suspense
+              <ActiveCustodyAccountProvider>
+                <KeysContextProvider>
+                  <GlobalContactsList>
+                    <GlobalContextProvider>
+                      <AppStatusProvider>
+                        <GlobalThemeProvider>
+                          {/* <GlobaleCashVariables> */}
+                          <GLobalNodeContextProider>
+                            <SparkWalletProvider>
+                              {/* <GlobalConbinedTxContextProvider> */}
+                              <GlobalAppDataProvider>
+                                <POSTransactionsProvider>
+                                  <WebViewProvider>
+                                    <PushNotificationProvider>
+                                      <LiquidEventProvider>
+                                        <RootstockSwapProvider>
+                                          <GlobalNostrWalletConnectProvider>
+                                            {/* <LightningEventProvider> */}
+                                            <ImageCacheProvider>
+                                              <GlobalServerTimeProvider>
+                                                {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                              <ResetStack />
-                                              {/* </Suspense> */}
-                                            </GlobalServerTimeProvider>
-                                          </ImageCacheProvider>
-                                          {/* </LightningEventProvider> */}
-                                        </GlobalNostrWalletConnectProvider>
-                                      </RootstockSwapProvider>
-                                    </LiquidEventProvider>
-                                  </PushNotificationProvider>
-                                </WebViewProvider>
-                              </POSTransactionsProvider>
-                            </GlobalAppDataProvider>
-                            {/* <BreezTest /> */}
-                            {/* </GlobalConbinedTxContextProvider> */}
-                          </SparkWalletProvider>
-                        </GLobalNodeContextProider>
-                        {/* </GlobaleCashVariables> */}
-                      </GlobalThemeProvider>
-                    </AppStatusProvider>
-                  </GlobalContextProvider>
-                </GlobalContactsList>
-              </KeysContextProvider>
+                                                <ResetStack />
+                                                {/* </Suspense> */}
+                                              </GlobalServerTimeProvider>
+                                            </ImageCacheProvider>
+                                            {/* </LightningEventProvider> */}
+                                          </GlobalNostrWalletConnectProvider>
+                                        </RootstockSwapProvider>
+                                      </LiquidEventProvider>
+                                    </PushNotificationProvider>
+                                  </WebViewProvider>
+                                </POSTransactionsProvider>
+                              </GlobalAppDataProvider>
+                              {/* <BreezTest /> */}
+                              {/* </GlobalConbinedTxContextProvider> */}
+                            </SparkWalletProvider>
+                          </GLobalNodeContextProider>
+                          {/* </GlobaleCashVariables> */}
+                        </GlobalThemeProvider>
+                      </AppStatusProvider>
+                    </GlobalContextProvider>
+                  </GlobalContactsList>
+                </KeysContextProvider>
+              </ActiveCustodyAccountProvider>
             </ToastProvider>
           </KeyboardProvider>
         </InsetsProvider>

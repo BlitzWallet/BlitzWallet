@@ -118,6 +118,8 @@ import sparkReceiveIcon from '../assets/icons/sparkReceiveIcon.png';
 import liquidReceiveIcon from '../assets/icons/liquidReceiveIcon.png';
 import rootstockLogo from '../assets/icons/rootstockLogo.png';
 import blockstreamLiquid from '../assets/icons/blockstreamLiquid.png';
+import sharedBlue from '../assets/icons/sharedBlue.png';
+import sharedWhite from '../assets/icons/sharedWhite.png';
 export default {
   editIcon,
   editIconLight,
@@ -226,6 +228,8 @@ export default {
   navigationIconFill,
   navigationIconWhite,
   navigationIconFillWhite,
+  sharedBlue,
+  sharedWhite,
   shareBlack,
   sparkAsteriskBlack,
   sparkAsteriskWhite,
