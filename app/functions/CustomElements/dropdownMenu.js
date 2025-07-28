@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Dimensions,
   Modal,
+  Platform,
 } from 'react-native';
 import ThemeImage from './themeImage';
 import {COLORS, ICONS} from '../../constants';
@@ -150,7 +151,7 @@ const DropdownMenu = ({
               buttonLayout && {
                 top: isTooLow
                   ? buttonLayout.y - dropdownHeight - 5
-                  : buttonLayout.y + 50,
+                  : buttonLayout.y + (Platform.OS === 'ios' ? 50 : 25),
                 left: '7.3%',
                 width: selectorLayout?.width,
               },
