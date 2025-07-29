@@ -302,10 +302,11 @@ const handleLookupInvoice = async requestParams => {
       'Unable to find invoice.',
     );
   }
-  if (foundInvoice.status !== 'pending') {
+  const {sparkID, ...invoiceWithoutSparkID} = foundInvoice;
+  if (invoiceWithoutSparkID.status !== 'pending') {
     return {
       result_type: 'lookup_invoice',
-      result: foundInvoice,
+      result: invoiceWithoutSparkID,
     };
   }
 
@@ -319,14 +320,10 @@ const handleLookupInvoice = async requestParams => {
   }
 
   let sparkPaymentResponse;
-  if (foundInvoice.type === 'INCOMING') {
-    sparkPaymentResponse = await getNWCLightningReceiveRequest(
-      foundInvoice.sparkID,
-    );
+  if (invoiceWithoutSparkID.type === 'INCOMING') {
+    sparkPaymentResponse = await getNWCLightningReceiveRequest(sparkID);
   } else {
-    sparkPaymentResponse = await NWCSparkLightningPaymentStatus(
-      foundInvoice.sparkID,
-    );
+    sparkPaymentResponse = await NWCSparkLightningPaymentStatus(sparkID);
   }
 
   if (!sparkPaymentResponse.didWork)
@@ -340,14 +337,14 @@ const handleLookupInvoice = async requestParams => {
 
   if (status !== 'pending') {
     await NWCInvoiceManager.markInvoiceAsNotPending(
-      foundInvoice.payment_hash,
+      invoiceWithoutSparkID.payment_hash,
       status,
       data.paymentPreimage,
     );
     return {
       result_type: 'lookup_invoice',
       result: {
-        ...foundInvoice,
+        ...invoiceWithoutSparkID,
         status: status,
         preimage: data.paymentPreimage || '',
         settled_at: Date.now(),
@@ -356,7 +353,7 @@ const handleLookupInvoice = async requestParams => {
   }
   return {
     result_type: 'lookup_invoice',
-    result: foundInvoice,
+    result: invoiceWithoutSparkID,
   };
 };
 
