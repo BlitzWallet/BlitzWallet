@@ -365,6 +365,16 @@ const handlePayInvoice = async (
   selectedNWCAccount,
   fullStorageObject,
 ) => {
+  const hasAlreadyPaid = await NWCInvoiceManager.handleLookupInvoice({
+    invoice: requestParams.invoice,
+  });
+  if (hasAlreadyPaid) {
+    return createErrorResponse(
+      'pay_invoice',
+      ERROR_CODES.INTERNAL,
+      'Already paid this invoice.',
+    );
+  }
   const connectResponse = await ensureWalletConnection();
 
   const decoded = bolt11.decode(requestParams.invoice);
@@ -433,8 +443,6 @@ const handlePayInvoice = async (
     description: '',
     status: getSparkPaymentStatus(status?.paymentResponse.status),
     created_at: response.createdAt,
-    settled_at: response.updatedAt,
-    expires_at: null,
     sparkID: response.id,
     type: 'OUTGOING',
     preimage: status?.paymentResponse?.paymentPreimage || '',
