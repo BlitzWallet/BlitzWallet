@@ -1630,9 +1630,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "@buildonspark/spark-sdk@npm:0.2.2"
+"@buildonspark/spark-sdk@npm:^0.2.4":
+  version: 0.2.4
+  resolution: "@buildonspark/spark-sdk@npm:0.2.4"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@bufbuild/protobuf": ^2.2.5
@@ -1674,7 +1674,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 2170b8cd6ae4ed4436656acd2e985ca00cc7b0051e105bec1fc98a2346762e2a41d2bf96833b4aa3a5d2afe931b6201ed4349a15846c0d93957f15733ea1241d
+  checksum: 1b016410a25fcb326d62dcf085ad34a08c7db951c22ec426ff605148c3d6164da24f46a0d3114b40486706ce468209d1dce7eedb0bd9a7b28cd8198026ce6bc9
   languageName: node
   linkType: hard
 
@@ -4771,7 +4771,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.10.1
-    "@buildonspark/spark-sdk": ^0.2.2
+    "@buildonspark/spark-sdk": ^0.2.4
     "@cashu/cashu-ts": ^2.5.2
     "@craftzdog/react-native-buffer": ^6.0.5
     "@getalby/sdk": ^5.1.1
