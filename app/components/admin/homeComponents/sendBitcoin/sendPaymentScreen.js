@@ -57,6 +57,8 @@ import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import {sparkPaymenWrapper} from '../../../../functions/spark/payments';
 import {getBoltzApiUrl} from '../../../../functions/boltz/boltzEndpoitns';
+import InvoiceInfo from './components/invoiceInfo';
+import formatSparkPaymentAddress from './functions/formatSparkPaymentAddress';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -324,6 +326,7 @@ export default function SendPaymentScreen(props) {
             isSparkPayment={isSparkPayment}
           />
         )}
+        {!canEditPaymentAmount && <InvoiceInfo paymentInfo={paymentInfo} />}
       </ScrollView>
       {canEditPaymentAmount && (
         <>
@@ -414,30 +417,31 @@ export default function SendPaymentScreen(props) {
     if (isSendingPayment) return;
     setIsSendingPayment(true);
 
-    let formmateedSparkPaymentInfo = {
-      address: '',
-      paymentType: '',
-    };
+    const formmateedSparkPaymentInfo = formatSparkPaymentAddress(paymentInfo);
+    //  {
+    //   address: '',
+    //   paymentType: '',
+    // };
 
-    // manipulate paymetn details here
-    if (paymentInfo.type === 'bolt11') {
-      formmateedSparkPaymentInfo.address =
-        paymentInfo?.decodedInput?.invoice?.bolt11;
-      formmateedSparkPaymentInfo.paymentType = 'lightning';
-    } else if (paymentInfo.type === 'spark') {
-      formmateedSparkPaymentInfo.address = paymentInfo?.data?.address;
-      formmateedSparkPaymentInfo.paymentType = 'spark';
-    } else if (paymentInfo.type === 'lnUrlPay') {
-      formmateedSparkPaymentInfo.address = paymentInfo?.data?.invoice;
-      formmateedSparkPaymentInfo.paymentType = 'lightning';
-    } else if (paymentInfo.type === 'liquid') {
-      formmateedSparkPaymentInfo.address = paymentInfo?.data?.invoice;
-      formmateedSparkPaymentInfo.paymentType = 'lightning';
-      console.log(paymentInfo?.boltzData);
-    } else if (paymentInfo?.type === 'Bitcoin') {
-      formmateedSparkPaymentInfo.address = paymentInfo?.address;
-      formmateedSparkPaymentInfo.paymentType = 'bitcoin';
-    }
+    // // manipulate paymetn details here
+    // if (paymentInfo.type === 'bolt11') {
+    //   formmateedSparkPaymentInfo.address =
+    //     paymentInfo?.decodedInput?.invoice?.bolt11;
+    //   formmateedSparkPaymentInfo.paymentType = 'lightning';
+    // } else if (paymentInfo.type === 'spark') {
+    //   formmateedSparkPaymentInfo.address = paymentInfo?.data?.address;
+    //   formmateedSparkPaymentInfo.paymentType = 'spark';
+    // } else if (paymentInfo.type === 'lnUrlPay') {
+    //   formmateedSparkPaymentInfo.address = paymentInfo?.data?.invoice;
+    //   formmateedSparkPaymentInfo.paymentType = 'lightning';
+    // } else if (paymentInfo.type === 'liquid') {
+    //   formmateedSparkPaymentInfo.address = paymentInfo?.data?.invoice;
+    //   formmateedSparkPaymentInfo.paymentType = 'lightning';
+    //   console.log(paymentInfo?.boltzData);
+    // } else if (paymentInfo?.type === 'Bitcoin') {
+    //   formmateedSparkPaymentInfo.address = paymentInfo?.address;
+    //   formmateedSparkPaymentInfo.paymentType = 'bitcoin';
+    // }
     console.log(formmateedSparkPaymentInfo, 'manual spark information');
 
     const memo =
