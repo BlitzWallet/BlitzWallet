@@ -1,17 +1,22 @@
-import {StyleSheet, Text, View} from 'react-native';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import {ThemeText} from '../../../../../functions/CustomElements';
-import {CENTER, COLORS} from '../../../../../constants';
+import {CENTER} from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
+import formatSparkPaymentAddress from '../functions/formatSparkPaymentAddress';
+import {useNavigation} from '@react-navigation/native';
 
-export default function InvoiceInfo({
-  isLightningPayment,
-  paymentInfo,
-  btcAdress,
-}) {
+export default function InvoiceInfo({paymentInfo}) {
+  const formmateedSparkPaymentInfo = formatSparkPaymentAddress(paymentInfo);
   const {backgroundOffset} = GetThemeColors();
+  const navigate = useNavigation();
+
   return (
-    <View
+    <TouchableOpacity
+      onPress={() => {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: formmateedSparkPaymentInfo.address,
+        });
+      }}
       style={[
         styles.invoiceContainer,
         {
@@ -19,29 +24,21 @@ export default function InvoiceInfo({
         },
       ]}>
       <ThemeText
-        styles={{textAlign: 'left'}}
-        content={
-          isLightningPayment
-            ? paymentInfo?.invoice?.description
-              ? paymentInfo?.invoice?.description.length > 100
-                ? paymentInfo?.invoice?.description?.slice(0, 100) + '...'
-                : paymentInfo?.invoice?.description
-              : paymentInfo?.invoice.bolt11.slice(0, 100) + '...' ||
-                'No description'
-            : btcAdress.slice(0, 100) + '...'
-        }
+        CustomNumberOfLines={2}
+        content={formmateedSparkPaymentInfo.address}
       />
-    </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   invoiceContainer: {
-    width: '95%',
+    width: '80%',
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 8,
     borderRadius: 8,
-    marginTop: 20,
-    marginBottom: 20,
     ...CENTER,
+    marginTop: 30,
   },
 });
