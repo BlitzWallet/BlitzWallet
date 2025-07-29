@@ -54,6 +54,7 @@ export default function CreateNostrConnectAccount(props) {
     transactionHistory: isEditing
       ? savedData.permissions.transactionHistory
       : false,
+    lookupInvoice: isEditing ? savedData.permissions.lookupInvoice : false,
   });
   const [budgetRenewalSettings, setBudgetRenewalSettings] = useState({
     option: isEditing ? savedData.budgetRenewalSettings.option : null,
@@ -83,6 +84,8 @@ export default function CreateNostrConnectAccount(props) {
       savedData.permissions.receivePayments ===
         accountPermissions.receivePayments &&
       savedData.permissions.sendPayments === accountPermissions.sendPayments &&
+      savedData.permissions.lookupInvoice ===
+        accountPermissions.lookupInvoice &&
       savedData.permissions.transactionHistory ===
         accountPermissions.transactionHistory &&
       savedData.permissions.getBalance === accountPermissions.getBalance &&
@@ -102,7 +105,8 @@ export default function CreateNostrConnectAccount(props) {
       !accountPermissions.receivePayments &&
       !accountPermissions.sendPayments &&
       !accountPermissions.getBalance &&
-      !accountPermissions.transactionHistory
+      !accountPermissions.transactionHistory &&
+      !accountPermissions.lookupInvoice
     ) {
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Please enable at least one permission.',
@@ -340,6 +344,19 @@ export default function CreateNostrConnectAccount(props) {
                 }))
               }
               toggleSwitchStateValue={accountPermissions.transactionHistory}
+              containerStyles={{marginTop: 0}}
+              switchPageName="nwcAccount"
+            />
+            <SettingsItemWithSlider
+              settingsTitle={`Lookup Invoice`}
+              showDescription={false}
+              handleSubmit={() =>
+                setAccountPermissions(prev => ({
+                  ...prev,
+                  lookupInvoice: !prev.lookupInvoice,
+                }))
+              }
+              toggleSwitchStateValue={accountPermissions.lookupInvoice}
               containerStyles={{marginTop: 0, marginBottom: 0}}
               switchPageName="nwcAccount"
             />

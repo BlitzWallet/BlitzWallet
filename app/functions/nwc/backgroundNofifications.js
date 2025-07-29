@@ -11,6 +11,7 @@ import {
 } from '../messaging/encodingAndDecodingMessages';
 import {publishToSingleRelay} from './publishResponse';
 import {
+  getNWCLightningReceiveRequest,
   getNWCSparkBalance,
   getNWCSparkTransactions,
   initializeNWCWallet,
@@ -20,8 +21,9 @@ import {
 } from './wallet';
 import sha256Hash from '../hash';
 import bolt11 from 'bolt11';
-import {sparkPaymentType} from '../spark';
+import {getSparkPaymentStatus, sparkPaymentType} from '../spark';
 import {pushInstantNotification} from '../notifications';
+import NWCInvoiceManager from './cachedNWCTxs';
 
 // const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
@@ -250,6 +252,18 @@ const handleMakeInvoice = async (
   });
 
   const response = invoice.response;
+  NWCInvoiceManager.storeCreatedInvoice({
+    payment_hash: response.invoice.paymentHash,
+    invoice: response.invoice.encodedInvoice,
+    amount: response.invoice.amount.originalValue,
+    description: requestParams.description || '',
+    status: 'pending',
+    expires_at: response.invoice.expiresAt,
+    sparkID: response.id,
+    type: 'INCOMING',
+    fee: 0,
+    preimage: '',
+  });
   return {
     result_type: 'make_invoice',
     result: {
@@ -265,6 +279,84 @@ const handleMakeInvoice = async (
       expires_at: response.invoice.expiresAt,
       metadata: {},
     },
+  };
+};
+
+const handleLookupInvoice = async requestParams => {
+  let foundInvoice;
+  try {
+    foundInvoice = await NWCInvoiceManager.handleLookupInvoice(requestParams);
+  } catch (err) {
+    console.log('Error handling lookup', err);
+    return createErrorResponse(
+      'lookup_invoice',
+      ERROR_CODES.INTERNAL,
+      err.message,
+    );
+  }
+
+  if (!foundInvoice) {
+    return createErrorResponse(
+      'lookup_invoice',
+      ERROR_CODES.INTERNAL,
+      'Unable to find invoice.',
+    );
+  }
+  if (foundInvoice.status !== 'pending') {
+    return {
+      result_type: 'lookup_invoice',
+      result: foundInvoice,
+    };
+  }
+
+  const connectResponse = await ensureWalletConnection();
+  if (!connectResponse.isConnected) {
+    return createErrorResponse(
+      'lookup_invoice',
+      ERROR_CODES.INTERNAL,
+      'Unable to connect to wallet',
+    );
+  }
+
+  let sparkPaymentResponse;
+  if (foundInvoice.type === 'INCOMING') {
+    sparkPaymentResponse = await getNWCLightningReceiveRequest(
+      foundInvoice.sparkID,
+    );
+  } else {
+    sparkPaymentResponse = await NWCSparkLightningPaymentStatus(
+      foundInvoice.sparkID,
+    );
+  }
+
+  if (!sparkPaymentResponse.didWork)
+    return createErrorResponse(
+      'lookup_invoice',
+      ERROR_CODES.INTERNAL,
+      'Unable to lookup invoice.',
+    );
+  const data = sparkPaymentResponse.paymentResponse;
+  const status = getSparkPaymentStatus(data.status);
+
+  if (status !== 'pending') {
+    await NWCInvoiceManager.markInvoiceAsNotPending(
+      foundInvoice.payment_hash,
+      status,
+      data.paymentPreimage,
+    );
+    return {
+      result_type: 'lookup_invoice',
+      result: {
+        ...foundInvoice,
+        status: status,
+        preimage: data.paymentPreimage || '',
+        settled_at: Date.now(),
+      },
+    };
+  }
+  return {
+    result_type: 'lookup_invoice',
+    result: foundInvoice,
   };
 };
 
@@ -332,6 +424,22 @@ const handlePayInvoice = async (
   await new Promise(res => setTimeout(res, 5000));
 
   const status = await NWCSparkLightningPaymentStatus(response.id);
+
+  await NWCInvoiceManager.storeCreatedInvoice({
+    payment_hash: sha256Hash(status?.paymentResponse?.paymentPreimage || ''),
+    invoice: response.encodedInvoice,
+    amount: paymentAmount,
+    fee: Math.round(response.fee.originalValue / 1000),
+    description: '',
+    status: getSparkPaymentStatus(status?.paymentResponse.status),
+    created_at: response.createdAt,
+    settled_at: response.updatedAt,
+    expires_at: null,
+    sparkID: response.id,
+    type: 'OUTGOING',
+    preimage: status?.paymentResponse?.paymentPreimage || '',
+  });
+
   if (!status.didWork) {
     return createErrorResponse(
       'pay_invoice',
@@ -505,7 +613,17 @@ const processEvent = async (event, selectedNWCAccount) => {
         fullStorageObject,
       );
       break;
-
+    case 'lookup_invoice':
+      if (!selectedNWCAccount.permissions.lookupInvoice) {
+        returnObject = createErrorResponse(
+          requestMethod,
+          ERROR_CODES.RESTRICTED,
+          'Requested service is not authorized',
+        );
+        break;
+      }
+      returnObject = await handleLookupInvoice(requestParams);
+      break;
     case 'pay_invoice':
       if (!selectedNWCAccount.permissions.sendPayments) {
         returnObject = createErrorResponse(

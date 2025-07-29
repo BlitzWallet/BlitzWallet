@@ -58,10 +58,6 @@ export async function publishToSingleRelay(events, relayUrl) {
         console.error(`❌ Event ${index + 1}: Failed -`, error);
       }
     });
-    pushInstantNotification(
-      `${results.successful}/${results.total} events published successfully`,
-      'Nostr Connect',
-    );
 
     console.log(
       `📊 Results: ${results.successful}/${results.total} events published successfully`,

@@ -120,6 +120,18 @@ export const NWCSparkLightningPaymentStatus = async id => {
     return {didWork: false, error: err.message};
   }
 };
+export const getNWCLightningReceiveRequest = async lightningInvoiceId => {
+  try {
+    if (!nwcWallet) throw new Error('nwcWallet not initialized');
+    const paymentResponse = await nwcWallet.getLightningReceiveRequest(
+      lightningInvoiceId,
+    );
+    return {didWork: true, paymentResponse};
+  } catch (err) {
+    console.log('Get lightning payment status error', err);
+    return {didWork: false, error: err.message};
+  }
+};
 export const getNWCSparkTransactions = async (
   transferCount = 100,
   offsetIndex,
