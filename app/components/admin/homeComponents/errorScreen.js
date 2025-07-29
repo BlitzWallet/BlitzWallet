@@ -18,6 +18,7 @@ export default function ErrorScreen(props) {
 
   const navigationFunction = props.route.params?.navigationFunction;
   const customNavigator = props.route.params?.customNavigator;
+  const height = props.route.params?.height;
 
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -39,6 +40,7 @@ export default function ErrorScreen(props) {
           styles.content,
           {
             backgroundColor: theme ? backgroundOffset : backgroundColor,
+            maxHeight: height || 200,
           },
         ]}>
         <ScrollView>
