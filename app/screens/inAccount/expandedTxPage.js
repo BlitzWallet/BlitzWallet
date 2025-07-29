@@ -220,6 +220,18 @@ export default function ExpandedTx(props) {
               />
             </View>
 
+            {isPending && transaction.paymentType === 'bitcoin' && (
+              <View style={styles.infoLine}>
+                <ThemeText content={'Confs required'} />
+                <ThemeText
+                  styles={{fontSize: SIZES.large}}
+                  content={
+                    transaction.details.direction === 'INCOMING' ? '3' : '2'
+                  }
+                />
+              </View>
+            )}
+
             {description && (
               <View style={styles.descriptionContainer}>
                 <ThemeText content={'Memo'} styles={styles.descriptionHeader} />
