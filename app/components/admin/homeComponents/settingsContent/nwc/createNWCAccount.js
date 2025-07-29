@@ -22,10 +22,10 @@ import {createAccountMnemonic} from '../../../../../functions';
 import * as nostr from 'nostr-tools';
 import crypto from 'react-native-quick-crypto';
 import sha256Hash from '../../../../../functions/hash';
-import {nwc} from '@getalby/sdk';
 import {getSupportedMethods} from '../../../../../functions/nwc';
 import {privateKeyFromSeedWords} from '../../../../../functions/nostrCompatability';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {publishToSingleRelay} from '../../../../../functions/nwc/publishResponse';
 
 const BUDGET_RENEWAL_OPTIONS = [
   {label: 'Daily', value: 'Daily'},
@@ -139,19 +139,19 @@ export default function CreateNostrConnectAccount(props) {
         secret = savedData.secret;
       }
 
-      console.log('Generated mnemonic:', mnemonic, privateKey, publicKey);
+      const infoEvent = {
+        kind: 13194,
+        created_at: Math.floor(Date.now() / 1000),
+        content: getSupportedMethods(accountPermissions).join(' '),
+        tags: [],
+      };
 
-      console.log(accountName, accountPermissions, budgetRenewalSettings);
-
-      const walletService = new nwc.NWCWalletService({
-        relayUrl: 'wss://relay.damus.io',
-      });
-
-      await walletService.publishWalletServiceInfoEvent(
-        secret,
-        getSupportedMethods(accountPermissions),
-        [],
+      const signedEvent = nostr.finalizeEvent(
+        infoEvent,
+        Buffer.from(privateKey, 'hex'),
       );
+
+      await publishToSingleRelay([signedEvent], 'wss://relay.damus.io');
 
       toggleNWCInformation({
         accounts: {
