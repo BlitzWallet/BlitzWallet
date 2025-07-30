@@ -198,7 +198,11 @@ export default function getFormattedHomepageTxsForSpark({
       }
     }
 
-    if (frompage != 'viewAllTx' && formattedTxs?.length == homepageTxPreferance)
+    if (
+      frompage != 'viewAllTx' &&
+      frompage !== 'sparkWallet' &&
+      formattedTxs?.length == homepageTxPreferance
+    )
       formattedTxs.push(
         <TouchableOpacity
           key={'view_all_tx_btn'}
@@ -449,6 +453,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 15,
   },
   noTransactionsText: {
     width: '95%',

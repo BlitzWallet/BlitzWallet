@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 import {COLORS, ICONS, SIZES} from '../../app/constants';
-import {useMemo} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {CENTER} from '../../app/constants/styles';
 import {ThemeText} from '../../app/functions/CustomElements';
 import {useGlobalContacts} from '../../context-store/globalContacts';
@@ -18,6 +18,7 @@ import GetThemeColors from '../../app/hooks/themeColors';
 import {useGlobalThemeContext} from '../../context-store/theme';
 import ExploreUsers from '../../app/screens/inAccount/explorePage';
 import {useGlobalInsets} from '../../context-store/insetsProvider';
+import {navigationRef} from '../navigationService';
 
 const Tab = createBottomTabNavigator();
 
@@ -26,7 +27,27 @@ function MyTabBar({state, descriptors, navigation}) {
   const {contactsMessags, globalContactsInformation} = useGlobalContacts();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
 
+  const [route, setRoute] = useState([
+    {name: 'HomeAdmin', state: {index: 1, routeNames: ['', 'home']}},
+  ]);
+  const hasInitializedNavListener = useRef(null);
+
+  useEffect(() => {
+    if (hasInitializedNavListener.current) return;
+    hasInitializedNavListener.current = true;
+
+    navigationRef.addListener('state', () => {
+      console.log(
+        'Current navigation stack in tabs',
+        navigationRef.getRootState().routes,
+      );
+      setRoute(navigationRef.getRootState().routes);
+    });
+  }, []);
+
+  const currentRoute = route[0]?.state?.routeNames?.[route[0]?.state?.index];
   const {bottomPadding} = useGlobalInsets();
+  console.log(route, 't', currentRoute, currentRoute);
 
   const hasUnlookedTransactions = useMemo(() => {
     return (
@@ -53,13 +74,17 @@ function MyTabBar({state, descriptors, navigation}) {
         style={[
           {
             ...styles.tabsSeperatorBar,
-            backgroundColor: backgroundOffset,
+            backgroundColor:
+              currentRoute === 'Home' ? backgroundColor : backgroundOffset,
           },
         ]}
       />
       <View
         style={{
-          backgroundColor: backgroundColor,
+          backgroundColor:
+            currentRoute === 'Home' ? backgroundOffset : backgroundColor,
+          borderTopRightRadius: currentRoute === 'Home' ? 0 : 15,
+          borderTopLeftRadius: currentRoute === 'Home' ? 0 : 15,
           ...styles.tabsContainer,
         }}>
         <View
@@ -208,8 +233,7 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     width: '100%',
-    borderTopRightRadius: 15,
-    borderTopLeftRadius: 15,
+
     zIndex: 1,
   },
   tabsInnerContainer: {
