@@ -67,10 +67,10 @@ export const WebViewProvider = ({children}) => {
     }
 
     console.log('Setting up claim retry interval');
-    handleClaimRetryRef.current = setInterval(
-      handleUnclaimedReverseSwaps,
-      30000,
-    );
+    // handleClaimRetryRef.current = setInterval(
+    //   handleUnclaimedReverseSwaps,
+    //   30000,
+    // );
   }, [isWEbViewReady, didGetToHomepage]);
 
   return (

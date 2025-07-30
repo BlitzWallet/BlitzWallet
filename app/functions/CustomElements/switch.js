@@ -91,7 +91,8 @@ const CustomToggleSwitch = ({
       page === 'hideUnknownContacts' ||
       page === 'useTrampoline' ||
       page === 'LoginSecurityMode' ||
-      page === 'fastPay'
+      page === 'fastPay' ||
+      page === 'nwcAccount'
         ? backgroundColor
         : backgroundOffset,
       darkModeType && theme ? COLORS.darkModeText : COLORS.primary,

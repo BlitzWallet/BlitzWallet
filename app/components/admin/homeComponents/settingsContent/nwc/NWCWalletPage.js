@@ -25,14 +25,15 @@ import {
   getNWCSparkIdentityPubKey,
   getNWCSparkTransactions,
   initializeNWCWallet,
-  sendNWCSparkPayment,
+  sendNWCSparkLightningPayment,
 } from '../../../../../functions/nwc/wallet';
-import {useKeysContext} from '../../../../../../context-store/keys';
 import {useNostrWalletConnect} from '../../../../../../context-store/NWC';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
+import {getBolt11InvoiceForContact} from '../../../../../functions/contacts';
 
 export default function NWCWallet(props) {
   const {bottomPadding} = useGlobalInsets();
@@ -40,6 +41,7 @@ export default function NWCWallet(props) {
   const {nwcWalletInfo, setNWCWalletInfo} = useNostrWalletConnect();
   const {theme, darkModeType, toggleTheme} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
+  const {globalContactsInformation} = useGlobalContacts();
   const {isConnectedToTheInternet} = useAppStatus();
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
@@ -115,13 +117,33 @@ export default function NWCWallet(props) {
       if (!sendingAmount || !sendingType) return;
       try {
         setIsTranfering(true);
+
+        let address = '';
+
+        if (sendingType === 'send') {
+          const invoiceResponse = await getBolt11InvoiceForContact(
+            globalContactsInformation.myProfile.uniqueName,
+            sendingAmount,
+            'Transfer from nostr connect',
+            false,
+          );
+          console.log(invoiceResponse);
+          if (!invoiceResponse) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage:
+                'Unable to generate the receiving invoice. Please try again.',
+            });
+            return;
+          }
+          address = invoiceResponse;
+        } else {
+          address = nwcWalletInfo.sparkAddress;
+        }
+
         const fee = await sparkPaymenWrapper({
           getFee: true,
-          address:
-            sendingType === 'send'
-              ? nwcWalletInfo.sparkAddress
-              : sparkInformation.sparkAddress,
-          paymentType: 'spark',
+          address,
+          paymentType: sendingType === 'send' ? 'lightning' : 'spark',
           amountSats: sendingAmount,
           masterInfoObject,
         });
@@ -146,13 +168,13 @@ export default function NWCWallet(props) {
         let response;
 
         if (sendingType === 'send') {
-          response = await sendNWCSparkPayment(
-            sendingAmount,
-            sparkInformation.sparkAddress,
-          );
+          response = await sendNWCSparkLightningPayment({
+            invoice: address,
+            maxFeeSats: fee.fee,
+          });
         } else {
           response = await sparkPaymenWrapper({
-            address: nwcWalletInfo.sparkAddress,
+            address,
             paymentType: 'spark',
             amountSats: sendingAmount,
             masterInfoObject,
@@ -181,7 +203,7 @@ export default function NWCWallet(props) {
   return (
     <GlobalThemeView styles={style.globalContainer}>
       <CustomSettingsTopBar
-        containerStyles={{width: INSET_WINDOW_WIDTH, ...CENTER}}
+        containerStyles={{width: '95%', ...CENTER}}
         showLeftImage={true}
         leftImageBlue={ICONS.keyIcon}
         LeftImageDarkMode={ICONS.keyIconWhite}

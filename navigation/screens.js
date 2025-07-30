@@ -36,6 +36,7 @@ import {
   ConfirmActionPage,
   HistoricalOnChainPayments,
   LspDescriptionPopup,
+  NosterWalletConnect,
   TotalTipsScreen,
   ViewPOSTransactions,
 } from '../app/components/admin/homeComponents/settingsContent';
@@ -44,6 +45,7 @@ import {
 // import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
 import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
+import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
 import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
 import NWCWallet from '../app/components/admin/homeComponents/settingsContent/nwc/NWCWalletPage';
 import NWCWalletSetup from '../app/components/admin/homeComponents/settingsContent/nwc/showSeedPage';
@@ -126,10 +128,12 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'RestoreWallet', component: RestoreWallet},
   // {name: 'EcashSettings', component: EcashSettings},
   {name: 'AddPOSItemsPage', component: AddPOSItemsPage},
+  {name: 'NosterWalletConnect', component: NosterWalletConnect},
   {name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount},
   {name: 'NWCWallet', component: NWCWallet},
   {name: 'NWCWalletSetup', component: NWCWalletSetup},
   {name: 'SparkSettingsPage', component: SparkSettingsPage},
+  {name: 'Nip5VerificationPage', component: Nip5VerificationPage},
 ];
 
 const FADE_SCREENS = [

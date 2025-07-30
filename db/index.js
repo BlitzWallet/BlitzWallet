@@ -17,6 +17,7 @@ import {
   writeBatch,
   or,
   orderBy,
+  deleteDoc,
 } from '@react-native-firebase/firestore';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
 import {
@@ -418,4 +419,56 @@ function processWithRAF(allMessages, myPubKey, privateKey) {
 
     requestAnimationFrame(processChunk);
   });
+}
+
+export async function isValidNip5Name(wantedName) {
+  try {
+    crashlyticsLogReport('Seeing if the unique name exists');
+    const usersRef = collection(db, 'nip5Verification');
+    const q = query(
+      usersRef,
+      where('nameLower', '==', wantedName.toLowerCase()),
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.empty;
+  } catch (error) {
+    console.error('Error checking unique name:', error);
+    crashlyticsRecordErrorReport(error.message);
+    return false;
+  }
+}
+export async function addNip5toCollection(dataObject, uuid) {
+  try {
+    if (!uuid) throw Error('Not authenticated');
+    crashlyticsLogReport('Starting to add data to nip5');
+
+    const db = getFirestore();
+    const docRef = doc(db, 'nip5Verification', uuid);
+
+    await setDoc(docRef, dataObject, {merge: true});
+
+    return true;
+  } catch (e) {
+    console.error('Error adding document: ', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+export async function deleteNip5FromCollection(uuid) {
+  try {
+    if (!uuid) throw Error('Not authenticated');
+    crashlyticsLogReport('Starting to add data to collection');
+
+    const db = getFirestore();
+    const docRef = doc(db, 'nip5Verification', uuid);
+
+    await deleteDoc(docRef);
+
+    console.log('Document deleted');
+    return true;
+  } catch (e) {
+    console.error('Error deleting document', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
 }

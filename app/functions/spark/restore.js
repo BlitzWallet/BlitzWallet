@@ -394,7 +394,7 @@ async function processLightningTransaction(
             matchResult.matchedUnpaidInvoice?.invoice?.encodedInvoice || '',
           preimage: matchResult.matchedUnpaidInvoice?.paymentPreimage || '',
           shouldNavigate: matchResult.savedInvoice?.shouldNavigate ?? 0,
-          isLNULR: savedDetails?.isLNURL || false,
+          isLNURL: savedDetails?.isLNURL || false,
         },
       };
     }

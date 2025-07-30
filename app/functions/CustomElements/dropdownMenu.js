@@ -1,12 +1,12 @@
 import React, {useState, useRef} from 'react';
 import {
   View,
-  Text,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
   Dimensions,
   Modal,
+  Platform,
 } from 'react-native';
 import ThemeImage from './themeImage';
 import {COLORS, ICONS} from '../../constants';
@@ -26,6 +26,7 @@ const DropdownMenu = ({
   const dropdownRef = useRef(null);
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const [dropdownHeight, setDropdownHeight] = useState(0);
 
   const handleSelect = item => {
     onSelect(item);
@@ -36,12 +37,37 @@ const DropdownMenu = ({
     setButtonLayout(event.nativeEvent.layout);
   };
 
+  const measureButtonPosition = () => {
+    return new Promise(resolve => {
+      if (dropdownRef.current) {
+        dropdownRef.current.measure((x, y, width, height, pageX, pageY) => {
+          const layout = {
+            x: pageX,
+            y: pageY,
+            width,
+            height,
+          };
+          setButtonLayout(layout);
+          resolve(layout);
+        });
+      } else {
+        resolve(buttonLayout);
+      }
+    });
+  };
+
+  const handleDropdownToggle = async () => {
+    if (!isOpen) {
+      // Recalculate position before opening
+      await measureButtonPosition();
+    }
+    setIsOpen(!isOpen);
+  };
   // Calculate if dropdown should open upwards based on screen position
   const screenHeight = Dimensions.get('window').height;
-  const dropdownHeight = 200; // Max height of dropdown menu
   const isTooLow =
     buttonLayout &&
-    buttonLayout.y + buttonLayout.height + dropdownHeight > screenHeight;
+    buttonLayout.y + buttonLayout.height + dropdownHeight + 50 > screenHeight;
 
   return (
     <View style={styles.container} ref={dropdownRef} onLayout={handleLayout}>
@@ -58,11 +84,11 @@ const DropdownMenu = ({
             ...styles.dropdownButton,
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
           }}
-          onPress={() => setIsOpen(!isOpen)}>
+          onPress={() => handleDropdownToggle()}>
           <ThemeText
             styles={{
               includeFontPadding: false,
-              flexGrow: 1,
+              flexShrink: 1,
             }}
             CustomNumberOfLines={1}
             content={selectedValue ? selectedValue : placeholder}
@@ -123,20 +149,24 @@ const DropdownMenu = ({
             style={[
               styles.dropdownMenu,
               buttonLayout && {
-                top: isTooLow ? buttonLayout.y - 105 : buttonLayout.y + 145,
+                top: isTooLow
+                  ? buttonLayout.y - dropdownHeight - 5
+                  : buttonLayout.y + (Platform.OS === 'ios' ? 50 : 25),
                 left: '7.3%',
                 width: selectorLayout?.width,
               },
+              {backgroundColor: theme ? backgroundOffset : COLORS.darkModeText},
             ]}>
-            <ScrollView>
-              {options.map(item => (
+            <ScrollView
+              onLayout={e => {
+                setDropdownHeight(e.nativeEvent.layout.height);
+              }}>
+              {options.map((item, index) => (
                 <TouchableOpacity
                   key={item.value.toString()}
                   style={{
                     ...styles.dropdownItem,
-                    backgroundColor: theme
-                      ? backgroundOffset
-                      : COLORS.darkModeText,
+                    borderBottomWidth: index !== options.length - 1 ? 1 : 0,
                     borderBottomColor: backgroundColor,
                   }}
                   onPress={() => handleSelect(item)}>
@@ -181,7 +211,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   dropdownItem: {
-    padding: 12,
+    height: 45,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
   },
 });

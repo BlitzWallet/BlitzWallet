@@ -177,6 +177,10 @@ export default async function initializeUserSettingsFromHistory({
       lastUpdated: new Date().getTime(),
       addresses: [],
     };
+    const nip5Settings = blitzStoredData.nip5Settings || {
+      name: '',
+      pubkey: '',
+    };
 
     // let lnurlPubKey = blitzStoredData.lnurlPubKey;
 
@@ -329,6 +333,7 @@ export default async function initializeUserSettingsFromHistory({
     // store in contacts context
     tempObject['contacts'] = contacts;
     tempObject['NWC'] = savedNWCData;
+    tempObject['nip5Settings'] = nip5Settings;
 
     // Store in ecash context
     // tempObject['eCashInformation'] = eCashInformation;

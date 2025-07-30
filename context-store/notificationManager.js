@@ -8,6 +8,7 @@ import {
   getMessaging,
   isDeviceRegisteredForRemoteMessages,
   registerDeviceForRemoteMessages,
+  setBackgroundMessageHandler,
 } from '@react-native-firebase/messaging';
 import {encriptMessage} from '../app/functions/messaging/encodingAndDecodingMessages';
 import {useGlobalContextProvider} from './context';
@@ -173,22 +174,25 @@ async function registerForPushNotificationsAsync() {
       throw new Error(
         'Google Play Services are required to receive notifications.',
       );
+    console.log('Registering notification channel on android');
 
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync(
         'blitzWalletNotifications',
         {
           name: 'blitzWalletNotifications',
-          importance: Notifications.AndroidImportance.MAX,
+          importance: Notifications.AndroidImportance.HIGH,
           vibrationPattern: [0, 250, 250, 250],
           lightColor: '#FF231F7C',
+          showBadge: true,
+          bypassDnd: false,
         },
       );
     }
 
-    if (DeviceInfo.isEmulatorSync()) {
-      throw new Error('Must use physical device for Push Notifications');
-    }
+    // if (DeviceInfo.isEmulatorSync()) {
+    //   throw new Error('Must use physical device for Push Notifications');
+    // }
 
     const permissionsResult = await Notifications.getPermissionsAsync();
     let finalStatus = permissionsResult.status;
@@ -235,7 +239,13 @@ TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async ({data, error}) => {
 
 export async function registerBackgroundNotificationTask() {
   try {
-    await Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
+    if (Platform.OS === 'android') {
+      setBackgroundMessageHandler(firebaseMessaging, async data => {
+        await handleNWCBackgroundEvent(data);
+      });
+    } else {
+      await Notifications.registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
+    }
   } catch (error) {
     console.error('Task registration failed:', error);
   }

@@ -31,6 +31,7 @@ import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useToast} from '../../../context-store/toastManager';
 import {useKeysContext} from '../../../context-store/keys';
 import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
+import {encodeLNURL} from '../../functions/lnurl/bench32Formmater';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -55,7 +56,9 @@ export default function ReceivePaymentHome(props) {
   const [addressState, setAddressState] = useState({
     selectedRecieveOption: selectedRecieveOption,
     isReceivingSwap: false,
-    generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`,
+    generatedAddress: encodeLNURL(
+      globalContactsInformation.myProfile.uniqueName,
+    ),
     isGeneratingInvoice: false,
     minMaxSwapAmount: {
       min: 0,
@@ -79,7 +82,9 @@ export default function ReceivePaymentHome(props) {
       ) {
         setAddressState(prev => ({
           ...prev,
-          generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`,
+          generatedAddress: encodeLNURL(
+            globalContactsInformation.myProfile.uniqueName,
+          ),
         }));
         return;
       }
@@ -143,58 +148,70 @@ export default function ReceivePaymentHome(props) {
             generatingInvoiceQRCode={addressState.isGeneratingInvoice}
             generatedAddress={addressState.generatedAddress}
             selectedRecieveOption={selectedRecieveOption}
+            initialSendAmount={initialSendAmount}
           />
 
           <View style={{marginBottom: 'auto'}}></View>
 
-          <View
+          <TouchableOpacity
+            activeOpacity={
+              selectedRecieveOption.toLowerCase() !== 'lightning' &&
+              selectedRecieveOption.toLowerCase() !== 'spark'
+                ? 0.2
+                : 1
+            }
+            onPress={() => {
+              if (
+                selectedRecieveOption.toLowerCase() === 'lightning' ||
+                selectedRecieveOption.toLowerCase() === 'spark'
+              )
+                return;
+
+              let informationText = '';
+              if (selectedRecieveOption.toLowerCase() === 'bitcoin') {
+                informationText =
+                  'On-chain payments require a network fee to be processed.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.';
+              } else if (selectedRecieveOption.toLowerCase() === 'liquid') {
+                informationText = `Liquid payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about ${displayCorrectDenomination(
+                  {amount: 34, masterInfoObject, fiatStats},
+                )}, a claim fee of around ${displayCorrectDenomination({
+                  amount: 19,
+                  masterInfoObject,
+                  fiatStats,
+                })}, and a 0.1% service fee from Boltz based on the amount you’re sending.`;
+              }
+
+              navigate.navigate('InformationPopup', {
+                textContent: informationText,
+                buttonText: 'I understand',
+              });
+            }}
             style={{
               alignItems: 'center',
-              // position: 'absolute',
-              // [Platform.OS === 'ios' ? 'top' : 'bottom']:
-              // Platform.OS === 'ios' ? '100%' : 0,
             }}>
-            <ThemeText content={'Fee:'} />
-            <FormattedSatText
-              neverHideBalance={true}
-              styles={{paddingBottom: 5}}
-              balance={0}
-            />
-            {/* <Text
-          style={[
-            styles.title,
-            {
-              color: textColor,
-              marginTop: 0,
-              marginBottom: 0,
-            },
-          ]}>
-          {selectedRecieveOption.toLowerCase() === 'bitcoin' &&
-          addressState.errorMessageText.text
-            ? `${
-                addressState.minMaxSwapAmount.min > initialSendAmount
-                  ? 'Minimum'
-                  : 'Maximum'
-              } receive amount:`
-            : `Fee:`}
-        </Text> */}
-            {/* {addressState.isGeneratingInvoice ? (
-          <ThemeText content={' '} />
-        ) : (
-          <FormattedSatText
-            neverHideBalance={true}
-            styles={{paddingBottom: 5}}
-            balance={
-              selectedRecieveOption.toLowerCase() === 'bitcoin' &&
-              addressState.errorMessageText.text
-                ? addressState.minMaxSwapAmount.min > initialSendAmount
-                  ? addressState.minMaxSwapAmount.min
-                  : addressState.minMaxSwapAmount.max
-                : addressState.fee
-            }
-          />
-        )} */}
-          </View>
+            <View style={styles.feeTitleContainer}>
+              <ThemeText styles={styles.feeTitleText} content={'Fee'} />
+              {selectedRecieveOption.toLowerCase() !== 'lightning' &&
+                selectedRecieveOption.toLowerCase() !== 'spark' && (
+                  <ThemeImage
+                    styles={styles.AboutIcon}
+                    lightModeIcon={ICONS.aboutIcon}
+                    darkModeIcon={ICONS.aboutIcon}
+                    lightsOutIcon={ICONS.aboutIconWhite}
+                  />
+                )}
+            </View>
+            {selectedRecieveOption.toLowerCase() !== 'lightning' &&
+            selectedRecieveOption.toLowerCase() !== 'spark' ? (
+              <ThemeText content="Veriable" />
+            ) : (
+              <FormattedSatText
+                neverHideBalance={true}
+                styles={{paddingBottom: 5}}
+                balance={0}
+              />
+            )}
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </GlobalThemeView>
@@ -295,6 +312,15 @@ function QrCode(props) {
     <View style={styles.qrCodeContainer}>
       <TouchableOpacity
         onPress={() => {
+          if (
+            selectedRecieveOption?.toLowerCase() === 'lightning' &&
+            !initialSendAmount
+          ) {
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'chooseLNURLCopyFormat',
+            });
+            return;
+          }
           copyToClipboard(addressState.generatedAddress, showToast);
         }}
         style={[
@@ -445,5 +471,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     ...CENTER,
+  },
+
+  feeTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  feeTitleText: {
+    includeFontPadding: false,
+  },
+  AboutIcon: {
+    width: 15,
+    height: 15,
+    marginLeft: 5,
   },
 });
