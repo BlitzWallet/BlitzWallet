@@ -74,6 +74,7 @@ const SparkWalletProvider = ({children}) => {
   const updatePendingPaymentsIntervalRef = useRef(null);
   const isInitialRestore = useRef(true);
   const didInitializeSendingPaymentEvent = useRef(false);
+  const initialBitcoinIntervalRun = useRef(null);
   const [numberOfCachedTxs, setNumberOfCachedTxs] = useState(0);
 
   // Debounce refs
@@ -315,38 +316,43 @@ const SparkWalletProvider = ({children}) => {
     }, 500);
   };
 
-  const addListeners = async () => {
+  const addListeners = async mode => {
     console.log('Adding Spark listeners...');
     if (AppState.currentState !== 'active') return;
 
+    sparkTransactionsEventEmitter.removeAllListeners(
+      SPARK_TX_UPDATE_ENVENT_NAME,
+    );
     sparkTransactionsEventEmitter.on(SPARK_TX_UPDATE_ENVENT_NAME, handleUpdate);
-    sparkWallet.on('transfer:claimed', transferHandler);
-    // sparkWallet.on('deposit:confirmed', transferHandler);
 
-    if (isInitialRestore.current) {
-      isInitialRestore.current = false;
-    }
+    if (mode === 'full') {
+      sparkWallet.on('transfer:claimed', transferHandler);
 
-    await fullRestoreSparkState({
-      sparkAddress: sparkInformation.sparkAddress,
-      batchSize: isInitialRestore.current ? 15 : 5,
-      savedTxs: sparkInformation.transactions,
-      isSendingPayment: isSendingPayment,
-    });
-
-    await updateSparkTxStatus();
-
-    if (updatePendingPaymentsIntervalRef.current) {
-      console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
-      return;
-    }
-    updatePendingPaymentsIntervalRef.current = setInterval(async () => {
-      try {
-        await updateSparkTxStatus();
-      } catch (err) {
-        console.error('Error during periodic restore:', err);
+      if (isInitialRestore.current) {
+        isInitialRestore.current = false;
       }
-    }, 10 * 1000);
+
+      await fullRestoreSparkState({
+        sparkAddress: sparkInformation.sparkAddress,
+        batchSize: isInitialRestore.current ? 15 : 5,
+        savedTxs: sparkInformation.transactions,
+        isSendingPayment: isSendingPayment,
+      });
+
+      await updateSparkTxStatus();
+
+      if (updatePendingPaymentsIntervalRef.current) {
+        console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
+        clearInterval(updatePendingPaymentsIntervalRef.current);
+      }
+      updatePendingPaymentsIntervalRef.current = setInterval(async () => {
+        try {
+          await updateSparkTxStatus();
+        } catch (err) {
+          console.error('Error during periodic restore:', err);
+        }
+      }, 10 * 1000);
+    }
   };
 
   const removeListeners = () => {
@@ -359,10 +365,16 @@ const SparkWalletProvider = ({children}) => {
       sparkWallet.listenerCount('transfer:claimed'),
       'number of spark wallet listenre',
     );
-    sparkTransactionsEventEmitter.removeAllListeners(
-      SPARK_TX_UPDATE_ENVENT_NAME,
-    );
-    sparkWallet?.removeAllListeners('transfer:claimed');
+    if (
+      sparkTransactionsEventEmitter.listenerCount(SPARK_TX_UPDATE_ENVENT_NAME)
+    ) {
+      sparkTransactionsEventEmitter.removeAllListeners(
+        SPARK_TX_UPDATE_ENVENT_NAME,
+      );
+    }
+    if (sparkWallet.listenerCount('transfer:claimed')) {
+      sparkWallet?.removeAllListeners('transfer:claimed');
+    }
     // sparkWallet?.removeAllListeners('deposit:confirmed');
 
     // Clear debounce timeout when removing listeners
@@ -380,23 +392,27 @@ const SparkWalletProvider = ({children}) => {
     }
   };
 
-  // Add event listeners to listen for bitcoin and lightning or spark transfers when receiving does not handle sending
+  // Add event listeners to listen for bitcoin and lightning or spark transfers when receiving only when screen is active
   useEffect(() => {
-    console.log(
-      appState,
-      sparkInformation.didConnect,
-      didGetToHomepage,
-      'inside of spark app state',
-    );
-    if (!appState) return;
     if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
-    if (appState === 'active') {
-      addListeners();
-    } else if (appState.match(/inactive|background/)) {
+
+    const shouldHaveListeners = appState === 'active' && !isSendingPayment;
+    const shouldHaveSparkEventEmitter = appState === 'active';
+
+    if (shouldHaveListeners) {
+      addListeners('full');
+    } else if (shouldHaveSparkEventEmitter && isSendingPayment) {
+      addListeners('sparkOnly');
+    } else {
       removeListeners();
     }
-  }, [appState, sparkInformation.didConnect, didGetToHomepage]);
+  }, [
+    appState,
+    sparkInformation.didConnect,
+    didGetToHomepage,
+    isSendingPayment,
+  ]);
 
   useEffect(() => {
     if (!didGetToHomepage) return;
@@ -575,13 +591,18 @@ const SparkWalletProvider = ({children}) => {
       clearInterval(depositAddressIntervalRef.current);
     }
 
-    setTimeout(handleDepositAddressCheck, 1_000 * 5);
+    if (isSendingPayment) return;
+
+    if (!initialBitcoinIntervalRun.current) {
+      setTimeout(handleDepositAddressCheck, 1_000 * 5);
+      initialBitcoinIntervalRun.current = true;
+    }
 
     depositAddressIntervalRef.current = setInterval(
       handleDepositAddressCheck,
       1_000 * 60,
     );
-  }, [sparkInformation.didConnect, didGetToHomepage]);
+  }, [sparkInformation.didConnect, didGetToHomepage, isSendingPayment]);
 
   // This function connects to the spark node and sets the session up
 
