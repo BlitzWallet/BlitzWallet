@@ -48,6 +48,7 @@ export default function SwitchReceiveOptionPage({
   const {t} = useTranslation();
   useHandleBackPressNew();
   const [contentHeight, setContentHeight] = useState(0);
+  const isLRC20Enabled = masterInfoObject.lrc20Settings.isEnabled;
 
   // Animation values
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -215,7 +216,7 @@ export default function SwitchReceiveOptionPage({
         content={'Choose Network'}
       />
 
-      {paymentTypes.slice(0, 2)}
+      {paymentTypes.slice(0, isLRC20Enabled ? 3 : 2)}
 
       <TouchableOpacity
         style={{
@@ -262,14 +263,14 @@ export default function SwitchReceiveOptionPage({
             position: 'absolute',
             top: 0,
           }}>
-          {paymentTypes.slice(2)}
+          {paymentTypes.slice(isLRC20Enabled ? 3 : 2)}
         </View>
       </Animated.View>
     </ScrollView>
   );
 
   function handleClick(selectedOption) {
-    if (selectedOption === 'Spark') {
+    if (selectedOption === 'Spark' && !isLRC20Enabled) {
       navigate.navigate('InformationPopup', {
         textContent:
           'Receiving directly via Spark will expose your balance to the person paying and is not considered private.',
