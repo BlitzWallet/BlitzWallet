@@ -1,4 +1,5 @@
 import {SimplePool} from 'nostr-tools';
+import {pushInstantNotification} from '../notifications';
 
 // Configuration
 const RELAY_TIMEOUT = 10000; // 5 seconds timeout per message

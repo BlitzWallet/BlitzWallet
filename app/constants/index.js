@@ -34,6 +34,8 @@ const IS_SPARK_REQUEST_ID =
   /^SparkLightning(?:Receive|Send)Request:[0-9a-fA-F\-]+$/;
 const IS_BITCOIN_REQUEST_ID = /^SparkCoopExitRequest:[0-9a-fA-F\-]+$/;
 
+const NOSTR_NAME_REGEX = /^[a-zA-Z0-9]+$/;
+
 const IS_LETTER_REGEX = /^[A-Za-z]$/;
 const BITCOIN_SATS_ICON = '\u20BF';
 const HIDDEN_BALANCE_TEXT = `* * * * *`;
@@ -135,4 +137,5 @@ export {
   NWC_LOACAL_STORE_KEY,
   SPARK_CACHED_BALANCE_KEY,
   IS_SPARK_ID,
+  NOSTR_NAME_REGEX,
 };

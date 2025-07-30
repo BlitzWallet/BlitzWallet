@@ -1,4 +1,5 @@
 import {
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -17,6 +18,7 @@ export default function ErrorScreen(props) {
 
   const navigationFunction = props.route.params?.navigationFunction;
   const customNavigator = props.route.params?.customNavigator;
+  const height = props.route.params?.height;
 
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -32,31 +34,30 @@ export default function ErrorScreen(props) {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={handleNaviagation}>
-      <View style={styles.globalContainer}>
-        <TouchableWithoutFeedback>
-          <View
-            style={[
-              styles.content,
-              {
-                backgroundColor: theme ? backgroundOffset : backgroundColor,
-              },
-            ]}>
-            <ThemeText styles={styles.headerText} content={errorMessage} />
-            <View
-              style={{
-                ...styles.border,
-                backgroundColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              }}
-            />
-            <TouchableOpacity onPress={handleNaviagation}>
-              <ThemeText styles={styles.cancelButton} content={'OK'} />
-            </TouchableOpacity>
-          </View>
-        </TouchableWithoutFeedback>
+    <View style={styles.globalContainer}>
+      <View
+        style={[
+          styles.content,
+          {
+            backgroundColor: theme ? backgroundOffset : backgroundColor,
+            maxHeight: height || 200,
+          },
+        ]}>
+        <ScrollView>
+          <ThemeText styles={styles.headerText} content={errorMessage} />
+        </ScrollView>
+        <View
+          style={{
+            ...styles.border,
+            backgroundColor:
+              theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+          }}
+        />
+        <TouchableOpacity onPress={handleNaviagation}>
+          <ThemeText styles={styles.cancelButton} content={'OK'} />
+        </TouchableOpacity>
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   );
 }
 
@@ -71,6 +72,7 @@ const styles = StyleSheet.create({
     width: '95%',
     maxWidth: 300,
     borderRadius: 8,
+    maxHeight: 400,
   },
   headerText: {
     width: '100%',

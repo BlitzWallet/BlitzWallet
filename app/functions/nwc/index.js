@@ -29,6 +29,12 @@ export function getSupportedMethods(accountPermissions) {
   if (accountPermissions.getBalance) {
     supportedCommands.push('get_balance');
   }
+  if (accountPermissions.transactionHistory) {
+    supportedCommands.push('list_transactions');
+  }
+  if (accountPermissions.lookupInvoice) {
+    supportedCommands.push('lookup_invoice');
+  }
   supportedCommands.push('get_info');
 
   return supportedCommands;
