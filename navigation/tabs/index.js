@@ -81,8 +81,7 @@ function MyTabBar({state, descriptors, navigation}) {
       />
       <View
         style={{
-          backgroundColor:
-            currentRoute === 'Home' ? backgroundOffset : backgroundColor,
+          backgroundColor: backgroundColor,
           borderTopRightRadius: currentRoute === 'Home' ? 0 : 15,
           borderTopLeftRadius: currentRoute === 'Home' ? 0 : 15,
           ...styles.tabsContainer,
