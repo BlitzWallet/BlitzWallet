@@ -31,6 +31,7 @@ export default function FormattedBalanceInput({
   customTextInputStyles,
   activeOpacity = 0.2,
   maxWidth = 0.95,
+  customCurrencyCode = '',
 }) {
   const [inputWidth, setInputWidth] = useState(50); // Start with a small width
   const [isScrolling, setIsScrolling] = useState(false);
@@ -55,6 +56,66 @@ export default function FormattedBalanceInput({
 
   const showSats =
     inputDenomination === 'sats' || inputDenomination === 'hidden';
+
+  console.log(customCurrencyCode, 'custom code');
+  if (customCurrencyCode) {
+    return (
+      <View
+        onTouchEnd={() => {
+          console.log(isScrolling, 'IS SCROLLING');
+          if (!isScrolling && containerFunction) {
+            containerFunction();
+          }
+        }}
+        style={[
+          styles.textInputContainer,
+          {
+            opacity: !amountValue ? 0.5 : 1,
+            ...customTextInputContainerStyles,
+          },
+        ]}>
+        <View style={[styles.inputWrapper, {width: inputWidth}]}>
+          <ScrollView
+            onTouchStart={() => setIsScrolling(false)}
+            onTouchMove={() => setIsScrolling(true)}
+            onTouchEnd={() => setIsScrolling(false)}
+            horizontal
+            showsHorizontalScrollIndicator={false}>
+            <TextInput
+              style={[
+                styles.textInput,
+                {color: textColor},
+                customTextInputStyles,
+              ]}
+              value={formatBalanceAmount(amountValue)}
+              editable={false}
+              scrollEnabled
+              multiline={false}
+            />
+          </ScrollView>
+        </View>
+
+        <ThemeText
+          styles={styles.satText}
+          content={customCurrencyCode?.slice(0, 3) + '..'}
+        />
+
+        {/* Hidden Text for Measuring Width stupid but works */}
+        <Text
+          style={styles.hiddenText}
+          onLayout={e => {
+            console.log(e.nativeEvent.layout.width, 'INPUT WIDTH');
+            const newWidth = Math.min(
+              e.nativeEvent.layout.width + (Platform.OS === 'android' ? 10 : 5),
+              windowWidth * maxWidth,
+            );
+            setInputWidth(newWidth);
+          }}>
+          {formatBalanceAmount(amountValue)}
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View
