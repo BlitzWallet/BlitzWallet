@@ -233,19 +233,21 @@ export const sendSparkPayment = async ({receiverSparkAddress, amountSats}) => {
 };
 
 export const sendSparkTokens = async ({
-  tokenPublicKey,
+  tokenIdentifier,
   tokenAmount,
   receiverSparkAddress,
 }) => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.transferTokens({
-      tokenPublicKey,
-      tokenAmount,
+    const response = await sparkWallet.transferTokens({
+      tokenIdentifier,
+      tokenAmount: BigInt(tokenAmount),
       receiverSparkAddress,
     });
+    return {didWork: true, response};
   } catch (err) {
     console.log('Send spark token error', err);
+    return {didWork: false, error: err.message};
   }
 };
 
