@@ -75,9 +75,28 @@ export const getSparkIdentityPubKey = async () => {
 export const getSparkBalance = async () => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.getBalance();
+    const balance = await sparkWallet.getBalance();
+    console.log('Spark Balance:', balance);
+    console.log('Tokens balance size:', balance.tokenBalances.size);
+    console.log(
+      'Tokens balance keys',
+      Array.from(balance.tokenBalances.keys()),
+    );
+    console.log(
+      'Tokens balance values',
+      Array.from(balance.tokenBalances.values()),
+    );
+    let tokensObj = {};
+
+    for (const [tokensIdentifier, tokensBalane] of balance.tokenBalances) {
+      tokensObj[tokensIdentifier] = tokensBalane;
+      console.log('Tokens Identifier', tokensIdentifier);
+      console.log('Tokens Balance:', tokensBalane);
+    }
+    return {tokensObj, balance: balance.balance, didWork: true};
   } catch (err) {
     console.log('Get spark balance error', err);
+    return {didWork: false};
   }
 };
 
