@@ -53,31 +53,29 @@ export default function LRC20Assets() {
   });
 
   const availableTokens = useMemo(() => {
-    return Object.entries({
-      ...sparkInformation.tokens,
-      '03f9de16a02254a674456efd9a3d581a6973660ea3d34291e90e7b33f2b2ddde60': {
-        amount: 10n,
-        itentifier:
-          'btkn1la0vcnaa6x788g6vkf6tvjhcre7d7duv2d8n93uj3p6z8xm8mdnqhmj4ha',
-        ticker: 'btest',
-      },
-    });
+    return Object.entries(sparkInformation.tokens);
   }, [sparkInformation.tokens]);
 
   const tokens = useMemo(() => {
     return availableTokens
       .map((item, index) => {
-        const [pubkey, details] = item;
-        if (!pubkey || !details) return false;
-        console.log(pubkey, details);
+        const [tokenIdentifier, details] = item;
+        if (!tokenIdentifier || !details) return false;
+
         const backgroundColor = stringToColorCrypto(
-          pubkey,
-          theme && darkModeType ? 'dark' : 'light',
+          tokenIdentifier,
+          theme && darkModeType ? 'lightsout' : 'light',
         );
         const textColor = getContrastingTextColor(backgroundColor);
         return (
-          <View
-            key={pubkey}
+          <TouchableOpacity
+            onPress={() =>
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'LRC20TokenInformation',
+                tokenIdentifier,
+              })
+            }
+            key={tokenIdentifier}
             style={{alignItems: 'center', marginHorizontal: 10, width: 60}}>
             <View
               style={{
@@ -90,10 +88,10 @@ export default function LRC20Assets() {
                   includeFontPadding: false,
                 }}
                 CustomNumberOfLines={1}
-                content={details.ticker}
+                content={details?.tokenMetadata?.tokenTicker}
               />
             </View>
-          </View>
+          </TouchableOpacity>
         );
       })
       .filter(Boolean);
