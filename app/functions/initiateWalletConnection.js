@@ -62,7 +62,7 @@ async function initializeSparkSession({
         getSparkIdentityPubKey(),
       ]);
 
-    if (balance === undefined || transactions === undefined)
+    if (!balance.didWork || transactions === undefined)
       throw new Error('Unable to initialize spark from history');
 
     // if (
@@ -114,7 +114,7 @@ async function initializeSparkSession({
 
     const finalBalanceToUse = didLoadCorrectBalance
       ? correctBalance
-      : Number(initialBalanceResponse.balance);
+      : Number(initialBalanceResponse);
     console.log(
       didLoadCorrectBalance,
       runCount,
@@ -125,6 +125,7 @@ async function initializeSparkSession({
     );
     const storageObject = {
       balance: finalBalanceToUse,
+      tokens: balance.tokensObj,
       transactions: transactions,
       identityPubKey,
       sparkAddress: sparkAddress.response,

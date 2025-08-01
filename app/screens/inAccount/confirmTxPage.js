@@ -21,10 +21,12 @@ import {
   updateConfirmAnimation,
 } from '../../functions/lottieViewColorTransformer';
 import {useToast} from '../../../context-store/toastManager';
+import {useSparkWallet} from '../../../context-store/sparkContext';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
 export default function ConfirmTxPage(props) {
+  const {sparkInformation} = useSparkWallet();
   const navigate = useNavigation();
   const {showToast} = useToast();
   const {backgroundOffset} = GetThemeColors();
@@ -46,6 +48,11 @@ export default function ConfirmTxPage(props) {
   const errorMessage = hasError;
 
   const amount = paymentInformation?.amount || 0;
+
+  const isLRC20Payment = paymentInformation?.isLRC20Payment;
+  const token = isLRC20Payment
+    ? sparkInformation.tokens?.[transaction.details.LRC20Token]
+    : '';
 
   const confirmAnimation = useMemo(() => {
     return updateConfirmAnimation(
@@ -99,6 +106,8 @@ export default function ConfirmTxPage(props) {
             }}
             neverHideBalance={true}
             balance={amount}
+            useCustomLabel={isLRC20Payment}
+            customLabel={token?.tokenMetadata?.tokenTicker}
           />
         </View>
       )}
@@ -122,7 +131,12 @@ export default function ConfirmTxPage(props) {
         <View style={styles.paymentTable}>
           <View style={styles.paymentTableRow}>
             <ThemeText content={'Fee'} />
-            <FormattedSatText neverHideBalance={true} balance={paymentFee} />
+            <FormattedSatText
+              neverHideBalance={true}
+              balance={isLRC20Payment ? 0 : paymentFee}
+              useCustomLabel={isLRC20Payment}
+              customLabel={token?.tokenMetadata?.tokenTicker}
+            />
           </View>
           <View style={styles.paymentTableRow}>
             <ThemeText content={'Type'} />

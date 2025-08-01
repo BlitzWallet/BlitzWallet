@@ -88,7 +88,7 @@ export default function LRC20Assets() {
                   includeFontPadding: false,
                 }}
                 CustomNumberOfLines={1}
-                content={details?.tokenMetadata?.tokenTicker}
+                content={details?.tokenMetadata?.tokenTicker?.toUpperCase()}
               />
             </View>
           </TouchableOpacity>

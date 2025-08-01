@@ -390,6 +390,28 @@ export const getSparkTransactions = async (
     return {transfers: []};
   }
 };
+
+export const getSparkTokenTransactions = async ({
+  ownerPublicKeys,
+  issuerPublicKeys,
+  tokenTransactionHashes,
+  tokenIdentifiers,
+  outputIds,
+}) => {
+  try {
+    if (!sparkWallet) throw new Error('sparkWallet not initialized');
+    return await sparkWallet.queryTokenTransactions({
+      ownerPublicKeys,
+      issuerPublicKeys,
+      tokenTransactionHashes,
+      tokenIdentifiers,
+      outputIds,
+    });
+  } catch (err) {
+    console.log('get spark transactions error', err);
+    return [];
+  }
+};
 export const getCachedSparkTransactions = async () => {
   try {
     const txResponse = await getAllSparkTransactions();

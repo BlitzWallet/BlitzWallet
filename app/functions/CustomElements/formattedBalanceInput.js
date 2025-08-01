@@ -97,7 +97,7 @@ export default function FormattedBalanceInput({
 
         <ThemeText
           styles={styles.satText}
-          content={customCurrencyCode?.slice(0, 3) + '..'}
+          content={customCurrencyCode.toUpperCase()?.slice(0, 3)}
         />
 
         {/* Hidden Text for Measuring Width stupid but works */}

@@ -64,6 +64,7 @@ export default function HomeLightning() {
   // Extract memoized values
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
+  const enabledLRC20 = masterInfoObject.lrc20Settings?.isEnabled;
   const lrc20Settings = useMemo(
     () => masterInfoObject.lrc20Settings || {},
     [masterInfoObject.lrc20Settings],
@@ -95,6 +96,7 @@ export default function HomeLightning() {
         userBalanceDenomination,
         numberOfCachedTxs,
         didGetToHomepage,
+        enabledLRC20,
       }) || []
     );
   }, [
@@ -107,6 +109,7 @@ export default function HomeLightning() {
     theme,
     darkModeType,
     t,
+    enabledLRC20,
   ]);
 
   // Memoize the list data
@@ -148,7 +151,7 @@ export default function HomeLightning() {
       const offsetY = scrollOffset.current;
 
       setScrollContentChanges(prev => {
-        const newBorderRadius = offsetY > 20;
+        const newBorderRadius = offsetY > 40;
         const newBg = offsetY > 100;
         if (
           prev.borderRadius !== newBorderRadius ||
@@ -303,9 +306,9 @@ export default function HomeLightning() {
         data={listData}
         keyExtractor={(item, index) => item.key || index.toString()}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{backgroundColor: backgroundOffset}}
+        contentContainerStyle={{backgroundColor: backgroundOffset, flexGrow: 1}}
         onScroll={handleScroll}
-        scrollEventThrottle={30}
+        scrollEventThrottle={16}
         renderItem={renderItem}
         stickyHeaderIndices={[0]}
       />

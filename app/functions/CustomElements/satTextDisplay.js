@@ -4,6 +4,7 @@ import {
   BITCOIN_SAT_TEXT,
   BITCOIN_SATS_ICON,
   HIDDEN_BALANCE_TEXT,
+  TOKEN_TICKER_MAX_LENGTH,
 } from '../../constants';
 import ThemeText from './textTheme';
 import {formatCurrency} from '../formatCurrency';
@@ -23,6 +24,8 @@ export default function FormattedSatText({
   globalBalanceDenomination,
   backText,
   useBalance,
+  useCustomLabel = false,
+  customLabel = '',
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {fiatStats} = useNodeContext();
@@ -64,6 +67,50 @@ export default function FormattedSatText({
     neverHideBalance ||
     localBalanceDenomination === 'sats' ||
     localBalanceDenomination === 'fiat';
+
+  if (useCustomLabel) {
+    return (
+      <View
+        style={{
+          ...localStyles.textContainer,
+          ...containerStyles,
+        }}>
+        {frontText && (
+          <ThemeText
+            styles={{includeFontPadding: false, marginLeft: 'auto', ...styles}}
+            content={`${frontText}`}
+          />
+        )}
+        <ThemeText
+          reversed={reversed}
+          content={`${formattedBalance}`}
+          styles={{
+            includeFontPadding: false,
+            marginLeft: frontText ? 0 : 'auto',
+            ...styles,
+          }}
+        />
+
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={{
+            includeFontPadding: false,
+            ...styles,
+          }}
+          content={` ${customLabel
+            ?.toUpperCase()
+            ?.slice(0, TOKEN_TICKER_MAX_LENGTH)}`}
+        />
+
+        {backText && (
+          <ThemeText
+            styles={{includeFontPadding: false, ...styles}}
+            content={`${backText}`}
+          />
+        )}
+      </View>
+    );
+  }
 
   // Hidding balance format
   if (!shouldShowAmount) {
@@ -185,5 +232,6 @@ const localStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    flexShrink: 1,
   },
 });

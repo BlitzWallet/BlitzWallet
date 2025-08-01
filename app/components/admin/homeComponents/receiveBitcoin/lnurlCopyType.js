@@ -10,7 +10,7 @@ import {useToast} from '../../../../../context-store/toastManager';
 import {copyToClipboard} from '../../../../functions';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 
-export default function ChooseLNURLCopyFormat(props) {
+export default function ChooseLNURLCopyFormat() {
   const {showToast} = useToast();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {globalContactsInformation} = useGlobalContacts();
