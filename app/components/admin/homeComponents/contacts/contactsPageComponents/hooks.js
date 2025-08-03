@@ -1,6 +1,10 @@
 import {useEffect, useMemo, useState} from 'react';
 
-export const useProcessedContacts = (decodedAddedContacts, contactsMessags) => {
+export const useProcessedContacts = (
+  decodedAddedContacts,
+  contactsMessags,
+  cache,
+) => {
   const [contactInfoList, setContactInfoList] = useState([]);
 
   useEffect(() => {
@@ -14,7 +18,7 @@ export const useProcessedContacts = (decodedAddedContacts, contactsMessags) => {
       };
     });
     setContactInfoList(processedContacts);
-  }, [decodedAddedContacts, contactsMessags]);
+  }, [decodedAddedContacts, contactsMessags, cache]);
 
   return contactInfoList;
 };

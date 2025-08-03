@@ -33,22 +33,22 @@ export default function ContactProfileImage({
   }, []);
 
   const styles = useMemo(() => {
-    return !loadError && uri && !isLoading
+    return !loadError && !!uri && !isLoading
       ? {width: '100%', aspectRatio: 1}
       : {
           width: fromCustomQR ? '100%' : '50%',
           height: fromCustomQR ? '100%' : '50%',
         };
-  }, [loadError, uri, isLoading, fromCustomQR]);
+  }, [loadError, customURI, isLoading, fromCustomQR]);
 
   const imageSource = useMemo(() => {
-    return !loadError && uri && !isLoading
+    return !loadError && !!uri && !isLoading
       ? {
           uri: customURI,
           priority: priority,
         }
       : fallbackIcon;
-  }, [loadError, uri, isLoading, customURI, priority, fallbackIcon]);
+  }, [loadError, customURI, isLoading, customURI, priority, fallbackIcon]);
 
   return (
     <FastImage

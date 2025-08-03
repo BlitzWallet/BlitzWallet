@@ -239,10 +239,17 @@ export default function ExpandedTx(props) {
               <View style={styles.infoLine}>
                 <ThemeText content={'Token'} />
                 <ThemeText
+                  CustomNumberOfLines={1}
                   content={selectedToken?.tokenMetadata?.tokenTicker
                     ?.toUpperCase()
                     ?.slice(0, TOKEN_TICKER_MAX_LENGTH)}
-                  styles={{fontSize: SIZES.large, textTransform: 'capitalize'}}
+                  styles={{
+                    fontSize: SIZES.large,
+                    textTransform: 'uppercase',
+                    flexGrow: 1,
+                    textAlign: 'right',
+                    marginLeft: 10,
+                  }}
                 />
               </View>
             )}

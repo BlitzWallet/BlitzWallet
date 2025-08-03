@@ -276,12 +276,20 @@ export default function HomeLightning() {
     ],
   );
 
+  const homepageBackgroundOffsetColor = useMemo(() => {
+    return theme
+      ? darkModeType
+        ? COLORS.walletHomeLightsOutOffset
+        : COLORS.walletHomeDarkModeOffset
+      : COLORS.walletHomeLightModeOffset;
+  }, [theme, darkModeType]);
+
   return (
     <GlobalThemeView
       styles={{
         flex: 1,
         backgroundColor: scrollContentChanges.backgroundColor
-          ? backgroundOffset
+          ? homepageBackgroundOffsetColor
           : backgroundColor,
         paddingBottom: 0,
       }}>
@@ -306,7 +314,10 @@ export default function HomeLightning() {
         data={listData}
         keyExtractor={(item, index) => item.key || index.toString()}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{backgroundColor: backgroundOffset, flexGrow: 1}}
+        contentContainerStyle={{
+          backgroundColor: homepageBackgroundOffsetColor,
+          flexGrow: 1,
+        }}
         onScroll={handleScroll}
         scrollEventThrottle={16}
         renderItem={renderItem}

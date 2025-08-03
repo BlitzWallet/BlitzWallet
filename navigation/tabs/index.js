@@ -18,7 +18,6 @@ import GetThemeColors from '../../app/hooks/themeColors';
 import {useGlobalThemeContext} from '../../context-store/theme';
 import ExploreUsers from '../../app/screens/inAccount/explorePage';
 import {useGlobalInsets} from '../../context-store/insetsProvider';
-import {navigationRef} from '../navigationService';
 
 const Tab = createBottomTabNavigator();
 
@@ -27,27 +26,7 @@ function MyTabBar({state, descriptors, navigation}) {
   const {contactsMessags, globalContactsInformation} = useGlobalContacts();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
 
-  const [route, setRoute] = useState([
-    {name: 'HomeAdmin', state: {index: 1, routeNames: ['', 'home']}},
-  ]);
-  const hasInitializedNavListener = useRef(null);
-
-  useEffect(() => {
-    if (hasInitializedNavListener.current) return;
-    hasInitializedNavListener.current = true;
-
-    navigationRef.addListener('state', () => {
-      console.log(
-        'Current navigation stack in tabs',
-        navigationRef.getRootState().routes,
-      );
-      setRoute(navigationRef.getRootState().routes);
-    });
-  }, []);
-
-  const currentRoute = route[0]?.state?.routeNames?.[route[0]?.state?.index];
   const {bottomPadding} = useGlobalInsets();
-  console.log(route, 't', currentRoute, currentRoute);
 
   const hasUnlookedTransactions = useMemo(() => {
     return (
@@ -74,16 +53,13 @@ function MyTabBar({state, descriptors, navigation}) {
         style={[
           {
             ...styles.tabsSeperatorBar,
-            backgroundColor:
-              currentRoute === 'Home' ? backgroundColor : backgroundOffset,
+            backgroundColor: backgroundOffset,
           },
         ]}
       />
       <View
         style={{
           backgroundColor: backgroundColor,
-          borderTopRightRadius: currentRoute === 'Home' ? 0 : 15,
-          borderTopLeftRadius: currentRoute === 'Home' ? 0 : 15,
           ...styles.tabsContainer,
         }}>
         <View

@@ -43,7 +43,8 @@ export default function EditLNURLContactOnReceivePage({
   const {globalContactsInformation, toggleGlobalContactsInformation} =
     useGlobalContacts();
   const {masterInfoObject} = useGlobalContextProvider();
-  const {backgroundOffset, textInputColor, textColor} = GetThemeColors();
+  const {backgroundOffset, textInputColor, textColor, backgroundColor} =
+    GetThemeColors();
   const [username, setUsername] = useState('');
   const [isAddingImage, setIsAddingImage] = useState(false);
   const initialValue = useRef(0);
@@ -155,7 +156,9 @@ export default function EditLNURLContactOnReceivePage({
   }, [globalContactsInformation, username]);
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <ScrollView
+      keyboardShouldPersistTaps={'always'}
+      showsVerticalScrollIndicator={false}>
       <View
         onLayout={e => {
           const {height} = e.nativeEvent.layout;
@@ -175,7 +178,8 @@ export default function EditLNURLContactOnReceivePage({
             style={[
               styles.profileImage,
               {
-                backgroundColor: backgroundOffset,
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
               },
             ]}>
             {isAddingImage ? (
