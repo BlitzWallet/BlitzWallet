@@ -214,9 +214,14 @@ export const findSignleTxFromHistory = async (txid, BATCH_SIZE) => {
     return {tx: null};
   }
 };
-
+let isUpdatingSparkTxStatus = false;
 export const updateSparkTxStatus = async () => {
   try {
+    if (isUpdatingSparkTxStatus) {
+      console.log('updateSparkTxStatus skipped: already running');
+      return;
+    }
+    isUpdatingSparkTxStatus = true;
     // Get all saved transactions
     console.log('running pending payments');
     const savedTxs = await getAllPendingSparkPayments();
@@ -266,6 +271,8 @@ export const updateSparkTxStatus = async () => {
   } catch (error) {
     console.error('Error in spark restore:', error);
     return {updated: []};
+  } finally {
+    isUpdatingSparkTxStatus = false;
   }
 };
 
