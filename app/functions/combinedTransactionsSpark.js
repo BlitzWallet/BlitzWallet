@@ -35,6 +35,7 @@ export default function getFormattedHomepageTxsForSpark({
   userBalanceDenomination,
   numberOfCachedTxs,
   didGetToHomepage,
+  enabledLRC20,
 }) {
   crashlyticsLogReport('Starting re-rendering of formatted transactions');
   const sparkTransactions = sparkInformation?.transactions;
@@ -131,6 +132,10 @@ export default function getFormattedHomepageTxsForSpark({
         const paymentDate = new Date(paymentDetials.time).getTime();
 
         const uniuqeIDFromTx = currentTransaction.sparkID;
+        const isLRC20Payment = paymentDetials.isLRC20Payment;
+
+        if (!enabledLRC20 && isLRC20Payment)
+          throw new Error('Only show LRC20 payments if enabled');
 
         const styledTx = (
           <UserTransaction
@@ -145,6 +150,8 @@ export default function getFormattedHomepageTxsForSpark({
             darkModeType={darkModeType}
             userBalanceDenomination={userBalanceDenomination}
             isFailedPayment={isFailedPayment}
+            sparkInformation={sparkInformation}
+            isLRC20Payment={isLRC20Payment}
           />
         );
 
@@ -230,6 +237,8 @@ export const UserTransaction = memo(function UserTransaction({
   darkModeType,
   userBalanceDenomination,
   isFailedPayment,
+  sparkInformation,
+  isLRC20Payment,
 }) {
   const {t} = useTranslation();
 
@@ -254,6 +263,12 @@ export const UserTransaction = memo(function UserTransaction({
       ? ICONS.failedTransactionWhite
       : ICONS.failedTransaction;
   }, [darkModeType, theme, isFailedPayment]);
+
+  const token = isLRC20Payment
+    ? sparkInformation.tokens?.[transaction.details.LRC20Token]?.tokenMetadata
+        ?.tokenTicker
+    : '';
+  // console.log(transaction, token, transaction.details.LRC20Token);
 
   const showPendingTransactionStatusIcon =
     transaction.paymentStatus === 'pending';
@@ -393,6 +408,8 @@ export const UserTransaction = memo(function UserTransaction({
             }
             styles={styles.amountText}
             balance={transaction.details.amount}
+            useCustomLabel={isLRC20Payment}
+            customLabel={token}
           />
         )}
       </View>

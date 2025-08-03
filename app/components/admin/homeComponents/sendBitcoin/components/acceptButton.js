@@ -28,6 +28,7 @@ export default function AcceptButtonSendPage({
   minLNURLSatAmount,
   maxLNURLSatAmount,
   sparkInformation,
+  seletctedToken,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {liquidNodeInformation, fiatStats} = useNodeContext();
@@ -73,6 +74,7 @@ export default function AcceptButtonSendPage({
       });
       return;
     }
+
     if (
       isLiquidPayment &&
       (convertedSendAmount < minMaxLiquidSwapAmounts.min ||
@@ -159,6 +161,7 @@ export default function AcceptButtonSendPage({
         publishMessageFunc,
         webViewRef,
         sparkInformation,
+        seletctedToken,
       });
       setIsGeneratingInvoice(false);
     } catch (err) {

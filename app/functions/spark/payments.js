@@ -9,6 +9,7 @@ import {
   sendSparkPayment,
   getSparkAddress,
   sparkWallet,
+  sendSparkTokens,
 } from '.';
 import {
   isSendingPayingEventEmiiter,
@@ -35,6 +36,7 @@ export const sparkPaymenWrapper = async ({
   sparkInformation,
   feeQuote,
   usingZeroAmountInvoice = false,
+  seletctedToken,
 }) => {
   try {
     console.log('Begining spark payment');
@@ -85,8 +87,8 @@ export const sparkPaymenWrapper = async ({
     }
     let response;
     if (
-      userBalance <
-      amountSats + (paymentType === 'bitcoin' ? supportFee : fee)
+      seletctedToken === 'Bitcoin' &&
+      userBalance < amountSats + (paymentType === 'bitcoin' ? supportFee : fee)
     )
       throw new Error('Insufficient funds');
 
@@ -163,35 +165,60 @@ export const sparkPaymenWrapper = async ({
       response = tx;
       await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
     } else {
-      const sparkPayResponse = await sendSparkPayment({
-        receiverSparkAddress: address,
-        amountSats,
-      });
+      let sparkPayResponse;
+
+      if (seletctedToken !== 'Bitcoin') {
+        sparkPayResponse = await sendSparkTokens({
+          tokenIdentifier: seletctedToken,
+          tokenAmount: amountSats,
+          receiverSparkAddress: address,
+        });
+      } else {
+        sparkPayResponse = await sendSparkPayment({
+          receiverSparkAddress: address,
+          amountSats,
+        });
+      }
 
       if (!sparkPayResponse.didWork)
         throw new Error(
           sparkPayResponse.error || 'Error when sending spark payment',
         );
 
-      handleSupportPayment(masterInfoObject, supportFee);
+      if (seletctedToken === 'Bitcoin') {
+        handleSupportPayment(masterInfoObject, supportFee);
+      }
       const data = sparkPayResponse.response;
       const tx = {
-        id: data.id,
+        id: seletctedToken !== 'Bitcoin' ? data : data.id,
         paymentStatus: 'completed',
         paymentType: 'spark',
-        accountId: data.senderIdentityPublicKey,
+        accountId:
+          seletctedToken !== 'Bitcoin'
+            ? sparkInformation.identityPubKey
+            : data.senderIdentityPublicKey,
         details: {
-          fee: fee,
+          fee: seletctedToken !== 'Bitcoin' ? 0 : supportFee,
           amount: amountSats,
           address: address,
-          time: new Date(data.updatedTime).getTime(),
+          time:
+            seletctedToken !== 'Bitcoin'
+              ? new Date().getTime()
+              : new Date(data.updatedTime).getTime(),
           direction: 'OUTGOING',
           description: memo || '',
-          senderIdentityPublicKey: data.receiverIdentityPublicKey,
+          senderIdentityPublicKey:
+            seletctedToken !== 'Bitcoin' ? '' : data.receiverIdentityPublicKey,
+          isLRC20Payment: seletctedToken !== 'Bitcoin',
+          LRC20Token: seletctedToken,
         },
       };
       response = tx;
-      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
+      await bulkUpdateSparkTransactions(
+        [tx],
+        'paymentWrapperTx',
+        seletctedToken !== 'Bitcoin' ? 0 : supportFee,
+      );
     }
     console.log(response, 'resonse in send function');
     return {didWork: true, response};

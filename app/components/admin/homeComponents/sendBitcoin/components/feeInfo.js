@@ -1,3 +1,4 @@
+import {TOKEN_TICKER_MAX_LENGTH} from '../../../../../constants';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 
@@ -7,6 +8,8 @@ export default function SendTransactionFeeInfo({
   isLiquidPayment,
   isBitcoinPayment,
   isSparkPayment,
+  isLRC20Payment,
+  seletctedToken,
 }) {
   return (
     <>
@@ -19,7 +22,11 @@ export default function SendTransactionFeeInfo({
         }`}
         neverHideBalance={true}
         styles={{includeFontPadding: false}}
-        balance={paymentFee}
+        balance={isLRC20Payment ? 0 : paymentFee}
+        useCustomLabel={isLRC20Payment}
+        customLabel={
+          isLRC20Payment ? seletctedToken.tokenMetadata.tokenTicker : ''
+        }
       />
     </>
   );
