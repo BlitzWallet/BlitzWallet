@@ -54,11 +54,21 @@ export const initializeSparkDatabase = async () => {
   }
 };
 
-export const getAllSparkTransactions = async () => {
+export const getAllSparkTransactions = async (limit = null) => {
   try {
-    const result = await sqlLiteDB.getAllAsync(
-      `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}`,
-    );
+    let query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}`;
+
+    if (limit) {
+      query += ` ORDER BY ROWID DESC LIMIT ${limit}`;
+    }
+
+    const result = await sqlLiteDB.getAllAsync(query);
+
+    if (!limit) {
+      return result.sort(
+        (a, b) => JSON.parse(b.details).time - JSON.parse(a.details).time,
+      );
+    }
 
     return result.sort(
       (a, b) => JSON.parse(b.details).time - JSON.parse(a.details).time,
@@ -171,12 +181,21 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
 
           // Merge details - only override if new value is not empty
           let mergedDetails = {...existingTx.details};
+
           for (const key in tx.details) {
             const value = tx.details[key];
-            if (value !== '' && value !== null && value !== undefined) {
+            if (
+              value !== '' &&
+              value !== null &&
+              value !== undefined &&
+              value !== 0
+            ) {
               mergedDetails[key] = value;
             }
           }
+
+          console.log('Existing details', existingTx.details);
+          console.log('merged detials', mergedDetails);
 
           // Update the transaction with merged data
           processedTransactions.set(finalSparkId, {
@@ -363,7 +382,7 @@ export const addSingleSparkTransaction = async tx => {
     handleEventEmitterPost(
       sparkTransactionsEventEmitter,
       SPARK_TX_UPDATE_ENVENT_NAME,
-      'transactions',
+      'fullUpdate',
     );
 
     return true;

@@ -1,5 +1,6 @@
 import {
   findTransactionTxFromTxHistory,
+  getCachedSparkTransactions,
   getSparkBitcoinPaymentRequest,
   getSparkLightningPaymentStatus,
   getSparkLightningSendRequest,
@@ -117,7 +118,6 @@ export const restoreSparkTxState = async (
     }
 
     console.log(`Total restored transactions: ${restoredTxs.length}`);
-    console.log(`Unique saved IDs: ${savedIds.size}`);
 
     return {txs: restoredTxs};
   } catch (error) {
@@ -129,10 +129,11 @@ export const restoreSparkTxState = async (
 export async function fullRestoreSparkState({
   sparkAddress,
   batchSize = 50,
-  savedTxs,
   isSendingPayment,
 }) {
   try {
+    const savedTxs = await getCachedSparkTransactions(10);
+
     const restored = await restoreSparkTxState(
       batchSize,
       savedTxs,
@@ -165,7 +166,7 @@ export async function fullRestoreSparkState({
 
     if (newPaymentObjects.length) {
       // Update DB state of payments but dont hold up thread
-      bulkUpdateSparkTransactions(newPaymentObjects);
+      bulkUpdateSparkTransactions(newPaymentObjects, 'fullUpdate');
     }
 
     return newPaymentObjects.length;

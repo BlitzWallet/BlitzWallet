@@ -412,9 +412,9 @@ export const getSparkTokenTransactions = async ({
     return [];
   }
 };
-export const getCachedSparkTransactions = async () => {
+export const getCachedSparkTransactions = async limit => {
   try {
-    const txResponse = await getAllSparkTransactions();
+    const txResponse = await getAllSparkTransactions(limit);
     if (!txResponse) throw new Error('Unable to get cached spark transactins');
     return txResponse;
   } catch (err) {

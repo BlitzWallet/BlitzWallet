@@ -114,7 +114,7 @@ async function initializeSparkSession({
 
     const finalBalanceToUse = didLoadCorrectBalance
       ? correctBalance
-      : Number(initialBalanceResponse);
+      : Number(initialBalanceResponse.balance);
     console.log(
       didLoadCorrectBalance,
       runCount,
@@ -123,6 +123,12 @@ async function initializeSparkSession({
       finalBalanceToUse,
       'balancasldfkjasdlfkjasdf',
     );
+    if (!didLoadCorrectBalance) {
+      await handleBalanceCache({
+        isCheck: false,
+        passedBalance: finalBalanceToUse,
+      });
+    }
     const storageObject = {
       balance: finalBalanceToUse,
       tokens: balance.tokensObj,
