@@ -92,7 +92,8 @@ const CustomToggleSwitch = ({
       page === 'useTrampoline' ||
       page === 'LoginSecurityMode' ||
       page === 'fastPay' ||
-      page === 'nwcAccount'
+      page === 'nwcAccount' ||
+      page === 'lrc20Settings'
         ? backgroundColor
         : backgroundOffset,
       darkModeType && theme ? COLORS.darkModeText : COLORS.primary,

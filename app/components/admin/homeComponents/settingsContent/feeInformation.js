@@ -31,8 +31,12 @@ export default function BlitzFeeInformation() {
   const [minHeight, setMinHeight] = useState(0);
   console.log(minHeight);
 
+  const feeOptions = masterInfoObject?.lrc20Settings?.isEnabled
+    ? ['lightning', 'spark', 'bitcoin', 'tokens']
+    : ['lightning', 'spark', 'bitcoin'];
+
   const timeFrameElements = useMemo(() => {
-    return ['lightning', 'spark', 'bitcoin', 'tokens'].map(item => {
+    return feeOptions.map(item => {
       return (
         <TouchableOpacity
           key={item}
@@ -63,7 +67,7 @@ export default function BlitzFeeInformation() {
         </TouchableOpacity>
       );
     });
-  }, [paymentType, textColor, theme, darkModeType]);
+  }, [paymentType, textColor, theme, darkModeType, feeOptions]);
 
   console.log(timeFrameElements);
   return (

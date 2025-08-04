@@ -9,15 +9,10 @@ import {useSparkWallet} from '../../../context-store/sparkContext';
 import {ThemeText} from '../CustomElements';
 import CustomSearchInput from '../CustomElements/searchInput';
 import {CENTER, SIZES} from '../../constants';
-
 import {useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {
-  getContrastingTextColor,
-  stringToColorCrypto,
-} from '../randomColorFromHash';
+import {stringToColorCrypto} from '../randomColorFromHash';
 import {COLORS, INSET_WINDOW_WIDTH} from '../../constants/theme';
-import formatBalanceAmount from '../formatNumber';
 import GetThemeColors from '../../hooks/themeColors';
 import FormattedSatText from '../CustomElements/satTextDisplay';
 
@@ -104,12 +99,8 @@ export default function LRC20AssetSelectorHalfModal({
   );
 
   function AssetItem({item, theme, selectToken, darkModeType}) {
-    const {backgroundOffset} = GetThemeColors();
+    const {backgroundOffset, backgroundColor} = GetThemeColors();
     const [tokenIdentifier, details] = item;
-    const backgroundColor = stringToColorCrypto(
-      tokenIdentifier,
-      theme && darkModeType ? 'dark' : 'light',
-    );
 
     return (
       <TouchableOpacity
@@ -117,7 +108,11 @@ export default function LRC20AssetSelectorHalfModal({
         key={tokenIdentifier}
         style={{
           ...styles.assetContainer,
-          backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+          backgroundColor: theme
+            ? darkModeType
+              ? backgroundColor
+              : backgroundOffset
+            : COLORS.darkModeText,
         }}>
         <ThemeText
           CustomNumberOfLines={1}

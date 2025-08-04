@@ -67,7 +67,7 @@ export default function ConfirmVPNPage(props) {
         });
         if (!fee.didWork) throw new Error(fee.error);
         if (sparkInformation.balance < fee.supportFee + fee.fee) {
-          throw new Error('Insufficient balance to purchase credits');
+          throw new Error('Insufficient balance to purchase vpn');
         }
 
         setInvoiceInformation({
