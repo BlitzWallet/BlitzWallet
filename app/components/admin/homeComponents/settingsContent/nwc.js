@@ -56,7 +56,7 @@ export default function NosterWalletConnect() {
   };
   useEffect(() => {
     loadCurrentNotificationPermission();
-  }, []);
+  }, [notificationData.enabledServices.NWC]);
 
   const removePOSItem = itemUUID => {
     const updatedAccounts = {...savedNWCAccounts.accounts};

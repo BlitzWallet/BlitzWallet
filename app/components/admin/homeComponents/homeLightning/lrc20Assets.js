@@ -1,39 +1,58 @@
 import {useNavigation} from '@react-navigation/native';
-import {useMemo, useRef, useState} from 'react';
+import {useMemo, useRef, useState, useEffect} from 'react';
 import {
   Animated,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
+  Dimensions,
+  TextInput,
 } from 'react-native';
 
 import {ThemeText} from '../../../../functions/CustomElements';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {CENTER, ICONS} from '../../../../constants';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import {COLORS, INSET_WINDOW_WIDTH, SIZES} from '../../../../constants/theme';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import {
   getContrastingTextColor,
   stringToColorCrypto,
 } from '../../../../functions/randomColorFromHash';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import GetThemeColors from '../../../../hooks/themeColors';
+import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
+import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 
 export default function LRC20Assets() {
   const {darkModeType, theme} = useGlobalThemeContext();
   const {sparkInformation} = useSparkWallet();
   const navigate = useNavigation();
-  const contentHeight = 60;
+  const {textColor} = GetThemeColors();
+
+  const homepageBackgroundOffsetColor = useMemo(() => {
+    return theme
+      ? darkModeType
+        ? COLORS.walletHomeLightsOutOffset
+        : COLORS.walletHomeDarkModeOffset
+      : COLORS.walletHomeLightModeOffset;
+  }, [theme, darkModeType]);
+
+  // Dynamic height calculation
   const [isExpanded, setIsExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const heightAnim = useRef(new Animated.Value(0)).current;
+
   const toggleExpanded = () => {
     const toValue = isExpanded ? 0 : 1;
-    const heightValue = isExpanded ? 0 : contentHeight;
+
+    const targetHeight = isExpanded ? 0 : contentHeight;
 
     Animated.parallel([
       Animated.timing(heightAnim, {
-        toValue: heightValue,
+        toValue: targetHeight,
         duration: 300,
         useNativeDriver: false,
       }),
@@ -56,8 +75,25 @@ export default function LRC20Assets() {
     return Object.entries(sparkInformation.tokens);
   }, [sparkInformation.tokens]);
 
+  // Filter tokens based on search query
+  const filteredTokens = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return availableTokens;
+    }
+
+    return availableTokens.filter(([tokenIdentifier, details]) => {
+      const ticker = details?.tokenMetadata?.tokenTicker?.toLowerCase() || '';
+      const identifier = tokenIdentifier.toLowerCase();
+      const query = searchQuery.toLowerCase();
+
+      return ticker.includes(query) || identifier.includes(query);
+    });
+  }, [availableTokens, searchQuery]);
+
+  const contentHeight = availableTokens.length > 3 ? 200 : 150;
+
   const tokens = useMemo(() => {
-    return availableTokens
+    return filteredTokens
       .map((item, index) => {
         const [tokenIdentifier, details] = item;
         if (!tokenIdentifier || !details) return false;
@@ -76,26 +112,64 @@ export default function LRC20Assets() {
               })
             }
             key={tokenIdentifier}
-            style={{alignItems: 'center', marginHorizontal: 10, width: 60}}>
+            style={{
+              backgroundColor: homepageBackgroundOffsetColor,
+              ...styles.tokenRowContainer,
+            }}>
             <View
               style={{
-                ...styles.tokenContainer,
+                ...styles.tokenInitialContainer,
                 backgroundColor: backgroundColor,
               }}>
               <ThemeText
                 styles={{
                   color: textColor,
                   includeFontPadding: false,
+                  fontSize: SIZES.xLarge,
                 }}
-                CustomNumberOfLines={1}
-                content={details?.tokenMetadata?.tokenTicker?.toUpperCase()}
+                content={details?.tokenMetadata?.tokenTicker[0]?.toUpperCase()}
               />
             </View>
+            <View style={styles.tokenDescriptionContainer}>
+              <View style={styles.tokenNameContainer}>
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={styles.tokenNameText}
+                  content={details?.tokenMetadata?.tokenName}
+                />
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={{
+                    ...styles.tokenNameTicker,
+                    color:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                  }}
+                  content={details?.tokenMetadata?.tokenTicker?.toUpperCase()}
+                />
+              </View>
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.tokenIdentifierText}
+                content={
+                  tokenIdentifier.slice(0, 6) +
+                  '...' +
+                  tokenIdentifier.slice(tokenIdentifier.length - 4)
+                }
+              />
+            </View>
+            <FormattedSatText
+              containerStyles={{marginLeft: 'auto'}}
+              useCustomLabel={true}
+              customLabel={details?.tokenMetadata?.tokenTicker}
+              balance={Number(details?.balance) || 0}
+            />
           </TouchableOpacity>
         );
       })
       .filter(Boolean);
-  }, [theme, darkModeType, availableTokens]);
+  }, [theme, darkModeType, filteredTokens]);
 
   return (
     <>
@@ -131,15 +205,26 @@ export default function LRC20Assets() {
           overflow: 'hidden',
           marginBottom: 20,
         }}>
+        {availableTokens.length > 3 && (
+          <CustomSearchInput
+            inputText={searchQuery}
+            setInputText={setSearchQuery}
+            containerStyles={{width: INSET_WINDOW_WIDTH, marginBottom: 10}}
+            placeholderText="Search tokens..."
+          />
+        )}
+
         <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={true}
           style={{
             width: INSET_WINDOW_WIDTH,
             ...CENTER,
           }}>
           {!tokens.length ? (
-            <ThemeText key={'no-tokens'} content={'You have no tokens'} />
+            <ThemeText
+              key={'no-tokens'}
+              content={searchQuery ? 'No tokens found' : 'You have no tokens'}
+            />
           ) : (
             tokens
           )}
@@ -150,11 +235,56 @@ export default function LRC20Assets() {
 }
 
 const styles = StyleSheet.create({
-  tokenContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
+  tokenRowContainer: {
+    padding: 10,
+    borderRadius: 8,
+    width: '100%',
+    marginBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tokenInitialContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  tokenDescriptionContainer: {
+    flexShrink: 1,
+    marginLeft: 10,
+    justifyContent: 'center',
+    marginRight: 5,
+  },
+  tokenNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tokenNameText: {
+    textTransform: 'capitalize',
+    marginRight: 2,
+    includeFontPadding: false,
+    flexShrink: 1,
+  },
+  tokenNameTicker: {
+    includeFontPadding: false,
+    flexShrink: 1,
+  },
+  tokenIdentifierText: {
+    opacity: 0.7,
+    includeFontPadding: false,
+    fontSize: SIZES.small,
+    flexShrink: 1,
+  },
+  searchContainer: {
+    paddingHorizontal: 15,
+    paddingBottom: 10,
+  },
+  searchInput: {
+    height: 40,
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    fontSize: 16,
   },
 });

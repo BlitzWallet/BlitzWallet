@@ -132,7 +132,7 @@ export async function fullRestoreSparkState({
   isSendingPayment,
 }) {
   try {
-    const savedTxs = await getCachedSparkTransactions(10);
+    const savedTxs = await getCachedSparkTransactions();
 
     const restored = await restoreSparkTxState(
       batchSize,

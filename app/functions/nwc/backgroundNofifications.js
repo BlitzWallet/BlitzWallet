@@ -24,11 +24,12 @@ import bolt11 from 'bolt11';
 import {getSparkPaymentStatus, sparkPaymentType} from '../spark';
 import {pushInstantNotification} from '../notifications';
 import NWCInvoiceManager from './cachedNWCTxs';
+import {NOSTR_RELAY_URL} from '../../constants';
 
 // const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
 
-const RELAY_URL = 'wss://relay.damus.io';
+const RELAY_URL = NOSTR_RELAY_URL;
 
 const ERROR_CODES = {
   INTERNAL: 'INTERNAL',

@@ -95,6 +95,7 @@ export default function FormattedSatText({
           CustomNumberOfLines={1}
           styles={{
             includeFontPadding: false,
+            flexShrink: 1,
             ...styles,
           }}
           content={` ${customLabel
