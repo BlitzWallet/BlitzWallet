@@ -30,6 +30,7 @@ import {
 } from '../../../functions/spark/transactions';
 import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
 import {COLORS} from '../../../constants';
+import {useLRC20EventContext} from '../../../../context-store/lrc20Listener';
 
 // Memoized components to prevent unnecessary re-renders
 const MemoizedNavBar = memo(NavBar);
@@ -132,7 +133,10 @@ export default function HomeLightning() {
     try {
       startLiquidEventListener(2);
       startRootstockEventListener({intervalMs: 30000});
-      sparkTransactionsEventEmitter.emit(SPARK_TX_UPDATE_ENVENT_NAME, {});
+      sparkTransactionsEventEmitter.emit(
+        SPARK_TX_UPDATE_ENVENT_NAME,
+        'fullUpdate',
+      );
     } catch (err) {
       console.log('error refreshing on homepage', err);
       CrashReportingSettingsPage(err.message);

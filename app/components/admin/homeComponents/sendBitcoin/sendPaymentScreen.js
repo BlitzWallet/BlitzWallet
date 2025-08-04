@@ -355,20 +355,20 @@ export default function SendPaymentScreen(props) {
       </ScrollView>
       {canEditPaymentAmount && (
         <>
-          {paymentInfo.type !== 'spark' ||
-            (paymentInfo.type === 'spark' && !enabledLRC20 && (
-              <SendMaxComponent
-                fiatStats={fiatStats}
-                sparkInformation={sparkInformation}
-                paymentInfo={paymentInfo}
-                setPaymentInfo={setPaymentInfo}
-                masterInfoObject={masterInfoObject}
-                nodeInformation={nodeInformation}
-                paymentFee={paymentFee}
-                paymentType={paymentInfo?.paymentNetwork}
-                minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
-              />
-            ))}
+          {(paymentInfo.type !== 'spark' ||
+            (paymentInfo.type === 'spark' && !enabledLRC20)) && (
+            <SendMaxComponent
+              fiatStats={fiatStats}
+              sparkInformation={sparkInformation}
+              paymentInfo={paymentInfo}
+              setPaymentInfo={setPaymentInfo}
+              masterInfoObject={masterInfoObject}
+              nodeInformation={nodeInformation}
+              paymentFee={paymentFee}
+              paymentType={paymentInfo?.paymentNetwork}
+              minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+            />
+          )}
 
           {paymentInfo.type === 'spark' && enabledLRC20 && (
             <SelectLRC20Token
