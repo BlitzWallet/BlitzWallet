@@ -201,6 +201,7 @@ export default async function decodeSendAddress(props) {
         setLoadingMessage,
         paymentInfo,
         fromPage,
+        seletctedToken,
       });
     } catch (err) {
       return goBackFunction(err.message || 'Error processing payment info');

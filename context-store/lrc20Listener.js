@@ -8,12 +8,14 @@ import {
 } from 'react';
 import {getSparkBalance} from '../app/functions/spark';
 import sha256Hash from '../app/functions/hash';
+import {useSparkWallet} from './sparkContext';
 
 const LRC20EventContext = createContext(null);
 const DEFAULT_EVENT_LIMIT = 15;
 const POLLING_INTERVAL_MS = 12000;
 
 export function LRC20EventProvider({children}) {
+  const {sparkInformation} = useSparkWallet();
   const maxAttempts = useRef(DEFAULT_EVENT_LIMIT);
   const currentAttempts = useRef(0);
   const intervalId = useRef(null);
@@ -52,9 +54,11 @@ export function LRC20EventProvider({children}) {
             const data = await getSparkBalance();
             if (data.didWork) {
               const hashedData = sha256Hash(JSON.stringify(data.tokensObj));
-              console.log(prevData.current);
-              console.log(hashedData);
-              if (prevData.current !== hashedData && prevData.current) {
+              const compareHash = prevData.current
+                ? prevData.current
+                : sha256Hash(JSON.stringify(sparkInformation.tokens));
+
+              if (compareHash !== hashedData) {
                 cleanup();
               } else {
                 prevData.current = hashedData;
@@ -82,7 +86,7 @@ export function LRC20EventProvider({children}) {
         cleanup();
       }
     },
-    [cleanup],
+    [cleanup, sparkInformation],
   );
 
   const stopLrc20EventListener = useCallback(() => {

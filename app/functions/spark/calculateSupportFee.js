@@ -15,6 +15,9 @@ export const bitcoinBrackets = [
   {upTo: 30000, fixedFee: 3, percentage: 0.003}, // 0.3% + 3 sats
   {upTo: Infinity, fixedFee: 4, percentage: 0.004}, // fallback: 0.4% + 4 sats
 ];
+export const LRC20Brackets = [
+  {upTo: Infinity, fixedFee: 5, percentage: 0}, // 0.3% + 3 sats
+];
 /**
  * Calculates fee based on progressive brackets.
  * @param {number} amount - amount in sats to send
@@ -31,6 +34,8 @@ export default async function calculateProgressiveBracketFee(
     brackets = bitcoinBrackets;
   } else if (paymentType === 'spark') {
     brackets = sparkBrackets;
+  } else if (paymentType === 'lrc20') {
+    brackets = LRC20Brackets;
   } else {
     brackets = sparkBrackets; // default fallback
   }

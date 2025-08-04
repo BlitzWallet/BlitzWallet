@@ -10,7 +10,12 @@ export default async function processSparkAddress(input, context) {
     enteredPaymentInfo,
     paymentInfo,
     fiatStats,
+    seletctedToken,
   } = context;
+
+  const isLRC20 =
+    seletctedToken?.tokenMetadata?.tokenTicker !== undefined &&
+    seletctedToken?.tokenMetadata?.tokenTicker !== 'Bitcoin';
 
   crashlyticsLogReport('Handling decode spark payment');
   let addressInfo = JSON.parse(JSON.stringify(input?.address));
@@ -39,7 +44,7 @@ export default async function processSparkAddress(input, context) {
       const fee = await sparkPaymenWrapper({
         getFee: true,
         address: addressInfo.address,
-        paymentType: 'spark',
+        paymentType: isLRC20 ? 'lrc20' : 'spark',
         amountSats: amountMsat / 1000,
         masterInfoObject,
       });

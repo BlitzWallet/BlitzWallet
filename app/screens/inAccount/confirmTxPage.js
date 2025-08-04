@@ -131,12 +131,7 @@ export default function ConfirmTxPage(props) {
         <View style={styles.paymentTable}>
           <View style={styles.paymentTableRow}>
             <ThemeText content={'Fee'} />
-            <FormattedSatText
-              neverHideBalance={true}
-              balance={isLRC20Payment ? 0 : paymentFee}
-              useCustomLabel={isLRC20Payment}
-              customLabel={token?.tokenMetadata?.tokenTicker}
-            />
+            <FormattedSatText neverHideBalance={true} balance={paymentFee} />
           </View>
           <View style={styles.paymentTableRow}>
             <ThemeText content={'Type'} />

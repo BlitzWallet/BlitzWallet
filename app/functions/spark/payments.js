@@ -73,6 +73,8 @@ export const sparkPaymenWrapper = async ({
           data.userFeeFast.originalValue +
           data.l1BroadcastFeeFast.originalValue;
         tempFeeQuote = data;
+      } else if (paymentType === 'lrc20') {
+        calculatedFee = 0;
       } else {
         // Spark payments
         const feeResponse = await getSparkPaymentFeeEstimate(amountSats);
@@ -185,9 +187,9 @@ export const sparkPaymenWrapper = async ({
           sparkPayResponse.error || 'Error when sending spark payment',
         );
 
-      if (seletctedToken === 'Bitcoin') {
-        handleSupportPayment(masterInfoObject, supportFee);
-      }
+      // if (seletctedToken === 'Bitcoin') {
+      handleSupportPayment(masterInfoObject, supportFee);
+      // }
       const data = sparkPayResponse.response;
       const tx = {
         id: seletctedToken !== 'Bitcoin' ? data : data.id,
@@ -198,7 +200,7 @@ export const sparkPaymenWrapper = async ({
             ? sparkInformation.identityPubKey
             : data.senderIdentityPublicKey,
         details: {
-          fee: seletctedToken !== 'Bitcoin' ? 0 : supportFee,
+          fee: supportFee,
           amount: amountSats,
           address: address,
           time:
@@ -214,11 +216,7 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      await bulkUpdateSparkTransactions(
-        [tx],
-        'paymentWrapperTx',
-        seletctedToken !== 'Bitcoin' ? 0 : supportFee,
-      );
+      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
     }
     console.log(response, 'resonse in send function');
     return {didWork: true, response};

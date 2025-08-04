@@ -172,8 +172,10 @@ export default function SendPaymentScreen(props) {
   const paymentFee =
     (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
   const canSendPayment =
-    Number(seletctedToken.balance) >=
-      Number(convertedSendAmount) + paymentFee && sendingAmount != 0; //ecash is built into ln
+    selectedLRC20Asset === 'Bitcoin'
+      ? Number(seletctedToken.balance) >=
+          Number(convertedSendAmount) + paymentFee && sendingAmount != 0
+      : sparkInformation.balance >= paymentFee && sendingAmount != 0;
   console.log(
     canSendPayment,
     'can send payment',
@@ -414,6 +416,7 @@ export default function SendPaymentScreen(props) {
               maxLNURLSatAmount={maxLNURLSatAmount}
               sparkInformation={sparkInformation}
               seletctedToken={seletctedToken}
+              isLRC20Payment={selectedLRC20Asset !== 'Bitcoin'}
             />
           )}
         </>
@@ -452,7 +455,10 @@ export default function SendPaymentScreen(props) {
     if (isSendingPayment) return;
     setIsSendingPayment(true);
 
-    const formmateedSparkPaymentInfo = formatSparkPaymentAddress(paymentInfo);
+    const formmateedSparkPaymentInfo = formatSparkPaymentAddress(
+      paymentInfo,
+      selectedLRC20Asset !== 'Bitcoin',
+    );
     //  {
     //   address: '',
     //   paymentType: '',
