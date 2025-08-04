@@ -43,6 +43,29 @@ export default function LRC20AssetSelectorHalfModal({
     );
   };
 
+  const filteredData = [
+    [
+      'Bitcoin',
+      {
+        balance: sparkInformation.balance,
+        tokenMetadata: {
+          tokenTicker: 'Bitcoin',
+          tokenName: 'Bitcoin',
+        },
+      },
+    ],
+    ...assetsAvailable,
+  ].filter(item => {
+    return (
+      item[1]?.tokenMetadata?.tokenTicker
+        ?.toLowerCase()
+        ?.startsWith(searchInput.toLowerCase()) ||
+      item[1]?.tokenMetadata?.tokenName
+        ?.toLowerCase()
+        ?.startsWith(searchInput.toLowerCase())
+    );
+  });
+
   return (
     <TouchableWithoutFeedback>
       <View style={styles.container}>
@@ -56,43 +79,29 @@ export default function LRC20AssetSelectorHalfModal({
             blurOnSubmit={false}
           />
 
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            data={[
-              [
-                'Bitcoin',
-                {
-                  balance: sparkInformation.balance,
-                  tokenMetadata: {
-                    tokenTicker: 'Bitcoin',
-                    tokenName: 'Bitcoin',
-                  },
-                },
-              ],
-              ...assetsAvailable,
-            ].filter(item => {
-              return (
-                item[1]?.tokenMetadata?.tokenTicker
-                  ?.toLowerCase()
-                  ?.startsWith(searchInput.toLowerCase()) ||
-                item[1]?.tokenMetadata?.tokenName
-                  ?.toLowerCase()
-                  ?.startsWith(searchInput.toLowerCase())
-              );
-            })}
-            renderItem={({item}) => (
-              <AssetItem
-                theme={theme}
-                darkModeType={darkModeType}
-                item={item}
-                selectToken={selectToken}
-                navigate={navigate}
-              />
-            )}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="none"
-            contentContainerStyle={{paddingTop: 10}}
-          />
+          {filteredData.length ? (
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              data={filteredData}
+              renderItem={({item}) => (
+                <AssetItem
+                  theme={theme}
+                  darkModeType={darkModeType}
+                  item={item}
+                  selectToken={selectToken}
+                  navigate={navigate}
+                />
+              )}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="none"
+              contentContainerStyle={{paddingTop: 10}}
+            />
+          ) : (
+            <ThemeText
+              styles={{textAlign: 'center', marginTop: 10}}
+              content={'No tokens found'}
+            />
+          )}
         </View>
       </View>
     </TouchableWithoutFeedback>

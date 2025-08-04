@@ -86,7 +86,7 @@ export default function LRC20Assets() {
       const identifier = tokenIdentifier.toLowerCase();
       const query = searchQuery.toLowerCase();
 
-      return ticker.includes(query) || identifier.includes(query);
+      return ticker.startsWith(query) || identifier.startsWith(query);
     });
   }, [availableTokens, searchQuery]);
 
