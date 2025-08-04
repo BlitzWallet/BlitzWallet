@@ -260,7 +260,12 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           let mergedDetails = {...existingDetails};
           for (const key in processedTx.details) {
             const value = processedTx.details[key];
-            if (value !== '' && value !== null && value !== undefined) {
+            if (
+              value !== '' &&
+              value !== null &&
+              value !== undefined &&
+              value !== 0
+            ) {
               mergedDetails[key] = value;
             }
           }
@@ -297,7 +302,12 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           let mergedDetails = {...existingDetails};
           for (const key in processedTx.details) {
             const value = processedTx.details[key];
-            if (value !== '' && value !== null && value !== undefined) {
+            if (
+              value !== '' &&
+              value !== null &&
+              value !== undefined &&
+              value !== 0
+            ) {
               mergedDetails[key] = value;
             }
           }

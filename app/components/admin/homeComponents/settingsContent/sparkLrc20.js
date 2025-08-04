@@ -5,10 +5,36 @@ import {useGlobalContextProvider} from '../../../../../context-store/context';
 import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {CENTER} from '../../../../constants';
+import {useEffect, useRef} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import {useNodeContext} from '../../../../../context-store/nodeContext';
 
 export default function SparkSettingsPage() {
+  const navigate = useNavigation();
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
+  const {fiatStats} = useNodeContext();
+  const isInitialRender = useRef(true);
   const lrc20Settings = masterInfoObject.lrc20Settings || {};
+
+  useEffect(() => {
+    console.log(isInitialRender.current, lrc20Settings.isEnabled);
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
+    if (!lrc20Settings.isEnabled) return;
+    navigate.navigate('InformationPopup', {
+      textContent: `Blitz adds a ${displayCorrectDenomination({
+        amount: 5,
+        masterInfoObject,
+        fiatStats,
+      })} fee to all LRC-20 payments. Make sure you have some Bitcoin in your wallet to send tokens.`,
+      buttonText: 'I understand',
+    });
+    console.log(lrc20Settings, 't');
+  }, [lrc20Settings]);
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar label={'Spark Settings'} />

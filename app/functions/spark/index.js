@@ -13,6 +13,11 @@ import {
 } from '@buildonspark/spark-sdk/types';
 import {getAllSparkTransactions} from './transactions';
 import {SPARK_TO_SPARK_FEE} from '../../constants/math';
+import {
+  getCachedTokens,
+  mergeTokensWithCache,
+  saveCachedTokens,
+} from '../lrc20/cachedTokens';
 
 export let sparkWallet = null;
 
@@ -86,14 +91,25 @@ export const getSparkBalance = async () => {
       'Tokens balance values',
       Array.from(balance.tokenBalances.values()),
     );
-    let tokensObj = {};
 
-    for (const [tokensIdentifier, tokensBalane] of balance.tokenBalances) {
-      tokensObj[tokensIdentifier] = tokensBalane;
+    const cachedTokens = await getCachedTokens();
+
+    let currentTokensObj = {};
+    for (const [tokensIdentifier, tokensData] of balance.tokenBalances) {
+      currentTokensObj[tokensIdentifier] = tokensData;
       console.log('Tokens Identifier', tokensIdentifier);
-      console.log('Tokens Balance:', tokensBalane);
+      console.log('Tokens Balance:', tokensData);
     }
-    return {tokensObj, balance: balance.balance, didWork: true};
+
+    const allTokens = mergeTokensWithCache(balance.tokenBalances, cachedTokens);
+
+    await saveCachedTokens(allTokens);
+
+    return {
+      tokensObj: allTokens,
+      balance: balance.balance,
+      didWork: true,
+    };
   } catch (err) {
     console.log('Get spark balance error', err);
     return {didWork: false};

@@ -222,6 +222,7 @@ export default function LRC20Assets() {
           }}>
           {!tokens.length ? (
             <ThemeText
+              styles={{textAlign: 'center'}}
               key={'no-tokens'}
               content={searchQuery ? 'No tokens found' : 'You have no tokens'}
             />
