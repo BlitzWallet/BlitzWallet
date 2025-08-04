@@ -277,14 +277,14 @@ const SparkWalletProvider = ({children}) => {
           handleBalanceCache({
             isCheck: false,
             passedBalance: Math.round(
-              (Number(balance.balance) || prev.balance) - fee,
+              (balance.didWork ? Number(balance.balance) : prev.balance) - fee,
             ),
           });
           return {
             ...prev,
             transactions: txs || prev.transactions,
             balance: Math.round(
-              (Number(balance.balance) || prev.balance) - fee,
+              (balance.didWork ? Number(balance.balance) : prev.balance) - fee,
             ),
             tokens: balance.tokensObj,
           };
@@ -293,11 +293,13 @@ const SparkWalletProvider = ({children}) => {
         setSparkInformation(prev => {
           handleBalanceCache({
             isCheck: false,
-            passedBalance: Number(balance.balance) || prev.balance,
+            passedBalance: balance.didWork
+              ? Number(balance.balance)
+              : prev.balance,
           });
           return {
             ...prev,
-            balance: Number(balance.balance) || prev.balance,
+            balance: balance.didWork ? Number(balance.balance) : prev.balance,
             transactions: txs || prev.transactions,
             tokens: balance.tokensObj,
           };
