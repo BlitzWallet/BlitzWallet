@@ -35,7 +35,7 @@ const IS_SPARK_REQUEST_ID =
 const IS_BITCOIN_REQUEST_ID = /^SparkCoopExitRequest:[0-9a-fA-F\-]+$/;
 
 const NOSTR_NAME_REGEX = /^[a-zA-Z0-9]+$/;
-const NOSTR_RELAY_URL = 'wss://relay.getalby.com/v1';
+const NOSTR_RELAY_URL = 'wss://relay.damus.io';
 
 const IS_LETTER_REGEX = /^[A-Za-z]$/;
 const BITCOIN_SATS_ICON = '\u20BF';

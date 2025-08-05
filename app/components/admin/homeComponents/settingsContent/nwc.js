@@ -6,6 +6,7 @@ import {
   COLORS,
   FONT,
   ICONS,
+  NOSTR_RELAY_URL,
   NWC_SECURE_STORE_MNEMOINC,
   SIZES,
 } from '../../../../constants';
@@ -98,7 +99,11 @@ export default function NosterWalletConnect() {
             ?.startsWith(accountName?.toLowerCase());
         })
         .map(([key, value]) => {
-          const connectionString = `nostr+walletconnect://${value.publicKey}?relay=wss%3A%2F%2Frelay.damus.io&secret=${value.secret}`;
+          const connectionString = `nostr+walletconnect://${
+            value.publicKey
+          }?relay=${encodeURIComponent(NOSTR_RELAY_URL)}&secret=${
+            value.secret
+          }`;
           console.log(connectionString, 't');
           return (
             <TouchableOpacity
