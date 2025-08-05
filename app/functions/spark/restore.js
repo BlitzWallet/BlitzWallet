@@ -20,6 +20,7 @@ import {
 import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 import {
   bulkUpdateSparkTransactions,
+  deleteSparkTransaction,
   deleteUnpaidSparkLightningTransaction,
   getAllPendingSparkPayments,
   getAllUnpaidSparkLightningInvoices,
@@ -328,6 +329,14 @@ async function processLightningTransactions(
     cachedTransfers = foundTransfers;
 
     if (!bitcoinTransfer) continue;
+
+    const paymentStatus = getSparkPaymentStatus(bitcoinTransfer.status);
+    const expiryDate = new Date(bitcoinTransfer.expiryTime);
+
+    if (paymentStatus === 'pending' && expiryDate < Date.now()) {
+      await deleteSparkTransaction(result.id);
+      continue;
+    }
 
     newTxs.push({
       ...result,
