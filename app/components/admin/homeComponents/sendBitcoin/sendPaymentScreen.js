@@ -395,6 +395,7 @@ export default function SendPaymentScreen(props) {
               paymentInfo={paymentInfo}
               setPaymentInfo={setPaymentInfo}
               fiatStats={fiatStats}
+              selectedLRC20Asset={selectedLRC20Asset}
             />
           )}
           {isAmountFocused && (

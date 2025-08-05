@@ -11,7 +11,7 @@ export default function SelectLRC20Token({seletctedToken, navigate}) {
   const {backgroundOffset} = GetThemeColors();
   return (
     <View style={styles.container}>
-      <ThemeText styles={styles.assetSelectorText} content={'Selected Asset'} />
+      <ThemeText styles={styles.assetSelectorText} content={'Selected Token'} />
       <TouchableOpacity
         onPress={() =>
           navigate.navigate('CustomHalfModal', {

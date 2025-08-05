@@ -70,7 +70,7 @@ export default function LRC20AssetSelectorHalfModal({
     <TouchableWithoutFeedback>
       <View style={styles.container}>
         <View style={styles.innerContainer}>
-          <ThemeText styles={styles.titleText} content={'Search Assets'} />
+          <ThemeText styles={styles.titleText} content={'Search Tokens'} />
           <CustomSearchInput
             placeholderText={'Token name...'}
             setInputText={handleSearch}

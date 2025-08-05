@@ -68,51 +68,6 @@ export default function FormattedSatText({
     localBalanceDenomination === 'sats' ||
     localBalanceDenomination === 'fiat';
 
-  if (useCustomLabel) {
-    return (
-      <View
-        style={{
-          ...localStyles.textContainer,
-          ...containerStyles,
-        }}>
-        {frontText && (
-          <ThemeText
-            styles={{includeFontPadding: false, marginLeft: 'auto', ...styles}}
-            content={`${frontText}`}
-          />
-        )}
-        <ThemeText
-          reversed={reversed}
-          content={`${formattedBalance}`}
-          styles={{
-            includeFontPadding: false,
-            marginLeft: frontText ? 0 : 'auto',
-            ...styles,
-          }}
-        />
-
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={{
-            includeFontPadding: false,
-            flexShrink: 1,
-            ...styles,
-          }}
-          content={` ${customLabel
-            ?.toUpperCase()
-            ?.slice(0, TOKEN_TICKER_MAX_LENGTH)}`}
-        />
-
-        {backText && (
-          <ThemeText
-            styles={{includeFontPadding: false, ...styles}}
-            content={`${backText}`}
-          />
-        )}
-      </View>
-    );
-  }
-
   // Hidding balance format
   if (!shouldShowAmount) {
     return (
@@ -132,6 +87,50 @@ export default function FormattedSatText({
           content={HIDDEN_BALANCE_TEXT}
           styles={{includeFontPadding: false, ...styles}}
         />
+        {backText && (
+          <ThemeText
+            styles={{includeFontPadding: false, ...styles}}
+            content={`${backText}`}
+          />
+        )}
+      </View>
+    );
+  }
+  if (useCustomLabel) {
+    return (
+      <View
+        style={{
+          ...localStyles.textContainer,
+          ...containerStyles,
+        }}>
+        {frontText && (
+          <ThemeText
+            styles={{includeFontPadding: false, marginLeft: 'auto', ...styles}}
+            content={`${frontText}`}
+          />
+        )}
+        <ThemeText
+          reversed={reversed}
+          content={`${formatBalanceAmount(balance)}`}
+          styles={{
+            includeFontPadding: false,
+            marginLeft: frontText ? 0 : 'auto',
+            ...styles,
+          }}
+        />
+
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={{
+            includeFontPadding: false,
+            flexShrink: 1,
+            ...styles,
+          }}
+          content={` ${customLabel
+            ?.toUpperCase()
+            ?.slice(0, TOKEN_TICKER_MAX_LENGTH)}`}
+        />
+
         {backText && (
           <ThemeText
             styles={{includeFontPadding: false, ...styles}}
