@@ -36,7 +36,7 @@ export const sparkPaymenWrapper = async ({
   sparkInformation,
   feeQuote,
   usingZeroAmountInvoice = false,
-  seletctedToken,
+  seletctedToken = 'Bitcoin',
 }) => {
   try {
     console.log('Begining spark payment');
