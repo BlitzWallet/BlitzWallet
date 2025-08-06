@@ -1,9 +1,9 @@
 import {
   StyleSheet,
   View,
-  FlatList,
   Platform,
   RefreshControl,
+  Animated,
 } from 'react-native';
 import {UserSatAmount} from './homeLightning/userSatAmount';
 import {useGlobalContextProvider} from '../../../../context-store/context';
@@ -29,10 +29,9 @@ import {
   sparkTransactionsEventEmitter,
 } from '../../../functions/spark/transactions';
 import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
-import {COLORS} from '../../../constants';
-import {useLRC20EventContext} from '../../../../context-store/lrc20Listener';
+import {COLORS, SIZES} from '../../../constants';
+import FormattedSatText from '../../../functions/CustomElements/satTextDisplay';
 
-// Memoized components to prevent unnecessary re-renders
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
 const MemoizedSendRecieveBTNs = memo(SendRecieveBTNs);
@@ -48,14 +47,17 @@ export default function HomeLightning() {
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
   const {t} = useTranslation();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {backgroundColor} = GetThemeColors();
 
-  // State optimizations
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const balanceOpacityInNav = useRef(new Animated.Value(0)).current;
+
   const [scrollContentChanges, setScrollContentChanges] = useState({
     borderRadius: false,
     backgroundColor: backgroundColor,
   });
   const [refreshing, setRefreshing] = useState(false);
+  const [navbarHeight, setNavbarHeight] = useState(0);
 
   const scrollOffset = useRef(0);
   const frame = useRef(null);
@@ -71,8 +73,37 @@ export default function HomeLightning() {
     [masterInfoObject.lrc20Settings],
   );
 
+  const BALANCE_FADE_START = navbarHeight; // When balance starts fading into navbar
+  const BALANCE_FADE_END = 100; // When balance is fully in navbar
+  const BALANCE_RETURN_START = 50; // When balance starts returning from navbar
+  const BALANCE_RETURN_END = navbarHeight; // When balance is fully back in original position
+
   useEffect(() => {
     toggleDidGetToHomepage(true);
+  }, []);
+
+  useEffect(() => {
+    const listenerId = scrollY.addListener(({value}) => {
+      if (value >= BALANCE_FADE_START && value <= BALANCE_FADE_END) {
+        const progress =
+          (value - BALANCE_FADE_START) /
+          (BALANCE_FADE_END - BALANCE_FADE_START);
+        balanceOpacityInNav.setValue(progress);
+      } else if (value >= BALANCE_RETURN_END && value <= BALANCE_RETURN_START) {
+        const progress =
+          (BALANCE_RETURN_START - value) /
+          (BALANCE_RETURN_START - BALANCE_RETURN_END);
+        balanceOpacityInNav.setValue(1 - progress);
+      } else if (value < BALANCE_RETURN_END) {
+        balanceOpacityInNav.setValue(0);
+      } else if (value > BALANCE_FADE_END) {
+        balanceOpacityInNav.setValue(1);
+      }
+    });
+
+    return () => {
+      scrollY.removeListener(listenerId);
+    };
   }, []);
 
   // Memoize the formatted transactions
@@ -145,35 +176,41 @@ export default function HomeLightning() {
     }
   }, [startLiquidEventListener, startRootstockEventListener]);
 
-  // Optimize scroll handler with debouncing
-  const handleScroll = useCallback(e => {
-    scrollOffset.current = e.nativeEvent.contentOffset.y;
+  const handleScroll = useCallback(
+    e => {
+      scrollOffset.current = e.nativeEvent.contentOffset.y;
 
-    if (frame.current) return;
+      if (frame.current) return;
 
-    frame.current = requestAnimationFrame(() => {
-      const offsetY = scrollOffset.current;
+      frame.current = requestAnimationFrame(() => {
+        const offsetY = scrollOffset.current;
 
-      setScrollContentChanges(prev => {
-        const newBorderRadius = offsetY > 40;
-        const newBg = offsetY > 100;
-        if (
-          prev.borderRadius !== newBorderRadius ||
-          prev.backgroundColor !== newBg
-        ) {
-          return {
-            borderRadius: newBorderRadius,
-            backgroundColor: newBg,
-          };
-        }
-        return prev;
+        setScrollContentChanges(prev => {
+          const newBorderRadius = offsetY > 40;
+          const newBg = offsetY > 100;
+          if (
+            prev.borderRadius !== newBorderRadius ||
+            prev.backgroundColor !== newBg
+          ) {
+            return {
+              borderRadius: newBorderRadius,
+              backgroundColor: newBg,
+            };
+          }
+          return prev;
+        });
+
+        frame.current = null;
       });
+    },
+    [enabledLRC20],
+  );
 
-      frame.current = null;
-    });
+  const handleNavbarLayout = useCallback(event => {
+    const {height} = event.nativeEvent.layout;
+    setNavbarHeight(height);
   }, []);
 
-  // Memoize colors to prevent recalculation
   const colors = useMemo(
     () =>
       Platform.select({
@@ -183,7 +220,6 @@ export default function HomeLightning() {
     [darkModeType, theme],
   );
 
-  // Memoize refresh control to prevent recreation
   const refreshControl = useMemo(
     () => (
       <RefreshControl
@@ -196,13 +232,13 @@ export default function HomeLightning() {
     [colors, refreshing, handleRefresh, darkModeType, theme],
   );
 
-  // Render item function with memoized components
   const renderItem = useCallback(
     ({item}) => {
       switch (item.type) {
         case 'navbar':
           return (
             <View
+              onLayout={handleNavbarLayout}
               style={[
                 styles.navbarContainer,
                 {
@@ -216,14 +252,38 @@ export default function HomeLightning() {
                 },
               ]}>
               <MemoizedNavBar theme={theme} toggleTheme={toggleTheme} />
+
+              <Animated.View
+                style={[
+                  styles.navbarBalance,
+                  {
+                    opacity: balanceOpacityInNav,
+                    transform: [
+                      {
+                        translateY: balanceOpacityInNav.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [10, 0],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+                pointerEvents="none">
+                <FormattedSatText
+                  styles={styles.navbarBalanceText}
+                  balance={sparkInformation.balance}
+                />
+              </Animated.View>
             </View>
           );
         case 'balance':
           return (
-            <View
+            <Animated.View
               style={[
                 styles.balanceSection,
-                {backgroundColor: backgroundColor},
+                {
+                  backgroundColor: backgroundColor,
+                },
               ]}>
               <ThemeText
                 content={
@@ -239,7 +299,7 @@ export default function HomeLightning() {
                 darkModeType={darkModeType}
                 sparkInformation={sparkInformation}
               />
-            </View>
+            </Animated.View>
           );
         case 'buttons':
           return (
@@ -268,48 +328,58 @@ export default function HomeLightning() {
       }
     },
     [
+      handleNavbarLayout,
       scrollContentChanges.borderRadius,
-      backgroundOffset,
+      backgroundColor,
       theme,
       toggleTheme,
+      balanceOpacityInNav,
+      darkModeType,
+      sparkInformation.balance,
       lrc20Settings.isEnabled,
       t,
       isConnectedToTheInternet,
-      darkModeType,
       sparkInformation,
     ],
   );
 
   const homepageBackgroundOffsetColor = useMemo(() => {
-    return theme
-      ? darkModeType
-        ? COLORS.walletHomeLightsOutOffset
-        : COLORS.walletHomeDarkModeOffset
-      : COLORS.walletHomeLightModeOffset;
-  }, [theme, darkModeType]);
+    return enabledLRC20
+      ? theme
+        ? darkModeType
+          ? COLORS.walletHomeLightsOutOffset
+          : COLORS.walletHomeDarkModeOffset
+        : COLORS.walletHomeLightModeOffset
+      : backgroundColor;
+  }, [theme, darkModeType, enabledLRC20]);
 
+  const globlThemeViewMemodStlyes = useMemo(() => {
+    return {
+      flex: 1,
+      backgroundColor: scrollContentChanges.backgroundColor
+        ? homepageBackgroundOffsetColor
+        : backgroundColor,
+      paddingBottom: 0,
+    };
+  }, [
+    scrollContentChanges.backgroundColor,
+    homepageBackgroundOffsetColor,
+    backgroundColor,
+  ]);
+  const topPaddingForLRC20PageMemeStyles = useMemo(() => {
+    return {
+      backgroundColor: backgroundColor,
+      position: 'absolute',
+      top: 0,
+      width: '100%',
+      height: topPadding,
+      zIndex: 99,
+    };
+  }, [backgroundColor, topPadding]);
   return (
-    <GlobalThemeView
-      styles={{
-        flex: 1,
-        backgroundColor: scrollContentChanges.backgroundColor
-          ? homepageBackgroundOffsetColor
-          : backgroundColor,
-        paddingBottom: 0,
-      }}>
-      <View
-        style={[
-          {
-            backgroundColor: backgroundColor,
-            position: 'absolute',
-            top: 0,
-            width: '100%',
-            height: topPadding,
-            zIndex: 99,
-          },
-        ]}
-      />
-      <FlatList
+    <GlobalThemeView styles={globlThemeViewMemodStlyes}>
+      {enabledLRC20 && <View style={topPaddingForLRC20PageMemeStyles} />}
+      <Animated.FlatList
         refreshControl={refreshControl}
         initialNumToRender={10}
         maxToRenderPerBatch={10}
@@ -322,8 +392,13 @@ export default function HomeLightning() {
           backgroundColor: homepageBackgroundOffsetColor,
           flexGrow: 1,
         }}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{nativeEvent: {contentOffset: {y: scrollY}}}],
+          {
+            useNativeDriver: false,
+            listener: handleScroll,
+          },
+        )}
         renderItem={renderItem}
         stickyHeaderIndices={[0]}
       />
@@ -335,6 +410,21 @@ const styles = StyleSheet.create({
   navbarContainer: {
     zIndex: 0,
     paddingBottom: 10,
+    position: 'relative',
+  },
+  navbarBalance: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  navbarBalanceText: {
+    fontSize: SIZES.large,
+    includeFontPadding: false,
   },
   topSection: {
     paddingHorizontal: 16,

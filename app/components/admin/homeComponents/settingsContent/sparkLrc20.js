@@ -54,7 +54,7 @@ export default function SparkSettingsPage() {
             } LRC-20`}
             switchPageName={'lrc20Settings'}
             showDescription={true}
-            settingDescription={`LRC-20 is Spark’s native token. Enabling LRC-20 allows you send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.\n\nBlitz applies a ${displayCorrectDenomination(
+            settingDescription={`LRC-20 is Spark’s native token. Enabling LRC-20 allows you send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.\n\nBlitz also applies a ${displayCorrectDenomination(
               {amount: 10, masterInfoObject, fiatStats},
             )} fee to all token transactions, with 20% of that fee donated to support open-source Bitcoin development.`}
             handleSubmit={() =>
