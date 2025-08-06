@@ -56,7 +56,7 @@ export default function AcceptButtonSendPage({
             paymentInfo?.type === 'Bitcoin' &&
             convertedSendAmount < SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT
           ) &&
-          !(isLRC20Payment && sparkInformation.balance < 5)
+          !(isLRC20Payment && sparkInformation.balance < 10)
             ? 1
             : 0.5,
         width: 'auto',
@@ -133,10 +133,10 @@ export default function AcceptButtonSendPage({
       return;
     }
 
-    if (isLRC20Payment && sparkInformation.balance < 5) {
+    if (isLRC20Payment && sparkInformation.balance < 10) {
       navigate.navigate('ErrorScreen', {
         errorMessage: `You need ${displayCorrectDenomination({
-          amount: 5,
+          amount: 10,
           masterInfoObject,
           fiatStats,
         })} sats to send tokens. Your balance is ${displayCorrectDenomination({

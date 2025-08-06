@@ -16,7 +16,7 @@ export const bitcoinBrackets = [
   {upTo: Infinity, fixedFee: 4, percentage: 0.004}, // fallback: 0.4% + 4 sats
 ];
 export const LRC20Brackets = [
-  {upTo: Infinity, fixedFee: 5, percentage: 0}, // 0.3% + 3 sats
+  {upTo: Infinity, fixedFee: 10, percentage: 0}, // 0.0% + 10 sats
 ];
 /**
  * Calculates fee based on progressive brackets.
