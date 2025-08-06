@@ -52,6 +52,8 @@ export default function HomeLightning() {
   const scrollY = useRef(new Animated.Value(0)).current;
   const balanceOpacityInNav = useRef(new Animated.Value(0)).current;
 
+  const scrollListenerRef = useRef(null);
+
   const [scrollContentChanges, setScrollContentChanges] = useState({
     borderRadius: false,
     backgroundColor: backgroundColor,
@@ -83,7 +85,13 @@ export default function HomeLightning() {
   }, []);
 
   useEffect(() => {
-    const listenerId = scrollY.addListener(({value}) => {
+    if (BALANCE_FADE_START === 0) return;
+
+    if (scrollListenerRef.current) {
+      scrollY.removeListener(scrollListenerRef.current);
+    }
+
+    scrollListenerRef.current = scrollY.addListener(({value}) => {
       if (value >= BALANCE_FADE_START && value <= BALANCE_FADE_END) {
         const progress =
           (value - BALANCE_FADE_START) /
@@ -102,9 +110,9 @@ export default function HomeLightning() {
     });
 
     return () => {
-      scrollY.removeListener(listenerId);
+      scrollY.removeListener(scrollListenerRef.current);
     };
-  }, []);
+  }, [BALANCE_FADE_START]);
 
   // Memoize the formatted transactions
   const flatListDataForSpark = useMemo(() => {
