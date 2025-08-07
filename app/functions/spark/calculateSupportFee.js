@@ -26,6 +26,7 @@ export const LRC20Brackets = [
 export default async function calculateProgressiveBracketFee(
   amount,
   paymentType,
+  mnemonic,
 ) {
   let brackets;
   if (paymentType === 'lightning') {
@@ -44,7 +45,7 @@ export default async function calculateProgressiveBracketFee(
     if (amount <= bracket.upTo) {
       const fee = Math.ceil(amount * bracket.percentage) + bracket.fixedFee;
 
-      const sparkFeeResponse = await getSparkPaymentFeeEstimate(fee);
+      const sparkFeeResponse = await getSparkPaymentFeeEstimate(fee, mnemonic);
 
       return Math.max(0, fee - sparkFeeResponse);
     }

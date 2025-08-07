@@ -11,6 +11,7 @@ export default async function processLNUrlPay(input, context) {
     enteredPaymentInfo,
     fiatStats,
     paymentInfo,
+    currentWalletMnemoinc,
   } = context;
 
   crashlyticsLogReport('Beiging decode LNURL pay');
@@ -71,6 +72,7 @@ export default async function processLNUrlPay(input, context) {
         amountSats: Number(enteredPaymentInfo.amount),
         paymentType: 'lightning',
         masterInfoObject,
+        mnemonic: currentWalletMnemoinc,
       });
 
       if (!fee.didWork) throw new Error(fee.error);

@@ -34,7 +34,8 @@ export default function ButtonsContainer(props) {
           actionFunction={() => {
             if (
               props.selectedRecieveOption?.toLowerCase() === 'lightning' &&
-              !props.initialSendAmount
+              !props.initialSendAmount &&
+              !props.isUsingAltAccount
             ) {
               navigate.navigate('CustomHalfModal', {
                 wantedContent: 'chooseLNURLCopyFormat',

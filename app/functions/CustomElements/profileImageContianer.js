@@ -10,6 +10,7 @@ export default function ProfileImageContainer({
   containerStyles = {},
   activeOpacity = 0.2,
   imageStyles = {},
+  useLogo = false,
 }) {
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -30,7 +31,9 @@ export default function ProfileImageContainer({
         ]}>
         <Image
           source={
-            imageURL
+            useLogo
+              ? ICONS.logoWithPadding
+              : imageURL
               ? {
                   uri: imageURL,
                 }
@@ -39,7 +42,9 @@ export default function ProfileImageContainer({
               : ICONS.userIcon
           }
           style={
-            imageURL
+            useLogo
+              ? {width: '50%', height: '50%'}
+              : imageURL
               ? {width: '100%', aspectRatio: 1}
               : {width: '50%', height: '50%'}
           }

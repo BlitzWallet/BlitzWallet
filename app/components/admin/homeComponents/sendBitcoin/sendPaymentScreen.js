@@ -60,10 +60,12 @@ import {getBoltzApiUrl} from '../../../../functions/boltz/boltzEndpoitns';
 import InvoiceInfo from './components/invoiceInfo';
 import formatSparkPaymentAddress from './functions/formatSparkPaymentAddress';
 import SelectLRC20Token from './components/selectLRC20Token';
+import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
   // FIX MIN AND MAX SEND AMOUNTS HERE.
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const navigate = useNavigation();
   const {
     btcAdress,
@@ -222,6 +224,7 @@ export default function SendPaymentScreen(props) {
         publishMessageFunc,
         sparkInformation,
         seletctedToken,
+        currentWalletMnemoinc,
       });
     }
     setTimeout(decodePayment, 1000);
@@ -509,6 +512,7 @@ export default function SendPaymentScreen(props) {
       feeQuote: paymentInfo.feeQuote,
       usingZeroAmountInvoice: paymentInfo.usingZeroAmountInvoice,
       seletctedToken: selectedLRC20Asset,
+      mnemonic: currentWalletMnemoinc,
     };
 
     // Shouuld be same for all paymetns

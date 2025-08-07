@@ -54,15 +54,26 @@ export const initializeSparkDatabase = async () => {
   }
 };
 
-export const getAllSparkTransactions = async (limit = null) => {
+export const getAllSparkTransactions = async (limit = null, accountId) => {
   try {
     let query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}`;
+    let params = [];
 
-    if (limit) {
-      query += ` ORDER BY ROWID DESC LIMIT ${limit}`;
+    // Add WHERE clause if accountId is provided
+    if (accountId) {
+      query += ` WHERE accountId = ?`;
+      console.log(accountId);
+      params.push(String(accountId));
     }
 
-    const result = await sqlLiteDB.getAllAsync(query);
+    // Add ORDER BY and LIMIT if limit is provided
+    if (limit) {
+      query += ` ORDER BY ROWID DESC LIMIT ?`;
+      params.push(limit);
+    }
+
+    console.log(query, params);
+    const result = await sqlLiteDB.getAllAsync(query, params);
 
     if (!limit) {
       return result.sort(

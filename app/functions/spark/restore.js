@@ -31,6 +31,7 @@ export const restoreSparkTxState = async (
   BATCH_SIZE,
   savedTxs,
   isSendingPayment,
+  mnemonic,
 ) => {
   const restoredTxs = [];
 
@@ -48,7 +49,7 @@ export const restoreSparkTxState = async (
     const donationPubKey = process.env.BLITZ_SPARK_PUBLICKEY;
 
     while (true) {
-      const txs = await getSparkTransactions(localBatchSize, offset);
+      const txs = await getSparkTransactions(localBatchSize, offset, mnemonic);
       const batchTxs = txs.transfers || [];
 
       if (!batchTxs.length) {
@@ -131,14 +132,17 @@ export async function fullRestoreSparkState({
   sparkAddress,
   batchSize = 50,
   isSendingPayment,
+  mnemonic,
+  identityPubKey,
 }) {
   try {
-    const savedTxs = await getCachedSparkTransactions();
+    const savedTxs = await getCachedSparkTransactions(null, identityPubKey);
 
     const restored = await restoreSparkTxState(
       batchSize,
       savedTxs,
       isSendingPayment,
+      mnemonic,
     );
     const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
 
@@ -177,7 +181,7 @@ export async function fullRestoreSparkState({
   }
 }
 
-export const findSignleTxFromHistory = async (txid, BATCH_SIZE) => {
+export const findSignleTxFromHistory = async (txid, BATCH_SIZE, mnemonic) => {
   let restoredTx;
   try {
     // here we do not want to save any tx to be shown, we only want to flag that it came from restore and then when we get the actual notification of it we can block the navigation
@@ -186,7 +190,11 @@ export const findSignleTxFromHistory = async (txid, BATCH_SIZE) => {
     let foundOverlap = false;
 
     do {
-      const txs = await getSparkTransactions(start + BATCH_SIZE, start);
+      const txs = await getSparkTransactions(
+        start + BATCH_SIZE,
+        start,
+        mnemonic,
+      );
       const batchTxs = txs.transfers || [];
 
       if (!batchTxs.length) {
@@ -216,7 +224,7 @@ export const findSignleTxFromHistory = async (txid, BATCH_SIZE) => {
   }
 };
 let isUpdatingSparkTxStatus = false;
-export const updateSparkTxStatus = async () => {
+export const updateSparkTxStatus = async mnemoninc => {
   try {
     if (isUpdatingSparkTxStatus) {
       console.log('updateSparkTxStatus skipped: already running');
@@ -253,8 +261,12 @@ export const updateSparkTxStatus = async () => {
 
     // Process different transaction types in parallel
     const [lightningUpdates, bitcoinUpdates, sparkUpdates] = await Promise.all([
-      processLightningTransactions(txsByType.lightning, unpaidInvoicesByAmount),
-      processBitcoinTransactions(txsByType.bitcoin),
+      processLightningTransactions(
+        txsByType.lightning,
+        unpaidInvoicesByAmount,
+        mnemoninc,
+      ),
+      processBitcoinTransactions(txsByType.bitcoin, mnemoninc),
       processSparkTransactions(txsByType.spark),
     ]);
 
@@ -280,6 +292,7 @@ export const updateSparkTxStatus = async () => {
 async function processLightningTransactions(
   lightningTxs,
   unpaidInvoicesByAmount,
+  mnemonic,
 ) {
   const CONCURRENCY_LIMIT = 5;
   const updatedTxs = [];
@@ -289,10 +302,12 @@ async function processLightningTransactions(
     const batch = lightningTxs.slice(i, i + CONCURRENCY_LIMIT);
 
     const batchPromises = batch.map(tx =>
-      processLightningTransaction(tx, unpaidInvoicesByAmount).catch(err => {
-        console.error('Error processing lightning tx:', tx.sparkID, err);
-        return null;
-      }),
+      processLightningTransaction(tx, unpaidInvoicesByAmount, mnemonic).catch(
+        err => {
+          console.error('Error processing lightning tx:', tx.sparkID, err);
+          return null;
+        },
+      ),
     );
 
     const results = await Promise.all(batchPromises);
@@ -315,6 +330,7 @@ async function processLightningTransactions(
       result.id,
       transfersOffset,
       cachedTransfers,
+      mnemonic,
     );
 
     if (findTxResponse.offset && findTxResponse.foundTransfers) {
@@ -356,6 +372,7 @@ async function processLightningTransactions(
 async function processLightningTransaction(
   txStateUpdate,
   unpaidInvoicesByAmount,
+  mnemonic,
 ) {
   const details = JSON.parse(txStateUpdate.details);
 
@@ -380,6 +397,7 @@ async function processLightningTransaction(
       const matchResult = await findMatchingInvoice(
         possibleOptions,
         txStateUpdate.sparkID,
+        mnemonic,
       );
 
       if (matchResult.savedInvoice) {
@@ -421,8 +439,9 @@ async function processLightningTransaction(
       details.direction === 'INCOMING'
         ? await getSparkLightningPaymentStatus({
             lightningInvoiceId: txStateUpdate.sparkID,
+            mnemonic,
           })
-        : await getSparkLightningSendRequest(txStateUpdate.sparkID);
+        : await getSparkLightningSendRequest(txStateUpdate.sparkID, mnemonic);
 
     if (
       details.direction === 'OUTGOING' &&
@@ -449,14 +468,18 @@ async function processLightningTransaction(
   return null;
 }
 
-async function findMatchingInvoice(possibleOptions, sparkID) {
+async function findMatchingInvoice(possibleOptions, sparkID, mnemonic) {
   const BATCH_SIZE = 3;
 
   for (let i = 0; i < possibleOptions.length; i += BATCH_SIZE) {
     const batch = possibleOptions.slice(i, i + BATCH_SIZE);
 
     const batchPromises = batch.map(async invoice => {
-      const paymentDetails = await getPaymentDetailsWithRetry(invoice.sparkID);
+      const paymentDetails = await getPaymentDetailsWithRetry(
+        invoice.sparkID,
+        undefined,
+        mnemonic,
+      );
       if (paymentDetails?.transfer?.sparkId === sparkID) {
         return {invoice, paymentDetails};
       }
@@ -477,10 +500,17 @@ async function findMatchingInvoice(possibleOptions, sparkID) {
   return {savedInvoice: null, matchedUnpaidInvoice: null};
 }
 
-async function getPaymentDetailsWithRetry(lightningInvoiceId, maxAttempts = 2) {
+async function getPaymentDetailsWithRetry(
+  lightningInvoiceId,
+  maxAttempts = 2,
+  mnemonic,
+) {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
-      const result = await getSparkLightningPaymentStatus({lightningInvoiceId});
+      const result = await getSparkLightningPaymentStatus({
+        lightningInvoiceId,
+        mnemonic,
+      });
       if (result?.transfer !== undefined) {
         return result;
       }
@@ -495,7 +525,7 @@ async function getPaymentDetailsWithRetry(lightningInvoiceId, maxAttempts = 2) {
   return null;
 }
 
-async function processBitcoinTransactions(bitcoinTxs) {
+async function processBitcoinTransactions(bitcoinTxs, mnemonic) {
   const lastRun = await getLocalStorageItem('lastRunBitcoinTxUpdate');
 
   const now = Date.now();
@@ -527,6 +557,7 @@ async function processBitcoinTransactions(bitcoinTxs) {
         txStateUpdate.sparkID,
         transfersOffset,
         cachedTransfers,
+        mnemonic,
       );
 
       if (findTxResponse.offset && findTxResponse.foundTransfers) {
@@ -552,6 +583,7 @@ async function processBitcoinTransactions(bitcoinTxs) {
       if (shouldBlockSendCheck) continue;
       const sparkResponse = await getSparkBitcoinPaymentRequest(
         txStateUpdate.sparkID,
+        mnemonic,
       );
 
       if (!sparkResponse?.transfer) {

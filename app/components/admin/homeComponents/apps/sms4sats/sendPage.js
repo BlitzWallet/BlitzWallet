@@ -37,10 +37,12 @@ import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 
 export default function SMSMessagingSendPage({SMSprices}) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {fiatStats} = useNodeContext();
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {sparkInformation} = useSparkWallet();
   const {masterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -336,6 +338,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
           masterInfoObject,
           sparkInformation,
           userBalance: sparkInformation.balance,
+          mnemonic: currentWalletMnemoinc,
         });
         if (!fee.didWork) throw new Error(fee.error);
 
@@ -360,6 +363,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
         userBalance: sparkInformation.balance,
         sparkInformation,
         description: 'Store - SMS',
+        currentWalletMnemoinc: currentWalletMnemoinc,
       });
 
       if (!paymentResponse.didWork) {

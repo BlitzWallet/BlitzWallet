@@ -10,6 +10,7 @@ import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 
 export default function AcceptButtonSendPage({
   canSendPayment,
@@ -34,6 +35,7 @@ export default function AcceptButtonSendPage({
   const {masterInfoObject} = useGlobalContextProvider();
   const {liquidNodeInformation, fiatStats} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
 
   const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
   const navigate = useNavigation();
@@ -179,6 +181,7 @@ export default function AcceptButtonSendPage({
         webViewRef,
         sparkInformation,
         seletctedToken,
+        currentWalletMnemoinc,
       });
       setIsGeneratingInvoice(false);
     } catch (err) {

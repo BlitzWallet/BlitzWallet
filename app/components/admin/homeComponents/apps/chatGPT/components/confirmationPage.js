@@ -13,9 +13,11 @@ import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {useGlobalContextProvider} from '../../../../../../../context-store/context';
 import {useSparkWallet} from '../../../../../../../context-store/sparkContext';
 import StoreErrorPage from '../../components/errorScreen';
+import {useActiveCustodyAccount} from '../../../../../../../context-store/activeAccount';
 
 export default function ConfirmChatGPTPage(props) {
   const navigate = useNavigation();
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {masterInfoObject} = useGlobalContextProvider();
   const {sparkInformation} = useSparkWallet();
   const theme = props?.theme;
@@ -52,6 +54,7 @@ export default function ConfirmChatGPTPage(props) {
           masterInfoObject,
           sparkInformation,
           userBalance: sparkInformation.balance,
+          mnemonic: currentWalletMnemoinc,
         });
         if (!fee.didWork) throw new Error(fee.error);
         if (sparkInformation.balance < fee.supportFee + fee.fee) {

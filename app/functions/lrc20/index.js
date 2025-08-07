@@ -1,3 +1,4 @@
+import sha256Hash from '../hash';
 import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 import {getCachedSparkTransactions, getSparkTokenTransactions} from '../spark';
 import {bulkUpdateSparkTransactions} from '../spark/transactions';
@@ -9,14 +10,15 @@ export async function getLRC20Transactions({
   ownerPublicKeys,
   sparkAddress,
   isInitialRun,
+  mnemonic,
 }) {
   const [storedDate, savedTxs, cachedTokens, tokenTxs] = await Promise.all([
     getLocalStorageItem('lastRunLRC20Tokens').then(
       data => JSON.parse(data) || 0,
     ),
-    getCachedSparkTransactions(),
+    getCachedSparkTransactions(null, ownerPublicKeys[0]),
     getCachedTokens(),
-    getSparkTokenTransactions({ownerPublicKeys}),
+    getSparkTokenTransactions({ownerPublicKeys, mnemonic}),
   ]);
 
   const savedIds = new Set(savedTxs?.map(tx => tx.sparkID) || []);
@@ -38,7 +40,7 @@ export async function getLRC20Transactions({
     if (!tokenIdentifier) continue;
     const tokenbech32m = convertToBech32m(tokenIdentifierHex);
 
-    if (!cachedTokens[tokenbech32m]) {
+    if (!cachedTokens[sha256Hash(mnemonic)]?.[tokenbech32m]) {
       console.log('NO TOKEN DATA FOUND');
       continue;
     }

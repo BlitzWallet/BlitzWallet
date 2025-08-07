@@ -9,12 +9,14 @@ import {
 import {getSparkBalance} from '../app/functions/spark';
 import sha256Hash from '../app/functions/hash';
 import {useSparkWallet} from './sparkContext';
+import {useActiveCustodyAccount} from './activeAccount';
 
 const LRC20EventContext = createContext(null);
 const DEFAULT_EVENT_LIMIT = 15;
 const POLLING_INTERVAL_MS = 12000;
 
 export function LRC20EventProvider({children}) {
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {sparkInformation} = useSparkWallet();
   const maxAttempts = useRef(DEFAULT_EVENT_LIMIT);
   const currentAttempts = useRef(0);
@@ -51,7 +53,7 @@ export function LRC20EventProvider({children}) {
           currentAttempts.current += 1;
 
           try {
-            const data = await getSparkBalance();
+            const data = await getSparkBalance(currentWalletMnemoinc);
             if (data.didWork) {
               const hashedData = sha256Hash(JSON.stringify(data.tokensObj));
               const compareHash = prevData.current
@@ -86,7 +88,7 @@ export function LRC20EventProvider({children}) {
         cleanup();
       }
     },
-    [cleanup, sparkInformation],
+    [cleanup, sparkInformation, currentWalletMnemoinc],
   );
 
   const stopLrc20EventListener = useCallback(() => {

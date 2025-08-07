@@ -45,9 +45,11 @@ import sendStorePayment from '../../../../../functions/apps/payments';
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 
 export default function ExpandedGiftCardPage(props) {
   const {sparkInformation} = useSparkWallet();
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   // const {nodeInformation, liquidNodeInformation} = useNodeContext();
   // const {minMaxLiquidSwapAmounts} = useAppStatus();
@@ -508,6 +510,7 @@ export default function ExpandedGiftCardPage(props) {
         userBalance: sparkInformation.balance,
         sparkInformation: sparkInformation,
         description: memo,
+        currentWalletMnemoinc: currentWalletMnemoinc,
       });
 
       if (!paymentResponse.didWork) {

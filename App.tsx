@@ -116,8 +116,8 @@ function App(): JSX.Element {
         <InsetsProvider>
           <KeyboardProvider>
             <ToastProvider>
-              <ActiveCustodyAccountProvider>
-                <KeysContextProvider>
+              <KeysContextProvider>
+                <ActiveCustodyAccountProvider>
                   <GlobalContactsList>
                     <GlobalContextProvider>
                       <AppStatusProvider>
@@ -161,8 +161,8 @@ function App(): JSX.Element {
                       </AppStatusProvider>
                     </GlobalContextProvider>
                   </GlobalContactsList>
-                </KeysContextProvider>
-              </ActiveCustodyAccountProvider>
+                </ActiveCustodyAccountProvider>
+              </KeysContextProvider>
             </ToastProvider>
           </KeyboardProvider>
         </InsetsProvider>

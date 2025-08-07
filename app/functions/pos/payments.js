@@ -198,6 +198,7 @@ import {parse} from '@breeztech/react-native-breez-sdk-liquid';
  * @param {Object} params.masterInfoObject - Master information object
  * @param {string} params.description - Payment description
  * @param {Object} params.sparkInformation - Information about the spark context including balance
+ * @param {Object} params.currentWalletMnemoinc - Admin wallets mnemoinc
  * @returns {Promise<boolean>} - True if payment successful, false otherwise
  */
 export async function payPOSLNURL({
@@ -209,6 +210,7 @@ export async function payPOSLNURL({
   // liquidNodeInformation,
   // nodeInformation,
   // minMaxLiquidSwapAmounts,
+  currentWalletMnemoinc,
 }) {
   try {
     // Parse the LNURL address first as it's needed for all payment methods
@@ -231,6 +233,7 @@ export async function payPOSLNURL({
       masterInfoObject,
       fee: 0,
       description: '',
+      mnemonic: currentWalletMnemoinc,
     });
     if (!feeResponse.didWork) throw new Error(feeResponse.error);
 
@@ -249,6 +252,7 @@ export async function payPOSLNURL({
       memo: description,
       sparkInformation,
       userBalance: sparkInformation.balance,
+      mnemonic: currentWalletMnemoinc,
     });
 
     if (!paymentResponse.didWork) throw new Error('Unable to send payment');
@@ -372,6 +376,7 @@ export async function payPOSLNURL({
  * @param {Object} params.webViewRef - Referance to the global webview
  * @param {string} params.sparkInformation - Information about the current spark wallet context
  * @param {Object} params.minMaxLiquidSwapAmounts - Min/max amounts for swaps
+ * @param {Object} params.currentWalletMnemoinc - Admin wallets mnemoinc
  * @returns {Promise<boolean>} - True if payment successful, false otherwise
  */
 export async function payPOSContact({
@@ -381,6 +386,7 @@ export async function payPOSContact({
   description,
   // webViewRef,
   sparkInformation,
+  currentWalletMnemoinc,
 }) {
   try {
     const address = blitzContact.contacts.myProfile.sparkAddress;
@@ -392,6 +398,7 @@ export async function payPOSContact({
       masterInfoObject,
       fee: 0,
       description: '',
+      mnemonic: currentWalletMnemoinc,
     });
 
     if (!feeResponse.didWork) throw new Error(feeResponse.error);
@@ -411,6 +418,7 @@ export async function payPOSContact({
       memo: description,
       sparkInformation,
       userBalance: sparkInformation.balance,
+      mnemonic: currentWalletMnemoinc,
     });
 
     if (!paymentResponse.didWork) throw new Error('Unable to send payment');

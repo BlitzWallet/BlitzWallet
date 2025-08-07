@@ -258,7 +258,11 @@ export default function HomeLightning() {
                     : 0,
                 },
               ]}>
-              <MemoizedNavBar theme={theme} toggleTheme={toggleTheme} />
+              <MemoizedNavBar
+                darkModeType={darkModeType}
+                theme={theme}
+                toggleTheme={toggleTheme}
+              />
 
               <Animated.View
                 style={[

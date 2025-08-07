@@ -47,6 +47,7 @@ export default async function decodeSendAddress(props) {
     publishMessageFunc,
     sparkInformation,
     seletctedToken,
+    currentWalletMnemoinc,
   } = props;
 
   try {
@@ -152,6 +153,7 @@ export default async function decodeSendAddress(props) {
         paymentInfo,
         fromPage,
         seletctedToken,
+        currentWalletMnemoinc,
       });
     } catch (err) {
       return goBackFunction(err.message || 'Error processing payment info');
