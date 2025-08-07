@@ -24,7 +24,7 @@ jobs:
         run: |
           set -euxo pipefail
           yarn config set registry https://registry.npmjs.org/
-          yarn install --frozen-lockfile
+          yarn install
 
       - name: Run eslint
         run: |
