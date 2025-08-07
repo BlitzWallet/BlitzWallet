@@ -1,4 +1,8 @@
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
+import {
+  getLocalStorageItem,
+  removeLocalStorageItem,
+  setLocalStorageItem,
+} from '../localStorage';
 
 const TOKEN_CACHE_KEY = 'spark_wallet_tokens_cache';
 
@@ -45,9 +49,9 @@ export const mergeTokensWithCache = (currentTokens, cachedTokens) => {
   return merged;
 };
 
-export const clearTokenCache = () => {
+export const clearTokenCache = async () => {
   try {
-    localStorage.removeItem(TOKEN_CACHE_KEY);
+    await removeLocalStorageItem(TOKEN_CACHE_KEY);
     return true;
   } catch (err) {
     console.warn('Error clearing token cache:', err);

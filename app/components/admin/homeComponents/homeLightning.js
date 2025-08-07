@@ -178,7 +178,6 @@ export default function HomeLightning() {
       );
     } catch (err) {
       console.log('error refreshing on homepage', err);
-      CrashReportingSettingsPage(err.message);
     } finally {
       setRefreshing(false);
     }
