@@ -488,7 +488,7 @@ export default function SendPaymentScreen(props) {
 
     const memo =
       paymentInfo.type === 'bolt11'
-        ? enteredPaymentInfo.description ||
+        ? enteredPaymentInfo?.description ||
           paymentDescription ||
           paymentInfo?.data.message ||
           ''
