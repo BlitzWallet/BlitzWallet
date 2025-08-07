@@ -6,7 +6,14 @@ import {
   useWindowDimensions,
   Platform,
 } from 'react-native';
-import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../constants';
+import {
+  CENTER,
+  COLORS,
+  FONT,
+  ICONS,
+  SIZES,
+  TOKEN_TICKER_MAX_LENGTH,
+} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import Icon from '../../functions/CustomElements/Icon';
@@ -16,8 +23,10 @@ import GetThemeColors from '../../hooks/themeColors';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import {useSparkWallet} from '../../../context-store/sparkContext';
 
 export default function ExpandedTx(props) {
+  const {sparkInformation} = useSparkWallet();
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
@@ -38,6 +47,11 @@ export default function ExpandedTx(props) {
   const day = paymentDate.getDate();
   const year = paymentDate.getFullYear();
   useHandleBackPressNew();
+
+  const isLRC20Payment = transaction.details.isLRC20Payment;
+  const selectedToken = isLRC20Payment
+    ? sparkInformation.tokens?.[transaction.details.LRC20Token]
+    : '';
 
   return (
     <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
@@ -136,6 +150,8 @@ export default function ExpandedTx(props) {
                 includeFontPadding: false,
               }}
               balance={transaction.details.amount}
+              useCustomLabel={isLRC20Payment}
+              customLabel={selectedToken?.tokenMetadata?.tokenTicker}
             />
             <View style={styles.paymentStatusTextContainer}>
               <ThemeText content={'Payment status'} />
@@ -219,6 +235,24 @@ export default function ExpandedTx(props) {
                 styles={{fontSize: SIZES.large, textTransform: 'capitalize'}}
               />
             </View>
+            {isLRC20Payment && (
+              <View style={styles.infoLine}>
+                <ThemeText content={'Token'} />
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  content={selectedToken?.tokenMetadata?.tokenTicker
+                    ?.toUpperCase()
+                    ?.slice(0, TOKEN_TICKER_MAX_LENGTH)}
+                  styles={{
+                    fontSize: SIZES.large,
+                    textTransform: 'uppercase',
+                    flexGrow: 1,
+                    textAlign: 'right',
+                    marginLeft: 10,
+                  }}
+                />
+              </View>
+            )}
 
             {isPending && transaction.paymentType === 'bitcoin' && (
               <View style={styles.infoLine}>

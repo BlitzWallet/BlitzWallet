@@ -16,13 +16,17 @@ export const NavBar = memo(function NavBar({theme, toggleTheme}) {
         onPress={() => {
           toggleTheme(!theme);
         }}
-        activeOpacity={0.5}>
+        activeOpacity={0.5}
+        style={styles.iconButton}>
         <ThemeImage
           darkModeIcon={ICONS.lightMode}
           lightsOutIcon={ICONS.lightModeWhite}
           lightModeIcon={ICONS.darkMode}
         />
       </TouchableOpacity>
+
+      {/* Center space for animated balance - invisible but takes up space */}
+      <View style={styles.centerSpace} />
 
       <TouchableOpacity
         onPress={() => {
@@ -31,7 +35,8 @@ export const NavBar = memo(function NavBar({theme, toggleTheme}) {
           );
           navigate.navigate('SettingsHome');
         }}
-        activeOpacity={0.5}>
+        activeOpacity={0.5}
+        style={styles.iconButton}>
         <ThemeImage
           styles={{marginLeft: 10}}
           darkModeIcon={ICONS.settingsIcon}
@@ -42,6 +47,7 @@ export const NavBar = memo(function NavBar({theme, toggleTheme}) {
     </View>
   );
 });
+
 const styles = StyleSheet.create({
   topBar: {
     width: WINDOWWIDTH,
@@ -50,6 +56,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     ...CENTER,
-    marginBottom: 40,
+    minHeight: 50, // Ensure consistent height for balance overlay
+    paddingVertical: 10,
+  },
+  iconButton: {
+    zIndex: 2, // Ensure buttons stay above the animated balance
+  },
+  centerSpace: {
+    flex: 1,
+    // This creates space in the center for the animated balance
   },
 });

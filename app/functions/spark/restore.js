@@ -1,5 +1,6 @@
 import {
   findTransactionTxFromTxHistory,
+  getCachedSparkTransactions,
   getSparkBitcoinPaymentRequest,
   getSparkLightningPaymentStatus,
   getSparkLightningSendRequest,
@@ -19,6 +20,7 @@ import {
 import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 import {
   bulkUpdateSparkTransactions,
+  deleteSparkTransaction,
   deleteUnpaidSparkLightningTransaction,
   getAllPendingSparkPayments,
   getAllUnpaidSparkLightningInvoices,
@@ -117,7 +119,6 @@ export const restoreSparkTxState = async (
     }
 
     console.log(`Total restored transactions: ${restoredTxs.length}`);
-    console.log(`Unique saved IDs: ${savedIds.size}`);
 
     return {txs: restoredTxs};
   } catch (error) {
@@ -129,10 +130,11 @@ export const restoreSparkTxState = async (
 export async function fullRestoreSparkState({
   sparkAddress,
   batchSize = 50,
-  savedTxs,
   isSendingPayment,
 }) {
   try {
+    const savedTxs = await getCachedSparkTransactions();
+
     const restored = await restoreSparkTxState(
       batchSize,
       savedTxs,
@@ -165,7 +167,7 @@ export async function fullRestoreSparkState({
 
     if (newPaymentObjects.length) {
       // Update DB state of payments but dont hold up thread
-      bulkUpdateSparkTransactions(newPaymentObjects);
+      bulkUpdateSparkTransactions(newPaymentObjects, 'fullUpdate');
     }
 
     return newPaymentObjects.length;
@@ -213,9 +215,14 @@ export const findSignleTxFromHistory = async (txid, BATCH_SIZE) => {
     return {tx: null};
   }
 };
-
+let isUpdatingSparkTxStatus = false;
 export const updateSparkTxStatus = async () => {
   try {
+    if (isUpdatingSparkTxStatus) {
+      console.log('updateSparkTxStatus skipped: already running');
+      return;
+    }
+    isUpdatingSparkTxStatus = true;
     // Get all saved transactions
     console.log('running pending payments');
     const savedTxs = await getAllPendingSparkPayments();
@@ -265,6 +272,8 @@ export const updateSparkTxStatus = async () => {
   } catch (error) {
     console.error('Error in spark restore:', error);
     return {updated: []};
+  } finally {
+    isUpdatingSparkTxStatus = false;
   }
 };
 
@@ -320,6 +329,14 @@ async function processLightningTransactions(
     cachedTransfers = foundTransfers;
 
     if (!bitcoinTransfer) continue;
+
+    const paymentStatus = getSparkPaymentStatus(bitcoinTransfer.status);
+    const expiryDate = new Date(bitcoinTransfer.expiryTime);
+
+    if (paymentStatus === 'pending' && expiryDate < Date.now()) {
+      await deleteSparkTransaction(result.id);
+      continue;
+    }
 
     newTxs.push({
       ...result,

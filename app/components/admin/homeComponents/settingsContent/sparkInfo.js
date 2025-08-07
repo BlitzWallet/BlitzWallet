@@ -17,79 +17,82 @@ export default function SparkInfo() {
   const {sparkAddress = '', identityPubKey = ''} = sparkInformation;
 
   return (
-    <View
-      style={{
-        ...styles.container,
-        backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-      }}>
-      <ThemeText styles={styles.title} content={'Wallet Info'} />
-      <View style={{...styles.infoContainer, marginBottom: 20}}>
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={{flex: 1}}
-          content={'Spark Address'}
-        />
-        <TouchableOpacity
-          style={styles.buttonContainer}
-          onPress={() => {
-            copyToClipboard(sparkAddress, showToast);
-          }}>
+    <View style={{flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
+      <View
+        style={{
+          ...styles.container,
+          backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+        }}>
+        <ThemeText styles={styles.title} content={'Wallet Info'} />
+        <View style={{...styles.infoContainer, marginBottom: 20}}>
           <ThemeText
-            content={
-              sparkAddress.slice(0, 6) +
-              '....' +
-              sparkAddress.slice(sparkAddress.length - 4)
-            }
+            CustomNumberOfLines={1}
+            styles={{flex: 1}}
+            content={'Spark Address'}
           />
-          <ThemeImage
-            styles={{width: 20, height: 20, marginLeft: 5}}
-            lightModeIcon={ICONS.clipboardBlue}
-            darkModeIcon={ICONS.clipboardBlue}
-            lightsOutIcon={ICONS.clipboardLight}
-          />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.infoContainer}>
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={{flex: 1}}
-          content={'Public Key'}
-        />
-        <TouchableOpacity
-          style={styles.buttonContainer}
-          onPress={() => {
-            copyToClipboard(identityPubKey, showToast);
-          }}>
+          <TouchableOpacity
+            style={styles.buttonContainer}
+            onPress={() => {
+              copyToClipboard(sparkAddress, showToast);
+            }}>
+            <ThemeText
+              content={
+                sparkAddress.slice(0, 6) +
+                '....' +
+                sparkAddress.slice(sparkAddress.length - 4)
+              }
+            />
+            <ThemeImage
+              styles={{width: 20, height: 20, marginLeft: 5}}
+              lightModeIcon={ICONS.clipboardBlue}
+              darkModeIcon={ICONS.clipboardBlue}
+              lightsOutIcon={ICONS.clipboardLight}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.infoContainer}>
           <ThemeText
-            content={
-              identityPubKey.slice(0, 6) +
-              '....' +
-              identityPubKey.slice(identityPubKey.length - 4)
-            }
+            CustomNumberOfLines={1}
+            styles={{flex: 1}}
+            content={'Public Key'}
           />
+          <TouchableOpacity
+            style={styles.buttonContainer}
+            onPress={() => {
+              copyToClipboard(identityPubKey, showToast);
+            }}>
+            <ThemeText
+              content={
+                identityPubKey.slice(0, 6) +
+                '....' +
+                identityPubKey.slice(identityPubKey.length - 4)
+              }
+            />
 
-          <ThemeImage
-            styles={{width: 20, height: 20, marginLeft: 5}}
-            lightModeIcon={ICONS.clipboardBlue}
-            darkModeIcon={ICONS.clipboardBlue}
-            lightsOutIcon={ICONS.clipboardLight}
-          />
-        </TouchableOpacity>
+            <ThemeImage
+              styles={{width: 20, height: 20, marginLeft: 5}}
+              lightModeIcon={ICONS.clipboardBlue}
+              darkModeIcon={ICONS.clipboardBlue}
+              lightsOutIcon={ICONS.clipboardLight}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 }
 const styles = StyleSheet.create({
   container: {
-    width: INSET_WINDOW_WIDTH,
+    width: '100%',
     marginTop: 10,
     padding: 20,
     borderRadius: 8,
-    ...CENTER,
   },
   title: {
+    width: '100%',
     fontWeight: 500,
     marginBottom: 20,
+    textAlign: 'center',
   },
   infoContainer: {
     flexDirection: 'row',

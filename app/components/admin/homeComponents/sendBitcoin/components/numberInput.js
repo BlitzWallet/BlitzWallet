@@ -6,6 +6,7 @@ export default function NumberInputSendPage({
   setPaymentInfo,
   paymentInfo,
   fiatStats,
+  selectedLRC20Asset,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const [amount, setAmount] = useState(paymentInfo?.sendAmount);
@@ -34,7 +35,10 @@ export default function NumberInputSendPage({
 
   return (
     <CustomNumberKeyboard
-      showDot={masterInfoObject.userBalanceDenomination === 'fiat'}
+      showDot={
+        masterInfoObject.userBalanceDenomination === 'fiat' &&
+        selectedLRC20Asset === 'Bitcoin'
+      }
       setInputValue={setAmount}
       usingForBalance={true}
       fiatStats={fiatStats}

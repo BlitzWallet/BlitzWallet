@@ -44,7 +44,8 @@ export default function QrCodeWrapper({
     <View
       style={{
         ...styles.qrContainer,
-        backgroundColor: backgroundOffset,
+        backgroundColor:
+          theme && darkModeType ? backgroundColor : backgroundOffset,
         ...outerContainerStyle,
       }}>
       <View style={{...styles.qrInnerContianer, ...innerContainerStyle}}>

@@ -1,4 +1,4 @@
-export default function formatSparkPaymentAddress(paymentInfo) {
+export default function formatSparkPaymentAddress(paymentInfo, isLRC20Payment) {
   let formmateedSparkPaymentInfo = {
     address: '',
     paymentType: '',
@@ -10,7 +10,7 @@ export default function formatSparkPaymentAddress(paymentInfo) {
     formmateedSparkPaymentInfo.paymentType = 'lightning';
   } else if (paymentInfo.type === 'spark') {
     formmateedSparkPaymentInfo.address = paymentInfo?.data?.address;
-    formmateedSparkPaymentInfo.paymentType = 'spark';
+    formmateedSparkPaymentInfo.paymentType = isLRC20Payment ? 'lrc20' : 'spark';
   } else if (paymentInfo.type === 'lnUrlPay') {
     formmateedSparkPaymentInfo.address = paymentInfo?.data?.invoice;
     formmateedSparkPaymentInfo.paymentType = 'lightning';

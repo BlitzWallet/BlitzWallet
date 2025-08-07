@@ -19,10 +19,12 @@ import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import StoreErrorPage from '../components/errorScreen';
+import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 
 export default function ConfirmGiftCardPurchase(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {masterInfoObject} = useGlobalContextProvider();
+  const {sparkInformation} = useSparkWallet();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
   const {decodedGiftCards} = useGlobalAppData();
   const navigate = useNavigation();
@@ -81,6 +83,9 @@ export default function ConfirmGiftCardPurchase(props) {
         });
 
         if (!fee.didWork) throw new Error(fee.error);
+        if (sparkInformation.balance < fee.supportFee + fee.fee) {
+          throw new Error('Insufficient balance to purchase gift card');
+        }
 
         setRetrivedInformation({
           countryInfo: countryInfo,

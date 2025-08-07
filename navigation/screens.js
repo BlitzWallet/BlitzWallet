@@ -51,6 +51,7 @@ import NWCWallet from '../app/components/admin/homeComponents/settingsContent/nw
 import NWCWalletSetup from '../app/components/admin/homeComponents/settingsContent/nwc/showSeedPage';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
+import SparkSettingsPage from '../app/components/admin/homeComponents/settingsContent/sparkLrc20';
 import AccountInformationPage from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/AccountInformationPage';
 import ManualSwapPopup from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/manualSwapPopup';
 import {CustomWebView} from '../app/functions/CustomElements';
@@ -131,6 +132,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount},
   {name: 'NWCWallet', component: NWCWallet},
   {name: 'NWCWalletSetup', component: NWCWalletSetup},
+  {name: 'SparkSettingsPage', component: SparkSettingsPage},
   {name: 'Nip5VerificationPage', component: Nip5VerificationPage},
 ];
 

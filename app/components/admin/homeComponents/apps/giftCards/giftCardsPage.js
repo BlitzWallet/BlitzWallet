@@ -68,7 +68,10 @@ export default function GiftCardPage() {
 
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const giftCards = giftCardsList;
-  useHandleBackPressNew(() => navigate.popTo('HomeAdmin'));
+  const handleBackPress = useCallback(() => {
+    navigate.popTo('HomeAdmin');
+  }, [navigate]);
+  useHandleBackPressNew(handleBackPress);
 
   // Filter gift cards based on search input
   const filteredGiftCards = useMemo(

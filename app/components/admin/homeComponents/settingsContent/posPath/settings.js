@@ -4,6 +4,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
@@ -27,11 +28,14 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
-import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import {FONT, INSET_WINDOW_WIDTH, SIZES} from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
-import {keyboardNavigate} from '../../../../../functions/customNavigation';
+import {
+  keyboardGoBack,
+  keyboardNavigate,
+} from '../../../../../functions/customNavigation';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function PosSettingsPage() {
@@ -40,7 +44,7 @@ export default function PosSettingsPage() {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
   const navigate = useNavigation();
-
+  const windowWidth = useWindowDimensions().width;
   const [textInput, setTextInput] = useState('');
   const [storeNameInput, setStoreNameInput] = useState(
     masterInfoObject?.posSettings?.storeName,
@@ -147,25 +151,59 @@ export default function PosSettingsPage() {
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}>
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        showLeftImage={true}
-        leftImageBlue={ICONS.receiptIcon}
-        LeftImageDarkMode={ICONS.receiptWhite}
-        containerStyles={{marginBottom: 0}}
-        label={'Point-of-sale'}
-        leftImageFunction={() => {
-          keyboardNavigate(() => {
-            if (!isConnectedToTheInternet) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: 'Please reconnect to the internet',
-              });
-              return;
-            }
-            navigate.navigate('ViewPOSTransactions');
-          });
-        }}
-      />
+      <View style={{...styles.topbar}}>
+        <TouchableOpacity
+          style={styles.backArrow}
+          onPress={() => {
+            keyboardGoBack(navigate);
+          }}>
+          <ThemeImage
+            lightsOutIcon={ICONS.arrow_small_left_white}
+            darkModeIcon={ICONS.smallArrowLeft}
+            lightModeIcon={ICONS.smallArrowLeft}
+          />
+        </TouchableOpacity>
+        <ThemeText
+          CustomNumberOfLines={1}
+          CustomEllipsizeMode={'tail'}
+          content={'Point-of-sale'}
+          styles={{
+            ...styles.topBarText,
+            width: windowWidth * 0.95 - 130,
+          }}
+        />
+
+        <TouchableOpacity
+          style={{position: 'absolute', top: 0, right: 35, zIndex: 1}}
+          onPress={() => {
+            navigate.navigate('POSInstructionsPath');
+          }}>
+          <ThemeImage
+            lightsOutIcon={ICONS.aboutIconWhite}
+            darkModeIcon={ICONS.aboutIcon}
+            lightModeIcon={ICONS.aboutIcon}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{position: 'absolute', top: 0, right: 0, zIndex: 1}}
+          onPress={() => {
+            keyboardNavigate(() => {
+              if (!isConnectedToTheInternet) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: 'Please reconnect to the internet',
+                });
+                return;
+              }
+              navigate.navigate('ViewPOSTransactions');
+            });
+          }}>
+          <ThemeImage
+            lightsOutIcon={ICONS.receiptWhite}
+            darkModeIcon={ICONS.receiptIcon}
+            lightModeIcon={ICONS.receiptIcon}
+          />
+        </TouchableOpacity>
+      </View>
       <ScrollView
         style={{flex: 1, width: '95%', ...CENTER}}
         contentContainerStyle={{
@@ -269,6 +307,9 @@ export default function PosSettingsPage() {
               width: INSET_WINDOW_WIDTH,
               alignSelf: 'center',
               backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+              marginBottom: isKeyboardActive
+                ? CONTENT_KEYBOARD_OFFSET
+                : bottomPadding,
             }}
             textStyles={{
               color: theme ? COLORS.lightModeText : COLORS.darkModeText,
@@ -300,22 +341,6 @@ export default function PosSettingsPage() {
                 : 'Open POS'
             }
           />
-          <CustomButton
-            buttonStyles={{
-              width: INSET_WINDOW_WIDTH,
-              marginTop: 20,
-              backgroundColor: backgroundOffset,
-              marginBottom: isKeyboardActive
-                ? CONTENT_KEYBOARD_OFFSET
-                : bottomPadding,
-              ...CENTER,
-            }}
-            textStyles={{color: textColor}}
-            actionFunction={() => {
-              navigate.navigate('POSInstructionsPath');
-            }}
-            textContent={'Employee instructions'}
-          />
         </>
       )}
     </CustomKeyboardAvoidingView>
@@ -325,6 +350,21 @@ export default function PosSettingsPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  topbar: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+    marginBottom: 10,
+  },
+  backArrow: {position: 'absolute', top: 0, left: 0, zIndex: 1},
+
+  topBarText: {
+    fontSize: SIZES.xLarge,
+    fontFamily: FONT.Title_Regular,
+    textAlign: 'center',
+    ...CENTER,
   },
 
   currencyContainer: {

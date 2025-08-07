@@ -103,15 +103,24 @@ export default function SettingsContentIndex(props) {
         <GlobalThemeView styles={styles.globalContainer}>
           <View style={styles.innerContainer}>
             <CustomSettingsTopBar
-              showLeftImage={selectedPage?.toLowerCase() === 'channel closure'}
-              leftImageBlue={ICONS.receiptIcon}
-              LeftImageDarkMode={ICONS.receiptWhite}
+              showLeftImage={selectedPage?.toLowerCase() === 'spark info'}
+              leftImageBlue={
+                selectedPage?.toLowerCase() === 'spark info'
+                  ? ICONS.settingsIcon
+                  : ''
+              }
+              LeftImageDarkMode={
+                selectedPage?.toLowerCase() === 'spark info'
+                  ? ICONS.settingsWhite
+                  : ''
+              }
               leftImageFunction={() => {
-                Keyboard.dismiss();
-                navigate.navigate('HistoricalOnChainPayments');
+                if (selectedPage?.toLowerCase() === 'spark info') {
+                  navigate.navigate('SparkSettingsPage');
+                }
               }}
               shouldDismissKeyboard={
-                selectedPage?.toLowerCase() === 'channel closure'
+                selectedPage?.toLowerCase() === 'spark info'
               }
               label={selectedPage}
             />

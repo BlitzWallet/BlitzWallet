@@ -44,6 +44,7 @@ import {transformTxToPaymentObject} from '../app/functions/spark/transformTxToPa
 import handleBalanceCache from '../app/functions/spark/handleBalanceCache';
 import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
 import EventEmitter from 'events';
+import {getLRC20Transactions} from '../app/functions/lrc20';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -61,6 +62,7 @@ const SparkWalletProvider = ({children}) => {
   const [sparkConnectionError, setSparkConnectionError] = useState(null);
   const [sparkInformation, setSparkInformation] = useState({
     balance: 0,
+    tokens: {},
     transactions: [],
     identityPubKey: '',
     sparkAddress: '',
@@ -73,6 +75,7 @@ const SparkWalletProvider = ({children}) => {
   const sparkDBaddress = useRef(null);
   const updatePendingPaymentsIntervalRef = useRef(null);
   const isInitialRestore = useRef(true);
+  const isInitialLRC20Run = useRef(true);
   const didInitializeSendingPaymentEvent = useRef(false);
   const initialBitcoinIntervalRun = useRef(null);
   const [numberOfCachedTxs, setNumberOfCachedTxs] = useState(0);
@@ -244,7 +247,11 @@ const SparkWalletProvider = ({children}) => {
         updateType,
       );
       const txs = await getAllSparkTransactions();
-      if (updateType === 'supportTx' || updateType === 'restoreTxs') {
+      if (
+        updateType === 'supportTx' ||
+        updateType === 'restoreTxs' ||
+        updateType === 'transactions'
+      ) {
         setSparkInformation(prev => ({
           ...prev,
           transactions: txs || prev.transactions,
@@ -270,27 +277,31 @@ const SparkWalletProvider = ({children}) => {
           handleBalanceCache({
             isCheck: false,
             passedBalance: Math.round(
-              (Number(balance?.balance) || prev.balance) - fee,
+              (balance.didWork ? Number(balance.balance) : prev.balance) - fee,
             ),
           });
           return {
             ...prev,
             transactions: txs || prev.transactions,
             balance: Math.round(
-              (Number(balance?.balance) || prev.balance) - fee,
+              (balance.didWork ? Number(balance.balance) : prev.balance) - fee,
             ),
+            tokens: balance.tokensObj,
           };
         });
-      } else {
+      } else if (updateType === 'fullUpdate') {
         setSparkInformation(prev => {
           handleBalanceCache({
             isCheck: false,
-            passedBalance: Number(balance?.balance) || prev.balance,
+            passedBalance: balance.didWork
+              ? Number(balance.balance)
+              : prev.balance,
           });
           return {
             ...prev,
-            balance: Number(balance?.balance) || prev.balance,
+            balance: balance.didWork ? Number(balance.balance) : prev.balance,
             transactions: txs || prev.transactions,
+            tokens: balance.tokensObj,
           };
         });
       }
@@ -335,7 +346,6 @@ const SparkWalletProvider = ({children}) => {
       await fullRestoreSparkState({
         sparkAddress: sparkInformation.sparkAddress,
         batchSize: isInitialRestore.current ? 15 : 5,
-        savedTxs: sparkInformation.transactions,
         isSendingPayment: isSendingPayment,
       });
 
@@ -348,6 +358,14 @@ const SparkWalletProvider = ({children}) => {
       updatePendingPaymentsIntervalRef.current = setInterval(async () => {
         try {
           await updateSparkTxStatus();
+          await getLRC20Transactions({
+            ownerPublicKeys: [sparkInformation.identityPubKey],
+            sparkAddress: sparkInformation.sparkAddress,
+            isInitialRun: isInitialLRC20Run.current,
+          });
+          if (isInitialLRC20Run.current) {
+            isInitialLRC20Run.current = false;
+          }
         } catch (err) {
           console.error('Error during periodic restore:', err);
         }

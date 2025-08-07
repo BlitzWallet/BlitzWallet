@@ -45,10 +45,21 @@ export default function NostrHome() {
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
         }}>
         <View style={styles.itemTextContainer}>
-          <ThemeText
-            styles={styles.itemHeader}
-            content={'Nostr Wallet Connect'}
-          />
+          <View style={styles.itemHeaderContainer}>
+            <ThemeText
+              styles={styles.itemHeader}
+              content={'Nostr Wallet Connect'}
+            />
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={{
+                ...styles.itemHeaderDesc,
+                color:
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+              }}
+              content={'experimental'}
+            />
+          </View>
           <ThemeText
             styles={styles.itemDescription}
             content={'Connect your Blitz Wallet to apps using Nostr.'}
@@ -93,10 +104,21 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     marginRight: 15,
   },
-  itemHeader: {
+  itemHeaderContainer: {
+    width: '100%',
     marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  itemHeader: {
     includeFontPadding: false,
   },
+  itemHeaderDesc: {
+    flexShrink: 1,
+    fontSize: SIZES.small,
+    marginLeft: 5,
+  },
+
   itemDescription: {fontSize: SIZES.small, includeFontPadding: false},
   clickContainer: {
     borderRadius: 8,

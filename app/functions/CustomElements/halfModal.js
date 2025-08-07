@@ -40,6 +40,8 @@ import EditLNURLContactOnReceivePage from '../../components/admin/homeComponents
 import CustomInputHalfModal from './CustomInputHalfModal';
 import CustomQrCode from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 import ChooseLNURLCopyFormat from '../../components/admin/homeComponents/receiveBitcoin/lnurlCopyType';
+import LRC20AssetSelectorHalfModal from '../lrc20/lrc20HalfModal';
+import LRC20TokenInformation from '../lrc20/lrc20TokenDataHalfModal';
 
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -244,14 +246,25 @@ export default function CustomHalfModal(props) {
           />
         );
       case 'chooseLNURLCopyFormat':
+        return <ChooseLNURLCopyFormat />;
+      case 'LRC20AssetSelectorHalfModal':
         return (
-          <ChooseLNURLCopyFormat
+          <LRC20AssetSelectorHalfModal
             theme={theme}
             darkModeType={darkModeType}
+          />
+        );
+      case 'LRC20TokenInformation':
+        return (
+          <LRC20TokenInformation
+            theme={theme}
+            darkModeType={darkModeType}
+            tokenIdentifier={props?.route?.params?.tokenIdentifier}
             slideHeight={slideHeight}
             setContentHeight={setContentHeight}
           />
         );
+
       default:
         return <ThemeText content={'TST'} />;
     }

@@ -158,7 +158,6 @@ export default function AddPOSItemsPage() {
             wantedContent: 'addPOSItemsHalfModal',
           })
         }
-        buttonStyles={{marginBottom: isKeyboardActive ? 0 : 20}}
         textContent={'Add New Item'}
       />
     </CustomKeyboardAvoidingView>

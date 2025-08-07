@@ -22,6 +22,7 @@ export default function CustomSearchInput({
   maxLength,
   placeholderTextColor,
   shouldDelayBlur = true,
+  autoCapitalize = 'none',
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textInputColor, textInputBackground} = GetThemeColors();
@@ -101,6 +102,8 @@ export default function CustomSearchInput({
         textAlignVertical={textAlignVerticalValue}
         maxLength={maxLenValue}
         style={memorizedStyles}
+        autoCapitalize={autoCapitalize}
+        autoCorrect={false}
       />
       {buttonComponent && buttonComponent}
     </View>

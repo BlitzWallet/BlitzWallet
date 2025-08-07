@@ -40,10 +40,7 @@ import {GlobalContactsList} from './context-store/globalContacts';
 // import {GlobaleCashVariables} from './context-store/eCash';
 import {CreateAccountHome} from './app/screens/createAccount';
 import {GlobalAppDataProvider} from './context-store/appData';
-import {
-  PushNotificationProvider,
-  registerBackgroundNotificationTask,
-} from './context-store/notificationManager';
+import {PushNotificationProvider} from './context-store/notificationManager';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import GetThemeColors from './app/hooks/themeColors';
 import {
@@ -108,7 +105,7 @@ import {RootstockSwapProvider} from './context-store/rootstockSwapContext';
 import {SparkConnectionManager} from './context-store/sparkConnection';
 import {GlobalNostrWalletConnectProvider} from './context-store/NWC';
 import {GlobalServerTimeProvider} from './context-store/serverTime';
-registerBackgroundNotificationTask();
+import {LRC20EventProvider} from './context-store/lrc20Listener';
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
@@ -133,18 +130,20 @@ function App(): JSX.Element {
                                   <PushNotificationProvider>
                                     <LiquidEventProvider>
                                       <RootstockSwapProvider>
-                                        <GlobalNostrWalletConnectProvider>
-                                          {/* <LightningEventProvider> */}
-                                          <ImageCacheProvider>
-                                            <GlobalServerTimeProvider>
-                                              {/* <Suspense
+                                        <LRC20EventProvider>
+                                          <GlobalNostrWalletConnectProvider>
+                                            {/* <LightningEventProvider> */}
+                                            <ImageCacheProvider>
+                                              <GlobalServerTimeProvider>
+                                                {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                              <ResetStack />
-                                              {/* </Suspense> */}
-                                            </GlobalServerTimeProvider>
-                                          </ImageCacheProvider>
-                                          {/* </LightningEventProvider> */}
-                                        </GlobalNostrWalletConnectProvider>
+                                                <ResetStack />
+                                                {/* </Suspense> */}
+                                              </GlobalServerTimeProvider>
+                                            </ImageCacheProvider>
+                                            {/* </LightningEventProvider> */}
+                                          </GlobalNostrWalletConnectProvider>
+                                        </LRC20EventProvider>
                                       </RootstockSwapProvider>
                                     </LiquidEventProvider>
                                   </PushNotificationProvider>

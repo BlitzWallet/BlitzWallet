@@ -28,6 +28,8 @@ export default function AcceptButtonSendPage({
   minLNURLSatAmount,
   maxLNURLSatAmount,
   sparkInformation,
+  seletctedToken,
+  isLRC20Payment,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {liquidNodeInformation, fiatStats} = useNodeContext();
@@ -53,7 +55,8 @@ export default function AcceptButtonSendPage({
           !(
             paymentInfo?.type === 'Bitcoin' &&
             convertedSendAmount < SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT
-          )
+          ) &&
+          !(isLRC20Payment && sparkInformation.balance < 10)
             ? 1
             : 0.5,
         width: 'auto',
@@ -73,6 +76,7 @@ export default function AcceptButtonSendPage({
       });
       return;
     }
+
     if (
       isLiquidPayment &&
       (convertedSendAmount < minMaxLiquidSwapAmounts.min ||
@@ -129,6 +133,21 @@ export default function AcceptButtonSendPage({
       return;
     }
 
+    if (isLRC20Payment && sparkInformation.balance < 10) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: `You need ${displayCorrectDenomination({
+          amount: 10,
+          masterInfoObject,
+          fiatStats,
+        })} sats to send tokens. Your balance is ${displayCorrectDenomination({
+          amount: sparkInformation.balance,
+          masterInfoObject,
+          fiatStats,
+        })} sats. Please receive some Bitcoin first.`,
+      });
+      return;
+    }
+
     if (!canSendPayment && !!paymentInfo?.sendAmount) {
       navigate.navigate('ErrorScreen', {
         errorMessage: 'Not enough funds to cover fees',
@@ -159,6 +178,7 @@ export default function AcceptButtonSendPage({
         publishMessageFunc,
         webViewRef,
         sparkInformation,
+        seletctedToken,
       });
       setIsGeneratingInvoice(false);
     } catch (err) {

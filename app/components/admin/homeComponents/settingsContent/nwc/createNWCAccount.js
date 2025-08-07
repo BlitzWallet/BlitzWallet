@@ -8,7 +8,7 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {COLORS, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
-import {CENTER} from '../../../../../constants';
+import {CENTER, NOSTR_RELAY_URL} from '../../../../../constants';
 import SettingsItemWithSlider from '../../../../../functions/CustomElements/settings/settingsItemWithSlider';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
@@ -155,7 +155,7 @@ export default function CreateNostrConnectAccount(props) {
         Buffer.from(privateKey, 'hex'),
       );
 
-      await publishToSingleRelay([signedEvent], 'wss://relay.damus.io');
+      await publishToSingleRelay([signedEvent], NOSTR_RELAY_URL);
 
       toggleNWCInformation({
         accounts: {

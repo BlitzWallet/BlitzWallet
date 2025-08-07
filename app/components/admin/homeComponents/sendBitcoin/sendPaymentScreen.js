@@ -11,16 +11,16 @@ import {CustomKeyboardAvoidingView} from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
 import decodeSendAddress from './functions/decodeSendAdress';
 import {useNavigation} from '@react-navigation/native';
-import {
-  getLNAddressForLiquidPayment,
-  sendBitcoinPayment,
-  sendBolt12Offer_sendPaymentScreen,
-  sendLightningPayment_sendPaymentScreen,
-  sendLiquidPayment_sendPaymentScreen,
-  sendPaymentUsingEcash,
-  sendToLNFromLiquid_sendPaymentScreen,
-  sendToLiquidFromLightning_sendPaymentScreen,
-} from './functions/payments';
+// import {
+//   getLNAddressForLiquidPayment,
+//   sendBitcoinPayment,
+//   sendBolt12Offer_sendPaymentScreen,
+//   sendLightningPayment_sendPaymentScreen,
+//   sendLiquidPayment_sendPaymentScreen,
+//   sendPaymentUsingEcash,
+//   sendToLNFromLiquid_sendPaymentScreen,
+//   sendToLiquidFromLightning_sendPaymentScreen,
+// } from './functions/payments';
 import {useWebView} from '../../../../../context-store/webViewContext';
 import {
   DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS,
@@ -44,10 +44,10 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import hasAlredyPaidInvoice from './functions/hasPaid';
-import {
-  calculateEcashFees,
-  getProofsToUse,
-} from '../../../../functions/eCash/wallet';
+// import {
+//   calculateEcashFees,
+//   getProofsToUse,
+// } from '../../../../functions/eCash/wallet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import ErrorWithPayment from './components/errorScreen';
@@ -59,6 +59,7 @@ import {sparkPaymenWrapper} from '../../../../functions/spark/payments';
 import {getBoltzApiUrl} from '../../../../functions/boltz/boltzEndpoitns';
 import InvoiceInfo from './components/invoiceInfo';
 import formatSparkPaymentAddress from './functions/formatSparkPaymentAddress';
+import SelectLRC20Token from './components/selectLRC20Token';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -71,6 +72,7 @@ export default function SendPaymentScreen(props) {
     comingFromAccept,
     enteredPaymentInfo = {},
     errorMessage,
+    selectedLRC20Asset = 'Bitcoin',
   } = props.route.params;
 
   const {sparkInformation} = useSparkWallet();
@@ -99,6 +101,17 @@ export default function SendPaymentScreen(props) {
     masterInfoObject.userBalanceDenomination === 'hidden' ||
     masterInfoObject.userBalanceDenomination === 'sats';
   const canEditPaymentAmount = paymentInfo?.canEditPayment;
+  const enabledLRC20 = masterInfoObject.lrc20Settings.isEnabled;
+  const seletctedToken =
+    selectedLRC20Asset === 'Bitcoin'
+      ? {
+          balance: sparkInformation.balance,
+          tokenMetadata: {
+            tokenTicker: 'Bitcoin',
+          },
+        }
+      : sparkInformation.tokens[selectedLRC20Asset];
+
   const convertedSendAmount = isBTCdenominated
     ? Math.round(Number(sendingAmount))
     : Math.round((SATSPERBITCOIN / fiatStats?.value) * Number(sendingAmount));
@@ -159,8 +172,10 @@ export default function SendPaymentScreen(props) {
   const paymentFee =
     (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
   const canSendPayment =
-    Number(sparkInformation.balance) >=
-      Number(convertedSendAmount) + paymentFee && sendingAmount != 0; //ecash is built into ln
+    selectedLRC20Asset === 'Bitcoin'
+      ? Number(seletctedToken.balance) >=
+          Number(convertedSendAmount) + paymentFee && sendingAmount != 0
+      : sparkInformation.balance >= paymentFee && sendingAmount != 0;
   console.log(
     canSendPayment,
     'can send payment',
@@ -206,6 +221,7 @@ export default function SendPaymentScreen(props) {
         fromPage,
         publishMessageFunc,
         sparkInformation,
+        seletctedToken,
       });
     }
     setTimeout(decodePayment, 1000);
@@ -287,7 +303,7 @@ export default function SendPaymentScreen(props) {
           />
         </TouchableOpacity>
 
-        <NavbarBalance />
+        <NavbarBalance seletctedToken={seletctedToken} />
       </View>
 
       <ScrollView
@@ -302,20 +318,27 @@ export default function SendPaymentScreen(props) {
           amountValue={paymentInfo?.sendAmount || 0}
           inputDenomination={masterInfoObject.userBalanceDenomination}
           activeOpacity={!paymentInfo.sendAmount ? 0.5 : 1}
+          customCurrencyCode={
+            selectedLRC20Asset !== 'Bitcoin'
+              ? seletctedToken?.tokenMetadata?.tokenTicker
+              : ''
+          }
         />
 
-        <FormattedSatText
-          containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
-          neverHideBalance={true}
-          styles={{includeFontPadding: false, ...styles.satValue}}
-          globalBalanceDenomination={
-            masterInfoObject.userBalanceDenomination === 'sats' ||
-            masterInfoObject.userBalanceDenomination === 'hidden'
-              ? 'fiat'
-              : 'sats'
-          }
-          balance={convertedSendAmount}
-        />
+        {selectedLRC20Asset === 'Bitcoin' && (
+          <FormattedSatText
+            containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
+            neverHideBalance={true}
+            styles={{includeFontPadding: false, ...styles.satValue}}
+            globalBalanceDenomination={
+              masterInfoObject.userBalanceDenomination === 'sats' ||
+              masterInfoObject.userBalanceDenomination === 'hidden'
+                ? 'fiat'
+                : 'sats'
+            }
+            balance={convertedSendAmount}
+          />
+        )}
 
         {!canEditPaymentAmount && (
           <SendTransactionFeeInfo
@@ -324,23 +347,35 @@ export default function SendPaymentScreen(props) {
             isLiquidPayment={isLiquidPayment}
             isBitcoinPayment={isBitcoinPayment}
             isSparkPayment={isSparkPayment}
+            isLRC20Payment={selectedLRC20Asset !== 'Bitcoin'}
+            seletctedToken={seletctedToken}
           />
         )}
         {!canEditPaymentAmount && <InvoiceInfo paymentInfo={paymentInfo} />}
       </ScrollView>
       {canEditPaymentAmount && (
         <>
-          <SendMaxComponent
-            fiatStats={fiatStats}
-            sparkInformation={sparkInformation}
-            paymentInfo={paymentInfo}
-            setPaymentInfo={setPaymentInfo}
-            masterInfoObject={masterInfoObject}
-            nodeInformation={nodeInformation}
-            paymentFee={paymentFee}
-            paymentType={paymentInfo?.paymentNetwork}
-            minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
-          />
+          {(paymentInfo.type !== 'spark' ||
+            (paymentInfo.type === 'spark' && !enabledLRC20)) && (
+            <SendMaxComponent
+              fiatStats={fiatStats}
+              sparkInformation={sparkInformation}
+              paymentInfo={paymentInfo}
+              setPaymentInfo={setPaymentInfo}
+              masterInfoObject={masterInfoObject}
+              nodeInformation={nodeInformation}
+              paymentFee={paymentFee}
+              paymentType={paymentInfo?.paymentNetwork}
+              minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+            />
+          )}
+
+          {paymentInfo.type === 'spark' && enabledLRC20 && (
+            <SelectLRC20Token
+              seletctedToken={seletctedToken}
+              navigate={navigate}
+            />
+          )}
 
           <CustomSearchInput
             onFocusFunction={() => setIsAmountFocused(false)}
@@ -360,6 +395,7 @@ export default function SendPaymentScreen(props) {
               paymentInfo={paymentInfo}
               setPaymentInfo={setPaymentInfo}
               fiatStats={fiatStats}
+              selectedLRC20Asset={selectedLRC20Asset}
             />
           )}
           {isAmountFocused && (
@@ -380,10 +416,13 @@ export default function SendPaymentScreen(props) {
               minLNURLSatAmount={minLNURLSatAmount}
               maxLNURLSatAmount={maxLNURLSatAmount}
               sparkInformation={sparkInformation}
+              seletctedToken={seletctedToken}
+              isLRC20Payment={selectedLRC20Asset !== 'Bitcoin'}
             />
           )}
         </>
       )}
+
       {!canEditPaymentAmount && (
         <SwipeButtonNew
           onSwipeSuccess={sendPayment}
@@ -417,7 +456,10 @@ export default function SendPaymentScreen(props) {
     if (isSendingPayment) return;
     setIsSendingPayment(true);
 
-    const formmateedSparkPaymentInfo = formatSparkPaymentAddress(paymentInfo);
+    const formmateedSparkPaymentInfo = formatSparkPaymentAddress(
+      paymentInfo,
+      selectedLRC20Asset !== 'Bitcoin',
+    );
     //  {
     //   address: '',
     //   paymentType: '',
@@ -446,7 +488,7 @@ export default function SendPaymentScreen(props) {
 
     const memo =
       paymentInfo.type === 'bolt11'
-        ? enteredPaymentInfo.description ||
+        ? enteredPaymentInfo?.description ||
           paymentDescription ||
           paymentInfo?.data.message ||
           ''
@@ -466,79 +508,80 @@ export default function SendPaymentScreen(props) {
       sparkInformation,
       feeQuote: paymentInfo.feeQuote,
       usingZeroAmountInvoice: paymentInfo.usingZeroAmountInvoice,
+      seletctedToken: selectedLRC20Asset,
     };
 
     // Shouuld be same for all paymetns
     const paymentResponse = await sparkPaymenWrapper(paymentObject);
 
-    if (paymentInfo.type === 'liquid' && paymentResponse.didWork) {
-      async function pollBoltzSwapStatus() {
-        let didSettleInvoice = false;
-        let runCount = 0;
+    // if (paymentInfo.type === 'liquid' && paymentResponse.didWork) {
+    //   async function pollBoltzSwapStatus() {
+    //     let didSettleInvoice = false;
+    //     let runCount = 0;
 
-        while (!didSettleInvoice && runCount < 10) {
-          runCount += 1;
-          const resposne = await fetch(
-            getBoltzApiUrl() + `/v2/swap/${paymentInfo.boltzData.id}`,
-          );
-          const boltzData = await resposne.json();
-          console.log(boltzData);
+    //     while (!didSettleInvoice && runCount < 10) {
+    //       runCount += 1;
+    //       const resposne = await fetch(
+    //         getBoltzApiUrl() + `/v2/swap/${paymentInfo.boltzData.id}`,
+    //       );
+    //       const boltzData = await resposne.json();
+    //       console.log(boltzData);
 
-          if (boltzData.status === 'invoice.settled') {
-            didSettleInvoice = true;
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                navigate.reset({
-                  index: 0, // The top-level route index
-                  routes: [
-                    {
-                      name: 'HomeAdmin', // Navigate to HomeAdmin
-                      params: {
-                        screen: 'Home',
-                      },
-                    },
-                    {
-                      name: 'ConfirmTxPage',
-                      params: {
-                        transaction: paymentResponse.response,
-                      },
-                    },
-                  ],
-                });
-              });
-            });
-          } else {
-            console.log('Waiting for confirmation....');
-            await new Promise(resolve => setTimeout(resolve, 5000));
-          }
-        }
-        if (didSettleInvoice) return;
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            navigate.reset({
-              index: 0, // The top-level route index
-              routes: [
-                {
-                  name: 'HomeAdmin', // Navigate to HomeAdmin
-                  params: {
-                    screen: 'Home',
-                  },
-                },
-                {
-                  name: 'ConfirmTxPage',
-                  params: {
-                    transaction: paymentResponse.response,
-                    error: 'Unable to settle swap',
-                  },
-                },
-              ],
-            });
-          });
-        });
-      }
-      pollBoltzSwapStatus();
-      return;
-    }
+    //       if (boltzData.status === 'invoice.settled') {
+    //         didSettleInvoice = true;
+    //         requestAnimationFrame(() => {
+    //           requestAnimationFrame(() => {
+    //             navigate.reset({
+    //               index: 0, // The top-level route index
+    //               routes: [
+    //                 {
+    //                   name: 'HomeAdmin', // Navigate to HomeAdmin
+    //                   params: {
+    //                     screen: 'Home',
+    //                   },
+    //                 },
+    //                 {
+    //                   name: 'ConfirmTxPage',
+    //                   params: {
+    //                     transaction: paymentResponse.response,
+    //                   },
+    //                 },
+    //               ],
+    //             });
+    //           });
+    //         });
+    //       } else {
+    //         console.log('Waiting for confirmation....');
+    //         await new Promise(resolve => setTimeout(resolve, 5000));
+    //       }
+    //     }
+    //     if (didSettleInvoice) return;
+    //     requestAnimationFrame(() => {
+    //       requestAnimationFrame(() => {
+    //         navigate.reset({
+    //           index: 0, // The top-level route index
+    //           routes: [
+    //             {
+    //               name: 'HomeAdmin', // Navigate to HomeAdmin
+    //               params: {
+    //                 screen: 'Home',
+    //               },
+    //             },
+    //             {
+    //               name: 'ConfirmTxPage',
+    //               params: {
+    //                 transaction: paymentResponse.response,
+    //                 error: 'Unable to settle swap',
+    //               },
+    //             },
+    //           ],
+    //         });
+    //       });
+    //     });
+    //   }
+    //   pollBoltzSwapStatus();
+    //   return;
+    // }
 
     if (paymentResponse.didWork) {
       if (fromPage === 'contacts') {

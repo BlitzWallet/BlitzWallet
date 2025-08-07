@@ -32,6 +32,7 @@ import {useToast} from '../../../context-store/toastManager';
 import {useKeysContext} from '../../../context-store/keys';
 import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
 import {encodeLNURL} from '../../functions/lnurl/bench32Formmater';
+import {useLRC20EventContext} from '../../../context-store/lrc20Listener';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -40,6 +41,7 @@ export default function ReceivePaymentHome(props) {
   const {globalContactsInformation} = useGlobalContacts();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {signer, startRootstockEventListener} = useRootstockProvider();
+  const {startLrc20EventListener} = useLRC20EventContext();
 
   const windowDimentions = useWindowDimensions().height;
   const [contentHeight, setContentHeight] = useState(0);
@@ -106,6 +108,11 @@ export default function ReceivePaymentHome(props) {
         startLiquidEventListener();
       } else if (selectedRecieveOption === 'Rootstock') {
         startRootstockEventListener({durationMs: 1200000});
+      } else if (
+        selectedRecieveOption === 'Spark' &&
+        masterInfoObject.lrc20Settings?.isEnabled
+      ) {
+        startLrc20EventListener(12);
       }
     }
     runAddressInit();
@@ -170,7 +177,7 @@ export default function ReceivePaymentHome(props) {
               let informationText = '';
               if (selectedRecieveOption.toLowerCase() === 'bitcoin') {
                 informationText =
-                  'On-chain payments require a network fee to be processed.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.';
+                  'On-chain payments have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.';
               } else if (selectedRecieveOption.toLowerCase() === 'liquid') {
                 informationText = `Liquid payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about ${displayCorrectDenomination(
                   {amount: 34, masterInfoObject, fiatStats},

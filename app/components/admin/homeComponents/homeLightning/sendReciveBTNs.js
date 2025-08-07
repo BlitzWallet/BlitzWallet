@@ -117,7 +117,7 @@ export function SendRecieveBTNs({
     <View
       style={{
         ...styles.container,
-        marginBottom: isNWCWallet ? 0 : 70,
+        marginBottom: isNWCWallet ? 0 : 50,
         width: isNWCWallet ? 160 : 220,
       }}>
       {buttonElements}
@@ -127,12 +127,10 @@ export function SendRecieveBTNs({
 
 const styles = StyleSheet.create({
   container: {
-    width: 220,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 20,
-    marginBottom: 70,
     ...CENTER,
   },
 
