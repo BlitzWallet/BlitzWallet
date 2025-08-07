@@ -11,16 +11,16 @@ import {CustomKeyboardAvoidingView} from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
 import decodeSendAddress from './functions/decodeSendAdress';
 import {useNavigation} from '@react-navigation/native';
-import {
-  getLNAddressForLiquidPayment,
-  sendBitcoinPayment,
-  sendBolt12Offer_sendPaymentScreen,
-  sendLightningPayment_sendPaymentScreen,
-  sendLiquidPayment_sendPaymentScreen,
-  sendPaymentUsingEcash,
-  sendToLNFromLiquid_sendPaymentScreen,
-  sendToLiquidFromLightning_sendPaymentScreen,
-} from './functions/payments';
+// import {
+//   getLNAddressForLiquidPayment,
+//   sendBitcoinPayment,
+//   sendBolt12Offer_sendPaymentScreen,
+//   sendLightningPayment_sendPaymentScreen,
+//   sendLiquidPayment_sendPaymentScreen,
+//   sendPaymentUsingEcash,
+//   sendToLNFromLiquid_sendPaymentScreen,
+//   sendToLiquidFromLightning_sendPaymentScreen,
+// } from './functions/payments';
 import {useWebView} from '../../../../../context-store/webViewContext';
 import {
   DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS,
@@ -44,10 +44,10 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import hasAlredyPaidInvoice from './functions/hasPaid';
-import {
-  calculateEcashFees,
-  getProofsToUse,
-} from '../../../../functions/eCash/wallet';
+// import {
+//   calculateEcashFees,
+//   getProofsToUse,
+// } from '../../../../functions/eCash/wallet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import ErrorWithPayment from './components/errorScreen';

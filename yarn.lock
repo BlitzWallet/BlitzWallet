@@ -1610,42 +1610,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/issuer-sdk@npm:^0.0.82":
-  version: 0.0.82
-  resolution: "@buildonspark/issuer-sdk@npm:0.0.82"
-  dependencies:
-    "@buildonspark/lrc20-sdk": 0.0.60
-    "@buildonspark/spark-sdk": 0.2.3
-    "@lightsparkdev/core": ^1.4.2
-    "@noble/curves": ^1.8.0
-    "@scure/btc-signer": ^1.5.0
-    bitcoinjs-lib: ^6.1.5
-    buffer: ^6.0.3
-    ts-proto: ^2.6.1
-  checksum: 3e82e63b97687f99afd65f806322ddf739b6d380daa6b77f71228a7790e476530486b522c4dd52613670f335f99b765710e8c53c721e484bc4dfa66eb8caafb9
-  languageName: node
-  linkType: hard
-
-"@buildonspark/lrc20-sdk@npm:0.0.60":
-  version: 0.0.60
-  resolution: "@buildonspark/lrc20-sdk@npm:0.0.60"
-  dependencies:
-    "@bitcoinerlab/secp256k1": ^1.1.1
-    "@noble/curves": ^1.8.0
-    "@noble/hashes": ^1.7.1
-    "@sapphire/utilities": ^3.17.0
-    "@scure/bip32": ^1.6.2
-    "@scure/bip39": ^1.5.4
-    bignumber.js: ^9.1.2
-    bitcoinjs-lib: ^6.1.5
-    buffer: ^6.0.3
-    class-transformer: ^0.5.1
-    ts-proto: ^2.6.1
-    varuint-bitcoin: ^1.1.2
-  checksum: 842084267d6933386f847ce81c622f6975aaa175c3b4cd7c19a3d6cfb3ebb84bd005d4ffc7e1c061ca36028899e2ec446cf1245e557e55cafbca6e63015394c9
-  languageName: node
-  linkType: hard
-
 "@buildonspark/lrc20-sdk@npm:0.0.61":
   version: 0.0.61
   resolution: "@buildonspark/lrc20-sdk@npm:0.0.61"
@@ -1663,54 +1627,6 @@ __metadata:
     ts-proto: ^2.6.1
     varuint-bitcoin: ^1.1.2
   checksum: f08e40873785e47f404673513a43f642b77361155bed9cee197122cea7d7229511bba364c299fe0e0dca50127d8d300f33cff5e8870f4aa0fb9137b88ded300c
-  languageName: node
-  linkType: hard
-
-"@buildonspark/spark-sdk@npm:0.2.3":
-  version: 0.2.3
-  resolution: "@buildonspark/spark-sdk@npm:0.2.3"
-  dependencies:
-    "@bitcoinerlab/secp256k1": ^1.1.1
-    "@bufbuild/protobuf": ^2.2.5
-    "@buildonspark/lrc20-sdk": 0.0.60
-    "@lightsparkdev/core": ^1.4.2
-    "@noble/curves": ^1.8.0
-    "@noble/hashes": ^1.7.1
-    "@opentelemetry/api": ^1.9.0
-    "@opentelemetry/context-async-hooks": ^2.0.0
-    "@opentelemetry/core": ^2.0.0
-    "@opentelemetry/sdk-trace-base": ^2.0.0
-    "@scure/base": ^1.2.4
-    "@scure/bip32": ^1.6.2
-    "@scure/bip39": ^1.5.4
-    "@scure/btc-signer": ^1.5.0
-    abort-controller-x: ^0.4.3
-    async-mutex: ^0.5.0
-    bitcoinjs-lib: ^6.1.5
-    buffer: ^6.0.3
-    eciesjs: ^0.4.13
-    eventemitter3: ^5.0.1
-    js-base64: ^3.7.7
-    light-bolt11-decoder: ^3.2.0
-    nice-grpc: ^2.1.10
-    nice-grpc-client-middleware-retry: ^3.1.10
-    nice-grpc-common: ^2.0.2
-    nice-grpc-opentelemetry: ^0.1.18
-    nice-grpc-web: ^3.3.5
-    ts-proto: ^2.6.1
-    uuidv7: ^1.0.2
-  peerDependencies:
-    react: ">=18.2.0"
-    react-native: ">=0.71.0"
-    react-native-get-random-values: ">=1.11.0"
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-native:
-      optional: true
-    react-native-get-random-values:
-      optional: true
-  checksum: af9ff80e3ffd1dbf65536970bdd3e1e5c55bb3914c0181a8270261740cb21c69edeffc6f2f76ae168f936decbd16d947f33ef2ba6b8040defa64c52261539e59
   languageName: node
   linkType: hard
 
@@ -1777,18 +1693,6 @@ __metadata:
   peerDependencies:
     react: ^16.3.0
   checksum: a028663cfae61622b5d98be556993a8a25e08ca53086e0361adad0c827ee3d3e4e0180d909ea006048d3c2f972a34ed596ae8c6a9c15700bfefeb75eda3cbf74
-  languageName: node
-  linkType: hard
-
-"@cashu/cashu-ts@npm:^2.5.2":
-  version: 2.5.2
-  resolution: "@cashu/cashu-ts@npm:2.5.2"
-  dependencies:
-    "@noble/curves": ^1.6.0
-    "@noble/hashes": ^1.5.0
-    "@scure/bip32": ^1.5.0
-    buffer: ^6.0.3
-  checksum: d16a963a57219347ce6b66eaedb1c0f19153f4c277e344863bec7d513d0db3d63902d11a8c3fd027e047f0fd0001964a73d9d90e9e0fe018257436e50938fbe4
   languageName: node
   linkType: hard
 
@@ -3297,7 +3201,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:^1.6.0, @noble/curves@npm:^1.7.0, @noble/curves@npm:^1.8.0, @noble/curves@npm:^1.9.1, @noble/curves@npm:~1.9.0":
+"@noble/curves@npm:^1.7.0, @noble/curves@npm:^1.8.0, @noble/curves@npm:^1.9.1, @noble/curves@npm:~1.9.0":
   version: 1.9.4
   resolution: "@noble/curves@npm:1.9.4"
   dependencies:
@@ -3329,7 +3233,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/hashes@npm:1.8.0, @noble/hashes@npm:^1.2.0, @noble/hashes@npm:^1.5.0, @noble/hashes@npm:^1.7.1, @noble/hashes@npm:^1.8.0, @noble/hashes@npm:~1.8.0":
+"@noble/hashes@npm:1.8.0, @noble/hashes@npm:^1.2.0, @noble/hashes@npm:^1.7.1, @noble/hashes@npm:^1.8.0, @noble/hashes@npm:~1.8.0":
   version: 1.8.0
   resolution: "@noble/hashes@npm:1.8.0"
   checksum: c94e98b941963676feaba62475b1ccfa8341e3f572adbb3b684ee38b658df44100187fa0ef4220da580b13f8d27e87d5492623c8a02ecc61f23fb9960c7918f5
@@ -4380,7 +4284,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/bip32@npm:^1.5.0, @scure/bip32@npm:^1.6.2, @scure/bip32@npm:^1.7.0":
+"@scure/bip32@npm:^1.6.2, @scure/bip32@npm:^1.7.0":
   version: 1.7.0
   resolution: "@scure/bip32@npm:1.7.0"
   dependencies:
@@ -4933,9 +4837,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.10.1
-    "@buildonspark/issuer-sdk": ^0.0.82
     "@buildonspark/spark-sdk": ^0.2.6
-    "@cashu/cashu-ts": ^2.5.2
     "@craftzdog/react-native-buffer": ^6.0.5
     "@getalby/sdk": ^5.1.1
     "@miblanchard/react-native-slider": ^2.6.0
