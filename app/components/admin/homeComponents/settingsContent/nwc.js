@@ -1,4 +1,4 @@
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {
   BTN,
@@ -10,7 +10,7 @@ import {
   NWC_SECURE_STORE_MNEMOINC,
   SIZES,
 } from '../../../../constants';
-import {useEffect, useState} from 'react';
+import {useCallback, useState} from 'react';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {usePushNotification} from '../../../../../context-store/notificationManager';
@@ -55,9 +55,12 @@ export default function NosterWalletConnect() {
     setHasSeenMnemoinc(!!NWCMnemoinc);
     setCurrentPushState(resposne === 'granted');
   };
-  useEffect(() => {
-    loadCurrentNotificationPermission();
-  }, [notificationData.enabledServices.NWC]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadCurrentNotificationPermission();
+    }, []),
+  );
 
   const removePOSItem = itemUUID => {
     const updatedAccounts = {...savedNWCAccounts.accounts};
