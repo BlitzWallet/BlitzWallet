@@ -16,6 +16,7 @@ import {
   getNWCSparkTransactions,
   initializeNWCWallet,
   NWCSparkLightningPaymentStatus,
+  nwcWallet,
   receiveNWCSparkLightningPayment,
   sendNWCSparkLightningPayment,
 } from './wallet';
@@ -28,6 +29,7 @@ import {NOSTR_RELAY_URL} from '../../constants';
 
 // const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
+let walletInitializationPromise = null;
 
 const RELAY_URL = NOSTR_RELAY_URL;
 
@@ -51,7 +53,27 @@ const createErrorResponse = (method, code, message) => ({
 });
 
 const ensureWalletConnection = async () => {
-  return await initializeNWCWallet();
+  if (nwcWallet) {
+    return {isConnected: true};
+  }
+
+  if (walletInitializationPromise) {
+    console.log('Wallet initialization already in progress, waiting...');
+    return await walletInitializationPromise;
+  }
+
+  walletInitializationPromise = initializeNWCWallet();
+
+  try {
+    const result = await walletInitializationPromise;
+    // Clear the promise on successful completion
+    walletInitializationPromise = null;
+    return result;
+  } catch (error) {
+    // Clear the promise on error so retry is possible
+    walletInitializationPromise = null;
+    throw error;
+  }
 };
 
 // Helper function to extract and validate zap event from invoice metadata
