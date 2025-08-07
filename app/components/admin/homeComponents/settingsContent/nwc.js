@@ -6,6 +6,7 @@ import {
   COLORS,
   FONT,
   ICONS,
+  NOSTR_RELAY_URL,
   NWC_SECURE_STORE_MNEMOINC,
   SIZES,
 } from '../../../../constants';
@@ -16,6 +17,7 @@ import {usePushNotification} from '../../../../../context-store/notificationMana
 import NostrWalletConnectNoNotifications from './nwc/noNotifications';
 import {
   CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
@@ -27,6 +29,7 @@ import Icon from '../../../../functions/CustomElements/Icon';
 import {retrieveData} from '../../../../functions';
 import NWCWalletSetup from './nwc/showSeedPage';
 import HasNoNostrAccounts from './nwc/hasNoAccounts';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 
 export default function NosterWalletConnect() {
   const navigate = useNavigation();
@@ -54,7 +57,7 @@ export default function NosterWalletConnect() {
   };
   useEffect(() => {
     loadCurrentNotificationPermission();
-  }, []);
+  }, [notificationData.enabledServices.NWC]);
 
   const removePOSItem = itemUUID => {
     const updatedAccounts = {...savedNWCAccounts.accounts};
@@ -65,15 +68,27 @@ export default function NosterWalletConnect() {
   };
 
   if (!hasSeenMnemoinc) {
-    return <NWCWalletSetup />;
+    return (
+      <CustomPageWrapper>
+        <NWCWalletSetup setHasSeenMnemoinc={setHasSeenMnemoinc} />
+      </CustomPageWrapper>
+    );
   }
 
   if (!hasEnabledPushNotifications) {
-    return <NostrWalletConnectNoNotifications />;
+    return (
+      <CustomPageWrapper>
+        <NostrWalletConnectNoNotifications />
+      </CustomPageWrapper>
+    );
   }
 
   if (!didViewWarningMessage) {
-    return <HasNoNostrAccounts />;
+    return (
+      <CustomPageWrapper>
+        <HasNoNostrAccounts />
+      </CustomPageWrapper>
+    );
   }
 
   const nwcElements = savedNWCAccounts?.accounts
@@ -84,7 +99,11 @@ export default function NosterWalletConnect() {
             ?.startsWith(accountName?.toLowerCase());
         })
         .map(([key, value]) => {
-          const connectionString = `nostr+walletconnect://${value.publicKey}?relay=wss%3A%2F%2Frelay.damus.io&secret=${value.secret}`;
+          const connectionString = `nostr+walletconnect://${
+            value.publicKey
+          }?relay=${encodeURIComponent(NOSTR_RELAY_URL)}&secret=${
+            value.secret
+          }`;
           console.log(connectionString, 't');
           return (
             <TouchableOpacity
@@ -150,52 +169,63 @@ export default function NosterWalletConnect() {
     : [];
 
   return (
-    <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
-      globalThemeViewStyles={{
-        paddingTop: 10,
-        width: INSET_WINDOW_WIDTH,
-        ...CENTER,
-      }}>
-      <CustomSearchInput
-        inputText={accountName}
-        setInputText={setAccountName}
-        placeholderText={'Search for NWC account'}
-      />
-      <ScrollView contentContainerStyle={{paddingBottom: 20}}>
-        {nwcElements.length > 0 ? (
-          nwcElements
-        ) : (
-          <ThemeText
-            styles={{textAlign: 'center', marginTop: 20}}
-            content={'You have no Nostr Connect accounts.'}
-          />
-        )}
-      </ScrollView>
-      <View
-        style={{
-          width: '100%',
-          columnGap: 10,
-          rowGap: 10,
-          flexWrap: 'wrap',
-          flexDirection: 'row',
+    <CustomPageWrapper>
+      <CustomKeyboardAvoidingView
+        useTouchableWithoutFeedback={true}
+        globalThemeViewStyles={{
+          paddingTop: 10,
+          width: INSET_WINDOW_WIDTH,
+          ...CENTER,
         }}>
-        <CustomButton
-          actionFunction={() => {
-            navigate.navigate('CreateNostrConnectAccount');
-          }}
-          buttonStyles={{flexGrow: 1, maxWidth: '48%'}}
-          textContent={'Add Account'}
+        <CustomSearchInput
+          inputText={accountName}
+          setInputText={setAccountName}
+          placeholderText={'Search for NWC account'}
         />
-        <CustomButton
-          actionFunction={() => {
-            navigate.navigate('NWCWallet');
-          }}
-          buttonStyles={{flexGrow: 1, maxWidth: '48%'}}
-          textContent={'View Wallet'}
-        />
-      </View>
-    </CustomKeyboardAvoidingView>
+        <ScrollView contentContainerStyle={{paddingBottom: 20}}>
+          {nwcElements.length > 0 ? (
+            nwcElements
+          ) : (
+            <ThemeText
+              styles={{textAlign: 'center', marginTop: 20}}
+              content={'You have no Nostr Connect accounts.'}
+            />
+          )}
+        </ScrollView>
+        <View
+          style={{
+            width: '100%',
+            columnGap: 10,
+            rowGap: 10,
+            flexWrap: 'wrap',
+            flexDirection: 'row',
+          }}>
+          <CustomButton
+            actionFunction={() => {
+              navigate.navigate('CreateNostrConnectAccount');
+            }}
+            buttonStyles={{flexGrow: 1, maxWidth: '48%'}}
+            textContent={'Add Account'}
+          />
+          <CustomButton
+            actionFunction={() => {
+              navigate.navigate('NWCWallet');
+            }}
+            buttonStyles={{flexGrow: 1, maxWidth: '48%'}}
+            textContent={'View Wallet'}
+          />
+        </View>
+      </CustomKeyboardAvoidingView>
+    </CustomPageWrapper>
+  );
+}
+
+function CustomPageWrapper({children}) {
+  return (
+    <GlobalThemeView useStandardWidth={true}>
+      <CustomSettingsTopBar label={'NWC'} />
+      {children}
+    </GlobalThemeView>
   );
 }
 

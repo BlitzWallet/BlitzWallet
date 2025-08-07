@@ -61,6 +61,9 @@ const COLORS = {
   giftcardlightsout3: '#676767',
 
   lightBlueForGiftCards: '#a7d1ff',
+  walletHomeLightModeOffset: '#E4E4E4',
+  walletHomeDarkModeOffset: '#002146',
+  walletHomeLightsOutOffset: '#0d0d0d',
 };
 
 const FONT = {

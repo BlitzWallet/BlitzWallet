@@ -34,6 +34,9 @@ const IS_SPARK_REQUEST_ID =
   /^SparkLightning(?:Receive|Send)Request:[0-9a-fA-F\-]+$/;
 const IS_BITCOIN_REQUEST_ID = /^SparkCoopExitRequest:[0-9a-fA-F\-]+$/;
 
+const NOSTR_NAME_REGEX = /^[a-zA-Z0-9]+$/;
+const NOSTR_RELAY_URL = 'wss://relay.damus.io';
+
 const IS_LETTER_REGEX = /^[A-Za-z]$/;
 const BITCOIN_SATS_ICON = '\u20BF';
 const HIDDEN_BALANCE_TEXT = `* * * * *`;
@@ -79,6 +82,7 @@ const BLITZ_GOAL_USER_COUNT = 1_000_000;
 
 const IS_DONTATION_PAYMENT_BUFFER = 10_000;
 const SKELETON_ANIMATION_SPEED = 1200;
+const TOKEN_TICKER_MAX_LENGTH = 10;
 
 export {
   COLORS,
@@ -137,4 +141,7 @@ export {
   NWC_LOACAL_STORE_KEY,
   SPARK_CACHED_BALANCE_KEY,
   IS_SPARK_ID,
+  NOSTR_NAME_REGEX,
+  TOKEN_TICKER_MAX_LENGTH,
+  NOSTR_RELAY_URL,
 };

@@ -101,7 +101,7 @@ export const sendNWCSparkLightningPayment = async ({
     if (!nwcWallet) throw new Error('sparkWallet not initialized');
     const paymentResponse = await nwcWallet.payLightningInvoice({
       invoice,
-      maxFeeSats: maxFeeSats,
+      maxFeeSats: Math.round(maxFeeSats * 1.2),
       amountSatsToSend: amountSats,
     });
     return {didWork: true, paymentResponse};
@@ -117,6 +117,18 @@ export const NWCSparkLightningPaymentStatus = async id => {
     return {didWork: true, paymentResponse};
   } catch (err) {
     console.log('Send lightning payment error', err);
+    return {didWork: false, error: err.message};
+  }
+};
+export const getNWCLightningReceiveRequest = async lightningInvoiceId => {
+  try {
+    if (!nwcWallet) throw new Error('nwcWallet not initialized');
+    const paymentResponse = await nwcWallet.getLightningReceiveRequest(
+      lightningInvoiceId,
+    );
+    return {didWork: true, paymentResponse};
+  } catch (err) {
+    console.log('Get lightning payment status error', err);
     return {didWork: false, error: err.message};
   }
 };

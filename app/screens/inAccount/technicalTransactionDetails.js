@@ -24,7 +24,9 @@ export default function TechnicalTransactionDetails(props) {
 
   const paymentDetails =
     transaction.paymentType === 'spark'
-      ? ['Payment Id']
+      ? details.isLRC20Payment
+        ? ['Transaction Hash']
+        : ['Payment Id']
       : transaction.paymentType === 'lightning'
       ? ['Payment Id', 'Payment Preimage', 'Payment Address']
       : [

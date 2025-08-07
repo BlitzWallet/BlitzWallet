@@ -38,6 +38,7 @@ import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useCallback} from 'react';
 // import {keyboardGoBack} from '../../functions/customNavigation';
 import ExploreUsers from './explorePage';
+import NostrHome from '../../components/admin/homeComponents/settingsContent/nostrHome';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
@@ -107,15 +108,24 @@ export default function SettingsContentIndex(props) {
         <GlobalThemeView styles={styles.globalContainer}>
           <View style={styles.innerContainer}>
             <CustomSettingsTopBar
-              showLeftImage={selectedPage?.toLowerCase() === 'channel closure'}
-              leftImageBlue={ICONS.receiptIcon}
-              LeftImageDarkMode={ICONS.receiptWhite}
+              showLeftImage={selectedPage?.toLowerCase() === 'spark info'}
+              leftImageBlue={
+                selectedPage?.toLowerCase() === 'spark info'
+                  ? ICONS.settingsIcon
+                  : ''
+              }
+              LeftImageDarkMode={
+                selectedPage?.toLowerCase() === 'spark info'
+                  ? ICONS.settingsWhite
+                  : ''
+              }
               leftImageFunction={() => {
-                Keyboard.dismiss();
-                navigate.navigate('HistoricalOnChainPayments');
+                if (selectedPage?.toLowerCase() === 'spark info') {
+                  navigate.navigate('SparkSettingsPage');
+                }
               }}
               shouldDismissKeyboard={
-                selectedPage?.toLowerCase() === 'channel closure'
+                selectedPage?.toLowerCase() === 'spark info'
               }
               label={selectedPage}
             />
@@ -152,8 +162,8 @@ export default function SettingsContentIndex(props) {
             )}
             {selectedPage?.toLowerCase() === 'blitz stats' && <ExploreUsers />}
 
-            {selectedPage?.toLowerCase() === 'noster connect' && (
-              <NosterWalletConnect theme={theme} />
+            {selectedPage?.toLowerCase() === 'nostr' && (
+              <NostrHome theme={theme} />
             )}
             {selectedPage?.toLowerCase() === 'login mode' && (
               <LoginSecurity extraData={extraData} theme={theme} />

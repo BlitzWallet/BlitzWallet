@@ -144,6 +144,7 @@ export default async function initializeUserSettingsFromHistory({
       minAutoSwapAmount: 10000, //sats
     };
     let ecashWalletSettings = blitzStoredData.ecashWalletSettings;
+    let lrc20Settings = blitzStoredData.lrc20Settings;
 
     // const eCashInformation =
     //   blitzStoredData.eCashInformation ||
@@ -175,6 +176,10 @@ export default async function initializeUserSettingsFromHistory({
     const offlineReceiveAddresses = blitzStoredData.offlineReceiveAddresses || {
       lastUpdated: new Date().getTime(),
       addresses: [],
+    };
+    const nip5Settings = blitzStoredData.nip5Settings || {
+      name: '',
+      pubkey: '',
     };
 
     // let lnurlPubKey = blitzStoredData.lnurlPubKey;
@@ -275,6 +280,12 @@ export default async function initializeUserSettingsFromHistory({
       needsToUpdate = true;
     }
 
+    if (!lrc20Settings) {
+      lrc20Settings = {
+        isEnabled: false,
+      };
+    }
+
     // if (!lnurlPubKey) {
     //   lnurlPubKey = getBitcoinKeyPair(mnemonic).publicKey;
     //   needsToUpdate = true;
@@ -317,10 +328,12 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['offlineReceiveAddresses'] = offlineReceiveAddresses;
     // tempObject['lnurlPubKey'] = lnurlPubKey;
     tempObject['isUsingEncriptedMessaging'] = isUsingEncriptedMessaging;
+    tempObject['lrc20Settings'] = lrc20Settings;
 
     // store in contacts context
     tempObject['contacts'] = contacts;
     tempObject['NWC'] = savedNWCData;
+    tempObject['nip5Settings'] = nip5Settings;
 
     // Store in ecash context
     // tempObject['eCashInformation'] = eCashInformation;

@@ -35,6 +35,7 @@ export default function getFormattedHomepageTxsForSpark({
   userBalanceDenomination,
   numberOfCachedTxs,
   didGetToHomepage,
+  enabledLRC20,
 }) {
   crashlyticsLogReport('Starting re-rendering of formatted transactions');
   const sparkTransactions = sparkInformation?.transactions;
@@ -92,8 +93,106 @@ export default function getFormattedHomepageTxsForSpark({
       </SkeletonPlaceholder>,
     ];
   }
+  let formattedTxs = [];
+  let currentGroupedDate = '';
+  let transactionIndex = 0;
 
-  if (!sparkTransactionsLength) {
+  while (
+    formattedTxs.length <
+      (frompage === 'viewAllTx'
+        ? sparkTransactionsLength
+        : homepageTxPreferance) &&
+    transactionIndex < sparkTransactionsLength
+  ) {
+    try {
+      const currentTransaction = sparkTransactions[transactionIndex];
+      const transactionPaymentType = currentTransaction.paymentType;
+      const paymentDetials =
+        frompage === 'sparkWallet'
+          ? {
+              time: currentTransaction.createdTime,
+              direction: currentTransaction.transferDirection,
+              amount: currentTransaction.totalValue,
+            }
+          : JSON.parse(currentTransaction.details);
+
+      const isFailedPayment = currentTransaction.paymentStatus === 'failed';
+
+      const paymentDate = new Date(paymentDetials.time).getTime();
+
+      const uniuqeIDFromTx = currentTransaction.sparkID;
+      const isLRC20Payment = paymentDetials.isLRC20Payment;
+
+      if (!enabledLRC20 && isLRC20Payment)
+        throw new Error('Only show LRC20 payments if enabled');
+
+      const styledTx = (
+        <UserTransaction
+          tx={{...currentTransaction, details: paymentDetials}}
+          currentTime={currentTime}
+          navigate={navigate}
+          transactionPaymentType={transactionPaymentType}
+          paymentDate={paymentDate}
+          id={uniuqeIDFromTx}
+          frompage={frompage}
+          theme={theme}
+          darkModeType={darkModeType}
+          userBalanceDenomination={userBalanceDenomination}
+          isFailedPayment={isFailedPayment}
+          sparkInformation={sparkInformation}
+          isLRC20Payment={isLRC20Payment}
+        />
+      );
+
+      const timeDifference = (currentTime - paymentDate) / 1000 / 60 / 60 / 24;
+
+      const bannerText =
+        timeDifference < 0.5
+          ? todayText
+          : timeDifference > 0.5 && timeDifference < 1
+          ? yesterdayText
+          : Math.round(timeDifference) <= 30
+          ? `${Math.round(timeDifference)} ${
+              Math.round(timeDifference) === 1 ? dayText : dayText + 's'
+            } ${agoText}`
+          : Math.round(timeDifference) > 30 && Math.round(timeDifference) < 365
+          ? `${Math.floor(Math.round(timeDifference) / 30)} ${monthText}${
+              Math.floor(Math.round(timeDifference) / 30) === 1 ? '' : 's'
+            } ${agoText}`
+          : `${Math.floor(Math.round(timeDifference) / 365)} ${yearText}${
+              Math.floor(Math.round(timeDifference) / 365) ? '' : 's'
+            } ${agoText}`;
+
+      if (
+        (transactionIndex === 0 || currentGroupedDate != bannerText) &&
+        timeDifference > 0.5 &&
+        frompage != 'home'
+      ) {
+        currentGroupedDate = bannerText;
+        formattedTxs.push(dateBanner(bannerText));
+      }
+
+      if (
+        currentTransaction.paymentStatus === 'failed' &&
+        paymentDetials.direction === 'INCOMING'
+      )
+        throw new Error("Don't show failed incoming txs.");
+
+      if (
+        transactionPaymentType === 'lightning' &&
+        currentTransaction.status === 'LIGHTNING_PAYMENT_INITIATED'
+      )
+        throw Error('Lightning invoice has not been paid yet, hiding...');
+
+      formattedTxs.push(styledTx);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      transactionIndex += 1;
+    }
+  }
+
+  if (!formattedTxs.length) {
     return [
       <View style={[styles.noTransactionsContainer]} key={'noTx'}>
         <ThemeText
@@ -102,116 +201,25 @@ export default function getFormattedHomepageTxsForSpark({
         />
       </View>,
     ];
-  } else {
-    let formattedTxs = [];
-    let currentGroupedDate = '';
-    let transactionIndex = 0;
-
-    while (
-      formattedTxs.length <
-        (frompage === 'viewAllTx'
-          ? sparkTransactionsLength
-          : homepageTxPreferance) &&
-      transactionIndex < sparkTransactionsLength
-    ) {
-      try {
-        const currentTransaction = sparkTransactions[transactionIndex];
-        const transactionPaymentType = currentTransaction.paymentType;
-        const paymentDetials =
-          frompage === 'sparkWallet'
-            ? {
-                time: currentTransaction.createdTime,
-                direction: currentTransaction.transferDirection,
-                amount: currentTransaction.totalValue,
-              }
-            : JSON.parse(currentTransaction.details);
-
-        const isFailedPayment = currentTransaction.paymentStatus === 'failed';
-
-        const paymentDate = new Date(paymentDetials.time).getTime();
-
-        const uniuqeIDFromTx = currentTransaction.sparkID;
-
-        const styledTx = (
-          <UserTransaction
-            tx={{...currentTransaction, details: paymentDetials}}
-            currentTime={currentTime}
-            navigate={navigate}
-            transactionPaymentType={transactionPaymentType}
-            paymentDate={paymentDate}
-            id={uniuqeIDFromTx}
-            frompage={frompage}
-            theme={theme}
-            darkModeType={darkModeType}
-            userBalanceDenomination={userBalanceDenomination}
-            isFailedPayment={isFailedPayment}
-          />
-        );
-
-        const timeDifference =
-          (currentTime - paymentDate) / 1000 / 60 / 60 / 24;
-
-        const bannerText =
-          timeDifference < 0.5
-            ? todayText
-            : timeDifference > 0.5 && timeDifference < 1
-            ? yesterdayText
-            : Math.round(timeDifference) <= 30
-            ? `${Math.round(timeDifference)} ${
-                Math.round(timeDifference) === 1 ? dayText : dayText + 's'
-              } ${agoText}`
-            : Math.round(timeDifference) > 30 &&
-              Math.round(timeDifference) < 365
-            ? `${Math.floor(Math.round(timeDifference) / 30)} ${monthText}${
-                Math.floor(Math.round(timeDifference) / 30) === 1 ? '' : 's'
-              } ${agoText}`
-            : `${Math.floor(Math.round(timeDifference) / 365)} ${yearText}${
-                Math.floor(Math.round(timeDifference) / 365) ? '' : 's'
-              } ${agoText}`;
-
-        if (
-          (transactionIndex === 0 || currentGroupedDate != bannerText) &&
-          timeDifference > 0.5 &&
-          frompage != 'home'
-        ) {
-          currentGroupedDate = bannerText;
-          formattedTxs.push(dateBanner(bannerText));
-        }
-
-        if (
-          currentTransaction.paymentStatus === 'failed' &&
-          paymentDetials.direction === 'INCOMING'
-        )
-          throw new Error("Don't show failed incoming txs.");
-
-        if (
-          transactionPaymentType === 'lightning' &&
-          currentTransaction.status === 'LIGHTNING_PAYMENT_INITIATED'
-        )
-          throw Error('Lightning invoice has not been paid yet, hiding...');
-
-        formattedTxs.push(styledTx);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        transactionIndex += 1;
-      }
-    }
-
-    if (frompage != 'viewAllTx' && formattedTxs?.length == homepageTxPreferance)
-      formattedTxs.push(
-        <TouchableOpacity
-          key={'view_all_tx_btn'}
-          style={{marginBottom: 10, ...CENTER}}
-          onPress={() => {
-            navigate.navigate('ViewAllTxPage');
-          }}>
-          <ThemeText content={viewAllTxText} styles={{...styles.headerText}} />
-        </TouchableOpacity>,
-      );
-
-    return formattedTxs;
   }
+
+  if (
+    frompage != 'viewAllTx' &&
+    frompage !== 'sparkWallet' &&
+    formattedTxs?.length == homepageTxPreferance
+  )
+    formattedTxs.push(
+      <TouchableOpacity
+        key={'view_all_tx_btn'}
+        style={{marginBottom: 10, ...CENTER}}
+        onPress={() => {
+          navigate.navigate('ViewAllTxPage');
+        }}>
+        <ThemeText content={viewAllTxText} styles={{...styles.headerText}} />
+      </TouchableOpacity>,
+    );
+
+  return formattedTxs;
 }
 
 export const UserTransaction = memo(function UserTransaction({
@@ -226,6 +234,8 @@ export const UserTransaction = memo(function UserTransaction({
   darkModeType,
   userBalanceDenomination,
   isFailedPayment,
+  sparkInformation,
+  isLRC20Payment,
 }) {
   const {t} = useTranslation();
 
@@ -250,6 +260,12 @@ export const UserTransaction = memo(function UserTransaction({
       ? ICONS.failedTransactionWhite
       : ICONS.failedTransaction;
   }, [darkModeType, theme, isFailedPayment]);
+
+  const token = isLRC20Payment
+    ? sparkInformation.tokens?.[transaction.details.LRC20Token]?.tokenMetadata
+        ?.tokenTicker
+    : '';
+  // console.log(transaction, token, transaction.details.LRC20Token);
 
   const showPendingTransactionStatusIcon =
     transaction.paymentStatus === 'pending';
@@ -389,6 +405,8 @@ export const UserTransaction = memo(function UserTransaction({
             }
             styles={styles.amountText}
             balance={transaction.details.amount}
+            useCustomLabel={isLRC20Payment}
+            customLabel={token}
           />
         )}
       </View>
@@ -449,6 +467,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 15,
   },
   noTransactionsText: {
     width: '95%',

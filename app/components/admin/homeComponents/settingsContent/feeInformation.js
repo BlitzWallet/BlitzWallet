@@ -16,6 +16,7 @@ import {
   lightningBrackets,
   sparkBrackets,
   bitcoinBrackets,
+  LRC20Brackets,
 } from '../../../../functions/spark/calculateSupportFee';
 import {FONT, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
@@ -30,8 +31,12 @@ export default function BlitzFeeInformation() {
   const [minHeight, setMinHeight] = useState(0);
   console.log(minHeight);
 
+  const feeOptions = masterInfoObject?.lrc20Settings?.isEnabled
+    ? ['lightning', 'spark', 'bitcoin', 'tokens']
+    : ['lightning', 'spark', 'bitcoin'];
+
   const timeFrameElements = useMemo(() => {
-    return ['lightning', 'spark', 'bitcoin'].map(item => {
+    return feeOptions.map(item => {
       return (
         <TouchableOpacity
           key={item}
@@ -62,7 +67,7 @@ export default function BlitzFeeInformation() {
         </TouchableOpacity>
       );
     });
-  }, [paymentType, textColor, theme, darkModeType]);
+  }, [paymentType, textColor, theme, darkModeType, feeOptions]);
 
   console.log(timeFrameElements);
   return (
@@ -85,7 +90,9 @@ export default function BlitzFeeInformation() {
             ? lightningBrackets
             : paymentType === 'spark'
             ? sparkBrackets
-            : bitcoinBrackets
+            : paymentType === 'bitcoin'
+            ? bitcoinBrackets
+            : LRC20Brackets
         }
         color={'#F7931A'}
         setMinHeight={setMinHeight}

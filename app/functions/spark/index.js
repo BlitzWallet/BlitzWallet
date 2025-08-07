@@ -13,6 +13,11 @@ import {
 } from '@buildonspark/spark-sdk/types';
 import {getAllSparkTransactions} from './transactions';
 import {SPARK_TO_SPARK_FEE} from '../../constants/math';
+import {
+  getCachedTokens,
+  mergeTokensWithCache,
+  saveCachedTokens,
+} from '../lrc20/cachedTokens';
 
 export let sparkWallet = null;
 
@@ -75,9 +80,39 @@ export const getSparkIdentityPubKey = async () => {
 export const getSparkBalance = async () => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.getBalance();
+    const balance = await sparkWallet.getBalance();
+    console.log('Spark Balance:', balance);
+    console.log('Tokens balance size:', balance.tokenBalances.size);
+    console.log(
+      'Tokens balance keys',
+      Array.from(balance.tokenBalances.keys()),
+    );
+    console.log(
+      'Tokens balance values',
+      Array.from(balance.tokenBalances.values()),
+    );
+
+    const cachedTokens = await getCachedTokens();
+
+    let currentTokensObj = {};
+    for (const [tokensIdentifier, tokensData] of balance.tokenBalances) {
+      currentTokensObj[tokensIdentifier] = tokensData;
+      console.log('Tokens Identifier', tokensIdentifier);
+      console.log('Tokens Balance:', tokensData);
+    }
+
+    const allTokens = mergeTokensWithCache(balance.tokenBalances, cachedTokens);
+
+    await saveCachedTokens(allTokens);
+
+    return {
+      tokensObj: allTokens,
+      balance: balance.balance,
+      didWork: true,
+    };
   } catch (err) {
     console.log('Get spark balance error', err);
+    return {didWork: false};
   }
 };
 
@@ -214,19 +249,21 @@ export const sendSparkPayment = async ({receiverSparkAddress, amountSats}) => {
 };
 
 export const sendSparkTokens = async ({
-  tokenPublicKey,
+  tokenIdentifier,
   tokenAmount,
   receiverSparkAddress,
 }) => {
   try {
     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-    return await sparkWallet.transferTokens({
-      tokenPublicKey,
-      tokenAmount,
+    const response = await sparkWallet.transferTokens({
+      tokenIdentifier,
+      tokenAmount: BigInt(tokenAmount),
       receiverSparkAddress,
     });
+    return {didWork: true, response};
   } catch (err) {
     console.log('Send spark token error', err);
+    return {didWork: false, error: err.message};
   }
 };
 
@@ -369,9 +406,31 @@ export const getSparkTransactions = async (
     return {transfers: []};
   }
 };
-export const getCachedSparkTransactions = async () => {
+
+export const getSparkTokenTransactions = async ({
+  ownerPublicKeys,
+  issuerPublicKeys,
+  tokenTransactionHashes,
+  tokenIdentifiers,
+  outputIds,
+}) => {
   try {
-    const txResponse = await getAllSparkTransactions();
+    if (!sparkWallet) throw new Error('sparkWallet not initialized');
+    return await sparkWallet.queryTokenTransactions({
+      ownerPublicKeys,
+      issuerPublicKeys,
+      tokenTransactionHashes,
+      tokenIdentifiers,
+      outputIds,
+    });
+  } catch (err) {
+    console.log('get spark transactions error', err);
+    return [];
+  }
+};
+export const getCachedSparkTransactions = async limit => {
+  try {
+    const txResponse = await getAllSparkTransactions(limit);
     if (!txResponse) throw new Error('Unable to get cached spark transactins');
     return txResponse;
   } catch (err) {

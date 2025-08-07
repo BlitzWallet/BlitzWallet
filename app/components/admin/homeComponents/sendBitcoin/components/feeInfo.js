@@ -1,3 +1,4 @@
+import {TOKEN_TICKER_MAX_LENGTH} from '../../../../../constants';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 

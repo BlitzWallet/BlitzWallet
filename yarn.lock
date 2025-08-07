@@ -1610,9 +1610,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/lrc20-sdk@npm:0.0.60":
-  version: 0.0.60
-  resolution: "@buildonspark/lrc20-sdk@npm:0.0.60"
+"@buildonspark/lrc20-sdk@npm:0.0.61":
+  version: 0.0.61
+  resolution: "@buildonspark/lrc20-sdk@npm:0.0.61"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@noble/curves": ^1.8.0
@@ -1626,24 +1626,29 @@ __metadata:
     class-transformer: ^0.5.1
     ts-proto: ^2.6.1
     varuint-bitcoin: ^1.1.2
-  checksum: 842084267d6933386f847ce81c622f6975aaa175c3b4cd7c19a3d6cfb3ebb84bd005d4ffc7e1c061ca36028899e2ec446cf1245e557e55cafbca6e63015394c9
+  checksum: f08e40873785e47f404673513a43f642b77361155bed9cee197122cea7d7229511bba364c299fe0e0dca50127d8d300f33cff5e8870f4aa0fb9137b88ded300c
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "@buildonspark/spark-sdk@npm:0.2.2"
+"@buildonspark/spark-sdk@npm:^0.2.6":
+  version: 0.2.6
+  resolution: "@buildonspark/spark-sdk@npm:0.2.6"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@bufbuild/protobuf": ^2.2.5
-    "@buildonspark/lrc20-sdk": 0.0.60
+    "@buildonspark/lrc20-sdk": 0.0.61
     "@lightsparkdev/core": ^1.4.2
     "@noble/curves": ^1.8.0
     "@noble/hashes": ^1.7.1
     "@opentelemetry/api": ^1.9.0
     "@opentelemetry/context-async-hooks": ^2.0.0
     "@opentelemetry/core": ^2.0.0
+    "@opentelemetry/instrumentation": ^0.203.0
+    "@opentelemetry/instrumentation-fetch": ^0.203.0
+    "@opentelemetry/instrumentation-undici": ^0.14.0
     "@opentelemetry/sdk-trace-base": ^2.0.0
+    "@opentelemetry/sdk-trace-node": ^2.0.1
+    "@opentelemetry/sdk-trace-web": ^2.0.1
     "@scure/base": ^1.2.4
     "@scure/bip32": ^1.6.2
     "@scure/bip39": ^1.5.4
@@ -1674,7 +1679,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 2170b8cd6ae4ed4436656acd2e985ca00cc7b0051e105bec1fc98a2346762e2a41d2bf96833b4aa3a5d2afe931b6201ed4349a15846c0d93957f15733ea1241d
+  checksum: ff0250bfa0b0a7093174faeba9c703b39787d4d0b771edf8234bec04ee22c7ea749ff8b683b8ea9713c187ecbd9fa0445b7cdb7615268411b0ae42f875e0ff9d
   languageName: node
   linkType: hard
 
@@ -1688,18 +1693,6 @@ __metadata:
   peerDependencies:
     react: ^16.3.0
   checksum: a028663cfae61622b5d98be556993a8a25e08ca53086e0361adad0c827ee3d3e4e0180d909ea006048d3c2f972a34ed596ae8c6a9c15700bfefeb75eda3cbf74
-  languageName: node
-  linkType: hard
-
-"@cashu/cashu-ts@npm:^2.5.2":
-  version: 2.5.2
-  resolution: "@cashu/cashu-ts@npm:2.5.2"
-  dependencies:
-    "@noble/curves": ^1.6.0
-    "@noble/hashes": ^1.5.0
-    "@scure/bip32": ^1.5.0
-    buffer: ^6.0.3
-  checksum: d16a963a57219347ce6b66eaedb1c0f19153f4c277e344863bec7d513d0db3d63902d11a8c3fd027e047f0fd0001964a73d9d90e9e0fe018257436e50938fbe4
   languageName: node
   linkType: hard
 
@@ -2700,23 +2693,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@getalby/lightning-tools@npm:^5.1.2":
-  version: 5.2.0
-  resolution: "@getalby/lightning-tools@npm:5.2.0"
-  checksum: 2c3a61621aff23bca3bf825d0fd3d8b3f697d514a60620e11ac246a59b15e64554c9bfcf95d378f88a48d741b2fcb8812b02fbe4268bbc7f8f4c359ab99e3ce5
-  languageName: node
-  linkType: hard
-
-"@getalby/sdk@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "@getalby/sdk@npm:5.1.1"
-  dependencies:
-    "@getalby/lightning-tools": ^5.1.2
-    nostr-tools: 2.15.0
-  checksum: 348e9c62cf65bc9a7cb67f4455798528ef1a72e5ad0912335c857febac8d4f63b5056a9b0b8fe79390d2397fbe38bf4470e7363cffdf1762dea9f47bbb3c99be
-  languageName: node
-  linkType: hard
-
 "@grpc/grpc-js@npm:^1.13.1":
   version: 1.13.4
   resolution: "@grpc/grpc-js@npm:1.13.4"
@@ -3208,7 +3184,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:^1.6.0, @noble/curves@npm:^1.7.0, @noble/curves@npm:^1.8.0, @noble/curves@npm:^1.9.1, @noble/curves@npm:~1.9.0":
+"@noble/curves@npm:^1.7.0, @noble/curves@npm:^1.8.0, @noble/curves@npm:^1.9.1, @noble/curves@npm:~1.9.0":
   version: 1.9.4
   resolution: "@noble/curves@npm:1.9.4"
   dependencies:
@@ -3240,7 +3216,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/hashes@npm:1.8.0, @noble/hashes@npm:^1.2.0, @noble/hashes@npm:^1.5.0, @noble/hashes@npm:^1.7.1, @noble/hashes@npm:^1.8.0, @noble/hashes@npm:~1.8.0":
+"@noble/hashes@npm:1.8.0, @noble/hashes@npm:^1.2.0, @noble/hashes@npm:^1.7.1, @noble/hashes@npm:^1.8.0, @noble/hashes@npm:~1.8.0":
   version: 1.8.0
   resolution: "@noble/hashes@npm:1.8.0"
   checksum: c94e98b941963676feaba62475b1ccfa8341e3f572adbb3b684ee38b658df44100187fa0ef4220da580b13f8d27e87d5492623c8a02ecc61f23fb9960c7918f5
@@ -3310,14 +3286,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/api@npm:^1.8.0, @opentelemetry/api@npm:^1.9.0":
+"@opentelemetry/api-logs@npm:0.203.0":
+  version: 0.203.0
+  resolution: "@opentelemetry/api-logs@npm:0.203.0"
+  dependencies:
+    "@opentelemetry/api": ^1.3.0
+  checksum: eef271ec51901224740652cf0e9cfe470d09a1086d6e589863652435a4d6ef8713eda085c0cbbe8cec4ec34efb1f79ca55ed34293546c823185e960431ba9f65
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/api@npm:^1.3.0, @opentelemetry/api@npm:^1.8.0, @opentelemetry/api@npm:^1.9.0":
   version: 1.9.0
   resolution: "@opentelemetry/api@npm:1.9.0"
   checksum: 9e88e59d53ced668f3daaecfd721071c5b85a67dd386f1c6f051d1be54375d850016c881f656ffbe9a03bedae85f7e89c2f2b635313f9c9b195ad033cdc31020
   languageName: node
   linkType: hard
 
-"@opentelemetry/context-async-hooks@npm:^2.0.0":
+"@opentelemetry/context-async-hooks@npm:2.0.1, @opentelemetry/context-async-hooks@npm:^2.0.0":
   version: 2.0.1
   resolution: "@opentelemetry/context-async-hooks@npm:2.0.1"
   peerDependencies:
@@ -3337,6 +3322,45 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@opentelemetry/instrumentation-fetch@npm:^0.203.0":
+  version: 0.203.0
+  resolution: "@opentelemetry/instrumentation-fetch@npm:0.203.0"
+  dependencies:
+    "@opentelemetry/core": 2.0.1
+    "@opentelemetry/instrumentation": 0.203.0
+    "@opentelemetry/sdk-trace-web": 2.0.1
+    "@opentelemetry/semantic-conventions": ^1.29.0
+  peerDependencies:
+    "@opentelemetry/api": ^1.3.0
+  checksum: 8bb9cea11ef469df787816f8e8ef675f6718da0fb19e9d40654c8e6612966293118d10d24783f40e9d2301a3d9e9c7301107212472616dc7949ff66da6428947
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/instrumentation-undici@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "@opentelemetry/instrumentation-undici@npm:0.14.0"
+  dependencies:
+    "@opentelemetry/core": ^2.0.0
+    "@opentelemetry/instrumentation": ^0.203.0
+  peerDependencies:
+    "@opentelemetry/api": ^1.7.0
+  checksum: d56a2e6231078f7ab32b98cfe18cd52ffb3ac07ee2b9e6773f8ea06900da2922db104d63a2047e31319a2bd7e0ece8855f48e423283471a93fe5ef5281dde267
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/instrumentation@npm:0.203.0, @opentelemetry/instrumentation@npm:^0.203.0":
+  version: 0.203.0
+  resolution: "@opentelemetry/instrumentation@npm:0.203.0"
+  dependencies:
+    "@opentelemetry/api-logs": 0.203.0
+    import-in-the-middle: ^1.8.1
+    require-in-the-middle: ^7.1.1
+  peerDependencies:
+    "@opentelemetry/api": ^1.3.0
+  checksum: 5400cbfa2e7910bc554a393e471531ac935fb73eb299edc25e4ffa3786c4f029937f9e2e7695dc4d4e6438ada3263ad91d62d73daa01f0ffb81b8d13ba57941d
+  languageName: node
+  linkType: hard
+
 "@opentelemetry/resources@npm:2.0.1":
   version: 2.0.1
   resolution: "@opentelemetry/resources@npm:2.0.1"
@@ -3349,7 +3373,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/sdk-trace-base@npm:^2.0.0":
+"@opentelemetry/sdk-trace-base@npm:2.0.1, @opentelemetry/sdk-trace-base@npm:^2.0.0":
   version: 2.0.1
   resolution: "@opentelemetry/sdk-trace-base@npm:2.0.1"
   dependencies:
@@ -3359,6 +3383,31 @@ __metadata:
   peerDependencies:
     "@opentelemetry/api": ">=1.3.0 <1.10.0"
   checksum: a1acccfdacee811b5cc42718679e8b5fb47ce0dfe26a128a8f8b8a54f726531d8582e2c3ddcfcd2b63f5f7c0d66ee6b6a30d0a931cf628fff7238931a564f80b
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/sdk-trace-node@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@opentelemetry/sdk-trace-node@npm:2.0.1"
+  dependencies:
+    "@opentelemetry/context-async-hooks": 2.0.1
+    "@opentelemetry/core": 2.0.1
+    "@opentelemetry/sdk-trace-base": 2.0.1
+  peerDependencies:
+    "@opentelemetry/api": ">=1.0.0 <1.10.0"
+  checksum: a8f7b3e997fbf31fa813556c03663424b5dce265dd86994a7bbd65a61357398041c9b843eaebd84b37a0d1204fb26c18f763e0236ebea26a337e2965ac3ee642
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/sdk-trace-web@npm:2.0.1, @opentelemetry/sdk-trace-web@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@opentelemetry/sdk-trace-web@npm:2.0.1"
+  dependencies:
+    "@opentelemetry/core": 2.0.1
+    "@opentelemetry/sdk-trace-base": 2.0.1
+  peerDependencies:
+    "@opentelemetry/api": ">=1.0.0 <1.10.0"
+  checksum: 4cf53177d551e1389794561c3617a7e0d45f298e98f01b68ab6b814a4905a98eb9a1ed49e5f87d5c2b9a064e78b48ada47ca496575b03782ecb140e42e52a467
   languageName: node
   linkType: hard
 
@@ -4218,7 +4267,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/bip32@npm:^1.5.0, @scure/bip32@npm:^1.6.2, @scure/bip32@npm:^1.7.0":
+"@scure/bip32@npm:^1.6.2, @scure/bip32@npm:^1.7.0":
   version: 1.7.0
   resolution: "@scure/bip32@npm:1.7.0"
   dependencies:
@@ -4771,10 +4820,8 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.10.1
-    "@buildonspark/spark-sdk": ^0.2.2
-    "@cashu/cashu-ts": ^2.5.2
+    "@buildonspark/spark-sdk": ^0.2.6
     "@craftzdog/react-native-buffer": ^6.0.5
-    "@getalby/sdk": ^5.1.1
     "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
     "@noble/secp256k1": ^2.2.3
@@ -4805,6 +4852,7 @@ __metadata:
     "@types/react-test-renderer": ^19.0.0
     babel-plugin-module-resolver: ^5.0.2
     babel-plugin-transform-remove-console: ^6.9.4
+    bech32: ^2.0.0
     bip21: ^3.0.0
     bolt11: ^1.4.1
     boltz-core: ^3.0.0
@@ -4904,6 +4952,15 @@ __metadata:
     mime-types: ~2.1.34
     negotiator: 0.6.3
   checksum: 50c43d32e7b50285ebe84b613ee4a3aa426715a7d131b65b786e2ead0fd76b6b60091b9916d3478a75f11f162628a2139991b6c03ab3f1d9ab7c86075dc8eab4
+  languageName: node
+  linkType: hard
+
+"acorn-import-attributes@npm:^1.9.5":
+  version: 1.9.5
+  resolution: "acorn-import-attributes@npm:1.9.5"
+  peerDependencies:
+    acorn: ^8
+  checksum: 1c0c49b6a244503964ae46ae850baccf306e84caf99bc2010ed6103c69a423987b07b520a6c619f075d215388bd4923eccac995886a54309eda049ab78a4be95
   languageName: node
   linkType: hard
 
@@ -6229,7 +6286,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cjs-module-lexer@npm:^1.0.0":
+"cjs-module-lexer@npm:^1.0.0, cjs-module-lexer@npm:^1.2.2":
   version: 1.4.3
   resolution: "cjs-module-lexer@npm:1.4.3"
   checksum: 221a1661a9ff4944b472c85ac7cd5029b2f2dc7f6c5f4ecf887f261503611110b43a48acb6c07f8f04109c772d1637fdb20b31252bf27058f35aa97bf5ad8b12
@@ -9054,6 +9111,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"import-in-the-middle@npm:^1.8.1":
+  version: 1.14.2
+  resolution: "import-in-the-middle@npm:1.14.2"
+  dependencies:
+    acorn: ^8.14.0
+    acorn-import-attributes: ^1.9.5
+    cjs-module-lexer: ^1.2.2
+    module-details-from-path: ^1.0.3
+  checksum: afa323d909f252e35ba8caa10db7f9c6cac84aa7a1f885c933a1e93b0c736eff866fb43f9c8ee7516aa8bc507a7d4d4c7fac6ff74088252141a44cb153aeefaa
+  languageName: node
+  linkType: hard
+
 "import-local@npm:^3.0.2":
   version: 3.2.0
   resolution: "import-local@npm:3.2.0"
@@ -11176,6 +11245,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"module-details-from-path@npm:^1.0.3":
+  version: 1.0.4
+  resolution: "module-details-from-path@npm:1.0.4"
+  checksum: 2ebfada5358492f6ab496b70f70a1042f2ee7a4c79d29467f59ed6704f741fb4461d7cecb5082144ed39a05fec4d19e9ff38b731c76228151be97227240a05b2
+  languageName: node
+  linkType: hard
+
 "ms@npm:2.0.0":
   version: 2.0.0
   resolution: "ms@npm:2.0.0"
@@ -11399,26 +11475,6 @@ __metadata:
   version: 3.0.0
   resolution: "normalize-path@npm:3.0.0"
   checksum: 88eeb4da891e10b1318c4b2476b6e2ecbeb5ff97d946815ffea7794c31a89017c70d7f34b3c2ebf23ef4e9fc9fb99f7dffe36da22011b5b5c6ffa34f4873ec20
-  languageName: node
-  linkType: hard
-
-"nostr-tools@npm:2.15.0":
-  version: 2.15.0
-  resolution: "nostr-tools@npm:2.15.0"
-  dependencies:
-    "@noble/ciphers": ^0.5.1
-    "@noble/curves": 1.2.0
-    "@noble/hashes": 1.3.1
-    "@scure/base": 1.1.1
-    "@scure/bip32": 1.3.1
-    "@scure/bip39": 1.2.1
-    nostr-wasm: 0.1.0
-  peerDependencies:
-    typescript: ">=5.0.0"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 3f3775e9b8546c8d9c1739d0112a6132d0b6be87f4c5c2e0acb3507f91b134b7f2ba3004f374d3041adf1b6fea8474fe2523f872fa8bcc2399adddfe453fe0a6
   languageName: node
   linkType: hard
 
@@ -12958,6 +13014,17 @@ __metadata:
   version: 2.0.2
   resolution: "require-from-string@npm:2.0.2"
   checksum: a03ef6895445f33a4015300c426699bc66b2b044ba7b670aa238610381b56d3f07c686251740d575e22f4c87531ba662d06937508f0f3c0f1ddc04db3130560b
+  languageName: node
+  linkType: hard
+
+"require-in-the-middle@npm:^7.1.1":
+  version: 7.5.2
+  resolution: "require-in-the-middle@npm:7.5.2"
+  dependencies:
+    debug: ^4.3.5
+    module-details-from-path: ^1.0.3
+    resolve: ^1.22.8
+  checksum: 1b282e3b8bbd1e60b53ba409eade5d7a8d5e3cb09007c613679dc9c16b9c23d606c2dcb56e45e2acf9555143e81e5745317c974b7b817f05f3f1b53c7050355d
   languageName: node
   linkType: hard
 

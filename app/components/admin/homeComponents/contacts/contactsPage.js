@@ -55,7 +55,6 @@ export default function ContactsPage({navigation}) {
   } = useGlobalContacts();
   const {serverTimeOffset} = useServerTime();
   const getServerTime = useServerTimeOnly();
-
   const currentTime = getServerTime();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const dimensions = useWindowDimensions();
@@ -70,6 +69,7 @@ export default function ContactsPage({navigation}) {
   const contactInfoList = useProcessedContacts(
     decodedAddedContacts,
     contactsMessags,
+    cache,
   );
   const filteredContacts = useFilteredContacts(
     contactInfoList,

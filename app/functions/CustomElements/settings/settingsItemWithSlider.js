@@ -48,48 +48,46 @@ export default function SettingsItemWithSlider({
         ]}>
         <ThemeText
           CustomNumberOfLines={1}
-          styles={{
-            ...styles.settingsTitle,
-            flex: showInformationPopup ? 0 : 1,
-            marginRight: showInformationPopup ? 5 : 0,
-          }}
+          styles={styles.settingsTitle}
           content={settingsTitle}
         />
-        {showLoadingIcon && (
-          <FullLoadingScreen
-            containerStyles={{
-              ...styles.loadingContainer,
-              marginLeft: showInformationPopup ? 5 : 10,
-              marginRight: showInformationPopup ? 5 : 'auto',
-            }}
-            size="small"
-            showText={false}
-            loadingColor={theme ? textColor : COLORS.primary}
-          />
-        )}
-        {showInformationPopup && (
-          <TouchableOpacity
-            onPress={() => {
-              navigate.navigate('InformationPopup', {
-                textContent: informationPopupText,
-                buttonText: informationPopupBTNText,
-              });
-            }}
-            style={styles.imageContainer}>
-            <ThemeImage
-              styles={styles.themeImage}
-              lightModeIcon={ICONS.aboutIcon}
-              darkModeIcon={ICONS.aboutIcon}
-              lightsOutIcon={ICONS.aboutIconWhite}
+        <View style={styles.rightItemContainer}>
+          {showLoadingIcon && (
+            <FullLoadingScreen
+              containerStyles={{
+                ...styles.loadingContainer,
+                marginLeft: showInformationPopup ? 5 : 10,
+                marginRight: showInformationPopup ? 5 : 'auto',
+              }}
+              size="small"
+              showText={false}
+              loadingColor={theme ? textColor : COLORS.primary}
             />
-          </TouchableOpacity>
-        )}
+          )}
+          {showInformationPopup && (
+            <TouchableOpacity
+              onPress={() => {
+                navigate.navigate('InformationPopup', {
+                  textContent: informationPopupText,
+                  buttonText: informationPopupBTNText,
+                });
+              }}
+              style={styles.imageContainer}>
+              <ThemeImage
+                styles={styles.themeImage}
+                lightModeIcon={ICONS.aboutIcon}
+                darkModeIcon={ICONS.aboutIcon}
+                lightsOutIcon={ICONS.aboutIconWhite}
+              />
+            </TouchableOpacity>
+          )}
 
-        <CustomToggleSwitch
-          toggleSwitchFunction={handleSubmit}
-          page={switchPageName}
-          stateValue={toggleSwitchStateValue}
-        />
+          <CustomToggleSwitch
+            toggleSwitchFunction={handleSubmit}
+            page={switchPageName}
+            stateValue={toggleSwitchStateValue}
+          />
+        </View>
       </View>
       {showDescription && (
         <View style={styles.textContainer}>
@@ -123,8 +121,15 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   settingsTitle: {
-    flex: 1,
+    flexShrink: 1,
     includeFontPadding: false,
+  },
+  rightItemContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexGrow: 1,
+    marginLeft: 5,
+    justifyContent: 'flex-end',
   },
   themeText: {
     includeFontPadding: false,
@@ -138,7 +143,6 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     alignItems: 'left',
-
     flex: 0,
   },
 });

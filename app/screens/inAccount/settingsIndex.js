@@ -119,13 +119,13 @@ const EXPIRIMENTALFEATURES = [
   },
 ];
 const ADVANCEDOPTIONS = [
-  // {
-  //   for: 'general',
-  //   name: 'Noster Connect',
-  //   svgIcon: true,
-  //   svgName: 'linkIcon',
-  //   arrowIcon: ICONS.leftCheveronIcon,
-  // },
+  {
+    for: 'general',
+    name: 'Nostr',
+    svgIcon: true,
+    svgName: 'linkIcon',
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
   {
     for: 'Closing Account',
     name: 'Blitz Fee Details',

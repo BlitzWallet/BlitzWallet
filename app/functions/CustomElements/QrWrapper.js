@@ -10,6 +10,16 @@ import customUUID from '../customUUID';
 import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 
+const createTransparentLogo = size => {
+  // Create SVG string for a transparent circle/square of the specified size
+  const svgString = `
+    <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="orange"/>
+    </svg>
+  `;
+  return `data:image/svg+xml;base64,${btoa(svgString)}`;
+};
+
 export default function QrCodeWrapper({
   QRData = 'No data available',
   outerContainerStyle,
@@ -22,7 +32,7 @@ export default function QrCodeWrapper({
   const {cache} = useImageCache();
   const {darkModeType, theme} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
-  const {backgroundOffset} = GetThemeColors();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
   const imageData = cache[masterInfoObject.uuid];
   const image = cache[masterInfoObject.uuid]?.localUri;
 
@@ -34,7 +44,8 @@ export default function QrCodeWrapper({
     <View
       style={{
         ...styles.qrContainer,
-        backgroundColor: backgroundOffset,
+        backgroundColor:
+          theme && darkModeType ? backgroundColor : backgroundOffset,
         ...outerContainerStyle,
       }}>
       <View style={{...styles.qrInnerContianer, ...innerContainerStyle}}>
@@ -44,7 +55,7 @@ export default function QrCodeWrapper({
           value={QRData}
           color={COLORS.lightModeText}
           backgroundColor={COLORS.darkModeText}
-          logo={ICONS.logoWithPadding} //placeholder
+          logo={!!image ? createTransparentLogo(70) : ICONS.logoWithPadding} //placeholder
           logoSize={!!image ? 70 : 50}
           logoMargin={logoMargin}
           logoBorderRadius={logoBorderRadius}
@@ -57,7 +68,8 @@ export default function QrCodeWrapper({
           height: !!image ? 65 : 50,
           position: 'absolute',
           overflow: 'hidden',
-          borderRadius: '50%',
+          borderRadius: 50,
+          zIndex: 10,
         }}>
         <ContactProfileImage
           updated={imageData?.updated}

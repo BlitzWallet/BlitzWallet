@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 import {COLORS, ICONS, SIZES} from '../../app/constants';
-import {useMemo} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {CENTER} from '../../app/constants/styles';
 import {ThemeText} from '../../app/functions/CustomElements';
 import {useGlobalContacts} from '../../context-store/globalContacts';
@@ -208,8 +208,7 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     width: '100%',
-    borderTopRightRadius: 15,
-    borderTopLeftRadius: 15,
+
     zIndex: 1,
   },
   tabsInnerContainer: {

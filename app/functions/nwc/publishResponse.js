@@ -1,7 +1,6 @@
-import {SimplePool} from 'nostr-tools';
+import {NOSTR_RELAY_URL} from '../../constants';
 
-// Configuration
-const RELAY_TIMEOUT = 10000; // 5 seconds timeout per message
+const ABLY_PUBLISH_URL = 'https://api.getalby.com/nwc/publish';
 
 /**
  * Publishes an array of messages to a single relay
@@ -21,102 +20,36 @@ export async function publishToSingleRelay(events, relayUrl) {
 
   console.log(`📝 Publishing ${events.length} events to ${relayUrl}`);
 
-  const pool = new SimplePool();
-  const results = {
-    successful: 0,
-    total: events.length,
-    failed: 0,
-    details: [],
-  };
-
   try {
     // Create publish promises for all events
-    const publishPromises = events.map((event, index) =>
-      publishSingleEvent(pool, event, relayUrl, index),
-    );
-
-    // Wait for all events to be published
-    const publishResults = await Promise.allSettled(publishPromises);
-
-    // Process results
-    publishResults.forEach((result, index) => {
-      if (result.status === 'fulfilled') {
-        results.successful++;
-        results.details.push({
-          eventIndex: index,
-          success: true,
+    const publishPromises = events.map(async (event, index) => {
+      try {
+        const response = await fetch(ABLY_PUBLISH_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            relayUrl: NOSTR_RELAY_URL,
+            event,
+          }),
         });
-      } else {
-        results.failed++;
-        const error = result.reason || result.value?.error || 'Unknown error';
-        results.details.push({
-          eventIndex: index,
-          success: false,
-          error: error,
-        });
-        console.error(`❌ Event ${index + 1}: Failed -`, error);
+
+        if (!response.ok) {
+          throw new Error(`HTTPS ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.error(`Fetch failed for event ${index}:`, error);
+        throw error;
       }
     });
 
-    console.log(
-      `📊 Results: ${results.successful}/${results.total} events published successfully`,
-    );
+    // Wait for all events to be published
+    await Promise.allSettled(publishPromises);
   } catch (error) {
     console.error('Error during bulk publishing:', error);
-    results.failed = results.total;
-  } finally {
-    // Always close pool connections
-    try {
-      pool.close([relayUrl]);
-    } catch (error) {
-      console.warn('Error closing pool:', error);
-    }
-  }
-
-  return results;
-}
-
-/**
- * Publishes a single event to a relay with timeout
- * @param {SimplePool} pool - Nostr pool instance
- * @param {Object} event - Nostr event to publish
- * @param {string} relayUrl - Relay URL
- * @param {number} index - Event index for logging
- * @returns {Object} Result object with success status
- */
-async function publishSingleEvent(pool, event, relayUrl, index) {
-  try {
-    // pool.publish returns array of promises (one per relay)
-    const publishPromises = pool.publish([relayUrl], event);
-
-    // Wrap the promise with timeout
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(
-        () => reject(new Error(`Timeout publishing to ${relayUrl}`)),
-        RELAY_TIMEOUT,
-      ),
-    );
-
-    // Race between publish and timeout
-    await Promise.race([publishPromises[0], timeoutPromise]);
-
-    return {
-      success: true,
-      eventId: event.id,
-      relay: relayUrl,
-      index: index,
-    };
-  } catch (error) {
-    console.error(
-      `❌ Error publishing event ${event.id} to ${relayUrl}:`,
-      error.message,
-    );
-    return {
-      success: false,
-      error: error.message,
-      eventId: event.id,
-      relay: relayUrl,
-      index: index,
-    };
   }
 }
