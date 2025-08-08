@@ -32,7 +32,9 @@ export default function ProfileImageContainer({
         <Image
           source={
             useLogo
-              ? ICONS.logoWithPadding
+              ? darkModeType && theme
+                ? ICONS.logoIconWhite
+                : ICONS.logoIcon
               : imageURL
               ? {
                   uri: imageURL,

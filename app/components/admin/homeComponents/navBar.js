@@ -11,7 +11,7 @@ import {ThemeText} from '../../../functions/CustomElements';
 export const NavBar = memo(function NavBar({theme, darkModeType, toggleTheme}) {
   console.log('NAV BAR PAGE');
   const navigate = useNavigation();
-  const {isUsingAltAccount, selectedAltAccount, custodyAccounts} =
+  const {isUsingAltAccount, selectedAltAccount, custodyAccounts, isUsingNostr} =
     useActiveCustodyAccount();
 
   console.log(selectedAltAccount, custodyAccounts);
@@ -47,11 +47,14 @@ export const NavBar = memo(function NavBar({theme, darkModeType, toggleTheme}) {
         }}>
         <ThemeText
           styles={{
+            fontWeight: '500',
             color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
           }}
           content={
             isUsingAltAccount
               ? selectedAltAccount[0]?.name?.[0]?.toUpperCase()
+              : isUsingNostr
+              ? 'N'
               : 'M'
           }
         />
@@ -100,7 +103,7 @@ const styles = StyleSheet.create({
     height: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderRadius: 15,
   },
 });

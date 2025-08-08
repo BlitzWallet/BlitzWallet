@@ -12,28 +12,51 @@ import {
   setLocalStorageItem,
   storeData,
 } from '../app/functions';
-import {CUSTODY_ACCOUNTS_STORAGE_KEY} from '../app/constants';
+import {
+  CUSTODY_ACCOUNTS_STORAGE_KEY,
+  NWC_SECURE_STORE_MNEMOINC,
+} from '../app/constants';
 import {useKeysContext} from './keys';
 import {
   decryptMnemonic,
   encryptMnemonic,
 } from '../app/functions/handleMnemonic';
+import {useGlobalContextProvider} from './context';
 
 // Create a context for the WebView ref
 const ActiveCustodyAccount = createContext(null);
 
 export const ActiveCustodyAccountProvider = ({children}) => {
+  const {masterInfoObject} = useGlobalContextProvider();
   const [custodyAccounts, setCustodyAccounts] = useState([]);
+  const [isUsingNostr, setIsUsingNostr] = useState(false);
   const {accountMnemoinc} = useKeysContext();
-
+  const [nostrSeed, setNostrSeed] = useState('');
   const selectedAltAccount = custodyAccounts.filter(item => item.isActive);
   const isUsingAltAccount = !!selectedAltAccount.length;
+  const enabledNWC = masterInfoObject?.NWC?.accounts
+    ? !!Object.keys(masterInfoObject?.NWC?.accounts)?.length
+    : 0;
   console.log(
     'decoded account list',
     custodyAccounts,
     selectedAltAccount,
     isUsingAltAccount,
   );
+
+  useEffect(() => {
+    if (nostrSeed.length || !enabledNWC) return;
+    async function getNostrSeed() {
+      const NWCMnemoinc = (await retrieveData(NWC_SECURE_STORE_MNEMOINC)).value;
+      if (!NWCMnemoinc) return;
+      setNostrSeed(NWCMnemoinc);
+    }
+    getNostrSeed();
+  }, [nostrSeed, enabledNWC]);
+
+  const toggleIsUsingNostr = value => {
+    setIsUsingNostr(value);
+  };
   useEffect(() => {
     async function initializeAccouts() {
       try {
@@ -126,11 +149,12 @@ export const ActiveCustodyAccountProvider = ({children}) => {
   };
   const updateAccountCacheOnly = async account => {
     try {
+      if (!account) throw new Error('No account selected');
       let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
       let newAccounts = accountInformation.map(accounts => {
         if (account.uuid === accounts.uuid) {
           return {...accounts, ...account};
-        } else return accounts;
+        } else return {...accounts, isActive: false};
       });
 
       setCustodyAccounts(newAccounts);
@@ -142,9 +166,20 @@ export const ActiveCustodyAccountProvider = ({children}) => {
   };
 
   const currentWalletMnemoinc = useMemo(() => {
-    if (isUsingAltAccount) return selectedAltAccount[0].mnemoinc;
-    else return accountMnemoinc;
-  }, [accountMnemoinc, selectedAltAccount, isUsingAltAccount]);
+    if (isUsingAltAccount) {
+      return selectedAltAccount[0].mnemoinc;
+    } else if (isUsingNostr) {
+      return nostrSeed;
+    } else {
+      return accountMnemoinc;
+    }
+  }, [
+    accountMnemoinc,
+    selectedAltAccount,
+    isUsingAltAccount,
+    isUsingNostr,
+    nostrSeed,
+  ]);
 
   return (
     <ActiveCustodyAccount.Provider
@@ -157,6 +192,9 @@ export const ActiveCustodyAccountProvider = ({children}) => {
         selectedAltAccount,
         isUsingAltAccount,
         currentWalletMnemoinc,
+        toggleIsUsingNostr,
+        isUsingNostr,
+        nostrSeed,
       }}>
       {children}
     </ActiveCustodyAccount.Provider>

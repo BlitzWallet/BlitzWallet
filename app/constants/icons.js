@@ -3,6 +3,7 @@ import editIconLight from '../assets/icons/editLight.png';
 import xSmallIcon from '../assets/icons/x-small.png';
 import smallArrowLeft from '../assets/icons/arrow-small-left.png';
 import logoIcon from '../assets/icon.png';
+import logoIconWhite from '../assets/iconWhite.png';
 import leftCheveronIcon from '../assets/icons/left-chevron.png';
 import walletIcon from '../assets/icons/wallet.png';
 import walletBlueIcon from '../assets/icons/wallet_blue.png';
@@ -126,6 +127,7 @@ export default {
   xSmallIcon,
   smallArrowLeft,
   logoIcon,
+  logoIconWhite,
   leftCheveronIcon,
   walletIcon,
   settingsIcon,

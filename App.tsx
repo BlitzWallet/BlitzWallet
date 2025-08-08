@@ -117,9 +117,9 @@ function App(): JSX.Element {
           <KeyboardProvider>
             <ToastProvider>
               <KeysContextProvider>
-                <ActiveCustodyAccountProvider>
-                  <GlobalContactsList>
-                    <GlobalContextProvider>
+                <GlobalContactsList>
+                  <GlobalContextProvider>
+                    <ActiveCustodyAccountProvider>
                       <AppStatusProvider>
                         <GlobalThemeProvider>
                           {/* <GlobaleCashVariables> */}
@@ -159,9 +159,9 @@ function App(): JSX.Element {
                           {/* </GlobaleCashVariables> */}
                         </GlobalThemeProvider>
                       </AppStatusProvider>
-                    </GlobalContextProvider>
-                  </GlobalContactsList>
-                </ActiveCustodyAccountProvider>
+                    </ActiveCustodyAccountProvider>
+                  </GlobalContextProvider>
+                </GlobalContactsList>
               </KeysContextProvider>
             </ToastProvider>
           </KeyboardProvider>

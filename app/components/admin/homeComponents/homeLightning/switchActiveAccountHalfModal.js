@@ -8,7 +8,7 @@ import {
 import {ThemeText} from '../../../../functions/CustomElements';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import {COLORS, INSET_WINDOW_WIDTH, SIZES} from '../../../../constants/theme';
-import {CENTER, ICONS} from '../../../../constants';
+import {CENTER} from '../../../../constants';
 import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
 import {useMemo, useState} from 'react';
 import ProfileImageContainer from '../../../../functions/CustomElements/profileImageContianer';
@@ -21,6 +21,7 @@ import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
 import {useKeysContext} from '../../../../../context-store/keys';
+import {useGlobalContextProvider} from '../../../../../context-store/context';
 
 export default function SwitchCustodyAccountHalfModal() {
   const {
@@ -28,20 +29,32 @@ export default function SwitchCustodyAccountHalfModal() {
     selectedAltAccount,
     custodyAccounts,
     updateAccountCacheOnly,
+    currentWalletMnemoinc,
+    nostrSeed,
+    toggleIsUsingNostr,
+    isUsingNostr,
   } = useActiveCustodyAccount();
+  const {masterInfoObject} = useGlobalContextProvider();
   const {accountMnemoinc} = useKeysContext();
   const {setSparkInformation} = useSparkWallet();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
 
+  const enabledNWC = !!Object.keys(masterInfoObject.NWC.accounts).length;
+
   const navigate = useNavigation();
 
-  const accountsList = [
-    {name: 'Main Wallet', mnemoinc: accountMnemoinc},
-    ...custodyAccounts,
-  ].map(account => {
+  const accounts = enabledNWC
+    ? [
+        {name: 'Main Wallet', mnemoinc: accountMnemoinc},
+        {name: 'NWC', mnemoinc: nostrSeed},
+        ...custodyAccounts,
+      ]
+    : [{name: 'Main Wallet', mnemoinc: accountMnemoinc}, ...custodyAccounts];
+
+  const accountsList = accounts.map((account, index) => {
     const [isLoading, setIsLoading] = useState(false);
-    console.log(account);
+
     return (
       <View
         style={{
@@ -52,7 +65,7 @@ export default function SwitchCustodyAccountHalfModal() {
         key={sha256Hash(account.mnemoinc)}>
         <ProfileImageContainer
           activeOpacity={1}
-          useLogo={account.name === 'Main Wallet'}
+          useLogo={account.name === 'Main Wallet' || account.name === 'NWC'}
           imageURL={account.imgURL}
           showSelectPhotoIcon={false}
           imageStyles={{
@@ -77,13 +90,8 @@ export default function SwitchCustodyAccountHalfModal() {
 
         <CustomButton
           actionFunction={async () => {
-            if (
-              isUsingAltAccount &&
-              selectedAltAccount[0]?.name === account.name
-            )
-              return;
+            if (currentWalletMnemoinc === account.mnemoinc) return;
 
-            if (!isUsingAltAccount && account.name === 'Main Wallet') return;
             setIsLoading(true);
             await new Promise(res => setTimeout(res, 500));
             const initResponse = await initWallet({
@@ -97,18 +105,26 @@ export default function SwitchCustodyAccountHalfModal() {
             }
 
             if (account.name === 'Main Wallet') {
-              updateAccountCacheOnly({
+              await updateAccountCacheOnly({
                 ...selectedAltAccount[0],
                 isActive: false,
               });
-            } else await updateAccountCacheOnly({...account, isActive: true});
+              toggleIsUsingNostr(false);
+            } else if (account.name === 'NWC') {
+              await updateAccountCacheOnly({
+                ...selectedAltAccount[0],
+                isActive: false,
+              });
+              toggleIsUsingNostr(true);
+            } else {
+              await updateAccountCacheOnly({...account, isActive: true});
+              toggleIsUsingNostr(false);
+            }
             setIsLoading(false);
           }}
           buttonStyles={{
             backgroundColor:
-              (isUsingAltAccount &&
-                selectedAltAccount[0]?.name === account.name) ||
-              (!isUsingAltAccount && account.name === 'Main Wallet')
+              currentWalletMnemoinc === account.mnemoinc
                 ? theme && darkModeType
                   ? backgroundOffset
                   : COLORS.primary
@@ -116,20 +132,14 @@ export default function SwitchCustodyAccountHalfModal() {
           }}
           textStyles={{
             color:
-              (isUsingAltAccount &&
-                selectedAltAccount[0]?.name === account.name) ||
-              (!isUsingAltAccount && account.name === 'Main Wallet')
+              currentWalletMnemoinc === account.mnemoinc
                 ? theme && darkModeType
                   ? COLORS.darkModeText
                   : COLORS.darkModeText
                 : COLORS.lightModeText,
           }}
           textContent={
-            (isUsingAltAccount &&
-              selectedAltAccount[0]?.name === account.name) ||
-            (!isUsingAltAccount && account.name === 'Main Wallet')
-              ? 'Active'
-              : 'Activate'
+            currentWalletMnemoinc === account.mnemoinc ? 'Active' : 'Select'
           }
           useLoading={isLoading}
         />
@@ -145,7 +155,11 @@ export default function SwitchCustodyAccountHalfModal() {
         <ThemeText
           styles={{textAlign: 'center', marginTop: 5}}
           content={
-            !isUsingAltAccount ? 'Main Wallet' : selectedAltAccount[0]?.name
+            !isUsingAltAccount
+              ? isUsingNostr
+                ? 'NWC'
+                : 'Main Wallet'
+              : selectedAltAccount[0]?.name
           }
         />
         <ThemeText
@@ -180,7 +194,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginVertical: 10,
+    marginVertical: 5,
   },
 
   assetContainer: {
