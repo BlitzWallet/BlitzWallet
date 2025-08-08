@@ -90,13 +90,23 @@ export const getAllSparkTransactions = async (limit = null, accountId) => {
   }
 };
 
-export const getAllPendingSparkPayments = async () => {
+export const getAllPendingSparkPayments = async accountId => {
   try {
-    const result = await sqlLiteDB.getAllAsync(
-      `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE paymentStatus = ?`,
-      ['pending'],
-    );
-    return result;
+    let query = `
+      SELECT * 
+      FROM ${SPARK_TRANSACTIONS_TABLE_NAME} 
+      WHERE paymentStatus = ?
+    `;
+    const params = ['pending'];
+
+    if (accountId !== undefined && accountId !== null && accountId !== '') {
+      query += ` AND accountId = ?`;
+      params.push(String(accountId));
+    }
+
+    console.log(query);
+    const result = await sqlLiteDB.getAllAsync(query.trim(), params);
+    return result || [];
   } catch (error) {
     console.error('Error fetching pending spark payments:', error);
     return [];

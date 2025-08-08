@@ -379,7 +379,10 @@ const SparkWalletProvider = ({children}) => {
         identityPubKey: sparkInformation.identityPubKey,
       });
 
-      await updateSparkTxStatus(currentWalletMnemoinc);
+      await updateSparkTxStatus(
+        currentWalletMnemoinc,
+        sparkInformation.identityPubKey,
+      );
 
       if (updatePendingPaymentsIntervalRef.current) {
         console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
@@ -387,7 +390,10 @@ const SparkWalletProvider = ({children}) => {
       }
       updatePendingPaymentsIntervalRef.current = setInterval(async () => {
         try {
-          await updateSparkTxStatus(currentWalletMnemoinc);
+          await updateSparkTxStatus(
+            currentWalletMnemoinc,
+            sparkInformation.identityPubKey,
+          );
           await getLRC20Transactions({
             ownerPublicKeys: [sparkInformation.identityPubKey],
             sparkAddress: sparkInformation.sparkAddress,
