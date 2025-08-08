@@ -19,7 +19,10 @@ export default function NostrHome() {
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
         }}>
         <View style={styles.itemTextContainer}>
-          <ThemeText styles={styles.itemHeader} content={'Nip5 Verification'} />
+          <ThemeText
+            styles={{...styles.itemHeader, marginBottom: 10}}
+            content={'Nip5 Verification'}
+          />
           <ThemeText
             styles={styles.itemDescription}
             content={'Quickly verify your Nostr identity using Blitz.'}
