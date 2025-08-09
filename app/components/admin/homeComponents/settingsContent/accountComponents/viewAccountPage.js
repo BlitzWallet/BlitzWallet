@@ -32,12 +32,8 @@ export default function ViewCustodyAccountPage({route}) {
   const isInitialRender = useRef(true);
   const dimentions = useWindowDimensions();
   const [showSeed, setShowSeed] = useState(false);
-  const {custodyAccounts} = useActiveCustodyAccount();
-  const {account: passedAccount} = route.params;
+  const {account} = route.params;
   const {extraData} = route.params;
-  const account = custodyAccounts.find(
-    savedAccount => savedAccount.uuid === passedAccount.uuid,
-  );
   const mnemoinc = account.mnemoinc;
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const {t} = useTranslation();
