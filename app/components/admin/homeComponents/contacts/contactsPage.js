@@ -1,4 +1,4 @@
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {
   ScrollView,
   StyleSheet,
@@ -241,6 +241,15 @@ export default function ContactsPage({navigation}) {
       });
     }
   }, [isConnectedToTheInternet, didEditProfile, navigate, navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        //clears text input when user leavs page
+        setInputText('');
+      };
+    }, []),
+  );
 
   useHandleBackPressNew(handleBackPressFunction);
 
