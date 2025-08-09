@@ -4,6 +4,7 @@ import {
   BTN,
   CENTER,
   COLORS,
+  CONTENT_KEYBOARD_OFFSET,
   FONT,
   ICONS,
   NOSTR_RELAY_URL,
@@ -34,6 +35,7 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 export default function NosterWalletConnect() {
   const navigate = useNavigation();
   const {masterInfoObject, toggleNWCInformation} = useGlobalContextProvider();
+
   const {theme, darkModeType} = useGlobalThemeContext();
   const {getCurrentPushNotifiicationPermissions} = usePushNotification();
   const [currnetPushState, setCurrentPushState] = useState(null);
@@ -195,28 +197,20 @@ export default function NosterWalletConnect() {
             />
           )}
         </ScrollView>
-        <View
-          style={{
-            width: '100%',
-            columnGap: 10,
-            rowGap: 10,
-            flexWrap: 'wrap',
-            flexDirection: 'row',
-          }}>
+        <View style={{...CENTER, paddingBottom: CONTENT_KEYBOARD_OFFSET}}>
           <CustomButton
             actionFunction={() => {
               navigate.navigate('CreateNostrConnectAccount');
             }}
-            buttonStyles={{flexGrow: 1, maxWidth: '48%'}}
             textContent={'Add Account'}
           />
-          <CustomButton
+          {/* <CustomButton
             actionFunction={() => {
               navigate.navigate('NWCWallet');
             }}
             buttonStyles={{flexGrow: 1, maxWidth: '48%'}}
             textContent={'View Wallet'}
-          />
+          /> */}
         </View>
       </CustomKeyboardAvoidingView>
     </CustomPageWrapper>

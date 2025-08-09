@@ -18,70 +18,70 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import ProfileImageContainer from '../../../../functions/CustomElements/profileImageContianer';
 import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
+import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import {useKeysContext} from '../../../../../context-store/keys';
+import {useGlobalContextProvider} from '../../../../../context-store/context';
+import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import {initWallet} from '../../../../functions/initiateWalletConnection';
+import {useSparkWallet} from '../../../../../context-store/sparkContext';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {custodyAccounts, removeAccount} = useActiveCustodyAccount();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {
+    isUsingAltAccount,
+    selectedAltAccount,
+    custodyAccounts,
+    updateAccountCacheOnly,
+    currentWalletMnemoinc,
+    nostrSeed,
+    toggleIsUsingNostr,
+    isUsingNostr,
+  } = useActiveCustodyAccount();
+  const {setSparkInformation} = useSparkWallet();
+  const {accountMnemoinc} = useKeysContext();
+  const {backgroundOffset, backgroundColor, textColor} = GetThemeColors();
+  const [searchInput, setSearchInput] = useState('');
+  const {masterInfoObject} = useGlobalContextProvider();
+  const [isLoading, setIsLoading] = useState({
+    accountBeingLoaded: '',
+    isLoading: '',
+  });
 
-  if (!custodyAccounts.length) {
-    return (
-      <GlobalThemeView useStandardWidth={true}>
-        <CustomSettingsTopBar
-          label={'Accounts'}
-          showLeftImage={true}
-          leftImageBlue={ICONS.xSmallIcon}
-          LeftImageDarkMode={ICONS.xSmallIconWhite}
-          leftImageStyles={{transform: [{rotate: '45deg'}]}}
-          leftImageFunction={() => navigate.navigate('CreateCustodyAccount')}
-        />
-        <ScrollView
-          contentContainerStyle={{width: INSET_WINDOW_WIDTH, ...CENTER}}
-          showsVerticalScrollIndicator={false}>
-          <ThemeText styles={styles.sectionHeader} content={'About'} />
+  const enabledNWC =
+    masterInfoObject.NWC.accounts &&
+    !!Object.keys(masterInfoObject.NWC.accounts).length;
 
-          <ThemeText
-            styles={{textAlign: 'center'}}
-            content={
-              'The Accounts section lets you create separate wallets within Blitz. It’s perfect for saving bitcoin for someone else so you can send funds over time and hand them the keys when they’re ready.'
-            }
-          />
-          <ThemeText styles={styles.sectionHeader} content={'Good To Know'} />
-          <ThemeText
-            styles={{textAlign: 'center'}}
-            content={
-              'Blitz is a hot wallet, so keys are online and less secure than hardware storage. For large amounts, use a hardware wallet. If you create an account for someone else, you’ll still know the keys, make sure they know that.'
-            }
-          />
-          <CustomButton
-            buttonStyles={{marginTop: 30, ...CENTER}}
-            actionFunction={() => navigate.navigate('CreateCustodyAccount')}
-            textContent={'Create Account'}
-          />
-        </ScrollView>
-      </GlobalThemeView>
-    );
-  }
+  const accounts = enabledNWC
+    ? [
+        {name: 'Main Wallet', mnemoinc: accountMnemoinc},
+        {name: 'NWC', mnemoinc: nostrSeed},
+        ...custodyAccounts,
+      ]
+    : [{name: 'Main Wallet', mnemoinc: accountMnemoinc}, ...custodyAccounts];
 
-  const accountElements = custodyAccounts.map((account, index) => {
-    return (
-      <TouchableOpacity
-        activeOpacity={1}
-        key={index}
-        onLongPress={() => {
-          navigate.navigate('ConfirmActionPage', {
-            confirmMessage: 'Are you sure you want to delete this account?',
-            confirmFunction: () => removeAccount(account),
-            cancelFunction: () => console.log('CANCELED'),
-          });
-        }}>
-        <View
-          style={{
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            ...styles.accountRow,
+  const accountElements = accounts
+    .filter(account =>
+      account.name?.toLowerCase()?.startsWith(searchInput.toLowerCase()),
+    )
+    .map((account, index) => {
+      return (
+        <TouchableOpacity
+          activeOpacity={1}
+          key={index}
+          onLongPress={() => {
+            navigate.navigate('ConfirmActionPage', {
+              confirmMessage: 'Are you sure you want to delete this account?',
+              confirmFunction: () => removeAccount(account),
+              cancelFunction: () => console.log('CANCELED'),
+            });
           }}>
-          <ProfileImageContainer
+          <View
+            style={{
+              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+              ...styles.accountRow,
+            }}>
+            {/* <ProfileImageContainer
             activeOpacity={1}
             imageURL={account.imgURL}
             showSelectPhotoIcon={false}
@@ -93,52 +93,125 @@ export default function CreateCustodyAccounts() {
               backgroundColor: backgroundColor,
             }}
             containerStyles={{marginRight: 10}}
-          />
-          <View style={{flex: 1}}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={{fontSize: SIZES.large}}
-              content={account.name}
-            />
-            <ThemeText
+          /> */}
+            <View style={{flex: 1}}>
+              <ThemeText CustomNumberOfLines={1} content={account.name} />
+              {/* <ThemeText
               CustomNumberOfLines={1}
               content={formatDateToDayMonthYear(account.dateCreated)}
+            /> */}
+            </View>
+            <CustomButton
+              actionFunction={async () => {
+                if (currentWalletMnemoinc === account.mnemoinc) return;
+
+                setIsLoading({
+                  accountBeingLoaded: account.mnemoinc,
+                  isLoading: true,
+                });
+                await new Promise(res => setTimeout(res, 500));
+                const initResponse = await initWallet({
+                  setSparkInformation,
+                  mnemonic: account.mnemoinc,
+                });
+                if (!initResponse.didWork) {
+                  navigate.navigate('ErrorScreen', {
+                    errorMessage: initResponse.error,
+                  });
+                }
+
+                if (account.name === 'Main Wallet') {
+                  await updateAccountCacheOnly({
+                    ...selectedAltAccount[0],
+                    isActive: false,
+                  });
+                  toggleIsUsingNostr(false);
+                } else if (account.name === 'NWC') {
+                  await updateAccountCacheOnly({
+                    ...selectedAltAccount[0],
+                    isActive: false,
+                  });
+                  toggleIsUsingNostr(true);
+                } else {
+                  await updateAccountCacheOnly({...account, isActive: true});
+                  toggleIsUsingNostr(false);
+                }
+                setIsLoading({
+                  accountBeingLoaded: account.mnemoinc,
+                  isLoading: false,
+                });
+              }}
+              buttonStyles={{
+                backgroundColor:
+                  currentWalletMnemoinc === account.mnemoinc
+                    ? theme && darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.primary
+                    : backgroundColor,
+              }}
+              textStyles={{
+                color:
+                  currentWalletMnemoinc === account.mnemoinc
+                    ? theme && darkModeType
+                      ? COLORS.lightModeText
+                      : COLORS.darkModeText
+                    : textColor,
+              }}
+              textContent={
+                currentWalletMnemoinc === account.mnemoinc ? 'Active' : 'Select'
+              }
+              useLoading={
+                isLoading.accountBeingLoaded === account.mnemoinc &&
+                isLoading.isLoading
+              }
             />
+            {account.name !== 'Main Wallet' && account.name !== 'NWC' && (
+              <TouchableOpacity
+                style={[
+                  styles.viewAccountArrowContainer,
+                  {backgroundColor: backgroundColor},
+                ]}
+                onPress={() => {
+                  navigate.navigate('ViewCustodyAccount', {
+                    account,
+                  });
+                }}>
+                <ThemeImage
+                  styles={styles.arrowIcon}
+                  lightModeIcon={ICONS.keyIcon}
+                  darkModeIcon={ICONS.keyIcon}
+                  lightsOutIcon={ICONS.keyIconWhite}
+                />
+              </TouchableOpacity>
+            )}
           </View>
-          <CustomButton
-            actionFunction={() =>
-              navigate.navigate('ViewCustodyAccount', {
-                account,
-              })
-            }
-            textContent={'View'}
-            buttonStyles={{
-              backgroundColor: backgroundColor,
-              width: 'auto',
-            }}
-            textStyles={{
-              color: theme ? COLORS.darkModeText : COLORS.lightModeText,
-            }}
-          />
-        </View>
-      </TouchableOpacity>
-    );
-  });
+        </TouchableOpacity>
+      );
+    });
 
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         label={'Accounts'}
-        shouldDismissKeyboard={true}
         showLeftImage={true}
         leftImageBlue={ICONS.xSmallIcon}
         LeftImageDarkMode={ICONS.xSmallIconWhite}
         leftImageStyles={{transform: [{rotate: '45deg'}]}}
         leftImageFunction={() => navigate.navigate('CreateCustodyAccount')}
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        stickyHeaderIndices={[0]}
+        contentContainerStyle={{width: INSET_WINDOW_WIDTH, ...CENTER}}
+        showsVerticalScrollIndicator={false}>
+        <CustomSearchInput
+          containerStyles={{paddingTop: 10, marginBottom: 10, backgroundColor}}
+          inputText={searchInput}
+          setInputText={setSearchInput}
+          placeholderText="Account name"
+        />
         {accountElements}
       </ScrollView>
+      <CustomButton buttonStyles={{...CENTER}} textContent={'Swap Funds'} />
     </GlobalThemeView>
   );
 }
@@ -151,13 +224,26 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   accountRow: {
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
+    width: '100%',
     padding: 10,
     borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginVertical: 10,
+    marginVertical: 5,
+  },
+  viewAccountArrowContainer: {
+    backgroundColor: 'red',
+    width: 45,
+    height: 45,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 10,
+  },
+  arrowIcon: {
+    width: 25,
+    height: 25,
+    transform: [{rotate: '180deg'}],
   },
 });

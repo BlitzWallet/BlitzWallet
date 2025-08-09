@@ -32,12 +32,13 @@ export const restoreSparkTxState = async (
   savedTxs,
   isSendingPayment,
   mnemonic,
+  accountId,
 ) => {
   const restoredTxs = [];
 
   try {
     const savedIds = new Set(savedTxs?.map(tx => tx.sparkID) || []);
-    const pendingTxs = await getAllPendingSparkPayments();
+    const pendingTxs = await getAllPendingSparkPayments(accountId);
 
     const txsByType = {
       lightning: pendingTxs.filter(tx => tx.paymentType === 'lightning'),
@@ -143,6 +144,7 @@ export async function fullRestoreSparkState({
       savedTxs,
       isSendingPayment,
       mnemonic,
+      identityPubKey,
     );
     const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
 
@@ -224,7 +226,7 @@ export const findSignleTxFromHistory = async (txid, BATCH_SIZE, mnemonic) => {
   }
 };
 let isUpdatingSparkTxStatus = false;
-export const updateSparkTxStatus = async mnemoninc => {
+export const updateSparkTxStatus = async (mnemoninc, accountId) => {
   try {
     if (isUpdatingSparkTxStatus) {
       console.log('updateSparkTxStatus skipped: already running');
@@ -233,7 +235,7 @@ export const updateSparkTxStatus = async mnemoninc => {
     isUpdatingSparkTxStatus = true;
     // Get all saved transactions
     console.log('running pending payments');
-    const savedTxs = await getAllPendingSparkPayments();
+    const savedTxs = await getAllPendingSparkPayments(accountId);
 
     if (!savedTxs.length) return {updated: []};
     const txsByType = {

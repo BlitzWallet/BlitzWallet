@@ -17,11 +17,7 @@ import {
 import {CENTER, CONTENT_KEYBOARD_OFFSET, SIZES} from '../../../../../constants';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
-import {
-  createAccountMnemonic,
-  retrieveData,
-  storeData,
-} from '../../../../../functions';
+import {createAccountMnemonic} from '../../../../../functions';
 import {
   COLORS,
   FONT,
@@ -31,8 +27,6 @@ import {
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import Icon from '../../../../../functions/CustomElements/Icon';
-import {getImageFromLibrary} from '../../../../../functions/imagePickerWrapper';
-import ProfileImageContainer from '../../../../../functions/CustomElements/profileImageContianer';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import SuggestedWordContainer from '../../../../login/suggestedWords';
@@ -52,7 +46,6 @@ export default function CreateCustodyAccountPage() {
     dateCreated: '',
     password: '',
     isPasswordEnabled: false,
-    imgURL: '',
     uuid: '',
     isActive: false,
   });
@@ -62,12 +55,10 @@ export default function CreateCustodyAccountPage() {
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, textColor} = GetThemeColors();
-  console.log(accounts);
   const nameIsAlreadyUsed = !!accounts.find(
     account =>
       account.name.toLowerCase() === accountInformation.name.toLowerCase(),
   );
-
   const insets = useSafeAreaInsets();
   const bottomOffset = Platform.select({
     ios: insets.bottom,
@@ -117,15 +108,6 @@ export default function CreateCustodyAccountPage() {
     }
     initalizeAccount();
   }, []);
-  //   const handlePassword = password => {
-  //     console.log(password);
-  //   };
-  //   const handleToggle = state => {
-  //     setAccountInformation(prev => ({
-  //       ...prev,
-  //       isPasswordEnabled: !prev.isPasswordEnabled,
-  //     }));
-  //   };
 
   const regenerateSeed = async () => {
     const mnemoinc = await createAccountMnemonic(true);
@@ -274,25 +256,8 @@ export default function CreateCustodyAccountPage() {
       />
       <ScrollView
         style={{width: INSET_WINDOW_WIDTH}}
-        contentContainerStyle={{paddingBottom: 20}}
+        contentContainerStyle={{paddingTop: 10}}
         showsVerticalScrollIndicator={false}>
-        <ProfileImageContainer
-          containerFunction={() => {
-            if (!accountInformation.imgURL) {
-              addProfilePicture();
-              return;
-            }
-            navigate.navigate('AddOrDeleteContactImage', {
-              addPhoto: addProfilePicture,
-              deletePhoto: () =>
-                setAccountInformation(prev => ({...prev, imgURL: ''})),
-              hasImage: true,
-            });
-          }}
-          imageURL={accountInformation.imgURL}
-          showSelectPhotoIcon={true}
-          containerStyles={{...CENTER}}
-        />
         <View
           style={{
             flexDirection: 'row',
@@ -426,16 +391,6 @@ export default function CreateCustodyAccountPage() {
       )}
     </CustomKeyboardAvoidingView>
   );
-  async function addProfilePicture() {
-    const imagePickerResponse = await getImageFromLibrary();
-    const {didRun, error, imgURL} = imagePickerResponse;
-    if (!didRun) return;
-    if (error) {
-      navigate.navigate('ErrorScreen', {errorMessage: error});
-      return;
-    }
-    setAccountInformation(prev => ({...prev, imgURL: imgURL.uri}));
-  }
 }
 
 const styles = StyleSheet.create({
