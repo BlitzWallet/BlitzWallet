@@ -40,6 +40,13 @@ export const useFilteredContacts = (
 
         return matchesSearch && isNotFavorite && shouldShow;
       })
-      .sort((a, b) => (b.lastUpdated || 0) - (a.lastUpdated || 0));
+      .sort((a, b) => {
+        const timeDiff = (b.lastUpdated || 0) - (a.lastUpdated || 0);
+        if (timeDiff !== 0) return timeDiff;
+
+        const nameA = a.contact.name || a.contact.uniqueName || '';
+        const nameB = b.contact.name || b.contact.uniqueName || '';
+        return nameA.localeCompare(nameB);
+      });
   }, [contactInfoList, inputText, hideUnknownContacts]);
 };
