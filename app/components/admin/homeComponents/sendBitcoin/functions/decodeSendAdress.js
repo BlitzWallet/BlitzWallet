@@ -47,6 +47,7 @@ export default async function decodeSendAddress(props) {
     publishMessageFunc,
     sparkInformation,
     seletctedToken,
+    currentWalletMnemoinc,
   } = props;
 
   try {
@@ -106,6 +107,7 @@ export default async function decodeSendAddress(props) {
               ? 'lightning'
               : 'bitcoin',
           );
+
       const lnurl = btcAdress.toLowerCase().startsWith('lnurl')
         ? decodedAddress
         : btcAdress.toLowerCase().startsWith('lightning')
@@ -113,14 +115,13 @@ export default async function decodeSendAddress(props) {
         : decodedAddress.options.lightning.toUpperCase();
 
       const decodedLNULR = decodeLNURL(lnurl);
-      if (!decodedLNULR)
-        throw new Error(
-          'Not able to get lightning address from lightning link.',
-        );
 
-      const lightningAddress = formatLightningAddress(decodedLNULR);
-
-      btcAdress = lightningAddress;
+      if (!decodedLNULR) {
+        btcAdress = decodedAddress.address;
+      } else {
+        const lightningAddress = formatLightningAddress(decodedLNULR);
+        btcAdress = lightningAddress;
+      }
     }
 
     const chosenPath = parsedInvoice
@@ -152,6 +153,7 @@ export default async function decodeSendAddress(props) {
         paymentInfo,
         fromPage,
         seletctedToken,
+        currentWalletMnemoinc,
       });
     } catch (err) {
       return goBackFunction(err.message || 'Error processing payment info');

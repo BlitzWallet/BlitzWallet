@@ -140,6 +140,13 @@ const ADVANCEDOPTIONS = [
     svgName: 'crashDebugIcon',
     arrowIcon: ICONS.leftCheveronIcon,
   },
+  {
+    for: 'general',
+    name: 'Accounts',
+    icon: ICONS.sharedBlue,
+    iconWhite: ICONS.sharedWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
   // {
   //   for: 'general',
   //   name: 'Node Info',

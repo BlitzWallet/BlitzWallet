@@ -3,6 +3,7 @@ import editIconLight from '../assets/icons/editLight.png';
 import xSmallIcon from '../assets/icons/x-small.png';
 import smallArrowLeft from '../assets/icons/arrow-small-left.png';
 import logoIcon from '../assets/icon.png';
+import logoIconWhite from '../assets/iconWhite.png';
 import leftCheveronIcon from '../assets/icons/left-chevron.png';
 import walletIcon from '../assets/icons/wallet.png';
 import walletBlueIcon from '../assets/icons/wallet_blue.png';
@@ -118,12 +119,15 @@ import sparkReceiveIcon from '../assets/icons/sparkReceiveIcon.png';
 import liquidReceiveIcon from '../assets/icons/liquidReceiveIcon.png';
 import rootstockLogo from '../assets/icons/rootstockLogo.png';
 import blockstreamLiquid from '../assets/icons/blockstreamLiquid.png';
+import sharedBlue from '../assets/icons/sharedBlue.png';
+import sharedWhite from '../assets/icons/sharedWhite.png';
 export default {
   editIcon,
   editIconLight,
   xSmallIcon,
   smallArrowLeft,
   logoIcon,
+  logoIconWhite,
   leftCheveronIcon,
   walletIcon,
   settingsIcon,
@@ -226,6 +230,8 @@ export default {
   navigationIconFill,
   navigationIconWhite,
   navigationIconFillWhite,
+  sharedBlue,
+  sharedWhite,
   shareBlack,
   sparkAsteriskBlack,
   sparkAsteriskWhite,

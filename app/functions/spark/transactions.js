@@ -54,15 +54,26 @@ export const initializeSparkDatabase = async () => {
   }
 };
 
-export const getAllSparkTransactions = async (limit = null) => {
+export const getAllSparkTransactions = async (limit = null, accountId) => {
   try {
     let query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}`;
+    let params = [];
 
-    if (limit) {
-      query += ` ORDER BY ROWID DESC LIMIT ${limit}`;
+    // Add WHERE clause if accountId is provided
+    if (accountId) {
+      query += ` WHERE accountId = ?`;
+      console.log(accountId);
+      params.push(String(accountId));
     }
 
-    const result = await sqlLiteDB.getAllAsync(query);
+    // Add ORDER BY and LIMIT if limit is provided
+    if (limit) {
+      query += ` ORDER BY ROWID DESC LIMIT ?`;
+      params.push(limit);
+    }
+
+    console.log(query, params);
+    const result = await sqlLiteDB.getAllAsync(query, params);
 
     if (!limit) {
       return result.sort(
@@ -79,13 +90,23 @@ export const getAllSparkTransactions = async (limit = null) => {
   }
 };
 
-export const getAllPendingSparkPayments = async () => {
+export const getAllPendingSparkPayments = async accountId => {
   try {
-    const result = await sqlLiteDB.getAllAsync(
-      `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE paymentStatus = ?`,
-      ['pending'],
-    );
-    return result;
+    let query = `
+      SELECT * 
+      FROM ${SPARK_TRANSACTIONS_TABLE_NAME} 
+      WHERE paymentStatus = ?
+    `;
+    const params = ['pending'];
+
+    if (accountId !== undefined && accountId !== null && accountId !== '') {
+      query += ` AND accountId = ?`;
+      params.push(String(accountId));
+    }
+
+    console.log(query);
+    const result = await sqlLiteDB.getAllAsync(query.trim(), params);
+    return result || [];
   } catch (error) {
     console.error('Error fetching pending spark payments:', error);
     return [];

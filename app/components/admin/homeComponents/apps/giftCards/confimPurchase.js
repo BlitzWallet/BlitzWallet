@@ -20,9 +20,11 @@ import {useGlobalContextProvider} from '../../../../../../context-store/context'
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import StoreErrorPage from '../components/errorScreen';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 
 export default function ConfirmGiftCardPurchase(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {masterInfoObject} = useGlobalContextProvider();
   const {sparkInformation} = useSparkWallet();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
@@ -80,6 +82,7 @@ export default function ConfirmGiftCardPurchase(props) {
           paymentType: 'lightning',
           amountSats: Number(parsedInput.invoice.amountMsat / 1000),
           masterInfoObject,
+          mnemonic: currentWalletMnemoinc,
         });
 
         if (!fee.didWork) throw new Error(fee.error);

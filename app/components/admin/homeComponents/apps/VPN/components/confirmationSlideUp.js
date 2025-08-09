@@ -11,9 +11,11 @@ import {sparkPaymenWrapper} from '../../../../../../functions/spark/payments';
 import {useGlobalContextProvider} from '../../../../../../../context-store/context';
 import {useSparkWallet} from '../../../../../../../context-store/sparkContext';
 import StoreErrorPage from '../../components/errorScreen';
+import {useActiveCustodyAccount} from '../../../../../../../context-store/activeAccount';
 
 export default function ConfirmVPNPage(props) {
   const navigate = useNavigation();
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {masterInfoObject} = useGlobalContextProvider();
   const {sparkInformation} = useSparkWallet();
   const {
@@ -64,6 +66,7 @@ export default function ConfirmVPNPage(props) {
           masterInfoObject,
           sparkInformation,
           userBalance: sparkInformation.balance,
+          mnemonic: currentWalletMnemoinc,
         });
         if (!fee.didWork) throw new Error(fee.error);
         if (sparkInformation.balance < fee.supportFee + fee.fee) {

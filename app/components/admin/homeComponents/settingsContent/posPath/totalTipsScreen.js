@@ -46,9 +46,11 @@ import {usePOSTransactions} from '../../../../../../context-store/pos';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {getSingleContact} from '../../../../../../db';
 import {useServerTimeOnly} from '../../../../../../context-store/serverTime';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 
 export default function TotalTipsScreen(props) {
   const {decodedAddedContacts, globalContactsInformation} = useGlobalContacts();
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {groupedTxs} = usePOSTransactions();
   const [wantedName, {}] = props.route?.params?.item;
 
@@ -65,7 +67,7 @@ export default function TotalTipsScreen(props) {
   ] = groupedTxs.find(item => item[0] === wantedName);
   const getServerTime = useServerTimeOnly();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {contactsPrivateKey} = useKeysContext();
+  const {contactsPrivateKey, accountMnemoinc} = useKeysContext();
   const {fiatStats} = useNodeContext();
   const {sparkInformation} = useSparkWallet();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
@@ -123,6 +125,7 @@ export default function TotalTipsScreen(props) {
           description: POINT_OF_SALE_PAYOUT_DESCRIPTION,
           // webViewRef,
           sparkInformation,
+          currentWalletMnemoinc: accountMnemoinc,
         });
         // const didPay = await payPOSLiquid({
         //   liquidNodeInformation,
@@ -181,6 +184,7 @@ export default function TotalTipsScreen(props) {
           masterInfoObject,
           description: POINT_OF_SALE_PAYOUT_DESCRIPTION,
           sparkInformation,
+          currentWalletMnemoinc: accountMnemoinc,
           // liquidNodeInformation,
           // nodeInformation,
           // minMaxLiquidSwapAmounts,

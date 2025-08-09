@@ -1,8 +1,5 @@
-import {
-  getLocalStorageItem,
-  removeLocalStorageItem,
-  setLocalStorageItem,
-} from '../localStorage';
+import sha256Hash from '../hash';
+import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 
 const TOKEN_CACHE_KEY = 'spark_wallet_tokens_cache';
 
@@ -24,11 +21,14 @@ export const saveCachedTokens = async tokens => {
   }
 };
 
-export const mergeTokensWithCache = (currentTokens, cachedTokens) => {
+export const mergeTokensWithCache = (currentTokens, cachedTokens, mnemonic) => {
   let merged = {};
+  const selctedCashedTokens = cachedTokens[sha256Hash(mnemonic)]
+    ? cachedTokens[sha256Hash(mnemonic)]
+    : cachedTokens;
 
   // Update with current token data
-  for (const [identifier, tokenData] of Object.entries(cachedTokens)) {
+  for (const [identifier, tokenData] of Object.entries(selctedCashedTokens)) {
     merged[identifier] = {
       ...tokenData,
       balance: 0,
@@ -46,30 +46,5 @@ export const mergeTokensWithCache = (currentTokens, cachedTokens) => {
   }
   console.log(merged);
 
-  return merged;
-};
-
-export const clearTokenCache = async () => {
-  try {
-    await removeLocalStorageItem(TOKEN_CACHE_KEY);
-    return true;
-  } catch (err) {
-    console.warn('Error clearing token cache:', err);
-    return false;
-  }
-};
-
-export const addTokenMetadata = async (tokenIdentifier, additionalMetadata) => {
-  try {
-    const cached = await getCachedTokens();
-    if (!cached[tokenIdentifier]) {
-      cached[tokenIdentifier] = {balance: 0, tokenMetadata: additionalMetadata};
-    }
-
-    await saveCachedTokens(cached);
-    return true;
-  } catch (err) {
-    console.warn('Error adding token metadata:', err);
-    return false;
-  }
+  return {...cachedTokens, [sha256Hash(mnemonic)]: merged};
 };

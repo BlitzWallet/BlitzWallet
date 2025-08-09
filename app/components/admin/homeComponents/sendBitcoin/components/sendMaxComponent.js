@@ -6,6 +6,7 @@ import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {getLNAddressForLiquidPayment} from '../functions/payments';
 import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 
 export default function SendMaxComponent({
   fiatStats,
@@ -19,6 +20,7 @@ export default function SendMaxComponent({
 }) {
   console.log(masterInfoObject);
   const [isGettingMax, setIsGettingMax] = useState(false);
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   return (
     <CustomButton
       buttonStyles={{
@@ -72,6 +74,7 @@ export default function SendMaxComponent({
         paymentType: paymentType.toLowerCase(),
         amountSats: Number(sparkInformation.balance),
         masterInfoObject,
+        mnemonic: currentWalletMnemoinc,
       });
 
       if (!feeResponse.didWork) throw new Error(feeResponse.error);

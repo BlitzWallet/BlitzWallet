@@ -19,6 +19,7 @@ import {
   ViewAllLiquidSwaps,
   WalletInformation,
   CrashReportingSettingsPage,
+  CreateCustodyAccounts,
   SparkInfo,
   SupportWorkPage,
   NotificationPreferances,
@@ -75,6 +76,7 @@ export default function SettingsContentIndex(props) {
       selectedPage?.toLowerCase() === 'point-of-sale' ||
       selectedPage?.toLowerCase() === 'edit contact profile' ||
       // selectedPage?.toLowerCase() === 'channel closure' ||
+      selectedPage?.toLowerCase() === 'accounts' ||
       selectedPage?.toLowerCase() === 'support our work' ? (
         <>
           {selectedPage?.toLowerCase() === 'display currency' && (
@@ -97,6 +99,9 @@ export default function SettingsContentIndex(props) {
           )} */}
           {selectedPage?.toLowerCase() === 'support our work' && (
             <SupportWorkPage />
+          )}
+          {selectedPage?.toLowerCase() === 'accounts' && (
+            <CreateCustodyAccounts />
           )}
         </>
       ) : (

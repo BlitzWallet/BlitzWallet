@@ -20,9 +20,11 @@ import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 
 export default function VPNPlanPage({countryList}) {
   const [searchInput, setSearchInput] = useState('');
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {sparkInformation} = useSparkWallet();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {fiatStats} = useNodeContext();
@@ -205,6 +207,7 @@ export default function VPNPlanPage({countryList}) {
           masterInfoObject,
           sparkInformation,
           userBalance: sparkInformation.balance,
+          mnemonic: currentWalletMnemoinc,
         });
         if (!fee.didWork) throw new Error(fee.error);
         invoice = {
@@ -235,6 +238,7 @@ export default function VPNPlanPage({countryList}) {
           fee: invoice.fee + invoice.supportFee,
           sparkInformation,
           description: 'Store - VPN',
+          currentWalletMnemoinc: currentWalletMnemoinc,
         });
 
         if (!paymentResponse.didWork) {

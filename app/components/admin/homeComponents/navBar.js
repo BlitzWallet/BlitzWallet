@@ -1,14 +1,18 @@
 import {StyleSheet, View, TouchableOpacity} from 'react-native';
 import {CENTER, ICONS} from '../../../constants';
 import {useNavigation} from '@react-navigation/native';
-import {WINDOWWIDTH} from '../../../constants/theme';
+import {COLORS, WINDOWWIDTH} from '../../../constants/theme';
 import ThemeImage from '../../../functions/CustomElements/themeImage';
 import {memo} from 'react';
 import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
+// import {useActiveCustodyAccount} from '../../../../context-store/activeAccount';
+// import {ThemeText} from '../../../functions/CustomElements';
 
-export const NavBar = memo(function NavBar({theme, toggleTheme}) {
+export const NavBar = memo(function NavBar({theme, darkModeType, toggleTheme}) {
   console.log('NAV BAR PAGE');
   const navigate = useNavigation();
+  // const {isUsingAltAccount, selectedAltAccount, custodyAccounts, isUsingNostr} =
+  //   useActiveCustodyAccount();
 
   return (
     <View style={[styles.topBar]}>
@@ -27,6 +31,33 @@ export const NavBar = memo(function NavBar({theme, toggleTheme}) {
 
       {/* Center space for animated balance - invisible but takes up space */}
       <View style={styles.centerSpace} />
+
+      {/* <TouchableOpacity
+        onPress={() => {
+          navigate.navigate('CustomHalfModal', {
+            wantedContent: 'SwitchCustodyAccount',
+            sliderHight: 0.5,
+          });
+        }}
+        style={{
+          ...styles.custodyAccountContainer,
+          borderColor:
+            theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+        }}>
+        <ThemeText
+          styles={{
+            fontWeight: '500',
+            color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+          }}
+          content={
+            isUsingAltAccount
+              ? selectedAltAccount[0]?.name?.[0]?.toUpperCase()
+              : isUsingNostr
+              ? 'N'
+              : 'M'
+          }
+        />
+      </TouchableOpacity> */}
 
       <TouchableOpacity
         onPress={() => {
@@ -65,5 +96,13 @@ const styles = StyleSheet.create({
   centerSpace: {
     flex: 1,
     // This creates space in the center for the animated balance
+  },
+  custodyAccountContainer: {
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderRadius: 15,
   },
 });

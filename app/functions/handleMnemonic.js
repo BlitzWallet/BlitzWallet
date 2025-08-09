@@ -157,7 +157,7 @@ export async function handleLoginSecuritySwitch(mnemoinc, pin, storageType) {
   }
 }
 
-function decryptMnemonic(cipherText, pin) {
+export function decryptMnemonic(cipherText, pin) {
   try {
     const bytes = CryptoES.default.AES.decrypt(cipherText, pin);
     return bytes.toString(CryptoES.default.enc.Utf8);
@@ -167,7 +167,7 @@ function decryptMnemonic(cipherText, pin) {
   }
 }
 
-function encryptMnemonic(mnemonic, pin) {
+export function encryptMnemonic(mnemonic, pin) {
   try {
     return CryptoES.default.AES.encrypt(mnemonic, pin).toString();
   } catch (err) {

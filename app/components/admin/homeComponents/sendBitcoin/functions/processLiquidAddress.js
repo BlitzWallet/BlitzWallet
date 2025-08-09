@@ -18,6 +18,7 @@ export default async function processLiquidAddress(input, context) {
     webViewRef,
     fromPage,
     publishMessageFunc,
+    currentWalletMnemoinc,
   } = context;
   let webSocket;
   console.log(webViewRef, 'WEB VIEW REF');
@@ -65,6 +66,7 @@ export default async function processLiquidAddress(input, context) {
         amountSats: Math.round(enteredPaymentInfo.amount),
         paymentType: 'lightning',
         masterInfoObject,
+        mnemonic: currentWalletMnemoinc,
       });
 
       if (!fee.didWork) throw new Error(fee.error);

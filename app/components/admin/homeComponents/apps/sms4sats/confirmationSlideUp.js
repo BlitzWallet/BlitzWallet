@@ -12,9 +12,11 @@ import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import StoreErrorPage from '../components/errorScreen';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 
 export default function ConfirmSMSPayment(props) {
   const navigate = useNavigation();
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {sparkInformation} = useSparkWallet();
   const {masterInfoObject} = useGlobalContextProvider();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
@@ -86,6 +88,7 @@ export default function ConfirmSMSPayment(props) {
           masterInfoObject,
           sparkInformation,
           userBalance: sparkInformation.balance,
+          mnemonic: currentWalletMnemoinc,
         });
         if (!fee.didWork) throw new Error(fee.error);
         if (sparkInformation.balance < fee.supportFee + fee.fee) {
