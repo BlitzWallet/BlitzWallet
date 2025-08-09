@@ -29,10 +29,8 @@ export function encodeLNURL(uniqueName) {
  */
 export function decodeLNURL(lnurl) {
   try {
-    const words = bech32.decode(lnurl.toLowerCase()).words;
-    console.log(words);
+    const words = bech32.decode(lnurl.toLowerCase(), 2000).words;
     const bytes = bech32.fromWords(words);
-    console.lo;
     const url = Buffer.from(bytes).toString('utf8');
     return url;
   } catch (error) {

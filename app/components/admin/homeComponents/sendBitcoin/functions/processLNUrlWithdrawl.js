@@ -13,6 +13,7 @@ export default async function processLNUrlWithdraw(input, context) {
     amountSats: Math.round(minAmount / 1000),
     memo: input.data.defaultDescription || '',
     paymentType: 'lightning',
+    mnemoinc: currentWalletMnemoinc,
   });
 
   if (!invoice.didWork)
