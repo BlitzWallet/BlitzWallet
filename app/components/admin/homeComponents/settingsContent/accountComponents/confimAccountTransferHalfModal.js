@@ -1,26 +1,15 @@
-import {Platform, StyleSheet, useWindowDimensions, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import {useNavigation} from '@react-navigation/native';
 import {useCallback, useEffect, useState} from 'react';
 import {ThemeText} from '../../../../../functions/CustomElements';
-import {COLORS, LIQUID_DEFAULT_FEE, SIZES} from '../../../../../constants';
+import {SIZES} from '../../../../../constants';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {breezLiquidReceivePaymentWrapper} from '../../../../../functions/breezLiquid';
-import {receivePayment} from '@breeztech/react-native-breez-sdk';
-import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
-
-import {useAppStatus} from '../../../../../../context-store/appStatus';
 import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton';
-import {getECashInvoice} from '../../../../../functions/eCash/wallet';
-import {
-  ECASH_QUOTE_EVENT_NAME,
-  ecashEventEmitter,
-} from '../../../../../../context-store/eCash';
 import {useTranslation} from 'react-i18next';
 export default function ConfirmAccountTransferHalfModal(props) {
   const {backgroundColor, backgroundOffset, textColor} = GetThemeColors();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {t} = useTranslation();
   const navigate = useNavigation();
   const [invoiceInfo, setInvoiceInfo] = useState({

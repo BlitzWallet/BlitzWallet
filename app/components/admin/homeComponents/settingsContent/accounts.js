@@ -203,7 +203,11 @@ export default function CreateCustodyAccounts() {
         />
         {accountElements}
       </ScrollView>
-      <CustomButton buttonStyles={{...CENTER}} textContent={'Swap Funds'} />
+      <CustomButton
+        actionFunction={() => navigate.navigate('CustodyAccountPaymentPage')}
+        buttonStyles={{...CENTER}}
+        textContent={'Swap Funds'}
+      />
     </GlobalThemeView>
   );
 }
