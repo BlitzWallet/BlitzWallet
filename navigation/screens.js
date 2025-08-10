@@ -56,7 +56,6 @@ import NWCWalletSetup from '../app/components/admin/homeComponents/settingsConte
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import SparkSettingsPage from '../app/components/admin/homeComponents/settingsContent/sparkLrc20';
-import AccountInformationPage from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/AccountInformationPage';
 import ManualSwapPopup from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/manualSwapPopup';
 import {CustomWebView} from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
@@ -123,7 +122,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'ExpandedGiftCardPage', component: ExpandedGiftCardPage},
   {name: 'HistoricalGiftCardPurchases', component: HistoricalGiftCardPurchases},
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},
-  {name: 'AccountInformationPage', component: AccountInformationPage},
   {name: 'ViewPOSTransactions', component: ViewPOSTransactions},
   {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
   {name: 'DisclaimerPage', component: DislaimerPage},

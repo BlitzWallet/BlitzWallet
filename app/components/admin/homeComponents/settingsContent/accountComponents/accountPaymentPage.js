@@ -11,7 +11,6 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import FormattedBalanceInput from '../../../../../functions/CustomElements/formattedBalanceInput';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
-import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {
   CENTER,
@@ -32,7 +31,7 @@ export default function AccountPaymentPage(props) {
   const {nodeInformation} = useNodeContext();
   const {theme} = useGlobalThemeContext();
   const {textColor} = GetThemeColors();
-  const [sendingAmount, setSendingAmount] = useState('');
+  const sendingAmount = props?.route?.params?.amount || 0;
   const [transferInfo, setTransferInfo] = useState({
     from: '',
     fromBalance: 0,
@@ -41,7 +40,7 @@ export default function AccountPaymentPage(props) {
     isCalculatingFee: false,
     paymentFee: 0,
   });
-
+  const {backgroundOffset} = GetThemeColors();
   const {t} = useTranslation();
 
   const convertedSendAmount =
@@ -84,33 +83,75 @@ export default function AccountPaymentPage(props) {
       ) : (
         <>
           <ScrollView style={{width: '100%', flex: 1}}>
-            <FormattedBalanceInput
-              customTextInputContainerStyles={{marginTop: 20}}
-              maxWidth={0.9}
-              amountValue={sendingAmount}
-              inputDenomination={masterInfoObject.userBalanceDenomination}
-            />
-
-            <FormattedSatText
-              containerStyles={{
-                opacity: !sendingAmount ? 0.5 : 1,
+            <ThemeImage
+              styles={{
+                transform: [{rotate: '90deg'}],
+                ...CENTER,
+                marginTop: 20,
                 marginBottom: 20,
               }}
-              neverHideBalance={true}
-              styles={{includeFontPadding: false}}
-              globalBalanceDenomination={
-                masterInfoObject.userBalanceDenomination === 'sats' ||
-                masterInfoObject.userBalanceDenomination === 'hidden'
-                  ? 'fiat'
-                  : 'sats'
-              }
-              balance={convertedSendAmount}
+              lightModeIcon={ICONS.exchangeIcon}
+              darkModeIcon={ICONS.exchangeIcon}
+              lightsOutIcon={ICONS.exchangeIconWhite}
             />
-            <View style={styles.transferAccountRow}>
-              <View>
-                <ThemeText content={'Transfer from:'} />
+            <TouchableOpacity
+              onPress={() => {
+                navigate.navigate('CustomHalfModal', {
+                  wantedContent: 'customInputText',
+                  returnLocation: 'CustodyAccountPaymentPage',
+                  sliderHight: 0.5,
+                });
+              }}>
+              <FormattedBalanceInput
+                maxWidth={0.9}
+                amountValue={sendingAmount}
+                inputDenomination={masterInfoObject.userBalanceDenomination}
+              />
+
+              <FormattedSatText
+                containerStyles={{
+                  opacity: !sendingAmount ? 0.5 : 1,
+                  marginBottom: 30,
+                }}
+                neverHideBalance={true}
+                styles={{includeFontPadding: false}}
+                globalBalanceDenomination={
+                  masterInfoObject.userBalanceDenomination === 'sats' ||
+                  masterInfoObject.userBalanceDenomination === 'hidden'
+                    ? 'fiat'
+                    : 'sats'
+                }
+                balance={convertedSendAmount}
+              />
+            </TouchableOpacity>
+
+            <View
+              style={{
+                ...styles.transferAccountRow,
+                borderBottomColor: backgroundOffset,
+              }}>
+              <View style={styles.transferTextContainer}>
+                <ThemeImage
+                  styles={{
+                    ...styles.transferTextIcon,
+                    transform: [{rotate: '-90deg'}],
+                  }}
+                  lightModeIcon={ICONS.arrowFromRight}
+                  darkModeIcon={ICONS.arrowFromRight}
+                  lightsOutIcon={ICONS.arrowFromRightWhite}
+                />
+                <ThemeText content={'From'} />
               </View>
               <TouchableOpacity
+                onPress={() => {
+                  navigate.navigate('CustomHalfModal', {
+                    wantedContent: 'SelectAltAccount',
+                    sliderHight: 0.5,
+                    selectedFrom: transferInfo.from,
+                    selectedTo: transferInfo.to,
+                    transferType: 'from',
+                  });
+                }}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -119,9 +160,7 @@ export default function AccountPaymentPage(props) {
                 }}>
                 <ThemeText
                   content={
-                    transferInfo.from
-                      ? transferInfo.from
-                      : 'Select from account'
+                    transferInfo.from ? transferInfo.from : 'Select Account'
                   }
                 />
                 <ThemeImage
@@ -136,12 +175,37 @@ export default function AccountPaymentPage(props) {
                 />
               </TouchableOpacity>
             </View>
-            <View style={styles.transferAccountRow}>
-              <ThemeText content={'Transfer to:'} />
-              <TouchableOpacity style={styles.chooseAccountBTN}>
+            <View
+              style={{
+                ...styles.transferAccountRow,
+                borderBottomColor: backgroundOffset,
+              }}>
+              <View style={styles.transferTextContainer}>
+                <ThemeImage
+                  styles={{
+                    ...styles.transferTextIcon,
+                    transform: [{rotate: '90deg'}],
+                  }}
+                  lightModeIcon={ICONS.arrowToRight}
+                  darkModeIcon={ICONS.arrowToRight}
+                  lightsOutIcon={ICONS.arrowToRightLight}
+                />
+                <ThemeText content={'To'} />
+              </View>
+              <TouchableOpacity
+                style={styles.chooseAccountBTN}
+                onPress={() => {
+                  navigate.navigate('CustomHalfModal', {
+                    wantedContent: 'SelectAltAccount',
+                    sliderHight: 0.5,
+                    selectedFrom: transferInfo.from,
+                    selectedTo: transferInfo.to,
+                    transferType: 'to',
+                  });
+                }}>
                 <ThemeText
                   content={
-                    transferInfo.from ? transferInfo.from : 'Select to account'
+                    transferInfo.from ? transferInfo.from : 'Select Account'
                   }
                 />
                 <ThemeImage
@@ -156,39 +220,41 @@ export default function AccountPaymentPage(props) {
                 />
               </TouchableOpacity>
             </View>
+            <View
+              style={{
+                ...styles.transferAccountRow,
+                borderBottomColor: backgroundOffset,
+              }}>
+              <View style={styles.transferTextContainer}>
+                <ThemeImage
+                  styles={{
+                    ...styles.transferTextIcon,
+                  }}
+                  lightModeIcon={ICONS.receiptIcon}
+                  darkModeIcon={ICONS.receiptIcon}
+                  lightsOutIcon={ICONS.receiptWhite}
+                />
+                <ThemeText content={'Fee'} />
+              </View>
+
+              {transferInfo.isCalculatingFee ? (
+                <FullLoadingScreen
+                  containerStyles={{
+                    flex: 0,
+                  }}
+                  size="small"
+                  showText={false}
+                  loadingColor={theme ? textColor : COLORS.primary}
+                />
+              ) : (
+                <FormattedSatText
+                  neverHideBalance={true}
+                  styles={{includeFontPadding: false}}
+                  balance={transferInfo.paymentFee}
+                />
+              )}
+            </View>
           </ScrollView>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              width: '100%',
-              justifyContent: 'center',
-            }}>
-            <FormattedSatText
-              neverHideBalance={true}
-              frontText={`Max send amount: `}
-              balance={transferInfo.paymentFee}
-              styles={{textAlign: 'center'}}
-            />
-            <FullLoadingScreen
-              showLoadingIcon={transferInfo.isCalculatingFee}
-              containerStyles={{
-                flex: 0,
-                marginLeft: 5,
-              }}
-              size="small"
-              showText={false}
-              loadingColor={theme ? textColor : COLORS.primary}
-            />
-          </View>
-
-          <CustomNumberKeyboard
-            showDot={masterInfoObject.userBalanceDenomination === 'fiat'}
-            frompage="sendContactsPage"
-            setInputValue={setSendingAmount}
-            usingForBalance={true}
-            nodeInformation={nodeInformation}
-          />
 
           <CustomButton
             textContent={t('constants.confirm')}
@@ -240,6 +306,12 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
   },
+  transferTextContainer: {flexDirection: 'row', alignItems: 'center'},
+  transferTextIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 5,
+  },
   contentContainer: {
     width: '90%',
     backgroundColor: COLORS.darkModeText,
@@ -254,6 +326,8 @@ const styles = StyleSheet.create({
     marginTop: 15,
     alignItems: 'center',
     ...CENTER,
+    borderBottomWidth: 1,
+    paddingBottom: 10,
   },
   chooseAccountBTN: {
     flexDirection: 'row',

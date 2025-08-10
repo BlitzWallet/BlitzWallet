@@ -86,7 +86,7 @@ export default function CreateCustodyAccounts() {
                 styles={styles.arrowIcon}
                 lightModeIcon={ICONS.trashIcon}
                 darkModeIcon={ICONS.trashIcon}
-                lightsOutIcon={ICONS.transparentIconWhite}
+                lightsOutIcon={ICONS.trashIconWhite}
               />
             </TouchableOpacity>
           )}
@@ -153,6 +153,7 @@ export default function CreateCustodyAccounts() {
             }}
             buttonStyles={{
               minWidth: 'unset',
+              paddingHorizontal: 10,
               width: 'auto',
               backgroundColor:
                 currentWalletMnemoinc === account.mnemoinc

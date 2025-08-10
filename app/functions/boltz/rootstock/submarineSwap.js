@@ -108,6 +108,7 @@ export async function executeSubmarineSwap(
     memo: 'Rootstock to Spark Swap',
     paymentType: 'lightning',
     shouldNavigate: false,
+    mnemoinc: signerMnemonic,
   });
   if (!sparkInvoice.didWork) return;
   // const sparkInvoice = {
