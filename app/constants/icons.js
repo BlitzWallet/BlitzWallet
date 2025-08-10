@@ -121,6 +121,12 @@ import rootstockLogo from '../assets/icons/rootstockLogo.png';
 import blockstreamLiquid from '../assets/icons/blockstreamLiquid.png';
 import sharedBlue from '../assets/icons/sharedBlue.png';
 import sharedWhite from '../assets/icons/sharedWhite.png';
+import exchangeIcon from '../assets/icons/exchangeIcon.png';
+import exchangeIconWhite from '../assets/icons/exchangeIconWhite.png';
+import arrowFromRightWhite from '../assets/icons/arrow-from-shape-right-white.png';
+import arrowFromRight from '../assets/icons/arrow-from-shape-right.png';
+import arrowToRightLight from '../assets/icons/arrow-to-shape-right-light.png';
+import arrowToRight from '../assets/icons/arrow-to-shape-right.png';
 export default {
   editIcon,
   editIconLight,
@@ -245,4 +251,10 @@ export default {
   liquidReceiveIcon,
   rootstockLogo,
   blockstreamLiquid,
+  exchangeIcon,
+  exchangeIconWhite,
+  arrowFromRightWhite,
+  arrowFromRight,
+  arrowToRight,
+  arrowToRightLight,
 };
