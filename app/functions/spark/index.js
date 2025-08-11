@@ -41,8 +41,6 @@ export const initializeSparkWallet = async mnemonic => {
     // ]);
     sparkWallet[sha256Hash(mnemonic)] = wallet;
 
-    console.log(sparkWallet);
-
     return {isConnected: true};
 
     // if (type === 'wallet') {
