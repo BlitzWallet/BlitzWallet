@@ -8,7 +8,7 @@ import {useSparkWallet} from '../../../context-store/sparkContext';
 import {ThemeText} from '../CustomElements';
 import {CENTER, SIZES, TOKEN_TICKER_MAX_LENGTH} from '../../constants';
 import {useRef} from 'react';
-import {COLORS} from '../../constants/theme';
+import {COLORS, INSET_WINDOW_WIDTH} from '../../constants/theme';
 import formatBalanceAmount from '../formatNumber';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalInsets} from '../../../context-store/insetsProvider';
@@ -43,10 +43,9 @@ export default function LRC20TokenInformation({
         }}
         style={{...styles.container, paddingBottom: topPadding}}>
         <ThemeText
+          CustomNumberOfLines={1}
           styles={styles.titleText}
-          content={tokenMetadata.tokenName
-            ?.toUpperCase()
-            ?.slice(0, TOKEN_TICKER_MAX_LENGTH)}
+          content={tokenMetadata.tokenName?.toUpperCase()}
         />
 
         <View
@@ -69,13 +68,13 @@ export default function LRC20TokenInformation({
             }}>
             <ThemeText
               CustomNumberOfLines={1}
-              styles={styles.textItem}
+              styles={styles.textItemDescription}
               content={'Balance'}
             />
-            <FormattedSatText
-              balance={Number(balance)}
-              customLabel={tokenMetadata.tokenTicker}
-              useCustomLabel={true}
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.textItem}
+              content={formatBalanceAmount(Number(balance))}
             />
           </View>
           <View
@@ -89,13 +88,13 @@ export default function LRC20TokenInformation({
             }}>
             <ThemeText
               CustomNumberOfLines={1}
-              styles={styles.textItem}
+              styles={styles.textItemDescription}
               content={'Max Supply'}
             />
-            <FormattedSatText
-              balance={Number(tokenMetadata.maxSupply)}
-              customLabel={tokenMetadata.tokenTicker}
-              useCustomLabel={true}
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.textItem}
+              content={formatBalanceAmount(Number(tokenMetadata.maxSupply))}
             />
           </View>
           <View
@@ -109,7 +108,7 @@ export default function LRC20TokenInformation({
             }}>
             <ThemeText
               CustomNumberOfLines={1}
-              styles={styles.textItem}
+              styles={styles.textItemDescription}
               content={'Token Ticker'}
             />
             <ThemeText
@@ -127,14 +126,14 @@ export default function LRC20TokenInformation({
             }}>
             <ThemeText
               CustomNumberOfLines={1}
-              styles={{flex: 1}}
+              styles={styles.textItemDescription}
               content={'Token Public Key'}
             />
             <TouchableOpacity
               onPress={() => {
                 copyToClipboard(tokenMetadata.tokenPublicKey, showToast);
               }}
-              style={{flexShrink: 1, maxWidth: '45%'}}>
+              style={styles.textItem}>
               <ThemeText
                 CustomNumberOfLines={1}
                 content={tokenMetadata.tokenPublicKey}
@@ -170,12 +169,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   titleText: {
+    width: INSET_WINDOW_WIDTH,
     fontSize: SIZES.large,
     marginBottom: 10,
+    textAlign: 'center',
+  },
+  textItemDescription: {
+    includeFontPadding: false,
+    flex: 1,
+    marginRight: 5,
   },
   textItem: {
     includeFontPadding: false,
     flexShrink: 1,
-    maxWidth: '45%',
+    maxWidth: '50%',
   },
 });

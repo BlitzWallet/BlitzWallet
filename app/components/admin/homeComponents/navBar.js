@@ -60,15 +60,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     ...CENTER,
-    minHeight: 50, // Ensure consistent height for balance overlay
-    paddingVertical: 10,
   },
   iconButton: {
-    zIndex: 2, // Ensure buttons stay above the animated balance
+    zIndex: 2,
   },
   centerSpace: {
     flex: 1,
-    // This creates space in the center for the animated balance
   },
   custodyAccountContainer: {
     width: 30,

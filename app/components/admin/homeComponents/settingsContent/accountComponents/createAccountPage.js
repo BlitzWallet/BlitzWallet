@@ -36,6 +36,7 @@ import customUUID from '../../../../../functions/customUUID';
 import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
 import {handleRestoreFromText} from '../../../../../functions/seed';
 import getClipboardText from '../../../../../functions/getClipboardText';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   acc[`key${num}`] = '';
@@ -63,11 +64,8 @@ export default function CreateCustodyAccountPage() {
     account =>
       account.name.toLowerCase() === accountInformation.name.toLowerCase(),
   );
-  const insets = useSafeAreaInsets();
-  const bottomOffset = Platform.select({
-    ios: insets.bottom,
-    android: ANDROIDSAFEAREA,
-  });
+  const {bottomPadding} = useGlobalInsets();
+
   const [currentFocused, setCurrentFocused] = useState(null);
   const keyRefs = useRef({});
   const [inputedKey, setInputedKey] = useState(INITIAL_KEY_STATE);
@@ -271,18 +269,18 @@ export default function CreateCustodyAccountPage() {
           ? currentFocused
             ? 0
             : CONTENT_KEYBOARD_OFFSET
-          : bottomOffset,
+          : bottomPadding,
       }}
-      isKeyboardActive={isKeyboardActive}
-      useLocalPadding={true}
-      useStandardWidth={true}>
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        label={'Create Account'}
-      />
+      isKeyboardActive={isKeyboardActive}>
+      <View style={{width: '95%'}}>
+        <CustomSettingsTopBar
+          shouldDismissKeyboard={true}
+          label={'Create Account'}
+        />
+      </View>
       <ScrollView
         style={{width: INSET_WINDOW_WIDTH}}
-        contentContainerStyle={{paddingTop: 10}}
+        contentContainerStyle={{paddingTop: 10, paddingBottom: 10}}
         showsVerticalScrollIndicator={false}>
         <View
           style={{

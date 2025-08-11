@@ -110,7 +110,7 @@ export default function ConfirmExportPayments({
   return (
     <View style={styles.containerStyle}>
       <ThemeText
-        styles={{width: INSET_WINDOW_WIDTH, ...CENTER}}
+        styles={styles.titleText}
         content={
           'Export your payment history in CSV (comma seperated value) format.'
         }
@@ -138,7 +138,6 @@ export default function ConfirmExportPayments({
         width={0.95}
         title="Slide to export"
         shouldAnimateViewOnSuccess={true}
-        containerStyles={styles.swipeBTNContainer}
         thumbIconStyles={dynamicStyles}
         railStyles={dynamicStyles}
       />
@@ -147,11 +146,9 @@ export default function ConfirmExportPayments({
 }
 
 const styles = StyleSheet.create({
+  titleText: {width: INSET_WINDOW_WIDTH, ...CENTER, textAlign: 'center'},
   containerStyle: {
     flex: 1,
     alignItems: 'center',
-  },
-  swipeBTNContainer: {
-    marginBottom: 20,
   },
 });
