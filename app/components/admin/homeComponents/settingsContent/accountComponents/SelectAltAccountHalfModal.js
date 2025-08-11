@@ -1,37 +1,22 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {
-  CENTER,
-  COLORS,
-  ICONS,
-  LIQUID_DEFAULT_FEE,
-  SIZES,
-} from '../../../../../constants';
-import {
-  GlobalThemeView,
-  ThemeText,
-} from '../../../../../functions/CustomElements';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
-import {useAppStatus} from '../../../../../../context-store/appStatus';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {useTranslation} from 'react-i18next';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
-import {useKeysContext} from '../../../../../../context-store/keys';
+import {CENTER, SIZES} from '../../../../../constants';
+import {ThemeText} from '../../../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useState} from 'react';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
+import {
+  getSparkBalance,
+  initializeSparkWallet,
+} from '../../../../../functions/spark';
 
 export default function SelectAltAccountHalfModal(props) {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {custodyAccounts, nostrSeed} = useActiveCustodyAccount();
   const {backgroundColor, backgroundOffset, textColor} = GetThemeColors();
-  const {accountMnemoinc} = useKeysContext();
   const [isLoading, setIsLoading] = useState({
     accountBeingLoaded: '',
     isLoading: '',
@@ -39,53 +24,83 @@ export default function SelectAltAccountHalfModal(props) {
 
   const {selectedFrom, selectedTo, transferType} = props;
 
-  const enabledNWC =
-    masterInfoObject.NWC.accounts &&
-    !!Object.keys(masterInfoObject.NWC.accounts).length;
+  const accounts = useCustodyAccountList();
 
-  const accounts = enabledNWC
-    ? [
-        {name: 'Main Wallet', mnemoinc: accountMnemoinc},
-        {name: 'NWC', mnemoinc: nostrSeed},
-        ...custodyAccounts,
-      ]
-    : [{name: 'Main Wallet', mnemoinc: accountMnemoinc}, ...custodyAccounts];
-
-  const accountElements = accounts.map((account, index) => {
-    return (
-      <View
-        key={index}
-        style={{
-          backgroundColor:
-            theme && darkModeType ? backgroundColor : backgroundOffset,
-          ...styles.accountRow,
-        }}>
-        <View style={{flex: 1}}>
-          <ThemeText CustomNumberOfLines={1} content={account.name} />
-        </View>
-
-        <CustomButton
-          actionFunction={async () => {
-            setIsLoading({
-              accountBeingLoaded: account.mnemoinc,
-              isLoading: true,
-            });
-          }}
-          buttonStyles={{
-            width: 'auto',
+  const accountElements = accounts
+    .filter(item => {
+      console.log(
+        item.mnemoinc,
+        transferType === 'from' ? selectedTo : selectedFrom,
+      );
+      return (
+        item.mnemoinc !== (transferType === 'from' ? selectedTo : selectedFrom)
+      );
+    })
+    .map((account, index) => {
+      return (
+        <View
+          key={index}
+          style={{
             backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          }}
-          textStyles={{color: textColor}}
-          textContent={'Select'}
-          useLoading={
-            isLoading.accountBeingLoaded === account.mnemoinc &&
-            isLoading.isLoading
-          }
-        />
-      </View>
-    );
-  });
+              theme && darkModeType ? backgroundColor : backgroundOffset,
+            ...styles.accountRow,
+          }}>
+          <ThemeText
+            styles={styles.accountName}
+            CustomNumberOfLines={1}
+            content={account.name}
+          />
+
+          <CustomButton
+            actionFunction={async () => {
+              if (
+                (transferType === 'from' &&
+                  selectedFrom === account.mnemoinc) ||
+                (transferType === 'to' && selectedTo === account.mnemoinc)
+              ) {
+                navigate.goBack();
+                return;
+              }
+
+              setIsLoading({
+                accountBeingLoaded: account.mnemoinc,
+                isLoading: true,
+              });
+
+              await new Promise(res => setTimeout(res, 800));
+              await initializeSparkWallet(account.mnemoinc);
+              let balance = 0;
+              if (transferType === 'from') {
+                const balanceResponse = await getSparkBalance(account.mnemoinc);
+                balance = Number(balanceResponse.balance);
+              }
+
+              navigate.popTo(
+                'CustodyAccountPaymentPage',
+                {
+                  [transferType]: account.mnemoinc,
+                  [`${transferType}Balance`]: balance,
+                },
+                {
+                  merge: true,
+                },
+              );
+            }}
+            buttonStyles={{
+              width: 'auto',
+              backgroundColor:
+                theme && darkModeType ? backgroundOffset : backgroundColor,
+            }}
+            textStyles={{color: textColor}}
+            textContent={'Select'}
+            useLoading={
+              isLoading.accountBeingLoaded === account.mnemoinc &&
+              isLoading.isLoading
+            }
+          />
+        </View>
+      );
+    });
 
   return (
     <ScrollView stickyHeaderIndices={[0]} style={styles.container}>
@@ -119,17 +134,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginVertical: 5,
   },
-  viewAccountArrowContainer: {
-    backgroundColor: 'red',
-    width: 45,
-    height: 45,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+  accountName: {
+    includeFontPadding: false,
     marginRight: 10,
-  },
-  arrowIcon: {
-    width: 25,
-    height: 25,
+    flexShrink: 1,
   },
 });

@@ -53,10 +53,16 @@ export default function CustomInputHalfModal(props) {
         type: props.type,
       });
     } else {
-      navigate.popTo(props.returnLocation, {
-        amount: !amountValue ? 0 : localSatAmount,
-        type: props?.type,
-      });
+      navigate.popTo(
+        props.returnLocation,
+        {
+          amount: !amountValue ? 0 : localSatAmount,
+          type: props?.type,
+        },
+        {
+          merge: true,
+        },
+      );
     }
   };
 
