@@ -28,10 +28,6 @@ export default function SelectAltAccountHalfModal(props) {
 
   const accountElements = accounts
     .filter(item => {
-      console.log(
-        item.mnemoinc,
-        transferType === 'from' ? selectedTo : selectedFrom,
-      );
       return (
         item.mnemoinc !== (transferType === 'from' ? selectedTo : selectedFrom)
       );

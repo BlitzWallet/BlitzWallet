@@ -53,7 +53,7 @@ export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
 
 // Initiate context
 const SparkWalletManager = createContext(null);
-const sessionTime = new Date().getTime();
+
 const SparkWalletProvider = ({children}) => {
   const {accountMnemoinc, contactsPrivateKey, publicKey} = useKeysContext();
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
@@ -83,6 +83,10 @@ const SparkWalletProvider = ({children}) => {
   const didInitializeSendingPaymentEvent = useRef(false);
   const initialBitcoinIntervalRun = useRef(null);
   const [numberOfCachedTxs, setNumberOfCachedTxs] = useState(0);
+
+  const sessionTime = useMemo(() => {
+    return Date.now();
+  }, [currentWalletMnemoinc]);
 
   // Debounce refs
   const debounceTimeoutRef = useRef(null);

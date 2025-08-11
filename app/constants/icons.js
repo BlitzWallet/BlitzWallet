@@ -127,6 +127,8 @@ import arrowFromRightWhite from '../assets/icons/arrow-from-shape-right-white.pn
 import arrowFromRight from '../assets/icons/arrow-from-shape-right.png';
 import arrowToRightLight from '../assets/icons/arrow-to-shape-right-light.png';
 import arrowToRight from '../assets/icons/arrow-to-shape-right.png';
+import group from '../assets/icons/group.png';
+import groupWhite from '../assets/icons/groupWhite.png';
 export default {
   editIcon,
   editIconLight,
@@ -257,4 +259,6 @@ export default {
   arrowFromRight,
   arrowToRight,
   arrowToRightLight,
+  group,
+  groupWhite,
 };

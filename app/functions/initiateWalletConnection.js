@@ -88,7 +88,7 @@ async function initializeSparkSession({
 
     let didLoadCorrectBalance = false;
     let runCount = 0;
-    let maxRunCount = 5;
+    let maxRunCount = 2;
     let initialBalanceResponse = balance;
     let correctBalance = 0;
 

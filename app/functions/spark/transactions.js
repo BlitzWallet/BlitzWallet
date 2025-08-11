@@ -62,7 +62,6 @@ export const getAllSparkTransactions = async (limit = null, accountId) => {
     // Add WHERE clause if accountId is provided
     if (accountId) {
       query += ` WHERE accountId = ?`;
-      console.log(accountId);
       params.push(String(accountId));
     }
 
@@ -72,7 +71,6 @@ export const getAllSparkTransactions = async (limit = null, accountId) => {
       params.push(limit);
     }
 
-    console.log(query, params);
     const result = await sqlLiteDB.getAllAsync(query, params);
 
     if (!limit) {
@@ -104,7 +102,6 @@ export const getAllPendingSparkPayments = async accountId => {
       params.push(String(accountId));
     }
 
-    console.log(query);
     const result = await sqlLiteDB.getAllAsync(query.trim(), params);
     return result || [];
   } catch (error) {
@@ -150,33 +147,33 @@ export const addSingleUnpaidSparkLightningTransaction = async tx => {
   }
 };
 
-export const updateSingleSparkTransaction = async (saved_spark_id, updates) => {
-  // updates should be an object like { status: 'COMPLETED' }
-  // saved_spark_id needs to match that of the stored transaction and then you can update the saved_id
-  try {
-    const fields = Object.keys(updates)
-      .map(key => `${key} = ?`)
-      .join(', ');
-    const values = Object.values(updates);
+// export const updateSingleSparkTransaction = async (saved_spark_id, updates) => {
+//   // updates should be an object like { status: 'COMPLETED' }
+//   // saved_spark_id needs to match that of the stored transaction and then you can update the saved_id
+//   try {
+//     const fields = Object.keys(updates)
+//       .map(key => `${key} = ?`)
+//       .join(', ');
+//     const values = Object.values(updates);
 
-    await sqlLiteDB.runAsync(
-      `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME} SET ${fields} WHERE sparkID = ?`,
-      ...values,
-      saved_spark_id,
-    );
-    // Emit event
-    handleEventEmitterPost(
-      sparkTransactionsEventEmitter,
-      SPARK_TX_UPDATE_ENVENT_NAME,
-      'transactions',
-    );
+//     await sqlLiteDB.runAsync(
+//       `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME} SET ${fields} WHERE sparkID = ?`,
+//       ...values,
+//       saved_spark_id,
+//     );
+//     // Emit event
+//     handleEventEmitterPost(
+//       sparkTransactionsEventEmitter,
+//       SPARK_TX_UPDATE_ENVENT_NAME,
+//       'transactions',
+//     );
 
-    return true;
-  } catch (error) {
-    console.error(`Error updating transaction:`, error);
-    return false;
-  }
-};
+//     return true;
+//   } catch (error) {
+//     console.error(`Error updating transaction:`, error);
+//     return false;
+//   }
+// };
 
 export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
   const [updateType = 'transactions', fee = 0, passedBalance = 0] = data;
@@ -194,11 +191,14 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
       // First pass: collect and merge transactions by final sparkID
       for (const tx of transactions) {
         const finalSparkId = tx.id; // This is the final ID we want to use
+        const accountId = tx.accountId;
         const tempSparkId = tx.useTempId ? tx.tempId : tx.id;
 
-        if (processedTransactions.has(finalSparkId)) {
+        const removeDuplicateKey = `${finalSparkId}_${accountId}`;
+
+        if (processedTransactions.has(removeDuplicateKey)) {
           // Merge with existing transaction
-          const existingTx = processedTransactions.get(finalSparkId);
+          const existingTx = processedTransactions.get(removeDuplicateKey);
 
           // Merge details - only override if new value is not empty
           let mergedDetails = {...existingTx.details};
@@ -219,7 +219,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           console.log('merged detials', mergedDetails);
 
           // Update the transaction with merged data
-          processedTransactions.set(finalSparkId, {
+          processedTransactions.set(removeDuplicateKey, {
             sparkID: finalSparkId,
             tempSparkId: existingTx.tempSparkId || tempSparkId, // Keep track of temp ID if it exists
             paymentStatus: tx.paymentStatus || existingTx.paymentStatus,
@@ -230,7 +230,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           });
         } else {
           // Add new transaction
-          processedTransactions.set(finalSparkId, {
+          processedTransactions.set(removeDuplicateKey, {
             sparkID: finalSparkId,
             tempSparkId: tx.useTempId ? tempSparkId : null,
             paymentStatus: tx.paymentStatus,
@@ -246,13 +246,15 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
       await sqlLiteDB.execAsync('BEGIN TRANSACTION');
 
       // Step 3: Process each unique transaction
-      for (const [finalSparkId, processedTx] of processedTransactions) {
+      for (const [removeDuplicateKey, processedTx] of processedTransactions) {
+        const [finalSparkId, accountId] = removeDuplicateKey.split('_');
         // Check if transaction exists by final sparkID
         const existingTx = await sqlLiteDB.getFirstAsync(
           `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} 
            WHERE sparkID = ? 
+           AND accountId = ?
            LIMIT 1`,
-          [finalSparkId],
+          [finalSparkId, accountId],
         );
 
         // Also check if temp ID exists (if different from final ID)
@@ -264,8 +266,9 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           existingTempTx = await sqlLiteDB.getFirstAsync(
             `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} 
              WHERE sparkID = ? 
+             AND accountId = ?
              LIMIT 1`,
-            [processedTx.tempSparkId],
+            [processedTx.tempSparkId, accountId],
           );
         }
 
@@ -294,21 +297,22 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           await sqlLiteDB.runAsync(
             `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
              SET paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
-             WHERE sparkID = ?`,
+             WHERE sparkID = ? AND accountId = ?`,
             [
               processedTx.paymentStatus,
               processedTx.paymentType,
               processedTx.accountId,
               JSON.stringify(mergedDetails),
               finalSparkId,
+              accountId,
             ],
           );
 
           // Delete temp transaction if it exists and is different
           if (existingTempTx && processedTx.tempSparkId !== finalSparkId) {
             await sqlLiteDB.runAsync(
-              `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ?`,
-              [processedTx.tempSparkId],
+              `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
+              [processedTx.tempSparkId, accountId],
             );
           }
         } else if (existingTempTx) {
@@ -336,7 +340,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           await sqlLiteDB.runAsync(
             `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
              SET sparkID = ?, paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
-             WHERE sparkID = ?`,
+             WHERE sparkID = ? AND accountId = ?`,
             [
               finalSparkId,
               processedTx.paymentStatus,
@@ -344,6 +348,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
               processedTx.accountId,
               JSON.stringify(mergedDetails),
               processedTx.tempSparkId,
+              accountId,
             ],
           );
         } else {

@@ -143,8 +143,8 @@ const ADVANCEDOPTIONS = [
   {
     for: 'general',
     name: 'Accounts',
-    icon: ICONS.sharedBlue,
-    iconWhite: ICONS.sharedWhite,
+    icon: ICONS.group,
+    iconWhite: ICONS.groupWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
   // {

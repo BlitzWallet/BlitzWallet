@@ -3,7 +3,7 @@ import {useGlobalContextProvider} from '../../../../../../context-store/context'
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {
-  GlobalThemeView,
+  CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
@@ -26,13 +26,16 @@ import {
   getSparkAddress,
   getSparkIdentityPubKey,
 } from '../../../../../functions/spark';
+import {bulkUpdateSparkTransactions} from '../../../../../functions/spark/transactions';
+import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
+import Icon from '../../../../../functions/CustomElements/Icon';
 
 export default function AccountPaymentPage(props) {
   const navigate = useNavigation();
   const {accountMnemoinc} = useKeysContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {nodeInformation} = useNodeContext();
-  const {theme} = useGlobalThemeContext();
+  const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor} = GetThemeColors();
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const sendingAmount = props?.route?.params?.amount || 0;
@@ -40,7 +43,8 @@ export default function AccountPaymentPage(props) {
   const to = props?.route?.params?.to;
   const fromBalance = props?.route?.params?.fromBalance;
   const prevBalance = useRef(null);
-
+  const [memo, setMemo] = useState('');
+  const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
   const [transferInfo, setTransferInfo] = useState({
     isDoingTransfer: false,
     isCalculatingFee: false,
@@ -119,9 +123,13 @@ export default function AccountPaymentPage(props) {
         throw new Error('Not able to get send address');
       }
 
-      const accountIdentifyPubKey = await getSparkIdentityPubKey(from);
+      const [accountIdentifyPubKey, toAccountIdentityPubKey] =
+        await Promise.all([
+          getSparkIdentityPubKey(from),
+          getSparkIdentityPubKey(to),
+        ]);
 
-      if (!accountIdentifyPubKey) {
+      if (!accountIdentifyPubKey || !toAccountIdentityPubKey) {
         throw new Error('Not able to get account information');
       }
 
@@ -131,7 +139,7 @@ export default function AccountPaymentPage(props) {
         amountSats: convertedSendAmount,
         masterInfoObject,
         fee: transferInfo.paymentFee,
-        memo: 'Accounts Swap',
+        memo: memo || 'Account Swap',
         userBalance: fromBalance,
         sparkInformation: {
           identityPubKey: accountIdentifyPubKey,
@@ -143,10 +151,23 @@ export default function AccountPaymentPage(props) {
         throw new Error(sendingResponse.error);
       }
 
+      await bulkUpdateSparkTransactions([
+        {
+          ...sendingResponse.response,
+          accountId: toAccountIdentityPubKey,
+          details: {
+            ...sendingResponse.response.details,
+            direction: 'INCOMING',
+            fee: 0,
+          },
+        },
+      ]);
+
       if (currentWalletMnemoinc === to) {
         // Confirm response will be handled by current listeners
         return;
       }
+
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           navigate.reset({
@@ -185,13 +206,21 @@ export default function AccountPaymentPage(props) {
     to,
     from,
     currentWalletMnemoinc,
+    memo,
   ]);
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <CustomKeyboardAvoidingView
+      isKeyboardActive={isKeyboardFocused}
+      useLocalPadding={true}
+      useStandardWidth={true}
+      useTouchableWithoutFeedback={true}>
       <CustomSettingsTopBar label={'Swap'} />
 
-      <ScrollView style={{width: '100%', flex: 1}}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={{width: '100%'}}
+        contentContainerStyle={{paddingBottom: 10}}>
         <ThemeImage
           styles={{
             transform: [{rotate: '90deg'}],
@@ -368,6 +397,35 @@ export default function AccountPaymentPage(props) {
             />
           )}
         </View>
+        <View
+          style={{
+            ...styles.transferAccountRow,
+            borderBottomColor: backgroundOffset,
+          }}>
+          <View style={styles.transferTextContainer}>
+            <View style={styles.transferTextIcon}>
+              <Icon
+                color={
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+                }
+                height={20}
+                width={20}
+                name={'editIcon'}
+              />
+            </View>
+            <ThemeText content={'Description'} />
+          </View>
+          <CustomSearchInput
+            inputText={memo}
+            setInputText={setMemo}
+            containerStyles={styles.textInputContainerStyles}
+            textInputStyles={styles.textInputStyles}
+            placeholderText="Transfer to savings"
+            onFocusFunction={() => setIsKeyboardFocused(true)}
+            onBlurFunction={() => setIsKeyboardFocused(false)}
+            maxLength={80}
+          />
+        </View>
       </ScrollView>
 
       <CustomButton
@@ -378,7 +436,7 @@ export default function AccountPaymentPage(props) {
         useLoading={transferInfo.isDoingTransfer}
         actionFunction={handlePayment}
       />
-    </GlobalThemeView>
+    </CustomKeyboardAvoidingView>
   );
 }
 
@@ -403,5 +461,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     includeFontPadding: false,
+  },
+  textInputContainerStyles: {
+    flexShrink: 1,
+    width: '100%',
+    marginLeft: 10,
+  },
+  textInputStyles: {
+    backgroundColor: 'transparent',
+    textAlign: 'right',
+    width: '100%',
+    padding: 0,
   },
 });

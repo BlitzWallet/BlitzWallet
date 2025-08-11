@@ -196,7 +196,6 @@ function ResetStack(): JSX.Element | null {
   // Memoize handleDeepLink
   const handleDeepLink = useCallback(
     (event: {url: string}) => {
-      console.log('TEST');
       const {url} = event;
       console.log('Deep link URL:', url);
 
@@ -319,9 +318,7 @@ function ResetStack(): JSX.Element | null {
 
       const isPinFromMode = loginModeType?.value === 'pin';
       const isBiometricFromMode = loginModeType?.value === 'biometric';
-      console.log(storedSettings, 'stored security setttings');
-      console.log(isPinFromMode, 'stored security setttings');
-      console.log(isBiometricFromMode, 'stored security setttings');
+
       const parsedSettings = storedSettings ?? {
         isSecurityEnabled: true,
         isPinEnabled: isPinFromMode || (!isPinFromMode && !isBiometricFromMode),
