@@ -117,7 +117,7 @@ export const sparkPaymenWrapper = async ({
           lightningPayResponse.error || 'Error when sending lightning payment',
         );
 
-      handleSupportPayment(masterInfoObject, supportFee);
+      handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
       const data = lightningPayResponse.paymentResponse;
 
@@ -155,7 +155,7 @@ export const sparkPaymenWrapper = async ({
         throw new Error(
           onChainPayResponse.error || 'Error when sending bitcoin payment',
         );
-      handleSupportPayment(masterInfoObject, supportFee);
+      handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
       console.log(onChainPayResponse, 'on-chain pay response');
       const data = onChainPayResponse.response;
@@ -201,7 +201,7 @@ export const sparkPaymenWrapper = async ({
         );
 
       // if (seletctedToken === 'Bitcoin') {
-      handleSupportPayment(masterInfoObject, supportFee);
+      handleSupportPayment(masterInfoObject, supportFee, mnemonic);
       // }
       const data = sparkPayResponse.response;
       const tx = {
@@ -308,7 +308,7 @@ export const sparkReceivePaymentWrapper = async ({
   }
 };
 
-async function handleSupportPayment(masterInfoObject, supportFee) {
+async function handleSupportPayment(masterInfoObject, supportFee, mnemonic) {
   try {
     if (!supportFee) return;
     if (masterInfoObject?.enabledDeveloperSupport?.isEnabled) {
@@ -316,6 +316,7 @@ async function handleSupportPayment(masterInfoObject, supportFee) {
       await sendSparkPayment({
         receiverSparkAddress: process.env.BLITZ_SPARK_SUPPORT_ADDRESSS,
         amountSats: supportFee,
+        mnemonic: mnemonic,
       });
       sparkTransactionsEventEmitter.emit(
         SPARK_TX_UPDATE_ENVENT_NAME,

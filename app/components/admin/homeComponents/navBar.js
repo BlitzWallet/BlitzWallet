@@ -32,33 +32,6 @@ export const NavBar = memo(function NavBar({theme, darkModeType, toggleTheme}) {
       {/* Center space for animated balance - invisible but takes up space */}
       <View style={styles.centerSpace} />
 
-      {/* <TouchableOpacity
-        onPress={() => {
-          navigate.navigate('CustomHalfModal', {
-            wantedContent: 'SwitchCustodyAccount',
-            sliderHight: 0.5,
-          });
-        }}
-        style={{
-          ...styles.custodyAccountContainer,
-          borderColor:
-            theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-        }}>
-        <ThemeText
-          styles={{
-            fontWeight: '500',
-            color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-          }}
-          content={
-            isUsingAltAccount
-              ? selectedAltAccount[0]?.name?.[0]?.toUpperCase()
-              : isUsingNostr
-              ? 'N'
-              : 'M'
-          }
-        />
-      </TouchableOpacity> */}
-
       <TouchableOpacity
         onPress={() => {
           crashlyticsLogReport(

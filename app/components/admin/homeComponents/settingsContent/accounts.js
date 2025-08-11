@@ -10,47 +10,30 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import {useKeysContext} from '../../../../../context-store/keys';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {initWallet} from '../../../../functions/initiateWalletConnection';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
+import useCustodyAccountList from '../../../../hooks/useCustodyAccountsList';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {
-    isUsingAltAccount,
     selectedAltAccount,
-    custodyAccounts,
     updateAccountCacheOnly,
     currentWalletMnemoinc,
-    nostrSeed,
     toggleIsUsingNostr,
-    isUsingNostr,
     removeAccount,
   } = useActiveCustodyAccount();
   const {setSparkInformation} = useSparkWallet();
-  const {accountMnemoinc} = useKeysContext();
   const {backgroundOffset, backgroundColor, textColor} = GetThemeColors();
   const [searchInput, setSearchInput] = useState('');
-  const {masterInfoObject} = useGlobalContextProvider();
   const [isLoading, setIsLoading] = useState({
     accountBeingLoaded: '',
     isLoading: '',
   });
 
-  const enabledNWC =
-    masterInfoObject.NWC.accounts &&
-    !!Object.keys(masterInfoObject.NWC.accounts).length;
-
-  const accounts = enabledNWC
-    ? [
-        {name: 'Main Wallet', mnemoinc: accountMnemoinc},
-        {name: 'NWC', mnemoinc: nostrSeed},
-        ...custodyAccounts,
-      ]
-    : [{name: 'Main Wallet', mnemoinc: accountMnemoinc}, ...custodyAccounts];
+  const accounts = useCustodyAccountList();
 
   const accountElements = accounts
     .filter(account =>
@@ -64,9 +47,11 @@ export default function CreateCustodyAccounts() {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             ...styles.accountRow,
           }}>
-          <View style={{flex: 1}}>
-            <ThemeText CustomNumberOfLines={1} content={account.name} />
-          </View>
+          <ThemeText
+            styles={styles.accountName}
+            CustomNumberOfLines={1}
+            content={account.name}
+          />
 
           {account.name !== 'Main Wallet' && account.name !== 'NWC' && (
             <TouchableOpacity
@@ -226,8 +211,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginVertical: 5,
+  },
+  accountName: {
+    width: '100%',
+    includeFontPadding: false,
+    flexShrink: 1,
+    marginRight: 10,
   },
   viewAccountArrowContainer: {
     backgroundColor: 'red',

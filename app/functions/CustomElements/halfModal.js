@@ -42,7 +42,6 @@ import CustomQrCode from '../../components/admin/homeComponents/settingsContent/
 import ChooseLNURLCopyFormat from '../../components/admin/homeComponents/receiveBitcoin/lnurlCopyType';
 import LRC20AssetSelectorHalfModal from '../lrc20/lrc20HalfModal';
 import LRC20TokenInformation from '../lrc20/lrc20TokenDataHalfModal';
-import SwitchCustodyAccountHalfModal from '../../components/admin/homeComponents/homeLightning/switchActiveAccountHalfModal';
 import SelectAltAccountHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/SelectAltAccountHalfModal';
 
 export default function CustomHalfModal(props) {
@@ -266,8 +265,6 @@ export default function CustomHalfModal(props) {
             setContentHeight={setContentHeight}
           />
         );
-      case 'SwitchCustodyAccount':
-        return <SwitchCustodyAccountHalfModal slideHeight={slideHeight} />;
       case 'SelectAltAccount':
         return (
           <SelectAltAccountHalfModal
