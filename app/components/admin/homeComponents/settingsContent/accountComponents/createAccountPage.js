@@ -33,6 +33,9 @@ import SuggestedWordContainer from '../../../../login/suggestedWords';
 import isValidMnemonic from '../../../../../functions/isValidMnemonic';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 import customUUID from '../../../../../functions/customUUID';
+import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
+import {handleRestoreFromText} from '../../../../../functions/seed';
+import getClipboardText from '../../../../../functions/getClipboardText';
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   acc[`key${num}`] = '';
@@ -49,7 +52,8 @@ export default function CreateCustodyAccountPage() {
     uuid: '',
     isActive: false,
   });
-  const {custodyAccounts: accounts, createAccount} = useActiveCustodyAccount();
+  const {createAccount} = useActiveCustodyAccount();
+  const accounts = useCustodyAccountList();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
@@ -70,6 +74,18 @@ export default function CreateCustodyAccountPage() {
   const enteredAllSeeds = Object.values(inputedKey).filter(item => item);
 
   const handleInputElement = useCallback((text, keyNumber) => {
+    const restoredSeed = handleRestoreFromText(text);
+
+    if (restoredSeed.didWork && restoredSeed?.seed?.length === 12) {
+      const splitSeed = restoredSeed.seed;
+      const newKeys = {};
+      NUMARRAY.forEach((num, index) => {
+        newKeys[`key${num}`] = splitSeed[index];
+      });
+      setInputedKey(newKeys);
+      return;
+    }
+
     setInputedKey(prev => ({...prev, [`key${keyNumber}`]: text}));
   }, []);
 
@@ -135,10 +151,20 @@ export default function CreateCustodyAccountPage() {
         });
         return;
       }
+      const seedString = enteredAllSeeds.join(' ');
+      const alreadyUsedSeed = accounts.find(
+        account => account.mnemoinc.toLowerCase() === seedString,
+      );
+      if (alreadyUsedSeed) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: 'This seed already exists for another account',
+        });
+        return;
+      }
       setIsCreatingAccount(true);
       const response = await createAccount({
         ...accountInformation,
-        mnemoinc: enteredAllSeeds.join(' '),
+        mnemoinc: seedString,
       });
       if (!response.didWork) throw new Error(response.err);
 
@@ -360,6 +386,44 @@ export default function CreateCustodyAccountPage() {
             textContent={'Restore'}
           />
         </View>
+        {inputedKey === INITIAL_KEY_STATE && (
+          <CustomButton
+            actionFunction={async () => {
+              const response = await getClipboardText();
+              if (!response.didWork) throw new Error(response.reason);
+
+              const data = response.data;
+
+              const restoredSeed = handleRestoreFromText(data);
+
+              const splitSeed = restoredSeed.seed;
+
+              if (!splitSeed.every(word => word.trim().length > 0)) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: 'Not every word is of valid length',
+                });
+                return;
+              }
+
+              if (splitSeed.length != 12) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage:
+                    'Unable to find 12 words from copied recovery phrase.',
+                });
+              }
+
+              const newKeys = {};
+              NUMARRAY.forEach((num, index) => {
+                newKeys[`key${num}`] = splitSeed[index];
+              });
+              setInputedKey(newKeys);
+            }}
+            buttonStyles={{
+              marginTop: 10,
+            }}
+            textContent={'Paste'}
+          />
+        )}
       </ScrollView>
 
       {!isKeyboardActive && (
