@@ -25,7 +25,7 @@ export const mergeTokensWithCache = (currentTokens, cachedTokens, mnemonic) => {
   let merged = {};
   const selctedCashedTokens = cachedTokens[sha256Hash(mnemonic)]
     ? cachedTokens[sha256Hash(mnemonic)]
-    : cachedTokens;
+    : {};
 
   // Update with current token data
   for (const [identifier, tokenData] of Object.entries(selctedCashedTokens)) {

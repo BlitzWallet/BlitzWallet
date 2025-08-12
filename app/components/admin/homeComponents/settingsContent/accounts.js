@@ -60,6 +60,13 @@ export default function CreateCustodyAccounts() {
                 {backgroundColor: backgroundColor},
               ]}
               onPress={() => {
+                if (currentWalletMnemoinc === account.mnemoinc) {
+                  navigate.navigate('ErrorScreen', {
+                    errorMessage:
+                      'You can’t delete the active account. Please select another account before deleting.',
+                  });
+                  return;
+                }
                 navigate.navigate('ConfirmActionPage', {
                   confirmMessage:
                     'Are you sure you want to delete this account?',

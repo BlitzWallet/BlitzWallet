@@ -106,13 +106,16 @@ export const getSparkBalance = async mnemonic => {
       console.log('Tokens Balance:', tokensData);
     }
 
+    console.log('tokens in cache', cachedTokens);
+    console.log('current tokens object', currentTokensObj);
+
     const allTokens = mergeTokensWithCache(
       balance.tokenBalances,
       cachedTokens,
       mnemonic,
     );
 
-    console.log(allTokens);
+    console.log('all tokens after merge', allTokens);
 
     await saveCachedTokens(allTokens);
 
