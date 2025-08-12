@@ -242,7 +242,7 @@ const SparkWalletProvider = ({children}) => {
         transferIdsToProcess,
       );
       const transactions = await getSparkTransactions(
-        5,
+        3,
         undefined,
         currentWalletMnemoinc,
       );
