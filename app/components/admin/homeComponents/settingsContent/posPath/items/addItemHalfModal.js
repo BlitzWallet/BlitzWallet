@@ -57,42 +57,49 @@ export default function AddPOSItemHalfModal({
       masterInfoObject?.posSettings?.storeCurrency;
 
   const addNewItem = () => {
-    if (!itemInformation.name || !itemInformation.price) return;
-    if (itemInformation.name.length > 60) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: 'Item name must be less than 60 characters.',
-      });
-      return;
-    }
-    if (shouldShowCancel) {
-      handleBackPressFunction();
-      return;
-    }
-    let posObject = JSON.parse(JSON.stringify(masterInfoObject?.posSettings));
-    if (!posObject.items) {
-      posObject.items = [];
-    }
-    if (initialSettings) {
-      posObject.items = posObject.items.map(item => {
-        if (item.uuid === initialSettings.uuid)
-          return {
-            ...item,
-            name: itemInformation.name,
-            price: Number(itemInformation.price),
-            initialCurrency: masterInfoObject?.posSettings?.storeCurrency,
-          };
-        else return item;
-      });
-    } else
-      posObject.items.push({
-        name: itemInformation.name,
-        price: Number(itemInformation.price),
-        uuid: customUUID(),
-        initialCurrency: masterInfoObject?.posSettings?.storeCurrency,
-      });
+    try {
+      if (!itemInformation.name || !Number(itemInformation.price)) return;
+      if (itemInformation.name.length > 60) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: 'Item name must be less than 60 characters.',
+        });
+        return;
+      }
+      if (shouldShowCancel) {
+        handleBackPressFunction();
+        return;
+      }
+      let posObject = JSON.parse(JSON.stringify(masterInfoObject?.posSettings));
+      if (!posObject.items) {
+        posObject.items = [];
+      }
+      if (initialSettings) {
+        posObject.items = posObject.items.map(item => {
+          if (item.uuid === initialSettings.uuid)
+            return {
+              ...item,
+              name: itemInformation.name,
+              price: Number(itemInformation.price),
+              initialCurrency: masterInfoObject?.posSettings?.storeCurrency,
+            };
+          else return item;
+        });
+      } else
+        posObject.items.push({
+          name: itemInformation.name,
+          price: Number(itemInformation.price),
+          uuid: customUUID(),
+          initialCurrency: masterInfoObject?.posSettings?.storeCurrency,
+        });
 
-    toggleMasterInfoObject({posSettings: posObject});
-    handleBackPressFunction();
+      toggleMasterInfoObject({posSettings: posObject});
+      handleBackPressFunction();
+    } catch (err) {
+      console.log('error adding item to pos');
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'Error adding item to POS.',
+      });
+    }
   };
 
   return (
