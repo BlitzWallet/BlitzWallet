@@ -32,6 +32,7 @@ export const ActiveCustodyAccountProvider = ({children}) => {
   const [isUsingNostr, setIsUsingNostr] = useState(false);
   const {accountMnemoinc} = useKeysContext();
   const [nostrSeed, setNostrSeed] = useState('');
+  const hasSessionReset = useRef(false);
   const selectedAltAccount = custodyAccounts.filter(item => item.isActive);
   const isUsingAltAccount = !!selectedAltAccount.length;
   const enabledNWC = masterInfoObject?.NWC?.accounts
@@ -80,6 +81,43 @@ export const ActiveCustodyAccountProvider = ({children}) => {
     if (!accountMnemoinc) return;
     initializeAccouts();
   }, [accountMnemoinc]);
+
+  // Clear active account once per session to sync with default accountMnemonic
+  useEffect(() => {
+    if (!custodyAccounts.length || hasSessionReset.current || !accountMnemoinc)
+      return;
+
+    async function clearActiveAccountsOnSessionStart() {
+      try {
+        const hasActiveAccounts = custodyAccounts.some(
+          account => account.isActive,
+        );
+
+        if (hasActiveAccounts) {
+          console.log('Clearing active accounts for session sync...');
+
+          const clearedAccounts = custodyAccounts.map(account => ({
+            ...account,
+            isActive: false,
+          }));
+
+          setLocalStorageItem(
+            CUSTODY_ACCOUNTS_STORAGE_KEY,
+            JSON.stringify(encriptAccountsList(clearedAccounts)),
+          );
+
+          setCustodyAccounts(clearedAccounts);
+        }
+
+        hasSessionReset.current = true;
+      } catch (err) {
+        console.log('Session reset error', err);
+        hasSessionReset.current = true;
+      }
+    }
+
+    clearActiveAccountsOnSessionStart();
+  }, [custodyAccounts, accountMnemoinc]);
 
   const encriptAccountsList = custodyAccounts => {
     return custodyAccounts.map(item =>

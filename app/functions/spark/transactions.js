@@ -140,6 +140,7 @@ export const addSingleUnpaidSparkLightningTransaction = async tx => {
         JSON.stringify(tx.details),
       ],
     );
+    console.log('sucesfully added unpaid lightning invoice', tx);
     return true;
   } catch (error) {
     console.error('Error adding spark transaction:', error);

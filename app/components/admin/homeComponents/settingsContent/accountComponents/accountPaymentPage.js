@@ -420,7 +420,7 @@ export default function AccountPaymentPage(props) {
             setInputText={setMemo}
             containerStyles={styles.textInputContainerStyles}
             textInputStyles={styles.textInputStyles}
-            placeholderText="Transfer to savings"
+            placeholderText="Account Swap"
             onFocusFunction={() => setIsKeyboardFocused(true)}
             onBlurFunction={() => setIsKeyboardFocused(false)}
             maxLength={80}
