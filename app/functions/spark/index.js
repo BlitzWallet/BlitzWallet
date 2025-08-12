@@ -16,6 +16,7 @@ import {SPARK_TO_SPARK_FEE} from '../../constants/math';
 import {
   getCachedTokens,
   mergeTokensWithCache,
+  migrateCachedTokens,
   saveCachedTokens,
 } from '../lrc20/cachedTokens';
 import sha256Hash from '../hash';
@@ -97,7 +98,7 @@ export const getSparkBalance = async mnemonic => {
       Array.from(balance.tokenBalances.values()),
     );
 
-    const cachedTokens = await getCachedTokens();
+    const cachedTokens = await migrateCachedTokens(mnemonic);
 
     let currentTokensObj = {};
     for (const [tokensIdentifier, tokensData] of balance.tokenBalances) {
