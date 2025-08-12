@@ -44,20 +44,6 @@ export function SendRecieveBTNs({
             return;
           }
 
-          if (isNWCWallet) {
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'customInputText',
-              message: `Transfer funds ${
-                btnType === 'send'
-                  ? 'from Nostr Wallet Connect to main wallet'
-                  : 'from main to Nostr Wallet Connects wallet'
-              }`,
-              type: btnType,
-              returnLocation: 'NWCWallet',
-              sliderHight: 0.5,
-            });
-            return;
-          }
           if (btnType === 'send') {
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'sendOptions',

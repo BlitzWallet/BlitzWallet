@@ -12,7 +12,7 @@ export default function HasNoNostrAccounts() {
       <ThemeText
         styles={{textAlign: 'center', marginBottom: 50}}
         content={
-          'To send money from your Nostr Connect wallet, first add funds to it by receiving money or transferring some from your main wallet.'
+          'To send money from your Nostr Connect wallet, you’ll first need to add funds—either by receiving money or transferring from your main wallet.\n\n You can transfer funds from your main wallet to NWC in the account settings page.'
         }
       />
       <CustomButton

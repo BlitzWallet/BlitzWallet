@@ -51,7 +51,7 @@ import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settin
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
 import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
-import NWCWallet from '../app/components/admin/homeComponents/settingsContent/nwc/NWCWalletPage';
+// import NWCWallet from '../app/components/admin/homeComponents/settingsContent/nwc/NWCWalletPage';
 import NWCWalletSetup from '../app/components/admin/homeComponents/settingsContent/nwc/showSeedPage';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
@@ -135,7 +135,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'CustodyAccountPaymentPage', component: AccountPaymentPage},
   {name: 'NosterWalletConnect', component: NosterWalletConnect},
   {name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount},
-  {name: 'NWCWallet', component: NWCWallet},
+  // {name: 'NWCWallet', component: NWCWallet},
   {name: 'NWCWalletSetup', component: NWCWalletSetup},
   {name: 'SparkSettingsPage', component: SparkSettingsPage},
   {name: 'Nip5VerificationPage', component: Nip5VerificationPage},

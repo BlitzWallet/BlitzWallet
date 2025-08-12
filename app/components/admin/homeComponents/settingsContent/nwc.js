@@ -204,13 +204,6 @@ export default function NosterWalletConnect() {
             }}
             textContent={'Add Account'}
           />
-          {/* <CustomButton
-            actionFunction={() => {
-              navigate.navigate('NWCWallet');
-            }}
-            buttonStyles={{flexGrow: 1, maxWidth: '48%'}}
-            textContent={'View Wallet'}
-          /> */}
         </View>
       </CustomKeyboardAvoidingView>
     </CustomPageWrapper>
