@@ -23,7 +23,6 @@ export default function CreateCustodyAccounts() {
     updateAccountCacheOnly,
     currentWalletMnemoinc,
     toggleIsUsingNostr,
-    removeAccount,
   } = useActiveCustodyAccount();
   const {setSparkInformation} = useSparkWallet();
   const {backgroundOffset, backgroundColor, textColor} = GetThemeColors();
@@ -52,36 +51,6 @@ export default function CreateCustodyAccounts() {
             CustomNumberOfLines={1}
             content={account.name}
           />
-
-          {account.name !== 'Main Wallet' && account.name !== 'NWC' && (
-            <TouchableOpacity
-              style={[
-                styles.viewAccountArrowContainer,
-                {backgroundColor: backgroundColor},
-              ]}
-              onPress={() => {
-                if (currentWalletMnemoinc === account.mnemoinc) {
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage:
-                      'You can’t delete the active account. Please select another account before deleting.',
-                  });
-                  return;
-                }
-                navigate.navigate('ConfirmActionPage', {
-                  confirmMessage:
-                    'Are you sure you want to delete this account?',
-                  confirmFunction: () => removeAccount(account),
-                  cancelFunction: () => {},
-                });
-              }}>
-              <ThemeImage
-                styles={styles.arrowIcon}
-                lightModeIcon={ICONS.trashIcon}
-                darkModeIcon={ICONS.trashIcon}
-                lightsOutIcon={ICONS.trashIconWhite}
-              />
-            </TouchableOpacity>
-          )}
 
           {account.name !== 'Main Wallet' && (
             <TouchableOpacity

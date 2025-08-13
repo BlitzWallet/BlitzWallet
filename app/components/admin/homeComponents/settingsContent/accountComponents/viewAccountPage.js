@@ -10,7 +10,6 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
@@ -18,7 +17,7 @@ import {useActiveCustodyAccount} from '../../../../../../context-store/activeAcc
 import {useToast} from '../../../../../../context-store/toastManager';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import calculateSeedQR from '../seedQR';
-import {INSET_WINDOW_WIDTH, SHADOWS} from '../../../../../constants/theme';
+import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import {useTranslation} from 'react-i18next';
 import QrCodeWrapper from '../../../../../functions/CustomElements/QrWrapper';
 import {KeyContainer} from '../../../../login';
@@ -28,10 +27,7 @@ import {copyToClipboard} from '../../../../../functions';
 
 export default function ViewCustodyAccountPage({route}) {
   const {showToast} = useToast();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const isInitialRender = useRef(true);
-  const dimentions = useWindowDimensions();
-  const [showSeed, setShowSeed] = useState(false);
+  const {currentWalletMnemoinc, removeAccount} = useActiveCustodyAccount();
   const {account} = route.params;
   const {extraData} = route.params;
   const mnemoinc = account.mnemoinc;
@@ -44,16 +40,7 @@ export default function ViewCustodyAccountPage({route}) {
   const canViewQrCode = extraData?.canViewQrCode;
   const qrValue = calculateSeedQR(mnemoinc);
   const {theme, darkModeType} = useGlobalThemeContext();
-
-  useEffect(() => {
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      return;
-    }
-    if (showSeed) {
-      fadeout();
-    }
-  }, [showSeed]);
+  const sliderWidth = 102;
 
   function handleSlide(type) {
     Animated.timing(sliderAnimation, {
@@ -68,19 +55,28 @@ export default function ViewCustodyAccountPage({route}) {
     setSelectedDisplayOption('qrcode');
     handleSlide('qrcode');
   }, [canViewQrCode]);
-  const sliderWidth = 102;
-
-  function fadeout() {
-    Animated.timing(fadeAnim, {
-      toValue: dimentions.height * 2,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar />
+      <CustomSettingsTopBar
+        leftImageBlue={ICONS.trashIcon}
+        LeftImageDarkMode={ICONS.trashIconWhite}
+        showLeftImage={account.name !== 'Main Wallet' && account.name !== 'NWC'}
+        leftImageFunction={() => {
+          if (currentWalletMnemoinc === account.mnemoinc) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage:
+                'You can’t delete the active account. Please select another account before deleting.',
+            });
+            return;
+          }
+          navigate.navigate('ConfirmActionPage', {
+            confirmMessage: 'Are you sure you want to delete this account?',
+            confirmFunction: () => removeAccount(account),
+            cancelFunction: () => {},
+          });
+        }}
+      />
       <View>
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -206,79 +202,18 @@ export default function ViewCustodyAccountPage({route}) {
             textContent={'Copy'}
           />
         </ScrollView>
-
-        <Animated.View
-          style={[
-            styles.confirmPopup,
-            {
-              transform: [{translateY: fadeAnim}],
-              backgroundColor,
-            },
-          ]}>
-          <View style={styles.confirmPopupInnerContainer}>
-            <ThemeText
-              styles={{...styles.confirmPopupTitle}}
-              content={t('settings.seedphrase.text3')}
-            />
-            <View style={styles.confirmationContainer}>
-              <CustomButton
-                buttonStyles={{
-                  backgroundColor:
-                    theme && darkModeType ? backgroundOffset : COLORS.primary,
-                  marginRight: 20,
-                }}
-                textStyles={{color: COLORS.darkModeText}}
-                textContent={t('constants.yes')}
-                actionFunction={() => setShowSeed(true)}
-              />
-
-              <CustomButton
-                textContent={t('constants.no')}
-                actionFunction={navigate.goBack}
-              />
-            </View>
-          </View>
-        </Animated.View>
       </View>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
-    flex: 1,
-  },
-
   headerPhrase: {
     marginBottom: 15,
     fontSize: SIZES.xLarge,
     textAlign: 'center',
   },
 
-  confirmPopup: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    alignItems: 'center',
-  },
-  confirmationContainer: {
-    flexDirection: 'row',
-    marginTop: 50,
-    width: '100%',
-    justifyContent: 'center',
-  },
-  confirmPopupInnerContainer: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  confirmPopupTitle: {
-    fontSize: SIZES.large,
-    textAlign: 'center',
-  },
   scrollViewContainer: {},
   scrollViewStyles: {
     width: INSET_WINDOW_WIDTH,

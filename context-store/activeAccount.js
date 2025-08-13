@@ -35,15 +35,7 @@ export const ActiveCustodyAccountProvider = ({children}) => {
   const hasSessionReset = useRef(false);
   const selectedAltAccount = custodyAccounts.filter(item => item.isActive);
   const isUsingAltAccount = !!selectedAltAccount.length;
-  const enabledNWC = masterInfoObject?.NWC?.accounts
-    ? !!Object.keys(masterInfoObject?.NWC?.accounts)?.length
-    : 0;
-  console.log(
-    'decoded account list',
-    custodyAccounts,
-    selectedAltAccount,
-    isUsingAltAccount,
-  );
+  const enabledNWC = masterInfoObject.didViewNWCMessage;
 
   useEffect(() => {
     if (nostrSeed.length || !enabledNWC) return;
@@ -64,8 +56,6 @@ export const ActiveCustodyAccountProvider = ({children}) => {
         const accoutList = await getLocalStorageItem(
           CUSTODY_ACCOUNTS_STORAGE_KEY,
         ).then(data => JSON.parse(data) || []);
-
-        console.log(accoutList, 'custody account list');
 
         const decryptedList = accoutList.map(item =>
           JSON.parse(decryptMnemonic(item, accountMnemoinc)),
