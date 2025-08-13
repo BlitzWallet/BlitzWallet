@@ -13,6 +13,7 @@ import {useGlobalContextProvider} from '../../../../../../context-store/context'
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import StoreErrorPage from '../components/errorScreen';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import {useTranslation} from 'react-i18next';
 
 export default function ConfirmSMSPayment(props) {
   const navigate = useNavigation();
@@ -20,6 +21,7 @@ export default function ConfirmSMSPayment(props) {
   const {sparkInformation} = useSparkWallet();
   const {masterInfoObject} = useGlobalContextProvider();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {t} = useTranslation();
   const {
     message,
     areaCodeNum,
@@ -45,7 +47,7 @@ export default function ConfirmSMSPayment(props) {
       ).formatInternational();
     } catch (err) {
       console.log(err);
-      return 'Not a valid phone number';
+      return t('apps.sms4sats.confirmationSlideUp.invalidNumer');
     }
   };
 
@@ -92,7 +94,9 @@ export default function ConfirmSMSPayment(props) {
         });
         if (!fee.didWork) throw new Error(fee.error);
         if (sparkInformation.balance < fee.supportFee + fee.fee) {
-          throw new Error('Insufficient balance to purchase sms');
+          throw new Error(
+            t('errormessages.insufficientBalance', {planType: 'SMS'}),
+          );
         }
         setInvoiceInformation({
           fee: fee.fee,
@@ -120,7 +124,7 @@ export default function ConfirmSMSPayment(props) {
         <>
           <ThemeText
             styles={{fontSize: SIZES.xLarge, textAlign: 'center'}}
-            content={'Confirm number'}
+            content={t('apps.sms4sats.confirmationSlideUp.title')}
           />
           <ThemeText
             styles={{
@@ -136,7 +140,7 @@ export default function ConfirmSMSPayment(props) {
               fontSize: SIZES.large,
               textAlign: 'center',
             }}
-            frontText={'Price: '}
+            frontText={t('apps.sms4sats.confirmationSlideUp.price')}
             balance={price}
           />
           <FormattedSatText
@@ -145,7 +149,7 @@ export default function ConfirmSMSPayment(props) {
             styles={{
               textAlign: 'center',
             }}
-            frontText={'Fee: '}
+            frontText={t('apps.sms4sats.confirmationSlideUp.fee')}
             balance={invoiceInformation.fee + invoiceInformation.supportFee}
           />
           <SwipeButtonNew

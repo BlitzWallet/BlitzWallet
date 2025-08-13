@@ -13,10 +13,12 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import {openInbox} from 'react-native-email-link';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {useToast} from '../../../../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
 
 export default function GiftCardOrderDetails(props) {
   const {backgroundColor} = GetThemeColors();
   const {showToast} = useToast();
+  const {t} = useTranslation();
 
   const item = props.route.params?.item;
   const navigate = useNavigation();
@@ -33,9 +35,15 @@ export default function GiftCardOrderDetails(props) {
                 backgroundColor: backgroundColor,
               },
             ]}>
-            <ThemeText styles={styles.headerText} content={'Order Details'} />
+            <ThemeText
+              styles={styles.headerText}
+              content={t('apps.giftCards.giftCardOrderDetails.title')}
+            />
 
-            <ThemeText styles={styles.itemDescription} content={'Invoice'} />
+            <ThemeText
+              styles={styles.itemDescription}
+              content={t('apps.giftCards.giftCardOrderDetails.invoice')}
+            />
             <TouchableOpacity
               style={styles.itemContainer}
               onPress={() => {
@@ -43,7 +51,10 @@ export default function GiftCardOrderDetails(props) {
               }}>
               <ThemeText CustomNumberOfLines={2} content={item.invoice} />
             </TouchableOpacity>
-            <ThemeText styles={styles.itemDescription} content={'Order ID'} />
+            <ThemeText
+              styles={styles.itemDescription}
+              content={t('apps.giftCards.giftCardOrderDetails.orderId')}
+            />
             <TouchableOpacity
               style={styles.itemContainer}
               onPress={() => {
@@ -51,7 +62,10 @@ export default function GiftCardOrderDetails(props) {
               }}>
               <ThemeText content={item.id} />
             </TouchableOpacity>
-            <ThemeText styles={styles.itemDescription} content={'UUID'} />
+            <ThemeText
+              styles={styles.itemDescription}
+              content={t('apps.giftCards.giftCardOrderDetails.uuid')}
+            />
             <TouchableOpacity
               style={styles.itemContainer}
               onPress={() => {
@@ -70,11 +84,11 @@ export default function GiftCardOrderDetails(props) {
                   await openInbox();
                 } catch (err) {
                   navigate.navigate('ErrorScreen', {
-                    errorMessage: 'Not able to find any mail apps',
+                    errorMessage: t('errormessage.noMailAppsFoundError'),
                   });
                 }
               }}
-              textContent={'Open inbox'}
+              textContent={t('apps.giftCards.giftCardOrderDetails.openInbox')}
             />
           </View>
         </TouchableWithoutFeedback>

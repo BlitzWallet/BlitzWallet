@@ -21,6 +21,7 @@ import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useToast} from '../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
 
 export default function AppStore({navigation}) {
   const {showToast} = useToast();
@@ -30,6 +31,7 @@ export default function AppStore({navigation}) {
   const {decodedGiftCards} = useGlobalAppData();
   const windowWidth = useWindowDimensions();
   const navigate = useNavigation();
+  const {t} = useTranslation();
 
   function handleBackPressFunction() {
     navigation.navigate('Home');
@@ -55,16 +57,14 @@ export default function AppStore({navigation}) {
               app.pageName.toLowerCase() === 'lnvpn')
           ) {
             navigate.navigate('ErrorScreen', {
-              errorMessage:
-                'Please reconnect to the internet to use this feature',
+              errorMessage: t('errormessages.internetReconnection'),
             });
             return;
           }
 
           if (app.pageName.toLowerCase() === 'soon') {
             navigate.navigate('ErrorScreen', {
-              errorMessage:
-                'We love that you want more apps. Suggest them below!',
+              errorMessage: t('screens.inAccount.appStore.soonMessage'),
             });
             return;
           }
@@ -123,13 +123,13 @@ export default function AppStore({navigation}) {
             )}
           </View>
           <ThemeText
-            content={app.name}
+            content={t(app.name)}
             styles={{...styles.appTitle, flex: 1}}
           />
         </View>
         <View>
           <ThemeText
-            content={app.description}
+            content={t(app.description)}
             CustomNumberOfLines={3}
             styles={{...styles.appDescription, padding: 10}}
           />
@@ -140,7 +140,10 @@ export default function AppStore({navigation}) {
 
   return (
     <GlobalThemeView styles={styles.globalConatiner} useStandardWidth={true}>
-      <ThemeText content={'Store'} styles={{...styles.headerText}} />
+      <ThemeText
+        content={t('screens.inAccount.appStore.title')}
+        styles={{...styles.headerText}}
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollViewStyles}>
@@ -148,8 +151,7 @@ export default function AppStore({navigation}) {
           onPress={() => {
             if (!isConnectedToTheInternet) {
               navigate.navigate('ErrorScreen', {
-                errorMessage:
-                  'Please reconnect to the internet to use this feature',
+                errorMessage: t('errorMessages.reconnectToInternet'),
               });
               return;
             }
@@ -169,7 +171,7 @@ export default function AppStore({navigation}) {
           }}>
           <ThemeText
             styles={{marginBottom: 10, color: COLORS.darkModeText}}
-            content={'Shop with Bitcoin'}
+            content={t('screens.inAccount.appStore.shopTitle')}
           />
           <ThemeText
             styles={{
@@ -177,9 +179,7 @@ export default function AppStore({navigation}) {
               color: COLORS.darkModeText,
               fontSize: SIZES.small,
             }}
-            content={
-              'Buy gift cards from thousands of different merchants around the world'
-            }
+            content={t('screens.inAccount.appStore.shopDescription')}
           />
           <View
             style={{
@@ -249,7 +249,7 @@ export default function AppStore({navigation}) {
           style={{
             alignItems: 'center',
           }}>
-          <ThemeText content={'Anything you want here?'} />
+          <ThemeText content={t('screens.inAccount.appStore.callToAction')} />
           <CustomButton
             buttonStyles={{
               width: 'auto',
@@ -260,7 +260,7 @@ export default function AppStore({navigation}) {
               color: COLORS.lightModeText,
               paddingHorizontal: 20,
             }}
-            textContent={'Contact us'}
+            textContent={t('constants.contactUs')}
             actionFunction={async () => {
               try {
                 const didRun = await openComposer({
@@ -274,7 +274,6 @@ export default function AppStore({navigation}) {
             }}
           />
         </View>
-        {/* <View style={{height: 50}} /> */}
       </ScrollView>
     </GlobalThemeView>
   );

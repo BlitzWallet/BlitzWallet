@@ -253,7 +253,7 @@ export default function VPNPlanPage({countryList}) {
           setIsPaying(false);
           navigate.navigate('ErrorScreen', {
             errorMessage:
-              t(paymentResponse.reason) ||
+              paymentResponse.reason ||
               t('apps.VPN.VPNPlanPage.backupPaymentError'),
           });
           return;

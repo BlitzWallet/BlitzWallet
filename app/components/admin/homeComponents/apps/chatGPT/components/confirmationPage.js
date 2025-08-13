@@ -14,6 +14,7 @@ import {useGlobalContextProvider} from '../../../../../../../context-store/conte
 import {useSparkWallet} from '../../../../../../../context-store/sparkContext';
 import StoreErrorPage from '../../components/errorScreen';
 import {useActiveCustodyAccount} from '../../../../../../../context-store/activeAccount';
+import {useTranslation} from 'react-i18next';
 
 export default function ConfirmChatGPTPage(props) {
   const navigate = useNavigation();
@@ -24,6 +25,7 @@ export default function ConfirmChatGPTPage(props) {
   const darkModeType = props?.darkModeType;
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
   const [error, setError] = useState('');
+  const {t} = useTranslation();
 
   const [invoiceInformation, setInvoiceInformation] = useState(null);
 
@@ -38,7 +40,7 @@ export default function ConfirmChatGPTPage(props) {
         try {
           input = await parse(lnPayoutLNURL);
         } catch (err) {
-          setError('Unable to retrive invoice for payment');
+          setError(t('errormessages.invoiceRetrivalError'));
           return;
         }
         const lnInvoice = await getLNAddressForLiquidPayment(
@@ -58,7 +60,11 @@ export default function ConfirmChatGPTPage(props) {
         });
         if (!fee.didWork) throw new Error(fee.error);
         if (sparkInformation.balance < fee.supportFee + fee.fee) {
-          throw new Error('Insufficient balance to purchase credits');
+          throw new Error(
+            t('errormessages.insufficientBalanceError', {
+              planType: t(props.plan),
+            }),
+          );
         }
         setInvoiceInformation({
           fee: fee.fee,
@@ -102,12 +108,14 @@ export default function ConfirmChatGPTPage(props) {
               textAlign: 'center',
               marginBottom: 5,
             }}
-            content={'Confirm Purchase'}
+            content={t('apps.chatGPT.confirmationPage.title')}
           />
 
           <ThemeText
             styles={{fontSize: SIZES.large, marginTop: 10}}
-            content={`Plan: ${props.plan}`}
+            content={t('apps.chatGPT.confirmationPage.plan', {
+              planType: t(props.plan),
+            })}
           />
           <FormattedSatText
             neverHideBalance={true}
@@ -116,7 +124,7 @@ export default function ConfirmChatGPTPage(props) {
               fontSize: SIZES.large,
               textAlign: 'center',
             }}
-            frontText={'Price: '}
+            frontText={t('apps.chatGPT.confirmationPage.price')}
             balance={props.price}
           />
           <FormattedSatText
@@ -125,7 +133,7 @@ export default function ConfirmChatGPTPage(props) {
             styles={{
               textAlign: 'center',
             }}
-            frontText={'Fee: '}
+            frontText={t('apps.chatGPT.confirmationPage.fee')}
             balance={invoiceInformation.fee + invoiceInformation.supportFee}
           />
           <SwipeButtonNew
