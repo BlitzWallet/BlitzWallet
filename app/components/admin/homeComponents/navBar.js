@@ -5,14 +5,9 @@ import {COLORS, WINDOWWIDTH} from '../../../constants/theme';
 import ThemeImage from '../../../functions/CustomElements/themeImage';
 import {memo} from 'react';
 import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
-// import {useActiveCustodyAccount} from '../../../../context-store/activeAccount';
-// import {ThemeText} from '../../../functions/CustomElements';
 
 export const NavBar = memo(function NavBar({theme, darkModeType, toggleTheme}) {
-  console.log('NAV BAR PAGE');
   const navigate = useNavigation();
-  // const {isUsingAltAccount, selectedAltAccount, custodyAccounts, isUsingNostr} =
-  //   useActiveCustodyAccount();
 
   return (
     <View style={[styles.topBar]}>

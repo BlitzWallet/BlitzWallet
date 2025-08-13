@@ -123,8 +123,10 @@ export default function HomeLightning() {
         homepageTxPreferance,
         navigate,
         frompage: 'home',
-        viewAllTxText: t('wallet.see_all_txs'),
-        noTransactionHistoryText: t('wallet.no_transaction_history'),
+        viewAllTxText: t('wallet.homeLightning.home.see_all_txs'),
+        noTransactionHistoryText: t(
+          'wallet.homeLightning.home.no_transaction_history',
+        ),
         todayText: t('constants.today'),
         yesterdayText: t('constants.yesterday'),
         dayText: t('constants.day'),
@@ -299,7 +301,7 @@ export default function HomeLightning() {
               <ThemeText
                 content={
                   lrc20Settings.isEnabled
-                    ? 'SAT Balance'
+                    ? t('constants.sat_balance')
                     : t('constants.total_balance')
                 }
                 styles={{textTransform: 'uppercase'}}

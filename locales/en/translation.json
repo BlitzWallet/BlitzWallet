@@ -12,6 +12,7 @@
     "receive": "Receive",
     "accept": "Accept",
     "total_balance": "Total Balance",
+    "sat_balance": "SAT Balance",
     "amount": "Amount",
     "sent": "Sent",
     "received": "Received",
@@ -736,16 +737,17 @@
         "orderId": "Order ID",
         "paymentHistory": ""
       }
-    },
-    "errorScreen": {
-      "title": "",
-      "message": "",
-      "tryAgain": "",
-      "goBack": ""
     }
   },
 
   "wallet": {
+    "errorScreen": {
+      "ok": "OK",
+      "title": "",
+      "message": "",
+      "tryAgain": "",
+      "goBack": ""
+    },
     "home": {
       "title": "",
       "totalBalance": "",
@@ -768,12 +770,19 @@
     "cameraModal": {
       "title": "",
       "scanQR": "",
-      "noCamera": "",
-      "cameraError": ""
+      "noCamera": "No access to camera",
+      "settingsText": "Go to settings to let Blitz Wallet access your camera",
+      "noCameraDevice": "You do not have a camera device.",
+      "cameraError": "",
+      "noFlash": " Device does not have a torch",
+      "sanningResponse": "Only QRcodes are accepted.",
+      "qrDecodeError": "Error decoding QR code"
     },
     "confirmClipboard": {
       "title": "",
-      "clipboardContent": "",
+      "clipboardContent": "Text Copied to Clipboard",
+      "errorWithCopy": "Error copying to clipboard",
+      "ok": "OK",
       "useClipboard": ""
     },
     "see_all_txs": "See all transactions",
@@ -836,6 +845,7 @@
         "lockedBalance": ""
       },
       "errorScreen": {
+        "ok": "OK",
         "title": "",
         "paymentFailed": "",
         "tryAgain": "",
@@ -884,6 +894,10 @@
       "bitcoin": "best for larger payments"
     },
     "homeLightning": {
+      "home": {
+        "see_all_txs": "See all transactions",
+        "no_transaction_history": "Send or receive a transaction for it to show up here"
+      },
       "liquidityIndicator": {
         "title": "",
         "inbound": "",
@@ -1549,7 +1563,9 @@
     "requestError": "There was an error with the request, please try again.",
     "invoiceRetrivalError": "There was an error retrieving the invoice, please try again.",
     "payingInvoiceError": "There was an error paying the invoice, please try again.",
-    "noMailAppsFoundError": " No mail apps found on your device. Please install a mail app to use this feature."
+    "noMailAppsFoundError": " No mail apps found on your device. Please install a mail app to use this feature.",
+    "retriveingPhotoesError": " There was an error retrieving photos, please try again.",
+    "clipboardContentError": "No data in clipboard"
   },
 
   "loadingScreen": {

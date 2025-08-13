@@ -97,7 +97,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
     try {
       crashlyticsLogReport('Starting paste seed from clipboard');
       const response = await getClipboardText();
-      if (!response.didWork) throw new Error(response.reason);
+      if (!response.didWork) throw new Error(t(response.reason));
 
       const data = response.data;
 

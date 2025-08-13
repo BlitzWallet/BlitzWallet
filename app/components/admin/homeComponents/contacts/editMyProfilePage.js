@@ -662,7 +662,7 @@ function InnerContent({
     const {didRun, error, imgURL} = imagePickerResponse;
     if (!didRun) return;
     if (error) {
-      navigate.navigate('ErrorScreen', {errorMessage: error});
+      navigate.navigate('ErrorScreen', {errorMessage: t(error)});
       return;
     }
 

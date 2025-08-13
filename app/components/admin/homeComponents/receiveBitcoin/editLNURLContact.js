@@ -28,6 +28,7 @@ import {setDatabaseIMG} from '../../../../../db/photoStorage';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {isValidUniqueName} from '../../../../../db';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import {useTranslation} from 'react-i18next';
 
 export default function EditLNURLContactOnReceivePage({
   theme,
@@ -48,6 +49,7 @@ export default function EditLNURLContactOnReceivePage({
   const [username, setUsername] = useState('');
   const [isAddingImage, setIsAddingImage] = useState(false);
   const initialValue = useRef(0);
+  const {t} = useTranslation();
   const imageData = cache[masterInfoObject.uuid];
   const image = cache[masterInfoObject.uuid]?.localUri;
 
@@ -56,7 +58,7 @@ export default function EditLNURLContactOnReceivePage({
     const {didRun, error, imgURL} = imagePickerResponse;
     if (!didRun) return;
     if (error) {
-      navigate.navigate('ErrorScreen', {errorMessage: error});
+      navigate.navigate('ErrorScreen', {errorMessage: t(error)});
       return;
     }
 

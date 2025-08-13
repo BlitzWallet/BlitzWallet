@@ -11,9 +11,11 @@ import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import GetThemeColors from '../../../hooks/themeColors';
 import {ThemeText} from '../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
+import {useTranslation} from 'react-i18next';
 
 export default function ErrorScreen(props) {
   const {textColor, backgroundColor, backgroundOffset} = GetThemeColors();
+  const {t} = useTranslation();
   const errorMessage = props.route.params.errorMessage;
 
   const navigationFunction = props.route.params?.navigationFunction;
@@ -54,7 +56,10 @@ export default function ErrorScreen(props) {
           }}
         />
         <TouchableOpacity onPress={handleNaviagation}>
-          <ThemeText styles={styles.cancelButton} content={'OK'} />
+          <ThemeText
+            styles={styles.cancelButton}
+            content={t('wallet.errorScreen.ok')}
+          />
         </TouchableOpacity>
       </View>
     </View>

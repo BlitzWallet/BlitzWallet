@@ -40,6 +40,7 @@ import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
 import {handleRestoreFromText} from '../../../../../functions/seed';
 import getClipboardText from '../../../../../functions/getClipboardText';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useTranslation} from 'react-i18next';
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   acc[`key${num}`] = '';
@@ -87,6 +88,7 @@ export default function CreateCustodyAccountPage(props) {
     Boolean(foundAccount) && foundAccount?.name !== selectedAccount?.name;
 
   const enteredAllSeeds = Object.values(inputedKey).filter(item => item);
+  const {t} = useTranslation();
 
   const handleInputElement = useCallback((text, keyNumber) => {
     const restoredSeed = handleRestoreFromText(text);
@@ -449,7 +451,7 @@ export default function CreateCustodyAccountPage(props) {
               <CustomButton
                 actionFunction={async () => {
                   const response = await getClipboardText();
-                  if (!response.didWork) throw new Error(response.reason);
+                  if (!response.didWork) throw new Error(t(response.reason));
 
                   const data = response.data;
 

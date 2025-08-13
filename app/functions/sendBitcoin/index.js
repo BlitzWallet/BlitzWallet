@@ -5,11 +5,11 @@ import RNQRGenerator from 'rn-qr-generator';
 import getClipboardText from '../getClipboardText';
 import testURLForInvoice from '../testURLForInvoice';
 
-async function navigateToSendUsingClipboard(navigate, callLocation, from) {
+async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
   const response = await getClipboardText();
 
   if (!response.didWork) {
-    navigate.navigate('ErrorScreen', {errorMessage: response.reason});
+    navigate.navigate('ErrorScreen', {errorMessage: t(response.reason)});
     return;
   }
   const clipboardData = response.data?.trim();

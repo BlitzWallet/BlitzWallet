@@ -175,7 +175,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
           setTimeout(
             () => {
               navigate.navigate('ErrorScreen', {
-                errorMessage: response.error,
+                errorMessage: t(response.error),
               });
             },
             Platform.OS === 'android' ? 350 : 50,
@@ -289,7 +289,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
           <View style={styles.overlay}>
             <TouchableOpacity
               onPress={() => {
-                navigateToSendUsingClipboard(navigate, 'sendBTCPage', from);
+                navigateToSendUsingClipboard(navigate, 'sendBTCPage', from, t);
               }}
               style={{
                 ...styles.pasteBTN,
