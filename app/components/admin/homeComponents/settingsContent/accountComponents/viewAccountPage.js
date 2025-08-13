@@ -13,7 +13,6 @@ import {
   View,
 } from 'react-native';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 import {useToast} from '../../../../../../context-store/toastManager';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import calculateSeedQR from '../seedQR';
@@ -27,7 +26,6 @@ import {copyToClipboard} from '../../../../../functions';
 
 export default function ViewCustodyAccountPage({route}) {
   const {showToast} = useToast();
-  const {currentWalletMnemoinc, removeAccount} = useActiveCustodyAccount();
   const {account} = route.params;
   const {extraData} = route.params;
   const mnemoinc = account.mnemoinc;
@@ -58,151 +56,131 @@ export default function ViewCustodyAccountPage({route}) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar
-        leftImageBlue={ICONS.trashIcon}
-        LeftImageDarkMode={ICONS.trashIconWhite}
-        showLeftImage={account.name !== 'Main Wallet' && account.name !== 'NWC'}
-        leftImageFunction={() => {
-          if (currentWalletMnemoinc === account.mnemoinc) {
-            navigate.navigate('ErrorScreen', {
-              errorMessage:
-                'You can’t delete the active account. Please select another account before deleting.',
-            });
-            return;
-          }
-          navigate.navigate('ConfirmActionPage', {
-            confirmMessage: 'Are you sure you want to delete this account?',
-            confirmFunction: () => removeAccount(account),
-            cancelFunction: () => {},
-          });
-        }}
-      />
-      <View>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollViewStyles}>
-          <ThemeText
-            styles={{...styles.headerPhrase}}
-            content={t('settings.seedphrase.text1')}
-          />
-          <ThemeText
-            styles={{
-              color:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
-              marginBottom: 50,
-              fontSize: SIZES.large,
-            }}
-            content={t('settings.seedphrase.text2')}
-          />
-          {selectedDisplayOption === 'qrcode' && canViewQrCode ? (
-            <View
-              style={{
-                height: seedContainerHeight,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <QrCodeWrapper QRData={qrValue} />
-            </View>
-          ) : (
-            <View
-              onLayout={event => {
-                setSeedContainerHeight(event.nativeEvent.layout.height);
-              }}
-              style={styles.scrollViewContainer}>
-              <KeyContainer keys={mnemoinc.split(' ')} />
-            </View>
-          )}
+      <CustomSettingsTopBar />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollViewStyles}>
+        <ThemeText
+          styles={{...styles.headerPhrase}}
+          content={t('settings.seedphrase.text1')}
+        />
+        <ThemeText
+          styles={{
+            color:
+              theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
+            marginBottom: 50,
+            fontSize: SIZES.large,
+          }}
+          content={t('settings.seedphrase.text2')}
+        />
+        {selectedDisplayOption === 'qrcode' && canViewQrCode ? (
           <View
-            style={[
-              styles.sliderContainer,
-              {
-                backgroundColor: backgroundOffset,
-                alignItems: 'center',
-              },
-            ]}>
-            <View style={styles.colorSchemeContainer}>
-              <TouchableOpacity
-                style={styles.colorSchemeItemContainer}
-                activeOpacity={1}
-                onPress={() => {
-                  setSelectedDisplayOption('words');
-                  handleSlide('words');
-                }}>
-                <ThemeText
-                  styles={{
-                    ...styles.colorSchemeText,
-                    color:
-                      selectedDisplayOption === 'words'
-                        ? COLORS.darkModeText
-                        : theme
-                        ? COLORS.darkModeText
-                        : COLORS.lightModeText,
-                  }}
-                  content={'Words'}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.colorSchemeItemContainer}
-                activeOpacity={1}
-                onPress={() => {
-                  if (!canViewQrCode) {
-                    navigate.navigate('InformationPopup', {
-                      textContent: `Are you sure you want to show this QR Code?\n\nScanning your seed is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe.`,
-                      buttonText: 'I understand',
-                      customNavigation: () =>
-                        navigate.popTo(
-                          'ViewCustodyAccount',
-                          {
-                            extraData: {canViewQrCode: true},
-                          },
-                          {
-                            merge: true,
-                          },
-                        ),
-                    });
-                    return;
-                  }
-                  setSelectedDisplayOption('qrcode');
-                  handleSlide('qrcode');
-                }}>
-                <ThemeText
-                  styles={{
-                    ...styles.colorSchemeText,
-                    color:
-                      selectedDisplayOption === 'qrcode'
-                        ? COLORS.darkModeText
-                        : theme
-                        ? COLORS.darkModeText
-                        : COLORS.lightModeText,
-                  }}
-                  content={'QR Code'}
-                />
-              </TouchableOpacity>
-              <Animated.View
-                style={[
-                  styles.activeSchemeStyle,
-
-                  {
-                    transform: [{translateX: sliderAnimation}, {translateY: 3}],
-                    backgroundColor:
-                      theme && darkModeType ? backgroundColor : COLORS.primary,
-                  },
-                ]}
-              />
-            </View>
+            style={{
+              height: seedContainerHeight,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <QrCodeWrapper QRData={qrValue} />
           </View>
-          <CustomButton
-            buttonStyles={{marginTop: 10}}
-            actionFunction={() =>
-              copyToClipboard(
-                selectedDisplayOption === 'words' ? mnemoinc : qrValue,
-                showToast,
-              )
-            }
-            textContent={'Copy'}
-          />
-        </ScrollView>
-      </View>
+        ) : (
+          <View
+            onLayout={event => {
+              setSeedContainerHeight(event.nativeEvent.layout.height);
+            }}
+            style={styles.scrollViewContainer}>
+            <KeyContainer keys={mnemoinc.split(' ')} />
+          </View>
+        )}
+        <View
+          style={[
+            styles.sliderContainer,
+            {
+              backgroundColor: backgroundOffset,
+              alignItems: 'center',
+            },
+          ]}>
+          <View style={styles.colorSchemeContainer}>
+            <TouchableOpacity
+              style={styles.colorSchemeItemContainer}
+              activeOpacity={1}
+              onPress={() => {
+                setSelectedDisplayOption('words');
+                handleSlide('words');
+              }}>
+              <ThemeText
+                styles={{
+                  ...styles.colorSchemeText,
+                  color:
+                    selectedDisplayOption === 'words'
+                      ? COLORS.darkModeText
+                      : theme
+                      ? COLORS.darkModeText
+                      : COLORS.lightModeText,
+                }}
+                content={'Words'}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.colorSchemeItemContainer}
+              activeOpacity={1}
+              onPress={() => {
+                if (!canViewQrCode) {
+                  navigate.navigate('InformationPopup', {
+                    textContent: `Are you sure you want to show this QR Code?\n\nScanning your seed is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe.`,
+                    buttonText: 'I understand',
+                    customNavigation: () =>
+                      navigate.popTo(
+                        'ViewCustodyAccount',
+                        {
+                          extraData: {canViewQrCode: true},
+                        },
+                        {
+                          merge: true,
+                        },
+                      ),
+                  });
+                  return;
+                }
+                setSelectedDisplayOption('qrcode');
+                handleSlide('qrcode');
+              }}>
+              <ThemeText
+                styles={{
+                  ...styles.colorSchemeText,
+                  color:
+                    selectedDisplayOption === 'qrcode'
+                      ? COLORS.darkModeText
+                      : theme
+                      ? COLORS.darkModeText
+                      : COLORS.lightModeText,
+                }}
+                content={'QR Code'}
+              />
+            </TouchableOpacity>
+            <Animated.View
+              style={[
+                styles.activeSchemeStyle,
+
+                {
+                  transform: [{translateX: sliderAnimation}, {translateY: 3}],
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : COLORS.primary,
+                },
+              ]}
+            />
+          </View>
+        </View>
+        <CustomButton
+          buttonStyles={{marginTop: 10}}
+          actionFunction={() =>
+            copyToClipboard(
+              selectedDisplayOption === 'words' ? mnemoinc : qrValue,
+              showToast,
+            )
+          }
+          textContent={'Copy'}
+        />
+      </ScrollView>
     </GlobalThemeView>
   );
 }

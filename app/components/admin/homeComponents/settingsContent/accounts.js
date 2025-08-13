@@ -40,11 +40,19 @@ export default function CreateCustodyAccounts() {
     )
     .map((account, index) => {
       return (
-        <View
+        <TouchableOpacity
+          activeOpacity={
+            account.name !== 'Main Wallet' && account.name !== 'NWC' ? 0.2 : 1
+          }
           key={index}
           style={{
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             ...styles.accountRow,
+          }}
+          onPress={() => {
+            if (account.name === 'Main Wallet' || account.name === 'NWC')
+              return;
+            navigate.navigate('CreateCustodyAccount', {account});
           }}>
           <ThemeText
             styles={styles.accountName}
@@ -139,7 +147,7 @@ export default function CreateCustodyAccounts() {
               isLoading.isLoading
             }
           />
-        </View>
+        </TouchableOpacity>
       );
     });
 
@@ -151,7 +159,7 @@ export default function CreateCustodyAccounts() {
         leftImageBlue={ICONS.xSmallIcon}
         LeftImageDarkMode={ICONS.xSmallIconWhite}
         leftImageStyles={{transform: [{rotate: '45deg'}]}}
-        leftImageFunction={() => navigate.navigate('CreateCustodyAccount')}
+        leftImageFunction={() => navigate.navigate('CreateCustodyAccount', {})}
       />
       <ScrollView
         stickyHeaderIndices={[0]}

@@ -14,7 +14,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {CENTER, CONTENT_KEYBOARD_OFFSET, SIZES} from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
+  SIZES,
+} from '../../../../../constants';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
 import {createAccountMnemonic} from '../../../../../functions';
@@ -27,8 +32,6 @@ import {
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import Icon from '../../../../../functions/CustomElements/Icon';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ANDROIDSAFEAREA} from '../../../../../constants/styles';
 import SuggestedWordContainer from '../../../../login/suggestedWords';
 import isValidMnemonic from '../../../../../functions/isValidMnemonic';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
@@ -43,32 +46,46 @@ const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   return acc;
 }, {});
 
-export default function CreateCustodyAccountPage() {
-  const [accountInformation, setAccountInformation] = useState({
-    name: '',
-    mnemoinc: '',
-    dateCreated: '',
-    password: '',
-    isPasswordEnabled: false,
-    uuid: '',
-    isActive: false,
-  });
-  const {createAccount} = useActiveCustodyAccount();
-  const accounts = useCustodyAccountList();
-  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const navigate = useNavigation();
-  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+export default function CreateCustodyAccountPage(props) {
+  const selectedAccount = props?.route?.params?.account;
+  const {createAccount, currentWalletMnemoinc, removeAccount, updateAccount} =
+    useActiveCustodyAccount();
   const {theme, darkModeType} = useGlobalThemeContext();
+  const {bottomPadding} = useGlobalInsets();
+
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const [isCreatingAccount, setIsCreatingAccount] = useState(false);
+  const [accountInformation, setAccountInformation] = useState({
+    name: selectedAccount?.name || '',
+    mnemoinc: selectedAccount?.mnemoinc || '',
+    dateCreated: selectedAccount?.dateCreated || Date.now(),
+    password: selectedAccount?.password || '',
+    isPasswordEnabled: selectedAccount?.isPasswordEnabled || false,
+    uuid: selectedAccount?.uuid || customUUID(),
+    isActive: selectedAccount?.isActive || false,
+  });
+  const [currentFocused, setCurrentFocused] = useState(null);
+  const [inputedKey, setInputedKey] = useState(INITIAL_KEY_STATE);
+
+  const keyRefs = useRef({});
+  const blockDeleteAccountRef = useRef(null);
+
   const {backgroundOffset, textColor} = GetThemeColors();
-  const nameIsAlreadyUsed = !!accounts.find(
+
+  const accounts = useCustodyAccountList();
+  const navigate = useNavigation();
+
+  const foundAccount = accounts.find(
     account =>
       account.name.toLowerCase() === accountInformation.name.toLowerCase(),
   );
-  const {bottomPadding} = useGlobalInsets();
+  const deleatedAccount = !!accounts.find(
+    account =>
+      account.name.toLowerCase() === selectedAccount?.name.toLowerCase(),
+  );
+  const nameIsAlreadyUsed =
+    Boolean(foundAccount) && foundAccount?.name !== selectedAccount?.name;
 
-  const [currentFocused, setCurrentFocused] = useState(null);
-  const keyRefs = useRef({});
-  const [inputedKey, setInputedKey] = useState(INITIAL_KEY_STATE);
   const enteredAllSeeds = Object.values(inputedKey).filter(item => item);
 
   const handleInputElement = useCallback((text, keyNumber) => {
@@ -106,7 +123,9 @@ export default function CreateCustodyAccountPage() {
 
   useEffect(() => {
     async function initalizeAccount() {
-      const mnemoinc = await createAccountMnemonic(true);
+      const mnemoinc = await (selectedAccount
+        ? Promise.resolve(selectedAccount.mnemoinc)
+        : createAccountMnemonic(true));
       const mnemoincArray = mnemoinc.split(' ');
       const keyState = NUMARRAY.reduce((acc, num) => {
         acc[`key${num}`] = mnemoincArray[num - 1];
@@ -115,13 +134,21 @@ export default function CreateCustodyAccountPage() {
       setInputedKey(keyState);
       setAccountInformation(prev => ({
         ...prev,
-        uuid: customUUID(),
         mnemoinc,
-        dateCreated: new Date().getTime(),
       }));
     }
     initalizeAccount();
   }, []);
+
+  useEffect(() => {
+    if (!blockDeleteAccountRef.current) {
+      blockDeleteAccountRef.current = true;
+      return;
+    }
+
+    if (deleatedAccount) return;
+    navigate.goBack();
+  }, [deleatedAccount]);
 
   const regenerateSeed = async () => {
     const mnemoinc = await createAccountMnemonic(true);
@@ -142,6 +169,13 @@ export default function CreateCustodyAccountPage() {
       if (!accountInformation.name) return;
       if (nameIsAlreadyUsed) return;
       if (enteredAllSeeds.length !== 12) return;
+      if (
+        selectedAccount?.name?.toLowerCase() ===
+        accountInformation.name.toLowerCase()
+      ) {
+        navigate.goBack();
+        return;
+      }
       const isValidSeed = isValidMnemonic(enteredAllSeeds);
       if (!isValidSeed) {
         navigate.navigate('ErrorScreen', {
@@ -150,9 +184,11 @@ export default function CreateCustodyAccountPage() {
         return;
       }
       const seedString = enteredAllSeeds.join(' ');
-      const alreadyUsedSeed = accounts.find(
-        account => account.mnemoinc.toLowerCase() === seedString,
-      );
+      const alreadyUsedSeed = selectedAccount
+        ? false
+        : accounts.find(
+            account => account.mnemoinc.toLowerCase() === seedString,
+          );
       if (alreadyUsedSeed) {
         navigate.navigate('ErrorScreen', {
           errorMessage: 'This seed already exists for another account',
@@ -160,12 +196,17 @@ export default function CreateCustodyAccountPage() {
         return;
       }
       setIsCreatingAccount(true);
-      const response = await createAccount({
-        ...accountInformation,
-        mnemoinc: seedString,
-      });
-      if (!response.didWork) throw new Error(response.err);
 
+      if (selectedAccount) {
+        const response = await updateAccount(accountInformation);
+        if (!response.didWork) throw new Error(response.err);
+      } else {
+        const response = await createAccount({
+          ...accountInformation,
+          mnemoinc: seedString,
+        });
+        if (!response.didWork) throw new Error(response.err);
+      }
       setIsCreatingAccount(false);
       navigate.goBack();
     } catch (err) {
@@ -275,7 +316,24 @@ export default function CreateCustodyAccountPage() {
       <View style={{width: '95%'}}>
         <CustomSettingsTopBar
           shouldDismissKeyboard={true}
-          label={'Create Account'}
+          label={selectedAccount ? 'Edit Account' : 'Create Account'}
+          leftImageBlue={ICONS.trashIcon}
+          LeftImageDarkMode={ICONS.trashIconWhite}
+          showLeftImage={selectedAccount}
+          leftImageFunction={() => {
+            if (currentWalletMnemoinc === selectedAccount?.mnemoinc) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage:
+                  'You can’t delete the active account. Please select another account before deleting.',
+              });
+              return;
+            }
+            navigate.navigate('ConfirmActionPage', {
+              confirmMessage: 'Are you sure you want to delete this account?',
+              confirmFunction: () => removeAccount(selectedAccount),
+              cancelFunction: () => {},
+            });
+          }}
         />
       </View>
       <ScrollView
@@ -343,90 +401,96 @@ export default function CreateCustodyAccountPage() {
             setCurrentFocused(null);
           }}
         />
-        <ThemeText
-          styles={{
-            fontSize: SIZES.large,
 
-            marginBottom: 10,
-            marginTop: 30,
-          }}
-          content={'Account Seed'}
-        />
-        {inputKeys}
+        {!selectedAccount && (
+          <>
+            <ThemeText
+              styles={{
+                fontSize: SIZES.large,
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            marginTop: 10,
-            columnGap: 10,
-            rowGap: 10,
-          }}>
-          <CustomButton
-            buttonStyles={{
-              flex: 1,
-              minWidth: 150,
-              backgroundColor: theme ? backgroundOffset : COLORS.primary,
-            }}
-            textStyles={{color: COLORS.darkModeText}}
-            actionFunction={regenerateSeed}
-            textContent={'Regenerate'}
-          />
-          <CustomButton
-            actionFunction={() => setInputedKey(INITIAL_KEY_STATE)}
-            buttonStyles={{
-              flex: 1,
-              minWidth: 150,
-              backgroundColor: theme ? backgroundOffset : COLORS.primary,
-            }}
-            textStyles={{color: COLORS.darkModeText}}
-            textContent={'Restore'}
-          />
-        </View>
-        {inputedKey === INITIAL_KEY_STATE && (
-          <CustomButton
-            actionFunction={async () => {
-              const response = await getClipboardText();
-              if (!response.didWork) throw new Error(response.reason);
+                marginBottom: 10,
+                marginTop: 30,
+              }}
+              content={'Account Seed'}
+            />
+            {inputKeys}
 
-              const data = response.data;
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                marginTop: 10,
+                columnGap: 10,
+                rowGap: 10,
+              }}>
+              <CustomButton
+                buttonStyles={{
+                  flex: 1,
+                  minWidth: 150,
+                  backgroundColor: theme ? backgroundOffset : COLORS.primary,
+                }}
+                textStyles={{color: COLORS.darkModeText}}
+                actionFunction={regenerateSeed}
+                textContent={'Regenerate'}
+              />
+              <CustomButton
+                actionFunction={() => setInputedKey(INITIAL_KEY_STATE)}
+                buttonStyles={{
+                  flex: 1,
+                  minWidth: 150,
+                  backgroundColor: theme ? backgroundOffset : COLORS.primary,
+                }}
+                textStyles={{color: COLORS.darkModeText}}
+                textContent={'Restore'}
+              />
+            </View>
+            {inputedKey === INITIAL_KEY_STATE && (
+              <CustomButton
+                actionFunction={async () => {
+                  const response = await getClipboardText();
+                  if (!response.didWork) throw new Error(response.reason);
 
-              const restoredSeed = handleRestoreFromText(data);
+                  const data = response.data;
 
-              const splitSeed = restoredSeed.seed;
+                  const restoredSeed = handleRestoreFromText(data);
 
-              if (!splitSeed.every(word => word.trim().length > 0)) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: 'Not every word is of valid length',
-                });
-                return;
-              }
+                  const splitSeed = restoredSeed.seed;
 
-              if (splitSeed.length != 12) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage:
-                    'Unable to find 12 words from copied recovery phrase.',
-                });
-              }
+                  if (!splitSeed.every(word => word.trim().length > 0)) {
+                    navigate.navigate('ErrorScreen', {
+                      errorMessage: 'Not every word is of valid length',
+                    });
+                    return;
+                  }
 
-              const newKeys = {};
-              NUMARRAY.forEach((num, index) => {
-                newKeys[`key${num}`] = splitSeed[index];
-              });
-              setInputedKey(newKeys);
-            }}
-            buttonStyles={{
-              marginTop: 10,
-            }}
-            textContent={'Paste'}
-          />
+                  if (splitSeed.length != 12) {
+                    navigate.navigate('ErrorScreen', {
+                      errorMessage:
+                        'Unable to find 12 words from copied recovery phrase.',
+                    });
+                  }
+
+                  const newKeys = {};
+                  NUMARRAY.forEach((num, index) => {
+                    newKeys[`key${num}`] = splitSeed[index];
+                  });
+                  setInputedKey(newKeys);
+                }}
+                buttonStyles={{
+                  marginTop: 10,
+                }}
+                textContent={'Paste'}
+              />
+            )}
+          </>
         )}
       </ScrollView>
 
       {!isKeyboardActive && (
         <CustomButton
           useLoading={isCreatingAccount}
+          loadingColor={COLORS.darkModeText}
           buttonStyles={{
             minWidth: 150,
             ...CENTER,
@@ -439,7 +503,7 @@ export default function CreateCustodyAccountPage() {
             backgroundColor: theme ? backgroundOffset : COLORS.primary,
           }}
           textStyles={{color: COLORS.darkModeText}}
-          textContent={'Create Account'}
+          textContent={selectedAccount ? 'Update Account' : 'Create Account'}
           actionFunction={handleCreateAccount}
         />
       )}

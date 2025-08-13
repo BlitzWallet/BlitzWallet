@@ -121,6 +121,13 @@ const EXPIRIMENTALFEATURES = [
 const ADVANCEDOPTIONS = [
   {
     for: 'general',
+    name: 'Accounts',
+    icon: ICONS.group,
+    iconWhite: ICONS.groupWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  {
+    for: 'general',
     name: 'Nostr',
     svgIcon: true,
     svgName: 'linkIcon',
@@ -140,13 +147,7 @@ const ADVANCEDOPTIONS = [
     svgName: 'crashDebugIcon',
     arrowIcon: ICONS.leftCheveronIcon,
   },
-  {
-    for: 'general',
-    name: 'Accounts',
-    icon: ICONS.group,
-    iconWhite: ICONS.groupWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
+
   // {
   //   for: 'general',
   //   name: 'Node Info',
