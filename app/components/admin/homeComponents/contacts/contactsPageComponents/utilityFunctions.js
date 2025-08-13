@@ -48,7 +48,6 @@ export function createFormattedDate(time, currentTime) {
     formattedTime = `${formattedHours}:${formattedMinutes} ${ampm}`;
   } else {
     const daysDiff = getDaysDifference(currentDate, date);
-    console.log(daysDiff);
     if (daysDiff === 1) {
       formattedTime = 'Yesterday';
     } else if (daysDiff <= 7) {

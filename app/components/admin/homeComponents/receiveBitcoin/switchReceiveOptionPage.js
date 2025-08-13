@@ -22,6 +22,8 @@ import {useAppStatus} from '../../../../../context-store/appStatus';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
+import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
+import {useKeysContext} from '../../../../../context-store/keys';
 
 const MAIN_PAYMENTS = [
   ['Lightning', 'Instant'],
@@ -39,6 +41,8 @@ export default function SwitchReceiveOptionPage({
   didWarnLiquid,
   didWarnRootstock,
 }) {
+  const {accountMnemoinc} = useKeysContext();
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {fiatStats} = useNodeContext();
   const navigate = useNavigation();
   const {masterInfoObject} = useGlobalContextProvider();
@@ -291,7 +295,11 @@ export default function SwitchReceiveOptionPage({
             masterInfoObject,
             fiatStats,
           },
-        )} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.`,
+        )} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.\n\n${
+          currentWalletMnemoinc !== accountMnemoinc
+            ? 'Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.'
+            : ''
+        }`,
         buttonText: 'I understand',
         customNavigation: () =>
           navigate.popTo('CustomHalfModal', {

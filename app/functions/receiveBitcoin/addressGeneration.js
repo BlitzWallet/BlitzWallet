@@ -42,6 +42,7 @@ export async function initializeAddressProcess(wolletInfo) {
         paymentType: 'lightning',
         amountSats: wolletInfo.receivingAmount,
         memo: wolletInfo.description,
+        mnemoinc: wolletInfo.currentWalletMnemoinc,
       });
       // const response = await generateLightningAddress(wolletInfo);
       if (!response.didWork) throw new Error('Error with lightning');
@@ -55,6 +56,7 @@ export async function initializeAddressProcess(wolletInfo) {
         paymentType: 'bitcoin',
         amountSats: wolletInfo.receivingAmount,
         memo: wolletInfo.description,
+        mnemoinc: wolletInfo.currentWalletMnemoinc,
       });
       // const response = await generateBitcoinAddress(wolletInfo);
       if (!response.didWork) throw new Error('Error with bitcoin');
@@ -68,6 +70,7 @@ export async function initializeAddressProcess(wolletInfo) {
         paymentType: 'spark',
         amountSats: wolletInfo.receivingAmount,
         memo: wolletInfo.description,
+        mnemoinc: wolletInfo.currentWalletMnemoinc,
       });
       // const response = await generateBitcoinAddress(wolletInfo);
       if (!response.didWork) throw new Error('Error with spark');

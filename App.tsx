@@ -105,6 +105,7 @@ import {RootstockSwapProvider} from './context-store/rootstockSwapContext';
 import {SparkConnectionManager} from './context-store/sparkConnection';
 import {GlobalNostrWalletConnectProvider} from './context-store/NWC';
 import {GlobalServerTimeProvider} from './context-store/serverTime';
+import {ActiveCustodyAccountProvider} from './context-store/activeAccount';
 import {LRC20EventProvider} from './context-store/lrc20Listener';
 const Stack = createNativeStackNavigator();
 
@@ -118,45 +119,47 @@ function App(): JSX.Element {
               <KeysContextProvider>
                 <GlobalContactsList>
                   <GlobalContextProvider>
-                    <AppStatusProvider>
-                      <GlobalThemeProvider>
-                        {/* <GlobaleCashVariables> */}
-                        <GLobalNodeContextProider>
-                          <SparkWalletProvider>
-                            {/* <GlobalConbinedTxContextProvider> */}
-                            <GlobalAppDataProvider>
-                              <POSTransactionsProvider>
-                                <WebViewProvider>
-                                  <PushNotificationProvider>
-                                    <LiquidEventProvider>
-                                      <RootstockSwapProvider>
-                                        <LRC20EventProvider>
-                                          <GlobalNostrWalletConnectProvider>
-                                            {/* <LightningEventProvider> */}
-                                            <ImageCacheProvider>
-                                              <GlobalServerTimeProvider>
-                                                {/* <Suspense
+                    <ActiveCustodyAccountProvider>
+                      <AppStatusProvider>
+                        <GlobalThemeProvider>
+                          {/* <GlobaleCashVariables> */}
+                          <GLobalNodeContextProider>
+                            <SparkWalletProvider>
+                              {/* <GlobalConbinedTxContextProvider> */}
+                              <GlobalAppDataProvider>
+                                <POSTransactionsProvider>
+                                  <WebViewProvider>
+                                    <PushNotificationProvider>
+                                      <LiquidEventProvider>
+                                        <RootstockSwapProvider>
+                                          <LRC20EventProvider>
+                                            <GlobalNostrWalletConnectProvider>
+                                              {/* <LightningEventProvider> */}
+                                              <ImageCacheProvider>
+                                                <GlobalServerTimeProvider>
+                                                  {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                <ResetStack />
-                                                {/* </Suspense> */}
-                                              </GlobalServerTimeProvider>
-                                            </ImageCacheProvider>
-                                            {/* </LightningEventProvider> */}
-                                          </GlobalNostrWalletConnectProvider>
-                                        </LRC20EventProvider>
-                                      </RootstockSwapProvider>
-                                    </LiquidEventProvider>
-                                  </PushNotificationProvider>
-                                </WebViewProvider>
-                              </POSTransactionsProvider>
-                            </GlobalAppDataProvider>
-                            {/* <BreezTest /> */}
-                            {/* </GlobalConbinedTxContextProvider> */}
-                          </SparkWalletProvider>
-                        </GLobalNodeContextProider>
-                        {/* </GlobaleCashVariables> */}
-                      </GlobalThemeProvider>
-                    </AppStatusProvider>
+                                                  <ResetStack />
+                                                  {/* </Suspense> */}
+                                                </GlobalServerTimeProvider>
+                                              </ImageCacheProvider>
+                                              {/* </LightningEventProvider> */}
+                                            </GlobalNostrWalletConnectProvider>
+                                          </LRC20EventProvider>
+                                        </RootstockSwapProvider>
+                                      </LiquidEventProvider>
+                                    </PushNotificationProvider>
+                                  </WebViewProvider>
+                                </POSTransactionsProvider>
+                              </GlobalAppDataProvider>
+                              {/* <BreezTest /> */}
+                              {/* </GlobalConbinedTxContextProvider> */}
+                            </SparkWalletProvider>
+                          </GLobalNodeContextProider>
+                          {/* </GlobaleCashVariables> */}
+                        </GlobalThemeProvider>
+                      </AppStatusProvider>
+                    </ActiveCustodyAccountProvider>
                   </GlobalContextProvider>
                 </GlobalContactsList>
               </KeysContextProvider>
@@ -193,7 +196,6 @@ function ResetStack(): JSX.Element | null {
   // Memoize handleDeepLink
   const handleDeepLink = useCallback(
     (event: {url: string}) => {
-      console.log('TEST');
       const {url} = event;
       console.log('Deep link URL:', url);
 
@@ -316,9 +318,7 @@ function ResetStack(): JSX.Element | null {
 
       const isPinFromMode = loginModeType?.value === 'pin';
       const isBiometricFromMode = loginModeType?.value === 'biometric';
-      console.log(storedSettings, 'stored security setttings');
-      console.log(isPinFromMode, 'stored security setttings');
-      console.log(isBiometricFromMode, 'stored security setttings');
+
       const parsedSettings = storedSettings ?? {
         isSecurityEnabled: true,
         isPinEnabled: isPinFromMode || (!isPinFromMode && !isBiometricFromMode),

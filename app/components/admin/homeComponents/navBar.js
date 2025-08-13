@@ -1,14 +1,18 @@
 import {StyleSheet, View, TouchableOpacity} from 'react-native';
 import {CENTER, ICONS} from '../../../constants';
 import {useNavigation} from '@react-navigation/native';
-import {WINDOWWIDTH} from '../../../constants/theme';
+import {COLORS, WINDOWWIDTH} from '../../../constants/theme';
 import ThemeImage from '../../../functions/CustomElements/themeImage';
 import {memo} from 'react';
 import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
+// import {useActiveCustodyAccount} from '../../../../context-store/activeAccount';
+// import {ThemeText} from '../../../functions/CustomElements';
 
-export const NavBar = memo(function NavBar({theme, toggleTheme}) {
+export const NavBar = memo(function NavBar({theme, darkModeType, toggleTheme}) {
   console.log('NAV BAR PAGE');
   const navigate = useNavigation();
+  // const {isUsingAltAccount, selectedAltAccount, custodyAccounts, isUsingNostr} =
+  //   useActiveCustodyAccount();
 
   return (
     <View style={[styles.topBar]}>
@@ -56,14 +60,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     ...CENTER,
-    minHeight: 50, // Ensure consistent height for balance overlay
-    paddingVertical: 10,
   },
   iconButton: {
-    zIndex: 2, // Ensure buttons stay above the animated balance
+    zIndex: 2,
   },
   centerSpace: {
     flex: 1,
-    // This creates space in the center for the animated balance
+  },
+  custodyAccountContainer: {
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderRadius: 15,
   },
 });

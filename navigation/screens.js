@@ -40,6 +40,10 @@ import {
   TotalTipsScreen,
   ViewPOSTransactions,
 } from '../app/components/admin/homeComponents/settingsContent';
+import AccountPaymentPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/accountPaymentPage';
+import CreateCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/createAccountPage';
+import ViewCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewAccountPage';
+import ViewCustodyKey from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewCustodyKey';
 // import EcashSettings from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/ecashSettings';
 // import MigrateProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
 // import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
@@ -47,12 +51,11 @@ import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settin
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
 import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
-import NWCWallet from '../app/components/admin/homeComponents/settingsContent/nwc/NWCWalletPage';
+// import NWCWallet from '../app/components/admin/homeComponents/settingsContent/nwc/NWCWalletPage';
 import NWCWalletSetup from '../app/components/admin/homeComponents/settingsContent/nwc/showSeedPage';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import SparkSettingsPage from '../app/components/admin/homeComponents/settingsContent/sparkLrc20';
-import AccountInformationPage from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/AccountInformationPage';
 import ManualSwapPopup from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/manualSwapPopup';
 import {CustomWebView} from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
@@ -119,7 +122,6 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'ExpandedGiftCardPage', component: ExpandedGiftCardPage},
   {name: 'HistoricalGiftCardPurchases', component: HistoricalGiftCardPurchases},
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},
-  {name: 'AccountInformationPage', component: AccountInformationPage},
   {name: 'ViewPOSTransactions', component: ViewPOSTransactions},
   {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
   {name: 'DisclaimerPage', component: DislaimerPage},
@@ -128,9 +130,12 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'RestoreWallet', component: RestoreWallet},
   // {name: 'EcashSettings', component: EcashSettings},
   {name: 'AddPOSItemsPage', component: AddPOSItemsPage},
+  {name: 'CreateCustodyAccount', component: CreateCustodyAccountPage},
+  {name: 'ViewCustodyAccount', component: ViewCustodyAccountPage},
+  {name: 'CustodyAccountPaymentPage', component: AccountPaymentPage},
   {name: 'NosterWalletConnect', component: NosterWalletConnect},
   {name: 'CreateNostrConnectAccount', component: CreateNostrConnectAccount},
-  {name: 'NWCWallet', component: NWCWallet},
+  // {name: 'NWCWallet', component: NWCWallet},
   {name: 'NWCWalletSetup', component: NWCWalletSetup},
   {name: 'SparkSettingsPage', component: SparkSettingsPage},
   {name: 'Nip5VerificationPage', component: Nip5VerificationPage},
@@ -162,6 +167,10 @@ const FADE_SCREENS = [
     name: 'HomeAdmin',
     component: AdminHomeIndex,
     options: {gestureEnabled: false},
+  },
+  {
+    name: 'ViewCustodyKey',
+    component: ViewCustodyKey,
   },
   {name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode},
 ];

@@ -18,6 +18,7 @@ export default async function sendStorePayment({
   fee = 1,
   userBalance,
   sparkInformation,
+  currentWalletMnemoinc,
   // liquidNodeInformation,
   // nodeInformation,
   // payingStateUpdate,
@@ -36,6 +37,7 @@ export default async function sendStorePayment({
       memo: description,
       userBalance,
       sparkInformation,
+      mnemonic: currentWalletMnemoinc,
     });
     if (!response.didWork) throw new Error(response.error);
     return response;

@@ -42,6 +42,7 @@ import CustomQrCode from '../../components/admin/homeComponents/settingsContent/
 import ChooseLNURLCopyFormat from '../../components/admin/homeComponents/receiveBitcoin/lnurlCopyType';
 import LRC20AssetSelectorHalfModal from '../lrc20/lrc20HalfModal';
 import LRC20TokenInformation from '../lrc20/lrc20TokenDataHalfModal';
+import SelectAltAccountHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/SelectAltAccountHalfModal';
 
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -262,6 +263,15 @@ export default function CustomHalfModal(props) {
             tokenIdentifier={props?.route?.params?.tokenIdentifier}
             slideHeight={slideHeight}
             setContentHeight={setContentHeight}
+          />
+        );
+      case 'SelectAltAccount':
+        return (
+          <SelectAltAccountHalfModal
+            slideHeight={slideHeight}
+            selectedFrom={props?.route?.params?.selectedFrom}
+            selectedTo={props?.route?.params?.selectedTo}
+            transferType={props?.route?.params?.transferType}
           />
         );
 

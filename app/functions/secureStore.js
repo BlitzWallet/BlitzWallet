@@ -5,6 +5,7 @@ import {
   setLocalStorageItem,
 } from './localStorage';
 import {crashlyticsLogReport} from './crashlyticsLogs';
+import {CUSTODY_ACCOUNTS_STORAGE_KEY} from '../constants';
 import {BIOMETRIC_KEY} from '../constants';
 const keychainService = '38WX44YTA6.com.blitzwallet.SharedKeychain';
 export const MIGRATION_FLAG = 'secureStoreMigrationComplete';
@@ -51,6 +52,10 @@ async function terminateAccount() {
     await SecureStore.deleteItemAsync('pinHash', KEYCHAIN_OPTION);
     await SecureStore.deleteItemAsync('encryptedMnemonic', KEYCHAIN_OPTION);
     await SecureStore.deleteItemAsync(BIOMETRIC_KEY, KEYCHAIN_OPTION);
+    await SecureStore.deleteItemAsync(
+      CUSTODY_ACCOUNTS_STORAGE_KEY,
+      KEYCHAIN_OPTION,
+    );
 
     const didRemove = await removeAllLocalData();
     if (!didRemove) throw Error('not able to remove local storage data');

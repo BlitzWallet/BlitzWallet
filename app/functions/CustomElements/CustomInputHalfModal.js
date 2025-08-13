@@ -46,20 +46,23 @@ export default function CustomInputHalfModal(props) {
           ).toFixed(2),
         );
   const handleSubmit = () => {
-    if (!amountValue) {
-      return;
-    }
     if (props?.passedParams) {
       navigate.popTo(props.returnLocation, {
         ...props?.passedParams,
-        amount: localSatAmount,
+        amount: !amountValue ? 0 : localSatAmount,
         type: props.type,
       });
     } else {
-      navigate.popTo(props.returnLocation, {
-        amount: localSatAmount,
-        type: props.type,
-      });
+      navigate.popTo(
+        props.returnLocation,
+        {
+          amount: !amountValue ? 0 : localSatAmount,
+          type: props?.type,
+        },
+        {
+          merge: true,
+        },
+      );
     }
   };
 

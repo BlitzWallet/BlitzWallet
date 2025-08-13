@@ -29,6 +29,7 @@ import SparkInfo from './sparkInfo';
 import SupportWorkPage from './supportWorkPage';
 import NotificationPreferances from './notifications';
 import BlitzFeeInformation from './feeInformation';
+import CreateCustodyAccounts from './accounts';
 
 export {
   AboutPage,
@@ -55,6 +56,7 @@ export {
   ViewPOSTransactions,
   TotalTipsScreen,
   CrashReportingSettingsPage,
+  CreateCustodyAccounts,
   SparkInfo,
   SupportWorkPage,
   NotificationPreferances,

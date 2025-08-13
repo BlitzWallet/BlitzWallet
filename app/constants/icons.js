@@ -3,6 +3,7 @@ import editIconLight from '../assets/icons/editLight.png';
 import xSmallIcon from '../assets/icons/x-small.png';
 import smallArrowLeft from '../assets/icons/arrow-small-left.png';
 import logoIcon from '../assets/icon.png';
+import logoIconWhite from '../assets/iconWhite.png';
 import leftCheveronIcon from '../assets/icons/left-chevron.png';
 import walletIcon from '../assets/icons/wallet.png';
 import walletBlueIcon from '../assets/icons/wallet_blue.png';
@@ -118,12 +119,23 @@ import sparkReceiveIcon from '../assets/icons/sparkReceiveIcon.png';
 import liquidReceiveIcon from '../assets/icons/liquidReceiveIcon.png';
 import rootstockLogo from '../assets/icons/rootstockLogo.png';
 import blockstreamLiquid from '../assets/icons/blockstreamLiquid.png';
+import sharedBlue from '../assets/icons/sharedBlue.png';
+import sharedWhite from '../assets/icons/sharedWhite.png';
+import exchangeIcon from '../assets/icons/exchangeIcon.png';
+import exchangeIconWhite from '../assets/icons/exchangeIconWhite.png';
+import arrowFromRightWhite from '../assets/icons/arrow-from-shape-right-white.png';
+import arrowFromRight from '../assets/icons/arrow-from-shape-right.png';
+import arrowToRightLight from '../assets/icons/arrow-to-shape-right-light.png';
+import arrowToRight from '../assets/icons/arrow-to-shape-right.png';
+import group from '../assets/icons/group.png';
+import groupWhite from '../assets/icons/groupWhite.png';
 export default {
   editIcon,
   editIconLight,
   xSmallIcon,
   smallArrowLeft,
   logoIcon,
+  logoIconWhite,
   leftCheveronIcon,
   walletIcon,
   settingsIcon,
@@ -226,6 +238,8 @@ export default {
   navigationIconFill,
   navigationIconWhite,
   navigationIconFillWhite,
+  sharedBlue,
+  sharedWhite,
   shareBlack,
   sparkAsteriskBlack,
   sparkAsteriskWhite,
@@ -239,4 +253,12 @@ export default {
   liquidReceiveIcon,
   rootstockLogo,
   blockstreamLiquid,
+  exchangeIcon,
+  exchangeIconWhite,
+  arrowFromRightWhite,
+  arrowFromRight,
+  arrowToRight,
+  arrowToRightLight,
+  group,
+  groupWhite,
 };

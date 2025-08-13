@@ -23,6 +23,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
+import {formatBalanceAmount} from '../../../../functions';
 
 export default function LRC20Assets() {
   const {darkModeType, theme} = useGlobalThemeContext();
@@ -90,7 +91,7 @@ export default function LRC20Assets() {
     });
   }, [availableTokens, searchQuery]);
 
-  const contentHeight = availableTokens.length > 3 ? 200 : 150;
+  const contentHeight = availableTokens.length > 3 ? 220 : 150;
 
   const tokens = useMemo(() => {
     return filteredTokens
@@ -125,30 +126,16 @@ export default function LRC20Assets() {
                 styles={{
                   color: textColor,
                   includeFontPadding: false,
-                  fontSize: SIZES.xLarge,
                 }}
                 content={details?.tokenMetadata?.tokenTicker[0]?.toUpperCase()}
               />
             </View>
             <View style={styles.tokenDescriptionContainer}>
-              <View style={styles.tokenNameContainer}>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={styles.tokenNameText}
-                  content={details?.tokenMetadata?.tokenName}
-                />
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={{
-                    ...styles.tokenNameTicker,
-                    color:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
-                  }}
-                  content={details?.tokenMetadata?.tokenTicker?.toUpperCase()}
-                />
-              </View>
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.tokenNameText}
+                content={details?.tokenMetadata?.tokenName}
+              />
               <ThemeText
                 CustomNumberOfLines={1}
                 styles={styles.tokenIdentifierText}
@@ -159,11 +146,11 @@ export default function LRC20Assets() {
                 }
               />
             </View>
-            <FormattedSatText
-              containerStyles={{marginLeft: 'auto'}}
-              useCustomLabel={true}
-              customLabel={details?.tokenMetadata?.tokenTicker}
-              balance={Number(details?.balance) || 0}
+
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.tokenNameText}
+              content={formatBalanceAmount(Number(details?.balance))}
             />
           </TouchableOpacity>
         );
@@ -182,6 +169,7 @@ export default function LRC20Assets() {
         }}
         onPress={toggleExpanded}>
         <ThemeText content={`${isExpanded ? 'Hide' : 'Show'} tokens`} />
+
         <Animated.View
           style={{
             transform: [{rotate: arrowRotation}],
@@ -203,23 +191,21 @@ export default function LRC20Assets() {
           width: '100%',
           height: heightAnim,
           overflow: 'hidden',
-          marginBottom: 20,
         }}>
-        {availableTokens.length > 3 && (
-          <CustomSearchInput
-            inputText={searchQuery}
-            setInputText={setSearchQuery}
-            containerStyles={{width: INSET_WINDOW_WIDTH, marginBottom: 10}}
-            placeholderText="Search tokens..."
-          />
-        )}
-
         <ScrollView
           showsVerticalScrollIndicator={true}
           style={{
             width: INSET_WINDOW_WIDTH,
             ...CENTER,
           }}>
+          {availableTokens.length > 3 && (
+            <CustomSearchInput
+              inputText={searchQuery}
+              setInputText={setSearchQuery}
+              containerStyles={{marginBottom: 10}}
+              placeholderText="Search tokens..."
+            />
+          )}
           {!tokens.length ? (
             <ThemeText
               styles={{textAlign: 'center'}}
@@ -245,14 +231,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tokenInitialContainer: {
-    width: 50,
-    height: 50,
+    width: 30,
+    height: 30,
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
   },
   tokenDescriptionContainer: {
-    flexShrink: 1,
+    flex: 1,
     marginLeft: 10,
     justifyContent: 'center',
     marginRight: 5,
@@ -262,14 +248,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tokenNameText: {
-    textTransform: 'capitalize',
-    marginRight: 2,
+    textTransform: 'uppercase',
     includeFontPadding: false,
     flexShrink: 1,
-  },
-  tokenNameTicker: {
-    includeFontPadding: false,
-    flexShrink: 1,
+    maxWidth: '45%',
   },
   tokenIdentifierText: {
     opacity: 0.7,

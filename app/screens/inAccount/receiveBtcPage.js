@@ -33,6 +33,7 @@ import {useKeysContext} from '../../../context-store/keys';
 import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
 import {encodeLNURL} from '../../functions/lnurl/bench32Formmater';
 import {useLRC20EventContext} from '../../../context-store/lrc20Listener';
+import {useActiveCustodyAccount} from '../../../context-store/activeAccount';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -43,13 +44,14 @@ export default function ReceivePaymentHome(props) {
   const {signer, startRootstockEventListener} = useRootstockProvider();
   const {startLrc20EventListener} = useLRC20EventContext();
 
+  const {isUsingAltAccount, currentWalletMnemoinc} = useActiveCustodyAccount();
   const windowDimentions = useWindowDimensions().height;
   const [contentHeight, setContentHeight] = useState(0);
   // const {ecashWalletInformation} = useGlobaleCash();
   const {startLiquidEventListener} = useLiquidEvent();
   // const currentMintURL = ecashWalletInformation.mintURL;
   // const eCashBalance = ecashWalletInformation.balance;
-  const initialSendAmount = props.route.params?.receiveAmount;
+  const initialSendAmount = props.route.params?.receiveAmount || 0;
   const paymentDescription = props.route.params?.description;
   useHandleBackPressNew();
   const selectedRecieveOption =
@@ -58,9 +60,9 @@ export default function ReceivePaymentHome(props) {
   const [addressState, setAddressState] = useState({
     selectedRecieveOption: selectedRecieveOption,
     isReceivingSwap: false,
-    generatedAddress: encodeLNURL(
-      globalContactsInformation.myProfile.uniqueName,
-    ),
+    generatedAddress: isUsingAltAccount
+      ? ''
+      : encodeLNURL(globalContactsInformation.myProfile.uniqueName),
     isGeneratingInvoice: false,
     minMaxSwapAmount: {
       min: 0,
@@ -80,7 +82,8 @@ export default function ReceivePaymentHome(props) {
       crashlyticsLogReport('Begining adddress initialization');
       if (
         !initialSendAmount &&
-        selectedRecieveOption.toLowerCase() === 'lightning'
+        selectedRecieveOption.toLowerCase() === 'lightning' &&
+        !isUsingAltAccount
       ) {
         setAddressState(prev => ({
           ...prev,
@@ -103,6 +106,7 @@ export default function ReceivePaymentHome(props) {
         navigate,
         signer,
         // eCashBalance,
+        currentWalletMnemoinc,
       });
       if (selectedRecieveOption === 'Liquid') {
         startLiquidEventListener();
@@ -149,6 +153,7 @@ export default function ReceivePaymentHome(props) {
             initialSendAmount={initialSendAmount}
             masterInfoObject={masterInfoObject}
             fiatStats={fiatStats}
+            isUsingAltAccount={isUsingAltAccount}
           />
 
           <ButtonsContainer
@@ -156,6 +161,7 @@ export default function ReceivePaymentHome(props) {
             generatedAddress={addressState.generatedAddress}
             selectedRecieveOption={selectedRecieveOption}
             initialSendAmount={initialSendAmount}
+            isUsingAltAccount={isUsingAltAccount}
           />
 
           <View style={{marginBottom: 'auto'}}></View>
@@ -234,6 +240,7 @@ function QrCode(props) {
     initialSendAmount,
     masterInfoObject,
     fiatStats,
+    isUsingAltAccount,
   } = props;
   const {showToast} = useToast();
   const {theme} = useGlobalThemeContext();
@@ -248,16 +255,18 @@ function QrCode(props) {
           }}>
           <FullLoadingScreen text={'Generating Invoice'} />
         </View>
-        <LNURLContainer
-          theme={theme}
-          textColor={textColor}
-          selectedRecieveOption={selectedRecieveOption}
-          initialSendAmount={initialSendAmount}
-          globalContactsInformation={globalContactsInformation}
-          navigate={navigate}
-          masterInfoObject={masterInfoObject}
-          fiatStats={fiatStats}
-        />
+        {!isUsingAltAccount && (
+          <LNURLContainer
+            theme={theme}
+            textColor={textColor}
+            selectedRecieveOption={selectedRecieveOption}
+            initialSendAmount={initialSendAmount}
+            globalContactsInformation={globalContactsInformation}
+            navigate={navigate}
+            masterInfoObject={masterInfoObject}
+            fiatStats={fiatStats}
+          />
+        )}
       </View>
     );
   }
@@ -301,16 +310,18 @@ function QrCode(props) {
             />
           )}
         </View>
-        <LNURLContainer
-          theme={theme}
-          textColor={textColor}
-          selectedRecieveOption={selectedRecieveOption}
-          initialSendAmount={initialSendAmount}
-          globalContactsInformation={globalContactsInformation}
-          navigate={navigate}
-          masterInfoObject={masterInfoObject}
-          fiatStats={fiatStats}
-        />
+        {!isUsingAltAccount && (
+          <LNURLContainer
+            theme={theme}
+            textColor={textColor}
+            selectedRecieveOption={selectedRecieveOption}
+            initialSendAmount={initialSendAmount}
+            globalContactsInformation={globalContactsInformation}
+            navigate={navigate}
+            masterInfoObject={masterInfoObject}
+            fiatStats={fiatStats}
+          />
+        )}
       </View>
     );
   }
@@ -321,7 +332,8 @@ function QrCode(props) {
         onPress={() => {
           if (
             selectedRecieveOption?.toLowerCase() === 'lightning' &&
-            !initialSendAmount
+            !initialSendAmount &&
+            !isUsingAltAccount
           ) {
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'chooseLNURLCopyFormat',
@@ -350,16 +362,18 @@ function QrCode(props) {
         )}
       </TouchableOpacity>
 
-      <LNURLContainer
-        theme={theme}
-        textColor={textColor}
-        selectedRecieveOption={selectedRecieveOption}
-        initialSendAmount={initialSendAmount}
-        globalContactsInformation={globalContactsInformation}
-        navigate={navigate}
-        masterInfoObject={masterInfoObject}
-        fiatStats={fiatStats}
-      />
+      {!isUsingAltAccount && (
+        <LNURLContainer
+          theme={theme}
+          textColor={textColor}
+          selectedRecieveOption={selectedRecieveOption}
+          initialSendAmount={initialSendAmount}
+          globalContactsInformation={globalContactsInformation}
+          navigate={navigate}
+          masterInfoObject={masterInfoObject}
+          fiatStats={fiatStats}
+        />
+      )}
     </View>
   );
 }

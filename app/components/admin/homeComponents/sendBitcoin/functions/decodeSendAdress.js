@@ -47,6 +47,7 @@ export default async function decodeSendAddress(props) {
     publishMessageFunc,
     sparkInformation,
     seletctedToken,
+    currentWalletMnemoinc,
   } = props;
 
   try {
@@ -93,34 +94,30 @@ export default async function decodeSendAddress(props) {
       }
     }
 
+    // handle bip21 qrs
     if (
       btcAdress.toLowerCase().startsWith('lightning') ||
-      btcAdress.toLowerCase().startsWith('bitcoin') ||
-      btcAdress.toLowerCase().startsWith('lnurl')
+      btcAdress.toLowerCase().startsWith('bitcoin')
     ) {
-      const decodedAddress = btcAdress.toLowerCase().startsWith('lnurl')
-        ? btcAdress
-        : decodeBip21Address(
-            btcAdress,
-            btcAdress.toLowerCase().startsWith('lightning')
-              ? 'lightning'
-              : 'bitcoin',
-          );
-      const lnurl = btcAdress.toLowerCase().startsWith('lnurl')
-        ? decodedAddress
-        : btcAdress.toLowerCase().startsWith('lightning')
+      const decodedAddress = decodeBip21Address(
+        btcAdress,
+        btcAdress.toLowerCase().startsWith('lightning')
+          ? 'lightning'
+          : 'bitcoin',
+      );
+
+      const lightningInvoice = btcAdress.toLowerCase().startsWith('lightning')
         ? decodedAddress.address.toUpperCase()
         : decodedAddress.options.lightning.toUpperCase();
 
-      const decodedLNULR = decodeLNURL(lnurl);
-      if (!decodedLNULR)
-        throw new Error(
-          'Not able to get lightning address from lightning link.',
-        );
+      const decodedLNULR = decodeLNURL(lightningInvoice);
 
-      const lightningAddress = formatLightningAddress(decodedLNULR);
-
-      btcAdress = lightningAddress;
+      if (!decodedLNULR) {
+        btcAdress = decodedAddress.address;
+      } else {
+        const lightningAddress = formatLightningAddress(decodedLNULR);
+        btcAdress = lightningAddress;
+      }
     }
 
     const chosenPath = parsedInvoice
@@ -152,6 +149,7 @@ export default async function decodeSendAddress(props) {
         paymentInfo,
         fromPage,
         seletctedToken,
+        currentWalletMnemoinc,
       });
     } catch (err) {
       return goBackFunction(err.message || 'Error processing payment info');

@@ -11,6 +11,7 @@ export default async function processSparkAddress(input, context) {
     paymentInfo,
     fiatStats,
     seletctedToken,
+    currentWalletMnemoinc,
   } = context;
 
   const isLRC20 =
@@ -47,6 +48,7 @@ export default async function processSparkAddress(input, context) {
         paymentType: isLRC20 ? 'lrc20' : 'spark',
         amountSats: amountMsat / 1000,
         masterInfoObject,
+        mnemonic: currentWalletMnemoinc,
       });
       if (!fee.didWork) throw new Error(fee.error);
 

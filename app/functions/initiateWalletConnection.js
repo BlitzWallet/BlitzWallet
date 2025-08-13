@@ -26,6 +26,7 @@ export async function initWallet({
         setSparkInformation,
         // globalContactsInformation,
         // toggleGlobalContactsInformation,
+        mnemonic,
       });
 
       if (!didSetSpark)
@@ -50,21 +51,25 @@ async function initializeSparkSession({
   setSparkInformation,
   // globalContactsInformation,
   // toggleGlobalContactsInformation,
+  mnemonic,
 }) {
   try {
     // Clean DB state but do not hold up process
     cleanStalePendingSparkLightningTransactions();
-    const [balance, transactions, sparkAddress, identityPubKey] =
-      await Promise.all([
-        getSparkBalance(),
-        getCachedSparkTransactions(),
-        getSparkAddress(),
-        getSparkIdentityPubKey(),
-      ]);
+    const [balance, sparkAddress, identityPubKey] = await Promise.all([
+      getSparkBalance(mnemonic),
 
-    if (!balance.didWork || transactions === undefined)
+      getSparkAddress(mnemonic),
+      getSparkIdentityPubKey(mnemonic),
+    ]);
+
+    if (!balance.didWork)
       throw new Error('Unable to initialize spark from history');
 
+    const transactions = await getCachedSparkTransactions(null, identityPubKey);
+
+    if (transactions === undefined)
+      throw new Error('Unable to initialize spark from history');
     // if (
     //   !globalContactsInformation.myProfile.sparkAddress ||
     //   !globalContactsInformation.myProfile.sparkIdentityPubKey
@@ -83,7 +88,7 @@ async function initializeSparkSession({
 
     let didLoadCorrectBalance = false;
     let runCount = 0;
-    let maxRunCount = 5;
+    let maxRunCount = 2;
     let initialBalanceResponse = balance;
     let correctBalance = 0;
 
@@ -94,13 +99,14 @@ async function initializeSparkSession({
       if (runCount === 1) {
         currentBalance = Number(initialBalanceResponse.balance);
       } else {
-        const retryResponse = await getSparkBalance();
+        const retryResponse = await getSparkBalance(mnemonic);
         currentBalance = Number(retryResponse.balance);
       }
 
       const response = await handleBalanceCache({
         isCheck: true,
         passedBalance: currentBalance,
+        mnemonic,
       });
 
       if (response.didWork) {
@@ -127,6 +133,7 @@ async function initializeSparkSession({
       await handleBalanceCache({
         isCheck: false,
         passedBalance: finalBalanceToUse,
+        mnemonic,
       });
     }
     const storageObject = {

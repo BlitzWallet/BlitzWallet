@@ -42,6 +42,7 @@ import {useGlobalContextProvider} from '../../../../../../context-store/context'
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 
 const CREDITOPTIONS = [
   {
@@ -68,6 +69,7 @@ const CREDITOPTIONS = [
 export default function AddChatGPTCredits({confirmationSliderData}) {
   const {sparkInformation} = useSparkWallet();
   // const {nodeInformation, liquidNodeInformation} = useNodeContext();
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {
     decodedChatGPT,
@@ -275,6 +277,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
           masterInfoObject,
           sparkInformation,
           userBalance: sparkInformation.balance,
+          mnemonic: currentWalletMnemoinc,
         });
 
         if (!feeResponse.didWork) throw new Error(feeResponse.error);
@@ -295,6 +298,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
         masterInfoObject,
         sparkInformation,
         userBalance: sparkInformation.balance,
+        mnemonic: currentWalletMnemoinc,
       });
       if (!paymentResponse.didWork) throw new Error(paymentResponse.error);
 

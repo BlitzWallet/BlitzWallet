@@ -9,6 +9,7 @@ export default async function processBitcoinAddress(input, context) {
     enteredPaymentInfo,
     fiatStats,
     paymentInfo,
+    currentWalletMnemoinc,
   } = context;
 
   crashlyticsLogReport('Begining decode Bitcoin address');
@@ -43,6 +44,7 @@ export default async function processBitcoinAddress(input, context) {
         paymentType: 'bitcoin',
         amountSats: amountSat,
         masterInfoObject,
+        mnemonic: currentWalletMnemoinc,
       });
 
       if (!paymentFeeResponse.didWork)

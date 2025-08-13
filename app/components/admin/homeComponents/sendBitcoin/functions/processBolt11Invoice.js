@@ -10,6 +10,7 @@ export default async function processBolt11Invoice(input, context) {
     enteredPaymentInfo,
     fiatStats,
     paymentInfo,
+    currentWalletMnemoinc,
   } = context;
 
   crashlyticsLogReport('Handling decode bolt11 invoices');
@@ -38,6 +39,7 @@ export default async function processBolt11Invoice(input, context) {
         amountSats: Math.round(amountMsat / 1000),
         paymentType: 'lightning',
         masterInfoObject,
+        mnemonic: currentWalletMnemoinc,
       });
 
       if (!fee.didWork) throw new Error(fee.error);
