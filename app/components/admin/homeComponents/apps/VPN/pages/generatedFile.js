@@ -1,7 +1,6 @@
 import {
   Image,
   Platform,
-  Share,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -20,11 +19,13 @@ import GetThemeColors from '../../../../../../hooks/themeColors';
 import QrCodeWrapper from '../../../../../../functions/CustomElements/QrWrapper';
 import writeAndShareFileToFilesystem from '../../../../../../functions/writeFileToFilesystem';
 import {useToast} from '../../../../../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
 
 export default function GeneratedVPNFile(props) {
   const navigate = useNavigation();
   const generatedFile =
     props?.generatedFile || props?.route?.params?.generatedFile;
+  const {t} = useTranslation();
 
   return (
     <GlobalThemeView>
@@ -69,7 +70,7 @@ function VPNFileDisplay({generatedFile}) {
     <>
       <ThemeText
         styles={{marginBottom: 10}}
-        content={'Wiregurard Config File'}
+        content={t('apps.VPN.generatedFile.title')}
       />
 
       <TouchableOpacity
@@ -82,14 +83,14 @@ function VPNFileDisplay({generatedFile}) {
       <View style={{flexDirection: 'row', marginTop: 20}}>
         <CustomButton
           buttonStyles={{...CENTER, marginRight: 10, width: 'auto'}}
-          textContent={'Download'}
+          textContent={t('constants.download')}
           actionFunction={() => {
             downloadVPNFile({generatedFile, navigate});
           }}
         />
         <CustomButton
           buttonStyles={{...CENTER, with: 'auto'}}
-          textContent={'Copy'}
+          textContent={t('constants.copy')}
           actionFunction={() => {
             copyToClipboard(generatedFile.join('\n'), showToast);
           }}
@@ -99,8 +100,8 @@ function VPNFileDisplay({generatedFile}) {
         styles={{marginTop: 10, textAlign: 'center'}}
         content={
           Platform.OS === 'ios'
-            ? 'When dowloading, click save to files'
-            : 'When dowloading, you will need to give permission to a location where we can save the config file to.'
+            ? t('apps.VPN.generatedFile.iosDownloadInstructions')
+            : t('apps.VPN.generatedFile.androidDownloadInstructions')
         }
       />
     </>
@@ -118,7 +119,7 @@ async function downloadVPNFile({generatedFile, navigate}) {
     navigate,
   );
   if (!response.success) {
-    navigate.navigate('ErrorScreen', {errorMessage: response.error});
+    navigate.navigate('ErrorScreen', {errorMessage: t(response.error)});
   }
 }
 
