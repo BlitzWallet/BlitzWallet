@@ -158,7 +158,8 @@ export default async function decodeSendAddress(props) {
     if (processedPaymentInfo) {
       if (
         comingFromAccept &&
-        seletctedToken.tokenMetadata.tokenTicker === 'Bitcoin' &&
+        (seletctedToken?.tokenMetadata?.tokenTicker === 'Bitcoin' ||
+          seletctedToken?.tokenMetadata?.tokenTicker === undefined) &&
         sparkInformation.balance <
           processedPaymentInfo.paymentFee +
             processedPaymentInfo.supportFee +

@@ -74,8 +74,8 @@ export default function KeyForKeyboard({num, addPin, isDot, frompage}) {
 
 const styles = StyleSheet.create({
   key: {
-    width: '33.33333333333333%',
-    height: 80,
+    width: '33.333333333%',
+    height: 70,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

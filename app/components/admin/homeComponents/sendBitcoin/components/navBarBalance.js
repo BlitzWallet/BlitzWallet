@@ -1,10 +1,5 @@
 import {StyleSheet, View} from 'react-native';
-import {
-  CENTER,
-  ICONS,
-  SIZES,
-  TOKEN_TICKER_MAX_LENGTH,
-} from '../../../../../constants';
+import {CENTER, ICONS, SIZES} from '../../../../../constants';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
@@ -12,6 +7,7 @@ import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 export default function NavbarBalance({seletctedToken}) {
   const {sparkInformation} = useSparkWallet();
 
+  const balance = seletctedToken?.balance || sparkInformation.balance;
   return (
     <View style={styles.container}>
       <ThemeImage
@@ -24,13 +20,13 @@ export default function NavbarBalance({seletctedToken}) {
       <FormattedSatText
         neverHideBalance={true}
         styles={styles.headerText}
-        balance={
-          seletctedToken.tokenMetadata.tokenTicker === 'Bitcoin'
-            ? sparkInformation.balance
-            : Number(seletctedToken.balance)
+        balance={balance}
+        useCustomLabel={
+          seletctedToken?.tokenMetadata?.tokenTicker !== 'Bitcoin' &&
+          seletctedToken?.tokenMetadata?.tokenTicker !== undefined
         }
-        useCustomLabel={seletctedToken.tokenMetadata.tokenTicker !== 'Bitcoin'}
-        customLabel={seletctedToken.tokenMetadata.tokenTicker}
+        customLabel={seletctedToken?.tokenMetadata?.tokenTicker}
+        useMillionDenomination={true}
       />
     </View>
   );
@@ -46,7 +42,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  walletIcon: {marginRight: 10, width: 23, height: 23},
+  walletIcon: {marginRight: 5, width: 23, height: 23},
   headerText: {
     fontSize: SIZES.large,
     includeFontPadding: false,

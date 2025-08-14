@@ -1,9 +1,4 @@
-import {
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useSparkWallet} from '../../../context-store/sparkContext';
 import {ThemeText} from '../CustomElements';
 import {CENTER, SIZES, TOKEN_TICKER_MAX_LENGTH} from '../../constants';
@@ -12,9 +7,9 @@ import {COLORS, INSET_WINDOW_WIDTH} from '../../constants/theme';
 import formatBalanceAmount from '../formatNumber';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalInsets} from '../../../context-store/insetsProvider';
-import FormattedSatText from '../CustomElements/satTextDisplay';
 import {useToast} from '../../../context-store/toastManager';
 import copyToClipboard from '../copyToClipboard';
+import formatTokensNumber from './formatTokensBalance';
 
 export default function LRC20TokenInformation({
   theme,
@@ -33,116 +28,123 @@ export default function LRC20TokenInformation({
   const {topPadding} = useGlobalInsets();
 
   return (
-    <TouchableWithoutFeedback>
-      <View
-        onLayout={e => {
-          if (!initialValue.current) {
-            initialValue.current = e.nativeEvent.layout.height;
-            setContentHeight(e.nativeEvent.layout.height + 80);
-          }
-        }}
-        style={{...styles.container, paddingBottom: topPadding}}>
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={styles.titleText}
-          content={tokenMetadata.tokenName?.toUpperCase()}
-        />
+    <View
+      onLayout={e => {
+        if (!initialValue.current) {
+          initialValue.current = e.nativeEvent.layout.height;
+          setContentHeight(e.nativeEvent.layout.height + 80);
+        }
+      }}
+      style={{...styles.container, paddingBottom: topPadding}}>
+      <ThemeText
+        CustomNumberOfLines={1}
+        styles={styles.titleText}
+        content={tokenMetadata.tokenName?.toUpperCase()}
+      />
 
+      <View
+        style={{
+          ...styles.innerContainer,
+          backgroundColor: theme
+            ? darkModeType
+              ? backgroundColor
+              : backgroundOffset
+            : COLORS.darkModeText,
+        }}>
         <View
           style={{
-            ...styles.innerContainer,
-            backgroundColor: theme
+            ...styles.itemRow,
+            borderBottomColor: theme
               ? darkModeType
-                ? backgroundColor
-                : backgroundOffset
-              : COLORS.darkModeText,
+                ? backgroundOffset
+                : backgroundColor
+              : backgroundColor,
           }}>
-          <View
-            style={{
-              ...styles.itemRow,
-              borderBottomColor: theme
-                ? darkModeType
-                  ? backgroundOffset
-                  : backgroundColor
-                : backgroundColor,
-            }}>
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.textItemDescription}
+            content={'Balance'}
+          />
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.textItem}
+            content={formatBalanceAmount(
+              formatTokensNumber(balance, tokenMetadata?.decimals),
+              true,
+            )}
+          />
+        </View>
+        <View
+          style={{
+            ...styles.itemRow,
+            borderBottomColor: theme
+              ? darkModeType
+                ? backgroundOffset
+                : backgroundColor
+              : backgroundColor,
+          }}>
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.textItemDescription}
+            content={'Max Supply'}
+          />
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.textItem}
+            content={formatBalanceAmount(
+              formatTokensNumber(
+                tokenMetadata.maxSupply,
+                tokenMetadata?.decimals,
+              ),
+              true,
+            )}
+          />
+        </View>
+        <View
+          style={{
+            ...styles.itemRow,
+            borderBottomColor: theme
+              ? darkModeType
+                ? backgroundOffset
+                : backgroundColor
+              : backgroundColor,
+          }}>
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.textItemDescription}
+            content={'Token Ticker'}
+          />
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.textItem}
+            content={tokenMetadata.tokenTicker
+              ?.toUpperCase()
+              .slice(0, TOKEN_TICKER_MAX_LENGTH)}
+          />
+        </View>
+        <View
+          style={{
+            ...styles.itemRow,
+            borderBottomWidth: 0,
+          }}>
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.textItemDescription}
+            content={'Token Public Key'}
+          />
+          <TouchableOpacity
+            onPress={() => {
+              copyToClipboard(tokenMetadata.tokenPublicKey, showToast);
+            }}
+            style={styles.textItem}>
             <ThemeText
               CustomNumberOfLines={1}
-              styles={styles.textItemDescription}
-              content={'Balance'}
+              content={tokenMetadata.tokenPublicKey}
             />
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.textItem}
-              content={formatBalanceAmount(Number(balance))}
-            />
-          </View>
-          <View
-            style={{
-              ...styles.itemRow,
-              borderBottomColor: theme
-                ? darkModeType
-                  ? backgroundOffset
-                  : backgroundColor
-                : backgroundColor,
-            }}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.textItemDescription}
-              content={'Max Supply'}
-            />
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.textItem}
-              content={formatBalanceAmount(Number(tokenMetadata.maxSupply))}
-            />
-          </View>
-          <View
-            style={{
-              ...styles.itemRow,
-              borderBottomColor: theme
-                ? darkModeType
-                  ? backgroundOffset
-                  : backgroundColor
-                : backgroundColor,
-            }}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.textItemDescription}
-              content={'Token Ticker'}
-            />
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.textItem}
-              content={tokenMetadata.tokenTicker
-                ?.toUpperCase()
-                .slice(0, TOKEN_TICKER_MAX_LENGTH)}
-            />
-          </View>
-          <View
-            style={{
-              ...styles.itemRow,
-              borderBottomWidth: 0,
-            }}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.textItemDescription}
-              content={'Token Public Key'}
-            />
-            <TouchableOpacity
-              onPress={() => {
-                copyToClipboard(tokenMetadata.tokenPublicKey, showToast);
-              }}
-              style={styles.textItem}>
-              <ThemeText
-                CustomNumberOfLines={1}
-                content={tokenMetadata.tokenPublicKey}
-              />
-            </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   );
 }
 

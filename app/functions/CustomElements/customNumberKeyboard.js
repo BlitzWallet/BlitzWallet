@@ -1,5 +1,5 @@
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {SATSPERBITCOIN, SIZES} from '../../constants';
+import {StyleSheet, View} from 'react-native';
+import {SATSPERBITCOIN} from '../../constants';
 import KeyForKeyboard from './key';
 import {useCallback, useMemo} from 'react';
 import numberConverter from '../numberConverter';
@@ -10,6 +10,7 @@ export default function CustomNumberKeyboard({
   showDot,
   usingForBalance,
   fiatStats,
+  useMaxBalance = true,
 }) {
   const addPin = useCallback(
     id => {
@@ -55,14 +56,21 @@ export default function CustomNumberKeyboard({
             console.log(convertedValue, 'CONVERTED VAL');
             const numberLength = integerPartLength(convertedValue);
             console.log(numberLength, 'NUMBER LENGTH');
-            if (convertedValue > 25_000_000) return prev;
+            if (convertedValue > 25_000_000 && useMaxBalance) return prev;
           }
 
           return newNumber;
         });
       }
     },
-    [frompage, setInputValue, showDot, usingForBalance, fiatStats],
+    [
+      frompage,
+      setInputValue,
+      showDot,
+      usingForBalance,
+      fiatStats,
+      useMaxBalance,
+    ],
   );
 
   const keyboardContainerStyles = useMemo(() => {
@@ -125,16 +133,6 @@ const styles = StyleSheet.create({
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  key: {
-    width: '33.33333333333333%',
-    height: 80,
-    display: 'flex',
-    alignItems: 'center',
     justifyContent: 'center',
-  },
-  keyText: {
-    fontSize: SIZES.xLarge,
   },
 });

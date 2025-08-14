@@ -26,12 +26,14 @@ export default function FormattedSatText({
   useBalance,
   useCustomLabel = false,
   customLabel = '',
+  useMillionDenomination = false,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {fiatStats} = useNodeContext();
   const localBalanceDenomination =
     globalBalanceDenomination || masterInfoObject.userBalanceDenomination;
   const currencyText = fiatStats.coin || 'USD';
+
   const formattedBalance = useMemo(
     () =>
       useBalance
@@ -43,8 +45,15 @@ export default function FormattedSatText({
               localBalanceDenomination === 'fiat' ? 2 : 0,
               fiatStats,
             ),
+            useMillionDenomination,
           ),
-    [balance, useBalance, localBalanceDenomination, fiatStats],
+    [
+      balance,
+      useBalance,
+      localBalanceDenomination,
+      fiatStats,
+      useMillionDenomination,
+    ],
   );
 
   const currencyOptions = useMemo(
@@ -111,7 +120,7 @@ export default function FormattedSatText({
         )}
         <ThemeText
           reversed={reversed}
-          content={`${formatBalanceAmount(balance)}`}
+          content={`${formatBalanceAmount(balance, useMillionDenomination)}`}
           styles={{
             includeFontPadding: false,
             marginLeft: frontText ? 0 : 'auto',

@@ -42,6 +42,7 @@ export default function NumberInputSendPage({
       setInputValue={setAmount}
       usingForBalance={true}
       fiatStats={fiatStats}
+      useMaxBalance={selectedLRC20Asset === 'Bitcoin'}
     />
   );
 }

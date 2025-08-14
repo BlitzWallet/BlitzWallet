@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -13,7 +12,6 @@ import {
   BITCOIN_SATS_ICON,
   CENTER,
   FONT,
-  SIZES,
 } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalContextProvider} from '../../../context-store/context';
@@ -33,7 +31,8 @@ export default function FormattedBalanceInput({
   maxWidth = 0.95,
   customCurrencyCode = '',
 }) {
-  const [inputWidth, setInputWidth] = useState(50); // Start with a small width
+  const [inputWidth, setInputWidth] = useState(0);
+  const [labelWidth, setLabelWidth] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
   const windowWidth = useWindowDimensions().width;
   const {masterInfoObject} = useGlobalContextProvider();
@@ -53,9 +52,16 @@ export default function FormattedBalanceInput({
   const isSymbolInFront = currencyInfo[3];
   const currencySymbol = currencyInfo[2];
   const {textColor} = GetThemeColors();
-
   const showSats =
     inputDenomination === 'sats' || inputDenomination === 'hidden';
+
+  const maxContainerWidth = windowWidth * maxWidth;
+  const availableInputWidth = useMemo(() => {
+    if (labelWidth === 0) return 0;
+
+    const remainingWidth = maxContainerWidth - labelWidth;
+    return Math.max(0, Math.min(inputWidth, remainingWidth));
+  }, [inputWidth, labelWidth, maxContainerWidth]);
 
   console.log(customCurrencyCode, 'custom code');
   if (customCurrencyCode) {
@@ -71,10 +77,11 @@ export default function FormattedBalanceInput({
           styles.textInputContainer,
           {
             opacity: !amountValue ? 0.5 : 1,
+            maxWidth: maxContainerWidth,
             ...customTextInputContainerStyles,
           },
         ]}>
-        <View style={[styles.inputWrapper, {width: inputWidth}]}>
+        <View style={[styles.inputWrapper, {width: availableInputWidth}]}>
           <ScrollView
             onTouchStart={() => setIsScrolling(false)}
             onTouchMove={() => setIsScrolling(true)}
@@ -94,22 +101,24 @@ export default function FormattedBalanceInput({
             />
           </ScrollView>
         </View>
-
-        <ThemeText
-          styles={styles.satText}
-          content={customCurrencyCode.toUpperCase()?.slice(0, 3)}
-        />
-
-        {/* Hidden Text for Measuring Width stupid but works */}
+        <View
+          onLayout={e => {
+            console.log(e.nativeEvent.layout, 'layout change');
+            setLabelWidth(e.nativeEvent.layout.width);
+          }}>
+          <ThemeText
+            styles={styles.satText}
+            content={customCurrencyCode.toUpperCase()?.slice(0, 3)}
+          />
+        </View>
+        {/* Hidden Text for Measuring Width */}
         <Text
           style={styles.hiddenText}
           onLayout={e => {
             console.log(e.nativeEvent.layout.width, 'INPUT WIDTH');
-            const newWidth = Math.min(
-              e.nativeEvent.layout.width + (Platform.OS === 'android' ? 10 : 5),
-              windowWidth * maxWidth,
-            );
-            setInputWidth(newWidth);
+            const measuredWidth =
+              e.nativeEvent.layout.width + (Platform.OS === 'android' ? 10 : 5);
+            setInputWidth(measuredWidth);
           }}>
           {formatBalanceAmount(amountValue)}
         </Text>
@@ -129,6 +138,7 @@ export default function FormattedBalanceInput({
         styles.textInputContainer,
         {
           opacity: !amountValue ? 0.5 : 1,
+          maxWidth: maxContainerWidth,
           ...customTextInputContainerStyles,
         },
       ]}>
@@ -138,7 +148,6 @@ export default function FormattedBalanceInput({
       {showSats && showSymbol && (
         <ThemeText styles={styles.satText} content={BITCOIN_SATS_ICON} />
       )}
-
       <View style={[styles.inputWrapper, {width: inputWidth}]}>
         <ScrollView
           onTouchStart={() => setIsScrolling(false)}
@@ -159,18 +168,16 @@ export default function FormattedBalanceInput({
           />
         </ScrollView>
       </View>
-
       {!isSymbolInFront && !showSats && showSymbol && (
         <ThemeText styles={styles.satText} content={currencySymbol} />
       )}
       {!showSymbol && !showSats && (
         <ThemeText styles={styles.satText} content={currencyText} />
       )}
-
       {!showSymbol && showSats && (
         <ThemeText content={`${BITCOIN_SAT_TEXT}`} styles={styles.satText} />
       )}
-      {/* Hidden Text for Measuring Width stupid but works */}
+      {/* Hidden Text for Measuring Width */}
       <Text
         style={styles.hiddenText}
         onLayout={e => {
@@ -186,6 +193,7 @@ export default function FormattedBalanceInput({
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   textInputContainer: {
     width: 'auto',
@@ -195,7 +203,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     ...CENTER,
   },
-
   textInput: {
     fontSize: 40,
     includeFontPadding: false,
@@ -203,7 +210,6 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     fontFamily: FONT.Title_Regular,
   },
-
   satText: {
     fontSize: 40,
     includeFontPadding: false,
