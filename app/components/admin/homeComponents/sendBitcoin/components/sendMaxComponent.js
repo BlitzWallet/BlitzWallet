@@ -26,7 +26,7 @@ export default function SendMaxComponent({
       buttonStyles={{
         width: 'auto',
         ...CENTER,
-        marginBottom: 25,
+        marginBottom: 10,
       }}
       useLoading={isGettingMax}
       actionFunction={sendMax}

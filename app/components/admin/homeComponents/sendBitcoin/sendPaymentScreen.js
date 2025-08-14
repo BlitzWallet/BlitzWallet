@@ -1,7 +1,6 @@
 import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
 import {
   ICONS,
-  LIQUID_NON_BITCOIN_DRAIN_LIMIT,
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
 } from '../../../../constants';
@@ -11,43 +10,21 @@ import {CustomKeyboardAvoidingView} from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
 import decodeSendAddress from './functions/decodeSendAdress';
 import {useNavigation} from '@react-navigation/native';
-// import {
-//   getLNAddressForLiquidPayment,
-//   sendBitcoinPayment,
-//   sendBolt12Offer_sendPaymentScreen,
-//   sendLightningPayment_sendPaymentScreen,
-//   sendLiquidPayment_sendPaymentScreen,
-//   sendPaymentUsingEcash,
-//   sendToLNFromLiquid_sendPaymentScreen,
-//   sendToLiquidFromLightning_sendPaymentScreen,
-// } from './functions/payments';
 import {useWebView} from '../../../../../context-store/webViewContext';
-import {
-  DUST_LIMIT_FOR_LBTC_CHAIN_PAYMENTS,
-  LIGHTNINGAMOUNTBUFFER,
-} from '../../../../constants/math';
-// import {useGlobaleCash} from '../../../../../context-store/eCash';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {calculateBoltzFeeNew} from '../../../../functions/boltz/boltzFeeNew';
-
 import NavbarBalance from './components/navBarBalance';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import AcceptButtonSendPage from './components/acceptButton';
 import NumberInputSendPage from './components/numberInput';
-import usablePaymentNetwork from './functions/usablePaymentNetworks';
 import SendMaxComponent from './components/sendMaxComponent';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import hasAlredyPaidInvoice from './functions/hasPaid';
-// import {
-//   calculateEcashFees,
-//   getProofsToUse,
-// } from '../../../../functions/eCash/wallet';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../functions/customNavigation';
 import ErrorWithPayment from './components/errorScreen';
@@ -56,15 +33,14 @@ import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import {sparkPaymenWrapper} from '../../../../functions/spark/payments';
-import {getBoltzApiUrl} from '../../../../functions/boltz/boltzEndpoitns';
 import InvoiceInfo from './components/invoiceInfo';
 import formatSparkPaymentAddress from './functions/formatSparkPaymentAddress';
 import SelectLRC20Token from './components/selectLRC20Token';
 import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
+import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
-  // FIX MIN AND MAX SEND AMOUNTS HERE.
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const navigate = useNavigation();
   const {
@@ -74,7 +50,6 @@ export default function SendPaymentScreen(props) {
     comingFromAccept,
     enteredPaymentInfo = {},
     errorMessage,
-    selectedLRC20Asset = 'Bitcoin',
   } = props.route.params;
 
   const {sparkInformation} = useSparkWallet();
@@ -82,12 +57,8 @@ export default function SendPaymentScreen(props) {
   const {nodeInformation, liquidNodeInformation, fiatStats} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
-  // const {ecashWalletInformation} = useGlobaleCash();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
-  const {
-    webViewRef,
-    //  setWebViewArgs
-  } = useWebView();
+  const {webViewRef} = useWebView();
 
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [paymentInfo, setPaymentInfo] = useState({});
@@ -97,33 +68,24 @@ export default function SendPaymentScreen(props) {
     'Getting invoice information',
   );
 
-  // const eCashBalance = ecashWalletInformation.balance;
   const sendingAmount = paymentInfo?.sendAmount || 0;
   const isBTCdenominated =
     masterInfoObject.userBalanceDenomination === 'hidden' ||
     masterInfoObject.userBalanceDenomination === 'sats';
   const canEditPaymentAmount = paymentInfo?.canEditPayment;
   const enabledLRC20 = masterInfoObject.lrc20Settings.isEnabled;
-  const seletctedToken =
-    selectedLRC20Asset === 'Bitcoin'
-      ? {
-          balance: sparkInformation.balance,
-          tokenMetadata: {
-            tokenTicker: 'Bitcoin',
-          },
-        }
-      : sparkInformation.tokens[selectedLRC20Asset];
+  const [masterTokenInfo, setMasterTokenInfo] = useState({});
+  const selectedLRC20Asset = masterTokenInfo?.tokenName || 'Bitcoin';
+  const seletctedToken = masterTokenInfo?.details || {};
 
-  const convertedSendAmount = isBTCdenominated
-    ? Math.round(Number(sendingAmount))
-    : Math.round((SATSPERBITCOIN / fiatStats?.value) * Number(sendingAmount));
-  // const swapFee = calculateBoltzFeeNew(
-  //   Number(convertedSendAmount),
-  //   paymentInfo.type === 'liquid' ? 'ln-liquid' : 'liquid-ln',
-  //   minMaxLiquidSwapAmounts[
-  //     paymentInfo.type === 'liquid' ? 'reverseSwapStats' : 'submarineSwapStats'
-  //   ],
-  // );
+  const convertedSendAmount =
+    selectedLRC20Asset === 'Bitcoin'
+      ? isBTCdenominated
+        ? Math.round(Number(sendingAmount))
+        : Math.round(
+            (SATSPERBITCOIN / fiatStats?.value) * Number(sendingAmount),
+          )
+      : Math.round(Number(sendingAmount));
 
   const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
   const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
@@ -137,47 +99,17 @@ export default function SendPaymentScreen(props) {
     ? paymentInfo?.data?.maxSendable / 1000
     : 0;
 
-  console.log(minLNURLSatAmount, maxLNURLSatAmount);
-  // const minSendAmount = 1000 || minMaxLiquidSwapAmounts.min;
-  // const maxSendAmount = minMaxLiquidSwapAmounts.max || 23000000;
-
-  // const {canUseEcash, canUseLiquid, canUseLightning} = usablePaymentNetwork({
-  //   liquidNodeInformation,
-  //   nodeInformation,
-  //   eCashBalance,
-  //   masterInfoObject,
-  //   convertedSendAmount,
-  //   isLiquidPayment,
-  //   isLightningPayment,
-  //   paymentInfo,
-  //   isBitcoinPayment,
-  //   minSendAmount,
-  //   maxSendAmount,
-  // });
-  // console.log(canUseEcash, 'CAN USE ECASH');
-  // const lightningFee = canUseEcash
-  //   ? Math.round(convertedSendAmount * 0.005) + 4
-  //   : masterInfoObject.useTrampoline
-  //   ? Math.round(convertedSendAmount * 0.005) + 4
-  //   : null;
-
-  // const isReverseSwap =
-  //   canUseLightning &&
-  //   (!canUseLiquid || !canUseEcash) &&
-  //   paymentInfo?.paymentNetwork === 'liquid';
-  // const isSubmarineSwap =
-  //   canUseLiquid &&
-  //   (!canUseLightning || !canUseEcash) &&
-  //   paymentInfo?.paymentNetwork === 'lightning';
-  // const isSendingSwap = isReverseSwap || isSubmarineSwap;
+  console.log(minLNURLSatAmount, maxLNURLSatAmount, selectedLRC20Asset);
 
   const paymentFee =
     (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
   const canSendPayment =
     selectedLRC20Asset === 'Bitcoin'
-      ? Number(seletctedToken.balance) >=
+      ? Number(sparkInformation.balance) >=
           Number(convertedSendAmount) + paymentFee && sendingAmount != 0
-      : sparkInformation.balance >= paymentFee && sendingAmount != 0;
+      : sparkInformation.balance >= paymentFee &&
+        sendingAmount != 0 &&
+        seletctedToken.balance >= convertedSendAmount;
   console.log(
     canSendPayment,
     'can send payment',
@@ -290,6 +222,21 @@ export default function SendPaymentScreen(props) {
     return <ErrorWithPayment reason={errorMessage} />;
   }
 
+  if (
+    enabledLRC20 &&
+    !Object.keys(seletctedToken).length &&
+    paymentInfo.type === 'spark'
+  ) {
+    return (
+      <SelectLRC20Token
+        sparkInformation={sparkInformation}
+        seletctedToken={seletctedToken}
+        goBackFunction={goBackFunction}
+        setSelectedToken={setMasterTokenInfo}
+      />
+    );
+  }
+
   return (
     <CustomKeyboardAvoidingView
       useLocalPadding={true}
@@ -298,7 +245,13 @@ export default function SendPaymentScreen(props) {
       <View style={styles.topBar}>
         <TouchableOpacity
           style={{position: 'absolute', zIndex: 99, left: 0}}
-          onPress={goBackFunction}>
+          onPress={
+            enabledLRC20 &&
+            Object.keys(seletctedToken).length &&
+            paymentInfo.type === 'spark'
+              ? () => setMasterTokenInfo({})
+              : goBackFunction
+          }>
           <ThemeImage
             lightModeIcon={ICONS.smallArrowLeft}
             darkModeIcon={ICONS.smallArrowLeft}
@@ -306,7 +259,10 @@ export default function SendPaymentScreen(props) {
           />
         </TouchableOpacity>
 
-        <NavbarBalance seletctedToken={seletctedToken} />
+        <NavbarBalance
+          seletctedToken={seletctedToken}
+          selectedLRC20Asset={selectedLRC20Asset}
+        />
       </View>
 
       <ScrollView
@@ -318,9 +274,9 @@ export default function SendPaymentScreen(props) {
         }}>
         <FormattedBalanceInput
           maxWidth={0.9}
-          amountValue={paymentInfo?.sendAmount || 0}
+          amountValue={sendingAmount}
           inputDenomination={masterInfoObject.userBalanceDenomination}
-          activeOpacity={!paymentInfo.sendAmount ? 0.5 : 1}
+          activeOpacity={!sendingAmount ? 0.5 : 1}
           customCurrencyCode={
             selectedLRC20Asset !== 'Bitcoin'
               ? seletctedToken?.tokenMetadata?.tokenTicker
@@ -328,6 +284,19 @@ export default function SendPaymentScreen(props) {
           }
         />
 
+        {selectedLRC20Asset !== 'Bitcoin' && (
+          <FormattedSatText
+            neverHideBalance={true}
+            containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
+            styles={{includeFontPadding: false, ...styles.satValue}}
+            customLabel={seletctedToken?.tokenMetadata?.tokenTicker}
+            useCustomLabel={true}
+            balance={formatTokensNumber(
+              convertedSendAmount,
+              seletctedToken?.tokenMetadata?.decimals,
+            )}
+          />
+        )}
         {selectedLRC20Asset === 'Bitcoin' && (
           <FormattedSatText
             containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
@@ -350,8 +319,6 @@ export default function SendPaymentScreen(props) {
             isLiquidPayment={isLiquidPayment}
             isBitcoinPayment={isBitcoinPayment}
             isSparkPayment={isSparkPayment}
-            isLRC20Payment={selectedLRC20Asset !== 'Bitcoin'}
-            seletctedToken={seletctedToken}
           />
         )}
         {!canEditPaymentAmount && <InvoiceInfo paymentInfo={paymentInfo} />}
@@ -370,13 +337,6 @@ export default function SendPaymentScreen(props) {
               paymentFee={paymentFee}
               paymentType={paymentInfo?.paymentNetwork}
               minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
-            />
-          )}
-
-          {paymentInfo.type === 'spark' && enabledLRC20 && (
-            <SelectLRC20Token
-              seletctedToken={seletctedToken}
-              navigate={navigate}
             />
           )}
 
@@ -463,30 +423,7 @@ export default function SendPaymentScreen(props) {
       paymentInfo,
       selectedLRC20Asset !== 'Bitcoin',
     );
-    //  {
-    //   address: '',
-    //   paymentType: '',
-    // };
 
-    // // manipulate paymetn details here
-    // if (paymentInfo.type === 'bolt11') {
-    //   formmateedSparkPaymentInfo.address =
-    //     paymentInfo?.decodedInput?.invoice?.bolt11;
-    //   formmateedSparkPaymentInfo.paymentType = 'lightning';
-    // } else if (paymentInfo.type === 'spark') {
-    //   formmateedSparkPaymentInfo.address = paymentInfo?.data?.address;
-    //   formmateedSparkPaymentInfo.paymentType = 'spark';
-    // } else if (paymentInfo.type === 'lnUrlPay') {
-    //   formmateedSparkPaymentInfo.address = paymentInfo?.data?.invoice;
-    //   formmateedSparkPaymentInfo.paymentType = 'lightning';
-    // } else if (paymentInfo.type === 'liquid') {
-    //   formmateedSparkPaymentInfo.address = paymentInfo?.data?.invoice;
-    //   formmateedSparkPaymentInfo.paymentType = 'lightning';
-    //   console.log(paymentInfo?.boltzData);
-    // } else if (paymentInfo?.type === 'Bitcoin') {
-    //   formmateedSparkPaymentInfo.address = paymentInfo?.address;
-    //   formmateedSparkPaymentInfo.paymentType = 'bitcoin';
-    // }
     console.log(formmateedSparkPaymentInfo, 'manual spark information');
 
     const memo =
@@ -517,75 +454,6 @@ export default function SendPaymentScreen(props) {
 
     // Shouuld be same for all paymetns
     const paymentResponse = await sparkPaymenWrapper(paymentObject);
-
-    // if (paymentInfo.type === 'liquid' && paymentResponse.didWork) {
-    //   async function pollBoltzSwapStatus() {
-    //     let didSettleInvoice = false;
-    //     let runCount = 0;
-
-    //     while (!didSettleInvoice && runCount < 10) {
-    //       runCount += 1;
-    //       const resposne = await fetch(
-    //         getBoltzApiUrl() + `/v2/swap/${paymentInfo.boltzData.id}`,
-    //       );
-    //       const boltzData = await resposne.json();
-    //       console.log(boltzData);
-
-    //       if (boltzData.status === 'invoice.settled') {
-    //         didSettleInvoice = true;
-    //         requestAnimationFrame(() => {
-    //           requestAnimationFrame(() => {
-    //             navigate.reset({
-    //               index: 0, // The top-level route index
-    //               routes: [
-    //                 {
-    //                   name: 'HomeAdmin', // Navigate to HomeAdmin
-    //                   params: {
-    //                     screen: 'Home',
-    //                   },
-    //                 },
-    //                 {
-    //                   name: 'ConfirmTxPage',
-    //                   params: {
-    //                     transaction: paymentResponse.response,
-    //                   },
-    //                 },
-    //               ],
-    //             });
-    //           });
-    //         });
-    //       } else {
-    //         console.log('Waiting for confirmation....');
-    //         await new Promise(resolve => setTimeout(resolve, 5000));
-    //       }
-    //     }
-    //     if (didSettleInvoice) return;
-    //     requestAnimationFrame(() => {
-    //       requestAnimationFrame(() => {
-    //         navigate.reset({
-    //           index: 0, // The top-level route index
-    //           routes: [
-    //             {
-    //               name: 'HomeAdmin', // Navigate to HomeAdmin
-    //               params: {
-    //                 screen: 'Home',
-    //               },
-    //             },
-    //             {
-    //               name: 'ConfirmTxPage',
-    //               params: {
-    //                 transaction: paymentResponse.response,
-    //                 error: 'Unable to settle swap',
-    //               },
-    //             },
-    //           ],
-    //         });
-    //       });
-    //     });
-    //   }
-    //   pollBoltzSwapStatus();
-    //   return;
-    // }
 
     if (paymentResponse.didWork) {
       if (fromPage === 'contacts') {
@@ -639,170 +507,6 @@ export default function SendPaymentScreen(props) {
         });
       });
     }
-
-    return;
-
-    // if (paymentInfo.type === 'Bitcoin') {
-    //   if (!(canUseLightning || canUseLiquid)) return;
-
-    //   const from = canUseLiquid ? 'liquid' : 'lightning';
-    //   const sendOnChainPayment = await sendBitcoinPayment({
-    //     paymentInfo,
-    //     sendingValue: convertedSendAmount,
-    //     from,
-    //   });
-
-    //   if (!sendOnChainPayment.didWork) {
-    //     navigate.reset({
-    //       index: 0, // The top-level route index
-    //       routes: [
-    //         {
-    //           name: 'HomeAdmin', // Navigate to HomeAdmin
-    //           params: {
-    //             screen: 'Home',
-    //           },
-    //         },
-    //         {
-    //           name: 'ConfirmTxPage',
-    //           params: {
-    //             for: 'paymentFailed',
-    //             information: {
-    //               status: 'failed',
-    //               feeSat: 0,
-    //               amountSat: 0,
-    //               details: {error: sendOnChainPayment.error},
-    //             },
-    //             formattingType: 'liquidNode', //chose for more control, this is actualy a lighting payment
-    //           },
-    //         },
-    //       ],
-    //     });
-    //   } else {
-    //     navigate.reset({
-    //       index: 0,
-    //       routes: [
-    //         {
-    //           name: 'HomeAdmin',
-    //           params: {
-    //             screen: 'Home',
-    //           },
-    //         },
-    //         {
-    //           name: 'ConfirmTxPage',
-    //           params: {
-    //             for: 'paymentSucceed',
-    //             information: {
-    //               details: {type: 'Bitcoin'},
-    //               status: 'pending',
-    //               feesSat: sendOnChainPayment.fees,
-    //               amountSat: sendOnChainPayment.amount,
-    //             },
-    //             formattingType: 'liquidNode', //chose for more control, this is actualy a lighting payment
-    //           },
-    //         },
-    //       ],
-    //     });
-    //   }
-    //   return;
-    // }
-    // if (paymentInfo?.type === InputTypeVariant.BOLT12_OFFER) {
-    //   await sendBolt12Offer_sendPaymentScreen({
-    //     sendingAmount: convertedSendAmount,
-    //     paymentInfo,
-    //     navigate,
-    //     fromPage,
-    //     publishMessageFunc,
-    //   });
-    //   return;
-    // }
-
-    // if (canUseEcash) {
-    //   await sendPaymentUsingEcash({
-    //     paymentInfo,
-    //     convertedSendAmount,
-    //     isLiquidPayment,
-    //     navigate,
-    //     setIsSendingPayment,
-    //     publishMessageFunc,
-    //     fromPage,
-    //     paymentDescription:
-    //       paymentDescription || paymentInfo?.data.message || '',
-    //     webViewRef,
-    //   });
-    //   return;
-    // }
-
-    // if (isLightningPayment) {
-    //   if (canUseLightning) {
-    //     sendLightningPayment_sendPaymentScreen({
-    //       sendingAmount: convertedSendAmount,
-    //       paymentInfo,
-    //       navigate,
-    //       fromPage,
-    //       publishMessageFunc,
-    //       paymentDescription:
-    //         paymentDescription || paymentInfo?.data.message || '',
-    //     });
-    //   } else if (
-    //     convertedSendAmount >= minSendAmount &&
-    //     !isUsingSwapWithZeroInvoice &&
-    //     convertedSendAmount <= maxSendAmount
-    //   ) {
-    //     const shouldDrain =
-    //       liquidNodeInformation.userBalance - convertedSendAmount <
-    //       LIQUID_NON_BITCOIN_DRAIN_LIMIT
-    //         ? true
-    //         : false;
-    //     sendToLNFromLiquid_sendPaymentScreen({
-    //       paymentInfo,
-    //       navigate,
-    //       sendingAmount: convertedSendAmount,
-    //       fromPage,
-    //       publishMessageFunc,
-    //       paymentDescription:
-    //         paymentDescription || paymentInfo?.data.message || '',
-    //       shouldDrain,
-    //     });
-    //   } else {
-    //     setIsSendingPayment(false);
-    //     navigate.navigate('ErrorScreen', {
-    //       errorMessage: 'Cannot send payment.',
-    //     });
-    //   }
-    // } else {
-    //   if (canUseLiquid) {
-    //     sendLiquidPayment_sendPaymentScreen({
-    //       sendingAmount: convertedSendAmount,
-    //       paymentInfo,
-    //       navigate,
-    //       fromPage,
-    //       publishMessageFunc,
-    //       paymentDescription:
-    //         paymentDescription || paymentInfo?.data.message || '',
-    //     });
-    //   } else if (
-    //     nodeInformation.userBalance >
-    //       convertedSendAmount + LIGHTNINGAMOUNTBUFFER + swapFee &&
-    //     convertedSendAmount >= minSendAmount &&
-    //     convertedSendAmount <= maxSendAmount
-    //   ) {
-    //     sendToLiquidFromLightning_sendPaymentScreen({
-    //       paymentInfo,
-    //       sendingAmount: convertedSendAmount,
-    //       navigate,
-    //       webViewRef,
-    //       fromPage,
-    //       publishMessageFunc,
-    //       paymentDescription:
-    //         paymentDescription || paymentInfo?.data.message || '',
-    //     });
-    //   } else {
-    //     setIsSendingPayment(false);
-    //     navigate.navigate('ErrorScreen', {
-    //       errorMessage: 'Cannot send payment.',
-    //     });
-    //   }
-    // }
   }
 
   function goBackFunction() {

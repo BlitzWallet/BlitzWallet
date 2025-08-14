@@ -24,6 +24,7 @@ import ThemeImage from '../../functions/CustomElements/themeImage';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useSparkWallet} from '../../../context-store/sparkContext';
+import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 
 export default function ExpandedTx(props) {
   const {sparkInformation} = useSparkWallet();
@@ -152,7 +153,24 @@ export default function ExpandedTx(props) {
               balance={transaction.details.amount}
               useCustomLabel={isLRC20Payment}
               customLabel={selectedToken?.tokenMetadata?.tokenTicker}
+              useMillionDenomination={true}
             />
+            {isLRC20Payment && (
+              <FormattedSatText
+                containerStyles={{marginTop: -5}}
+                neverHideBalance={true}
+                styles={{
+                  fontSize: SIZES.small,
+                  includeFontPadding: false,
+                }}
+                balance={formatTokensNumber(
+                  transaction.details.amount,
+                  selectedToken?.tokenMetadata?.decimals,
+                )}
+                useCustomLabel={isLRC20Payment}
+                customLabel={selectedToken?.tokenMetadata?.tokenTicker}
+              />
+            )}
             <View style={styles.paymentStatusTextContainer}>
               <ThemeText content={'Payment status'} />
               <View

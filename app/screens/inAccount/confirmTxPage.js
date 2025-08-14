@@ -5,7 +5,7 @@ import {
   useWindowDimensions,
   ScrollView,
 } from 'react-native';
-import {COLORS, FONT, SIZES} from '../../constants';
+import {CENTER, COLORS, FONT, SIZES} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useCallback, useEffect, useMemo, useRef} from 'react';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
@@ -22,6 +22,7 @@ import {
 } from '../../functions/lottieViewColorTransformer';
 import {useToast} from '../../../context-store/toastManager';
 import {useSparkWallet} from '../../../context-store/sparkContext';
+import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
@@ -101,14 +102,32 @@ export default function ConfirmTxPage(props) {
           <FormattedSatText
             styles={{
               fontSize: SIZES.huge,
-
               includeFontPadding: false,
             }}
             neverHideBalance={true}
             balance={amount}
             useCustomLabel={isLRC20Payment}
             customLabel={token?.tokenMetadata?.tokenTicker}
+            useMillionDenomination={true}
           />
+          {isLRC20Payment && (
+            <FormattedSatText
+              containerStyles={{
+                ...CENTER,
+              }}
+              styles={{
+                fontSize: SIZES.small,
+                includeFontPadding: false,
+              }}
+              neverHideBalance={true}
+              balance={formatTokensNumber(
+                amount,
+                token?.tokenMetadata?.decimals,
+              )}
+              useCustomLabel={isLRC20Payment}
+              customLabel={token?.tokenMetadata?.tokenTicker}
+            />
+          )}
         </View>
       )}
 

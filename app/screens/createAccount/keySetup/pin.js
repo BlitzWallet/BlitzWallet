@@ -222,11 +222,11 @@ const styles = StyleSheet.create({
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
   },
   key: {
     width: '33.33333333333333%',
-    height: 80,
+    height: 70,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

@@ -15,6 +15,7 @@ import Icon from './CustomElements/Icon';
 import {memo, useMemo} from 'react';
 import {crashlyticsLogReport} from './crashlyticsLogs';
 import SkeletonPlaceholder from './CustomElements/skeletonView';
+import formatTokensNumber from './lrc20/formatTokensBalance';
 
 export default function getFormattedHomepageTxsForSpark({
   currentTime,
@@ -263,7 +264,6 @@ export const UserTransaction = memo(function UserTransaction({
 
   const token = isLRC20Payment
     ? sparkInformation.tokens?.[transaction.details.LRC20Token]?.tokenMetadata
-        ?.tokenTicker
     : '';
   // console.log(transaction, token, transaction.details.LRC20Token);
 
@@ -351,6 +351,7 @@ export const UserTransaction = memo(function UserTransaction({
           />
 
           <ThemeText
+            CustomNumberOfLines={1}
             styles={{
               ...styles.dateText,
               fontWeight: isFailedPayment ? 400 : 300,
@@ -404,9 +405,17 @@ export const UserTransaction = memo(function UserTransaction({
                 : ''
             }
             styles={styles.amountText}
-            balance={transaction.details.amount}
+            balance={
+              isLRC20Payment
+                ? formatTokensNumber(
+                    transaction.details.amount,
+                    token?.decimals,
+                  )
+                : transaction.details.amount
+            }
             useCustomLabel={isLRC20Payment}
-            customLabel={token}
+            customLabel={token?.tokenTicker?.slice(0, 3)}
+            useMillionDenomination={true}
           />
         )}
       </View>

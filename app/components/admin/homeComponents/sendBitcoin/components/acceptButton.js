@@ -63,7 +63,6 @@ export default function AcceptButtonSendPage({
             : 0.5,
         width: 'auto',
         ...CENTER,
-        marginTop: 15,
       }}
       useLoading={isGeneratingInvoice}
       actionFunction={handleEnterSendAmount}

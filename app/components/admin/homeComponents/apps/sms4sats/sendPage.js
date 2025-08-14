@@ -257,6 +257,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
                 frompage={'sendSMSPage'}
                 usingForBalance={false}
                 fiatStats={fiatStats}
+                showDot={false}
               />
             )}
           </View>

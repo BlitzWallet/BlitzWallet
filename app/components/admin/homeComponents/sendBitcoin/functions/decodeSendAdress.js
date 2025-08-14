@@ -158,7 +158,8 @@ export default async function decodeSendAddress(props) {
     if (processedPaymentInfo) {
       if (
         comingFromAccept &&
-        seletctedToken.tokenMetadata.tokenTicker === 'Bitcoin' &&
+        (seletctedToken?.tokenMetadata?.tokenTicker === 'Bitcoin' ||
+          seletctedToken?.tokenMetadata?.tokenTicker === undefined) &&
         sparkInformation.balance <
           processedPaymentInfo.paymentFee +
             processedPaymentInfo.supportFee +
@@ -216,8 +217,8 @@ async function processInputType(input, context) {
     // case LiquidTypeVarient.LIQUID_ADDRESS:
     // return processLiquidAddress(input, context);
 
-    // case LiquidTypeVarient.BOLT12_OFFER:
-    //   return processBolt12Offer(input, context);
+    case 'lnUrlError':
+      throw new Error(input.data.reason);
 
     case 'Spark':
       return await processSparkAddress(input, context);

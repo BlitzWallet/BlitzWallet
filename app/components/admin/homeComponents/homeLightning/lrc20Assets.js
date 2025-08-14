@@ -24,6 +24,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import {formatBalanceAmount} from '../../../../functions';
+import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 
 export default function LRC20Assets() {
   const {darkModeType, theme} = useGlobalThemeContext();
@@ -150,7 +151,13 @@ export default function LRC20Assets() {
             <ThemeText
               CustomNumberOfLines={1}
               styles={styles.tokenNameText}
-              content={formatBalanceAmount(Number(details?.balance))}
+              content={formatBalanceAmount(
+                formatTokensNumber(
+                  details?.balance,
+                  details?.tokenMetadata?.decimals,
+                ),
+                true,
+              )}
             />
           </TouchableOpacity>
         );

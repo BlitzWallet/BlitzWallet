@@ -82,6 +82,7 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
                   includeFontPadding: false,
                 }}
                 balance={transactionData.message.amountMsat / 1000}
+                useMillionDenomination={true}
               />
             </View>
             <ThemeText
@@ -292,6 +293,7 @@ function ConfirmedOrSentTransaction({
           includeFontPadding: false,
         }}
         balance={txParsed.amountMsat / 1000}
+        useMillionDenomination={true}
       />
     </View>
   );

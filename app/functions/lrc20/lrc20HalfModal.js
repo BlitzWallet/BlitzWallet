@@ -1,20 +1,14 @@
-import {
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useSparkWallet} from '../../../context-store/sparkContext';
 import {ThemeText} from '../CustomElements';
 import CustomSearchInput from '../CustomElements/searchInput';
 import {CENTER, SIZES} from '../../constants';
 import {useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {stringToColorCrypto} from '../randomColorFromHash';
 import {COLORS, INSET_WINDOW_WIDTH} from '../../constants/theme';
 import GetThemeColors from '../../hooks/themeColors';
 import FormattedSatText from '../CustomElements/satTextDisplay';
+import formatTokensNumber from './formatTokensBalance';
 
 export default function LRC20AssetSelectorHalfModal({
   theme,
@@ -67,44 +61,42 @@ export default function LRC20AssetSelectorHalfModal({
   });
 
   return (
-    <TouchableWithoutFeedback>
-      <View style={styles.container}>
-        <View style={styles.innerContainer}>
-          <ThemeText styles={styles.titleText} content={'Search Tokens'} />
-          <CustomSearchInput
-            placeholderText={'Token name...'}
-            setInputText={handleSearch}
-            inputText={searchInput}
-            textInputRef={keyboardRef}
-            blurOnSubmit={false}
-          />
+    <View style={styles.container}>
+      <View style={styles.innerContainer}>
+        <ThemeText styles={styles.titleText} content={'Search Tokens'} />
+        <CustomSearchInput
+          placeholderText={'Token name...'}
+          setInputText={handleSearch}
+          inputText={searchInput}
+          textInputRef={keyboardRef}
+          blurOnSubmit={false}
+        />
 
-          {filteredData.length ? (
-            <FlatList
-              showsVerticalScrollIndicator={false}
-              data={filteredData}
-              renderItem={({item}) => (
-                <AssetItem
-                  theme={theme}
-                  darkModeType={darkModeType}
-                  item={item}
-                  selectToken={selectToken}
-                  navigate={navigate}
-                />
-              )}
-              keyboardShouldPersistTaps="handled"
-              keyboardDismissMode="none"
-              contentContainerStyle={{paddingTop: 10}}
-            />
-          ) : (
-            <ThemeText
-              styles={{textAlign: 'center', marginTop: 10}}
-              content={'No tokens found'}
-            />
-          )}
-        </View>
+        {filteredData.length ? (
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={filteredData}
+            renderItem={({item}) => (
+              <AssetItem
+                theme={theme}
+                darkModeType={darkModeType}
+                item={item}
+                selectToken={selectToken}
+                navigate={navigate}
+              />
+            )}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="none"
+            contentContainerStyle={{paddingTop: 10}}
+          />
+        ) : (
+          <ThemeText
+            styles={{textAlign: 'center', marginTop: 10}}
+            content={'No tokens found'}
+          />
+        )}
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   );
 
   function AssetItem({item, theme, selectToken, darkModeType}) {
@@ -133,9 +125,17 @@ export default function LRC20AssetSelectorHalfModal({
           }
         />
         <FormattedSatText
-          balance={details?.balance}
+          balance={
+            details?.tokenMetadata?.tokenTicker === 'Bitcoin'
+              ? details?.balance
+              : formatTokensNumber(
+                  details?.balance,
+                  details?.tokenMetadata?.decimals,
+                )
+          }
           useCustomLabel={details?.tokenMetadata?.tokenTicker !== 'Bitcoin'}
           customLabel={details?.tokenMetadata?.tokenTicker}
+          useMillionDenomination={true}
         />
       </TouchableOpacity>
     );
