@@ -74,7 +74,7 @@ export default function ConnectingToNodeLoadingScreen({
     const intervalId = setInterval(() => {
       setMessage(prevMessage =>
         prevMessage === t('screens.inAccount.loadingScreen.loadingMessage1')
-          ? t('lscreens.inAccount.loadingScreen.loadingMessage2')
+          ? t('screens.inAccount.loadingScreen.loadingMessage2')
           : t('screens.inAccount.loadingScreen.loadingMessage1'),
       );
     }, 5000);

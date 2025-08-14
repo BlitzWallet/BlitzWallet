@@ -78,7 +78,7 @@ export default function EditMyProfilePage(props) {
       useStandardWidth={true}>
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
-        label={fromSettings ? t('settings.editcontactprofile.text1') : ''}
+        label={fromSettings ? t('contacts.editMyProfilePage.navTitle') : ''}
         customBackFunction={() => {
           if (!isFirstTimeEditing) {
             toggleGlobalContactsInformation(
@@ -283,11 +283,11 @@ function InnerContent({
           }}>
           <ThemeText
             styles={styles.textInputContainerDescriptionText}
-            content={t('settings.editcontactprofile.text2')}
+            content={t('contacts.editMyProfilePage.nameInputDesc')}
           />
           <TextInput
             keyboardAppearance={theme ? 'dark' : 'light'}
-            placeholder={t('settings.editcontactprofile.text3')}
+            placeholder={t('contacts.editMyProfilePage.nameInputPlaceholder')}
             placeholderTextColor={COLORS.opaicityGray}
             ref={nameRef}
             style={[
@@ -333,7 +333,7 @@ function InnerContent({
             }}>
             <ThemeText
               styles={styles.textInputContainerDescriptionText}
-              content={t('settings.editcontactprofile.text4')}
+              content={t('contacts.editMyProfilePage.lnurlInputDesc')}
             />
             <TextInput
               keyboardAppearance={theme ? 'dark' : 'light'}
@@ -352,7 +352,9 @@ function InnerContent({
                 },
               ]}
               value={inputs.receiveAddress || ''}
-              placeholder={t('settings.editcontactprofile.text5')}
+              placeholder={t(
+                'contacts.editMyProfilePage.lnurlInputPlaceholder',
+              )}
               onChangeText={text => changeInputText(text, 'receiveAddress')}
               onBlur={() => {
                 setIsKeyboardActive(false);
@@ -385,7 +387,7 @@ function InnerContent({
             }}>
             <ThemeText
               styles={styles.textInputContainerDescriptionText}
-              content={t('settings.editcontactprofile.text6')}
+              content={t('contacts.editMyProfilePage.uniqueNameInputDesc')}
             />
             <TextInput
               keyboardAppearance={theme ? 'dark' : 'light'}
@@ -436,11 +438,11 @@ function InnerContent({
           }}>
           <ThemeText
             styles={styles.textInputContainerDescriptionText}
-            content={t('settings.editcontactprofile.text7')}
+            content={t('contacts.editMyProfilePage.bioInputDesc')}
           />
           <TextInput
             keyboardAppearance={theme ? 'dark' : 'light'}
-            placeholder={t('settings.editcontactprofile.text8')}
+            placeholder={t('contacts.editMyProfilePage.bioInputPlaceholder')}
             placeholderTextColor={COLORS.opaicityGray}
             ref={bioRef}
             editable
@@ -497,7 +499,7 @@ function InnerContent({
         actionFunction={saveChanges}
         textContent={
           fromInitialAdd
-            ? t('settings.editcontactprofile.text9')
+            ? t('contacts.editMyProfilePage.addContactBTN')
             : t('constants.save')
         }
       />
@@ -528,7 +530,7 @@ function InnerContent({
       } else {
         if (!VALID_USERNAME_REGEX.test(uniqueName)) {
           navigate.navigate('ErrorScreen', {
-            errorMessage: t('settings.editcontactprofile.text10'),
+            errorMessage: t('contacts.editMyProfilePage.unqiueNameRegexError'),
           });
           return;
         }
@@ -539,7 +541,9 @@ function InnerContent({
           );
           if (!isFreeUniqueName) {
             navigate.navigate('ErrorScreen', {
-              errorMessage: t('settings.editcontactprofile.text11'),
+              errorMessage: t(
+                'contacts.editMyProfilePage.uniqueNameTakenError',
+              ),
             });
             return;
           }
@@ -709,7 +713,8 @@ function InnerContent({
             response,
           );
           return true;
-        } else throw new Error('Unable to save image');
+        } else
+          throw new Error(t('contacts.editMyProfilePage.unableToSaveError'));
       } else {
         await deleteDatabaseImage(globalContactsInformation.myProfile.uuid);
         await removeProfileImageFromCache(
@@ -748,7 +753,7 @@ function InnerContent({
       await removeProfileImageFromCache(selectedAddedContact.uuid);
     } catch (err) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: t('settings.editcontactprofile.text12'),
+        errorMessage: t('contacts.editMyProfilePage.deleteProfileImageError'),
       });
       console.log(err);
     }

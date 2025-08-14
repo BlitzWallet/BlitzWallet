@@ -931,13 +931,24 @@
 
   "contacts": {
     "contactsPage": {
+      "searchContactsPlaceholder": "Search added contacts",
+      "noContactsMessage": "You have no contacts",
+      "editContactProfileMessage": "Edit your profile to begin using contacts.",
+      "addContactButton": "Add Contact",
+      "editContactButton": "Edit Profile",
+      "unknownSender": "Unknown sender",
       "title": "",
       "addContact": "",
       "searchContacts": "",
       "noContacts": ""
     },
     "addContactsHalfModal": {
-      "title": "",
+      "noContactsMessage": "Not able to find contact.",
+      "title": "Add contact",
+      "searchPlaceholder": "Search username or LNURL",
+      "lnurlAddMessage": "You are about to add",
+      "noProfilesFound": "No profiles match this search",
+      "startTypingMessage": "Start typing to search for a profile",
       "addNewContact": "",
       "scanQR": "",
       "manualEntry": ""
@@ -950,6 +961,9 @@
       "saveContact": ""
     },
     "expandedContactPage": {
+      "loadingContactError": "Unable to load contact, please try again.",
+      "requestLNULRError": "You can only request money from Blitz contacts, not LNURL addresses.",
+      "noTransactions": "Send or request a payment to see transaction history.",
       "title": "",
       "contactDetails": "",
       "sendPayment": "",
@@ -957,11 +971,26 @@
       "transactionHistory": ""
     },
     "expandedMessageHalfModal": {
-      "title": "",
+      "title": "Full message",
+      "noDescription": "No description",
       "messageContent": "",
       "sendMessage": ""
     },
     "editMyProfilePage": {
+      "navTitle": "Edit Contact Profile",
+      "nameInputDesc": "Name",
+      "nameInputPlaceholder": "Enter your name",
+      "lnurlInputDesc": "LNURL Address",
+      "lnurlInputPlaceholder": "Enter your LNURL address",
+      "uniqueNameInputDesc": "Username",
+      "uniqueNameInputPlaceholder": "Enter your username",
+      "bioInputDesc": "Bio",
+      "bioInputPlaceholder": "Enter a short bio",
+      "addContactBTN": " Add Contact",
+      "unqiueNameRegexError": "You can only have letters, numbers, or underscores in your username, and must contain at least 1 letter.",
+      "usernameAlreadyExistsError": "This username already exists, please choose another.",
+      "unableToSaveError": "Unable to save profile image, please try again.",
+      "deleteProfileImageError": "Unable to delete profile image, please try again.",
       "title": "",
       "editProfile": "",
       "displayName": "",
