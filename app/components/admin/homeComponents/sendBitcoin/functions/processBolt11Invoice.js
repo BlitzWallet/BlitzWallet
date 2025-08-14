@@ -11,13 +11,17 @@ export default async function processBolt11Invoice(input, context) {
     fiatStats,
     paymentInfo,
     currentWalletMnemoinc,
+    t,
   } = context;
 
   crashlyticsLogReport('Handling decode bolt11 invoices');
   const currentTime = Math.floor(Date.now() / 1000);
   const expirationTime = input.invoice.timestamp + input.invoice.expiry;
   const isExpired = currentTime > expirationTime;
-  if (isExpired) throw new Error('This lightning invoice has expired');
+  if (isExpired)
+    throw new Error(
+      t('wallet.sendPages.handlingAddressErrors.expiredLightningInvoice'),
+    );
 
   const amountMsat = comingFromAccept
     ? enteredPaymentInfo.amount * 1000

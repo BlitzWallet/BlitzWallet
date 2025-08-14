@@ -10,6 +10,7 @@ import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {CENTER} from '../../../../constants';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
+import {useTranslation} from 'react-i18next';
 
 export default function ConfirmExportPayments({
   startExport,
@@ -19,6 +20,7 @@ export default function ConfirmExportPayments({
   const navigate = useNavigation();
   const {sparkInformation} = useSparkWallet();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {t} = useTranslation();
   const totalPayments = sparkInformation?.transactions?.length || 10;
 
   const [txNumber, setTxNumber] = useState(0);
@@ -30,12 +32,12 @@ export default function ConfirmExportPayments({
         crashlyticsLogReport('Stating transaction exporting');
         const headers = [
           [
-            'Payment Type',
-            'Description',
-            'Date',
-            'Transaction Fees (sat)',
-            'Amount (sat)',
-            'Sent/Received',
+            t('wallet.exportTransactions.paymentType'),
+            t('wallet.exportTransactions.description'),
+            t('wallet.exportTransactions.date'),
+            t('wallet.exportTransactions.txFees'),
+            t('wallet.exportTransactions.amount'),
+            t('wallet.exportTransactions.sent/received'),
           ],
         ];
 
@@ -53,11 +55,15 @@ export default function ConfirmExportPayments({
 
             const formattedTx = [
               tx.paymentType,
-              txDetails.description ? txDetails.description : 'No description',
+              txDetails.description
+                ? txDetails.description
+                : t('constants.noDescription'),
               txDate.toLocaleString().replace(/,/g, ' '),
               Math.round(txDetails.fee).toLocaleString().replace(/,/g, ' '),
               Math.round(txDetails.amount).toLocaleString().replace(/,/g, ' '),
-              txDetails.direction === 'OUTGOING' ? 'Sent' : 'Receiived',
+              txDetails.direction === 'OUTGOING'
+                ? t('constants.sent')
+                : t('constants.received'),
             ];
             formatedData.push(formattedTx);
           } catch (err) {
@@ -78,13 +84,17 @@ export default function ConfirmExportPayments({
         navigate.goBack();
         if (!response.success) {
           setTimeout(() => {
-            navigate.navigate('ErrorScreen', {errorMessage: response.error});
+            navigate.navigate('ErrorScreen', {
+              errorMessage: response.error,
+              useTranslationString: true,
+            });
           }, 200);
         }
       } catch (err) {
         console.log(err);
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Unable to create transaction file',
+          errorMessage: 'errormessages.createTransactionsFileError',
+          useTranslationString: true,
         });
       }
     }
@@ -111,9 +121,7 @@ export default function ConfirmExportPayments({
     <View style={styles.containerStyle}>
       <ThemeText
         styles={styles.titleText}
-        content={
-          'Export your payment history in CSV (comma seperated value) format.'
-        }
+        content={t('wallet.exportTransactions.title')}
       />
       <View
         style={{
@@ -124,19 +132,26 @@ export default function ConfirmExportPayments({
           alignItems: 'center',
         }}>
         {txNumber === 0 ? (
-          <ThemeText content={`${totalPayments} payments`} />
+          <ThemeText
+            content={t('wallet.exportTransactions.paymentsCounter', {
+              number: totalPayments,
+            })}
+          />
         ) : (
           <FullLoadingScreen
             showLoadingIcon={false}
             containerStyles={{justifyContent: 'flex-end'}}
-            text={`${txNumber} of ${totalPayments}`}
+            text={t('wallet.exportTransactions.paymentsCounter', {
+              number: txNumber,
+              total: totalPayments,
+            })}
           />
         )}
       </View>
       <SwipeButtonNew
         onSwipeSuccess={onSwipeSuccess}
         width={0.95}
-        title="Slide to export"
+        title={t('constants.slideToExport')}
         shouldAnimateViewOnSuccess={true}
         thumbIconStyles={dynamicStyles}
         railStyles={dynamicStyles}

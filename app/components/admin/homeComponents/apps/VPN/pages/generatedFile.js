@@ -25,7 +25,6 @@ export default function GeneratedVPNFile(props) {
   const navigate = useNavigation();
   const generatedFile =
     props?.generatedFile || props?.route?.params?.generatedFile;
-  const {t} = useTranslation();
 
   return (
     <GlobalThemeView>
@@ -63,7 +62,7 @@ function VPNFileDisplay({generatedFile}) {
   const {showToast} = useToast();
   const navigate = useNavigation();
   const {backgroundOffset} = GetThemeColors();
-
+  const {t} = useTranslation();
   console.log(generatedFile);
 
   return (
@@ -119,7 +118,10 @@ async function downloadVPNFile({generatedFile, navigate}) {
     navigate,
   );
   if (!response.success) {
-    navigate.navigate('ErrorScreen', {errorMessage: t(response.error)});
+    navigate.navigate('ErrorScreen', {
+      errorMessage: response.error,
+      useTranslationString: true,
+    });
   }
 }
 

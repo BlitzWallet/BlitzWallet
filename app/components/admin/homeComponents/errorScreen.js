@@ -20,6 +20,7 @@ export default function ErrorScreen(props) {
 
   const navigationFunction = props.route.params?.navigationFunction;
   const customNavigator = props.route.params?.customNavigator;
+  const useTranslationString = props.route.params?.useTranslationString;
   const height = props.route.params?.height;
 
   const navigate = useNavigation();
@@ -46,7 +47,10 @@ export default function ErrorScreen(props) {
           },
         ]}>
         <ScrollView>
-          <ThemeText styles={styles.headerText} content={errorMessage} />
+          <ThemeText
+            styles={styles.headerText}
+            content={useTranslationString ? t(errorMessage) : errorMessage}
+          />
         </ScrollView>
         <View
           style={{

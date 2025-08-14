@@ -12,6 +12,7 @@ export default async function processLNUrlPay(input, context) {
     fiatStats,
     paymentInfo,
     currentWalletMnemoinc,
+    t,
   } = context;
 
   crashlyticsLogReport('Beiging decode LNURL pay');
@@ -60,7 +61,7 @@ export default async function processLNUrlPay(input, context) {
 
     if (!invoice)
       throw new Error(
-        'Unable to retrive invoice from LNURL, please try again.',
+        t('wallet.sendPages.handlingAddressErrors.lnurlPayInvoiceError'),
       );
     if (paymentInfo.paymentFee && paymentInfo.supportFee) {
       paymentFee = paymentInfo.paymentFee;

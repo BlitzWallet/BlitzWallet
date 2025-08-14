@@ -54,26 +54,23 @@ async function getQRImage(navigate, callLocation) {
     return {btcAdress: '', didWork: false, error: error};
   }
   let address;
-  console.log(imgURL.uri);
 
   try {
     const response = await RNQRGenerator.detect({
       uri: imgURL.uri,
     });
 
-    console.log(response);
-
     if (response.type != 'QRCode')
       return {
         btcAdress: '',
         didWork: false,
-        error: 'Not able to get find QRcode from image.',
+        error: 'errormessages.noQrInScanError',
       };
     if (!response.values.length)
       return {
         btcAdress: '',
         didWork: false,
-        error: 'Not able to get find data from image.',
+        error: 'errormessages.noDataInQRError',
       };
 
     address = response.values[0];
@@ -82,7 +79,7 @@ async function getQRImage(navigate, callLocation) {
     return {
       btcAdress: '',
       didWork: false,
-      error: 'Not able to get invoice from image.',
+      error: 'errormessages.noInvoiceInImageError',
     };
   }
 

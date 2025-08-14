@@ -13,6 +13,7 @@ import {openComposer} from 'react-native-email-link';
 import {useToast} from '../../../../../context-store/toastManager';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {copyToClipboard} from '../../../../functions';
+import {useTranslation} from 'react-i18next';
 
 export default function SparkErrorScreen(props) {
   const {accountMnemoinc} = useKeysContext();
@@ -24,6 +25,7 @@ export default function SparkErrorScreen(props) {
   const errorMessage = props.route.params.errorMessage;
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
+  const {t} = useTranslation();
 
   const handleSubmit = async () => {
     try {
@@ -83,8 +85,8 @@ export default function SparkErrorScreen(props) {
           styles={styles.headerText}
           content={
             retryCount < 1
-              ? 'We couldn’t load your wallet right now. Please try again. \n\nYour funds are safe as long as you have your seed phrase.'
-              : 'We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your seed phrase keeps your funds safe.'
+              ? t('wallet.homeLightning.sparkErrorScreen.retry')
+              : t('wallet.homeLightning.sparkErrorScreen.connectionError')
           }
         />
         <CustomButton
@@ -99,7 +101,9 @@ export default function SparkErrorScreen(props) {
             paddingHorizontal: 20,
           }}
           useLoading={isRetrying}
-          textContent={retryCount < 1 ? 'Retry' : 'Report Error'}
+          textContent={
+            retryCount < 1 ? t('constants.retry') : t('constants.reportError')
+          }
           actionFunction={handleSubmit}
         />
       </View>

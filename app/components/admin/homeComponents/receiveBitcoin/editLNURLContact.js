@@ -100,7 +100,8 @@ export default function EditLNURLContactOnReceivePage({
             response,
           );
           return true;
-        } else throw new Error('Unable to save image');
+        } else
+          throw new Error(t('contacts.editMyProfilePage.unableToSaveError'));
       } catch (err) {
         console.log(err);
         navigate.navigate('ErrorScreen', {errorMessage: err.message});
@@ -124,17 +125,18 @@ export default function EditLNURLContactOnReceivePage({
         return;
       }
 
-      if (username.length > 30) throw new Error('Username is too long');
+      if (username.length > 30) return;
       if (!VALID_USERNAME_REGEX.test(username))
-        throw new Error(
-          'You can only have letters, numbers, or underscores in your username, and must contain at least 1 letter.',
-        );
+        throw new Error(t('contacts.editMyProfilePage.unqiueNameRegexError'));
 
       const isFreeUniqueName = await isValidUniqueName(
         'blitzWalletUsers',
         username.trim(),
       );
-      if (!isFreeUniqueName) throw new Error('Username is already taken.');
+      if (!isFreeUniqueName)
+        throw new Error(
+          t('contacts.editMyProfilePage.usernameAlreadyExistsError'),
+        );
       toggleGlobalContactsInformation(
         {
           myProfile: {
@@ -206,15 +208,16 @@ export default function EditLNURLContactOnReceivePage({
         <TouchableOpacity
           onPress={() => {
             navigate.navigate('InformationPopup', {
-              textContent:
-                'Changing your username updates how others find you in Blitz Contacts and your Lightning address (username @blitz-wallet.com).\n\nA Lightning address lets others easily send you Bitcoin. Just share your address (username@blitz-wallet.com) to get paid.',
-              buttonText: 'I understand',
+              textContent: t(
+                'wallet.receivePages.editLNURLContact.informationMessage',
+              ),
+              buttonText: t('constants.understandText'),
             });
           }}
           style={{
             width: '100%',
             height: 45,
-            marginVertical: 10,
+            marginTop: 10,
             flexDirection: 'row',
             alignItems: 'center',
           }}>
@@ -223,7 +226,9 @@ export default function EditLNURLContactOnReceivePage({
               includeFontPadding: false,
               marginRight: 5,
             }}
-            content={'Edit Username'}
+            content={t(
+              'wallet.receivePages.editLNURLContact.usernameInputDesc',
+            )}
           />
 
           <ThemeImage
@@ -273,7 +278,7 @@ export default function EditLNURLContactOnReceivePage({
           textStyles={{
             color: theme ? COLORS.lightModeText : COLORS.darkModeText,
           }}
-          textContent={'Save'}
+          textContent={t('constants.save')}
         />
       </View>
     </ScrollView>

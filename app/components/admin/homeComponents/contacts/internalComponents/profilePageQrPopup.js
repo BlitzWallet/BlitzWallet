@@ -2,10 +2,11 @@ import {Platform, StyleSheet, useWindowDimensions, View} from 'react-native';
 import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
 import {btoa} from 'react-native-quick-base64';
 import QrCodeWrapper from '../../../../../functions/CustomElements/QrWrapper';
+import {useTranslation} from 'react-i18next';
 
 export default function MyProfileQRCode() {
   const {globalContactsInformation} = useGlobalContacts();
-
+  const {t} = useTranslation();
   return (
     <View style={styles.container}>
       <QrCodeWrapper
@@ -16,7 +17,9 @@ export default function MyProfileQRCode() {
           JSON.stringify({
             uniqueName: globalContactsInformation.myProfile.uniqueName,
             name: globalContactsInformation.myProfile.name || '',
-            bio: globalContactsInformation.myProfile?.bio || 'No bio set',
+            bio:
+              globalContactsInformation.myProfile?.bio ||
+              t('constants.noBioSet'),
             uuid: globalContactsInformation.myProfile?.uuid,
             receiveAddress: globalContactsInformation.myProfile.receiveAddress,
           }),

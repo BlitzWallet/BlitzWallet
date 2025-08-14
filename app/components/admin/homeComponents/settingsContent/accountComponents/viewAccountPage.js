@@ -62,7 +62,7 @@ export default function ViewCustodyAccountPage({route}) {
         contentContainerStyle={styles.scrollViewStyles}>
         <ThemeText
           styles={{...styles.headerPhrase}}
-          content={t('settings.seedphrase.text1')}
+          content={t('settings.seedPhrase.header')}
         />
         <ThemeText
           styles={{
@@ -71,7 +71,7 @@ export default function ViewCustodyAccountPage({route}) {
             marginBottom: 50,
             fontSize: SIZES.large,
           }}
-          content={t('settings.seedphrase.text2')}
+          content={t('settings.seedPhrase.headerDesc')}
         />
         {selectedDisplayOption === 'qrcode' && canViewQrCode ? (
           <View
@@ -117,7 +117,7 @@ export default function ViewCustodyAccountPage({route}) {
                       ? COLORS.darkModeText
                       : COLORS.lightModeText,
                 }}
-                content={'Words'}
+                content={t('constants.words')}
               />
             </TouchableOpacity>
             <TouchableOpacity
@@ -126,8 +126,10 @@ export default function ViewCustodyAccountPage({route}) {
               onPress={() => {
                 if (!canViewQrCode) {
                   navigate.navigate('InformationPopup', {
-                    textContent: `Are you sure you want to show this QR Code?\n\nScanning your seed is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe.`,
-                    buttonText: 'I understand',
+                    textContent: t(
+                      'settings.accountComponents.viewAccountPage.informationMessage',
+                    ),
+                    buttonText: t('constants.understandText'),
                     customNavigation: () =>
                       navigate.popTo(
                         'ViewCustodyAccount',
@@ -154,7 +156,7 @@ export default function ViewCustodyAccountPage({route}) {
                       ? COLORS.darkModeText
                       : COLORS.lightModeText,
                 }}
-                content={'QR Code'}
+                content={t('constants.qrCode')}
               />
             </TouchableOpacity>
             <Animated.View
@@ -178,7 +180,7 @@ export default function ViewCustodyAccountPage({route}) {
               showToast,
             )
           }
-          textContent={'Copy'}
+          textContent={t('constants.copy')}
         />
       </ScrollView>
     </GlobalThemeView>

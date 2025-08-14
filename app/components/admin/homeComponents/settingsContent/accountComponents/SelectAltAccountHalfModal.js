@@ -12,6 +12,7 @@ import {
   getSparkBalance,
   initializeSparkWallet,
 } from '../../../../../functions/spark';
+import {useTranslation} from 'react-i18next';
 
 export default function SelectAltAccountHalfModal(props) {
   const navigate = useNavigation();
@@ -21,6 +22,7 @@ export default function SelectAltAccountHalfModal(props) {
     accountBeingLoaded: '',
     isLoading: '',
   });
+  const {t} = useTranslation();
 
   const {selectedFrom, selectedTo, transferType} = props;
 
@@ -88,7 +90,7 @@ export default function SelectAltAccountHalfModal(props) {
                 theme && darkModeType ? backgroundOffset : backgroundColor,
             }}
             textStyles={{color: textColor}}
-            textContent={'Select'}
+            textContent={t('constants.select')}
             useLoading={
               isLoading.accountBeingLoaded === account.mnemoinc &&
               isLoading.isLoading
@@ -106,7 +108,7 @@ export default function SelectAltAccountHalfModal(props) {
           backgroundColor:
             theme && darkModeType ? backgroundOffset : backgroundColor,
         }}
-        content={'Accounts'}
+        content={t('constants.accounts')}
       />
       {accountElements}
     </ScrollView>

@@ -72,8 +72,6 @@ const SparkWalletProvider = ({children}) => {
     sparkAddress: '',
     didConnect: null,
   });
-  const [numberOfIncomingLNURLPayments, setNumberOfIncomingLNURLPayments] =
-    useState(0);
   const [pendingNavigation, setPendingNavigation] = useState(null);
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
@@ -770,8 +768,6 @@ const SparkWalletProvider = ({children}) => {
       setSparkInformation,
       pendingNavigation,
       setPendingNavigation,
-      numberOfIncomingLNURLPayments,
-      setNumberOfIncomingLNURLPayments,
       numberOfCachedTxs,
       setNumberOfCachedTxs,
       connectToSparkWallet,
@@ -783,8 +779,6 @@ const SparkWalletProvider = ({children}) => {
       setSparkInformation,
       pendingNavigation,
       setPendingNavigation,
-      numberOfIncomingLNURLPayments,
-      setNumberOfIncomingLNURLPayments,
       numberOfCachedTxs,
       setNumberOfCachedTxs,
       connectToSparkWallet,

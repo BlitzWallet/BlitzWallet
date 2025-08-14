@@ -6,10 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-  Dimensions,
-  TextInput,
 } from 'react-native';
-
 import {ThemeText} from '../../../../functions/CustomElements';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {CENTER, ICONS} from '../../../../constants';
@@ -21,16 +18,17 @@ import {
 } from '../../../../functions/randomColorFromHash';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import {formatBalanceAmount} from '../../../../functions';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
+import {useTranslation} from 'react-i18next';
 
 export default function LRC20Assets() {
   const {darkModeType, theme} = useGlobalThemeContext();
   const {sparkInformation} = useSparkWallet();
   const navigate = useNavigation();
   const {textColor} = GetThemeColors();
+  const {t} = useTranslation();
 
   const homepageBackgroundOffsetColor = useMemo(() => {
     return theme
@@ -175,7 +173,11 @@ export default function LRC20Assets() {
           ...CENTER,
         }}
         onPress={toggleExpanded}>
-        <ThemeText content={`${isExpanded ? 'Hide' : 'Show'} tokens`} />
+        <ThemeText
+          content={t('wallet.homeLightning.lrc20Assets.actionText', {
+            action: isExpanded ? t('constants.hide') : t('constants.show'),
+          })}
+        />
 
         <Animated.View
           style={{
@@ -210,14 +212,20 @@ export default function LRC20Assets() {
               inputText={searchQuery}
               setInputText={setSearchQuery}
               containerStyles={{marginBottom: 10}}
-              placeholderText="Search tokens..."
+              placeholderText={t(
+                'wallet.homeLightning.lrc20Assets.tokensSearchPlaceholder',
+              )}
             />
           )}
           {!tokens.length ? (
             <ThemeText
               styles={{textAlign: 'center'}}
               key={'no-tokens'}
-              content={searchQuery ? 'No tokens found' : 'You have no tokens'}
+              content={
+                searchQuery
+                  ? t('wallet.homeLightning.lrc20Assets.noTokensFoundText')
+                  : t('wallet.homeLightning.lrc20Assets.noTokensText')
+              }
             />
           ) : (
             tokens

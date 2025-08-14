@@ -56,7 +56,36 @@
     "contactUs": "Contact us",
     "pay": "Pay",
     "processing": "Processing",
-    "support": "Support"
+    "support": "Support",
+    "change": "Change",
+    "unpin": "Unpin",
+    "pin": "Pin",
+    "noBioSet": "No bio set",
+    "noTransactions": "Send or request a payment to see transaction history.",
+    "leftPageMessage": "Where'd you go?",
+    "tryAgain": "Try again",
+    "noDescription": "No description",
+    "slideToExport": "Slide to export",
+    "hide": "Hide",
+    "show": "Show",
+    "understandText": "I understand",
+    "retyr": "Retry",
+    "reportError": "Report Error",
+    "address": "Address",
+    "string": "String",
+    "lessLower": "less",
+    "moreLower": "more",
+    "select": "Select",
+    "accounts": "Accounts",
+    "to": "To",
+    "from": "From",
+    "description": "Description",
+    "regenerate": "Regenerate",
+    "restore": "Restore",
+    "words": "Words",
+    "qrCode": "QR Code",
+    "active": "Active",
+    "create": "Create"
   },
 
   "weekdays": {
@@ -84,13 +113,34 @@
     "Dec": "December"
   },
 
+  "timeLabels": {
+    "minute": "minute",
+    "minutes": "minutes",
+    "hour": "hour",
+    "hours": "hours",
+    "day": "day",
+    "days": "days",
+    "year": "year",
+    "years": "years"
+  },
+
   "transactionLabelText": {
     "failed": "Payment not sent",
     "txTime_just_now": "Just now",
     "ago": "ago",
     "pending": "Pending",
     "confirmed": "Confirmed",
-    "processing": "Processing"
+    "processing": "Processing",
+    "requestDeclined": "Request declined",
+    "declinedRequest": "Declined request",
+    "requestSent": "Payment request sent",
+    "requestPaid": "Request paid",
+    "paidRequest": "Paid request",
+    "sent": "Sent",
+    "received": "Received",
+    "paidLower": "paid",
+    "declinedLower": "declined",
+    "receivedRequest": "Received request"
   },
 
   "createAccount": {
@@ -819,11 +869,18 @@
         "lightningAddress": ""
       },
       "switchReceiveOptionPage": {
-        "title": "",
+        "title": "Choose Network",
+        "actionBTN": "Show {{action}}",
+        "sparkWarningMessage": "Receiving directly via Spark will expose your balance to the person paying and is not considered private.",
+        "liquidWarningText": "Liquid payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.\n\n{{warning}}",
+        "unalignedSeeds": "Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.",
+        "rootstockWarningText": "Rootstock payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the Rootsock payment is confirmed.",
         "selectNetwork": "",
         "networkInfo": ""
       },
       "editLNURLContact": {
+        "informationMessage": "Changing your username updates how others find you in Blitz Contacts and your Lightning address (username @blitz-wallet.com).\n\nA Lightning address lets others easily send you Bitcoin. Just share your address (username@blitz-wallet.com) to get paid.",
+        "usernameInputDesc": "Edit Username",
         "title": "",
         "editContact": "",
         "save": ""
@@ -836,7 +893,28 @@
         "amount": "",
         "description": "",
         "sendPayment": "",
-        "insufficientBalance": ""
+        "insufficientBalance": "",
+        "initialLoadingMessage": "Getting invoice information",
+        "alreadyPaidInvoiceError": "You have already paid this invoice",
+        "descriptionPlaceholder": "Payment description...",
+        "fallbackErrorMessage": "Error decoding invoice"
+      },
+      "handlingAddressErrors": {
+        "invlidFormat": "Addresses should be text only. Please check and try again.",
+        "parseError": "Unable to parse address",
+        "paymentProcessingError": "Error processing payment info",
+        "tooLowSendingAmount": "Sending amount is too low to cover the payment and fees. Maximum send amount is {{amount}}",
+        "processInputError": "Unable to process input",
+        "unkonwDecodeError": "Unknown decoding error occurred",
+        "invalidInputType": "Not a valid address type",
+        "expiredLightningInvoice": "This lightning invoice has expired",
+        "lnurlAuthStartMeessage": "Starting LNURL auth",
+        "lnurlFailedAuthMessage": "Failed to authenticate LNURL",
+        "lnurlConfirmMessage": "LNURL successfully authenticated",
+        "lnurlPayInvoiceError": "Unable to retrive invoice from LNURL, please try again.",
+        "lnurlWithdrawlStart": "Generating invoice for withdrawl",
+        "lnurlWithdrawlInvoiceError": "Unable to generate invoice for lnurl withdrawl",
+        "waitingForLnurlWithdrawl": "Waiting for payment..."
       },
       "balanceExplainerScreen": {
         "title": "",
@@ -846,13 +924,14 @@
       },
       "errorScreen": {
         "ok": "OK",
-        "title": "",
+        "title": "Error message",
         "paymentFailed": "",
         "tryAgain": "",
         "errorDetails": ""
       },
       "feeInfo": {
-        "title": "",
+        "title": "Fee & Speed",
+        "backTextToAmount": " $ {{amount}}",
         "networkFee": "",
         "serviceFee": "",
         "totalFee": ""
@@ -874,16 +953,24 @@
         "maxAmount": ""
       },
       "selectLRC20Token": {
-        "title": "",
+        "title": "Select Token",
+        "searchPlaceholder": "Token name...",
+        "noTokensFoundText": "No tokens found",
         "selectToken": "",
         "tokenBalance": ""
       },
       "sendMaxComponent": {
-        "sendMax": "",
+        "sendMax": "Send Max",
         "sendAll": "",
         "afterFees": ""
       },
       "acceptButton": {
+        "noSendAmountError": "Please enter a send amount",
+        "liquidError": "{{overFlowType}} send amount {{amount}}",
+        "onchainError": "Minimum on-chain send amount is {{amount}}",
+        "lnurlPayError": "{{overFLowTyoe}} send amount {{amount}}",
+        "lrc20FeeError": "You need {{amount}} to send tokens. Your balance is {{balance}}. Please receive some Bitcoin first.",
+        "balanceError": "Not enough funds to cover sending amount and fees",
         "accept": "",
         "processing": "",
         "swipeToConfirm": ""
@@ -905,23 +992,40 @@
         "balanced": ""
       },
       "lrc20Assets": {
+        "actionText": "{{action}} tokens",
+        "tokensSearchPlaceholder": "Search tokens...",
+        "noTokensText": "You have no tokens",
+        "noTokensFoundText": "No tokens found",
         "title": "",
         "assets": "",
         "noAssets": ""
       },
+      "manualEnterSendAddress": {
+        "title": "Enter in destination",
+        "paymentTypesDesc": "Blitz wallet can send to spark, on-chain, LNURL and BOLT 11 addresses"
+      },
       "userSatAmount": {
+        "informationMessage": "",
         "balance": "",
         "fiatValue": ""
       },
       "sparkErrorScreen": {
         "title": "",
-        "connectionError": "",
-        "retry": ""
+        "connectionError": "We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your seed phrase keeps your funds safe.",
+        "retry": "We couldn’t load your wallet right now. Please try again. \n\nYour funds are safe as long as you have your seed phrase."
       }
     },
     "exportTransactions": {
+      "paymentType": "Payment Type",
+      "description": "Description",
+      "date": "Date",
+      "txFees": "Transaction Fees (SAT)",
+      "amount": "Amount (SAT)",
+      "sent/received": "Sent/Received",
+      "title": "Export your payment history in CSV (comma seperated value) format.",
+      "paymentsCounter": "{{number}} payments",
+      "paymentsCounterTracker": "{{number}} of {{total}}",
       "exportTracker": {
-        "title": "",
         "exportProgress": "",
         "exportComplete": "",
         "exportFailed": ""
@@ -1004,6 +1108,7 @@
       "editProfile": ""
     },
     "sendAndRequestPage": {
+      "descriptionPlaceholder": "Payment description",
       "title": "",
       "sendRequest": "",
       "sendTo": "",
@@ -1034,12 +1139,17 @@
         "swapComplete": ""
       },
       "addOrDeleteImageScreen": {
+        "pageMessage": "Do you want to {{option}} {{option2}} photo",
         "title": "",
         "addImage": "",
         "deleteImage": "",
         "changeImage": ""
       },
       "contactsTransactions": {
+        "pushNotificationUpdateMessage": "{{name}} {{option}} your request",
+        "acceptProfileMessage": "Paid {{name}}'s request",
+        "acceptPayingContactMessage": "{{name}} paid your request",
+        "requestTitle": "Received request for ",
         "title": "",
         "transactionHistory": "",
         "noTransactions": ""
@@ -1070,43 +1180,78 @@
       "appSettings": ""
     },
     "about": {
-      "title": "",
-      "version": "",
-      "buildNumber": "",
-      "openSource": "",
-      "support": ""
+      "header1": "Software",
+      "text2": "Blitz is a free and open source app under the ",
+      "text3": "Apache License",
+      "text4": " Version 2.0",
+      "text5": "This is a self-custodial Bitcoin Lightning wallet. Blitz does not have access to your funds, if you lose your backup phrase it may result in a loss of funds.",
+      "text6": "Blitz uses ",
+      "text7": "Breez Liquid SDK, ",
+      "text8": "Spark, ",
+      "text9": "and ",
+      "text10": "Boltz API.",
+      "header2": "Good to know",
+      "text12": "Blitz is a powered by the Spark protocol. Spark is an ",
+      "text13": "off-chain protocol ",
+      "text14": "where Spark Operators update the state of Bitcoin ownership off-chain ",
+      "text15": "allowing for fast, low-fee, and non-custodial transfers without touching the blockchain.",
+      "text16": "Creator",
+      "text17": "Version:"
     },
     "displayOptions": {
-      "title": "",
-      "darkMode": "",
-      "currency": "",
-      "language": "",
-      "denomination": ""
+      "text1": "Dark Mode Style",
+      "text2": "Lights out",
+      "text3": "Dim",
+      "text4": "Balance Denomination",
+      "text5": "Current denomination",
+      "text6": "Please reconnect to the internet to switch your denomination",
+      "text7": "How to display",
+      "text8": "fiat",
+      "text9": "Example",
+      "text10": "Home Screen",
+      "text11": "Swipe for camera",
+      "text12": "Swipe right from the main screen—whether you're on Contacts, Wallet, or the Home page—to quickly open the camera for scanning.",
+      "text13": "Displayed Transactions",
+      "text14": "Contacts Page",
+      "text15": "Hide Unknown Senders"
     },
     "fastPay": {
-      "title": "",
-      "enableFastPay": "",
-      "threshold": "",
-      "description": ""
+      "text1": "Error adding inputed value, plase try again.",
+      "text2": "Amount cannot be 0",
+      "text3": "Enable Fast Pay",
+      "text4": "Fast pay threshold (SAT)",
+      "text5": "Fast pay allows you to instantly pay invoices below a specified threshold without needing to swipe for confirmation."
     },
     "loginSecurity": {
-      "title": "",
-      "enableSecurity": "",
-      "pinCode": "",
-      "biometrics": "",
-      "changePin": ""
+      "text1": "Enable Login Security",
+      "text2": "Security Type",
+      "text3": "Pin",
+      "text4": "Biometric",
+      "text5": "Device does not have a Biometric profile. Create one in settings to continue.",
+      "text6": "Error logging in with Biometrics",
+      "text7": "Device does not support Biometric login",
+      "unsuccesfullLoginSwitch": "Unable to switch login type",
+      "toggleSecurityModeError": "Something went wrong while switching your security settings. Please try again.",
+      "noBiometricsError": "Device does not support Biometric login",
+      "noBiometricProfileError": "Device does not have a Biometric profile. Create one in settings to continue.",
+      "biometricSignInError": "Error logging in with Biometrics",
+      "migratingStorageMessgae": "Migrating storage to new security.",
+      "createPinPageHeader": "{{type}} your Blitz PIN",
+      "invalidPinconfirmation": "PIN's do not match. Try again!"
     },
     "seedPhrase": {
+      "header": "Keep this phrase in a secure and safe place",
+      "headerDesc": "Do not share it with anyone!",
       "title": "",
       "viewSeedPhrase": "",
       "backupWarning": "",
       "confirmView": ""
     },
     "crashReporting": {
-      "title": "",
-      "enableReporting": "",
-      "description": "",
-      "privacy": ""
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "crashreporting": "crash reporting",
+      "descriptionText": "Crash data helps us improve the stability and performance of our application.\n\nWhen a crash occurs, the device information that is automatically recorded includes:\n\n• Operating System: OS version, device orientation, and jailbreak status\n• Device Details: Model, orientation, and available RAM\n• Crash Information: Date of the crash and the app version"
     },
     "nodeInfo": {
       "title": "",
@@ -1133,6 +1278,8 @@
       "swapSettings": ""
     },
     "accounts": {
+      "inputPlaceholder": "Account name",
+      "buttonCTA": "Swap Funds",
       "title": "",
       "manageAccounts": "",
       "createAccount": "",
@@ -1198,13 +1345,20 @@
       "nostrSettings": ""
     },
     "fiatCurrency": {
-      "title": "",
+      "title": "Display Currency",
+      "placeholderText": "Search currency",
+      "saveCurrencyError": "We were unable to save the selected currency, please try again.",
       "selectCurrency": "",
       "currencyRates": "",
       "priceSource": ""
     },
     "feeInformation": {
       "title": "",
+      "description": "Blitz Wallet offers free and open‑source products for the Bitcoin community. \n\nTo help keep the project sustainable, we’ve added a small transaction fee to each payment.\n\nHere’s how those fees are distributed:",
+      "upTo": "Up To",
+      "fixedFee": "Fixed Fee",
+      "percent": "Percent",
+      "noLimit": "No limit",
       "feeBreakdown": "",
       "networkFees": "",
       "serviceFees": ""
@@ -1216,11 +1370,27 @@
       "disclaimer": ""
     },
     "nip5": {
-      "nip5Account": {
-        "title": "",
-        "nip5Address": "",
-        "verifyIdentity": ""
-      }
+      "noNameError": "Name cannot be empty.",
+      "noPubKey": "Public key cannot be empty.",
+      "nameLengthError": "Name must be less than 60 characters",
+      "regexError": "Name can only include letters or numbers.",
+      "takenNameError": "Name already taken",
+      "nameConfirmationMessage": "NIP-05 added successfully! Please note that it may take up to 24 hours to appear, as the list is updated once per day.",
+      "title": "Nip5 Verification",
+      "desc": "Nip5 turns your long Npub into a small email-like address, similar to a lightning address.",
+      "dataIsInvalid": "Something went wrong, please try again,",
+      "usernameInputLabel": "Username",
+      "usernameInputPlaceholder": "Satoshi...",
+      "publicKeyLabel": "Username",
+      "publicKeyPlaceholder": "Npub...",
+      "errors": {
+        "invalidPubKey": "Invalid pubkey: must be a non-empty string",
+        "invalidNpub": "Invalid npub format",
+        "decodeNpubError": "Failed to decode npub",
+        "invlaidFormat": "Invalid pubkey format: must be either 64-character hex string or npub"
+      },
+      "nip5Address": "",
+      "verifyIdentity": ""
     },
     "nwc": {
       "title": "",
@@ -1265,16 +1435,37 @@
     },
     "accountComponents": {
       "accountPaymentPage": {
-        "title": "",
+        "noAmountError": "Please enter an amount to be swapped",
+        "noAccountError": "Please select an account for funds to be swapped from",
+        "noAccountToError": "Please select an account for funds to be swapped to",
+        "loadingFeeError": "Cannot start swap when fee is being calculated",
+        "alreadyStartedTransferError": "A transfer has already been started",
+        "balanceError": "Sending amount is greater than your balance and fees",
+        "noSendAddressError": "Not able to get transfer address",
+        "noAccountInformation": "Not able to get account information",
+        "title": "Swap",
+        "selectAccount": "Select Account",
+        "inputPlaceHolderText": "Account Swap",
         "accountBalance": "",
         "makePayment": ""
       },
       "createAccountPage": {
+        "alreadyUsingSeedError": "This seed already exists for another account",
+        "editTitle": "Edit Account",
+        "createTitle": "Create Account",
+        "updateTitle": "Update Account",
+        "cannotDeleteActiveAccountError": "You can’t delete the active account. Please select another account before deleting.",
+        "deleteAccountConfirmation": "Are you sure you want to delete this account?",
+        "inputDesc": "Account Name",
+        "nameTakenError": "This name is currently in use. Please use a differnt account name.",
+        "nameInputPlaceholder": "Name...",
+        "seedHeader": "Account Seed",
         "title": "",
         "accountName": "",
         "createNew": ""
       },
       "viewAccountPage": {
+        "informationMessage": "Are you sure you want to show this QR Code?\n\nScanning your seed is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe.",
         "title": "",
         "accountDetails": "",
         "accountHistory": ""
@@ -1458,6 +1649,7 @@
         "txDetails": ""
       },
       "explorePage": {
+        "timeLeft": "({{time}} left)",
         "title": "",
         "explore": "",
         "discover": ""
@@ -1594,7 +1786,29 @@
     "payingInvoiceError": "There was an error paying the invoice, please try again.",
     "noMailAppsFoundError": " No mail apps found on your device. Please install a mail app to use this feature.",
     "retriveingPhotoesError": " There was an error retrieving photos, please try again.",
-    "clipboardContentError": "No data in clipboard"
+    "clipboardContentError": "No data in clipboard",
+    "userDataFetchError": "Unable to get user from database.",
+    "updateContactMessageError": "There was a problem updating this message, please try again.",
+    "declinePaymentError": "There was a problem declining this payment, please try again.",
+    "payingContactError": "We were not able to get the contacts address, please try again.",
+    "noUserFoundDeeplinkError": "Not able to find any user for this username.",
+    "cannotAddSelfError": "You cannot add yourself as a contact.",
+    "fullDeeplinkError": "Unable to retrive contact information, please try again.",
+    "processingDeepLinkError": "Failed to process link: {{error}}",
+    "legacyContactError": "Contact has not updated thier wallet yet. Please ask them to update their wallet to send this.",
+    "contactInvoiceGenerationError": "Error generating invoice. Make sure this is a valid LNURL address.",
+    "explorePagenoDataError": "We were unable to retrive Blitz user count.",
+    "savingFileError": "Error saving file to document",
+    "savingFilePermissionsError": "Error getting permissions",
+    "writtingFileError": "Error writing file to filesystem",
+    "createTransactionsFileError": "Unable to create transaction file",
+    "noQrInScanError": "Not able to get find QRcode from image.",
+    "noDataInQRError": "Not able to get find data from image.",
+    "noInvoiceInImageError": "Not able to get invoice from image.",
+    "savingImageError": "Unable to save image, pleae try again.",
+    "invalidSeedError": "Did not enter a valid seed",
+    "invalidSeedWordLengthErorr": "Not every word is of valid length",
+    "invalidSeedLengthError": "Unable to find 12 words from copied recovery phrase."
   },
 
   "loadingScreen": {

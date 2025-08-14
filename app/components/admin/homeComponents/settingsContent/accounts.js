@@ -14,6 +14,7 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {initWallet} from '../../../../functions/initiateWalletConnection';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import useCustodyAccountList from '../../../../hooks/useCustodyAccountsList';
+import {useTranslation} from 'react-i18next';
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
@@ -31,6 +32,7 @@ export default function CreateCustodyAccounts() {
     accountBeingLoaded: '',
     isLoading: '',
   });
+  const {t} = useTranslation();
 
   const accounts = useCustodyAccountList();
 
@@ -140,7 +142,9 @@ export default function CreateCustodyAccounts() {
                   : textColor,
             }}
             textContent={
-              currentWalletMnemoinc === account.mnemoinc ? 'Active' : 'Select'
+              currentWalletMnemoinc === account.mnemoinc
+                ? t('constants.active')
+                : t('constants.select')
             }
             useLoading={
               isLoading.accountBeingLoaded === account.mnemoinc &&
@@ -154,7 +158,7 @@ export default function CreateCustodyAccounts() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
-        label={'Accounts'}
+        label={t('constants.accounts')}
         showLeftImage={true}
         leftImageBlue={ICONS.xSmallIcon}
         LeftImageDarkMode={ICONS.xSmallIconWhite}
@@ -169,14 +173,14 @@ export default function CreateCustodyAccounts() {
           containerStyles={{paddingTop: 10, marginBottom: 10, backgroundColor}}
           inputText={searchInput}
           setInputText={setSearchInput}
-          placeholderText="Account name"
+          placeholderText={t('settings.accounts.inputPlaceholder')}
         />
         {accountElements}
       </ScrollView>
       <CustomButton
         actionFunction={() => navigate.navigate('CustodyAccountPaymentPage')}
         buttonStyles={{...CENTER}}
-        textContent={'Swap Funds'}
+        textContent={t('settings.accounts.buttonCTA')}
       />
     </GlobalThemeView>
   );

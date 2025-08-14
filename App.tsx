@@ -272,6 +272,7 @@ function ResetStack(): JSX.Element | null {
             } else {
               navigationRef.current.navigate('ErrorScreen', {
                 errorMessage: deepLinkContact.reason,
+                useTranslationString: true,
               });
             }
           }
@@ -281,9 +282,8 @@ function ResetStack(): JSX.Element | null {
         } catch (error: any) {
           console.error('Error processing deep link:', error);
           navigationRef.current.navigate('ErrorScreen', {
-            errorMessage: `Failed to process link: ${
-              error.message || 'Unknown error'
-            }`,
+            errorMessage: 'errormessages.processingDeepLinkError',
+            useTranslationString: true,
           });
 
           // Clear the pending link even if there was an error

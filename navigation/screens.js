@@ -31,7 +31,7 @@ import {
   SendAndRequestPage,
 } from '../app/components/admin/homeComponents/contacts';
 import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightning/sparkErrorScreen';
-import ExplainBalanceScreen from '../app/components/admin/homeComponents/sendBitcoin/components/balanceExplainerScreen';
+// import ExplainBalanceScreen from '../app/components/admin/homeComponents/sendBitcoin/components/balanceExplainerScreen';
 import {
   ConfirmActionPage,
   HistoricalOnChainPayments,
@@ -43,11 +43,11 @@ import {
 import AccountPaymentPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/accountPaymentPage';
 import CreateCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/createAccountPage';
 import ViewCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewAccountPage';
-import ViewCustodyKey from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewCustodyKey';
+// import ViewCustodyKey from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewCustodyKey';
 // import EcashSettings from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/ecashSettings';
 // import MigrateProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
 // import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
-import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
+// import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
 import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
@@ -148,7 +148,7 @@ const FADE_SCREENS = [
   {name: 'ClipboardCopyPopup', component: ClipboardCopyPopup},
   {name: 'ErrorScreen', component: ErrorScreen},
   {name: 'SparkErrorScreen', component: SparkErrorScreen},
-  {name: 'ExplainBalanceScreen', component: ExplainBalanceScreen},
+  // {name: 'ExplainBalanceScreen', component: ExplainBalanceScreen},
   {name: 'GiftCardOrderDetails', component: GiftCardOrderDetails},
   {
     name: 'ContactsPageLongPressActions',
@@ -168,10 +168,10 @@ const FADE_SCREENS = [
     component: AdminHomeIndex,
     options: {gestureEnabled: false},
   },
-  {
-    name: 'ViewCustodyKey',
-    component: ViewCustodyKey,
-  },
+  // {
+  //   name: 'ViewCustodyKey',
+  //   component: ViewCustodyKey,
+  // },
   {name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode},
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
@@ -179,10 +179,10 @@ const FADE_TRANSPARENT_MODAL_SCREENS = [
     name: 'TotalTipsScreen',
     component: TotalTipsScreen,
   },
-  {
-    name: 'RefundLiquidSwapPopup',
-    component: RefundLiquidSwapPopup,
-  },
+  // {
+  //   name: 'RefundLiquidSwapPopup',
+  //   component: RefundLiquidSwapPopup,
+  // },
 ];
 
 export {
