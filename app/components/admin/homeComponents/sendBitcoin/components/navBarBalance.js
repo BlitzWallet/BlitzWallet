@@ -3,8 +3,9 @@ import {CENTER, ICONS, SIZES} from '../../../../../constants';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
+import formatTokensNumber from '../../../../../functions/lrc20/formatTokensBalance';
 
-export default function NavbarBalance({seletctedToken}) {
+export default function NavbarBalance({seletctedToken, selectedLRC20Asset}) {
   const {sparkInformation} = useSparkWallet();
 
   const balance = seletctedToken?.balance || sparkInformation.balance;
@@ -20,7 +21,14 @@ export default function NavbarBalance({seletctedToken}) {
       <FormattedSatText
         neverHideBalance={true}
         styles={styles.headerText}
-        balance={balance}
+        balance={
+          selectedLRC20Asset !== 'Bitcoin'
+            ? formatTokensNumber(
+                balance,
+                seletctedToken?.tokenMetadata?.decimals,
+              )
+            : balance
+        }
         useCustomLabel={
           seletctedToken?.tokenMetadata?.tokenTicker !== 'Bitcoin' &&
           seletctedToken?.tokenMetadata?.tokenTicker !== undefined

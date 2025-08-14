@@ -259,7 +259,10 @@ export default function SendPaymentScreen(props) {
           />
         </TouchableOpacity>
 
-        <NavbarBalance seletctedToken={seletctedToken} />
+        <NavbarBalance
+          seletctedToken={seletctedToken}
+          selectedLRC20Asset={selectedLRC20Asset}
+        />
       </View>
 
       <ScrollView

@@ -29,7 +29,7 @@ export default function SelectLRC20Token({
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const assetsAvailable = Object.entries(sparkInformation.tokens);
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset} = GetThemeColors();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
 
   const handleSearch = term => {
     setSearchInput(term);
