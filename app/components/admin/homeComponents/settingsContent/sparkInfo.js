@@ -8,6 +8,7 @@ import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useToast} from '../../../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
 
 export default function SparkInfo() {
   const {showToast} = useToast();
@@ -15,6 +16,7 @@ export default function SparkInfo() {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset} = GetThemeColors();
   const {sparkAddress = '', identityPubKey = ''} = sparkInformation;
+  const {t} = useTranslation();
 
   return (
     <View style={{flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
@@ -23,12 +25,15 @@ export default function SparkInfo() {
           ...styles.container,
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
         }}>
-        <ThemeText styles={styles.title} content={'Wallet Info'} />
+        <ThemeText
+          styles={styles.title}
+          content={t('settings.sparkInfo.title')}
+        />
         <View style={{...styles.infoContainer, marginBottom: 20}}>
           <ThemeText
             CustomNumberOfLines={1}
             styles={{flex: 1}}
-            content={'Spark Address'}
+            content={t('settings.sparkInfo.sparkAddress')}
           />
           <TouchableOpacity
             style={styles.buttonContainer}
@@ -54,7 +59,7 @@ export default function SparkInfo() {
           <ThemeText
             CustomNumberOfLines={1}
             styles={{flex: 1}}
-            content={'Public Key'}
+            content={t('settings.sparkInfo.pubKey')}
           />
           <TouchableOpacity
             style={styles.buttonContainer}

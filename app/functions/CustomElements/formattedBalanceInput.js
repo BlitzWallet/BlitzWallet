@@ -63,12 +63,10 @@ export default function FormattedBalanceInput({
     return Math.max(0, Math.min(inputWidth, remainingWidth));
   }, [inputWidth, labelWidth, maxContainerWidth]);
 
-  console.log(customCurrencyCode, 'custom code');
   if (customCurrencyCode) {
     return (
       <View
         onTouchEnd={() => {
-          console.log(isScrolling, 'IS SCROLLING');
           if (!isScrolling && containerFunction) {
             containerFunction();
           }
@@ -129,7 +127,6 @@ export default function FormattedBalanceInput({
   return (
     <View
       onTouchEnd={() => {
-        console.log(isScrolling, 'IS SCROLLING');
         if (!isScrolling && containerFunction) {
           containerFunction();
         }

@@ -9,12 +9,14 @@ import {COLORS, INSET_WINDOW_WIDTH} from '../../constants/theme';
 import GetThemeColors from '../../hooks/themeColors';
 import FormattedSatText from '../CustomElements/satTextDisplay';
 import formatTokensNumber from './formatTokensBalance';
+import {useTranslation} from 'react-i18next';
 
 export default function LRC20AssetSelectorHalfModal({
   theme,
   darkModeType,
   slideHeight,
 }) {
+  const {t} = useTranslation();
   const {sparkInformation} = useSparkWallet();
   const assetsAvailable = Object.entries(sparkInformation.tokens);
 
@@ -63,9 +65,12 @@ export default function LRC20AssetSelectorHalfModal({
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
-        <ThemeText styles={styles.titleText} content={'Search Tokens'} />
+        <ThemeText
+          styles={styles.titleText}
+          content={t('screens.lrc20HalfModal.title')}
+        />
         <CustomSearchInput
-          placeholderText={'Token name...'}
+          placeholderText={t('screens.lrc20HalfModal.searchPlaceholder')}
           setInputText={handleSearch}
           inputText={searchInput}
           textInputRef={keyboardRef}
@@ -92,7 +97,7 @@ export default function LRC20AssetSelectorHalfModal({
         ) : (
           <ThemeText
             styles={{textAlign: 'center', marginTop: 10}}
-            content={'No tokens found'}
+            content={t('screens.lrc20HalfModal.noTokens')}
           />
         )}
       </View>

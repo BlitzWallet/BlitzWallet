@@ -13,13 +13,10 @@ import {COLORS, ICONS} from '../../constants';
 import ThemeText from './textTheme';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import {useTranslation} from 'react-i18next';
 
-const DropdownMenu = ({
-  options,
-  selectedValue,
-  onSelect,
-  placeholder = 'Select an option',
-}) => {
+const DropdownMenu = ({options, selectedValue, onSelect, placeholder}) => {
+  const {t} = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [buttonLayout, setButtonLayout] = useState(null);
   const [selectorLayout, setSelectorLayout] = useState(null);
@@ -27,7 +24,7 @@ const DropdownMenu = ({
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const [dropdownHeight, setDropdownHeight] = useState(0);
-
+  const placeholderText = placeholder || t('constants.selctOption');
   const handleSelect = item => {
     onSelect(item);
     setIsOpen(false);
@@ -91,7 +88,7 @@ const DropdownMenu = ({
               flexShrink: 1,
             }}
             CustomNumberOfLines={1}
-            content={selectedValue ? selectedValue : placeholder}
+            content={selectedValue ? selectedValue : placeholderText}
           />
           <View
             style={{

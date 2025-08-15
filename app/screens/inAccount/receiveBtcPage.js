@@ -13,7 +13,6 @@ import {useGlobalContextProvider} from '../../../context-store/context';
 import {ButtonsContainer} from '../../components/admin/homeComponents/receiveBitcoin';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
-// import {useGlobaleCash} from '../../../context-store/eCash';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import {initializeAddressProcess} from '../../functions/receiveBitcoin/addressGeneration';
@@ -29,11 +28,11 @@ import {useLiquidEvent} from '../../../context-store/liquidEventContext';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useToast} from '../../../context-store/toastManager';
-import {useKeysContext} from '../../../context-store/keys';
 import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
 import {encodeLNURL} from '../../functions/lnurl/bench32Formmater';
 import {useLRC20EventContext} from '../../../context-store/lrc20Listener';
 import {useActiveCustodyAccount} from '../../../context-store/activeAccount';
+import {useTranslation} from 'react-i18next';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -43,14 +42,11 @@ export default function ReceivePaymentHome(props) {
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {signer, startRootstockEventListener} = useRootstockProvider();
   const {startLrc20EventListener} = useLRC20EventContext();
-
+  const {t} = useTranslation();
   const {isUsingAltAccount, currentWalletMnemoinc} = useActiveCustodyAccount();
   const windowDimentions = useWindowDimensions().height;
   const [contentHeight, setContentHeight] = useState(0);
-  // const {ecashWalletInformation} = useGlobaleCash();
   const {startLiquidEventListener} = useLiquidEvent();
-  // const currentMintURL = ecashWalletInformation.mintURL;
-  // const eCashBalance = ecashWalletInformation.balance;
   const initialSendAmount = props.route.params?.receiveAmount || 0;
   const paymentDescription = props.route.params?.description;
   useHandleBackPressNew();
@@ -154,6 +150,7 @@ export default function ReceivePaymentHome(props) {
             masterInfoObject={masterInfoObject}
             fiatStats={fiatStats}
             isUsingAltAccount={isUsingAltAccount}
+            t={t}
           />
 
           <ButtonsContainer
@@ -241,6 +238,7 @@ function QrCode(props) {
     masterInfoObject,
     fiatStats,
     isUsingAltAccount,
+    t,
   } = props;
   const {showToast} = useToast();
   const {theme} = useGlobalThemeContext();
@@ -281,10 +279,11 @@ function QrCode(props) {
           <ThemeText
             styles={styles.errorText}
             content={
-              addressState.errorMessageText.text || 'Unable to generate address'
+              t(addressState.errorMessageText.text) ||
+              t('erorrmessages.invoiceRetrivalError')
             }
           />
-          {addressState.errorMessageText.showButton && (
+          {/* {addressState.errorMessageText.showButton && (
             <CustomButton
               buttonStyles={{width: '90%', marginTop: 20}}
               textContent={'Open transfer page'}
@@ -308,7 +307,7 @@ function QrCode(props) {
                 });
               }}
             />
-          )}
+          )} */}
         </View>
         {!isUsingAltAccount && (
           <LNURLContainer
@@ -357,7 +356,10 @@ function QrCode(props) {
         {addressState.errorMessageText.text && (
           <ThemeText
             styles={{textAlign: 'center', width: 275, marginTop: 10}}
-            content={addressState.errorMessageText.text}
+            content={
+              t(addressState.errorMessageText.text) ||
+              t('erorrmessages.invoiceRetrivalError')
+            }
           />
         )}
       </TouchableOpacity>

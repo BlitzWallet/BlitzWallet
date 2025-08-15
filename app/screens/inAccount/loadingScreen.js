@@ -93,13 +93,13 @@ export default function ConnectingToNodeLoadingScreen({
         connectToSparkWallet();
         const [
           didOpen,
-          ecashTablesOpened,
+          // ecashTablesOpened,
           posTransactions,
           sparkTxs,
           rootstockSwaps,
         ] = await Promise.all([
           initializeDatabase(),
-          initEcashDBTables(),
+          // initEcashDBTables(),
           initializePOSTransactionsDatabase(),
           initializeSparkDatabase(),
           initRootstockSwapDB(),

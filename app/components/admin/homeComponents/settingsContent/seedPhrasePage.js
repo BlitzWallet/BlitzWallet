@@ -72,7 +72,7 @@ export default function SeedPhrasePage({extraData}) {
         contentContainerStyle={styles.scrollViewStyles}>
         <ThemeText
           styles={{...styles.headerPhrase}}
-          content={t('settings.seedphrase.text1')}
+          content={t('settings.seedPhrase.header')}
         />
         <ThemeText
           styles={{
@@ -81,7 +81,7 @@ export default function SeedPhrasePage({extraData}) {
             marginBottom: 50,
             fontSize: SIZES.large,
           }}
-          content={t('settings.seedphrase.text2')}
+          content={t('settings.seedPhrase.headerDesc')}
         />
         {selectedDisplayOption === 'qrcode' && canViewQrCode ? (
           <View
@@ -136,8 +136,8 @@ export default function SeedPhrasePage({extraData}) {
               onPress={() => {
                 if (!canViewQrCode) {
                   navigate.navigate('InformationPopup', {
-                    textContent: `Are you sure you want to show this QR Code?\n\nScanning your seed is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe.`,
-                    buttonText: 'I understand',
+                    textContent: t('settings.seedPhrase.qrWarning'),
+                    buttonText: t('constants.understandText'),
                     customNavigation: () =>
                       navigate.popTo('SettingsContentHome', {
                         for: 'Backup wallet',
@@ -159,7 +159,7 @@ export default function SeedPhrasePage({extraData}) {
                       ? COLORS.darkModeText
                       : COLORS.lightModeText,
                 }}
-                content={'QR Code'}
+                content={t('settings.seedPhrase.qrText')}
               />
             </TouchableOpacity>
             <Animated.View
@@ -183,7 +183,7 @@ export default function SeedPhrasePage({extraData}) {
               showToast,
             )
           }
-          textContent={'Copy'}
+          textContent={t('constants.copy')}
         />
       </ScrollView>
 
@@ -198,7 +198,7 @@ export default function SeedPhrasePage({extraData}) {
         <View style={styles.confirmPopupInnerContainer}>
           <ThemeText
             styles={{...styles.confirmPopupTitle}}
-            content={t('settings.seedphrase.text3')}
+            content={t('settings.seedPhrase.showSeedWarning')}
           />
           <View style={styles.confirmationContainer}>
             <CustomButton

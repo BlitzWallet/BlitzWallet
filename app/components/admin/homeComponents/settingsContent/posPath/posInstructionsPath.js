@@ -1,45 +1,40 @@
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
-
 import {useNavigation} from '@react-navigation/native';
-import {COLORS, FONT, SIZES, WINDOWWIDTH} from '../../../../../constants/theme';
-import {backArrow, CENTER} from '../../../../../constants/styles';
-import {ICONS} from '../../../../../constants';
+import {COLORS, SIZES} from '../../../../../constants/theme';
+import {CENTER} from '../../../../../constants/styles';
 import QRCode from 'react-native-qrcode-svg';
-import React, {useRef} from 'react';
 import {copyToClipboard} from '../../../../../functions';
 import {useToast} from '../../../../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 
 export default function POSInstructionsPath() {
   const {masterInfoObject} = useGlobalContextProvider();
   const navigate = useNavigation();
   const {showToast} = useToast();
+  const {t} = useTranslation();
   const posURL = `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`;
 
   return (
     <GlobalThemeView
       useStandardWidth={true}
       globalContainerStyles={{backgroundColor: COLORS.white}}>
-      <View style={styles.topbar}>
-        <TouchableOpacity
-          style={{position: 'absolute', top: 0, left: 0, zIndex: 1}}
-          onPress={() => navigate.goBack()}>
-          <Image style={backArrow} source={ICONS.smallArrowLeft} />
-        </TouchableOpacity>
-        <ThemeText content={'Instructions'} styles={{...styles.topBarText}} />
-      </View>
-      <ThemeText styles={styles.headingText} content={'How to accept'} />
-      <ThemeText styles={styles.headingText} content={'Bitcoin payments'} />
+      <CustomSettingsTopBar
+        label={t('settings.posPath.posInstructionsPath.title')}
+      />
+      <ThemeText
+        styles={styles.headingText}
+        content={t('settings.posPath.posInstructionsPath.head1')}
+      />
+      <ThemeText
+        styles={styles.headingText}
+        content={t('settings.posPath.posInstructionsPath.head2')}
+      />
 
       <TouchableOpacity
         activeOpacity={0.9}
@@ -75,29 +70,18 @@ export default function POSInstructionsPath() {
         style={{marginTop: 'auto', marginBottom: 'auto', maxHeight: 200}}>
         <ThemeText
           styles={styles.lineItem}
-          content={`1. Scan QR code with your camera`}
+          content={t('settings.posPath.posInstructionsPath.step1')}
         />
-        <ThemeText styles={styles.lineItem} content={`2. That's it.`} />
+        <ThemeText
+          styles={styles.lineItem}
+          content={t('settings.posPath.posInstructionsPath.step2')}
+        />
       </ScrollView>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  topbar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-
-    marginBottom: 10,
-  },
-
-  topBarText: {
-    width: '100%',
-    fontSize: SIZES.xLarge,
-    textAlign: 'center',
-    color: COLORS.lightModeText,
-  },
-
   headingText: {
     fontSize: SIZES.xLarge,
     textAlign: 'center',

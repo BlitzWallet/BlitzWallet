@@ -34,8 +34,8 @@ import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightni
 // import ExplainBalanceScreen from '../app/components/admin/homeComponents/sendBitcoin/components/balanceExplainerScreen';
 import {
   ConfirmActionPage,
-  HistoricalOnChainPayments,
-  LspDescriptionPopup,
+  // HistoricalOnChainPayments,
+  // LspDescriptionPopup,
   NosterWalletConnect,
   TotalTipsScreen,
   ViewPOSTransactions,
@@ -98,7 +98,7 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
 ];
 const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'SettingsHome', component: SettingsIndex},
-  {name: 'HistoricalOnChainPayments', component: HistoricalOnChainPayments},
+  // {name: 'HistoricalOnChainPayments', component: HistoricalOnChainPayments},
   {name: 'ChooseContactHalfModal', component: ChooseContactHalfModal},
   {name: 'SettingsContentHome', component: SettingsContentIndex},
   {
@@ -123,7 +123,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'HistoricalGiftCardPurchases', component: HistoricalGiftCardPurchases},
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},
   {name: 'ViewPOSTransactions', component: ViewPOSTransactions},
-  {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
+  // {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
   {name: 'DisclaimerPage', component: DislaimerPage},
   {name: 'GenerateKey', component: GenerateKey},
   {name: 'PinSetup', component: PinSetupPage},

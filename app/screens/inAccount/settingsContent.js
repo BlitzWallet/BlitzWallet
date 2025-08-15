@@ -21,7 +21,7 @@ import {
   CrashReportingSettingsPage,
   CreateCustodyAccounts,
   SparkInfo,
-  SupportWorkPage,
+  // SupportWorkPage,
   NotificationPreferances,
   BlitzFeeInformation,
 } from '../../components/admin/homeComponents/settingsContent';
@@ -97,9 +97,9 @@ export default function SettingsContentIndex(props) {
           {/* {selectedPage?.toLowerCase() === 'channel closure' && (
             <SendOnChainBitcoin isDoomsday={isDoomsday} theme={theme} />
           )} */}
-          {selectedPage?.toLowerCase() === 'support our work' && (
+          {/* {selectedPage?.toLowerCase() === 'support our work' && (
             <SupportWorkPage />
-          )}
+          )} */}
           {selectedPage?.toLowerCase() === 'accounts' && (
             <CreateCustodyAccounts />
           )}

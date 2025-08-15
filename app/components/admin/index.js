@@ -39,7 +39,7 @@ import {
   DisplayOptions,
   FiatCurrencyPage,
   LSPPage,
-  LspDescriptionPopup,
+  // LspDescriptionPopup,
   NodeInfo,
   NosterWalletConnect,
   RefundFailedLiquidSwaps,
@@ -49,7 +49,7 @@ import {
   UserBalanceDenomination,
 } from './homeComponents/settingsContent';
 import LiquidSettingsPage from './homeComponents/settingsContent/bankComponents/settingsPage';
-import HasNWCAccount from './homeComponents/settingsContent/nwc/hasAccount';
+// import HasNWCAccount from './homeComponents/settingsContent/nwc/hasAccount';
 import NoNWCAccount from './homeComponents/settingsContent/nwc/noAccount';
 import PinPage from './loginComponents/pinPage';
 
@@ -71,8 +71,8 @@ export {
   AboutPage,
   UserBalanceDenomination,
   ConfirmActionPage,
-  LspDescriptionPopup,
-  HasNWCAccount,
+  // LspDescriptionPopup,
+  // HasNWCAccount,
   NoNWCAccount,
   SendPaymentScreen,
   // RefundBitcoinTransactionPage,

@@ -10,6 +10,7 @@ import {useNavigation} from '@react-navigation/native';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
+import {useTranslation} from 'react-i18next';
 
 export default function SparkSettingsPage() {
   const navigate = useNavigation();
@@ -18,6 +19,7 @@ export default function SparkSettingsPage() {
   const {fiatStats} = useNodeContext();
   const isInitialRender = useRef(true);
   const lrc20Settings = masterInfoObject.lrc20Settings || {};
+  const {t} = useTranslation();
 
   useEffect(() => {
     console.log(isInitialRender.current, lrc20Settings.isEnabled);
@@ -29,34 +31,41 @@ export default function SparkSettingsPage() {
     if (!lrc20Settings.isEnabled) return;
     if (sparkInformation.balance > 10) return;
     navigate.navigate('InformationPopup', {
-      textContent: `Your current wallet balance is ${displayCorrectDenomination(
-        {
+      textContent: t('settings.sparkLrc20.balanceError', {
+        balance: displayCorrectDenomination({
           amount: sparkInformation.balance,
           masterInfoObject,
           fiatStats,
-        },
-      )}. Blitz adds a ${displayCorrectDenomination({
-        amount: 10,
-        masterInfoObject,
-        fiatStats,
-      })} fee to all LRC-20 payments. Make sure you have some Bitcoin in your wallet to send tokens.`,
-      buttonText: 'I understand',
+        }),
+        fee: displayCorrectDenomination({
+          amount: 10,
+          masterInfoObject,
+          fiatStats,
+        }),
+      }),
+      buttonText: t('constants.understandText'),
     });
   }, [lrc20Settings, sparkInformation.balance]);
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={'Spark Settings'} />
+      <CustomSettingsTopBar label={t('settings.sparkLrc20.title')} />
       <ScrollView>
         <View style={styles.container}>
           <SettingsItemWithSlider
-            settingsTitle={`${
-              lrc20Settings.isEnabled ? 'Enabled' : 'Disabled'
-            } LRC-20`}
+            settingsTitle={t('settings.sparkLrc20.sliderTitle', {
+              switchType: lrc20Settings.isEnabled
+                ? t('constants.enabled')
+                : t('constants.disabled'),
+            })}
             switchPageName={'lrc20Settings'}
             showDescription={true}
-            settingDescription={`LRC-20 is Spark’s native token. Enabling LRC-20 allows you send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.\n\nBlitz also applies a ${displayCorrectDenomination(
-              {amount: 10, masterInfoObject, fiatStats},
-            )} fee to all token transactions, with 20% of that fee donated to support open-source Bitcoin development.`}
+            settingDescription={t('settings.sparkLrc20.sliderDesc', {
+              fee: displayCorrectDenomination({
+                amount: 10,
+                masterInfoObject,
+                fiatStats,
+              }),
+            })}
             handleSubmit={() =>
               toggleMasterInfoObject({
                 lrc20Settings: {

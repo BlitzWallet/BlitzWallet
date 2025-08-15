@@ -170,10 +170,7 @@ export const PushNotificationProvider = ({children}) => {
 async function registerForPushNotificationsAsync() {
   try {
     const hasGooglePlayServics = checkGooglePlayServices();
-    if (!hasGooglePlayServics)
-      throw new Error(
-        'Google Play Services are required to receive notifications.',
-      );
+    if (!hasGooglePlayServics) throw new Error('errormessages.noGooglePlay');
     console.log('Registering notification channel on android');
 
     if (Platform.OS === 'android') {
@@ -203,9 +200,7 @@ async function registerForPushNotificationsAsync() {
     }
 
     if (finalStatus !== 'granted') {
-      throw new Error(
-        'Blitz doesn’t have notification permissions. Enable them in settings to use notifications.',
-      );
+      throw new Error('errormessages.noNotificationPermission');
     }
 
     let options = {projectId: process.env.EXPO_PROJECT_ID};
