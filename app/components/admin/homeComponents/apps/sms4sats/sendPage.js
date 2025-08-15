@@ -38,6 +38,7 @@ import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import {useTranslation} from 'react-i18next';
 
 export default function SMSMessagingSendPage({SMSprices}) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -51,7 +52,10 @@ export default function SMSMessagingSendPage({SMSprices}) {
   const [areaCode, setAreaCode] = useState('');
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [sendingMessage, setSendingMessage] = useState('Creating send order');
+  const {t} = useTranslation();
+  const [sendingMessage, setSendingMessage] = useState(
+    t('apps.sms4sats.sendPage.startingSendingMessage'),
+  );
   const [focusedElement, setFocusedElement] = useState('');
   const phoneRef = useRef(null);
   const areaCodeRef = useRef(null);
@@ -116,7 +120,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
             />
             <ThemeText
               styles={{...CENTER, marginTop: 20}}
-              content={'Enter phone number'}
+              content={t('apps.sms4sats.sendPage.phoneNumberInputDescription')}
             />
 
             <TouchableOpacity
@@ -145,7 +149,9 @@ export default function SMSMessagingSendPage({SMSprices}) {
 
             <ThemeText
               styles={{...CENTER, marginTop: 20}}
-              content={'Phone number country'}
+              content={t(
+                'apps.sms4sats.sendPage.phoneNumberCountryDescription',
+              )}
             />
             <TouchableOpacity
               style={{
@@ -214,7 +220,9 @@ export default function SMSMessagingSendPage({SMSprices}) {
                   textInputRef={messageRef}
                   setInputText={setMessage}
                   inputText={message}
-                  placeholderText={'Message'}
+                  placeholderText={t(
+                    'apps.sms4sats.sendPage.messageInputDescription',
+                  )}
                   maxLength={135}
                   textInputMultiline={true}
                   containerStyles={{
@@ -238,7 +246,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
                     color: theme ? backgroundColor : COLORS.lightModeText,
                   }}
                   actionFunction={handleSubmit}
-                  textContent={'Send message'}
+                  textContent={t('apps.sms4sats.sendPage.sendBTN')}
                 />
               </>
             )}
@@ -270,18 +278,19 @@ export default function SMSMessagingSendPage({SMSprices}) {
       areaCode.length === 0
     ) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: `Must have a ${
-          phoneNumber.length === 0
-            ? 'phone number'
-            : message.length === 0
-            ? 'message'
-            : 'area code'
-        }`,
+        errorMessage: t('apps.sms4sats.sendPage.invalidInputError', {
+          errorType:
+            phoneNumber.length === 0
+              ? 'phone number'
+              : message.length === 0
+              ? 'message'
+              : 'area code',
+        }),
       });
       return;
     } else if (selectedAreaCode.length === 0) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: `Not a valid country`,
+        errorMessage: t('apps.sms4sats.sendPage.invalidCountryError'),
       });
       return;
     }
@@ -354,7 +363,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
 
       const parsedInput = await parse(orderInformation.payreq);
       const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
-      setSendingMessage('Paying...');
+      setSendingMessage(t('apps.sms4sats.sendPage.payingMessage'));
       const paymentResponse = await sendStorePayment({
         invoice: orderInformation.payreq,
         masterInfoObject,
@@ -370,7 +379,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
       if (!paymentResponse.didWork) {
         setIsSending(false);
         navigate.navigate('ErrorScreen', {
-          errorMessage: paymentResponse.reason || 'Error paying invoice.',
+          errorMessage: paymentResponse.reason,
         });
         return;
       }
@@ -422,7 +431,12 @@ export default function SMSMessagingSendPage({SMSprices}) {
             ],
           });
         } else {
-          setSendingMessage(`Running ${runCount} of 10 tries`);
+          setSendingMessage(
+            t('apps.sms4sats.sendPage.runningTries', {
+              runCount: runCount,
+              maxTries: 10,
+            }),
+          );
           await new Promise(resolve => setTimeout(resolve, 5000));
         }
       } catch (err) {
@@ -431,7 +445,8 @@ export default function SMSMessagingSendPage({SMSprices}) {
       }
     }
 
-    if (!didSettleInvoice) setSendingMessage('Not able to settle invoice.');
+    if (!didSettleInvoice)
+      setSendingMessage(t('apps.sms4sats.sendPage.notAbleToSettleInvoice'));
   }
 
   async function saveMessagesToDB(messageObject) {

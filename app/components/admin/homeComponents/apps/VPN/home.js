@@ -10,7 +10,7 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import {COLORS, SIZES} from '../../../../../constants/theme';
-import {CENTER, ICONS} from '../../../../../constants';
+import {ICONS} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useState} from 'react';
 import CustomButton from '../../../../../functions/CustomElements/button';
@@ -19,12 +19,14 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
 import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
+import {useTranslation} from 'react-i18next';
 
 export default function VPNHome() {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const [selectedPage, setSelectedPage] = useState(null);
   const [countryList, setCountriesList] = useState([]);
+  const {t} = useTranslation();
   useEffect(() => {
     async function getAvailableCountries() {
       try {
@@ -36,7 +38,7 @@ export default function VPNHome() {
         setCountriesList(data);
       } catch (err) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Unable to get available countries',
+          errorMessage: t('apps.VPN.home.apiConnectionError'),
           customNavigator: () => {
             navigate.popTo('HomeAdmin');
           },
@@ -65,7 +67,7 @@ export default function VPNHome() {
               );
             }
           }}
-          label={selectedPage || ''}
+          label={selectedPage ? t('apps.VPN.home.selectPlan') : ''}
           showLeftImage={!selectedPage}
           leftImageBlue={ICONS.receiptIcon}
           LeftImageDarkMode={ICONS.receiptWhite}
@@ -78,9 +80,7 @@ export default function VPNHome() {
           <View style={styles.homepage}>
             <ThemeText
               styles={{textAlign: 'center', fontSize: SIZES.large}}
-              content={
-                'To use this VPN please download the Wireguard VPN client app'
-              }
+              content={t('apps.VPN.home.title')}
             />
             <TouchableOpacity
               onPress={async () => {
@@ -101,7 +101,7 @@ export default function VPNHome() {
                       ? COLORS.darkModeText
                       : COLORS.primary,
                 }}
-                content={'Download Here'}
+                content={t('apps.VPN.home.downloadApp')}
               />
             </TouchableOpacity>
 
@@ -111,7 +111,7 @@ export default function VPNHome() {
                 if (!countryList.length) return;
                 setSelectedPage('Select Plan');
               }}
-              textContent={'Continue'}
+              textContent={t('constants.continue')}
               useLoading={!countryList.length}
             />
           </View>

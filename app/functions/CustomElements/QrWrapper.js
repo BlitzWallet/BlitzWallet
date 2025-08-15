@@ -9,6 +9,7 @@ import {useImageCache} from '../../../context-store/imageCache';
 import customUUID from '../customUUID';
 import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import {useTranslation} from 'react-i18next';
 
 const createTransparentLogo = size => {
   // Create SVG string for a transparent circle/square of the specified size
@@ -21,7 +22,7 @@ const createTransparentLogo = size => {
 };
 
 export default function QrCodeWrapper({
-  QRData = 'No data available',
+  QRData,
   outerContainerStyle,
   innerContainerStyle,
   qrSize = 275,
@@ -33,12 +34,11 @@ export default function QrCodeWrapper({
   const {darkModeType, theme} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {t} = useTranslation();
   const imageData = cache[masterInfoObject.uuid];
   const image = cache[masterInfoObject.uuid]?.localUri;
 
-  const customURI = `${image}?v=${
-    imageData?.updated ? new Date(imageData.updated).getTime() : customUUID()
-  }`;
+  const content = QRData || t('constants.noData');
 
   return (
     <View
@@ -52,7 +52,7 @@ export default function QrCodeWrapper({
         <QRCode
           size={qrSize}
           quietZone={quietZone}
-          value={QRData}
+          value={content}
           color={COLORS.lightModeText}
           backgroundColor={COLORS.darkModeText}
           logo={!!image ? createTransparentLogo(70) : ICONS.logoWithPadding} //placeholder

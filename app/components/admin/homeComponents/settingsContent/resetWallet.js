@@ -19,7 +19,7 @@ import FormattedSatText from '../../../../functions/CustomElements/satTextDispla
 import {signOut} from '@react-native-firebase/auth';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {deleteEcashDBTables} from '../../../../functions/eCash/db';
+// import {deleteEcashDBTables} from '../../../../functions/eCash/db';
 import {deletePOSTransactionsTable} from '../../../../functions/pos';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {removeAllLocalData} from '../../../../functions/localStorage';
@@ -29,6 +29,7 @@ import {
 } from '../../../../functions/spark/transactions';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import {firebaseAuth} from '../../../../../db/initializeFirebase';
+import {useTranslation} from 'react-i18next';
 
 export default function ResetPage(props) {
   const [selectedOptions, setSelectedOptions] = useState({
@@ -42,6 +43,7 @@ export default function ResetPage(props) {
   const {backgroundOffset} = GetThemeColors();
   const navigate = useNavigation();
   const windowDimentions = useWindowDimensions();
+  const {t} = useTranslation();
 
   const backgroundColor = useMemo(() => {
     return theme ? backgroundOffset : COLORS.darkModeText;
@@ -81,7 +83,7 @@ export default function ResetPage(props) {
               color:
                 theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
             }}
-            content={'Are you sure?'}
+            content={t('settings.resetWallet.header')}
           />
         </View>
         <View
@@ -92,14 +94,12 @@ export default function ResetPage(props) {
             },
           ]}>
           <ThemeText
-            styles={{...styles.infoTitle}}
-            content={'Select data to delete from this device.'}
+            styles={styles.infoTitle}
+            content={t('settings.resetWallet.dataDeleteHeader')}
           />
           <ThemeText
             styles={{marginBottom: 15}}
-            content={
-              'Any option that is selected will be removed forever. If your seed is forgotten, you WILL lose your funds.'
-            }
+            content={t('settings.resetWallet.dataDeleteDesc')}
           />
 
           <View
@@ -139,8 +139,8 @@ export default function ResetPage(props) {
                 )}
               </TouchableOpacity>
               <ThemeText
-                styles={{...styles.selectorText}}
-                content={'Delete seed phrase and pin from my device'}
+                styles={styles.selectorText}
+                content={t('settings.resetWallet.seedAndPinOpt')}
               />
             </View>
             <View style={{...styles.selectorContainer, marginBottom: 0}}>
@@ -171,7 +171,7 @@ export default function ResetPage(props) {
               </TouchableOpacity>
               <ThemeText
                 styles={{...styles.selectorText}}
-                content={'Delete locally stored data from my device'}
+                content={t('settings.resetWallet.localData')}
               />
             </View>
           </View>
@@ -186,7 +186,7 @@ export default function ResetPage(props) {
             ]}>
             <ThemeText
               styles={{...styles.infoTitle, textAlign: 'center'}}
-              content={'Your balance is'}
+              content={t('settings.resetWallet.balanceText')}
             />
             <FormattedSatText
               styles={{fontSize: SIZES.large}}
@@ -209,7 +209,7 @@ export default function ResetPage(props) {
             marginTop: 'auto',
           }}
           actionFunction={resetWallet}
-          textContent={'Reset'}
+          textContent={t('constants.reset')}
         />
       </View>
     </ScrollView>
@@ -232,26 +232,26 @@ export default function ResetPage(props) {
         const [
           didClearLocalStoreage,
           didClearMessages,
-          didClearEcash,
+          // didClearEcash,
           didClearPos,
           didClearTxTable,
           didClearPendingTxTable,
         ] = await Promise.all([
           removeAllLocalData(),
           deleteTable(),
-          deleteEcashDBTables(),
+          // deleteEcashDBTables(),
           deletePOSTransactionsTable(),
           deleteSparkTransactionTable(),
           deleteUnpaidSparkLightningTransactionTable(),
         ]);
 
         if (!didClearLocalStoreage)
-          throw Error('Not able to delete local stored information');
+          throw Error(t('settings.resetWallet.localStorageError'));
       }
       if (selectedOptions.securedItems) {
         const didClearSecureItems = await terminateAccount();
         if (!didClearSecureItems)
-          throw Error('Not able to delete secure stored information');
+          throw Error(t('settings.resetWallet.secureStorageError'));
       }
       try {
         await signOut(firebaseAuth);

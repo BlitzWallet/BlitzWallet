@@ -14,6 +14,7 @@ import {ThemeText} from '../../../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {useTranslation} from 'react-i18next';
 
 export default function ContactsPageLongPressActions({
   route: {
@@ -30,6 +31,7 @@ export default function ContactsPageLongPressActions({
     toggleGlobalContactsInformation,
   } = useGlobalContacts();
   useHandleBackPressNew();
+  const {t} = useTranslation();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>
@@ -49,7 +51,7 @@ export default function ContactsPageLongPressActions({
               }}>
               <ThemeText
                 styles={styles.cancelButton}
-                content={contact.isFavorite ? 'Unpin' : 'Pin'}
+                content={t(`constants.${contact.isFavorite ? 'unpin' : 'pin'}`)}
               />
             </TouchableOpacity>
             <View
@@ -64,7 +66,10 @@ export default function ContactsPageLongPressActions({
                 deleteContact(contact);
                 navigate.goBack();
               }}>
-              <ThemeText styles={styles.cancelButton} content={'Delete'} />
+              <ThemeText
+                styles={styles.cancelButton}
+                content={t('constants.delete')}
+              />
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
@@ -90,10 +95,6 @@ export default function ContactsPageLongPressActions({
           JSON.stringify(newAddedContacts),
         ),
         myProfile: {...globalContactsInformation.myProfile},
-        // unaddedContacts:
-        //   typeof globalContactsInformation.unaddedContacts === 'string'
-        //     ? globalContactsInformation.unaddedContacts
-        //     : [],
       },
       true,
     );
@@ -114,10 +115,6 @@ export default function ContactsPageLongPressActions({
           JSON.stringify(newAddedContacts),
         ),
         myProfile: {...globalContactsInformation.myProfile},
-        // unaddedContacts:
-        //   typeof globalContactsInformation.unaddedContacts === 'string'
-        //     ? globalContactsInformation.unaddedContacts
-        //     : [],
       },
       true,
     );

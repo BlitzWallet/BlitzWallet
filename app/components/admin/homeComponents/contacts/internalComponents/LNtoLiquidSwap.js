@@ -1,11 +1,10 @@
 import {createBoltzSwapKeys} from '../../../../../functions/boltz/createKeys';
 import {getBoltzApiUrl} from '../../../../../functions/boltz/boltzEndpoitns';
-import crypto from 'react-native-quick-crypto';
+import {randomBytes} from 'react-native-quick-crypto';
 import {Buffer} from 'buffer';
-
-import {sha256} from 'liquidjs-lib/src/crypto';
 import {BLITZ_DEFAULT_PAYMENT_DESCRIPTION} from '../../../../../constants';
 import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
+import sha256Hash from '../../../../../functions/hash';
 
 export async function contactsLNtoLiquidSwapInfo(
   liquidAddress,
@@ -15,12 +14,12 @@ export async function contactsLNtoLiquidSwapInfo(
   try {
     crashlyticsLogReport('Creating boltz swap keys');
     const {publicKey, privateKeyString, keys} = await createBoltzSwapKeys();
-    const preimage = crypto.randomBytes(32);
+    const preimage = randomBytes(32);
 
-    const preimageHash = sha256(preimage).toString('hex');
+    const preimageHash = sha256Hash(preimage);
 
     const signature = Buffer.from(
-      keys.signSchnorr(sha256(Buffer.from(liquidAddress, 'utf-8'))),
+      keys.signSchnorr(sha256Hash(Buffer.from(liquidAddress, 'utf-8'))),
     ).toString('hex');
 
     const response = await fetch(

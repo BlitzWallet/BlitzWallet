@@ -1,20 +1,20 @@
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
   TouchableWithoutFeedback,
 } from 'react-native';
-import {COLORS, FONT, SHADOWS, SIZES, CENTER} from '../../../../../constants';
+import {COLORS, SIZES, CENTER} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {useTranslation} from 'react-i18next';
 
 export default function ConfirmActionPage(props) {
   const navigate = useNavigation();
-
+  const {t} = useTranslation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundColor} = GetThemeColors();
   useHandleBackPressNew();
@@ -35,15 +35,17 @@ export default function ConfirmActionPage(props) {
               content={
                 props.route.params?.confirmMessage
                   ? props.route.params.confirmMessage
-                  : `Are you sure you want to drain your wallet?`
+                  : t('settings.popups.defaultMessage')
               }
             />
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 onPress={() => {
-                  if (props.route.params.deleteMint) {
-                    props.route.params.deleteMint();
-                  } else if (props.route.params.confirmFunction) {
+                  // if (props.route.params.deleteMint) {
+                  //   props.route.params.deleteMint();
+                  // } else
+
+                  if (props.route.params.confirmFunction) {
                     navigate.goBack();
                     requestAnimationFrame(() => {
                       requestAnimationFrame(() => {
@@ -56,7 +58,10 @@ export default function ConfirmActionPage(props) {
                   navigate.goBack();
                 }}
                 style={[styles.button]}>
-                <ThemeText styles={styles.buttonText} content={'Yes'} />
+                <ThemeText
+                  styles={styles.buttonText}
+                  content={t('constants.yes')}
+                />
               </TouchableOpacity>
               <View
                 style={{
@@ -77,7 +82,10 @@ export default function ConfirmActionPage(props) {
                   navigate.goBack();
                 }}
                 style={styles.button}>
-                <ThemeText styles={styles.buttonText} content={'No'} />
+                <ThemeText
+                  styles={styles.buttonText}
+                  content={t('constants.no')}
+                />
               </TouchableOpacity>
             </View>
           </View>

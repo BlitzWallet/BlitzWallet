@@ -23,11 +23,12 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useTranslation} from 'react-i18next';
 
 export default function GiftCardPage() {
   const {decodedGiftCards, toggleGiftCardsList, giftCardsList} =
     useGlobalAppData();
-
+  const {t} = useTranslation();
   const {backgroundOffset} = GetThemeColors();
   const [errorMessage, setErrorMessage] = useState('');
   const [giftCardSearch, setGiftCardSearch] = useState('');
@@ -42,14 +43,13 @@ export default function GiftCardPage() {
           const giftCards = await getGiftCardsList();
 
           if (giftCards.statusCode === 400) {
-            setErrorMessage(giftCards.body.error);
+            setErrorMessage(t('apps.giftCards.giftCardsPage.noCardsAvailable'));
             return;
           }
           toggleGiftCardsList(giftCards.body.giftCards);
         } catch (err) {
           navigate.navigate('ErrorScreen', {
-            errorMessage:
-              'Not able to get gift cards, are you sure you are connected to the internet?',
+            errorMessage: t('errormessage.nointernet'),
           });
           console.log(err);
         }
@@ -178,7 +178,7 @@ export default function GiftCardPage() {
         <CustomSearchInput
           inputText={giftCardSearch}
           setInputText={setGiftCardSearch}
-          placeholderText={'Search'}
+          placeholderText={t('apps.giftCards.giftCardsPage.searchPlaceholder')}
           containerStyles={{width: '90%', marginTop: 20}}
         />
 
@@ -194,10 +194,10 @@ export default function GiftCardPage() {
             }
             text={
               !showList
-                ? `Where'd you go?`
+                ? t('apps.giftCards.giftCardsPage.leftPageMessage')
                 : giftCards.length === 0 && !errorMessage
-                ? 'Getting gift cards'
-                : errorMessage || 'No gift cards available'
+                ? t('apps.giftCards.giftCardsPage.loadingCardsMessage')
+                : errorMessage
             }
           />
         ) : (

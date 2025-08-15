@@ -17,14 +17,12 @@ import {crashlyticsLogReport} from './crashlyticsLogs';
 import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
 import fetchBackend from '../../db/handleBackend';
 import {getNWCData} from './nwc';
-// import {getBitcoinKeyPair} from './lnurl';
 
 export default async function initializeUserSettingsFromHistory({
   accountMnemoinc,
   setContactsPrivateKey,
   setMasterInfoObject,
   toggleGlobalContactsInformation,
-  // toggleGLobalEcashInformation,
   toggleGlobalAppDataInformation,
 }) {
   try {

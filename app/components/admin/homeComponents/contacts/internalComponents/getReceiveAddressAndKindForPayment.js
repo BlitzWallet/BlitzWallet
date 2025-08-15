@@ -15,9 +15,7 @@ export default async function getReceiveAddressForContactPayment(
       'blitzWalletUsers',
       selectedContact.uuid,
     );
-    console.log('Retrived selected contact', retrivedContact);
-    if (!retrivedContact)
-      throw new Error('Error retrieving contact information');
+    if (!retrivedContact) throw new Error('errormessages.fullDeeplinkError');
 
     if (retrivedContact?.contacts?.myProfile?.sparkAddress) {
       const lnurlInvoice = await getBolt11InvoiceForContact(
@@ -34,10 +32,7 @@ export default async function getReceiveAddressForContactPayment(
           message: myProfileMessage,
         });
       }
-    } else
-      throw new Error(
-        'Contact has not updated thier wallet yet. Please ask them to update their wallet to send this.',
-      );
+    } else throw new Error('errormessages.legacyContactError');
 
     return {didWork: true, receiveAddress, retrivedContact};
   } catch (err) {

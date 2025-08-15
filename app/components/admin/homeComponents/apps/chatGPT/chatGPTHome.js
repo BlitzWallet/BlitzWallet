@@ -42,6 +42,7 @@ import {useKeysContext} from '../../../../../../context-store/keys';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
 import customUUID from '../../../../../functions/customUUID';
 import {useToast} from '../../../../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
 
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
@@ -73,6 +74,7 @@ export default function ChatGPTHome(props) {
     useState(false);
   const windowDimension = useWindowDimensions();
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(true);
+  const {t} = useTranslation();
 
   useEffect(() => {
     if (!chatHistoryFromProps) return;
@@ -85,20 +87,22 @@ export default function ChatGPTHome(props) {
 
   const userChatHistory = useMemo(() => {
     return conjoinedLists.map(item => {
-      console.log(item, 'CONJONED TX LIST');
       return (
         <ContextMenu
           key={item.uuid}
           onPress={e => {
-            const targetEvent = e.nativeEvent.name.toLowerCase();
-            if (targetEvent === 'copy') {
+            const targetEvent = e.nativeEvent.name;
+            if (targetEvent === t('constants.copy')) {
               copyToClipboard(item.content, showToast, 'ChatGPT');
             } else {
               setUserChatText(item.content);
             }
           }}
           previewBackgroundColor={backgroundOffset}
-          actions={[{title: 'Copy'}, {title: 'Edit'}]}>
+          actions={[
+            {title: t('constants.copy')},
+            {title: t('constants.edit')},
+          ]}>
           <View style={chatObjectStyles.container}>
             <View
               style={{
@@ -216,7 +220,9 @@ export default function ChatGPTHome(props) {
       </View>
       <ThemeText
         styles={{textAlign: 'center'}}
-        content={`Available credits: ${totalAvailableCredits.toFixed(2)}`}
+        content={t('apps.chatGPT.chatGPTHome.availableCredits', {
+          credits: totalAvailableCredits.toFixed(2),
+        })}
       />
 
       <View style={[styles.container]}>
@@ -351,6 +357,7 @@ export default function ChatGPTHome(props) {
           newChats,
           toggleGlobalAppDataInformation,
           navigate,
+          errorMessage: t('apps.chatGPT.saveChat.errorMessage'),
         }),
       doesNotWantToSave: () => navigate.popTo('HomeAdmin'),
     });
@@ -363,6 +370,7 @@ export default function ChatGPTHome(props) {
           newChats,
           toggleGlobalAppDataInformation,
           navigate,
+          errorMessage: t('apps.chatGPT.saveChat.errorMessage'),
         }),
       doesNotWantToSave: () => navigate.popTo('HomeAdmin'),
     });
@@ -373,7 +381,7 @@ export default function ChatGPTHome(props) {
 
     if (totalAvailableCredits < 30) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'You have run out of credits.',
+        errorMessage: t('apps.chatGPT.chatGPTHome.noAvailableCreditsError'),
       });
       return;
     }

@@ -5,11 +5,11 @@ import RNQRGenerator from 'rn-qr-generator';
 import getClipboardText from '../getClipboardText';
 import testURLForInvoice from '../testURLForInvoice';
 
-async function navigateToSendUsingClipboard(navigate, callLocation, from) {
+async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
   const response = await getClipboardText();
 
   if (!response.didWork) {
-    navigate.navigate('ErrorScreen', {errorMessage: response.reason});
+    navigate.navigate('ErrorScreen', {errorMessage: t(response.reason)});
     return;
   }
   const clipboardData = response.data?.trim();
@@ -54,26 +54,23 @@ async function getQRImage(navigate, callLocation) {
     return {btcAdress: '', didWork: false, error: error};
   }
   let address;
-  console.log(imgURL.uri);
 
   try {
     const response = await RNQRGenerator.detect({
       uri: imgURL.uri,
     });
 
-    console.log(response);
-
     if (response.type != 'QRCode')
       return {
         btcAdress: '',
         didWork: false,
-        error: 'Not able to get find QRcode from image.',
+        error: 'errormessages.noQrInScanError',
       };
     if (!response.values.length)
       return {
         btcAdress: '',
         didWork: false,
-        error: 'Not able to get find data from image.',
+        error: 'errormessages.noDataInQRError',
       };
 
     address = response.values[0];
@@ -82,7 +79,7 @@ async function getQRImage(navigate, callLocation) {
     return {
       btcAdress: '',
       didWork: false,
-      error: 'Not able to get invoice from image.',
+      error: 'errormessages.noInvoiceInImageError',
     };
   }
 

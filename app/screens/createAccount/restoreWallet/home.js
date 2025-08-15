@@ -97,7 +97,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
     try {
       crashlyticsLogReport('Starting paste seed from clipboard');
       const response = await getClipboardText();
-      if (!response.didWork) throw new Error(response.reason);
+      if (!response.didWork) throw new Error(t(response.reason));
 
       const data = response.data;
 
@@ -106,18 +106,18 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       if (!restoredSeed.didWork || !restoredSeed?.seed?.length) {
         const QRSeedResponse = handleCameraScan(data);
         if (QRSeedResponse) return;
-        throw new Error('Unable to find seed in string');
+        throw new Error(t('createAccount.restoreWallet.home.noSeedInString'));
       }
 
       const splitSeed = restoredSeed.seed;
-      console.log(splitSeed);
 
       if (!splitSeed.every(word => word.trim().length > 0))
-        throw new Error('Not every word is of valid length');
+        throw new Error(t('createAccount.restoreWallet.home.invalidWordLen'));
 
       if (splitSeed.length != 12)
-        throw new Error('Unable to find 12 words from copied recovery phrase.');
-      console.log(Object.entries(inputedKey));
+        throw new Error(
+          t('createAccount.restoreWallet.home.cannotFind12Words'),
+        );
 
       const newKeys = {};
       NUMARRAY.forEach((num, index) => {
@@ -202,7 +202,9 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
         })
         .filter(Boolean);
       if (seedMnemoinc.length !== 12)
-        throw new Error('Unable to find seed in number array');
+        throw new Error(
+          t('createAccount.restoreWallet.home.noSeedInNumberArray'),
+        );
       const newKeys = {};
       NUMARRAY.forEach((num, index) => {
         newKeys[`key${num}`] = seedMnemoinc[index];
@@ -213,7 +215,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       console.log('error getting seed from camera', err);
       if (localTry) return false;
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Unable to get seed from QR code',
+        errorMessage: t('createAccount.restoreWallet.home.noSeedInQr'),
       });
     }
   };
@@ -338,7 +340,11 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
         {!currentFocused && (
           <CustomButton
             buttonStyles={styles.pasteButton}
-            textContent={params ? t('constants.paste') : 'Scan QR'}
+            textContent={
+              params
+                ? t('constants.paste')
+                : t('createAccount.restoreWallet.home.scanQr')
+            }
             actionFunction={
               params
                 ? handleSeedFromClipboard
@@ -364,7 +370,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
               textStyles={{
                 color: COLORS.lightModeText,
               }}
-              textContent={params ? t('constants.skip') : 'Paste'}
+              textContent={params ? t('constants.skip') : t('constants.paste')}
               actionFunction={() =>
                 params
                   ? navigate.navigate('PinSetup', {isInitialLoad: true})
@@ -379,7 +385,9 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
               textStyles={{
                 color: COLORS.darkModeText,
               }}
-              textContent={params ? t('constants.verify') : 'Restore'}
+              textContent={
+                params ? t('constants.verify') : t('constants.restore')
+              }
               actionFunction={params ? didEnterCorrectSeed : keyValidation}
             />
           </View>
@@ -424,6 +432,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     ...CENTER,
+    textAlign: 'center',
   },
   pasteButtonRestore: {
     width: 145,

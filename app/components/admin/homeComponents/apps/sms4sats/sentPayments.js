@@ -20,6 +20,7 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useToast} from '../../../../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
 
 export default function HistoricalSMSMessagingPage() {
   const {showToast} = useToast();
@@ -29,6 +30,7 @@ export default function HistoricalSMSMessagingPage() {
   const {backgroundOffset} = GetThemeColors();
   const windowWidth = dimensions.width;
   const {decodedMessages} = useGlobalAppData();
+  const {t} = useTranslation();
 
   useEffect(() => {
     const fetchNotifications = () => {
@@ -74,7 +76,7 @@ export default function HistoricalSMSMessagingPage() {
                   backgroundColor: backgroundOffset,
                 },
               ]}>
-              <ThemeText content={'Order Id'} />
+              <ThemeText content={t('apps.sms4sats.sentPayments.orderId')} />
             </TouchableOpacity>
           </View>
         );
@@ -87,10 +89,10 @@ export default function HistoricalSMSMessagingPage() {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <CustomSettingsTopBar label={'Sent Messages'} />
+      <CustomSettingsTopBar label={t('apps.sms4sats.sentPayments.title')} />
       <View style={styles.homepage}>
         {notificationElements.length === 0 ? (
-          <ThemeText content={'You have not sent any messages'} />
+          <ThemeText content={t('apps.sms4sats.sentPayments.noPayments')} />
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -105,7 +107,7 @@ export default function HistoricalSMSMessagingPage() {
             }}>
             <ThemeText
               styles={{textAlign: 'center'}}
-              content={'For help, reach out to:'}
+              content={t('apps.sms4sats.sentPayments.helpMessage')}
             />
             <ThemeText
               styles={{textAlign: 'center'}}

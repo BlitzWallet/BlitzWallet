@@ -1,12 +1,17 @@
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {shuffleArray} from '../../../../../functions';
-import {searchQueries} from './contants/searchCardContent';
 import GetThemeColors from '../../../../../hooks/themeColors';
+import {useTranslation} from 'react-i18next';
 
 export default function ExampleGPTSearchCard({submitChaMessage}) {
   const {backgroundOffset} = GetThemeColors();
-  const cardElements = shuffleArray(searchQueries)
+  const {t} = useTranslation();
+  const examples = t('apps.chatGPT.exampleSearchCards.examples', {
+    returnObjects: true,
+  });
+
+  const cardElements = shuffleArray(examples)
     .slice(0, 6)
     .map((item, index) => {
       return (

@@ -20,11 +20,7 @@ import {
   NWC_SECURE_STORE_MNEMOINC,
   SIZES,
 } from '../../../../../constants';
-import {
-  COLORS,
-  INSET_WINDOW_WIDTH,
-  SHADOWS,
-} from '../../../../../constants/theme';
+import {COLORS, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import {KeyContainer} from '../../../../login';
 import {
   copyToClipboard,
@@ -89,7 +85,9 @@ export default function NWCWalletSetup(props) {
   }, [showSeed, mnemonic, fromWallet]);
 
   if (!NWCMnemonic) {
-    return <FullLoadingScreen text={'Generating Mnemonic'} />;
+    return (
+      <FullLoadingScreen text={t('settings.nwc.showSeedPage.loadingMessage')} />
+    );
   }
   return (
     <View
@@ -106,7 +104,7 @@ export default function NWCWalletSetup(props) {
         contentContainerStyle={styles.scrollViewStyles}>
         <ThemeText
           styles={{...styles.headerPhrase}}
-          content={t('settings.seedphrase.text1')}
+          content={t('settings.seedPhrase.header')}
         />
         <ThemeText
           styles={{
@@ -115,7 +113,7 @@ export default function NWCWalletSetup(props) {
             marginBottom: 50,
             fontSize: SIZES.large,
           }}
-          content={t('settings.seedphrase.text2')}
+          content={t('settings.seedPhrase.headerDesc')}
         />
 
         <View style={styles.scrollViewContainer}>
@@ -127,7 +125,7 @@ export default function NWCWalletSetup(props) {
             actionFunction={() =>
               copyToClipboard(mnemonic.join(' '), showToast)
             }
-            textContent={'Copy'}
+            textContent={t('constants.copy')}
           />
 
           {!fromWallet && (
@@ -138,7 +136,7 @@ export default function NWCWalletSetup(props) {
                 marginRight: 20,
               }}
               textStyles={{color: COLORS.darkModeText}}
-              textContent={'Continue'}
+              textContent={t('constants.continue')}
               actionFunction={() => props.setHasSeenMnemoinc(true)}
             />
           )}
@@ -156,11 +154,11 @@ export default function NWCWalletSetup(props) {
         <View style={styles.confirmPopupInnerContainer}>
           <ThemeText
             styles={styles.confirmPopupTitle}
-            content={`To keep your wallet safe, Nostr Wallet Connect creates a separate seed phrase from your main wallet's seed.\n\nThis wallet uses the second derivation path and can always be recovered using your main wallet's seed.\n\nIf you're not tech-savvy and unsure about recovering the wallet address, please write down this seed phrase.`}
+            content={t('settings.nwc.showSeedPage.wanringMessage')}
           />
           <View style={styles.confirmationContainer}>
             <CustomButton
-              textContent={'View seed'}
+              textContent={t('settings.nwc.showSeedPage.viewSeed')}
               actionFunction={() => setShowSeed(true)}
             />
           </View>

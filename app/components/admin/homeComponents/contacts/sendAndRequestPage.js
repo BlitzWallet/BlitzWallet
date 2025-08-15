@@ -29,6 +29,7 @@ import {useImageCache} from '../../../../../context-store/imageCache';
 import ContactProfileImage from './internalComponents/profileImage';
 import getReceiveAddressForContactPayment from './internalComponents/getReceiveAddressAndKindForPayment';
 import {useServerTimeOnly} from '../../../../../context-store/serverTime';
+import {useTranslation} from 'react-i18next';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -51,6 +52,7 @@ export default function SendAndRequestPage(props) {
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination,
   );
+  const {t} = useTranslation();
   const descriptionRef = useRef(null);
   const selectedContact = props.route.params.selectedContact;
   const paymentType = props.route.params.paymentType;
@@ -83,7 +85,7 @@ export default function SendAndRequestPage(props) {
   const handleSubmit = useCallback(async () => {
     if (!isConnectedToTheInternet) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Please reconnect to the internet to use this feature',
+        errorMessage: t('errormessages.nointernet'),
       });
       return;
     }
@@ -124,6 +126,7 @@ export default function SendAndRequestPage(props) {
         if (!addressResposne.didWork) {
           navigate.navigate('ErrorScreen', {
             errorMessage: addressResposne.error,
+            useTranslationString: true,
           });
           return;
         } else {
@@ -192,8 +195,8 @@ export default function SendAndRequestPage(props) {
       console.log(err, 'publishing message error');
       navigate.navigate('ErrorScreen', {
         errorMessage: selectedContact.isLNURL
-          ? 'Error generating invoice. Make sure this is a valid LNURL address.'
-          : 'Not able to create invoice',
+          ? t('errormessages.contactInvoiceGenerationError')
+          : t('errormessages.invoiceRetrivalError'),
       });
     } finally {
       setIsLoading(false);
@@ -285,7 +288,9 @@ export default function SendAndRequestPage(props) {
             setIsAmountFocused(true);
           }}
           textInputRef={descriptionRef}
-          placeholderText={'Payment description'}
+          placeholderText={t(
+            'contacts.sendAndRequestPage.descriptionPlaceholder',
+          )}
           setInputText={setDescriptionValue}
           inputText={descriptionValue}
           textInputMultiline={true}
@@ -314,7 +319,11 @@ export default function SendAndRequestPage(props) {
             }}
             useLoading={isLoading}
             actionFunction={handleSubmit}
-            textContent={paymentType === 'send' ? 'Confirm' : 'Request'}
+            textContent={
+              paymentType === 'send'
+                ? t('constants.confirm')
+                : t('constants.request')
+            }
           />
         )}
       </View>

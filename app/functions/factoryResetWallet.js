@@ -1,4 +1,4 @@
-import {deleteEcashDBTables} from './eCash/db';
+// import {deleteEcashDBTables} from './eCash/db';
 import {deleteTable} from './messaging/cachedMessages';
 import {deletePOSTransactionsTable} from './pos';
 import {terminateAccount} from './secureStore';
@@ -12,7 +12,7 @@ import {firebaseAuth} from '../../db/initializeFirebase';
 export default async function factoryResetWallet() {
   try {
     await deleteTable();
-    await deleteEcashDBTables();
+    // await deleteEcashDBTables();
     await deletePOSTransactionsTable();
     await deleteSparkTransactionTable();
     await deleteUnpaidSparkLightningTransactionTable();

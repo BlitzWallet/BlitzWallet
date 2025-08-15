@@ -9,6 +9,7 @@ import {ThemeText} from '../../../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import ContactProfileImage from './profileImage';
 import {useImageCache} from '../../../../../../context-store/imageCache';
+import {useTranslation} from 'react-i18next';
 
 export default function ProfilePageTransactions({transaction, currentTime}) {
   const profileInfo = transaction;
@@ -17,7 +18,7 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
 
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset} = GetThemeColors();
-
+  const {t} = useTranslation();
   const navigate = useNavigation();
 
   const endDate = currentTime;
@@ -72,7 +73,7 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
               <ThemeText
                 CustomNumberOfLines={1}
                 styles={styles.requestText}
-                content={`Received request`}
+                content={t('transactionLabelText.receivedRequest')}
               />
 
               <FormattedSatText
@@ -98,18 +99,20 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
               } ${
                 Math.round(timeDifferenceMinutes) < 60
                   ? timeDifferenceMinutes < 1
-                    ? 'Just now'
+                    ? t('transactionLabelText.txTime_just_now')
                     : Math.round(timeDifferenceMinutes) === 1
-                    ? 'minute'
-                    : 'minutes'
+                    ? t('timeLabels.minute')
+                    : t('timeLabels.minutes')
                   : Math.round(timeDifferenceHours) < 24
                   ? Math.round(timeDifferenceHours) === 1
-                    ? 'hour'
-                    : 'hours'
+                    ? t('timeLabels.hour')
+                    : t('timeLabels.hours')
                   : Math.round(timeDifferenceDays) === 1
-                  ? 'day'
-                  : 'days'
-              } ${timeDifferenceMinutes > 1 ? 'ago' : ''}`}
+                  ? t('timeLabels.day')
+                  : t('timeLabels.days')
+              } ${
+                timeDifferenceMinutes > 1 ? t('transactionLabelText.ago') : ''
+              }`}
             />
           </View>
         </View>
@@ -130,6 +133,7 @@ function ConfirmedOrSentTransaction({
   const {masterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset} = GetThemeColors();
+  const {t} = useTranslation();
   const didDeclinePayment = txParsed.isRedeemed != null && !txParsed.isRedeemed;
 
   return (
@@ -223,19 +227,19 @@ function ConfirmedOrSentTransaction({
           content={
             didDeclinePayment
               ? txParsed.didSend
-                ? 'Request declined'
-                : 'Declined request'
+                ? t('transactionLabelText.requestDeclined')
+                : t('transactionLabelText.declinedRequest')
               : txParsed.isRequest
               ? txParsed.didSend
                 ? txParsed.isRedeemed === null
-                  ? 'Payment request sent'
-                  : 'Request paid'
-                : paymentDescription || 'Paid request'
+                  ? t('transactionLabelText.requestSent')
+                  : t('transactionLabelText.requestPaid')
+                : paymentDescription || t('transactionLabelText.paidRequest')
               : !!paymentDescription
               ? paymentDescription
               : txParsed.didSend
-              ? 'Sent'
-              : 'Received'
+              ? t('transactionLabelText.sent')
+              : t('transactionLabelText.received')
           }
         />
         <ThemeText
@@ -258,18 +262,18 @@ function ConfirmedOrSentTransaction({
           } ${
             Math.round(timeDifferenceMinutes) < 60
               ? timeDifferenceMinutes < 1
-                ? 'Just now'
+                ? t('transactionLabelText.txTime_just_now')
                 : Math.round(timeDifferenceMinutes) === 1
-                ? 'minute'
-                : 'minutes'
+                ? t('timeLabels.minute')
+                : t('timeLabels.minutes')
               : Math.round(timeDifferenceHours) < 24
               ? Math.round(timeDifferenceHours) === 1
-                ? 'hour'
-                : 'hours'
+                ? t('timeLabels.hour')
+                : t('timeLabels.hours')
               : Math.round(timeDifferenceDays) === 1
-              ? 'day'
-              : 'days'
-          } ${timeDifferenceMinutes > 1 ? 'ago' : ''}`}
+              ? t('timeLabels.day')
+              : t('timeLabels.days')
+          } ${timeDifferenceMinutes > 1 ? t('transactionLabelText.ago') : ''}`}
         />
       </View>
 

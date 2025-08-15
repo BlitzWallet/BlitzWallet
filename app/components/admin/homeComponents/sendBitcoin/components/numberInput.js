@@ -12,8 +12,6 @@ export default function NumberInputSendPage({
   const [amount, setAmount] = useState(paymentInfo?.sendAmount);
 
   useEffect(() => {
-    console.log(amount, 'amount input');
-
     let value = amount.trim();
 
     if (value.startsWith('.')) {

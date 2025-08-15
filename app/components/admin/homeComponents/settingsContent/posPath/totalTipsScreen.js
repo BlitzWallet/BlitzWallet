@@ -30,10 +30,8 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
 import {
   payPOSContact,
-  // payPOSLiquid,
   payPOSLNURL,
 } from '../../../../../functions/pos/payments';
-// import {useGlobaleCash} from '../../../../../../context-store/eCash';
 import customUUID from '../../../../../functions/customUUID';
 import {publishMessage} from '../../../../../functions/messaging/publishMessage';
 import {useKeysContext} from '../../../../../../context-store/keys';
@@ -42,18 +40,18 @@ import {bulkUpdateDidPay, deleteEmployee} from '../../../../../functions/pos';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import TipsTXItem from './internalComponents/tipTx';
 import {usePOSTransactions} from '../../../../../../context-store/pos';
-// import {useWebView} from '../../../../../../context-store/webViewContext';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {getSingleContact} from '../../../../../../db';
 import {useServerTimeOnly} from '../../../../../../context-store/serverTime';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import {useTranslation} from 'react-i18next';
 
 export default function TotalTipsScreen(props) {
   const {decodedAddedContacts, globalContactsInformation} = useGlobalContacts();
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {groupedTxs} = usePOSTransactions();
+  const {t} = useTranslation();
   const [wantedName, {}] = props.route?.params?.item;
-
   const [
     name,
     {
@@ -82,15 +80,12 @@ export default function TotalTipsScreen(props) {
     didComplete: false,
   });
   const [viewTips, setViewTips] = useState(false);
-  // const {webViewRef} = useWebView();
-
-  // const eCashBalance = ecashWalletInformation.balance;
 
   const handlePayment = useCallback(async () => {
     try {
       if (totalTipAmount < 1) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: `User does not have any tips balance.`,
+          errorMessage: t('settings.posPath.totalTipsScreen.noTipBalanceError'),
         });
         return;
       }
@@ -105,7 +100,7 @@ export default function TotalTipsScreen(props) {
 
         if (!selectedContact.contacts.myProfile.sparkAddress)
           throw new Error(
-            'The recipient needs to update their Blitz app to get paid',
+            t('settings.posPath.totalTipsScreen.updateContactMessage'),
           );
 
         //  use pay pos contact payment here
@@ -115,7 +110,7 @@ export default function TotalTipsScreen(props) {
 
         setPaymentUpdate(prev => ({
           ...prev,
-          updateMessage: `Paying...`,
+          updateMessage: t('settings.posPath.totalTipsScreen.payingMessage'),
         }));
         // is blitz contact
         const paymentResponse = await payPOSContact({
@@ -142,7 +137,9 @@ export default function TotalTipsScreen(props) {
         if (paymentResponse) {
           setPaymentUpdate(prev => ({
             ...prev,
-            updateMessage: `Notifiying...`,
+            updateMessage: t(
+              'settings.posPath.totalTipsScreen.notifyngMessage',
+            ),
           }));
           // First notify employee that tips have been paid and update contacts transactions
           const UUID = customUUID();
@@ -171,12 +168,13 @@ export default function TotalTipsScreen(props) {
           });
           // update internal db state of paid tips so you dont pay a tip twice
           await updateInteralDBState(unpaidTxs);
-        } else throw new Error('Unable to pay blitz contact. Try again later.');
+        } else
+          throw new Error(t('settings.posPath.totalTipsScreen.errorPaying'));
       } else if (EMAIL_REGEX.test(name)) {
         // is lnurl
         setPaymentUpdate(prev => ({
           ...prev,
-          updateMessage: `Paying...`,
+          updateMessage: t('settings.posPath.totalTipsScreen.payingMessage'),
         }));
         const didPay = await payPOSLNURL({
           LNURLAddress: name,
@@ -191,8 +189,9 @@ export default function TotalTipsScreen(props) {
         });
         if (didPay) {
           await updateInteralDBState(unpaidTxs);
-        } else throw new Error('Unable to pay LNURL address. Try again later.');
-      } else throw new Error('Name is not an LNURL or a Blitz user.');
+        } else
+          throw new Error(t('settings.posPath.totalTipsScreen.errorPaying'));
+      } else throw new Error(t('settings.posPath.totalTipsScreen.invalidName'));
     } catch (err) {
       console.log('handle tips payment error', err);
       navigate.navigate('ErrorScreen', {errorMessage: err.message});
@@ -220,16 +219,19 @@ export default function TotalTipsScreen(props) {
           item={item}
           masterInfoObject={masterInfoObject}
           fiatStats={fiatStats}
+          t={t}
         />
       );
     },
-    [masterInfoObject, fiatStats],
+    [masterInfoObject, fiatStats, t],
   );
 
   const viewHeight = useMemo(() => height * 0.5, [height]);
   const removeEmployee = useCallback(async name => {
     navigate.navigate('ConfirmActionPage', {
-      confirmMessage: 'Are you sure you want to remove this employee?',
+      confirmMessage: t(
+        'settings.posPath.totalTipsScreen.removeEmployeeWarning',
+      ),
       confirmFunction: async () => {
         await deleteEmployee(name);
         navigate.popTo('ViewPOSTransactions');
@@ -286,12 +288,16 @@ export default function TotalTipsScreen(props) {
               text={
                 paymentUpdate.errorMessage ||
                 paymentUpdate.updateMessage ||
-                'Begining payment process, please do not leave this page or the app.'
+                t(
+                  'settings.posPath.totalTipsScreen.startingPaymentProcessMessage',
+                )
               }
               containerStyles={{height: 250}}
             />
             {paymentUpdate.didComplete && (
-              <CustomButton textContent={'Go back'} />
+              <CustomButton
+                textContent={t('settings.posPath.totalTipsScreen.goBack')}
+              />
             )}
           </>
         ) : viewTips ? (
@@ -310,7 +316,10 @@ export default function TotalTipsScreen(props) {
             />
             <ScrollView contentContainerStyle={{paddingBottom: 20}}>
               <View style={styles.attributeContainer}>
-                <ThemeText CustomNumberOfLines={1} content={`Last sale:`} />
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  content={t('settings.posPath.totalTipsScreen.lastSale')}
+                />
                 <ThemeText
                   content={`${formatDateToDayMonthYear(lastActivity)}`}
                 />
@@ -318,21 +327,21 @@ export default function TotalTipsScreen(props) {
               <View style={styles.attributeContainer}>
                 <ThemeText
                   CustomNumberOfLines={1}
-                  content={`Number of tips paid:`}
+                  content={t('settings.posPath.totalTipsScreen.numTipsPaid')}
                 />
                 <ThemeText content={`${totalPaidTxs}`} />
               </View>
               <View style={styles.attributeContainer}>
                 <ThemeText
                   CustomNumberOfLines={1}
-                  content={`Number of unpaid tips:`}
+                  content={t('settings.posPath.totalTipsScreen.numUnpaidTips')}
                 />
                 <ThemeText content={`${totalUnpaidTxs}`} />
               </View>
               <View style={styles.attributeContainer}>
                 <ThemeText
                   CustomNumberOfLines={1}
-                  content={`Current tip balance:`}
+                  content={t('settings.posPath.totalTipsScreen.tipBalance')}
                 />
                 <ThemeText
                   content={`${displayCorrectDenomination({
@@ -344,10 +353,13 @@ export default function TotalTipsScreen(props) {
               </View>
             </ScrollView>
 
-            <CustomButton actionFunction={handlePayment} textContent={'Pay'} />
+            <CustomButton
+              actionFunction={handlePayment}
+              textContent={t('constants.pay')}
+            />
             <CustomButton
               actionFunction={() => setViewTips(true)}
-              textContent={'View Tips'}
+              textContent={t('settings.posPath.totalTipsScreen.viewTips')}
               buttonStyles={{marginTop: 10}}
             />
           </>

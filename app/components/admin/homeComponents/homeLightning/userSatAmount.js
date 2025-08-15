@@ -11,6 +11,7 @@ import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import {ThemeText} from '../../../../functions/CustomElements';
 import SkeletonTextPlaceholder from '../../../../functions/CustomElements/skeletonTextView';
 import GetThemeColors from '../../../../hooks/themeColors';
+import {useTranslation} from 'react-i18next';
 
 export const UserSatAmount = memo(function UserSatAmount({
   isConnectedToTheInternet,
@@ -18,7 +19,6 @@ export const UserSatAmount = memo(function UserSatAmount({
   darkModeType,
   sparkInformation,
 }) {
-  const {numberOfIncomingLNURLPayments} = useSparkWallet();
   const didMount = useRef(null);
 
   const {masterInfoObject, toggleMasterInfoObject, setMasterInfoObject} =
@@ -30,6 +30,7 @@ export const UserSatAmount = memo(function UserSatAmount({
   const [balanceWidth, setBalanceWidth] = useState(0);
   const userBalance = sparkInformation.balance;
   const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
+  const {t} = useTranslation();
 
   useEffect(() => {
     didMount.current = true;
@@ -44,22 +45,6 @@ export const UserSatAmount = memo(function UserSatAmount({
     },
     [didMount],
   );
-  //  <SkeletonPlaceholder borderRadius={4} enabled={skeletonEnabled}>
-  //       <View style={styles.container}>
-  //         <Image
-  //           style={styles.image}
-  //           resizeMode="contain"
-  //           source={require('./assets/react-native-icon.png')}
-  //         />
-  //         <View style={styles.titleContainer}>
-  //           <Text style={styles.title}>Lorem ipsum</Text>
-  //           <Text style={styles.subtitle} numberOfLines={2}>
-  //             Dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-  //             tempor.
-  //           </Text>
-  //         </View>
-  //       </View>
-  //     </SkeletonPlaceholder>
 
   return (
     <TouchableOpacity
@@ -68,8 +53,7 @@ export const UserSatAmount = memo(function UserSatAmount({
       onPress={() => {
         if (!isConnectedToTheInternet) {
           navigate.navigate('ErrorScreen', {
-            errorMessage:
-              'Please reconnect to the internet to switch your denomination',
+            errorMessage: t('errormessages.nointernet'),
           });
           return;
         }
@@ -106,37 +90,6 @@ export const UserSatAmount = memo(function UserSatAmount({
         <View style={styles.valueContainer}>
           <FormattedSatText styles={styles.valueText} balance={userBalance} />
         </View>
-        {!!numberOfIncomingLNURLPayments && (
-          <TouchableOpacity
-            onPress={() => {
-              crashlyticsLogReport(
-                'Navigating to information popup page from user sat amount',
-              );
-              navigate.navigate('InformationPopup', {
-                CustomTextComponent: () => {
-                  return (
-                    <ThemeText
-                      styles={styles.informationText}
-                      content={`You have ${numberOfIncomingLNURLPayments} lightning address payment${
-                        numberOfIncomingLNURLPayments > 1 ? 's' : ''
-                      } waiting to confirm.`}
-                    />
-                  );
-                },
-                buttonText: 'I understand',
-              });
-            }}
-            style={{...styles.pendingBalanceChange, left: balanceWidth + 5}}>
-            <Icon
-              color={
-                darkModeType && theme ? COLORS.darkModeText : COLORS.primary
-              }
-              width={25}
-              height={25}
-              name={'pendingTxIcon'}
-            />
-          </TouchableOpacity>
-        )}
       </SkeletonTextPlaceholder>
     </TouchableOpacity>
   );

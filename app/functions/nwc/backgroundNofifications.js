@@ -4,7 +4,6 @@ import {
   isWithinNWCBalanceTimeFrame,
   splitAndStoreNWCData,
 } from '.';
-import * as nostr from 'nostr-tools';
 import {
   decryptMessage,
   encriptMessage,
@@ -26,6 +25,7 @@ import {getSparkPaymentStatus, sparkPaymentType} from '../spark';
 import {pushInstantNotification} from '../notifications';
 import NWCInvoiceManager from './cachedNWCTxs';
 import {NOSTR_RELAY_URL} from '../../constants';
+import {finalizeEvent} from 'nostr-tools';
 
 // const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
@@ -101,12 +101,12 @@ const extractZapEvent = invoice => {
       return null;
     }
 
-    // Validate signature
-    const isValidSignature = nostr.verifySignature(zapEvent);
-    if (!isValidSignature) {
-      console.error('Invalid zap event signature');
-      return null;
-    }
+    // // Validate signature
+    // const isValidSignature = nostr.verifySignature(zapEvent);
+    // if (!isValidSignature) {
+    //   console.error('Invalid zap event signature');
+    //   return null;
+    // }
 
     return zapEvent;
   } catch (error) {
@@ -511,7 +511,7 @@ const handlePayInvoice = async (
       zapReceipt.tags.push(...pTags);
 
       // Sign the zap receipt
-      const signedZapReceipt = nostr.finalizeEvent(
+      const signedZapReceipt = finalizeEvent(
         zapReceipt,
         Buffer.from(selectedNWCAccount.privateKey, 'hex'),
       );
@@ -773,7 +773,7 @@ export default async function handleNWCBackgroundEvent(notificationData) {
           ),
         };
 
-        const finalizedEvent = nostr.finalizeEvent(
+        const finalizedEvent = finalizeEvent(
           eventTemplate,
           Buffer.from(selectedNWCAccount.privateKey, 'hex'),
         );

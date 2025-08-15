@@ -9,7 +9,7 @@ import {
   weiToSatoshis,
 } from '.';
 import {loadSwaps, saveSwap} from './swapDb';
-import crypto from 'react-native-quick-crypto';
+import {randomBytes} from 'react-native-quick-crypto';
 import {sparkReceivePaymentWrapper} from '../../spark/payments';
 
 export async function createRootstockSubmarineSwap(invoice) {
@@ -154,7 +154,7 @@ export async function calculateMaxSubmarineSwapAmount({
       signer,
     );
 
-    const preimage = crypto.randomBytes(32);
+    const preimage = randomBytes(32);
 
     const gasLimit = await contract.lock.estimateGas(
       preimage,

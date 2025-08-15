@@ -1,14 +1,9 @@
 import {useEffect, useState} from 'react';
-import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
-import {CENTER, COLORS, SIZES} from '../../../../constants';
+import {StyleSheet, View, ScrollView} from 'react-native';
+import {CENTER, SIZES} from '../../../../constants';
 import {ThemeText} from '../../../../functions/CustomElements';
 import {useNavigation} from '@react-navigation/native';
-import {
-  getInfo,
-  // listRefundables,
-  // parse,
-  // rescanOnchainSwaps,
-} from '@breeztech/react-native-breez-sdk-liquid';
+import {getInfo} from '@breeztech/react-native-breez-sdk-liquid';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
@@ -19,10 +14,10 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import liquidToSparkSwap from '../../../../functions/spark/liquidToSparkSwap';
+import {useTranslation} from 'react-i18next';
 
 export default function ViewAllLiquidSwaps(props) {
   const {minMaxLiquidSwapAmounts} = useAppStatus();
-  // const [liquidBalance, setLiquidBalance] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const {globalContactsInformation} = useGlobalContacts();
   const {masterInfoObject} = useGlobalContextProvider();
@@ -34,17 +29,9 @@ export default function ViewAllLiquidSwaps(props) {
       ? liquidInfoResponse?.walletInfo?.balanceSat -
         (liquidInfoResponse?.walletInfo?.pendingSendSat || 0)
       : null;
-  // const [liquidSwaps, setLiquidSwaps] = useState(null);
-  // [
-  //   {
-  //     amountSat: 50000,
-  //     swapAddress:
-  //       'bc1p8k4v4xuz55dv49svzjg43qjxq2whur7ync9tm0xgl5t4wjl9ca9snxgmlt',
-  //     timestamp: 1714764847,
-  //   },
-  // ]
 
   const navigate = useNavigation();
+  const {t} = useTranslation();
 
   const retriveLiquidBalance = async isRescan => {
     try {
@@ -53,7 +40,9 @@ export default function ViewAllLiquidSwaps(props) {
 
       setLiquidInfoResponse(infoResponse);
       if (isRescan) {
-        navigate.navigate('ErrorScreen', {errorMessage: 'Rescan complete'});
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('settings.viewAllLiquidSwaps.rescanComplete'),
+        });
       }
     } catch (err) {
       console.log(err);
@@ -72,24 +61,26 @@ export default function ViewAllLiquidSwaps(props) {
           globalContactsInformation.myProfile.uniqueName,
         );
 
-        if (!paymentResponse.didWork) throw new Error(paymentResponse.error);
+        if (!paymentResponse.didWork) throw new Error(t(paymentResponse.error));
 
         navigate.navigate('ErrorScreen', {
-          errorMessage:
-            'The swap has started. It may take 10–20 seconds for the payment to show up.',
+          errorMessage: t('settings.viewAllLiquidSwaps.swapStartedMessage'),
         });
         retriveLiquidBalance(false);
       } else
         throw new Error(
-          `Current liquid balance is ${displayCorrectDenomination({
-            amount: liquidBalance,
-            masterInfoObject,
-            fiatStats,
-          })} but the minimum swap amount is ${displayCorrectDenomination({
-            amount: minMaxLiquidSwapAmounts.min,
-            masterInfoObject,
-            fiatStats,
-          })}`,
+          t('settings.viewAllLiquidSwaps.balanceError', {
+            balance: displayCorrectDenomination({
+              amount: liquidBalance,
+              masterInfoObject,
+              fiatStats,
+            }),
+            swapAmount: displayCorrectDenomination({
+              amount: minMaxLiquidSwapAmounts.min,
+              masterInfoObject,
+              fiatStats,
+            }),
+          }),
         );
     } catch (err) {
       console.log(err);
@@ -106,46 +97,57 @@ export default function ViewAllLiquidSwaps(props) {
   return (
     <View style={styles.globalContainer}>
       {liquidBalance === null ? (
-        <FullLoadingScreen text={'Getting liquid info'} />
+        <FullLoadingScreen
+          text={t('settings.viewAllLiquidSwaps.loadingMessage')}
+        />
       ) : liquidBalance <= 0 ? (
         <>
           <ThemeText
             styles={styles.balanceText}
-            content={`Balance Breakdown`}
+            content={t('settings.viewAllLiquidSwaps.breakdownHead')}
           />
           <ThemeText
             styles={styles.balanceText}
-            content={`${displayCorrectDenomination({
-              amount: liquidInfoResponse?.walletInfo?.pendingReceiveSat || 0,
-              masterInfoObject,
-              fiatStats,
-            })} pending incoming`}
+            content={t('settings.viewAllLiquidSwaps.incoming', {
+              amount: displayCorrectDenomination({
+                amount: liquidInfoResponse?.walletInfo?.pendingReceiveSat || 0,
+                masterInfoObject,
+                fiatStats,
+              }),
+            })}
           />
           <ThemeText
             styles={styles.balanceText}
-            content={`${displayCorrectDenomination({
-              amount: liquidInfoResponse?.walletInfo?.pendingSendSat || 0,
-              masterInfoObject,
-              fiatStats,
-            })} pending outgoing`}
+            content={t('settings.viewAllLiquidSwaps.outgoing', {
+              amount: displayCorrectDenomination({
+                amount: liquidInfoResponse?.walletInfo?.pendingSendSat || 0,
+                masterInfoObject,
+                fiatStats,
+              }),
+            })}
           />
           <ThemeText
             styles={{...styles.balanceText, marginBottom: 30}}
-            content={`${displayCorrectDenomination({
-              amount: liquidInfoResponse?.walletInfo?.balanceSat || 0,
-              masterInfoObject,
-              fiatStats,
-            })} liquid balance`}
+            content={t('settings.viewAllLiquidSwaps.balance', {
+              amount: displayCorrectDenomination({
+                amount: liquidInfoResponse?.walletInfo?.balanceSat || 0,
+                masterInfoObject,
+                fiatStats,
+              }),
+            })}
           />
           <CustomButton
             actionFunction={() => retriveLiquidBalance(true)}
-            textContent={'Rescan'}
+            textContent={t('settings.viewAllLiquidSwaps.rescan')}
             useLoading={isLoading}
           />
         </>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
-          <ThemeText styles={styles.amountText} content={'Total Balance'} />
+          <ThemeText
+            styles={styles.amountText}
+            content={t('settings.viewAllLiquidSwaps.totalBalance')}
+          />
           <FormattedSatText styles={styles.valueText} balance={liquidBalance} />
 
           <View
@@ -156,12 +158,12 @@ export default function ViewAllLiquidSwaps(props) {
             }}>
             <ThemeText
               styles={{textAlign: 'center'}}
-              content={`Blitz Wallet will try to swap your Liquid funds into Spark when you first load the app or when you receive Liquid payments.\n\nHowever, in some cases a swap might be missed. To move these funds into Spark manually, just click the Swap button below.`}
+              content={t('settings.viewAllLiquidSwaps.swapMessage')}
             />
             <CustomButton
               buttonStyles={{marginTop: 40, ...CENTER}}
               actionFunction={swapLiquidToLightning}
-              textContent={'Swap'}
+              textContent={t('settings.viewAllLiquidSwaps.swap')}
               useLoading={isLoading}
             />
           </View>

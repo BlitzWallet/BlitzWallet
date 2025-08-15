@@ -7,6 +7,7 @@ import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {getLNAddressForLiquidPayment} from '../functions/payments';
 import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import {useTranslation} from 'react-i18next';
 
 export default function SendMaxComponent({
   fiatStats,
@@ -18,7 +19,7 @@ export default function SendMaxComponent({
   paymentType,
   minMaxLiquidSwapAmounts,
 }) {
-  console.log(masterInfoObject);
+  const {t} = useTranslation();
   const [isGettingMax, setIsGettingMax] = useState(false);
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
   return (
@@ -30,7 +31,7 @@ export default function SendMaxComponent({
       }}
       useLoading={isGettingMax}
       actionFunction={sendMax}
-      textContent={'Send Max'}
+      textContent={t('wallet.sendPages.sendMaxComponent.sendMax')}
     />
   );
   async function sendMax() {
@@ -50,7 +51,7 @@ export default function SendMaxComponent({
           'ln-liquid',
           minMaxLiquidSwapAmounts.reverseSwapStats,
         );
-        console.log(boltzFee, 'boltz fee');
+
         setPaymentInfo(prev => ({
           ...prev,
           sendAmount: String(

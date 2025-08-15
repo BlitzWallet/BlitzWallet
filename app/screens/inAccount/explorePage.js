@@ -97,7 +97,7 @@ export default function ExploreUsers() {
                   : textColor,
               ...styles.timeFrameElementText,
             }}
-            content={t(`settings.blitzstats.${item}`)}
+            content={t(`constants.${item}`)}
           />
         </TouchableOpacity>
       );
@@ -181,11 +181,12 @@ export default function ExploreUsers() {
       <View style={{...styles.statsCard, backgroundColor: backgroundOffset}}>
         <ThemeText
           styles={styles.statsCardHeader}
-          content={t('settings.blitzstats.text1')}
+          content={t('screens.inAccount.explorePage.title')}
         />
         <ThemeText
+          CustomNumberOfLines={1}
           styles={{marginBottom: 5}}
-          content={t('settings.blitzstats.text2')}
+          content={t('constants.today')}
         />
         <View style={styles.statsCardHorizontal}>
           <DateCountdown />
@@ -214,7 +215,10 @@ export default function ExploreUsers() {
           />
         </View>
         <View style={styles.statsCardHorizontal}>
-          <ThemeText content={t('settings.blitzstats.text3')} />
+          <ThemeText
+            CustomNumberOfLines={1}
+            content={t('constants.yesterday')}
+          />
           <ThemeText
             styles={styles.statsCardNumberText}
             content={`${formatBalanceAmount(

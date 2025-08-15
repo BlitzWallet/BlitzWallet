@@ -23,18 +23,18 @@ function getDaysDifference(laterDate, earlierDate) {
   return Math.floor(differenceMs / (1000 * 60 * 60 * 24));
 }
 
-export function createFormattedDate(time, currentTime) {
+export function createFormattedDate(time, currentTime, t) {
   const date = new Date(time);
   const currentDate = new Date(currentTime);
 
   const daysOfWeek = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
+    t('weekdays.Sun'),
+    t('weekdays.Mon'),
+    t('weekdays.Tue'),
+    t('weekdays.Wed'),
+    t('weekdays.Thu'),
+    t('weekdays.Fri'),
+    t('weekdays.Sat'),
   ];
 
   let formattedTime;
@@ -49,7 +49,7 @@ export function createFormattedDate(time, currentTime) {
   } else {
     const daysDiff = getDaysDifference(currentDate, date);
     if (daysDiff === 1) {
-      formattedTime = 'Yesterday';
+      formattedTime = t('constants.yesterday');
     } else if (daysDiff <= 7) {
       formattedTime = daysOfWeek[date.getDay()];
     } else {

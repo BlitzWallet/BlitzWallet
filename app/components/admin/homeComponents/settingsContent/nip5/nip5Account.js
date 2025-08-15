@@ -22,6 +22,7 @@ import {npubToHex} from '../../../../../functions/nostr';
 import {copyToClipboard} from '../../../../../functions';
 import {useToast} from '../../../../../../context-store/toastManager';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import {useTranslation} from 'react-i18next';
 
 export default function Nip5VerificationPage() {
   const {showToast} = useToast();
@@ -30,7 +31,7 @@ export default function Nip5VerificationPage() {
   const [isLoading, setIsLoading] = useState('');
   const {name, pubkey} = masterInfoObject?.nip5Settings;
 
-  console.log(masterInfoObject?.nip5Settings);
+  const {t} = useTranslation();
   const [inputs, setInputs] = useState({
     name: name || '',
     pubkey: pubkey || '',
@@ -46,26 +47,31 @@ export default function Nip5VerificationPage() {
   const saveNip5Information = async () => {
     try {
       setIsLoading(true);
-      if (!inputs.name) throw new Error('Name cannot be empty.');
-      if (!inputs.pubkey) throw new Error('Public key cannot be empty.');
+      if (!inputs.name) throw new Error(t('settings.nip5.noNameError'));
+      if (!inputs.pubkey) throw new Error(t('settings.nip5.noPubKey'));
 
       if (inputs.name === name && inputs.pubkey === pubkey) return;
       if (inputs.name.length > 60)
-        throw new Error('Name must be less than 60 characters');
+        throw new Error(t('settings.nip5.nameLengthError'));
 
       const parsedName = inputs.name.trim();
 
       if (!NOSTR_NAME_REGEX.test(parsedName))
-        throw new Error('Name can only include letters or numbers.');
+        throw new Error(t('settings.nip5.regexError'));
       const formattedHexData = npubToHex(inputs.pubkey);
       if (!formattedHexData?.didWork) {
         navigate.navigate('ErrorScreen', {
           errorMessage: formattedHexData.error,
+          useTranslationString: true,
         });
       }
 
       const isNameFree = await isValidNip5Name(inputs.name);
-      if (!isNameFree) throw new Error('Name already taken');
+      if (!isNameFree) throw new Error(t('settings.nip5.takenNameError'));
+
+      if (!formattedHexData.data || !parsedName) {
+        throw new Error(t('settings.nip5.dataIsInvalid'));
+      }
 
       toggleMasterInfoObject({
         nip5Settings: {
@@ -83,8 +89,7 @@ export default function Nip5VerificationPage() {
         masterInfoObject.uuid,
       );
       navigate.navigate('ErrorScreen', {
-        errorMessage:
-          'NIP-05 added successfully! Please note that it may take up to 24 hours to appear, as the list is updated once per day.',
+        errorMessage: t('settings.nip5.nameConfirmationMessage'),
       });
     } catch (err) {
       console.log('Error saving nip5 information', err);
@@ -99,22 +104,23 @@ export default function Nip5VerificationPage() {
         <View style={StyleSheet.absoluteFill}>
           <CustomSettingsTopBar
             shouldDismissKeyboard={true}
-            label={'Nip5 Verification'}
+            label={t('settings.nip5.title')}
           />
           <ScrollView showsVerticalScrollIndicator={false}>
             <ThemeText
               styles={styles.explainerText}
-              content={
-                'Nip5 turns your long Npub into a small email-like address, similar to a lightning address.'
-              }
+              content={t('settings.nip5.desc')}
             />
 
             <View style={styles.inputRow}>
-              <ThemeText styles={styles.inputDescriptor} content={'Username'} />
+              <ThemeText
+                styles={styles.inputDescriptor}
+                content={t('settings.nip5.usernameInputLabel')}
+              />
               <CustomSearchInput
                 inputText={inputs.name}
                 setInputText={e => handleInputText(e, 'name')}
-                placeholderText="Satoshi..."
+                placeholderText={t('settings.nip5.usernameInputPlaceholder')}
               />
               <ThemeText
                 styles={styles.textCoount}
@@ -124,12 +130,12 @@ export default function Nip5VerificationPage() {
             <View style={styles.inputRow}>
               <ThemeText
                 styles={styles.inputDescriptor}
-                content={'Public key'}
+                content={t('settings.nip5.publicKeyLabel')}
               />
               <CustomSearchInput
                 inputText={inputs.pubkey}
                 setInputText={e => handleInputText(e, 'pubkey')}
-                placeholderText="Npub..."
+                placeholderText={t('settings.nip5.publicKeyPlaceholder')}
               />
             </View>
             <TouchableOpacity
@@ -157,7 +163,11 @@ export default function Nip5VerificationPage() {
             useLoading={isLoading}
             actionFunction={saveNip5Information}
             buttonStyles={{...CENTER, marginBottom: CONTENT_KEYBOARD_OFFSET}}
-            textContent={inputs.name || inputs.pubkey ? 'Update' : 'Save'}
+            textContent={
+              inputs.name || inputs.pubkey
+                ? t('constants.update')
+                : t('constants.save')
+            }
           />
         </View>
       </CustomKeyboardAvoidingView>

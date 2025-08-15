@@ -7,6 +7,7 @@ import {INSET_WINDOW_WIDTH, SIZES} from '../../../../constants/theme';
 import {CENTER} from '../../../../constants';
 import {usePushNotification} from '../../../../../context-store/notificationManager';
 import {useNavigation} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
 
 export default function NotificationPreferances() {
   const navigate = useNavigation();
@@ -19,6 +20,7 @@ export default function NotificationPreferances() {
     getCurrentPushNotifiicationPermissions,
   } = usePushNotification();
   const [currnetPushState, setCurrentPushState] = useState(null);
+  const {t} = useTranslation();
   const notificationData = masterInfoObject.pushNotifications;
   const pushNotificationStatus = notificationData.isEnabled && currnetPushState;
 
@@ -44,7 +46,10 @@ export default function NotificationPreferances() {
 
             console.log('push notifiations response', response);
             if (!response.didWork) {
-              navigate.navigate('ErrorScreen', {errorMessage: response.error});
+              navigate.navigate('ErrorScreen', {
+                errorMessage: response.error,
+                useTranslationString: true,
+              });
               return;
             }
             const checkResponse = await checkAndSavePushNotificationToDatabase(
@@ -107,24 +112,26 @@ export default function NotificationPreferances() {
     <View style={styles.container}>
       <SettingsItemWithSlider
         showLoadingIcon={isUpdating}
-        settingsTitle={`${
-          !pushNotificationStatus ? 'Disabled' : 'Enabled'
-        } notifications`}
+        settingsTitle={t('settings.notifications.mainToggle', {
+          state: !pushNotificationStatus
+            ? t('constants.disabled')
+            : t('constants.enabled'),
+        })}
         showDescription={false}
         handleSubmit={() => toggleNotificationPreferance('isEnabled')}
         toggleSwitchStateValue={pushNotificationStatus}
         showInformationPopup={true}
-        informationPopupText="Notifications let you stay informed about important events and updates happening in the app."
-        informationPopupBTNText="Continue"
+        informationPopupText={t('settings.notifications.mainToggleDesc')}
+        informationPopupBTNText={t('constants.continue')}
       />
       {pushNotificationStatus && (
         <>
-          <ThemeText content={'Notification options'} />
+          <ThemeText content={t('settings.notifications.optionsTitle')} />
           <ScrollView
             style={styles.notificaionChoicesContainer}
             showsVerticalScrollIndicator={false}>
             <SettingsItemWithSlider
-              settingsTitle={`Contact`}
+              settingsTitle={t('settings.notifications.contact')}
               showDescription={false}
               handleSubmit={() =>
                 toggleNotificationPreferance('contactPayments')
@@ -135,7 +142,7 @@ export default function NotificationPreferances() {
               containerStyles={styles.toggleContainers}
             />
             <SettingsItemWithSlider
-              settingsTitle={`LNURL`}
+              settingsTitle={t('settings.notifications.lnurl')}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('lnurlPayments')}
               toggleSwitchStateValue={
@@ -144,7 +151,7 @@ export default function NotificationPreferances() {
               containerStyles={styles.toggleContainers}
             />
             <SettingsItemWithSlider
-              settingsTitle={`Nostr zaps`}
+              settingsTitle={t('settings.notifications.nostrZaps')}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('nostrPayments')}
               toggleSwitchStateValue={
@@ -153,14 +160,14 @@ export default function NotificationPreferances() {
               containerStyles={styles.toggleContainers}
             />
             <SettingsItemWithSlider
-              settingsTitle={`Nostr Wallet Connect`}
+              settingsTitle={t('settings.notifications.nwc')}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('NWC')}
               toggleSwitchStateValue={notificationData.enabledServices.NWC}
               containerStyles={styles.toggleContainers}
             />
             <SettingsItemWithSlider
-              settingsTitle={`Point-of-sale`}
+              settingsTitle={t('settings.notifications.pos')}
               showDescription={false}
               handleSubmit={() => toggleNotificationPreferance('pointOfSale')}
               toggleSwitchStateValue={

@@ -24,12 +24,7 @@ export default function PinPage(props) {
   // const fromGiftPath = props.route.params?.from === 'giftPath';
   const isInitialLoad = props.route.params?.isInitialLoad;
   const didRestoreWallet = props.route.params?.didRestoreWallet;
-  console.log(
-    'TEst',
-    pin,
-    confirmPin,
-    pin.toString() === confirmPin.toString(),
-  );
+
   useEffect(() => {
     const filteredPin = pin.filter(pin => {
       if (typeof pin === 'number') return true;
@@ -49,7 +44,7 @@ export default function PinPage(props) {
         );
         if (!resposne) {
           navigate.navigate('ErrorScreen', {
-            errorMessage: 'Unable to save pin',
+            errorMessage: t('createAccount.keySetup.pin.savePinError'),
             customNavigator: () => {
               factoryResetWallet();
               setTimeout(() => {
@@ -81,7 +76,7 @@ export default function PinPage(props) {
             RNRestart.restart();
           } else {
             navigate.navigate('ErrorScreen', {
-              errorMessage: 'Error removing wallet',
+              errorMessage: t('createAccount.keySetup.pin.removeWalletError'),
             });
           }
         } else {
@@ -95,52 +90,51 @@ export default function PinPage(props) {
   }, [pin]);
 
   return (
-    <GlobalThemeView>
-      <View style={styles.contentContainer}>
-        <ThemeText
-          styles={{...styles.header}}
-          content={
-            isConfirming
-              ? pinNotMatched
-                ? t('createAccount.pinPage.wrongPinError')
-                : t('createAccount.pinPage.confirmPin')
-              : t('createAccount.pinPage.enterPinMessage')
-          }
-        />
-        <ThemeText
-          styles={{...styles.enterText}}
-          content={
-            8 - pinEnterCount + ' ' + t('adminLogin.pinPage.attemptsText')
-          }
-        />
+    <GlobalThemeView styles={styles.contentContainer} useStandardWidth={true}>
+      <ThemeText
+        styles={{...styles.header}}
+        content={
+          isConfirming
+            ? pinNotMatched
+              ? t('createAccount.keySetup.pin.wrongPinError')
+              : t('createAccount.keySetup.pin.confirmPin')
+            : t('createAccount.keySetup.pin.enterPinMessage')
+        }
+      />
+      <ThemeText
+        styles={styles.enterText}
+        content={t('createAccount.keySetup.pin.attemptsText', {
+          number: 8 - pinEnterCount,
+        })}
+      />
 
-        <View style={styles.dotContainer}>
-          <PinDot pin={pin} dotNum={0} />
-          <PinDot pin={pin} dotNum={1} />
-          <PinDot pin={pin} dotNum={2} />
-          <PinDot pin={pin} dotNum={3} />
+      <View style={styles.dotContainer}>
+        <PinDot pin={pin} dotNum={0} />
+        <PinDot pin={pin} dotNum={1} />
+        <PinDot pin={pin} dotNum={2} />
+        <PinDot pin={pin} dotNum={3} />
+      </View>
+
+      <View style={styles.keyboardContainer}>
+        <View style={styles.keyboard_row}>
+          <KeyForKeyboard num={1} addPin={addPin} />
+          <KeyForKeyboard num={2} addPin={addPin} />
+          <KeyForKeyboard num={3} addPin={addPin} />
         </View>
-        <View style={styles.keyboardContainer}>
-          <View style={styles.keyboard_row}>
-            <KeyForKeyboard num={1} addPin={addPin} />
-            <KeyForKeyboard num={2} addPin={addPin} />
-            <KeyForKeyboard num={3} addPin={addPin} />
-          </View>
-          <View style={styles.keyboard_row}>
-            <KeyForKeyboard num={4} addPin={addPin} />
-            <KeyForKeyboard num={5} addPin={addPin} />
-            <KeyForKeyboard num={6} addPin={addPin} />
-          </View>
-          <View style={styles.keyboard_row}>
-            <KeyForKeyboard num={7} addPin={addPin} />
-            <KeyForKeyboard num={8} addPin={addPin} />
-            <KeyForKeyboard num={9} addPin={addPin} />
-          </View>
-          <View style={styles.keyboard_row}>
-            <KeyForKeyboard num={'C'} addPin={addPin} />
-            <KeyForKeyboard num={0} addPin={addPin} />
-            <KeyForKeyboard num={'back'} addPin={addPin} />
-          </View>
+        <View style={styles.keyboard_row}>
+          <KeyForKeyboard num={4} addPin={addPin} />
+          <KeyForKeyboard num={5} addPin={addPin} />
+          <KeyForKeyboard num={6} addPin={addPin} />
+        </View>
+        <View style={styles.keyboard_row}>
+          <KeyForKeyboard num={7} addPin={addPin} />
+          <KeyForKeyboard num={8} addPin={addPin} />
+          <KeyForKeyboard num={9} addPin={addPin} />
+        </View>
+        <View style={styles.keyboard_row}>
+          <KeyForKeyboard num={'C'} addPin={addPin} />
+          <KeyForKeyboard num={0} addPin={addPin} />
+          <KeyForKeyboard num={'back'} addPin={addPin} />
         </View>
       </View>
     </GlobalThemeView>
@@ -183,11 +177,7 @@ export default function PinPage(props) {
 
 const styles = StyleSheet.create({
   contentContainer: {
-    width: '90%',
-    flex: 1,
     alignItems: 'center',
-    marginRight: 'auto',
-    marginLeft: 'auto',
   },
   header: {
     fontSize: SIZES.xLarge,

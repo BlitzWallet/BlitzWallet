@@ -30,6 +30,8 @@ import ContactProfileImage from './internalComponents/profileImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
 import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 import {useServerTimeOnly} from '../../../../../context-store/serverTime';
+import {useTranslation} from 'react-i18next';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
@@ -52,6 +54,7 @@ export default function ExpandedContactsPage(props) {
   const {cache} = useImageCache();
   const getServerTime = useServerTimeOnly();
   const currentTime = getServerTime();
+  const {t} = useTranslation();
   const selectedUUID = props?.route?.params?.uuid || props?.uuid;
   const myProfile = globalContactsInformation?.myProfile;
 
@@ -110,8 +113,7 @@ export default function ExpandedContactsPage(props) {
               (async () => {
                 if (!isConnectedToTheInternet) {
                   navigate.navigate('ErrorScreen', {
-                    errorMessage:
-                      'Please reconnect to the internet to use this feature',
+                    errorMessage: t('errormessages.nointernet'),
                   });
                   return;
                 }
@@ -168,8 +170,7 @@ export default function ExpandedContactsPage(props) {
             onPress={() => {
               if (!isConnectedToTheInternet) {
                 navigate.navigate('ErrorScreen', {
-                  errorMessage:
-                    'Please reconnect to the internet to use this feature',
+                  errorMessage: t('errormessages.nointernet'),
                 });
                 return;
               }
@@ -189,7 +190,7 @@ export default function ExpandedContactsPage(props) {
       </View>
       {!selectedContact ? (
         <FullLoadingScreen
-          text={'Unable to load contact'}
+          text={t('contacts.expandedContactPage.loadingContactError')}
           textStyles={{testAlign: 'center'}}
         />
       ) : (
@@ -246,8 +247,7 @@ export default function ExpandedContactsPage(props) {
               btnFunction={() => {
                 if (!isConnectedToTheInternet) {
                   navigate.navigate('ErrorScreen', {
-                    errorMessage:
-                      'Please reconnect to the internet to use this feature',
+                    errorMessage: t('errormessages.nointernet'),
                   });
                   return;
                 }
@@ -273,15 +273,15 @@ export default function ExpandedContactsPage(props) {
               btnFunction={() => {
                 if (selectedContact.isLNURL) {
                   navigate.navigate('ErrorScreen', {
-                    errorMessage:
-                      'You can only request money from Blitz contacts, not LNURL addresses.',
+                    errorMessage: t(
+                      'contacts.expandedContactPage.requestLNULRError',
+                    ),
                   });
                   return;
                 }
                 if (!isConnectedToTheInternet) {
                   navigate.navigate('ErrorScreen', {
-                    errorMessage:
-                      'Please reconnect to the internet to use this feature',
+                    errorMessage: t('errormessages.nointernet'),
                   });
                   return;
                 }
@@ -352,7 +352,10 @@ export default function ExpandedContactsPage(props) {
             </View>
           ) : (
             <View style={{flex: 1, alignItems: 'center', marginTop: 30}}>
-              <ThemeText content={'No Transactions'} />
+              <ThemeText
+                styles={{textAlign: 'center', width: INSET_WINDOW_WIDTH}}
+                content={t('contacts.expandedContactPage.noTransactions')}
+              />
             </View>
           )}
         </>

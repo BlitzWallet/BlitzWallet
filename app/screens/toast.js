@@ -5,6 +5,7 @@ import ThemeImage from '../functions/CustomElements/themeImage';
 import {COLORS, ICONS} from '../constants';
 import {useGlobalInsets} from '../../context-store/insetsProvider';
 import {WINDOWWIDTH} from '../constants/theme';
+import {useTranslation} from 'react-i18next';
 
 export function Toast({toast, onHide}) {
   const slideAnim = useRef(new Animated.Value(50)).current;
@@ -12,6 +13,7 @@ export function Toast({toast, onHide}) {
   const translateY = useRef(new Animated.Value(0)).current;
   const {topPadding} = useGlobalInsets();
   const isAnimatingOut = useRef(false);
+  const {t} = useTranslation();
 
   // Memoize the hide animation to prevent recreating it
   const animateOut = useCallback(
@@ -133,7 +135,11 @@ export function Toast({toast, onHide}) {
             <ThemeText styles={styles.toastIcon} content={getIconForType()} />
           )}
           <View style={styles.textContainer}>
-            <ThemeText styles={styles.toastTitle} content={toast.title} />
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.toastTitle}
+              content={t(toast.title)}
+            />
           </View>
         </View>
       </View>
@@ -189,5 +195,6 @@ const styles = StyleSheet.create({
   toastTitle: {
     color: COLORS.lightModeText,
     includeFontPadding: false,
+    flexShrink: 1,
   },
 });

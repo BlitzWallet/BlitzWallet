@@ -30,14 +30,14 @@ export default function FastPay() {
       if (isNaN(parseValue)) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: t('settings.fastpay.text1'),
+          errorMessage: t('settings.fastPay.text1'),
         });
         return;
       }
       if (parseValue === 0) {
         resetFunction();
         navigate.navigate('ErrorScreen', {
-          errorMessage: t('settings.fastpay.text2'),
+          errorMessage: t('settings.fastPay.text2'),
         });
         return;
       }
@@ -55,9 +55,9 @@ export default function FastPay() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={{flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
         <TextInputWithSliderSettingsItem
-          sliderTitle={t('settings.fastpay.text3')}
-          settingInputTitle={t('settings.fastpay.text4')}
-          settingDescription={t('settings.fastpay.text5')}
+          sliderTitle={t('settings.fastPay.text3')}
+          settingInputTitle={t('settings.fastPay.text4')}
+          settingDescription={t('settings.fastPay.text5')}
           defaultTextInputValue={fastPayThreshold}
           handleSubmit={handleSubmit}
           CustomToggleSwitchFunction={handleSlider}

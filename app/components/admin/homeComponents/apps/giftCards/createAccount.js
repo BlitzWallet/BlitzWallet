@@ -22,12 +22,12 @@ import {
 } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {useCallback, useEffect, useState} from 'react';
+import {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import {FONT, WINDOWWIDTH} from '../../../../../constants/theme';
+import {FONT} from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
@@ -37,16 +37,18 @@ import {
   keyboardGoBack,
   keyboardNavigate,
 } from '../../../../../functions/customNavigation';
+import {useTranslation} from 'react-i18next';
 
 export default function CreateGiftCardAccount(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {toggleGlobalAppDataInformation, decodedGiftCards} = useGlobalAppData();
-  const {textColor, textInputBackground, textInputColor} = GetThemeColors();
+  const {textColor} = GetThemeColors();
   const [email, setEmail] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [hasError, setHasError] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const {t} = useTranslation();
   const navigate = useNavigation();
   useHandleBackPressNew();
 
@@ -117,7 +119,7 @@ export default function CreateGiftCardAccount(props) {
                       fontWeight: 500,
                       marginBottom: 20,
                     }}
-                    content={'Powered by'}
+                    content={t('apps.giftCards.createAccount.title')}
                   />
                   <View style={{marginBottom: 20}}>
                     <Icon
@@ -134,9 +136,7 @@ export default function CreateGiftCardAccount(props) {
 
                   <ThemeText
                     styles={{textAlign: 'center'}}
-                    content={
-                      'You do not have an email saved. Speed up the checkout process by saving an email.'
-                    }
+                    content={t('apps.giftCards.createAccount.saveEmail')}
                   />
                   <CustomSearchInput
                     inputText={email}
@@ -158,7 +158,7 @@ export default function CreateGiftCardAccount(props) {
 
                 <CustomButton
                   buttonStyles={styles.button}
-                  textContent={'Continue'}
+                  textContent={t('constants.continue')}
                   actionFunction={() =>
                     keyboardNavigate(createAGiftCardAccount)
                   }
@@ -169,7 +169,7 @@ export default function CreateGiftCardAccount(props) {
                       ...styles.warningText,
                       color: textColor,
                     }}>
-                    By continuing you agree to The Bitcoin Company's{' '}
+                    {t('apps.giftCards.createAccount.termsAndConditions1')}{' '}
                     <Text
                       onPress={() => {
                         navigate.navigate('CustomWebView', {
@@ -184,9 +184,9 @@ export default function CreateGiftCardAccount(props) {
                             ? COLORS.darkModeText
                             : COLORS.primary,
                       }}>
-                      Terms of Service
+                      {t('apps.giftCards.createAccount.termsAndConditions2')}
                     </Text>{' '}
-                    and{' '}
+                    {t('apps.giftCards.createAccount.termsAndConditions3')}{' '}
                     <Text
                       onPress={() => {
                         navigate.navigate('CustomWebView', {
@@ -200,7 +200,7 @@ export default function CreateGiftCardAccount(props) {
                             ? COLORS.darkModeText
                             : COLORS.primary,
                       }}>
-                      Privacy policy
+                      {t('apps.giftCards.createAccount.termsAndConditions4')}
                     </Text>
                   </Text>
                 </View>
@@ -231,9 +231,7 @@ export default function CreateGiftCardAccount(props) {
       }
       navigate.navigate('GiftCardsPage');
     } catch (err) {
-      setHasError(
-        'Not able to save account. Please make sure you are connected to the internet.',
-      );
+      setHasError(t('errormessage.nointernet'));
       console.log('sign user in error', err);
     }
   }

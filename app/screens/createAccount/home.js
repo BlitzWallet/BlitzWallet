@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {COLORS, SIZES} from '../../constants';
 import {useTranslation} from 'react-i18next';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
@@ -34,34 +34,31 @@ export default function CreateAccountHome({navigation: {navigate}}) {
     crashlyticsLogReport(`Navigating to ${page} from create account home`);
     navigate(page);
   };
+
   return (
-    <GlobalThemeView
-      useStandardWidth={true}
-      styles={{backgroundColor: COLORS.lightModeBackground}}>
-      <View style={styles.container}>
-        <ThemeText styles={styles.blitz} content={'Blitz'} />
+    <GlobalThemeView styles={styles.container} useStandardWidth={true}>
+      <ThemeText styles={styles.blitz} content={'Blitz'} />
 
-        <CustomButton
-          buttonStyles={{
-            ...styles.buttonStyle,
-            backgroundColor: COLORS.primary,
-          }}
-          textStyles={{color: COLORS.darkModeText}}
-          textContent={t('createAccount.homePage.buttons.button2')}
-          actionFunction={() => navigateFunction('DisclaimerPage')}
-        />
-        <CustomButton
-          buttonStyles={styles.buttonStyle}
-          textStyles={{color: COLORS.lightModeText}}
-          textContent={t('createAccount.homePage.buttons.button1')}
-          actionFunction={() => navigateFunction('RestoreWallet')}
-        />
+      <CustomButton
+        buttonStyles={{
+          ...styles.buttonStyle,
+          backgroundColor: COLORS.primary,
+        }}
+        textStyles={{color: COLORS.darkModeText}}
+        textContent={t('createAccount.homePage.buttons.button2')}
+        actionFunction={() => navigateFunction('DisclaimerPage')}
+      />
+      <CustomButton
+        buttonStyles={styles.buttonStyle}
+        textStyles={{color: COLORS.lightModeText}}
+        textContent={t('createAccount.homePage.buttons.button1')}
+        actionFunction={() => navigateFunction('RestoreWallet')}
+      />
 
-        <ThemeText
-          styles={{...styles.disclamer_text}}
-          content={t('createAccount.homePage.subTitle')}
-        />
-      </View>
+      <ThemeText
+        styles={{...styles.disclamer_text}}
+        content={t('createAccount.homePage.subtitle')}
+      />
     </GlobalThemeView>
   );
 }

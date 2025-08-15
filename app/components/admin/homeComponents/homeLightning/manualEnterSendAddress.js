@@ -39,14 +39,15 @@ export default function ManualEnterSendAddress(props) {
         <View style={styles.informationContainer}>
           <ThemeText
             styles={styles.textInputLabel}
-            content={'Enter in destination'}
+            content={t('wallet.homeLightning.manualEnterSendAddress.title')}
           />
           <TouchableOpacity
             onPress={() => {
               navigate.navigate('InformationPopup', {
-                textContent:
-                  'Blitz wallet can send to spark, on-chain, LNURL and BOLT 11 addresses',
-                buttonText: 'I understand',
+                textContent: t(
+                  'wallet.homeLightning.manualEnterSendAddress.paymentTypesDesc',
+                ),
+                buttonText: t('constants.understandText'),
               });
             }}>
             <ThemeImage
@@ -74,7 +75,7 @@ export default function ManualEnterSendAddress(props) {
             opacity: !inputValue ? 0.5 : 1,
           }}
           actionFunction={hanldeSubmit}
-          textContent={'Continue'}
+          textContent={t('constants.continue')}
         />
       </View>
     </TouchableWithoutFeedback>

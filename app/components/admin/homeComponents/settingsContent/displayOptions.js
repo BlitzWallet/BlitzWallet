@@ -65,7 +65,7 @@ export default function DisplayOptions() {
       style={styles.innerContainer}>
       <ThemeText
         styles={styles.infoHeaders}
-        content={t('settings.displayoptions.text1')}
+        content={t('settings.displayOptions.text1')}
       />
       <TouchableOpacity
         onPress={() => {
@@ -75,7 +75,7 @@ export default function DisplayOptions() {
         style={styles.darkModeStyleContainer}>
         <ThemeText
           styles={styles.removeFontPadding}
-          content={t('settings.displayoptions.text2')}
+          content={t('settings.displayOptions.text2')}
         />
         <CheckMarkCircle isActive={darkModeType} />
       </TouchableOpacity>
@@ -87,13 +87,13 @@ export default function DisplayOptions() {
         style={styles.darkModeStyleContainer}>
         <ThemeText
           styles={styles.removeFontPadding}
-          content={t('settings.displayoptions.text3')}
+          content={t('settings.displayOptions.text3')}
         />
         <CheckMarkCircle isActive={!darkModeType} />
       </TouchableOpacity>
       <ThemeText
         styles={styles.infoHeaders}
-        content={t('settings.displayoptions.text4')}
+        content={t('settings.displayOptions.text4')}
       />
       <View
         style={[
@@ -105,13 +105,13 @@ export default function DisplayOptions() {
         <ThemeText
           CustomNumberOfLines={1}
           styles={styles.removeFontPadding}
-          content={t('settings.displayoptions.text5')}
+          content={t('settings.displayOptions.text5')}
         />
         <TouchableOpacity
           onPress={() => {
             if (!isConnectedToTheInternet) {
               navigate.navigate('ErrorScreen', {
-                errorMessage: t('settings.displayoptions.text6'),
+                errorMessage: t('settings.displayOptions.text6'),
               });
               return;
             }
@@ -180,10 +180,10 @@ export default function DisplayOptions() {
             flex: 1,
             marginRight: 10,
           }}
-          content={`${t('settings.displayoptions.text7')} ${
+          content={`${t('settings.displayOptions.text7')} ${
             masterInfoObject.userBalanceDenomination !== 'fiat'
               ? 'sats'
-              : `${t('settings.displayoptions.text8')}`
+              : `${t('settings.displayOptions.text8')}`
           } `}
         />
         <TouchableOpacity
@@ -257,12 +257,12 @@ export default function DisplayOptions() {
           />
         </TouchableOpacity>
       </View>
-      <ThemeText content={t('settings.displayoptions.text9')} />
+      <ThemeText content={t('settings.displayOptions.text9')} />
       <FormattedSatText neverHideBalance={true} balance={50} />
 
       <ThemeText
         styles={styles.infoHeaders}
-        content={t('settings.displayoptions.text10')}
+        content={t('settings.displayOptions.text10')}
       />
       <View
         style={[
@@ -280,8 +280,8 @@ export default function DisplayOptions() {
           <TouchableOpacity
             onPress={() => {
               navigate.navigate('InformationPopup', {
-                textContent: t('settings.displayoptions.text12'),
-                buttonText: t('constants.iunderstand'),
+                textContent: t('settings.displayOptions.text12'),
+                buttonText: t('constants.understandText'),
               });
             }}>
             <ThemeImage
@@ -299,7 +299,7 @@ export default function DisplayOptions() {
           ...styles.infoHeaders,
           width: windowDimensions.width * 0.95 * 0.9 * 0.9,
         }}
-        content={t('settings.displayoptions.text13')}
+        content={t('settings.displayOptions.text13')}
       />
       <View style={styles.container}>
         <View style={styles.labelsContainer}>
@@ -356,7 +356,7 @@ export default function DisplayOptions() {
       </View>
       <ThemeText
         styles={styles.infoHeaders}
-        content={t('settings.displayoptions.text14')}
+        content={t('settings.displayOptions.text14')}
       />
       <View
         style={[
@@ -368,7 +368,7 @@ export default function DisplayOptions() {
         <ThemeText
           CustomNumberOfLines={1}
           styles={styles.removeFontPadding}
-          content={t('settings.displayoptions.text15')}
+          content={t('settings.displayOptions.text15')}
         />
         <CustomToggleSwitch page={'hideUnknownContacts'} />
       </View>

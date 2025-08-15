@@ -339,7 +339,7 @@ export const UserTransaction = memo(function UserTransaction({
             }}
             content={
               isFailedPayment
-                ? t('transactionLabelText.failed')
+                ? t('transactionLabelText.notSent')
                 : userBalanceDenomination === 'hidden'
                 ? `${HIDDEN_BALANCE_TEXT}`
                 : isDefaultDescription || !paymentDescription

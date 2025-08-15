@@ -16,7 +16,7 @@ export async function getImageFromLibrary() {
     console.log('error getting image from library', err);
     return {
       didRun: true,
-      error: 'There was an error retrieving photos. Please try again.',
+      error: 'errormessages.retriveingPhotoesError',
     };
   }
 }

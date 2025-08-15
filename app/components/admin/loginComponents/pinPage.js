@@ -65,8 +65,9 @@ export default function PinPage() {
     ) {
       if (loginSettings.isBiometricEnabled) {
         navigate.navigate('ConfirmActionPage', {
-          confirmMessage:
-            'Since biometric setting are enabled you cannot use the deafult pin login method. Would you like to terminate your account?',
+          confirmMessage: t(
+            'adminLogin.pinPage.isBiometricEnabledConfirmAction',
+          ),
           confirmFunction: async () => {
             const deleted = await terminateAccount();
             if (deleted) {
@@ -79,7 +80,7 @@ export default function PinPage() {
               RNRestart.restart();
             } else {
               navigate.navigate('ErrorScreen', {
-                errorMessage: 'Error deleting account.',
+                errorMessage: t('errormessages.deleteAccount'),
               });
             }
           },
@@ -101,7 +102,7 @@ export default function PinPage() {
           });
         } else
           navigate.navigate('ErrorScreen', {
-            errorMessage: 'Failed to decrypt pin',
+            errorMessage: t('errormessages.failedToDecryptPin'),
           });
         return;
       } else {
@@ -124,7 +125,7 @@ export default function PinPage() {
           RNRestart.restart();
         } else {
           navigate.navigate('ErrorScreen', {
-            errorMessage: 'Error removing wallet',
+            errorMessage: t('errormessages.deleteAccount'),
           });
         }
       } else {
@@ -191,7 +192,7 @@ export default function PinPage() {
             });
           } else {
             navigate.navigate('ErrorScreen', {
-              errorMessage: 'Unable to decode pin with biometrics',
+              errorMessage: t('errormessages.decodePinWithBio'),
             });
           }
           return;
@@ -206,7 +207,7 @@ export default function PinPage() {
           });
         } else {
           navigate.navigate('ErrorScreen', {
-            errorMessage: 'Unable to decode pin with biometrics',
+            errorMessage: t('errormessages.decodePinWithBio'),
           });
         }
       } catch (err) {
@@ -224,12 +225,9 @@ export default function PinPage() {
       />
       <ThemeText
         styles={{...styles.enterText}}
-        content={
-          8 -
-          loginSettings.enteredPinCount +
-          ' ' +
-          t('adminLogin.pinPage.attemptsText')
-        }
+        content={t('adminLogin.pinPage.attemptsText', {
+          attempts: 8 - loginSettings.enteredPinCount,
+        })}
       />
 
       <View style={styles.dotContainer}>

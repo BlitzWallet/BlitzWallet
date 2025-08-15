@@ -2,17 +2,17 @@ import {StyleSheet, View} from 'react-native';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useNavigation} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
 
 export default function NostrWalletConnectNoNotifications() {
   const navigate = useNavigation();
+  const {t} = useTranslation();
 
   return (
     <View style={styles.globalContainer}>
       <ThemeText
         styles={styles.textStyles}
-        content={
-          'In order to use Nostr Wallet Connect you need to have push notification for Nostr Wallet Connect enabled.\n\nPlease enable push notifications in the settings and try again.'
-        }
+        content={t('settings.nwc.noNotifications.wanringMessage')}
       />
       <CustomButton
         actionFunction={() => {
@@ -20,7 +20,7 @@ export default function NostrWalletConnectNoNotifications() {
             for: 'Notifications',
           });
         }}
-        textContent={'Enable'}
+        textContent={t('constants.enable')}
       />
     </View>
   );

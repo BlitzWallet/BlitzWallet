@@ -3,9 +3,11 @@ import {copyToClipboard} from '../../../../../functions';
 import QrCodeWrapper from '../../../../../functions/CustomElements/QrWrapper';
 import {useToast} from '../../../../../../context-store/toastManager';
 import CustomButton from '../../../../../functions/CustomElements/button';
+import {useTranslation} from 'react-i18next';
 
 export default function CustomQrCode({data}) {
   const {showToast} = useToast();
+  const {t} = useTranslation();
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -23,7 +25,7 @@ export default function CustomQrCode({data}) {
       <CustomButton
         actionFunction={() => copyToClipboard(data, showToast)}
         buttonStyles={{marginTop: 20}}
-        textContent={'Copy'}
+        textContent={t('constants.copy')}
       />
     </ScrollView>
   );

@@ -2,11 +2,13 @@ import {useNavigation} from '@react-navigation/native';
 import {useSparkWallet} from './sparkContext';
 import {useEffect} from 'react';
 import {useAppStatus} from './appStatus';
+import {useTranslation} from 'react-i18next';
 
 export function SparkConnectionManager() {
   const {sparkConnectionError, sparkInformation} = useSparkWallet();
   const {didGetToHomepage} = useAppStatus();
   const navigation = useNavigation();
+  const {t} = useTranslation();
 
   useEffect(() => {
     if (
@@ -18,8 +20,7 @@ export function SparkConnectionManager() {
         requestAnimationFrame(() => {
           navigation.navigate('SparkErrorScreen', {
             errorMessage:
-              sparkConnectionError ||
-              'Spark connection failed. Please try again.',
+              sparkConnectionError || t('errormessages.sparkConnectionError'),
           });
         });
       });

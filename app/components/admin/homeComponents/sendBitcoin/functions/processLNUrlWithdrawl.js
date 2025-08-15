@@ -3,9 +3,11 @@ import {sparkReceivePaymentWrapper} from '../../../../../functions/spark/payment
 import {getSparkLightningPaymentStatus} from '../../../../../functions/spark';
 
 export default async function processLNUrlWithdraw(input, context) {
-  const {setLoadingMessage, currentWalletMnemoinc} = context;
+  const {setLoadingMessage, currentWalletMnemoinc, t} = context;
   crashlyticsLogReport('Begining LNURL withdrawl process');
-  setLoadingMessage('Generating invoice for withdrawl');
+  setLoadingMessage(
+    t('wallet.sendPages.handlingAddressErrors.lnurlWithdrawlStart'),
+  );
 
   const minAmount = input.data.minWithdrawable;
 
@@ -17,7 +19,9 @@ export default async function processLNUrlWithdraw(input, context) {
   });
 
   if (!invoice.didWork)
-    throw new Error('Unable to generate invoice for lnurl withdrawl');
+    throw new Error(
+      t('wallet.sendPages.handlingAddressErrors.lnurlWithdrawlInvoiceError'),
+    );
 
   const callbackUrl = new URL(input.data.callback);
   callbackUrl.searchParams.set('k1', input.data.k1);
@@ -29,7 +33,9 @@ export default async function processLNUrlWithdraw(input, context) {
   if (responseData.status === 'ERROR') {
     throw new Error(responseData.reason);
   }
-  setLoadingMessage('Waiting for payment...');
+  setLoadingMessage(
+    t('wallet.sendPages.handlingAddressErrors.waitingForLnurlWithdrawl'),
+  );
   await pollForResponse(invoice.data, currentWalletMnemoinc);
 }
 

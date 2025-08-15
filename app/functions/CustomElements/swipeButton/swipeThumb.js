@@ -37,7 +37,7 @@ export const SwipeThumb = ({
   thumbIconHeight = 55,
   thumbIconStyles = {},
   thumbIconWidth,
-  title = 'Swipe to submit',
+  title,
   animateViewOnSuccess,
   handleSwipeProgress,
   theme,

@@ -1,6 +1,5 @@
 import React, {
   createContext,
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -10,7 +9,6 @@ import {
   getLocalStorageItem,
   retrieveData,
   setLocalStorageItem,
-  storeData,
 } from '../app/functions';
 import {
   CUSTODY_ACCOUNTS_STORAGE_KEY,

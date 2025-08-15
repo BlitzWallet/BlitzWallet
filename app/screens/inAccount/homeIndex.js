@@ -20,7 +20,6 @@ export default function AdminHomeIndex() {
   const {backgroundColor} = GetThemeColors();
 
   const handlePageChange = useCallback(e => {
-    console.log(e.nativeEvent, 'PAGE CHANGE');
     crashlyticsLogReport('Handling page change with pagerView');
     const newPage = e.nativeEvent.position;
     setCurrentPage(newPage);
@@ -34,13 +33,6 @@ export default function AdminHomeIndex() {
 
   const handlePageScroll = e => {
     const state = e.nativeEvent.pageScrollState;
-    console.log(
-      currentPage,
-      'CURRENT PAGE IN SCROLL',
-      state,
-      state === 'dragging' && currentPage === HOME_PAGE,
-      state === 'idle' && currentPage === HOME_PAGE,
-    );
     if (state === 'dragging' && currentPage === HOME_PAGE) {
       setIsCameraActive(true);
     }

@@ -11,6 +11,7 @@ import {useAppStatus} from '../../../../../../context-store/appStatus';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import {useTranslation} from 'react-i18next';
 
 export default function AcceptButtonSendPage({
   canSendPayment,
@@ -36,7 +37,7 @@ export default function AcceptButtonSendPage({
   const {liquidNodeInformation, fiatStats} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
-
+  const {t} = useTranslation();
   const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
   const navigate = useNavigation();
   return (
@@ -66,14 +67,14 @@ export default function AcceptButtonSendPage({
       }}
       useLoading={isGeneratingInvoice}
       actionFunction={handleEnterSendAmount}
-      textContent={'Accept'}
+      textContent={t('constants.accept')}
     />
   );
 
   async function handleEnterSendAmount() {
     if (!paymentInfo?.sendAmount) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Please enter a send amount',
+        errorMessage: t('wallet.sendPages.acceptButton.noSendAmountError'),
       });
       return;
     }
@@ -84,18 +85,20 @@ export default function AcceptButtonSendPage({
         convertedSendAmount > minMaxLiquidSwapAmounts.max)
     ) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: `${
-          convertedSendAmount < minMaxLiquidSwapAmounts.min
-            ? 'Minimum'
-            : 'Maximum'
-        } send amount ${displayCorrectDenomination({
-          amount:
+        errorMessage: t('wallet.sendPages.acceptButton.liquidError', {
+          overFlowType:
             convertedSendAmount < minMaxLiquidSwapAmounts.min
-              ? minMaxLiquidSwapAmounts.min
-              : minMaxLiquidSwapAmounts.max,
-          fiatStats,
-          masterInfoObject,
-        })}`,
+              ? 'Minimum'
+              : 'Maximum',
+          amount: displayCorrectDenomination({
+            amount:
+              convertedSendAmount < minMaxLiquidSwapAmounts.min
+                ? minMaxLiquidSwapAmounts.min
+                : minMaxLiquidSwapAmounts.max,
+            fiatStats,
+            masterInfoObject,
+          }),
+        }),
       });
       return;
     }
@@ -104,13 +107,13 @@ export default function AcceptButtonSendPage({
       convertedSendAmount < SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT
     ) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: `Minimum on-chain send amount is ${displayCorrectDenomination(
-          {
+        errorMessage: t('wallet.sendPages.acceptButton.onchainError', {
+          amount: displayCorrectDenomination({
             amount: SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
             fiatStats,
             masterInfoObject,
-          },
-        )}`,
+          }),
+        }),
       });
       return;
     }
@@ -120,38 +123,43 @@ export default function AcceptButtonSendPage({
         convertedSendAmount > maxLNURLSatAmount)
     ) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: `${
-          convertedSendAmount < minLNURLSatAmount ? 'Minimum' : 'Maximum'
-        } send amount ${displayCorrectDenomination({
-          amount:
-            convertedSendAmount < minLNURLSatAmount
-              ? minLNURLSatAmount
-              : maxLNURLSatAmount,
-          fiatStats,
-          masterInfoObject,
-        })}`,
+        errorMessage: t('wallet.sendPages.acceptButton.lnurlPayError', {
+          overFlowType:
+            convertedSendAmount < minLNURLSatAmount ? 'Minimum' : 'Maximum',
+          amount: displayCorrectDenomination({
+            amount:
+              convertedSendAmount < minLNURLSatAmount
+                ? minLNURLSatAmount
+                : maxLNURLSatAmount,
+            fiatStats,
+            masterInfoObject,
+          }),
+        }),
       });
       return;
     }
 
     if (isLRC20Payment && sparkInformation.balance < 10) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: `You need ${displayCorrectDenomination({
-          amount: 10,
-          masterInfoObject,
-          fiatStats,
-        })} sats to send tokens. Your balance is ${displayCorrectDenomination({
-          amount: sparkInformation.balance,
-          masterInfoObject,
-          fiatStats,
-        })} sats. Please receive some Bitcoin first.`,
+        errorMessage: t('wallet.sendPages.acceptButton.lrc20FeeError', {
+          amount: displayCorrectDenomination({
+            amount: 10,
+            masterInfoObject,
+            fiatStats,
+          }),
+          balance: displayCorrectDenomination({
+            amount: sparkInformation.balance,
+            masterInfoObject,
+            fiatStats,
+          }),
+        }),
       });
       return;
     }
 
     if (!canSendPayment && !!paymentInfo?.sendAmount) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Not enough funds to cover fees',
+        errorMessage: t('wallet.sendPages.acceptButton.balanceError'),
       });
       return;
     }
@@ -181,6 +189,7 @@ export default function AcceptButtonSendPage({
         sparkInformation,
         seletctedToken,
         currentWalletMnemoinc,
+        t,
       });
       setIsGeneratingInvoice(false);
     } catch (err) {

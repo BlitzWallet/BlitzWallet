@@ -2,11 +2,11 @@ import AboutPage from './about';
 import DisplayOptions from './displayOptions';
 
 import FiatCurrencyPage from './fiatCurrency';
-import LSPPage from './lsp';
-import NodeInfo from './nodeInfo';
+// import LSPPage from './lsp';
+// import NodeInfo from './nodeInfo';
 import NosterWalletConnect from './nwc';
 import ConfirmActionPage from './popups/confirmActionPage';
-import LspDescriptionPopup from './popups/lspDescription';
+// import LspDescriptionPopup from './popups/lspDescription';
 import ResetPage from './resetWallet';
 import SeedPhrasePage from './seedPhrasePage';
 
@@ -16,17 +16,17 @@ import BlitzSocialOptions from './socialOptions';
 
 // import LiquidWallet from './bank';
 import ViewAllLiquidSwaps from './viewAllLiquidSwaps';
-import WalletInformation from './walletInformation';
+// import WalletInformation from './walletInformation';
 import ExperimentalItemsPage from './ExperimentalItems';
 import PosSettingsPage from './posPath/settings';
-import HistoricalOnChainPayments from './onChainComponents/historicalOnChainPayments';
-import RestoreChannel from './restoreChannels';
+// import HistoricalOnChainPayments from './onChainComponents/historicalOnChainPayments';
+// import RestoreChannel from './restoreChannels';
 import FastPay from './fastPay';
 import ViewPOSTransactions from './posPath/transactions';
 import TotalTipsScreen from './posPath/totalTipsScreen';
 import CrashReportingSettingsPage from './crashReporting';
 import SparkInfo from './sparkInfo';
-import SupportWorkPage from './supportWorkPage';
+// import SupportWorkPage from './supportWorkPage';
 import NotificationPreferances from './notifications';
 import BlitzFeeInformation from './feeInformation';
 import CreateCustodyAccounts from './accounts';
@@ -35,14 +35,14 @@ export {
   AboutPage,
   DisplayOptions,
   FiatCurrencyPage,
-  LSPPage,
-  NodeInfo,
+  // LSPPage,
+  // NodeInfo,
   ResetPage,
-  LspDescriptionPopup,
+  // LspDescriptionPopup,
   ConfirmActionPage,
   SeedPhrasePage,
   NosterWalletConnect,
-  WalletInformation,
+  // WalletInformation,
   LoginSecurity,
   SendOnChainBitcoin,
   BlitzSocialOptions,
@@ -50,15 +50,15 @@ export {
   // LiquidWallet,
   ExperimentalItemsPage,
   PosSettingsPage,
-  HistoricalOnChainPayments,
-  RestoreChannel,
+  // HistoricalOnChainPayments,
+  // RestoreChannel,
   FastPay,
   ViewPOSTransactions,
   TotalTipsScreen,
   CrashReportingSettingsPage,
   CreateCustodyAccounts,
   SparkInfo,
-  SupportWorkPage,
+  // SupportWorkPage,
   NotificationPreferances,
   BlitzFeeInformation,
 };

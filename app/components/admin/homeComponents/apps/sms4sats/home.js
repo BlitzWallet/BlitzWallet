@@ -15,6 +15,7 @@ import {useGlobalAppData} from '../../../../../../context-store/appData';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
+import {useTranslation} from 'react-i18next';
 
 export default function SMSMessagingHome() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -23,6 +24,7 @@ export default function SMSMessagingHome() {
   const [selectedPage, setSelectedPage] = useState(null);
   const [SMSprices, setSMSPrices] = useState(null);
   const sentMessages = decodedMessages?.sent;
+  const {t} = useTranslation();
 
   useEffect(() => {
     if (selectedPage) return;
@@ -53,7 +55,7 @@ export default function SMSMessagingHome() {
       } catch (err) {
         console.log(err);
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Unable to get SMS pricing',
+          errorMessage: t('apps.sms4sats.home.pricingError'),
         });
       }
     })();
@@ -80,7 +82,7 @@ export default function SMSMessagingHome() {
             );
           }
         }}
-        label={selectedPage || ''}
+        label={selectedPage ? t(`constants.${selectedPage.toLowerCase()}`) : ''}
         showLeftImage={!selectedPage}
         leftImageBlue={ICONS.receiptIcon}
         LeftImageDarkMode={ICONS.receiptWhite}
@@ -99,14 +101,12 @@ export default function SMSMessagingHome() {
         <View style={styles.homepage}>
           <ThemeText
             styles={{textAlign: 'center', fontSize: SIZES.large}}
-            content={
-              'Send and Receive sms messages without giving away your personal phone number'
-            }
+            content={t('apps.sms4sats.home.pageDescription')}
           />
           <CustomButton
             buttonStyles={{width: '80%', marginTop: 50}}
             actionFunction={() => setSelectedPage('Send')}
-            textContent={'Send'}
+            textContent={t('constants.send')}
           />
           <CustomButton
             buttonStyles={{width: '80%', marginTop: 50}}
@@ -117,7 +117,7 @@ export default function SMSMessagingHome() {
               return;
               // setSelectedPage('receive');
             }}
-            textContent={'Receive'}
+            textContent={t('constants.receive')}
           />
         </View>
       ) : selectedPage?.toLowerCase() === 'send' ? (

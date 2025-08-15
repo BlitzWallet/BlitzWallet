@@ -9,12 +9,14 @@ import {StyleSheet, useWindowDimensions} from 'react-native';
 import fetchBackend from '../../../../../db/handleBackend';
 import {useKeysContext} from '../../../../../context-store/keys';
 import {setLocalStorageItem} from '../../../../functions';
+import {useTranslation} from 'react-i18next';
 const errorTxAnimation = require('../../../../assets/errorTxAnimation.json');
 export default function NoDataView() {
   const [isLoading, setIsLoading] = useState(false);
   const {theme, darkModeType} = useGlobalThemeContext();
   const {publicKey, contactsPrivateKey} = useKeysContext();
   const {toggleMasterInfoObject} = useGlobalContextProvider();
+  const {t} = useTranslation();
   const animationRef = useRef(null);
 
   const errorAnimation = useMemo(() => {
@@ -65,13 +67,13 @@ export default function NoDataView() {
       />
       <ThemeText
         styles={{marginBottom: 'auto'}}
-        content={'We were unable to retrive Blitz user count.'}
+        content={t('errormessages.explorePagenoDataError')}
       />
       <CustomButton
         actionFunction={handleSearch}
         useLoading={isLoading}
         buttonStyles={{marginTop: 'auto'}}
-        textContent={'Try again'}
+        textContent={t('constants.tryAgain')}
       />
     </GlobalThemeView>
   );

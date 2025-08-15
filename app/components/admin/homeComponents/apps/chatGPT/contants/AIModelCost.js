@@ -6,7 +6,7 @@ export const AI_MODEL_COST = [
     price: 2.3,
     input: 3 / MILLION_CONST,
     output: 15 / MILLION_CONST,
-    description: 'Ideal for long-form, creative content and dialogue.',
+    description: 'apps.chatGPT.switchModel.claudeDescription',
   },
   {
     name: 'gpt-4o',
@@ -14,7 +14,7 @@ export const AI_MODEL_COST = [
     price: 2.3,
     input: 2.5 / MILLION_CONST,
     output: 10 / MILLION_CONST,
-    description: 'Best for complex analysis and detailed content.',
+    description: 'apps.chatGPT.switchModel.gpt40Description',
   },
   // {
   //   name: 'Meta: Llama 3.1 405B',
@@ -30,7 +30,7 @@ export const AI_MODEL_COST = [
     price: 0.15,
     input: 0.15 / MILLION_CONST,
     output: 0.6 / MILLION_CONST,
-    description: 'Perfect for quick, cost-effective responses.',
+    description: 'apps.chatGPT.switchModel.gpt40miniDescription',
   },
   {
     name: 'gemini-flash-1.5',
@@ -38,7 +38,7 @@ export const AI_MODEL_COST = [
     price: 0.17,
     input: 2.5 / MILLION_CONST,
     output: 10 / MILLION_CONST,
-    description: 'Suited for fast, moderate-output interactions.',
+    description: 'apps.chatGPT.switchModel.geminiDescription',
   },
   // {
   //   name: 'Mixtral-8x7b',

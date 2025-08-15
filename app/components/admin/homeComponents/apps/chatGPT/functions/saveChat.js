@@ -12,6 +12,7 @@ export default function saveChatGPTChat({
   newChats,
   toggleGlobalAppDataInformation,
   navigate,
+  errorMessage,
 }) {
   try {
     const publicKey = getPublicKey(contactsPrivateKey);
@@ -80,7 +81,7 @@ export default function saveChatGPTChat({
   } catch (err) {
     console.log(err);
     navigate.navigate('ErrorScreen', {
-      errorMessage: 'Sorry we cannot save your conversation.',
+      errorMessage: errorMessage,
     });
   }
 }

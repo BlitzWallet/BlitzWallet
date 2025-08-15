@@ -6,6 +6,7 @@ import FormattedSatText from '../../../../../../functions/CustomElements/satText
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../../../context-store/nodeContext';
+import {useTranslation} from 'react-i18next';
 
 export default function VPNDurationSlider({
   setSelectedDuration,
@@ -14,6 +15,7 @@ export default function VPNDurationSlider({
   const {fiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor} = GetThemeColors();
+  const {t} = useTranslation();
 
   const satValues = {
     hour: {
@@ -40,11 +42,36 @@ export default function VPNDurationSlider({
 
   const durationOption = useMemo(() => {
     return [
-      ['1 hour', 'hour'],
-      ['1 day', 'day'],
-      ['1 week', 'week'],
-      ['1 month', 'month'],
-      ['1 quarter', 'quarter'],
+      [
+        t('apps.VPN.durationSlider.durationOption', {
+          duration: t('constants.hour'),
+        }),
+        'hour',
+      ],
+      [
+        t('apps.VPN.durationSlider.durationOption', {
+          duration: t('constants.day'),
+        }),
+        'day',
+      ],
+      [
+        t('apps.VPN.durationSlider.durationOption', {
+          duration: t('constants.week'),
+        }),
+        'week',
+      ],
+      [
+        t('apps.VPN.durationSlider.durationOption', {
+          duration: t('constants.month'),
+        }),
+        'month',
+      ],
+      [
+        t('apps.VPN.durationSlider.durationOption', {
+          duration: t('constants.quarter'),
+        }),
+        'quarter',
+      ],
     ].map(item => {
       const [name, itemSelector] = item;
       return (
@@ -88,10 +115,13 @@ export default function VPNDurationSlider({
           fontSize: SIZES.xLarge,
           textAlign: 'center',
         }}
-        frontText={'Price: '}
+        frontText={t('apps.VPN.durationSlider.price')}
         balance={satValues[selectedDuration].value}
       />
-      <ThemeText styles={{...styles.infoHeaders}} content={'Duration'} />
+      <ThemeText
+        styles={{...styles.infoHeaders}}
+        content={t('apps.VPN.durationSlider.duration')}
+      />
       <View style={styles.durationInnerContianer}>{durationOption}</View>
     </View>
   );

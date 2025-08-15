@@ -5,7 +5,7 @@ type RootStackParamList = {
   Details: {someParam?: string};
   ExpandedAddContactsPage: {newContact: object};
   ConfirmPaymentScreen: {btcAdress: string};
-  ErrorScreen: {errorMessage: string};
+  ErrorScreen: {errorMessage: string; useTranslationString?: boolean};
 };
 
 // Correct way to define the navigationRef

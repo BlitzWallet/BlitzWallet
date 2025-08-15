@@ -1,4 +1,4 @@
-import {StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet} from 'react-native';
 import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
@@ -24,14 +24,14 @@ export default function CrashReportingSettingsPage() {
   }, [isCrashReportingEnabled]);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <SettingsItemWithSlider
         settingsTitle={`${
           isCrashReportingEnabled
-            ? t('settings.crashreporting.enabled')
-            : t('settings.crashreporting.disabled')
-        } ${t('settings.crashreporting.crashreporting')}`}
-        settingDescription={t('settings.crashreporting.text1')}
+            ? t('settings.crashReporting.enabled')
+            : t('settings.crashReporting.disabled')
+        } ${t('settings.crashReporting.crashreporting')}`}
+        settingDescription={t('settings.crashReporting.descriptionText')}
         handleSubmit={() => {
           toggleMasterInfoObject({
             crashReportingSettings: {
@@ -44,7 +44,7 @@ export default function CrashReportingSettingsPage() {
         toggleSwitchStateValue={isCrashReportingEnabled}
         showDescription={true}
       />
-    </View>
+    </ScrollView>
   );
 }
 

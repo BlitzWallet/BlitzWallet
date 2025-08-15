@@ -1,14 +1,13 @@
 import ecc from '@bitcoinerlab/secp256k1';
 import {ECPairFactory} from 'ecpair';
-import crypto from 'react-native-quick-crypto';
+import {randomBytes} from 'react-native-quick-crypto';
 import {networks as liquidNetworks} from 'liquidjs-lib';
 import {Buffer} from 'buffer';
 
 const ECPair = ECPairFactory(ecc);
 
 export async function createBoltzSwapKeys() {
-  const byteArray = crypto.randomBytes(32);
-  console.log(byteArray);
+  const byteArray = randomBytes(32);
   const keyFormatt = {
     network:
       process.env.BOLTZ_ENVIRONMENT === 'testnet'

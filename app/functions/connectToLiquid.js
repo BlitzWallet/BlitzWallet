@@ -1,8 +1,6 @@
 import {
-  addEventListener,
   connect,
   defaultConfig,
-  getInfo,
   LiquidNetwork,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import {getOrCreateDirectory} from './connectToNode';
@@ -26,34 +24,6 @@ export default async function connectToLiquidNode(accountMnemoinc) {
       isConnected: true,
       reason: null,
     };
-
-    // let ableToRetrive = false;
-    // let runcount = 0;
-
-    // while (!ableToRetrive && runcount < 4) {
-    //   try {
-    //     const liquid_node_info = await getInfo();
-    //     ableToRetrive = true;
-    //     return new Promise(resolve => {
-    //       resolve({
-    //         isConnected: true,
-    //         reason: null,
-    //         liquid_node_info: liquid_node_info,
-    //       });
-    //     });
-    //   } catch (err) {
-    //     console.log(err, 'LIQUID NODE ABLE TO RETRIVE ERR');
-    //     await new Promise(res => setTimeout(res, 2000));
-    //   } finally {
-    //     runcount += 1;
-    //   }
-    // }
-    // return new Promise(resolve => {
-    //   resolve({
-    //     isConnected: false,
-    //     reason: 'Not able to get liquid information',
-    //   });
-    // });
   }
 
   didConnect = true;
@@ -96,11 +66,5 @@ export default async function connectToLiquidNode(accountMnemoinc) {
       isConnected: false,
       reason: err,
     };
-    // return new Promise(resolve => {
-    //   resolve({
-    //     isConnected: false,
-    //     reason: err,
-    //   });
-    // });
   }
 }

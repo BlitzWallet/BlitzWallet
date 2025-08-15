@@ -21,12 +21,13 @@ import {useKeysContext} from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useToast} from '../../../../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
 
 export default function HistoricalGiftCardPurchases() {
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {showToast} = useToast();
-
+  const {t} = useTranslation();
   const navigate = useNavigation();
   const {bottomPadding} = useGlobalInsets();
 
@@ -34,13 +35,6 @@ export default function HistoricalGiftCardPurchases() {
 
   const renderItem = ({item}) => (
     <TouchableOpacity
-      onLongPress={() => {
-        navigate.navigate('ConfirmActionPage', {
-          confirmMessage:
-            'Are you sure you want to remove this purchased card.',
-          confirmFunction: () => removeGiftCardFromList(item.uuid),
-        });
-      }}
       onPress={() => {
         navigate.navigate('GiftCardOrderDetails', {
           item: item,
@@ -56,14 +50,17 @@ export default function HistoricalGiftCardPurchases() {
         />
         <ThemeText
           CustomNumberOfLines={1}
-          content={`Purchased: ${new Date(item.date).toDateString()}`}
+          content={`${t(
+            'apps.giftCards.historicalPurchasesPage.purchased',
+          )} ${new Date(item.date).toDateString()}`}
         />
       </View>
       <TouchableOpacity
         onPress={() =>
           navigate.navigate('ConfirmActionPage', {
-            confirmMessage:
-              'Are you sure you want to remove this purchased card.',
+            confirmMessage: t(
+              'apps.giftCards.historicalPurchasesPage.confirmRemoval',
+            ),
             confirmFunction: () => removeGiftCardFromList(item.uuid),
           })
         }>
@@ -95,7 +92,9 @@ export default function HistoricalGiftCardPurchases() {
       {!decodedGiftCards.purchasedCards ||
       decodedGiftCards?.purchasedCards?.length === 0 ? (
         <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-          <ThemeText content={'You have not purchased any cards'} />
+          <ThemeText
+            content={t('apps.giftCards.historicalPurchasesPage.noPurchases')}
+          />
         </View>
       ) : (
         <>
@@ -129,11 +128,11 @@ export default function HistoricalGiftCardPurchases() {
                   'support@thebitcoincompany.com',
                   showToast,
                   null,
-                  'Support email copied',
+                  t('apps.giftCards.historicalPurchasesPage.customCopyMessage'),
                 );
               }
             }}
-            textContent={'Support'}
+            textContent={t('constants.support')}
           />
         </>
       )}

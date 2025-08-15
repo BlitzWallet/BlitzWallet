@@ -15,12 +15,14 @@ import {useKeysContext} from '../../../../../../context-store/keys';
 import getReceiveAddressForContactPayment from './getReceiveAddressAndKindForPayment';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useServerTimeOnly} from '../../../../../../context-store/serverTime';
+import {useTranslation} from 'react-i18next';
 
 function getTimeDisplay(
   timeDifferenceMinutes,
   timeDifferenceHours,
   timeDifferenceDays,
   timeDifferenceYears,
+  t,
 ) {
   const timeValue =
     timeDifferenceMinutes <= 60
@@ -36,26 +38,27 @@ function getTimeDisplay(
   const timeUnit =
     timeDifferenceMinutes <= 60
       ? timeDifferenceMinutes < 1
-        ? 'Just now'
+        ? t('transactionLabelText.txTime_just_now')
         : Math.round(timeDifferenceMinutes) === 1
-        ? 'minute'
-        : 'minutes'
+        ? t('timeLabels.minute')
+        : t('timeLabels.minutes')
       : timeDifferenceHours <= 24
       ? Math.round(timeDifferenceHours) === 1
-        ? 'hour'
-        : 'hours'
+        ? t('timeLabels.hour')
+        : t('timeLabels.hours')
       : timeDifferenceDays <= 365
       ? Math.round(timeDifferenceDays) === 1
-        ? 'day'
-        : 'days'
+        ? t('timeLabels.day')
+        : t('timeLabels.days')
       : Math.round(timeDifferenceYears) === 1
-      ? 'year'
-      : 'years';
+      ? t('timeLabels.year')
+      : t('timeLabels.years');
 
-  const suffix = timeDifferenceMinutes > 1 ? ' ago' : '';
+  const suffix =
+    timeDifferenceMinutes > 1 ? ` ${t('transactionLabelText.ago')}` : '';
 
   return `${timeValue}${
-    timeUnit === 'Just now' ? '' : ' '
+    timeUnit === t('transactionLabelText.txTime_just_now') ? '' : ' '
   }${timeUnit}${suffix}`;
 }
 
@@ -68,6 +71,7 @@ function ConfirmedOrSentTransaction({
   timeDifferenceYears,
   props,
 }) {
+  const {t} = useTranslation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {textColor} = GetThemeColors();
@@ -121,19 +125,19 @@ function ConfirmedOrSentTransaction({
           content={
             didDeclinePayment
               ? txParsed.didSend
-                ? 'Request declined'
-                : 'Declined request'
+                ? t('transactionLabelText.requestDeclined')
+                : t('transactionLabelText.declinedRequest')
               : txParsed.isRequest
               ? txParsed.didSend
                 ? txParsed.isRedeemed === null
-                  ? 'Payment request sent'
-                  : 'Request paid'
-                : paymentDescription || 'Paid request'
+                  ? t('transactionLabelText.requestSent')
+                  : t('transactionLabelText.requestPaid')
+                : paymentDescription || t('transactionLabelText.paidRequest')
               : !!paymentDescription
               ? paymentDescription
               : txParsed.didSend
-              ? 'Sent'
-              : 'Received'
+              ? t('transactionLabelText.sent')
+              : t('transactionLabelText.received')
           }
         />
         <ThemeText
@@ -150,6 +154,7 @@ function ConfirmedOrSentTransaction({
             timeDifferenceHours,
             timeDifferenceDays,
             timeDifferenceYears,
+            t,
           )}
         />
       </View>
@@ -184,7 +189,7 @@ function ConfirmedOrSentTransaction({
 
 export default function ContactsTransactionItem(props) {
   const {selectedContact, transaction, myProfile, currentTime} = props;
-
+  const {t} = useTranslation();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundColor} = GetThemeColors();
@@ -240,7 +245,7 @@ export default function ContactsTransactionItem(props) {
           getDataFromCollection('blitzWalletUsers', selectedContact.uuid),
         ]);
         if (!retrivedContact)
-          throw new Error('Unable to get user from database');
+          throw new Error(t('errormessages.userDataFetchError'));
 
         const currentTime = getServerTime();
 
@@ -250,9 +255,15 @@ export default function ContactsTransactionItem(props) {
             myProfile: myProfile,
             data: {
               isUpdate: true,
-              message: `${myProfile.name || myProfile.uniqueName} ${
-                didPay ? 'paid' : 'declined'
-              } your request`,
+              message: t(
+                'contacts.internalComponents.contactsTransactions.pushNotificationUpdateMessage',
+                {
+                  name: myProfile.name || myProfile.uniqueName,
+                  option: didPay
+                    ? t('transactionLabelText.paidLower')
+                    : t('transactionLabelText.declinedLower'),
+                },
+              ),
             },
             fiatCurrencies: fiatCurrencies,
             privateKey: contactsPrivateKey,
@@ -279,14 +290,14 @@ export default function ContactsTransactionItem(props) {
         ]);
         if (!didUpdateMessage && usingOnPage) {
           navigate.navigate('ErrorScreen', {
-            errorMessage: 'Unable to update message',
+            errorMessage: t('errormessages.updateContactMessageError'),
           });
         }
       } catch (err) {
         console.log(err);
         if (!usingOnPage) return;
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Unable to decline payment',
+          errorMessage: t('errormessages.declinePaymentError'),
         });
       } finally {
         if (!usingOnPage) return;
@@ -314,12 +325,18 @@ export default function ContactsTransactionItem(props) {
       }));
       const sendingAmount = transaction.message.amountMsat / 1000;
 
-      const myProfileMessage = `Paid ${
-        selectedContact.name || selectedContact.uniqueName
-      }'s request`;
-      const payingContactMessage = `${
-        myProfile.name || myProfile.uniqueName
-      } paid your request`;
+      const myProfileMessage = t(
+        'contacts.internalComponents.contactsTransactions.acceptProfileMessage',
+        {
+          name: selectedContact.name || selectedContact.uniqueName,
+        },
+      );
+      const payingContactMessage = t(
+        'contacts.internalComponents.contactsTransactions.acceptPayingContactMessage',
+        {
+          name: selectedContact.name || selectedContact.uniqueName,
+        },
+      );
 
       const receiveAddress = await getReceiveAddressForContactPayment(
         sendingAmount,
@@ -329,7 +346,8 @@ export default function ContactsTransactionItem(props) {
       );
       if (!receiveAddress.didWork) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Unable to pay contact, try again.',
+          errorMessage: receiveAddress.error,
+          useTranslationString: true,
         });
         return;
       }
@@ -399,7 +417,9 @@ export default function ContactsTransactionItem(props) {
 
           <View style={{width: '100%', flex: 1}}>
             <FormattedSatText
-              frontText={`Received request for `}
+              frontText={t(
+                'contacts.internalComponents.contactsTransactions.requestTitle',
+              )}
               neverHideBalance={true}
               containerStyles={styles.requestTextContainer}
               styles={{
@@ -419,6 +439,7 @@ export default function ContactsTransactionItem(props) {
                 timeDifferenceHours,
                 timeDifferenceDays,
                 timeDifferenceYears,
+                t,
               )}
             />
 
@@ -449,7 +470,7 @@ export default function ContactsTransactionItem(props) {
                 color: backgroundColor,
                 includeFontPadding: false,
               }}
-              textContent={'Send'}
+              textContent={t('constants.send')}
             />
 
             <CustomButton
@@ -468,7 +489,7 @@ export default function ContactsTransactionItem(props) {
                 color: theme ? textColor : COLORS.primary,
                 includeFontPadding: false,
               }}
-              textContent={'Decline'}
+              textContent={t('constants.decline')}
             />
           </View>
         </View>

@@ -31,7 +31,7 @@ export async function initWallet({
 
       if (!didSetSpark)
         throw new Error(
-          'Spark wallet information was not set properly, please try again.',
+          'We were unable to connect to the spark node. Please try again.',
         );
     } else {
       throw new Error(

@@ -22,6 +22,7 @@ import MaxHeap from '../../../../functions/minHeap';
 import ContactProfileImage from './internalComponents/profileImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
 import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
+import {useTranslation} from 'react-i18next';
 
 export default function MyContactProfilePage({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -35,6 +36,7 @@ export default function MyContactProfilePage({navigation}) {
   const currentTime = new Date();
   const [showList, setShowList] = useState(false);
   const [createdPayments, setCreatedPayments] = useState([]);
+  const {t} = useTranslation();
 
   const myContact = globalContactsInformation.myProfile;
 
@@ -118,8 +120,7 @@ export default function MyContactProfilePage({navigation}) {
           onPress={() => {
             if (!isConnectedToTheInternet) {
               navigate.navigate('ErrorScreen', {
-                errorMessage:
-                  'Please connect to the internet to use this feature',
+                errorMessage: t('errormessages.nointernet'),
               });
               return;
             }
@@ -189,7 +190,7 @@ export default function MyContactProfilePage({navigation}) {
             showsVerticalScrollIndicator={false}>
             <ThemeText
               styles={{...styles.bioText, color: textInputColor}}
-              content={myContact?.bio || 'No bio set'}
+              content={myContact?.bio || t('constants.noBioSet')}
             />
           </ScrollView>
         </View>
@@ -221,7 +222,11 @@ export default function MyContactProfilePage({navigation}) {
         ) : (
           <ThemeText
             styles={{marginTop: 20}}
-            content={showList ? 'No transaction history' : "Where'd you go?"}
+            content={
+              showList
+                ? t('constants.noTransactions')
+                : t('constants.leftPageMessage')
+            }
           />
         )}
       </View>

@@ -1,13 +1,5 @@
-import {useCallback, useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {CENTER, FONT, ICONS, SIZES} from '../../../../../../constants';
 import {
   GlobalThemeView,
@@ -17,6 +9,7 @@ import useHandleBackPressNew from '../../../../../../hooks/useHandleBackPressNew
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../../functions/CustomElements/themeImage';
 import {AI_MODEL_COST} from '../contants/AIModelCost';
+import {useTranslation} from 'react-i18next';
 
 export default function SwitchGenerativeAIModel(props) {
   const navigate = useNavigation();
@@ -47,7 +40,7 @@ export default function SwitchGenerativeAIModel(props) {
           />
           <ThemeText
             styles={{...styles.optionItemText}}
-            content={item.description}
+            content={t(item.description)}
           />
         </View>
       </TouchableOpacity>

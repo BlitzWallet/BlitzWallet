@@ -21,6 +21,7 @@ import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import {useTranslation} from 'react-i18next';
 
 export default function VPNPlanPage({countryList}) {
   const [searchInput, setSearchInput] = useState('');
@@ -38,6 +39,7 @@ export default function VPNPlanPage({countryList}) {
   const [loadingMessage, setLoadingMessage] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const {bottomPadding} = useGlobalInsets();
+  const {t} = useTranslation();
 
   const countryElements = useMemo(() => {
     return [...countryList]
@@ -79,7 +81,9 @@ export default function VPNPlanPage({countryList}) {
               textStyles={{
                 color: textColor,
               }}
-              text={loadingMessage || 'Retriving invoice'}
+              text={
+                loadingMessage || t('apps.VPN.VPNPlanPage.backupLoadingMessage')
+              }
             />
           )}
         </>
@@ -93,7 +97,9 @@ export default function VPNPlanPage({countryList}) {
             <CustomSearchInput
               inputText={searchInput}
               setInputText={setSearchInput}
-              placeholderText={'Search for a country'}
+              placeholderText={t(
+                'apps.VPN.VPNPlanPage.countrySearchPlaceholder',
+              )}
               onBlurFunction={() => setIsKeyboardActive(false)}
               onFocusFunction={() => setIsKeyboardActive(true)}
             />
@@ -106,7 +112,7 @@ export default function VPNPlanPage({countryList}) {
             {!isKeyboardActive && (
               <CustomButton
                 buttonStyles={{marginTop: 'auto', width: 'auto', ...CENTER}}
-                textContent={'Create VPN'}
+                textContent={t('apps.VPN.VPNPlanPage.createVPNBTN')}
                 actionFunction={() => {
                   const didAddLocation = countryList.filter(item => {
                     return item.country === searchInput;
@@ -114,7 +120,7 @@ export default function VPNPlanPage({countryList}) {
 
                   if (didAddLocation.length === 0) {
                     navigate.navigate('ErrorScreen', {
-                      errorMessage: `Please select a country for the VPN to be located in`,
+                      errorMessage: t('apps.VPN.VPNPlanPage.noLocationError'),
                     });
                     setIsPaying(false);
                     return;
@@ -225,7 +231,9 @@ export default function VPNPlanPage({countryList}) {
           duration: selectedDuration,
           country: country,
         });
-        setLoadingMessage('Paying invoice');
+        setLoadingMessage(
+          t('apps.VPN.VPNPlanPage.payingInvoiceLoadingMessage'),
+        );
         saveVPNConfigsToDB(savedVPNConfigs);
         const parsedInput = await parse(invoice.payment_request);
         const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
@@ -244,7 +252,9 @@ export default function VPNPlanPage({countryList}) {
         if (!paymentResponse.didWork) {
           setIsPaying(false);
           navigate.navigate('ErrorScreen', {
-            errorMessage: paymentResponse.reason || 'Error paying invoice.',
+            errorMessage:
+              paymentResponse.reason ||
+              t('apps.VPN.VPNPlanPage.backupPaymentError'),
           });
           return;
         }
@@ -255,13 +265,13 @@ export default function VPNPlanPage({countryList}) {
         });
       } else {
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Error creating invoice',
+          errorMessage: t('apps.VPN.VPNPlanPage.createInvoiceError'),
         });
         setIsPaying(false);
       }
     } catch (err) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Error paying invoice',
+        errorMessage: t('apps.VPN.VPNPlanPage.payingInvoiveError'),
       });
       setIsPaying(false);
     }
@@ -273,7 +283,12 @@ export default function VPNPlanPage({countryList}) {
 
     while (!didSettleInvoice && runCount < 10) {
       try {
-        setLoadingMessage(`Running ${runCount} for 10 tries`);
+        setLoadingMessage(
+          t('apps.VPN.VPNPlanPage.runningTries', {
+            runCount: runCount,
+            maxTries: 10,
+          }),
+        );
 
         runCount += 1;
         const response = await fetch(
@@ -316,7 +331,7 @@ export default function VPNPlanPage({countryList}) {
     }
     if (!didSettleInvoice) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Not able to get config file',
+        errorMessage: t('apps.VPN.VPNPlanPage.configError'),
       });
       setIsPaying(false);
       return;

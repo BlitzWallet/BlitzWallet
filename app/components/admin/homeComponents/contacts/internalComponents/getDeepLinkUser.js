@@ -9,7 +9,10 @@ export default async function getDeepLinkUser({deepLinkContent, userProfile}) {
     console.log(rawUser);
     if (rawUser.length === 0 || !rawUser)
       return new Promise(resolve =>
-        resolve({didWork: false, reason: 'User not found'}),
+        resolve({
+          didWork: false,
+          reason: 'errormessages.noUserFoundDeeplinkError',
+        }),
       );
 
     const user = rawUser[0];
@@ -27,7 +30,10 @@ export default async function getDeepLinkUser({deepLinkContent, userProfile}) {
 
     if (userProfile.uuid === newContact.uuid) {
       return new Promise(resolve =>
-        resolve({didWork: false, reason: 'Cannot add yourself'}),
+        resolve({
+          didWork: false,
+          reason: 'errormessages.cannotAddSelfError',
+        }),
       );
     }
     // look to see if new added user has a profile iamge saved
@@ -39,7 +45,7 @@ export default async function getDeepLinkUser({deepLinkContent, userProfile}) {
   } catch (err) {
     console.log(err);
     return new Promise(resolve =>
-      resolve({didWork: false, reason: 'Error getting contact'}),
+      resolve({didWork: false, reason: 'errormessages.fullDeeplinkError'}),
     );
   }
 }

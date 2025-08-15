@@ -18,7 +18,7 @@ export default async function liquidToSparkSwap(contactUsername) {
       }
     }
 
-    if (!parsedData) throw new Error('Unable to retrive invoice for swap');
+    if (!parsedData) throw new Error('errormessages.invoiceRetrivalError');
 
     const paymentResponse = await breezLiquidLNAddressPaymentWrapper({
       description: 'Liquid to Spark Swap',

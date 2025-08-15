@@ -10,12 +10,14 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useMemo, useRef} from 'react';
 import {applyErrorAnimationTheme} from '../../../../../functions/lottieViewColorTransformer';
+import {useTranslation} from 'react-i18next';
 
 export default function ErrorWithPayment({reason}) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const navigate = useNavigation();
   const windowWidth = useWindowDimensions().width;
   const animationRef = useRef(null);
+  const {t} = useTranslation();
 
   const errorAnimation = useMemo(() => {
     const confirmTxAnimationDarkMode = require('../../../../../assets/errorTxAnimation.json');
@@ -42,7 +44,10 @@ export default function ErrorWithPayment({reason}) {
           height: windowWidth / 1.5,
         }}
       />
-      <ThemeText styles={styles.text} content={'Error message'} />
+      <ThemeText
+        styles={styles.text}
+        content={t('wallet.sendPages.errorScreen.title')}
+      />
       <ScrollView
         style={{flex: 1, width: '90%', ...CENTER}}
         contentContainerStyle={{alignItems: 'center', paddingVertical: 20}}>
@@ -50,7 +55,7 @@ export default function ErrorWithPayment({reason}) {
       </ScrollView>
       <CustomButton
         buttonStyles={styles.buttonStyle}
-        textContent={'Continue'}
+        textContent={t('constants.continue')}
         actionFunction={() => {
           navigate.popTo('HomeAdmin', {screen: 'Home'});
         }}

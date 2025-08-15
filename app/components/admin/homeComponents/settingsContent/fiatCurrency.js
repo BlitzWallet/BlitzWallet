@@ -17,6 +17,7 @@ import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
+import {useTranslation} from 'react-i18next';
 
 export default function FiatCurrencyPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -25,7 +26,7 @@ export default function FiatCurrencyPage() {
   const currencies = masterInfoObject.fiatCurrenciesList || [];
   const [textInput, setTextInput] = useState('');
   const currentCurrency = masterInfoObject?.fiatCurrency;
-
+  const {t} = useTranslation();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const {bottomPadding} = useGlobalInsets();
 
@@ -84,7 +85,7 @@ export default function FiatCurrencyPage() {
       <GlobalThemeView useStandardWidth={true}>
         <CustomSettingsTopBar
           shouldDismissKeyboard={true}
-          label={'Display Currency'}
+          label={t('settins.fiatCurrency.title')}
         />
         <FullLoadingScreen />
       </GlobalThemeView>
@@ -97,7 +98,7 @@ export default function FiatCurrencyPage() {
       useStandardWidth={true}>
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
-        label={'Display Currency'}
+        label={t('settings.fiatCurrency.title')}
       />
 
       <FlatList
@@ -114,7 +115,7 @@ export default function FiatCurrencyPage() {
           <CustomSearchInput
             setInputText={setTextInput}
             inputText={textInput}
-            placeholderText={'Search currency'}
+            placeholderText={t('settings.fiatCurrency.placeholderText')}
             containerStyles={{width: INSET_WINDOW_WIDTH}}
             onBlurFunction={() => setIsKeyboardActive(false)}
             onFocusFunction={() => setIsKeyboardActive(true)}
@@ -145,15 +146,14 @@ export default function FiatCurrencyPage() {
         navigate.goBack();
       } else {
         navigate.navigate('ErrorScreen', {
-          errorMessage:
-            'Sorry, we were not able to save the selected currency.',
+          errorMessage: t('settings.fiatCurrency.saveCurrencyError'),
         });
       }
     } catch (err) {
       setIsLoading(false);
       console.log(err);
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Sorry, we ran into an error when saving this currency.',
+        errorMessage: t('settings.fiatCurrency.saveCurrencyError'),
       });
     }
   }
