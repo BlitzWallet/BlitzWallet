@@ -31,6 +31,7 @@
     "minimum": "Minimum",
     "request": "Request",
     "fee": "Fee",
+    "type": "Type",
     "edit": "Edit",
     "iunderstand": "I understand",
     "save": "Save",
@@ -99,7 +100,9 @@
     "reset": "Reset",
     "noData": "No data available",
     "selectOption": "Select an option",
-    "slideToConfirm": "Slide to confirm"
+    "slideToConfirm": "Slide to confirm",
+    "token": "Token",
+    "veriable": "Veriable"
   },
 
   "weekdays": {
@@ -143,12 +146,14 @@
   },
 
   "transactionLabelText": {
-    "failed": "Payment not sent",
+    "notSent": "Payment not sent",
     "txTime_just_now": "Just now",
     "ago": "ago",
     "pending": "Pending",
     "confirmed": "Confirmed",
     "processing": "Processing",
+    "successful": "Successful",
+    "failed": "Failed",
     "requestDeclined": "Request declined",
     "declinedRequest": "Declined request",
     "requestSent": "Payment request sent",
@@ -158,51 +163,70 @@
     "received": "Received",
     "paidLower": "paid",
     "declinedLower": "declined",
-    "receivedRequest": "Received request"
+    "receivedRequest": "Received request",
+    "date": "Date",
+    "time": "Time",
+    "memo": "Memo"
   },
 
   "createAccount": {
     "homePage": {
       "title": "",
-      "subtitle": "",
+      "subtitle": "Your wallet, your coins, 100% open-source",
       "buttons": {
         "button1": "Enter seed phrase",
         "button2": "Make new wallet"
       }
     },
     "disclaimerPage": {
-      "header": "",
-      "subHeader": "",
-      "imgCaption": "",
-      "continueBTN": ""
+      "header": "Self-custodial",
+      "subHeader": "Blitz cannot access your funds or help recover them if lost. By continuing, you agree to Blitz Wallet's terms and conditions.",
+      "imgCaption": "'With great power comes great responsibility' - Uncle Ben",
+      "terms&Conditions": "Terms and Conditions",
+      "continueBTN": "Next"
+    },
+    "verifyKeyPage": {
+      "header": "Let's confirm your backup!"
     },
     "keySetup": {
       "generateKey": {
-        "header": "",
-        "subHeader": "",
-        "disclaimer": "",
-        "errorText": ""
+        "header": "This is your password to your money, if you lose it you lose your money!",
+        "subHeader": "Write it down with pen and paper and keep it safe!",
+        "disclaimer": "WE CAN NOT HELP YOU IF YOU LOSE IT",
+        "errorText": "Error Fetching recovery phrase",
+        "keyGenError": "Not able to generate valid seed",
+        "seedPrivacyMessage": "Make sure no one is around who can see your screen.",
+        "showIt": "Show it",
+        "invalidSeedError": "Not able to generate valid seed"
       },
       "pin": {
-        "wrongPinError": "",
-        "enterPinMessage": "",
-        "confirmPin": "",
-        "attemptsText": ""
+        "savePinError": "Unable to save pin",
+        "removeWalletError": "Error removing wallet",
+        "wrongPinError": "Try again",
+        "enterPinMessage": "Create PIN",
+        "confirmPin": "Confirm Pin",
+        "attemptsText": "{{number}} attempts left"
       }
     },
     "restoreWallet": {
       "home": {
-        "header": "",
-        "continueBTN": "",
-        "error1": "",
-        "error2": "",
-        "error3": ""
+        "header": "Enter your recovery phrase",
+        "continueBTN": "Restore wallet",
+        "error1": "Please enter all of your keys.",
+        "error2": "This is not a valid mnemonic.",
+        "error3": "Your words are not the same as the generated words",
+        "noSeedInString": "Unable to find seed in string",
+        "invalidWordLen": "Not every word is of valid length",
+        "cannotFind12Words": "Unable to find 12 words from copied recovery phrase.",
+        "noSeedInNumberArray": "Unable to find seed in number array",
+        "noSeedInQr": "Unable to get seed from QR code",
+        "scanQr": "Scan QR"
       }
     },
     "skipMessage": {
-      "header": "",
-      "subHeader": "",
-      "btn": ""
+      "header": "We recommend that you write down your seed phrase",
+      "subHeader": "If you do not have your seed phrase written down you risk losing your money.",
+      "btn": "I understand"
     }
   },
 
@@ -1751,20 +1775,25 @@
         "selectProvider": ""
       },
       "confirmTxPage": {
+        "failedToSend": "Failed to send",
+        "confirmMessage": "{{direction}} succesfully",
+        "paymentErrorMessage": "There was an issue sending this payment, please try again.",
+        "sendReport": "Send report to developer",
         "title": "",
         "transactionDetails": "",
         "confirmPayment": ""
       },
       "expandedTxPage": {
-        "title": "",
+        "confirmMessage": "{{direction}} amount",
+        "paymentStatus": "Payment status",
+        "confReqired": "Confs required",
+        "detailsBTN": "Technical details",
         "transactionInfo": "",
         "txDetails": ""
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",
-        "title": "",
-        "explore": "",
-        "discover": ""
+        "title": "Blitz Downloads"
       },
       "home": {
         "title": "",
@@ -1786,6 +1815,9 @@
         "enterCredentials": ""
       },
       "receiveBtcPage": {
+        "onchainFeeMessage": "On-chain payments have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.",
+        "liquidFeeMessage": "Liquid payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
+        "generatingInvoice": "Generating Invoice",
         "title": "",
         "receivePayment": "",
         "generateAddress": ""
@@ -1796,17 +1828,45 @@
         "enterDetails": ""
       },
       "settingsContent": {
-        "title": "",
-        "preferences": "",
-        "configuration": ""
+        "about": "About",
+        "display currency": "Display Currency",
+        "display options": "Display Options",
+        "edit contact profile": "Edit Contact Profile",
+        "liquid swaps": "Liquid Swaps",
+        "fast pay": "Fast Pay",
+        "blitz fee details": "Blitz Fee Details",
+        "crash reports": "Crash Reports",
+        "notifications": "Notifications",
+        "blitz stats": "Blitz Stats",
+        "accounts": "Accounts",
+        "nostr": "nostr",
+        "login mode": "Login Mode",
+        "backup wallet": "Backup Wallet",
+        "spark info": "Spark Info",
+        "delete wallet": "Delete Wallet",
+        "general": "General",
+        "security": "Security",
+        "technical settings": "Technical Settings",
+        "experimental features": "Experimental Features",
+        "settings": "Settings",
+        "blitzRestore": "Blitz Restore",
+        "point-of-sale": "Point-of-sale"
       },
       "technicalTransactionDetails": {
+        "txHash": "Transaction Hash",
+        "paymentId": "Payment Id",
+        "preimage": "Payment Preimage",
+        "address": "Payment Address",
+        "bitcoinTxId": "Bitcoin Txid",
+        "paymentExp": "Payment Expiry",
+        "noInformationLabel": "{{item}} is not shown since this payment was restored from history or used a zero amount invoice.",
+        "privacyMessage": "To preserve the receiver’s privacy, all other information is hidden.",
         "title": "",
         "technicalInfo": "",
         "rawData": ""
       },
       "viewAllTxPage": {
-        "title": "",
+        "title": "Transactions",
         "allTransactions": "",
         "transactionHistory": ""
       },
@@ -1894,6 +1954,11 @@
     }
   },
 
+  "toastmessages": {
+    "confirmCopy": "Copied to clipboard",
+    "failedCopy": "Failed to copy"
+  },
+
   "errormessages": {
     "nointernet": "Please reconnect to the internet to use this feature",
     "genericError": "An unexpected error occurred",
@@ -1938,7 +2003,8 @@
     "liquidInvoiceError": "There was a problem generating your Liquid address. Please try again.",
     "bitcoinInvioceError": "There was a problem generating your Bitcoin address. Please try again.",
     "sparkInvioceError": "There was a problem generating your Spark address. Please try again.",
-    "lightningInvioceError": "There was a problem generating your Lightning address. Please try again."
+    "lightningInvioceError": "There was a problem generating your Lightning address. Please try again.",
+    "sparkConnectionError": "Spark connection failed. Please try again."
   },
 
   "loadingScreen": {

@@ -14,7 +14,6 @@ import {
   getSparkTransactions,
   queryAllStaticDepositAddresses,
   sparkWallet,
-  findTransactionTxFromTxHistory,
 } from '../app/functions/spark';
 import {
   addSingleSparkTransaction,

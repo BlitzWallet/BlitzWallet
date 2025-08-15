@@ -184,7 +184,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
         }
 
         navigate.navigate('ErrorScreen', {
-          errorMessage: response.error,
+          errorMessage: t(response.error),
         });
         return;
       }

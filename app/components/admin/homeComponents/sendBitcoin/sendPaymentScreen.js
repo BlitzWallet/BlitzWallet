@@ -56,7 +56,7 @@ export default function SendPaymentScreen(props) {
   const {t} = useTranslation();
   const {sparkInformation} = useSparkWallet();
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {nodeInformation, liquidNodeInformation, fiatStats} = useNodeContext();
+  const {liquidNodeInformation, fiatStats} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
@@ -337,7 +337,6 @@ export default function SendPaymentScreen(props) {
               paymentInfo={paymentInfo}
               setPaymentInfo={setPaymentInfo}
               masterInfoObject={masterInfoObject}
-              nodeInformation={nodeInformation}
               paymentFee={paymentFee}
               paymentType={paymentInfo?.paymentNetwork}
               minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}

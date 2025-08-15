@@ -2,8 +2,8 @@ import AboutPage from './about';
 import DisplayOptions from './displayOptions';
 
 import FiatCurrencyPage from './fiatCurrency';
-import LSPPage from './lsp';
-import NodeInfo from './nodeInfo';
+// import LSPPage from './lsp';
+// import NodeInfo from './nodeInfo';
 import NosterWalletConnect from './nwc';
 import ConfirmActionPage from './popups/confirmActionPage';
 // import LspDescriptionPopup from './popups/lspDescription';
@@ -16,11 +16,11 @@ import BlitzSocialOptions from './socialOptions';
 
 // import LiquidWallet from './bank';
 import ViewAllLiquidSwaps from './viewAllLiquidSwaps';
-import WalletInformation from './walletInformation';
+// import WalletInformation from './walletInformation';
 import ExperimentalItemsPage from './ExperimentalItems';
 import PosSettingsPage from './posPath/settings';
 // import HistoricalOnChainPayments from './onChainComponents/historicalOnChainPayments';
-import RestoreChannel from './restoreChannels';
+// import RestoreChannel from './restoreChannels';
 import FastPay from './fastPay';
 import ViewPOSTransactions from './posPath/transactions';
 import TotalTipsScreen from './posPath/totalTipsScreen';
@@ -35,14 +35,14 @@ export {
   AboutPage,
   DisplayOptions,
   FiatCurrencyPage,
-  LSPPage,
-  NodeInfo,
+  // LSPPage,
+  // NodeInfo,
   ResetPage,
   // LspDescriptionPopup,
   ConfirmActionPage,
   SeedPhrasePage,
   NosterWalletConnect,
-  WalletInformation,
+  // WalletInformation,
   LoginSecurity,
   SendOnChainBitcoin,
   BlitzSocialOptions,
@@ -51,7 +51,7 @@ export {
   ExperimentalItemsPage,
   PosSettingsPage,
   // HistoricalOnChainPayments,
-  RestoreChannel,
+  // RestoreChannel,
   FastPay,
   ViewPOSTransactions,
   TotalTipsScreen,

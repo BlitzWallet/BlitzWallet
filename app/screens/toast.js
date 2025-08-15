@@ -133,7 +133,11 @@ export function Toast({toast, onHide}) {
             <ThemeText styles={styles.toastIcon} content={getIconForType()} />
           )}
           <View style={styles.textContainer}>
-            <ThemeText styles={styles.toastTitle} content={toast.title} />
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.toastTitle}
+              content={t(toast.title)}
+            />
           </View>
         </View>
       </View>
@@ -189,5 +193,6 @@ const styles = StyleSheet.create({
   toastTitle: {
     color: COLORS.lightModeText,
     includeFontPadding: false,
+    flexShrink: 1,
   },
 });

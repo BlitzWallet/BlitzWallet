@@ -21,7 +21,6 @@ import QrCodeWrapper from '../../functions/CustomElements/QrWrapper';
 import {useNodeContext} from '../../../context-store/nodeContext';
 import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import CustomButton from '../../functions/CustomElements/button';
 import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
 import {useGlobalContacts} from '../../../context-store/globalContacts';
 import {useLiquidEvent} from '../../../context-store/liquidEventContext';
@@ -137,10 +136,7 @@ export default function ReceivePaymentHome(props) {
           }}>
           <TopBar navigate={navigate} />
 
-          <ThemeText
-            styles={{...styles.title}}
-            content={selectedRecieveOption}
-          />
+          <ThemeText styles={styles.title} content={selectedRecieveOption} />
           <QrCode
             globalContactsInformation={globalContactsInformation}
             selectedRecieveOption={selectedRecieveOption}
@@ -179,28 +175,40 @@ export default function ReceivePaymentHome(props) {
 
               let informationText = '';
               if (selectedRecieveOption.toLowerCase() === 'bitcoin') {
-                informationText =
-                  'On-chain payments have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.';
+                informationText = t(
+                  'screens.inAccount.receiveBtcPage.onchainFeeMessage',
+                );
               } else if (selectedRecieveOption.toLowerCase() === 'liquid') {
-                informationText = `Liquid payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about ${displayCorrectDenomination(
-                  {amount: 34, masterInfoObject, fiatStats},
-                )}, a claim fee of around ${displayCorrectDenomination({
-                  amount: 19,
-                  masterInfoObject,
-                  fiatStats,
-                })}, and a 0.1% service fee from Boltz based on the amount you’re sending.`;
+                informationText = t(
+                  'screens.inAccount.receiveBtcPage.onchainFeeMessage',
+                  {
+                    fee: displayCorrectDenomination({
+                      amount: 34,
+                      masterInfoObject,
+                      fiatStats,
+                    }),
+                    claimFee: displayCorrectDenomination({
+                      amount: 19,
+                      masterInfoObject,
+                      fiatStats,
+                    }),
+                  },
+                );
               }
 
               navigate.navigate('InformationPopup', {
                 textContent: informationText,
-                buttonText: 'I understand',
+                buttonText: t('constants.understandText'),
               });
             }}
             style={{
               alignItems: 'center',
             }}>
             <View style={styles.feeTitleContainer}>
-              <ThemeText styles={styles.feeTitleText} content={'Fee'} />
+              <ThemeText
+                styles={styles.feeTitleText}
+                content={t('constants.fee')}
+              />
               {selectedRecieveOption.toLowerCase() !== 'lightning' &&
                 selectedRecieveOption.toLowerCase() !== 'spark' && (
                   <ThemeImage
@@ -213,7 +221,7 @@ export default function ReceivePaymentHome(props) {
             </View>
             {selectedRecieveOption.toLowerCase() !== 'lightning' &&
             selectedRecieveOption.toLowerCase() !== 'spark' ? (
-              <ThemeText content="Veriable" />
+              <ThemeText content={t('constants.veriable')} />
             ) : (
               <FormattedSatText
                 neverHideBalance={true}
@@ -251,7 +259,9 @@ function QrCode(props) {
             ...styles.qrCodeContainer,
             backgroundColor: backgroundOffset,
           }}>
-          <FullLoadingScreen text={'Generating Invoice'} />
+          <FullLoadingScreen
+            text={t('screens.inAccount.receiveBtcPage.generatingInvoice')}
+          />
         </View>
         {!isUsingAltAccount && (
           <LNURLContainer
@@ -283,31 +293,6 @@ function QrCode(props) {
               t('erorrmessages.invoiceRetrivalError')
             }
           />
-          {/* {addressState.errorMessageText.showButton && (
-            <CustomButton
-              buttonStyles={{width: '90%', marginTop: 20}}
-              textContent={'Open transfer page'}
-              actionFunction={() => {
-                navigate.reset({
-                  routes: [
-                    {
-                      name: 'HomeAdmin',
-                      params: {screen: 'Home'},
-                    },
-                    {
-                      name: 'SettingsHome',
-                    },
-                    {
-                      name: 'SettingsContentHome',
-                      params: {
-                        for: 'Balance Info',
-                      },
-                    },
-                  ],
-                });
-              }}
-            />
-          )} */}
         </View>
         {!isUsingAltAccount && (
           <LNURLContainer

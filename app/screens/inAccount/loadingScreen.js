@@ -108,7 +108,7 @@ export default function ConnectingToNodeLoadingScreen({
 
         if (
           !didOpen ||
-          !ecashTablesOpened ||
+          // !ecashTablesOpened ||
           !posTransactions ||
           !sparkTxs ||
           !rootstockSwaps

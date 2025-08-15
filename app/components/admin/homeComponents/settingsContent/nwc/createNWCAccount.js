@@ -19,14 +19,14 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {createAccountMnemonic} from '../../../../../functions';
-import * as nostr from 'nostr-tools';
-import crypto from 'react-native-quick-crypto';
+
+import {randomBytes} from 'react-native-quick-crypto';
 import sha256Hash from '../../../../../functions/hash';
 import {getSupportedMethods} from '../../../../../functions/nwc';
 import {privateKeyFromSeedWords} from '../../../../../functions/nostrCompatability';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {publishToSingleRelay} from '../../../../../functions/nwc/publishResponse';
 import {useTranslation} from 'react-i18next';
+import {finalizeEvent, getPublicKey} from 'nostr-tools';
 
 const BUDGET_RENEWAL_OPTIONS = [
   {label: 'Daily', value: 'Daily'},
@@ -77,7 +77,6 @@ export default function CreateNostrConnectAccount(props) {
   };
 
   const handleAccountCreation = async () => {
-    console.log(nostr);
     // return;
     if (
       isEditing &&
@@ -135,8 +134,8 @@ export default function CreateNostrConnectAccount(props) {
         await new Promise(res => setTimeout(res, 10)); // add a delay for UI
         mnemonic = await createAccountMnemonic();
         privateKey = privateKeyFromSeedWords(mnemonic);
-        publicKey = nostr.getPublicKey(privateKey);
-        secret = sha256Hash(crypto.randomBytes(32)).toString('hex');
+        publicKey = getPublicKey(privateKey);
+        secret = sha256Hash(randomBytes(32));
       } else {
         mnemonic = savedData.mnemonic;
         privateKey = savedData.privateKey;
@@ -151,7 +150,7 @@ export default function CreateNostrConnectAccount(props) {
         tags: [],
       };
 
-      const signedEvent = nostr.finalizeEvent(
+      const signedEvent = finalizeEvent(
         infoEvent,
         Buffer.from(privateKey, 'hex'),
       );

@@ -34,7 +34,7 @@ export default function AccountPaymentPage(props) {
   const navigate = useNavigation();
   const {accountMnemoinc} = useKeysContext();
   const {masterInfoObject} = useGlobalContextProvider();
-  const {nodeInformation} = useNodeContext();
+  const {fiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor} = GetThemeColors();
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
@@ -60,10 +60,7 @@ export default function AccountPaymentPage(props) {
   const convertedSendAmount =
     masterInfoObject.userBalanceDenomination != 'fiat'
       ? Math.round(Number(sendingAmount))
-      : Math.round(
-          (SATSPERBITCOIN / nodeInformation?.fiatStats?.value) *
-            Number(sendingAmount),
-        );
+      : Math.round((SATSPERBITCOIN / fiatStats.value) * Number(sendingAmount));
 
   const debouncedSearch = useDebounce(async () => {
     // Calculate spark payment fee here
