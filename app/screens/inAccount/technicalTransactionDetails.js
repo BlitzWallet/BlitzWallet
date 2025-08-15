@@ -67,7 +67,7 @@ export default function TechnicalTransactionDetails(props) {
               onPress={() => {
                 navigate.navigate('InformationPopup', {
                   textContent: t(
-                    'screens.inAccount.technicalTransactionDetails.paymentExp',
+                    'screens.inAccount.technicalTransactionDetails.noInformationLabel',
                     {item},
                   ),
                   buttonText: t('constants.understandText'),

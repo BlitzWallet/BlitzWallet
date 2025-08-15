@@ -17,6 +17,7 @@ import handleNWCBackgroundEvent from '../app/functions/nwc/backgroundNofificatio
 import {
   addNotificationReceivedListener,
   addNotificationResponseReceivedListener,
+  AndroidImportance,
   getExpoPushTokenAsync,
   getPermissionsAsync,
   registerTaskAsync,
@@ -60,12 +61,8 @@ export const PushNotificationProvider = ({children}) => {
         pushNotificationData?.hash &&
         typeof pushNotificationData?.key.encriptedText === 'string'
       ) {
-        createHash;
         const hashedPushKey = sha256Hash(deviceToken);
-        // Crypto.default
-        //   .createHash('sha256')
-        //   .update(deviceToken)
-        //   .digest('hex');
+
         console.log(
           'saved notification token hash',
           pushNotificationData?.hash,
@@ -143,7 +140,7 @@ async function registerForPushNotificationsAsync() {
     if (Platform.OS === 'android') {
       await setNotificationChannelAsync('blitzWalletNotifications', {
         name: 'blitzWalletNotifications',
-        importance: Notifications.AndroidImportance.HIGH,
+        importance: AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: '#FF231F7C',
         showBadge: true,

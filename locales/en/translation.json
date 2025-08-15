@@ -1703,6 +1703,7 @@
       "internalComponents": {
         "tipTx": {
           "tipMessage": "Tip: {{amount}}",
+          "ctaBTN": "Mark as {{option}}",
           "title": "",
           "tipTransaction": "",
           "tipAmount": ""

@@ -170,7 +170,7 @@ export default function AddPOSItemHalfModal({
             keyboardType={'number-pad'}
             placeholderText={t(
               'settings.posPath.items.addItemHalfModal.pricePlaceholder',
-              {price: masterInfoObject?.posSettings?.storeCurrency},
+              {number: masterInfoObject?.posSettings?.storeCurrency},
             )}
             onFocusFunction={checkIfKeyboardShouldBeShown}
             onBlurFunction={checkIfKeyboardShouldBeShown}

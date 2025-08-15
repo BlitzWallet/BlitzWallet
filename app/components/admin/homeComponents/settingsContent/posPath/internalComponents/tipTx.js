@@ -14,7 +14,7 @@ export default function TipsTXItem({item, masterInfoObject, fiatStats, t}) {
       <View style={{flex: 1, marginRight: 5}}>
         <ThemeText
           CustomNumberOfLines={1}
-          content={t('settings.posPath.internalComponenets.tipTx.tipMessage', {
+          content={t('settings.posPath.internalComponents.tipTx.tipMessage', {
             amount: displayCorrectDenomination({
               amount: item?.tipAmountSats,
               masterInfoObject,
@@ -40,7 +40,7 @@ export default function TipsTXItem({item, masterInfoObject, fiatStats, t}) {
         }}
         buttonStyles={{width: 120}}
         textStyles={{textAlign: 'center'}}
-        textContent={t('settings.posPath.internalComponents.tipTx.tipMessage', {
+        textContent={t('settings.posPath.internalComponents.tipTx.ctaBTN', {
           option: item?.didPay
             ? t('constants.unpaidLower')
             : t('constants.paidLower'),
