@@ -29,7 +29,10 @@ import {
   ConnectingToNodeLoadingScreen,
 } from './app/screens/inAccount';
 
-import {GlobalContextProvider} from './context-store/context';
+import {
+  GlobalContextProvider,
+  useGlobalContextProvider,
+} from './context-store/context';
 
 import {WebViewProvider} from './context-store/webViewContext';
 import {Linking, Platform} from 'react-native';
@@ -107,6 +110,8 @@ import {GlobalNostrWalletConnectProvider} from './context-store/NWC';
 import {GlobalServerTimeProvider} from './context-store/serverTime';
 import {ActiveCustodyAccountProvider} from './context-store/activeAccount';
 import {LRC20EventProvider} from './context-store/lrc20Listener';
+import {useTranslation} from 'react-i18next';
+import {removeLocalStorageItem} from './app/functions/localStorage';
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
@@ -192,8 +197,8 @@ function ResetStack(): JSX.Element | null {
   const {didGetToHomepage} = useAppStatus();
   const {publicKey, setAccountMnemonic} = useKeysContext();
   const {backgroundColor} = GetThemeColors();
+  const {i18n} = useTranslation();
 
-  // Memoize handleDeepLink
   const handleDeepLink = useCallback(
     (event: {url: string}) => {
       const {url} = event;
@@ -305,6 +310,7 @@ function ResetStack(): JSX.Element | null {
         pin,
         mnemonic,
         securitySettings,
+        userSelectedLanguage,
       ] = await Promise.all([
         getInitialURL(),
         // registerBackgroundNotificationTask(),
@@ -312,6 +318,9 @@ function ResetStack(): JSX.Element | null {
         retrieveData('pinHash'),
         retrieveData('encryptedMnemonic'),
         getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
+        getLocalStorageItem('userSelectedLanguage').then(data =>
+          JSON.parse(data),
+        ),
       ]);
 
       const storedSettings = JSON.parse(securitySettings);
@@ -341,6 +350,8 @@ function ResetStack(): JSX.Element | null {
           hasSecurityEnabled: parsedSettings.isSecurityEnabled,
         };
       });
+
+      i18n.changeLanguage(userSelectedLanguage);
     }
     const subscription = Linking.addEventListener('url', handleDeepLink);
     initWallet();

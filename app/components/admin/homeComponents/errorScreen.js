@@ -62,7 +62,7 @@ export default function ErrorScreen(props) {
         <TouchableOpacity onPress={handleNaviagation}>
           <ThemeText
             styles={styles.cancelButton}
-            content={t('wallet.errorScreen.ok')}
+            content={t('wallet.sendPages.errorScreen.ok')}
           />
         </TouchableOpacity>
       </View>

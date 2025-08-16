@@ -133,7 +133,7 @@ export default function HistoricalVPNPurchases() {
             />
             <CustomButton
               buttonStyles={{...CENTER, marginTop: 10}}
-              textContent={'Contact'}
+              textContent={t('apps.VPN.historicalPurchasesPage.contact')}
               actionFunction={async () => {
                 await openWebBrowser({
                   navigate: navigate,

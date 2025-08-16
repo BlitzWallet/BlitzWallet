@@ -57,6 +57,11 @@ export default function ConfirmTxPage(props) {
     ? sparkInformation.tokens?.[transaction.details.LRC20Token]
     : '';
 
+  const formattedTokensBalance = formatTokensNumber(
+    amount,
+    token?.tokenMetadata?.decimals,
+  );
+
   const confirmAnimation = useMemo(() => {
     return updateConfirmAnimation(
       confirmTxAnimation,
@@ -108,12 +113,16 @@ export default function ConfirmTxPage(props) {
               includeFontPadding: false,
             }}
             neverHideBalance={true}
-            balance={amount}
+            balance={
+              isLRC20Payment && formattedTokensBalance > 1
+                ? formattedTokensBalance
+                : amount
+            }
             useCustomLabel={isLRC20Payment}
             customLabel={token?.tokenMetadata?.tokenTicker}
             useMillionDenomination={true}
           />
-          {isLRC20Payment && (
+          {isLRC20Payment && formattedTokensBalance < 1 && (
             <FormattedSatText
               containerStyles={{
                 ...CENTER,

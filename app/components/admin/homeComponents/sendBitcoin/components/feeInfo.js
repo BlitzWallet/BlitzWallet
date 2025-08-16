@@ -20,7 +20,7 @@ export default function SendTransactionFeeInfo({
         backText={t('wallet.sendPages.feeInfo.backTextToAmount', {
           amount:
             isLightningPayment || isLiquidPayment || isSparkPayment
-              ? 'instant'
+              ? ' instant'
               : ' 10 minutes',
         })}
         neverHideBalance={true}

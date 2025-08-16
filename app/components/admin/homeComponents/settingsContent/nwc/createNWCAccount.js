@@ -29,10 +29,10 @@ import {useTranslation} from 'react-i18next';
 import {finalizeEvent, getPublicKey} from 'nostr-tools';
 
 const BUDGET_RENEWAL_OPTIONS = [
-  {label: 'Daily', value: 'Daily'},
-  {label: 'Weekly', value: 'Weekly'},
-  {label: 'Monthly', value: 'Monthly'},
-  {label: 'Yearly', value: 'Yearly'},
+  {label: 'timeLabels.daily', value: 'Daily'},
+  {label: 'timeLabels.weekly', value: 'Weekly'},
+  {label: 'timeLabels.monthly', value: 'Monthly'},
+  {label: 'timeLabels.yearly', value: 'Yearly'},
 ];
 const BUDGET_AMOUNT_OPTIONS = [50_000, 100_000, 'Unlimited', 'Custom...'];
 

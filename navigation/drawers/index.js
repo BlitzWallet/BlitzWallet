@@ -7,12 +7,14 @@ import {useGlobalAppData} from '../../context-store/appData';
 import GetThemeColors from '../../app/hooks/themeColors';
 import FullLoadingScreen from '../../app/functions/CustomElements/loadingScreen';
 import {useGlobalInsets} from '../../context-store/insetsProvider';
+import {useTranslation} from 'react-i18next';
 
 const Drawer = createDrawerNavigator();
 
 function ChatGPTDrawer({confirmationSliderData}) {
   const {decodedChatGPT} = useGlobalAppData();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const {t} = useTranslation();
 
   const [didLoad, setDidLoad] = useState(false);
   const {bottomPadding} = useGlobalInsets();
@@ -33,7 +35,9 @@ function ChatGPTDrawer({confirmationSliderData}) {
   const drawerElements = useMemo(() => {
     return savedConversations
       .map((element, id) => {
-        const baseLabel = element ? element.firstQuery : 'New Chat';
+        const baseLabel = element
+          ? element.firstQuery
+          : t('apps.chatGPT.newChat');
         const uniqueName = `chat-${id}`;
         return (
           <Drawer.Screen
@@ -61,7 +65,7 @@ function ChatGPTDrawer({confirmationSliderData}) {
 
   if (chatGPTCredits > 30) {
     if (!didLoad) {
-      return <FullLoadingScreen text={'Loading...'} />;
+      return <FullLoadingScreen text={t('apps.chatGPT.loadingMessage')} />;
     }
     return (
       <Drawer.Navigator

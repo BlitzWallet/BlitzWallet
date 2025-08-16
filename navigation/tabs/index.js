@@ -2,7 +2,6 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {
   Dimensions,
   Image,
-  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -18,6 +17,7 @@ import GetThemeColors from '../../app/hooks/themeColors';
 import {useGlobalThemeContext} from '../../context-store/theme';
 import ExploreUsers from '../../app/screens/inAccount/explorePage';
 import {useGlobalInsets} from '../../context-store/insetsProvider';
+import {useTranslation} from 'react-i18next';
 
 const Tab = createBottomTabNavigator();
 
@@ -25,7 +25,7 @@ function MyTabBar({state, descriptors, navigation}) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {contactsMessags, globalContactsInformation} = useGlobalContacts();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
-
+  const {t} = useTranslation();
   const {bottomPadding} = useGlobalInsets();
 
   const hasUnlookedTransactions = useMemo(() => {
@@ -155,13 +155,14 @@ function MyTabBar({state, descriptors, navigation}) {
                     )}
                 </View>
                 <ThemeText
+                  CustomNumberOfLines={1}
                   styles={styles.labelText}
                   content={
                     label === 'Home'
-                      ? 'Wallet'
+                      ? t('tabs.home')
                       : label === 'App Store'
-                      ? 'Store'
-                      : label
+                      ? t('tabs.appStore')
+                      : t('tabs.contacts')
                   }
                 />
               </TouchableOpacity>

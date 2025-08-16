@@ -103,7 +103,7 @@ export default function SelectLRC20Token({
                   )
             }
             useCustomLabel={details?.tokenMetadata?.tokenTicker !== 'Bitcoin'}
-            customLabel={details?.tokenMetadata?.tokenTicker}
+            customLabel={''}
             useMillionDenomination={true}
           />
         </TouchableOpacity>

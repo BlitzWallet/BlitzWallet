@@ -258,7 +258,11 @@ export default function DisplayOptions() {
         </TouchableOpacity>
       </View>
       <ThemeText content={t('settings.displayOptions.text9')} />
-      <FormattedSatText neverHideBalance={true} balance={50} />
+      <FormattedSatText
+        containerStyles={styles.balancePrev}
+        neverHideBalance={true}
+        balance={50}
+      />
 
       <ThemeText
         styles={styles.infoHeaders}
@@ -275,7 +279,7 @@ export default function DisplayOptions() {
           <ThemeText
             CustomNumberOfLines={1}
             styles={{...styles.removeFontPadding, marginRight: 5}}
-            content={`Swipe for camera`}
+            content={t('settings.displayOptions.text11')}
           />
           <TouchableOpacity
             onPress={() => {
@@ -378,7 +382,7 @@ export default function DisplayOptions() {
 
 const styles = StyleSheet.create({
   innerContainer: {
-    marginTop: 25,
+    paddingTop: 25,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
@@ -439,8 +443,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-
+  balancePrev: {marginBottom: 20},
   removeFontPadding: {
     includeFontPadding: false,
+    flexShrink: 1,
+    marginRight: 5,
   },
 });

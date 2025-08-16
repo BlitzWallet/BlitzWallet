@@ -18,6 +18,7 @@ import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircl
 import {handleLoginSecuritySwitch} from '../../../../functions/handleMnemonic';
 import {useKeysContext} from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
 
 export default function LoginSecurity({extraData}) {
   const [securityLoginSettings, setSecurityLoginSettings] = useState({
@@ -159,25 +160,15 @@ export default function LoginSecurity({extraData}) {
 
   return (
     <View style={styles.innerContainer}>
-      <View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-          },
-        ]}>
-        <View style={styles.faceIDContainer}>
-          <ThemeText
-            styles={{...styles.contentText}}
-            content={t('settings.loginSecurity.text1')}
-          />
-          <CustomToggleSwitch
-            stateValue={securityLoginSettings.isSecurityEnabled}
-            toggleSwitchFunction={toggleSecurityEnabled}
-            page={'LoginSecurityMode'}
-          />
-        </View>
-      </View>
+      <SettingsItemWithSlider
+        settingsTitle={t('settings.loginSecurity.text1')}
+        showDescription={false}
+        switchPageName={'LoginSecurityMode'}
+        handleSubmit={toggleSecurityEnabled}
+        toggleSwitchStateValue={securityLoginSettings.isSecurityEnabled}
+        containerStyles={styles.switchContainer}
+      />
+
       {securityLoginSettings.isSecurityEnabled && (
         <View style={{width: '90%', ...CENTER}}>
           <ThemeText
@@ -219,6 +210,7 @@ const styles = StyleSheet.create({
   contentText: {
     includeFontPadding: false,
   },
+  switchContainer: {marginVertical: 0},
 
   faceIDContainer: {
     width: '100%',

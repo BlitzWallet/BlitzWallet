@@ -167,7 +167,7 @@ const DropdownMenu = ({options, selectedValue, onSelect, placeholder}) => {
                     borderBottomColor: backgroundColor,
                   }}
                   onPress={() => handleSelect(item)}>
-                  <ThemeText content={item.label} />
+                  <ThemeText content={t(item.label)} />
                 </TouchableOpacity>
               ))}
             </ScrollView>

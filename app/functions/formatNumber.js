@@ -14,6 +14,19 @@ export default function formatBalanceAmount(
     );
 
     if (millionDemoniationSetting && Math.abs(numericValue) >= 1_000_000) {
+      // Check if it should be formatted as billions (1,000M+ becomes 1B+)
+      if (Math.abs(numericValue) >= 1_000_000_000) {
+        const billions = numericValue / 1_000_000_000;
+        let formatted = billions.toFixed(1);
+        if (formatted.endsWith('.0')) {
+          formatted = formatted.slice(0, -2);
+        }
+        const [intPart, decPart] = formatted.split('.');
+        const spacedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        return decPart ? `${spacedInt}.${decPart}B` : `${spacedInt}B`;
+      }
+
+      // Otherwise format as millions
       const millions = numericValue / 1_000_000;
       let formatted = millions.toFixed(1);
 

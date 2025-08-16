@@ -121,14 +121,17 @@ function GridSection({
       <View>
         <View style={{...styles.headerRow, backgroundColor: backgroundOffset}}>
           <ThemeText
+            CustomNumberOfLines={1}
             styles={styles.headerCell}
             content={t('settings.feeInformation.upTo')}
           />
           <ThemeText
+            CustomNumberOfLines={1}
             styles={styles.headerCell}
             content={t('settings.feeInformation.fixedFee')}
           />
           <ThemeText
+            CustomNumberOfLines={1}
             styles={styles.headerCell}
             content={t('settings.feeInformation.percent')}
           />

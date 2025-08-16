@@ -201,7 +201,22 @@ export default function SwitchReceiveOptionPage({
             />
             <ThemeText
               styles={{...styles.optionItemText}}
-              content={paymentTime}
+              content={
+                name === 'Lightning'
+                  ? t('constants.instant')
+                  : name === 'Bitcoin'
+                  ? t(
+                      'wallet.receivePages.switchReceiveOptionPage.tenMinutes',
+                      {numMins: 10},
+                    )
+                  : name === 'Liquid'
+                  ? t('wallet.receivePages.switchReceiveOptionPage.oneMinute', {
+                      numMins: 1,
+                    })
+                  : name === 'Spark'
+                  ? t('constants.instant')
+                  : 'Rootstock'
+              }
             />
           </View>
         </View>

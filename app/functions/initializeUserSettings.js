@@ -76,6 +76,7 @@ export default async function initializeUserSettingsFromHistory({
       crashReportingSettings,
       enabledDeveloperSupport,
       didViewNWCMessage,
+      userSelectedLanguage,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -110,7 +111,7 @@ export default async function initializeUserSettingsFromHistory({
     const userBalanceDenomination =
       blitzStoredData.userBalanceDenomination || 'sats';
 
-    const selectedLanguage = blitzStoredData.userSelectedLanguage || 'en';
+    const selectedLanguage = userSelectedLanguage;
 
     let pushNotifications = blitzStoredData.pushNotifications || {
       isEnabled: false,

@@ -37,6 +37,7 @@ export default function CustomButton({
         />
       ) : (
         <ThemeText
+          CustomNumberOfLines={1}
           content={textContent}
           styles={{
             ...styles.text,

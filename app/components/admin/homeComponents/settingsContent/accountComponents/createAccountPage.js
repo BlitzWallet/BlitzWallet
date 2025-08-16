@@ -505,23 +505,23 @@ export default function CreateCustodyAccountPage(props) {
           </>
         )}
       </ScrollView>
-
       {!isKeyboardActive && (
         <CustomButton
           useLoading={isCreatingAccount}
           loadingColor={COLORS.darkModeText}
           buttonStyles={{
+            marginTop: 5,
             minWidth: 150,
             ...CENTER,
             opacity:
               !accountInformation.name ||
               nameIsAlreadyUsed ||
-              enteredAllSeeds.length !== 12
+              enteredAllSeeds.length !== 12 ||
+              selectedAccount?.name?.toLowerCase() ===
+                accountInformation?.name?.toLowerCase()
                 ? 0.5
                 : 1,
-            backgroundColor: theme ? backgroundOffset : COLORS.primary,
           }}
-          textStyles={{color: COLORS.darkModeText}}
           textContent={
             selectedAccount
               ? t('settings.accountComponents.createAccountPage.updateTitle')
@@ -530,6 +530,7 @@ export default function CreateCustodyAccountPage(props) {
           actionFunction={handleCreateAccount}
         />
       )}
+
       {currentFocused && (
         <SuggestedWordContainer
           inputedKey={inputedKey}

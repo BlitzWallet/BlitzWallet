@@ -65,7 +65,7 @@ export default function LRC20TokenInformation({
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
-            content={t('screens.lrc20TokenDataHalfModal.balance')}
+            content={t('screens.inAccount.lrc20TokenDataHalfModal.balance')}
           />
           <ThemeText
             CustomNumberOfLines={1}
@@ -88,7 +88,7 @@ export default function LRC20TokenInformation({
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
-            content={t('screens.lrc20TokenDataHalfModal.maxSupply')}
+            content={t('screens.inAccount.lrc20TokenDataHalfModal.maxSupply')}
           />
           <ThemeText
             CustomNumberOfLines={1}
@@ -114,7 +114,7 @@ export default function LRC20TokenInformation({
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
-            content={t('screens.lrc20TokenDataHalfModal.tokenTicker')}
+            content={t('screens.inAccount.lrc20TokenDataHalfModal.tokenTicker')}
           />
           <ThemeText
             CustomNumberOfLines={1}
@@ -132,7 +132,7 @@ export default function LRC20TokenInformation({
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
-            content={t('screens.lrc20TokenDataHalfModal.tokenPubKey')}
+            content={t('screens.inAccount.lrc20TokenDataHalfModal.tokenPubKey')}
           />
           <TouchableOpacity
             onPress={() => {

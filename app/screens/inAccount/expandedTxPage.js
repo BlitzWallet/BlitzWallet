@@ -55,6 +55,11 @@ export default function ExpandedTx(props) {
     ? sparkInformation.tokens?.[transaction.details.LRC20Token]
     : '';
 
+  const formattedTokensBalance = formatTokensNumber(
+    transaction?.details?.amount,
+    selectedToken?.tokenMetadata?.decimals,
+  );
+
   return (
     <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
       <View style={{flex: 1}}>
@@ -140,7 +145,8 @@ export default function ExpandedTx(props) {
               }}
               content={t('screens.inAccount.expandedTxPage.confirmMessage', {
                 direction:
-                  'OUTGOING' || isFailedPayment
+                  transaction.details.direction === 'OUTGOING' ||
+                  isFailedPayment
                     ? t('constants.sent')
                     : t('constants.received'),
               })}
@@ -151,13 +157,18 @@ export default function ExpandedTx(props) {
               styles={{
                 fontSize: SIZES.xxLarge,
                 includeFontPadding: false,
+                textAlign: 'center',
               }}
-              balance={transaction.details.amount}
+              balance={
+                isLRC20Payment && formattedTokensBalance > 1
+                  ? formattedTokensBalance
+                  : transaction.details.amount
+              }
               useCustomLabel={isLRC20Payment}
               customLabel={selectedToken?.tokenMetadata?.tokenTicker}
               useMillionDenomination={true}
             />
-            {isLRC20Payment && (
+            {isLRC20Payment && formattedTokensBalance < 1 && (
               <FormattedSatText
                 containerStyles={{marginTop: -5}}
                 neverHideBalance={true}
@@ -171,6 +182,7 @@ export default function ExpandedTx(props) {
                 )}
                 useCustomLabel={isLRC20Payment}
                 customLabel={selectedToken?.tokenMetadata?.tokenTicker}
+                useMillionDenomination={true}
               />
             )}
             <View style={styles.paymentStatusTextContainer}>

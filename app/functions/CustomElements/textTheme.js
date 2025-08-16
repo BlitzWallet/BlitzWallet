@@ -1,7 +1,7 @@
 import {StyleSheet, Text, View} from 'react-native';
 import {COLORS, FONT, SIZES} from '../../constants';
 import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useMemo} from 'react';
+import {useCallback, useMemo} from 'react';
 
 export default function ThemeText({
   content,
@@ -9,6 +9,7 @@ export default function ThemeText({
   reversed,
   CustomEllipsizeMode = 'tail',
   CustomNumberOfLines = null,
+  onLayout = null,
 }) {
   const {theme} = useGlobalThemeContext();
 
@@ -27,8 +28,17 @@ export default function ThemeText({
     [theme, styles],
   );
 
+  const layoutCallback = useCallback(
+    e => {
+      if (!onLayout) return;
+      onLayout(e);
+    },
+    [onLayout],
+  );
+
   return (
     <Text
+      onLayout={layoutCallback}
       ellipsizeMode={CustomEllipsizeMode}
       numberOfLines={CustomNumberOfLines}
       style={memorizedStyles}>

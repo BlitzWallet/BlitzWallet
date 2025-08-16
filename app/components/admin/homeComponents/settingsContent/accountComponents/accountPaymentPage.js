@@ -326,6 +326,8 @@ export default function AccountPaymentPage(props) {
               />
             ) : (
               <ThemeText
+                styles={{flexShrink: 1}}
+                CustomNumberOfLines={1}
                 content={t(
                   'settings.accountComponents.accountPaymentPage.selectAccount',
                 )}
@@ -372,6 +374,8 @@ export default function AccountPaymentPage(props) {
               });
             }}>
             <ThemeText
+              styles={{flexShrink: 1}}
+              CustomNumberOfLines={1}
               content={
                 toAccount
                   ? toAccount
@@ -492,6 +496,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     includeFontPadding: false,
+    flexShrink: 1,
   },
   textInputContainerStyles: {
     flexShrink: 1,

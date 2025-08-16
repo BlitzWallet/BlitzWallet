@@ -67,10 +67,12 @@ export default function LRC20AssetSelectorHalfModal({
       <View style={styles.innerContainer}>
         <ThemeText
           styles={styles.titleText}
-          content={t('screens.lrc20HalfModal.title')}
+          content={t('screens.inAccount.lrc20HalfModal.title')}
         />
         <CustomSearchInput
-          placeholderText={t('screens.lrc20HalfModal.searchPlaceholder')}
+          placeholderText={t(
+            'screens.inAccount.lrc20HalfModal.searchPlaceholder',
+          )}
           setInputText={handleSearch}
           inputText={searchInput}
           textInputRef={keyboardRef}
@@ -97,7 +99,7 @@ export default function LRC20AssetSelectorHalfModal({
         ) : (
           <ThemeText
             styles={{textAlign: 'center', marginTop: 10}}
-            content={t('screens.lrc20HalfModal.noTokens')}
+            content={t('screens.inAccount.lrc20HalfModal.noTokens')}
           />
         )}
       </View>

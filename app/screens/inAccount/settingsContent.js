@@ -39,6 +39,7 @@ import {useCallback} from 'react';
 import ExploreUsers from './explorePage';
 import NostrHome from '../../components/admin/homeComponents/settingsContent/nostrHome';
 import {useTranslation} from 'react-i18next';
+import ChooseLangugae from '../../components/admin/homeComponents/settingsContent/langugae';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
@@ -136,6 +137,7 @@ export default function SettingsContentIndex(props) {
             {selectedPage?.toLowerCase() === 'about' && (
               <AboutPage theme={theme} />
             )}
+            {selectedPage?.toLowerCase() === 'language' && <ChooseLangugae />}
 
             {/* {selectedPage?.toLowerCase() === 'node info' && (
               <NodeInfo theme={theme} />

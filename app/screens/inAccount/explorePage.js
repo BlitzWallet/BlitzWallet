@@ -157,7 +157,7 @@ export default function ExploreUsers() {
         }}
       />
     );
-  }, [timeFrame]);
+  }, [timeFrame, t]);
 
   if (
     !masterInfoObject.exploreData ||

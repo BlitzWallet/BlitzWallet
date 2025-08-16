@@ -28,6 +28,14 @@ const GENERALOPTIONS = [
   },
   {
     for: 'general',
+    name: 'Language',
+    displayName: 'screens.inAccount.settingsContent.language',
+    svgIcon: true,
+    svgName: 'languageIcon',
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  {
+    for: 'general',
     name: 'Display Currency',
     displayName: 'screens.inAccount.settingsContent.display currency',
     icon: ICONS.currencyIcon,
@@ -283,6 +291,7 @@ const DOOMSDAYSETTINGS = [
 ];
 
 export default function SettingsIndex(props) {
+  const {masterInfoObject} = useGlobalContextProvider();
   const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {t} = useTranslation();
@@ -377,7 +386,14 @@ export default function SettingsIndex(props) {
         </View>
       );
     });
-  }, [settignsList, isDoomsday, isConnectedToTheInternet, theme, darkModeType]);
+  }, [
+    settignsList,
+    isDoomsday,
+    isConnectedToTheInternet,
+    theme,
+    darkModeType,
+    masterInfoObject.userSelectedLanguage,
+  ]);
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>

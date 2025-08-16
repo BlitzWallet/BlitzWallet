@@ -102,7 +102,13 @@
     "selectOption": "Select an option",
     "slideToConfirm": "Slide to confirm",
     "token": "Token",
-    "veriable": "Veriable"
+    "veriable": "Veriable",
+    "instant": "Instant"
+  },
+
+  "languages": {
+    "english": "English",
+    "spanish": "Spanish"
   },
 
   "weekdays": {
@@ -260,20 +266,14 @@
         "createInvoiceError": "Error creating invoice.",
         "payingInvoiveError": "Error paying invoice.",
         "runningTries": "Running {{runCount}} for {{maxTries}} tries",
-        "configError": "Not able to get VPN config, please reach out to LNVPN.",
-        "title": "",
-        "subtitle": "",
-        "selectPlan": "",
-        "features": ""
+        "configError": "Not able to get VPN config, please reach out to LNVPN."
       },
       "confirmationSlideUp": {
         "invoiceInfoError": "Error getting invoice information.",
         "title": "Confirm Country",
         "duration": "Duration: 1 {{duration}}",
         "price": "Price: ",
-        "fee": "Fee: ",
-        "subtitle": "",
-        "confirmPurchase": ""
+        "fee": "Fee: "
       },
       "durationSlider": {
         "durationOption": "1 {{duration}}",
@@ -291,7 +291,8 @@
         "noPurchases": "You have no VPN configuations",
         "assistanceText": "For assistance, reach out to LNVPN",
         "noValidCountryCodeError": "Not able to get valid country code",
-        "claimConfigError": "Not able to get VPN config, please reach out to LNVPN."
+        "claimConfigError": "Not able to get VPN config, please reach out to LNVPN.",
+        "contact": "Contact"
       },
       "home": {
         "title": "To use this VPN please download the Wireguard VPN client app",
@@ -307,6 +308,8 @@
       }
     },
     "chatGPT": {
+      "newChat": "New Chat",
+      "loadingMessage": "Loading previous chats",
       "addCreditsPage": {
         "title": "Add Credits",
         "description": "In order to use the latest generative AI models, you must buy credits. Choose an option below to begin.",
@@ -331,6 +334,7 @@
         "price": "Price: ",
         "fee": "Fee: "
       },
+
       "switchModel": {
         "claudeDescription": "Ideal for long-form, creative content and dialogue.",
         "gpt40Description": "Best for complex analysis and detailed content.",
@@ -783,7 +787,9 @@
         "sparkWarningMessage": "Receiving directly via Spark will expose your balance to the person paying and is not considered private.",
         "liquidWarningText": "Liquid payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.\n\n{{warning}}",
         "unalignedSeeds": "Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.",
-        "rootstockWarningText": "Rootstock payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the Rootsock payment is confirmed."
+        "rootstockWarningText": "Rootstock payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the Rootsock payment is confirmed.",
+        "oneMinute": "~ {{numMins}} minute",
+        "tenMinutes": "~ {{numMins}} minutes"
       },
       "editLNURLContact": {
         "informationMessage": "Changing your username updates how others find you in Blitz Contacts and your Lightning address (username @blitz-wallet.com).\n\nA Lightning address lets others easily send you Bitcoin. Just share your address (username@blitz-wallet.com) to get paid.",
@@ -821,7 +827,7 @@
       },
       "feeInfo": {
         "title": "Fee & Speed",
-        "backTextToAmount": " $ {{amount}}"
+        "backTextToAmount": "{{amount}}"
       },
 
       "selectLRC20Token": {
@@ -960,6 +966,9 @@
       "text16": "Creator",
       "text17": "Version:"
     },
+    "language": {
+      "inputPlaceHolder": ""
+    },
     "displayOptions": {
       "text1": "Dark Mode Style",
       "text2": "Lights out",
@@ -1005,6 +1014,7 @@
       "header": "Keep this phrase in a secure and safe place",
       "headerDesc": "Do not share it with anyone!",
       "qrWarning": "Are you sure you want to show this QR Code?\n\nScanning your seed is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe.",
+      "wordsText": "Words",
       "qrText": "QR Code",
       "showSeedWarning": "Are you sure you want to show your recovery phrase?"
     },
@@ -1302,6 +1312,7 @@
 
       "settingsContent": {
         "about": "About",
+        "language": "Language",
         "display currency": "Display Currency",
         "display options": "Display Options",
         "edit contact profile": "Edit Contact Profile",
@@ -1411,5 +1422,10 @@
     "message2": "We are setting things up",
     "loadingText": "We're setting things up. Hang tight! This could take up to a minute.",
     "errorText1": "Error connecting to your node. Try reloading the app."
+  },
+  "tabs": {
+    "home": "Wallet",
+    "appStore": "Store",
+    "contacts": "Contacts"
   }
 }

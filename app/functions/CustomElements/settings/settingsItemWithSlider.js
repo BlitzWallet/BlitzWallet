@@ -57,7 +57,7 @@ export default function SettingsItemWithSlider({
               containerStyles={{
                 ...styles.loadingContainer,
                 marginLeft: showInformationPopup ? 5 : 10,
-                marginRight: showInformationPopup ? 5 : 'auto',
+                marginRight: 5,
               }}
               size="small"
               showText={false}
@@ -86,6 +86,7 @@ export default function SettingsItemWithSlider({
             toggleSwitchFunction={handleSubmit}
             page={switchPageName}
             stateValue={toggleSwitchStateValue}
+            containerStyles={styles.swtichContainer}
           />
         </View>
       </View>
@@ -139,8 +140,9 @@ const styles = StyleSheet.create({
     height: 20,
   },
   imageContainer: {
-    marginRight: 'auto',
+    marginRight: 5,
   },
+  swtichContainer: {marginLeft: 'auto'},
   loadingContainer: {
     alignItems: 'left',
     flex: 0,
