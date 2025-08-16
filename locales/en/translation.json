@@ -964,7 +964,8 @@
       "text14": "where Spark Operators update the state of Bitcoin ownership off-chain ",
       "text15": "allowing for fast, low-fee, and non-custodial transfers without touching the blockchain.",
       "text16": "Creator",
-      "text17": "Version:"
+      "text17": "Version:",
+      "learnMore": "Learn More"
     },
     "language": {
       "inputPlaceHolder": ""

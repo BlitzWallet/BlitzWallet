@@ -111,7 +111,7 @@ export default function AboutPage() {
           styles={{
             color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
           }}
-          content={'Learn more'}
+          content={t('settings.about.learnMore')}
         />
       </TouchableOpacity>
 

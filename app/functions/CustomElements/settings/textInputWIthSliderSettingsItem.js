@@ -98,12 +98,12 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingBottom: 10,
     marginBottom: 10,
-    marginLeft: 20,
+    marginLeft: 10,
     borderBottomWidth: 1,
   },
   textContainer: {
     paddingRight: 10,
-    marginLeft: 20,
+    marginLeft: 10,
   },
   textInput: {
     maxWidth: '50%',
