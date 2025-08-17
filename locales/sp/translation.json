@@ -107,7 +107,7 @@
   },
 
   "languages": {
-    "english": "Inglés",
+    "english": "English",
     "spanish": "Español"
   },
 
@@ -172,6 +172,9 @@
     "memo": "Nota"
   },
   "createAccount": {
+    "chooseLanguage": {
+      "title": "Elegir idioma"
+    },
     "homePage": {
       "subtitle": "Tu billetera, tus monedas, 100% código abierto",
       "buttons": {
@@ -1247,5 +1250,10 @@
     "message2": "Estamos configurando todo",
     "loadingText": "Estamos configurando todo. ¡Espera un momento! Esto podría tardar hasta un minuto.",
     "errorText1": "Error al conectar con tu nodo. Intenta recargar la app."
+  },
+  "tabs": {
+    "home": "Billetera",
+    "appStore": "Tienda",
+    "contacts": "Contactos"
   }
 }

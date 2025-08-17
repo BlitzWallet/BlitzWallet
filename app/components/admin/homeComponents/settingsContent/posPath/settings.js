@@ -260,7 +260,8 @@ export default function PosSettingsPage() {
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
         }}>
         <ThemeText
-          styles={{includeFontPadding: false, marginRight: 5}}
+          CustomNumberOfLines={1}
+          styles={{includeFontPadding: false, marginRight: 5, flexShrink: 1}}
           content={t('settings.posPath.settings.numAddeditems', {
             number: posItemsList.length,
             isPlurl:
@@ -279,7 +280,8 @@ export default function PosSettingsPage() {
                 : t('settings.posPath.settings.itemsDescription'),
               buttonText: t('constants.understandText'),
             })
-          }>
+          }
+          style={{marginRight: 5}}>
           {showErrorIcon ? (
             <Icon
               color={
@@ -296,29 +298,22 @@ export default function PosSettingsPage() {
             />
           )}
         </TouchableOpacity>
-        <CustomButton
-          buttonStyles={{
-            backgroundColor: theme
-              ? darkModeType
-                ? backgroundColor
-                : showErrorIcon
-                ? COLORS.cancelRed
-                : backgroundColor
-              : showErrorIcon
-              ? COLORS.cancelRed
-              : COLORS.primary,
+
+        <TouchableOpacity
+          onPress={() => navigate.navigate('AddPOSItemsPage')}
+          style={{
+            backgroundColor,
+            padding: 5,
+            borderRadius: 8,
             marginLeft: 'auto',
-          }}
-          textStyles={{
-            color: COLORS.darkModeText,
-          }}
-          actionFunction={() => navigate.navigate('AddPOSItemsPage')}
-          textContent={
-            showErrorIcon
-              ? t('settings.posPath.settings.updateItems')
-              : t('settings.posPath.settings.addItem')
-          }
-        />
+          }}>
+          <ThemeImage
+            styles={{transform: [{rotate: '180deg'}]}}
+            lightModeIcon={ICONS.leftCheveronIcon}
+            darkModeIcon={ICONS.leftCheveronIcon}
+            lightsOutIcon={ICONS.left_cheveron_white}
+          />
+        </TouchableOpacity>
       </View>
 
       {!isKeyboardActive && (
@@ -405,6 +400,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     width: INSET_WINDOW_WIDTH,
+    marginTop: 5,
     ...CENTER,
   },
 });

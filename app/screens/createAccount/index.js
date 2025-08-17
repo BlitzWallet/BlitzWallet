@@ -4,6 +4,7 @@ import GenerateKey from './keySetup/generateKey';
 import PinSetupPage from './keySetup/pin';
 import RestoreWallet from './restoreWallet/home';
 import SkipCreateAccountPathMessage from './skipMessage';
+import ChooseLangugaePage from './chooseLanguagePage';
 
 export {
   CreateAccountHome,
@@ -12,4 +13,5 @@ export {
   PinSetupPage,
   RestoreWallet,
   SkipCreateAccountPathMessage,
+  ChooseLangugaePage,
 };

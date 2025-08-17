@@ -29,10 +29,7 @@ import {
   ConnectingToNodeLoadingScreen,
 } from './app/screens/inAccount';
 
-import {
-  GlobalContextProvider,
-  useGlobalContextProvider,
-} from './context-store/context';
+import {GlobalContextProvider} from './context-store/context';
 
 import {WebViewProvider} from './context-store/webViewContext';
 import {Linking, Platform} from 'react-native';
@@ -41,7 +38,7 @@ import SplashScreen from './app/screens/splashScreen';
 import {GlobalContactsList} from './context-store/globalContacts';
 
 // import {GlobaleCashVariables} from './context-store/eCash';
-import {CreateAccountHome} from './app/screens/createAccount';
+import {ChooseLangugaePage} from './app/screens/createAccount';
 import {GlobalAppDataProvider} from './context-store/appData';
 import {PushNotificationProvider} from './context-store/notificationManager';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -111,7 +108,6 @@ import {GlobalServerTimeProvider} from './context-store/serverTime';
 import {ActiveCustodyAccountProvider} from './context-store/activeAccount';
 import {LRC20EventProvider} from './context-store/lrc20Listener';
 import {useTranslation} from 'react-i18next';
-import {removeLocalStorageItem} from './app/functions/localStorage';
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
@@ -399,7 +395,7 @@ function ResetStack(): JSX.Element | null {
         ? AdminLogin
         : ConnectingToNodeLoadingScreen;
     }
-    return CreateAccountHome;
+    return ChooseLangugaePage;
   }, [initSettings.isLoggedIn, initSettings.hasSecurityEnabled]);
 
   if (!initSettings.isLoaded || theme === null || darkModeType === null) {

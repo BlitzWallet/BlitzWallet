@@ -108,7 +108,7 @@
 
   "languages": {
     "english": "English",
-    "spanish": "Spanish"
+    "spanish": "Español"
   },
 
   "weekdays": {
@@ -176,6 +176,9 @@
   },
 
   "createAccount": {
+    "chooseLanguage": {
+      "title": "Choose Language"
+    },
     "homePage": {
       "subtitle": "Your wallet, your coins, 100% open-source",
       "buttons": {

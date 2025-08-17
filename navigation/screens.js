@@ -61,6 +61,7 @@ import {CustomWebView} from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';
 import {
+  CreateAccountHome,
   DislaimerPage,
   GenerateKey,
   PinSetupPage,
@@ -97,6 +98,11 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   {name: 'SwitchGenerativeAIModel', component: SwitchGenerativeAIModel},
 ];
 const SLIDE_FROM_RIGHT_SCREENS = [
+  {
+    name: 'CreateAccountHome',
+    component: CreateAccountHome,
+    options: {gestureEnabled: true},
+  },
   {name: 'SettingsHome', component: SettingsIndex},
   // {name: 'HistoricalOnChainPayments', component: HistoricalOnChainPayments},
   {name: 'ChooseContactHalfModal', component: ChooseContactHalfModal},

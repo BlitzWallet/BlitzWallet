@@ -4,11 +4,13 @@ export const supportedLanguagesList = [
     translatedName: 'languages.english',
     fullySupported: true,
     id: 'en',
+    flagCode: 'us',
   },
   {
-    languageName: 'Spanish',
+    languageName: 'Español',
     fullySupported: true,
     translatedName: 'languages.spanish',
     id: 'sp',
+    flagCode: 'es',
   },
 ];
