@@ -304,7 +304,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
                   paddingHorizontal: 40,
                   paddingVertical: Platform.OS === 'ios' ? 8 : 5,
                 }}
-                content={'Paste'}
+                content={t('constants.paste')}
               />
             </TouchableOpacity>
           </View>

@@ -245,7 +245,7 @@ export default function SwitchReceiveOptionPage({
         }}
         onPress={toggleExpanded}>
         <ThemeText
-          content={t('wallet.receivePages.switchReceiveOptionPage.title', {
+          content={t('wallet.receivePages.switchReceiveOptionPage.actionBTN', {
             action: isExpanded
               ? t('constants.lessLower')
               : t('constants.moreLower'),
