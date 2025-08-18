@@ -100,7 +100,7 @@ export default async function decodeSendAddress(props) {
 
       const lightningInvoice = btcAdress.toLowerCase().startsWith('lightning')
         ? decodedAddress.address.toUpperCase()
-        : decodedAddress.options.lightning.toUpperCase();
+        : decodedAddress.options.lightning?.toUpperCase();
 
       const decodedLNULR = decodeLNURL(lightningInvoice);
 

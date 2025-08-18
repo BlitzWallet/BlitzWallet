@@ -31,7 +31,8 @@ export function decodeLNURL(lnurl) {
   try {
     const words = bech32.decode(lnurl.toLowerCase(), 2000).words;
     const bytes = bech32.fromWords(words);
-    const url = Buffer.from(bytes).toString('utf8');
+    const decoder = new TextDecoder('utf-8', {fatal: true});
+    const url = decoder.decode(Uint8Array.from(bytes));
     return url;
   } catch (error) {
     console.log(error, 'error decoding lnurl');
