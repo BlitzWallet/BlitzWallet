@@ -10,7 +10,9 @@ export default function CustomQrCode({data}) {
   const {t} = useTranslation();
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.container}>
       <TouchableOpacity
         onPress={() => {
           copyToClipboard(data, showToast);
@@ -33,8 +35,6 @@ export default function CustomQrCode({data}) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
   },
 });
