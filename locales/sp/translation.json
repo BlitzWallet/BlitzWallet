@@ -103,7 +103,8 @@
     "slideToConfirm": "Desliza para confirmar",
     "token": "Token",
     "veriable": "Variable",
-    "instant": "Instantáneo"
+    "instant": "Instantáneo",
+    "andLower": "y"
   },
 
   "languages": {
@@ -677,7 +678,8 @@
       },
       "feeInfo": {
         "title": "Tarifa y velocidad",
-        "backTextToAmount": "{{amount}}"
+        "backTextToAmount": "{{amount}}",
+        "tenMinutes": "{{numMins}} minutos"
       },
       "selectLRC20Token": {
         "title": "Seleccionar token",
@@ -1054,13 +1056,13 @@
         "startingPaymentProcessMessage": "Iniciando el proceso de pago, por favor no salgas de esta página ni de la app.",
         "goBack": "Volver",
         "lastSale": "Última venta:",
-        "numTipsPaid": "Número de propinas pagadas:",
-        "numUnpaidTips": "Número de propinas no pagadas:",
-        "tipBalance": "Saldo actual de propinas:",
+        "numTipsPaid": "Consejos pagados:",
+        "numUnpaidTips": "Propinas no pagadas:",
+        "tipBalance": "Saldo de propinas:",
         "viewTips": "Ver propinas"
       },
       "transactions": {
-        "unpaidtips": "Propinas no pagadas: {{number}}",
+        "unpaidtips": "Consejos: {{number}}",
         "title": "Propinas a pagar",
         "empNamePlaceholder": "Nombre del empleado",
         "noTips": "El empleado no tiene propinas"
@@ -1085,7 +1087,7 @@
           "itemSearchPlaceholder": "Nombre del artículo...",
           "noItemsSearch": "Ningún artículo coincide con tu búsqueda.",
           "noItemsAdded": "Agrega un artículo para que aparezca aquí.",
-          "ctaBTN": "Añadir nuevo artículo"
+          "ctaBTN": "Añadir artículo"
         }
       },
       "internalComponents": {

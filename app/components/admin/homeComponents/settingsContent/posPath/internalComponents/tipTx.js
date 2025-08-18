@@ -38,7 +38,7 @@ export default function TipsTXItem({item, masterInfoObject, fiatStats, t}) {
           );
           setIsLoading(false);
         }}
-        buttonStyles={{width: 120}}
+        buttonStyles={{maxWidth: '45%'}}
         textStyles={{textAlign: 'center'}}
         textContent={t('settings.posPath.internalComponents.tipTx.ctaBTN', {
           option: item?.didPay

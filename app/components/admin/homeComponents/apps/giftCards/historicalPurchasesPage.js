@@ -22,6 +22,8 @@ import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useToast} from '../../../../../../context-store/toastManager';
 import {useTranslation} from 'react-i18next';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 
 export default function HistoricalGiftCardPurchases() {
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
@@ -74,25 +76,14 @@ export default function HistoricalGiftCardPurchases() {
   );
 
   return (
-    <GlobalThemeView
-      styles={{paddingBottom: 0, alignItems: 'center'}}
-      useStandardWidth={true}>
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          onPress={navigate.goBack}
-          style={{marginRight: 'auto'}}>
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
-        </TouchableOpacity>
-      </View>
+    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
+      <CustomSettingsTopBar containerStyles={styles.topBar} />
 
       {!decodedGiftCards.purchasedCards ||
       decodedGiftCards?.purchasedCards?.length === 0 ? (
-        <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
+        <View style={styles.noPurchaseContainer}>
           <ThemeText
+            styles={styles.noPurchaseText}
             content={t('apps.giftCards.historicalPurchasesPage.noPurchases')}
           />
         </View>
@@ -157,11 +148,9 @@ export default function HistoricalGiftCardPurchases() {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {paddingBottom: 0, alignItems: 'center'},
   topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    ...CENTER,
+    marginBottom: 0,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -170,7 +159,15 @@ const styles = StyleSheet.create({
     borderColor: COLORS.gray2,
     alignItems: 'center',
   },
-
+  noPurchaseContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  noPurchaseText: {
+    textAlign: 'center',
+    width: INSET_WINDOW_WIDTH,
+  },
   companyLogo: {width: 55, height: 55, marginRight: 10, borderRadius: 10},
   supportBTN: {width: 'auto', ...CENTER, position: 'absolute'},
 });

@@ -9,13 +9,11 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
-  ICONS,
   SATSPERBITCOIN,
   SIZES,
 } from '../../../../../constants';
@@ -23,7 +21,7 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from '../../../../../functions';
-import {useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
@@ -44,6 +42,8 @@ import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 import {useTranslation} from 'react-i18next';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 
 export default function ExpandedGiftCardPage(props) {
   const {sparkInformation} = useSparkWallet();
@@ -164,25 +164,20 @@ export default function ExpandedGiftCardPage(props) {
   const isTermsHTML =
     selectedItem.terms.includes('<p>') || selectedItem.terms.includes('br');
 
+  const customBack = useCallback(() => {
+    keyboardGoBack(navigate);
+  }, [navigate]);
+
   return (
     <CustomKeyboardAvoidingView useStandardWidth={true}>
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          onPress={() => {
-            keyboardGoBack(navigate);
-          }}
-          style={{marginRight: 'auto'}}>
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
-        </TouchableOpacity>
-      </View>
+      <CustomSettingsTopBar
+        containerStyles={styles.topBar}
+        customBackFunction={customBack}
+      />
       {isPurchasingGift.isPurasing ? (
         <FullLoadingScreen
           showLoadingIcon={isPurchasingGift.hasError ? false : true}
-          textStyles={{textAlign: 'center'}}
+          textStyles={styles.loadingScreenText}
           text={
             isPurchasingGift.hasError
               ? isPurchasingGift.errorMessage
@@ -209,7 +204,7 @@ export default function ExpandedGiftCardPage(props) {
             />
           </View>
           <ThemeText
-            styles={{marginBottom: 15}}
+            styles={styles.selectAmountText}
             content={t('apps.giftCards.expandedGiftCardPage.selectamount')}
           />
           <View
@@ -606,12 +601,9 @@ export default function ExpandedGiftCardPage(props) {
 }
 const styles = StyleSheet.create({
   topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    ...CENTER,
+    marginBottom: 0,
   },
-
+  loadingScreenText: {textAlign: 'center', width: INSET_WINDOW_WIDTH},
   purchaseButton: {
     width: 'auto',
     ...CENTER,
@@ -637,6 +629,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: SIZES.xLarge,
   },
+  selectAmountText: {marginBottom: 15},
   amountContainer: {
     flexDirection: 'row',
     columnGap: 10,

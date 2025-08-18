@@ -13,43 +13,32 @@ import {copyToClipboard} from '../../../../../../functions';
 import {useNavigation} from '@react-navigation/native';
 import {CENTER, ICONS} from '../../../../../../constants';
 import CustomButton from '../../../../../../functions/CustomElements/button';
-import {SIZES, WINDOWWIDTH} from '../../../../../../constants/theme';
+import {
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../../../../../constants/theme';
 import {backArrow} from '../../../../../../constants/styles';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import QrCodeWrapper from '../../../../../../functions/CustomElements/QrWrapper';
 import writeAndShareFileToFilesystem from '../../../../../../functions/writeFileToFilesystem';
 import {useToast} from '../../../../../../../context-store/toastManager';
 import {useTranslation} from 'react-i18next';
+import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
 
 export default function GeneratedVPNFile(props) {
-  const navigate = useNavigation();
   const generatedFile =
     props?.generatedFile || props?.route?.params?.generatedFile;
 
   return (
     <GlobalThemeView>
       {props?.generatedFile ? (
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={styles.vpnQrContainer}>
           <VPNFileDisplay generatedFile={generatedFile} />
         </View>
       ) : (
-        <View
-          style={{
-            flex: 1,
-            width: WINDOWWIDTH,
-            ...CENTER,
-          }}>
-          <View style={styles.topBar}>
-            <TouchableOpacity
-              style={{marginRight: 'auto'}}
-              onPress={() => {
-                navigate.goBack();
-              }}>
-              <Image style={[backArrow]} source={ICONS.smallArrowLeft} />
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={styles.viewingAsPageStyle}>
+          <CustomSettingsTopBar />
+          <View style={styles.vpnQrContainer}>
             <VPNFileDisplay generatedFile={generatedFile} />
           </View>
         </View>
@@ -68,7 +57,7 @@ function VPNFileDisplay({generatedFile}) {
   return (
     <>
       <ThemeText
-        styles={{marginBottom: 10}}
+        styles={styles.headerText}
         content={t('apps.VPN.generatedFile.title')}
       />
 
@@ -79,16 +68,16 @@ function VPNFileDisplay({generatedFile}) {
         <QrCodeWrapper QRData={generatedFile.join('\n')} />
       </TouchableOpacity>
 
-      <View style={{flexDirection: 'row', marginTop: 20}}>
+      <View style={styles.copyButtonsContainer}>
         <CustomButton
-          buttonStyles={{...CENTER, marginRight: 10, width: 'auto'}}
+          buttonStyles={styles.buttonContainer}
           textContent={t('constants.download')}
           actionFunction={() => {
             downloadVPNFile({generatedFile, navigate});
           }}
         />
         <CustomButton
-          buttonStyles={{...CENTER, with: 'auto'}}
+          buttonStyles={styles.buttonContainer}
           textContent={t('constants.copy')}
           actionFunction={() => {
             copyToClipboard(generatedFile.join('\n'), showToast);
@@ -96,7 +85,7 @@ function VPNFileDisplay({generatedFile}) {
         />
       </View>
       <ThemeText
-        styles={{marginTop: 10, textAlign: 'center'}}
+        styles={styles.instrucText}
         content={
           Platform.OS === 'ios'
             ? t('apps.VPN.generatedFile.iosDownloadInstructions')
@@ -126,15 +115,22 @@ async function downloadVPNFile({generatedFile, navigate}) {
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
+  vpnQrContainer: {flex: 1, alignItems: 'center', justifyContent: 'center'},
+  viewingAsPageStyle: {
+    flex: 1,
+    width: WINDOWWIDTH,
     ...CENTER,
   },
-  topBarText: {
-    fontSize: SIZES.large,
-    textTransform: 'capitalize',
-    includeFontPadding: false,
+
+  headerText: {marginBottom: 10},
+  copyButtonsContainer: {
+    maxWidth: 275,
+    width: '100%',
+    flexDirection: 'row',
+    marginTop: 20,
+    columnGap: 10,
+    flexWrap: 'wrap',
   },
+  buttonContainer: {flexGrow: 1, minWidth: 90, maxWidth: '48%'},
+  instrucText: {marginTop: 20, textAlign: 'center', width: INSET_WINDOW_WIDTH},
 });

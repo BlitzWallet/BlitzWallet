@@ -57,9 +57,10 @@ export default function ViewPOSTransactions() {
             CustomNumberOfLines={1}
           />
         </View>
+
         <CustomButton
+          useArrow={true}
           actionFunction={() => navigate.navigate('TotalTipsScreen', {item})}
-          textContent={t('constants.view')}
         />
       </View>
     );
@@ -113,9 +114,10 @@ const styles = StyleSheet.create({
   },
   transactionContainer: {
     marginVertical: 12,
-    width: '100%',
+    width: '95%',
     flexDirection: 'row',
     alignItems: 'center',
+    ...CENTER,
   },
   nameText: {
     textTransform: 'capitalize',

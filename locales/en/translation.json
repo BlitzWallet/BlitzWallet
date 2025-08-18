@@ -103,7 +103,8 @@
     "slideToConfirm": "Slide to confirm",
     "token": "Token",
     "veriable": "Veriable",
-    "instant": "Instant"
+    "instant": "Instant",
+    "andLower": "and"
   },
 
   "languages": {
@@ -829,8 +830,9 @@
         "title": "Error message"
       },
       "feeInfo": {
-        "title": "Fee & Speed",
-        "backTextToAmount": "{{amount}}"
+        "title": "Fee and Speed",
+        "backTextToAmount": "{{amount}}",
+        "tenMinutes": "{{numMins}} minutes"
       },
 
       "selectLRC20Token": {
@@ -1221,13 +1223,13 @@
         "startingPaymentProcessMessage": "'Begining payment process, please do not leave this page or the app.",
         "goBack": "Go back",
         "lastSale": "Last sale:",
-        "numTipsPaid": "Number of tips paid:",
-        "numUnpaidTips": "Number of unpaid tips:",
-        "tipBalance": "Current tip balance:",
+        "numTipsPaid": "Tips paid:",
+        "numUnpaidTips": "Unpaid tips:",
+        "tipBalance": "Tip balance:",
         "viewTips": "View Tips"
       },
       "transactions": {
-        "unpaidtips": "Unpaid tips: {{number}}",
+        "unpaidtips": "Tips: {{number}}",
         "title": "Tips to pay",
         "empNamePlaceholder": "Employee name",
         "noTips": "Employee has no tips"
@@ -1252,7 +1254,7 @@
           "itemSearchPlaceholder": "Item name...",
           "noItemsSearch": "No items match your search.",
           "noItemsAdded": "Add an item for it to show up here.",
-          "ctaBTN": "Add New Item"
+          "ctaBTN": "Add Item"
         }
       },
       "internalComponents": {

@@ -30,6 +30,7 @@ import ContactProfileImage from './internalComponents/profileImage';
 import getReceiveAddressForContactPayment from './internalComponents/getReceiveAddressAndKindForPayment';
 import {useServerTimeOnly} from '../../../../../context-store/serverTime';
 import {useTranslation} from 'react-i18next';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -219,14 +220,8 @@ export default function SendAndRequestPage(props) {
       isKeyboardActive={!isAmountFocused}
       useLocalPadding={true}
       useStandardWidth={true}>
-      <TouchableOpacity onPress={navigate.goBack}>
-        <ThemeImage
-          darkModeIcon={ICONS.smallArrowLeft}
-          lightModeIcon={ICONS.smallArrowLeft}
-          lightsOutIcon={ICONS.arrow_small_left_white}
-        />
-      </TouchableOpacity>
-      <View style={styles.globalContainer}>
+      <CustomSettingsTopBar containerStyles={styles.topBar} />
+      <>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollViewContainer}>
@@ -235,7 +230,6 @@ export default function SendAndRequestPage(props) {
               styles.profileImage,
               {
                 backgroundColor: backgroundOffset,
-                marginBottom: 5,
               },
             ]}>
             <ContactProfileImage
@@ -296,9 +290,7 @@ export default function SendAndRequestPage(props) {
           textInputMultiline={true}
           textAlignVertical={'center'}
           maxLength={149}
-          containerStyles={{
-            width: '90%',
-          }}
+          containerStyles={styles.searchContianerStyles}
         />
 
         {isAmountFocused && (
@@ -326,13 +318,13 @@ export default function SendAndRequestPage(props) {
             }
           />
         )}
-      </View>
+      </>
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {flex: 1},
+  topBar: {marginTop: 0},
   scrollViewContainer: {
     paddingBottom: 20,
   },
@@ -344,9 +336,12 @@ const styles = StyleSheet.create({
     ...CENTER,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
     marginTop: 20,
+    marginBottom: 5,
     overflow: 'hidden',
+  },
+  searchContianerStyles: {
+    width: '90%',
   },
   profileName: {
     ...CENTER,

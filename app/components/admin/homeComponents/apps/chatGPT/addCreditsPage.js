@@ -22,6 +22,7 @@ import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 import {useTranslation} from 'react-i18next';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 
 const CREDITOPTIONS = [
   {
@@ -133,27 +134,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
   });
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          style={{position: 'absolute'}}
-          onPress={() => {
-            navigate.goBack();
-          }}>
-          <ThemeImage
-            lightsOutIcon={ICONS.arrow_small_left_white}
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-          />
-        </TouchableOpacity>
-        <ThemeText
-          styles={{
-            fontSize: SIZES.large,
-            marginRight: 'auto',
-            marginLeft: 'auto',
-          }}
-          content={t('apps.chatGPT.addCreditsPage.title')}
-        />
-      </View>
+      <CustomSettingsTopBar label={t('apps.chatGPT.addCreditsPage.title')} />
       {!isPaying ? (
         <>
           <View style={styles.globalContainer}>
@@ -423,13 +404,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
-  },
-
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
   },
 
   optionContainer: {
