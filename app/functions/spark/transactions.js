@@ -1,6 +1,6 @@
-import * as SQLite from 'expo-sqlite';
 import EventEmitter from 'events';
 import {handleEventEmitterPost} from '../handleEventEmitters';
+import {openDatabaseAsync} from 'expo-sqlite';
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
 export const SPARK_TRANSACTIONS_TABLE_NAME = 'SPARK_TRANSACTIONS';
 export const LIGHTNING_REQUEST_IDS_TABLE_NAME = 'LIGHTNING_REQUEST_IDS';
@@ -13,7 +13,7 @@ let sqlLiteDB;
 
 if (!sqlLiteDB) {
   async function openDBConnection() {
-    sqlLiteDB = await SQLite.openDatabaseAsync(
+    sqlLiteDB = await openDatabaseAsync(
       `${SPARK_TRANSACTIONS_DATABASE_NAME}.db`,
     );
   }

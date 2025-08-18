@@ -1,5 +1,4 @@
 import MaskedView from '@react-native-masked-view/masked-view';
-import * as React from 'react';
 import {
   Animated,
   Dimensions,
@@ -12,6 +11,7 @@ import {
 } from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {SKELETON_ANIMATION_SPEED} from '../../constants';
+import {Children, Fragment, useEffect, useMemo, useRef, useState} from 'react';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 
@@ -27,11 +27,11 @@ const SkeletonPlaceholder = ({
   borderRadius,
   shimmerWidth,
 }) => {
-  const [layout, setLayout] = React.useState();
-  const animatedValueRef = React.useRef(new Animated.Value(0));
+  const [layout, setLayout] = useState();
+  const animatedValueRef = useRef(new Animated.Value(0));
   const isAnimationReady = Boolean(speed && layout?.width && layout?.height);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isAnimationReady) return;
 
     const loop = Animated.loop(
@@ -46,7 +46,7 @@ const SkeletonPlaceholder = ({
     return () => loop.stop();
   }, [isAnimationReady, speed]);
 
-  const animatedGradientStyle = React.useMemo(() => {
+  const animatedGradientStyle = useMemo(() => {
     const animationWidth = WINDOW_WIDTH + (shimmerWidth ?? 0);
     return {
       ...StyleSheet.absoluteFillObject,
@@ -65,7 +65,7 @@ const SkeletonPlaceholder = ({
     };
   }, [direction, WINDOW_WIDTH, shimmerWidth]);
 
-  const placeholders = React.useMemo(() => {
+  const placeholders = useMemo(() => {
     if (!enabled) return null;
 
     return (
@@ -75,7 +75,7 @@ const SkeletonPlaceholder = ({
     );
   }, [backgroundColor, children, borderRadius, enabled]);
 
-  const transparentColor = React.useMemo(
+  const transparentColor = useMemo(
     () => getTransparentColor(highlightColor.replace(/ /g, '')),
     [highlightColor],
   );
@@ -130,10 +130,10 @@ const getItemStyle = ({children: _, style, ...styleFromProps}) => {
 const transformToPlaceholder = (rootElement, backgroundColor, radius) => {
   if (!rootElement) return null;
 
-  return React.Children.map(rootElement, (element, index) => {
+  return Children.map(rootElement, (element, index) => {
     if (!element) return null;
 
-    if (element.type === React.Fragment)
+    if (element.type === Fragment)
       return (
         <>
           {transformToPlaceholder(

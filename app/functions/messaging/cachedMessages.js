@@ -1,8 +1,8 @@
 import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
-import * as SQLite from 'expo-sqlite';
 import {getTwoWeeksAgoDate} from '../rotateAddressDateChecker';
 import EventEmitter from 'events';
 import {handleEventEmitterPost} from '../handleEventEmitters';
+import {openDatabaseAsync} from 'expo-sqlite';
 export const CACHED_MESSAGES_KEY = 'CASHED_CONTACTS_MESSAGES';
 export const SQL_TABLE_NAME = 'messagesTable';
 export const LOCALSTORAGE_LAST_RECEIVED_TIME_KEY =
@@ -16,7 +16,7 @@ let isProcessing = false;
 
 if (!sqlLiteDB) {
   async function openDBConnection() {
-    sqlLiteDB = await SQLite.openDatabaseAsync(`${CACHED_MESSAGES_KEY}.db`);
+    sqlLiteDB = await openDatabaseAsync(`${CACHED_MESSAGES_KEY}.db`);
   }
   openDBConnection();
 }

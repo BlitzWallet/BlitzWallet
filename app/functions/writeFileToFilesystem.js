@@ -1,6 +1,11 @@
-import * as FileSystem from 'expo-file-system';
 import {Platform, Share} from 'react-native';
 import {crashlyticsLogReport} from './crashlyticsLogs';
+import {
+  documentDirectory,
+  EncodingType,
+  StorageAccessFramework,
+  writeAsStringAsync,
+} from 'expo-file-system';
 
 export default async function writeAndShareFileToFilesystem(
   fileData,
@@ -11,9 +16,10 @@ export default async function writeAndShareFileToFilesystem(
 
   try {
     crashlyticsLogReport('Starting write to filesystem process');
-    const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-    await FileSystem.writeAsStringAsync(fileUri, fileData, {
-      encoding: FileSystem.EncodingType.UTF8,
+
+    const fileUri = `${documentDirectory}${fileName}`;
+    await writeAsStringAsync(fileUri, fileData, {
+      encoding: EncodingType.UTF8,
     });
 
     if (Platform.OS === 'ios') {
@@ -26,19 +32,18 @@ export default async function writeAndShareFileToFilesystem(
     } else {
       try {
         const permissions =
-          await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+          await StorageAccessFramework.requestDirectoryPermissionsAsync();
 
         if (permissions.granted) {
-          const data =
-            await FileSystem.StorageAccessFramework.readAsStringAsync(fileUri);
+          const data = await StorageAccessFramework.readAsStringAsync(fileUri);
 
           try {
-            const uri = await FileSystem.StorageAccessFramework.createFileAsync(
+            const uri = await StorageAccessFramework.createFileAsync(
               permissions.directoryUri,
               fileName,
               fileType,
             );
-            await FileSystem.writeAsStringAsync(uri, data);
+            await writeAsStringAsync(uri, data);
             return {success: true, error: null};
           } catch (err) {
             console.log('writting file to filesystem for android err', err);

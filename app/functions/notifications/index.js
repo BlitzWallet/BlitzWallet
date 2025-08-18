@@ -1,7 +1,10 @@
-import * as Notifications from 'expo-notifications';
+import {
+  scheduleNotificationAsync,
+  setNotificationHandler,
+} from 'expo-notifications';
 
 // Configure notification behavior
-Notifications.setNotificationHandler({
+setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
     shouldPlaySound: true,
@@ -17,7 +20,7 @@ Notifications.setNotificationHandler({
  */
 export const pushInstantNotification = async (message, title = '') => {
   try {
-    const notificationId = await Notifications.scheduleNotificationAsync({
+    const notificationId = await scheduleNotificationAsync({
       content: {
         title: title,
         body: message,

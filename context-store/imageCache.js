@@ -7,15 +7,20 @@ import React, {
   useMemo,
 } from 'react';
 import {getDownloadURL, getMetadata, ref} from '@react-native-firebase/storage';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as FileSystem from 'expo-file-system';
 import {useGlobalContacts} from './globalContacts';
 import {useAppStatus} from './appStatus';
 import {BLITZ_PROFILE_IMG_STORAGE_REF} from '../app/constants';
 import {useGlobalContextProvider} from './context';
 import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
 import {storage} from '../db/initializeFirebase';
-const FILE_DIR = FileSystem.cacheDirectory + 'profile_images/';
+import {
+  cacheDirectory,
+  downloadAsync,
+  getInfoAsync,
+  makeDirectoryAsync,
+} from 'expo-file-system';
+import {getAllLocalKeys, getMultipleItems} from '../app/functions/localStorage';
+const FILE_DIR = cacheDirectory + 'profile_images/';
 const ImageCacheContext = createContext();
 
 export function ImageCacheProvider({children}) {
@@ -27,11 +32,11 @@ export function ImageCacheProvider({children}) {
 
   const refreshCacheObject = async () => {
     try {
-      const keys = await AsyncStorage.getAllKeys();
+      const keys = await getAllLocalKeys();
       const imgKeys = keys.filter(k =>
         k.startsWith(BLITZ_PROFILE_IMG_STORAGE_REF),
       );
-      const stores = await AsyncStorage.multiGet(imgKeys);
+      const stores = await getMultipleItems(imgKeys);
       const initialCache = {};
       stores.forEach(([key, value]) => {
         if (value) {
@@ -94,7 +99,7 @@ export function ImageCacheProvider({children}) {
 
         const cached = cache[uuid];
         if (cached && cached.updated === updated) {
-          const fileInfo = await FileSystem.getInfoAsync(cached.localUri);
+          const fileInfo = await getInfoAsync(cached.localUri);
           if (fileInfo.exists) return;
         }
 
@@ -106,8 +111,8 @@ export function ImageCacheProvider({children}) {
 
       const localUri = `${FILE_DIR}${uuid}.jpg`;
 
-      await FileSystem.makeDirectoryAsync(FILE_DIR, {intermediates: true});
-      await FileSystem.downloadAsync(url, localUri);
+      await makeDirectoryAsync(FILE_DIR, {intermediates: true});
+      await downloadAsync(url, localUri);
 
       const newCacheEntry = {
         uri: localUri,
@@ -115,7 +120,7 @@ export function ImageCacheProvider({children}) {
         updated,
       };
 
-      await AsyncStorage.setItem(key, JSON.stringify(newCacheEntry));
+      await setLocalStorageItem(key, JSON.stringify(newCacheEntry));
       setCache(prev => ({...prev, [uuid]: newCacheEntry}));
 
       return newCacheEntry;
@@ -134,7 +139,8 @@ export function ImageCacheProvider({children}) {
         localUri: null,
         updated: new Date().getTime(),
       };
-      await AsyncStorage.setItem(key, JSON.stringify(newCacheEntry));
+
+      await setLocalStorageItem(key, JSON.stringify(newCacheEntry));
       setCache(prev => ({...prev, [uuid]: newCacheEntry}));
       return newCacheEntry;
     } catch (err) {

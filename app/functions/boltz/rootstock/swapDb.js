@@ -1,4 +1,4 @@
-import * as SQLite from 'expo-sqlite';
+import {openDatabaseAsync} from 'expo-sqlite';
 
 export const ROOTSTOCK_DB_NAME = 'ROOTSTOCK_SWAPS';
 export const ROOTSTOCK_TABLE_NAME = 'saved_rootstock_swaps';
@@ -6,7 +6,7 @@ let sqlLiteDB;
 
 if (!sqlLiteDB) {
   async function openDBConnection() {
-    sqlLiteDB = await SQLite.openDatabaseAsync(`${ROOTSTOCK_DB_NAME}.db`);
+    sqlLiteDB = await openDatabaseAsync(`${ROOTSTOCK_DB_NAME}.db`);
   }
   openDBConnection();
 }

@@ -1,5 +1,14 @@
 import MaskedView from '@react-native-masked-view/masked-view';
-import * as React from 'react';
+import {
+  Children,
+  cloneElement,
+  createContext,
+  isValidElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Animated,
   Dimensions,
@@ -22,11 +31,11 @@ const SkeletonTextPlaceholder = ({
   direction = 'right',
   shimmerWidth,
 }) => {
-  const [layout, setLayout] = React.useState();
-  const animatedValueRef = React.useRef(new Animated.Value(0));
+  const [layout, setLayout] = useState();
+  const animatedValueRef = useRef(new Animated.Value(0));
   const isAnimationReady = Boolean(speed && layout?.width && layout?.height);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isAnimationReady) return;
     const loop = Animated.loop(
       Animated.timing(animatedValueRef.current, {
@@ -40,7 +49,7 @@ const SkeletonTextPlaceholder = ({
     return () => loop.stop();
   }, [isAnimationReady, speed]);
 
-  const animatedGradientStyle = React.useMemo(() => {
+  const animatedGradientStyle = useMemo(() => {
     const animationWidth = WINDOW_WIDTH + (shimmerWidth ?? 0);
     return {
       ...StyleSheet.absoluteFillObject,
@@ -59,7 +68,7 @@ const SkeletonTextPlaceholder = ({
     };
   }, [direction, WINDOW_WIDTH, shimmerWidth]);
 
-  const transparentColor = React.useMemo(
+  const transparentColor = useMemo(
     () => getTransparentColor(highlightColor.replace(/ /g, '')),
     [highlightColor],
   );
@@ -101,7 +110,7 @@ const SkeletonTextPlaceholder = ({
 };
 
 // Context to override text colors
-const TextColorContext = React.createContext();
+const TextColorContext = createContext();
 
 const TextColorProvider = ({children, color}) => {
   return (
@@ -113,7 +122,7 @@ const TextColorProvider = ({children, color}) => {
 
 // Recursively transform elements to override text rendering
 const transformElementsForMask = (children, textColor) => {
-  return React.Children.map(children, (child, index) => {
+  return Children.map(children, (child, index) => {
     if (!child) return null;
 
     if (typeof child === 'string') {
@@ -124,7 +133,7 @@ const transformElementsForMask = (children, textColor) => {
       );
     }
 
-    if (React.isValidElement(child)) {
+    if (isValidElement(child)) {
       const props = {key: index};
 
       // If it's a Text component, override the color
@@ -162,7 +171,7 @@ const transformElementsForMask = (children, textColor) => {
         );
       }
 
-      return React.cloneElement(child, props);
+      return cloneElement(child, props);
     }
 
     return child;
