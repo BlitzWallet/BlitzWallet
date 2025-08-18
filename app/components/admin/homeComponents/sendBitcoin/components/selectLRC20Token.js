@@ -116,8 +116,7 @@ export default function SelectLRC20Token({
     <CustomKeyboardAvoidingView
       useStandardWidth={true}
       useLocalPadding={true}
-      isKeyboardActive={isKeyboardActive}
-      style={styles.container}>
+      isKeyboardActive={isKeyboardActive}>
       <CustomSettingsTopBar
         customBackFunction={goBackFunction}
         label={t('wallet.sendPages.selectLRC20Token.title')}
@@ -170,7 +169,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...CENTER,
   },
-  innerContainer: {flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER},
+  innerContainer: {
+    flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+    marginTop: 10,
+  },
 
   titleText: {
     fontSize: SIZES.large,

@@ -1,17 +1,20 @@
+import React, {useState, useMemo} from 'react';
 import {useNavigation} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
+import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
+
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import {useNodeContext} from '../../../../../../context-store/nodeContext';
+import {useAppStatus} from '../../../../../../context-store/appStatus';
+import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+
+import CustomButton from '../../../../../functions/CustomElements/button';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+
 import {
   CENTER,
   SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
 } from '../../../../../constants';
-import CustomButton from '../../../../../functions/CustomElements/button';
-import {useState} from 'react';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {useAppStatus} from '../../../../../../context-store/appStatus';
-import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
-import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
-import {useTranslation} from 'react-i18next';
 
 export default function AcceptButtonSendPage({
   canSendPayment,
@@ -33,141 +36,185 @@ export default function AcceptButtonSendPage({
   seletctedToken,
   isLRC20Payment,
 }) {
+  const navigate = useNavigation();
+  const {t} = useTranslation();
+  const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
+
   const {masterInfoObject} = useGlobalContextProvider();
   const {liquidNodeInformation, fiatStats} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {t} = useTranslation();
-  const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
-  const navigate = useNavigation();
-  return (
-    <CustomButton
-      buttonStyles={{
-        opacity:
-          canSendPayment &&
-          !(
-            isLiquidPayment &&
-            (convertedSendAmount < minMaxLiquidSwapAmounts.min ||
-              convertedSendAmount > minMaxLiquidSwapAmounts.max)
-          ) &&
-          !(
-            paymentInfo?.type === 'lnUrlPay' &&
-            (convertedSendAmount < minLNURLSatAmount ||
-              convertedSendAmount > maxLNURLSatAmount)
-          ) &&
-          !(
-            paymentInfo?.type === 'Bitcoin' &&
-            convertedSendAmount < SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT
-          ) &&
-          !(isLRC20Payment && sparkInformation.balance < 10)
-            ? 1
-            : 0.5,
-        width: 'auto',
-        ...CENTER,
-      }}
-      useLoading={isGeneratingInvoice}
-      actionFunction={handleEnterSendAmount}
-      textContent={t('constants.accept')}
-    />
-  );
 
-  async function handleEnterSendAmount() {
+  const isLiquidAmountValid = useMemo(() => {
+    if (!isLiquidPayment) return true;
+    return (
+      convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
+      convertedSendAmount <= minMaxLiquidSwapAmounts.max
+    );
+  }, [isLiquidPayment, convertedSendAmount, minMaxLiquidSwapAmounts]);
+
+  const isLNURLAmountValid = useMemo(() => {
+    if (paymentInfo?.type !== 'lnUrlPay') return true;
+    return (
+      convertedSendAmount >= minLNURLSatAmount &&
+      convertedSendAmount <= maxLNURLSatAmount
+    );
+  }, [
+    paymentInfo?.type,
+    convertedSendAmount,
+    minLNURLSatAmount,
+    maxLNURLSatAmount,
+  ]);
+
+  const isBitcoinAmountValid = useMemo(() => {
+    if (paymentInfo?.type !== 'Bitcoin') return true;
+    return convertedSendAmount >= SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT;
+  }, [paymentInfo?.type, convertedSendAmount]);
+
+  const isLRC20Valid = useMemo(() => {
+    if (!isLRC20Payment) return true;
+    return sparkInformation.balance >= 10;
+  }, [isLRC20Payment, sparkInformation?.balance]);
+
+  const buttonOpacity = useMemo(() => {
+    return canSendPayment &&
+      isLiquidAmountValid &&
+      isLNURLAmountValid &&
+      isBitcoinAmountValid &&
+      isLRC20Valid
+      ? 1
+      : 0.5;
+  }, [
+    canSendPayment,
+    isLiquidAmountValid,
+    isLNURLAmountValid,
+    isBitcoinAmountValid,
+    isLRC20Valid,
+  ]);
+
+  const handleLiquidAmountError = () => {
+    const isMinError = convertedSendAmount < minMaxLiquidSwapAmounts.min;
+    const errorAmount = isMinError
+      ? minMaxLiquidSwapAmounts.min
+      : minMaxLiquidSwapAmounts.max;
+
+    navigate.navigate('ErrorScreen', {
+      errorMessage: t('wallet.sendPages.acceptButton.liquidError', {
+        overFlowType: isMinError ? 'Minimum' : 'Maximum',
+        amount: displayCorrectDenomination({
+          amount: errorAmount,
+          fiatStats,
+          masterInfoObject,
+        }),
+      }),
+    });
+  };
+
+  const handleBitcoinAmountError = () => {
+    navigate.navigate('ErrorScreen', {
+      errorMessage: t('wallet.sendPages.acceptButton.onchainError', {
+        amount: displayCorrectDenomination({
+          amount: SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
+          fiatStats,
+          masterInfoObject,
+        }),
+      }),
+    });
+  };
+
+  const handleLNURLPayError = () => {
+    const isMinError = convertedSendAmount < minLNURLSatAmount;
+    const errorAmount = isMinError ? minLNURLSatAmount : maxLNURLSatAmount;
+
+    navigate.navigate('ErrorScreen', {
+      errorMessage: t('wallet.sendPages.acceptButton.lnurlPayError', {
+        overFlowType: isMinError ? 'Minimum' : 'Maximum',
+        amount: displayCorrectDenomination({
+          amount: errorAmount,
+          fiatStats,
+          masterInfoObject,
+        }),
+      }),
+    });
+  };
+
+  const handleLRC20Error = () => {
+    navigate.navigate('ErrorScreen', {
+      errorMessage: t('wallet.sendPages.acceptButton.lrc20FeeError', {
+        amount: displayCorrectDenomination({
+          amount: 10,
+          masterInfoObject,
+          fiatStats,
+        }),
+        balance: displayCorrectDenomination({
+          amount: sparkInformation.balance,
+          masterInfoObject,
+          fiatStats,
+        }),
+      }),
+    });
+  };
+
+  const handleInsufficientBalanceError = () => {
+    navigate.navigate('ErrorScreen', {
+      errorMessage: t('wallet.sendPages.acceptButton.balanceError'),
+    });
+  };
+
+  const handleNoSendAmountError = () => {
+    navigate.navigate('ErrorScreen', {
+      errorMessage: t('wallet.sendPages.acceptButton.noSendAmountError'),
+    });
+  };
+
+  const validatePaymentAmount = () => {
     if (!paymentInfo?.sendAmount) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.sendPages.acceptButton.noSendAmountError'),
-      });
-      return;
+      handleNoSendAmountError();
+      return false;
     }
 
-    if (
-      isLiquidPayment &&
-      (convertedSendAmount < minMaxLiquidSwapAmounts.min ||
-        convertedSendAmount > minMaxLiquidSwapAmounts.max)
-    ) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.sendPages.acceptButton.liquidError', {
-          overFlowType:
-            convertedSendAmount < minMaxLiquidSwapAmounts.min
-              ? 'Minimum'
-              : 'Maximum',
-          amount: displayCorrectDenomination({
-            amount:
-              convertedSendAmount < minMaxLiquidSwapAmounts.min
-                ? minMaxLiquidSwapAmounts.min
-                : minMaxLiquidSwapAmounts.max,
-            fiatStats,
-            masterInfoObject,
-          }),
-        }),
-      });
-      return;
+    if (!isLiquidAmountValid) {
+      handleLiquidAmountError();
+      return false;
     }
-    if (
-      paymentInfo?.type === 'Bitcoin' &&
-      convertedSendAmount < SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT
-    ) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.sendPages.acceptButton.onchainError', {
-          amount: displayCorrectDenomination({
-            amount: SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
-            fiatStats,
-            masterInfoObject,
-          }),
-        }),
-      });
-      return;
+
+    if (!isBitcoinAmountValid) {
+      handleBitcoinAmountError();
+      return false;
     }
+
     if (
       paymentInfo?.type === InputTypeVariant.LN_URL_PAY &&
-      (convertedSendAmount < minLNURLSatAmount ||
-        convertedSendAmount > maxLNURLSatAmount)
+      !isLNURLAmountValid
     ) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.sendPages.acceptButton.lnurlPayError', {
-          overFlowType:
-            convertedSendAmount < minLNURLSatAmount ? 'Minimum' : 'Maximum',
-          amount: displayCorrectDenomination({
-            amount:
-              convertedSendAmount < minLNURLSatAmount
-                ? minLNURLSatAmount
-                : maxLNURLSatAmount,
-            fiatStats,
-            masterInfoObject,
-          }),
-        }),
-      });
-      return;
+      handleLNURLPayError();
+      return false;
     }
 
-    if (isLRC20Payment && sparkInformation.balance < 10) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.sendPages.acceptButton.lrc20FeeError', {
-          amount: displayCorrectDenomination({
-            amount: 10,
-            masterInfoObject,
-            fiatStats,
-          }),
-          balance: displayCorrectDenomination({
-            amount: sparkInformation.balance,
-            masterInfoObject,
-            fiatStats,
-          }),
-        }),
-      });
-      return;
+    if (!isLRC20Valid) {
+      handleLRC20Error();
+      return false;
     }
 
     if (!canSendPayment && !!paymentInfo?.sendAmount) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('wallet.sendPages.acceptButton.balanceError'),
-      });
+      handleInsufficientBalanceError();
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleEnterSendAmount = async () => {
+    if (!validatePaymentAmount()) {
       return;
     }
+
     setIsGeneratingInvoice(true);
+
     try {
       await decodeSendAddress({
         fiatStats,
-        btcAdress: btcAdress,
+        btcAdress,
         goBackFunction: errorMessageNavigation,
         setPaymentInfo,
         liquidNodeInformation,
@@ -191,9 +238,23 @@ export default function AcceptButtonSendPage({
         currentWalletMnemoinc,
         t,
       });
+    } catch (error) {
+      console.log('Accept button error:', error);
+    } finally {
       setIsGeneratingInvoice(false);
-    } catch (err) {
-      console.log('accecpt button error', err);
     }
-  }
+  };
+
+  return (
+    <CustomButton
+      buttonStyles={{
+        opacity: buttonOpacity,
+        width: 'auto',
+        ...CENTER,
+      }}
+      useLoading={isGeneratingInvoice}
+      actionFunction={handleEnterSendAmount}
+      textContent={t('constants.accept')}
+    />
+  );
 }

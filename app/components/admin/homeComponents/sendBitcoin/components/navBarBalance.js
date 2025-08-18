@@ -1,5 +1,5 @@
 import {StyleSheet, View} from 'react-native';
-import {CENTER, ICONS, SIZES} from '../../../../../constants';
+import {ICONS, SIZES} from '../../../../../constants';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
@@ -9,6 +9,12 @@ export default function NavbarBalance({seletctedToken, selectedLRC20Asset}) {
   const {sparkInformation} = useSparkWallet();
 
   const balance = seletctedToken?.balance || sparkInformation.balance;
+
+  const formattedTokensBalance =
+    selectedLRC20Asset !== 'Bitcoin'
+      ? formatTokensNumber(balance, seletctedToken?.tokenMetadata?.decimals)
+      : balance;
+
   return (
     <View style={styles.container}>
       <ThemeImage
@@ -22,11 +28,8 @@ export default function NavbarBalance({seletctedToken, selectedLRC20Asset}) {
         neverHideBalance={true}
         styles={styles.headerText}
         balance={
-          selectedLRC20Asset !== 'Bitcoin'
-            ? formatTokensNumber(
-                balance,
-                seletctedToken?.tokenMetadata?.decimals,
-              )
+          selectedLRC20Asset !== 'Bitcoin' && formattedTokensBalance > 1
+            ? Number(formattedTokensBalance).toFixed(2)
             : balance
         }
         useCustomLabel={
@@ -44,7 +47,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    ...CENTER,
     flexGrow: 1,
     paddingHorizontal: 35,
     justifyContent: 'center',
@@ -52,7 +54,7 @@ const styles = StyleSheet.create({
 
   walletIcon: {marginRight: 5, width: 23, height: 23},
   headerText: {
-    fontSize: SIZES.large,
     includeFontPadding: false,
+    fontSize: SIZES.xLarge,
   },
 });

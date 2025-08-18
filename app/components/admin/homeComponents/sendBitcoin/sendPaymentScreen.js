@@ -139,6 +139,7 @@ export default function SendPaymentScreen(props) {
         );
         return;
       }
+
       crashlyticsLogReport('Starting decode address');
       await decodeSendAddress({
         fiatStats,
@@ -168,31 +169,10 @@ export default function SendPaymentScreen(props) {
   }, []);
 
   useEffect(() => {
-    console.log(
-      !Object.keys(paymentInfo).length,
-      '|',
-      !masterInfoObject[QUICK_PAY_STORAGE_KEY].isFastPayEnabled,
-      '|',
-      !canSendPayment,
-      '|',
-      // paymentInfo.type === InputTypeVariant.LN_URL_PAY,
-      // '|',
-      !(
-        masterInfoObject[QUICK_PAY_STORAGE_KEY].fastPayThresholdSats >=
-        convertedSendAmount
-      ),
-      '|',
-      // paymentInfo.type === 'liquid' && !paymentInfo.data.isBip21,
-      'FAST PAY SETTINGS',
-      masterInfoObject[QUICK_PAY_STORAGE_KEY].fastPayThresholdSats,
-      convertedSendAmount,
-    );
-
     if (!Object.keys(paymentInfo).length) return;
     if (!masterInfoObject[QUICK_PAY_STORAGE_KEY].isFastPayEnabled) return;
     if (!canSendPayment) return;
     if (canEditPaymentAmount) return;
-    // if (paymentInfo.type === InputTypeVariant.LN_URL_PAY) return;
     if (
       !(
         masterInfoObject[QUICK_PAY_STORAGE_KEY].fastPayThresholdSats >=
@@ -200,7 +180,6 @@ export default function SendPaymentScreen(props) {
       )
     )
       return;
-    // if (paymentInfo.type === 'liquid' && !paymentInfo.data.isBip21) return;
 
     setTimeout(() => {
       sendPayment();
@@ -241,6 +220,11 @@ export default function SendPaymentScreen(props) {
     );
   }
 
+  const clearSettings = () => {
+    setPaymentInfo(prev => ({...prev, canEditPayment: true, sendAmount: ''}));
+    setMasterTokenInfo({});
+  };
+
   return (
     <CustomKeyboardAvoidingView
       useLocalPadding={true}
@@ -248,12 +232,12 @@ export default function SendPaymentScreen(props) {
       useStandardWidth={true}>
       <View style={styles.topBar}>
         <TouchableOpacity
-          style={{position: 'absolute', zIndex: 99, left: 0}}
+          style={styles.backArrow}
           onPress={
             enabledLRC20 &&
             Object.keys(seletctedToken).length &&
             paymentInfo.type === 'spark'
-              ? () => setMasterTokenInfo({})
+              ? clearSettings
               : goBackFunction
           }>
           <ThemeImage
@@ -329,19 +313,18 @@ export default function SendPaymentScreen(props) {
       </ScrollView>
       {canEditPaymentAmount && (
         <>
-          {(paymentInfo.type !== 'spark' ||
-            (paymentInfo.type === 'spark' && !enabledLRC20)) && (
-            <SendMaxComponent
-              fiatStats={fiatStats}
-              sparkInformation={sparkInformation}
-              paymentInfo={paymentInfo}
-              setPaymentInfo={setPaymentInfo}
-              masterInfoObject={masterInfoObject}
-              paymentFee={paymentFee}
-              paymentType={paymentInfo?.paymentNetwork}
-              minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
-            />
-          )}
+          <SendMaxComponent
+            fiatStats={fiatStats}
+            sparkInformation={sparkInformation}
+            paymentInfo={paymentInfo}
+            setPaymentInfo={setPaymentInfo}
+            masterInfoObject={masterInfoObject}
+            paymentFee={paymentFee}
+            paymentType={paymentInfo?.paymentNetwork}
+            minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+            selectedLRC20Asset={selectedLRC20Asset}
+            seletctedToken={seletctedToken}
+          />
 
           <CustomSearchInput
             onFocusFunction={() => setIsAmountFocused(false)}
@@ -536,4 +519,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  backArrow: {position: 'absolute', zIndex: 99, left: 0},
 });

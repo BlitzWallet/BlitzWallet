@@ -56,7 +56,7 @@ export default function CreateAccountHome({navigation: {navigate}}) {
       />
 
       <ThemeText
-        styles={{...styles.disclamer_text}}
+        styles={styles.disclamer_text}
         content={t('createAccount.homePage.subtitle')}
       />
     </GlobalThemeView>
@@ -87,6 +87,6 @@ const styles = StyleSheet.create({
   disclamer_text: {
     marginTop: 'auto',
     fontSize: SIZES.small,
-    marginBottom: 5,
+    includeFontPadding: false,
   },
 });

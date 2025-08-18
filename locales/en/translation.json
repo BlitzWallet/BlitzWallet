@@ -841,7 +841,8 @@
         "noTokensFoundText": "No tokens found"
       },
       "sendMaxComponent": {
-        "sendMax": "Send Max"
+        "sendMax": "Send Max",
+        "tokensMax": "Send %"
       },
       "acceptButton": {
         "noSendAmountError": "Please enter a send amount",
