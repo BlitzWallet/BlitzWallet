@@ -25,7 +25,7 @@ export default function ChooseLangugaePage() {
       const selectedLanguage = supportedLanguagesList.find(
         item => item.id === language,
       );
-      setSelectedValue(selectedLanguage.languageName || 'English');
+      setSelectedValue(selectedLanguage?.languageName || 'English');
     }
     getSavedLanguage();
   }, []);

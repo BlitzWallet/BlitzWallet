@@ -30,13 +30,13 @@ const DropdownMenu = ({
   const {t} = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [buttonLayout, setButtonLayout] = useState(null);
+  const [itemSelectorLayout, setItemSelectorLayout] = useState(null);
 
-  const [selectorLayout, setSelectorLayout] = useState(null);
   const dropdownRef = useRef(null);
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const [dropdownHeight, setDropdownHeight] = useState(0);
-  const [itemSelectorHeight, setItemSelectorHeight] = useState(0);
+
   const placeholderText = placeholder || t('constants.selctOption');
   const handleSelect = item => {
     onSelect(item);
@@ -47,7 +47,7 @@ const DropdownMenu = ({
     setButtonLayout(event.nativeEvent.layout);
   };
   const handleItemSelectorHeight = event => {
-    setItemSelectorHeight(event.nativeEvent.layout.height);
+    setItemSelectorLayout(event.nativeEvent.layout);
   };
 
   const measureButtonPosition = () => {
@@ -87,16 +87,9 @@ const DropdownMenu = ({
 
   return (
     <View style={styles.container} ref={dropdownRef} onLayout={handleLayout}>
-      <View
-        onLayout={handleItemSelectorHeight}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          width: '100%',
-          justifyContent: 'space-between',
-        }}>
+      <View style={styles.selectorContainer}>
         <TouchableOpacity
-          onLayout={event => setSelectorLayout(event.nativeEvent.layout)}
+          onLayout={handleItemSelectorHeight}
           style={{
             ...styles.dropdownButton,
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
@@ -120,32 +113,15 @@ const DropdownMenu = ({
             content={selectedValue ? selectedValue : placeholderText}
           />
           {showVerticalArrows && (
-            <View
-              style={{
-                height: '100%',
-                width: 20,
-                position: 'relative',
-              }}>
+            <View style={styles.verticalArrowsContainer}>
               <ThemeImage
-                styles={{
-                  width: 20,
-                  height: 20,
-                  transform: [{rotate: '90deg'}],
-                  position: 'absolute',
-                  top: -5,
-                }}
+                styles={styles.verticalTopArrow}
                 lightModeIcon={ICONS.leftCheveronDark}
                 darkModeIcon={ICONS.leftCheveronLight}
                 lightsOutIcon={ICONS.leftCheveronLight}
               />
               <ThemeImage
-                styles={{
-                  width: 20,
-                  height: 20,
-                  transform: [{rotate: '270deg'}],
-                  position: 'absolute',
-                  bottom: -5,
-                }}
+                styles={styles.verticalBottomArrow}
                 lightModeIcon={ICONS.leftCheveronDark}
                 darkModeIcon={ICONS.leftCheveronLight}
                 lightsOutIcon={ICONS.leftCheveronLight}
@@ -154,7 +130,9 @@ const DropdownMenu = ({
           )}
         </TouchableOpacity>
         {showClearIcon && (
-          <TouchableOpacity onPress={() => handleSelect('')}>
+          <TouchableOpacity
+            style={styles.clearIconContainer}
+            onPress={() => handleSelect('')}>
             <ThemeImage
               lightModeIcon={ICONS.xSmallIcon}
               darkModeIcon={ICONS.xSmallIcon}
@@ -181,9 +159,9 @@ const DropdownMenu = ({
               buttonLayout && {
                 top: isTooLow
                   ? buttonLayout.y - dropdownHeight - 5
-                  : buttonLayout.y + itemSelectorHeight + 5,
+                  : buttonLayout.y + itemSelectorLayout?.height + 5,
                 left: '7.3%',
-                width: selectorLayout?.width,
+                width: itemSelectorLayout?.width,
               },
               {
                 backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
@@ -229,15 +207,40 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
   },
+  selectorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  verticalArrowsContainer: {
+    height: '100%',
+    width: 20,
+    position: 'relative',
+  },
+  verticalTopArrow: {
+    width: 20,
+    height: 20,
+    transform: [{rotate: '90deg'}],
+    position: 'absolute',
+    top: -5,
+  },
+  verticalBottomArrow: {
+    width: 20,
+    height: 20,
+    transform: [{rotate: '270deg'}],
+    position: 'absolute',
+    bottom: -5,
+  },
   dropdownButton: {
     height: '100%',
     flex: 1,
     padding: 12,
     borderRadius: 8,
-    marginRight: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
+  clearIconContainer: {marginLeft: 10},
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-start',
