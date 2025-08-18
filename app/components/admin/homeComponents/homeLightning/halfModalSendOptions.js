@@ -49,7 +49,7 @@ export default function HalfModalSendOptions(props) {
             const response = await getQRImage(navigate, 'modal');
             if (response.error) {
               navigate.replace('ErrorScreen', {
-                errorMessage: response.error,
+                errorMessage: t(response.error),
               });
               return;
             }
@@ -59,7 +59,7 @@ export default function HalfModalSendOptions(props) {
               fromPage: '',
             });
           } else if (item === 'clipboard') {
-            navigateToSendUsingClipboard(navigate, 'modal');
+            navigateToSendUsingClipboard(navigate, 'modal', undefined, t);
           } else {
             navigate.navigate('CustomHalfModal', {
               wantedContent: 'manualEnterSendAddress',

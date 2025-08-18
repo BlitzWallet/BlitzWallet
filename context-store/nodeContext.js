@@ -4,16 +4,6 @@ import {createContext, useState, useContext, useMemo, useCallback} from 'react';
 const NodeContextManager = createContext(null);
 
 const GLobalNodeContextProider = ({children}) => {
-  const [nodeInformation, setNodeInformation] = useState({
-    didConnectToNode: null,
-    transactions: [],
-    userBalance: 0,
-    inboundLiquidityMsat: 0,
-    blockHeight: 0,
-    onChainBalance: 0,
-    fiatStats: {},
-    lsp: [],
-  });
   const [liquidNodeInformation, setLiquidNodeInformation] = useState({
     didConnectToNode: null,
     transactions: [],
@@ -30,14 +20,12 @@ const GLobalNodeContextProider = ({children}) => {
 
   const contextValue = useMemo(
     () => ({
-      nodeInformation,
       liquidNodeInformation,
       toggleLiquidNodeInformation,
       toggleFiatStats,
       fiatStats,
     }),
     [
-      nodeInformation,
       liquidNodeInformation,
       fiatStats,
       toggleFiatStats,

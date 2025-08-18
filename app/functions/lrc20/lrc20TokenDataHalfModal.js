@@ -10,6 +10,7 @@ import {useGlobalInsets} from '../../../context-store/insetsProvider';
 import {useToast} from '../../../context-store/toastManager';
 import copyToClipboard from '../copyToClipboard';
 import formatTokensNumber from './formatTokensBalance';
+import {useTranslation} from 'react-i18next';
 
 export default function LRC20TokenInformation({
   theme,
@@ -26,6 +27,7 @@ export default function LRC20TokenInformation({
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const initialValue = useRef(null);
   const {topPadding} = useGlobalInsets();
+  const {t} = useTranslation();
 
   return (
     <View
@@ -63,7 +65,7 @@ export default function LRC20TokenInformation({
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
-            content={'Balance'}
+            content={t('screens.inAccount.lrc20TokenDataHalfModal.balance')}
           />
           <ThemeText
             CustomNumberOfLines={1}
@@ -86,7 +88,7 @@ export default function LRC20TokenInformation({
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
-            content={'Max Supply'}
+            content={t('screens.inAccount.lrc20TokenDataHalfModal.maxSupply')}
           />
           <ThemeText
             CustomNumberOfLines={1}
@@ -112,7 +114,7 @@ export default function LRC20TokenInformation({
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
-            content={'Token Ticker'}
+            content={t('screens.inAccount.lrc20TokenDataHalfModal.tokenTicker')}
           />
           <ThemeText
             CustomNumberOfLines={1}
@@ -130,7 +132,7 @@ export default function LRC20TokenInformation({
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
-            content={'Token Public Key'}
+            content={t('screens.inAccount.lrc20TokenDataHalfModal.tokenPubKey')}
           />
           <TouchableOpacity
             onPress={() => {

@@ -27,8 +27,6 @@ const CustomToggleSwitch = ({
       : false;
   const localIsOn = stateValue != undefined ? stateValue : isOn;
 
-  console.log(localIsOn, 'LOACAL IS ON');
-
   const [sliderText, setSliderText] = useState(localIsOn ? 'ON' : 'OFF');
 
   const animatedValue = useRef(new Animated.Value(localIsOn ? 1 : 0)).current;

@@ -17,6 +17,7 @@ const keys = [
   'crashReportingSettings',
   'enabledDeveloperSupport',
   'didViewNWCMessage',
+  'userSelectedLanguage',
 ];
 
 const defaultValues = {
@@ -44,6 +45,7 @@ const defaultValues = {
     baseFeePercent: BLITZ_FEE_PERCET,
   },
   didViewNWCMessage: false,
+  userSelectedLanguage: 'en',
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -76,6 +78,8 @@ export const fetchLocalStorageItems = async () => {
     enabledDeveloperSupport:
       parsedResults[11] ?? defaultValues.enabledDeveloperSupport,
     didViewNWCMessage: parsedResults[12] ?? defaultValues.didViewNWCMessage,
+    userSelectedLanguage:
+      parsedResults[13] ?? defaultValues.userSelectedLanguage,
   };
 };
 

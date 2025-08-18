@@ -11,14 +11,14 @@ export default async function copyToClipboard(
     if (page === 'ChatGPT') return;
     showToast({
       type: 'clipboard',
-      title: 'Copied to clipboard',
+      title: 'toastmessages.confirmCopy',
       duration: 2000,
     });
   } catch (err) {
     if (page === 'ChatGPT') return;
     showToast({
       type: 'clipboard',
-      title: 'Failed to copy',
+      title: 'toastmessages.failedCopy',
       duration: 2000,
     });
   }

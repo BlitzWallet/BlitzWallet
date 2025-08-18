@@ -1,11 +1,7 @@
 import {SATSPERBITCOIN} from '../../../../../constants';
 import {getBoltzWsUrl} from '../../../../../functions/boltz/boltzEndpoitns';
-import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
 import handleReverseClaimWSS from '../../../../../functions/boltz/handle-reverse-claim-wss';
-import {
-  crashlyticsLogReport,
-  crashlyticsRecordErrorReport,
-} from '../../../../../functions/crashlyticsLogs';
+import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {contactsLNtoLiquidSwapInfo} from '../../contacts/internalComponents/LNtoLiquidSwap';
 

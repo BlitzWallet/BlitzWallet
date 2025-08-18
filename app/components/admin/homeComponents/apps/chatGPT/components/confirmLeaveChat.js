@@ -1,21 +1,14 @@
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-
+import {View, TouchableOpacity, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {
-  CENTER,
-  COLORS,
-  FONT,
-  SHADOWS,
-  SIZES,
-} from '../../../../../../constants';
+import {COLORS, SIZES} from '../../../../../../constants';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import {ThemeText} from '../../../../../../functions/CustomElements';
+import {useTranslation} from 'react-i18next';
 
 export default function ConfirmLeaveChatGPT(props) {
   const navigate = useNavigation();
   const {textColor, backgroundColor} = GetThemeColors();
-
-  console.log(props);
+  const {t} = useTranslation();
 
   return (
     <View style={[styles.container]}>
@@ -28,7 +21,7 @@ export default function ConfirmLeaveChatGPT(props) {
         ]}>
         <ThemeText
           styles={styles.headerText}
-          content={'Do you want to save your chat?'}
+          content={t('apps.chatGPT.confirmLeaveChat.title')}
         />
 
         <View style={styles.buttonContainer}>
@@ -38,7 +31,10 @@ export default function ConfirmLeaveChatGPT(props) {
               props.route.params.wantsToSave();
             }}
             style={[styles.button]}>
-            <ThemeText styles={styles.buttonText} content={'Yes'} />
+            <ThemeText
+              styles={styles.buttonText}
+              content={t('constants.yes')}
+            />
           </TouchableOpacity>
           <View
             style={{
@@ -53,7 +49,7 @@ export default function ConfirmLeaveChatGPT(props) {
               props.route.params.doesNotWantToSave();
             }}
             style={styles.button}>
-            <ThemeText styles={styles.buttonText} content={'No'} />
+            <ThemeText styles={styles.buttonText} content={t('constants.no')} />
           </TouchableOpacity>
         </View>
       </View>

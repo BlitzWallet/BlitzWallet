@@ -1,4 +1,4 @@
-import {StyleSheet, View, Keyboard} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {ICONS} from '../../constants';
 import {
   AboutPage,
@@ -7,21 +7,20 @@ import {
   // ExperimentalItemsPage,
   FastPay,
   FiatCurrencyPage,
-  LSPPage,
+  // LSPPage,
   // LiquidWallet,
-  NodeInfo,
-  NosterWalletConnect,
+  // NodeInfo,
   PosSettingsPage,
   ResetPage,
-  RestoreChannel,
+  // RestoreChannel,
   SeedPhrasePage,
   // SendOnChainBitcoin,
   ViewAllLiquidSwaps,
-  WalletInformation,
+  // WalletInformation,
   CrashReportingSettingsPage,
   CreateCustodyAccounts,
   SparkInfo,
-  SupportWorkPage,
+  // SupportWorkPage,
   NotificationPreferances,
   BlitzFeeInformation,
 } from '../../components/admin/homeComponents/settingsContent';
@@ -39,11 +38,14 @@ import {useCallback} from 'react';
 // import {keyboardGoBack} from '../../functions/customNavigation';
 import ExploreUsers from './explorePage';
 import NostrHome from '../../components/admin/homeComponents/settingsContent/nostrHome';
+import {useTranslation} from 'react-i18next';
+import ChooseLangugae from '../../components/admin/homeComponents/settingsContent/langugae';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
   // const {masterInfoObject} = useGlobalContextProvider();
   // const {ecashWalletInformation} = useGlobaleCash();
+  const {t} = useTranslation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const selectedPage = props?.route?.params?.for;
   const isDoomsday = props?.route?.params?.isDoomsday;
@@ -97,9 +99,9 @@ export default function SettingsContentIndex(props) {
           {/* {selectedPage?.toLowerCase() === 'channel closure' && (
             <SendOnChainBitcoin isDoomsday={isDoomsday} theme={theme} />
           )} */}
-          {selectedPage?.toLowerCase() === 'support our work' && (
+          {/* {selectedPage?.toLowerCase() === 'support our work' && (
             <SupportWorkPage />
-          )}
+          )} */}
           {selectedPage?.toLowerCase() === 'accounts' && (
             <CreateCustodyAccounts />
           )}
@@ -127,16 +129,19 @@ export default function SettingsContentIndex(props) {
               shouldDismissKeyboard={
                 selectedPage?.toLowerCase() === 'spark info'
               }
-              label={selectedPage}
+              label={t(
+                `screens.inAccount.settingsContent.${selectedPage.toLowerCase()}`,
+              )}
             />
 
             {selectedPage?.toLowerCase() === 'about' && (
               <AboutPage theme={theme} />
             )}
+            {selectedPage?.toLowerCase() === 'language' && <ChooseLangugae />}
 
-            {selectedPage?.toLowerCase() === 'node info' && (
+            {/* {selectedPage?.toLowerCase() === 'node info' && (
               <NodeInfo theme={theme} />
-            )}
+            )} */}
             {selectedPage?.toLowerCase() === 'display options' && (
               <DisplayOptions theme={theme} />
             )}
@@ -144,9 +149,9 @@ export default function SettingsContentIndex(props) {
               <SupportWorkPage />
             )} */}
 
-            {selectedPage?.toLowerCase() === 'balance info' && (
+            {/* {selectedPage?.toLowerCase() === 'balance info' && (
               <WalletInformation theme={theme} />
-            )}
+            )} */}
             {selectedPage?.toLowerCase() === 'liquid swaps' && (
               <ViewAllLiquidSwaps theme={theme} />
             )}
@@ -176,14 +181,14 @@ export default function SettingsContentIndex(props) {
               <SparkInfo theme={theme} />
             )}
 
-            {selectedPage?.toLowerCase() === 'lsp' && <LSPPage theme={theme} />}
+            {/* {selectedPage?.toLowerCase() === 'lsp' && <LSPPage theme={theme} />} */}
 
             {selectedPage?.toLowerCase() === 'delete wallet' && (
               <ResetPage isDoomsday={isDoomsday} />
             )}
-            {selectedPage?.toLowerCase() === 'restore channels' && (
+            {/* {selectedPage?.toLowerCase() === 'restore channels' && (
               <RestoreChannel isDoomsday={isDoomsday} />
-            )}
+            )} */}
           </View>
         </GlobalThemeView>
       )}

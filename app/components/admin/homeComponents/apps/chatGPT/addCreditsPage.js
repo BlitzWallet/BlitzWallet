@@ -1,14 +1,7 @@
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {
-  CENTER,
-  COLORS,
-  ICONS,
-  // LIQUID_DEFAULT_FEE,
-  SIZES,
-} from '../../../../../constants';
+import {CENTER, COLORS, ICONS, SIZES} from '../../../../../constants';
 import {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-
 import {
   GlobalThemeView,
   ThemeText,
@@ -18,47 +11,34 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-// import {
-//   LIGHTNINGAMOUNTBUFFER,
-//   LIQUIDAMOUTBUFFER,
-//   SATSPERBITCOIN,
-// } from '../../../../../constants/math';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {AI_MODEL_COST} from './contants/AIModelCost';
 import {getLNAddressForLiquidPayment} from '../../sendBitcoin/functions/payments';
-// import {breezPaymentWrapper} from '../../../../../functions/SDK';
-// import {breezLiquidPaymentWrapper} from '../../../../../functions/breezLiquid';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-// import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
-// import {getStoredProofs} from '../../../../../functions/eCash/db';
-// import {sumProofsValue} from '../../../../../functions/eCash/proofs';
-// import {
-//   getMeltQuote,
-//   payLnInvoiceFromEcash,
-// } from '../../../../../functions/eCash/wallet';
-// import breezLNAddressPaymentWrapperV2 from '../../../../../functions/SDK/lightningAddressPaymentWrapperV2';
-// import formatBip21LiquidAddress from '../../../../../functions/liquidWallet/formatBip21liquidAddress';
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import {useTranslation} from 'react-i18next';
+import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 
 const CREDITOPTIONS = [
   {
-    title: 'Casual Plan',
+    title: 'apps.chatGPT.addCreditsPage.casualPlanTitle',
     price: 2200,
     numSerches: '40',
     isSelected: false,
   },
   {
-    title: 'Pro Plan',
+    title: 'apps.chatGPT.addCreditsPage.proPlanTitle',
     price: 3300,
     numSerches: '100',
     isSelected: true,
   },
   {
-    title: 'Power Plan',
+    title: 'apps.chatGPT.addCreditsPage.powerPlanTitle',
     price: 4400,
     numSerches: '150',
     isSelected: false,
@@ -68,7 +48,6 @@ const CREDITOPTIONS = [
 
 export default function AddChatGPTCredits({confirmationSliderData}) {
   const {sparkInformation} = useSparkWallet();
-  // const {nodeInformation, liquidNodeInformation} = useNodeContext();
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {
@@ -83,6 +62,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
     useState(CREDITOPTIONS);
   const [isPaying, setIsPaying] = useState(false);
   const navigate = useNavigation();
+  const {t} = useTranslation();
 
   useEffect(() => {
     // FUNCTION TO PURCHASE CREDITS
@@ -121,17 +101,23 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
           <View>
             <ThemeText
               styles={{fontWeight: 'bold', marginBottom: 10}}
-              content={subscription.title}
+              content={t(subscription.title)}
             />
             <FormattedSatText
               neverHideBalance={true}
               styles={{...styles.infoDescriptions}}
-              frontText={'Price: '}
+              frontText={t('apps.chatGPT.addCreditsPage.price')}
               balance={subscription.price}
             />
           </View>
 
-          <ThemeText content={` Est. searches: ${subscription.numSerches}`} />
+          <ThemeText
+            styles={{flexShrink: 1}}
+            CustomNumberOfLines={1}
+            content={t('apps.chatGPT.addCreditsPage.estSearches', {
+              num: subscription.numSerches,
+            })}
+          />
         </View>
       </TouchableOpacity>
     );
@@ -148,27 +134,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
   });
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          style={{position: 'absolute'}}
-          onPress={() => {
-            navigate.goBack();
-          }}>
-          <ThemeImage
-            lightsOutIcon={ICONS.arrow_small_left_white}
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-          />
-        </TouchableOpacity>
-        <ThemeText
-          styles={{
-            fontSize: SIZES.large,
-            marginRight: 'auto',
-            marginLeft: 'auto',
-          }}
-          content={'Add Credits'}
-        />
-      </View>
+      <CustomSettingsTopBar label={t('apps.chatGPT.addCreditsPage.title')} />
       {!isPaying ? (
         <>
           <View style={styles.globalContainer}>
@@ -177,15 +143,13 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
               contentContainerStyle={{paddingVertical: 20}}>
               <ThemeText
                 styles={{textAlign: 'center', marginBottom: 20}}
-                content={
-                  'In order to use the latest generative AI models, you must buy credits. Choose an option below to begin.'
-                }
+                content={t('apps.chatGPT.addCreditsPage.description')}
               />
               {subscriptionElements}
               <View style={{marginTop: 0, alignItems: 'center'}}>
                 <ThemeText
                   styles={{fontWeight: 500, fontSize: SIZES.large}}
-                  content={'Supported Models'}
+                  content={t('apps.chatGPT.addCreditsPage.supportedModels')}
                 />
                 {availableModels}
               </View>
@@ -199,7 +163,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
                   fontSize: SIZES.small,
                   marginTop: 10,
                 }}
-                content="Depending on the length of your question and response, the number of searches you get might be different. Blitz adds a 150 sat fee + 0.5% of purchase price onto all purchases."
+                content={t('apps.chatGPT.addCreditsPage.feeInfo')}
               />
             </ScrollView>
           </View>
@@ -220,12 +184,12 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
                 sliderHight: 0.5,
               });
             }}
-            textContent={'Pay'}
+            textContent={t('constants.pay')}
           />
         </>
       ) : (
         <FullLoadingScreen
-          text={'Processing...'}
+          text={`${t('constants.processing')}...`}
           textStyles={{
             fontSize: SIZES.large,
             textAlign: 'center',
@@ -438,13 +402,8 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
 const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
-  },
-
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
   },
 
   optionContainer: {

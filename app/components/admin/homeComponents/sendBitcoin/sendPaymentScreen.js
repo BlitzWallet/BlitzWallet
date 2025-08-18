@@ -38,6 +38,7 @@ import formatSparkPaymentAddress from './functions/formatSparkPaymentAddress';
 import SelectLRC20Token from './components/selectLRC20Token';
 import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
+import {useTranslation} from 'react-i18next';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -52,9 +53,10 @@ export default function SendPaymentScreen(props) {
     errorMessage,
   } = props.route.params;
 
+  const {t} = useTranslation();
   const {sparkInformation} = useSparkWallet();
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {nodeInformation, liquidNodeInformation, fiatStats} = useNodeContext();
+  const {liquidNodeInformation, fiatStats} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
@@ -65,7 +67,7 @@ export default function SendPaymentScreen(props) {
   const [isSendingPayment, setIsSendingPayment] = useState(false);
   const [paymentDescription, setPaymentDescription] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(
-    'Getting invoice information',
+    t('wallet.sendPages.sendPaymentScreen.initialLoadingMessage'),
   );
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
@@ -132,7 +134,9 @@ export default function SendPaymentScreen(props) {
       });
       console.log(didPay, 'DID PAY');
       if (didPay) {
-        errorMessageNavigation('You have already paid this invoice');
+        errorMessageNavigation(
+          t('wallet.sendPages.sendPaymentScreen.alreadyPaidInvoiceError'),
+        );
         return;
       }
       crashlyticsLogReport('Starting decode address');
@@ -157,6 +161,7 @@ export default function SendPaymentScreen(props) {
         sparkInformation,
         seletctedToken,
         currentWalletMnemoinc,
+        t,
       });
     }
     setTimeout(decodePayment, 1000);
@@ -218,7 +223,6 @@ export default function SendPaymentScreen(props) {
     return <FullLoadingScreen text={loadingMessage} />;
 
   if (errorMessage) {
-    console.log('RUNNING ERROR COMPONENT');
     return <ErrorWithPayment reason={errorMessage} />;
   }
 
@@ -333,7 +337,6 @@ export default function SendPaymentScreen(props) {
               paymentInfo={paymentInfo}
               setPaymentInfo={setPaymentInfo}
               masterInfoObject={masterInfoObject}
-              nodeInformation={nodeInformation}
               paymentFee={paymentFee}
               paymentType={paymentInfo?.paymentNetwork}
               minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
@@ -343,7 +346,9 @@ export default function SendPaymentScreen(props) {
           <CustomSearchInput
             onFocusFunction={() => setIsAmountFocused(false)}
             onBlurFunction={() => setIsAmountFocused(true)}
-            placeholderText={'Description..'}
+            placeholderText={t(
+              'wallet.sendPages.sendPaymentScreen.descriptionPlaceholder',
+            )}
             setInputText={setPaymentDescription}
             inputText={paymentDescription}
             textInputMultiline={true}
@@ -519,7 +524,8 @@ export default function SendPaymentScreen(props) {
       publishMessageFunc: null,
       comingFromAccept: null,
       enteredPaymentInfo: {},
-      errorMessage: reason || 'Error decoding invoice',
+      errorMessage:
+        reason || t('wallet.sendPages.sendPaymentScreen.fallbackErrorMessage'),
     });
   }
 }

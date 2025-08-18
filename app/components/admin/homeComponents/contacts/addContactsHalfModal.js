@@ -29,6 +29,7 @@ import sha256Hash from '../../../../functions/hash';
 import ContactProfileImage from './internalComponents/profileImage';
 import {getCachedProfileImage} from '../../../../functions/cachedImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
+import {useTranslation} from 'react-i18next';
 
 export default function AddContactsHalfModal(props) {
   const {contactsPrivateKey} = useKeysContext();
@@ -42,6 +43,7 @@ export default function AddContactsHalfModal(props) {
   const keyboardRef = useRef(null);
   const {refreshCacheObject} = useImageCache();
   const searchTrackerRef = useRef(null);
+  const {t} = useTranslation();
 
   const handleSearchTrackerRef = () => {
     const requestUUID = customUUID();
@@ -140,7 +142,7 @@ export default function AddContactsHalfModal(props) {
       setIsSearching(false);
       console.log('parse contact half modal error', err);
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Not able to find contact',
+        errorMessage: t('contacts.addContactsHalfModal.noContactsMessage'),
       });
     }
   };
@@ -170,7 +172,10 @@ export default function AddContactsHalfModal(props) {
       <View style={styles.container}>
         <View style={styles.innerContainer}>
           <View style={styles.titleContainer}>
-            <ThemeText styles={styles.titleText} content={'Add contact'} />
+            <ThemeText
+              styles={styles.titleText}
+              content={t('contacts.addContactsHalfModal.title')}
+            />
             {isSearching && (
               <ActivityIndicator
                 size={'small'}
@@ -181,7 +186,9 @@ export default function AddContactsHalfModal(props) {
             )}
           </View>
           <CustomSearchInput
-            placeholderText={'Search username or LNURL'}
+            placeholderText={t(
+              'contacts.addContactsHalfModal.searchPlaceholder',
+            )}
             setInputText={handleSearch}
             inputText={searchInput}
             textInputRef={keyboardRef}
@@ -223,7 +230,9 @@ export default function AddContactsHalfModal(props) {
                 alignItems: 'center',
                 marginTop: 10,
               }}>
-              <ThemeText content={'You are about to add'} />
+              <ThemeText
+                content={t('contacts.addContactsHalfModal.lnurlAddMessage')}
+              />
               <ThemeText content={searchInput} />
 
               <CustomButton
@@ -235,7 +244,7 @@ export default function AddContactsHalfModal(props) {
                 actionFunction={() => {
                   clearHalfModalForLNURL();
                 }}
-                textContent={'Continue'}
+                textContent={t('constants.continue')}
               />
             </ScrollView>
           ) : (
@@ -264,8 +273,8 @@ export default function AddContactsHalfModal(props) {
                     isSearching && searchInput.length > 0
                       ? ''
                       : searchInput.length > 0
-                      ? 'No profiles match this search'
-                      : 'Start typing to search for a profile'
+                      ? t('contacts.addContactsHalfModal.noProfilesFound')
+                      : t('contacts.addContactsHalfModal.startTypingMessage')
                   }
                 />
               )}

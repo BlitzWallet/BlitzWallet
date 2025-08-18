@@ -6,28 +6,38 @@ import {
   StyleSheet,
   Dimensions,
   Modal,
-  Platform,
 } from 'react-native';
 import ThemeImage from './themeImage';
 import {COLORS, ICONS} from '../../constants';
 import ThemeText from './textTheme';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import {useTranslation} from 'react-i18next';
+import CountryFlag from 'react-native-country-flag';
 
 const DropdownMenu = ({
   options,
   selectedValue,
   onSelect,
-  placeholder = 'Select an option',
+  placeholder,
+  showClearIcon = true,
+  showVerticalArrows = true,
+  textStyles = {},
+  customButtonStyles = {},
+  dropdownItemCustomStyles = {},
+  showFlag = false,
 }) => {
+  const {t} = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [buttonLayout, setButtonLayout] = useState(null);
-  const [selectorLayout, setSelectorLayout] = useState(null);
+  const [itemSelectorLayout, setItemSelectorLayout] = useState(null);
+
   const dropdownRef = useRef(null);
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const [dropdownHeight, setDropdownHeight] = useState(0);
 
+  const placeholderText = placeholder || t('constants.selctOption');
   const handleSelect = item => {
     onSelect(item);
     setIsOpen(false);
@@ -35,6 +45,9 @@ const DropdownMenu = ({
 
   const handleLayout = event => {
     setButtonLayout(event.nativeEvent.layout);
+  };
+  const handleItemSelectorHeight = event => {
+    setItemSelectorLayout(event.nativeEvent.layout);
   };
 
   const measureButtonPosition = () => {
@@ -69,69 +82,64 @@ const DropdownMenu = ({
     buttonLayout &&
     buttonLayout.y + buttonLayout.height + dropdownHeight + 50 > screenHeight;
 
+  const flag =
+    showFlag && options.find(item => item.value === selectedValue)?.flagCode;
+
   return (
     <View style={styles.container} ref={dropdownRef} onLayout={handleLayout}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          width: '100%',
-          justifyContent: 'space-between',
-        }}>
+      <View style={styles.selectorContainer}>
         <TouchableOpacity
-          onLayout={event => setSelectorLayout(event.nativeEvent.layout)}
+          onLayout={handleItemSelectorHeight}
           style={{
             ...styles.dropdownButton,
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            ...customButtonStyles,
           }}
           onPress={() => handleDropdownToggle()}>
+          {showFlag && flag && (
+            <CountryFlag
+              style={{padding: 0, marginRight: 5, backgroundColor: 'red'}}
+              isoCode={flag}
+              size={15}
+            />
+          )}
           <ThemeText
             styles={{
               includeFontPadding: false,
               flexShrink: 1,
+              ...textStyles,
             }}
             CustomNumberOfLines={1}
-            content={selectedValue ? selectedValue : placeholder}
+            content={selectedValue ? selectedValue : placeholderText}
           />
-          <View
-            style={{
-              height: '100%',
-              width: 20,
-              position: 'relative',
-            }}>
-            <ThemeImage
-              styles={{
-                width: 20,
-                height: 20,
-                transform: [{rotate: '90deg'}],
-                position: 'absolute',
-                top: -5,
-              }}
-              lightModeIcon={ICONS.leftCheveronDark}
-              darkModeIcon={ICONS.leftCheveronLight}
-              lightsOutIcon={ICONS.leftCheveronLight}
-            />
-            <ThemeImage
-              styles={{
-                width: 20,
-                height: 20,
-                transform: [{rotate: '270deg'}],
-                position: 'absolute',
-                bottom: -5,
-              }}
-              lightModeIcon={ICONS.leftCheveronDark}
-              darkModeIcon={ICONS.leftCheveronLight}
-              lightsOutIcon={ICONS.leftCheveronLight}
-            />
-          </View>
+          {showVerticalArrows && (
+            <View style={styles.verticalArrowsContainer}>
+              <ThemeImage
+                styles={styles.verticalTopArrow}
+                lightModeIcon={ICONS.leftCheveronDark}
+                darkModeIcon={ICONS.leftCheveronLight}
+                lightsOutIcon={ICONS.leftCheveronLight}
+              />
+              <ThemeImage
+                styles={styles.verticalBottomArrow}
+                lightModeIcon={ICONS.leftCheveronDark}
+                darkModeIcon={ICONS.leftCheveronLight}
+                lightsOutIcon={ICONS.leftCheveronLight}
+              />
+            </View>
+          )}
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleSelect('')}>
-          <ThemeImage
-            lightModeIcon={ICONS.xSmallIcon}
-            darkModeIcon={ICONS.xSmallIcon}
-            lightsOutIcon={ICONS.xSmallIconWhite}
-          />
-        </TouchableOpacity>
+        {showClearIcon && (
+          <TouchableOpacity
+            style={styles.clearIconContainer}
+            onPress={() => handleSelect('')}>
+            <ThemeImage
+              lightModeIcon={ICONS.xSmallIcon}
+              darkModeIcon={ICONS.xSmallIcon}
+              lightsOutIcon={ICONS.xSmallIconWhite}
+            />
+          </TouchableOpacity>
+        )}
       </View>
 
       <Modal
@@ -151,11 +159,13 @@ const DropdownMenu = ({
               buttonLayout && {
                 top: isTooLow
                   ? buttonLayout.y - dropdownHeight - 5
-                  : buttonLayout.y + (Platform.OS === 'ios' ? 50 : 25),
+                  : buttonLayout.y + itemSelectorLayout?.height + 5,
                 left: '7.3%',
-                width: selectorLayout?.width,
+                width: itemSelectorLayout?.width,
               },
-              {backgroundColor: theme ? backgroundOffset : COLORS.darkModeText},
+              {
+                backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+              },
             ]}>
             <ScrollView
               onLayout={e => {
@@ -168,9 +178,21 @@ const DropdownMenu = ({
                     ...styles.dropdownItem,
                     borderBottomWidth: index !== options.length - 1 ? 1 : 0,
                     borderBottomColor: backgroundColor,
+                    ...dropdownItemCustomStyles,
                   }}
                   onPress={() => handleSelect(item)}>
-                  <ThemeText content={item.label} />
+                  {showFlag && flag && (
+                    <CountryFlag
+                      style={{
+                        padding: 0,
+                        marginRight: 5,
+                        backgroundColor: 'red',
+                      }}
+                      isoCode={item.flagCode}
+                      size={15}
+                    />
+                  )}
+                  <ThemeText content={t(item.label)} />
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -185,15 +207,40 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
   },
+  selectorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  verticalArrowsContainer: {
+    height: '100%',
+    width: 20,
+    position: 'relative',
+  },
+  verticalTopArrow: {
+    width: 20,
+    height: 20,
+    transform: [{rotate: '90deg'}],
+    position: 'absolute',
+    top: -5,
+  },
+  verticalBottomArrow: {
+    width: 20,
+    height: 20,
+    transform: [{rotate: '270deg'}],
+    position: 'absolute',
+    bottom: -5,
+  },
   dropdownButton: {
     height: '100%',
     flex: 1,
     padding: 12,
     borderRadius: 8,
-    marginRight: 10,
     flexDirection: 'row',
-    alignContent: 'center',
+    alignItems: 'center',
   },
+  clearIconContainer: {marginLeft: 10},
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-start',

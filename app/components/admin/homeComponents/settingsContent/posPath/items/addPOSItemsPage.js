@@ -15,6 +15,7 @@ import {formatCurrency} from '../../../../../../functions/formatCurrency';
 import ThemeImage from '../../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../../functions/CustomElements/Icon';
 import {useGlobalThemeContext} from '../../../../../../../context-store/theme';
+import {useTranslation} from 'react-i18next';
 
 export default function AddPOSItemsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -24,7 +25,7 @@ export default function AddPOSItemsPage() {
   const navigate = useNavigation();
   const posItems = masterInfoObject.posSettings.items || [];
   const {backgroundOffset} = GetThemeColors();
-
+  const {t} = useTranslation();
   const currentCurrency = masterInfoObject.posSettings?.storeCurrency;
 
   const removePOSItem = itemUUID => {
@@ -74,7 +75,13 @@ export default function AddPOSItemsPage() {
                         ? COLORS.darkModeText
                         : COLORS.cancelRed,
                   }}
-                  content={`Price is in ${item.initialCurrency}, but store currency is ${currentCurrency}.`}
+                  content={t(
+                    'settings.posPath.items.addPOSItemsPage.denominationError',
+                    {
+                      currency: item.initialCurrency,
+                      currency2: currentCurrency,
+                    },
+                  )}
                 />
               )}
             </View>
@@ -99,8 +106,9 @@ export default function AddPOSItemsPage() {
                 onPress={() => {
                   navigate.navigate('ConfirmActionPage', {
                     confirmFunction: () => removePOSItem(item.uuid),
-                    confirmMessage:
-                      'Are you sure you want to delete this point-of-sale item?',
+                    confirmMessage: t(
+                      'settings.posPath.items.addPOSItemsPage.deleteItemMessage',
+                    ),
                   });
                 }}>
                 <ThemeImage
@@ -122,7 +130,10 @@ export default function AddPOSItemsPage() {
       useLocalPadding={true}
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}>
-      <CustomSettingsTopBar shouldDismissKeyboard={true} label={'POS items'} />
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        label={t('settings.posPath.items.addPOSItemsPage.title')}
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         stickyHeaderIndices={[0]}
@@ -132,7 +143,9 @@ export default function AddPOSItemsPage() {
         <CustomSearchInput
           inputText={posItemSearch}
           setInputText={setPosItemSearch}
-          placeholderText={'Item name...'}
+          placeholderText={t(
+            'settings.posPath.items.addPOSItemsPage.itemSearchPlaceholder',
+          )}
           onFocusFunction={() => setIsKeyboardActive(true)}
           onBlurFunction={() => setIsKeyboardActive(false)}
         />
@@ -144,8 +157,8 @@ export default function AddPOSItemsPage() {
               styles={{width: '90%', textAlign: 'center'}}
               content={
                 posItems
-                  ? 'No items match your search.'
-                  : 'Add an item for it to show up here.'
+                  ? t('settings.posPath.items.addPOSItemsPage.noItemsSearch')
+                  : t('settings.posPath.items.addPOSItemsPage.noItemsAdded')
               }
             />
           </View>
@@ -158,7 +171,7 @@ export default function AddPOSItemsPage() {
             wantedContent: 'addPOSItemsHalfModal',
           })
         }
-        textContent={'Add New Item'}
+        textContent={t('settings.posPath.items.addPOSItemsPage.ctaBTN')}
       />
     </CustomKeyboardAvoidingView>
   );

@@ -29,6 +29,8 @@ import {useImageCache} from '../../../../../context-store/imageCache';
 import ContactProfileImage from './internalComponents/profileImage';
 import getReceiveAddressForContactPayment from './internalComponents/getReceiveAddressAndKindForPayment';
 import {useServerTimeOnly} from '../../../../../context-store/serverTime';
+import {useTranslation} from 'react-i18next';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -51,6 +53,7 @@ export default function SendAndRequestPage(props) {
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination,
   );
+  const {t} = useTranslation();
   const descriptionRef = useRef(null);
   const selectedContact = props.route.params.selectedContact;
   const paymentType = props.route.params.paymentType;
@@ -83,7 +86,7 @@ export default function SendAndRequestPage(props) {
   const handleSubmit = useCallback(async () => {
     if (!isConnectedToTheInternet) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Please reconnect to the internet to use this feature',
+        errorMessage: t('errormessages.nointernet'),
       });
       return;
     }
@@ -124,6 +127,7 @@ export default function SendAndRequestPage(props) {
         if (!addressResposne.didWork) {
           navigate.navigate('ErrorScreen', {
             errorMessage: addressResposne.error,
+            useTranslationString: true,
           });
           return;
         } else {
@@ -192,8 +196,8 @@ export default function SendAndRequestPage(props) {
       console.log(err, 'publishing message error');
       navigate.navigate('ErrorScreen', {
         errorMessage: selectedContact.isLNURL
-          ? 'Error generating invoice. Make sure this is a valid LNURL address.'
-          : 'Not able to create invoice',
+          ? t('errormessages.contactInvoiceGenerationError')
+          : t('errormessages.invoiceRetrivalError'),
       });
     } finally {
       setIsLoading(false);
@@ -216,14 +220,8 @@ export default function SendAndRequestPage(props) {
       isKeyboardActive={!isAmountFocused}
       useLocalPadding={true}
       useStandardWidth={true}>
-      <TouchableOpacity onPress={navigate.goBack}>
-        <ThemeImage
-          darkModeIcon={ICONS.smallArrowLeft}
-          lightModeIcon={ICONS.smallArrowLeft}
-          lightsOutIcon={ICONS.arrow_small_left_white}
-        />
-      </TouchableOpacity>
-      <View style={styles.globalContainer}>
+      <CustomSettingsTopBar containerStyles={styles.topBar} />
+      <>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollViewContainer}>
@@ -232,7 +230,6 @@ export default function SendAndRequestPage(props) {
               styles.profileImage,
               {
                 backgroundColor: backgroundOffset,
-                marginBottom: 5,
               },
             ]}>
             <ContactProfileImage
@@ -285,15 +282,15 @@ export default function SendAndRequestPage(props) {
             setIsAmountFocused(true);
           }}
           textInputRef={descriptionRef}
-          placeholderText={'Payment description'}
+          placeholderText={t(
+            'contacts.sendAndRequestPage.descriptionPlaceholder',
+          )}
           setInputText={setDescriptionValue}
           inputText={descriptionValue}
           textInputMultiline={true}
           textAlignVertical={'center'}
           maxLength={149}
-          containerStyles={{
-            width: '90%',
-          }}
+          containerStyles={styles.searchContianerStyles}
         />
 
         {isAmountFocused && (
@@ -314,16 +311,20 @@ export default function SendAndRequestPage(props) {
             }}
             useLoading={isLoading}
             actionFunction={handleSubmit}
-            textContent={paymentType === 'send' ? 'Confirm' : 'Request'}
+            textContent={
+              paymentType === 'send'
+                ? t('constants.confirm')
+                : t('constants.request')
+            }
           />
         )}
-      </View>
+      </>
     </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {flex: 1},
+  topBar: {marginTop: 0},
   scrollViewContainer: {
     paddingBottom: 20,
   },
@@ -335,9 +336,12 @@ const styles = StyleSheet.create({
     ...CENTER,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
     marginTop: 20,
+    marginBottom: 5,
     overflow: 'hidden',
+  },
+  searchContianerStyles: {
+    width: '90%',
   },
   profileName: {
     ...CENTER,

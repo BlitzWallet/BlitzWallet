@@ -44,7 +44,7 @@ export default async function writeAndShareFileToFilesystem(
             console.log('writting file to filesystem for android err', err);
             return {
               success: false,
-              error: 'Error saving file to document',
+              error: 'errormessages.savingFileError',
               originalError: err,
             };
           }
@@ -60,7 +60,7 @@ export default async function writeAndShareFileToFilesystem(
         console.log('android permission error', err);
         return {
           success: false,
-          error: 'Error getting permissions',
+          error: 'errormessages.savingFilePermissionsError',
           originalError: err,
         };
       }
@@ -69,7 +69,7 @@ export default async function writeAndShareFileToFilesystem(
     console.log('saving to filesystem error', e);
     return {
       success: false,
-      error: 'Error writing file to filesystem',
+      error: 'errormessages.writtingFileError',
       originalError: e,
     };
   }

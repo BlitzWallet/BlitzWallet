@@ -40,6 +40,7 @@ import {
   useServerTime,
   useServerTimeOnly,
 } from '../../../../../context-store/serverTime';
+import {useTranslation} from 'react-i18next';
 
 export default function ContactsPage({navigation}) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -57,6 +58,7 @@ export default function ContactsPage({navigation}) {
   const getServerTime = useServerTimeOnly();
   const currentTime = getServerTime();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {t} = useTranslation();
   const dimensions = useWindowDimensions();
   const [inputText, setInputText] = useState('');
   const hideUnknownContacts = masterInfoObject.hideUnknownContacts;
@@ -184,6 +186,7 @@ export default function ContactsPage({navigation}) {
         navigate={navigate}
         currentTime={currentTime}
         serverTimeOffset={serverTimeOffset}
+        t={t}
       />
     ));
   }, [
@@ -197,12 +200,13 @@ export default function ContactsPage({navigation}) {
     navigate,
     currentTime,
     serverTimeOffset,
+    t,
   ]);
 
   const goToAddContact = useCallback(() => {
     if (!isConnectedToTheInternet) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Please connect to the internet to use this feature',
+        errorMessage: t('errormessages.nointernet'),
       });
     } else {
       keyboardNavigate(() =>
@@ -225,7 +229,7 @@ export default function ContactsPage({navigation}) {
   const handleButtonPress = useCallback(() => {
     if (!isConnectedToTheInternet) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Please connect to the internet to use this feature',
+        errorMessage: t('errormessages.nointernet'),
       });
       return;
     }
@@ -318,7 +322,9 @@ export default function ContactsPage({navigation}) {
             </View>
           )}
           <CustomSearchInput
-            placeholderText={'Search added contacts'}
+            placeholderText={t(
+              'contacts.contactsPage.searchContactsPlaceholder',
+            )}
             inputText={inputText}
             setInputText={setInputText}
             containerStyles={searchInputStyle}
@@ -337,14 +343,18 @@ export default function ContactsPage({navigation}) {
             styles={memoizedStyles.noContactsText}
             content={
               didEditProfile
-                ? 'You have no contacts.'
-                : 'Edit your profile to begin using contacts.'
+                ? t('contacts.contactsPage.noContactsMessage')
+                : t('contacts.contactsPage.editContactProfileMessage')
             }
           />
           <CustomButton
             buttonStyles={CENTER}
             actionFunction={handleButtonPress}
-            textContent={didEditProfile ? 'Add contact' : 'Edit profile'}
+            textContent={
+              didEditProfile
+                ? t('contacts.contactsPage.addContactButton')
+                : t('contacts.contactsPage.editContactButton')
+            }
           />
         </View>
       )}
@@ -475,6 +485,7 @@ const ContactElement = memo(
     navigate,
     currentTime,
     serverTimeOffset,
+    t,
   }) => {
     const imageContainerStyle = useMemo(
       () => ({
@@ -498,7 +509,7 @@ const ContactElement = memo(
       if (!contact.isAdded) return;
       if (!isConnectedToTheInternet) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Please reconnect to the internet to use this feature',
+          errorMessage: t('errormessages.nointernet'),
         });
         return;
       }
@@ -548,6 +559,7 @@ const ContactElement = memo(
                       ? createFormattedDate(
                           lastUpdated - serverTimeOffset,
                           currentTime - serverTimeOffset,
+                          t,
                         )
                       : ''
                   }
@@ -582,7 +594,7 @@ const ContactElement = memo(
                         : COLORS.primary,
                     marginLeft: 'auto',
                   }}
-                  content={'Unknown sender'}
+                  content={t('contacts.contactsPage.unknownSender')}
                 />
               )}
             </View>

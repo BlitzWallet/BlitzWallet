@@ -7,11 +7,13 @@ import {WINDOWWIDTH} from '../../constants/theme';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useToast} from '../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
 
 export default function TechnicalTransactionDetails(props) {
   console.log('Transaction Detials Page');
   const {showToast} = useToast();
   const navigate = useNavigation();
+  const {t} = useTranslation();
   useHandleBackPressNew();
 
   const {transaction} = props.route.params;
@@ -20,20 +22,22 @@ export default function TechnicalTransactionDetails(props) {
 
   const isPending = transaction.paymentStatus === 'pending';
 
-  console.log(details);
-
   const paymentDetails =
     transaction.paymentType === 'spark'
       ? details.isLRC20Payment
-        ? ['Transaction Hash']
-        : ['Payment Id']
+        ? [t('screens.inAccount.technicalTransactionDetails.txHash')]
+        : [t('screens.inAccount.technicalTransactionDetails.paymentId')]
       : transaction.paymentType === 'lightning'
-      ? ['Payment Id', 'Payment Preimage', 'Payment Address']
+      ? [
+          t('screens.inAccount.technicalTransactionDetails.paymentId'),
+          t('screens.inAccount.technicalTransactionDetails.preimage'),
+          t('screens.inAccount.technicalTransactionDetails.address'),
+        ]
       : [
-          'Payment Id',
-          'Bitcoin Txid',
-          'Payment Address',
-          'Payment Expiry',
+          t('screens.inAccount.technicalTransactionDetails.paymentId'),
+          t('screens.inAccount.technicalTransactionDetails.bitcoinTxId'),
+          t('screens.inAccount.technicalTransactionDetails.address'),
+          t('screens.inAccount.technicalTransactionDetails.paymentExp'),
         ].slice(0, details.direction === 'OUTGOING' && isPending ? 4 : 3);
 
   const infoElements = paymentDetails.map((item, id) => {
@@ -62,8 +66,11 @@ export default function TechnicalTransactionDetails(props) {
             <TouchableOpacity
               onPress={() => {
                 navigate.navigate('InformationPopup', {
-                  textContent: `${item} is not shown since this payment was restored from history or used a zero amount invoice.`,
-                  buttonText: 'I understand',
+                  textContent: t(
+                    'screens.inAccount.technicalTransactionDetails.noInformationLabel',
+                    {item},
+                  ),
+                  buttonText: t('constants.understandText'),
                 });
               }}>
               <ThemeImage
@@ -79,7 +86,8 @@ export default function TechnicalTransactionDetails(props) {
           onPress={() => {
             if (
               transaction.paymentType === 'bitcoin' &&
-              item === 'Bitcoin Txid'
+              item ===
+                t('screens.inAccount.technicalTransactionDetails.bitcoinTxId')
             ) {
               navigate.navigate('CustomWebView', {
                 webViewURL: `https://mempool.space/tx/${txItem}`,
@@ -116,9 +124,9 @@ export default function TechnicalTransactionDetails(props) {
           {infoElements}
           {transaction.paymentType === 'spark' && (
             <ThemeText
-              content={
-                'To preserve the receiver’s privacy, all other information is hidden.'
-              }
+              content={t(
+                'screens.inAccount.technicalTransactionDetails.privacyMessage',
+              )}
             />
           )}
         </ScrollView>

@@ -26,7 +26,6 @@ import openWebBrowser from '../../../../../functions/openWebBrowser';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {FONT, INSET_WINDOW_WIDTH, SIZES} from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
@@ -37,12 +36,14 @@ import {
   keyboardNavigate,
 } from '../../../../../functions/customNavigation';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useTranslation} from 'react-i18next';
 
 export default function PosSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
   const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
+  const {t} = useTranslation();
   const navigate = useNavigation();
   const windowWidth = useWindowDimensions().width;
   const [textInput, setTextInput] = useState('');
@@ -65,12 +66,14 @@ export default function PosSettingsPage() {
       if (
         newData.storeNameLower === masterInfoObject.posSettings.storeNameLower
       ) {
-        navigate.navigate('ErrorScreen', {errorMessage: 'Name already in use'});
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('settings.posPath.settings.nameTakenError'),
+        });
         return;
       }
       if (!VALID_USERNAME_REGEX.test(newData.storeNameLower)) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Name can only include letters and numbers. ',
+          errorMessage: t('settings.posPath.settings.nameRegexError'),
         });
         return;
       }
@@ -80,7 +83,9 @@ export default function PosSettingsPage() {
         newData.storeNameLower,
       );
       if (!isValidPosName) {
-        navigate.navigate('ErrorScreen', {errorMessage: 'Name already taken'});
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('settings.posPath.settings.nameTakenError'),
+        });
         setStoreNameInput(masterInfoObject.posSettings.storeName);
         return;
       }
@@ -166,7 +171,7 @@ export default function PosSettingsPage() {
         <ThemeText
           CustomNumberOfLines={1}
           CustomEllipsizeMode={'tail'}
-          content={'Point-of-sale'}
+          content={t('settings.posPath.settings.title')}
           styles={{
             ...styles.topBarText,
             width: windowWidth * 0.95 - 130,
@@ -190,7 +195,7 @@ export default function PosSettingsPage() {
             keyboardNavigate(() => {
               if (!isConnectedToTheInternet) {
                 navigate.navigate('ErrorScreen', {
-                  errorMessage: 'Please reconnect to the internet',
+                  errorMessage: t('errormessges.nointernet'),
                 });
                 return;
               }
@@ -215,11 +220,15 @@ export default function PosSettingsPage() {
         keyboardShouldPersistTaps="handled"
         stickyHeaderIndices={[1]}>
         <View style={{marginTop: 20, marginBottom: 10}}>
-          <ThemeText content={'Store name'} />
+          <ThemeText
+            content={t('settings.posPath.settings.storeNameInputDesc')}
+          />
           <CustomSearchInput
             setInputText={setStoreNameInput}
             inputText={storeNameInput}
-            placeholderText={'Enter store name'}
+            placeholderText={t(
+              'settings.posPath.settings.storeNameInputPlaceholder',
+            )}
             containerStyles={{marginTop: 10}}
             onBlurFunction={() => setIsKeyboardActive(false)}
             onFocusFunction={() => setIsKeyboardActive(true)}
@@ -229,7 +238,9 @@ export default function PosSettingsPage() {
 
         {/* Sticky Header Section */}
         <View style={{backgroundColor: backgroundColor, paddingTop: 10}}>
-          <ThemeText content={'Display currency'} />
+          <ThemeText
+            content={t('settings.posPath.settings.displayCurrencyDesc')}
+          />
           <CustomSearchInput
             inputText={textInput}
             setInputText={setTextInput}
@@ -249,20 +260,28 @@ export default function PosSettingsPage() {
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
         }}>
         <ThemeText
-          styles={{includeFontPadding: false, marginRight: 5}}
-          content={`${posItemsList.length} added item${
-            posItemsList.length !== 1 ? 's' : ''
-          }`}
+          CustomNumberOfLines={1}
+          styles={{includeFontPadding: false, marginRight: 5, flexShrink: 1}}
+          content={t('settings.posPath.settings.numAddeditems', {
+            number: posItemsList.length,
+            isPlurl:
+              posItemsList.length !== 1
+                ? t('settings.posPath.settings.plurlEnding')
+                : '',
+          })}
         />
         <TouchableOpacity
           onPress={() =>
             navigate.navigate('InformationPopup', {
               textContent: showErrorIcon
-                ? `Your current currency is different from ${showErrorIcon} of your saved items. Please update your item prices to ensure you're charging the correct amount.`
-                : 'Adding items to your point-of-sale system means employees won’t have to type in prices manually. Instead, they can just click the product names, and the prices you set will be added to the total automatically.',
-              buttonText: 'I understand',
+                ? t('settings.posPath.settings.differingCurrencyItemsError', {
+                    number: showErrorIcon,
+                  })
+                : t('settings.posPath.settings.itemsDescription'),
+              buttonText: t('constants.understandText'),
             })
-          }>
+          }
+          style={{marginRight: 5}}>
           {showErrorIcon ? (
             <Icon
               color={
@@ -279,25 +298,22 @@ export default function PosSettingsPage() {
             />
           )}
         </TouchableOpacity>
-        <CustomButton
-          buttonStyles={{
-            backgroundColor: theme
-              ? darkModeType
-                ? backgroundColor
-                : showErrorIcon
-                ? COLORS.cancelRed
-                : backgroundColor
-              : showErrorIcon
-              ? COLORS.cancelRed
-              : COLORS.primary,
+
+        <TouchableOpacity
+          onPress={() => navigate.navigate('AddPOSItemsPage')}
+          style={{
+            backgroundColor,
+            padding: 5,
+            borderRadius: 8,
             marginLeft: 'auto',
-          }}
-          textStyles={{
-            color: COLORS.darkModeText,
-          }}
-          actionFunction={() => navigate.navigate('AddPOSItemsPage')}
-          textContent={showErrorIcon ? 'Update Items' : 'Add item'}
-        />
+          }}>
+          <ThemeImage
+            styles={{transform: [{rotate: '180deg'}]}}
+            lightModeIcon={ICONS.leftCheveronIcon}
+            darkModeIcon={ICONS.leftCheveronIcon}
+            lightsOutIcon={ICONS.left_cheveron_white}
+          />
+        </TouchableOpacity>
       </View>
 
       {!isKeyboardActive && (
@@ -337,8 +353,8 @@ export default function PosSettingsPage() {
             textContent={
               masterInfoObject.posSettings.storeName.toLowerCase() !==
               storeNameInput.toLowerCase()
-                ? 'Save'
-                : 'Open POS'
+                ? t('constants.save')
+                : t('settings.posPath.settings.openPos')
             }
           />
         </>
@@ -384,6 +400,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     width: INSET_WINDOW_WIDTH,
+    marginTop: 5,
     ...CENTER,
   },
 });

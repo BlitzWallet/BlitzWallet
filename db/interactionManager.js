@@ -30,6 +30,7 @@ const PRESET_LOCAL_DATA = {
     data: null,
   },
   didViewNWCMessage: false,
+  userSelectedLanguage: 'en',
 };
 
 async function sendDataToDB(newObject, uuid) {

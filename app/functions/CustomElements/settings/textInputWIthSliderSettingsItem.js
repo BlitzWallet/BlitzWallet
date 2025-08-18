@@ -34,7 +34,7 @@ export default function TextInputWithSliderSettingsItem({
         style={[styles.sliderContianer, {borderBottomColor: backgroundColor}]}>
         <ThemeText
           CustomNumberOfLines={1}
-          styles={{includeFontPadding: false, flex: 1}}
+          styles={styles.titleStyle}
           content={sliderTitle}
         />
         <CustomToggleSwitch
@@ -46,7 +46,7 @@ export default function TextInputWithSliderSettingsItem({
       <View style={[styles.sliderContianer, {borderBottomWidth: 0}]}>
         <ThemeText
           CustomNumberOfLines={1}
-          styles={{includeFontPadding: false, flex: 1}}
+          styles={styles.titleStyle}
           content={settingInputTitle}
         />
         <TextInput
@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     justifyContent: 'center',
   },
+  titleStyle: {includeFontPadding: false, flex: 1, marginRight: 5},
   sliderContianer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -97,12 +98,12 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingBottom: 10,
     marginBottom: 10,
-    marginLeft: 20,
+    marginLeft: 10,
     borderBottomWidth: 1,
   },
   textContainer: {
     paddingRight: 10,
-    marginLeft: 20,
+    marginLeft: 10,
   },
   textInput: {
     maxWidth: '50%',

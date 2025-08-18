@@ -38,7 +38,7 @@ import SplashScreen from './app/screens/splashScreen';
 import {GlobalContactsList} from './context-store/globalContacts';
 
 // import {GlobaleCashVariables} from './context-store/eCash';
-import {CreateAccountHome} from './app/screens/createAccount';
+import {ChooseLangugaePage} from './app/screens/createAccount';
 import {GlobalAppDataProvider} from './context-store/appData';
 import {PushNotificationProvider} from './context-store/notificationManager';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
@@ -107,6 +107,7 @@ import {GlobalNostrWalletConnectProvider} from './context-store/NWC';
 import {GlobalServerTimeProvider} from './context-store/serverTime';
 import {ActiveCustodyAccountProvider} from './context-store/activeAccount';
 import {LRC20EventProvider} from './context-store/lrc20Listener';
+import {useTranslation} from 'react-i18next';
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
@@ -192,8 +193,8 @@ function ResetStack(): JSX.Element | null {
   const {didGetToHomepage} = useAppStatus();
   const {publicKey, setAccountMnemonic} = useKeysContext();
   const {backgroundColor} = GetThemeColors();
+  const {i18n} = useTranslation();
 
-  // Memoize handleDeepLink
   const handleDeepLink = useCallback(
     (event: {url: string}) => {
       const {url} = event;
@@ -272,6 +273,7 @@ function ResetStack(): JSX.Element | null {
             } else {
               navigationRef.current.navigate('ErrorScreen', {
                 errorMessage: deepLinkContact.reason,
+                useTranslationString: true,
               });
             }
           }
@@ -281,9 +283,8 @@ function ResetStack(): JSX.Element | null {
         } catch (error: any) {
           console.error('Error processing deep link:', error);
           navigationRef.current.navigate('ErrorScreen', {
-            errorMessage: `Failed to process link: ${
-              error.message || 'Unknown error'
-            }`,
+            errorMessage: 'errormessages.processingDeepLinkError',
+            useTranslationString: true,
           });
 
           // Clear the pending link even if there was an error
@@ -305,6 +306,7 @@ function ResetStack(): JSX.Element | null {
         pin,
         mnemonic,
         securitySettings,
+        userSelectedLanguage,
       ] = await Promise.all([
         getInitialURL(),
         // registerBackgroundNotificationTask(),
@@ -312,6 +314,9 @@ function ResetStack(): JSX.Element | null {
         retrieveData('pinHash'),
         retrieveData('encryptedMnemonic'),
         getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
+        getLocalStorageItem('userSelectedLanguage').then(data =>
+          JSON.parse(data),
+        ),
       ]);
 
       const storedSettings = JSON.parse(securitySettings);
@@ -341,6 +346,8 @@ function ResetStack(): JSX.Element | null {
           hasSecurityEnabled: parsedSettings.isSecurityEnabled,
         };
       });
+
+      i18n.changeLanguage(userSelectedLanguage);
     }
     const subscription = Linking.addEventListener('url', handleDeepLink);
     initWallet();
@@ -388,7 +395,7 @@ function ResetStack(): JSX.Element | null {
         ? AdminLogin
         : ConnectingToNodeLoadingScreen;
     }
-    return CreateAccountHome;
+    return ChooseLangugaePage;
   }, [initSettings.isLoggedIn, initSettings.hasSecurityEnabled]);
 
   if (!initSettings.isLoaded || theme === null || darkModeType === null) {

@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginBottom: 10,
   },
-  backArrow: {position: 'absolute', top: 0, left: 0, zIndex: 1},
+  backArrow: {position: 'absolute', left: 0, zIndex: 1},
 
   topBarText: {
     fontSize: SIZES.xLarge,

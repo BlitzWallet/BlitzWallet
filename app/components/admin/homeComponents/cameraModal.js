@@ -29,6 +29,7 @@ import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../../../functions/crashlyticsLogs';
+import {useTranslation} from 'react-i18next';
 
 export default function CameraModal(props) {
   console.log('SCREEN OPTIONS PAGE');
@@ -39,6 +40,7 @@ export default function CameraModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {hasPermission, requestPermission} = useCameraPermission();
   const device = useCameraDevice('back');
+  const {t} = useTranslation();
   const [showCamera, setShowCamera] = useState(false);
 
   useFocusEffect(
@@ -79,10 +81,13 @@ export default function CameraModal(props) {
       <GlobalThemeView useStandardWidth={true}>
         <CameraPageNavBar />
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-          <ThemeText styles={styles.errorText} content="No access to camera" />
           <ThemeText
             styles={styles.errorText}
-            content="Go to settings to let Blitz Wallet access your camera"
+            content={t('wallet.cameraModal.noCamera')}
+          />
+          <ThemeText
+            styles={styles.errorText}
+            content={t('wallet.cameraModal.settingsText')}
           />
         </View>
       </GlobalThemeView>
@@ -94,7 +99,7 @@ export default function CameraModal(props) {
         <CameraPageNavBar />
         <FullLoadingScreen
           showLoadingIcon={false}
-          text={'You do not have a camera device.'}
+          text={t('wallet.cameraModal.noCameraDevice')}
         />
       </GlobalThemeView>
     );
@@ -169,7 +174,7 @@ export default function CameraModal(props) {
                   paddingHorizontal: 40,
                   paddingVertical: Platform.OS === 'ios' ? 8 : 5,
                 }}
-                content={'Paste'}
+                content={t('constants.paste')}
               />
             </TouchableOpacity>
           )}
@@ -180,7 +185,7 @@ export default function CameraModal(props) {
   function toggleFlash() {
     if (!device?.hasTorch) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Device does not have a tourch',
+        errorMessage: t('wallet.cameraModal.noFlash'),
       });
       return;
     }
@@ -191,7 +196,7 @@ export default function CameraModal(props) {
     try {
       const response = await getClipboardText();
       if (!response.didWork) {
-        navigate.navigate('ErrorScreen', {errorMessage: response.reason});
+        navigate.navigate('ErrorScreen', {errorMessage: t(response.reason)});
         return;
       }
       crashlyticsLogReport('handling data from clipboard');
@@ -226,7 +231,7 @@ export default function CameraModal(props) {
       setTimeout(
         () => {
           navigate.navigate('ErrorScreen', {
-            errorMessage: error,
+            errorMessage: t(error),
           });
         },
         Platform.OS === 'android' ? 350 : 50,
@@ -245,7 +250,7 @@ export default function CameraModal(props) {
         navigate.goBack();
         setTimeout(() => {
           navigate.navigate('ErrorScreen', {
-            errorMessage: 'Only QRcodes are accepted.',
+            errorMessage: t('wallet.cameraModal.sanningResponse'),
           });
         }, 150);
       }
@@ -253,7 +258,7 @@ export default function CameraModal(props) {
         navigate.goBack();
         setTimeout(() => {
           navigate.navigate('ErrorScreen', {
-            errorMessage: 'Not able to decode QRcode.',
+            errorMessage: t('wallet.cameraModal.qrDecodeError'),
           });
         }, 150);
         return;
@@ -268,7 +273,7 @@ export default function CameraModal(props) {
       navigate.goBack();
       setTimeout(() => {
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Not able to decode QRcode.',
+          errorMessage: t('wallet.cameraModal.qrDecodeError'),
         });
       }, 150);
     }

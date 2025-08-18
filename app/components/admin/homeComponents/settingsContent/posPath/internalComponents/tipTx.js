@@ -7,18 +7,20 @@ import {updateDidPayForSingleTx} from '../../../../../../functions/pos';
 import {ThemeText} from '../../../../../../functions/CustomElements';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 
-export default function TipsTXItem({item, masterInfoObject, fiatStats}) {
+export default function TipsTXItem({item, masterInfoObject, fiatStats, t}) {
   const [isLoading, setIsLoading] = useState(false);
   return (
     <View style={styles.txContainer}>
       <View style={{flex: 1, marginRight: 5}}>
         <ThemeText
           CustomNumberOfLines={1}
-          content={`Tip: ${displayCorrectDenomination({
-            amount: item?.tipAmountSats,
-            masterInfoObject,
-            fiatStats,
-          })}`}
+          content={t('settings.posPath.internalComponents.tipTx.tipMessage', {
+            amount: displayCorrectDenomination({
+              amount: item?.tipAmountSats,
+              masterInfoObject,
+              fiatStats,
+            }),
+          })}
         />
         <ThemeText
           CustomNumberOfLines={1}
@@ -36,9 +38,13 @@ export default function TipsTXItem({item, masterInfoObject, fiatStats}) {
           );
           setIsLoading(false);
         }}
-        buttonStyles={{width: 120}}
+        buttonStyles={{maxWidth: '45%'}}
         textStyles={{textAlign: 'center'}}
-        textContent={`Mark as ${item?.didPay ? 'unpaid' : 'paid'}`}
+        textContent={t('settings.posPath.internalComponents.tipTx.ctaBTN', {
+          option: item?.didPay
+            ? t('constants.unpaidLower')
+            : t('constants.paidLower'),
+        })}
       />
     </View>
   );

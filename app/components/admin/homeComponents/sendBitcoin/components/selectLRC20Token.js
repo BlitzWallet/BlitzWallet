@@ -17,6 +17,7 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import formatTokensNumber from '../../../../../functions/lrc20/formatTokensBalance';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import {useTranslation} from 'react-i18next';
 
 export default function SelectLRC20Token({
   navigate,
@@ -30,6 +31,7 @@ export default function SelectLRC20Token({
   const assetsAvailable = Object.entries(sparkInformation.tokens);
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {t} = useTranslation();
 
   const handleSearch = term => {
     setSearchInput(term);
@@ -101,7 +103,7 @@ export default function SelectLRC20Token({
                   )
             }
             useCustomLabel={details?.tokenMetadata?.tokenTicker !== 'Bitcoin'}
-            customLabel={details?.tokenMetadata?.tokenTicker}
+            customLabel={''}
             useMillionDenomination={true}
           />
         </TouchableOpacity>
@@ -118,11 +120,13 @@ export default function SelectLRC20Token({
       style={styles.container}>
       <CustomSettingsTopBar
         customBackFunction={goBackFunction}
-        label={'Select Token'}
+        label={t('wallet.sendPages.selectLRC20Token.title')}
       />
       <View style={styles.innerContainer}>
         <CustomSearchInput
-          placeholderText={'Token name...'}
+          placeholderText={t(
+            'wallet.sendPages.selectLRC20Token.searchPlaceholder',
+          )}
           setInputText={handleSearch}
           inputText={searchInput}
           textInputRef={keyboardRef}
@@ -151,7 +155,7 @@ export default function SelectLRC20Token({
         ) : (
           <ThemeText
             styles={{textAlign: 'center', marginTop: 10}}
-            content={'No tokens found'}
+            content={t('wallet.sendPages.selectLRC20Token.noTokensFoundText')}
           />
         )}
       </View>

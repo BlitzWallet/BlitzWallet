@@ -1,7 +1,6 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {
-  BTN,
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
@@ -31,6 +30,7 @@ import {retrieveData} from '../../../../functions';
 import NWCWalletSetup from './nwc/showSeedPage';
 import HasNoNostrAccounts from './nwc/hasNoAccounts';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import {useTranslation} from 'react-i18next';
 
 export default function NosterWalletConnect() {
   const navigate = useNavigation();
@@ -47,6 +47,7 @@ export default function NosterWalletConnect() {
   const didViewWarningMessage = masterInfoObject.didViewNWCMessage;
   const hasEnabledPushNotifications =
     notificationData.enabledServices.NWC && currnetPushState;
+  const {t} = useTranslation();
 
   const loadCurrentNotificationPermission = async () => {
     const [resposne, NWCMnemoinc] = await Promise.all([
@@ -151,8 +152,7 @@ export default function NosterWalletConnect() {
                   onPress={() => {
                     navigate.navigate('ConfirmActionPage', {
                       confirmFunction: () => removePOSItem(key),
-                      confirmMessage:
-                        'Are you sure you want to delete this Nostr Connect item?',
+                      confirmMessage: t('settings.nwc.confirmDelete'),
                     });
                   }}>
                   <ThemeImage
@@ -185,7 +185,7 @@ export default function NosterWalletConnect() {
         <CustomSearchInput
           inputText={accountName}
           setInputText={setAccountName}
-          placeholderText={'Search for NWC account'}
+          placeholderText={t('settings.nwc.searchAccountPlaceholder')}
         />
         <ScrollView contentContainerStyle={{paddingBottom: 20}}>
           {nwcElements.length > 0 ? (
@@ -193,7 +193,7 @@ export default function NosterWalletConnect() {
           ) : (
             <ThemeText
               styles={{textAlign: 'center', marginTop: 20}}
-              content={'You have no Nostr Connect accounts.'}
+              content={t('settings.nwc.noAccountsMessage')}
             />
           )}
         </ScrollView>
@@ -202,7 +202,7 @@ export default function NosterWalletConnect() {
             actionFunction={() => {
               navigate.navigate('CreateNostrConnectAccount');
             }}
-            textContent={'Add Account'}
+            textContent={t('settings.nwc.addAccount')}
           />
         </View>
       </CustomKeyboardAvoidingView>

@@ -9,12 +9,14 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import {useToast} from '../../../../../context-store/toastManager';
 import {copyToClipboard} from '../../../../functions';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import {useTranslation} from 'react-i18next';
 
 export default function ChooseLNURLCopyFormat() {
   const {showToast} = useToast();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {globalContactsInformation} = useGlobalContacts();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {t} = useTranslation();
 
   const lightningAddress = `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`;
   const lightningString = `${encodeLNURL(
@@ -22,7 +24,7 @@ export default function ChooseLNURLCopyFormat() {
   )}`;
   return (
     <View style={styles.container}>
-      <ThemeText styles={styles.header} content={'Copy'} />
+      <ThemeText styles={styles.header} content={t('constants.copy')} />
       <TouchableOpacity
         onPress={() => {
           copyToClipboard(lightningAddress, showToast);
@@ -39,7 +41,7 @@ export default function ChooseLNURLCopyFormat() {
           lightsOutIcon={ICONS.clipboardLight}
         />
         <View style={styles.textContainer}>
-          <ThemeText content={'Lightning Address'} />
+          <ThemeText content={`Lightning ${t('constants.address')}`} />
           <ThemeText
             styles={styles.copyPreviewText}
             CustomNumberOfLines={1}
@@ -63,7 +65,7 @@ export default function ChooseLNURLCopyFormat() {
           lightsOutIcon={ICONS.clipboardLight}
         />
         <View style={styles.textContainer}>
-          <ThemeText content={'Lightning String'} />
+          <ThemeText content={`Lightning ${t('constants.string')}`} />
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.copyPreviewText}

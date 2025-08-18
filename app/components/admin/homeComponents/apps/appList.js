@@ -2,9 +2,9 @@ import {ICONS} from '../../../../constants';
 
 const APPLIST = [
   {
-    name: 'AI',
+    name: 'apps.appList.AI',
     svgName: 'AiAppIcon',
-    description: 'Chat with the latest generative Ai models',
+    description: 'apps.appList.AIDescription',
     pageName: 'AI',
   },
   // {
@@ -22,22 +22,22 @@ const APPLIST = [
   //   pageName: 'resturant',
   // },
   {
-    name: 'SMS',
+    name: 'apps.appList.SMS',
     iconLight: ICONS.messagesLight,
     iconDark: ICONS.messagesDark,
-    description: 'Send and Receive sms messages',
+    description: 'apps.appList.SMSDescription',
     pageName: 'sms4sats',
   },
   {
-    name: 'VPN',
+    name: 'apps.appList.VPN',
     svgName: 'shield',
-    description: 'Securely browse and protect privacy',
+    description: 'apps.appList.VPNDescription',
     pageName: 'lnvpn',
   },
   {
-    name: 'Soon',
+    name: 'apps.appList.Soon',
     svgName: 'clock',
-    description: 'More apps are coming soon!',
+    description: 'apps.appList.SoonDescription',
     pageName: 'soon',
   },
 ];

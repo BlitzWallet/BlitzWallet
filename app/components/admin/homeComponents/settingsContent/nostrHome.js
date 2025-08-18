@@ -6,11 +6,13 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNavigation} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
 
 export default function NostrHome() {
   const navitate = useNavigation();
   const {darkModeType, theme} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {t} = useTranslation();
   return (
     <View style={styles.container}>
       <View
@@ -21,11 +23,11 @@ export default function NostrHome() {
         <View style={styles.itemTextContainer}>
           <ThemeText
             styles={{...styles.itemHeader, marginBottom: 10}}
-            content={'Nip5 Verification'}
+            content={t('settings.nostrHome.nip5Title')}
           />
           <ThemeText
             styles={styles.itemDescription}
-            content={'Quickly verify your Nostr identity using Blitz.'}
+            content={t('settings.nostrHome.nip5Desc')}
           />
         </View>
         <TouchableOpacity
@@ -51,7 +53,7 @@ export default function NostrHome() {
           <View style={styles.itemHeaderContainer}>
             <ThemeText
               styles={styles.itemHeader}
-              content={'Nostr Wallet Connect'}
+              content={t('settings.nostrHome.nwcTitle')}
             />
             <ThemeText
               CustomNumberOfLines={1}
@@ -60,12 +62,12 @@ export default function NostrHome() {
                 color:
                   theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
               }}
-              content={'experimental'}
+              content={t('constants.experimentalLower')}
             />
           </View>
           <ThemeText
             styles={styles.itemDescription}
-            content={'Connect your Blitz Wallet to apps using Nostr.'}
+            content={t('settings.nostrHome.nwcDesc')}
           />
         </View>
         <TouchableOpacity

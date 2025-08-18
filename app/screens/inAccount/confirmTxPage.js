@@ -23,6 +23,7 @@ import {
 import {useToast} from '../../../context-store/toastManager';
 import {useSparkWallet} from '../../../context-store/sparkContext';
 import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
+import {useTranslation} from 'react-i18next';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
@@ -33,6 +34,7 @@ export default function ConfirmTxPage(props) {
   const {backgroundOffset} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
   const animationRef = useRef(null);
+  const {t} = useTranslation();
 
   const transaction = props.route.params?.transaction;
   const hasError = props.route.params?.error;
@@ -54,6 +56,11 @@ export default function ConfirmTxPage(props) {
   const token = isLRC20Payment
     ? sparkInformation.tokens?.[transaction.details.LRC20Token]
     : '';
+
+  const formattedTokensBalance = formatTokensNumber(
+    amount,
+    token?.tokenMetadata?.decimals,
+  );
 
   const confirmAnimation = useMemo(() => {
     return updateConfirmAnimation(
@@ -88,12 +95,13 @@ export default function ConfirmTxPage(props) {
         styles={{fontWeight: 400, fontSize: SIZES.large, marginBottom: 10}}
         content={
           !didSucceed
-            ? 'Failed to send'
-            : `${
-                paymentInformation.direction?.toLowerCase() === 'outgoing'
-                  ? 'Sent'
-                  : 'Received'
-              } succesfully`
+            ? t('screens.inAccount.confirmTxPage.failedToSend')
+            : t('screens.inAccount.confirmTxPage.confirmMessage', {
+                direction:
+                  paymentInformation.direction?.toLowerCase() === 'outgoing'
+                    ? t('constants.sent')
+                    : t('constants.received'),
+              })
         }
       />
 
@@ -105,12 +113,16 @@ export default function ConfirmTxPage(props) {
               includeFontPadding: false,
             }}
             neverHideBalance={true}
-            balance={amount}
+            balance={
+              isLRC20Payment && formattedTokensBalance > 1
+                ? formattedTokensBalance
+                : amount
+            }
             useCustomLabel={isLRC20Payment}
             customLabel={token?.tokenMetadata?.tokenTicker}
             useMillionDenomination={true}
           />
-          {isLRC20Payment && (
+          {isLRC20Payment && formattedTokensBalance < 1 && (
             <FormattedSatText
               containerStyles={{
                 ...CENTER,
@@ -142,18 +154,18 @@ export default function ConfirmTxPage(props) {
         content={
           didSucceed
             ? ''
-            : 'There was an issue sending this payment, please try again.'
+            : t('screens.inAccount.confirmTxPage.paymentErrorMessage')
         }
       />
 
       {didSucceed && (
         <View style={styles.paymentTable}>
           <View style={styles.paymentTableRow}>
-            <ThemeText content={'Fee'} />
+            <ThemeText content={t('constants.fee')} />
             <FormattedSatText neverHideBalance={true} balance={paymentFee} />
           </View>
           <View style={styles.paymentTableRow}>
-            <ThemeText content={'Type'} />
+            <ThemeText content={t('constants.type')} />
             <ThemeText content={paymentNetwork} />
           </View>
         </View>
@@ -190,7 +202,7 @@ export default function ConfirmTxPage(props) {
           }}>
           <ThemeText
             styles={{marginTop: 10, marginBottom: 20}}
-            content={'Send report to developer'}
+            content={t('screens.inAccount.confirmTxPage.sendReport')}
           />
         </TouchableOpacity>
       )}
@@ -209,7 +221,6 @@ export default function ConfirmTxPage(props) {
             didSucceed && !theme ? COLORS.darkModeText : COLORS.lightModeText,
         }}
         actionFunction={() => {
-          console.log('POPPING TO TOP');
           // This will go to whatever the base homsecreen is set to
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
@@ -217,7 +228,7 @@ export default function ConfirmTxPage(props) {
             });
           });
         }}
-        textContent={'Continue'}
+        textContent={t('constants.continue')}
       />
     </GlobalThemeView>
   );

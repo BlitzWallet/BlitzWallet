@@ -40,6 +40,7 @@ import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
 import {handleRestoreFromText} from '../../../../../functions/seed';
 import getClipboardText from '../../../../../functions/getClipboardText';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useTranslation} from 'react-i18next';
 const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   acc[`key${num}`] = '';
@@ -87,6 +88,7 @@ export default function CreateCustodyAccountPage(props) {
     Boolean(foundAccount) && foundAccount?.name !== selectedAccount?.name;
 
   const enteredAllSeeds = Object.values(inputedKey).filter(item => item);
+  const {t} = useTranslation();
 
   const handleInputElement = useCallback((text, keyNumber) => {
     const restoredSeed = handleRestoreFromText(text);
@@ -179,7 +181,7 @@ export default function CreateCustodyAccountPage(props) {
       const isValidSeed = isValidMnemonic(enteredAllSeeds);
       if (!isValidSeed) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Did not enter a valid seed',
+          errorMessage: t('errormessages.invalidSeedError'),
         });
         return;
       }
@@ -191,7 +193,9 @@ export default function CreateCustodyAccountPage(props) {
           );
       if (alreadyUsedSeed) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'This seed already exists for another account',
+          errorMessage: t(
+            'settings.accountComponents.createAccountPage.alreadyUsingSeedError',
+          ),
         });
         return;
       }
@@ -316,20 +320,27 @@ export default function CreateCustodyAccountPage(props) {
       <View style={{width: '95%'}}>
         <CustomSettingsTopBar
           shouldDismissKeyboard={true}
-          label={selectedAccount ? 'Edit Account' : 'Create Account'}
+          label={
+            selectedAccount
+              ? t('settings.accountComponents.createAccountPage.editTitle')
+              : t('settings.accountComponents.createAccountPage.createTitle')
+          }
           leftImageBlue={ICONS.trashIcon}
           LeftImageDarkMode={ICONS.trashIconWhite}
           showLeftImage={selectedAccount}
           leftImageFunction={() => {
             if (currentWalletMnemoinc === selectedAccount?.mnemoinc) {
               navigate.navigate('ErrorScreen', {
-                errorMessage:
-                  'You can’t delete the active account. Please select another account before deleting.',
+                errorMessage: t(
+                  'settings.accountComponents.createAccountPage.cannotDeleteActiveAccountError',
+                ),
               });
               return;
             }
             navigate.navigate('ConfirmActionPage', {
-              confirmMessage: 'Are you sure you want to delete this account?',
+              confirmMessage: t(
+                'settings.accountComponents.createAccountPage.deleteAccountConfirmation',
+              ),
               confirmFunction: () => removeAccount(selectedAccount),
               cancelFunction: () => {},
             });
@@ -351,15 +362,18 @@ export default function CreateCustodyAccountPage(props) {
               fontSize: SIZES.large,
               marginRight: 5,
             }}
-            content={'Account Name'}
+            content={t(
+              'settings.accountComponents.createAccountPage.inputDesc',
+            )}
           />
           {nameIsAlreadyUsed && (
             <TouchableOpacity
               onPress={() => {
                 navigate.navigate('InformationPopup', {
-                  textContent:
-                    'This name is currently in use. Please use a differnt account name',
-                  buttonText: 'I understand',
+                  textContent: t(
+                    'settings.accountComponents.createAccountPage.nameTakenError',
+                  ),
+                  buttonText: t('constants.understandText'),
                 });
               }}>
               <Icon
@@ -395,7 +409,9 @@ export default function CreateCustodyAccountPage(props) {
                 ? COLORS.cancelRed
                 : textColor,
           }}
-          placeholderText={'Name...'}
+          placeholderText={t(
+            'settings.accountComponents.createAccountPage.nameInputPlaceholder',
+          )}
           onFocusFunction={() => {
             setIsKeyboardActive(true);
             setCurrentFocused(null);
@@ -411,7 +427,9 @@ export default function CreateCustodyAccountPage(props) {
                 marginBottom: 10,
                 marginTop: 30,
               }}
-              content={'Account Seed'}
+              content={t(
+                'settings.accountComponents.createAccountPage.seedHeader',
+              )}
             />
             {inputKeys}
 
@@ -432,7 +450,7 @@ export default function CreateCustodyAccountPage(props) {
                 }}
                 textStyles={{color: COLORS.darkModeText}}
                 actionFunction={regenerateSeed}
-                textContent={'Regenerate'}
+                textContent={t('constants.regenerate')}
               />
               <CustomButton
                 actionFunction={() => setInputedKey(INITIAL_KEY_STATE)}
@@ -442,14 +460,14 @@ export default function CreateCustodyAccountPage(props) {
                   backgroundColor: theme ? backgroundOffset : COLORS.primary,
                 }}
                 textStyles={{color: COLORS.darkModeText}}
-                textContent={'Restore'}
+                textContent={t('constants.restore')}
               />
             </View>
             {inputedKey === INITIAL_KEY_STATE && (
               <CustomButton
                 actionFunction={async () => {
                   const response = await getClipboardText();
-                  if (!response.didWork) throw new Error(response.reason);
+                  if (!response.didWork) throw new Error(t(response.reason));
 
                   const data = response.data;
 
@@ -459,15 +477,16 @@ export default function CreateCustodyAccountPage(props) {
 
                   if (!splitSeed.every(word => word.trim().length > 0)) {
                     navigate.navigate('ErrorScreen', {
-                      errorMessage: 'Not every word is of valid length',
+                      errorMessage: t(
+                        'errormessages.invalidSeedWordLengthErorr',
+                      ),
                     });
                     return;
                   }
 
                   if (splitSeed.length != 12) {
                     navigate.navigate('ErrorScreen', {
-                      errorMessage:
-                        'Unable to find 12 words from copied recovery phrase.',
+                      errorMessage: t('errormessages.invalidSeedLengthError'),
                     });
                   }
 
@@ -480,33 +499,38 @@ export default function CreateCustodyAccountPage(props) {
                 buttonStyles={{
                   marginTop: 10,
                 }}
-                textContent={'Paste'}
+                textContent={t('constants.paste')}
               />
             )}
           </>
         )}
       </ScrollView>
-
       {!isKeyboardActive && (
         <CustomButton
           useLoading={isCreatingAccount}
           loadingColor={COLORS.darkModeText}
           buttonStyles={{
+            marginTop: 5,
             minWidth: 150,
             ...CENTER,
             opacity:
               !accountInformation.name ||
               nameIsAlreadyUsed ||
-              enteredAllSeeds.length !== 12
+              enteredAllSeeds.length !== 12 ||
+              selectedAccount?.name?.toLowerCase() ===
+                accountInformation?.name?.toLowerCase()
                 ? 0.5
                 : 1,
-            backgroundColor: theme ? backgroundOffset : COLORS.primary,
           }}
-          textStyles={{color: COLORS.darkModeText}}
-          textContent={selectedAccount ? 'Update Account' : 'Create Account'}
+          textContent={
+            selectedAccount
+              ? t('settings.accountComponents.createAccountPage.updateTitle')
+              : t('settings.accountComponents.createAccountPage.createTitle')
+          }
           actionFunction={handleCreateAccount}
         />
       )}
+
       {currentFocused && (
         <SuggestedWordContainer
           inputedKey={inputedKey}

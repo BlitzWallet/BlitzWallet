@@ -12,6 +12,7 @@ import {useGlobalContextProvider} from '../../../../../../../context-store/conte
 import {useSparkWallet} from '../../../../../../../context-store/sparkContext';
 import StoreErrorPage from '../../components/errorScreen';
 import {useActiveCustodyAccount} from '../../../../../../../context-store/activeAccount';
+import {useTranslation} from 'react-i18next';
 
 export default function ConfirmVPNPage(props) {
   const navigate = useNavigation();
@@ -28,6 +29,7 @@ export default function ConfirmVPNPage(props) {
     darkModeType,
   } = props;
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const {t} = useTranslation();
 
   const [invoiceInformation, setInvoiceInformation] = useState(null);
   const [error, setError] = useState('');
@@ -56,7 +58,7 @@ export default function ConfirmVPNPage(props) {
         });
         const invoice = await response.json();
         if (!invoice || !invoice.payment_hash || !invoice.payment_request)
-          throw new Error('Not able to fetch invoice information');
+          throw new Error(t('apps.VPN.confirmationSlideUp.invoiceInfoError'));
 
         const fee = await sparkPaymenWrapper({
           getFee: true,
@@ -70,7 +72,9 @@ export default function ConfirmVPNPage(props) {
         });
         if (!fee.didWork) throw new Error(fee.error);
         if (sparkInformation.balance < fee.supportFee + fee.fee) {
-          throw new Error('Insufficient balance to purchase vpn');
+          throw new Error(
+            t('error.insufficientBalanceError', {planType: 'VPN'}),
+          );
         }
 
         setInvoiceInformation({
@@ -112,7 +116,7 @@ export default function ConfirmVPNPage(props) {
               textAlign: 'center',
               marginBottom: 5,
             }}
-            content={'Confirm Country'}
+            content={t('apps.VPN.confirmationSlideUp.title')}
           />
           <ThemeText
             styles={{
@@ -123,7 +127,9 @@ export default function ConfirmVPNPage(props) {
           />
           <ThemeText
             styles={{fontSize: SIZES.large, marginTop: 10}}
-            content={`Duration: 1 ${duration}`}
+            content={t('apps.VPN.confirmationSlideUp.duration', {
+              duration: t(`constants.${duration.toLowerCase()}`),
+            })}
           />
           <FormattedSatText
             neverHideBalance={true}
@@ -132,7 +138,7 @@ export default function ConfirmVPNPage(props) {
               fontSize: SIZES.large,
               textAlign: 'center',
             }}
-            frontText={'Price: '}
+            frontText={t('apps.VPN.confirmationSlideUp.price')}
             balance={price}
           />
           <FormattedSatText
@@ -141,7 +147,7 @@ export default function ConfirmVPNPage(props) {
             styles={{
               textAlign: 'center',
             }}
-            frontText={'Fee: '}
+            frontText={t('apps.VPN.confirmationSlideUp.fee')}
             balance={invoiceInformation.fee + invoiceInformation.supportFee}
           />
 

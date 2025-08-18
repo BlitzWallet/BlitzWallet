@@ -16,6 +16,7 @@ import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import PinDot from '../../../../../functions/CustomElements/pinDot';
 import KeyForKeyboard from '../../../../../functions/CustomElements/key';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useTranslation} from 'react-i18next';
 
 export default function ConfirmPinForLoginMode() {
   const navigate = useNavigation();
@@ -26,6 +27,7 @@ export default function ConfirmPinForLoginMode() {
     enteredPin: [null, null, null, null],
     savedPin: [null, null, null, null],
   });
+  const {t} = useTranslation();
   const [errorMessage, setErrorMessage] = useState('');
 
   const {bottomPadding} = useGlobalInsets();
@@ -113,7 +115,7 @@ export default function ConfirmPinForLoginMode() {
           extraData: {pin: pinSettings.enteredPin},
         });
       } else {
-        setErrorMessage("PIN's do not match. Try again!");
+        setErrorMessage(t('settings.loginSecurity.invalidPinconfirmation'));
         setPinSettings({
           savedPin: [null, null, null, null],
           enteredPin: [null, null, null, null],
@@ -164,11 +166,11 @@ export default function ConfirmPinForLoginMode() {
               content={
                 errorMessage
                   ? errorMessage
-                  : `${
-                      pinSettings.savedPin.filter(Boolean).length
-                        ? 'Verify'
-                        : 'Create'
-                    } your Blitz PIN`
+                  : t('settings.loginSecurity.createPinPageHeader', {
+                      type: pinSettings.savedPin.filter(Boolean).length
+                        ? t('constants.verify')
+                        : t('constants.create'),
+                    })
               }
             />
             <View style={styles.dotContainer}>

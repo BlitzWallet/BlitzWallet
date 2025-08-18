@@ -10,7 +10,7 @@ import {useSparkWallet} from './sparkContext';
 import {addSingleUnpaidSparkLightningTransaction} from '../app/functions/spark/transactions';
 
 export default function HandleLNURLPayments() {
-  const {sparkInformation, setNumberOfIncomingLNURLPayments} = useSparkWallet();
+  const {sparkInformation} = useSparkWallet();
   const {masterInfoObject} = useGlobalContextProvider();
   const sparkAddress = sparkInformation?.sparkAddress;
 
@@ -170,7 +170,7 @@ export default function HandleLNURLPayments() {
     } finally {
       isProcessingRef.current = false;
     }
-  }, [sparkAddress, masterInfoObject.uuid, setNumberOfIncomingLNURLPayments]);
+  }, [sparkAddress, masterInfoObject.uuid]);
 
   return null;
 }

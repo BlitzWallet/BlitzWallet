@@ -3,10 +3,12 @@ import {useFocusEffect} from '@react-navigation/native';
 import {useState, useRef, useCallback, useMemo} from 'react';
 import {InteractionManager, StyleSheet} from 'react-native';
 import {SIZES} from '../../../../constants';
+import {useTranslation} from 'react-i18next';
 
 export default function DateCountdown() {
   const [minuteTick, setMinuteTick] = useState();
   const intervalRef = useRef(null);
+  const {t} = useTranslation();
   useFocusEffect(
     useCallback(() => {
       console.log('Starting stable time interval');
@@ -36,7 +38,7 @@ export default function DateCountdown() {
     <ThemeText
       CustomNumberOfLines={1}
       styles={styles.dateText}
-      content={`(${minuteTick} left)`}
+      content={t('screens.inAccount.explorePage.timeLeft', {time: minuteTick})}
     />
   );
 }

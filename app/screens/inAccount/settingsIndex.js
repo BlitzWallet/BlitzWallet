@@ -15,18 +15,29 @@ import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import openWebBrowser from '../../functions/openWebBrowser';
+import {useTranslation} from 'react-i18next';
 
 const GENERALOPTIONS = [
   {
     for: 'general',
     name: 'About',
+    displayName: 'screens.inAccount.settingsContent.about',
     icon: ICONS.aboutIcon,
     iconWhite: ICONS.aboutIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
   {
     for: 'general',
+    name: 'Language',
+    displayName: 'screens.inAccount.settingsContent.language',
+    svgIcon: true,
+    svgName: 'languageIcon',
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  {
+    for: 'general',
     name: 'Display Currency',
+    displayName: 'screens.inAccount.settingsContent.display currency',
     icon: ICONS.currencyIcon,
     iconWhite: ICONS.currencyIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
@@ -35,6 +46,7 @@ const GENERALOPTIONS = [
   {
     for: 'general',
     name: 'Display Options',
+    displayName: 'screens.inAccount.settingsContent.display options',
     icon: ICONS.colorIcon,
     iconWhite: ICONS.colorIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
@@ -42,6 +54,7 @@ const GENERALOPTIONS = [
   {
     for: 'general',
     name: 'Edit Contact Profile',
+    displayName: 'screens.inAccount.settingsContent.edit contact profile',
     icon: ICONS.contactsIconBlue,
     iconWhite: ICONS.contactsIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
@@ -49,6 +62,7 @@ const GENERALOPTIONS = [
   {
     for: 'general',
     name: 'Fast Pay',
+    displayName: 'screens.inAccount.settingsContent.fast pay',
     svgIcon: true,
     svgName: 'quickPayIcon',
     arrowIcon: ICONS.leftCheveronIcon,
@@ -56,6 +70,7 @@ const GENERALOPTIONS = [
   {
     for: 'general',
     name: 'Blitz Stats',
+    displayName: 'screens.inAccount.settingsContent.blitz stats',
     svgName: 'crashDebugIcon',
     icon: ICONS.navigationIcon,
     iconWhite: ICONS.navigationIconWhite,
@@ -64,6 +79,7 @@ const GENERALOPTIONS = [
   {
     for: 'general',
     name: 'Notifications',
+    displayName: 'screens.inAccount.settingsContent.notifications',
     icon: ICONS.notification,
     iconWhite: ICONS.notificationWhite,
     arrowIcon: ICONS.leftCheveronIcon,
@@ -96,6 +112,7 @@ const SECURITYOPTIONS = [
   {
     for: 'Security & Customization',
     name: 'Login Mode',
+    displayName: 'screens.inAccount.settingsContent.login mode',
     icon: ICONS.faceIDIcon,
     iconWhite: ICONS.faceIDIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
@@ -103,25 +120,27 @@ const SECURITYOPTIONS = [
   {
     for: 'Security & Customization',
     name: 'Backup wallet',
+    displayName: 'screens.inAccount.settingsContent.backup wallet',
     icon: ICONS.keyIcon,
     iconWhite: ICONS.keyIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
 ];
 
-const EXPIRIMENTALFEATURES = [
-  {
-    for: 'Experimental features',
-    name: 'Experimental',
-    svgIcon: true,
-    svgName: 'expirementalFeaturesIcon',
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-];
+// const EXPIRIMENTALFEATURES = [
+//   {
+//     for: 'Experimental features',
+//     name: 'Experimental',
+//     svgIcon: true,
+//     svgName: 'expirementalFeaturesIcon',
+//     arrowIcon: ICONS.leftCheveronIcon,
+//   },
+// ];
 const ADVANCEDOPTIONS = [
   {
     for: 'general',
     name: 'Accounts',
+    displayName: 'screens.inAccount.settingsContent.accounts',
     icon: ICONS.group,
     iconWhite: ICONS.groupWhite,
     arrowIcon: ICONS.leftCheveronIcon,
@@ -129,6 +148,7 @@ const ADVANCEDOPTIONS = [
   {
     for: 'general',
     name: 'Nostr',
+    displayName: 'screens.inAccount.settingsContent.nostr',
     svgIcon: true,
     svgName: 'linkIcon',
     arrowIcon: ICONS.leftCheveronIcon,
@@ -136,6 +156,7 @@ const ADVANCEDOPTIONS = [
   {
     for: 'Closing Account',
     name: 'Blitz Fee Details',
+    displayName: 'screens.inAccount.settingsContent.blitz fee details',
     icon: ICONS.receiptIcon,
     iconWhite: ICONS.receiptWhite,
     arrowIcon: ICONS.leftCheveronIcon,
@@ -143,6 +164,7 @@ const ADVANCEDOPTIONS = [
   {
     for: 'general',
     name: 'Crash Reports',
+    displayName: 'screens.inAccount.settingsContent.crash reports',
     svgIcon: true,
     svgName: 'crashDebugIcon',
     arrowIcon: ICONS.leftCheveronIcon,
@@ -187,6 +209,7 @@ const ADVANCEDOPTIONS = [
   {
     for: 'general',
     name: 'Liquid Swaps',
+    displayName: 'screens.inAccount.settingsContent.liquid swaps',
     icon: ICONS.liquidIcon,
     iconWhite: ICONS.liquidIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
@@ -194,6 +217,7 @@ const ADVANCEDOPTIONS = [
   {
     for: 'Closing Account',
     name: 'Delete Wallet',
+    displayName: 'screens.inAccount.settingsContent.delete wallet',
     icon: ICONS.trashIcon,
     iconWhite: ICONS.trashIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
@@ -201,6 +225,7 @@ const ADVANCEDOPTIONS = [
   {
     for: 'Closing Account',
     name: 'Spark Info',
+    displayName: 'screens.inAccount.settingsContent.spark info',
     icon: ICONS.nodeIcon,
     iconWhite: ICONS.nodeIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
@@ -240,6 +265,7 @@ const DOOMSDAYSETTINGS = [
     {
       for: 'Security & Customization',
       name: 'Backup wallet',
+      displayName: 'screens.inAccount.settingsContent.backup wallet',
       icon: ICONS.keyIcon,
       iconWhite: ICONS.keyIconWhite,
       arrowIcon: ICONS.leftCheveronIcon,
@@ -249,6 +275,7 @@ const DOOMSDAYSETTINGS = [
     {
       for: 'Closing Account',
       name: 'Delete Wallet',
+      displayName: 'screens.inAccount.settingsContent.delete wallet',
       icon: ICONS.trashIcon,
       iconWhite: ICONS.trashIconWhite,
       arrowIcon: ICONS.leftCheveronIcon,
@@ -264,10 +291,10 @@ const DOOMSDAYSETTINGS = [
 ];
 
 export default function SettingsIndex(props) {
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {nodeInformation} = useNodeContext();
   const {masterInfoObject} = useGlobalContextProvider();
+  const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
+  const {t} = useTranslation();
   const isDoomsday = props?.route?.params?.isDoomsday;
   const navigate = useNavigation();
   useHandleBackPressNew();
@@ -284,17 +311,6 @@ export default function SettingsIndex(props) {
             key={id}
             onPress={() => {
               if (
-                element.name?.toLowerCase() === 'restore channels' &&
-                (nodeInformation.userBalance === 0 ||
-                  !masterInfoObject.liquidWalletSettings.isLightningEnabled) &&
-                !isDoomsday
-              ) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: 'You have no channels to back up',
-                });
-                return;
-              }
-              if (
                 !isConnectedToTheInternet &&
                 [
                   'display currency',
@@ -308,8 +324,7 @@ export default function SettingsIndex(props) {
                 ].includes(element.name?.toLowerCase())
               ) {
                 navigate.navigate('ErrorScreen', {
-                  errorMessage:
-                    'Please reconnect to the internet to use this feature',
+                  errorMessage: t('errormessages.nointernet'),
                 });
                 return;
               }
@@ -334,12 +349,14 @@ export default function SettingsIndex(props) {
               />
             )}
             <ThemeText
+              CustomNumberOfLines={1}
               styles={{
                 ...styles.listText,
+
                 textTransform:
                   element.name === 'Experimental' ? 'none' : 'capitalize',
               }}
-              content={element.name}
+              content={t(element.displayName)}
             />
             <ThemeImage
               styles={{width: 20, height: 20, transform: [{rotate: '180deg'}]}}
@@ -356,12 +373,12 @@ export default function SettingsIndex(props) {
           <ThemeText
             content={
               id === 0
-                ? 'General'
+                ? t('screens.inAccount.settingsContent.general')
                 : id === 1
-                ? 'Security'
+                ? t('screens.inAccount.settingsContent.security')
                 : id === 2
-                ? 'Technical Settings'
-                : 'Experimental Features'
+                ? t('screens.inAccount.settingsContent.technical settings')
+                : t('screens.inAccount.settingsContent.experimental features')
             }
             styles={{...styles.optionsTitle}}
           />
@@ -371,16 +388,18 @@ export default function SettingsIndex(props) {
     });
   }, [
     settignsList,
-    nodeInformation.userBalance,
     isDoomsday,
     isConnectedToTheInternet,
     theme,
     darkModeType,
+    masterInfoObject.userSelectedLanguage,
   ]);
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-      <CustomSettingsTopBar label={'Settings'} />
+      <CustomSettingsTopBar
+        label={t('screens.inAccount.settingsContent.settings')}
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{alignItems: 'center'}}
@@ -408,7 +427,7 @@ export default function SettingsIndex(props) {
                 marginLeft: 10,
                 includeFontPadding: false,
               }}
-              content={'Blitz Restore'}
+              content={t('screens.inAccount.settingsContent.blitzRestore')}
             />
           </TouchableOpacity>
         )}
@@ -418,8 +437,7 @@ export default function SettingsIndex(props) {
               onPress={() => {
                 if (!isConnectedToTheInternet) {
                   navigate.navigate('ErrorScreen', {
-                    errorMessage:
-                      'Please reconnect to the internet to use this feature',
+                    errorMessage: t('errormessages.nointernet'),
                   });
                   return;
                 }
@@ -446,7 +464,7 @@ export default function SettingsIndex(props) {
                   marginLeft: 10,
                   includeFontPadding: false,
                 }}
-                content={'Point-of-sale'}
+                content={t('screens.inAccount.settingsContent.point-of-sale')}
               />
             </TouchableOpacity>
             <BlitzSocialOptions />
@@ -490,6 +508,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: SIZES.large,
     includeFontPadding: false,
+    flexShrink: 1,
   },
 
   posContainer: {

@@ -31,11 +31,11 @@ import {
   SendAndRequestPage,
 } from '../app/components/admin/homeComponents/contacts';
 import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightning/sparkErrorScreen';
-import ExplainBalanceScreen from '../app/components/admin/homeComponents/sendBitcoin/components/balanceExplainerScreen';
+// import ExplainBalanceScreen from '../app/components/admin/homeComponents/sendBitcoin/components/balanceExplainerScreen';
 import {
   ConfirmActionPage,
-  HistoricalOnChainPayments,
-  LspDescriptionPopup,
+  // HistoricalOnChainPayments,
+  // LspDescriptionPopup,
   NosterWalletConnect,
   TotalTipsScreen,
   ViewPOSTransactions,
@@ -43,11 +43,11 @@ import {
 import AccountPaymentPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/accountPaymentPage';
 import CreateCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/createAccountPage';
 import ViewCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewAccountPage';
-import ViewCustodyKey from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewCustodyKey';
+// import ViewCustodyKey from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewCustodyKey';
 // import EcashSettings from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/ecashSettings';
 // import MigrateProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
 // import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
-import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
+// import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
 import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
@@ -61,6 +61,7 @@ import {CustomWebView} from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';
 import {
+  CreateAccountHome,
   DislaimerPage,
   GenerateKey,
   PinSetupPage,
@@ -97,8 +98,13 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   {name: 'SwitchGenerativeAIModel', component: SwitchGenerativeAIModel},
 ];
 const SLIDE_FROM_RIGHT_SCREENS = [
+  {
+    name: 'CreateAccountHome',
+    component: CreateAccountHome,
+    options: {gestureEnabled: true},
+  },
   {name: 'SettingsHome', component: SettingsIndex},
-  {name: 'HistoricalOnChainPayments', component: HistoricalOnChainPayments},
+  // {name: 'HistoricalOnChainPayments', component: HistoricalOnChainPayments},
   {name: 'ChooseContactHalfModal', component: ChooseContactHalfModal},
   {name: 'SettingsContentHome', component: SettingsContentIndex},
   {
@@ -123,7 +129,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'HistoricalGiftCardPurchases', component: HistoricalGiftCardPurchases},
   // {name: 'ManualSwapPopup', component: ManualSwapPopup},
   {name: 'ViewPOSTransactions', component: ViewPOSTransactions},
-  {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
+  // {name: 'LspDescriptionPopup', component: LspDescriptionPopup},
   {name: 'DisclaimerPage', component: DislaimerPage},
   {name: 'GenerateKey', component: GenerateKey},
   {name: 'PinSetup', component: PinSetupPage},
@@ -148,7 +154,7 @@ const FADE_SCREENS = [
   {name: 'ClipboardCopyPopup', component: ClipboardCopyPopup},
   {name: 'ErrorScreen', component: ErrorScreen},
   {name: 'SparkErrorScreen', component: SparkErrorScreen},
-  {name: 'ExplainBalanceScreen', component: ExplainBalanceScreen},
+  // {name: 'ExplainBalanceScreen', component: ExplainBalanceScreen},
   {name: 'GiftCardOrderDetails', component: GiftCardOrderDetails},
   {
     name: 'ContactsPageLongPressActions',
@@ -168,10 +174,10 @@ const FADE_SCREENS = [
     component: AdminHomeIndex,
     options: {gestureEnabled: false},
   },
-  {
-    name: 'ViewCustodyKey',
-    component: ViewCustodyKey,
-  },
+  // {
+  //   name: 'ViewCustodyKey',
+  //   component: ViewCustodyKey,
+  // },
   {name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode},
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
@@ -179,10 +185,10 @@ const FADE_TRANSPARENT_MODAL_SCREENS = [
     name: 'TotalTipsScreen',
     component: TotalTipsScreen,
   },
-  {
-    name: 'RefundLiquidSwapPopup',
-    component: RefundLiquidSwapPopup,
-  },
+  // {
+  //   name: 'RefundLiquidSwapPopup',
+  //   component: RefundLiquidSwapPopup,
+  // },
 ];
 
 export {

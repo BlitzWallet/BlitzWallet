@@ -10,11 +10,13 @@ import {ThemeText} from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useNavigation} from '@react-navigation/native';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
+import {useTranslation} from 'react-i18next';
 
 export default function AddOrDeleteContactImage(props) {
   const {textColor, backgroundColor} = GetThemeColors();
   const navigate = useNavigation();
   useHandleBackPressNew();
+  const {t} = useTranslation();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>
@@ -29,9 +31,13 @@ export default function AddOrDeleteContactImage(props) {
             ]}>
             <ThemeText
               styles={styles.headerText}
-              content={`Do you want to ${
-                props.route.params.hasImage ? 'change' : 'add'
-              } ${props.route.params.hasImage ? 'or delete your' : 'a'} photo`}
+              content={t(
+                'contacts.internalComponents.addOrDeleteImageScreen.pageMessage',
+                {
+                  option: props.route.params.hasImage ? 'change' : 'add',
+                  option2: props.route.params.hasImage ? 'or delete your' : 'a',
+                },
+              )}
             />
 
             <View style={styles.buttonContainer}>
@@ -43,7 +49,11 @@ export default function AddOrDeleteContactImage(props) {
                 style={[styles.button]}>
                 <ThemeText
                   styles={{...styles.buttonText}}
-                  content={props.route.params.hasImage ? 'Change' : 'Yes'}
+                  content={
+                    props.route.params.hasImage
+                      ? t('constants.change')
+                      : t('constants.yes')
+                  }
                 />
               </TouchableOpacity>
               <View
@@ -63,7 +73,11 @@ export default function AddOrDeleteContactImage(props) {
                 style={styles.button}>
                 <ThemeText
                   styles={{...styles.buttonText}}
-                  content={props.route.params.hasImage ? 'Delete' : 'No'}
+                  content={
+                    props.route.params.hasImage
+                      ? t('constants.delete')
+                      : t('constants.no')
+                  }
                 />
               </TouchableOpacity>
             </View>

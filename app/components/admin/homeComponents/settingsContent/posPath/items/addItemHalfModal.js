@@ -3,12 +3,13 @@ import {ThemeText} from '../../../../../../functions/CustomElements';
 import {useGlobalContextProvider} from '../../../../../../../context-store/context';
 import {CENTER, COLORS, SIZES} from '../../../../../../constants';
 import CustomSearchInput from '../../../../../../functions/CustomElements/searchInput';
-import {useCallback, useRef, useState} from 'react';
+import {useRef, useState} from 'react';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import customUUID from '../../../../../../functions/customUUID';
 import {useGlobalThemeContext} from '../../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import {useNavigation} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
 
 export default function AddPOSItemHalfModal({
   setIsKeyboardActive,
@@ -18,6 +19,7 @@ export default function AddPOSItemHalfModal({
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
+  const {t} = useTranslation();
   const [itemInformation, setItemInformation] = useState({
     name: initialSettings?.name || '',
     price: initialSettings?.price || '',
@@ -61,7 +63,9 @@ export default function AddPOSItemHalfModal({
       if (!itemInformation.name || !Number(itemInformation.price)) return;
       if (itemInformation.name.length > 60) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: 'Item name must be less than 60 characters.',
+          errorMessage: t(
+            'settings.posPath.items.addItemHalfModal.nameLengthError',
+          ),
         });
         return;
       }
@@ -97,7 +101,7 @@ export default function AddPOSItemHalfModal({
     } catch (err) {
       console.log('error adding item to pos');
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Error adding item to POS.',
+        errorMessage: t('settings.posPath.items.addItemHalfModal.addItemError'),
       });
     }
   };
@@ -110,15 +114,21 @@ export default function AddPOSItemHalfModal({
         keyboardDismissMode="none">
         <ThemeText
           styles={{fontSize: SIZES.large}}
-          content={initialSettings ? 'Edit item' : `Add New Item`}
+          content={
+            initialSettings
+              ? t('settings.posPath.items.addItemHalfModal.editItem')
+              : t('settings.posPath.items.addItemHalfModal.addItem')
+          }
         />
         <ThemeText
           styles={{marginBottom: 10}}
-          content={`Prices are based on your saved currency (${masterInfoObject?.posSettings?.storeCurrency})`}
+          content={t('settings.posPath.items.addItemHalfModal.pricesLabel', {
+            currency: masterInfoObject?.posSettings?.storeCurrency,
+          })}
         />
         <ThemeText
           styles={{fontSize: SIZES.small}}
-          content={`Edit display currency in POS settings.`}
+          content={t('settings.posPath.items.addItemHalfModal.editMessage')}
         />
         <View style={styles.textInputContainer}>
           <CustomSearchInput
@@ -133,7 +143,9 @@ export default function AddPOSItemHalfModal({
             }}
             inputText={itemInformation.name}
             setInputText={event => handleInput(event, 'name')}
-            placeholderText={'Item name'}
+            placeholderText={t(
+              'settings.posPath.items.addItemHalfModal.itemNamePlaceholder',
+            )}
             onFocusFunction={checkIfKeyboardShouldBeShown}
             onBlurFunction={checkIfKeyboardShouldBeShown}
           />
@@ -156,7 +168,10 @@ export default function AddPOSItemHalfModal({
             inputText={String(itemInformation.price)}
             setInputText={event => handleInput(event, 'price')}
             keyboardType={'number-pad'}
-            placeholderText={`Price (${masterInfoObject?.posSettings?.storeCurrency})`}
+            placeholderText={t(
+              'settings.posPath.items.addItemHalfModal.pricePlaceholder',
+              {number: masterInfoObject?.posSettings?.storeCurrency},
+            )}
             onFocusFunction={checkIfKeyboardShouldBeShown}
             onBlurFunction={checkIfKeyboardShouldBeShown}
           />
@@ -171,11 +186,11 @@ export default function AddPOSItemHalfModal({
         textContent={
           initialSettings
             ? shouldShowCancel
-              ? 'Cancel'
+              ? t('constants.cancel')
               : needsToUpdateCurrency
-              ? 'Update currency'
-              : 'Save'
-            : 'Add Item'
+              ? t('settings.posPath.items.addItemHalfModal.updateCurrency')
+              : t('constants.save')
+            : t('settings.posPath.items.addItemHalfModal.addItemBTN')
         }
       />
     </View>

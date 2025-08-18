@@ -21,12 +21,15 @@ import {useKeysContext} from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useToast} from '../../../../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 
 export default function HistoricalGiftCardPurchases() {
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {showToast} = useToast();
-
+  const {t} = useTranslation();
   const navigate = useNavigation();
   const {bottomPadding} = useGlobalInsets();
 
@@ -34,13 +37,6 @@ export default function HistoricalGiftCardPurchases() {
 
   const renderItem = ({item}) => (
     <TouchableOpacity
-      onLongPress={() => {
-        navigate.navigate('ConfirmActionPage', {
-          confirmMessage:
-            'Are you sure you want to remove this purchased card.',
-          confirmFunction: () => removeGiftCardFromList(item.uuid),
-        });
-      }}
       onPress={() => {
         navigate.navigate('GiftCardOrderDetails', {
           item: item,
@@ -56,14 +52,17 @@ export default function HistoricalGiftCardPurchases() {
         />
         <ThemeText
           CustomNumberOfLines={1}
-          content={`Purchased: ${new Date(item.date).toDateString()}`}
+          content={`${t(
+            'apps.giftCards.historicalPurchasesPage.purchased',
+          )} ${new Date(item.date).toDateString()}`}
         />
       </View>
       <TouchableOpacity
         onPress={() =>
           navigate.navigate('ConfirmActionPage', {
-            confirmMessage:
-              'Are you sure you want to remove this purchased card.',
+            confirmMessage: t(
+              'apps.giftCards.historicalPurchasesPage.confirmRemoval',
+            ),
             confirmFunction: () => removeGiftCardFromList(item.uuid),
           })
         }>
@@ -77,25 +76,16 @@ export default function HistoricalGiftCardPurchases() {
   );
 
   return (
-    <GlobalThemeView
-      styles={{paddingBottom: 0, alignItems: 'center'}}
-      useStandardWidth={true}>
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          onPress={navigate.goBack}
-          style={{marginRight: 'auto'}}>
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
-        </TouchableOpacity>
-      </View>
+    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
+      <CustomSettingsTopBar containerStyles={styles.topBar} />
 
       {!decodedGiftCards.purchasedCards ||
       decodedGiftCards?.purchasedCards?.length === 0 ? (
-        <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-          <ThemeText content={'You have not purchased any cards'} />
+        <View style={styles.noPurchaseContainer}>
+          <ThemeText
+            styles={styles.noPurchaseText}
+            content={t('apps.giftCards.historicalPurchasesPage.noPurchases')}
+          />
         </View>
       ) : (
         <>
@@ -129,11 +119,11 @@ export default function HistoricalGiftCardPurchases() {
                   'support@thebitcoincompany.com',
                   showToast,
                   null,
-                  'Support email copied',
+                  t('apps.giftCards.historicalPurchasesPage.customCopyMessage'),
                 );
               }
             }}
-            textContent={'Support'}
+            textContent={t('constants.support')}
           />
         </>
       )}
@@ -158,11 +148,9 @@ export default function HistoricalGiftCardPurchases() {
 }
 
 const styles = StyleSheet.create({
+  globalContainer: {paddingBottom: 0, alignItems: 'center'},
   topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    ...CENTER,
+    marginBottom: 0,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -171,7 +159,15 @@ const styles = StyleSheet.create({
     borderColor: COLORS.gray2,
     alignItems: 'center',
   },
-
+  noPurchaseContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  noPurchaseText: {
+    textAlign: 'center',
+    width: INSET_WINDOW_WIDTH,
+  },
   companyLogo: {width: 55, height: 55, marginRight: 10, borderRadius: 10},
   supportBTN: {width: 'auto', ...CENTER, position: 'absolute'},
 });

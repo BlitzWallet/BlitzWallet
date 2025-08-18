@@ -125,7 +125,7 @@ export default function ChooseContactHalfModal() {
         onLongPress={() => {
           if (!isConnectedToTheInternet) {
             navigate.navigate('ErrorScreen', {
-              errorMessage: t('constants.internetError'),
+              errorMessage: t('errormessages.nointernet'),
             });
             return;
           }

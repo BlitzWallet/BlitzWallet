@@ -175,7 +175,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
           setTimeout(
             () => {
               navigate.navigate('ErrorScreen', {
-                errorMessage: response.error,
+                errorMessage: t(response.error),
               });
             },
             Platform.OS === 'android' ? 350 : 50,
@@ -184,7 +184,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
         }
 
         navigate.navigate('ErrorScreen', {
-          errorMessage: response.error,
+          errorMessage: t(response.error),
         });
         return;
       }
@@ -289,7 +289,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
           <View style={styles.overlay}>
             <TouchableOpacity
               onPress={() => {
-                navigateToSendUsingClipboard(navigate, 'sendBTCPage', from);
+                navigateToSendUsingClipboard(navigate, 'sendBTCPage', from, t);
               }}
               style={{
                 ...styles.pasteBTN,
@@ -304,7 +304,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
                   paddingHorizontal: 40,
                   paddingVertical: Platform.OS === 'ios' ? 8 : 5,
                 }}
-                content={'Paste'}
+                content={t('constants.paste')}
               />
             </TouchableOpacity>
           </View>

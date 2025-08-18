@@ -37,15 +37,13 @@ export default function SettingsItemWithSlider({
         },
       ]}>
       <View
-        style={[
-          styles.sliderContianer,
-          {
-            borderBottomColor: backgroundColor,
-            borderBottomWidth: showDescription ? 1 : 0,
-            marginBottom: showDescription ? 20 : 0,
-            paddingBottom: showDescription ? 10 : 0,
-          },
-        ]}>
+        style={{
+          ...styles.sliderContianer,
+          borderBottomColor: backgroundColor,
+          borderBottomWidth: showDescription ? 1 : 0,
+          marginBottom: showDescription ? 20 : 0,
+          paddingBottom: showDescription ? 10 : 0,
+        }}>
         <ThemeText
           CustomNumberOfLines={1}
           styles={styles.settingsTitle}
@@ -57,7 +55,7 @@ export default function SettingsItemWithSlider({
               containerStyles={{
                 ...styles.loadingContainer,
                 marginLeft: showInformationPopup ? 5 : 10,
-                marginRight: showInformationPopup ? 5 : 'auto',
+                marginRight: 5,
               }}
               size="small"
               showText={false}
@@ -86,6 +84,7 @@ export default function SettingsItemWithSlider({
             toggleSwitchFunction={handleSubmit}
             page={switchPageName}
             stateValue={toggleSwitchStateValue}
+            containerStyles={styles.swtichContainer}
           />
         </View>
       </View>
@@ -112,13 +111,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
 
     paddingRight: 10,
-    marginLeft: 20,
+    marginLeft: 10,
     borderBottomWidth: 1,
   },
 
   textContainer: {
     paddingRight: 10,
-    marginLeft: 20,
+    marginLeft: 10,
   },
   settingsTitle: {
     flexShrink: 1,
@@ -139,8 +138,9 @@ const styles = StyleSheet.create({
     height: 20,
   },
   imageContainer: {
-    marginRight: 'auto',
+    marginRight: 5,
   },
+  swtichContainer: {marginLeft: 'auto'},
   loadingContainer: {
     alignItems: 'left',
     flex: 0,

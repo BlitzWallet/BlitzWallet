@@ -13,7 +13,6 @@ import {ThemeText} from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useTranslation} from 'react-i18next';
-
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {useState, useRef, useEffect} from 'react';
 import {KEYBOARDTIMEOUT} from '../../../../constants/styles';
@@ -202,7 +201,22 @@ export default function SwitchReceiveOptionPage({
             />
             <ThemeText
               styles={{...styles.optionItemText}}
-              content={paymentTime}
+              content={
+                name === 'Lightning'
+                  ? t('constants.instant')
+                  : name === 'Bitcoin'
+                  ? t(
+                      'wallet.receivePages.switchReceiveOptionPage.tenMinutes',
+                      {numMins: 10},
+                    )
+                  : name === 'Liquid'
+                  ? t('wallet.receivePages.switchReceiveOptionPage.oneMinute', {
+                      numMins: 1,
+                    })
+                  : name === 'Spark'
+                  ? t('constants.instant')
+                  : 'Rootstock'
+              }
             />
           </View>
         </View>
@@ -217,7 +231,7 @@ export default function SwitchReceiveOptionPage({
       style={{flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
       <ThemeText
         styles={{marginTop: 10, marginBottom: 20}}
-        content={'Choose Network'}
+        content={t('wallet.receivePages.switchReceiveOptionPage.title')}
       />
 
       {paymentTypes.slice(0, isLRC20Enabled ? 3 : 2)}
@@ -230,7 +244,13 @@ export default function SwitchReceiveOptionPage({
           marginBottom: 20,
         }}
         onPress={toggleExpanded}>
-        <ThemeText content={`Show ${isExpanded ? 'less' : 'more'}`} />
+        <ThemeText
+          content={t('wallet.receivePages.switchReceiveOptionPage.actionBTN', {
+            action: isExpanded
+              ? t('constants.lessLower')
+              : t('constants.moreLower'),
+          })}
+        />
         <Animated.View
           style={{
             transform: [{rotate: arrowRotation}],
@@ -276,9 +296,10 @@ export default function SwitchReceiveOptionPage({
   function handleClick(selectedOption) {
     if (selectedOption === 'Spark' && !isLRC20Enabled) {
       navigate.navigate('InformationPopup', {
-        textContent:
-          'Receiving directly via Spark will expose your balance to the person paying and is not considered private.',
-        buttonText: 'I understand',
+        textContent: t(
+          'wallet.receivePages.switchReceiveOptionPage.sparkWarningMessage',
+        ),
+        buttonText: t('constants.understandText'),
         customNavigation: () =>
           navigate.popTo('CustomHalfModal', {
             wantedContent: 'switchReceiveOption',
@@ -288,19 +309,33 @@ export default function SwitchReceiveOptionPage({
       });
       return;
     } else if (selectedOption === 'Liquid') {
-      navigate.navigate('InformationPopup', {
-        textContent: `Liquid payments will be swapped into Spark. Payments below ${displayCorrectDenomination(
-          {
-            amount: minMaxLiquidSwapAmounts.min,
-            masterInfoObject,
-            fiatStats,
-          },
-        )} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.\n\n${
+      t('wallet.receivePages.switchReceiveOptionPage.liquidWarningText', {
+        amount: displayCorrectDenomination({
+          amount: minMaxLiquidSwapAmounts.min,
+          masterInfoObject,
+          fiatStats,
+        }),
+        warning:
           currentWalletMnemoinc !== accountMnemoinc
             ? 'Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.'
-            : ''
-        }`,
-        buttonText: 'I understand',
+            : '',
+      });
+      navigate.navigate('InformationPopup', {
+        textContent: t(
+          'wallet.receivePages.switchReceiveOptionPage.liquidWarningText',
+          {
+            amount: displayCorrectDenomination({
+              amount: minMaxLiquidSwapAmounts.min,
+              masterInfoObject,
+              fiatStats,
+            }),
+            warning:
+              currentWalletMnemoinc !== accountMnemoinc
+                ? 'Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.'
+                : '',
+          },
+        ),
+        buttonText: t('constants.understandText'),
         customNavigation: () =>
           navigate.popTo('CustomHalfModal', {
             wantedContent: 'switchReceiveOption',
@@ -311,14 +346,17 @@ export default function SwitchReceiveOptionPage({
       return;
     } else if (selectedOption === 'Rootstock') {
       navigate.navigate('InformationPopup', {
-        textContent: `Rootstock payments will be swapped into Spark. Payments below ${displayCorrectDenomination(
+        textContent: t(
+          'wallet.receivePages.switchReceiveOptionPage.rootstockWarningText',
           {
-            amount: minMaxLiquidSwapAmounts.rsk.min,
-            masterInfoObject,
-            fiatStats,
+            amount: displayCorrectDenomination({
+              amount: minMaxLiquidSwapAmounts.rsk.min,
+              masterInfoObject,
+              fiatStats,
+            }),
           },
-        )} won’t be swapped. Funds will only be swapped after the Rootsock payment is confirmed.`,
-        buttonText: 'I understand',
+        ),
+        buttonText: t('constants.understandText'),
         customNavigation: () =>
           navigate.popTo('CustomHalfModal', {
             wantedContent: 'switchReceiveOption',

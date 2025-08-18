@@ -1,16 +1,9 @@
-import {
-  Animated,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {ThemeText} from '../../../../functions/CustomElements';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {useMemo, useRef, useState} from 'react';
+import {useMemo, useState} from 'react';
 import {CENTER, COLORS, SIZES} from '../../../../constants';
 import {
   lightningBrackets,
@@ -18,9 +11,10 @@ import {
   bitcoinBrackets,
   LRC20Brackets,
 } from '../../../../functions/spark/calculateSupportFee';
-import {FONT, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
+import {useTranslation} from 'react-i18next';
 
 export default function BlitzFeeInformation() {
   const {fiatStats} = useNodeContext();
@@ -29,7 +23,7 @@ export default function BlitzFeeInformation() {
   const {textColor} = GetThemeColors();
   const [paymentType, setPaymentType] = useState('lightning');
   const [minHeight, setMinHeight] = useState(0);
-  console.log(minHeight);
+  const {t} = useTranslation();
 
   const feeOptions = masterInfoObject?.lrc20Settings?.isEnabled
     ? ['lightning', 'spark', 'bitcoin', 'tokens']
@@ -81,7 +75,7 @@ export default function BlitzFeeInformation() {
       }}>
       <ThemeText
         styles={{textAlign: 'center', marginBottom: 30}}
-        content={`Blitz Wallet offers free and open‑source products for the Bitcoin community. \n\nTo help keep the project sustainable, we’ve added a small transaction fee to each payment.\n\nHere’s how those fees are distributed:`}
+        content={t('settings.feeInformation.description')}
       />
       <GridSection
         title="Lightning"
@@ -105,11 +99,6 @@ export default function BlitzFeeInformation() {
   );
 }
 
-const formatUpTo = value => {
-  if (value === Infinity) return 'No Limit';
-  return value.toLocaleString();
-};
-
 const formatPercentage = value => {
   return `${(value * 100).toFixed(1)}%`;
 };
@@ -121,6 +110,7 @@ function GridSection({
   fiatStats,
 }) {
   const {backgroundOffset} = GetThemeColors();
+  const {t} = useTranslation();
   return (
     <View
       onLayout={e => {
@@ -130,9 +120,21 @@ function GridSection({
       style={[styles.section, {minHeight: minHeight}]}>
       <View>
         <View style={{...styles.headerRow, backgroundColor: backgroundOffset}}>
-          <ThemeText styles={styles.headerCell} content={'Up To'} />
-          <ThemeText styles={styles.headerCell} content={'Fixed Fee'} />
-          <ThemeText styles={styles.headerCell} content={'Percent'} />
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.headerCell}
+            content={t('settings.feeInformation.upTo')}
+          />
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.headerCell}
+            content={t('settings.feeInformation.fixedFee')}
+          />
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.headerCell}
+            content={t('settings.feeInformation.percent')}
+          />
         </View>
 
         {bracket.map((bracket, index) => (
@@ -141,7 +143,7 @@ function GridSection({
               styles={styles.dataCell}
               content={
                 bracket.upTo === Infinity
-                  ? 'No limit'
+                  ? t('settings.feeInformation.noLimit')
                   : displayCorrectDenomination({
                       amount: bracket.upTo,
                       masterInfoObject,

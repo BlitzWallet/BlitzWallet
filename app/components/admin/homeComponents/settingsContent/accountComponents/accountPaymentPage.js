@@ -34,7 +34,7 @@ export default function AccountPaymentPage(props) {
   const navigate = useNavigation();
   const {accountMnemoinc} = useKeysContext();
   const {masterInfoObject} = useGlobalContextProvider();
-  const {nodeInformation} = useNodeContext();
+  const {fiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor} = GetThemeColors();
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
@@ -60,10 +60,7 @@ export default function AccountPaymentPage(props) {
   const convertedSendAmount =
     masterInfoObject.userBalanceDenomination != 'fiat'
       ? Math.round(Number(sendingAmount))
-      : Math.round(
-          (SATSPERBITCOIN / nodeInformation?.fiatStats?.value) *
-            Number(sendingAmount),
-        );
+      : Math.round((SATSPERBITCOIN / fiatStats.value) * Number(sendingAmount));
 
   const debouncedSearch = useDebounce(async () => {
     // Calculate spark payment fee here
@@ -95,32 +92,46 @@ export default function AccountPaymentPage(props) {
   const handlePayment = useCallback(async () => {
     try {
       if (!sendingAmount) {
-        throw new Error('Please enter an amount to be swapped');
+        throw new Error(
+          t('settings.accountComponents.accountPaymentPage.noAmountError'),
+        );
       }
       if (!fromAccount) {
         throw new Error(
-          'Please select an account for funds to be swapped from',
+          t('settings.accountComponents.accountPaymentPage.noAccountError'),
         );
       }
       if (!toAccount) {
-        throw new Error('Please select an account for funds to be swapped to');
+        throw new Error(
+          t('settings.accountComponents.accountPaymentPage.noAccountToError'),
+        );
       }
       if (transferInfo.isCalculatingFee) {
-        throw new Error('Cannot start swap when fee is being calculated');
+        throw new Error(
+          t('settings.accountComponents.accountPaymentPage.loadingFeeError'),
+        );
       }
       if (transferInfo.isDoingTransfer) {
-        throw new Error('A transfer has already been started');
+        throw new Error(
+          t(
+            'settings.accountComponents.accountPaymentPage.alreadyStartedTransferError',
+          ),
+        );
       }
 
       if (convertedSendAmount > transferInfo.paymentFee + fromBalance) {
-        throw new Error('Sending amount is greater than your balance and fees');
+        throw new Error(
+          t('settings.accountComponents.accountPaymentPage.balanceError'),
+        );
       }
       setTransferInfo(prev => ({...prev, isDoingTransfer: true}));
 
       const toSparkAddress = await getSparkAddress(to);
 
       if (!toSparkAddress.didWork) {
-        throw new Error('Not able to get send address');
+        throw new Error(
+          t('settings.accountComponents.accountPaymentPage.noSendAddressError'),
+        );
       }
 
       const [accountIdentifyPubKey, toAccountIdentityPubKey] =
@@ -130,7 +141,11 @@ export default function AccountPaymentPage(props) {
         ]);
 
       if (!accountIdentifyPubKey || !toAccountIdentityPubKey) {
-        throw new Error('Not able to get account information');
+        throw new Error(
+          t(
+            'settings.accountComponents.accountPaymentPage.noAccountInformation',
+          ),
+        );
       }
 
       const sendingResponse = await sparkPaymenWrapper({
@@ -215,7 +230,9 @@ export default function AccountPaymentPage(props) {
       useLocalPadding={true}
       useStandardWidth={true}
       useTouchableWithoutFeedback={true}>
-      <CustomSettingsTopBar label={'Swap'} />
+      <CustomSettingsTopBar
+        label={t('settings.accountComponents.accountPaymentPage.title')}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -279,7 +296,7 @@ export default function AccountPaymentPage(props) {
                 darkModeIcon={ICONS.arrowFromRight}
                 lightsOutIcon={ICONS.arrowFromRightWhite}
               />
-              <ThemeText content={'From'} />
+              <ThemeText content={t('constants.from')} />
             </View>
             {fromAccount && (
               <ThemeText styles={{opacity: 0.7}} content={fromAccount} />
@@ -308,7 +325,13 @@ export default function AccountPaymentPage(props) {
                 balance={fromBalance}
               />
             ) : (
-              <ThemeText content={'Select Account'} />
+              <ThemeText
+                styles={{flexShrink: 1}}
+                CustomNumberOfLines={1}
+                content={t(
+                  'settings.accountComponents.accountPaymentPage.selectAccount',
+                )}
+              />
             )}
             <ThemeImage
               styles={{
@@ -337,7 +360,7 @@ export default function AccountPaymentPage(props) {
               darkModeIcon={ICONS.arrowToRight}
               lightsOutIcon={ICONS.arrowToRightLight}
             />
-            <ThemeText content={'To'} />
+            <ThemeText content={t('constants.to')} />
           </View>
           <TouchableOpacity
             style={styles.chooseAccountBTN}
@@ -350,7 +373,17 @@ export default function AccountPaymentPage(props) {
                 transferType: 'to',
               });
             }}>
-            <ThemeText content={toAccount ? toAccount : 'Select Account'} />
+            <ThemeText
+              styles={{flexShrink: 1}}
+              CustomNumberOfLines={1}
+              content={
+                toAccount
+                  ? toAccount
+                  : t(
+                      'settings.accountComponents.accountPaymentPage.selectAccount',
+                    )
+              }
+            />
             <ThemeImage
               styles={{
                 width: 20,
@@ -377,7 +410,7 @@ export default function AccountPaymentPage(props) {
               darkModeIcon={ICONS.receiptIcon}
               lightsOutIcon={ICONS.receiptWhite}
             />
-            <ThemeText content={'Fee'} />
+            <ThemeText content={t('constants.fee')} />
           </View>
 
           {transferInfo.isCalculatingFee ? (
@@ -413,14 +446,16 @@ export default function AccountPaymentPage(props) {
                 name={'editIcon'}
               />
             </View>
-            <ThemeText content={'Description'} />
+            <ThemeText content={t('constants.description')} />
           </View>
           <CustomSearchInput
             inputText={memo}
             setInputText={setMemo}
             containerStyles={styles.textInputContainerStyles}
             textInputStyles={styles.textInputStyles}
-            placeholderText="Account Swap"
+            placeholderText={t(
+              'settings.accountComponents.accountPaymentPage.inputPlaceHolderText',
+            )}
             onFocusFunction={() => setIsKeyboardFocused(true)}
             onBlurFunction={() => setIsKeyboardFocused(false)}
             maxLength={80}
@@ -461,6 +496,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     includeFontPadding: false,
+    flexShrink: 1,
   },
   textInputContainerStyles: {
     flexShrink: 1,

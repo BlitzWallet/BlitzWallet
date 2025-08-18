@@ -2,17 +2,16 @@ import {
   Animated,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
 import {KeyContainer} from '../../../login';
 import {useEffect, useRef, useState} from 'react';
-import {COLORS, FONT, SIZES, SHADOWS, CENTER} from '../../../../constants';
+import {COLORS, SIZES, SHADOWS, CENTER} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {INSET_WINDOW_WIDTH, WINDOWWIDTH} from '../../../../constants/theme';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useTranslation} from 'react-i18next';
@@ -21,6 +20,7 @@ import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import calculateSeedQR from './seedQR';
 import {copyToClipboard} from '../../../../functions';
 import {useToast} from '../../../../../context-store/toastManager';
+import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
 
 export default function SeedPhrasePage({extraData}) {
   const {showToast} = useToast();
@@ -35,7 +35,6 @@ export default function SeedPhrasePage({extraData}) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {t} = useTranslation();
   const [seedContainerHeight, setSeedContainerHeight] = useState();
-  const sliderAnimation = useRef(new Animated.Value(3)).current;
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('words');
   const canViewQrCode = extraData?.canViewQrCode;
   const qrValue = calculateSeedQR(accountMnemoinc);
@@ -50,21 +49,6 @@ export default function SeedPhrasePage({extraData}) {
     }
   }, [showSeed]);
 
-  function handleSlide(type) {
-    Animated.timing(sliderAnimation, {
-      toValue: type === 'words' ? 3 : sliderWidth,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  }
-
-  useEffect(() => {
-    if (!canViewQrCode) return;
-    setSelectedDisplayOption('qrcode');
-    handleSlide('qrcode');
-  }, [canViewQrCode]);
-
-  const sliderWidth = 102;
   return (
     <View style={styles.globalContainer}>
       <ScrollView
@@ -72,7 +56,7 @@ export default function SeedPhrasePage({extraData}) {
         contentContainerStyle={styles.scrollViewStyles}>
         <ThemeText
           styles={{...styles.headerPhrase}}
-          content={t('settings.seedphrase.text1')}
+          content={t('settings.seedPhrase.header')}
         />
         <ThemeText
           styles={{
@@ -81,7 +65,7 @@ export default function SeedPhrasePage({extraData}) {
             marginBottom: 50,
             fontSize: SIZES.large,
           }}
-          content={t('settings.seedphrase.text2')}
+          content={t('settings.seedPhrase.headerDesc')}
         />
         {selectedDisplayOption === 'qrcode' && canViewQrCode ? (
           <View
@@ -101,80 +85,17 @@ export default function SeedPhrasePage({extraData}) {
             <KeyContainer keys={mnemonic} />
           </View>
         )}
-        <View
-          style={[
-            styles.sliderContainer,
-            {
-              backgroundColor: backgroundOffset,
-              alignItems: 'center',
-            },
-          ]}>
-          <View style={styles.colorSchemeContainer}>
-            <TouchableOpacity
-              style={styles.colorSchemeItemContainer}
-              activeOpacity={1}
-              onPress={() => {
-                setSelectedDisplayOption('words');
-                handleSlide('words');
-              }}>
-              <ThemeText
-                styles={{
-                  ...styles.colorSchemeText,
-                  color:
-                    selectedDisplayOption === 'words'
-                      ? COLORS.darkModeText
-                      : theme
-                      ? COLORS.darkModeText
-                      : COLORS.lightModeText,
-                }}
-                content={'Words'}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.colorSchemeItemContainer}
-              activeOpacity={1}
-              onPress={() => {
-                if (!canViewQrCode) {
-                  navigate.navigate('InformationPopup', {
-                    textContent: `Are you sure you want to show this QR Code?\n\nScanning your seed is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe.`,
-                    buttonText: 'I understand',
-                    customNavigation: () =>
-                      navigate.popTo('SettingsContentHome', {
-                        for: 'Backup wallet',
-                        extraData: {canViewQrCode: true},
-                      }),
-                  });
-                  return;
-                }
-                setSelectedDisplayOption('qrcode');
-                handleSlide('qrcode');
-              }}>
-              <ThemeText
-                styles={{
-                  ...styles.colorSchemeText,
-                  color:
-                    selectedDisplayOption === 'qrcode'
-                      ? COLORS.darkModeText
-                      : theme
-                      ? COLORS.darkModeText
-                      : COLORS.lightModeText,
-                }}
-                content={'QR Code'}
-              />
-            </TouchableOpacity>
-            <Animated.View
-              style={[
-                styles.activeSchemeStyle,
-
-                {
-                  transform: [{translateX: sliderAnimation}, {translateY: 3}],
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : COLORS.primary,
-                },
-              ]}
-            />
-          </View>
-        </View>
+        <WordsQrToggle
+          setSelectedDisplayOption={setSelectedDisplayOption}
+          selectedDisplayOption={selectedDisplayOption}
+          canViewQrCode={canViewQrCode}
+          qrNavigateFunc={() =>
+            navigate.popTo('SettingsContentHome', {
+              for: 'Backup wallet',
+              extraData: {canViewQrCode: true},
+            })
+          }
+        />
         <CustomButton
           buttonStyles={{marginTop: 10}}
           actionFunction={() =>
@@ -183,7 +104,7 @@ export default function SeedPhrasePage({extraData}) {
               showToast,
             )
           }
-          textContent={'Copy'}
+          textContent={t('constants.copy')}
         />
       </ScrollView>
 
@@ -198,7 +119,7 @@ export default function SeedPhrasePage({extraData}) {
         <View style={styles.confirmPopupInnerContainer}>
           <ThemeText
             styles={{...styles.confirmPopupTitle}}
-            content={t('settings.seedphrase.text3')}
+            content={t('settings.seedPhrase.showSeedWarning')}
           />
           <View style={styles.confirmationContainer}>
             <CustomButton
@@ -310,6 +231,8 @@ const styles = StyleSheet.create({
     width: '100%',
     includeFontPadding: false,
     textAlign: 'center',
+    flexShrink: 1,
+    paddingHorizontal: 5,
   },
   activeSchemeStyle: {
     backgroundColor: COLORS.primary,

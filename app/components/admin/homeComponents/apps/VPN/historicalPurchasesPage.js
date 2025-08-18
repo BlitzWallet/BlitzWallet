@@ -3,8 +3,8 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {SIZES, WINDOWWIDTH} from '../../../../../constants/theme';
-import {CENTER, ICONS} from '../../../../../constants';
+import {WINDOWWIDTH} from '../../../../../constants/theme';
+import {CENTER} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useState} from 'react';
 import {copyToClipboard, getLocalStorageItem} from '../../../../../functions';
@@ -16,6 +16,7 @@ import {useKeysContext} from '../../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
 import {useToast} from '../../../../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
 
 export default function HistoricalVPNPurchases() {
   const {showToast} = useToast();
@@ -24,6 +25,7 @@ export default function HistoricalVPNPurchases() {
   const {decodedVPNS, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const [isRetryingConfig, setIsRetryingConfig] = useState(false);
+  const {t} = useTranslation();
 
   useEffect(() => {
     async function getSavedPurchases() {
@@ -45,31 +47,48 @@ export default function HistoricalVPNPurchases() {
           onPress={() => handleConfigClick(item)}
           onLongPress={() => {
             navigate.navigate('ConfirmActionPage', {
-              confirmMessage: 'Are you sure you want to remove this VPN.',
+              confirmMessage: t(
+                'apps.VPN.historicalPurchasesPage.deleteVPNConfirmMessage',
+              ),
               confirmFunction: () => removeVPNFromList(item.payment_hash),
             });
           }}>
           <View style={styles.infoContainer}>
-            <ThemeText styles={{...styles.label}} content={'Country:'} />
+            <ThemeText
+              styles={{...styles.label}}
+              content={t('apps.VPN.historicalPurchasesPage.country')}
+            />
             <ThemeText styles={{...styles.value}} content={item.country} />
           </View>
           <View style={styles.infoContainer}>
-            <ThemeText styles={{...styles.label}} content={'Created At:'} />
+            <ThemeText
+              styles={{...styles.label}}
+              content={t('apps.VPN.historicalPurchasesPage.createdAt')}
+            />
             <ThemeText
               styles={{...styles.value}}
               content={new Date(item.createdTime).toLocaleString()}
             />
           </View>
           <View style={styles.infoContainer}>
-            <ThemeText styles={{...styles.label}} content={'Duration:'} />
-            <ThemeText styles={{...styles.value}} content={item.duration} />
+            <ThemeText
+              styles={{...styles.label}}
+              content={t('apps.VPN.historicalPurchasesPage.duration')}
+            />
+            <ThemeText
+              styles={{...styles.value}}
+              content={t(t(`constants.${item.duration?.toLowerCase()}`))}
+            />
           </View>
           <TouchableOpacity
             onPress={() => {
               copyToClipboard(item.payment_hash, showToast);
             }}
             style={styles.infoContainer}>
-            <ThemeText styles={{...styles.label}} content={'Payment Hash:'} />
+            <ThemeText
+              styles={{...styles.label}}
+              content={t('apps.VPN.historicalPurchasesPage.paymentHash')}
+            />
             <ThemeText
               CustomNumberOfLines={2}
               styles={{...styles.value}}
@@ -87,14 +106,18 @@ export default function HistoricalVPNPurchases() {
           containerStyles={{
             marginBottom: 0,
           }}
-          label={'Purchases'}
+          label={t('apps.VPN.historicalPurchasesPage.title')}
         />
         {isRetryingConfig ? (
-          <FullLoadingScreen text={'Trying to create file'} />
+          <FullLoadingScreen
+            text={t('apps.VPN.historicalPurchasesPage.retryClaim')}
+          />
         ) : purchaseElements.length === 0 ? (
           <View
             style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <ThemeText content={'You have no VPN configuations'} />
+            <ThemeText
+              content={t('apps.VPN.historicalPurchasesPage.noPurchases')}
+            />
           </View>
         ) : (
           <>
@@ -106,11 +129,11 @@ export default function HistoricalVPNPurchases() {
             </ScrollView>
             <ThemeText
               styles={{textAlign: 'center', paddingTop: 5}}
-              content={'For assistance, reach out to LNVPN'}
+              content={t('apps.VPN.historicalPurchasesPage.assistanceText')}
             />
             <CustomButton
               buttonStyles={{...CENTER, marginTop: 10}}
-              textContent={'Contact'}
+              textContent={t('apps.VPN.historicalPurchasesPage.contact')}
               actionFunction={async () => {
                 await openWebBrowser({
                   navigate: navigate,
@@ -182,7 +205,10 @@ export default function HistoricalVPNPurchases() {
       });
       console.log(cc);
       if (!cc) {
-        return {didWork: false, error: 'Not able to get valid country code'};
+        return {
+          didWork: false,
+          error: t('apps.VPN.historicalPurchasesPage.noValidCountryCodeError'),
+        };
       }
 
       const response = await fetch('https://lnvpn.net/api/v1/getTunnelConfig', {
@@ -200,7 +226,12 @@ export default function HistoricalVPNPurchases() {
 
       const data = await response.json();
       if (!data.WireguardConfig) {
-        return {didWork: false, error: data?.error || 'Not able to get config'};
+        return {
+          didWork: false,
+          error:
+            data?.error ||
+            t('apps.VPN.historicalPurchasesPage.claimConfigError'),
+        };
       }
       return {didWork: true, config: data.WireguardConfig};
     } catch (err) {

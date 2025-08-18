@@ -6,13 +6,9 @@ import FormattedSatText from '../../../../../functions/CustomElements/satTextDis
 import {useNavigation} from '@react-navigation/native';
 import {useCallback, useEffect, useState} from 'react';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
-// import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {getCountryInfoAsync} from 'react-native-country-picker-modal/lib/CountryService';
-// import {LIGHTNINGAMOUNTBUFFER} from '../../../../../constants/math';
 import fetchBackend from '../../../../../../db/handleBackend';
-// import {useNodeContext} from '../../../../../../context-store/nodeContext';
-// import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
@@ -21,6 +17,7 @@ import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import StoreErrorPage from '../components/errorScreen';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import {useTranslation} from 'react-i18next';
 
 export default function ConfirmGiftCardPurchase(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -31,6 +28,7 @@ export default function ConfirmGiftCardPurchase(props) {
   const {decodedGiftCards} = useGlobalAppData();
   const navigate = useNavigation();
   const [error, setError] = useState('');
+  const {t} = useTranslation();
 
   const [retrivedInformation, setRetrivedInformation] = useState({
     countryInfo: {},
@@ -69,10 +67,7 @@ export default function ConfirmGiftCardPurchase(props) {
           }),
         ]);
 
-        if (!response)
-          throw new Error(
-            'Not able to generate invoice for gift card. Please try again later.',
-          );
+        if (!response) throw new Error(t('errormessages.invoiceRetrivalError'));
 
         const parsedInput = await parse(response.result?.invoice);
 
@@ -87,7 +82,11 @@ export default function ConfirmGiftCardPurchase(props) {
 
         if (!fee.didWork) throw new Error(fee.error);
         if (sparkInformation.balance < fee.supportFee + fee.fee) {
-          throw new Error('Insufficient balance to purchase gift card');
+          throw new Error(
+            t('errormessages.insufficientBalanceError', {
+              planType: 'gift card',
+            }),
+          );
         }
 
         setRetrivedInformation({
@@ -134,11 +133,16 @@ export default function ConfirmGiftCardPurchase(props) {
               fontSize: SIZES.large,
               textAlign: 'center',
             }}
-            content={`Quantity: ${props.quantity}`}
+            content={t('apps.giftCards.confimPurchase.quantity', {
+              quantity: props.quantity,
+            })}
           />
           <ThemeText
             styles={{fontSize: SIZES.large, marginTop: 10}}
-            content={`Card amount: ${props.price} ${retrivedInformation.countryInfo.currency}`}
+            content={t('apps.giftCards.confimPurchase.cardAmount', {
+              amount: props.price,
+              currency: retrivedInformation.countryInfo.currency,
+            })}
           />
 
           <FormattedSatText
@@ -148,7 +152,7 @@ export default function ConfirmGiftCardPurchase(props) {
               fontSize: SIZES.large,
               textAlign: 'center',
             }}
-            frontText={'Price: '}
+            frontText={t('apps.giftCards.confimPurchase.price')}
             balance={retrivedInformation.productInfo.amount}
           />
 
@@ -158,7 +162,7 @@ export default function ConfirmGiftCardPurchase(props) {
             styles={{
               textAlign: 'center',
             }}
-            frontText={'Fee: '}
+            frontText={t('apps.giftCards.confimPurchase.fee')}
             balance={fee}
           />
 

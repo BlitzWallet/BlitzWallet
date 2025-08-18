@@ -11,6 +11,7 @@ import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import GetThemeColors from '../../../hooks/themeColors';
 import {ThemeText} from '../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
+import {useTranslation} from 'react-i18next';
 
 export default function ClipboardCopyPopup(props) {
   const didCopy = props.route.params.didCopy;
@@ -18,6 +19,7 @@ export default function ClipboardCopyPopup(props) {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundColor, backgroundOffset} = GetThemeColors();
+  const {t} = useTranslation();
 
   useHandleBackPressNew();
 
@@ -36,8 +38,8 @@ export default function ClipboardCopyPopup(props) {
               styles={styles.headerText}
               content={
                 didCopy
-                  ? customText || 'Text Copied to Clipboard'
-                  : 'Error With Copy'
+                  ? customText || t('wallet.confirmClipboard.clipboardContent')
+                  : t('wallet.confirmClipboard.errorWithCopy')
               }
             />
             <View
@@ -48,7 +50,10 @@ export default function ClipboardCopyPopup(props) {
               }}
             />
             <TouchableOpacity onPress={navigate.goBack}>
-              <ThemeText styles={styles.cancelButton} content={'OK'} />
+              <ThemeText
+                styles={styles.cancelButton}
+                content={t('wallet.confirmClipboard.ok')}
+              />
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>

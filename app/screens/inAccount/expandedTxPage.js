@@ -25,13 +25,14 @@ import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useSparkWallet} from '../../../context-store/sparkContext';
 import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
+import {useTranslation} from 'react-i18next';
 
 export default function ExpandedTx(props) {
   const {sparkInformation} = useSparkWallet();
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
-
+  const {t} = useTranslation();
   const transaction = props.route.params.transaction;
   console.log(transaction, 'transaction');
   const transactionPaymentType = transaction.paymentType;
@@ -53,6 +54,11 @@ export default function ExpandedTx(props) {
   const selectedToken = isLRC20Payment
     ? sparkInformation.tokens?.[transaction.details.LRC20Token]
     : '';
+
+  const formattedTokensBalance = formatTokensNumber(
+    transaction?.details?.amount,
+    selectedToken?.tokenMetadata?.decimals,
+  );
 
   return (
     <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
@@ -137,11 +143,13 @@ export default function ExpandedTx(props) {
                 fontWeight: 'light',
                 includeFontPadding: false,
               }}
-              content={`${
-                transaction.details.direction === 'OUTGOING' || isFailedPayment
-                  ? 'Sent'
-                  : 'Received'
-              } amount`}
+              content={t('screens.inAccount.expandedTxPage.confirmMessage', {
+                direction:
+                  transaction.details.direction === 'OUTGOING' ||
+                  isFailedPayment
+                    ? t('constants.sent')
+                    : t('constants.received'),
+              })}
             />
             <FormattedSatText
               containerStyles={{marginTop: -5}}
@@ -149,13 +157,18 @@ export default function ExpandedTx(props) {
               styles={{
                 fontSize: SIZES.xxLarge,
                 includeFontPadding: false,
+                textAlign: 'center',
               }}
-              balance={transaction.details.amount}
+              balance={
+                isLRC20Payment && formattedTokensBalance > 1
+                  ? formattedTokensBalance
+                  : transaction.details.amount
+              }
               useCustomLabel={isLRC20Payment}
               customLabel={selectedToken?.tokenMetadata?.tokenTicker}
               useMillionDenomination={true}
             />
-            {isLRC20Payment && (
+            {isLRC20Payment && formattedTokensBalance < 1 && (
               <FormattedSatText
                 containerStyles={{marginTop: -5}}
                 neverHideBalance={true}
@@ -169,10 +182,13 @@ export default function ExpandedTx(props) {
                 )}
                 useCustomLabel={isLRC20Payment}
                 customLabel={selectedToken?.tokenMetadata?.tokenTicker}
+                useMillionDenomination={true}
               />
             )}
             <View style={styles.paymentStatusTextContainer}>
-              <ThemeText content={'Payment status'} />
+              <ThemeText
+                content={t('screens.inAccount.expandedTxPage.paymentStatus')}
+              />
               <View
                 style={{
                   backgroundColor: isPending
@@ -207,24 +223,24 @@ export default function ExpandedTx(props) {
                   }}
                   content={
                     isPending
-                      ? 'Pending'
+                      ? t('transactionLabelText.pending')
                       : isFailedPayment
-                      ? 'Failed'
-                      : 'Successful'
+                      ? t('transactionLabelText.failed')
+                      : t('transactionLabelText.successful')
                   }
                 />
               </View>
             </View>
             <Border />
             <View style={styles.infoLine}>
-              <ThemeText content={'Date'} />
+              <ThemeText content={t('transactionLabelText.date')} />
               <ThemeText
                 styles={{fontSize: SIZES.large}}
                 content={`${month} ${day} ${year}`}
               />
             </View>
             <View style={styles.infoLine}>
-              <ThemeText content={'Time'} />
+              <ThemeText content={t('transactionLabelText.time')} />
               <ThemeText
                 content={`${
                   paymentDate.getHours() <= 9
@@ -239,7 +255,7 @@ export default function ExpandedTx(props) {
               />
             </View>
             <View style={styles.infoLine}>
-              <ThemeText content={'Fee'} />
+              <ThemeText content={t('constants.fee')} />
               <FormattedSatText
                 neverHideBalance={true}
                 styles={{fontSize: SIZES.large}}
@@ -247,7 +263,7 @@ export default function ExpandedTx(props) {
               />
             </View>
             <View style={styles.infoLine}>
-              <ThemeText content={'Type'} />
+              <ThemeText content={t('constants.type')} />
               <ThemeText
                 content={transactionPaymentType}
                 styles={{fontSize: SIZES.large, textTransform: 'capitalize'}}
@@ -255,7 +271,7 @@ export default function ExpandedTx(props) {
             </View>
             {isLRC20Payment && (
               <View style={styles.infoLine}>
-                <ThemeText content={'Token'} />
+                <ThemeText content={t('constants.token')} />
                 <ThemeText
                   CustomNumberOfLines={1}
                   content={selectedToken?.tokenMetadata?.tokenTicker
@@ -274,7 +290,9 @@ export default function ExpandedTx(props) {
 
             {isPending && transaction.paymentType === 'bitcoin' && (
               <View style={styles.infoLine}>
-                <ThemeText content={'Confs required'} />
+                <ThemeText
+                  content={t('screens.inAccount.expandedTxPage.confReqired')}
+                />
                 <ThemeText
                   styles={{fontSize: SIZES.large}}
                   content={
@@ -286,7 +304,10 @@ export default function ExpandedTx(props) {
 
             {description && (
               <View style={styles.descriptionContainer}>
-                <ThemeText content={'Memo'} styles={styles.descriptionHeader} />
+                <ThemeText
+                  content={t('transactionLabelText.memo')}
+                  styles={styles.descriptionHeader}
+                />
 
                 <View
                   style={[
@@ -317,7 +338,7 @@ export default function ExpandedTx(props) {
               textStyles={{
                 color: theme ? COLORS.lightModeText : COLORS.darkModeText,
               }}
-              textContent={'Technical details'}
+              textContent={t('screens.inAccount.expandedTxPage.detailsBTN')}
               actionFunction={() => {
                 navigate.navigate('TechnicalTransactionDetails', {
                   transaction: transaction,

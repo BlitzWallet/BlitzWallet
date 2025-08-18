@@ -1,4 +1,4 @@
-import crypto from 'react-native-quick-crypto';
+import {randomBytes} from 'react-native-quick-crypto';
 import {getBoltzApiUrl} from '../boltzEndpoitns';
 import sha256Hash from '../../hash';
 import {saveSwap} from './swapDb';
@@ -9,7 +9,7 @@ export async function createRootstockReverseSwap(
   invoiceAmount,
   signerMnemonic,
 ) {
-  const preimage = crypto.randomBytes(32);
+  const preimage = randomBytes(32);
   const preimageHash = sha256Hash(preimage).toString('hex');
   const signer = Wallet.fromPhrase(signerMnemonic);
   const walletAddress = await signer.getAddress();

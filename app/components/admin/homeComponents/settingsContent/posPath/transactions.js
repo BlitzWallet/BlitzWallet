@@ -14,6 +14,7 @@ import displayCorrectDenomination from '../../../../../functions/displayCorrectD
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {useTranslation} from 'react-i18next';
 
 export default function ViewPOSTransactions() {
   const {groupedTxs} = usePOSTransactions();
@@ -22,6 +23,7 @@ export default function ViewPOSTransactions() {
   const {fiatStats} = useNodeContext();
   const navigate = useNavigation();
   const {bottomPadding} = useGlobalInsets();
+  const {t} = useTranslation();
 
   const filteredList = useMemo(() => {
     return !groupedTxs
@@ -45,17 +47,20 @@ export default function ViewPOSTransactions() {
             />
           </View>
           <ThemeText
-            content={`Unpaid tips: ${displayCorrectDenomination({
-              amount: totalTipAmount,
-              masterInfoObject,
-              fiatStats,
-            })}`}
+            content={t('settings.posPath.transactions.unpaidtips', {
+              number: displayCorrectDenomination({
+                amount: totalTipAmount,
+                masterInfoObject,
+                fiatStats,
+              }),
+            })}
             CustomNumberOfLines={1}
           />
         </View>
+
         <CustomButton
+          useArrow={true}
           actionFunction={() => navigate.navigate('TotalTipsScreen', {item})}
-          textContent={'View'}
         />
       </View>
     );
@@ -69,11 +74,13 @@ export default function ViewPOSTransactions() {
         leftImageBlue={ICONS.receiptIcon}
         LeftImageDarkMode={ICONS.receiptWhite}
         containerStyles={{marginBottom: 0}}
-        label={'Tips to pay'}
+        label={t('settings.posPath.transactions.title')}
       />
       <View style={{...styles.container, alignItems: 'center'}}>
         <CustomSearchInput
-          placeholderText={'Employee name'}
+          placeholderText={t(
+            'settings.posPath.transactions.empNamePlaceholder',
+          )}
           setInputText={setEmployeeName}
           containerStyles={{marginTop: 10}}
         />
@@ -88,7 +95,10 @@ export default function ViewPOSTransactions() {
             keyExtractor={([name, {total, txs}]) => name}
           />
         ) : (
-          <ThemeText styles={{marginTop: 20}} content={'No tips'} />
+          <ThemeText
+            styles={{marginTop: 20, textAlign: 'center'}}
+            content={t('settings.posPath.transactions.noTips')}
+          />
         )}
       </View>
     </GlobalThemeView>
@@ -104,9 +114,10 @@ const styles = StyleSheet.create({
   },
   transactionContainer: {
     marginVertical: 12,
-    width: '100%',
+    width: '95%',
     flexDirection: 'row',
     alignItems: 'center',
+    ...CENTER,
   },
   nameText: {
     textTransform: 'capitalize',

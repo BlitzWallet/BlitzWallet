@@ -1,21 +1,14 @@
-import {
-  FlatList,
-  Keyboard,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {CENTER, COLORS, ICONS} from '../../../../../constants';
+import {CENTER, COLORS} from '../../../../../constants';
 import {CountryCodeList} from 'react-native-country-picker-modal';
 import CountryFlag from 'react-native-country-flag';
 import {getCountryInfoAsync} from 'react-native-country-picker-modal/lib/CountryService';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useState} from 'react';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -23,6 +16,7 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import {useKeysContext} from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../../functions/customNavigation';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 
 export default function CountryList() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -119,33 +113,22 @@ export default function CountryList() {
     [ISOCode, saveNewCountrySetting],
   );
 
+  const keyboardDismissBack = useCallback(() => {
+    keyboardGoBack(navigate);
+  }, [navigate]);
+
   return (
     <CustomKeyboardAvoidingView useStandardWidth={true}>
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          onPress={() => {
-            keyboardGoBack(navigate);
-          }}
-          style={{marginRight: 'auto'}}>
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
-        </TouchableOpacity>
-      </View>
+      <CustomSettingsTopBar customBackFunction={keyboardDismissBack} />
       <CustomSearchInput
         inputText={searchInput}
         setInputText={setSearchInput}
         placeholderText={'Search'}
-        containerStyles={{width: '90%', marginTop: 20}}
+        containerStyles={styles.searchInput}
       />
       {showList && (
         <FlatList
-          contentContainerStyle={{
-            width: '90%',
-            ...CENTER,
-          }}
+          contentContainerStyle={styles.flatlist}
           renderItem={flatListElement}
           key={item => item.code}
           initialNumToRender={20}
@@ -159,16 +142,9 @@ export default function CountryList() {
   );
 }
 const styles = StyleSheet.create({
-  topBar: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
+  flatlist: {
+    width: '90%',
     ...CENTER,
   },
-
-  homepage: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  searchInput: {width: '90%', marginTop: 0},
 });

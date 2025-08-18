@@ -4,22 +4,22 @@ import {useGlobalContextProvider} from '../../../../../../context-store/context'
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import {CENTER} from '../../../../../constants';
+import {useTranslation} from 'react-i18next';
 
 export default function HasNoNostrAccounts() {
   const {toggleMasterInfoObject} = useGlobalContextProvider();
+  const {t} = useTranslation();
   return (
     <View style={styles.globalContainer}>
       <ThemeText
         styles={{textAlign: 'center', marginBottom: 50}}
-        content={
-          'To send money from your Nostr Connect wallet, you’ll first need to add funds—either by receiving money or transferring from your main wallet.\n\n You can transfer funds from your main wallet to NWC in the account settings page.'
-        }
+        content={t('settings.nwc.hasNoAccounts.wanringMessage')}
       />
       <CustomButton
         actionFunction={() => {
           toggleMasterInfoObject({didViewNWCMessage: true});
         }}
-        textContent={'I understand'}
+        textContent={t('constants.understandText')}
       />
     </View>
   );

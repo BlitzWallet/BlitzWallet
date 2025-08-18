@@ -18,6 +18,7 @@ import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircl
 import {handleLoginSecuritySwitch} from '../../../../functions/handleMnemonic';
 import {useKeysContext} from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
 
 export default function LoginSecurity({extraData}) {
   const [securityLoginSettings, setSecurityLoginSettings] = useState({
@@ -57,7 +58,8 @@ export default function LoginSecurity({extraData}) {
           extraData.pin,
           'pin',
         );
-        if (!success) throw new Error('Unable to switch login type');
+        if (!success)
+          throw new Error(t('settings.loginSecurity.unsuccesfullLoginSwitch'));
 
         await updateSecuritySettings({
           isSecurityEnabled: true,
@@ -86,7 +88,8 @@ export default function LoginSecurity({extraData}) {
         '',
         'plain',
       );
-      if (!success) throw new Error('Toggle failed');
+      if (!success)
+        throw new Error(t('settings.loginSecurity.toggleSecurityModeError'));
 
       await updateSecuritySettings({
         ...securityLoginSettings,
@@ -107,15 +110,14 @@ export default function LoginSecurity({extraData}) {
         if (type === 'biometric') {
           if (!(await hasHardware())) {
             navigate.navigate('ErrorScreen', {
-              errorMessage: 'Device does not support Biometric login',
+              errorMessage: t('settings.loginSecurity.noBiometricsError'),
             });
             return;
           }
 
           if (!(await hasSavedProfile())) {
             navigate.navigate('ErrorScreen', {
-              errorMessage:
-                'Device does not have a Biometric profile. Create one in settings to continue.',
+              errorMessage: t('settings.loginSecurity.noBiometricProfileError'),
             });
             return;
           }
@@ -125,7 +127,8 @@ export default function LoginSecurity({extraData}) {
             '',
             'biometric',
           );
-          if (!success) throw new Error('Error logging in with Biometrics');
+          if (!success)
+            throw new Error(t('settings.loginSecurity.biometricSignInError'));
         } else {
           navigate.navigate('ConfirmPinForLoginMode');
           return;
@@ -148,46 +151,40 @@ export default function LoginSecurity({extraData}) {
   );
 
   if (isSwitching) {
-    return <FullLoadingScreen text={'Migrating storage to new security.'} />;
+    return (
+      <FullLoadingScreen
+        text={t('settings.loginSecurity.migratingStorageMessgae')}
+      />
+    );
   }
 
   return (
     <View style={styles.innerContainer}>
-      <View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-          },
-        ]}>
-        <View style={styles.faceIDContainer}>
-          <ThemeText
-            styles={{...styles.contentText}}
-            content={t('settings.loginsecurity.text1')}
-          />
-          <CustomToggleSwitch
-            stateValue={securityLoginSettings.isSecurityEnabled}
-            toggleSwitchFunction={toggleSecurityEnabled}
-            page={'LoginSecurityMode'}
-          />
-        </View>
-      </View>
+      <SettingsItemWithSlider
+        settingsTitle={t('settings.loginSecurity.text1')}
+        showDescription={false}
+        switchPageName={'LoginSecurityMode'}
+        handleSubmit={toggleSecurityEnabled}
+        toggleSwitchStateValue={securityLoginSettings.isSecurityEnabled}
+        containerStyles={styles.switchContainer}
+      />
+
       {securityLoginSettings.isSecurityEnabled && (
         <View style={{width: '90%', ...CENTER}}>
           <ThemeText
             styles={styles.infoHeaders}
-            content={t('settings.loginsecurity.text2')}
+            content={t('settings.loginSecurity.text2')}
           />
           <TouchableOpacity
             onPress={() => toggleLoginSecurity('pin')}
             style={styles.toggleSecurityMode}>
-            <ThemeText content={t('settings.loginsecurity.text3')} />
+            <ThemeText content={t('settings.loginSecurity.text3')} />
             <CheckMarkCircle isActive={securityLoginSettings.isPinEnabled} />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => toggleLoginSecurity('biometric')}
             style={styles.toggleSecurityMode}>
-            <ThemeText content={t('settings.loginsecurity.text4')} />
+            <ThemeText content={t('settings.loginSecurity.text4')} />
             <CheckMarkCircle
               isActive={securityLoginSettings.isBiometricEnabled}
             />
@@ -213,6 +210,7 @@ const styles = StyleSheet.create({
   contentText: {
     includeFontPadding: false,
   },
+  switchContainer: {marginVertical: 0},
 
   faceIDContainer: {
     width: '100%',

@@ -1,17 +1,9 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-  memo,
-} from 'react';
+import React, {useState, useEffect, useRef, useMemo, memo} from 'react';
 import {
   StyleSheet,
   Animated,
   AccessibilityInfo,
   useWindowDimensions,
-  View,
 } from 'react-native';
 import {CENTER, COLORS, FONT, SIZES} from '../../constants';
 import FullLoadingScreen from './loadingScreen';
@@ -24,6 +16,7 @@ import {
   SWIPE_SUCCESS_THRESHOLD,
 } from './swipeButton/constants';
 import {SwipeThumb} from './swipeButton/swipeThumb';
+import {useTranslation} from 'react-i18next';
 
 // Container styles
 const containerStyles = StyleSheet.create({
@@ -61,20 +54,20 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
   thumbIconComponent,
   thumbIconStyles = {},
   thumbIconWidth,
-  title = 'Slide to confirm',
+  title,
   shouldAnimateViewOnSuccess = SHOULD_ANIMATE_VIEW_ON_SUCCESS,
   width = 0.95,
   maxWidth = 375,
   shouldDisplaySuccessState = false,
 }) {
-  console.log('SWIPE BUTTON IS RENDERING');
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const windowDimensions = useWindowDimensions().width * width;
   const layoutWidth = windowDimensions > maxWidth ? maxWidth : windowDimensions;
   const [screenReaderEnabled, setScreenReaderEnabled] = useState(false);
   const [isUnmounting, setIsUnmounting] = useState(false);
-
+  const {t} = useTranslation();
+  const titleText = title || t('constants.slideToConfirm');
   const containerAnimatedWidth = useRef(
     new Animated.Value(layoutWidth),
   ).current;
@@ -252,7 +245,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
                 ...titleDynamicStyles,
               },
             ]}>
-            {title}
+            {titleText}
           </Animated.Text>
 
           {layoutWidth > 0 && (
@@ -275,7 +268,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
               thumbIconHeight={height}
               thumbIconStyles={thumbIconStyles}
               thumbIconWidth={thumbIconWidth}
-              title={title}
+              title={titleText}
               animateViewOnSuccess={animateViewOnSuccess}
               handleSwipeProgress={handleSwipeProgress}
               theme={theme}

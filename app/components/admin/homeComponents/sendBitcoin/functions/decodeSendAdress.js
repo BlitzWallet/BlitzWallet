@@ -1,9 +1,7 @@
 import {getLNAddressForLiquidPayment} from './payments';
 import {
   InputTypeVariant,
-  // InputTypeVariant as LiquidTypeVarient,
   parse,
-  // parseInvoice,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import processBitcoinAddress from './processBitcoinAddress';
@@ -11,21 +9,16 @@ import processBolt11Invoice from './processBolt11Invoice';
 import processLNUrlAuth from './processLNUrlAuth';
 import processLNUrlPay from './processLNUrlPay';
 import processLNUrlWithdraw from './processLNUrlWithdrawl';
-// import processLiquidAddress from './processLiquidAddress';
-// import getLiquidAddressFromSwap from '../../../../../functions/boltz/magicRoutingHints';
 import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import processSparkAddress from './processSparkAddress';
 import {decodeBip21SparkAddress} from '../../../../../functions/spark/handleBip21SparkAddress';
-// import {SATSPERBITCOIN} from '../../../../../constants';
 import {decodeBip21Address} from '../../../../../functions/bip21AddressFormmating';
-// import {address} from 'liquidjs-lib';
 import {decodeLNURL} from '../../../../../functions/lnurl/bench32Formmater';
 import {formatLightningAddress} from '../../../../../functions/lnurl';
 import {
   handleCryptoQRAddress,
   isSupportedPNPQR,
 } from '../../../../../functions/sendBitcoin/getMerchantAddress';
-// import processBolt12Offer from './processBolt12Offer';
 
 export default async function decodeSendAddress(props) {
   let {
@@ -48,14 +41,13 @@ export default async function decodeSendAddress(props) {
     sparkInformation,
     seletctedToken,
     currentWalletMnemoinc,
+    t,
   } = props;
 
   try {
     console.log(btcAdress, 'scanned address');
     if (typeof btcAdress !== 'string')
-      throw new Error(
-        'Addresses should be text only. Please check and try again.',
-      );
+      throw new Error(t('wallet.sendPages.handlingAddressErrors.invlidFormat'));
 
     if (isSupportedPNPQR(btcAdress)) {
       crashlyticsLogReport('Handling crypto qr code');
@@ -129,7 +121,9 @@ export default async function decodeSendAddress(props) {
       input = await chosenPath;
     } catch (err) {
       console.log(err, 'parse error');
-      return goBackFunction('Unable to parse address');
+      return goBackFunction(
+        t('wallet.sendPages.handlingAddressErrors.parseError'),
+      );
     }
 
     let processedPaymentInfo;
@@ -150,9 +144,13 @@ export default async function decodeSendAddress(props) {
         fromPage,
         seletctedToken,
         currentWalletMnemoinc,
+        t,
       });
     } catch (err) {
-      return goBackFunction(err.message || 'Error processing payment info');
+      return goBackFunction(
+        err.message ||
+          t('wallet.sendPages.handlingAddressErrors.paymentProcessingError'),
+      );
     }
 
     if (processedPaymentInfo) {
@@ -166,35 +164,43 @@ export default async function decodeSendAddress(props) {
             enteredPaymentInfo.amount
       ) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: `Sending amount is too low to cover the payment and fees. Maximum send amount is ${displayCorrectDenomination(
+          errorMessage: t(
+            'wallet.sendPages.handlingAddressErrors.tooLowSendingAmount',
             {
-              amount: Math.max(
-                sparkInformation.balance -
-                  (processedPaymentInfo.paymentFee +
-                    processedPaymentInfo.supportFee),
-                0,
-              ),
-              masterInfoObject,
-              fiatStats,
+              amount: displayCorrectDenomination({
+                amount: Math.max(
+                  sparkInformation.balance -
+                    (processedPaymentInfo.paymentFee +
+                      processedPaymentInfo.supportFee),
+                  0,
+                ),
+                masterInfoObject,
+                fiatStats,
+              }),
             },
-          )} `,
+          ),
         });
 
         if (fromPage !== 'contacts') return;
       }
       setPaymentInfo({...processedPaymentInfo, decodedInput: input});
     } else {
-      return goBackFunction('Unable to process input');
+      return goBackFunction(
+        t('wallet.sendPages.handlingAddressErrors.processInputError'),
+      );
     }
   } catch (err) {
     console.error('Decoding send address error:', err);
-    goBackFunction(err.message || 'Unknown decoding error occurred');
+    goBackFunction(
+      err.message ||
+        t('wallet.sendPages.handlingAddressErrors.unkonwDecodeError'),
+    );
     return;
   }
 }
 
 async function processInputType(input, context) {
-  const {setLoadingMessage} = context;
+  const {setLoadingMessage, t} = context;
   setLoadingMessage('Getting invoice details');
   crashlyticsLogReport('Getting invoice detials');
 
@@ -223,6 +229,8 @@ async function processInputType(input, context) {
     case 'Spark':
       return await processSparkAddress(input, context);
     default:
-      throw new Error('Not a valid address type');
+      throw new Error(
+        t('wallet.sendPages.handlingAddressErrors.invalidInputType'),
+      );
   }
 }

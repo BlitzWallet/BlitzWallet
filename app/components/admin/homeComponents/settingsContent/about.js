@@ -31,7 +31,7 @@ export default function AboutPage() {
       showsVerticalScrollIndicator={false}
       style={styles.innerContainer}>
       <ThemeText
-        content={t('settings.about.text1')}
+        content={t('settings.about.header1')}
         styles={{...styles.sectionHeader, marginTop: 30}}
       />
       <Text style={styles.contentText}>
@@ -80,7 +80,7 @@ export default function AboutPage() {
       </Text>
 
       <ThemeText
-        content={t('settings.about.text11')}
+        content={t('settings.about.header2')}
         styles={{...styles.sectionHeader}}
       />
 
@@ -111,7 +111,7 @@ export default function AboutPage() {
           styles={{
             color: theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
           }}
-          content={'Learn more'}
+          content={t('settings.about.learnMore')}
         />
       </TouchableOpacity>
 

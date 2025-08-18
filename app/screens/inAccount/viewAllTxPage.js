@@ -63,7 +63,7 @@ export default function ViewAllTxPage() {
         showLeftImage={true}
         leftImageBlue={ICONS.share}
         LeftImageDarkMode={ICONS.shareWhite}
-        label={'Transactions'}
+        label={t('screens.inAccount.viewAllTxPage.title')}
         leftImageFunction={() => {
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'exportTransactions',

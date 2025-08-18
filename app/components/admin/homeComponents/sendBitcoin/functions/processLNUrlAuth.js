@@ -5,17 +5,23 @@ import {
 import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 
 export default async function processLNUrlAuth(input, context) {
-  const {goBackFunction, navigate, setLoadingMessage} = context;
+  const {goBackFunction, navigate, setLoadingMessage, t} = context;
 
   crashlyticsLogReport('Hanlding LURL auth');
-  setLoadingMessage('Starting LNURL auth');
+  setLoadingMessage(
+    t('wallet.sendPages.handlingAddressErrors.lnurlAuthStartMeessage'),
+  );
   const result = await lnurlAuth(input.data);
   if (result.type === LnUrlCallbackStatusVariant.OK) {
     navigate.navigate('ErrorScreen', {
-      errorMessage: 'LNURL successfully authenticated',
+      errorMessage: t(
+        'wallet.sendPages.handlingAddressErrors.lnurlConfirmMessage',
+      ),
       customNavigator: () => navigate.popTo('HomeAdmin', {screen: 'home'}),
     });
   } else {
-    goBackFunction('Failed to authenticate LNURL');
+    goBackFunction(
+      t('wallet.sendPages.handlingAddressErrors.lnurlFailedAuthMessage'),
+    );
   }
 }
