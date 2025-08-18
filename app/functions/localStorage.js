@@ -61,3 +61,23 @@ export async function removeAllLocalData() {
     // read key error
   }
 }
+export async function getAllLocalKeys() {
+  try {
+    crashlyticsLogReport('Starting get all local storage keys');
+    const keys = await AsyncStorage.getAllKeys();
+    return keys;
+  } catch (e) {
+    console.log(e);
+    return [];
+  }
+}
+export async function getMultipleItems(itemsList) {
+  try {
+    crashlyticsLogReport('Starting get all local storage item function');
+    const items = await AsyncStorage.multiGet(itemsList);
+    return items;
+  } catch (e) {
+    console.log(e);
+    return [];
+  }
+}

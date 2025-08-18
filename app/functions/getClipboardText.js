@@ -1,7 +1,8 @@
-import * as Clipboard from 'expo-clipboard';
+import {getStringAsync} from 'expo-clipboard';
+
 export default async function getClipboardText() {
   try {
-    const data = await Clipboard.getStringAsync();
+    const data = await getStringAsync();
     if (!data || !data.trim().length)
       throw new Error('errormessages.clipboardContentError');
 

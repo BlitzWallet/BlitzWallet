@@ -1,7 +1,7 @@
 import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
-import * as FileSystem from 'expo-file-system';
 import {Platform} from 'react-native';
 import customUUID from './customUUID';
+import {getInfoAsync, makeDirectoryAsync} from 'expo-file-system';
 
 export async function getOrCreateDirectory(uuidKey, workingDir) {
   try {
@@ -16,11 +16,11 @@ export async function getOrCreateDirectory(uuidKey, workingDir) {
     const checkPath =
       Platform.OS === 'android' ? `file://${directoryPath}` : directoryPath;
 
-    const dirInfo = await FileSystem.getInfoAsync(checkPath);
+    const dirInfo = await getInfoAsync(checkPath);
     console.log('Directory Info:', dirInfo);
 
     if (!dirInfo.exists) {
-      await FileSystem.makeDirectoryAsync(checkPath, {intermediates: true});
+      await makeDirectoryAsync(checkPath, {intermediates: true});
       console.log(`Directory created: ${checkPath}`);
       await new Promise(resolve => setTimeout(resolve, 8000)); //adds buffer
     } else {

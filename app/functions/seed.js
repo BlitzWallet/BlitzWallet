@@ -46,7 +46,7 @@ export function handleRestoreFromText(seedString) {
     let maxIndex = seedString.length;
     let currentWord = '';
 
-    while (currentIndex <= maxIndex) {
+    while (currentIndex <= maxIndex && wordArray.length < 13) {
       const letter = seedString[currentIndex];
       const isLetter = IS_LETTER_REGEX.test(letter);
       if (!isLetter) {
@@ -62,6 +62,11 @@ export function handleRestoreFromText(seedString) {
 
       if (!posibleOptins.length) {
         const lastPosibleOption = currentWord.slice(0, currentWord.length - 1);
+
+        if (!lastPosibleOption) {
+          currentIndex += 1;
+          continue;
+        }
         wordArray.push(lastPosibleOption);
         currentWord = '';
         continue;

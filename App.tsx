@@ -6,17 +6,8 @@
  */
 
 import {DefaultTheme, NavigationContainer} from '@react-navigation/native';
-import './pollyfills';
-import './i18n'; // for translation option
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React, {
-  JSX,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, {JSX, useCallback, useEffect, useMemo, useState} from 'react';
 import {registerRootComponent} from 'expo';
 import {
   getLocalStorageItem,

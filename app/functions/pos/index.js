@@ -1,9 +1,9 @@
-import * as SQLite from 'expo-sqlite';
 import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
 import {getTwoWeeksAgoDate} from '../rotateAddressDateChecker';
 import {decryptMessage} from '../messaging/encodingAndDecodingMessages';
 import EventEmitter from 'events';
 import {handleEventEmitterPost} from '../handleEventEmitters';
+import {openDatabaseAsync} from 'expo-sqlite';
 export const POS_TRANSACTION_TABLE_NAME = 'POS_TRANSACTIONS';
 
 export const POS_LAST_RECEIVED_TIME = 'LAST_RECEIVED_POS_EVENT';
@@ -17,9 +17,7 @@ let isProcessing = false;
 
 if (!sqlLiteDB) {
   async function openDBConnection() {
-    sqlLiteDB = await SQLite.openDatabaseAsync(
-      `${POS_TRANSACTION_TABLE_NAME}.db`,
-    );
+    sqlLiteDB = await openDatabaseAsync(`${POS_TRANSACTION_TABLE_NAME}.db`);
   }
   openDBConnection();
 }

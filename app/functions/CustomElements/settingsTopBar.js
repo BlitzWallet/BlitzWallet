@@ -86,5 +86,6 @@ const styles = StyleSheet.create({
     fontFamily: FONT.Title_Regular,
     textAlign: 'center',
     ...CENTER,
+    includeFontPadding: false,
   },
 });

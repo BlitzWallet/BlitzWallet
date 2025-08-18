@@ -1,4 +1,4 @@
-import * as Clipboard from 'expo-clipboard';
+import {setStringAsync} from 'expo-clipboard';
 
 export default async function copyToClipboard(
   data,
@@ -7,7 +7,7 @@ export default async function copyToClipboard(
   customText,
 ) {
   try {
-    await Clipboard.setStringAsync(data);
+    await setStringAsync(data);
     if (page === 'ChatGPT') return;
     showToast({
       type: 'clipboard',

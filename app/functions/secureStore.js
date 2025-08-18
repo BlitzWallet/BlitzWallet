@@ -1,4 +1,3 @@
-import * as SecureStore from 'expo-secure-store';
 import {
   getLocalStorageItem,
   removeAllLocalData,
@@ -7,19 +6,25 @@ import {
 import {crashlyticsLogReport} from './crashlyticsLogs';
 import {CUSTODY_ACCOUNTS_STORAGE_KEY} from '../constants';
 import {BIOMETRIC_KEY} from '../constants';
+import {
+  AFTER_FIRST_UNLOCK,
+  deleteItemAsync,
+  getItemAsync,
+  setItemAsync,
+} from 'expo-secure-store';
 const keychainService = '38WX44YTA6.com.blitzwallet.SharedKeychain';
 export const MIGRATION_FLAG = 'secureStoreMigrationComplete';
 export const SECURE_MIGRATION_V2_FLAG = 'secureStoreMigrationV2Complete';
 
 const KEYCHAIN_OPTION = {
   keychainService: keychainService,
-  keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK,
+  keychainAccessible: AFTER_FIRST_UNLOCK,
 };
 
 async function storeData(key, value, options = {}) {
   try {
     crashlyticsLogReport('Starting store data to secure store function');
-    await SecureStore.setItemAsync(key, value, {
+    await setItemAsync(key, value, {
       ...KEYCHAIN_OPTION,
       ...options,
     });
@@ -34,7 +39,7 @@ async function retrieveData(key, options = {}) {
   try {
     crashlyticsLogReport('Starting retrive data from secure store function');
 
-    const value = await SecureStore.getItemAsync(key, {
+    const value = await getItemAsync(key, {
       ...KEYCHAIN_OPTION,
       ...options,
     });
@@ -49,13 +54,11 @@ async function retrieveData(key, options = {}) {
 async function terminateAccount() {
   try {
     crashlyticsLogReport('Starting termiate data from secure store function');
-    await SecureStore.deleteItemAsync('pinHash', KEYCHAIN_OPTION);
-    await SecureStore.deleteItemAsync('encryptedMnemonic', KEYCHAIN_OPTION);
-    await SecureStore.deleteItemAsync(BIOMETRIC_KEY, KEYCHAIN_OPTION);
-    await SecureStore.deleteItemAsync(
-      CUSTODY_ACCOUNTS_STORAGE_KEY,
-      KEYCHAIN_OPTION,
-    );
+
+    await deleteItemAsync('pinHash', KEYCHAIN_OPTION);
+    await deleteItemAsync('encryptedMnemonic', KEYCHAIN_OPTION);
+    await deleteItemAsync(BIOMETRIC_KEY, KEYCHAIN_OPTION);
+    await deleteItemAsync(CUSTODY_ACCOUNTS_STORAGE_KEY, KEYCHAIN_OPTION);
 
     const didRemove = await removeAllLocalData();
     if (!didRemove) throw Error('not able to remove local storage data');
@@ -69,7 +72,7 @@ async function terminateAccount() {
 async function deleteItem(key) {
   try {
     crashlyticsLogReport('Starting delte item from secure store function');
-    await SecureStore.deleteItemAsync(key, KEYCHAIN_OPTION);
+    await deleteItemAsync(key, KEYCHAIN_OPTION);
 
     return true;
   } catch (error) {
@@ -89,15 +92,15 @@ async function runPinAndMnemoicMigration() {
     crashlyticsLogReport('Running SecureStore migration');
 
     const [oldPin, oldMnemonic] = await Promise.all([
-      SecureStore.getItemAsync('pin'),
-      SecureStore.getItemAsync('mnemonic'),
+      getItemAsync('pin'),
+      getItemAsync('mnemonic'),
     ]);
 
     if (oldPin || oldMnemonic) {
       if (oldPin) await storeData('pinHash', oldPin);
       if (oldMnemonic) await storeData('encryptedMnemonic', oldMnemonic);
-      await SecureStore.deleteItemAsync('pin');
-      await SecureStore.deleteItemAsync('mnemonic');
+      await deleteItemAsync('pin');
+      await deleteItemAsync('mnemonic');
     }
 
     await setLocalStorageItem(MIGRATION_FLAG, 'true');
@@ -119,8 +122,8 @@ async function runSecureStoreMigrationV2() {
 
     // Get unencrypted PIN and mnemonic (possibly migrated from old V1 already)
     const [plainPin, plainMnemonic] = await Promise.all([
-      SecureStore.getItemAsync('pin', KEYCHAIN_OPTION),
-      SecureStore.getItemAsync('mnemonic', KEYCHAIN_OPTION),
+      getItemAsync('pin', KEYCHAIN_OPTION),
+      getItemAsync('mnemonic', KEYCHAIN_OPTION),
     ]);
 
     if (plainPin && plainMnemonic) {
