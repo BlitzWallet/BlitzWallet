@@ -20,7 +20,13 @@ export default function NumberInputSendPage({
     value = value.replace(/^(-?)0+(?=\d)/, '$1'); //only have at max 1 leading 0. If a number comes then remove the 0 and replace with number
 
     setPaymentInfo(prev => {
-      return {...prev, sendAmount: value};
+      return {
+        ...prev,
+        sendAmount: value,
+        feeQuote: undefined,
+        paymentFee: 0,
+        supportFee: 0,
+      };
     });
   }, [amount]);
 
