@@ -1,4 +1,4 @@
-import {QUICK_PAY_STORAGE_KEY} from '../../constants';
+import {NWC_IDENTITY_PUB_KEY, QUICK_PAY_STORAGE_KEY} from '../../constants';
 import {BLITZ_FEE_PERCET, BLITZ_FEE_SATS} from '../../constants/math';
 import {getLocalStorageItem} from '../localStorage';
 import {isNewDaySince} from '../rotateAddressDateChecker';
@@ -18,6 +18,7 @@ const keys = [
   'enabledDeveloperSupport',
   'didViewNWCMessage',
   'userSelectedLanguage',
+  NWC_IDENTITY_PUB_KEY,
 ];
 
 const defaultValues = {
@@ -46,6 +47,7 @@ const defaultValues = {
   },
   didViewNWCMessage: false,
   userSelectedLanguage: 'en',
+  [NWC_IDENTITY_PUB_KEY]: '',
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -80,6 +82,8 @@ export const fetchLocalStorageItems = async () => {
     didViewNWCMessage: parsedResults[12] ?? defaultValues.didViewNWCMessage,
     userSelectedLanguage:
       parsedResults[13] ?? defaultValues.userSelectedLanguage,
+    nwc_identity_pub_key:
+      parsedResults[14] ?? defaultValues[NWC_IDENTITY_PUB_KEY],
   };
 };
 

@@ -6,7 +6,11 @@ import {
   getCurrentDateFormatted,
   getDateXDaysAgo,
 } from './rotateAddressDateChecker';
-import {MIN_CHANNEL_OPEN_FEE, QUICK_PAY_STORAGE_KEY} from '../constants';
+import {
+  MIN_CHANNEL_OPEN_FEE,
+  NWC_IDENTITY_PUB_KEY,
+  QUICK_PAY_STORAGE_KEY,
+} from '../constants';
 import {sendDataToDB} from '../../db/interactionManager';
 import {initializeFirebase} from '../../db/initializeFirebase';
 import {
@@ -17,6 +21,7 @@ import {crashlyticsLogReport} from './crashlyticsLogs';
 import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
 import fetchBackend from '../../db/handleBackend';
 import {getNWCData} from './nwc';
+import {getNWCSparkIdentityPubKey, initializeNWCWallet} from './nwc/wallet';
 
 export default async function initializeUserSettingsFromHistory({
   accountMnemoinc,
@@ -24,6 +29,7 @@ export default async function initializeUserSettingsFromHistory({
   setMasterInfoObject,
   toggleGlobalContactsInformation,
   toggleGlobalAppDataInformation,
+  toggleMasterInfoObject,
 }) {
   try {
     crashlyticsLogReport('Begining process of getting user settings');
@@ -77,6 +83,7 @@ export default async function initializeUserSettingsFromHistory({
       enabledDeveloperSupport,
       didViewNWCMessage,
       userSelectedLanguage,
+      nwc_identity_pub_key,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -283,6 +290,16 @@ export default async function initializeUserSettingsFromHistory({
       lrc20Settings = {
         isEnabled: false,
       };
+    }
+
+    if (!nwc_identity_pub_key) {
+      const didInit = await initializeNWCWallet();
+
+      if (didInit.isConnected) {
+        const pubkey = await getNWCSparkIdentityPubKey();
+
+        toggleMasterInfoObject({[NWC_IDENTITY_PUB_KEY]: pubkey});
+      }
     }
 
     // if (!lnurlPubKey) {

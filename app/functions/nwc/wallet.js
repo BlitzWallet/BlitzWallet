@@ -14,6 +14,8 @@ export const initializeNWCWallet = async () => {
     }
     const NWCMnemoinc = (await retrieveData(NWC_SECURE_STORE_MNEMOINC)).value;
 
+    if (!NWCMnemoinc) throw new Error('No seed created');
+
     const {wallet} = await SparkWallet.initialize({
       signer: new ReactNativeSparkSigner(),
       mnemonicOrSeed: NWCMnemoinc,

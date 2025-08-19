@@ -1,5 +1,5 @@
 import {addDataToCollection} from '.';
-import {QUICK_PAY_STORAGE_KEY} from '../app/constants';
+import {NWC_IDENTITY_PUB_KEY, QUICK_PAY_STORAGE_KEY} from '../app/constants';
 import {setLocalStorageItem} from '../app/functions';
 
 const PRESET_LOCAL_DATA = {
@@ -31,6 +31,7 @@ const PRESET_LOCAL_DATA = {
   },
   didViewNWCMessage: false,
   userSelectedLanguage: 'en',
+  [NWC_IDENTITY_PUB_KEY]: '',
 };
 
 async function sendDataToDB(newObject, uuid) {

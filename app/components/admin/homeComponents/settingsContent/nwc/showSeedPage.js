@@ -17,6 +17,7 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {
   CENTER,
+  NWC_IDENTITY_PUB_KEY,
   NWC_SECURE_STORE_MNEMOINC,
   SIZES,
 } from '../../../../../constants';
@@ -30,8 +31,14 @@ import {
 import CustomButton from '../../../../../functions/CustomElements/button';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import {
+  getNWCSparkIdentityPubKey,
+  initializeNWCWallet,
+} from '../../../../../functions/nwc/wallet';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
 
 export default function NWCWalletSetup(props) {
+  const {toggleMasterInfoObject} = useGlobalContextProvider();
   const {showToast} = useToast();
   const dimentions = useWindowDimensions();
   const fromWallet = props?.route?.params?.fromWallet;
@@ -64,6 +71,11 @@ export default function NWCWalletSetup(props) {
           if (response.error) {
             navigate.navigate('ErrorScreen', {errorMessage: response.error});
             return;
+          }
+          const didInit = await initializeNWCWallet();
+          if (didInit.isConnected) {
+            const pubkey = await getNWCSparkIdentityPubKey();
+            toggleMasterInfoObject({[NWC_IDENTITY_PUB_KEY]: pubkey});
           }
           setNWCMnemoinc(response.derivedMnemonic);
         });

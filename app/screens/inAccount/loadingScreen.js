@@ -132,6 +132,7 @@ export default function ConnectingToNodeLoadingScreen({
             toggleGlobalContactsInformation,
             // toggleGLobalEcashInformation,
             toggleGlobalAppDataInformation,
+            toggleMasterInfoObject,
           }),
           createSigner(),
         ]);
