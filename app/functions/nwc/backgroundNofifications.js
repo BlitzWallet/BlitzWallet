@@ -10,6 +10,7 @@ import {
 } from '../messaging/encodingAndDecodingMessages';
 import {publishToSingleRelay} from './publishResponse';
 import {
+  getNWCLightningReceiveRequest,
   getNWCSparkBalance,
   getNWCSparkTransactions,
   initializeNWCWallet,
@@ -18,7 +19,7 @@ import {
   sendNWCSparkLightningPayment,
 } from './wallet';
 import bolt11 from 'bolt11';
-import {sparkPaymentType} from '../spark';
+import {getSparkPaymentStatus, sparkPaymentType} from '../spark';
 import {pushInstantNotification} from '../notifications';
 import NWCInvoiceManager from './cachedNWCTxs';
 import {NOSTR_RELAY_URL, NWC_IDENTITY_PUB_KEY} from '../../constants';
@@ -27,6 +28,7 @@ import {getFunctions} from '@react-native-firebase/functions';
 import {Platform} from 'react-native';
 import fetchBackend from '../../../db/handleBackend';
 import {getLocalStorageItem} from '../localStorage';
+import sha256Hash from '../hash';
 
 const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
