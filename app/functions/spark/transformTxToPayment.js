@@ -6,6 +6,7 @@ export async function transformTxToPaymentObject(
   forcePaymentType,
   isRestore,
   unpaidLNInvoices,
+  identityPubKey,
 ) {
   // Defer all payments to the 10 second interval to be updated
   const paymentType = forcePaymentType
@@ -26,7 +27,7 @@ export async function transformTxToPaymentObject(
       id: tx.id,
       paymentStatus: 'pending',
       paymentType: 'lightning',
-      accountId: tx.receiverIdentityPublicKey,
+      accountId: identityPubKey,
       details: {
         fee: 0,
         amount: tx.totalValue,
@@ -52,7 +53,7 @@ export async function transformTxToPaymentObject(
       id: tx.id,
       paymentStatus: 'completed',
       paymentType: 'spark',
-      accountId: tx.receiverIdentityPublicKey,
+      accountId: identityPubKey,
       details: {
         fee: 0,
         amount: tx.totalValue,
@@ -71,10 +72,7 @@ export async function transformTxToPaymentObject(
       id: tx.id,
       paymentStatus: 'pending',
       paymentType: 'bitcoin',
-      accountId:
-        tx.transferDirection === 'OUTGOING'
-          ? tx.senderIdentityPublicKey
-          : tx.receiverIdentityPublicKey,
+      accountId: identityPubKey,
       details: {
         fee: 0,
         amount: tx.totalValue,

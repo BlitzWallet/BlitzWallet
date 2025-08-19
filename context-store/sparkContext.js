@@ -144,6 +144,7 @@ const SparkWalletProvider = ({children}) => {
         undefined,
         false,
         unpaidInvoices,
+        sparkInformation.identityPubKey,
       );
 
       if (paymentObject) {

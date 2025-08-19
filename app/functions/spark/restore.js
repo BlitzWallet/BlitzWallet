@@ -158,6 +158,7 @@ export async function fullRestoreSparkState({
           undefined,
           true,
           unpaidInvoices,
+          identityPubKey,
         );
         if (paymentObject) {
           newPaymentObjects.push(paymentObject);

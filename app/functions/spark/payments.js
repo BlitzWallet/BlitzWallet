@@ -208,10 +208,7 @@ export const sparkPaymenWrapper = async ({
         id: seletctedToken !== 'Bitcoin' ? data : data.id,
         paymentStatus: 'completed',
         paymentType: 'spark',
-        accountId:
-          seletctedToken !== 'Bitcoin'
-            ? sparkInformation.identityPubKey
-            : data.senderIdentityPublicKey,
+        accountId: sparkInformation.identityPubKey,
         details: {
           fee: supportFee,
           amount: amountSats,
