@@ -35,14 +35,16 @@ Blitz Wallet is a React Native application that allows users to interact with th
 
 - [x] Migrate from local storage to Google Firebase
 - [x] Contacts
-- [ ] Translation option
+- [x] Translation option
 - [x] Suggested words when restoring the wallet
 - [x] migrate from expo 49 to 51
 - [x] Integrate Bitcoin Liquid Wallet
 - [x] Add apps to store
 - [ ] Add Rootstock as a receive option
-- [ ] Ability to create sub accounts within wallet
-- [ ] NWC 
+- [x] Ability to create sub accounts within wallet
+- [x] NWC
+- [ ] Improve noticications
+- [ ] Improve inital load speed
 
 ## Download Blitz Wallet
 
