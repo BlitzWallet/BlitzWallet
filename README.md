@@ -45,6 +45,7 @@ Blitz Wallet is a React Native application that allows users to interact with th
 - [x] NWC
 - [ ] Improve noticications
 - [ ] Improve inital load speed
+- [ ] Create build option
 
 ## Download Blitz Wallet
 
