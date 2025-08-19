@@ -1,11 +1,11 @@
 import {ThemeText} from '../../functions/CustomElements';
 import React, {useMemo, useState} from 'react';
-import {LineChart, XAxis, YAxis} from 'react-native-svg-charts';
 import {
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import GetThemeColors from '../../hooks/themeColors';
@@ -22,12 +22,11 @@ import {
 import {formatBalanceAmount} from '../../functions';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import NoDataView from '../../components/admin/homeComponents/explore/noDataView';
-import Grid from '../../functions/CustomElements/chart/grid';
 import {FONT, INSET_WINDOW_WIDTH} from '../../constants/theme';
 import {useGlobalThemeContext} from '../../../context-store/theme';
-import LineChartDot from '../../functions/CustomElements/chart/lineChartDot';
 import {findLargestByVisualWidth} from '../../components/admin/homeComponents/explore/largestNumber';
 import {useTranslation} from 'react-i18next';
+import CustomLineChart from '../../functions/CustomElements/customLineChart';
 
 export default function ExploreUsers() {
   const [timeFrame, setTimeFrame] = useState('day');
@@ -38,28 +37,21 @@ export default function ExploreUsers() {
   const [targetUserCountBarWidth, setTargetUserCountBarWidth] = useState(0);
   const [yAxisWidth, setYAxisWidth] = useState(0);
   const dataObject = JSON.parse(JSON.stringify(masterInfoObject.exploreData));
+  const windowDimensions = useWindowDimensions().width;
   const data = dataObject ? dataObject[timeFrame].reverse() : [];
 
   const min = data.reduce((prev, current) => {
-    console.log(prev, current);
     if (current?.value < prev) return current.value;
     else return prev;
   }, BLITZ_GOAL_USER_COUNT);
 
   const max = data.reduce((prev, current) => {
-    console.log(prev, current);
     if (current?.value > prev) return current.value;
     else return prev;
   }, 0);
 
   const totalYesterday = masterInfoObject.exploreData?.['day']?.[1]?.value || 0;
 
-  const axesSvg = {
-    fontSize: SIZES.small,
-    fill: textColor,
-    fontFamily: FONT.Title_Regular,
-  };
-  const verticalContentInset = {top: 10, bottom: 10};
   const xAxisHeight = 30;
 
   const largestNumber = useMemo(() => {
@@ -104,59 +96,38 @@ export default function ExploreUsers() {
     });
   }, [timeFrame, textColor, theme, darkModeType]);
 
-  const XaxisElement = useMemo(() => {
-    return (
-      <XAxis
-        style={{
-          height: xAxisHeight,
-          // position: 'abolute',
-        }}
-        data={[0, 1, 2, 3, 4, 5, 6].map((_, index) => index)}
-        formatLabel={(value, index) => {
-          if (timeFrame === 'year') {
-            const now = new Date().getTime();
-            return `${new Date(
-              now - YEAR_IN_MILLS * Math.abs(6 - index),
-            ).getFullYear()}`;
-          } else if (timeFrame === 'month') {
-            const now = new Date().getTime();
-            const dateIndex = new Date(
-              now - MONTH_IN_MILLS * Math.abs(6 - index),
-            ).getMonth();
-            return t(`months.${MONTH_GROUPING[dateIndex]}`).slice(0, 3);
-          } else if (timeFrame === 'day') {
-            const now = new Date().getTime() - DAY_IN_MILLS;
-            const dateIndex = new Date(
-              now - DAY_IN_MILLS * Math.abs(7 - index),
-            ).getDay();
-            return t(`weekdays.${WEEK_OPTIONS[dateIndex]}`).slice(0, 3);
-          } else {
-            const now = new Date();
-            const todayDay = now.getDay();
-
-            const daysToSunday = 7 - (todayDay === 0 ? 7 : todayDay);
-
-            const endOfWeek = new Date(
-              now.getTime() + daysToSunday * DAY_IN_MILLS,
-            );
-
-            const dateIndex = new Date(
-              endOfWeek - WEEK_IN_MILLS * Math.abs(6 - index),
-            );
-            const day = dateIndex.getDate();
-            const month = dateIndex.getMonth() + 1;
-            return `${month}/${day}`;
-          }
-        }}
-        contentInset={{left: 15, right: 15}}
-        svg={{
-          ...axesSvg,
-          rotation: 0,
-          origin: 0,
-          y: 0,
-        }}
-      />
-    );
+  const xLabels = useMemo(() => {
+    return [0, 1, 2, 3, 4, 5, 6].map((_, index) => {
+      if (timeFrame === 'year') {
+        const now = new Date().getTime();
+        return `${new Date(
+          now - YEAR_IN_MILLS * Math.abs(6 - index),
+        ).getFullYear()}`;
+      } else if (timeFrame === 'month') {
+        const now = new Date().getTime();
+        const dateIndex = new Date(
+          now - MONTH_IN_MILLS * Math.abs(6 - index),
+        ).getMonth();
+        return t(`months.${MONTH_GROUPING[dateIndex]}`).slice(0, 3);
+      } else if (timeFrame === 'day') {
+        const now = new Date().getTime() - DAY_IN_MILLS;
+        const dateIndex = new Date(
+          now - DAY_IN_MILLS * Math.abs(7 - index),
+        ).getDay();
+        return t(`weekdays.${WEEK_OPTIONS[dateIndex]}`).slice(0, 3);
+      } else {
+        const now = new Date();
+        const todayDay = now.getDay();
+        const daysToSunday = 7 - (todayDay === 0 ? 7 : todayDay);
+        const endOfWeek = new Date(now.getTime() + daysToSunday * DAY_IN_MILLS);
+        const dateIndex = new Date(
+          endOfWeek - WEEK_IN_MILLS * Math.abs(6 - index),
+        );
+        const day = dateIndex.getDate();
+        const month = dateIndex.getMonth() + 1;
+        return `${month}/${day}`;
+      }
+    });
   }, [timeFrame, t]);
 
   if (
@@ -172,7 +143,6 @@ export default function ExploreUsers() {
       contentContainerStyle={styles.scrollView}>
       <Text
         onLayout={event => {
-          console.log(event.nativeEvent.layout.width);
           setYAxisWidth(Math.round(event.nativeEvent.layout.width));
         }}
         style={styles.sizingText}>
@@ -232,40 +202,20 @@ export default function ExploreUsers() {
       </View>
 
       <View style={styles.chartContainer}>
-        <YAxis
-          data={data.map(data => data.value)}
-          style={{
-            marginBottom: xAxisHeight,
-            width: yAxisWidth + 5,
-          }}
-          contentInset={verticalContentInset}
-          svg={axesSvg}
+        <CustomLineChart
+          data={data.map(d => d.value)}
+          width={windowDimensions * 0.95 - yAxisWidth}
+          height={250}
           min={Math.round(min * 0.95)}
           max={Math.round(max * (timeFrame !== 'day' ? 1.2 : 1.05))}
-          numberOfTicks={7}
+          xLabels={xLabels}
+          strokeColor={
+            theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+          }
+          textColor={textColor}
         />
-        <View style={{flex: 1, marginLeft: 5}}>
-          <LineChart
-            style={{flex: 1}}
-            data={data.map(data => data.value)}
-            contentInset={{...verticalContentInset, left: 10, right: 10}}
-            svg={{
-              stroke:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              strokeWidth: 3,
-            }}
-            yMin={Math.round(min * 0.95)}
-            yMax={Math.round(max * (timeFrame !== 'day' ? 1.2 : 1.05))}>
-            <Grid />
-            <LineChartDot
-              color={
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-              }
-            />
-          </LineChart>
-          {XaxisElement}
-        </View>
       </View>
+
       <View style={styles.timeFrameElementsContainer}>{timeFrameElements}</View>
     </ScrollView>
   );
@@ -321,7 +271,6 @@ const styles = StyleSheet.create({
   timeFrameElement: {
     flexGrow: 1,
     borderRadius: 8,
-
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
