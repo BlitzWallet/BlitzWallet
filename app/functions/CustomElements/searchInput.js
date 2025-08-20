@@ -2,7 +2,8 @@ import {StyleSheet, TextInput, View} from 'react-native';
 import {CENTER, COLORS, FONT, SIZES} from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useCallback, useMemo} from 'react';
+import {useCallback, useMemo, useState} from 'react';
+import ThemeText from './textTheme';
 
 export default function CustomSearchInput({
   inputText,
@@ -26,6 +27,7 @@ export default function CustomSearchInput({
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textInputColor, textInputBackground} = GetThemeColors();
+  const [textInputLayout, setTextInputLayout] = useState({});
   const memorizedStyles = useMemo(
     () => ({
       ...styles.searchInput,
@@ -51,6 +53,19 @@ export default function CustomSearchInput({
       : COLORS.opaicityGray;
   }, [theme, darkModeType, placeholderTextColor]);
 
+  const placeholderStyles = useMemo(
+    () => ({
+      color: placeholderTextColorStyles,
+      ...styles.searchInput,
+      ...textInputStyles,
+      flexShrink: 1,
+      position: 'absolute',
+      zIndex: 1,
+      pointerEvents: 'none',
+    }),
+    [placeholderTextColorStyles, textInputStyles],
+  );
+  console.log(textInputLayout);
   const blurOnSubmitValue = useMemo(() => {
     return blurOnSubmit != undefined ? blurOnSubmit : true;
   }, [blurOnSubmit]);
@@ -83,12 +98,23 @@ export default function CustomSearchInput({
       }, 150);
     } else onBlurFunction();
   }, [onBlurFunction, shouldDelayBlur]);
+  const showPlaceholder = !inputText && placeholderText;
 
   return (
     <View style={viewContainerStyles}>
+      {showPlaceholder && (
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={placeholderStyles}
+          content={placeholderText}
+        />
+      )}
       <TextInput
+        onLayout={e => {
+          setTextInputLayout(e.nativeEvent.layout);
+        }}
         keyboardAppearance={keyboardAppearance}
-        placeholder={placeholderText}
+        placeholder={''}
         placeholderTextColor={placeholderTextColorStyles}
         value={inputText}
         ref={textInputRef}
@@ -114,6 +140,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     width: '100%',
     ...CENTER,
+    alignItems: 'center',
   },
 
   searchInput: {
@@ -123,6 +150,5 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-    ...CENTER,
   },
 });

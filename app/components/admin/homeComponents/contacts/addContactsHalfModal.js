@@ -194,7 +194,7 @@ export default function AddContactsHalfModal(props) {
             textInputRef={keyboardRef}
             blurOnSubmit={false}
             containerStyles={{justifyContent: 'center'}}
-            textInputStyles={{paddingRight: 40}}
+            textInputStyles={{paddingRight: 45}}
             onSubmitEditingFunction={() => {
               clearHalfModalForLNURL();
             }}

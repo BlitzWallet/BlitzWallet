@@ -747,10 +747,10 @@
     "addContactsHalfModal": {
       "noContactsMessage": "No se pudo encontrar contacto.",
       "title": "Añadir contacto",
-      "searchPlaceholder": "Buscar nombre de usuario o LNURL",
+      "searchPlaceholder": "Encontrar un contacto",
       "lnurlAddMessage": "Estás a punto de añadir",
       "noProfilesFound": "No hay perfiles que coincidan con esta búsqueda",
-      "startTypingMessage": "Comienza a escribir para buscar un perfil"
+      "startTypingMessage": "Buscar por LNURL (por ejemplo, nombre@servicio.com) o nombre de usuario de Blitz."
     },
     "expandedContactPage": {
       "loadingContactError": "No se pudo cargar el contacto, intenta de nuevo.",
