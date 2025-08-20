@@ -55,13 +55,13 @@ export default function CustomSearchInput({
 
   const placeholderStyles = useMemo(
     () => ({
-      color: placeholderTextColorStyles,
       ...styles.searchInput,
       ...textInputStyles,
       flexShrink: 1,
       position: 'absolute',
       zIndex: 1,
       pointerEvents: 'none',
+      color: placeholderTextColorStyles,
     }),
     [placeholderTextColorStyles, textInputStyles],
   );

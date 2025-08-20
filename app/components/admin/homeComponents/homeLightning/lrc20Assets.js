@@ -203,10 +203,8 @@ export default function LRC20Assets() {
         }}>
         <ScrollView
           showsVerticalScrollIndicator={true}
-          style={{
-            width: INSET_WINDOW_WIDTH,
-            ...CENTER,
-          }}>
+          nestedScrollEnabled={true}
+          style={styles.scrollView}>
           {availableTokens.length > 3 && (
             <CustomSearchInput
               inputText={searchQuery}
@@ -237,6 +235,10 @@ export default function LRC20Assets() {
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
   tokenRowContainer: {
     padding: 10,
     borderRadius: 8,

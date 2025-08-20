@@ -274,7 +274,6 @@ export default function CreateCustodyAccounts() {
 
   const searchContainerStyles = useMemo(
     () => ({
-      paddingTop: 10,
       marginBottom: 10,
       backgroundColor,
     }),

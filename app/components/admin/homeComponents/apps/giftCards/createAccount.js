@@ -143,10 +143,7 @@ export default function CreateGiftCardAccount(props) {
                     setInputText={setEmail}
                     placeholderText={'email@address.com'}
                     placeholderTextColor={COLORS.opaicityGray}
-                    textInputStyles={{
-                      ...styles.textInput,
-                      marginTop: 50,
-                    }}
+                    textInputStyles={styles.textInput}
                     onBlurFunction={() => {
                       setIsKeyboardActive(false);
                     }}
@@ -256,6 +253,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 8,
     marginBottom: 30,
+    marginTop: 50,
   },
   button: {
     width: 'auto',
