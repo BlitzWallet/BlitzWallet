@@ -32,6 +32,7 @@ export const ActiveCustodyAccountProvider = ({children}) => {
   const [nostrSeed, setNostrSeed] = useState('');
   const hasSessionReset = useRef(false);
   const selectedAltAccount = custodyAccounts.filter(item => item.isActive);
+  const didSelectAltAccount = !!selectedAltAccount.length;
   const enabledNWC = masterInfoObject.didViewNWCMessage;
 
   useEffect(() => {
@@ -191,7 +192,7 @@ export const ActiveCustodyAccountProvider = ({children}) => {
   };
 
   const currentWalletMnemoinc = useMemo(() => {
-    if (isUsingAltAccount) {
+    if (didSelectAltAccount) {
       return selectedAltAccount[0].mnemoinc;
     } else if (isUsingNostr) {
       return nostrSeed;
@@ -201,7 +202,7 @@ export const ActiveCustodyAccountProvider = ({children}) => {
   }, [
     accountMnemoinc,
     selectedAltAccount,
-    isUsingAltAccount,
+    didSelectAltAccount,
     isUsingNostr,
     nostrSeed,
   ]);
