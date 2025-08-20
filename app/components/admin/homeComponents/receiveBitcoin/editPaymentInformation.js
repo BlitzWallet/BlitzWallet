@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import {ScrollView, StyleSheet, TouchableOpacity} from 'react-native';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {
   CENTER,
   FONT,
@@ -72,20 +72,14 @@ export default function EditReceivePaymentInformation(props) {
           lightsOutIcon={ICONS.arrow_small_left_white}
         />
       </TouchableOpacity>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          flex: 1,
-          justifyContent: 'center',
-          width: '100%',
-        }}>
+        contentContainerStyle={styles.amountScrollContainer}>
         <FormattedBalanceInput
           maxWidth={0.9}
           amountValue={amountValue}
           inputDenomination={inputDenomination}
-          customTextInputContainerStyles={{
-            padding: 10,
-          }}
           containerFunction={() => {
             setInputDenomination(prev => {
               const newPrev = prev === 'sats' ? 'fiat' : 'sats';
@@ -165,7 +159,10 @@ const styles = StyleSheet.create({
   globalContainer: {
     flex: 1,
   },
-
+  amountScrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   satValue: {
     textAlign: 'center',
   },

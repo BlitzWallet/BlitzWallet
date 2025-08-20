@@ -4,16 +4,12 @@ import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {useCallback, useMemo, useRef, useState} from 'react';
 import {publishMessage} from '../../../../functions/messaging/publishMessage';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../functions/CustomElements';
+import {CustomKeyboardAvoidingView} from '../../../../functions/CustomElements';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {getFiatRates} from '../../../../functions/SDK';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import customUUID from '../../../../functions/customUUID';
@@ -26,7 +22,6 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
 import {useImageCache} from '../../../../../context-store/imageCache';
-import ContactProfileImage from './internalComponents/profileImage';
 import getReceiveAddressForContactPayment from './internalComponents/getReceiveAddressAndKindForPayment';
 import {useServerTimeOnly} from '../../../../../context-store/serverTime';
 import {useTranslation} from 'react-i18next';
@@ -34,18 +29,13 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
-  const {cache} = useImageCache();
   const {masterInfoObject} = useGlobalContextProvider();
   const {contactsPrivateKey} = useKeysContext();
   const {isConnectedToTheInternet} = useAppStatus();
   const {fiatStats} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset} = GetThemeColors();
   const {globalContactsInformation} = useGlobalContacts();
   const getServerTime = useServerTimeOnly();
-  // const {ecashWalletInformation} = useGlobaleCash();
-  // const eCashBalance = ecashWalletInformation.balance;
   const [amountValue, setAmountValue] = useState('');
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [descriptionValue, setDescriptionValue] = useState('');
@@ -225,24 +215,6 @@ export default function SendAndRequestPage(props) {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollViewContainer}>
-          <View
-            style={[
-              styles.profileImage,
-              {
-                backgroundColor: backgroundOffset,
-              },
-            ]}>
-            <ContactProfileImage
-              updated={cache[selectedContact.uuid]?.updated}
-              uri={cache[selectedContact.uuid]?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          </View>
-          <ThemeText
-            styles={styles.profileName}
-            content={`${selectedContact.name || selectedContact.uniqueName}`}
-          />
           <FormattedBalanceInput
             maxWidth={0.9}
             amountValue={amountValue || 0}
@@ -273,7 +245,6 @@ export default function SendAndRequestPage(props) {
             balance={convertedSendAmount}
           />
         </ScrollView>
-
         <CustomSearchInput
           onFocusFunction={() => {
             setIsAmountFocused(false);
@@ -324,9 +295,12 @@ export default function SendAndRequestPage(props) {
 }
 
 const styles = StyleSheet.create({
-  topBar: {marginTop: 0},
+  topBar: {marginTop: 0, marginBottom: 0},
   scrollViewContainer: {
     paddingBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 1,
   },
   profileImage: {
     width: 100,
@@ -336,7 +310,7 @@ const styles = StyleSheet.create({
     ...CENTER,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
+    // marginTop: 20,
     marginBottom: 5,
     overflow: 'hidden',
   },

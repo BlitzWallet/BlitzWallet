@@ -12,7 +12,7 @@ export default function CustomLineChart({
   strokeColor,
   textColor,
 }) {
-  const padding = {top: 20, bottom: 30, left: 40, right: 20};
+  const padding = {top: 20, bottom: 30, left: 30, right: 20};
 
   // Scales
   const xScale = scale
