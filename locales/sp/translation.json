@@ -1260,6 +1260,11 @@
     "appStore": "Tienda",
     "contacts": "Contactos"
   },
+  "contexts": {
+    "spark": {
+      "depositLabel": "Dirección de pago de depósito"
+    }
+  },
   "pushNotifications": {
     "LNURL": {
       "zapped": "Fuiste electrocutado {{totalAmount}}",

@@ -21,6 +21,9 @@ export async function getLRC20Transactions({
     getSparkTokenTransactions({ownerPublicKeys, mnemonic}),
   ]);
 
+  if (!tokenTxs?.tokenTransactionsWithStatus) return;
+  const tokenTransactions = tokenTxs.tokenTransactionsWithStatus;
+
   const savedIds = new Set(savedTxs?.map(tx => tx.sparkID) || []);
 
   let timeCutoff =
@@ -28,7 +31,7 @@ export async function getLRC20Transactions({
 
   let newTxs = [];
 
-  for (const tokenTx of tokenTxs) {
+  for (const tokenTx of tokenTransactions) {
     const tokenReceivedDate = new Date(
       tokenTx.tokenTransaction.clientCreatedTimestamp,
     );

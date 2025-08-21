@@ -3799,7 +3799,7 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.10)
   - SocketRocket (0.7.1)
-  - spark-sdk (0.2.7):
+  - spark-sdk (0.2.10):
     - React
     - React-Core
   - UMAppLoader (5.1.3)
@@ -4386,7 +4386,7 @@ SPEC CHECKSUMS:
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  spark-sdk: 9373044ff7642302d4fa49ead9fc1293f3a711a8
+  spark-sdk: a126ef95d385f3dd89438855e291c86e7b884ebc
   UMAppLoader: 55159b69750129faa7a51c493cb8ea55a7b64eb9
   VisionCamera: 9a8f98ae344fe5d148f84bb45829f9e4caab9d2f
   Yoga: 2a3a4c38a8441b6359d5e5914d35db7b2b67aebd

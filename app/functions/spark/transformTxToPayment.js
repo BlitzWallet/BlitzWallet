@@ -1,4 +1,4 @@
-import {sparkPaymentType} from '.';
+import {getSparkPaymentStatus, sparkPaymentType} from '.';
 
 export async function transformTxToPaymentObject(
   tx,
@@ -23,21 +23,24 @@ export async function transformTxToPaymentObject(
       );
     });
 
+    const status = getSparkPaymentStatus(tx.status);
+    const userRequest = tx.userRequest;
+
     return {
       id: tx.id,
-      paymentStatus: 'pending',
+      paymentStatus: status,
       paymentType: 'lightning',
       accountId: identityPubKey,
       details: {
         fee: 0,
         amount: tx.totalValue,
-        address: '',
+        address: userRequest ? userRequest.invoice.encodedInvoice : '',
         time: tx.updatedTime
           ? new Date(tx.updatedTime).getTime()
           : new Date().getTime(),
         direction: tx.transferDirection,
         description: foundInvoice?.description || '',
-        preimage: '',
+        preimage: userRequest ? userRequest.invoice.paymentPreimage || '' : '',
         isRestore,
         isBlitzContactPayment: foundInvoice
           ? JSON.parse(foundInvoice.details)?.isBlitzContactPayment

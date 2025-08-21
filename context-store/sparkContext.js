@@ -46,6 +46,7 @@ import EventEmitter from 'events';
 import {getLRC20Transactions} from '../app/functions/lrc20';
 import {useActiveCustodyAccount} from './activeAccount';
 import sha256Hash from '../app/functions/hash';
+import i18n from 'i18next';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -652,7 +653,7 @@ const SparkWalletProvider = ({children}) => {
           address: address,
           time: new Date().getTime(),
           direction: 'INCOMING',
-          description: 'Deposit address payment',
+          description: i18n.t('contexts.spark.depositLabel'),
           onChainTxid: quote.transactionId,
           isRestore: true, // This is a restore payment
         },

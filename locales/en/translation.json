@@ -1431,6 +1431,11 @@
     "loadingText": "We're setting things up. Hang tight! This could take up to a minute.",
     "errorText1": "Error connecting to your node. Try reloading the app."
   },
+  "contexts": {
+    "spark": {
+      "depositLabel": "Deposit address payment"
+    }
+  },
   "tabs": {
     "home": "Wallet",
     "appStore": "Store",
