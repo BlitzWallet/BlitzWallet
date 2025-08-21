@@ -9,6 +9,7 @@
     "verify": "Verificar",
     "internetError": "Por favor, vuelve a conectarte a internet para usar esta función",
     "send": "Enviar",
+    "decline": "Declinar",
     "receive": "Recibir",
     "accept": "Aceptar",
     "total_balance": "Saldo total",
@@ -1258,5 +1259,17 @@
     "home": "Billetera",
     "appStore": "Tienda",
     "contacts": "Contactos"
+  },
+  "pushNotifications": {
+    "LNURL": {
+      "zapped": "Fuiste electrocutado {{totalAmount}}",
+      "regular": "Acabas de recibir {{totalAmount}}"
+    },
+    "POS": "Pedido recibido: {{totalAmount}}",
+    "contacts": {
+      "updateMessage": "{{name}} {{option}} su solicitud",
+      "request": "{{name}} te solicitó {{amount}}",
+      "payment:": "{{name}} te pagó {{amount}}"
+    }
   }
 }

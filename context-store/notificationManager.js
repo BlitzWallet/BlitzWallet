@@ -14,6 +14,7 @@ import {useKeysContext} from './keys';
 import {checkGooglePlayServices} from '../app/functions/checkGoogleServices';
 import {isEmulatorSync} from 'react-native-device-info';
 import handleNWCBackgroundEvent from '../app/functions/nwc/backgroundNofifications';
+import i18n from 'i18next';
 import {
   addNotificationReceivedListener,
   addNotificationResponseReceivedListener,
@@ -26,6 +27,9 @@ import {
   setNotificationChannelAsync,
 } from 'expo-notifications';
 import sha256Hash from '../app/functions/hash';
+import {formatBalanceAmount, getLocalStorageItem} from '../app/functions';
+import {BITCOIN_SAT_TEXT, BITCOIN_SATS_ICON} from '../app/constants';
+import {pushInstantNotification} from '../app/functions/notifications';
 
 const firebaseMessaging = getMessaging();
 
@@ -173,6 +177,7 @@ async function registerForPushNotificationsAsync() {
     }
 
     const pushToken = await getExpoPushTokenAsync(options);
+    console.log(pushToken);
     return {didWork: true, token: pushToken.data};
   } catch (err) {
     console.error('UNEXPECTED ERROR IN FUNCTION', err);
@@ -183,14 +188,57 @@ async function registerForPushNotificationsAsync() {
 // Background task registration
 const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';
 
+async function formatPushNotification(data) {
+  const [selectedLangugae, displayWord] = await Promise.all([
+    getLocalStorageItem('userSelectedLanguage').then(data => JSON.parse(data)),
+    getLocalStorageItem('satDisplay').then(data => JSON.parse(data) === 'word'),
+  ]);
+  i18n.changeLanguage(selectedLangugae);
+
+  let messsage = '';
+  const formattedAmount = data.amountSat
+    ? `${!displayWord ? BITCOIN_SATS_ICON : ''}${formatBalanceAmount(
+        data.amountSat,
+        true,
+      )}${displayWord ? ` ${BITCOIN_SAT_TEXT}` : ''}`
+    : '';
+
+  if (data.notificationType === 'POS') {
+    messsage = i18n.t('pushNotifications.POS', {
+      totalAmount: formattedAmount,
+    });
+  } else if (data.notificationType === 'LNURL') {
+    messsage = i18n.t(`pushNotifications.LNURL.${data.type}`, {
+      totalAmount: formattedAmount,
+    });
+  } else if (data.notificationType === 'contacts') {
+    if (data.type === 'updateMessage') {
+      messsage = i18n.t(`pushNotifications.contacts.updateMessage`, {
+        name: data.name,
+        option: i18n.t(`transactionLabelText.${data.option}`),
+      });
+    } else {
+      messsage = i18n.t(`pushNotifications.contacts.${data.type}`, {
+        name: data.name,
+        amount: formattedAmount,
+      });
+    }
+  }
+  pushInstantNotification(messsage);
+}
+
 TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async ({data, error}) => {
   if (error) {
     console.error('Background task error:', error);
     return;
   }
   if (data) {
-    await handleNWCBackgroundEvent(data);
     console.log(data, 'RUNNING IN BACKGROUND');
+    if (data.data.body?.format) {
+      await formatPushNotification(data.data.body);
+      return;
+    }
+    await handleNWCBackgroundEvent(data);
   }
 });
 
@@ -198,6 +246,11 @@ export async function registerBackgroundNotificationTask() {
   try {
     if (Platform.OS === 'android') {
       setBackgroundMessageHandler(firebaseMessaging, async data => {
+        console.log(data, 'RUNNING IN BACKGROUND');
+        if (data.data.body?.format) {
+          await formatPushNotification(data.data.body);
+          return;
+        }
         await handleNWCBackgroundEvent(data);
       });
     } else {

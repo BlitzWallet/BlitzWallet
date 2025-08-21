@@ -9,6 +9,7 @@
     "verify": "Verify",
     "internetError": "Please reconnect to the internet to use this feature",
     "send": "Send",
+    "decline": "Decline",
     "receive": "Receive",
     "accept": "Accept",
     "total_balance": "Total Balance",
@@ -1434,5 +1435,17 @@
     "home": "Wallet",
     "appStore": "Store",
     "contacts": "Contacts"
+  },
+  "pushNotifications": {
+    "LNURL": {
+      "zapped": "You were zapped {{totalAmount}}",
+      "regular": "You just received {{totalAmount}}"
+    },
+    "POS": "Order received: {{totalAmount}}",
+    "contacts": {
+      "updateMessage": "{{name}} {{option}} your request",
+      "request": "{{name}} requested you {{amount}}",
+      "payment": "{{name}} paid you {{amount}}"
+    }
   }
 }

@@ -72,65 +72,51 @@ export async function sendPushNotification({
     const devicePushKey =
       retrivedContact?.pushNotifications?.key?.encriptedText;
     const deviceType = retrivedContact?.pushNotifications?.platform;
-    const sendingContactFiatCurrency = retrivedContact?.fiatCurrency || 'USD';
-    const sendingContactDenominationType =
-      retrivedContact?.userBalanceDenomination || 'sats';
+    // const sendingContactFiatCurrency = retrivedContact?.fiatCurrency || 'USD';
+    // const sendingContactDenominationType =
+    //   retrivedContact?.userBalanceDenomination || 'sats';
 
-    const fiatValue = fiatCurrencies.filter(
-      currency =>
-        currency.coin.toLowerCase() ===
-        sendingContactFiatCurrency.toLowerCase(),
-    );
-    const didFindCurrency = fiatValue.length >= 1;
-    const fiatAmount =
-      didFindCurrency &&
-      (
-        (fiatValue[0]?.value / SATSPERBITCOIN) *
-        (data.amountMsat / 1000)
-      ).toFixed(2);
+    // const fiatValue = fiatCurrencies.filter(
+    //   currency =>
+    //     currency.coin.toLowerCase() ===
+    //     sendingContactFiatCurrency.toLowerCase(),
+    // );
+    // const didFindCurrency = fiatValue.length >= 1;
+    // const fiatAmount =
+    //   didFindCurrency &&
+    //   (
+    //     (fiatValue[0]?.value / SATSPERBITCOIN) *
+    //     (data.amountMsat / 1000)
+    //   ).toFixed(2);
 
     console.log(devicePushKey, deviceType);
 
     if (!devicePushKey || !deviceType) return;
-    let message;
+    let notificationData = {
+      name: myProfile.name || myProfile.uniqueName,
+    };
+
     if (data.isUpdate) {
-      message = data.message;
+      notificationData['option'] =
+        data.option === 'paid' ? 'paidLower' : 'declinedLower';
+      notificationData['type'] = 'updateMessage';
     } else if (data.isRequest) {
-      message = `${
-        myProfile.name || myProfile.uniqueName
-      } requested you ${formatBalanceAmount(
-        sendingContactDenominationType != 'fiat' || !fiatAmount
-          ? data.amountMsat / 1000
-          : fiatAmount,
-      )} ${
-        sendingContactDenominationType != 'fiat' || !fiatAmount
-          ? BITCOIN_SAT_TEXT
-          : sendingContactFiatCurrency
-      }`;
+      notificationData['amountSat'] = data.amountMsat / 1000;
+      notificationData['type'] = 'request';
     } else {
-      message = `${
-        myProfile.name || myProfile.uniqueName
-      } paid you ${formatBalanceAmount(
-        sendingContactDenominationType != 'fiat' || !fiatAmount
-          ? data.amountMsat / 1000
-          : fiatAmount,
-      )} ${
-        sendingContactDenominationType != 'fiat' || !fiatAmount
-          ? BITCOIN_SAT_TEXT
-          : sendingContactFiatCurrency
-      }`;
+      notificationData['amountSat'] = data.amountMsat / 1000;
+      notificationData['type'] = 'payment';
     }
+
     const requestData = {
       devicePushKey: devicePushKey,
       deviceType: deviceType,
-      message: message,
+      notificationData,
       decryptPubKey: retrivedContact.uuid,
     };
 
-    console.log(JSON.stringify(requestData));
-
     const response = await fetchBackend(
-      'contactsPushNotificationV3',
+      'contactsPushNotificationV4',
       requestData,
       privateKey,
       myProfile.uuid,

@@ -255,15 +255,7 @@ export default function ContactsTransactionItem(props) {
             myProfile: myProfile,
             data: {
               isUpdate: true,
-              message: t(
-                'contacts.internalComponents.contactsTransactions.pushNotificationUpdateMessage',
-                {
-                  name: myProfile.name || myProfile.uniqueName,
-                  option: didPay
-                    ? t('transactionLabelText.paidLower')
-                    : t('transactionLabelText.declinedLower'),
-                },
-              ),
+              option: didPay ? 'paid' : 'declined',
             },
             fiatCurrencies: fiatCurrencies,
             privateKey: contactsPrivateKey,
