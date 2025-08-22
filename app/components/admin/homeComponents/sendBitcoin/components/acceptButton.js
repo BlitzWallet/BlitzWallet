@@ -35,6 +35,7 @@ export default function AcceptButtonSendPage({
   sparkInformation,
   seletctedToken,
   isLRC20Payment,
+  useAltLayout,
 }) {
   const navigate = useNavigation();
   const {t} = useTranslation();
@@ -245,13 +246,19 @@ export default function AcceptButtonSendPage({
     }
   };
 
+  const memorizedStyles = useMemo(() => {
+    return {
+      borderRadius: useAltLayout ? 30 : 8,
+      height: useAltLayout ? 50 : 'unset',
+      flexShrink: useAltLayout ? 1 : 0,
+      width: useAltLayout ? '100%' : 'auto',
+      ...CENTER,
+    };
+  }, [useAltLayout]);
+
   return (
     <CustomButton
-      buttonStyles={{
-        opacity: buttonOpacity,
-        width: 'auto',
-        ...CENTER,
-      }}
+      buttonStyles={memorizedStyles}
       useLoading={isGeneratingInvoice}
       actionFunction={handleEnterSendAmount}
       textContent={t('constants.accept')}

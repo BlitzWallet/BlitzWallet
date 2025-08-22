@@ -689,7 +689,7 @@
       },
       "sendMaxComponent": {
         "sendMax": "Enviar máximo",
-        "tokensMax": "Enviar %"
+        "sendMaxShort": "máximo"
       },
       "acceptButton": {
         "noSendAmountError": "Por favor ingresa una cantidad a enviar",

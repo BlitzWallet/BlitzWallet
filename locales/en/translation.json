@@ -843,7 +843,7 @@
       },
       "sendMaxComponent": {
         "sendMax": "Send Max",
-        "tokensMax": "Send %"
+        "sendMaxShort": "Max"
       },
       "acceptButton": {
         "noSendAmountError": "Please enter a send amount",

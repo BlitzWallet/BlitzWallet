@@ -1,5 +1,12 @@
-import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
 import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
+import {
+  CENTER,
   ICONS,
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
@@ -39,6 +46,7 @@ import SelectLRC20Token from './components/selectLRC20Token';
 import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import {useTranslation} from 'react-i18next';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -52,10 +60,11 @@ export default function SendPaymentScreen(props) {
     enteredPaymentInfo = {},
     errorMessage,
   } = props.route.params;
-
+  const dimensions = Dimensions.get('window');
+  const useAltLayout = dimensions.height < 720;
   const {t} = useTranslation();
   const {sparkInformation} = useSparkWallet();
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
+  const {masterInfoObject} = useGlobalContextProvider();
   const {liquidNodeInformation, fiatStats} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -313,19 +322,21 @@ export default function SendPaymentScreen(props) {
       </ScrollView>
       {canEditPaymentAmount && (
         <>
-          <SendMaxComponent
-            fiatStats={fiatStats}
-            sparkInformation={sparkInformation}
-            paymentInfo={paymentInfo}
-            setPaymentInfo={setPaymentInfo}
-            masterInfoObject={masterInfoObject}
-            paymentFee={paymentFee}
-            paymentType={paymentInfo?.paymentNetwork}
-            minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
-            selectedLRC20Asset={selectedLRC20Asset}
-            seletctedToken={seletctedToken}
-          />
-
+          {!useAltLayout && (
+            <SendMaxComponent
+              fiatStats={fiatStats}
+              sparkInformation={sparkInformation}
+              paymentInfo={paymentInfo}
+              setPaymentInfo={setPaymentInfo}
+              masterInfoObject={masterInfoObject}
+              paymentFee={paymentFee}
+              paymentType={paymentInfo?.paymentNetwork}
+              minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+              selectedLRC20Asset={selectedLRC20Asset}
+              seletctedToken={seletctedToken}
+              useAltLayout={useAltLayout}
+            />
+          )}
           <CustomSearchInput
             onFocusFunction={() => setIsAmountFocused(false)}
             onBlurFunction={() => setIsAmountFocused(true)}
@@ -335,12 +346,57 @@ export default function SendPaymentScreen(props) {
             setInputText={setPaymentDescription}
             inputText={paymentDescription}
             textInputMultiline={true}
-            textAlignVertical={'center'}
+            textAlignVertical={'baseline'}
+            textInputStyles={{
+              borderRadius: useAltLayout ? 15 : 8,
+              height: useAltLayout ? 50 : 'unset',
+            }}
             maxLength={paymentInfo?.data?.commentAllowed || 150}
             containerStyles={{
-              width: '90%',
+              width: INSET_WINDOW_WIDTH,
             }}
           />
+
+          {useAltLayout && (
+            <View style={styles.maxAndAcceptContainer}>
+              <SendMaxComponent
+                fiatStats={fiatStats}
+                sparkInformation={sparkInformation}
+                paymentInfo={paymentInfo}
+                setPaymentInfo={setPaymentInfo}
+                masterInfoObject={masterInfoObject}
+                paymentFee={paymentFee}
+                paymentType={paymentInfo?.paymentNetwork}
+                minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+                selectedLRC20Asset={selectedLRC20Asset}
+                seletctedToken={seletctedToken}
+                useAltLayout={useAltLayout}
+              />
+
+              <AcceptButtonSendPage
+                isLiquidPayment={isLiquidPayment}
+                canSendPayment={canSendPayment}
+                decodeSendAddress={decodeSendAddress}
+                errorMessageNavigation={errorMessageNavigation}
+                btcAdress={btcAdress}
+                paymentInfo={paymentInfo}
+                convertedSendAmount={convertedSendAmount}
+                paymentDescription={paymentDescription}
+                setPaymentInfo={setPaymentInfo}
+                setLoadingMessage={setLoadingMessage}
+                fromPage={fromPage}
+                publishMessageFunc={publishMessageFunc}
+                webViewRef={webViewRef}
+                minLNURLSatAmount={minLNURLSatAmount}
+                maxLNURLSatAmount={maxLNURLSatAmount}
+                sparkInformation={sparkInformation}
+                seletctedToken={seletctedToken}
+                isLRC20Payment={selectedLRC20Asset !== 'Bitcoin'}
+                useAltLayout={useAltLayout}
+              />
+            </View>
+          )}
+
           {isAmountFocused && (
             <NumberInputSendPage
               paymentInfo={paymentInfo}
@@ -349,7 +405,8 @@ export default function SendPaymentScreen(props) {
               selectedLRC20Asset={selectedLRC20Asset}
             />
           )}
-          {isAmountFocused && (
+
+          {!useAltLayout && isAmountFocused && (
             <AcceptButtonSendPage
               isLiquidPayment={isLiquidPayment}
               canSendPayment={canSendPayment}
@@ -369,6 +426,7 @@ export default function SendPaymentScreen(props) {
               sparkInformation={sparkInformation}
               seletctedToken={seletctedToken}
               isLRC20Payment={selectedLRC20Asset !== 'Bitcoin'}
+              useAltLayout={useAltLayout}
             />
           )}
         </>
@@ -520,4 +578,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backArrow: {position: 'absolute', zIndex: 99, left: 0},
+  maxAndAcceptContainer: {
+    width: INSET_WINDOW_WIDTH,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    ...CENTER,
+  },
 });

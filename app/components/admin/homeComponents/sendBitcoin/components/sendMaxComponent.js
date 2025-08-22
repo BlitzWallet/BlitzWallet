@@ -1,5 +1,4 @@
-import {useCallback, useState} from 'react';
-import {CENTER} from '../../../../../constants';
+import {useCallback, useMemo, useState} from 'react';
 import {SATSPERBITCOIN} from '../../../../../constants/math';
 import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
@@ -27,6 +26,7 @@ export default function SendMaxComponent({
   minMaxLiquidSwapAmounts,
   seletctedToken,
   selectedLRC20Asset,
+  useAltLayout,
 }) {
   const {t} = useTranslation();
   const [isGettingMax, setIsGettingMax] = useState(false);
@@ -122,19 +122,37 @@ export default function SendMaxComponent({
     [isGettingMax, seletctedToken, selectedLRC20Asset],
   );
 
+  const memorizedDropdowntyles = useMemo(() => {
+    return {
+      flexShrink: useAltLayout ? 0 : 1,
+      marginRight: useAltLayout ? 10 : 0,
+      marginBottom: useAltLayout ? 0 : 20,
+      alignSelf: useAltLayout ? 'unset' : 'center',
+    };
+  }, [useAltLayout]);
+
+  const memorizedContainerStyles = useMemo(() => {
+    return {
+      flex: 0,
+      borderRadius: useAltLayout ? 30 : 8,
+      height: useAltLayout ? 50 : 'unset',
+      minWidth: useAltLayout ? 70 : 'unset',
+      justifyContent: 'center',
+    };
+  }, [useAltLayout]);
   return (
-    <View style={styles.dropdownMenuContainer}>
+    <View style={memorizedDropdowntyles}>
       <DropdownMenu
-        selectedValue={
-          selectedLRC20Asset === 'Bitcoin'
-            ? t('wallet.sendPages.sendMaxComponent.sendMax')
-            : t('wallet.sendPages.sendMaxComponent.tokensMax')
-        }
+        selectedValue={t(
+          `wallet.sendPages.sendMaxComponent.${
+            useAltLayout ? 'sendMaxShort' : 'sendMax'
+          }`,
+        )}
         onSelect={handleSelctProcesss}
         options={MAX_SEND_OPTIONS}
         showClearIcon={false}
         showVerticalArrows={false}
-        customButtonStyles={styles.containerStyles}
+        customButtonStyles={memorizedContainerStyles}
         textStyles={styles.textStyles}
         useIsLoading={isGettingMax}
         disableDropdownPress={isGettingMax}
@@ -148,11 +166,7 @@ export default function SendMaxComponent({
 
 const styles = StyleSheet.create({
   textStyles: {textAlign: 'center'},
-  dropdownMenuContainer: {
-    marginBottom: 10,
-  },
   containerStyles: {
     flex: 0,
-    ...CENTER,
   },
 });

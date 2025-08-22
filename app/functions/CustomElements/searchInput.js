@@ -61,10 +61,13 @@ export default function CustomSearchInput({
       position: 'absolute',
       zIndex: 1,
       pointerEvents: 'none',
-      color: placeholderTextColorStyles,
     }),
     [placeholderTextColorStyles, textInputStyles],
   );
+
+  const placeholderTextStyle = useMemo(() => {
+    return {color: placeholderTextColorStyles, includeFontPadding: false};
+  }, [placeholderTextColorStyles]);
   console.log(textInputLayout);
   const blurOnSubmitValue = useMemo(() => {
     return blurOnSubmit != undefined ? blurOnSubmit : true;
@@ -103,11 +106,17 @@ export default function CustomSearchInput({
   return (
     <View style={viewContainerStyles}>
       {showPlaceholder && (
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={placeholderStyles}
-          content={placeholderText}
-        />
+        <View
+          style={{
+            ...placeholderStyles,
+            justifyContent: 'center',
+          }}>
+          <ThemeText
+            styles={placeholderTextStyle}
+            CustomNumberOfLines={1}
+            content={placeholderText}
+          />
+        </View>
       )}
       <TextInput
         onLayout={e => {

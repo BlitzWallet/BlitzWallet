@@ -16,18 +16,7 @@ export default function CustomKeyboardAvoidingView({
 }) {
   const {bottomPadding} = useGlobalInsets();
 
-  const memoizedStylesTochable = useMemo(() => {
-    return {
-      paddingBottom: useLocalPadding
-        ? isKeyboardActive
-          ? CONTENT_KEYBOARD_OFFSET
-          : bottomPadding
-        : 0,
-      ...globalThemeViewStyles,
-    };
-  }, [useLocalPadding, isKeyboardActive, bottomPadding, globalThemeViewStyles]);
-
-  const memoizedStylesNoTochable = useMemo(() => {
+  const memoizedStyles = useMemo(() => {
     return {
       paddingBottom: useLocalPadding
         ? isKeyboardActive
@@ -51,14 +40,14 @@ export default function CustomKeyboardAvoidingView({
       {useTouchableWithoutFeedback ? (
         <TouchableWithoutFeedback onPress={touchableOnPress}>
           <GlobalThemeView
-            styles={memoizedStylesTochable}
+            styles={memoizedStyles}
             useStandardWidth={useStandardWidth}>
             {children}
           </GlobalThemeView>
         </TouchableWithoutFeedback>
       ) : (
         <GlobalThemeView
-          styles={memoizedStylesNoTochable}
+          styles={memoizedStyles}
           useStandardWidth={useStandardWidth}>
           {children}
         </GlobalThemeView>
