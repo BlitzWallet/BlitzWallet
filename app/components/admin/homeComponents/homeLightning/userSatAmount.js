@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   valueContainer: {
-    width: '95%',
+    width: '100%',
     maxWidth: 280,
     flexDirection: 'row',
     alignItems: 'center',
@@ -120,6 +120,5 @@ const styles = StyleSheet.create({
 
   valueText: {
     fontSize: SIZES.xxLarge,
-    includeFontPadding: false,
   },
 });
