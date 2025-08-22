@@ -69,54 +69,93 @@ export async function sendPushNotification({
     )
       return;
 
+    const useNewNotifications = !!retrivedContact.isUsingNewNotifications;
     const devicePushKey =
       retrivedContact?.pushNotifications?.key?.encriptedText;
     const deviceType = retrivedContact?.pushNotifications?.platform;
-    // const sendingContactFiatCurrency = retrivedContact?.fiatCurrency || 'USD';
-    // const sendingContactDenominationType =
-    //   retrivedContact?.userBalanceDenomination || 'sats';
+    const sendingContactFiatCurrency = retrivedContact?.fiatCurrency || 'USD';
+    const sendingContactDenominationType =
+      retrivedContact?.userBalanceDenomination || 'sats';
 
-    // const fiatValue = fiatCurrencies.filter(
-    //   currency =>
-    //     currency.coin.toLowerCase() ===
-    //     sendingContactFiatCurrency.toLowerCase(),
-    // );
-    // const didFindCurrency = fiatValue.length >= 1;
-    // const fiatAmount =
-    //   didFindCurrency &&
-    //   (
-    //     (fiatValue[0]?.value / SATSPERBITCOIN) *
-    //     (data.amountMsat / 1000)
-    //   ).toFixed(2);
-
-    console.log(devicePushKey, deviceType);
+    const fiatValue = fiatCurrencies?.filter(
+      currency =>
+        currency.coin.toLowerCase() ===
+        sendingContactFiatCurrency.toLowerCase(),
+    );
+    const didFindCurrency = fiatValue?.length >= 1;
+    const fiatAmount =
+      didFindCurrency &&
+      (
+        (fiatValue[0]?.value / SATSPERBITCOIN) *
+        (data.amountMsat / 1000)
+      ).toFixed(2);
 
     if (!devicePushKey || !deviceType) return;
-    let notificationData = {
-      name: myProfile.name || myProfile.uniqueName,
-    };
 
-    if (data.isUpdate) {
-      notificationData['option'] =
-        data.option === 'paid' ? 'paidLower' : 'declinedLower';
-      notificationData['type'] = 'updateMessage';
-    } else if (data.isRequest) {
-      notificationData['amountSat'] = data.amountMsat / 1000;
-      notificationData['type'] = 'request';
+    let requestData = {};
+
+    if (useNewNotifications) {
+      let notificationData = {
+        name: myProfile.name || myProfile.uniqueName,
+      };
+
+      if (data.isUpdate) {
+        notificationData['option'] =
+          data.option === 'paid' ? 'paidLower' : 'declinedLower';
+        notificationData['type'] = 'updateMessage';
+      } else if (data.isRequest) {
+        notificationData['amountSat'] = data.amountMsat / 1000;
+        notificationData['type'] = 'request';
+      } else {
+        notificationData['amountSat'] = data.amountMsat / 1000;
+        notificationData['type'] = 'payment';
+      }
+
+      requestData = {
+        devicePushKey: devicePushKey,
+        deviceType: deviceType,
+        notificationData,
+        decryptPubKey: retrivedContact.uuid,
+      };
     } else {
-      notificationData['amountSat'] = data.amountMsat / 1000;
-      notificationData['type'] = 'payment';
+      let message = '';
+      if (data.isUpdate) {
+        message = data.message;
+      } else if (data.isRequest) {
+        message = `${
+          myProfile.name || myProfile.uniqueName
+        } requested you ${formatBalanceAmount(
+          sendingContactDenominationType != 'fiat' || !fiatAmount
+            ? data.amountMsat / 1000
+            : fiatAmount,
+        )} ${
+          sendingContactDenominationType != 'fiat' || !fiatAmount
+            ? BITCOIN_SAT_TEXT
+            : sendingContactFiatCurrency
+        }`;
+      } else {
+        message = `${
+          myProfile.name || myProfile.uniqueName
+        } paid you ${formatBalanceAmount(
+          sendingContactDenominationType != 'fiat' || !fiatAmount
+            ? data.amountMsat / 1000
+            : fiatAmount,
+        )} ${
+          sendingContactDenominationType != 'fiat' || !fiatAmount
+            ? BITCOIN_SAT_TEXT
+            : sendingContactFiatCurrency
+        }`;
+      }
+      requestData = {
+        devicePushKey: devicePushKey,
+        deviceType: deviceType,
+        message,
+        decryptPubKey: retrivedContact.uuid,
+      };
     }
 
-    const requestData = {
-      devicePushKey: devicePushKey,
-      deviceType: deviceType,
-      notificationData,
-      decryptPubKey: retrivedContact.uuid,
-    };
-
     const response = await fetchBackend(
-      'contactsPushNotificationV4',
+      `contactsPushNotificationV${useNewNotifications ? '4' : '3'}`,
       requestData,
       privateKey,
       myProfile.uuid,

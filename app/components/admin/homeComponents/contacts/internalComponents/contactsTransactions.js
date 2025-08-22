@@ -249,13 +249,27 @@ export default function ContactsTransactionItem(props) {
 
         const currentTime = getServerTime();
 
+        const useNewNotifications = !!retrivedContact.isUsingNewNotifications;
+
         const [didPublishNotification, didUpdateMessage] = await Promise.all([
           sendPushNotification({
             selectedContactUsername: selectedContact.uniqueName,
             myProfile: myProfile,
             data: {
               isUpdate: true,
-              option: didPay ? 'paid' : 'declined',
+              [useNewNotifications ? 'option' : 'message']: useNewNotifications
+                ? didPay
+                  ? 'paid'
+                  : 'declined'
+                : t(
+                    'contacts.internalComponents.contactsTransactions.pushNotificationUpdateMessage',
+                    {
+                      name: myProfile.name || myProfile.uniqueName,
+                      option: didPay
+                        ? t('transactionLabelText.paidLower')
+                        : t('transactionLabelText.declinedLower'),
+                    },
+                  ),
             },
             fiatCurrencies: fiatCurrencies,
             privateKey: contactsPrivateKey,

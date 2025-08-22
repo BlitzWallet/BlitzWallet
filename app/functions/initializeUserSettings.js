@@ -115,6 +115,7 @@ export default async function initializeUserSettingsFromHistory({
 
     let enabledLNURL = blitzStoredData.enabledLNURL;
     let isUsingEncriptedMessaging = blitzStoredData.isUsingEncriptedMessaging;
+    let isUsingNewNotifications = blitzStoredData.isUsingNewNotifications;
 
     const dbUserBalanceDenomination =
       blitzStoredData.userBalanceDenomination || 'sats';
@@ -274,6 +275,11 @@ export default async function initializeUserSettingsFromHistory({
       needsToUpdate = true;
     }
 
+    if (isUsingNewNotifications === undefined) {
+      isUsingNewNotifications = true;
+      needsToUpdate = true;
+    }
+
     if (
       contacts.myProfile.uniqueName &&
       contacts.myProfile.uniqueNameLower &&
@@ -353,6 +359,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['offlineReceiveAddresses'] = offlineReceiveAddresses;
     // tempObject['lnurlPubKey'] = lnurlPubKey;
     tempObject['isUsingEncriptedMessaging'] = isUsingEncriptedMessaging;
+    tempObject['isUsingNewNotifications'] = isUsingNewNotifications;
     tempObject['lrc20Settings'] = lrc20Settings;
 
     // store in contacts context
