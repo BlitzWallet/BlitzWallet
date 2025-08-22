@@ -267,7 +267,8 @@
         "createInvoiceError": "Error al crear factura.",
         "payingInvoiveError": "Error al pagar la factura.",
         "runningTries": "Ejecutando {{runCount}} de {{maxTries}} intentos",
-        "configError": "No se puede obtener la configuración de VPN, por favor contacta a LNVPN."
+        "configError": "No se puede obtener la configuración de VPN, por favor contacta a LNVPN.",
+        "paymentMemo": "Tienda - VPN"
       },
       "confirmationSlideUp": {
         "invoiceInfoError": "Error al obtener información de la factura.",
@@ -320,7 +321,8 @@
         "estSearches": "Búsquedas estimadas: {{num}}",
         "casualPlanTitle": "Plan casual",
         "proPlanTitle": "Plan profesional",
-        "powerPlanTitle": "Plan avanzado"
+        "powerPlanTitle": "Plan avanzado",
+        "paymentMemo": "Tienda - chatGPT"
       },
       "chatGPTHome": {
         "availableCredits": "Créditos disponibles: {{credits}}",
@@ -580,7 +582,8 @@
         "invalidCountryError": "País no válido",
         "payingMessage": "Pagando...",
         "runningTries": "Ejecutando {{runCount}} de {{maxTries}} intentos",
-        "notAbleToSettleInvoice": "No se pudo liquidar la factura."
+        "notAbleToSettleInvoice": "No se pudo liquidar la factura.",
+        "paymentMemo": "Tienda - SMS"
       },
       "sentPayments": {
         "title": "Mensajes enviados",

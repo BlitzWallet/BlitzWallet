@@ -372,7 +372,7 @@ export default function SMSMessagingSendPage({SMSprices}) {
         fee: orderInformation.fee + orderInformation.supportFee,
         userBalance: sparkInformation.balance,
         sparkInformation,
-        description: 'Store - SMS',
+        description: t('apps.sms4sats.sendPage.paymentMemo'),
         currentWalletMnemoinc: currentWalletMnemoinc,
       });
 

@@ -506,6 +506,7 @@ const styles = StyleSheet.create({
   textInputStyles: {
     backgroundColor: 'transparent',
     textAlign: 'right',
+    alignItems: 'flex-end',
     width: '100%',
     padding: 0,
   },

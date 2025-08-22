@@ -245,7 +245,7 @@ export default function VPNPlanPage({countryList}) {
           userBalance: sparkInformation.balance,
           fee: invoice.fee + invoice.supportFee,
           sparkInformation,
-          description: 'Store - VPN',
+          description: t('apps.VPN.VPNPlanPage.paymentMemo'),
           currentWalletMnemoinc: currentWalletMnemoinc,
         });
 

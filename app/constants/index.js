@@ -3,19 +3,6 @@ import ICONS from './icons';
 import {CENTER, BTN, Background} from './styles';
 import {SATSPERBITCOIN} from './math';
 
-const BLOCKED_NAVIGATION_PAYMENT_CODES = [
-  'Auto Channel Rebalance',
-  'Auto Channel Open',
-  'Store - chatGPT',
-  'Ecash -> LN swap',
-  'TBC Gift Card',
-  'sms4sats send sms api payment',
-  '1.5',
-  '4',
-  '9',
-  'Internal_Transfer',
-];
-
 const WEBSITE_REGEX =
   /^(https?:\/\/|www\.)[a-z\d]([a-z\d-]*[a-z\d])*(\.[a-z]{2,})+/i;
 const hasSpace = /\s/;
@@ -95,7 +82,6 @@ export {
   BTN,
   Background,
   SATSPERBITCOIN,
-  BLOCKED_NAVIGATION_PAYMENT_CODES,
   WEBSITE_REGEX,
   hasSpace,
   ECASH_TX_STORAGE_KEY,

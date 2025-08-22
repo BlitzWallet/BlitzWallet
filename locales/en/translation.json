@@ -273,7 +273,8 @@
         "createInvoiceError": "Error creating invoice.",
         "payingInvoiveError": "Error paying invoice.",
         "runningTries": "Running {{runCount}} for {{maxTries}} tries",
-        "configError": "Not able to get VPN config, please reach out to LNVPN."
+        "configError": "Not able to get VPN config, please reach out to LNVPN.",
+        "paymentMemo": "Store - VPN"
       },
       "confirmationSlideUp": {
         "invoiceInfoError": "Error getting invoice information.",
@@ -326,7 +327,8 @@
         "estSearches": "Est. searches: {{num}}",
         "casualPlanTitle": "Casual Plan",
         "proPlanTitle": "Pro Plan",
-        "powerPlanTitle": "Power Plan"
+        "powerPlanTitle": "Power Plan",
+        "paymentMemo": "Store - chatGPT"
       },
       "chatGPTHome": {
         "availableCredits": "Available credits: {{credits}}",
@@ -731,7 +733,8 @@
         "invalidCountryError": "Not a valid country",
         "payingMessage": "Paying...",
         "runningTries": "Running {{runCount}} for {{maxTries}} tries",
-        "notAbleToSettleInvoice": "Not able to settle invoice."
+        "notAbleToSettleInvoice": "Not able to settle invoice.",
+        "paymentMemo": "Store - SMS"
       },
       "sentPayments": {
         "title": "Sent Messages",
