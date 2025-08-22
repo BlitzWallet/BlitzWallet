@@ -25,22 +25,27 @@ export async function transformTxToPaymentObject(
 
     const status = getSparkPaymentStatus(tx.status);
     const userRequest = tx.userRequest;
+    const isSendRequest = tx.typename === 'LightningSendRequest';
 
     return {
-      id: tx.id,
+      id: tx.transfer ? tx.transfer.sparkId : tx.id,
       paymentStatus: status,
       paymentType: 'lightning',
       accountId: identityPubKey,
       details: {
         fee: 0,
         amount: tx.totalValue,
-        address: userRequest ? userRequest.invoice.encodedInvoice : '',
+        address: userRequest
+          ? isSendRequest
+            ? userRequest?.encodedInvoice
+            : userRequest.invoice?.encodedInvoice
+          : '',
         time: tx.updatedTime
           ? new Date(tx.updatedTime).getTime()
           : new Date().getTime(),
         direction: tx.transferDirection,
         description: foundInvoice?.description || '',
-        preimage: userRequest ? userRequest.invoice.paymentPreimage || '' : '',
+        preimage: userRequest ? userRequest?.paymentPreimage || '' : '',
         isRestore,
         isBlitzContactPayment: foundInvoice
           ? JSON.parse(foundInvoice.details)?.isBlitzContactPayment
@@ -71,13 +76,28 @@ export async function transformTxToPaymentObject(
       },
     };
   } else {
+    const status = getSparkPaymentStatus(tx.status);
+    const userRequest = tx.userRequest;
+
+    let fee = 0;
+
+    if (
+      tx.transferDirection === 'OUTGOING' &&
+      userRequest?.fee &&
+      userRequest?.l1BroadcastFee
+    ) {
+      fee =
+        userRequest.fee.originalValue +
+        userRequest.l1BroadcastFee.originalValue;
+    }
+
     return {
       id: tx.id,
-      paymentStatus: 'pending',
+      paymentStatus: status,
       paymentType: 'bitcoin',
       accountId: identityPubKey,
       details: {
-        fee: 0,
+        fee,
         amount: tx.totalValue,
         address: tx.address || '',
         time: tx.updatedTime
@@ -85,8 +105,11 @@ export async function transformTxToPaymentObject(
           : new Date().getTime(),
         direction: tx.transferDirection,
         description: '',
-        onChainTxid: tx.txid,
-        refundTx: tx.refundTx,
+        onChainTxid:
+          tx.transferDirection === 'OUTGOING'
+            ? userRequest?.coopExitTxid || ''
+            : userRequest?.transactionId || '',
+        refundTx: tx.refundTx || '',
         isRestore,
       },
     };
