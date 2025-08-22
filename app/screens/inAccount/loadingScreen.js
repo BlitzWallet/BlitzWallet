@@ -339,6 +339,8 @@ export default function ConnectingToNodeLoadingScreen({
       console.log('Process 17', new Date().getTime());
       console.log(fiat_rate, 'hty');
 
+      setLocalStorageItem('cachedBitcoinPrice', JSON.stringify(fiat_rate));
+
       console.log('Process 18', new Date().getTime());
       toggleFiatStats(fiat_rate);
 

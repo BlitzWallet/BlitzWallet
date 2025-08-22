@@ -32,6 +32,7 @@ const PRESET_LOCAL_DATA = {
   didViewNWCMessage: false,
   userSelectedLanguage: 'en',
   [NWC_IDENTITY_PUB_KEY]: '',
+  userBalanceDenomination: 'sats',
 };
 
 async function sendDataToDB(newObject, uuid) {

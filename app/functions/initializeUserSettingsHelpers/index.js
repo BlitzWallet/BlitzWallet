@@ -19,6 +19,7 @@ const keys = [
   'didViewNWCMessage',
   'userSelectedLanguage',
   NWC_IDENTITY_PUB_KEY,
+  'userBalanceDenomination',
 ];
 
 const defaultValues = {
@@ -48,6 +49,7 @@ const defaultValues = {
   didViewNWCMessage: false,
   userSelectedLanguage: 'en',
   [NWC_IDENTITY_PUB_KEY]: '',
+  userBalanceDenomination: '',
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -84,6 +86,8 @@ export const fetchLocalStorageItems = async () => {
       parsedResults[13] ?? defaultValues.userSelectedLanguage,
     nwc_identity_pub_key:
       parsedResults[14] ?? defaultValues[NWC_IDENTITY_PUB_KEY],
+    userBalanceDenomination:
+      parsedResults[15] ?? defaultValues.userBalanceDenomination,
   };
 };
 

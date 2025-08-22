@@ -1,6 +1,6 @@
 import {privateKeyFromSeedWords} from './nostrCompatability';
 import {getPublicKey} from 'nostr-tools';
-import {getDataFromCollection} from '../../db';
+import {addDataToCollection, getDataFromCollection} from '../../db';
 import {generateRandomContact} from './contacts';
 import {
   getCurrentDateFormatted,
@@ -12,7 +12,7 @@ import {
   QUICK_PAY_STORAGE_KEY,
 } from '../constants';
 import {sendDataToDB} from '../../db/interactionManager';
-import {initializeFirebase} from '../../db/initializeFirebase';
+import {db, initializeFirebase} from '../../db/initializeFirebase';
 import {
   fetchLocalStorageItems,
   shouldLoadExploreData,
@@ -68,7 +68,7 @@ export default async function initializeUserSettingsFromHistory({
           : Promise.resolve(null),
       ]);
 
-    const {
+    let {
       storedUserTxPereferance,
       enabledSlidingCamera,
       userFaceIDPereferance,
@@ -84,6 +84,7 @@ export default async function initializeUserSettingsFromHistory({
       didViewNWCMessage,
       userSelectedLanguage,
       nwc_identity_pub_key,
+      userBalanceDenomination,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -115,7 +116,7 @@ export default async function initializeUserSettingsFromHistory({
     let enabledLNURL = blitzStoredData.enabledLNURL;
     let isUsingEncriptedMessaging = blitzStoredData.isUsingEncriptedMessaging;
 
-    const userBalanceDenomination =
+    const dbUserBalanceDenomination =
       blitzStoredData.userBalanceDenomination || 'sats';
 
     const selectedLanguage = userSelectedLanguage;
@@ -300,6 +301,14 @@ export default async function initializeUserSettingsFromHistory({
 
         toggleMasterInfoObject({[NWC_IDENTITY_PUB_KEY]: pubkey});
       }
+    }
+
+    if (!userBalanceDenomination) {
+      userBalanceDenomination = dbUserBalanceDenomination;
+      await setLocalStorageItem(
+        'userBalanceDenomination',
+        JSON.stringify(dbUserBalanceDenomination),
+      );
     }
 
     // if (!lnurlPubKey) {

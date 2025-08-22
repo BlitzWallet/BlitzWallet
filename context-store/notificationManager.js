@@ -27,9 +27,9 @@ import {
   setNotificationChannelAsync,
 } from 'expo-notifications';
 import sha256Hash from '../app/functions/hash';
-import {formatBalanceAmount, getLocalStorageItem} from '../app/functions';
-import {BITCOIN_SAT_TEXT, BITCOIN_SATS_ICON} from '../app/constants';
+import {getLocalStorageItem} from '../app/functions';
 import {pushInstantNotification} from '../app/functions/notifications';
+import displayCorrectDenomination from '../app/functions/displayCorrectDenomination';
 
 const firebaseMessaging = getMessaging();
 
@@ -189,18 +189,33 @@ async function registerForPushNotificationsAsync() {
 const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';
 
 async function formatPushNotification(data) {
-  const [selectedLangugae, displayWord] = await Promise.all([
-    getLocalStorageItem('userSelectedLanguage').then(data => JSON.parse(data)),
-    getLocalStorageItem('satDisplay').then(data => JSON.parse(data) === 'word'),
-  ]);
+  const [selectedLangugae, satDisplay, bitcoinPrice, userBalanceDenomination] =
+    await Promise.all([
+      getLocalStorageItem('userSelectedLanguage').then(
+        data => JSON.parse(data) || 'en',
+      ),
+      getLocalStorageItem('satDisplay').then(
+        data => JSON.parse(data) || 'word',
+      ),
+      getLocalStorageItem('cachedBitcoinPrice').then(
+        data => JSON.parse(data) || {coin: 'USD', value: 100_000},
+      ),
+      getLocalStorageItem('userBalanceDenomination').then(
+        data => JSON.parse(data) || 'sats',
+      ),
+    ]);
   i18n.changeLanguage(selectedLangugae);
 
   let messsage = '';
   const formattedAmount = data.amountSat
-    ? `${!displayWord ? BITCOIN_SATS_ICON : ''}${formatBalanceAmount(
-        data.amountSat,
-        true,
-      )}${displayWord ? ` ${BITCOIN_SAT_TEXT}` : ''}`
+    ? displayCorrectDenomination({
+        amount: data.amountSat,
+        masterInfoObject: {
+          userBalanceDenomination: userBalanceDenomination,
+          satDisplay: satDisplay,
+        },
+        fiatStats: bitcoinPrice,
+      })
     : '';
 
   if (data.notificationType === 'POS') {
