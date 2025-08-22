@@ -105,7 +105,9 @@
     "token": "Token",
     "veriable": "Variable",
     "instant": "Instantáneo",
-    "andLower": "y"
+    "andLower": "y",
+    "onLower": "en",
+    "offLower": "de"
   },
 
   "languages": {

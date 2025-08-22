@@ -4,6 +4,7 @@ import {COLORS, SIZES} from '../../constants';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import {useTranslation} from 'react-i18next';
 
 const CustomToggleSwitch = ({
   page,
@@ -12,6 +13,7 @@ const CustomToggleSwitch = ({
   containerStyles,
 }) => {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
+  const {t} = useTranslation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
   const [textWidth, setTextWidth] = useState(0);
@@ -139,10 +141,12 @@ const CustomToggleSwitch = ({
             console.log(event.nativeEvent.layout.width);
             setTextWidth(event.nativeEvent.layout.width);
           }}
+          numberOfLines={1}
           style={[
             styles.text,
             {
               // left: circlePosition,
+              flexShrink: 1,
               color: localIsOn
                 ? darkModeType && theme
                   ? COLORS.lightsOutBackground
@@ -156,7 +160,7 @@ const CustomToggleSwitch = ({
               ],
             },
           ]}>
-          {sliderText}
+          {`${t(`constants.${sliderText.toLowerCase()}Lower`).toUpperCase()}`}
         </Animated.Text>
       </Animated.View>
     </TouchableOpacity>

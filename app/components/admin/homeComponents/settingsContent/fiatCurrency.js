@@ -85,7 +85,7 @@ export default function FiatCurrencyPage() {
       <GlobalThemeView useStandardWidth={true}>
         <CustomSettingsTopBar
           shouldDismissKeyboard={true}
-          label={t('settins.fiatCurrency.title')}
+          label={t('settings.fiatCurrency.title')}
         />
         <FullLoadingScreen />
       </GlobalThemeView>
