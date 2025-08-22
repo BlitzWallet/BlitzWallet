@@ -357,7 +357,6 @@ export default async function initializeUserSettingsFromHistory({
 
     // store in contacts context
     tempObject['contacts'] = contacts;
-    tempObject['NWC'] = savedNWCData;
     tempObject['nip5Settings'] = nip5Settings;
 
     // Store in ecash context
@@ -376,6 +375,8 @@ export default async function initializeUserSettingsFromHistory({
     delete tempObject['contacts'];
     // delete tempObject['eCashInformation'];
     delete tempObject['appData'];
+    // only add to local data, dont push to global storage
+    tempObject['NWC'] = savedNWCData;
 
     toggleGlobalAppDataInformation(appData);
     // toggleGLobalEcashInformation(eCashInformation);

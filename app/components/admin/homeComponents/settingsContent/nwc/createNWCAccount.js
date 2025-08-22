@@ -129,15 +129,14 @@ export default function CreateNostrConnectAccount(props) {
     try {
       setIsCreatingAccount(true);
 
-      let mnemonic, privateKey, publicKey, secret;
+      let privateKey, publicKey, secret;
       if (!isEditing) {
         await new Promise(res => setTimeout(res, 10)); // add a delay for UI
-        mnemonic = await createAccountMnemonic();
+        const mnemonic = await createAccountMnemonic();
         privateKey = privateKeyFromSeedWords(mnemonic);
         publicKey = getPublicKey(privateKey);
         secret = sha256Hash(randomBytes(32));
       } else {
-        mnemonic = savedData.mnemonic;
         privateKey = savedData.privateKey;
         publicKey = savedData.publicKey;
         secret = savedData.secret;
@@ -166,7 +165,6 @@ export default function CreateNostrConnectAccount(props) {
             budgetRenewalSettings,
             privateKey,
             publicKey,
-            mnemonic,
             secret,
           },
         },

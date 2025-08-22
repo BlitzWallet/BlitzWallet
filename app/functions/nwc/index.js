@@ -40,7 +40,7 @@ export function getSupportedMethods(accountPermissions) {
   return supportedCommands;
 }
 
-const SENSITIVE_KEYS = ['privateKey', 'publicKey', 'mnemonic', 'secret'];
+const SENSITIVE_KEYS = ['privateKey', 'secret'];
 
 export async function splitAndStoreNWCData(obj) {
   let sensitiveData = {};
