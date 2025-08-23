@@ -33,7 +33,7 @@ function MyTabBar({state, descriptors, navigation}) {
       Object.keys(contactsMessags).filter(contactUUID => {
         if (
           contactUUID === 'lastMessageTimestamp' ||
-          globalContactsInformation?.myProfile?.uuid
+          contactUUID === globalContactsInformation?.myProfile?.uuid
         )
           return false;
         const hasUnlookedTx =

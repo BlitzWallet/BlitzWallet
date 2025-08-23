@@ -23,6 +23,7 @@ import ContactProfileImage from './internalComponents/profileImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
 import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 import {useTranslation} from 'react-i18next';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 
 export default function MyContactProfilePage({navigation}) {
   const {isConnectedToTheInternet} = useAppStatus();
@@ -221,7 +222,7 @@ export default function MyContactProfilePage({navigation}) {
           />
         ) : (
           <ThemeText
-            styles={{marginTop: 20}}
+            styles={styles.txPlaceholder}
             content={
               showList
                 ? t('constants.noTransactions')
@@ -289,5 +290,10 @@ const styles = StyleSheet.create({
   bioText: {
     marginBottom: 'auto',
     marginTop: 'auto',
+  },
+  txPlaceholder: {
+    marginTop: 20,
+    textAlign: 'center',
+    width: INSET_WINDOW_WIDTH,
   },
 });
