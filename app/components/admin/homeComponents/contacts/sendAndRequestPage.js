@@ -92,13 +92,18 @@ export default function SendAndRequestPage(props) {
       const contactMessage = descriptionValue;
       const myProfileMessage = !!descriptionValue
         ? descriptionValue
-        : `Paying ${selectedContact.name || selectedContact.uniqueName}`;
+        : t('contacts.sendAndRequestPage.profileMessage', {
+            name: selectedContact.name || selectedContact.uniqueName,
+          });
       const payingContactMessage = !!descriptionValue
         ? descriptionValue
-        : `${
-            globalContactsInformation.myProfile.name ||
-            globalContactsInformation.myProfile.uniqueName
-          } paid you`;
+        : {
+            usingTranslation: true,
+            type: 'paid',
+            name:
+              globalContactsInformation.myProfile.name ||
+              globalContactsInformation.myProfile.uniqueName,
+          };
 
       let receiveAddress;
       let retrivedContact;

@@ -201,7 +201,7 @@ export default async function decodeSendAddress(props) {
 
 async function processInputType(input, context) {
   const {setLoadingMessage, t} = context;
-  setLoadingMessage('Getting invoice details');
+  setLoadingMessage(t('wallet.sendPages.handlingAddressErrors.invoiceDetails'));
   crashlyticsLogReport('Getting invoice detials');
 
   switch (input.type) {

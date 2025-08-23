@@ -18,10 +18,22 @@ export default async function getReceiveAddressForContactPayment(
     if (!retrivedContact) throw new Error('errormessages.fullDeeplinkError');
 
     if (retrivedContact?.contacts?.myProfile?.sparkAddress) {
+      let message = '';
+      if (payingContactMessage?.usingTranslation) {
+        message = retrivedContact.isUsingNewNotifications
+          ? JSON.stringify({
+              name: payingContactMessage.name,
+              translation: 'contacts.sendAndRequestPage.contactMessage',
+            })
+          : `${payingContactMessage.name} paid you`;
+      } else {
+        message = payingContactMessage;
+      }
+
       const lnurlInvoice = await getBolt11InvoiceForContact(
         selectedContact.uniqueName,
         sendingAmountSat,
-        payingContactMessage,
+        message,
       );
       if (lnurlInvoice) {
         receiveAddress = lnurlInvoice;

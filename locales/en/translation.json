@@ -828,7 +828,8 @@
         "lnurlPayInvoiceError": "Unable to retrive invoice from LNURL, please try again.",
         "lnurlWithdrawlStart": "Generating invoice for withdrawl",
         "lnurlWithdrawlInvoiceError": "Unable to generate invoice for lnurl withdrawl",
-        "waitingForLnurlWithdrawl": "Waiting for payment..."
+        "waitingForLnurlWithdrawl": "Waiting for payment...",
+        "invoiceDetails": "Getting invoice details"
       },
 
       "errorScreen": {
@@ -942,7 +943,9 @@
     },
 
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Payment description"
+      "descriptionPlaceholder": "Payment description",
+      "profileMessage": "Paying {{name}}",
+      "contactMessage": "{{name}} paid you"
     },
 
     "internalComponents": {

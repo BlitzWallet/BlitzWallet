@@ -8,6 +8,7 @@ import {batchDeleteLnurlPayments} from '../db';
 import {useSparkWallet} from './sparkContext';
 // import {retrieveData} from '../app/functions';
 import {addSingleUnpaidSparkLightningTransaction} from '../app/functions/spark/transactions';
+import i18next from 'i18next';
 
 export default function HandleLNURLPayments() {
   const {sparkInformation} = useSparkWallet();
@@ -22,6 +23,16 @@ export default function HandleLNURLPayments() {
   const paymentQueueRef = useRef([]);
 
   const deleteActiveLNURLPaymentsRef = useRef([]);
+
+  const parseDescription = message => {
+    try {
+      const parsed = JSON.parse(message);
+      return i18next.t(parsed.translation, {name: parsed.name});
+    } catch (err) {
+      console.log(err);
+      return message;
+    }
+  };
 
   useEffect(() => {
     if (!masterInfoObject.uuid) return;
@@ -121,7 +132,7 @@ export default function HandleLNURLPayments() {
             id: payment.sparkID,
             amount: payment.amountSats,
             expiration: payment.expiredTime,
-            description: payment.description || '',
+            description: parseDescription(payment.description) || '',
             shouldNavigate: payment.shouldNavigate,
             details: {
               isBlitzContactPayment: payment.isBlitzContactPayment,

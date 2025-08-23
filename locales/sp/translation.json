@@ -676,7 +676,8 @@
         "lnurlPayInvoiceError": "No se pudo recuperar la factura de LNURL, por favor intenta de nuevo.",
         "lnurlWithdrawlStart": "Generando factura para retiro",
         "lnurlWithdrawlInvoiceError": "No se pudo generar la factura para retiro LNURL",
-        "waitingForLnurlWithdrawl": "Esperando pago..."
+        "waitingForLnurlWithdrawl": "Esperando pago...",
+        "invoiceDetails": "Obteniendo detalles de la factura"
       },
       "errorScreen": {
         "ok": "OK",
@@ -784,7 +785,9 @@
       "deleteProfileImageError": "No se pudo eliminar la imagen de perfil, intenta de nuevo."
     },
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Descripción del pago"
+      "descriptionPlaceholder": "Descripción del pago",
+      "profileMessage": "Pagando {{name}}",
+      "contactMessage": "{{name}} te pagó"
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {
