@@ -123,7 +123,7 @@ const SparkWalletProvider = ({children}) => {
         console.log('Running full history sweep');
         const singleTxResponse = await findSignleTxFromHistory(
           recevedTxId,
-          50,
+          25,
           currentWalletMnemoinc,
         );
         if (!singleTxResponse.tx)
@@ -158,7 +158,7 @@ const SparkWalletProvider = ({children}) => {
       }
 
       const savedTxs = await getAllSparkTransactions(
-        null,
+        5,
         sparkInformation.identityPubKey,
       );
       return {
@@ -197,6 +197,8 @@ const SparkWalletProvider = ({children}) => {
     const selectedStoredPayment = storedTransaction.txs.find(
       tx => tx.sparkID === transferId,
     );
+
+    if (!selectedStoredPayment) return;
 
     const details = JSON.parse(selectedStoredPayment.details);
     if (details?.shouldNavigate && !details.isLNURL) return;
@@ -241,7 +243,7 @@ const SparkWalletProvider = ({children}) => {
         transferIdsToProcess,
       );
       const transactions = await getSparkTransactions(
-        3,
+        1,
         undefined,
         currentWalletMnemoinc,
       );
@@ -258,7 +260,7 @@ const SparkWalletProvider = ({children}) => {
         }
       }
     },
-    [navigationRef, currentWalletMnemoinc],
+    [navigationRef, currentWalletMnemoinc, sparkInformation.identityPubKey],
   );
 
   const handleUpdate = async (...args) => {
