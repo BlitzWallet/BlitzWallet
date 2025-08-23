@@ -25,7 +25,7 @@ export async function transformTxToPaymentObject(
 
     const status = getSparkPaymentStatus(tx.status);
     const userRequest = tx.userRequest;
-    const isSendRequest = tx.typename === 'LightningSendRequest';
+    const isSendRequest = userRequest.typename === 'LightningSendRequest';
 
     return {
       id: tx.transfer ? tx.transfer.sparkId : tx.id,

@@ -2,6 +2,7 @@ import {COLORS, FONT, SIZES, SHADOWS} from './theme';
 import ICONS from './icons';
 import {CENTER, BTN, Background} from './styles';
 import {SATSPERBITCOIN} from './math';
+import {Dimensions} from 'react-native';
 
 const WEBSITE_REGEX =
   /^(https?:\/\/|www\.)[a-z\d]([a-z\d-]*[a-z\d])*(\.[a-z]{2,})+/i;
@@ -72,6 +73,8 @@ const IS_DONTATION_PAYMENT_BUFFER = 10_000;
 const SKELETON_ANIMATION_SPEED = 1200;
 const TOKEN_TICKER_MAX_LENGTH = 10;
 
+const SCREEN_DIMENSIONS = Dimensions.get('screen');
+
 export {
   COLORS,
   FONT,
@@ -132,4 +135,5 @@ export {
   TOKEN_TICKER_MAX_LENGTH,
   NOSTR_RELAY_URL,
   NWC_IDENTITY_PUB_KEY,
+  SCREEN_DIMENSIONS,
 };

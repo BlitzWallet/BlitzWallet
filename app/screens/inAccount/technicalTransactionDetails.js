@@ -3,11 +3,11 @@ import {CENTER, ICONS} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {copyToClipboard} from '../../functions';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../constants/theme';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useToast} from '../../../context-store/toastManager';
 import {useTranslation} from 'react-i18next';
+import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 
 export default function TechnicalTransactionDetails(props) {
   console.log('Transaction Detials Page');
@@ -97,6 +97,7 @@ export default function TechnicalTransactionDetails(props) {
             copyToClipboard(txItem, showToast);
           }}>
           <ThemeText
+            CustomNumberOfLines={2}
             content={txItem || 'N/A'}
             styles={{...styles.descriptionText}}
           />
@@ -106,40 +107,27 @@ export default function TechnicalTransactionDetails(props) {
   });
 
   return (
-    <GlobalThemeView>
-      <View style={{flex: 1, width: WINDOWWIDTH, ...CENTER}}>
-        <TouchableOpacity
-          onPress={() => {
-            navigate.goBack();
-          }}>
-          <ThemeImage
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
+    <GlobalThemeView useStandardWidth={true}>
+      <CustomSettingsTopBar />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={styles.innerContainer}>
+        {infoElements}
+        {transaction.paymentType === 'spark' && (
+          <ThemeText
+            content={t(
+              'screens.inAccount.technicalTransactionDetails.privacyMessage',
+            )}
           />
-        </TouchableOpacity>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          style={styles.innerContainer}>
-          {infoElements}
-          {transaction.paymentType === 'spark' && (
-            <ThemeText
-              content={t(
-                'screens.inAccount.technicalTransactionDetails.privacyMessage',
-              )}
-            />
-          )}
-        </ScrollView>
-      </View>
+        )}
+      </ScrollView>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
   innerContainer: {
-    flex: 1,
     width: '95%',
-    paddingTop: 50,
     ...CENTER,
   },
   headerContainer: {
