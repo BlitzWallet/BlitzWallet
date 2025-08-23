@@ -18,6 +18,7 @@ import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 import {useTranslation} from 'react-i18next';
+import {setLocalStorageItem} from '../../../../functions';
 
 export default function FiatCurrencyPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -139,6 +140,9 @@ export default function FiatCurrencyPage() {
       const [fiatRate] = fiat.filter(rate => {
         return rate.coin.toLowerCase() === selectedCurrency.toLowerCase();
       });
+
+      if (!fiatRate) throw new Error('Unable to fetch fiat rates');
+      setLocalStorageItem('cachedBitcoinPrice', JSON.stringify(fiatRate));
 
       toggleFiatStats(fiatRate);
 
