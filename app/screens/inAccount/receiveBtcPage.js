@@ -290,7 +290,7 @@ function QrCode(props) {
             styles={styles.errorText}
             content={
               t(addressState.errorMessageText.text) ||
-              t('erorrmessages.invoiceRetrivalError')
+              t('errormessages.invoiceRetrivalError')
             }
           />
         </View>
@@ -343,7 +343,7 @@ function QrCode(props) {
             styles={{textAlign: 'center', width: 275, marginTop: 10}}
             content={
               t(addressState.errorMessageText.text) ||
-              t('erorrmessages.invoiceRetrivalError')
+              t('errormessages.invoiceRetrivalError')
             }
           />
         )}
