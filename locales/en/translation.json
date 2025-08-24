@@ -918,7 +918,7 @@
 
     "expandedContactPage": {
       "loadingContactError": "Unable to load contact, please try again.",
-      "requestLNULRError": "You can only request money from Blitz contacts, not LNURL addresses.",
+      "requestLNURLError": "You can only request money from Blitz contacts, not LNURL addresses.",
       "noTransactions": "Send or request a payment to see transaction history."
     },
     "expandedMessageHalfModal": {
@@ -1086,7 +1086,7 @@
       "mainToggleDesc": "Notifications let you stay informed about important events and updates happening in the app.",
       "optionsTitle": "Notification options",
       "contact": "Contact",
-      "lnurl": "LNULR",
+      "lnurl": "LNURL",
       "nostrZaps": "Nostr zaps",
       "nwc": "Nostr Wallet Connect",
       "pos": "Point-of-sale"

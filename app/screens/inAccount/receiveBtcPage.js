@@ -392,7 +392,7 @@ function LNURLContainer({
         )
           return;
         navigate.navigate('CustomHalfModal', {
-          wantedContent: 'editLNULROnReceive',
+          wantedContent: 'editLNURLOnReceive',
         });
       }}
       style={{
