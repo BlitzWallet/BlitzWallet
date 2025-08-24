@@ -112,7 +112,8 @@
 
   "languages": {
     "english": "English",
-    "spanish": "Español"
+    "spanish": "Español",
+    "italian": "Italiano"
   },
 
   "weekdays": {
@@ -1086,7 +1087,7 @@
       "mainToggleDesc": "Notifications let you stay informed about important events and updates happening in the app.",
       "optionsTitle": "Notification options",
       "contact": "Contact",
-      "lnurl": "LNULR",
+      "lnurl": "LNURL",
       "nostrZaps": "Nostr zaps",
       "nwc": "Nostr Wallet Connect",
       "pos": "Point-of-sale"
