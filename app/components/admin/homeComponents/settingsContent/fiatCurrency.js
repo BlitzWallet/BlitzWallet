@@ -1,6 +1,5 @@
 import {FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import {COLORS, CONTENT_KEYBOARD_OFFSET} from '../../../../constants';
-import {fetchFiatRates} from '@breeztech/react-native-breez-sdk-liquid';
 import {useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
@@ -18,7 +17,7 @@ import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 import {useTranslation} from 'react-i18next';
-import {setLocalStorageItem} from '../../../../functions';
+import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
 
 export default function FiatCurrencyPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -135,24 +134,14 @@ export default function FiatCurrencyPage() {
   async function saveCurrencySettings(selectedCurrency) {
     try {
       setIsLoading(true);
+
+      const response = await loadNewFiatData(selectedCurrency);
+
+      if (!response.didWork) throw new Error('error saving fiat data');
+
+      toggleFiatStats(response.fiatRate);
       toggleMasterInfoObject({fiatCurrency: selectedCurrency});
-      const fiat = await fetchFiatRates();
-      const [fiatRate] = fiat.filter(rate => {
-        return rate.coin.toLowerCase() === selectedCurrency.toLowerCase();
-      });
-
-      if (!fiatRate) throw new Error('Unable to fetch fiat rates');
-      setLocalStorageItem('cachedBitcoinPrice', JSON.stringify(fiatRate));
-
-      toggleFiatStats(fiatRate);
-
-      if (fiatRate) {
-        navigate.goBack();
-      } else {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('settings.fiatCurrency.saveCurrencyError'),
-        });
-      }
+      navigate.goBack();
     } catch (err) {
       setIsLoading(false);
       console.log(err);

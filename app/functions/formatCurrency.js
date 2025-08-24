@@ -248,6 +248,6 @@ export const formatCurrency = ({amount, code}) => {
     // default
     DEFAULT: [amount.toString(), amount.toString(), ''],
   };
-
-  return switchOptions[code] || switchOptions.DEFAULT;
+  const upperCode = code?.toUpperCase();
+  return switchOptions[upperCode] || switchOptions.DEFAULT;
 };
