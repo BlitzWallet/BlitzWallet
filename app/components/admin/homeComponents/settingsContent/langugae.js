@@ -2,7 +2,7 @@ import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {ThemeText} from '../../../../functions/CustomElements';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import {supportedLanguagesList} from '../../../../../locales/localeslist';
-import {useCallback, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
@@ -22,6 +22,10 @@ export default function ChooseLangugae() {
   const filteredList = supportedLanguagesList.filter(item =>
     t(item.translatedName).toLowerCase().startsWith(searchInput.toLowerCase()),
   );
+
+  const selectedLanguageText = useMemo(() => {
+    return supportedLanguagesList.find(item => item.id === selectedLanguage);
+  }, [selectedLanguage, supportedLanguagesList]);
 
   const updateLanguageSetting = useCallback(item => {
     toggleMasterInfoObject({userSelectedLanguage: item.id});
@@ -73,7 +77,7 @@ export default function ChooseLangugae() {
             <CustomSearchInput
               inputText={searchInput}
               setInputText={setSearchInput}
-              placeholderText={t('languages.english')}
+              placeholderText={t(selectedLanguageText?.languageName)}
             />
           </View>
         }
