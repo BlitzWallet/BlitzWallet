@@ -5,7 +5,7 @@ module.exports = api => {
     presets: ['babel-preset-expo'],
     plugins: [
       ['module:react-native-dotenv'],
-
+      ['@babel/plugin-transform-class-static-block'],
       isProduction && ['transform-remove-console'],
 
       [

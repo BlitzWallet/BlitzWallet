@@ -20,7 +20,7 @@
     "@azure/core-asynciterator-polyfill": "^1.0.2",
     "@bitcoinerlab/secp256k1": "^1.2.0",
     "@breeztech/react-native-breez-sdk-liquid": "^0.10.1",
-    "@buildonspark/spark-sdk": "^0.2.10",
+    "@buildonspark/spark-sdk": "^0.2.11",
     "@craftzdog/react-native-buffer": "^6.0.5",
     "@miblanchard/react-native-slider": "^2.6.0",
     "@noble/hashes": "^1.8.0",
@@ -105,6 +105,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@babel/plugin-transform-class-static-block": "^7.28.3",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
     "@react-native-community/cli": "18.0.0",
