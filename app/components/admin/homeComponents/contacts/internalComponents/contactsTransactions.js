@@ -8,7 +8,6 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {getDataFromCollection, updateMessage} from '../../../../../../db';
-import {getFiatRates} from '../../../../../functions/SDK';
 import {sendPushNotification} from '../../../../../functions/messaging/publishMessage';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
@@ -240,8 +239,7 @@ export default function ContactsTransactionItem(props) {
         };
         delete newMessage.didSend;
         delete newMessage.wasSeen;
-        const [fiatCurrencies, retrivedContact] = await Promise.all([
-          getFiatRates(),
+        const [retrivedContact] = await Promise.all([
           getDataFromCollection('blitzWalletUsers', selectedContact.uuid),
         ]);
         if (!retrivedContact)
@@ -271,7 +269,6 @@ export default function ContactsTransactionItem(props) {
                     },
                   ),
             },
-            fiatCurrencies: fiatCurrencies,
             privateKey: contactsPrivateKey,
             retrivedContact,
           }),

@@ -9,11 +9,15 @@ import {
 } from 'react';
 import {useGlobalContextProvider} from './context';
 import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
+import {useKeysContext} from './keys';
+import {useAppStatus} from './appStatus';
 
 // Initiate context
 const NodeContextManager = createContext(null);
 
 const GLobalNodeContextProider = ({children}) => {
+  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {didGetToHomepage} = useAppStatus();
   const {masterInfoObject} = useGlobalContextProvider();
   const [liquidNodeInformation, setLiquidNodeInformation] = useState({
     didConnectToNode: null,
@@ -22,9 +26,11 @@ const GLobalNodeContextProider = ({children}) => {
   });
   const selectedCurrency = masterInfoObject.fiatCurrency;
   const [fiatStats, setFiatStats] = useState({});
+
   const toggleFiatStats = useCallback(newInfo => {
-    setFiatStats(prev => ({...prev, ...newInfo}));
+    setFiatStats({...newInfo, coin: newInfo.coin?.toUpperCase()});
   }, []);
+
   const didRunCurrencyUpdate = useRef(null);
 
   const toggleLiquidNodeInformation = useCallback(newInfo => {
@@ -33,21 +39,27 @@ const GLobalNodeContextProider = ({children}) => {
 
   useEffect(() => {
     if (
-      !liquidNodeInformation.didConnectToNode ||
+      !contactsPrivateKey ||
+      !publicKey ||
       didRunCurrencyUpdate.current ||
-      !selectedCurrency
+      !selectedCurrency ||
+      !didGetToHomepage
     )
       return;
     didRunCurrencyUpdate.current = true;
 
     async function initFiatData() {
-      const response = await loadNewFiatData(selectedCurrency);
+      const response = await loadNewFiatData(
+        selectedCurrency,
+        contactsPrivateKey,
+        publicKey,
+      );
       if (response.didWork) {
-        toggleFiatStats(response.fiatRate);
+        toggleFiatStats(response.fiatRateResponse);
       }
     }
     initFiatData();
-  }, [liquidNodeInformation.didConnectToNode, selectedCurrency]);
+  }, [contactsPrivateKey, selectedCurrency, publicKey, didGetToHomepage]);
 
   const contextValue = useMemo(
     () => ({

@@ -30,7 +30,6 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {isMoreThanADayOld} from '../../../../../functions/rotateAddressDateChecker';
-import {getFiatRates} from '../../../../../functions/SDK';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
@@ -44,6 +43,8 @@ import {useActiveCustodyAccount} from '../../../../../../context-store/activeAcc
 import {useTranslation} from 'react-i18next';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import loadNewFiatData from '../../../../../functions/saveAndUpdateFiatData';
+import {useNodeContext} from '../../../../../../context-store/nodeContext';
 
 export default function ExpandedGiftCardPage(props) {
   const {sparkInformation} = useSparkWallet();
@@ -53,6 +54,7 @@ export default function ExpandedGiftCardPage(props) {
   const {globalContactsInformation} = useGlobalContacts();
   const {masterInfoObject} = useGlobalContextProvider();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {fiatStats} = useNodeContext();
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const [numberOfGiftCards, setNumberOfGiftCards] = useState('1');
   const selectedItem = props.route?.params?.selectedItem;
@@ -453,11 +455,15 @@ export default function ExpandedGiftCardPage(props) {
         dailyPurchaseAmount,
       ] = await Promise.all([
         // parse(responseInvoice),
-        getFiatRates(),
+        fiatStats.coin === 'USD'
+          ? Promise.resolve({didWork: true, fiatRateResponse: fiatStats})
+          : loadNewFiatData('usd', contactsPrivateKey, publicKey, false),
         getLocalStorageItem('dailyPurchaeAmount').then(JSON.parse),
       ]);
 
-      const USDBTCValue = fiatRates.find(currency => currency.coin === 'USD');
+      const USDBTCValue = fiatRates.didWork
+        ? fiatRates.fiatRateResponse
+        : {coin: 'USD', value: 100_000};
       const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
       const memo = parsedInput.invoice.description;
       const currentTime = new Date();

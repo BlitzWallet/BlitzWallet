@@ -37,6 +37,7 @@ import {
 } from '../../../../../functions/customNavigation';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useTranslation} from 'react-i18next';
+import {fiatCurrencies} from '../../../../../functions/currencyOptions';
 
 export default function PosSettingsPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -53,7 +54,10 @@ export default function PosSettingsPage() {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const {bottomPadding} = useGlobalInsets();
 
-  const savedCurrencies = masterInfoObject.fiatCurrenciesList || [];
+  const savedCurrencies = useMemo(() => {
+    return fiatCurrencies.sort((a, b) => a.id.localeCompare(b.id));
+  }, []);
+
   const currentCurrency = masterInfoObject?.posSettings?.storeCurrency;
   const posItemsList = masterInfoObject?.posSettings?.items || [];
 

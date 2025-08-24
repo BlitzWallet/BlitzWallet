@@ -6,16 +6,11 @@ import {useTranslation} from 'react-i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
 import claimUnclaimedBoltzSwaps from '../../functions/boltz/claimUnclaimedTxs';
 import {useGlobalContacts} from '../../../context-store/globalContacts';
-import {isMoreThanADayOld} from '../../functions/rotateAddressDateChecker';
 import {useGlobalAppData} from '../../../context-store/appData';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import LottieView from 'lottie-react-native';
 import {useNavigation} from '@react-navigation/native';
 import ThemeImage from '../../functions/CustomElements/themeImage';
-import {
-  fetchFiatRates,
-  listFiatCurrencies,
-} from '@breeztech/react-native-breez-sdk-liquid';
 import connectToLiquidNode from '../../functions/connectToLiquid';
 import {initializeDatabase} from '../../functions/messaging/cachedMessages';
 import {useGlobalThemeContext} from '../../../context-store/theme';
@@ -32,6 +27,7 @@ import {getLocalStorageItem, setLocalStorageItem} from '../../functions';
 import {useLiquidEvent} from '../../../context-store/liquidEventContext';
 import {initRootstockSwapDB} from '../../functions/boltz/rootstock/swapDb';
 import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
+import loadNewFiatData from '../../functions/saveAndUpdateFiatData';
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
 export default function ConnectingToNodeLoadingScreen({
@@ -41,6 +37,7 @@ export default function ConnectingToNodeLoadingScreen({
   const navigate = useNavigation();
   const {toggleMasterInfoObject, masterInfoObject, setMasterInfoObject} =
     useGlobalContextProvider();
+  const {contactsPrivateKey, publicKey} = useKeysContext();
   const {setNumberOfCachedTxs, connectToSparkWallet} = useSparkWallet();
   const {toggleContactsPrivateKey, accountMnemoinc} = useKeysContext();
   const {toggleLiquidNodeInformation, toggleFiatStats} = useNodeContext();
@@ -257,74 +254,87 @@ export default function ConnectingToNodeLoadingScreen({
       await getLocalStorageItem('didFetchFiatRateToday'),
     ) || {
       lastFetched: new Date().getTime() - 1000 * 60 * 60 * 24 * 30,
-      rates: [],
+      fiatRate: null, // ✅ new format default
     };
 
     const currency = masterInfoObject.fiatCurrency;
 
     console.log('Process 9', new Date().getTime());
-    // Return cached data if still fresh
-    if (!isMoreThanADayOld(fetchResponse.lastFetched)) {
+
+    // 1. Check old format (backwards compatibility)
+    if (fetchResponse.rates && fetchResponse.rates.length > 0) {
       const [fiatRate] = fetchResponse.rates.filter(
         rate => rate.coin.toLowerCase() === currency.toLowerCase(),
       );
-      if (fiatRate) return fiatRate;
+      if (fiatRate) {
+        // normalize -> new format
+        await setLocalStorageItem(
+          'didFetchFiatRateToday',
+          JSON.stringify({
+            lastFetched: fetchResponse.lastFetched,
+            fiatRate,
+          }),
+        );
+        return fiatRate;
+      }
+    }
+
+    // 2. Check new format
+    if (fetchResponse.fiatRate) {
+      return fetchResponse.fiatRate;
     }
 
     console.log('Process 10', new Date().getTime());
-    let [fiat, fiatCurrencies] = await Promise.all([
-      withTimeout(fetchFiatRates(), 5000, null),
-      masterInfoObject?.fiatCurrenciesList?.length < 1
-        ? listFiatCurrencies()
-        : Promise.resolve(null),
-    ]);
 
-    console.log('Process 11', new Date().getTime());
-    if (!fiat) {
-      try {
+    //  3. No cache → fetch a fresh fiat rate
+    let fiatRate;
+    try {
+      fiatRate = await loadNewFiatData(currency, contactsPrivateKey, publicKey);
+
+      if (!fiatRate.didWork) {
+        // fallback API
         const response = await fetch(process.env.FALLBACK_FIAT_PRICE_DATA);
         const data = await response.json();
-        fiat = Object.keys(data).map(coin => ({
-          coin: coin,
-          value: data[coin]['15m'],
-        }));
-      } catch (error) {
-        console.error('Failed to fetch fallback fiat data:', error);
-        return {coin: 'USD', value: 100_000};
+        if (data[currency]?.['15m']) {
+          // ✅ 4. Store in new format
+          setLocalStorageItem(
+            'didFetchFiatRateToday',
+            JSON.stringify({
+              lastFetched: new Date().getTime(),
+              fiatRate: {
+                coin: currency,
+                value: data[currency]?.['15m'],
+              },
+            }),
+          );
+          setLocalStorageItem(
+            'cachedBitcoinPrice',
+            JSON.stringify({
+              coin: currency,
+              value: data[currency]?.['15m'],
+            }),
+          );
+          fiatRate = {
+            coin: currency,
+            value: data[currency]?.['15m'],
+          };
+        } else {
+          fiatRate = {
+            coin: currency,
+            value: 100_000, // random number to make sure nothing else down the line errors out
+          };
+        }
       }
+    } catch (error) {
+      console.error('Failed to fetch fiat data:', error);
+      return {coin: 'USD', value: 100_000};
     }
+
+    console.log('Process 11', new Date().getTime());
 
     console.log('Process 12', new Date().getTime());
-    const [fiatRate] = fiat.filter(
-      rate => rate.coin.toLowerCase() === currency.toLowerCase(),
-    );
-    const [usdRate] = fiat.filter(rate => rate.coin.toLowerCase() === 'usd');
 
-    if (!fiatRate && usdRate) {
-      toggleMasterInfoObject({fiatCurrency: 'USD'});
-    }
-
-    console.log('Process 13', new Date().getTime());
-    await setLocalStorageItem(
-      'didFetchFiatRateToday',
-      JSON.stringify({
-        lastFetched: new Date().getTime(),
-        rates: fiat,
-      }),
-    );
-
-    console.log('Process 14', new Date().getTime());
-    if (fiatCurrencies) {
-      try {
-        const sorted = fiatCurrencies.sort((a, b) => a.id.localeCompare(b.id));
-        toggleMasterInfoObject({fiatCurrenciesList: sorted});
-      } catch (error) {
-        console.error('Failed to fetch currencies list:', error);
-      }
-    }
-
-    console.log('Process 15', new Date().getTime());
-    return fiatRate || usdRate;
+    return fiatRate;
   }
 
   async function setLiquidNodeInformationForSession() {
@@ -338,8 +348,6 @@ export default function ConnectingToNodeLoadingScreen({
 
       console.log('Process 17', new Date().getTime());
       console.log(fiat_rate, 'hty');
-
-      setLocalStorageItem('cachedBitcoinPrice', JSON.stringify(fiat_rate));
 
       console.log('Process 18', new Date().getTime());
       toggleFiatStats(fiat_rate);
@@ -356,12 +364,6 @@ export default function ConnectingToNodeLoadingScreen({
       });
     }
   }
-}
-function withTimeout(promise, ms, fallback = null) {
-  return Promise.race([
-    promise,
-    new Promise(resolve => setTimeout(() => resolve(fallback), ms)),
-  ]);
 }
 
 const styles = StyleSheet.create({

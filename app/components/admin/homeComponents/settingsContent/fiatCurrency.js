@@ -1,6 +1,6 @@
 import {FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import {COLORS, CONTENT_KEYBOARD_OFFSET} from '../../../../constants';
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {
@@ -18,12 +18,18 @@ import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircl
 import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 import {useTranslation} from 'react-i18next';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
+import {fiatCurrencies} from '../../../../functions/currencyOptions';
+import {useKeysContext} from '../../../../../context-store/keys';
 
 export default function FiatCurrencyPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
+  const {contactsPrivateKey, publicKey} = useKeysContext();
   const {toggleFiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const currencies = masterInfoObject.fiatCurrenciesList || [];
+  const currencies = useMemo(() => {
+    return fiatCurrencies.sort((a, b) => a.id.localeCompare(b.id));
+  }, []);
+
   const [textInput, setTextInput] = useState('');
   const currentCurrency = masterInfoObject?.fiatCurrency;
   const {t} = useTranslation();
@@ -135,11 +141,15 @@ export default function FiatCurrencyPage() {
     try {
       setIsLoading(true);
 
-      const response = await loadNewFiatData(selectedCurrency);
+      const response = await loadNewFiatData(
+        selectedCurrency,
+        contactsPrivateKey,
+        publicKey,
+      );
 
       if (!response.didWork) throw new Error('error saving fiat data');
 
-      toggleFiatStats(response.fiatRate);
+      toggleFiatStats(response.fiatRateResponse);
       toggleMasterInfoObject({fiatCurrency: selectedCurrency});
       navigate.goBack();
     } catch (err) {

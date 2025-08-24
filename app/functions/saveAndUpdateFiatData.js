@@ -1,27 +1,53 @@
-import {fetchFiatRates} from '@breeztech/react-native-breez-sdk-liquid';
-import {setLocalStorageItem} from './localStorage';
+import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
+import getFiatPrice from './getFiatPrice';
+import {isMoreThan40MinOld} from './rotateAddressDateChecker';
 
-export default async function loadNewFiatData(selectedCurrency) {
+export default async function loadNewFiatData(
+  selectedCurrency,
+  contactsPrivateKey,
+  publicKey,
+  shouldSave = true,
+) {
   try {
-    console.log('Loading fiat rates');
-    const fiatRates = await fetchFiatRates();
-    if (!fiatRates) throw new Error('error loading fiat rates');
-    const [fiatRate] = fiatRates.filter(
-      rate => rate.coin.toLowerCase() === selectedCurrency.toLowerCase(),
+    const cachedResponse = JSON.parse(
+      await getLocalStorageItem('didFetchFiatRateToday'),
+    );
+    // removing fetch to backend if working under cache
+    if (
+      shouldSave &&
+      cachedResponse &&
+      cachedResponse.fiatRate?.coin?.toLowerCase() ===
+        selectedCurrency.toLowerCase() &&
+      !isMoreThan40MinOld(cachedResponse.lastFetched)
+    ) {
+      return {didWork: true, fiatRateResponse: cachedResponse.fiatRate};
+    }
+
+    const fiatRateResponse = await getFiatPrice(
+      selectedCurrency,
+      contactsPrivateKey,
+      publicKey,
     );
 
-    await Promise.all([
-      setLocalStorageItem(
-        'didFetchFiatRateToday',
-        JSON.stringify({
-          lastFetched: new Date().getTime(),
-          rates: fiatRates,
-        }),
-      ),
-      setLocalStorageItem('cachedBitcoinPrice', JSON.stringify(fiatRate)),
-    ]);
+    if (!fiatRateResponse) throw new Error('error loading fiat rates');
 
-    return {didWork: true, fiatRate, fiatRates};
+    if (shouldSave) {
+      await Promise.all([
+        setLocalStorageItem(
+          'didFetchFiatRateToday',
+          JSON.stringify({
+            lastFetched: new Date().getTime(),
+            fiatRate: fiatRateResponse,
+          }),
+        ),
+        setLocalStorageItem(
+          'cachedBitcoinPrice',
+          JSON.stringify(fiatRateResponse),
+        ),
+      ]);
+    }
+
+    return {didWork: true, fiatRateResponse};
   } catch (err) {
     console.log('error loading fiat rates', err);
     return {didWork: false, error: err.message};

@@ -35,7 +35,6 @@ import {
 import customUUID from '../../../../../functions/customUUID';
 import {publishMessage} from '../../../../../functions/messaging/publishMessage';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import {getFiatRates} from '../../../../../functions/SDK';
 import {bulkUpdateDidPay, deleteEmployee} from '../../../../../functions/pos';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import TipsTXItem from './internalComponents/tipTx';
@@ -43,12 +42,10 @@ import {usePOSTransactions} from '../../../../../../context-store/pos';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {getSingleContact} from '../../../../../../db';
 import {useServerTimeOnly} from '../../../../../../context-store/serverTime';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 import {useTranslation} from 'react-i18next';
 
 export default function TotalTipsScreen(props) {
   const {decodedAddedContacts, globalContactsInformation} = useGlobalContacts();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {groupedTxs} = usePOSTransactions();
   const {t} = useTranslation();
   const [wantedName, {}] = props.route?.params?.item;
@@ -90,8 +87,7 @@ export default function TotalTipsScreen(props) {
         return;
       }
       setPaymentUpdate(prev => ({...prev, isSending: true}));
-      const [fiatCurrencies, blitzContact] = await Promise.all([
-        getFiatRates(),
+      const [blitzContact] = await Promise.all([
         getSingleContact(name?.toLowerCase()),
       ]);
 
@@ -160,7 +156,6 @@ export default function TotalTipsScreen(props) {
             data: sendObject,
             globalContactsInformation,
             selectedContact: selectedContact.contacts.myProfile,
-            fiatCurrencies,
             isLNURLPayment: false,
             privateKey: contactsPrivateKey,
             retrivedContact: selectedContact,

@@ -181,17 +181,6 @@ export default function getFormattedHomepageTxsForSpark(props) {
     ];
   }
 
-  if (!sparkTransactions?.length) {
-    return [
-      <View style={styles.noTransactionsContainer} key="noTx">
-        <ThemeText
-          content={noTransactionHistoryText}
-          styles={styles.noTransactionsText}
-        />
-      </View>,
-    ];
-  }
-
   const formattedTxs = [];
   let currentGroupedDate = '';
   const transactionLimit =
@@ -294,6 +283,17 @@ export default function getFormattedHomepageTxsForSpark(props) {
         console.log(err);
       }
     }
+  }
+
+  if (!formattedTxs?.length) {
+    return [
+      <View style={styles.noTransactionsContainer} key="noTx">
+        <ThemeText
+          content={noTransactionHistoryText}
+          styles={styles.noTransactionsText}
+        />
+      </View>,
+    ];
   }
 
   // Add "View All" button if conditions are met

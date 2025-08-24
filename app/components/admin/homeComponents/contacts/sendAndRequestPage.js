@@ -1,5 +1,5 @@
-import {StyleSheet, TouchableOpacity, View, ScrollView} from 'react-native';
-import {CENTER, ICONS, SATSPERBITCOIN} from '../../../../constants';
+import {StyleSheet, ScrollView} from 'react-native';
+import {CENTER, SATSPERBITCOIN} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {useCallback, useMemo, useRef, useState} from 'react';
@@ -9,19 +9,15 @@ import CustomNumberKeyboard from '../../../../functions/CustomElements/customNum
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
-import GetThemeColors from '../../../../hooks/themeColors';
-import {getFiatRates} from '../../../../functions/SDK';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import customUUID from '../../../../functions/customUUID';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
-import {useImageCache} from '../../../../../context-store/imageCache';
 import getReceiveAddressForContactPayment from './internalComponents/getReceiveAddressAndKindForPayment';
 import {useServerTimeOnly} from '../../../../../context-store/serverTime';
 import {useTranslation} from 'react-i18next';
@@ -85,7 +81,6 @@ export default function SendAndRequestPage(props) {
       if (!canSendPayment) return;
       crashlyticsLogReport('Submitting send and request payment');
       setIsLoading(true);
-      const fiatCurrencies = await getFiatRates();
       const sendingAmountMsat = convertedSendAmount * 1000;
       const address = selectedContact.receiveAddress;
 
@@ -158,7 +153,6 @@ export default function SendAndRequestPage(props) {
               data: sendObject,
               globalContactsInformation,
               selectedContact,
-              fiatCurrencies,
               isLNURLPayment: selectedContact?.isLNURL,
               privateKey: contactsPrivateKey,
               retrivedContact,
@@ -179,7 +173,6 @@ export default function SendAndRequestPage(props) {
           data: sendObject,
           globalContactsInformation,
           selectedContact,
-          fiatCurrencies,
           isLNURLPayment: selectedContact?.isLNURL,
           privateKey: contactsPrivateKey,
           retrivedContact,

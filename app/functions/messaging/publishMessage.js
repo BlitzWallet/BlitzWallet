@@ -3,6 +3,7 @@ import {updateMessage} from '../../../db';
 import {BITCOIN_SAT_TEXT, SATSPERBITCOIN} from '../../constants';
 import fetchBackend from '../../../db/handleBackend';
 import {crashlyticsLogReport} from '../crashlyticsLogs';
+import loadNewFiatData from '../saveAndUpdateFiatData';
 
 export async function publishMessage({
   toPubKey,
@@ -10,7 +11,6 @@ export async function publishMessage({
   data,
   globalContactsInformation,
   selectedContact,
-  fiatCurrencies,
   isLNURLPayment,
   privateKey,
   retrivedContact,
@@ -34,7 +34,6 @@ export async function publishMessage({
       selectedContactUsername: selectedContact.uniqueName,
       myProfile: globalContactsInformation.myProfile,
       data: data,
-      fiatCurrencies: fiatCurrencies,
       privateKey,
       retrivedContact,
     });
@@ -47,7 +46,6 @@ export async function sendPushNotification({
   selectedContactUsername,
   myProfile,
   data,
-  fiatCurrencies,
   privateKey,
   retrivedContact,
 }) {
@@ -77,19 +75,6 @@ export async function sendPushNotification({
     const sendingContactDenominationType =
       retrivedContact?.userBalanceDenomination || 'sats';
 
-    const fiatValue = fiatCurrencies?.filter(
-      currency =>
-        currency.coin.toLowerCase() ===
-        sendingContactFiatCurrency.toLowerCase(),
-    );
-    const didFindCurrency = fiatValue?.length >= 1;
-    const fiatAmount =
-      didFindCurrency &&
-      (
-        (fiatValue[0]?.value / SATSPERBITCOIN) *
-        (data.amountMsat / 1000)
-      ).toFixed(2);
-
     if (!devicePushKey || !deviceType) return;
 
     let requestData = {};
@@ -118,6 +103,20 @@ export async function sendPushNotification({
         decryptPubKey: retrivedContact.uuid,
       };
     } else {
+      const fiatValue = await loadNewFiatData(
+        sendingContactFiatCurrency,
+        privateKey,
+        myProfile.uuid,
+        false,
+      );
+      const didFindCurrency = fiatValue?.didWork;
+      const fiatAmount =
+        didFindCurrency &&
+        (
+          (fiatValue?.value / SATSPERBITCOIN) *
+          (data.amountMsat / 1000)
+        ).toFixed(2);
+
       let message = '';
       if (data.isUpdate) {
         message = data.message;
