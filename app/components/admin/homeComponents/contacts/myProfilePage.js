@@ -35,21 +35,10 @@ export default function MyContactProfilePage({navigation}) {
     GetThemeColors();
   const navigate = useNavigation();
   const currentTime = new Date();
-  const [showList, setShowList] = useState(false);
   const [createdPayments, setCreatedPayments] = useState([]);
   const {t} = useTranslation();
 
   const myContact = globalContactsInformation.myProfile;
-
-  useFocusEffect(
-    useCallback(() => {
-      setShowList(true);
-      return () => {
-        console.log('Screen is unfocused');
-        setShowList(false);
-      };
-    }, []),
-  );
 
   useEffect(() => {
     const messageHeap = new MaxHeap();
@@ -92,6 +81,79 @@ export default function MyContactProfilePage({navigation}) {
 
   const {bottomPadding} = useGlobalInsets();
   useHandleBackPressNew();
+
+  // Header component for the FlatList
+  const ListHeaderComponent = () => (
+    <View style={styles.innerContainer}>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('CustomHalfModal', {
+            wantedContent: 'myProfileQRcode',
+            sliderHight: 0.6,
+          });
+        }}>
+        <View>
+          <View
+            style={[
+              styles.profileImage,
+              {
+                backgroundColor: backgroundOffset,
+              },
+            ]}>
+            <ContactProfileImage
+              updated={cache[myContact.uuid]?.updated}
+              uri={cache[myContact.uuid]?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
+          <View style={styles.scanProfileImage}>
+            <Image
+              source={ICONS.scanQrCodeDark}
+              style={{width: 18, height: 18}}
+            />
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      <ThemeText
+        styles={{
+          ...styles.uniqueNameText,
+          marginBottom: myContact?.name ? 0 : 10,
+        }}
+        content={myContact.uniqueName}
+      />
+
+      {myContact?.name && (
+        <ThemeText styles={{...styles.nameText}} content={myContact?.name} />
+      )}
+
+      <View
+        style={[
+          styles.bioContainer,
+          {marginTop: 10, backgroundColor: textInputBackground},
+        ]}>
+        <ScrollView
+          contentContainerStyle={{
+            alignItems: myContact.bio ? null : 'center',
+            flexGrow: myContact.bio ? null : 1,
+          }}
+          showsVerticalScrollIndicator={false}>
+          <ThemeText
+            styles={{...styles.bioText, color: textInputColor}}
+            content={myContact?.bio || t('constants.noBioSet')}
+          />
+        </ScrollView>
+      </View>
+
+      {createdPayments?.length === 0 && (
+        <ThemeText
+          styles={styles.txPlaceholder}
+          content={t('constants.noTransactions')}
+        />
+      )}
+    </View>
+  );
 
   return (
     <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
@@ -137,100 +199,34 @@ export default function MyContactProfilePage({navigation}) {
           />
         </TouchableOpacity>
       </View>
-      <View style={styles.innerContainer}>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('CustomHalfModal', {
-              wantedContent: 'myProfileQRcode',
-              sliderHight: 0.6,
-            });
-          }}>
-          <View>
-            <View
-              style={[
-                styles.profileImage,
-                {
-                  backgroundColor: backgroundOffset,
-                },
-              ]}>
-              <ContactProfileImage
-                updated={cache[myContact.uuid]?.updated}
-                uri={cache[myContact.uuid]?.localUri}
-                darkModeType={darkModeType}
-                theme={theme}
-              />
-            </View>
-            <View style={styles.scanProfileImage}>
-              <Image
-                source={ICONS.scanQrCodeDark}
-                style={{width: 18, height: 18}}
-              />
-            </View>
-          </View>
-        </TouchableOpacity>
-        <ThemeText
-          styles={{
-            ...styles.uniqueNameText,
-            marginBottom: myContact?.name ? 0 : 10,
+
+      {createdPayments?.length != 0 ? (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          style={{flex: 1}}
+          contentContainerStyle={{
+            paddingBottom: bottomPadding,
           }}
-          content={myContact.uniqueName}
-        />
-        {myContact?.name && (
-          <ThemeText styles={{...styles.nameText}} content={myContact?.name} />
-        )}
-        <View
-          style={[
-            styles.bioContainer,
-            {marginTop: 10, backgroundColor: textInputBackground},
-          ]}>
-          <ScrollView
-            contentContainerStyle={{
-              alignItems: myContact.bio ? null : 'center',
-              flexGrow: myContact.bio ? null : 1,
-            }}
-            showsVerticalScrollIndicator={false}>
-            <ThemeText
-              styles={{...styles.bioText, color: textInputColor}}
-              content={myContact?.bio || t('constants.noBioSet')}
+          ListHeaderComponent={ListHeaderComponent}
+          data={createdPayments}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({item, index}) => (
+            <ProfilePageTransactions
+              key={index}
+              transaction={item}
+              id={index}
+              currentTime={currentTime}
             />
-          </ScrollView>
+          )}
+          initialNumToRender={10}
+          windowSize={5}
+          maxToRenderPerBatch={10}
+        />
+      ) : (
+        <View style={{flex: 1}}>
+          <ListHeaderComponent />
         </View>
-        {createdPayments?.length != 0 && showList ? (
-          <FlatList
-            contentContainerStyle={{
-              paddingTop: 10,
-              paddingBottom: bottomPadding,
-            }}
-            showsVerticalScrollIndicator={false}
-            style={{
-              width: '95%',
-            }}
-            initialNumToRender={10}
-            windowSize={5}
-            maxToRenderPerBatch={10}
-            data={createdPayments}
-            renderItem={({item, index}) => {
-              return (
-                <ProfilePageTransactions
-                  key={index}
-                  transaction={item}
-                  id={index}
-                  currentTime={currentTime}
-                />
-              );
-            }}
-          />
-        ) : (
-          <ThemeText
-            styles={styles.txPlaceholder}
-            content={
-              showList
-                ? t('constants.noTransactions')
-                : t('constants.leftPageMessage')
-            }
-          />
-        )}
-      </View>
+      )}
     </GlobalThemeView>
   );
 }
@@ -245,7 +241,6 @@ const styles = StyleSheet.create({
   },
 
   innerContainer: {
-    flex: 1,
     width: '100%',
     alignItems: 'center',
   },
