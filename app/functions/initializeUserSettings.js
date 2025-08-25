@@ -275,7 +275,7 @@ export default async function initializeUserSettingsFromHistory({
       needsToUpdate = true;
     }
 
-    if (isUsingNewNotifications === undefined) {
+    if (isUsingNewNotifications === undefined || !isUsingNewNotifications) {
       isUsingNewNotifications = true;
       needsToUpdate = true;
     }

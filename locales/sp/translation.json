@@ -1282,7 +1282,7 @@
     "contacts": {
       "updateMessage": "{{name}} {{option}} su solicitud",
       "request": "{{name}} te solicitó {{amount}}",
-      "payment:": "{{name}} te pagó {{amount}}"
+      "payment": "{{name}} te pagó {{amount}}"
     }
   }
 }
