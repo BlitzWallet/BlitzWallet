@@ -210,7 +210,7 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
-      case 'editLNULROnReceive':
+      case 'editLNURLOnReceive':
         return (
           <EditLNURLContactOnReceivePage
             theme={theme}
@@ -332,7 +332,7 @@ export default function CustomHalfModal(props) {
             paddingBottom:
               contentType === 'manualEnterSendAddress' ||
               contentType === 'addPOSItemsHalfModal' ||
-              'editLNULROnReceive'
+              'editLNURLOnReceive'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : bottomPadding

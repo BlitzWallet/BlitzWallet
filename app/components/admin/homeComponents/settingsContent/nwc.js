@@ -46,7 +46,10 @@ export default function NosterWalletConnect() {
   const notificationData = masterInfoObject.pushNotifications;
   const didViewWarningMessage = masterInfoObject.didViewNWCMessage;
   const hasEnabledPushNotifications =
-    notificationData.enabledServices.NWC && currnetPushState;
+    notificationData.isEnabled &&
+    notificationData.enabledServices.NWC &&
+    currnetPushState;
+
   const {t} = useTranslation();
 
   const loadCurrentNotificationPermission = async () => {

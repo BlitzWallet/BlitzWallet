@@ -179,7 +179,7 @@ export default function ExpandedContactsPage(props) {
             if (selectedContact.isLNURL) {
               navigate.navigate('ErrorScreen', {
                 errorMessage: t(
-                  'contacts.expandedContactPage.requestLNULRError',
+                  'contacts.expandedContactPage.requestLNURLError',
                 ),
               });
               return;

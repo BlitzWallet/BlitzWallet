@@ -166,6 +166,7 @@ export default function AddPOSItemsPage() {
       </ScrollView>
 
       <CustomButton
+        buttonStyles={styles.addItemButton}
         actionFunction={() =>
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'addPOSItemsHalfModal',
@@ -197,5 +198,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  addItemButton: {
+    ...CENTER,
   },
 });

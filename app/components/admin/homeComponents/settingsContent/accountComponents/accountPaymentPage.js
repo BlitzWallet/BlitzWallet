@@ -154,7 +154,11 @@ export default function AccountPaymentPage(props) {
         amountSats: convertedSendAmount,
         masterInfoObject,
         fee: transferInfo.paymentFee,
-        memo: memo || 'Account Swap',
+        memo:
+          memo ||
+          t(
+            'settings.accountComponents.accountPaymentPage.inputPlaceHolderText',
+          ),
         userBalance: fromBalance,
         sparkInformation: {
           identityPubKey: accountIdentifyPubKey,

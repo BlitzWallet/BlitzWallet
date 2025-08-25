@@ -22,14 +22,14 @@ export default function NotificationPreferances() {
   const [currnetPushState, setCurrentPushState] = useState(null);
   const {t} = useTranslation();
   const notificationData = masterInfoObject.pushNotifications;
-  const pushNotificationStatus = notificationData.isEnabled && currnetPushState;
 
-  console.log(masterInfoObject.pushNotifications.hash, masterInfoObject.NWC);
+  const userWantsNotifications = notificationData.isEnabled;
+  const systemHasPermissions = currnetPushState;
+  const effectivePushStatus = userWantsNotifications && systemHasPermissions;
 
   const loadCurrentNotificationPermission = async () => {
-    const resposne = await getCurrentPushNotifiicationPermissions();
-
-    setCurrentPushState(resposne === 'granted');
+    const response = await getCurrentPushNotifiicationPermissions();
+    setCurrentPushState(response === 'granted');
   };
   useEffect(() => {
     loadCurrentNotificationPermission();
@@ -37,55 +37,50 @@ export default function NotificationPreferances() {
 
   const toggleNotificationPreferance = useCallback(
     async toggleType => {
+      setIsUpdating(true);
       try {
-        setIsUpdating(true);
         let newObject = {...masterInfoObject.pushNotifications};
+
         if (toggleType === 'isEnabled') {
-          if (!newObject.isEnabled || !currnetPushState) {
-            const response = await registerForPushNotificationsAsync();
+          const wantsToEnable = !effectivePushStatus;
 
-            console.log('push notifiations response', response);
-            if (!response.didWork) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: response.error,
-                useTranslationString: true,
-              });
-              return;
+          if (wantsToEnable) {
+            // User wants to enable notifications
+            if (!systemHasPermissions) {
+              // Must re-register with system
+              const response = await registerForPushNotificationsAsync();
+              if (!response.didWork) throw new Error(response.error);
+
+              const checkResponse =
+                await checkAndSavePushNotificationToDatabase(response.token);
+              if (!checkResponse.didWork) throw new Error(checkResponse.error);
+
+              if (checkResponse.shouldUpdate) {
+                const {hash, key, platform} = checkResponse.data;
+                Object.assign(newObject, {hash, key, platform});
+              }
+
+              await loadCurrentNotificationPermission(); // refresh system state
             }
-            const checkResponse = await checkAndSavePushNotificationToDatabase(
-              response.token,
-            );
 
-            if (!checkResponse.didWork) {
-              navigate.navigate('ErrorScreen', {errorMessage: response.error});
-              return;
-            }
-
-            if (checkResponse.shouldUpdate) {
-              const data = checkResponse.data;
-              newObject['hash'] = data.hash;
-              newObject['key'] = data.key;
-              newObject['platform'] = data.platform;
-            }
-          }
-
-          if (!currnetPushState) {
-            newObject['isEnabled'] = true;
+            newObject.isEnabled = true; // always set preference
           } else {
-            newObject['isEnabled'] = !newObject.isEnabled;
+            // User wants to disable
+            newObject.isEnabled = false;
           }
-
-          loadCurrentNotificationPermission();
         } else {
+          // Toggle a specific service
+          newObject.enabledServices = {...newObject.enabledServices};
           newObject.enabledServices[toggleType] =
             !newObject.enabledServices?.[toggleType];
         }
 
+        // Save updated preferences globally
         toggleMasterInfoObject({pushNotifications: newObject});
 
         if (
           newObject.hash !== masterInfoObject.NWC?.pushNotifications?.hash ||
-          newObject.enabledServices.NWC !==
+          newObject.enabledServices?.NWC !==
             masterInfoObject.NWC?.pushNotifications?.enabledServices?.NWC
         ) {
           toggleNWCInformation({
@@ -93,7 +88,7 @@ export default function NotificationPreferances() {
               hash: newObject.hash,
               platform: newObject.platform,
               key: newObject.key,
-              isEnabled: newObject.enabledServices.NWC,
+              isEnabled: newObject.enabledServices?.NWC,
             },
           });
         }
@@ -106,25 +101,32 @@ export default function NotificationPreferances() {
         setIsUpdating(false);
       }
     },
-    [masterInfoObject.pushNotifications, navigate],
+    [
+      masterInfoObject?.pushNotifications,
+      systemHasPermissions,
+      masterInfoObject?.NWC,
+      navigate,
+      effectivePushStatus,
+    ],
   );
+
   return (
     <View style={styles.container}>
       <SettingsItemWithSlider
         showLoadingIcon={isUpdating}
         settingsTitle={t('settings.notifications.mainToggle', {
-          state: !pushNotificationStatus
+          state: !effectivePushStatus
             ? t('constants.disabled')
             : t('constants.enabled'),
         })}
         showDescription={false}
         handleSubmit={() => toggleNotificationPreferance('isEnabled')}
-        toggleSwitchStateValue={pushNotificationStatus}
+        toggleSwitchStateValue={effectivePushStatus}
         showInformationPopup={true}
         informationPopupText={t('settings.notifications.mainToggleDesc')}
         informationPopupBTNText={t('constants.continue')}
       />
-      {pushNotificationStatus && (
+      {effectivePushStatus && (
         <>
           <ThemeText content={t('settings.notifications.optionsTitle')} />
           <ScrollView

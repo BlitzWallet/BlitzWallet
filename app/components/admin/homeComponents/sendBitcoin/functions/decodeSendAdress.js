@@ -102,12 +102,12 @@ export default async function decodeSendAddress(props) {
         ? decodedAddress.address.toUpperCase()
         : decodedAddress.options.lightning?.toUpperCase();
 
-      const decodedLNULR = decodeLNURL(lightningInvoice);
+      const decodedLNURL = decodeLNURL(lightningInvoice);
 
-      if (!decodedLNULR) {
+      if (!decodedLNURL) {
         btcAdress = decodedAddress.address;
       } else {
-        const lightningAddress = formatLightningAddress(decodedLNULR);
+        const lightningAddress = formatLightningAddress(decodedLNURL);
         btcAdress = lightningAddress;
       }
     }

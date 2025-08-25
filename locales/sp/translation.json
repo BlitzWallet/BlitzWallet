@@ -762,7 +762,7 @@
     },
     "expandedContactPage": {
       "loadingContactError": "No se pudo cargar el contacto, intenta de nuevo.",
-      "requestLNULRError": "Solo puedes solicitar dinero a contactos de Blitz, no a direcciones LNURL.",
+      "requestLNURLError": "Solo puedes solicitar dinero a contactos de Blitz, no a direcciones LNURL.",
       "noTransactions": "Envía o solicita un pago para ver el historial de transacciones."
     },
     "expandedMessageHalfModal": {
@@ -1283,7 +1283,7 @@
     "contacts": {
       "updateMessage": "{{name}} {{option}} su solicitud",
       "request": "{{name}} te solicitó {{amount}}",
-      "payment:": "{{name}} te pagó {{amount}}"
+      "payment": "{{name}} te pagó {{amount}}"
     }
   }
 }

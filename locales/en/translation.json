@@ -919,7 +919,7 @@
 
     "expandedContactPage": {
       "loadingContactError": "Unable to load contact, please try again.",
-      "requestLNULRError": "You can only request money from Blitz contacts, not LNURL addresses.",
+      "requestLNURLError": "You can only request money from Blitz contacts, not LNURL addresses.",
       "noTransactions": "Send or request a payment to see transaction history."
     },
     "expandedMessageHalfModal": {

@@ -77,6 +77,10 @@ function ConfirmedOrSentTransaction({
 
   const didDeclinePayment = txParsed.isRedeemed != null && !txParsed.isRedeemed;
 
+  const isOutgoingPayment =
+    (txParsed.didSend && !txParsed.isRequest) ||
+    (txParsed.isRequest && txParsed.isRedeemed && !txParsed.didSend);
+
   return (
     <View style={[styles.transactionContainer, {alignItems: 'center'}]}>
       {didDeclinePayment ? (
@@ -96,7 +100,7 @@ function ConfirmedOrSentTransaction({
               {
                 rotate: didDeclinePayment
                   ? '180deg'
-                  : txParsed.didSend && !txParsed.isRequest
+                  : isOutgoingPayment
                   ? '90deg'
                   : '270deg',
               },
@@ -163,7 +167,7 @@ function ConfirmedOrSentTransaction({
           didDeclinePayment ||
           masterInfoObject.userBalanceDenomination === 'hidden'
             ? ''
-            : txParsed.didSend && !txParsed.isRequest
+            : isOutgoingPayment
             ? '-'
             : '+'
         }

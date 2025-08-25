@@ -136,7 +136,7 @@ export default function AddPOSItemHalfModal({
             textInputStyles={{
               color:
                 theme && darkModeType
-                  ? textColor
+                  ? COLORS.lightModeText
                   : itemInformation.name.length > 60
                   ? COLORS.cancelRed
                   : textColor,
@@ -179,8 +179,8 @@ export default function AddPOSItemHalfModal({
       </ScrollView>
       <CustomButton
         buttonStyles={{
-          marginBottom: isKeyboardActive ? 0 : 10,
           opacity: !itemInformation.name || !itemInformation.price ? 0.5 : 1,
+          ...CENTER,
         }}
         actionFunction={addNewItem}
         textContent={
