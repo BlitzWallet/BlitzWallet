@@ -919,7 +919,7 @@
 
     "expandedContactPage": {
       "loadingContactError": "Impossibile caricare il contatto, riprova.",
-      "requestLNULRError": "Puoi richiedere denaro solo dai contatti Blitz, non dagli indirizzi LNURL.",
+      "requestLNURLError": "Puoi richiedere denaro solo dai contatti Blitz, non dagli indirizzi LNURL.",
       "noTransactions": "Invia o richiedi un pagamento per vedere la cronologia delle transazioni."
     },
     "expandedMessageHalfModal": {
@@ -1284,7 +1284,7 @@
   },
 
   "screens": {
-   "inAccount": {
+    "inAccount": {
       "appStore": {
         "soonMessage": "Ci piace che tu voglia più app. Suggeriscile qui sotto!",
         "title": "Negozio",
