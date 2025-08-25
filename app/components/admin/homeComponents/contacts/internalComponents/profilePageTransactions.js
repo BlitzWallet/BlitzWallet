@@ -138,7 +138,7 @@ function ConfirmedOrSentTransaction({
 
   const isOutgoingPayment =
     (txParsed.didSend && !txParsed.isRequest) ||
-    (txParsed.isRequest && txParsed.isRedeemed);
+    (txParsed.isRequest && txParsed.isRedeemed && !txParsed.didSend);
 
   return (
     <View style={[styles.transactionContainer, {alignItems: 'center'}]}>
