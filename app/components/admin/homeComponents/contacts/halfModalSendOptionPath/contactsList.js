@@ -7,7 +7,7 @@ import {
   View,
 } from 'react-native';
 import {CENTER, CONTENT_KEYBOARD_OFFSET, SIZES} from '../../../../../constants';
-import {useMemo, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -37,70 +37,12 @@ export default function ChooseContactHalfModal() {
   const [inputText, setInputText] = useState('');
   const {t} = useTranslation();
   const {bottomPadding} = useGlobalInsets();
+  const {backgroundColor, backgroundOffset} = GetThemeColors();
+  const {isConnectedToTheInternet} = useAppStatus();
 
   useHandleBackPressNew();
 
-  const contactElements = useMemo(() => {
-    return decodedAddedContacts
-      .filter(contact => {
-        return (
-          contact.name.toLowerCase().startsWith(inputText.toLowerCase()) ||
-          (!contact.isLNURL &&
-            contact.uniqueName
-              .toLowerCase()
-              .startsWith(inputText.toLowerCase()))
-        );
-      })
-      .map((contact, id) => {
-        return (
-          <ContactElement
-            key={contact.uuid}
-            contact={contact}
-            imgCache={cache}
-          />
-        );
-      });
-  }, [decodedAddedContacts, inputText, cache]);
-
-  return (
-    <CustomKeyboardAvoidingView
-      useStandardWidth={true}
-      useTouchableWithoutFeedback={true}>
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        label={t('wallet.contactsPage.header')}
-      />
-      <View style={styles.innerContainer}>
-        <CustomSearchInput
-          inputText={inputText}
-          setInputText={setInputText}
-          placeholderText={t('wallet.contactsPage.inputTextPlaceholder')}
-          containerStyles={{marginBottom: 10}}
-          onBlurFunction={() => {
-            setIskeyboardActive(false);
-          }}
-          onFocusFunction={() => {
-            setIskeyboardActive(true);
-          }}
-        />
-        <ThemeText content={t('wallet.contactsPage.subHeader')} />
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="always"
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingBottom: isKeyboardActive
-              ? CONTENT_KEYBOARD_OFFSET
-              : bottomPadding,
-          }}>
-          {contactElements}
-        </ScrollView>
-      </View>
-    </CustomKeyboardAvoidingView>
-  );
-
-  function navigateToExpandedContact(contact) {
-    Keyboard.dismiss();
+  const navigateToExpandedContact = useCallback(contact => {
     setTimeout(
       () => {
         navigate.navigate('SendAndRequestPage', {
@@ -111,78 +53,135 @@ export default function ChooseContactHalfModal() {
       },
       Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
     );
-  }
+    Keyboard.dismiss();
+  }, []);
 
-  function ContactElement(props) {
-    const {isConnectedToTheInternet} = useAppStatus();
+  const sortedContacts = useMemo(() => {
+    return decodedAddedContacts.sort((contactA, contactB) => {
+      const nameA = contactA?.name || contactA?.uniqueName || '';
+      const nameB = contactB?.name || contactB?.uniqueName || '';
+      return nameA.localeCompare(nameB);
+    });
+  }, [decodedAddedContacts]);
 
-    const {t} = useTranslation();
-    const {backgroundOffset} = GetThemeColors();
-    const contact = props.contact;
+  const filteredContacts = useMemo(() => {
+    return sortedContacts.filter(contact => {
+      return (
+        contact.name.toLowerCase().startsWith(inputText.toLowerCase()) ||
+        (!contact.isLNURL &&
+          contact.uniqueName.toLowerCase().startsWith(inputText.toLowerCase()))
+      );
+    });
+  }, [sortedContacts, inputText, cache]);
 
-    return (
-      <TouchableOpacity
-        onLongPress={() => {
-          if (!isConnectedToTheInternet) {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: t('errormessages.nointernet'),
-            });
-            return;
-          }
-        }}
-        key={contact.uuid}
-        onPress={() => navigateToExpandedContact(contact)}>
-        <View style={{marginTop: 10}}>
-          <View style={styles.contactRowContainer}>
-            <View
-              style={[
-                styles.contactImageContainer,
-                {
-                  backgroundColor: backgroundOffset,
-                  position: 'relative',
-                },
-              ]}>
-              <ContactProfileImage
-                updated={props.imgCache[contact.uuid]?.updated}
-                uri={props.imgCache[contact.uuid]?.localUri}
-                darkModeType={darkModeType}
-                theme={theme}
-              />
-            </View>
+  const contactElements = useMemo(() => {
+    return filteredContacts.map(item => {
+      const contact = item;
 
-            <View style={{width: '100%', flex: 1}}>
-              <ThemeText
-                CustomEllipsizeMode={'tail'}
-                CustomNumberOfLines={1}
-                content={
-                  !!contact.name.length ? contact.name : contact.uniqueName
-                }
-              />
-              <ThemeText
-                CustomEllipsizeMode={'tail'}
-                CustomNumberOfLines={1}
-                styles={{
-                  fontSize: SIZES.small,
-                }}
-                content={!!contact.name.length ? contact.uniqueName : ''}
-              />
-            </View>
+      return (
+        <TouchableOpacity
+          style={styles.contactRowContainer}
+          onLongPress={() => {
+            if (!isConnectedToTheInternet) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: t('errormessages.nointernet'),
+              });
+              return;
+            }
+          }}
+          key={contact.uuid}
+          onPress={() => navigateToExpandedContact(contact)}>
+          <View
+            style={[
+              styles.contactImageContainer,
+              {
+                backgroundColor: backgroundOffset,
+              },
+            ]}>
+            <ContactProfileImage
+              updated={cache[contact.uuid]?.updated}
+              uri={cache[contact.uuid]?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
           </View>
-        </View>
-      </TouchableOpacity>
-    );
-  }
+
+          <View style={styles.nameContainer}>
+            <ThemeText
+              CustomEllipsizeMode={'tail'}
+              CustomNumberOfLines={1}
+              content={
+                !!contact.name.length ? contact.name : contact.uniqueName
+              }
+            />
+            <ThemeText
+              CustomEllipsizeMode={'tail'}
+              CustomNumberOfLines={1}
+              styles={{
+                fontSize: SIZES.small,
+              }}
+              content={!!contact.name.length ? contact.uniqueName : ''}
+            />
+          </View>
+        </TouchableOpacity>
+      );
+    });
+  }, [
+    filteredContacts,
+    isConnectedToTheInternet,
+    t,
+    backgroundOffset,
+    navigateToExpandedContact,
+    cache,
+  ]);
+
+  return (
+    <CustomKeyboardAvoidingView
+      useStandardWidth={true}
+      useTouchableWithoutFeedback={true}>
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        label={t('wallet.contactsPage.header')}
+      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="always"
+        stickyHeaderIndices={[0]}
+        contentContainerStyle={{
+          ...styles.innerContainer,
+          flexGrow: 1,
+          paddingBottom: isKeyboardActive
+            ? CONTENT_KEYBOARD_OFFSET
+            : bottomPadding,
+        }}>
+        <CustomSearchInput
+          inputText={inputText}
+          setInputText={setInputText}
+          placeholderText={t('wallet.contactsPage.inputTextPlaceholder')}
+          containerStyles={{marginBottom: 10, backgroundColor}}
+          onBlurFunction={() => {
+            setIskeyboardActive(false);
+          }}
+          onFocusFunction={() => {
+            setIskeyboardActive(true);
+          }}
+        />
+        <ThemeText content={t('wallet.contactsPage.subHeader')} />
+        {contactElements}
+      </ScrollView>
+    </CustomKeyboardAvoidingView>
+  );
 }
 
 const styles = StyleSheet.create({
   innerContainer: {
-    flex: 1,
+    paddingTop: 10,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
-    marginTop: 20,
   },
 
   contactRowContainer: {
+    marginTop: 10,
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
@@ -203,4 +202,5 @@ const styles = StyleSheet.create({
     width: 25,
     height: 30,
   },
+  nameContainer: {width: '100%', flex: 1},
 });
