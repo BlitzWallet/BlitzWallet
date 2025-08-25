@@ -136,7 +136,7 @@ export default function AddPOSItemHalfModal({
             textInputStyles={{
               color:
                 theme && darkModeType
-                  ? textColor
+                  ? COLORS.lightModeText
                   : itemInformation.name.length > 60
                   ? COLORS.cancelRed
                   : textColor,
