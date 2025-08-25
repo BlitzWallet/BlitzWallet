@@ -136,6 +136,10 @@ function ConfirmedOrSentTransaction({
   const {t} = useTranslation();
   const didDeclinePayment = txParsed.isRedeemed != null && !txParsed.isRedeemed;
 
+  const isOutgoingPayment =
+    (txParsed.didSend && !txParsed.isRequest) ||
+    (txParsed.isRequest && txParsed.isRedeemed);
+
   return (
     <View style={[styles.transactionContainer, {alignItems: 'center'}]}>
       {didDeclinePayment ? (
@@ -153,10 +157,10 @@ function ConfirmedOrSentTransaction({
             width: 30,
             height: 30,
             marginRight: 5,
-            alignItems: txParsed.didSend ? null : 'center',
-            justifyContent: txParsed.didSend ? null : 'center',
+            alignItems: isOutgoingPayment ? null : 'center',
+            justifyContent: isOutgoingPayment ? null : 'center',
           }}>
-          {txParsed.didSend ? (
+          {isOutgoingPayment ? (
             <>
               <View
                 style={{
@@ -282,7 +286,7 @@ function ConfirmedOrSentTransaction({
           didDeclinePayment ||
           masterInfoObject.userBalanceDenomination === 'hidden'
             ? ''
-            : txParsed.didSend && !txParsed.isRequest
+            : isOutgoingPayment
             ? '-'
             : '+'
         }
