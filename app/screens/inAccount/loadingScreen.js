@@ -324,7 +324,7 @@ export default function ConnectingToNodeLoadingScreen({
             value: 100_000, // random number to make sure nothing else down the line errors out
           };
         }
-      }
+      } else fiatRate = fiatRate.fiatRateResponse;
     } catch (error) {
       console.error('Failed to fetch fiat data:', error);
       return {coin: 'USD', value: 100_000};
