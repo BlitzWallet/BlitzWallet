@@ -720,7 +720,8 @@
         "title": "Confirm number",
         "price": "Price: ",
         "fee": "Fee: ",
-        "invalidNumber": "Not a valid phone number"
+        "invalidNumber": "Not a valid phone number",
+        "receiveTitle": "Confirm Receive"
       },
 
       "sendPage": {
@@ -734,13 +735,28 @@
         "payingMessage": "Paying...",
         "runningTries": "Running {{runCount}} for {{maxTries}} tries",
         "notAbleToSettleInvoice": "Not able to settle invoice.",
-        "paymentMemo": "Store - SMS"
+        "paymentMemo": "Store - SMS Send"
       },
       "sentPayments": {
-        "title": "Sent Messages",
-        "noPayments": "You have not sent any messages",
+        "titlesend": "Sent Messages",
+        "titlereceive": "Received Codes",
+        "noPaymentssend": "You have not sent any messages",
+        "noPaymentsreceive": "You have not received any codes",
         "helpMessage": "For help, reach out to:",
-        "orderId": "Order ID"
+        "orderId": "Order ID",
+        "pending": "Order pending",
+        "refunded": "Order refunded",
+        "retryClaim": "Retry claim",
+        "fetchOrderError": "Failed to fetch order status",
+        "failedUpdate": "Failed to update order status",
+        "refundedOrder": "Order has been refunded, funds will automatically return to your wallet after 21 minutes"
+      },
+      "receivePage": {
+        "paymentMemo": "Store - SMS Receive",
+        "selectCountry": "Select Country",
+        "autoSelectInfoMessage": "Choose the country of the phone number you want to use. For the best chance of receiving your code, we recommend keeping it on Auto Select so the system picks the most reliable option.",
+        "autoSelect": "Auto Select",
+        "inputPlaceholder": "Search for a service"
       }
     }
   },

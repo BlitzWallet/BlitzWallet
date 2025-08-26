@@ -570,7 +570,8 @@
         "title": "Confirmar número",
         "price": "Precio: ",
         "fee": "Tarifa: ",
-        "invalidNumber": "Número de teléfono no válido"
+        "invalidNumber": "Número de teléfono no válido",
+        "receiveTitle": "Confirmar recepción"
       },
       "sendPage": {
         "startingSendingMessage": "Creando orden de envío",
@@ -583,13 +584,28 @@
         "payingMessage": "Pagando...",
         "runningTries": "Ejecutando {{runCount}} de {{maxTries}} intentos",
         "notAbleToSettleInvoice": "No se pudo liquidar la factura.",
-        "paymentMemo": "Tienda - SMS"
+        "paymentMemo": "Tienda - Enviar SMS"
       },
       "sentPayments": {
-        "title": "Mensajes enviados",
-        "noPayments": "No has enviado mensajes",
+        "titlesend": "Mensajes enviados",
+        "titlereceive": "Códigos recibidos",
+        "noPaymentssend": "No has enviado mensajes",
+        "noPaymentsreceive": "No has recibido ningún código",
         "helpMessage": "Para ayuda, contacta a:",
-        "orderId": "ID de pedido"
+        "orderId": "ID de pedido",
+        "pending": "Pedido pendiente",
+        "refunded": "Pedido reembolsado",
+        "retryClaim": "Reintentar reclamo",
+        "fetchOrderError": "Error al obtener el estado del pedido",
+        "failedUpdate": "Error al actualizar el estado del pedido",
+        "refundedOrder": "El pedido ha sido reembolsado, los fondos se devolverán automáticamente a tu billetera después de 21 minutos."
+      },
+      "receivePage": {
+        "paymentMemo": "Tienda - Recepción de SMS",
+        "selectCountry": "Seleccionar país",
+        "autoSelectInfoMessage": "Elige el país del número de teléfono que deseas usar. Para tener la mejor posibilidad de recibir tu código, recomendamos mantenerlo en Auto Selección para que el sistema elija la opción más confiable.",
+        "autoSelect": "Selección automática",
+        "inputPlaceholder": "Buscar un servicio"
       }
     }
   },
