@@ -21,6 +21,7 @@ import {
   HistoricalVPNPurchases,
   SwitchGenerativeAIModel,
 } from '../app/components/admin/homeComponents/apps';
+import ConfirmSMSReceivePage from '../app/components/admin/homeComponents/apps/sms4sats/confirmReceivePaymentScreen';
 import HistoricalSMSMessagingPage from '../app/components/admin/homeComponents/apps/sms4sats/sentPayments';
 import ViewSmsReceiveCode from '../app/components/admin/homeComponents/apps/sms4sats/viewSMScode';
 import {
@@ -181,6 +182,7 @@ const FADE_SCREENS = [
   // },
   {name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode},
   {name: 'ViewSMSReceiveCode', component: ViewSmsReceiveCode},
+  {name: 'ConfirmSMSReceivePage', component: ConfirmSMSReceivePage},
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
   {
