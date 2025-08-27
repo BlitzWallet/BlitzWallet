@@ -30,6 +30,7 @@ const DropdownMenu = ({
   useIsLoading = false,
   disableDropdownPress = false,
   customFunction,
+  translateLabelText = true,
 }) => {
   const {t} = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -193,33 +194,36 @@ const DropdownMenu = ({
               onLayout={e => {
                 setDropdownHeight(e.nativeEvent.layout.height);
               }}>
-              {options.map((item, index) => (
-                <TouchableOpacity
-                  key={item.value.toString()}
-                  style={{
-                    ...styles.dropdownItem,
-                    borderBottomWidth: index !== options.length - 1 ? 1 : 0,
-                    borderBottomColor: backgroundColor,
-                    ...dropdownItemCustomStyles,
-                  }}
-                  onPress={() => handleSelect(item)}>
-                  {showFlag && item.flagCode && (
-                    <CountryFlag
-                      style={{
-                        padding: 0,
-                        marginRight: 5,
-                        backgroundColor: 'red',
-                      }}
-                      isoCode={item.flagCode}
-                      size={15}
+              {options.map((item, index) => {
+                if (!item.label) return;
+                return (
+                  <TouchableOpacity
+                    key={`${item.value.toString()}_${index}`}
+                    style={{
+                      ...styles.dropdownItem,
+                      borderBottomWidth: index !== options.length - 1 ? 1 : 0,
+                      borderBottomColor: backgroundColor,
+                      ...dropdownItemCustomStyles,
+                    }}
+                    onPress={() => handleSelect(item)}>
+                    {showFlag && item.flagCode && (
+                      <CountryFlag
+                        style={{
+                          padding: 0,
+                          marginRight: 5,
+                          backgroundColor: 'red',
+                        }}
+                        isoCode={item.flagCode}
+                        size={15}
+                      />
+                    )}
+                    <ThemeText
+                      styles={styles.defTextStyle}
+                      content={translateLabelText ? t(item.label) : item.label}
                     />
-                  )}
-                  <ThemeText
-                    styles={styles.defTextStyle}
-                    content={t(item.label)}
-                  />
-                </TouchableOpacity>
-              ))}
+                  </TouchableOpacity>
+                );
+              })}
             </ScrollView>
           </View>
         </View>
@@ -265,7 +269,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  clearIconContainer: {marginLeft: 10},
+  clearIconContainer: {marginLeft: 10, marginRight: -5},
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-start',
