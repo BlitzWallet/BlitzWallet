@@ -557,7 +557,8 @@ export const getSparkPaymentStatus = status => {
       status === SparkUserRequestStatus.FAILED ||
       status === ClaimStaticDepositStatus.TRANSFER_CREATION_FAILED ||
       status === ClaimStaticDepositStatus.REFUND_SIGNING_FAILED ||
-      status === ClaimStaticDepositStatus.UTXO_SWAPPING_FAILED
+      status === ClaimStaticDepositStatus.UTXO_SWAPPING_FAILED ||
+      status === LightningReceiveRequestStatus.FUTURE_VALUE
     ? 'failed'
     : 'pending';
 };
