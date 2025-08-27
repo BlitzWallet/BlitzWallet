@@ -23,6 +23,7 @@ export default function SMSMessagingHome() {
   const navigate = useNavigation();
   const [selectedPage, setSelectedPage] = useState(null);
   const [SMSprices, setSMSPrices] = useState(null);
+  const [smsServices, setSmsServices] = useState([]);
   const sentMessages = decodedMessages?.sent;
   const {t} = useTranslation();
 
@@ -47,10 +48,18 @@ export default function SMSMessagingHome() {
       }
 
       try {
-        const response = await fetch('https://api2.sms4sats.com/price', {
-          method: 'GET',
-        });
-        const data = await response.json();
+        const [smsPriceResponse, smsReceiveServicesResponse] =
+          await Promise.all([
+            fetch('https://api2.sms4sats.com/price', {
+              method: 'GET',
+            }),
+            fetch('https://api2.sms4sats.com/getnumbersstatus?country=999', {
+              method: 'GET',
+            }),
+          ]);
+        const data = await smsPriceResponse.json();
+        const smsServiceData = await smsReceiveServicesResponse.json();
+        setSmsServices(smsServiceData);
         setSMSPrices(data);
       } catch (err) {
         console.log(err);
@@ -83,11 +92,11 @@ export default function SMSMessagingHome() {
           }
         }}
         label={selectedPage ? t(`constants.${selectedPage.toLowerCase()}`) : ''}
-        showLeftImage={!selectedPage}
+        showLeftImage={selectedPage}
         leftImageBlue={ICONS.receiptIcon}
         LeftImageDarkMode={ICONS.receiptWhite}
         leftImageFunction={() => {
-          navigate.navigate('HistoricalSMSMessagingPage');
+          navigate.navigate('HistoricalSMSMessagingPage', {selectedPage});
         }}
         containerStyles={{
           marginBottom: 0,
@@ -111,11 +120,11 @@ export default function SMSMessagingHome() {
           <CustomButton
             buttonStyles={{width: '80%', marginTop: 50}}
             actionFunction={() => {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: 'Coming Soon...',
-              });
-              return;
-              // setSelectedPage('receive');
+              // navigate.navigate('ErrorScreen', {
+              //   errorMessage: 'Coming Soon...',
+              // });
+              // return;
+              setSelectedPage('receive');
             }}
             textContent={t('constants.receive')}
           />
@@ -123,7 +132,7 @@ export default function SMSMessagingHome() {
       ) : selectedPage?.toLowerCase() === 'send' ? (
         <SMSMessagingSendPage SMSprices={SMSprices} />
       ) : (
-        <SMSMessagingReceivedPage />
+        <SMSMessagingReceivedPage smsServices={smsServices} />
       )}
     </CustomKeyboardAvoidingView>
   );
