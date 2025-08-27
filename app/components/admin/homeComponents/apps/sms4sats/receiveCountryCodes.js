@@ -26,7 +26,7 @@ export const countrymap = [
   {value: 23, label: 'Ireland', iso: 'IE'},
   {value: 24, label: 'Cambodia', iso: 'KH'},
   {value: 25, label: 'Laos', iso: 'LA'},
-  {value: 26, value: 'Haiti', iso: 'HT'},
+  {value: 26, label: 'Haiti', iso: 'HT'},
   {value: 27, label: 'Ivory', iso: 'CI'},
   {value: 28, label: 'Gambia', iso: 'GM'},
   {value: 29, label: 'Serbia', iso: 'RS'},
