@@ -2,7 +2,6 @@ import {StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {SIZES} from '../../../../../constants';
-import {parsePhoneNumberWithError} from 'libphonenumber-js';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
@@ -16,7 +15,7 @@ import {useActiveCustodyAccount} from '../../../../../../context-store/activeAcc
 import {useTranslation} from 'react-i18next';
 import {decode} from 'bolt11';
 
-export default function ConfirmSMSPayment(props) {
+export default function ConfirmSMSReceiveCode(props) {
   const navigate = useNavigation();
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {sparkInformation} = useSparkWallet();
@@ -24,39 +23,25 @@ export default function ConfirmSMSPayment(props) {
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
   const {
-    message,
-    areaCodeNum,
-    phoneNumber,
-    prices,
-    page,
-    sendTextMessage,
+    serviceCode,
+    getReceiveCode,
     theme,
     darkModeType,
+    title,
+    location,
+    imgSrc,
   } = props;
 
   const [invoiceInformation, setInvoiceInformation] = useState(null);
   const [error, setError] = useState('');
 
-  const price = page === 'sendSMS' ? 1000 : prices[page];
-
-  console.log(areaCodeNum, phoneNumber, prices, page, sendTextMessage);
-
-  const formattedPhoneNumber = () => {
-    try {
-      return parsePhoneNumberWithError(
-        `${areaCodeNum}${phoneNumber}`,
-      ).formatInternational();
-    } catch (err) {
-      console.log(err);
-      return t('apps.sms4sats.confirmationSlideUp.invalidNumer');
-    }
-  };
+  console.log(serviceCode);
 
   const onSwipeSuccess = useCallback(() => {
     navigate.goBack();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        sendTextMessage(invoiceInformation);
+        getReceiveCode(invoiceInformation);
       });
     });
   }, [invoiceInformation]);
@@ -65,19 +50,16 @@ export default function ConfirmSMSPayment(props) {
     async function fetchInvoice() {
       try {
         const payload = {
-          message: message,
-          phone: `${areaCodeNum}${phoneNumber}`,
-          ref: process.env.GPT_PAYOUT_LNURL,
+          country: location,
+          service: serviceCode,
+          ref: 'blitzwallet@blitz-wallet.com',
         };
 
-        const response = await fetch(
-          `https://api2.sms4sats.com/createsendorder`,
-          {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload),
-          },
-        );
+        const response = await fetch(`https://api2.sms4sats.com/createorder`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(payload),
+        });
 
         const data = await response.json();
 
@@ -101,22 +83,33 @@ export default function ConfirmSMSPayment(props) {
           decodedInvoice.satoshis + fee.supportFee + fee.fee
         ) {
           throw new Error(
-            t('errormessages.insufficientBalanceError', {planType: 'SMS'}),
+            t('errormessages.insufficientBalanceError', {
+              planType: 'SMS receive code',
+            }),
           );
         }
+        console.log(data);
         setInvoiceInformation({
           fee: fee.fee,
           supportFee: fee.supportFee,
           payreq: data.payreq,
           orderId: data.orderId,
           amountSat: decodedInvoice.satoshis,
+          serviceCode,
+          location,
+          title,
+          imgSrc,
         });
       } catch (err) {
         console.log('Error fetching invoice:', err);
         setError(err.message);
       }
     }
-    fetchInvoice();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        fetchInvoice();
+      });
+    });
   }, []);
 
   if (error) {
@@ -131,15 +124,13 @@ export default function ConfirmSMSPayment(props) {
         <>
           <ThemeText
             styles={{fontSize: SIZES.xLarge, textAlign: 'center'}}
-            content={t('apps.sms4sats.confirmationSlideUp.title')}
+            content={t('apps.sms4sats.confirmationSlideUp.receiveTitle')}
           />
           <ThemeText
-            styles={{
-              fontSize: SIZES.large,
-              textAlign: 'center',
-            }}
-            content={`${formattedPhoneNumber()}`}
+            styles={{fontSize: SIZES.large, textAlign: 'center'}}
+            content={title}
           />
+
           <FormattedSatText
             neverHideBalance={true}
             containerStyles={{marginTop: 'auto'}}

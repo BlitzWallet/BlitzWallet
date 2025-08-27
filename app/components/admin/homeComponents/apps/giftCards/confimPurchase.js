@@ -13,11 +13,11 @@ import {useKeysContext} from '../../../../../../context-store/keys';
 import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import StoreErrorPage from '../components/errorScreen';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 import {useTranslation} from 'react-i18next';
+import {decode} from 'bolt11';
 
 export default function ConfirmGiftCardPurchase(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -69,19 +69,22 @@ export default function ConfirmGiftCardPurchase(props) {
 
         if (!response) throw new Error(t('errormessages.invoiceRetrivalError'));
 
-        const parsedInput = await parse(response.result?.invoice);
+        const decodedInvoice = decode(response.result?.invoice);
 
         const fee = await sparkPaymenWrapper({
           getFee: true,
           address: response.result?.invoice,
           paymentType: 'lightning',
-          amountSats: Number(parsedInput.invoice.amountMsat / 1000),
+          amountSats: decodedInvoice.satoshis,
           masterInfoObject,
           mnemonic: currentWalletMnemoinc,
         });
 
         if (!fee.didWork) throw new Error(fee.error);
-        if (sparkInformation.balance < fee.supportFee + fee.fee) {
+        if (
+          sparkInformation.balance <
+          decodedInvoice.satoshis + fee.supportFee + fee.fee
+        ) {
           throw new Error(
             t('errormessages.insufficientBalanceError', {
               planType: 'gift card',
@@ -89,6 +92,9 @@ export default function ConfirmGiftCardPurchase(props) {
           );
         }
 
+        const description = decodedInvoice.tags.filter(
+          item => item.tagName === 'description',
+        );
         setRetrivedInformation({
           countryInfo: countryInfo,
           productInfo:
@@ -96,7 +102,9 @@ export default function ConfirmGiftCardPurchase(props) {
               ...response.result,
               paymentFee: fee.fee,
               supportFee: fee.supportFee,
-              parsedInput,
+              invoice: response.result?.invoice,
+              amountSat: decodedInvoice.satoshis,
+              description: description.length !== 0 ? description[0].data : '',
             } || {},
         });
       } catch (err) {
