@@ -115,6 +115,10 @@ const CustomToggleSwitch = ({
     extrapolate: 'clamp',
   });
 
+  const sliderTextLength = t(
+    `constants.${sliderText.toLowerCase()}Lower`,
+  ).length;
+
   return (
     <TouchableOpacity
       onPress={() => {
@@ -160,7 +164,9 @@ const CustomToggleSwitch = ({
               ],
             },
           ]}>
-          {`${t(`constants.${sliderText.toLowerCase()}Lower`).toUpperCase()}`}
+          {`${t(`constants.${sliderText.toLowerCase()}Lower`)
+            .slice(0, 3)
+            .toUpperCase()}${sliderTextLength > 3 ? '.' : ''}`}
         </Animated.Text>
       </Animated.View>
     </TouchableOpacity>
