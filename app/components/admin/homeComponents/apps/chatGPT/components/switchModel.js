@@ -32,7 +32,7 @@ export default function SwitchGenerativeAIModel({
     ({item}) => {
       return (
         <TouchableOpacity
-          key={item.name}
+          key={item.id}
           onPress={() => handleClick(item.shortName)}
           style={styles.optionItemContainer}>
           <View style={styles.row}>
@@ -101,10 +101,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.large,
     alignSelf: 'center',
     marginBottom: 10,
-  },
-  optionItemContainer: {
-    width: '100%',
-    marginBottom: 20,
   },
 
   row: {
