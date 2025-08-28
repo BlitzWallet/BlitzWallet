@@ -2,43 +2,43 @@ import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useMemo} from 'react';
 import {COLORS, SATSPERBITCOIN, SIZES} from '../../../../../../constants';
 import {ThemeText} from '../../../../../../functions/CustomElements';
-import FormattedSatText from '../../../../../../functions/CustomElements/satTextDisplay';
+// import FormattedSatText from '../../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../../context-store/theme';
-import {useNodeContext} from '../../../../../../../context-store/nodeContext';
+// import {useNodeContext} from '../../../../../../../context-store/nodeContext';
 import {useTranslation} from 'react-i18next';
 
 export default function VPNDurationSlider({
   setSelectedDuration,
   selectedDuration,
 }) {
-  const {fiatStats} = useNodeContext();
+  // const {fiatStats} = useNodeContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor} = GetThemeColors();
   const {t} = useTranslation();
 
-  const satValues = {
-    hour: {
-      value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 0.1),
-      code: 0.1,
-    },
-    day: {
-      value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 0.5),
-      code: 0.5,
-    },
-    week: {
-      value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 1.5),
-      code: 1,
-    },
-    month: {
-      value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 4),
-      code: 4,
-    },
-    quarter: {
-      value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 9),
-      code: 9,
-    },
-  };
+  // const satValues = {
+  //   hour: {
+  //     value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 0.1),
+  //     code: 0.1,
+  //   },
+  //   day: {
+  //     value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 0.5),
+  //     code: 0.5,
+  //   },
+  //   week: {
+  //     value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 1.5),
+  //     code: 1,
+  //   },
+  //   month: {
+  //     value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 4),
+  //     code: 4,
+  //   },
+  //   quarter: {
+  //     value: Math.round((SATSPERBITCOIN / (fiatStats.value || 60000)) * 9),
+  //     code: 9,
+  //   },
+  // };
 
   const durationOption = useMemo(() => {
     return [
@@ -108,7 +108,7 @@ export default function VPNDurationSlider({
 
   return (
     <View style={styles.durationContainer}>
-      <FormattedSatText
+      {/* <FormattedSatText
         neverHideBalance={true}
         containerStyles={{marginBottom: 20}}
         styles={{
@@ -117,7 +117,7 @@ export default function VPNDurationSlider({
         }}
         frontText={t('apps.VPN.durationSlider.price')}
         balance={satValues[selectedDuration].value}
-      />
+      /> */}
       <ThemeText
         styles={{...styles.infoHeaders}}
         content={t('apps.VPN.durationSlider.duration')}

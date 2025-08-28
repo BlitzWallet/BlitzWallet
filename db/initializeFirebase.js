@@ -5,7 +5,10 @@ import {
   signOut,
 } from '@react-native-firebase/auth';
 import {getFirestore} from '@react-native-firebase/firestore';
-import {getFunctions} from '@react-native-firebase/functions';
+import {
+  connectFunctionsEmulator,
+  getFunctions,
+} from '@react-native-firebase/functions';
 import fetchBackend from './handleBackend';
 import {Platform} from 'react-native';
 import {getStorage} from '@react-native-firebase/storage';
@@ -17,8 +20,8 @@ export async function initializeFirebase(publicKey, privateKey) {
   try {
     // Initialize App Check first
     // Sign in anonymously
-    if (__DEV__ && Platform.OS === 'android') {
-      getFunctions().useEmulator('localhost', 5001);
+    if (__DEV__) {
+      connectFunctionsEmulator(getFunctions(), process.env.DEVICE_IP, 5001);
     }
 
     const currentUser = firebaseAuth.currentUser;

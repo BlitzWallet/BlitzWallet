@@ -43,6 +43,7 @@ import ChooseLNURLCopyFormat from '../../components/admin/homeComponents/receive
 import LRC20AssetSelectorHalfModal from '../lrc20/lrc20HalfModal';
 import LRC20TokenInformation from '../lrc20/lrc20TokenDataHalfModal';
 import SelectAltAccountHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/SelectAltAccountHalfModal';
+import ConfirmSMSReceiveCode from '../../components/admin/homeComponents/apps/sms4sats/receiveCodeConfirmation';
 
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -115,6 +116,18 @@ export default function CustomHalfModal(props) {
             areaCodeNum={props.route.params?.areaCodeNum}
             sendTextMessage={props.route.params?.sendTextMessage}
             page={'sendSMS'}
+          />
+        );
+      case 'confirmSMSReceive':
+        return (
+          <ConfirmSMSReceiveCode
+            theme={theme}
+            darkModeType={darkModeType}
+            serviceCode={props.route.params?.serviceCode}
+            location={props.route.params?.location}
+            title={props.route.params?.title}
+            imgSrc={props.route.params?.imgSrc}
+            getReceiveCode={props.route.params?.getReceiveCode}
           />
         );
       case 'confirmVPN':

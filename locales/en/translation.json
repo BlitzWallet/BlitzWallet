@@ -245,7 +245,7 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Since biometric setting are enabled you cannot use the deafult pin login method. Would you like to terminate your account?",
+      "isBiometricEnabledConfirmAction": "Since biometric setting are enabled you cannot use the default pin login method. Would you like to terminate your account?",
       "wrongPinError": "Wrong PIN, try again",
       "enterPinMessage": "Enter PIN",
       "attemptsText": "{{attempts}} attempts left"
@@ -721,7 +721,8 @@
         "title": "Confirm number",
         "price": "Price: ",
         "fee": "Fee: ",
-        "invalidNumber": "Not a valid phone number"
+        "invalidNumber": "Not a valid phone number",
+        "receiveTitle": "Confirm Receive"
       },
 
       "sendPage": {
@@ -735,13 +736,46 @@
         "payingMessage": "Paying...",
         "runningTries": "Running {{runCount}} for {{maxTries}} tries",
         "notAbleToSettleInvoice": "Not able to settle invoice.",
-        "paymentMemo": "Store - SMS"
+        "paymentMemo": "Store - SMS Send"
       },
       "sentPayments": {
-        "title": "Sent Messages",
-        "noPayments": "You have not sent any messages",
+        "titlesend": "Sent Messages",
+        "titlereceive": "Received Codes",
+        "noPaymentssend": "You have not sent any messages",
+        "noPaymentsreceive": "You have not received any codes",
         "helpMessage": "For help, reach out to:",
-        "orderId": "Order ID"
+        "orderId": "Order ID",
+        "pending": "Order pending",
+        "refunded": "Order refunded",
+        "retryClaim": "Get code",
+        "fetchOrderError": "Failed to fetch order status",
+        "failedUpdate": "Failed to update order status",
+        "refundedOrder": "Order has been refunded, funds will automatically return to your wallet after 21 minutes",
+        "reclaimComplete": "Rety complete. If no code is generated, you will be auto-refunded after 21 minutes.",
+        "noCode": "No code",
+        "rateLimitError": "Too many requests. You can only make 5 requests every 30 seconds. Please wait before trying again."
+      },
+      "receivePage": {
+        "paymentMemo": "Store - SMS Receive",
+        "selectCountry": "Select Country",
+        "autoSelectInfoMessage": "Choose the country of the phone number you want to use. For the best chance of receiving your code, we recommend keeping it on Auto Select so the system picks the most reliable option.",
+        "autoSelect": "Auto Select",
+        "inputPlaceholder": "Search for a service",
+        "loacationLoadingMessage": "Getting location-based services",
+        "noAvailableServices": "This location has no services",
+        "orderDetailsLoading": "Getting order details"
+      },
+      "confirmCodePage": {
+        "header": "Your order has been successfully initiated. Here's what happens next:",
+        "phoneNumberLabel": "Your Number:",
+        "step1": "• Click the receipt icon in the top right to view your order history",
+        "step2": "• Use the 'Get Code' button to retrieve your verification code, after adding the number to the service",
+        "step3": "• If no code is received, your payment will be automatically refunded in 21 minutes",
+        "automaticRefund": "No number was available for this service. Your funds have already been refunded.",
+        "waitedRefund": "No number was available for this service. Your funds will be refunded automatically after 21 minutes."
+      },
+      "viewSMSReceiveCode": {
+        "header": "Your code"
       }
     }
   },
@@ -1151,7 +1185,7 @@
         "sendPayments": "Send payments",
         "getBalance": "Get Balance",
         "transactions": "Transactions",
-        "lookupInvoice": "Lookup Invioce",
+        "lookupInvoice": "Lookup Invoice",
         "budgetRenewalHeader": "Budget Renewal",
         "bugetPlaceholder": "Select budget renewal period",
         "createConnection": "",

@@ -721,7 +721,8 @@
         "title": "Conferma numero",
         "price": "Prezzo: ",
         "fee": "Commissione: ",
-        "invalidNumber": "Non è un numero di telefono valido"
+        "invalidNumber": "Non è un numero di telefono valido",
+        "receiveTitle": "Conferma ricezione"
       },
 
       "sendPage": {
@@ -735,13 +736,46 @@
         "payingMessage": "Pagamento in corso...",
         "runningTries": "Esecuzione di {{runCount}} su {{maxTries}} tentativi",
         "notAbleToSettleInvoice": "Impossibile saldare la fattura.",
-        "paymentMemo": "Negozio - SMS"
+        "paymentMemo": "Negozio - Invia SMS"
       },
       "sentPayments": {
-        "title": "Messaggi Inviati",
-        "noPayments": "Non hai inviato alcun messaggio",
+        "titlesend": "Messaggi Inviati",
+        "titlereceive": "Codici ricevuti",
+        "noPaymentssend": "Non hai inviato alcun messaggio",
+        "noPaymentsreceive": "Non hai ricevuto alcun codice",
         "helpMessage": "Per assistenza, contatta:",
-        "orderId": "ID Ordine"
+        "orderId": "ID Ordine",
+        "pending": "Ordine in attesa",
+        "refunded": "Ordine rimborsato",
+        "retryClaim": "Ottieni codice",
+        "fetchOrderError": "Impossibile recuperare lo stato dell'ordine",
+        "failedUpdate": "Impossibile aggiornare lo stato dell'ordine",
+        "refundedOrder": "L'ordine è stato rimborsato, i fondi torneranno automaticamente nel tuo portafoglio dopo 21 minuti.",
+        "reclaimComplete": "Rety completato. Se non viene generato alcun codice, verrà automaticamente rimborsato dopo 21 minuti.",
+        "noCode": "Nessun codice",
+        "rateLimitError": "Troppe richieste. Puoi fare solo 5 richieste ogni 30 secondi. Per favore, aspettati prima di riprovare."
+      },
+      "receivePage": {
+        "paymentMemo": "Negozio - Ricezione SMS",
+        "selectCountry": "Seleziona Paese",
+        "autoSelectInfoMessage": "Scegli il paese del numero di telefono che desideri utilizzare. Per la migliore possibilità di ricevere il tuo codice, ti consigliamo di tenerlo su Selezione Automatica in modo che il sistema scelga l'opzione più affidabile.",
+        "autoSelect": "Selezione automatica",
+        "inputPlaceholder": "Cerca un servizio",
+        "loacationLoadingMessage": "Ottenere servizi basati sulla posizione",
+        "noAvailableServices": "Questa posizione non ha servizi",
+        "orderDetailsLoading": "Ottenere dettagli dell'ordine"
+      },
+      "confirmCodePage": {
+        "header": "Il tuo ordine è stato avviato con successo. Ecco cosa succede dopo:",
+        "phoneNumberLabel": "Il tuo numero:",
+        "step1": "• Clicca sull'icona della ricevuta in alto a destra per visualizzare la tua cronologia ordini",
+        "step2": "• Utilizza il pulsante 'Ottieni codice' per recuperare il tuo codice, di verifica dopo aver aggiunto il numero al servizio.",
+        "step3": "• Se non viene ricevuto alcun codice, il tuo pagamento verrà automaticamente rimborsato in 21 minuti",
+        "automaticRefund": "Nessun numero era disponibile per questo servizio. I tuoi fondi sono già stati rimborsati.",
+        "waitedRefund": "Nessun numero era disponibile per questo servizio. I tuoi fondi saranno rimborsati automaticamente dopo 21 minuti."
+      },
+      "viewSMSReceiveCode": {
+        "header": "Il tuo codice"
       }
     }
   },
