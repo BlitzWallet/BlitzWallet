@@ -13,4 +13,11 @@ export const supportedLanguagesList = [
     id: 'sp',
     flagCode: 'es',
   },
+  {
+    languageName: 'Italiano',
+    fullySupported: true,
+    translatedName: 'languages.italian',
+    id: 'it',
+    flagCode: 'it',
+  },
 ];
