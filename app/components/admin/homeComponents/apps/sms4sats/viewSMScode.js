@@ -10,11 +10,13 @@ import {countrymap} from './receiveCountryCodes';
 import {useCallback, useMemo} from 'react';
 import {copyToClipboard} from '../../../../../functions';
 import {useToast} from '../../../../../../context-store/toastManager';
+import {useTranslation} from 'react-i18next';
 
 export default function ViewSmsReceiveCode(props) {
   const {showToast} = useToast();
   const {backgroundOffset} = GetThemeColors();
   const navigate = useNavigation();
+  const {t} = useTranslation();
 
   const country = props.route?.params?.country || 'N/A';
   const code = props.route?.params?.code || 'N/A';
@@ -26,10 +28,7 @@ export default function ViewSmsReceiveCode(props) {
 
   const phoneNumber = useMemo(() => {
     try {
-      return parsePhoneNumberWithError(
-        '+' + phone,
-        countryCode.iso,
-      ).formatNational();
+      return parsePhoneNumberWithError('+' + phone).formatInternational();
     } catch (err) {
       console.log('parse number errro', err);
       return '';
@@ -44,7 +43,10 @@ export default function ViewSmsReceiveCode(props) {
       <View
         style={[styles.contentContainer, {backgroundColor: backgroundOffset}]}>
         <View style={styles.topBar}>
-          <ThemeText styles={styles.codeHeaderText} content={'Your code'} />
+          <ThemeText
+            styles={styles.codeHeaderText}
+            content={t('apps.sms4sats.viewSMSReceiveCode.header')}
+          />
           <TouchableOpacity onPress={navigate.goBack} style={styles.closeIcon}>
             <ThemeImage
               lightModeIcon={ICONS.xSmallIcon}

@@ -761,13 +761,20 @@
         "autoSelect": "Auto Select",
         "inputPlaceholder": "Search for a service",
         "loacationLoadingMessage": "Getting location-based services",
-        "noAvailableServices": "This location has no services"
+        "noAvailableServices": "This location has no services",
+        "orderDetailsLoading": "Getting order details"
       },
       "confirmCodePage": {
         "header": "Your order has been successfully initiated. Here's what happens next:",
+        "phoneNumberLabel": "Your Number:",
         "step1": "• Click the receipt icon in the top right to view your order history",
-        "step2": "• Use the 'Get Code' button to retrieve your verification code",
-        "step3": "• If no code is received, your payment will be automatically refunded in 21 minutes"
+        "step2": "• Use the 'Get Code' button to retrieve your verification code, after adding the number to the service",
+        "step3": "• If no code is received, your payment will be automatically refunded in 21 minutes",
+        "automaticRefund": "No number was available for this service. Your funds have already been refunded.",
+        "waitedRefund": "No number was available for this service. Your funds will be refunded automatically after 21 minutes."
+      },
+      "viewSMSReceiveCode": {
+        "header": "Your code"
       }
     }
   },

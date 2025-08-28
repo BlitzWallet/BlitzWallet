@@ -610,13 +610,20 @@
         "autoSelect": "Selección automática",
         "inputPlaceholder": "Buscar un servicio",
         "loacationLoadingMessage": "Obteniendo servicios basados en la ubicación",
-        "noAvailableServices": "Esta ubicación no tiene servicios"
+        "noAvailableServices": "Esta ubicación no tiene servicios",
+        "orderDetailsLoading": "Obteniendo detalles del pedido"
       },
       "confirmCodePage": {
         "header": "Su pedido ha sido iniciado con éxito. A continuación, esto es lo que sucederá:",
+        "phoneNumberLabel": "Tu número:",
         "step1": "• Haz clic en el ícono de recibo en la esquina superior derecha para ver tu historial de pedidos.",
         "step2": "• Usa el botón 'Obtener código' para recuperar tu código de verificación.",
-        "step3": "• Si no se recibe ningún código, su pago será reembolsado automáticamente en 21 minutos."
+        "step3": "• Si no se recibe ningún código, su pago será reembolsado automáticamente en 21 minutos.",
+        "automaticRefund": "No había un número disponible para este servicio. Tus fondos ya han sido reembolsados.",
+        "waitedRefund": "No se disponía de un número para este servicio. Sus fondos se reembolsarán automáticamente después de 21 minutos."
+      },
+      "viewSMSReceiveCode": {
+        "header": "Tu código"
       }
     }
   },

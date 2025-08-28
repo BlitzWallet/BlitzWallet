@@ -16,7 +16,6 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import sha256Hash from '../../../../../functions/hash';
 
 const API_ENDPOINTS = {
   ORDER_STATUS: 'https://api2.sms4sats.com/orderstatus',
@@ -37,7 +36,7 @@ export default function HistoricalSMSMessagingPage({route}) {
   const formatPhoneNumber = useCallback(number => {
     if (!number) return '';
     try {
-      return parsePhoneNumberWithError(number).formatNational();
+      return parsePhoneNumberWithError('+' + number).formatInternational();
     } catch (error) {
       console.warn('Phone formatting error:', error);
       return number;
@@ -91,7 +90,8 @@ export default function HistoricalSMSMessagingPage({route}) {
           country: smsData.country,
           id: smsData.id,
           timestamp: smsData.timestamp,
-          isPending: false,
+          isPending:
+            !smsData.code && !(smsData.status === 'OK' && !!smsData.error),
           isRefunded: smsData.status === 'OK' && !!smsData.error,
         };
 
@@ -153,6 +153,7 @@ export default function HistoricalSMSMessagingPage({route}) {
       setIsLoading(true);
       try {
         const smsData = await fetchOrderStatus(element.orderId);
+        console.log(smsData);
 
         if (smsData.paid && smsData.code) {
           const updatedItem = await updateOrderStatus(element, smsData);
@@ -166,6 +167,8 @@ export default function HistoricalSMSMessagingPage({route}) {
           navigate.navigate('ErrorScreen', {
             errorMessage: t('apps.sms4sats.sentPayments.refundedOrder'),
           });
+        } else if (!element.number && smsData.number) {
+          await updateOrderStatus(element, smsData);
         } else {
           navigate.navigate('ErrorScreen', {
             errorMessage: t('apps.sms4sats.sentPayments.reclaimComplete'),
@@ -216,17 +219,28 @@ export default function HistoricalSMSMessagingPage({route}) {
 
   const MessageItem = ({element}) => {
     const [isLoading, setIsLoading] = useState(false);
-
     return (
       <View style={styles.orderIdContainer}>
         <TouchableOpacity
           style={styles.textContainer}
-          onPress={() => copyToClipboard(element.orderId, showToast)}
+          onPress={() => {
+            if (isReceiveMode && element.isPending && element.number) {
+              copyToClipboard(element.number, showToast);
+              return;
+            }
+            copyToClipboard(element.orderId, showToast);
+          }}
           disabled={isLoading}>
           <ThemeText
             CustomNumberOfLines={1}
             content={getDisplayContent(element, 'title')}
           />
+          {isReceiveMode && element.number && (
+            <ThemeText
+              CustomNumberOfLines={1}
+              content={formatPhoneNumber(element.number)}
+            />
+          )}
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textStyles}

@@ -134,17 +134,20 @@ export default function SMSMessagingReceivedPage({smsServices}) {
 
   const handlePurchase = useCallback(
     async invoiceInfo => {
+      let savedMessages = null;
       try {
         setIsPurchasing(prev => ({...prev, isLoading: true}));
-        let savedMessages = JSON.parse(JSON.stringify(decodedMessages));
+        savedMessages = JSON.parse(JSON.stringify(decodedMessages));
 
-        savedMessages.received.push({
+        const pendingOrder = {
           orderId: invoiceInfo.orderId,
           title: invoiceInfo.title,
           imgSrc: invoiceInfo.imgSrc,
           isPending: true,
           isRefunded: false,
-        });
+        };
+
+        savedMessages.received = [...savedMessages.received, pendingOrder];
 
         const paymentResponse = await sendStorePayment({
           invoice: invoiceInfo.payreq,
@@ -160,13 +163,105 @@ export default function SMSMessagingReceivedPage({smsServices}) {
         if (!paymentResponse.didWork) throw new Error(paymentResponse.reason);
 
         saveMessagesToDB(savedMessages);
+        setIsPurchasing(prev => ({
+          ...prev,
+          message: t('apps.sms4sats.receivePage.orderDetailsLoading'),
+        }));
 
-        navigate.navigate('ConfirmSMSReceivePage');
+        let maxRunCount = 5;
+        let runCount = 0;
+        let responseInfo = null;
+        while (runCount < maxRunCount) {
+          setIsPurchasing(prev => ({
+            ...prev,
+            message: t('apps.VPN.VPNPlanPage.runningTries', {
+              runCount: runCount,
+              maxTries: maxRunCount,
+            }),
+          }));
+          try {
+            const response = await fetch(
+              `https://api2.sms4sats.com/orderstatus?orderId=${invoiceInfo.orderId}`,
+            );
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const responseData = await response.json();
+            if (responseData.number && responseData.country) {
+              responseInfo = responseData;
+              break;
+            } else {
+              await new Promise(res => setTimeout(res, 5000));
+            }
+          } catch (err) {
+            console.log('Error fetching order details', err);
+            await new Promise(res => setTimeout(res, 5000));
+          } finally {
+            runCount += 1;
+          }
+        }
+
+        if (!responseInfo) {
+          try {
+            const response = await fetch(
+              `https://api2.sms4sats.com/cancelorder?orderId=${invoiceInfo.orderId}`,
+            );
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const responseData = await response.json();
+            console.log('cancel order response info', responseData);
+            if (responseData.status === 'OK') {
+              navigate.navigate('ConfirmSMSReceivePage', {
+                didSucceed: true,
+                isRefund: true,
+              });
+            } else {
+              navigate.navigate('ConfirmSMSReceivePage', {
+                didSucceed: false,
+                isRefund: true,
+              });
+            }
+          } catch (err) {
+            console.log('error canceling order', err);
+            navigate.navigate('ConfirmSMSReceivePage', {
+              didSucceed: false,
+              isRefund: true,
+            });
+          }
+          return;
+        }
+
+        const finalMessages = {
+          ...savedMessages,
+          received: savedMessages.received.map(item => {
+            if (item.orderId === invoiceInfo.orderId) {
+              return {
+                ...item,
+                number: responseInfo.number,
+                country: responseInfo.country,
+                timestamp: responseInfo.timestamp,
+              };
+            }
+            return item;
+          }),
+        };
+        saveMessagesToDB(finalMessages);
+
+        navigate.navigate('ConfirmSMSReceivePage', {
+          didSucceed: true,
+          isRefund: false,
+          number: responseInfo.number,
+        });
       } catch (err) {
         console.log('error purchasing code', err);
         navigate.navigate('ErrorScreen', {errorMessage: err.message});
       } finally {
-        setIsPurchasing(prev => ({...prev, isLoading: false}));
+        setIsPurchasing(prev => ({
+          ...prev,
+          isLoading: false,
+          message: t('apps.sms4sats.sendPage.payingMessage'),
+        }));
       }
     },
     [
