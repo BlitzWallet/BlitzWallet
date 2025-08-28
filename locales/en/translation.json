@@ -346,10 +346,10 @@
       },
 
       "switchModel": {
-        "claudeDescription": "Ideal for long-form, creative content and dialogue.",
-        "gpt40Description": "Best for complex analysis and detailed content.",
-        "gpt40miniDescription": "Perfect for quick, cost-effective responses.",
-        "geminiDescription": "Suited for fast, moderate-output interactions."
+        "inputLabel": "Input: {{amount}}/M",
+        "outputLabel": "Output: {{amount}}/M",
+        "chooseModel": "Choose Model",
+        "noModels": "No models match that name. Please check the spelling or try a different name."
       },
 
       "exampleSearchCards": {

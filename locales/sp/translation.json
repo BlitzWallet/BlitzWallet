@@ -339,10 +339,10 @@
         "fee": "Tarifa: "
       },
       "switchModel": {
-        "claudeDescription": "Ideal para contenido creativo y de formato largo.",
-        "gpt40Description": "El mejor para análisis complejos y contenido detallado.",
-        "gpt40miniDescription": "Perfecto para respuestas rápidas y económicas.",
-        "geminiDescription": "Adecuado para interacciones rápidas de salida moderada."
+        "inputLabel": "Entrada: {{amount}}/M",
+        "outputLabel": "Salida: {{amount}}/M",
+        "chooseModel": "Elegir modelo",
+        "noModels": "No hay modelos que coincidan con ese nombre. Por favor, verifica la ortografía o intenta con un nombre diferente."
       },
       "exampleSearchCards": {
         "title": "Tarjetas de búsqueda de ejemplo",
