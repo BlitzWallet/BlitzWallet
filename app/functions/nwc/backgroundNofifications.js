@@ -578,8 +578,8 @@ function decryptEventMessage(selectedNWCAccount, event) {
 export default async function handleNWCBackgroundEvent(notificationData) {
   try {
     // Initialize accounts if not already done
-    if (__DEV__ && Platform.OS === 'android') {
-      getFunctions().useEmulator('localhost', 5001);
+    if (__DEV__) {
+      getFunctions().useEmulator(process.env.DEVICE_IP, 5001);
     }
     let {
       data: {body: nwcEvent},
