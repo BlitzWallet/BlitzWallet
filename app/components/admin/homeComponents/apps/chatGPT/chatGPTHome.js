@@ -131,7 +131,9 @@ export default function ChatGPTHome(props) {
               <ThemeText
                 styles={chatObjectStyles.userLabel}
                 content={
-                  item.role === 'user' ? 'You' : item?.responseBot || 'ChatGPT'
+                  item.role === 'user'
+                    ? t('apps.chatGPT.chatGPTHome.youText')
+                    : item?.responseBot || 'ChatGPT'
                 }
               />
               {item.content ? (
@@ -139,7 +141,8 @@ export default function ChatGPTHome(props) {
                   key={`${item.uuid}`}
                   styles={{
                     color:
-                      item.content.toLowerCase() === 'error with request'
+                      item.content.toLowerCase() ===
+                      t('errormessages.requestError').toLowerCase()
                         ? theme && darkModeType
                           ? textColor
                           : COLORS.cancelRed
@@ -303,7 +306,9 @@ export default function ChatGPTHome(props) {
           keyboardAppearance={theme ? 'dark' : 'light'}
           onChangeText={setUserChatText}
           autoFocus={true}
-          placeholder={`Message ${model}`}
+          placeholder={t('apps.chatGPT.chatGPTHome.inputPlaceholder', {
+            gptName: model,
+          })}
           multiline={true}
           placeholderTextColor={textColor}
           style={[
@@ -488,7 +493,7 @@ export default function ChatGPTHome(props) {
         tempArr.push({
           ...oldItem,
           role: 'assistant',
-          content: 'Error with request',
+          content: t('errormessages.requestError'),
           responseBot: filteredModel.name,
         });
         return tempArr;

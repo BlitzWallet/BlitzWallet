@@ -327,7 +327,9 @@
       },
       "chatGPTHome": {
         "availableCredits": "Créditos disponibles: {{credits}}",
-        "noAvailableCreditsError": "Te has quedado sin créditos."
+        "noAvailableCreditsError": "Te has quedado sin créditos.",
+        "inputPlaceholder": "Mensaje {{gptName}}",
+        "youText": "Tú"
       },
       "confirmLeaveChat": {
         "title": "¿Quieres guardar tu chat?"
