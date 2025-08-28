@@ -16,6 +16,7 @@ import {
   FONT,
   ICONS,
   SATSPERBITCOIN,
+  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../../constants';
 import {useEffect, useMemo, useRef, useState} from 'react';
@@ -43,6 +44,7 @@ import {keyboardNavigate} from '../../../../../functions/customNavigation';
 import customUUID from '../../../../../functions/customUUID';
 import {useToast} from '../../../../../../context-store/toastManager';
 import {useTranslation} from 'react-i18next';
+import {ONEMILLION} from '../../../../../constants/math';
 
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
@@ -129,7 +131,9 @@ export default function ChatGPTHome(props) {
               <ThemeText
                 styles={chatObjectStyles.userLabel}
                 content={
-                  item.role === 'user' ? 'You' : item?.responseBot || 'ChatGPT'
+                  item.role === 'user'
+                    ? t('apps.chatGPT.chatGPTHome.youText')
+                    : item?.responseBot || 'ChatGPT'
                 }
               />
               {item.content ? (
@@ -137,7 +141,8 @@ export default function ChatGPTHome(props) {
                   key={`${item.uuid}`}
                   styles={{
                     color:
-                      item.content.toLowerCase() === 'error with request'
+                      item.content.toLowerCase() ===
+                      t('errormessages.requestError').toLowerCase()
                         ? theme && darkModeType
                           ? textColor
                           : COLORS.cancelRed
@@ -188,15 +193,22 @@ export default function ChatGPTHome(props) {
             if (Platform.OS === 'android') {
               Keyboard.dismiss();
             }
-            navigate.navigate('SwitchGenerativeAIModel', {
+            navigate.navigate('CustomHalfModal', {
+              wantedContent: 'switchGenerativeAiModel',
               setSelectedModel: setSearchModel,
+              sliderHight: 0.7,
             });
           }}
           style={{
             ...styles.switchModel,
+            maxWidth: SCREEN_DIMENSIONS.width * 0.95 - 80,
             backgroundColor: backgroundOffset,
           }}>
-          <ThemeText styles={styles.topBarText} content={model} />
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.topBarText}
+            content={model}
+          />
           <ThemeImage
             styles={styles.topBarIcon}
             lightModeIcon={ICONS.leftCheveronDark}
@@ -294,7 +306,9 @@ export default function ChatGPTHome(props) {
           keyboardAppearance={theme ? 'dark' : 'light'}
           onChangeText={setUserChatText}
           autoFocus={true}
-          placeholder={`Message ${model}`}
+          placeholder={t('apps.chatGPT.chatGPTHome.inputPlaceholder', {
+            gptName: model,
+          })}
           multiline={true}
           placeholderTextColor={textColor}
           style={[
@@ -387,7 +401,6 @@ export default function ChatGPTHome(props) {
     }
 
     const [filteredModel] = AI_MODEL_COST.filter(item => {
-      console.log(item);
       return item.shortName.toLowerCase() === model.toLowerCase();
     });
 
@@ -419,7 +432,7 @@ export default function ChatGPTHome(props) {
       tempArr.push(userChatObject);
       const requestData = {
         aiRequest: {
-          model: filteredModel.name,
+          model: filteredModel.id,
           messages: tempArr,
         },
         requestAccount: globalContactsInformation.myProfile.uuid,
@@ -439,12 +452,12 @@ export default function ChatGPTHome(props) {
       const satsPerDollar = SATSPERBITCOIN / (fiatStats.value || 60000);
 
       const price =
-        filteredModel.input * data.usage.prompt_tokens +
-        filteredModel.output * data.usage.completion_tokens;
+        (filteredModel.inputPrice / ONEMILLION) * data.usage.prompt_tokens +
+        (filteredModel.outputPrice / ONEMILLION) * data.usage.completion_tokens;
 
       const apiCallCost = price * satsPerDollar; //sats
 
-      const blitzCost = Math.ceil(apiCallCost + 50);
+      const blitzCost = Math.ceil(apiCallCost + 25);
 
       tempAmount -= blitzCost;
 
@@ -480,7 +493,7 @@ export default function ChatGPTHome(props) {
         tempArr.push({
           ...oldItem,
           role: 'assistant',
-          content: 'Error with request',
+          content: t('errormessages.requestError'),
           responseBot: filteredModel.name,
         });
         return tempArr;
@@ -505,21 +518,21 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   switchModel: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
+    ...CENTER,
   },
   topBarText: {
+    flexShrink: 1,
     fontSize: SIZES.large,
     marginRight: 5,
     includeFontPadding: false,
   },
   topBarIcon: {
-    transform: [{rotate: '270deg'}],
+    transform: [{rotate: '90deg'}],
     width: 20,
     height: 20,
   },

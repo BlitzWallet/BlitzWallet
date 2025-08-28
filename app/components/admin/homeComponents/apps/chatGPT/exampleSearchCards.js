@@ -18,7 +18,7 @@ export default function ExampleGPTSearchCard({submitChaMessage}) {
         <TouchableOpacity
           key={index}
           onPress={() => {
-            submitChaMessage(item.fullString);
+            submitChaMessage(item.topLine + ' ' + item.bottomLine);
           }}
           style={[
             styles.contentContainer,

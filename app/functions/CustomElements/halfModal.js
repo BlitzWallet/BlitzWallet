@@ -18,6 +18,7 @@ import {
 import {
   ConfirmSMSPayment,
   ConfirmVPNPage,
+  SwitchGenerativeAIModel,
 } from '../../components/admin/homeComponents/apps';
 import ThemeText from './textTheme';
 import ConfirmGiftCardPurchase from '../../components/admin/homeComponents/apps/giftCards/confimPurchase';
@@ -161,6 +162,15 @@ export default function CustomHalfModal(props) {
             theme={theme}
             darkModeType={darkModeType}
             startExport={props.route.params?.startExport}
+          />
+        );
+      case 'switchGenerativeAiModel':
+        return (
+          <SwitchGenerativeAIModel
+            theme={theme}
+            darkModeType={darkModeType}
+            setSelectedRecieveOption={props.route.params?.setSelectedModel}
+            setIsKeyboardActive={setIsKeyboardActive}
           />
         );
       case 'chatGPT':
@@ -344,6 +354,7 @@ export default function CustomHalfModal(props) {
               theme && darkModeType ? backgroundOffset : backgroundColor,
             paddingBottom:
               contentType === 'manualEnterSendAddress' ||
+              contentType === 'switchGenerativeAiModel' ||
               contentType === 'addPOSItemsHalfModal' ||
               'editLNURLOnReceive'
                 ? isKeyboardActive
