@@ -59,7 +59,7 @@ export default function ConfirmChatGPTPage(props) {
           mnemonic: currentWalletMnemoinc,
         });
         if (!fee.didWork) throw new Error(fee.error);
-        if (sparkInformation.balance < fee.supportFee + fee.fee) {
+        if (sparkInformation.balance < creditPrice + fee.supportFee + fee.fee) {
           throw new Error(
             t('errormessages.insufficientBalanceError', {
               planType: t(props.plan),

@@ -448,10 +448,16 @@ async function processLightningTransaction(
 
     if (
       details.direction === 'OUTGOING' &&
-      sparkResponse.status ===
-        LightningSendRequestStatus.LIGHTNING_PAYMENT_FAILED
+      getSparkPaymentStatus(sparkResponse.status) === 'failed'
     )
-      return null;
+      return {
+        ...txStateUpdate,
+        id: txStateUpdate.sparkID,
+        details: {
+          ...details,
+        },
+        paymentStatus: 'failed',
+      };
 
     if (!sparkResponse?.transfer) return null;
     return {

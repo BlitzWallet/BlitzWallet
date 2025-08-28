@@ -63,30 +63,7 @@ export default function PinPage() {
     if (
       comparisonHash === sha256Hash(JSON.stringify(loginSettings.enteredPin))
     ) {
-      if (loginSettings.isBiometricEnabled) {
-        navigate.navigate('ConfirmActionPage', {
-          confirmMessage: t(
-            'adminLogin.pinPage.isBiometricEnabledConfirmAction',
-          ),
-          confirmFunction: async () => {
-            const deleted = await terminateAccount();
-            if (deleted) {
-              clearSettings();
-              try {
-                await signOut(firebaseAuth);
-              } catch (err) {
-                console.log('pin page sign out error', err);
-              }
-              RNRestart.restart();
-            } else {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: t('errormessages.deleteAccount'),
-              });
-            }
-          },
-        });
-        return;
-      }
+      if (loginSettings.isBiometricEnabled) return;
 
       if (loginSettings.needsToBeMigrated) {
         const savedMnemonic = await retrieveData('encryptedMnemonic');
@@ -191,8 +168,26 @@ export default function PinPage() {
               isInitialLoad: false,
             });
           } else {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: t('errormessages.decodePinWithBio'),
+            navigate.navigate('ConfirmActionPage', {
+              confirmMessage: t(
+                'adminLogin.pinPage.isBiometricEnabledConfirmAction',
+              ),
+              confirmFunction: async () => {
+                const deleted = await terminateAccount();
+                if (deleted) {
+                  clearSettings();
+                  try {
+                    await signOut(firebaseAuth);
+                  } catch (err) {
+                    console.log('pin page sign out error', err);
+                  }
+                  RNRestart.restart();
+                } else {
+                  navigate.navigate('ErrorScreen', {
+                    errorMessage: t('errormessages.deleteAccount'),
+                  });
+                }
+              },
             });
           }
           return;
@@ -206,8 +201,26 @@ export default function PinPage() {
             isInitialLoad: false,
           });
         } else {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t('errormessages.decodePinWithBio'),
+          navigate.navigate('ConfirmActionPage', {
+            confirmMessage: t(
+              'adminLogin.pinPage.isBiometricEnabledConfirmAction',
+            ),
+            confirmFunction: async () => {
+              const deleted = await terminateAccount();
+              if (deleted) {
+                clearSettings();
+                try {
+                  await signOut(firebaseAuth);
+                } catch (err) {
+                  console.log('pin page sign out error', err);
+                }
+                RNRestart.restart();
+              } else {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t('errormessages.deleteAccount'),
+                });
+              }
+            },
           });
         }
       } catch (err) {

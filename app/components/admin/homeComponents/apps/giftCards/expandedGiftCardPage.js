@@ -447,7 +447,6 @@ export default function ExpandedGiftCardPage(props) {
         return {...prev, isPurasing: true};
       });
       const responseInvoice = responseObject.invoice;
-      const parsedInput = responseObject.parsedInput;
 
       const [
         // parsedInput,
@@ -464,8 +463,8 @@ export default function ExpandedGiftCardPage(props) {
       const USDBTCValue = fiatRates.didWork
         ? fiatRates.fiatRateResponse
         : {coin: 'USD', value: 100_000};
-      const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
-      const memo = parsedInput.invoice.description;
+      const sendingAmountSat = responseObject.amountSat;
+      const memo = responseObject.description;
       const currentTime = new Date();
 
       if (dailyPurchaseAmount) {

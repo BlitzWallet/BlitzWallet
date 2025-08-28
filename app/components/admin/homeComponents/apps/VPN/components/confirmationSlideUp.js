@@ -13,6 +13,7 @@ import {useSparkWallet} from '../../../../../../../context-store/sparkContext';
 import StoreErrorPage from '../../components/errorScreen';
 import {useActiveCustodyAccount} from '../../../../../../../context-store/activeAccount';
 import {useTranslation} from 'react-i18next';
+import {decode} from 'bolt11';
 
 export default function ConfirmVPNPage(props) {
   const navigate = useNavigation();
@@ -23,7 +24,7 @@ export default function ConfirmVPNPage(props) {
     duration,
     country,
     createVPN,
-    price,
+
     slideHeight,
     theme,
     darkModeType,
@@ -60,11 +61,13 @@ export default function ConfirmVPNPage(props) {
         if (!invoice || !invoice.payment_hash || !invoice.payment_request)
           throw new Error(t('apps.VPN.confirmationSlideUp.invoiceInfoError'));
 
+        const parsedInvoice = decode(invoice.payment_request);
+
         const fee = await sparkPaymenWrapper({
           getFee: true,
           address: invoice.payment_request,
           paymentType: 'lightning',
-          amountSats: price,
+          amountSats: parsedInvoice.satoshis,
           masterInfoObject,
           sparkInformation,
           userBalance: sparkInformation.balance,
@@ -82,6 +85,7 @@ export default function ConfirmVPNPage(props) {
           payment_request: invoice.payment_request,
           supportFee: fee.supportFee,
           fee: fee.fee,
+          price: parsedInvoice.satoshis,
         });
       } catch (err) {
         console.log('Error fetching invoice information:', err);
@@ -139,7 +143,7 @@ export default function ConfirmVPNPage(props) {
               textAlign: 'center',
             }}
             frontText={t('apps.VPN.confirmationSlideUp.price')}
-            balance={price}
+            balance={invoiceInformation.price}
           />
           <FormattedSatText
             neverHideBalance={true}

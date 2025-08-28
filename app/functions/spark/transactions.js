@@ -245,6 +245,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
 
       // Step 2: Begin database transaction
       await sqlLiteDB.execAsync('BEGIN TRANSACTION');
+      let includedFailed = false;
 
       // Step 3: Process each unique transaction
       for (const [removeDuplicateKey, processedTx] of processedTransactions) {
@@ -272,103 +273,128 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
             [processedTx.tempSparkId, accountId],
           );
         }
-
         if (existingTx) {
-          // Update existing transaction with final ID
-          let existingDetails;
-          try {
-            existingDetails = JSON.parse(existingTx.details);
-          } catch {
-            existingDetails = {};
-          }
+          // If new payment status is "failed", delete the existing payment
+          if (processedTx.paymentStatus === 'failed') {
+            includedFailed = true;
+            await sqlLiteDB.runAsync(
+              `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
+              [finalSparkId, accountId],
+            );
 
-          let mergedDetails = {...existingDetails};
-          for (const key in processedTx.details) {
-            const value = processedTx.details[key];
-            if (
-              value !== '' &&
-              value !== null &&
-              value !== undefined &&
-              value !== 0
-            ) {
-              mergedDetails[key] = value;
+            // Also delete temp transaction if it exists and is different
+            if (existingTempTx && processedTx.tempSparkId !== finalSparkId) {
+              await sqlLiteDB.runAsync(
+                `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
+                [processedTx.tempSparkId, accountId],
+              );
+            }
+          } else {
+            // Update existing transaction with final ID
+            let existingDetails;
+            try {
+              existingDetails = JSON.parse(existingTx.details);
+            } catch {
+              existingDetails = {};
+            }
+            let mergedDetails = {...existingDetails};
+            for (const key in processedTx.details) {
+              const value = processedTx.details[key];
+              if (
+                value !== '' &&
+                value !== null &&
+                value !== undefined &&
+                value !== 0
+              ) {
+                mergedDetails[key] = value;
+              }
+            }
+            await sqlLiteDB.runAsync(
+              `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
+               SET paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
+               WHERE sparkID = ? AND accountId = ?`,
+              [
+                processedTx.paymentStatus,
+                processedTx.paymentType,
+                processedTx.accountId,
+                JSON.stringify(mergedDetails),
+                finalSparkId,
+                accountId,
+              ],
+            );
+            // Delete temp transaction if it exists and is different
+            if (existingTempTx && processedTx.tempSparkId !== finalSparkId) {
+              await sqlLiteDB.runAsync(
+                `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
+                [processedTx.tempSparkId, accountId],
+              );
             }
           }
-
-          await sqlLiteDB.runAsync(
-            `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
-             SET paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
-             WHERE sparkID = ? AND accountId = ?`,
-            [
-              processedTx.paymentStatus,
-              processedTx.paymentType,
-              processedTx.accountId,
-              JSON.stringify(mergedDetails),
-              finalSparkId,
-              accountId,
-            ],
-          );
-
-          // Delete temp transaction if it exists and is different
-          if (existingTempTx && processedTx.tempSparkId !== finalSparkId) {
+        } else if (existingTempTx) {
+          // If new payment status is "failed", delete the existing temp payment
+          if (processedTx.paymentStatus === 'failed') {
+            includedFailed = true;
             await sqlLiteDB.runAsync(
               `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
               [processedTx.tempSparkId, accountId],
             );
-          }
-        } else if (existingTempTx) {
-          // Update temp transaction to use final sparkID
-          let existingDetails;
-          try {
-            existingDetails = JSON.parse(existingTempTx.details);
-          } catch {
-            existingDetails = {};
-          }
-
-          let mergedDetails = {...existingDetails};
-          for (const key in processedTx.details) {
-            const value = processedTx.details[key];
-            if (
-              value !== '' &&
-              value !== null &&
-              value !== undefined &&
-              value !== 0
-            ) {
-              mergedDetails[key] = value;
+          } else {
+            // Update temp transaction to use final sparkID
+            let existingDetails;
+            try {
+              existingDetails = JSON.parse(existingTempTx.details);
+            } catch {
+              existingDetails = {};
             }
-          }
 
-          await sqlLiteDB.runAsync(
-            `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
-             SET sparkID = ?, paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
-             WHERE sparkID = ? AND accountId = ?`,
-            [
-              finalSparkId,
-              processedTx.paymentStatus,
-              processedTx.paymentType,
-              processedTx.accountId,
-              JSON.stringify(mergedDetails),
-              processedTx.tempSparkId,
-              accountId,
-            ],
-          );
+            let mergedDetails = {...existingDetails};
+            for (const key in processedTx.details) {
+              const value = processedTx.details[key];
+              if (
+                value !== '' &&
+                value !== null &&
+                value !== undefined &&
+                value !== 0
+              ) {
+                mergedDetails[key] = value;
+              }
+            }
+
+            await sqlLiteDB.runAsync(
+              `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
+               SET sparkID = ?, paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
+               WHERE sparkID = ? AND accountId = ?`,
+              [
+                finalSparkId,
+                processedTx.paymentStatus,
+                processedTx.paymentType,
+                processedTx.accountId,
+                JSON.stringify(mergedDetails),
+                processedTx.tempSparkId,
+                accountId,
+              ],
+            );
+          }
         } else {
-          // Insert new transaction
-          await sqlLiteDB.runAsync(
-            `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}
-             (sparkID, paymentStatus, paymentType, accountId, details)
-             VALUES (?, ?, ?, ?, ?)`,
-            [
-              finalSparkId,
-              processedTx.paymentStatus,
-              processedTx.paymentType,
-              processedTx.accountId,
-              JSON.stringify(processedTx.details),
-            ],
-          );
+          // Only insert new transaction if payment status is not "failed"
+          if (processedTx.paymentStatus !== 'failed') {
+            await sqlLiteDB.runAsync(
+              `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}
+               (sparkID, paymentStatus, paymentType, accountId, details)
+               VALUES (?, ?, ?, ?, ?)`,
+              [
+                finalSparkId,
+                processedTx.paymentStatus,
+                processedTx.paymentType,
+                processedTx.accountId,
+                JSON.stringify(processedTx.details),
+              ],
+            );
+          } else {
+            includedFailed = true;
+          }
         }
       }
-
       console.log('committing transactions');
       // Commit transaction
       await sqlLiteDB.execAsync('COMMIT');
@@ -376,7 +402,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
       handleEventEmitterPost(
         sparkTransactionsEventEmitter,
         SPARK_TX_UPDATE_ENVENT_NAME,
-        updateType,
+        includedFailed ? 'fullUpdate' : updateType,
         fee,
         passedBalance,
       );
