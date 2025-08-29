@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useMemo, useCallback} from 'react';
+import React, {useEffect, useState, useMemo, useCallback, useRef} from 'react';
 import {
   View,
   FlatList,
@@ -33,6 +33,7 @@ export default function ViewOnlineListings({removeUserLocal}) {
   const [category, setCategory] = useState('All');
   const [loading, setLoading] = useState(true);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const reTryCounter = useRef(0);
 
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
@@ -51,6 +52,11 @@ export default function ViewOnlineListings({removeUserLocal}) {
           'https://bitcoinlistings.org/.well-known/business',
         );
         const json = await res.json();
+
+        if (!json.businesses && reTryCounter.current < 2) {
+          fetchListings();
+          reTryCounter.current += 1;
+        }
         setData(json);
       } catch (e) {
         console.error('Failed to fetch listings', e);
@@ -78,7 +84,7 @@ export default function ViewOnlineListings({removeUserLocal}) {
         return matchSearch && matchCategory && matchLocation && usesLightning;
       })
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [data, search, category, userLocal]);
+  }, [data, search, category, userLocal, t]);
 
   const dropdownData = useMemo(() => {
     const uniuqeItems = Array.from(
@@ -91,7 +97,7 @@ export default function ViewOnlineListings({removeUserLocal}) {
     );
   }, [data?.statistics?.categories, t]);
 
-  console.log(businesses);
+  console.log(businesses, 'online buisnesses');
 
   const handleSelectProcess = useCallback(item => {
     if (!item) {
@@ -326,7 +332,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     textAlign: 'center',
     marginHorizontal: 5,
-    fontSize: SIZES.large,
+    fontSize: SIZES.xLarge,
   },
   stickySearchHeader: {
     width: '100%',
