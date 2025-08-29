@@ -254,6 +254,8 @@
       "SMSDescription": "Envía y recibe mensajes SMS en todo el mundo usando Bitcoin",
       "VPN": "VPN",
       "VPNDescription": "Navega de forma segura y protege tu privacidad",
+      "onlineListings": "Tiendas",
+      "onlineListingsDescription": "Directorio de negocios en línea que aceptan pagos con Bitcoin Lightning",
       "Soon": "Pronto",
       "SoonDescription": "Más aplicaciones próximamente"
     },
@@ -628,6 +630,30 @@
       "viewSMSReceiveCode": {
         "header": "Tu código"
       }
+    },
+    "onlineListings": {
+      "food & beverages": "Alimentos y Bebidas",
+      "services": "Servicios",
+      "apparel": "Ropa",
+      "other": "Otros",
+      "travel": "Viajes",
+      "e-commerce": "Comercio electrónico",
+      "health": "Salud",
+      "art & collectibles": "Arte y Coleccionables",
+      "legal & services": "Legal y Servicios",
+      "app": "Aplicación",
+      "education": "Educación",
+      "media": "Medios",
+      "tech": "Tecnología",
+      "charity": "Caridad",
+      "sustainability": "Sostenibilidad",
+      "selectCategoryPlaceholder": "Seleccionar categoría",
+      "topBarLabel": "Tiendas",
+      "loadingShopMessage": "Cargando tiendas en línea",
+      "inputPlaceHolder": "Buscar negocios...",
+      "noBuisMessage": "No encontramos resultados que coincidan con tu búsqueda.",
+      "visitWebsite": "Visitar sitio web",
+      "addListing": "Agregar tienda"
     }
   },
   "wallet": {

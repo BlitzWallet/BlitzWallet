@@ -1,5 +1,8 @@
 import {ChatGPTDrawer} from '../../../navigation/drawers';
-import {ResturantHomepage} from '../../components/admin/homeComponents/apps';
+import {
+  ResturantHomepage,
+  ViewOnlineListings,
+} from '../../components/admin/homeComponents/apps';
 import SMSMessagingHome from '../../components/admin/homeComponents/apps/sms4sats/home';
 import {GlobalThemeView} from '../../functions/CustomElements';
 import {useNavigation} from '@react-navigation/native';
@@ -28,6 +31,12 @@ export default function AppStorePageIndex(props) {
   if (targetPage.toLowerCase() === 'lnvpn') return <VPNHome />;
   if (targetPage.toLowerCase() === 'ai')
     return <ChatGPTDrawer confirmationSliderData={props?.route?.params} />;
+  if (targetPage.toLowerCase() === 'onlinelistings')
+    return (
+      <ViewOnlineListings
+        removeUserLocal={props?.route?.params?.removeUserLocal}
+      />
+    );
 
   return (
     <GlobalThemeView>

@@ -35,11 +35,17 @@ const APPLIST = [
     pageName: 'lnvpn',
   },
   {
-    name: 'apps.appList.Soon',
-    svgName: 'clock',
-    description: 'apps.appList.SoonDescription',
-    pageName: 'soon',
+    name: 'apps.appList.onlineListings',
+    svgName: 'globeIcon',
+    description: 'apps.appList.onlineListingsDescription',
+    pageName: 'onlineListings',
   },
+  // {
+  //   name: 'apps.appList.Soon',
+  //   svgName: 'clock',
+  //   description: 'apps.appList.SoonDescription',
+  //   pageName: 'soon',
+  // },
 ];
 
 export {APPLIST};
