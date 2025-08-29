@@ -6,6 +6,7 @@ import ExpandedGiftCardPage from './giftCards/expandedGiftCardPage';
 import GiftCardOrderDetails from './giftCards/giftCardOrderDetails';
 import GiftCardPage from './giftCards/giftCardsPage';
 import HistoricalGiftCardPurchases from './giftCards/historicalPurchasesPage';
+import ViewOnlineListings from './onlineListings';
 import ResturantHomepage from './resturantService/home';
 import ConfirmSMSPayment from './sms4sats/confirmationSlideUp';
 import ConfirmVPNPage from './VPN/components/confirmationSlideUp';
@@ -26,4 +27,5 @@ export {
   HistoricalGiftCardPurchases,
   GiftCardOrderDetails,
   SwitchGenerativeAIModel,
+  ViewOnlineListings,
 };

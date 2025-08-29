@@ -1,4 +1,4 @@
-import {FlatList, StyleSheet, TouchableOpacity} from 'react-native';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -17,16 +17,19 @@ import {useKeysContext} from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../../functions/customNavigation';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import Icon from '../../../../../functions/CustomElements/Icon';
 
-export default function CountryList() {
+export default function CountryList(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {toggleGlobalAppDataInformation, decodedGiftCards} = useGlobalAppData();
-  const {textColor} = GetThemeColors();
+
+  const {textColor, backgroundOffset} = GetThemeColors();
   const navigate = useNavigation();
   const [allCountries, setAllCountries] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [showList, setShowList] = useState(false);
   const ISOCode = decodedGiftCards?.profile?.isoCode;
+  const onlyReturn = props?.route?.params?.onlyReturn;
 
   useFocusEffect(
     useCallback(() => {
@@ -42,7 +45,14 @@ export default function CountryList() {
           return countryInfoList;
         };
         const response = await retriveCountries();
-        setAllCountries(response);
+        if (onlyReturn) {
+          setAllCountries([
+            {code: 'WW', countryName: 'World Wide'},
+            ...response,
+          ]);
+        } else {
+          setAllCountries(response);
+        }
       })();
 
       return () => {
@@ -55,6 +65,14 @@ export default function CountryList() {
 
   const saveNewCountrySetting = useCallback(
     async isoCode => {
+      if (onlyReturn) {
+        navigate.popTo(
+          'AppStorePageIndex',
+          {removeUserLocal: isoCode},
+          {merge: true},
+        );
+        return;
+      }
       const em = encriptMessage(
         contactsPrivateKey,
         publicKey,
@@ -79,6 +97,7 @@ export default function CountryList() {
       decodedGiftCards,
       toggleGlobalAppDataInformation,
       navigate,
+      onlyReturn,
     ],
   );
 
@@ -97,13 +116,31 @@ export default function CountryList() {
           style={{
             flexDirection: 'row',
             marginVertical: 20,
+            alignItems: 'center',
           }}>
-          <CountryFlag isoCode={item.code} size={25} />
+          {item.code === 'WW' ? (
+            <View
+              style={{
+                width: 40,
+                height: 30,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 8,
+                backgroundColor: backgroundOffset,
+              }}>
+              <Icon color={textColor} name={'globeIcon'} />
+            </View>
+          ) : (
+            <CountryFlag isoCode={item.code} size={25} />
+          )}
           <ThemeText
             styles={{
               marginLeft: 10,
               fontWeight: 500,
-              color: ISOCode === item.code ? COLORS.primary : textColor,
+              color:
+                ISOCode === item.code && !onlyReturn
+                  ? COLORS.primary
+                  : textColor,
             }}
             content={item.countryName}
           />
