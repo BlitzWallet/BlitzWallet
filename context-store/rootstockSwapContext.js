@@ -111,13 +111,15 @@ export const RootstockSwapProvider = ({children}) => {
           }),
         );
       });
+      return true;
     }
+    return false;
   };
 
   const loadRootstockSwaps = async () => {
     const swaps = await loadSwaps();
     console.log('saved swaps', swaps);
-    return swaps;
+    return swaps || [];
   };
 
   // Load swaps from DB and subscribe
@@ -140,8 +142,8 @@ export const RootstockSwapProvider = ({children}) => {
       .filter(id => !subscribedIdsRef.current.has(id));
 
     if (newIds.length > 0 || force) {
-      subscribeToIds(newIds);
-      newIds.forEach(id => subscribedIdsRef.current.add(id));
+      const response = subscribeToIds(newIds);
+      if (response) newIds.forEach(id => subscribedIdsRef.current.add(id));
     }
   };
 
@@ -156,17 +158,15 @@ export const RootstockSwapProvider = ({children}) => {
   const startRootstockEventListener = useCallback(
     async ({durationMs = 60000, intervalMs = 20000} = {}) => {
       cleanupRootstockListener();
-
-      const swaps = await loadRootstockSwaps();
-
+      let swaps = await loadRootstockSwaps();
       if (!swaps.length) {
-        executeSubmarineSwap(
+        const swap = await executeSubmarineSwap(
           accountMnemoinc,
           minMaxLiquidSwapAmounts,
           provider,
           signer,
         );
-        return;
+        if (swap) swaps.push(swap);
       }
 
       // Open websocket

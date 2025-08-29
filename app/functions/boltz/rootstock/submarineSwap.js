@@ -111,10 +111,6 @@ export async function executeSubmarineSwap(
     mnemoinc: signerMnemonic,
   });
   if (!sparkInvoice.didWork) return;
-  // const sparkInvoice = {
-  //   invoice:
-  //     'lntb108130n1p5xacjnpp5myp7wmxkpz98p7v5zlagf2n902k05pd05ehqzw603e08a4mgr6nsdpv2pshjmt9de6zqar0ypxk2unrdpskuapqv93kxmm4de6qcqzzsxqzjhsp5pr7jydjlfqm2tg6sh0cd7pdphkq7v8cjal6v0kx38wfwgmaesx6s9qyyssqpr5h3qypejvkljvj35lsxp8gjqntsr55g6nec2h7dk5wd3w6w4hzs7aekxzgfpw3pnk39hjleyyk8njg87zdgdez9atug9phv73sutsqd5kaqn',
-  // };
 
   const swap = await createRootstockSubmarineSwap(sparkInvoice.invoice);
   return swap;

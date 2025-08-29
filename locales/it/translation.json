@@ -858,11 +858,11 @@
         "title": "Scegli Rete",
         "actionBTN": "Mostra {{action}}",
         "sparkWarningMessage": "Ricevere direttamente tramite Spark esporrà il tuo saldo alla persona che paga e non è considerato privato.",
-        "liquidWarningText": "I pagamenti Liquid verranno convertiti in Spark. I pagamenti inferiori a {{amount}} non verranno convertiti. I fondi verranno convertiti solo dopo la conferma del pagamento Liquid.\n\n{{warning}}",
+        "swapWarning": "I pagamenti {{swapType}} verranno convertiti in Spark. I pagamenti inferiori a {{amount}} non verranno convertiti. I fondi verranno convertiti solo dopo la conferma del pagamento {{swapType}}.",
         "unalignedSeeds": "Avviso: Non stai utilizzando il tuo account wallet principale. Tutti gli scambi Liquid verranno inviati al tuo account wallet principale.",
-        "rootstockWarningText": "I pagamenti Rootstock verranno convertiti in Spark. I pagamenti inferiori a {{amount}} non verranno convertiti. I fondi verranno convertiti solo dopo la conferma del pagamento Rootsock.",
         "oneMinute": "~ {{numMins}} minuto",
-        "tenMinutes": "~ {{numMins}} minuti"
+        "tenMinutes": "~ {{numMins}} minuti",
+        "notUsingMainAccountWarning": "Avviso: Non stai utilizzando il tuo account principale del wallet. Tutti gli scambi {{swapType}} saranno inviati al tuo wallet principale."
       },
       "editLNURLContact": {
         "informationMessage": "Modificare il tuo username aggiorna il modo in cui gli altri ti trovano in Blitz Contacts e il tuo indirizzo Lightning (username @blitz-wallet.com).\n\nUn indirizzo Lightning permette agli altri di inviarti facilmente Bitcoin. Basta condividere il tuo indirizzo (username@blitz-wallet.com) per essere pagati.",
