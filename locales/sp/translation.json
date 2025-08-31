@@ -965,6 +965,29 @@
       "sliderTitle": "{{switchType}} LRC-20",
       "sliderDesc": "LRC-20 es el token nativo de Spark. Al habilitar LRC-20, puedes enviar y recibir tokens en la red Spark.\n\nBlitz es una billetera enfocada en Bitcoin. No promovemos ni respaldamos el uso de tokens. Esta función existe porque creemos que los usuarios deben tener la libertad de usar la tecnología que deseen.\n\nBlitz también aplica una tarifa de {{fee}} a todas las transacciones con tokens, con el 20% de esa tarifa donado para apoyar el desarrollo de Bitcoin de código abierto."
     },
+    "viewSwapsHome": {
+      "swaps": "Intercambios",
+      "selectionTitle": "Elegir red",
+      "liquid": "Liquid",
+      "rootstock": "Rootstock",
+      "pageTitle": "Intercambios de {{type}}"
+    },
+
+    "viewRoostockSwaps": {
+      "loadingMessage": "Cargando intercambios guardados de Rootstock",
+      "noSwapsMessage": "No tienes intercambios guardados de Rootstock"
+    },
+
+    "rootstockSwapInfo": {
+      "title": "Intercambio Submarino",
+      "id": "ID",
+      "swapDetails": "Detalles del intercambio",
+      "claimAddress": "Dirección de cobro",
+      "timeoutBHeight": "Altura de bloque de tiempo de espera",
+      "expAmount": "Monto esperado",
+      "invoice": "Factura",
+      "refundSwap": "Reembolsar intercambio"
+    },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Reescan completo",
       "swapStartedMessage": "El intercambio ha comenzado. Puede tardar 10–20 segundos en aparecer el pago.",
@@ -1224,7 +1247,7 @@
         "display currency": "Moneda de visualización",
         "display options": "Opciones de visualización",
         "edit contact profile": "Editar perfil de contacto",
-        "liquid swaps": "Intercambios Liquid",
+        "view all swaps": "Intercambios",
         "fast pay": "Pago Rápido",
         "blitz fee details": "Detalles de tarifas Blitz",
         "crash reports": "Reportes de fallos",
