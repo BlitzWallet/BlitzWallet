@@ -208,8 +208,8 @@ const ADVANCEDOPTIONS = [
 
   {
     for: 'general',
-    name: 'Liquid Swaps',
-    displayName: 'screens.inAccount.settingsContent.liquid swaps',
+    name: 'ViewAllSwaps',
+    displayName: 'screens.inAccount.settingsContent.view all swaps',
     icon: ICONS.liquidIcon,
     iconWhite: ICONS.liquidIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,

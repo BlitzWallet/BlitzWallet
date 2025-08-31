@@ -58,6 +58,7 @@ import NWCWalletSetup from '../app/components/admin/homeComponents/settingsConte
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import SparkSettingsPage from '../app/components/admin/homeComponents/settingsContent/sparkLrc20';
+import RoostockSwapInfo from '../app/components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
 import ManualSwapPopup from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/manualSwapPopup';
 import {CustomWebView} from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
@@ -183,6 +184,7 @@ const FADE_SCREENS = [
   {name: 'ConfirmPinForLoginMode', component: ConfirmPinForLoginMode},
   {name: 'ViewSMSReceiveCode', component: ViewSmsReceiveCode},
   {name: 'ConfirmSMSReceivePage', component: ConfirmSMSReceivePage},
+  {name: 'RoostockSwapInfo', component: RoostockSwapInfo},
 ];
 const FADE_TRANSPARENT_MODAL_SCREENS = [
   {
