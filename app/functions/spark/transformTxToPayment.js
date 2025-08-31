@@ -8,6 +8,7 @@ export async function transformTxToPaymentObject(
   isRestore,
   unpaidLNInvoices,
   identityPubKey,
+  numTxsBeingRestored = 1,
 ) {
   // Defer all payments to the 10 second interval to be updated
   const paymentType = forcePaymentType
@@ -32,10 +33,14 @@ export async function transformTxToPaymentObject(
         ? userRequest?.encodedInvoice
         : userRequest.invoice?.encodedInvoice
       : '';
-    const description = invoice
-      ? decode(invoice).tags.find(tag => tag.tagName === 'description')?.data ||
-        ''
-      : foundInvoice?.description || '';
+
+    const description =
+      numTxsBeingRestored < 20
+        ? invoice
+          ? decode(invoice).tags.find(tag => tag.tagName === 'description')
+              ?.data || ''
+          : foundInvoice?.description || ''
+        : '';
 
     return {
       id: tx.transfer ? tx.transfer.sparkId : tx.id,

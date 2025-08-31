@@ -129,16 +129,61 @@ export const restoreSparkTxState = async (
   }
 };
 
+// Helper function to split array into chunks
+function chunkArray(array, chunkSize) {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    chunks.push(array.slice(i, i + chunkSize));
+  }
+  return chunks;
+}
+
+// Process a single chunk of transactions
+async function processTransactionChunk(
+  txChunk,
+  sparkAddress,
+  unpaidInvoices,
+  identityPubKey,
+  numberOfRestoredTxs,
+) {
+  const chunkPaymentObjects = [];
+
+  for (const tx of txChunk) {
+    try {
+      const paymentObject = await transformTxToPaymentObject(
+        tx,
+        sparkAddress,
+        undefined,
+        true,
+        unpaidInvoices,
+        identityPubKey,
+        numberOfRestoredTxs,
+      );
+      if (paymentObject) {
+        chunkPaymentObjects.push(paymentObject);
+      }
+    } catch (err) {
+      console.error('Error transforming tx:', tx.id, err);
+    }
+  }
+
+  return chunkPaymentObjects;
+}
+
 export async function fullRestoreSparkState({
   sparkAddress,
   batchSize = 50,
+  chunkSize = 100,
+  maxConcurrentChunks = 3, // Reduced for better responsiveness
+  yieldInterval = 50, // Yield every N milliseconds
+  onProgress = null, // Optional progress callback
   isSendingPayment,
   mnemonic,
   identityPubKey,
 }) {
   try {
+    console.log('running');
     const savedTxs = await getCachedSparkTransactions(null, identityPubKey);
-
     const restored = await restoreSparkTxState(
       batchSize,
       savedTxs,
@@ -146,38 +191,66 @@ export async function fullRestoreSparkState({
       mnemonic,
       identityPubKey,
     );
+
     const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
+    const txChunks = chunkArray(restored.txs, chunkSize);
 
-    const newPaymentObjects = [];
+    console.log(
+      `Processing ${restored.txs.length} transactions in ${txChunks.length} chunks`,
+    );
 
-    for (const tx of restored.txs) {
-      try {
-        const paymentObject = await transformTxToPaymentObject(
-          tx,
+    const allPaymentObjects = [];
+    let processedChunks = 0;
+
+    // Process chunks in smaller batches with yields
+    for (let i = 0; i < txChunks.length; i += maxConcurrentChunks) {
+      const batchChunks = txChunks.slice(i, i + maxConcurrentChunks);
+
+      // Process this batch of chunks in parallel
+      const chunkPromises = batchChunks.map(chunk =>
+        processTransactionChunk(
+          chunk,
           sparkAddress,
-          undefined,
-          true,
           unpaidInvoices,
           identityPubKey,
-        );
-        if (paymentObject) {
-          newPaymentObjects.push(paymentObject);
+          restored.txs.length,
+        ),
+      );
+
+      try {
+        const batchResults = await Promise.all(chunkPromises);
+        allPaymentObjects.push(...batchResults.flat());
+        processedChunks += batchChunks.length;
+
+        // Call progress callback if provided
+        if (onProgress) {
+          onProgress({
+            processed: processedChunks,
+            total: txChunks.length,
+            percentage: Math.round((processedChunks / txChunks.length) * 100),
+          });
+        }
+
+        console.log(`Processed ${processedChunks}/${txChunks.length} chunks`);
+
+        // Yield control back to main thread between batches
+        if (i + maxConcurrentChunks < txChunks.length) {
+          await new Promise(resolve => setTimeout(resolve, yieldInterval));
         }
       } catch (err) {
-        console.error('Error transforming tx:', tx.id, err);
+        console.error('Error processing chunk batch:', err);
       }
     }
 
     console.log(
-      `Transformed ${newPaymentObjects.length}/${restored.txs.length} transactions`,
+      `Transformed ${allPaymentObjects.length}/${restored.txs.length} transactions`,
     );
 
-    if (newPaymentObjects.length) {
-      // Update DB state of payments but dont hold up thread
-      bulkUpdateSparkTransactions(newPaymentObjects, 'fullUpdate');
+    if (allPaymentObjects.length) {
+      // bulkUpdateSparkTransactions(allPaymentObjects, 'fullUpdate');
     }
 
-    return newPaymentObjects.length;
+    return allPaymentObjects.length;
   } catch (err) {
     console.log('full restore spark state error', err);
     return false;
