@@ -14,8 +14,8 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 export default function ViewSwapsHome() {
   const [selectedPage, setSelectedPage] = useState(null);
   const {t} = useTranslation();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const {theme} = useGlobalThemeContext();
+  const {backgroundOffset} = GetThemeColors();
 
   if (!selectedPage) {
     return (
@@ -44,21 +44,6 @@ export default function ViewSwapsHome() {
                 },
               ]}
               activeOpacity={0.7}>
-              <View
-                style={[
-                  styles.gradientCircle,
-                  {
-                    backgroundColor:
-                      theme && darkModeType ? backgroundColor : '#4285F4',
-                  },
-                ]}>
-                <View style={styles.iconPlaceholder1}>
-                  <ThemeText
-                    content={t('settings.viewSwapsHome.liquid')[0]}
-                    styles={styles.iconText1}
-                  />
-                </View>
-              </View>
               <View style={styles.cardContent1}>
                 <ThemeText
                   content={t('settings.viewSwapsHome.liquid')}
@@ -88,21 +73,6 @@ export default function ViewSwapsHome() {
                 },
               ]}
               activeOpacity={0.7}>
-              <View
-                style={[
-                  styles.gradientCircle,
-                  {
-                    backgroundColor:
-                      theme && darkModeType ? backgroundColor : '#FF6B35',
-                  },
-                ]}>
-                <View style={styles.iconPlaceholder1}>
-                  <ThemeText
-                    content={t('settings.viewSwapsHome.rootstock')[0]}
-                    styles={styles.iconText1}
-                  />
-                </View>
-              </View>
               <View style={styles.cardContent1}>
                 <ThemeText
                   content={t('settings.viewSwapsHome.rootstock')}
@@ -185,33 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 2,
   },
-  gradientCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: SIZES.medium,
-  },
-  liquidGradient: {
-    backgroundColor: '#4285F4',
-  },
-  rootstockGradient: {
-    backgroundColor: '#FF6B35',
-  },
-  iconPlaceholder1: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconText1: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '700',
-  },
+
   cardContent1: {
     flex: 1,
   },

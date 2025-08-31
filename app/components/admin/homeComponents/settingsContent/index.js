@@ -30,7 +30,7 @@ import SparkInfo from './sparkInfo';
 import NotificationPreferances from './notifications';
 import BlitzFeeInformation from './feeInformation';
 import CreateCustodyAccounts from './accounts';
-import ViewSwapsHome from './viewAllLiquidSwaps';
+import ViewSwapsHome from './viewAllSwapsHome';
 
 export {
   AboutPage,
