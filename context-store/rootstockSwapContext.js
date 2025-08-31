@@ -171,6 +171,22 @@ export const RootstockSwapProvider = ({children}) => {
     return swaps || [];
   };
 
+  // Runs after every interval or ws update
+  const scheduleCleanup = durationMs => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      debouncedCleanup();
+
+      // If still active, schedule again
+      if (activeSwapIdsRef.current.size > 0) {
+        scheduleCleanup(durationMs);
+      }
+    }, durationMs);
+  };
+
   // Load swaps from DB and subscribe
   const loadAndSubscribeSwaps = async (force = false, swaps) => {
     const newSwaps = swaps;
@@ -282,7 +298,7 @@ export const RootstockSwapProvider = ({children}) => {
               status == 'transaction.claimed' ||
               status === 'transaction.claim.pending'
             ) {
-              // await deleteSwapById(swapId);
+              await deleteSwapById(swapId);
               // Remove from active swaps when completed
               activeSwapIdsRef.current.delete(swapId);
             }
@@ -329,14 +345,7 @@ export const RootstockSwapProvider = ({children}) => {
         }
       }, intervalMs);
 
-      timeoutRef.current = setTimeout(() => {
-        debouncedCleanup();
-
-        // If there are still active swaps, set another timeout
-        if (activeSwapIdsRef.current.size > 0) {
-          timeoutRef.current = setTimeout(arguments.callee, durationMs);
-        }
-      }, durationMs);
+      scheduleCleanup(durationMs);
     },
     [
       cleanupRootstockListener,
