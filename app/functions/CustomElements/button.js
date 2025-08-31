@@ -43,7 +43,7 @@ export default function CustomButton({
           styles={styles.arrowStyles}
           lightModeIcon={ICONS.leftCheveronIcon}
           darkModeIcon={ICONS.leftCheveronIcon}
-          lightsOutIcon={ICONS.leftCheveronDark}
+          lightsOutIcon={ICONS.leftCheveronLight}
         />
       ) : (
         <ThemeText

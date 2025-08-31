@@ -858,11 +858,12 @@
         "title": "Choose Network",
         "actionBTN": "Show {{action}}",
         "sparkWarningMessage": "Receiving directly via Spark will expose your balance to the person paying and is not considered private.",
-        "liquidWarningText": "Liquid payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the Liquid payment is confirmed.\n\n{{warning}}",
+        "swapWarning": "{{swapType}} payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the {{swapType}} payment is confirmed.",
         "unalignedSeeds": "Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.",
         "rootstockWarningText": "Rootstock payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the Rootsock payment is confirmed.",
         "oneMinute": "~ {{numMins}} minute",
-        "tenMinutes": "~ {{numMins}} minutes"
+        "tenMinutes": "~ {{numMins}} minutes",
+        "notUsingMainAccountWarning": "Warning: You’re not using your main wallet account. All {{swapType}} swaps will be sent to your main wallet."
       },
       "editLNURLContact": {
         "informationMessage": "Changing your username updates how others find you in Blitz Contacts and your Lightning address (username @blitz-wallet.com).\n\nA Lightning address lets others easily send you Bitcoin. Just share your address (username@blitz-wallet.com) to get paid.",
@@ -1129,6 +1130,28 @@
       "sliderTitle": "{{switchType}} LRC-20",
       "sliderDesc": "LRC-20 is Spark’s native token. Enabling LRC-20 allows you send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.\n\nBlitz also applies a {{fee}} fee to all token transactions, with 20% of that fee donated to support open-source Bitcoin development."
     },
+    "viewSwapsHome": {
+      "swaps": "Swaps",
+      "selectionTitle": "Choose Network",
+      "liquid": "Liquid",
+      "rootstock": "Rootstock",
+      "pageTitle": "{{type}} Swaps"
+    },
+
+    "viewRoostockSwaps": {
+      "loadingMessage": "Loading saved Roostock swaps",
+      "noSwapsMessage": "You have no saved Roostock swaps"
+    },
+    "rootstockSwapInfo": {
+      "title": "Submarine Swap",
+      "id": "ID",
+      "swapDetails": "Swap Details",
+      "claimAddress": "Claim Address",
+      "timeoutBHeight": "Timeout Block Height",
+      "expAmount": "Expected Amount",
+      "invoice": "Invoice",
+      "refundSwap": "Refund swap"
+    },
 
     "viewAllLiquidSwaps": {
       "rescanComplete": "Rescan complete",
@@ -1386,6 +1409,7 @@
       "receiveBtcPage": {
         "onchainFeeMessage": "On-chain payments have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.",
         "liquidFeeMessage": "Liquid payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
+        "rootstockFeeMessage": "Rootstock payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
         "generatingInvoice": "Generating Invoice"
       },
 
@@ -1395,7 +1419,7 @@
         "display currency": "Display Currency",
         "display options": "Display Options",
         "edit contact profile": "Edit Contact Profile",
-        "liquid swaps": "Liquid Swaps",
+        "view all swaps": "Swaps",
         "fast pay": "Fast Pay",
         "blitz fee details": "Blitz Fee Details",
         "crash reports": "Crash Reports",

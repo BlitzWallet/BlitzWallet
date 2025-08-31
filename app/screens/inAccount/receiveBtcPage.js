@@ -180,7 +180,7 @@ export default function ReceivePaymentHome(props) {
                 );
               } else if (selectedRecieveOption.toLowerCase() === 'liquid') {
                 informationText = t(
-                  'screens.inAccount.receiveBtcPage.onchainFeeMessage',
+                  'screens.inAccount.receiveBtcPage.liquidFeeMessage',
                   {
                     fee: displayCorrectDenomination({
                       amount: 34,
@@ -194,8 +194,20 @@ export default function ReceivePaymentHome(props) {
                     }),
                   },
                 );
+              } else if (selectedRecieveOption.toLowerCase() === 'rootstock') {
+                informationText = t(
+                  'screens.inAccount.receiveBtcPage.rootstockFeeMessage',
+                  {
+                    fee: displayCorrectDenomination({
+                      amount:
+                        minMaxLiquidSwapAmounts?.rsk?.reverse?.fees
+                          ?.minerFees || 32,
+                      masterInfoObject,
+                      fiatStats,
+                    }),
+                  },
+                );
               }
-
               navigate.navigate('InformationPopup', {
                 textContent: informationText,
                 buttonText: t('constants.understandText'),

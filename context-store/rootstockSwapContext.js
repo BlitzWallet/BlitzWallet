@@ -38,15 +38,37 @@ export const RootstockSwapProvider = ({children}) => {
   const {accountMnemoinc} = useKeysContext();
   const {didGetToHomepage, minMaxLiquidSwapAmounts} = useAppStatus();
   const subscribedIdsRef = useRef(new Set());
+  const activeSwapIdsRef = useRef(new Set()); // Track active swaps
   const [signer, setSigner] = useState(null);
 
   const wsRef = useRef(null);
   const intervalRef = useRef(null);
   const timeoutRef = useRef(null);
+  const cleanupDebounceRef = useRef(null);
 
-  // Cleanup function to close websocket and clear interval/timeout
+  // Helper function to check if a swap is in a terminal state
+  const isSwapCompleted = status => {
+    return [
+      'transaction.claimed',
+      'transaction.claim.pending',
+      'swap.expired',
+      'invoice.failedToPay',
+      'transaction.lockupFailed',
+    ].includes(status);
+  };
+
+  // Smart cleanup function that only clears if no active swaps
   const cleanupRootstockListener = useCallback(() => {
-    console.log('Running event listeners cleanup');
+    console.log('Running event listeners cleanup', {
+      activeSwaps: Array.from(activeSwapIdsRef.current),
+    });
+
+    // If there are active swaps, don't cleanup
+    if (activeSwapIdsRef.current.size > 0) {
+      console.log('Skipping cleanup - active swaps in progress');
+      return false;
+    }
+
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -54,6 +76,10 @@ export const RootstockSwapProvider = ({children}) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
+    }
+    if (cleanupDebounceRef.current) {
+      clearTimeout(cleanupDebounceRef.current);
+      cleanupDebounceRef.current = null;
     }
     if (wsRef.current) {
       // Remove event listeners to prevent the assertion error
@@ -74,7 +100,21 @@ export const RootstockSwapProvider = ({children}) => {
       wsRef.current = null;
     }
     subscribedIdsRef.current.clear();
+    activeSwapIdsRef.current.clear();
+    return true;
   }, []);
+
+  // Debounced cleanup function to prevent rapid fire cleanup attempts
+  const debouncedCleanup = useCallback(() => {
+    if (cleanupDebounceRef.current) {
+      clearTimeout(cleanupDebounceRef.current);
+    }
+
+    cleanupDebounceRef.current = setTimeout(() => {
+      cleanupRootstockListener();
+      cleanupDebounceRef.current = null;
+    }, 1000); // 1s debounce
+  }, [cleanupRootstockListener]);
 
   const provider = useMemo(() => {
     return new JsonRpcProvider(
@@ -111,37 +151,65 @@ export const RootstockSwapProvider = ({children}) => {
           }),
         );
       });
+      return true;
     }
+    return false;
   };
 
   const loadRootstockSwaps = async () => {
-    const swaps = await loadSwaps();
+    let swaps = await loadSwaps();
+    if (!swaps.length) {
+      const swap = await executeSubmarineSwap(
+        accountMnemoinc,
+        minMaxLiquidSwapAmounts,
+        provider,
+        signer,
+      );
+      if (swap) swaps.push(swap);
+    }
     console.log('saved swaps', swaps);
-    return swaps;
+    return swaps || [];
+  };
+
+  // Runs after every interval or ws update
+  const scheduleCleanup = durationMs => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      debouncedCleanup();
+
+      // If still active, schedule again
+      if (activeSwapIdsRef.current.size > 0) {
+        scheduleCleanup(durationMs);
+      }
+    }, durationMs);
   };
 
   // Load swaps from DB and subscribe
   const loadAndSubscribeSwaps = async (force = false, swaps) => {
-    const swap = await executeSubmarineSwap(
-      accountMnemoinc,
-      minMaxLiquidSwapAmounts,
-      provider,
-      signer,
-    );
-    const newSwaps = swap ? [...swaps, swap] : swaps;
+    const newSwaps = swaps;
     if (!newSwaps || !newSwaps.length) {
-      // Just clear state, don't cleanup WebSocket here
-      subscribedIdsRef.current.clear();
+      // No new swaps to process, but existing active swaps may still be running
+      // Don't clear anything here - let the interval and message handlers manage state
       return [];
     }
+
+    // Update active swaps tracking
+    newSwaps.forEach(swap => {
+      if (!isSwapCompleted(swap.status)) {
+        activeSwapIdsRef.current.add(swap.id);
+      }
+    });
 
     const newIds = newSwaps
       .map(s => s.id)
       .filter(id => !subscribedIdsRef.current.has(id));
 
     if (newIds.length > 0 || force) {
-      subscribeToIds(newIds);
-      newIds.forEach(id => subscribedIdsRef.current.add(id));
+      const response = subscribeToIds(newIds);
+      if (response) newIds.forEach(id => subscribedIdsRef.current.add(id));
     }
   };
 
@@ -155,19 +223,29 @@ export const RootstockSwapProvider = ({children}) => {
 
   const startRootstockEventListener = useCallback(
     async ({durationMs = 60000, intervalMs = 20000} = {}) => {
-      cleanupRootstockListener();
+      let swaps = await loadRootstockSwaps();
 
-      const swaps = await loadRootstockSwaps();
+      // Check if we should open a new WebSocket or use existing one
+      const hasActiveSwaps = activeSwapIdsRef.current.size > 0;
 
-      if (!swaps.length) {
-        executeSubmarineSwap(
-          accountMnemoinc,
-          minMaxLiquidSwapAmounts,
-          provider,
-          signer,
+      if (hasActiveSwaps && wsRef.current) {
+        console.log(
+          'WebSocket already active, adding new swaps to existing connection',
         );
+        // Just subscribe to new swaps on existing connection
+        loadAndSubscribeSwaps(false, swaps);
         return;
       }
+
+      // Clean up any existing connections before opening new one
+      cleanupRootstockListener();
+
+      // Initialize active swaps tracking
+      swaps.forEach(swap => {
+        if (!isSwapCompleted(swap.status)) {
+          activeSwapIdsRef.current.add(swap.id);
+        }
+      });
 
       // Open websocket
       const ws = new WebSocket(`${getBoltzWsUrl(rootstockEnvironment)}/v2/ws`);
@@ -213,14 +291,20 @@ export const RootstockSwapProvider = ({children}) => {
             ) {
               await updateSwap(swapId, {didSwapFail: true});
               await refundRootstockSubmarineSwap(swap, signer);
+              // Remove from active swaps when it fails/expires
+              activeSwapIdsRef.current.delete(swapId);
             }
             if (
               status == 'transaction.claimed' ||
               status === 'transaction.claim.pending'
             ) {
               await deleteSwapById(swapId);
+              // Remove from active swaps when completed
+              activeSwapIdsRef.current.delete(swapId);
             }
           }
+
+          debouncedCleanup();
         } catch (error) {
           console.error('Error processing WebSocket message:', error);
         }
@@ -235,35 +319,43 @@ export const RootstockSwapProvider = ({children}) => {
         console.log('WebSocket closed:', event.code, event.reason);
         // Clean up subscribed IDs when connection closes
         subscribedIdsRef.current.clear();
+        // Clear active swaps since we can't monitor them without WebSocket
+        activeSwapIdsRef.current.clear();
       };
 
       intervalRef.current = setInterval(async () => {
         const freshSwaps = await loadRootstockSwaps();
         if (freshSwaps && freshSwaps.length > 0) {
+          // Update active swaps based on current status
+          const currentActiveSwaps = freshSwaps.filter(
+            swap => !isSwapCompleted(swap.status),
+          );
+
+          // Update the active swaps ref
+          activeSwapIdsRef.current.clear();
+          currentActiveSwaps.forEach(swap => {
+            activeSwapIdsRef.current.add(swap.id);
+          });
+
           loadAndSubscribeSwaps(false, freshSwaps);
         } else {
-          console.log('No swaps found in interval check, cleaning up');
-          cleanupRootstockListener();
+          console.log('No swaps found in interval check');
+          // Clear active swaps since no swaps exist
+          activeSwapIdsRef.current.clear();
         }
       }, intervalMs);
 
-      timeoutRef.current = setTimeout(() => {
-        cleanupRootstockListener();
-      }, durationMs);
+      scheduleCleanup(durationMs);
     },
     [
       cleanupRootstockListener,
+      debouncedCleanup,
       signer,
       accountMnemoinc,
       minMaxLiquidSwapAmounts,
       provider,
     ],
   );
-  useEffect(() => {
-    return () => {
-      cleanupRootstockListener();
-    };
-  }, [cleanupRootstockListener]);
 
   const contextValue = useMemo(() => {
     return {
@@ -273,12 +365,14 @@ export const RootstockSwapProvider = ({children}) => {
       startRootstockEventListener,
     };
   }, [provider, signer, createSigner, startRootstockEventListener]);
+
   return (
     <RootstockSwapContext.Provider value={contextValue}>
       {children}
     </RootstockSwapContext.Provider>
   );
 };
+
 export const useRootstockProvider = () => {
   return React.useContext(RootstockSwapContext);
 };

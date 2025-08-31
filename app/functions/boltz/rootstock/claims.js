@@ -38,10 +38,9 @@ export async function refundRootstockSubmarineSwap(swap, signer) {
     const currentBlockHeight = await signer.provider.getBlockNumber();
     const decoded = bolt11.decode(invoice);
 
-    const invoicePreimageHash = Buffer.from(
-      decoded.tags.find(tag => tag.tagName === 'payment_hash')?.data,
-      'hex',
-    );
+    const invoicePreimageHash = decoded.tags.find(
+      tag => tag.tagName === 'payment_hash',
+    )?.data;
 
     console.log(invoicePreimageHash, claimAddress, timeoutBlockHeight, id);
     const contractsRes = await fetch(
@@ -90,7 +89,8 @@ export async function refundRootstockSubmarineSwap(swap, signer) {
     console.log(`Refunded RBTC tx: ${tx.hash}`);
 
     if (tx) {
-      deleteSwapById(id);
+      await deleteSwapById(id);
+      return true;
     }
   } catch (err) {
     console.log('Error refunding rootstock swap', err);

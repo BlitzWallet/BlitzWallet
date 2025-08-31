@@ -858,11 +858,11 @@
         "title": "Scegli Rete",
         "actionBTN": "Mostra {{action}}",
         "sparkWarningMessage": "Ricevere direttamente tramite Spark esporrà il tuo saldo alla persona che paga e non è considerato privato.",
-        "liquidWarningText": "I pagamenti Liquid verranno convertiti in Spark. I pagamenti inferiori a {{amount}} non verranno convertiti. I fondi verranno convertiti solo dopo la conferma del pagamento Liquid.\n\n{{warning}}",
+        "swapWarning": "I pagamenti {{swapType}} verranno convertiti in Spark. I pagamenti inferiori a {{amount}} non verranno convertiti. I fondi verranno convertiti solo dopo la conferma del pagamento {{swapType}}.",
         "unalignedSeeds": "Avviso: Non stai utilizzando il tuo account wallet principale. Tutti gli scambi Liquid verranno inviati al tuo account wallet principale.",
-        "rootstockWarningText": "I pagamenti Rootstock verranno convertiti in Spark. I pagamenti inferiori a {{amount}} non verranno convertiti. I fondi verranno convertiti solo dopo la conferma del pagamento Rootsock.",
         "oneMinute": "~ {{numMins}} minuto",
-        "tenMinutes": "~ {{numMins}} minuti"
+        "tenMinutes": "~ {{numMins}} minuti",
+        "notUsingMainAccountWarning": "Avviso: Non stai utilizzando il tuo account principale del wallet. Tutti gli scambi {{swapType}} saranno inviati al tuo wallet principale."
       },
       "editLNURLContact": {
         "informationMessage": "Modificare il tuo username aggiorna il modo in cui gli altri ti trovano in Blitz Contacts e il tuo indirizzo Lightning (username @blitz-wallet.com).\n\nUn indirizzo Lightning permette agli altri di inviarti facilmente Bitcoin. Basta condividere il tuo indirizzo (username@blitz-wallet.com) per essere pagati.",
@@ -1130,6 +1130,30 @@
       "sliderDesc": "LRC-20 è il token nativo di Spark. Abilitando LRC-20 puoi inviare e ricevere token sulla rete Spark.\n\nBlitz è un wallet focalizzato su Bitcoin. Non promuoviamo né endoriamo l'uso di token. Questa funzione esiste perché crediamo che gli utenti debbano avere la libertà di usare la tecnologia che vogliono usare.\n\nBlitz applica anche una commissione del {{fee}} a tutte le transazioni token, con il 20% di quella commissione donata a supporto dello sviluppo open-source di Bitcoin."
     },
 
+    "viewSwapsHome": {
+      "swaps": "Scambi",
+      "selectionTitle": "Scegli rete",
+      "liquid": "Liquid",
+      "rootstock": "Rootstock",
+      "pageTitle": "Scambi {{type}}"
+    },
+
+    "viewRoostockSwaps": {
+      "loadingMessage": "Caricamento degli scambi Rootstock salvati",
+      "noSwapsMessage": "Non hai scambi Rootstock salvati"
+    },
+
+    "rootstockSwapInfo": {
+      "title": "Submarine Swap",
+      "id": "ID",
+      "swapDetails": "Dettagli dello scambio",
+      "claimAddress": "Indirizzo di riscossione",
+      "timeoutBHeight": "Altezza del blocco di timeout",
+      "expAmount": "Importo previsto",
+      "invoice": "Fattura",
+      "refundSwap": "Rimborsa scambio"
+    },
+
     "viewAllLiquidSwaps": {
       "rescanComplete": "Riscansione completa",
       "swapStartedMessage": "Lo swap è iniziato. Potrebbero volerci 10–20 secondi prima che il pagamento appaia.",
@@ -1386,6 +1410,7 @@
       "receiveBtcPage": {
         "onchainFeeMessage": "I pagamenti on-chain hanno una commissione di rete e una commissione Spark dello 0,1%.\n\nSe invii soldi a te stesso, pagherai la commissione di rete due volte — una per inviarli e una per reclamarli.\n\nSe qualcun altro ti invia fondi, pagherai la commissione di rete una sola volta per reclamarli.",
         "liquidFeeMessage": "I pagamenti Liquid devono essere convertiti in Spark.\n\nQuesto processo include una commissione di blocco di circa {{fee}}, una commissione di prelievo di circa {{claimFee}} e una commissione di servizio dello 0,1% da Boltz basata sull'importo che stai inviando.",
+        "rootstockFeeMessage": "I pagamenti in Rootstock devono essere convertiti in Spark. Questo processo include una commissione di blocco di circa {{fee}} e una commissione di servizio dello 0,1% da parte di Boltz, calcolata sull’importo che stai inviando.",
         "generatingInvoice": "Generazione Fattura"
       },
 
@@ -1395,7 +1420,7 @@
         "display currency": "Valuta di Visualizzazione",
         "display options": "Opzioni di Visualizzazione",
         "edit contact profile": "Modifica Profilo Contatto",
-        "liquid swaps": "Swap Liquid",
+        "view all swaps": "Scambi",
         "fast pay": "Pagamento Rapido",
         "blitz fee details": "Dettagli Commissione Blitz",
         "crash reports": "Report Crash",

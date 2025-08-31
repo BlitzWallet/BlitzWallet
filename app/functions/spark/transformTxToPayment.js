@@ -1,3 +1,4 @@
+import {decode} from 'bolt11';
 import {getSparkPaymentStatus, sparkPaymentType} from '.';
 
 export async function transformTxToPaymentObject(
@@ -26,6 +27,15 @@ export async function transformTxToPaymentObject(
     const status = getSparkPaymentStatus(tx.status);
     const userRequest = tx.userRequest;
     const isSendRequest = userRequest?.typename === 'LightningSendRequest';
+    const invoice = userRequest
+      ? isSendRequest
+        ? userRequest?.encodedInvoice
+        : userRequest.invoice?.encodedInvoice
+      : '';
+    const description = invoice
+      ? decode(invoice).tags.find(tag => tag.tagName === 'description')?.data ||
+        ''
+      : foundInvoice?.description || '';
 
     return {
       id: tx.transfer ? tx.transfer.sparkId : tx.id,
@@ -44,7 +54,7 @@ export async function transformTxToPaymentObject(
           ? new Date(tx.updatedTime).getTime()
           : new Date().getTime(),
         direction: tx.transferDirection,
-        description: foundInvoice?.description || '',
+        description: description,
         preimage: userRequest ? userRequest?.paymentPreimage || '' : '',
         isRestore,
         isBlitzContactPayment: foundInvoice

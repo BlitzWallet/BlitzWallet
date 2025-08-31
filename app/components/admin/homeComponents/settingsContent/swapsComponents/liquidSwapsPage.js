@@ -1,22 +1,22 @@
 import {useEffect, useState} from 'react';
 import {StyleSheet, View, ScrollView} from 'react-native';
-import {CENTER, SIZES} from '../../../../constants';
-import {ThemeText} from '../../../../functions/CustomElements';
+import {CENTER, SIZES} from '../../../../../constants';
+import {ThemeText} from '../../../../../functions/CustomElements';
 import {useNavigation} from '@react-navigation/native';
 import {getInfo} from '@breeztech/react-native-breez-sdk-liquid';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import CustomButton from '../../../../functions/CustomElements/button';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {useAppStatus} from '../../../../../context-store/appStatus';
-import {useGlobalContacts} from '../../../../../context-store/globalContacts';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
-import liquidToSparkSwap from '../../../../functions/spark/liquidToSparkSwap';
+import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
+import CustomButton from '../../../../../functions/CustomElements/button';
+import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
+import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import {useAppStatus} from '../../../../../../context-store/appStatus';
+import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import {useNodeContext} from '../../../../../../context-store/nodeContext';
+import liquidToSparkSwap from '../../../../../functions/spark/liquidToSparkSwap';
 import {useTranslation} from 'react-i18next';
 
-export default function ViewAllLiquidSwaps(props) {
+export default function LiquidSwapsPage() {
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const [isLoading, setIsLoading] = useState(false);
   const {globalContactsInformation} = useGlobalContacts();

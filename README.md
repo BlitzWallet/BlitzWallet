@@ -40,7 +40,7 @@ Blitz Wallet is a React Native application that allows users to interact with th
 - [x] migrate from expo 49 to 51
 - [x] Integrate Bitcoin Liquid Wallet
 - [x] Add apps to store
-- [ ] Add Rootstock as a receive option
+- [x] Add Rootstock as a receive option
 - [x] Ability to create sub accounts within wallet
 - [x] NWC
 - [ ] Improve noticications

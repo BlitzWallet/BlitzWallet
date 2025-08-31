@@ -705,11 +705,11 @@
         "title": "Elegir red",
         "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Recibir directamente por Spark mostrará tu saldo a la persona que paga y no se considera privado.",
-        "liquidWarningText": "Los pagos en Liquid se cambiarán a Spark. Los pagos inferiores a {{amount}} no se cambiarán. Los fondos solo se cambiarán después de que se confirme el pago en Liquid.\n\n{{warning}}",
+        "swapWarning": "Los pagos en {{swapType}} se cambiarán a Spark. Los pagos inferiores a {{amount}} no se cambiarán. Los fondos solo se cambiarán después de que se confirme el pago en {{swapType}}.",
         "unalignedSeeds": "Advertencia: No estás usando tu cuenta principal de billetera. Todos los cambios de Liquid se enviarán a tu cuenta principal.",
-        "rootstockWarningText": "Los pagos en Rootstock se cambiarán a Spark. Los pagos inferiores a {{amount}} no se cambiarán. Los fondos solo se cambiarán después de que se confirme el pago en Rootstock.",
         "oneMinute": "~ {{numMins}} minuto",
-        "tenMinutes": "~ {{numMins}} minutos"
+        "tenMinutes": "~ {{numMins}} minutos",
+        "notUsingMainAccountWarning": "Advertencia: No estás utilizando tu cuenta de billetera principal. Todos los intercambios de {{swapType}} se enviarán a tu billetera principal."
       },
       "editLNURLContact": {
         "informationMessage": "Cambiar tu nombre de usuario actualiza cómo otros te encuentran en Blitz Contacts y tu dirección Lightning (usuario@blitz-wallet.com).\n\nUna dirección Lightning permite que otros te envíen Bitcoin fácilmente. Solo comparte tu dirección (usuario@blitz-wallet.com) para recibir pagos.",
@@ -965,6 +965,29 @@
       "sliderTitle": "{{switchType}} LRC-20",
       "sliderDesc": "LRC-20 es el token nativo de Spark. Al habilitar LRC-20, puedes enviar y recibir tokens en la red Spark.\n\nBlitz es una billetera enfocada en Bitcoin. No promovemos ni respaldamos el uso de tokens. Esta función existe porque creemos que los usuarios deben tener la libertad de usar la tecnología que deseen.\n\nBlitz también aplica una tarifa de {{fee}} a todas las transacciones con tokens, con el 20% de esa tarifa donado para apoyar el desarrollo de Bitcoin de código abierto."
     },
+    "viewSwapsHome": {
+      "swaps": "Intercambios",
+      "selectionTitle": "Elegir red",
+      "liquid": "Liquid",
+      "rootstock": "Rootstock",
+      "pageTitle": "Intercambios de {{type}}"
+    },
+
+    "viewRoostockSwaps": {
+      "loadingMessage": "Cargando intercambios guardados de Rootstock",
+      "noSwapsMessage": "No tienes intercambios guardados de Rootstock"
+    },
+
+    "rootstockSwapInfo": {
+      "title": "Intercambio Submarino",
+      "id": "ID",
+      "swapDetails": "Detalles del intercambio",
+      "claimAddress": "Dirección de cobro",
+      "timeoutBHeight": "Altura de bloque de tiempo de espera",
+      "expAmount": "Monto esperado",
+      "invoice": "Factura",
+      "refundSwap": "Reembolsar intercambio"
+    },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Reescan completo",
       "swapStartedMessage": "El intercambio ha comenzado. Puede tardar 10–20 segundos en aparecer el pago.",
@@ -1213,8 +1236,9 @@
         "liquidWalletError2": "No pudimos configurar tu billetera. Intenta de nuevo."
       },
       "receiveBtcPage": {
-        "onchainFeeMessage": "Los pagos en cadena tienen una tarifa de red y una tarifa de Spark del 0.1%.\n\nSi te envías dinero a ti mismo, pagarás la tarifa de red dos veces — una para enviar y otra para reclamar.\n\nSi otra persona te envía dinero, solo pagarás la tarifa de red una vez al reclamar.",
-        "liquidFeeMessage": "Los pagos en Liquid deben convertirse a Spark.\n\nEste proceso incluye una tarifa de bloqueo de aproximadamente {{fee}}, una tarifa de reclamo de alrededor de {{claimFee}}, y una tarifa de servicio del 0.1% de Boltz basada en la cantidad enviada.",
+        "onchainFeeMessage": "Los pagos en cadena tienen una tarifa de red y una tarifa de Spark del 0,1%.\n\nSi te envías dinero a ti mismo, pagarás la tarifa de red dos veces — una para enviar y otra para reclamar.\n\nSi otra persona te envía dinero, solo pagarás la tarifa de red una vez al reclamar.",
+        "liquidFeeMessage": "Los pagos en Liquid deben convertirse a Spark.\n\nEste proceso incluye una tarifa de bloqueo de aproximadamente {{fee}}, una tarifa de reclamo de alrededor de {{claimFee}}, y una tarifa de servicio del 0,1% de Boltz basada en la cantidad enviada.",
+        "rootstockFeeMessage": "Los pagos en Rootstock deben convertirse a Spark.Este proceso incluye una comisión de bloqueo de aproximadamente {{fee}}, y una comisión de servicio del 0,1% de Boltz basada en el monto que envíes.",
         "generatingInvoice": "Generando factura"
       },
       "settingsContent": {
@@ -1223,7 +1247,7 @@
         "display currency": "Moneda de visualización",
         "display options": "Opciones de visualización",
         "edit contact profile": "Editar perfil de contacto",
-        "liquid swaps": "Intercambios Liquid",
+        "view all swaps": "Intercambios",
         "fast pay": "Pago Rápido",
         "blitz fee details": "Detalles de tarifas Blitz",
         "crash reports": "Reportes de fallos",

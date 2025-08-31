@@ -118,7 +118,9 @@ import lightningReceiveIcon from '../assets/icons/lightningReceiveIcon.png';
 import sparkReceiveIcon from '../assets/icons/sparkReceiveIcon.png';
 import liquidReceiveIcon from '../assets/icons/liquidReceiveIcon.png';
 import rootstockLogo from '../assets/icons/rootstockLogo.png';
+import rootstockLogoBlue from '../assets/icons/rootstockLogoBlue.png';
 import blockstreamLiquid from '../assets/icons/blockstreamLiquid.png';
+import blockstreamLiquidBlue from '../assets/icons/blockstreamLiquidBlue.png';
 import sharedBlue from '../assets/icons/sharedBlue.png';
 import sharedWhite from '../assets/icons/sharedWhite.png';
 import exchangeIcon from '../assets/icons/exchangeIcon.png';
@@ -252,7 +254,9 @@ export default {
   sparkReceiveIcon,
   liquidReceiveIcon,
   rootstockLogo,
+  rootstockLogoBlue,
   blockstreamLiquid,
+  blockstreamLiquidBlue,
   exchangeIcon,
   exchangeIconWhite,
   arrowFromRightWhite,

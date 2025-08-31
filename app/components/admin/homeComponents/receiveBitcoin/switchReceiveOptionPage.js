@@ -29,7 +29,7 @@ const MAIN_PAYMENTS = [
   ['Bitcoin', '~ 10 minutes'],
   ['Spark', 'Instant'],
   ['Liquid', '~ 1 minute'],
-  // ['Rootstock', '~ 1 minute'],
+  ['Rootstock', '~ 1 minute'],
 ];
 
 export default function SwitchReceiveOptionPage({
@@ -309,32 +309,26 @@ export default function SwitchReceiveOptionPage({
       });
       return;
     } else if (selectedOption === 'Liquid') {
-      t('wallet.receivePages.switchReceiveOptionPage.liquidWarningText', {
-        amount: displayCorrectDenomination({
-          amount: minMaxLiquidSwapAmounts.min,
-          masterInfoObject,
-          fiatStats,
-        }),
-        warning:
-          currentWalletMnemoinc !== accountMnemoinc
-            ? 'Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.'
-            : '',
-      });
       navigate.navigate('InformationPopup', {
-        textContent: t(
-          'wallet.receivePages.switchReceiveOptionPage.liquidWarningText',
-          {
+        textContent:
+          t('wallet.receivePages.switchReceiveOptionPage.swapWarning', {
             amount: displayCorrectDenomination({
               amount: minMaxLiquidSwapAmounts.min,
               masterInfoObject,
               fiatStats,
             }),
-            warning:
-              currentWalletMnemoinc !== accountMnemoinc
-                ? 'Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.'
-                : '',
-          },
-        ),
+            swapType: 'Liquid',
+          }) +
+          `${currentWalletMnemoinc !== accountMnemoinc ? '\n\n' : ''}${
+            currentWalletMnemoinc !== accountMnemoinc
+              ? t(
+                  'wallet.receivePages.switchReceiveOptionPage.notUsingMainAccountWarning',
+                  {
+                    swapType: 'Liquid',
+                  },
+                )
+              : ''
+          }`,
         buttonText: t('constants.understandText'),
         customNavigation: () =>
           navigate.popTo('CustomHalfModal', {
@@ -346,16 +340,25 @@ export default function SwitchReceiveOptionPage({
       return;
     } else if (selectedOption === 'Rootstock') {
       navigate.navigate('InformationPopup', {
-        textContent: t(
-          'wallet.receivePages.switchReceiveOptionPage.rootstockWarningText',
-          {
+        textContent:
+          t('wallet.receivePages.switchReceiveOptionPage.swapWarning', {
             amount: displayCorrectDenomination({
               amount: minMaxLiquidSwapAmounts.rsk.min,
               masterInfoObject,
               fiatStats,
             }),
-          },
-        ),
+            swapType: 'Rootstock',
+          }) +
+          `${currentWalletMnemoinc !== accountMnemoinc ? '\n\n' : ''}${
+            currentWalletMnemoinc !== accountMnemoinc
+              ? t(
+                  'wallet.receivePages.switchReceiveOptionPage.notUsingMainAccountWarning',
+                  {
+                    swapType: 'Rootstock',
+                  },
+                )
+              : ''
+          }`,
         buttonText: t('constants.understandText'),
         customNavigation: () =>
           navigate.popTo('CustomHalfModal', {

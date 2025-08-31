@@ -15,7 +15,6 @@ import {
   // RestoreChannel,
   SeedPhrasePage,
   // SendOnChainBitcoin,
-  ViewAllLiquidSwaps,
   // WalletInformation,
   CrashReportingSettingsPage,
   CreateCustodyAccounts,
@@ -23,6 +22,7 @@ import {
   // SupportWorkPage,
   NotificationPreferances,
   BlitzFeeInformation,
+  ViewSwapsHome,
 } from '../../components/admin/homeComponents/settingsContent';
 import {useNavigation} from '@react-navigation/native';
 import {GlobalThemeView} from '../../functions/CustomElements';
@@ -79,7 +79,8 @@ export default function SettingsContentIndex(props) {
       selectedPage?.toLowerCase() === 'edit contact profile' ||
       // selectedPage?.toLowerCase() === 'channel closure' ||
       selectedPage?.toLowerCase() === 'accounts' ||
-      selectedPage?.toLowerCase() === 'support our work' ? (
+      selectedPage?.toLowerCase() === 'support our work' ||
+      selectedPage?.toLowerCase() === 'viewallswaps' ? (
         <>
           {selectedPage?.toLowerCase() === 'display currency' && (
             <FiatCurrencyPage theme={theme} />
@@ -104,6 +105,9 @@ export default function SettingsContentIndex(props) {
           )} */}
           {selectedPage?.toLowerCase() === 'accounts' && (
             <CreateCustodyAccounts />
+          )}
+          {selectedPage?.toLowerCase() === 'viewallswaps' && (
+            <ViewSwapsHome theme={theme} />
           )}
         </>
       ) : (
@@ -152,9 +156,7 @@ export default function SettingsContentIndex(props) {
             {/* {selectedPage?.toLowerCase() === 'balance info' && (
               <WalletInformation theme={theme} />
             )} */}
-            {selectedPage?.toLowerCase() === 'liquid swaps' && (
-              <ViewAllLiquidSwaps theme={theme} />
-            )}
+
             {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
             {selectedPage?.toLowerCase() === 'blitz fee details' && (
               <BlitzFeeInformation />

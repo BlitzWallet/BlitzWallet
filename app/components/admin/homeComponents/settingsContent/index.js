@@ -15,7 +15,7 @@ import SendOnChainBitcoin from './sendOnChain';
 import BlitzSocialOptions from './socialOptions';
 
 // import LiquidWallet from './bank';
-import ViewAllLiquidSwaps from './viewAllLiquidSwaps';
+
 // import WalletInformation from './walletInformation';
 import ExperimentalItemsPage from './ExperimentalItems';
 import PosSettingsPage from './posPath/settings';
@@ -30,6 +30,7 @@ import SparkInfo from './sparkInfo';
 import NotificationPreferances from './notifications';
 import BlitzFeeInformation from './feeInformation';
 import CreateCustodyAccounts from './accounts';
+import ViewSwapsHome from './viewAllSwapsHome';
 
 export {
   AboutPage,
@@ -46,7 +47,7 @@ export {
   LoginSecurity,
   SendOnChainBitcoin,
   BlitzSocialOptions,
-  ViewAllLiquidSwaps,
+  ViewSwapsHome,
   // LiquidWallet,
   ExperimentalItemsPage,
   PosSettingsPage,
