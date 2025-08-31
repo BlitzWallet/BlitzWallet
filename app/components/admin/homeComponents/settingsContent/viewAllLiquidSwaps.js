@@ -1,212 +1,233 @@
-import {useEffect, useState} from 'react';
-import {StyleSheet, View, ScrollView} from 'react-native';
-import {CENTER, SIZES} from '../../../../constants';
-import {ThemeText} from '../../../../functions/CustomElements';
-import {useNavigation} from '@react-navigation/native';
-import {getInfo} from '@breeztech/react-native-breez-sdk-liquid';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import CustomButton from '../../../../functions/CustomElements/button';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {useAppStatus} from '../../../../../context-store/appStatus';
-import {useGlobalContacts} from '../../../../../context-store/globalContacts';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
-import liquidToSparkSwap from '../../../../functions/spark/liquidToSparkSwap';
+import {useState} from 'react';
+import {StyleSheet, View, TouchableOpacity} from 'react-native';
+import {ICONS, SIZES} from '../../../../constants';
+import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
+import {COLORS, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {useTranslation} from 'react-i18next';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import LiquidSwapsPage from './swapsComponents/liquidSwapsPage';
+import RoostockSwapsPage from './swapsComponents/rootstockSwaps';
+import GetThemeColors from '../../../../hooks/themeColors';
+import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import {useGlobalThemeContext} from '../../../../../context-store/theme';
 
-export default function ViewAllLiquidSwaps(props) {
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const [isLoading, setIsLoading] = useState(false);
-  const {globalContactsInformation} = useGlobalContacts();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {fiatStats} = useNodeContext();
-  const [liquidInfoResponse, setLiquidInfoResponse] = useState({});
-
-  const liquidBalance =
-    liquidInfoResponse?.walletInfo?.balanceSat !== undefined
-      ? liquidInfoResponse?.walletInfo?.balanceSat -
-        (liquidInfoResponse?.walletInfo?.pendingSendSat || 0)
-      : null;
-
-  const navigate = useNavigation();
+export default function ViewSwapsHome() {
+  const [selectedPage, setSelectedPage] = useState(null);
   const {t} = useTranslation();
+  const {theme, darkModeType} = useGlobalThemeContext();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
 
-  const retriveLiquidBalance = async isRescan => {
-    try {
-      setIsLoading(true);
-      const infoResponse = await getInfo();
+  if (!selectedPage) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar label={t('settings.viewSwapsHome.swaps')} />
 
-      setLiquidInfoResponse(infoResponse);
-      if (isRescan) {
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('settings.viewAllLiquidSwaps.rescanComplete'),
-        });
-      }
-    } catch (err) {
-      console.log(err);
-      navigate.navigate('ErrorScreen', {errorMessage: err.message});
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const swapLiquidToLightning = async () => {
-    try {
-      if (liquidBalance > minMaxLiquidSwapAmounts.min) {
-        setIsLoading(true);
-
-        const paymentResponse = await liquidToSparkSwap(
-          globalContactsInformation.myProfile.uniqueName,
-        );
-
-        if (!paymentResponse.didWork) throw new Error(t(paymentResponse.error));
-
-        navigate.navigate('ErrorScreen', {
-          errorMessage: t('settings.viewAllLiquidSwaps.swapStartedMessage'),
-        });
-        retriveLiquidBalance(false);
-      } else
-        throw new Error(
-          t('settings.viewAllLiquidSwaps.balanceError', {
-            balance: displayCorrectDenomination({
-              amount: liquidBalance,
-              masterInfoObject,
-              fiatStats,
-            }),
-            swapAmount: displayCorrectDenomination({
-              amount: minMaxLiquidSwapAmounts.min,
-              masterInfoObject,
-              fiatStats,
-            }),
-          }),
-        );
-    } catch (err) {
-      console.log(err);
-      navigate.navigate('ErrorScreen', {errorMessage: err.message});
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    retriveLiquidBalance(false);
-  }, []);
-
-  return (
-    <View style={styles.globalContainer}>
-      {liquidBalance === null ? (
-        <FullLoadingScreen
-          text={t('settings.viewAllLiquidSwaps.loadingMessage')}
-        />
-      ) : liquidBalance <= 0 ? (
-        <>
-          <ThemeText
-            styles={styles.balanceText}
-            content={t('settings.viewAllLiquidSwaps.breakdownHead')}
-          />
-          <ThemeText
-            styles={styles.balanceText}
-            content={t('settings.viewAllLiquidSwaps.incoming', {
-              amount: displayCorrectDenomination({
-                amount: liquidInfoResponse?.walletInfo?.pendingReceiveSat || 0,
-                masterInfoObject,
-                fiatStats,
-              }),
-            })}
-          />
-          <ThemeText
-            styles={styles.balanceText}
-            content={t('settings.viewAllLiquidSwaps.outgoing', {
-              amount: displayCorrectDenomination({
-                amount: liquidInfoResponse?.walletInfo?.pendingSendSat || 0,
-                masterInfoObject,
-                fiatStats,
-              }),
-            })}
-          />
-          <ThemeText
-            styles={{...styles.balanceText, marginBottom: 30}}
-            content={t('settings.viewAllLiquidSwaps.balance', {
-              amount: displayCorrectDenomination({
-                amount: liquidInfoResponse?.walletInfo?.balanceSat || 0,
-                masterInfoObject,
-                fiatStats,
-              }),
-            })}
-          />
-          <CustomButton
-            actionFunction={() => retriveLiquidBalance(true)}
-            textContent={t('settings.viewAllLiquidSwaps.rescan')}
-            useLoading={isLoading}
-          />
-        </>
-      ) : (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <ThemeText
-            styles={styles.amountText}
-            content={t('settings.viewAllLiquidSwaps.totalBalance')}
-          />
-          <FormattedSatText styles={styles.valueText} balance={liquidBalance} />
-
-          <View
-            style={{
-              marginTop: 40,
-              width: INSET_WINDOW_WIDTH,
-              ...CENTER,
-            }}>
+        <View style={styles.container1}>
+          <View style={styles.headerContainer1}>
             <ThemeText
-              styles={{textAlign: 'center'}}
-              content={t('settings.viewAllLiquidSwaps.swapMessage')}
-            />
-            <CustomButton
-              buttonStyles={{marginTop: 40, ...CENTER}}
-              actionFunction={swapLiquidToLightning}
-              textContent={t('settings.viewAllLiquidSwaps.swap')}
-              useLoading={isLoading}
+              content={t('settings.viewSwapsHome.selectionTitle')}
+              styles={styles.headerText1}
             />
           </View>
-        </ScrollView>
-      )}
-    </View>
+
+          <View style={styles.optionsContainer1}>
+            {/* Liquid Option */}
+            <TouchableOpacity
+              onPress={() => setSelectedPage('liquid')}
+              style={[
+                styles.optionCard1,
+                {
+                  borderColor: backgroundOffset,
+                  backgroundColor: theme
+                    ? backgroundOffset
+                    : COLORS.darkModeText,
+                },
+              ]}
+              activeOpacity={0.7}>
+              <View
+                style={[
+                  styles.gradientCircle,
+                  {
+                    backgroundColor:
+                      theme && darkModeType ? backgroundColor : '#4285F4',
+                  },
+                ]}>
+                <View style={styles.iconPlaceholder1}>
+                  <ThemeText
+                    content={t('settings.viewSwapsHome.liquid')[0]}
+                    styles={styles.iconText1}
+                  />
+                </View>
+              </View>
+              <View style={styles.cardContent1}>
+                <ThemeText
+                  content={t('settings.viewSwapsHome.liquid')}
+                  styles={styles.optionTitle1}
+                />
+              </View>
+              <View style={styles.arrow1}>
+                <ThemeImage
+                  styles={{transform: [{rotate: '180deg'}]}}
+                  lightModeIcon={ICONS.leftCheveronIcon}
+                  darkModeIcon={ICONS.leftCheveronIcon}
+                  lightsOutIcon={ICONS.leftCheveronLight}
+                />
+              </View>
+            </TouchableOpacity>
+
+            {/* Rootstock Option */}
+            <TouchableOpacity
+              onPress={() => setSelectedPage('rootstock')}
+              style={[
+                styles.optionCard1,
+                {
+                  borderColor: backgroundOffset,
+                  backgroundColor: theme
+                    ? backgroundOffset
+                    : COLORS.darkModeText,
+                },
+              ]}
+              activeOpacity={0.7}>
+              <View
+                style={[
+                  styles.gradientCircle,
+                  {
+                    backgroundColor:
+                      theme && darkModeType ? backgroundColor : '#FF6B35',
+                  },
+                ]}>
+                <View style={styles.iconPlaceholder1}>
+                  <ThemeText
+                    content={t('settings.viewSwapsHome.rootstock')[0]}
+                    styles={styles.iconText1}
+                  />
+                </View>
+              </View>
+              <View style={styles.cardContent1}>
+                <ThemeText
+                  content={t('settings.viewSwapsHome.rootstock')}
+                  styles={styles.optionTitle1}
+                />
+              </View>
+              <View style={styles.arrow1}>
+                <ThemeImage
+                  styles={{transform: [{rotate: '180deg'}]}}
+                  lightModeIcon={ICONS.leftCheveronIcon}
+                  darkModeIcon={ICONS.leftCheveronIcon}
+                  lightsOutIcon={ICONS.leftCheveronLight}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </GlobalThemeView>
+    );
+  }
+
+  return (
+    <GlobalThemeView useStandardWidth={true}>
+      <CustomSettingsTopBar
+        label={t('settings.viewSwapsHome.pageTitle', {
+          type:
+            selectedPage === 'liquid'
+              ? t('settings.viewSwapsHome.liquid')
+              : t('settings.viewSwapsHome.rootstock'),
+        })}
+        customBackFunction={() => setSelectedPage(null)}
+      />
+      {selectedPage === 'liquid' ? <LiquidSwapsPage /> : <RoostockSwapsPage />}
+    </GlobalThemeView>
   );
 }
+
 const styles = StyleSheet.create({
-  globalContainer: {
+  // Style Toggle
+  styleToggle: {
+    alignSelf: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: COLORS.primary,
+    borderRadius: 20,
+    marginVertical: 10,
+  },
+  toggleText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+
+  container1: {
     flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: SIZES.medium,
+  },
+  headerContainer1: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  headerText1: {
+    fontSize: SIZES.large,
+    letterSpacing: -0.5,
+    textAlign: 'center',
+  },
+  optionsContainer1: {
+    gap: SIZES.medium,
+  },
+  optionCard1: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SIZES.large,
+    paddingHorizontal: SIZES.medium,
+
+    borderRadius: 16,
+    borderWidth: 2,
+  },
+  gradientCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: SIZES.medium,
+  },
+  liquidGradient: {
+    backgroundColor: '#4285F4',
+  },
+  rootstockGradient: {
+    backgroundColor: '#FF6B35',
+  },
+  iconPlaceholder1: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  amountText: {
-    textTransform: 'uppercase',
-    marginBottom: 0,
-    textAlign: 'center',
-    marginTop: 20,
+  iconText1: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '700',
   },
-  valueText: {
-    fontSize: SIZES.xxLarge,
-    includeFontPadding: false,
+  cardContent1: {
+    flex: 1,
   },
-
-  balanceText: {
-    width: '95%',
-    maxWidth: 250,
-    textAlign: 'center',
-    marginBottom: 10,
+  optionTitle1: {
+    fontSize: SIZES.large,
   },
-
-  swapContainer: {
-    borderRadius: 8,
-    flexDirection: 'row',
+  arrow1: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.gray4,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 10,
+    justifyContent: 'center',
   },
-
-  buttonContainer: {
-    paddingVertical: 8,
-    paddingHorizontal: 17,
-    borderRadius: 9,
+  arrowText1: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
