@@ -18,6 +18,7 @@ import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {keyboardGoBack} from '../../../../../functions/customNavigation';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import Icon from '../../../../../functions/CustomElements/Icon';
+import {useTranslation} from 'react-i18next';
 
 export default function CountryList(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -30,6 +31,7 @@ export default function CountryList(props) {
   const [showList, setShowList] = useState(false);
   const ISOCode = decodedGiftCards?.profile?.isoCode;
   const onlyReturn = props?.route?.params?.onlyReturn;
+  const {t} = useTranslation();
 
   useFocusEffect(
     useCallback(() => {
@@ -160,7 +162,7 @@ export default function CountryList(props) {
       <CustomSearchInput
         inputText={searchInput}
         setInputText={setSearchInput}
-        placeholderText={'Search'}
+        placeholderText={t('apps.chatGPT.countrySearch.inputPlaceholder')}
         containerStyles={styles.searchInput}
       />
       {showList && (

@@ -327,6 +327,9 @@
         "powerPlanTitle": "Plan avanzado",
         "paymentMemo": "Tienda - chatGPT"
       },
+      "countrySearch": {
+        "inputPlaceholder": "Buscar un país"
+      },
       "chatGPTHome": {
         "availableCredits": "Créditos disponibles: {{credits}}",
         "noAvailableCreditsError": "Te has quedado sin créditos.",
@@ -531,6 +534,7 @@
         "price": "Precio: ",
         "fee": "Tarifa: "
       },
+
       "createAccount": {
         "title": "Con tecnología de",
         "saveEmail": "No tienes un correo electrónico guardado. Acelera el proceso de pago guardando un correo.",

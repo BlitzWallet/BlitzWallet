@@ -215,7 +215,10 @@ export default function SwitchReceiveOptionPage({
                     })
                   : name === 'Spark'
                   ? t('constants.instant')
-                  : 'Rootstock'
+                  : t(
+                      'wallet.receivePages.switchReceiveOptionPage.tenMinutes',
+                      {numMins: 3},
+                    )
               }
             />
           </View>

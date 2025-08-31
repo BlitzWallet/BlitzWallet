@@ -333,6 +333,9 @@
         "powerPlanTitle": "Piano Power",
         "paymentMemo": "Negozio - chatGPT"
       },
+      "countrySearch": {
+        "inputPlaceholder": "Cerca un paese"
+      },
       "chatGPTHome": {
         "availableCredits": "Crediti disponibili: {{credits}}",
         "noAvailableCreditsError": "Hai esaurito i crediti.",

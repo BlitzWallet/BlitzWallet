@@ -333,6 +333,9 @@
         "powerPlanTitle": "Power Plan",
         "paymentMemo": "Store - chatGPT"
       },
+      "countrySearch": {
+        "inputPlaceholder": "Search for a country"
+      },
       "chatGPTHome": {
         "availableCredits": "Available credits: {{credits}}",
         "noAvailableCreditsError": "You have run out of credits.",

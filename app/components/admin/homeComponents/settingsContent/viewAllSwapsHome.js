@@ -97,12 +97,11 @@ export default function ViewSwapsHome() {
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
-        label={t('settings.viewSwapsHome.pageTitle', {
-          type:
-            selectedPage === 'liquid'
-              ? t('settings.viewSwapsHome.liquid')
-              : t('settings.viewSwapsHome.rootstock'),
-        })}
+        label={
+          selectedPage === 'liquid'
+            ? t('settings.viewSwapsHome.liquid')
+            : t('settings.viewSwapsHome.rootstock')
+        }
         customBackFunction={() => setSelectedPage(null)}
       />
       {selectedPage === 'liquid' ? <LiquidSwapsPage /> : <RoostockSwapsPage />}

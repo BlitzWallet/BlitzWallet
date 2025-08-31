@@ -59,6 +59,7 @@ export default function RoostockSwapsPage() {
   if (swapList === null) {
     return (
       <FullLoadingScreen
+        textStyles={styles.textStyles}
         text={t('settings.viewRoostockSwaps.loadingMessage')}
       />
     );
@@ -67,6 +68,7 @@ export default function RoostockSwapsPage() {
     return (
       <FullLoadingScreen
         showLoadingIcon={false}
+        textStyles={styles.textStyles}
         text={t('settings.viewRoostockSwaps.noSwapsMessage')}
       />
     );
@@ -96,5 +98,8 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
+  },
+  textStyles: {
+    textAlign: 'center',
   },
 });

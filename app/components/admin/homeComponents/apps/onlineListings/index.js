@@ -272,7 +272,9 @@ export default function ViewOnlineListings({removeUserLocal}) {
                 <View style={[styles.categoryContainer, {backgroundColor}]}>
                   <ThemeText
                     styles={styles.categoryText}
-                    content={item.category}
+                    content={t(
+                      `apps.onlineListings.${item.category.toLowerCase()}`,
+                    )}
                   />
                 </View>
                 <ThemeText content={item.description} styles={styles.desc} />
