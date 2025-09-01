@@ -247,7 +247,7 @@ export async function fullRestoreSparkState({
     );
 
     if (allPaymentObjects.length) {
-      // bulkUpdateSparkTransactions(allPaymentObjects, 'fullUpdate');
+      bulkUpdateSparkTransactions(allPaymentObjects, 'fullUpdate');
     }
 
     return allPaymentObjects.length;
