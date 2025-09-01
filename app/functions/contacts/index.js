@@ -1,4 +1,5 @@
 import {uniqueNamesGenerator, animals, names} from 'unique-names-generator';
+import i18next from 'i18next';
 
 export function generateRandomContact() {
   const randomName = uniqueNamesGenerator({
@@ -47,4 +48,50 @@ export async function getBolt11InvoiceForContact(
     console.log('get ln address for liquid payment error', err);
     return false;
   }
+}
+
+export function getTimeDisplay(
+  timeDifferenceMinutes,
+  timeDifferenceHours,
+  timeDifferenceDays,
+  timeDifferenceYears,
+) {
+  const timeValue =
+    timeDifferenceMinutes <= 60
+      ? timeDifferenceMinutes < 1
+        ? ''
+        : Math.round(timeDifferenceMinutes)
+      : timeDifferenceHours <= 24
+      ? Math.round(timeDifferenceHours)
+      : timeDifferenceDays <= 365
+      ? Math.round(timeDifferenceDays)
+      : Math.round(timeDifferenceYears);
+
+  const timeUnit =
+    timeDifferenceMinutes <= 60
+      ? timeDifferenceMinutes < 1
+        ? i18next.t('transactionLabelText.txTime_just_now')
+        : Math.round(timeDifferenceMinutes) === 1
+        ? i18next.t('timeLabels.minute')
+        : i18next.t('timeLabels.minutes')
+      : timeDifferenceHours <= 24
+      ? Math.round(timeDifferenceHours) === 1
+        ? i18next.t('timeLabels.hour')
+        : i18next.t('timeLabels.hours')
+      : timeDifferenceDays <= 365
+      ? Math.round(timeDifferenceDays) === 1
+        ? i18next.t('timeLabels.day')
+        : i18next.t('timeLabels.days')
+      : Math.round(timeDifferenceYears) === 1
+      ? i18next.t('timeLabels.year')
+      : i18next.t('timeLabels.years');
+
+  const suffix =
+    timeDifferenceMinutes > 1
+      ? ` ${i18next.t('transactionLabelText.ago')}`
+      : '';
+
+  return `${timeValue}${
+    timeUnit === i18next.t('transactionLabelText.txTime_just_now') ? '' : ' '
+  }${timeUnit}${suffix}`;
 }
