@@ -30,6 +30,7 @@ import {
   ExpandedAddContactsPage,
   ExpandedContactsPage,
   MyContactProfilePage,
+  SelectGiftCardForContacts,
   SendAndRequestPage,
 } from '../app/components/admin/homeComponents/contacts';
 import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightning/sparkErrorScreen';
@@ -148,6 +149,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'NWCWalletSetup', component: NWCWalletSetup},
   {name: 'SparkSettingsPage', component: SparkSettingsPage},
   {name: 'Nip5VerificationPage', component: Nip5VerificationPage},
+  {name: 'SelectGiftCardForContacts', component: SelectGiftCardForContacts},
 ];
 
 const FADE_SCREENS = [
