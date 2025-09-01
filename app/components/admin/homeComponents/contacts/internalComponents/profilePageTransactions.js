@@ -333,6 +333,7 @@ const styles = StyleSheet.create({
   requestText: {
     flex: 1,
     marginRight: 5,
+    includeFontPadding: false,
   },
   icons: {
     width: 30,
@@ -352,7 +353,6 @@ const styles = StyleSheet.create({
   amountText: {
     marginLeft: 'auto',
     fontFamily: FONT.Title_Regular,
-    marginBottom: 'auto',
     fontWeight: 400,
   },
 
