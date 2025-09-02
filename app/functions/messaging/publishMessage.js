@@ -106,7 +106,7 @@ export async function sendPushNotification({
         decryptPubKey: retrivedContact.uuid,
       };
     } else if (data.giftCardInfo) {
-      message = `${myProfile.name || myProfile.uniqueName} sent you a ${
+      const message = `${myProfile.name || myProfile.uniqueName} sent you a ${
         data.giftCardInfo.name
       } Gift Card.`;
       requestData = {
