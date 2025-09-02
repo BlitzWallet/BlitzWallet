@@ -63,14 +63,17 @@ export default function SelectGiftCardForContacts() {
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const filteredGiftCards = useMemo(
     () =>
-      giftCardsList.filter(
-        giftCard =>
-          giftCard.countries.includes(userLocal || 'US') &&
-          giftCard.paymentTypes.includes('Lightning') &&
-          giftCard.denominations.length !== 0 &&
-          //   giftCard.denominationType === 'Variable' &&
-          giftCard.stock,
-      ),
+      giftCardsList
+        .filter(
+          giftCard =>
+            giftCard.countries.includes(userLocal || 'US') &&
+            giftCard.paymentTypes.includes('Lightning') &&
+            giftCard.denominations.length !== 0 &&
+            giftCard.cardType !== 'Donation' &&
+            //   giftCard.denominationType === 'Variable' &&
+            giftCard.stock,
+        )
+        .sort((a, b) => a.name.localeCompare(b.name)),
     [userLocal, giftCardsList],
   );
 
@@ -109,6 +112,7 @@ export default function SelectGiftCardForContacts() {
                       satsPerDollar,
                       isVariable: item.denominationType === 'Variable',
                       fiatStats: fiatPrice,
+                      name: item.name,
                     },
                   },
                   {merge: true},
