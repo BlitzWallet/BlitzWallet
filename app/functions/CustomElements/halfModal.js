@@ -45,6 +45,9 @@ import LRC20AssetSelectorHalfModal from '../lrc20/lrc20HalfModal';
 import LRC20TokenInformation from '../lrc20/lrc20TokenDataHalfModal';
 import SelectAltAccountHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/SelectAltAccountHalfModal';
 import ConfirmSMSReceiveCode from '../../components/admin/homeComponents/apps/sms4sats/receiveCodeConfirmation';
+import EditGiftHalfModal from '../../components/admin/homeComponents/contacts/internalComponents/editGiftHalfModal';
+import ViewGiftCardCodePage from '../../components/admin/homeComponents/contacts/viewGiftCardCode';
+import ViewAllGiftCards from '../../components/admin/homeComponents/contacts/viewAllGiftCards';
 
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -295,6 +298,32 @@ export default function CustomHalfModal(props) {
             selectedFrom={props?.route?.params?.selectedFrom}
             selectedTo={props?.route?.params?.selectedTo}
             transferType={props?.route?.params?.transferType}
+          />
+        );
+      case 'giftCardSendAndReceiveOption':
+        return (
+          <EditGiftHalfModal
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+          />
+        );
+      case 'viewContactsGiftInfo':
+        return (
+          <ViewGiftCardCodePage
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
+            giftCardInfo={props?.route?.params?.giftCardInfo}
+            from={props?.route?.params?.from}
+          />
+        );
+      case 'ViewAllGiftCards':
+        return (
+          <ViewAllGiftCards
+            theme={theme}
+            darkModeType={darkModeType}
+            slideHeight={slideHeight}
           />
         );
 

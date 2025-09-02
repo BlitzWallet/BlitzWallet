@@ -15,17 +15,20 @@ export default function GiftCardTxItem({
   timeDifference,
   isFromProfile,
   navigate,
+  masterInfoObject,
 }) {
   const giftCardName = txParsed.giftCardInfo?.name;
 
   return (
     <TouchableOpacity
-      disabled={isFromProfile}
+      disabled={isFromProfile || isOutgoingPayment}
       onPress={() => {
+        if (isOutgoingPayment) return;
         if (!navigate) return;
         navigate.navigate('CustomHalfModal', {
           wantedContent: 'viewContactsGiftInfo',
           giftCardInfo: txParsed.giftCardInfo,
+          from: 'txItem',
           sliderHight: 1,
         });
       }}
@@ -64,15 +67,25 @@ export default function GiftCardTxItem({
           styles={styles.descriptionText}
           content={
             isOutgoingPayment
-              ? `${t('transactionLabelText.sent')} • Gift Card`
-              : `${t('transactionLabelText.received')} • Gift Card`
+              ? `${t('transactionLabelText.sent')} • ${t(
+                  'contacts.internalComponents.viewAllGiftCards.cardNamePlaceH',
+                )}`
+              : `${t('transactionLabelText.received')} • ${t(
+                  'contacts.internalComponents.viewAllGiftCards.cardNamePlaceH',
+                )}`
           }
         />
         <ThemeText styles={styles.dateText} content={timeDifference} />
       </View>
 
       <FormattedSatText
-        frontText={isOutgoingPayment ? '-' : '+'}
+        frontText={
+          masterInfoObject.userBalanceDenomination === 'hidden'
+            ? ''
+            : isOutgoingPayment
+            ? '-'
+            : '+'
+        }
         containerStyles={{
           marginBottom: 'auto',
         }}

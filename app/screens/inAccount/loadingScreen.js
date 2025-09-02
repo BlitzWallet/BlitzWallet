@@ -28,6 +28,7 @@ import {useLiquidEvent} from '../../../context-store/liquidEventContext';
 import {initRootstockSwapDB} from '../../functions/boltz/rootstock/swapDb';
 import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
 import loadNewFiatData from '../../functions/saveAndUpdateFiatData';
+import {initializeGiftCardDatabase} from '../../functions/contacts/giftCardStorage';
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
 export default function ConnectingToNodeLoadingScreen({
@@ -90,13 +91,13 @@ export default function ConnectingToNodeLoadingScreen({
         connectToSparkWallet();
         const [
           didOpen,
-          // ecashTablesOpened,
+          giftCardTable,
           posTransactions,
           sparkTxs,
           rootstockSwaps,
         ] = await Promise.all([
           initializeDatabase(),
-          // initEcashDBTables(),
+          initializeGiftCardDatabase(),
           initializePOSTransactionsDatabase(),
           initializeSparkDatabase(),
           initRootstockSwapDB(),
@@ -105,7 +106,7 @@ export default function ConnectingToNodeLoadingScreen({
 
         if (
           !didOpen ||
-          // !ecashTablesOpened ||
+          !giftCardTable ||
           !posTransactions ||
           !sparkTxs ||
           !rootstockSwaps

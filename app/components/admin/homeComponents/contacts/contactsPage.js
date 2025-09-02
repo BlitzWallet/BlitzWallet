@@ -272,6 +272,27 @@ export default function ContactsPage({navigation}) {
       useStandardWidth={true}>
       {didEditProfile && (
         <View style={memoizedStyles.topBar}>
+          <TouchableOpacity
+            onPress={() =>
+              navigate.navigate('CustomHalfModal', {
+                wantedContent: 'ViewAllGiftCards',
+              })
+            }
+            style={[
+              memoizedStyles.giftContainer,
+              {backgroundColor: backgroundOffset},
+            ]}>
+            <ThemeText
+              styles={memoizedStyles.giftText}
+              content={t('wallet.contactsPage.giftsText')}
+            />
+            <Icon
+              color={
+                theme && darkModeType ? COLORS.darkModeText : COLORS.primary
+              }
+              name={'giftIcon'}
+            />
+          </TouchableOpacity>
           <TouchableOpacity onPress={goToAddContact}>
             <Icon
               name={'addContactsIcon'}
@@ -691,5 +712,19 @@ const memoizedStyles = StyleSheet.create({
     borderRadius: 30,
     marginRight: 10,
     overflow: 'hidden',
+  },
+
+  giftContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 'auto',
+  },
+  giftText: {
+    marginRight: 5,
+    includeFontPadding: false,
   },
 });

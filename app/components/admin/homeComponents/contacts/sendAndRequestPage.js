@@ -1,10 +1,19 @@
-import {StyleSheet, ScrollView} from 'react-native';
-import {CENTER, SATSPERBITCOIN} from '../../../../constants';
+import {
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  View,
+  Image,
+} from 'react-native';
+import {CENTER, ICONS, SATSPERBITCOIN} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useCallback, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {publishMessage} from '../../../../functions/messaging/publishMessage';
-import {CustomKeyboardAvoidingView} from '../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
@@ -22,11 +31,19 @@ import getReceiveAddressForContactPayment from './internalComponents/getReceiveA
 import {useServerTimeOnly} from '../../../../../context-store/serverTime';
 import {useTranslation} from 'react-i18next';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import Icon from '../../../../functions/CustomElements/Icon';
+import GetThemeColors from '../../../../hooks/themeColors';
+import {COLORS, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import fetchBackend from '../../../../../db/handleBackend';
+import {getDataFromCollection} from '../../../../../db';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
   const {masterInfoObject} = useGlobalContextProvider();
-  const {contactsPrivateKey} = useKeysContext();
+  const {contactsPrivateKey, publicKey} = useKeysContext();
   const {isConnectedToTheInternet} = useAppStatus();
   const {fiatStats} = useNodeContext();
   const {minMaxLiquidSwapAmounts} = useAppStatus();
@@ -39,11 +56,14 @@ export default function SendAndRequestPage(props) {
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination,
   );
+  const {theme, darkModeType} = useGlobalThemeContext();
+  const {backgroundOffset, textColor} = GetThemeColors();
   const {t} = useTranslation();
   const descriptionRef = useRef(null);
   const selectedContact = props.route.params.selectedContact;
   const paymentType = props.route.params.paymentType;
   const fromPage = props.route.params.fromPage;
+  const giftOption = props.route.params.cardInfo;
   const isBTCdenominated =
     inputDenomination == 'hidden' || inputDenomination == 'sats';
 
@@ -55,19 +75,67 @@ export default function SendAndRequestPage(props) {
     [amountValue, fiatStats, isBTCdenominated],
   );
 
+  const convertGiftCardAmount = useCallback(
+    dollarAmount => {
+      console.log(dollarAmount, giftOption);
+      const satValue = dollarAmount * giftOption.satsPerDollar;
+      return satValue;
+    },
+    [inputDenomination, giftOption, fiatStats],
+  );
+
+  const isWithinGiftLimits = useMemo(() => {
+    return (
+      !!giftOption &&
+      ((convertedSendAmount >=
+        Math.floor(giftOption.denominations[0] * giftOption.satsPerDollar) &&
+        convertedSendAmount <=
+          Math.floor(giftOption.denominations[1] * giftOption.satsPerDollar)) ||
+        !giftOption.isVariable)
+    );
+  }, [giftOption, convertedSendAmount]);
+
   const canSendPayment = useMemo(
-    () => convertedSendAmount,
-    // paymentType === 'request'
-    //   ? convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
-    //     convertedSendAmount
-    //   : convertedSendAmount,
-    [convertedSendAmount, minMaxLiquidSwapAmounts, paymentType],
+    () =>
+      (convertedSendAmount && !giftOption) ||
+      (giftOption && isWithinGiftLimits),
+    [
+      convertedSendAmount,
+      minMaxLiquidSwapAmounts,
+      paymentType,
+      giftOption,
+      isWithinGiftLimits,
+    ],
   );
   useHandleBackPressNew();
 
-  const handleSearch = useCallback(term => {
-    setAmountValue(term);
-  }, []);
+  useEffect(() => {
+    if (!giftOption) {
+      setAmountValue('');
+      return;
+    }
+    if (!giftOption.isVariable) {
+      setAmountValue(
+        String(
+          isBTCdenominated
+            ? Math.round(giftOption.denominations[0] * giftOption.satsPerDollar)
+            : giftOption.denominations[0],
+        ),
+      );
+    } else {
+      setAmountValue('');
+    }
+  }, [giftOption]);
+
+  const handleSearch = useCallback(
+    term => {
+      if (giftOption && !giftOption.isVariable) {
+        return;
+      }
+      setAmountValue(term);
+    },
+    [giftOption],
+  );
 
   const handleSubmit = useCallback(async () => {
     if (!isConnectedToTheInternet) {
@@ -81,6 +149,7 @@ export default function SendAndRequestPage(props) {
       if (!canSendPayment) return;
       crashlyticsLogReport('Submitting send and request payment');
       setIsLoading(true);
+
       const sendingAmountMsat = convertedSendAmount * 1000;
       const address = selectedContact.receiveAddress;
 
@@ -99,6 +168,97 @@ export default function SendAndRequestPage(props) {
               globalContactsInformation.myProfile.name ||
               globalContactsInformation.myProfile.uniqueName,
           };
+
+      const currentTime = getServerTime();
+      const UUID = customUUID();
+      let sendObject = {};
+      if (giftOption) {
+        const retrivedContact = await getDataFromCollection(
+          'blitzWalletUsers',
+          selectedContact.uuid,
+        );
+        if (!retrivedContact) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: 'errormessages.fullDeeplinkError',
+          });
+          return;
+        }
+
+        if (!retrivedContact.enabledGiftCards) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t(
+              'contacts.sendAndRequestPage.giftCardappVersionError',
+            ),
+          });
+          return;
+        }
+
+        const postData = {
+          type: 'buyGiftCard',
+          productId: giftOption.id, //string
+          cardValue: Number(convertedSendAmount / giftOption.satsPerDollar), //number
+          quantity: Number(1), //number
+        };
+        const response = await fetchBackend(
+          'theBitcoinCompanyV3',
+          postData,
+          contactsPrivateKey,
+          publicKey,
+        );
+
+        if (response.result) {
+          const {amount, invoice, orderId, uuid} = response.result;
+
+          sendObject['amountMsat'] = amount;
+          sendObject['description'] = contactMessage;
+          sendObject['uuid'] = UUID;
+          sendObject['isRequest'] = false;
+          sendObject['isRedeemed'] = null;
+          sendObject['wasSeen'] = null;
+          sendObject['didSend'] = null;
+          sendObject['giftCardInfo'] = {
+            amount,
+            invoice,
+            orderId,
+            uuid,
+            logo: giftOption.logo,
+            name: giftOption.name,
+          };
+
+          navigate.navigate('ConfirmPaymentScreen', {
+            btcAdress: invoice,
+            comingFromAccept: true,
+            enteredPaymentInfo: {
+              amount: amount,
+              description:
+                descriptionValue ||
+                t('contacts.sendAndRequestPage.giftCardappVersionError', {
+                  name: selectedContact.name || selectedContact.uniqueName,
+                  giftCardName: giftOption.name,
+                }),
+            },
+            fromPage: 'contacts',
+            publishMessageFunc: () =>
+              publishMessage({
+                toPubKey: selectedContact.uuid,
+                fromPubKey: globalContactsInformation.myProfile.uuid,
+                data: sendObject,
+                globalContactsInformation,
+                selectedContact,
+                isLNURLPayment: false,
+                privateKey: contactsPrivateKey,
+                retrivedContact,
+                currentTime,
+              }),
+          });
+        } else {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t('contacts.sendAndRequestPage.cardDetailsError'),
+          });
+        }
+
+        return;
+      }
 
       let receiveAddress;
       let retrivedContact;
@@ -126,9 +286,6 @@ export default function SendAndRequestPage(props) {
         }
       }
 
-      const currentTime = getServerTime();
-      const UUID = customUUID();
-      let sendObject = {};
       if (paymentType === 'send') {
         sendObject['amountMsat'] = sendingAmountMsat;
         sendObject['description'] = contactMessage;
@@ -201,6 +358,7 @@ export default function SendAndRequestPage(props) {
     paymentType,
     globalContactsInformation,
     getServerTime,
+    giftOption,
   ]);
 
   return (
@@ -242,25 +400,163 @@ export default function SendAndRequestPage(props) {
             }
             balance={convertedSendAmount}
           />
-        </ScrollView>
-        <CustomSearchInput
-          onFocusFunction={() => {
-            setIsAmountFocused(false);
-          }}
-          onBlurFunction={() => {
-            setIsAmountFocused(true);
-          }}
-          textInputRef={descriptionRef}
-          placeholderText={t(
-            'contacts.sendAndRequestPage.descriptionPlaceholder',
+
+          {giftOption && (
+            <View
+              style={[
+                styles.giftAmountContainer,
+                {marginTop: giftOption.isVariable ? 20 : 10},
+              ]}>
+              {giftOption.isVariable && (
+                <>
+                  {isWithinGiftLimits || !convertedSendAmount ? (
+                    <ThemeText
+                      styles={styles.giftAmountText}
+                      content={t('contacts.sendAndRequestPage.giftCardRange', {
+                        amount: displayCorrectDenomination({
+                          amount: convertGiftCardAmount(
+                            giftOption.denominations[0],
+                          ),
+                          fiatStats,
+                          masterInfoObject: {
+                            userBalanceDenomination: inputDenomination,
+                            satDisplay: masterInfoObject.satDisplay,
+                          },
+                        }),
+                        amount2: displayCorrectDenomination({
+                          amount: convertGiftCardAmount(
+                            giftOption.denominations[1],
+                          ),
+                          fiatStats,
+                          masterInfoObject: {
+                            userBalanceDenomination: inputDenomination,
+                            satDisplay: masterInfoObject.satDisplay,
+                          },
+                        }),
+                      })}
+                    />
+                  ) : (
+                    <ThemeText
+                      styles={{
+                        ...styles.giftAmountText,
+                        color:
+                          theme && darkModeType ? textColor : COLORS.cancelRed,
+                      }}
+                      content={t(
+                        'contacts.sendAndRequestPage.giftCardAmountError',
+                        {
+                          amount: displayCorrectDenomination({
+                            amount: convertGiftCardAmount(
+                              giftOption.denominations[0],
+                            ),
+                            fiatStats,
+                            masterInfoObject: {
+                              userBalanceDenomination: inputDenomination,
+                              satDisplay: masterInfoObject.satDisplay,
+                            },
+                          }),
+                          amount2: displayCorrectDenomination({
+                            amount: convertGiftCardAmount(
+                              giftOption.denominations[1],
+                            ),
+                            fiatStats,
+                            masterInfoObject: {
+                              userBalanceDenomination: inputDenomination,
+                              satDisplay: masterInfoObject.satDisplay,
+                            },
+                          }),
+                        },
+                      )}
+                    />
+                  )}
+                </>
+              )}
+              <TouchableOpacity
+                onPress={() =>
+                  navigate.navigate('CustomHalfModal', {
+                    wantedContent: 'giftCardSendAndReceiveOption',
+                  })
+                }
+                style={{
+                  flexDirection: 'row',
+                  ...CENTER,
+                  paddingHorizontal: 35,
+                  marginTop: giftOption.isVariable ? 10 : 0,
+                }}>
+                <View
+                  style={{
+                    height: 80,
+                    width: 80,
+                    alignSelf: 'center',
+                  }}>
+                  <Image
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      aspectRatio: 1,
+                      borderRadius: 16,
+                    }}
+                    source={{uri: giftOption.logo}}
+                  />
+                </View>
+                <View
+                  style={{
+                    backgroundColor: backgroundOffset,
+                    width: 30,
+                    height: 30,
+                    borderRadius: 20,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'absolute',
+                    right: 0,
+                  }}>
+                  <ThemeImage
+                    styles={{width: 20, height: 20}}
+                    lightModeIcon={ICONS.editIcon}
+                    darkModeIcon={ICONS.editIconLight}
+                    lightsOutIcon={ICONS.editIcon}
+                  />
+                </View>
+              </TouchableOpacity>
+            </View>
           )}
-          setInputText={setDescriptionValue}
-          inputText={descriptionValue}
-          textInputMultiline={true}
-          textAlignVertical={'center'}
-          maxLength={149}
-          containerStyles={styles.searchContianerStyles}
-        />
+        </ScrollView>
+        <View style={styles.inputAndGiftContainer}>
+          {paymentType === 'send' &&
+            !giftOption &&
+            !selectedContact?.isLNURL && (
+              <TouchableOpacity
+                onPress={() => navigate.navigate('SelectGiftCardForContacts')}
+                style={[
+                  styles.giftContainer,
+                  {backgroundColor: backgroundOffset},
+                ]}>
+                <ThemeText
+                  styles={styles.giftText}
+                  content={t('contacts.sendAndRequestPage.sendGiftText')}
+                />
+                <Icon color={textColor} name={'giftIcon'} />
+              </TouchableOpacity>
+            )}
+          <CustomSearchInput
+            onFocusFunction={() => {
+              setIsAmountFocused(false);
+            }}
+            onBlurFunction={() => {
+              setIsAmountFocused(true);
+            }}
+            textInputRef={descriptionRef}
+            placeholderText={t(
+              'contacts.sendAndRequestPage.descriptionPlaceholder',
+            )}
+            containerStyles={{marginTop: 5}}
+            setInputText={setDescriptionValue}
+            inputText={descriptionValue}
+            textInputMultiline={true}
+            textAlignVertical={'center'}
+            maxLength={149}
+          />
+        </View>
 
         {isAmountFocused && (
           <CustomNumberKeyboard
@@ -312,12 +608,34 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     overflow: 'hidden',
   },
-  searchContianerStyles: {
-    width: '90%',
+  inputAndGiftContainer: {
+    width: INSET_WINDOW_WIDTH,
+    alignSelf: 'center',
   },
+
   profileName: {
     ...CENTER,
     marginBottom: 20,
+  },
+  giftAmountContainer: {
+    width: INSET_WINDOW_WIDTH,
+  },
+  giftAmountText: {
+    textAlign: 'center',
+  },
+
+  giftContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    marginBottom: 10,
+  },
+  giftText: {
+    marginRight: 5,
+    includeFontPadding: false,
   },
 
   button: {

@@ -3,13 +3,14 @@ import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../../../constants';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useNavigation} from '@react-navigation/native';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
-import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import ContactProfileImage from './profileImage';
 import {useImageCache} from '../../../../../../context-store/imageCache';
 import {useTranslation} from 'react-i18next';
+import GiftCardTxItem from './giftCardTxItem';
+import {getTimeDisplay} from '../../../../../functions/contacts';
 
 export default function ProfilePageTransactions({transaction, currentTime}) {
   const profileInfo = transaction;
@@ -28,6 +29,7 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
   const timeDifferenceMinutes = timeDifferenceMs / (1000 * 60);
   const timeDifferenceHours = timeDifferenceMs / (1000 * 60 * 60);
   const timeDifferenceDays = timeDifferenceMs / (1000 * 60 * 60 * 24);
+  const timeDifferenceYears = timeDifferenceMs / (1000 * 60 * 60 * 24 * 365);
 
   const paymentDescription = transactionData.description || '';
 
@@ -50,6 +52,7 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
           timeDifferenceMinutes={timeDifferenceMinutes}
           timeDifferenceHours={timeDifferenceHours}
           timeDifferenceDays={timeDifferenceDays}
+          timeDifferenceYears={timeDifferenceYears}
           profileInfo={profileInfo}
           cache={cache}
         />
@@ -88,31 +91,12 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
             </View>
             <ThemeText
               styles={styles.dateText}
-              content={`${
-                timeDifferenceMinutes < 60
-                  ? timeDifferenceMinutes < 1
-                    ? ''
-                    : Math.round(timeDifferenceMinutes)
-                  : Math.round(timeDifferenceHours) < 24
-                  ? Math.round(timeDifferenceHours)
-                  : Math.round(timeDifferenceDays)
-              } ${
-                Math.round(timeDifferenceMinutes) < 60
-                  ? timeDifferenceMinutes < 1
-                    ? t('transactionLabelText.txTime_just_now')
-                    : Math.round(timeDifferenceMinutes) === 1
-                    ? t('timeLabels.minute')
-                    : t('timeLabels.minutes')
-                  : Math.round(timeDifferenceHours) < 24
-                  ? Math.round(timeDifferenceHours) === 1
-                    ? t('timeLabels.hour')
-                    : t('timeLabels.hours')
-                  : Math.round(timeDifferenceDays) === 1
-                  ? t('timeLabels.day')
-                  : t('timeLabels.days')
-              } ${
-                timeDifferenceMinutes > 1 ? t('transactionLabelText.ago') : ''
-              }`}
+              content={getTimeDisplay(
+                timeDifferenceMinutes,
+                timeDifferenceHours,
+                timeDifferenceDays,
+                timeDifferenceYears,
+              )}
             />
           </View>
         </View>
@@ -127,6 +111,7 @@ function ConfirmedOrSentTransaction({
   timeDifferenceMinutes,
   timeDifferenceHours,
   timeDifferenceDays,
+  timeDifferenceYears,
   profileInfo,
   cache,
 }) {
@@ -139,6 +124,26 @@ function ConfirmedOrSentTransaction({
   const isOutgoingPayment =
     (txParsed.didSend && !txParsed.isRequest) ||
     (txParsed.isRequest && txParsed.isRedeemed && !txParsed.didSend);
+
+  if (!!txParsed.giftCardInfo) {
+    return (
+      <GiftCardTxItem
+        txParsed={txParsed}
+        isOutgoingPayment={isOutgoingPayment}
+        theme={theme}
+        darkModeType={darkModeType}
+        backgroundOffset={backgroundOffset}
+        timeDifference={getTimeDisplay(
+          timeDifferenceMinutes,
+          timeDifferenceHours,
+          timeDifferenceDays,
+          timeDifferenceYears,
+        )}
+        isFromProfile={true}
+        t={t}
+      />
+    );
+  }
 
   return (
     <View style={[styles.transactionContainer, {alignItems: 'center'}]}>
@@ -255,29 +260,12 @@ function ConfirmedOrSentTransaction({
                 : COLORS.cancelRed
               : textColor,
           }}
-          content={`${
-            timeDifferenceMinutes < 60
-              ? timeDifferenceMinutes < 1
-                ? ''
-                : Math.round(timeDifferenceMinutes)
-              : Math.round(timeDifferenceHours) < 24
-              ? Math.round(timeDifferenceHours)
-              : Math.round(timeDifferenceDays)
-          } ${
-            Math.round(timeDifferenceMinutes) < 60
-              ? timeDifferenceMinutes < 1
-                ? t('transactionLabelText.txTime_just_now')
-                : Math.round(timeDifferenceMinutes) === 1
-                ? t('timeLabels.minute')
-                : t('timeLabels.minutes')
-              : Math.round(timeDifferenceHours) < 24
-              ? Math.round(timeDifferenceHours) === 1
-                ? t('timeLabels.hour')
-                : t('timeLabels.hours')
-              : Math.round(timeDifferenceDays) === 1
-              ? t('timeLabels.day')
-              : t('timeLabels.days')
-          } ${timeDifferenceMinutes > 1 ? t('transactionLabelText.ago') : ''}`}
+          content={getTimeDisplay(
+            timeDifferenceMinutes,
+            timeDifferenceHours,
+            timeDifferenceDays,
+            timeDifferenceYears,
+          )}
         />
       </View>
 

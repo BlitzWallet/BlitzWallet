@@ -1,0 +1,344 @@
+import React from 'react';
+import {
+  View,
+  Image,
+  StyleSheet,
+  Linking,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import {ThemeText} from '../../../../functions/CustomElements';
+import {useEffect, useState} from 'react';
+import {useKeysContext} from '../../../../../context-store/keys';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
+import {fetchAndCacheGiftCardData} from '../../../../functions/contacts/giftCardStorage';
+import {COLORS, ICONS, SIZES} from '../../../../constants';
+import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import GetThemeColors from '../../../../hooks/themeColors';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import {useNodeContext} from '../../../../../context-store/nodeContext';
+import {useGlobalContextProvider} from '../../../../../context-store/context';
+import CustomButton from '../../../../functions/CustomElements/button';
+import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import {useNavigation} from '@react-navigation/native';
+import {useTranslation} from 'react-i18next';
+
+export default function ViewGiftCardCodePage({giftCardInfo}) {
+  const {theme, darkModeType} = useGlobalThemeContext();
+  const [codeInformation, setCodeInformation] = useState(null);
+  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {backgroundColor, backgroundOffset} = GetThemeColors();
+  const {fiatStats} = useNodeContext();
+  const {masterInfoObject} = useGlobalContextProvider();
+  const navigate = useNavigation();
+  const {t} = useTranslation();
+  useEffect(() => {
+    async function getCardInformation() {
+      if (!giftCardInfo?.invoice) return;
+
+      try {
+        const cardData = await fetchAndCacheGiftCardData(
+          giftCardInfo.invoice,
+          contactsPrivateKey,
+          publicKey,
+        );
+
+        if (cardData) {
+          setCodeInformation(cardData);
+        } else {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t('contacts.viewGiftCardCode.noCardInfoError'),
+          });
+        }
+      } catch (err) {
+        console.error('Error loading gift card:', err);
+      }
+    }
+
+    getCardInformation();
+  }, [giftCardInfo?.invoice, contactsPrivateKey, publicKey]);
+
+  const handleClaimPress = () => {
+    if (codeInformation?.claimData?.claimLink) {
+      Linking.openURL(codeInformation.claimData.claimLink);
+    }
+  };
+
+  if (!codeInformation) {
+    return (
+      <FullLoadingScreen text={t('contacts.viewGiftCardCode.loadingMessage')} />
+    );
+  }
+
+  return (
+    <ScrollView style={styles.container}>
+      {/* Main Gift Card Display */}
+      <View style={styles.giftCardContainer}>
+        {/* Header with Logo and Name */}
+        <View style={styles.headerSection}>
+          <View style={styles.logoContainer}>
+            <Image
+              source={{uri: codeInformation.logo}}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={styles.nameSection}>
+            <ThemeText
+              styles={styles.cardName}
+              content={codeInformation.name}
+            />
+            <ThemeText
+              styles={styles.cardType}
+              content={codeInformation.cardType}
+            />
+          </View>
+        </View>
+
+        {/* Amount Display */}
+        <View
+          style={[
+            styles.amountSection,
+            {
+              backgroundColor: theme
+                ? darkModeType
+                  ? backgroundColor
+                  : backgroundOffset
+                : COLORS.darkModeText,
+            },
+          ]}>
+          <ThemeText
+            styles={styles.amountLabel}
+            content={t('contacts.viewGiftCardCode.valueHeader')}
+          />
+          <ThemeText
+            styles={styles.amountValue}
+            content={displayCorrectDenomination({
+              amount: codeInformation.amountSats,
+              fiatStats,
+              masterInfoObject: {
+                satDisplay: masterInfoObject.satDisplay,
+                userBalanceDenomination: 'fiat',
+              },
+            })}
+          />
+
+          <ThemeText
+            styles={styles.amountSats}
+            content={displayCorrectDenomination({
+              amount: codeInformation.amountSats,
+              fiatStats,
+              masterInfoObject: {
+                satDisplay: masterInfoObject.satDisplay,
+                userBalanceDenomination: 'sats',
+              },
+            })}
+          />
+        </View>
+
+        {/* Claim Information */}
+        {codeInformation.claimData && (
+          <View style={styles.claimSection}>
+            <TouchableOpacity
+              onPress={() =>
+                navigate.navigate('InformationPopup', {
+                  textContent: t('errormessages.giftCardExpiration'),
+                  buttonText: t('constants.understandText'),
+                })
+              }
+              style={styles.redeemTextContainer}>
+              <ThemeText
+                styles={styles.sectionTitle}
+                content={t('contacts.viewGiftCardCode.redeemHeader')}
+              />
+              <ThemeImage
+                styles={styles.aboutIcon}
+                lightModeIcon={ICONS.aboutIcon}
+                darkModeIcon={ICONS.aboutIcon}
+                lightsOutIcon={ICONS.aboutIconWhite}
+              />
+            </TouchableOpacity>
+
+            {codeInformation.claimData.claimLink && (
+              <CustomButton
+                actionFunction={handleClaimPress}
+                textContent={t('contacts.viewGiftCardCode.openClaimText')}
+              />
+            )}
+
+            {codeInformation.claimData.codes &&
+              codeInformation.claimData.codes.length > 0 && (
+                <View
+                  style={[
+                    styles.codesContainer,
+                    {
+                      backgroundColor: theme
+                        ? darkModeType
+                          ? backgroundColor
+                          : backgroundOffset
+                        : COLORS.darkModeText,
+                    },
+                  ]}>
+                  {codeInformation.claimData.codes.map((code, index) => (
+                    <View key={index} style={styles.codeItem}>
+                      <ThemeText
+                        styles={styles.codeLabel}
+                        content={`${code.label}:`}
+                      />
+                      <ThemeText
+                        styles={styles.codeValue}
+                        content={code.value}
+                      />
+                    </View>
+                  ))}
+                </View>
+              )}
+          </View>
+        )}
+
+        {/* Redemption Instructions */}
+        {codeInformation.redemptionInstructions && (
+          <View style={styles.instructionsSection}>
+            <ThemeText
+              styles={styles.sectionTitle}
+              content={t('contacts.viewGiftCardCode.instructionsHeader')}
+            />
+            <ThemeText
+              styles={styles.instructionsText}
+              content={codeInformation.redemptionInstructions}
+            />
+          </View>
+        )}
+
+        {/* Terms and Conditions */}
+        {codeInformation.terms && (
+          <View style={styles.termsSection}>
+            <ThemeText
+              styles={styles.sectionTitle}
+              content={t('contacts.viewGiftCardCode.terms&conditions')}
+            />
+            <ThemeText
+              styles={styles.termsText}
+              content={codeInformation.terms}
+            />
+          </View>
+        )}
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  loadingText: {
+    textAlign: 'center',
+    marginTop: 30,
+    fontSize: 16,
+  },
+  giftCardContainer: {
+    width: INSET_WINDOW_WIDTH,
+    alignSelf: 'center',
+    paddingTop: 20,
+  },
+  headerSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logoContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  logo: {
+    width: 45,
+    height: 45,
+  },
+  nameSection: {
+    flex: 1,
+  },
+  cardName: {
+    fontSize: SIZES.large,
+    includeFontPadding: false,
+    marginBottom: 2,
+  },
+  cardType: {
+    fontSize: SIZES.small,
+    opacity: 0.7,
+  },
+  amountSection: {
+    alignItems: 'center',
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  amountLabel: {
+    opacity: 0.7,
+    marginBottom: 8,
+  },
+  amountValue: {
+    fontSize: SIZES.huge,
+    marginBottom: 2,
+  },
+  amountSats: {
+    opacity: 0.8,
+  },
+
+  claimSection: {
+    marginBottom: 20,
+  },
+  redeemTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  aboutIcon: {
+    width: 20,
+    height: 20,
+    marginLeft: 5,
+  },
+  sectionTitle: {
+    fontSize: SIZES.large,
+  },
+  codesContainer: {
+    borderRadius: 8,
+    padding: 12,
+  },
+  codeItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  codeLabel: {
+    fontSize: 13,
+  },
+  codeValue: {
+    fontSize: 13,
+  },
+
+  instructionsSection: {
+    marginBottom: 20,
+  },
+  instructionsText: {
+    fontSize: SIZES.small,
+    lineHeight: 18,
+    opacity: 0.8,
+  },
+  termsSection: {
+    marginBottom: 10,
+  },
+  termsText: {
+    fontSize: SIZES.small,
+    lineHeight: 16,
+    opacity: 0.6,
+  },
+});
