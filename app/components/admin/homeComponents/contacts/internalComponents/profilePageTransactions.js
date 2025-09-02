@@ -141,6 +141,7 @@ function ConfirmedOrSentTransaction({
         )}
         isFromProfile={true}
         t={t}
+        masterInfoObject={masterInfoObject}
       />
     );
   }
