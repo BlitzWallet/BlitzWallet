@@ -839,7 +839,8 @@
     "contactsPage": {
       "header": "Select recipient",
       "inputTextPlaceholder": "Search username...",
-      "subHeader": "All Contacts"
+      "subHeader": "All Contacts",
+      "giftsText": "My Gifts"
     },
     "cameraPage": {
       "noCameraAccess": "No access to camera",
@@ -1012,7 +1013,22 @@
     "sendAndRequestPage": {
       "descriptionPlaceholder": "Payment description",
       "profileMessage": "Paying {{name}}",
-      "contactMessage": "{{name}} paid you"
+      "contactMessage": "{{name}} paid you",
+      "giftCardappVersionError": "You cannot send a gift card to this contact. They have not updated to the latest verison of Blitz Wallet.",
+      "giftCardDescription": "You sent {{name}} a {{giftCardName}} Gift Card",
+      "cardDetailsError": "We couldn’t load your gift card right now. Please try again.",
+      "giftCardRange": "Send {{amount}} - {{amount2}}",
+      "giftCardAmountError": "Enter a value of at least {{amount}} and up to {{amount2}}",
+      "sendGiftText": "Send gift"
+    },
+    "viewGiftCardCode": {
+      "noCardInfoError": "We couldn't load your gift card right now. Please try again.",
+      "loadingMessage": "Loading gift card information...",
+      "valueHeader": "Gift Card Value",
+      "redeemHeader": "How to Redeem",
+      "openClaimText": "Open Gift Card",
+      "instructionsHeader": "Redemption Instructions",
+      "terms&conditions": "Terms & Conditions"
     },
 
     "internalComponents": {
@@ -1024,6 +1040,16 @@
         "acceptProfileMessage": "Paid {{name}}'s request",
         "acceptPayingContactMessage": "{{name}} paid your request",
         "requestTitle": "Received request for "
+      },
+      "viewAllGiftCards": {
+        "cardNamePlaceH": "Gift Card",
+        "noCardsText": "Your gift cards will appear here once you receive them",
+        "header": "Your Gift Cards",
+        "cardsLenghSingular": "{{num}} card",
+        "cardsLenghPlurl": "{{num}} cards"
+      },
+      "editGiftCard": {
+        "header": "What would you like to do with your gift?"
       }
     }
   },
@@ -1520,7 +1546,8 @@
     "bitcoinInvioceError": "There was a problem generating your Bitcoin address. Please try again.",
     "sparkInvioceError": "There was a problem generating your Spark address. Please try again.",
     "lightningInvioceError": "There was a problem generating your Lightning address. Please try again.",
-    "sparkConnectionError": "Spark connection failed. Please try again."
+    "sparkConnectionError": "Spark connection failed. Please try again.",
+    "giftCardExpiration": "If this app is deleted or local storage is cleared, gift cards will be lost. It can only be recovered for 7 days. Please save the claim links or gift card codes somewhere safe."
   },
 
   "loadingScreen": {
@@ -1548,7 +1575,8 @@
     "contacts": {
       "updateMessage": "{{name}} {{option}} your request",
       "request": "{{name}} requested you {{amount}}",
-      "payment": "{{name}} paid you {{amount}}"
+      "payment": "{{name}} paid you {{amount}}",
+      "giftCard": "{{name}} send you a {{giftCardName}} Gift Card"
     }
   }
 }

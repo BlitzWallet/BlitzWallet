@@ -839,7 +839,8 @@
     "contactsPage": {
       "header": "Seleziona destinatario",
       "inputTextPlaceholder": "Cerca username...",
-      "subHeader": "Tutti i Contatti"
+      "subHeader": "Tutti i Contatti",
+      "giftsText": "I miei regali"
     },
     "cameraPage": {
       "noCameraAccess": "Nessun accesso alla fotocamera",
@@ -1011,9 +1012,23 @@
     "sendAndRequestPage": {
       "descriptionPlaceholder": "Descrizione del pagamento",
       "profileMessage": "Stai pagando {{name}}",
-      "contactMessage": "{{name}} ti ha pagato"
+      "contactMessage": "{{name}} ti ha pagato",
+      "giftCardappVersionError": "Non puoi inviare una gift card a questo contatto. Non ha aggiornato all’ultima versione di Blitz Wallet.",
+      "giftCardDescription": "Hai inviato a {{name}} una Gift Card {{giftCardName}}",
+      "cardDetailsError": "Non siamo riusciti a caricare la tua gift card in questo momento. Per favore, riprova.",
+      "giftCardRange": "Invia {{amount}} - {{amount2}}",
+      "giftCardAmountError": "Inserisci un valore di almeno {{amount}} e fino a {{amount2}}",
+      "sendGiftText": "Invia regalo"
     },
-
+    "viewGiftCardCode": {
+      "noCardInfoError": "Non siamo riusciti a caricare la tua gift card in questo momento. Per favore, riprova.",
+      "loadingMessage": "Caricamento delle informazioni della gift card...",
+      "valueHeader": "Valore della gift card",
+      "redeemHeader": "Come riscattare",
+      "openClaimText": "Apri gift card",
+      "instructionsHeader": "Istruzioni per il riscatto",
+      "terms&conditions": "Termini e condizioni"
+    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Vuoi {{option}} {{option2}} foto"
@@ -1023,6 +1038,16 @@
         "acceptProfileMessage": "Hai pagato la richiesta di {{name}}",
         "acceptPayingContactMessage": "{{name}} ha pagato la tua richiesta",
         "requestTitle": "Richiesta ricevuta per "
+      },
+      "viewAllGiftCards": {
+        "cardNamePlaceH": "Buono regalo",
+        "noCardsText": "I tuoi buoni regalo appariranno qui una volta ricevuti",
+        "header": "Le tue carte regalo",
+        "cardsLenghSingular": "{{num}} carta",
+        "cardsLenghPlurl": "{{num}} carte"
+      },
+      "editGiftCard": {
+        "header": "Cosa desideri fare con il tuo regalo?"
       }
     }
   },
@@ -1521,7 +1546,8 @@
     "bitcoinInvioceError": "C'è stato un problema nella generazione del tuo indirizzo Bitcoin. Riprova.",
     "sparkInvioceError": "C'è stato un problema nella generazione del tuo indirizzo Spark. Riprova.",
     "lightningInvioceError": "C'è stato un problema nella generazione del tuo indirizzo Lightning. Riprova.",
-    "sparkConnectionError": "Connessione Spark fallita. Riprova."
+    "sparkConnectionError": "Connessione Spark fallita. Riprova.",
+    "giftCardExpiration": "Se questa app viene eliminata o la memoria locale viene cancellata, le carte regalo andranno perse. È possibile recuperarle solo entro 7 giorni. Si prega di salvare i link di richiesta o i codici delle carte regalo in un luogo sicuro."
   },
 
   "loadingScreen": {
@@ -1549,7 +1575,8 @@
     "contacts": {
       "updateMessage": "{{name}} {{option}} la tua richiesta",
       "request": "{{name}} ti ha richiesto {{amount}}",
-      "payment": "{{name}} ti ha pagato {{amount}}"
+      "payment": "{{name}} ti ha pagato {{amount}}",
+      "giftCard": "{{name}} ti invia una carta regalo {{giftCardName}}"
     }
   }
 }
