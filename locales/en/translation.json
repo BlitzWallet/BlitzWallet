@@ -177,7 +177,8 @@
     "receivedRequest": "Received request",
     "date": "Date",
     "time": "Time",
-    "memo": "Memo"
+    "memo": "Memo",
+    "roostockSwap": "Rootstock to Spark Swap"
   },
 
   "createAccount": {

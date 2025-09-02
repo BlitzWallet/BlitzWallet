@@ -174,7 +174,8 @@
     "receivedRequest": "Solicitud recibida",
     "date": "Fecha",
     "time": "Hora",
-    "memo": "Nota"
+    "memo": "Nota",
+    "roostockSwap": "Rootstock para Spark Swap"
   },
   "createAccount": {
     "chooseLanguage": {
