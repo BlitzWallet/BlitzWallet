@@ -746,6 +746,7 @@
         "lnurlWithdrawlStart": "Generando factura para retiro",
         "lnurlWithdrawlInvoiceError": "No se pudo generar la factura para retiro LNURL",
         "waitingForLnurlWithdrawl": "Esperando pago...",
+        "lnurlwithdrawlsuccess": "¡Retiro exitoso! Su pago está en camino.",
         "invoiceDetails": "Obteniendo detalles de la factura"
       },
       "errorScreen": {
@@ -1250,7 +1251,8 @@
         "failedToSend": "Error al enviar",
         "confirmMessage": "{{direction}} exitosamente",
         "paymentErrorMessage": "Hubo un problema al enviar este pago, por favor intenta de nuevo.",
-        "sendReport": "Enviar informe al desarrollador"
+        "sendReport": "Enviar informe al desarrollador",
+        "Lnurlauthsuccess": "¡Autenticación de billetera exitosa! Ahora estás iniciado sesión."
       },
       "expandedTxPage": {
         "confirmMessage": "Monto {{direction}}",

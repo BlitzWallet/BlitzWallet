@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import {CENTER, COLORS, FONT, SIZES} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect, useMemo, useRef} from 'react';
+import {useEffect, useMemo, useRef} from 'react';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import LottieView from 'lottie-react-native';
@@ -35,12 +35,12 @@ export default function ConfirmTxPage(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const animationRef = useRef(null);
   const {t} = useTranslation();
-
+  const isLNURLAuth = props.route.params?.useLNURLAuth;
   const transaction = props.route.params?.transaction;
   const hasError = props.route.params?.error;
   const paymentInformation = transaction?.details;
 
-  const didSucceed = !hasError;
+  const didSucceed = !hasError || isLNURLAuth;
 
   const paymentNetwork = transaction?.paymentType;
 
@@ -91,21 +91,23 @@ export default function ConfirmTxPage(props) {
           height: useWindowDimensions().width / 1.5,
         }}
       />
-      <ThemeText
-        styles={{fontWeight: 400, fontSize: SIZES.large, marginBottom: 10}}
-        content={
-          !didSucceed
-            ? t('screens.inAccount.confirmTxPage.failedToSend')
-            : t('screens.inAccount.confirmTxPage.confirmMessage', {
-                direction:
-                  paymentInformation.direction?.toLowerCase() === 'outgoing'
-                    ? t('constants.sent')
-                    : t('constants.received'),
-              })
-        }
-      />
+      {!isLNURLAuth && (
+        <ThemeText
+          styles={{fontWeight: 400, fontSize: SIZES.large, marginBottom: 10}}
+          content={
+            !didSucceed
+              ? t('screens.inAccount.confirmTxPage.failedToSend')
+              : t('screens.inAccount.confirmTxPage.confirmMessage', {
+                  direction:
+                    paymentInformation.direction?.toLowerCase() === 'outgoing'
+                      ? t('constants.sent')
+                      : t('constants.received'),
+                })
+          }
+        />
+      )}
 
-      {didSucceed && (
+      {didSucceed && !isLNURLAuth && (
         <View style={{marginBottom: 10}}>
           <FormattedSatText
             styles={{
@@ -143,6 +145,18 @@ export default function ConfirmTxPage(props) {
         </View>
       )}
 
+      {isLNURLAuth && (
+        <ThemeText
+          styles={{
+            width: '95%',
+            maxWidth: 300,
+            textAlign: 'center',
+            marginBottom: 40,
+          }}
+          content={t('screens.inAccount.confirmTxPage.lnurlAuthSuccess')}
+        />
+      )}
+
       <ThemeText
         styles={{
           opacity: 0.6,
@@ -158,7 +172,7 @@ export default function ConfirmTxPage(props) {
         }
       />
 
-      {didSucceed && (
+      {didSucceed && !isLNURLAuth && (
         <View style={styles.paymentTable}>
           <View style={styles.paymentTableRow}>
             <ThemeText content={t('constants.fee')} />
@@ -170,7 +184,7 @@ export default function ConfirmTxPage(props) {
           </View>
         </View>
       )}
-      {!didSucceed && (
+      {!didSucceed && !isLNURLAuth && (
         <View
           style={{
             flex: 1,
@@ -187,7 +201,7 @@ export default function ConfirmTxPage(props) {
           </ScrollView>
         </View>
       )}
-      {!didSucceed && (
+      {!didSucceed && !isLNURLAuth && (
         <TouchableOpacity
           onPress={async () => {
             try {

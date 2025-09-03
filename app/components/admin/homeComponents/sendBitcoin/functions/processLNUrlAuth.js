@@ -13,11 +13,26 @@ export default async function processLNUrlAuth(input, context) {
   );
   const result = await lnurlAuth(input.data);
   if (result.type === LnUrlCallbackStatusVariant.OK) {
-    navigate.navigate('ErrorScreen', {
-      errorMessage: t(
-        'wallet.sendPages.handlingAddressErrors.lnurlConfirmMessage',
-      ),
-      customNavigator: () => navigate.popTo('HomeAdmin', {screen: 'home'}),
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        navigate.reset({
+          index: 0, // The top-level route index
+          routes: [
+            {
+              name: 'HomeAdmin', // Navigate to HomeAdmin
+              params: {
+                screen: 'Home',
+              },
+            },
+            {
+              name: 'ConfirmTxPage',
+              params: {
+                useLNURLAuth: true,
+              },
+            },
+          ],
+        });
+      });
     });
   } else {
     goBackFunction(

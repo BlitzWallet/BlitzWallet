@@ -897,6 +897,7 @@
         "lnurlWithdrawlStart": "Generazione fattura per prelievo",
         "lnurlWithdrawlInvoiceError": "Impossibile generare fattura per prelievo LNURL",
         "waitingForLnurlWithdrawl": "In attesa di pagamento...",
+        "LnurlwithDrawlSuccess": "Prelievo di successo! Il tuo pagamento è in arrivo.",
         "invoiceDetails": "Recupero dettagli fattura"
       },
 
@@ -1418,7 +1419,8 @@
         "failedToSend": "Invio fallito",
         "confirmMessage": "{{direction}} con successo",
         "paymentErrorMessage": "C'è stato un problema nell'inviare questo pagamento, riprova.",
-        "sendReport": "Invia report allo sviluppatore"
+        "sendReport": "Invia report allo sviluppatore",
+        "Lnurlauthsuccess": "Autenticazione del portafoglio successo! Ora hai effettuato l'accesso."
       },
       "expandedTxPage": {
         "confirmMessage": "Importo {{direction}}",

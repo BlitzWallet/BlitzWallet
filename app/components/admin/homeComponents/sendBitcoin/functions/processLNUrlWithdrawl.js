@@ -51,5 +51,4 @@ async function pollForResponse(invoiceData, currentWalletMnemoinc) {
     });
     if (sparkReceiveResposne.transfer) break;
   }
-  await new Promise(res => setTimeout(res, 8000));
 }

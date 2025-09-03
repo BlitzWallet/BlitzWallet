@@ -898,6 +898,7 @@
         "lnurlWithdrawlStart": "Generating invoice for withdrawl",
         "lnurlWithdrawlInvoiceError": "Unable to generate invoice for lnurl withdrawl",
         "waitingForLnurlWithdrawl": "Waiting for payment...",
+        "lnurlWithdrawlSuccess": "Withdrawal successful! Your payment is on its way.",
         "invoiceDetails": "Getting invoice details"
       },
 
@@ -1418,7 +1419,8 @@
         "failedToSend": "Failed to send",
         "confirmMessage": "{{direction}} succesfully",
         "paymentErrorMessage": "There was an issue sending this payment, please try again.",
-        "sendReport": "Send report to developer"
+        "sendReport": "Send report to developer",
+        "lnurlAuthSuccess": "Wallet authentication successful! You’re now logged in."
       },
       "expandedTxPage": {
         "confirmMessage": "{{direction}} amount",

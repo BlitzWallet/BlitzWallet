@@ -107,10 +107,31 @@ export default async function decodeSendAddress(props) {
       if (!decodedLNURL) {
         btcAdress = decodedAddress.address;
       } else {
-        const lightningAddress = formatLightningAddress(decodedLNURL);
-        btcAdress = lightningAddress;
+        const parsedUrl = new URL(decodedLNURL);
+
+        const isAuthRequset =
+          parsedUrl.searchParams.get('k1') && parsedUrl.searchParams.get('tag');
+
+        if (isAuthRequset) {
+          btcAdress = decodedAddress.address;
+        } else {
+          const response = await fetch(decodedLNURL);
+          const data = await response.json();
+          console.log(data);
+          if (data.status === 'ERROR') {
+            throw new Error('Unable to get lnurl metadata');
+          }
+          if (data.tag === 'withdrawRequest') {
+            btcAdress = decodedAddress.address;
+          } else {
+            const lightningAddress = formatLightningAddress(decodedLNURL);
+            btcAdress = lightningAddress;
+          }
+        }
       }
     }
+
+    console.log(btcAdress, 'bitcoin address');
 
     const chosenPath = parsedInvoice
       ? Promise.resolve(parsedInvoice)
@@ -185,6 +206,17 @@ export default async function decodeSendAddress(props) {
       }
       setPaymentInfo({...processedPaymentInfo, decodedInput: input});
     } else {
+      if (input.type === InputTypeVariant.LN_URL_AUTH) return;
+
+      if (input.type === InputTypeVariant.LN_URL_WITHDRAW) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t(
+            'wallet.sendPages.handlingAddressErrors.lnurlWithdrawlSuccess',
+          ),
+          customNavigator: () => navigate.popTo('HomeAdmin', {screen: 'home'}),
+        });
+        return;
+      }
       return goBackFunction(
         t('wallet.sendPages.handlingAddressErrors.processInputError'),
       );
