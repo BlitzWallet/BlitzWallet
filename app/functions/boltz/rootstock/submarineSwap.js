@@ -11,6 +11,7 @@ import {
 import {loadSwaps, saveSwap} from './swapDb';
 import {randomBytes} from 'react-native-quick-crypto';
 import {sparkReceivePaymentWrapper} from '../../spark/payments';
+import i18next from 'i18next';
 
 export async function createRootstockSubmarineSwap(invoice) {
   const res = await fetch(
@@ -105,7 +106,7 @@ export async function executeSubmarineSwap(
 
   const sparkInvoice = await sparkReceivePaymentWrapper({
     amountSats: Number(maxSendAmountResponse.maxSats),
-    memo: 'Rootstock to Spark Swap',
+    memo: i18next.t('transactionLabelText.roostockSwap'),
     paymentType: 'lightning',
     shouldNavigate: false,
     mnemoinc: signerMnemonic,

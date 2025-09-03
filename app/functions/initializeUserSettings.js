@@ -114,6 +114,7 @@ export default async function initializeUserSettingsFromHistory({
     const fiatCurrency = blitzStoredData.fiatCurrency || 'USD';
 
     let enabledLNURL = blitzStoredData.enabledLNURL;
+    let enabledGiftCards = blitzStoredData.enabledGiftCards;
     let isUsingEncriptedMessaging = blitzStoredData.isUsingEncriptedMessaging;
     let isUsingNewNotifications = blitzStoredData.isUsingNewNotifications;
 
@@ -245,6 +246,10 @@ export default async function initializeUserSettingsFromHistory({
       enabledLNURL = true;
       needsToUpdate = true;
     }
+    if (enabledGiftCards === undefined) {
+      enabledGiftCards = true;
+      needsToUpdate = true;
+    }
     if (!ecashWalletSettings) {
       ecashWalletSettings = {
         maxReceiveAmountSat: 10_000,
@@ -355,6 +360,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['pushNotifications'] = pushNotifications;
     tempObject['hideUnknownContacts'] = hideUnknownContacts;
     tempObject['enabledLNURL'] = enabledLNURL;
+    tempObject['enabledGiftCards'] = enabledGiftCards;
     tempObject['useTrampoline'] = useTrampoline;
     tempObject['offlineReceiveAddresses'] = offlineReceiveAddresses;
     // tempObject['lnurlPubKey'] = lnurlPubKey;

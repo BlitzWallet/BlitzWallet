@@ -142,11 +142,11 @@ const setCashedMessages = async ({newMessagesList, myPubKey}) => {
               ? newMessage.fromPubKey
               : newMessage.toPubKey;
 
-          const timestamp =
-            typeof newMessage.serverTimestamp === 'object' ||
-            !newMessage.serverTimestamp
-              ? newMessage.timestamp
-              : newMessage.serverTimestamp;
+          const timestamp = newMessage.timestamp;
+          // typeof newMessage.serverTimestamp === 'object' ||
+          // !newMessage.serverTimestamp
+          //   ? newMessage.timestamp
+          //   : newMessage.serverTimestamp;
 
           if (!parsedMessage) {
             const insertedMessage = {

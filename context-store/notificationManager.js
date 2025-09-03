@@ -160,7 +160,14 @@ async function registerForPushNotificationsAsync() {
     let finalStatus = permissionsResult.status;
 
     if (finalStatus !== 'granted' && permissionsResult.canAskAgain) {
-      const requestResult = await requestPermissionsAsync();
+      const requestResult = await requestPermissionsAsync({
+        ios: {
+          allowAlert: true,
+          allowBadge: true,
+          allowSound: true,
+          allowCriticalAlerts: true, // iOS 12+
+        },
+      });
       finalStatus = requestResult.status;
     }
 
@@ -231,6 +238,11 @@ async function formatPushNotification(data) {
       messsage = i18n.t(`pushNotifications.contacts.updateMessage`, {
         name: data.name,
         option: i18n.t(`transactionLabelText.${data.option}`),
+      });
+    } else if (data.type === 'giftCard') {
+      messsage = i18n.t(`pushNotifications.contacts.giftCard`, {
+        name: data.name,
+        giftCardName: data.giftCardName,
       });
     } else {
       messsage = i18n.t(`pushNotifications.contacts.${data.type}`, {

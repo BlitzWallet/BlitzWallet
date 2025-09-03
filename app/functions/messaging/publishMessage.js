@@ -91,6 +91,9 @@ export async function sendPushNotification({
       } else if (data.isRequest) {
         notificationData['amountSat'] = data.amountMsat / 1000;
         notificationData['type'] = 'request';
+      } else if (data.giftCardInfo) {
+        notificationData['giftCardName'] = data.giftCardInfo.name;
+        notificationData['type'] = 'giftCard';
       } else {
         notificationData['amountSat'] = data.amountMsat / 1000;
         notificationData['type'] = 'payment';
@@ -100,6 +103,16 @@ export async function sendPushNotification({
         devicePushKey: devicePushKey,
         deviceType: deviceType,
         notificationData,
+        decryptPubKey: retrivedContact.uuid,
+      };
+    } else if (data.giftCardInfo) {
+      const message = `${myProfile.name || myProfile.uniqueName} sent you a ${
+        data.giftCardInfo.name
+      } Gift Card.`;
+      requestData = {
+        devicePushKey: devicePushKey,
+        deviceType: deviceType,
+        message,
         decryptPubKey: retrivedContact.uuid,
       };
     } else {

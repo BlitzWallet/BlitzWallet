@@ -237,6 +237,48 @@ export const GlobalContactsList = ({children}) => {
     contactsPrivateKey,
   ]);
 
+  const giftCardsList = useMemo(() => {
+    if (!contactsMessags) return [];
+
+    const actualContacts = Object.keys(contactsMessags);
+    const lastMessageTimestampIndex = actualContacts.indexOf(
+      'lastMessageTimestamp',
+    );
+
+    // Remove lastMessageTimestamp efficiently
+    if (lastMessageTimestampIndex > -1) {
+      actualContacts.splice(lastMessageTimestampIndex, 1);
+    }
+
+    if (actualContacts.length === 0) return [];
+
+    const giftCards = [];
+
+    // Process contacts efficiently
+    for (const contact of actualContacts) {
+      const contactData = contactsMessags[contact];
+      if (!contactData?.messages?.length) continue;
+
+      // Use for loop for better performance than filter + push
+      const messages = contactData.messages;
+      for (let i = 0; i < messages.length; i++) {
+        const message = messages[i];
+        if (message.message?.giftCardInfo && !message.message.didSend) {
+          giftCards.push(message);
+        }
+      }
+    }
+
+    // Sort in-place for memory efficiency
+    giftCards.sort((a, b) => {
+      const timeA = a.serverTimestamp || a.timestamp;
+      const timeB = b.serverTimestamp || b.timestamp;
+      return timeB - timeA;
+    });
+
+    return giftCards;
+  }, [contactsMessags]);
+
   const contextValue = useMemo(
     () => ({
       decodedAddedContacts,
@@ -244,6 +286,7 @@ export const GlobalContactsList = ({children}) => {
       toggleGlobalContactsInformation,
       contactsMessags,
       updatedCachedMessagesStateFunction,
+      giftCardsList,
     }),
     [
       decodedAddedContacts,
@@ -251,6 +294,7 @@ export const GlobalContactsList = ({children}) => {
       toggleGlobalContactsInformation,
       contactsMessags,
       updatedCachedMessagesStateFunction,
+      giftCardsList,
     ],
   );
 

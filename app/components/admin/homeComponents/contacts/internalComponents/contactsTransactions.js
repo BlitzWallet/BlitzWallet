@@ -15,51 +15,8 @@ import getReceiveAddressForContactPayment from './getReceiveAddressAndKindForPay
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useServerTimeOnly} from '../../../../../../context-store/serverTime';
 import {useTranslation} from 'react-i18next';
-
-function getTimeDisplay(
-  timeDifferenceMinutes,
-  timeDifferenceHours,
-  timeDifferenceDays,
-  timeDifferenceYears,
-  t,
-) {
-  const timeValue =
-    timeDifferenceMinutes <= 60
-      ? timeDifferenceMinutes < 1
-        ? ''
-        : Math.round(timeDifferenceMinutes)
-      : timeDifferenceHours <= 24
-      ? Math.round(timeDifferenceHours)
-      : timeDifferenceDays <= 365
-      ? Math.round(timeDifferenceDays)
-      : Math.round(timeDifferenceYears);
-
-  const timeUnit =
-    timeDifferenceMinutes <= 60
-      ? timeDifferenceMinutes < 1
-        ? t('transactionLabelText.txTime_just_now')
-        : Math.round(timeDifferenceMinutes) === 1
-        ? t('timeLabels.minute')
-        : t('timeLabels.minutes')
-      : timeDifferenceHours <= 24
-      ? Math.round(timeDifferenceHours) === 1
-        ? t('timeLabels.hour')
-        : t('timeLabels.hours')
-      : timeDifferenceDays <= 365
-      ? Math.round(timeDifferenceDays) === 1
-        ? t('timeLabels.day')
-        : t('timeLabels.days')
-      : Math.round(timeDifferenceYears) === 1
-      ? t('timeLabels.year')
-      : t('timeLabels.years');
-
-  const suffix =
-    timeDifferenceMinutes > 1 ? ` ${t('transactionLabelText.ago')}` : '';
-
-  return `${timeValue}${
-    timeUnit === t('transactionLabelText.txTime_just_now') ? '' : ' '
-  }${timeUnit}${suffix}`;
-}
+import GiftCardTxItem from './giftCardTxItem';
+import {getTimeDisplay} from '../../../../../functions/contacts';
 
 function ConfirmedOrSentTransaction({
   txParsed,
@@ -69,17 +26,40 @@ function ConfirmedOrSentTransaction({
   timeDifferenceDays,
   timeDifferenceYears,
   props,
+  navigate,
 }) {
   const {t} = useTranslation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
-  const {textColor} = GetThemeColors();
+  const {textColor, backgroundOffset} = GetThemeColors();
 
   const didDeclinePayment = txParsed.isRedeemed != null && !txParsed.isRedeemed;
 
   const isOutgoingPayment =
     (txParsed.didSend && !txParsed.isRequest) ||
     (txParsed.isRequest && txParsed.isRedeemed && !txParsed.didSend);
+
+  if (!!txParsed.giftCardInfo) {
+    return (
+      <GiftCardTxItem
+        txParsed={txParsed}
+        isOutgoingPayment={isOutgoingPayment}
+        theme={theme}
+        darkModeType={darkModeType}
+        backgroundOffset={backgroundOffset}
+        timeDifference={getTimeDisplay(
+          timeDifferenceMinutes,
+          timeDifferenceHours,
+          timeDifferenceDays,
+          timeDifferenceYears,
+        )}
+        isFromProfile={false}
+        t={t}
+        navigate={navigate}
+        masterInfoObject={masterInfoObject}
+      />
+    );
+  }
 
   return (
     <View style={[styles.transactionContainer, {alignItems: 'center'}]}>
@@ -157,7 +137,6 @@ function ConfirmedOrSentTransaction({
             timeDifferenceHours,
             timeDifferenceDays,
             timeDifferenceYears,
-            t,
           )}
         />
       </View>
@@ -404,6 +383,7 @@ export default function ContactsTransactionItem(props) {
           timeDifferenceHours={timeDifferenceHours}
           timeDifferenceDays={timeDifferenceDays}
           timeDifferenceYears={timeDifferenceYears}
+          navigate={navigate}
           props={props}
         />
       ) : (
@@ -446,7 +426,6 @@ export default function ContactsTransactionItem(props) {
                 timeDifferenceHours,
                 timeDifferenceDays,
                 timeDifferenceYears,
-                t,
               )}
             />
 
