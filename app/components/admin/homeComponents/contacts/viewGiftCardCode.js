@@ -29,6 +29,7 @@ import {useToast} from '../../../../../context-store/toastManager';
 export default function ViewGiftCardCodePage({
   giftCardInfo,
   isOutgoingPayment,
+  message,
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const [codeInformation, setCodeInformation] = useState(null);
@@ -39,7 +40,7 @@ export default function ViewGiftCardCodePage({
   const navigate = useNavigation();
   const {t} = useTranslation();
   const {showToast} = useToast();
-
+  console.log(message);
   useEffect(() => {
     async function getCardInformation() {
       if (!giftCardInfo?.invoice) return;
@@ -194,6 +195,32 @@ export default function ViewGiftCardCodePage({
               style={styles.uuidTouchable}>
               <ThemeText styles={styles.uuid} content={codeInformation.uuid} />
             </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Message Section */}
+        {message && (
+          <View
+            style={[
+              styles.messageSection,
+              {
+                backgroundColor: theme
+                  ? darkModeType
+                    ? backgroundColor
+                    : backgroundOffset
+                  : COLORS.darkModeText,
+                borderColor: theme
+                  ? darkModeType
+                    ? backgroundOffset
+                    : backgroundColor
+                  : backgroundOffset,
+              },
+            ]}>
+            <ThemeText
+              styles={styles.messageLabel}
+              content={t('contacts.viewGiftCardCode.messageLabel')}
+            />
+            <ThemeText styles={styles.messageText} content={message} />
           </View>
         )}
 
@@ -432,6 +459,23 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 8,
     borderWidth: 1,
+  },
+  messageSection: {
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+  },
+  messageLabel: {
+    opacity: 0.7,
+    fontSize: SIZES.small,
+    marginBottom: 8,
+  },
+  messageText: {
+    fontSize: SIZES.medium,
+    lineHeight: 20,
+    opacity: 0.9,
   },
   claimSection: {
     marginBottom: 20,

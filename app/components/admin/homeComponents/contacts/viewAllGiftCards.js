@@ -24,8 +24,6 @@ export default function ViewAllGiftCards() {
   const navigate = useNavigation();
   const {t} = useTranslation();
 
-  console.log(giftCardsList);
-
   const handleGiftCardPress = message => {
     const giftCard = message.message.giftCardInfo;
     const isOutgoingPayment =
@@ -37,6 +35,7 @@ export default function ViewAllGiftCards() {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'viewContactsGiftInfo',
       giftCardInfo: giftCard,
+      message: message.message.description,
       from: 'allGifts',
       sliderHight: 1,
       isOutgoingPayment,

@@ -317,6 +317,7 @@ export default function CustomHalfModal(props) {
             giftCardInfo={props?.route?.params?.giftCardInfo}
             from={props?.route?.params?.from}
             isOutgoingPayment={props?.route?.params?.isOutgoingPayment}
+            message={props?.route?.params?.message}
           />
         );
       case 'ViewAllGiftCards':

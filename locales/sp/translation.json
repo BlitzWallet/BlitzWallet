@@ -875,7 +875,8 @@
       "cardUUID": "UUID de la tarjeta",
       "helpHeader": "¿Necesitas ayuda?",
       "helpDesc": "Si necesitas asistencia con esta tarjeta de regalo, copia el UUID de la tarjeta de arriba e inclúyelo en tu correo electrónico a nuestro equipo de soporte.",
-      "unpaidMessage": "Esta tarjeta no está pagada. Si el pago se realizó pero no se refleja, utiliza el correo electrónico a continuación para obtener ayuda."
+      "unpaidMessage": "Esta tarjeta no está pagada. Si el pago se realizó pero no se refleja, utiliza el correo electrónico a continuación para obtener ayuda.",
+      "messageLabel": "Mensaje:"
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {

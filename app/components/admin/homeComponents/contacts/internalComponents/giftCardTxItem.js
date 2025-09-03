@@ -27,6 +27,7 @@ export default function GiftCardTxItem({
         navigate.navigate('CustomHalfModal', {
           wantedContent: 'viewContactsGiftInfo',
           giftCardInfo: txParsed.giftCardInfo,
+          message: txParsed.description,
           from: 'txItem',
           sliderHight: 1,
           isOutgoingPayment,
