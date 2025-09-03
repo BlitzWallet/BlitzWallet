@@ -1029,7 +1029,11 @@
       "redeemHeader": "How to Redeem",
       "openClaimText": "Open Gift Card",
       "instructionsHeader": "Redemption Instructions",
-      "terms&conditions": "Terms & Conditions"
+      "terms&conditions": "Terms & Conditions",
+      "cardUUID": "Card UUID",
+      "helpHeader": "Need Help?",
+      "helpDesc": "If you need assistance with this gift card, copy the Card UUID above and include it in your email to our support team.",
+      "unpaidMessage": "This card is unpaid. If payment was made but not reflected, please use the email below to get help."
     },
 
     "internalComponents": {

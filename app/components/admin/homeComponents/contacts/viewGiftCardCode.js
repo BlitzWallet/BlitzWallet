@@ -40,8 +40,6 @@ export default function ViewGiftCardCodePage({
   const {t} = useTranslation();
   const {showToast} = useToast();
 
-  console.log(isOutgoingPayment, 'isoutgoint');
-
   useEffect(() => {
     async function getCardInformation() {
       if (!giftCardInfo?.invoice) return;
@@ -102,6 +100,16 @@ export default function ViewGiftCardCodePage({
           </View>
         </View>
 
+        {/* Status Banner */}
+        {codeInformation?.status !== 'Completed' && (
+          <View style={styles.statusBanner}>
+            <ThemeText
+              styles={styles.statusTitle}
+              content={t('contacts.viewGiftCardCode.unpaidMessage')}
+            />
+          </View>
+        )}
+
         {/* Amount Display */}
         {!isOutgoingPayment && (
           <View
@@ -144,7 +152,10 @@ export default function ViewGiftCardCodePage({
 
             {/* UUID integrated into amount section */}
             <View style={styles.uuidContainer}>
-              <ThemeText styles={styles.uuidLabel} content={'Card UUID'} />
+              <ThemeText
+                styles={styles.uuidLabel}
+                content={t('contacts.viewGiftCardCode.cardUUID')}
+              />
               <TouchableOpacity
                 onPress={() => {
                   copyToClipboard(codeInformation.uuid, showToast);
@@ -172,7 +183,10 @@ export default function ViewGiftCardCodePage({
                   : backgroundOffset,
               },
             ]}>
-            <ThemeText styles={styles.uuidLabel} content={'Card UUID'} />
+            <ThemeText
+              styles={styles.uuidLabel}
+              content={t('contacts.viewGiftCardCode.cardUUID')}
+            />
             <TouchableOpacity
               onPress={() => {
                 copyToClipboard(codeInformation.uuid, showToast);
@@ -184,7 +198,7 @@ export default function ViewGiftCardCodePage({
         )}
 
         {/* Claim Information */}
-        {!isOutgoingPayment && (
+        {!isOutgoingPayment && codeInformation?.status === 'Completed' && (
           <>
             {codeInformation.claimData && (
               <View style={styles.claimSection}>
@@ -334,7 +348,6 @@ const styles = StyleSheet.create({
   loadingText: {
     textAlign: 'center',
     marginTop: 30,
-    fontSize: 16,
   },
   giftCardContainer: {
     width: INSET_WINDOW_WIDTH,
@@ -494,5 +507,14 @@ const styles = StyleSheet.create({
   emailText: {
     fontSize: SIZES.small,
     textDecorationLine: 'underline',
+  },
+  statusBanner: {
+    marginBottom: 16,
+  },
+  statusTitle: {
+    fontSize: SIZES.medium,
+    marginBottom: 4,
+    opacity: 0.7,
+    textAlign: 'center',
   },
 });

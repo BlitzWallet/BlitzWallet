@@ -871,7 +871,11 @@
       "redeemHeader": "Cómo canjear",
       "openClaimText": "Abrir tarjeta de regalo",
       "instructionsHeader": "Instrucciones de canje",
-      "terms&conditions": "Términos y condiciones"
+      "terms&conditions": "Términos y condiciones",
+      "cardUUID": "UUID de la tarjeta",
+      "helpHeader": "¿Necesitas ayuda?",
+      "helpDesc": "Si necesitas asistencia con esta tarjeta de regalo, copia el UUID de la tarjeta de arriba e inclúyelo en tu correo electrónico a nuestro equipo de soporte.",
+      "unpaidMessage": "Esta tarjeta no está pagada. Si el pago se realizó pero no se refleja, utiliza el correo electrónico a continuación para obtener ayuda."
     },
     "internalComponents": {
       "addOrDeleteImageScreen": {
