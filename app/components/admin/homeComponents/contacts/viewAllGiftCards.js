@@ -28,11 +28,18 @@ export default function ViewAllGiftCards() {
 
   const handleGiftCardPress = message => {
     const giftCard = message.message.giftCardInfo;
+    const isOutgoingPayment =
+      (message.message.didSend && !message.message.isRequest) ||
+      (message.message.isRequest &&
+        message.message.isRedeemed &&
+        !message.message.didSend);
+
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'viewContactsGiftInfo',
       giftCardInfo: giftCard,
       from: 'allGifts',
       sliderHight: 1,
+      isOutgoingPayment,
     });
     console.log(giftCard);
   };

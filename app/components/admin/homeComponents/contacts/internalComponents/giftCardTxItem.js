@@ -21,15 +21,15 @@ export default function GiftCardTxItem({
 
   return (
     <TouchableOpacity
-      disabled={isFromProfile || isOutgoingPayment}
+      disabled={isFromProfile}
       onPress={() => {
-        if (isOutgoingPayment) return;
         if (!navigate) return;
         navigate.navigate('CustomHalfModal', {
           wantedContent: 'viewContactsGiftInfo',
           giftCardInfo: txParsed.giftCardInfo,
           from: 'txItem',
           sliderHight: 1,
+          isOutgoingPayment,
         });
       }}
       style={styles.transactionContainer}>
@@ -130,6 +130,7 @@ const styles = StyleSheet.create({
   descriptionText: {
     fontSize: SIZES.small,
     opacity: 0.8,
+    includeFontPadding: false,
   },
   dateText: {
     fontSize: SIZES.small,

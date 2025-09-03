@@ -23,8 +23,13 @@ import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useNavigation} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
+import {copyToClipboard} from '../../../../functions';
+import {useToast} from '../../../../../context-store/toastManager';
 
-export default function ViewGiftCardCodePage({giftCardInfo}) {
+export default function ViewGiftCardCodePage({
+  giftCardInfo,
+  isOutgoingPayment,
+}) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const [codeInformation, setCodeInformation] = useState(null);
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -33,17 +38,19 @@ export default function ViewGiftCardCodePage({giftCardInfo}) {
   const {masterInfoObject} = useGlobalContextProvider();
   const navigate = useNavigation();
   const {t} = useTranslation();
+  const {showToast} = useToast();
+
+  console.log(isOutgoingPayment, 'isoutgoint');
+
   useEffect(() => {
     async function getCardInformation() {
       if (!giftCardInfo?.invoice) return;
-
       try {
         const cardData = await fetchAndCacheGiftCardData(
           giftCardInfo.invoice,
           contactsPrivateKey,
           publicKey,
         );
-
         if (cardData) {
           setCodeInformation(cardData);
         } else {
@@ -55,7 +62,6 @@ export default function ViewGiftCardCodePage({giftCardInfo}) {
         console.error('Error loading gift card:', err);
       }
     }
-
     getCardInformation();
   }, [giftCardInfo?.invoice, contactsPrivateKey, publicKey]);
 
@@ -97,105 +103,196 @@ export default function ViewGiftCardCodePage({giftCardInfo}) {
         </View>
 
         {/* Amount Display */}
+        {!isOutgoingPayment && (
+          <View
+            style={[
+              styles.amountSection,
+              {
+                backgroundColor: theme
+                  ? darkModeType
+                    ? backgroundColor
+                    : backgroundOffset
+                  : COLORS.darkModeText,
+              },
+            ]}>
+            <ThemeText
+              styles={styles.amountLabel}
+              content={t('contacts.viewGiftCardCode.valueHeader')}
+            />
+            <ThemeText
+              styles={styles.amountValue}
+              content={displayCorrectDenomination({
+                amount: codeInformation.amountSats,
+                fiatStats,
+                masterInfoObject: {
+                  satDisplay: masterInfoObject.satDisplay,
+                  userBalanceDenomination: 'fiat',
+                },
+              })}
+            />
+            <ThemeText
+              styles={styles.amountSats}
+              content={displayCorrectDenomination({
+                amount: codeInformation.amountSats,
+                fiatStats,
+                masterInfoObject: {
+                  satDisplay: masterInfoObject.satDisplay,
+                  userBalanceDenomination: 'sats',
+                },
+              })}
+            />
+
+            {/* UUID integrated into amount section */}
+            <View style={styles.uuidContainer}>
+              <ThemeText styles={styles.uuidLabel} content={'Card UUID'} />
+              <TouchableOpacity
+                onPress={() => {
+                  copyToClipboard(codeInformation.uuid, showToast);
+                }}
+                style={styles.uuidTouchable}>
+                <ThemeText
+                  styles={styles.uuid}
+                  content={codeInformation.uuid}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* For outgoing payments, show UUID in a minimal card */}
+        {isOutgoingPayment && (
+          <View
+            style={[
+              styles.outgoingUuidContainer,
+              {
+                borderColor: theme
+                  ? darkModeType
+                    ? backgroundColor
+                    : backgroundOffset
+                  : backgroundOffset,
+              },
+            ]}>
+            <ThemeText styles={styles.uuidLabel} content={'Card UUID'} />
+            <TouchableOpacity
+              onPress={() => {
+                copyToClipboard(codeInformation.uuid, showToast);
+              }}
+              style={styles.uuidTouchable}>
+              <ThemeText styles={styles.uuid} content={codeInformation.uuid} />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Claim Information */}
+        {!isOutgoingPayment && (
+          <>
+            {codeInformation.claimData && (
+              <View style={styles.claimSection}>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigate.navigate('InformationPopup', {
+                      textContent: t('errormessages.giftCardExpiration'),
+                      buttonText: t('constants.understandText'),
+                    })
+                  }
+                  style={styles.redeemTextContainer}>
+                  <ThemeText
+                    styles={styles.sectionTitle}
+                    content={t('contacts.viewGiftCardCode.redeemHeader')}
+                  />
+                  <ThemeImage
+                    styles={styles.aboutIcon}
+                    lightModeIcon={ICONS.aboutIcon}
+                    darkModeIcon={ICONS.aboutIcon}
+                    lightsOutIcon={ICONS.aboutIconWhite}
+                  />
+                </TouchableOpacity>
+                {codeInformation.claimData.claimLink && (
+                  <CustomButton
+                    actionFunction={handleClaimPress}
+                    textContent={t('contacts.viewGiftCardCode.openClaimText')}
+                  />
+                )}
+                {codeInformation.claimData.codes &&
+                  codeInformation.claimData.codes.length > 0 && (
+                    <View
+                      style={[
+                        styles.codesContainer,
+                        {
+                          backgroundColor: theme
+                            ? darkModeType
+                              ? backgroundColor
+                              : backgroundOffset
+                            : COLORS.darkModeText,
+                        },
+                      ]}>
+                      {codeInformation.claimData.codes.map((code, index) => (
+                        <View key={index} style={styles.codeItem}>
+                          <ThemeText
+                            styles={styles.codeLabel}
+                            content={`${code.label}:`}
+                          />
+                          <ThemeText
+                            styles={styles.codeValue}
+                            content={code.value}
+                          />
+                        </View>
+                      ))}
+                    </View>
+                  )}
+              </View>
+            )}
+          </>
+        )}
+
+        {/* Help Section */}
         <View
           style={[
-            styles.amountSection,
+            styles.helpSection,
             {
               backgroundColor: theme
                 ? darkModeType
+                  ? backgroundOffset
+                  : backgroundColor
+                : backgroundColor,
+              borderColor: theme
+                ? darkModeType
                   ? backgroundColor
                   : backgroundOffset
-                : COLORS.darkModeText,
+                : backgroundOffset,
             },
           ]}>
           <ThemeText
-            styles={styles.amountLabel}
-            content={t('contacts.viewGiftCardCode.valueHeader')}
+            styles={styles.helpTitle}
+            content={t('contacts.viewGiftCardCode.helpHeader')}
           />
           <ThemeText
-            styles={styles.amountValue}
-            content={displayCorrectDenomination({
-              amount: codeInformation.amountSats,
-              fiatStats,
-              masterInfoObject: {
-                satDisplay: masterInfoObject.satDisplay,
-                userBalanceDenomination: 'fiat',
-              },
-            })}
+            styles={styles.helpText}
+            content={t('contacts.viewGiftCardCode.helpDesc')}
           />
-
-          <ThemeText
-            styles={styles.amountSats}
-            content={displayCorrectDenomination({
-              amount: codeInformation.amountSats,
-              fiatStats,
-              masterInfoObject: {
-                satDisplay: masterInfoObject.satDisplay,
-                userBalanceDenomination: 'sats',
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL('mailto:support@thebitcoincompany.com')
+            }
+            style={[
+              styles.emailButton,
+              {
+                backgroundColor:
+                  theme && darkModeType
+                    ? backgroundColor
+                    : 'rgba(0, 122, 255, 0.1)',
               },
-            })}
-          />
+            ]}>
+            <ThemeText
+              styles={{
+                ...styles.emailText,
+                color:
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+              }}
+              content="support@thebitcoincompany.com"
+            />
+          </TouchableOpacity>
         </View>
-
-        {/* Claim Information */}
-        {codeInformation.claimData && (
-          <View style={styles.claimSection}>
-            <TouchableOpacity
-              onPress={() =>
-                navigate.navigate('InformationPopup', {
-                  textContent: t('errormessages.giftCardExpiration'),
-                  buttonText: t('constants.understandText'),
-                })
-              }
-              style={styles.redeemTextContainer}>
-              <ThemeText
-                styles={styles.sectionTitle}
-                content={t('contacts.viewGiftCardCode.redeemHeader')}
-              />
-              <ThemeImage
-                styles={styles.aboutIcon}
-                lightModeIcon={ICONS.aboutIcon}
-                darkModeIcon={ICONS.aboutIcon}
-                lightsOutIcon={ICONS.aboutIconWhite}
-              />
-            </TouchableOpacity>
-
-            {codeInformation.claimData.claimLink && (
-              <CustomButton
-                actionFunction={handleClaimPress}
-                textContent={t('contacts.viewGiftCardCode.openClaimText')}
-              />
-            )}
-
-            {codeInformation.claimData.codes &&
-              codeInformation.claimData.codes.length > 0 && (
-                <View
-                  style={[
-                    styles.codesContainer,
-                    {
-                      backgroundColor: theme
-                        ? darkModeType
-                          ? backgroundColor
-                          : backgroundOffset
-                        : COLORS.darkModeText,
-                    },
-                  ]}>
-                  {codeInformation.claimData.codes.map((code, index) => (
-                    <View key={index} style={styles.codeItem}>
-                      <ThemeText
-                        styles={styles.codeLabel}
-                        content={`${code.label}:`}
-                      />
-                      <ThemeText
-                        styles={styles.codeValue}
-                        content={code.value}
-                      />
-                    </View>
-                  ))}
-                </View>
-              )}
-          </View>
-        )}
 
         {/* Redemption Instructions */}
         {codeInformation.redemptionInstructions && (
@@ -291,8 +388,38 @@ const styles = StyleSheet.create({
   },
   amountSats: {
     opacity: 0.8,
+    marginBottom: 16,
   },
-
+  uuidContainer: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(128, 128, 128, 0.2)',
+    paddingTop: 12,
+    width: '100%',
+    alignItems: 'center',
+  },
+  uuidLabel: {
+    opacity: 0.5,
+    fontSize: SIZES.small,
+    marginBottom: 4,
+  },
+  uuidTouchable: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+  },
+  uuid: {
+    opacity: 0.8,
+    textAlign: 'center',
+    fontSize: SIZES.small,
+  },
+  outgoingUuidContainer: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
   claimSection: {
     marginBottom: 20,
   },
@@ -324,7 +451,6 @@ const styles = StyleSheet.create({
   codeValue: {
     fontSize: 13,
   },
-
   instructionsSection: {
     marginBottom: 20,
   },
@@ -338,7 +464,35 @@ const styles = StyleSheet.create({
   },
   termsText: {
     fontSize: SIZES.small,
-    lineHeight: 16,
-    opacity: 0.6,
+    lineHeight: 18,
+    opacity: 0.8,
+  },
+  helpSection: {
+    marginBottom: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  helpTitle: {
+    fontSize: SIZES.medium,
+    marginBottom: 8,
+    opacity: 0.9,
+  },
+  helpText: {
+    fontSize: SIZES.small,
+    lineHeight: 18,
+    opacity: 0.7,
+    marginBottom: 12,
+  },
+  emailButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+  },
+  emailText: {
+    fontSize: SIZES.small,
+    textDecorationLine: 'underline',
   },
 });

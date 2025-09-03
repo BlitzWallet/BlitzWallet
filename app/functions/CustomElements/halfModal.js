@@ -316,6 +316,7 @@ export default function CustomHalfModal(props) {
             slideHeight={slideHeight}
             giftCardInfo={props?.route?.params?.giftCardInfo}
             from={props?.route?.params?.from}
+            isOutgoingPayment={props?.route?.params?.isOutgoingPayment}
           />
         );
       case 'ViewAllGiftCards':
