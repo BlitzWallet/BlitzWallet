@@ -1553,7 +1553,7 @@
     "sparkInvioceError": "C'è stato un problema nella generazione del tuo indirizzo Spark. Riprova.",
     "lightningInvioceError": "C'è stato un problema nella generazione del tuo indirizzo Lightning. Riprova.",
     "sparkConnectionError": "Connessione Spark fallita. Riprova.",
-    "giftCardExpiration": "Se questa app viene eliminata o la memoria locale viene cancellata, le carte regalo andranno perse. È possibile recuperarle solo entro 7 giorni. Si prega di salvare i link di richiesta o i codici delle carte regalo in un luogo sicuro."
+    "giftCardExpiration": "Le carte regalo possono essere recuperate solo entro 7 giorni dall'invio. Se questa app viene eliminata o l'archiviazione locale viene cancellata dopo tale periodo, le tue carte regalo andranno perse. Assicurati di salvare i link di richiesta o i codici delle carte regalo in un luogo sicuro."
   },
 
   "loadingScreen": {
