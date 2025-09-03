@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Linking,
+  Image,
 } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
@@ -81,7 +82,13 @@ export default function ViewOnlineListings({removeUserLocal}) {
           userLocal === 'WW' ||
           biz.country?.code?.toLowerCase() === userLocal.toLowerCase();
         const usesLightning = biz.payment_methods?.lightning;
-        return matchSearch && matchCategory && matchLocation && usesLightning;
+        const usesonChain = biz.payment_methods?.bitcoin_onchain;
+        return (
+          matchSearch &&
+          matchCategory &&
+          matchLocation &&
+          (usesLightning || usesonChain)
+        );
       })
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [data, search, category, userLocal, t]);
@@ -268,6 +275,23 @@ export default function ViewOnlineListings({removeUserLocal}) {
                       styles={styles.countryLocation}
                     />
                   </View>
+                  {item.payment_methods?.lightning && (
+                    <View
+                      style={[
+                        styles.usesLightningContainer,
+                        {
+                          backgroundColor:
+                            theme && darkModeType
+                              ? backgroundColor
+                              : COLORS.primary,
+                        },
+                      ]}>
+                      <Image
+                        style={styles.lightningIcon}
+                        source={ICONS.lightningReceiveIcon}
+                      />
+                    </View>
+                  )}
                 </View>
                 <View style={[styles.categoryContainer, {backgroundColor}]}>
                   <ThemeText
@@ -373,7 +397,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nameContainer: {
+    flexGrow: 1,
     marginLeft: 10,
+    marginRight: 10,
+  },
+  usesLightningContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 25,
+    aspectRatio: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lightningIcon: {
+    width: '70%',
+    height: '70%',
+    resizeMode: 'contain',
+    alignSelf: 'center',
   },
   image: {
     width: '100%',
@@ -426,7 +466,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   submitListingBTN: {
-    marginTop: 5,
+    marginTop: 10,
     alignSelf: 'center',
   },
 });
