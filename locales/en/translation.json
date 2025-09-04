@@ -1561,7 +1561,8 @@
     "sparkInvioceError": "There was a problem generating your Spark address. Please try again.",
     "lightningInvioceError": "There was a problem generating your Lightning address. Please try again.",
     "sparkConnectionError": "Spark connection failed. Please try again.",
-    "giftCardExpiration": "Gift cards can only be recovered for 7 days after they are sent. If this app is deleted or local storage is cleared after that time, your gift cards will be lost. Be sure to save the claim links or gift card codes somewhere safe."
+    "giftCardExpiration": "Gift cards can only be recovered for 7 days after they are sent. If this app is deleted or local storage is cleared after that time, your gift cards will be lost. Be sure to save the claim links or gift card codes somewhere safe.",
+    "receivedRootstock": "Rootstock payment received — your swap is starting. It may take up to a minute, so please keep the app open."
   },
 
   "loadingScreen": {

@@ -40,6 +40,7 @@ export const RootstockSwapProvider = ({children}) => {
   const subscribedIdsRef = useRef(new Set());
   const activeSwapIdsRef = useRef(new Set()); // Track active swaps
   const [signer, setSigner] = useState(null);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
 
   const wsRef = useRef(null);
   const intervalRef = useRef(null);
@@ -281,6 +282,7 @@ export const RootstockSwapProvider = ({children}) => {
           if (swap.type === 'submarine') {
             if (status == 'invoice.set') {
               await lockSubmarineSwap(swap, signer);
+              setPendingNavigation(true);
             }
             if (
               [
@@ -363,8 +365,17 @@ export const RootstockSwapProvider = ({children}) => {
       signer,
       createSigner,
       startRootstockEventListener,
+      pendingNavigation,
+      setPendingNavigation,
     };
-  }, [provider, signer, createSigner, startRootstockEventListener]);
+  }, [
+    provider,
+    signer,
+    createSigner,
+    startRootstockEventListener,
+    pendingNavigation,
+    setPendingNavigation,
+  ]);
 
   return (
     <RootstockSwapContext.Provider value={contextValue}>
