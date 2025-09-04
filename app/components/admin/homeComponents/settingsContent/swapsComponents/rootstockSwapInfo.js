@@ -141,7 +141,7 @@ export default function SubmarineSwapDisplay(props) {
           </View>
         </ScrollView>
 
-        {!swapData.data.didSwapFail && (
+        {swapData.data.didSwapFail && (
           <CustomButton
             actionFunction={async () => {
               setIsRefunding(true);
