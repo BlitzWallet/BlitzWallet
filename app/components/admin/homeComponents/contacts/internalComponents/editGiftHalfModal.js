@@ -4,10 +4,12 @@ import CustomButton from '../../../../../functions/CustomElements/button';
 import {INSET_WINDOW_WIDTH, SIZES} from '../../../../../constants/theme';
 import {useNavigation} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
+import GetThemeColors from '../../../../../hooks/themeColors';
 
 export default function EditGiftHalfModal() {
   const navigate = useNavigation();
   const {t} = useTranslation();
+  const {textColor} = GetThemeColors();
   return (
     <View style={styles.container}>
       <ThemeText
@@ -29,7 +31,8 @@ export default function EditGiftHalfModal() {
             {merge: true},
           )
         }
-        buttonStyles={{...styles.buttonStyle}}
+        buttonStyles={{...styles.buttonStyle, backgroundColor: 'unset'}}
+        textStyles={{color: textColor}}
         textContent={t('constants.remove')}
       />
     </View>

@@ -478,27 +478,28 @@ export default function SendAndRequestPage(props) {
                   })
                 }
                 style={{
-                  flexDirection: 'row',
-                  ...CENTER,
-                  paddingHorizontal: 35,
-                  marginTop: giftOption.isVariable ? 10 : 0,
+                  ...styles.pill,
+                  borderColor: backgroundOffset,
+                  marginTop: giftOption.isVariable ? 20 : 0,
                 }}>
                 <View
-                  style={{
-                    height: 80,
-                    width: 80,
-                    alignSelf: 'center',
-                  }}>
+                  style={[
+                    styles.pillLogoContainer,
+                    {
+                      backgroundColor: theme
+                        ? backgroundOffset
+                        : COLORS.darkModeText,
+                    },
+                  ]}>
                   <Image
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      aspectRatio: 1,
-                      borderRadius: 16,
-                    }}
+                    style={styles.giftLogo}
                     source={{uri: giftOption.logo}}
                   />
                 </View>
+                <ThemeText
+                  styles={styles.pillText}
+                  content={`${giftOption.name} Gift Card`}
+                />
                 <View
                   style={{
                     backgroundColor: backgroundOffset,
@@ -508,13 +509,14 @@ export default function SendAndRequestPage(props) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'absolute',
-                    right: 0,
+                    right: -15,
+                    top: -15,
                   }}>
                   <ThemeImage
                     styles={{width: 20, height: 20}}
                     lightModeIcon={ICONS.editIcon}
                     darkModeIcon={ICONS.editIconLight}
-                    lightsOutIcon={ICONS.editIcon}
+                    lightsOutIcon={ICONS.editIconLight}
                   />
                 </View>
               </TouchableOpacity>
@@ -641,5 +643,36 @@ const styles = StyleSheet.create({
   button: {
     width: 'auto',
     ...CENTER,
+  },
+
+  pill: {
+    width: '90%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    gap: 12,
+    borderWidth: 3,
+    alignSelf: 'center',
+  },
+
+  pillLogoContainer: {
+    width: 40,
+    height: 40,
+    position: 'relative',
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  giftLogo: {
+    width: '100%',
+    height: '100%',
+    aspectRatio: 1,
+    objectFit: 'fill',
+  },
+  pillText: {
+    flexShrink: 1,
   },
 });
