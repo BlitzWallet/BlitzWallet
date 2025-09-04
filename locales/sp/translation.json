@@ -276,7 +276,7 @@
       },
       "confirmationSlideUp": {
         "invoiceInfoError": "Error al obtener información de la factura.",
-        "title": "Confirmar país",
+        "title": "Confirmar VPN",
         "duration": "Duración: 1 {{duration}}",
         "price": "Precio: ",
         "fee": "Tarifa: "

@@ -9,7 +9,11 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {COLORS, SIZES} from '../../../../../constants/theme';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../../constants/theme';
 import {ICONS} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useState} from 'react';
@@ -53,33 +57,33 @@ export default function VPNHome() {
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}>
-      <View style={{flex: 1}}>
-        <CustomSettingsTopBar
-          customBackFunction={() => {
-            if (selectedPage === null) navigate.goBack();
-            else {
-              Keyboard.dismiss();
-              setTimeout(
-                () => {
-                  setSelectedPage(null);
-                },
-                Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
-              );
-            }
-          }}
-          label={selectedPage ? t('apps.VPN.home.selectPlan') : ''}
-          showLeftImage={!selectedPage}
-          leftImageBlue={ICONS.receiptIcon}
-          LeftImageDarkMode={ICONS.receiptWhite}
-          leftImageFunction={() => {
-            navigate.navigate('HistoricalVPNPurchases');
-          }}
-          containerStyles={{height: 30}}
-        />
+      <CustomSettingsTopBar
+        customBackFunction={() => {
+          if (selectedPage === null) navigate.goBack();
+          else {
+            Keyboard.dismiss();
+            setTimeout(
+              () => {
+                setSelectedPage(null);
+              },
+              Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+            );
+          }
+        }}
+        label={selectedPage ? t('apps.VPN.home.selectPlan') : ''}
+        showLeftImage={!selectedPage}
+        leftImageBlue={ICONS.receiptIcon}
+        LeftImageDarkMode={ICONS.receiptWhite}
+        leftImageFunction={() => {
+          navigate.navigate('HistoricalVPNPurchases');
+        }}
+        containerStyles={{height: 30}}
+      />
+      <View style={styles.container}>
         {!selectedPage ? (
           <View style={styles.homepage}>
             <ThemeText
-              styles={{textAlign: 'center', fontSize: SIZES.large}}
+              styles={styles.header}
               content={t('apps.VPN.home.title')}
             />
             <TouchableOpacity
@@ -94,12 +98,12 @@ export default function VPNHome() {
               }}>
               <ThemeText
                 styles={{
-                  textAlign: 'center',
-                  marginTop: 15,
                   color:
                     theme && darkModeType
                       ? COLORS.darkModeText
                       : COLORS.primary,
+                  textAlign: 'center',
+                  marginTop: 10,
                 }}
                 content={t('apps.VPN.home.downloadApp')}
               />
@@ -126,7 +130,13 @@ export default function VPNHome() {
 const styles = StyleSheet.create({
   homepage: {
     flex: 1,
+    width: INSET_WINDOW_WIDTH,
+    alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  container: {
+    flex: 1,
+  },
+  header: {textAlign: 'center', fontSize: SIZES.large},
 });

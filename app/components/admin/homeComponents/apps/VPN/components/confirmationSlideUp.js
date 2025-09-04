@@ -20,15 +20,8 @@ export default function ConfirmVPNPage(props) {
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {masterInfoObject} = useGlobalContextProvider();
   const {sparkInformation} = useSparkWallet();
-  const {
-    duration,
-    country,
-    createVPN,
-
-    slideHeight,
-    theme,
-    darkModeType,
-  } = props;
+  const {duration, country, createVPN, slideHeight, theme, darkModeType} =
+    props;
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
 
@@ -116,24 +109,19 @@ export default function ConfirmVPNPage(props) {
         <>
           <ThemeText
             styles={{
-              fontSize: SIZES.large,
-              textAlign: 'center',
+              fontSize: SIZES.xLarge,
               marginBottom: 5,
             }}
             content={t('apps.VPN.confirmationSlideUp.title')}
           />
           <ThemeText
-            styles={{
-              fontSize: SIZES.large,
-              textAlign: 'center',
-            }}
-            content={`${country}`}
+            content={country
+              .replace(/[\u{1F1E6}-\u{1F1FF}]{2}\s*/gu, '')
+              .replace(/-/g, ' ')}
           />
           <ThemeText
-            styles={{fontSize: SIZES.large, marginTop: 10}}
-            content={t('apps.VPN.confirmationSlideUp.duration', {
-              duration: t(`constants.${duration.toLowerCase()}`),
-            })}
+            styles={{marginTop: 5}}
+            content={'1 ' + t(`constants.${duration.toLowerCase()}`)}
           />
           <FormattedSatText
             neverHideBalance={true}

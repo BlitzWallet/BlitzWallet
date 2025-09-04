@@ -52,7 +52,7 @@ export default function ConfirmSMSReceiveCode(props) {
         const payload = {
           country: location,
           service: serviceCode,
-          ref: 'blitzwallet@blitz-wallet.com',
+          ref: process.env.GPT_PAYOUT_LNURL,
         };
 
         const response = await fetch(`https://api2.sms4sats.com/createorder`, {

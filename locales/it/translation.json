@@ -282,7 +282,7 @@
       },
       "confirmationSlideUp": {
         "invoiceInfoError": "Errore nel recupero delle informazioni della fattura.",
-        "title": "Conferma Paese",
+        "title": "Conferma VPN",
         "duration": "Durata: 1 {{duration}}",
         "price": "Prezzo: ",
         "fee": "Commissione: "

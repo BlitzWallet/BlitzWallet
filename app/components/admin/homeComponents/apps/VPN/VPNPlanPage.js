@@ -1,7 +1,7 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {ThemeText} from '../../../../../functions/CustomElements';
-import {useMemo, useState} from 'react';
-import {CENTER, CONTENT_KEYBOARD_OFFSET} from '../../../../../constants';
+import {useCallback, useState} from 'react';
+import {COLORS, SCREEN_DIMENSIONS, SIZES} from '../../../../../constants';
 import VPNDurationSlider from './components/durationSlider';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
@@ -11,7 +11,6 @@ import GeneratedFile from './pages/generatedFile';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import sendStorePayment from '../../../../../functions/apps/payments';
@@ -22,8 +21,10 @@ import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 import {useTranslation} from 'react-i18next';
+import CountryFlag from 'react-native-country-flag';
 
 export default function VPNPlanPage({countryList}) {
+  const {theme, darkModeType} = useGlobalContextProvider();
   const [searchInput, setSearchInput] = useState('');
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {sparkInformation} = useSparkWallet();
@@ -37,40 +38,94 @@ export default function VPNPlanPage({countryList}) {
   const navigate = useNavigation();
   const {textColor} = GetThemeColors();
   const [loadingMessage, setLoadingMessage] = useState('');
-  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const {bottomPadding} = useGlobalInsets();
   const {t} = useTranslation();
 
-  const countryElements = useMemo(() => {
-    return [...countryList]
-      .filter(item =>
-        item.country
-          .slice(5)
-          .toLowerCase()
-          .startsWith(searchInput.toLowerCase()),
-      )
-      .map(item => {
-        if (item.cc === 2) return <View key={item.country} />;
-        return (
-          <TouchableOpacity
-            onPress={() => {
-              setSearchInput(item.country);
-            }}
-            style={styles.countryElementPadding}
-            key={item.country}>
-            <ThemeText styles={{textAlign: 'center'}} content={item.country} />
-          </TouchableOpacity>
-        );
+  const flatListElement = useCallback(
+    ({item}) => {
+      return (
+        <TouchableOpacity
+          onPress={() => {
+            if (item.country === searchInput) {
+              setSearchInput('');
+              return;
+            }
+            setSearchInput(item.country);
+          }}
+          style={[
+            styles.countryItem,
+            {
+              borderWidth: 2,
+              borderColor:
+                searchInput === item.country
+                  ? theme && darkModeType
+                    ? COLORS.darkModeText
+                    : COLORS.primary
+                  : 'transparent',
+            },
+          ]}
+          key={item.country}>
+          <CountryFlag
+            style={{marginBottom: 5, borderRadius: 8}}
+            size={50}
+            isoCode={item.isoCode}
+          />
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.countryText}
+            content={item.country
+              .replace(/[\u{1F1E6}-\u{1F1FF}]{2}\s*/gu, '')
+              .replace(/-/g, ' ')}
+          />
+        </TouchableOpacity>
+      );
+    },
+    [searchInput],
+  );
+
+  const handleSubmit = useCallback(() => {
+    const didAddLocation = countryList.filter(item => {
+      return item.country === searchInput;
+    });
+
+    if (didAddLocation.length === 0) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('apps.VPN.VPNPlanPage.noLocationError'),
       });
-  }, [searchInput, countryList]);
+      setIsPaying(false);
+      return;
+    }
+
+    const [{cc, country}] = didAddLocation;
+
+    const cost = Math.round(
+      (SATSPERBITCOIN / fiatStats.value) *
+        (selectedDuration === 'hour'
+          ? 0.1
+          : selectedDuration === 'day'
+          ? 0.5
+          : selectedDuration === 'week'
+          ? 1.5
+          : selectedDuration === 'month'
+          ? 4
+          : 9),
+    );
+
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'confirmVPN',
+      country: country,
+      duration: selectedDuration,
+      createVPN: createVPN,
+      price: cost,
+      sliderHight: 0.5,
+    });
+  }, [countryList, navigate, selectedDuration, createVPN]);
 
   return (
     <View
       style={{
         flex: 1,
-        paddingBottom: isKeyboardActive
-          ? CONTENT_KEYBOARD_OFFSET
-          : bottomPadding,
+        paddingBottom: bottomPadding,
       }}>
       {isPaying ? (
         <>
@@ -93,67 +148,25 @@ export default function VPNPlanPage({countryList}) {
             setSelectedDuration={setSelectedDuration}
             selectedDuration={selectedDuration}
           />
-          <View style={{flex: 1, marginTop: 0}}>
-            <CustomSearchInput
-              inputText={searchInput}
-              setInputText={setSearchInput}
-              placeholderText={t(
-                'apps.VPN.VPNPlanPage.countrySearchPlaceholder',
-              )}
-              onBlurFunction={() => setIsKeyboardActive(false)}
-              onFocusFunction={() => setIsKeyboardActive(true)}
-            />
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{paddingTop: 10}}>
-              {countryElements}
-            </ScrollView>
 
-            {!isKeyboardActive && (
-              <CustomButton
-                buttonStyles={{marginTop: 'auto', width: 'auto', ...CENTER}}
-                textContent={t('apps.VPN.VPNPlanPage.createVPNBTN')}
-                actionFunction={() => {
-                  const didAddLocation = countryList.filter(item => {
-                    return item.country === searchInput;
-                  });
+          <FlatList
+            numColumns={3}
+            initialNumToRender={20}
+            maxToRenderPerBatch={20}
+            windowSize={3}
+            style={styles.flatListOuterContianer}
+            contentContainerStyle={styles.flatListContainer}
+            columnWrapperStyle={styles.row}
+            data={countryList}
+            renderItem={flatListElement}
+            keyExtractor={item => item.isoCode}
+          />
 
-                  if (didAddLocation.length === 0) {
-                    navigate.navigate('ErrorScreen', {
-                      errorMessage: t('apps.VPN.VPNPlanPage.noLocationError'),
-                    });
-                    setIsPaying(false);
-                    return;
-                  }
-
-                  const [{cc, country}] = didAddLocation;
-
-                  const cost = Math.round(
-                    (SATSPERBITCOIN / fiatStats.value) *
-                      (selectedDuration === 'hour'
-                        ? 0.1
-                        : selectedDuration === 'day'
-                        ? 0.5
-                        : selectedDuration === 'week'
-                        ? 1.5
-                        : selectedDuration === 'month'
-                        ? 4
-                        : 9),
-                  );
-
-                  navigate.navigate('CustomHalfModal', {
-                    wantedContent: 'confirmVPN',
-                    country: country,
-                    duration: selectedDuration,
-                    createVPN: createVPN,
-                    price: cost,
-
-                    sliderHight: 0.5,
-                  });
-                }}
-              />
-            )}
-          </View>
+          <CustomButton
+            buttonStyles={styles.buttonContainer}
+            textContent={t('apps.VPN.VPNPlanPage.createVPNBTN')}
+            actionFunction={handleSubmit}
+          />
         </>
       )}
     </View>
@@ -351,4 +364,36 @@ export default function VPNPlanPage({countryList}) {
 
 const styles = StyleSheet.create({
   countryElementPadding: {paddingVertical: 10},
+  flatListOuterContianer: {
+    marginTop: 10,
+  },
+  flatListContainer: {
+    width: '100%',
+    paddingBottom: 20,
+    gap: 15,
+    alignSelf: 'center',
+    paddingTop: 20,
+  },
+  row: {
+    gap: 15,
+  },
+  countryItem: {
+    flex: 1,
+    maxWidth: SCREEN_DIMENSIONS.width * 0.3333 - 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 8,
+    borderRadius: 12,
+  },
+  countryText: {
+    opacity: 0.8,
+    fontSize: SIZES.small,
+    textAlign: 'center',
+    flexShrink: 1,
+  },
+  buttonContainer: {
+    alignSelf: 'center',
+    marginTop: 10,
+  },
 });
