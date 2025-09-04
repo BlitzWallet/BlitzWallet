@@ -879,6 +879,11 @@
       "unpaidMessage": "Esta tarjeta no está pagada. Si el pago se realizó pero no se refleja, utiliza el correo electrónico a continuación para obtener ayuda.",
       "messageLabel": "Mensaje:"
     },
+    "selectGiftPage": {
+      "noCards": "No hay tarjetas disponibles",
+      "header": "Selecciona la tarjeta de regalo que quieres enviar",
+      "inputPlaceholder": "Buscar una tarjeta de regalo"
+    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "¿Quieres {{option}} la foto {{option2}}?"

@@ -1036,6 +1036,11 @@
       "unpaidMessage": "Questa carta non è stata pagata. Se il pagamento è stato effettuato ma non risulta, utilizza l'email qui sotto per ottenere aiuto.",
       "messageLabel": "Messaggio:"
     },
+    "selectGiftPage": {
+      "noCards": "Nessuna carta disponibile",
+      "header": "Seleziona la carta regalo che desideri inviare",
+      "inputPlaceholder": "Cerca una carta regalo"
+    },
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Vuoi {{option}} {{option2}} foto"

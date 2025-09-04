@@ -35,7 +35,6 @@ export default function SelectGiftCardForContacts() {
   const {bottomPadding} = useGlobalInsets();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const [isLoading, setIsLoading] = useState(null);
-  console.log(bottomPadding);
 
   useFocusEffect(
     useCallback(() => {
@@ -222,7 +221,7 @@ export default function SelectGiftCardForContacts() {
           text={
             giftCardsList.length === 0 && !errorMessage
               ? t('apps.giftCards.giftCardsPage.loadingCardsMessage')
-              : errorMessage || 'No cards available'
+              : errorMessage || t('contacts.selectGiftPage.noCards')
           }
         />
       ) : (
@@ -236,7 +235,7 @@ export default function SelectGiftCardForContacts() {
           ListHeaderComponent={
             <ThemeText
               styles={styles.titleText}
-              content={'Select the Gift Card you want to send'}
+              content={t('contacts.selectGiftPage.header')}
             />
           }
           keyExtractor={item => item.id.toString()}

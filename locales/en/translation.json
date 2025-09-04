@@ -1038,6 +1038,12 @@
       "messageLabel": "Message:"
     },
 
+    "selectGiftPage": {
+      "noCards": "No cards available",
+      "header": "Select the Gift Card you want to send",
+      "inputPlaceholder": "Search for a Gift Card"
+    },
+
     "internalComponents": {
       "addOrDeleteImageScreen": {
         "pageMessage": "Do you want to {{option}} {{option2}} photo"
