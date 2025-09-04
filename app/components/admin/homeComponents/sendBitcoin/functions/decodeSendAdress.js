@@ -13,12 +13,11 @@ import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import processSparkAddress from './processSparkAddress';
 import {decodeBip21SparkAddress} from '../../../../../functions/spark/handleBip21SparkAddress';
 import {decodeBip21Address} from '../../../../../functions/bip21AddressFormmating';
-import {decodeLNURL} from '../../../../../functions/lnurl/bench32Formmater';
-import {formatLightningAddress} from '../../../../../functions/lnurl';
 import {
   handleCryptoQRAddress,
   isSupportedPNPQR,
 } from '../../../../../functions/sendBitcoin/getMerchantAddress';
+import hanndleLNURLAddress from '../../../../../functions/sendBitcoin/handleLNURL';
 
 export default async function decodeSendAddress(props) {
   let {
@@ -102,33 +101,15 @@ export default async function decodeSendAddress(props) {
         ? decodedAddress.address.toUpperCase()
         : decodedAddress.options.lightning?.toUpperCase();
 
-      const decodedLNURL = decodeLNURL(lightningInvoice);
-
-      if (!decodedLNURL) {
+      if (!lightningInvoice) {
         btcAdress = decodedAddress.address;
       } else {
-        const parsedUrl = new URL(decodedLNURL);
-
-        const isAuthRequset =
-          parsedUrl.searchParams.get('k1') && parsedUrl.searchParams.get('tag');
-
-        if (isAuthRequset) {
-          btcAdress = decodedAddress.address;
-        } else {
-          const response = await fetch(decodedLNURL);
-          const data = await response.json();
-          console.log(data);
-          if (data.status === 'ERROR') {
-            throw new Error('Unable to get lnurl metadata');
-          }
-          if (data.tag === 'withdrawRequest') {
-            btcAdress = decodedAddress.address;
-          } else {
-            const lightningAddress = formatLightningAddress(decodedLNURL);
-            btcAdress = lightningAddress;
-          }
-        }
+        btcAdress = await hanndleLNURLAddress(lightningInvoice);
       }
+    }
+
+    if (btcAdress.toLowerCase().startsWith('lnurl')) {
+      btcAdress = await hanndleLNURLAddress(btcAdress);
     }
 
     console.log(btcAdress, 'bitcoin address');
