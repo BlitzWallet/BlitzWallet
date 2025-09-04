@@ -346,7 +346,7 @@ export default function SwitchReceiveOptionPage({
         textContent:
           t('wallet.receivePages.switchReceiveOptionPage.swapWarning', {
             amount: displayCorrectDenomination({
-              amount: minMaxLiquidSwapAmounts.rsk.min,
+              amount: minMaxLiquidSwapAmounts.rsk.min + 1000,
               masterInfoObject,
               fiatStats,
             }),
