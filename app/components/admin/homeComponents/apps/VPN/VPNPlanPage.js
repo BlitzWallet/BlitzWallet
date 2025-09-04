@@ -382,7 +382,6 @@ const styles = StyleSheet.create({
     maxWidth: SCREEN_DIMENSIONS.width * 0.3333 - 15,
     alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
     padding: 8,
     borderRadius: 12,
   },

@@ -242,7 +242,6 @@ export default function SMSMessagingSendPage({SMSprices}) {
                 maxLength={135}
                 textInputMultiline={true}
                 containerStyles={{
-                  marginTop: 'auto',
                   maxHeight: 120,
                   width: INSET_WINDOW_WIDTH,
                   marginTop: 10,
@@ -528,7 +527,6 @@ const styles = StyleSheet.create({
     maxWidth: SCREEN_DIMENSIONS.width * 0.3333 - 15,
     alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
   },
   countryText: {
     opacity: 0.8,
