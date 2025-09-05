@@ -11,7 +11,10 @@ import {ThemeText} from '../../../../functions/CustomElements';
 import {useEffect, useState} from 'react';
 import {useKeysContext} from '../../../../../context-store/keys';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import {fetchAndCacheGiftCardData} from '../../../../functions/contacts/giftCardStorage';
+import {
+  fetchAndCacheGiftCardData,
+  saveGiftCardData,
+} from '../../../../functions/contacts/giftCardStorage';
 import {COLORS, ICONS, SIZES} from '../../../../constants';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -33,14 +36,15 @@ export default function ViewGiftCardCodePage({
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const [codeInformation, setCodeInformation] = useState(null);
+  const isUserMarkedClaimed = codeInformation?.userMarkedClaimed;
   const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {backgroundColor, backgroundOffset} = GetThemeColors();
+  const {backgroundColor, backgroundOffset, textColor} = GetThemeColors();
   const {fiatStats} = useNodeContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const navigate = useNavigation();
   const {t} = useTranslation();
   const {showToast} = useToast();
-  console.log(message);
+
   useEffect(() => {
     async function getCardInformation() {
       if (!giftCardInfo?.invoice) return;
@@ -70,6 +74,24 @@ export default function ViewGiftCardCodePage({
     }
   };
 
+  const toggleClaimedStatus = async () => {
+    const newStatus = !codeInformation?.userMarkedClaimed;
+    const newData = {
+      ...codeInformation,
+      userMarkedClaimed: newStatus,
+    };
+
+    const response = await saveGiftCardData(giftCardInfo.invoice, newData);
+
+    if (response) {
+      setCodeInformation(newData);
+    } else {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('errormessages.genericError'),
+      });
+    }
+  };
+
   if (!codeInformation) {
     return (
       <FullLoadingScreen text={t('contacts.viewGiftCardCode.loadingMessage')} />
@@ -79,8 +101,17 @@ export default function ViewGiftCardCodePage({
   return (
     <ScrollView style={styles.container}>
       {/* Main Gift Card Display */}
-      <View style={styles.giftCardContainer}>
-        {/* Header with Logo and Name */}
+      <View
+        style={[
+          styles.giftCardContainer,
+          {
+            paddingTop:
+              !isOutgoingPayment && codeInformation?.status !== 'Completed'
+                ? 0
+                : 40,
+          },
+        ]}>
+        {/* Header with Logo, Name, and Claimed Toggle */}
         <View style={styles.headerSection}>
           <View style={styles.logoContainer}>
             <Image
@@ -99,6 +130,47 @@ export default function ViewGiftCardCodePage({
               content={codeInformation.cardType}
             />
           </View>
+
+          {/* Claimed Status Toggle */}
+          {!isOutgoingPayment && codeInformation?.status === 'Completed' && (
+            <TouchableOpacity
+              onPress={toggleClaimedStatus}
+              style={{
+                ...styles.claimedToggle,
+                backgroundColor: isUserMarkedClaimed
+                  ? theme
+                    ? darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.primary
+                    : COLORS.primary
+                  : 'transparent',
+                borderColor: theme
+                  ? darkModeType
+                    ? backgroundColor
+                    : backgroundOffset
+                  : backgroundOffset,
+              }}>
+              <View style={styles.claimedToggleContent}>
+                <ThemeText
+                  styles={{
+                    ...styles.claimedToggleText,
+                    color: isUserMarkedClaimed
+                      ? theme
+                        ? darkModeType
+                          ? COLORS.lightModeText
+                          : COLORS.darkModeText
+                        : COLORS.darkModeText
+                      : textColor,
+                  }}
+                  content={
+                    isUserMarkedClaimed
+                      ? t('contacts.viewGiftCardCode.claimed')
+                      : t('contacts.viewGiftCardCode.markAsClaimed')
+                  }
+                />
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Status Banner */}
@@ -379,7 +451,6 @@ const styles = StyleSheet.create({
   giftCardContainer: {
     width: INSET_WINDOW_WIDTH,
     alignSelf: 'center',
-    paddingTop: 20,
   },
   headerSection: {
     flexDirection: 'row',
@@ -410,6 +481,24 @@ const styles = StyleSheet.create({
   cardType: {
     fontSize: SIZES.small,
     opacity: 0.7,
+  },
+  claimedToggle: {
+    position: 'absolute',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginLeft: 8,
+    right: 0,
+    top: -40,
+  },
+  claimedToggleContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  claimedToggleText: {
+    fontSize: SIZES.small,
+    includeFontPadding: false,
   },
   amountSection: {
     alignItems: 'center',

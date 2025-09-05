@@ -1034,7 +1034,9 @@
       "helpHeader": "Hai bisogno di aiuto?",
       "helpDesc": "Se hai bisogno di assistenza con questa carta regalo, copia l'UUID della carta qui sopra e includilo nella tua email al nostro team di supporto.",
       "unpaidMessage": "Questa carta non è stata pagata. Se il pagamento è stato effettuato ma non risulta, utilizza l'email qui sotto per ottenere aiuto.",
-      "messageLabel": "Messaggio:"
+      "messageLabel": "Messaggio:",
+      "claimed": "ha affermato",
+      "markAsClaimed": "Marks come sostenuto"
     },
     "selectGiftPage": {
       "noCards": "Nessuna carta disponibile",

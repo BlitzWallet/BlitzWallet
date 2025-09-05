@@ -1035,7 +1035,9 @@
       "helpHeader": "Need Help?",
       "helpDesc": "If you need assistance with this gift card, copy the Card UUID above and include it in your email to our support team.",
       "unpaidMessage": "This card is unpaid. If payment was made but not reflected, please use the email below to get help.",
-      "messageLabel": "Message:"
+      "messageLabel": "Message:",
+      "claimed": "Claimed",
+      "markAsClaimed": "Mark as Claimed"
     },
 
     "selectGiftPage": {
