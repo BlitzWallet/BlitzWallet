@@ -20,8 +20,6 @@ import calculateProgressiveBracketFee from './calculateSupportFee';
 import {
   addSingleUnpaidSparkLightningTransaction,
   bulkUpdateSparkTransactions,
-  SPARK_TX_UPDATE_ENVENT_NAME,
-  sparkTransactionsEventEmitter,
 } from './transactions';
 
 export const sparkPaymenWrapper = async ({
@@ -106,6 +104,9 @@ export const sparkPaymenWrapper = async ({
     isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, true);
     if (paymentType === 'lightning') {
       const initialFee = Math.round(fee - supportFee);
+
+      await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
+
       const lightningPayResponse = await sendSparkLightningPayment({
         maxFeeSats: Math.ceil(initialFee * 1.2), //addding 20% buffer so we dont undershoot it
         invoice: address,
@@ -117,8 +118,7 @@ export const sparkPaymenWrapper = async ({
           lightningPayResponse.error || 'Error when sending lightning payment',
         );
 
-      handleSupportPayment(masterInfoObject, supportFee, mnemonic);
-
+      console.log(lightningPayResponse, 'lightniing pay response');
       const data = lightningPayResponse.paymentResponse;
 
       const tx = {
@@ -142,6 +142,8 @@ export const sparkPaymenWrapper = async ({
       await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
     } else if (paymentType === 'bitcoin') {
       // make sure to import exist speed
+      await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
+
       const onChainPayResponse = await sendSparkBitcoinPayment({
         onchainAddress: address,
         exitSpeed,
@@ -155,7 +157,6 @@ export const sparkPaymenWrapper = async ({
         throw new Error(
           onChainPayResponse.error || 'Error when sending bitcoin payment',
         );
-      handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
       console.log(onChainPayResponse, 'on-chain pay response');
       const data = onChainPayResponse.response;
@@ -180,6 +181,8 @@ export const sparkPaymenWrapper = async ({
     } else {
       let sparkPayResponse;
 
+      await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
+
       if (seletctedToken !== 'Bitcoin') {
         sparkPayResponse = await sendSparkTokens({
           tokenIdentifier: seletctedToken,
@@ -200,9 +203,6 @@ export const sparkPaymenWrapper = async ({
           sparkPayResponse.error || 'Error when sending spark payment',
         );
 
-      // if (seletctedToken === 'Bitcoin') {
-      handleSupportPayment(masterInfoObject, supportFee, mnemonic);
-      // }
       const data = sparkPayResponse.response;
       const tx = {
         id: seletctedToken !== 'Bitcoin' ? data : data.id,
@@ -309,15 +309,17 @@ async function handleSupportPayment(masterInfoObject, supportFee, mnemonic) {
   try {
     if (!supportFee) return;
     if (masterInfoObject?.enabledDeveloperSupport?.isEnabled) {
-      await new Promise(res => setTimeout(res, 1000));
-      await sendSparkPayment({
+      const txPromise = sendSparkPayment({
         receiverSparkAddress: process.env.BLITZ_SPARK_SUPPORT_ADDRESSS,
         amountSats: supportFee,
-        mnemonic: mnemonic,
+        mnemonic,
       });
-      sparkTransactionsEventEmitter.emit(
-        SPARK_TX_UPDATE_ENVENT_NAME,
-        'supportTx',
+      await Promise.race([
+        txPromise,
+        new Promise(res => setTimeout(res, 3000)),
+      ]);
+      txPromise.catch(err =>
+        console.log('Error sending support payment (late)', err),
       );
     }
   } catch (err) {
