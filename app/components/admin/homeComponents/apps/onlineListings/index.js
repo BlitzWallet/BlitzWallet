@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nameContainer: {
-    flexGrow: 1,
+    flexShrink: 1,
     marginLeft: 10,
     marginRight: 10,
   },
@@ -408,6 +408,8 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'flex-start',
+    marginLeft: 'auto',
   },
   lightningIcon: {
     width: '70%',
