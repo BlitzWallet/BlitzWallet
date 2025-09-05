@@ -126,9 +126,10 @@ export default function ContactsPage({navigation}) {
           true,
         );
       }
-
-      navigate.navigate('ExpandedContactsPage', {
-        uuid: contact.uuid,
+      requestAnimationFrame(() => {
+        navigate.navigate('ExpandedContactsPage', {
+          uuid: contact.uuid,
+        });
       });
     },
     [

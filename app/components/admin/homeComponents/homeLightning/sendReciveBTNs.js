@@ -20,7 +20,7 @@ export function SendRecieveBTNs({
   const handleSettingsCheck = useCallback(() => {
     try {
       if (!isConnectedToTheInternet)
-        throw new Error(t('errormessagers.nointernet'));
+        throw new Error(t('errormessages.nointernet'));
       return true;
     } catch (err) {
       return false;
@@ -40,7 +40,7 @@ export function SendRecieveBTNs({
           const areSettingsSet = handleSettingsCheck();
           if (!areSettingsSet) {
             navigate.navigate('ErrorScreen', {
-              errorMessage: t('errormessagers.nointernet'),
+              errorMessage: t('errormessages.nointernet'),
             });
             return;
           }
@@ -74,7 +74,7 @@ export function SendRecieveBTNs({
           const areSettingsSet = handleSettingsCheck();
           if (!areSettingsSet) {
             navigate.navigate('ErrorScreen', {
-              errorMessage: t('errormessagers.nointernet'),
+              errorMessage: t('errormessages.nointernet'),
             });
             return;
           }

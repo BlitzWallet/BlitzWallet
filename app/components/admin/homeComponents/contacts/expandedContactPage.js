@@ -92,8 +92,11 @@ export default function ExpandedContactsPage(props) {
         myPubKey: globalContactsInformation.myProfile.uuid,
       });
     }
-    updateSeenTransactions();
-    return;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        updateSeenTransactions();
+      });
+    });
   }, [contactTransactions]);
 
   // Header component for the FlatList

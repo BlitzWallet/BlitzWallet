@@ -131,7 +131,7 @@ const AppStatusProvider = ({children}) => {
     console.log('Setting up network monitoring - first time app is active');
     hasInitializedNetworkMonitoring.current = true;
 
-    const networkSubscription = Network.addNetworkStateListener(
+    Network.addNetworkStateListener(
       ({type, isConnected, isInternetReachable}) => {
         console.log(
           `Network type: ${type}, Connected: ${isConnected}, Internet Reachable: ${isInternetReachable}`,
@@ -151,10 +151,6 @@ const AppStatusProvider = ({children}) => {
     };
 
     checkNetworkState();
-
-    return () => {
-      networkSubscription.remove();
-    };
   }, [appState]);
 
   console.log(minMaxLiquidSwapAmounts, 'min max liquid swap amounts');

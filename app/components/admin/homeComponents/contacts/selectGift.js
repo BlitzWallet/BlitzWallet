@@ -48,7 +48,7 @@ export default function SelectGiftCardForContacts() {
           toggleGiftCardsList(giftCards.body.giftCards);
         } catch (err) {
           navigate.navigate('ErrorScreen', {
-            errorMessage: t('errormessage.nointernet'),
+            errorMessage: t('errormessages.nointernet'),
           });
         }
       }

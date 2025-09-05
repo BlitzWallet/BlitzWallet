@@ -84,7 +84,7 @@ export default function GiftCardOrderDetails(props) {
                   await openInbox();
                 } catch (err) {
                   navigate.navigate('ErrorScreen', {
-                    errorMessage: t('errormessage.noMailAppsFoundError'),
+                    errorMessage: t('errormessages.noMailAppsFoundError'),
                   });
                 }
               }}

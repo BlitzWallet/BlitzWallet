@@ -228,7 +228,7 @@ export default function CreateGiftCardAccount(props) {
       }
       navigate.navigate('GiftCardsPage');
     } catch (err) {
-      setHasError(t('errormessage.nointernet'));
+      setHasError(t('errormessages.nointernet'));
       console.log('sign user in error', err);
     }
   }

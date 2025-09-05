@@ -49,7 +49,7 @@ export default function GiftCardPage() {
           toggleGiftCardsList(giftCards.body.giftCards);
         } catch (err) {
           navigate.navigate('ErrorScreen', {
-            errorMessage: t('errormessage.nointernet'),
+            errorMessage: t('errormessages.nointernet'),
           });
           console.log(err);
         }

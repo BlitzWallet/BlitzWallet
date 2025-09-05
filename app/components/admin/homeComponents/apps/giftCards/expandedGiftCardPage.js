@@ -534,7 +534,7 @@ export default function ExpandedGiftCardPage(props) {
         });
         navigate.navigate('ErrorScreen', {
           errorMessage:
-            paymentResponse.reason || t('errormessage.payingInvoiceError'),
+            paymentResponse.reason || t('errormessages.payingInvoiceError'),
         });
         return;
       }
@@ -553,7 +553,7 @@ export default function ExpandedGiftCardPage(props) {
         return {
           ...prev,
           hasError: true,
-          errorMessage: t('errormessage.invoiceRetrivalError'),
+          errorMessage: t('errormessages.invoiceRetrivalError'),
         };
       });
     }
