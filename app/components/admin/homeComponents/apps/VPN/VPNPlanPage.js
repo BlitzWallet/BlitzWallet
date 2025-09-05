@@ -22,9 +22,10 @@ import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 import {useTranslation} from 'react-i18next';
 import CountryFlag from 'react-native-country-flag';
+import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 
 export default function VPNPlanPage({countryList}) {
-  const {theme, darkModeType} = useGlobalContextProvider();
+  const {theme, darkModeType} = useGlobalThemeContext();
   const [searchInput, setSearchInput] = useState('');
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {sparkInformation} = useSparkWallet();
@@ -80,7 +81,7 @@ export default function VPNPlanPage({countryList}) {
         </TouchableOpacity>
       );
     },
-    [searchInput],
+    [searchInput, theme, darkModeType],
   );
 
   const handleSubmit = useCallback(() => {
@@ -389,6 +390,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     fontSize: SIZES.small,
     textAlign: 'center',
+    includeFontPadding: false,
     flexShrink: 1,
   },
   buttonContainer: {
