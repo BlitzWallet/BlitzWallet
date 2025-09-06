@@ -76,106 +76,105 @@ export default function SelectGiftCardForContacts() {
     [userLocal, giftCardsList],
   );
 
-  const renderItem = useMemo(
-    () =>
-      ({item}) =>
-        (
-          <TouchableOpacity
-            onPress={async () => {
-              try {
-                if (isLoading) return;
-                setIsLoading(item.id);
-                console.log(fiatStats, item.currency);
-                let fiatPrice = fiatStats;
-                if (
-                  fiatStats.coin.toLowerCase() != item.currency.toLowerCase()
-                ) {
-                  const response = await loadNewFiatData(
-                    item.currency,
-                    contactsPrivateKey,
-                    publicKey,
-                    false,
-                  );
-                  if (response.didWork) fiatPrice = response.fiatRateResponse;
-                }
-
-                const satsPerDollar = SATSPERBITCOIN / fiatPrice.value;
-
-                navigate.popTo(
-                  'SendAndRequestPage',
-                  {
-                    cardInfo: {
-                      id: item.id,
-                      denominations: item.denominations,
-                      logo: item.logo,
-                      satsPerDollar,
-                      isVariable: item.denominationType === 'Variable',
-                      fiatStats: fiatPrice,
-                      name: item.name,
-                    },
-                  },
-                  {merge: true},
+  const renderItem = useCallback(
+    ({item}) => {
+      const isVariable =
+        item.denominationType === 'Variable' && item.denominations.length >= 2;
+      return (
+        <TouchableOpacity
+          onPress={async () => {
+            try {
+              if (isLoading) return;
+              setIsLoading(item.id);
+              console.log(fiatStats, item.currency);
+              let fiatPrice = fiatStats;
+              if (fiatStats.coin.toLowerCase() != item.currency.toLowerCase()) {
+                const response = await loadNewFiatData(
+                  item.currency,
+                  contactsPrivateKey,
+                  publicKey,
+                  false,
                 );
-                setIsLoading(null);
-              } catch (err) {
-                console.log(err);
-                setIsLoading(null);
+                if (response.didWork) fiatPrice = response.fiatRateResponse;
               }
-            }}
-            activeOpacity={isLoading ? 1 : 0.2}
-            style={styles.giftCardGridItem}>
-            {isLoading === item.id ? (
-              <FullLoadingScreen />
-            ) : (
-              <>
-                <View style={styles.logoContainer}>
-                  <FastImage
-                    style={styles.cardLogo}
-                    source={{uri: item.logo}}
-                    resizeMode={FastImage.resizeMode.contain}
-                  />
-                </View>
-                <View style={styles.titleContainer}>
-                  <ThemeText
-                    styles={styles.companyNameText}
-                    CustomNumberOfLines={2}
-                    content={item.name}
-                  />
-                  <ThemeText
-                    styles={styles.priceText}
-                    content={
-                      item.denominationType === 'Variable'
-                        ? `${
-                            item[
-                              item.denominations.length === 0
-                                ? 'defaultDenoms'
-                                : 'denominations'
-                            ][0]
-                          } ${item.currency} ${
-                            item.denominations.length > 1 ? '-' : ''
-                          } ${formatBalanceAmount(
-                            item[
-                              item.denominations.length === 0
-                                ? 'defaultDenoms'
-                                : 'denominations'
-                            ][
-                              item[
+
+              const satsPerDollar = SATSPERBITCOIN / fiatPrice.value;
+
+              navigate.navigate('ExpandedGiftCardPage', {
+                selectedItem: item,
+                fromSelectGiftPage: true,
+                cardInfo: {
+                  id: item.id,
+                  logo: item.logo,
+                  satsPerDollar,
+                  fiatStats: fiatPrice,
+                  name: item.name,
+                },
+              });
+
+              setIsLoading(null);
+            } catch (err) {
+              console.log(err);
+              setIsLoading(null);
+            }
+          }}
+          activeOpacity={isLoading ? 1 : 0.2}
+          style={styles.giftCardGridItem}>
+          {isLoading === item.id ? (
+            <FullLoadingScreen />
+          ) : (
+            <>
+              <View style={styles.logoContainer}>
+                <FastImage
+                  style={styles.cardLogo}
+                  source={{uri: item.logo}}
+                  resizeMode={FastImage.resizeMode.contain}
+                />
+              </View>
+              <View style={styles.titleContainer}>
+                <ThemeText
+                  styles={styles.companyNameText}
+                  CustomNumberOfLines={1}
+                  content={item.name}
+                />
+                <ThemeText
+                  styles={styles.priceText}
+                  content={
+                    isVariable
+                      ? `${formatBalanceAmount(
+                          item.denominations.length > 1
+                            ? item[
                                 item.denominations.length === 0
                                   ? 'defaultDenoms'
                                   : 'denominations'
-                              ].length - 1
-                            ],
-                          )} ${item.currency}`
-                        : `${formatBalanceAmount(item.denominations[0])} ${
-                            item.currency
-                          }`
-                    }
-                  />
-                </View>
-              </>
-            )}
-          </TouchableOpacity>
-        ),
+                              ][0]
+                            : 1,
+                        )} ${item.currency} ${
+                          item.denominations.length > 1 ? '-' : ''
+                        } ${formatBalanceAmount(
+                          item[
+                            item.denominations.length === 0
+                              ? 'defaultDenoms'
+                              : 'denominations'
+                          ][
+                            item[
+                              item.denominations.length === 0
+                                ? 'defaultDenoms'
+                                : 'denominations'
+                            ].length - 1
+                          ],
+                        )} ${item.currency}`
+                      : `${formatBalanceAmount(item.denominations[0])} ${
+                          item.currency
+                        }`
+                  }
+                />
+              </View>
+            </>
+          )}
+        </TouchableOpacity>
+      );
+    },
     [
       navigate,
       backgroundOffset,
@@ -269,12 +268,12 @@ const styles = StyleSheet.create({
   flatListContainer: {
     width: '100%',
     paddingBottom: 20,
-    gap: 15, // Row gap between items
+    gap: 15,
     alignSelf: 'center',
     marginTop: 20,
   },
   row: {
-    gap: 15, // Column gap between items
+    gap: 15,
   },
   giftCardGridItem: {
     flex: 1,
@@ -312,6 +311,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.xSmall,
     textAlign: 'center',
     opacity: 0.8,
+    includeFontPadding: false,
   },
   expandGiftCardBTN: {
     marginLeft: 'auto',

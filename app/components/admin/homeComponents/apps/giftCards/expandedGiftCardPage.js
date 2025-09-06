@@ -1,10 +1,4 @@
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -45,6 +39,7 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import loadNewFiatData from '../../../../../functions/saveAndUpdateFiatData';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
+import FastImage from 'react-native-fast-image';
 
 export default function ExpandedGiftCardPage(props) {
   const {sparkInformation} = useSparkWallet();
@@ -57,11 +52,14 @@ export default function ExpandedGiftCardPage(props) {
   const {fiatStats} = useNodeContext();
   const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
   const [numberOfGiftCards, setNumberOfGiftCards] = useState('1');
+  const fromSelectGiftPage = props.route?.params?.fromSelectGiftPage;
   const selectedItem = props.route?.params?.selectedItem;
+  const [giftMessageForContacts, setGiftMessageForContacts] = useState('');
+  const isVariable =
+    selectedItem.denominationType === 'Variable' &&
+    selectedItem.denominations.length >= 2;
   const [selectedDenomination, setSelectedDenomination] = useState(
-    selectedItem.denominationType === 'Variable'
-      ? ''
-      : selectedItem.denominations[0],
+    isVariable ? '' : selectedItem.denominations[0],
   );
   const {t} = useTranslation();
   const navigate = useNavigation();
@@ -80,7 +78,7 @@ export default function ExpandedGiftCardPage(props) {
     selectedItem.denominations[0],
     selectedItem.denominations[selectedItem.denominations.length - 1],
   ];
-  const step = Math.round((variableRange[1] - variableRange[0]) / 7); // Divide the range into 8 pieces, so 7 intervals
+  const step = Math.round((variableRange[1] - variableRange[0]) / 7);
 
   const veriableArray = useMemo(() => {
     return Array.from({length: 8}, (_, i) => {
@@ -98,56 +96,41 @@ export default function ExpandedGiftCardPage(props) {
     });
   }, [variableRange, step]);
 
-  const demoninationArray =
-    selectedItem.denominationType === 'Variable'
-      ? veriableArray
-      : selectedItem.denominations;
+  const demoninationArray = isVariable
+    ? veriableArray
+    : selectedItem.denominations;
 
   const demonimationElements = useMemo(() => {
     return demoninationArray.map((item, index) => {
+      const isSelected = selectedDenomination == item;
+
       return (
         <TouchableOpacity
           onPress={() => setSelectedDenomination(item)}
           key={item}
-          style={{
-            flexGrow: 1,
-            minWidth: 100,
-            paddingVertical: 10,
-            paddingHorizontal: 10,
-            borderRadius: 8,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor:
-              theme && darkModeType
-                ? selectedDenomination == item
-                  ? COLORS.lightsOutBackground
-                  : COLORS.white
-                : selectedDenomination == item
-                ? theme
-                  ? COLORS.darkModeBackground
+          style={[
+            styles.denominationChip,
+            {
+              backgroundColor: isSelected
+                ? theme && darkModeType
+                  ? COLORS.darkModeText
                   : COLORS.primary
                 : theme
-                ? COLORS.darkModeText
-                : COLORS.lightBlueForGiftCards,
-          }}>
+                ? backgroundColor
+                : COLORS.white,
+            },
+          ]}>
           <ThemeText
             styles={{
-              color:
-                theme && darkModeType
-                  ? selectedDenomination == item
-                    ? COLORS.darkModeText
-                    : COLORS.lightModeText
-                  : selectedDenomination == item
-                  ? theme
-                    ? COLORS.darkModeText
-                    : COLORS.white
-                  : theme
+              ...styles.denominationText,
+              color: isSelected
+                ? theme && darkModeType
                   ? COLORS.lightModeText
-                  : COLORS.white,
-
-              fontSize: SIZES.small,
-              includeFontPadding: false,
-              textAlign: 'center',
+                  : COLORS.darkModeText
+                : theme
+                ? COLORS.darkModeText
+                : COLORS.lightModeText,
+              fontWeight: isSelected ? '500' : '400',
             }}
             content={`${item} ${selectedItem.currency}`}
           />
@@ -169,6 +152,9 @@ export default function ExpandedGiftCardPage(props) {
   const customBack = useCallback(() => {
     keyboardGoBack(navigate);
   }, [navigate]);
+
+  const isFormValid =
+    canPurchaseCard && numberOfGiftCards >= 1 && EMAIL_REGEX.test(email);
 
   return (
     <CustomKeyboardAvoidingView useStandardWidth={true}>
@@ -194,215 +180,316 @@ export default function ExpandedGiftCardPage(props) {
               : bottomPadding,
           }}
           showsVerticalScrollIndicator={false}>
-          <View style={styles.contentContainer}>
-            <Image
-              style={styles.companyLogo}
-              source={{uri: selectedItem.logo}}
-            />
-
+          {/* Header Section */}
+          <View style={styles.headerSection}>
+            <View style={styles.logoContainer}>
+              <FastImage
+                style={styles.companyLogo}
+                source={{uri: selectedItem.logo}}
+                resizeMode={FastImage.resizeMode.contain}
+              />
+            </View>
             <ThemeText
               styles={styles.companyName}
               content={selectedItem.name}
             />
           </View>
-          <ThemeText
-            styles={styles.selectAmountText}
-            content={t('apps.giftCards.expandedGiftCardPage.selectamount')}
-          />
-          <View
-            style={{
-              padding: 20,
-              backgroundColor: backgroundOffset,
-              borderRadius: 10,
-            }}>
-            {selectedItem.denominationType === 'Variable' && (
-              <>
+
+          {/* Amount Selection Section */}
+          <View style={styles.sectionContainer}>
+            <ThemeText
+              styles={styles.sectionTitle}
+              content={t('apps.giftCards.expandedGiftCardPage.selectamount')}
+            />
+
+            <View
+              style={[
+                styles.cardContainer,
+                {backgroundColor: backgroundOffset},
+              ]}>
+              {selectedItem.denominationType === 'Variable' && (
+                <View style={styles.customAmountSection}>
+                  <CustomSearchInput
+                    inputText={String(selectedDenomination)}
+                    setInputText={setSelectedDenomination}
+                    placeholderText={`${selectedItem.denominations[0]} ${selectedItem.currency} - ${selectedItem.denominations[1]} ${selectedItem.currency}`}
+                    keyboardType={'number-pad'}
+                    textInputStyles={{
+                      ...styles.customAmountInput,
+                      backgroundColor: theme ? backgroundColor : COLORS.white,
+                      borderColor:
+                        !canPurchaseCard && selectedDenomination
+                          ? theme && darkModeType
+                            ? COLORS.darkModeText
+                            : COLORS.cancelRed
+                          : 'transparent',
+                      color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+                    }}
+                    containerStyles={styles.customAmountContainer}
+                    placeholderTextColor={COLORS.opaicityGray}
+                    onBlurFunction={() => setIsKeyboardActive(false)}
+                    onFocusFunction={() => setIsKeyboardActive(true)}
+                  />
+                  {!canPurchaseCard && !!selectedDenomination && (
+                    <View style={styles.errorContainer}>
+                      <ThemeText
+                        styles={{
+                          ...styles.errorText,
+                          color:
+                            !canPurchaseCard && selectedDenomination
+                              ? theme && darkModeType
+                                ? COLORS.darkModeText
+                                : COLORS.cancelRed
+                              : 'transparent',
+                        }}
+                        content={t(
+                          'apps.giftCards.expandedGiftCardPage.minMaxPurchaseAmount',
+                          {
+                            min:
+                              selectedDenomination <= variableRange[0]
+                                ? 'min'
+                                : 'max',
+                            max:
+                              selectedDenomination <= variableRange[0]
+                                ? variableRange[0]
+                                : variableRange[1],
+                            currency: selectedItem.currency,
+                          },
+                        )}
+                      />
+                    </View>
+                  )}
+                </View>
+              )}
+
+              <View style={styles.denominationGrid}>
+                {demonimationElements}
+              </View>
+            </View>
+          </View>
+
+          {/* Memo for gift Section */}
+          {fromSelectGiftPage && (
+            <View style={styles.sectionContainer}>
+              <ThemeText
+                styles={styles.sectionTitle}
+                content={t('apps.giftCards.expandedGiftCardPage.giftMessage')}
+              />
+              <View
+                style={[
+                  styles.cardContainer,
+                  {backgroundColor: backgroundOffset},
+                ]}>
                 <CustomSearchInput
-                  inputText={String(selectedDenomination)}
-                  setInputText={setSelectedDenomination}
-                  placeholderText={`${selectedItem.denominations[0]} ${selectedItem.currency} - ${selectedItem.denominations[1]} ${selectedItem.currency}`}
-                  keyboardType={'number-pad'}
+                  inputText={giftMessageForContacts}
+                  setInputText={setGiftMessageForContacts}
+                  placeholderText={t(
+                    'apps.giftCards.expandedGiftCardPage.giftMessagePlaceholder',
+                  )}
+                  maxLength={150}
                   textInputStyles={{
-                    backgroundColor: COLORS.darkModeText,
-                    borderWidth: 1,
-                    borderColor:
-                      !canPurchaseCard && selectedDenomination
-                        ? theme && darkModeType
-                          ? backgroundColor
-                          : COLORS.cancelRed
-                        : backgroundOffset,
-                    color: COLORS.lightModeText,
+                    ...styles.emailInput,
+                    backgroundColor: theme ? backgroundColor : COLORS.white,
+                    color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+                    borderWidth: 0,
                   }}
-                  containerStyles={{marginBottom: 10}}
                   placeholderTextColor={COLORS.opaicityGray}
                   onBlurFunction={() => setIsKeyboardActive(false)}
                   onFocusFunction={() => setIsKeyboardActive(true)}
                 />
-                {!canPurchaseCard && !!selectedDenomination && (
-                  <ThemeText
-                    styles={{
-                      color:
-                        theme && darkModeType ? COLORS.white : COLORS.cancelRed,
-                      marginBottom: 10,
-                      textAlign: 'center',
-                    }}
-                    content={t(
-                      'apps.giftCards.expandedGiftCardPage.minMaxPurchaseAmount',
-                      {
-                        min:
-                          selectedDenomination <= variableRange[0]
-                            ? 'min'
-                            : 'max',
-                        max:
-                          selectedDenomination <= variableRange[0]
-                            ? variableRange[0]
-                            : variableRange[1],
-                        currency: selectedItem.currency,
-                      },
-                    )}
-                  />
-                )}
-              </>
-            )}
+              </View>
+            </View>
+          )}
 
-            <View style={styles.amountContainer}>{demonimationElements}</View>
+          {/* Email Section */}
+          {!fromSelectGiftPage && (
+            <View style={styles.sectionContainer}>
+              <ThemeText
+                styles={styles.sectionTitle}
+                content={t('apps.giftCards.expandedGiftCardPage.sendingto')}
+              />
+              <View
+                style={[
+                  styles.cardContainer,
+                  {backgroundColor: backgroundOffset},
+                ]}>
+                <CustomSearchInput
+                  inputText={email}
+                  setInputText={setEmail}
+                  placeholderText={t(
+                    'apps.giftCards.expandedGiftCardPage.emailPlaceholder',
+                  )}
+                  textInputStyles={{
+                    ...styles.emailInput,
+                    backgroundColor: theme ? backgroundColor : COLORS.white,
+                    borderColor:
+                      !EMAIL_REGEX.test(email) && email !== ''
+                        ? COLORS.cancelRed
+                        : 'transparent',
+                    color: theme ? COLORS.darkModeText : COLORS.lightModeText,
+                  }}
+                  placeholderTextColor={COLORS.opaicityGray}
+                  onBlurFunction={() => setIsKeyboardActive(false)}
+                  onFocusFunction={() => setIsKeyboardActive(true)}
+                />
+              </View>
+            </View>
+          )}
 
-            <ThemeText
-              styles={{marginTop: 20, marginBottom: 5}}
-              content={t('apps.giftCards.expandedGiftCardPage.sendingto')}
-            />
-            <CustomSearchInput
-              inputText={email}
-              setInputText={setEmail}
-              placeholderText={t(
-                'apps.giftCards.expandedGiftCardPage.emailPlaceholder',
-              )}
-              textInputStyles={{
-                marginBottom: 0,
-                backgroundColor: COLORS.darkModeText,
-                borderWidth: 1,
-                borderColor: !EMAIL_REGEX.test(email)
-                  ? theme && darkModeType
-                    ? backgroundColor
-                    : COLORS.cancelRed
-                  : backgroundOffset,
-                color: COLORS.lightModeText,
+          {/* Purchase Button */}
+          <View style={styles.purchaseSection}>
+            <CustomButton
+              buttonStyles={{
+                ...styles.purchaseButton,
+                opacity: isFormValid ? 1 : 0.5,
               }}
-              placeholderTextColor={COLORS.opaicityGray}
-              onBlurFunction={() => setIsKeyboardActive(false)}
-              onFocusFunction={() => setIsKeyboardActive(true)}
+              textStyles={styles.purchaseButtonText}
+              textContent={t(
+                `apps.giftCards.expandedGiftCardPage.${
+                  fromSelectGiftPage ? 'selectForContactBTN' : 'purchaseBTN'
+                }`,
+              )}
+              actionFunction={() => {
+                if (fromSelectGiftPage) {
+                  navigate.popTo(
+                    'SendAndRequestPage',
+                    {
+                      cardInfo: {
+                        ...props.route.params?.cardInfo,
+                        selectedDenomination: selectedDenomination,
+                        memo: giftMessageForContacts,
+                      },
+                    },
+                    {merge: true},
+                  );
+                  return;
+                }
+                if (!isFormValid) return;
+
+                if (email != decodedGiftCards?.profile?.email) {
+                  navigate.navigate('ConfirmActionPage', {
+                    confirmMessage: t(
+                      'apps.giftCards.expandedGiftCardPage.differentEmailMessage',
+                    ),
+                    confirmFunction: () => saveNewEmail(true),
+                    cancelFunction: () => saveNewEmail(false),
+                  });
+                  return;
+                }
+
+                navigate.navigate('CustomHalfModal', {
+                  wantedContent: 'giftCardConfirm',
+                  quantity: numberOfGiftCards,
+                  price: selectedDenomination,
+                  productId: selectedItem.id,
+                  purchaseGiftCard: purchaseGiftCard,
+                  email: email,
+                  blitzUsername:
+                    globalContactsInformation.myProfile.name ||
+                    globalContactsInformation.myProfile.uniqueName,
+                  sliderHight: 0.5,
+                });
+              }}
             />
           </View>
 
-          <CustomButton
-            buttonStyles={{
-              ...styles.purchaseButton,
-              backgroundColor:
-                theme && darkModeType
-                  ? COLORS.lightsOutBackgroundOffset
-                  : COLORS.primary,
-              opacity:
-                canPurchaseCard &&
-                numberOfGiftCards >= 1 &&
-                EMAIL_REGEX.test(email)
-                  ? 1
-                  : 0.4,
-            }}
-            textStyles={{
-              color: COLORS.darkModeText,
-            }}
-            textContent={t('apps.giftCards.expandedGiftCardPage.purchaseBTN')}
-            actionFunction={() => {
-              if (
-                !canPurchaseCard ||
-                numberOfGiftCards < 1 ||
-                !EMAIL_REGEX.test(email)
-              )
-                return;
+          {/* Terms and Description Section */}
+          <View>
+            <ThemeText
+              styles={styles.infoSectionTitle}
+              content={t('apps.giftCards.expandedGiftCardPage.terms')}
+            />
 
-              if (email != decodedGiftCards?.profile?.email) {
-                navigate.navigate('ConfirmActionPage', {
-                  confirmMessage: t(
-                    'apps.giftCards.expandedGiftCardPage.differentEmailMessage',
-                  ),
-                  confirmFunction: () => saveNewEmail(true),
-                  cancelFunction: () => saveNewEmail(false),
-                });
-                return;
-              }
+            {selectedItem.description && (
+              <View style={styles.infoItem}>
+                {isDescriptionHTML ? (
+                  <CustomButton
+                    buttonStyles={{
+                      ...styles.infoButton,
+                      borderColor:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary + '30',
+                    }}
+                    textStyles={{
+                      ...styles.infoButtonText,
+                      color:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                    }}
+                    textContent={t(
+                      'apps.giftCards.expandedGiftCardPage.cardDescription',
+                    )}
+                    actionFunction={() => {
+                      navigate.navigate('CustomWebView', {
+                        headerText: t(
+                          'apps.giftCards.expandedGiftCardPage.cardDescription',
+                        ),
+                        webViewURL: selectedItem.description,
+                        isHTML: true,
+                      });
+                    }}
+                  />
+                ) : (
+                  <View
+                    style={[
+                      styles.infoTextContainer,
+                      {backgroundColor: backgroundOffset},
+                    ]}>
+                    <ThemeText
+                      styles={styles.infoText}
+                      content={selectedItem.description}
+                    />
+                  </View>
+                )}
+              </View>
+            )}
 
-              navigate.navigate('CustomHalfModal', {
-                wantedContent: 'giftCardConfirm',
-                quantity: numberOfGiftCards,
-                price: selectedDenomination,
-                productId: selectedItem.id,
-                purchaseGiftCard: purchaseGiftCard,
-                email: email,
-                blitzUsername:
-                  globalContactsInformation.myProfile.name ||
-                  globalContactsInformation.myProfile.uniqueName,
-                sliderHight: 0.5,
-              });
-            }}
-          />
-          <ThemeText
-            styles={{
-              fontSize: SIZES.large,
-              fontWeight: 500,
-              marginBottom: 20,
-              textAlign: 'center',
-            }}
-            content={t('apps.giftCards.expandedGiftCardPage.terms')}
-          />
-
-          {selectedItem.description && (
-            <>
-              {isDescriptionHTML ? (
+            <View style={styles.infoItem}>
+              {isTermsHTML ? (
                 <CustomButton
                   buttonStyles={{
-                    width: 'auto',
-                    ...CENTER,
+                    ...styles.infoButton,
+                    borderColor:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary + '30',
+                  }}
+                  textStyles={{
+                    ...styles.infoButtonText,
+                    color:
+                      theme && darkModeType
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
                   }}
                   textContent={t(
-                    'apps.giftCards.expandedGiftCardPage.cardDescription',
+                    'apps.giftCards.expandedGiftCardPage.cardTerms',
                   )}
                   actionFunction={() => {
                     navigate.navigate('CustomWebView', {
                       headerText: t(
-                        'apps.giftCards.expandedGiftCardPage.cardDescription',
+                        'apps.giftCards.expandedGiftCardPage.cardTerms',
                       ),
-                      webViewURL: selectedItem.description,
+                      webViewURL: selectedItem.terms,
                       isHTML: true,
                     });
                   }}
                 />
               ) : (
-                <ThemeText content={selectedItem.description} />
+                <View
+                  style={[
+                    styles.infoTextContainer,
+                    {backgroundColor: backgroundOffset},
+                  ]}>
+                  <ThemeText
+                    styles={styles.infoText}
+                    content={selectedItem.terms}
+                  />
+                </View>
               )}
-            </>
-          )}
-          <View style={{height: 40}}></View>
-
-          {isTermsHTML ? (
-            <CustomButton
-              buttonStyles={{
-                width: 'auto',
-                ...CENTER,
-              }}
-              textContent={t('apps.giftCards.expandedGiftCardPage.cardTerms')}
-              actionFunction={() => {
-                navigate.navigate('CustomWebView', {
-                  headerText: t(
-                    'apps.giftCards.expandedGiftCardPage.cardTerms',
-                  ),
-                  webViewURL: selectedItem.terms,
-                  isHTML: true,
-                });
-              }}
-            />
-          ) : (
-            <ThemeText content={selectedItem.terms} />
-          )}
+            </View>
+          </View>
         </ScrollView>
       )}
     </CustomKeyboardAvoidingView>
@@ -448,12 +535,7 @@ export default function ExpandedGiftCardPage(props) {
       });
       const responseInvoice = responseObject.invoice;
 
-      const [
-        // parsedInput,
-        fiatRates,
-        dailyPurchaseAmount,
-      ] = await Promise.all([
-        // parse(responseInvoice),
+      const [fiatRates, dailyPurchaseAmount] = await Promise.all([
         fiatStats.coin === 'USD'
           ? Promise.resolve({didWork: true, fiatRateResponse: fiatStats})
           : loadNewFiatData('usd', contactsPrivateKey, publicKey, false),
@@ -604,41 +686,154 @@ export default function ExpandedGiftCardPage(props) {
     });
   }
 }
+
 const styles = StyleSheet.create({
   topBar: {
     marginBottom: 0,
   },
-  loadingScreenText: {textAlign: 'center', width: INSET_WINDOW_WIDTH},
-  purchaseButton: {
-    width: 'auto',
-    ...CENTER,
-    marginBottom: 40,
-    marginTop: 50,
+  loadingScreenText: {
+    textAlign: 'center',
+    width: INSET_WINDOW_WIDTH,
   },
 
-  contentContainer: {
-    width: '100%',
-    flexDirection: 'row',
+  // Header Section
+  headerSection: {
     alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 30,
+    paddingTop: 32,
+    paddingBottom: 40,
+  },
+  logoContainer: {
+    width: 100,
+    aspectRatio: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.darkModeText,
+    borderRadius: 12,
+    padding: 8,
+    marginBottom: 12,
   },
   companyLogo: {
-    width: 80,
-    height: 80,
-    marginRight: 10,
-    borderRadius: 15,
-    resizeMode: 'contain',
+    width: '100%',
+    height: '100%',
+    maxWidth: 80,
+    maxHeight: 80,
+    borderRadius: 12,
   },
   companyName: {
-    fontWeight: '500',
     fontSize: SIZES.xLarge,
+    textAlign: 'center',
+    lineHeight: SIZES.xLarge * 1.2,
   },
-  selectAmountText: {marginBottom: 15},
-  amountContainer: {
+
+  // Section Container
+  sectionContainer: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    marginBottom: 12,
+    opacity: 0.8,
+  },
+  cardContainer: {
+    borderRadius: 16,
+    padding: 20,
+  },
+
+  // Custom Amount Section
+  customAmountSection: {
+    marginBottom: 20,
+  },
+  customAmountContainer: {
+    marginBottom: 0,
+  },
+  customAmountInput: {
+    borderRadius: 12,
+    borderWidth: 2,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: SIZES.medium,
+  },
+  errorContainer: {
+    marginTop: 8,
+    paddingHorizontal: 4,
+  },
+  errorText: {
+    fontSize: SIZES.small,
+    color: COLORS.cancelRed,
+    textAlign: 'center',
+  },
+
+  // Denomination Grid
+  denominationGrid: {
     flexDirection: 'row',
-    columnGap: 10,
-    rowGap: 10,
     flexWrap: 'wrap',
+    gap: 10,
+    justifyContent: 'center',
+  },
+  denominationChip: {
+    flexGrow: 1,
+    minWidth: '45%',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  denominationText: {
+    fontSize: SIZES.small,
+    includeFontPadding: false,
+    textAlign: 'center',
+  },
+
+  // Email Section
+  emailInput: {
+    borderRadius: 12,
+    borderWidth: 2,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: SIZES.medium,
+  },
+
+  // Purchase Section
+  purchaseSection: {
+    marginBottom: 48,
+  },
+  purchaseButton: {
+    minWidth: '70%',
+    alignSelf: 'center',
+  },
+  purchaseButtonText: {
+    textAlign: 'center',
+  },
+
+  // Info Section
+  infoSection: {},
+  infoSectionTitle: {
+    fontSize: SIZES.large,
+    textAlign: 'center',
+    marginBottom: 24,
+    opacity: 0.9,
+  },
+  infoItem: {
+    marginBottom: 16,
+  },
+  infoButton: {
+    minWidth: '70%',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    backgroundColor: 'transparent',
+    ...CENTER,
+  },
+  infoButtonText: {
+    fontSize: SIZES.medium,
+  },
+  infoTextContainer: {
+    borderRadius: 12,
+    padding: 16,
+  },
+  infoText: {
+    fontSize: SIZES.small,
+    lineHeight: SIZES.small * 1.5,
+    opacity: 0.8,
   },
 });

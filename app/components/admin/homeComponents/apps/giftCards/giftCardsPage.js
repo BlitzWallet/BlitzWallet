@@ -1,10 +1,4 @@
-import {
-  FlatList,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
@@ -14,7 +8,13 @@ import {useCallback, useMemo, useState} from 'react';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {formatBalanceAmount} from '../../../../../functions';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {CENTER, COLORS, ICONS, SIZES} from '../../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  ICONS,
+  SCREEN_DIMENSIONS,
+  SIZES,
+} from '../../../../../constants';
 import CountryFlag from 'react-native-country-flag';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
@@ -24,6 +24,7 @@ import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useTranslation} from 'react-i18next';
+import FastImage from 'react-native-fast-image';
 
 export default function GiftCardPage() {
   const {decodedGiftCards, toggleGiftCardsList, giftCardsList} =
@@ -88,55 +89,65 @@ export default function GiftCardPage() {
     [userLocal, giftCardSearch, giftCards],
   );
 
-  const renderItem = useMemo(
-    () =>
-      ({item}) =>
-        (
-          <View style={styles.giftCardRowContainer}>
-            <Image style={styles.cardLogo} source={{uri: item.logo}} />
-            <View style={styles.titleContinaer}>
-              <ThemeText
-                styles={styles.companyNameText}
-                CustomNumberOfLines={1}
-                content={item.name}
-              />
-              <ThemeText
-                styles={{fontSize: SIZES.small}}
-                content={`${
-                  item[
-                    item.denominations.length === 0
-                      ? 'defaultDenoms'
-                      : 'denominations'
-                  ][0]
-                } ${item.currency} ${
-                  item.denominations.length > 1 ? '-' : ''
-                } ${formatBalanceAmount(
-                  item[
-                    item.denominations.length === 0
-                      ? 'defaultDenoms'
-                      : 'denominations'
-                  ][
-                    item[
-                      item.denominations.length === 0
-                        ? 'defaultDenoms'
-                        : 'denominations'
-                    ].length - 1
-                  ],
-                )} ${item.currency}`}
-              />
-            </View>
-            <TouchableOpacity
-              onPress={() => {
-                navigate.navigate('ExpandedGiftCardPage', {selectedItem: item});
-              }}
-              style={{
-                ...styles.expandGiftCardBTN,
-                backgroundColor: backgroundOffset,
-              }}>
-              <ThemeText styles={{marginLeft: 'auto'}} content={'View'} />
-            </TouchableOpacity>
+  const renderItem = useCallback(
+    ({item}) => {
+      const isVariable =
+        item.denominationType === 'Variable' && item.denominations.length >= 2;
+      return (
+        <TouchableOpacity
+          onPress={() => {
+            navigate.navigate('ExpandedGiftCardPage', {selectedItem: item});
+          }}
+          style={styles.giftCardGridItem}>
+          <View style={styles.logoContainer}>
+            <FastImage
+              style={styles.cardLogo}
+              source={{uri: item.logo}}
+              resizeMode={FastImage.resizeMode.contain}
+            />
           </View>
-        ),
+          <View style={styles.titleContainer}>
+            <ThemeText
+              styles={styles.companyNameText}
+              CustomNumberOfLines={1}
+              content={item.name}
+            />
+            <ThemeText
+              styles={styles.priceText}
+              content={
+                isVariable
+                  ? `${formatBalanceAmount(
+                      item.denominations.length > 1
+                        ? item[
+                            item.denominations.length === 0
+                              ? 'defaultDenoms'
+                              : 'denominations'
+                          ][0]
+                        : 1,
+                    )} ${item.currency} ${
+                      item.denominations.length > 1 ? '-' : ''
+                    } ${formatBalanceAmount(
+                      item[
+                        item.denominations.length === 0
+                          ? 'defaultDenoms'
+                          : 'denominations'
+                      ][
+                        item[
+                          item.denominations.length === 0
+                            ? 'defaultDenoms'
+                            : 'denominations'
+                        ].length - 1
+                      ],
+                    )} ${item.currency}`
+                  : `${formatBalanceAmount(item.denominations[0])} ${
+                      item.currency
+                    }`
+              }
+            />
+          </View>
+        </TouchableOpacity>
+      );
+    },
     [navigate, backgroundOffset],
   );
 
@@ -202,23 +213,19 @@ export default function GiftCardPage() {
           />
         ) : (
           <FlatList
+            numColumns={3}
             initialNumToRender={20}
             maxToRenderPerBatch={20}
             windowSize={3}
             data={filteredGiftCards}
-            getItemLayout={(data, index) => ({
-              length: 88,
-              offset: 88 * index,
-              index,
-            })}
             renderItem={renderItem}
             keyExtractor={item => item.id.toString()}
             contentContainerStyle={{
-              width: '90%',
-              ...CENTER,
+              ...styles.flatListContainer,
               paddingBottom: bottomPadding,
             }}
             showsVerticalScrollIndicator={false}
+            columnWrapperStyle={styles.row}
           />
         )}
       </View>
@@ -256,4 +263,53 @@ const styles = StyleSheet.create({
   },
   titleContinaer: {flex: 1, marginRight: 10},
   companyNameText: {fontWeight: '500', marginBottom: 5},
+
+  flatListContainer: {
+    width: '90%',
+    paddingBottom: 20,
+    gap: 15,
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  row: {
+    gap: 15,
+  },
+  giftCardGridItem: {
+    flex: 1,
+    maxWidth: SCREEN_DIMENSIONS.width * 0.3333 - 15,
+    alignItems: 'center',
+  },
+  logoContainer: {
+    width: '100%',
+    aspectRatio: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.darkModeText,
+    borderRadius: 12,
+    padding: 8,
+    marginBottom: 12,
+  },
+  cardLogo: {
+    width: '100%',
+    height: '100%',
+    maxWidth: 80,
+    maxHeight: 80,
+    borderRadius: 12,
+  },
+  titleContainer: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  companyNameText: {
+    fontWeight: '500',
+    fontSize: SIZES.small,
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  priceText: {
+    fontSize: SIZES.xSmall,
+    textAlign: 'center',
+    opacity: 0.8,
+    includeFontPadding: false,
+  },
 });

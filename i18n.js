@@ -10,6 +10,9 @@ i18n.use(initReactI18next).init({
   debug: true,
   fallbackLng: 'en',
   supportedLngs: ['en', 'sp', 'it'],
+  interpolation: {
+    escapeValue: false,
+  },
   resources: {
     en: {
       translation: enTranslation,
