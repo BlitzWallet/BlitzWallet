@@ -555,7 +555,10 @@
         "terms": "Términos",
         "cardDescription": "Descripción de la tarjeta",
         "cardTerms": "Términos de la tarjeta",
-        "dailyPurchaseAmountError": "Has alcanzado tu límite diario de compras"
+        "dailyPurchaseAmountError": "Has alcanzado tu límite diario de compras",
+        "giftMessage": "Añade una nota a tu regalo",
+        "giftMessagePlaceholder": "Escribe tu mensaje aquí",
+        "selectForContactBTN": "Selecciona la tarjeta de regalo"
       },
       "giftCardOrderDetails": {
         "title": "Detalles del pedido",
@@ -863,7 +866,10 @@
       "cardDetailsError": "No pudimos cargar tu tarjeta de regalo en este momento. Por favor, inténtalo de nuevo.",
       "giftCardRange": "Enviar {{amount}} - {{amount2}}",
       "giftCardAmountError": "Ingresa un valor de al menos {{amount}} y hasta {{amount2}}",
-      "sendGiftText": "Enviar regalo"
+      "sendGiftText": "Enviar regalo",
+      "notVariableCard": "Esta tarjeta de regalo tiene un importe fijo. Solo puedes enviar el precio mostrado arriba.",
+      "giftCardText": "Tarjeta de regalo {{giftName}}",
+      "giftMessage": "Mensaje de regalo"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "No pudimos cargar tu tarjeta de regalo en este momento. Por favor, inténtalo de nuevo.",
@@ -1417,7 +1423,7 @@
       "updateMessage": "{{name}} {{option}} su solicitud",
       "request": "{{name}} te solicitó {{amount}}",
       "payment": "{{name}} te pagó {{amount}}",
-      "giftCard": "{{name}} te envía una tarjeta regalo {{giftCardName}}."
+      "giftCard": "{{name}} te envió una tarjeta regalo de {{giftCardName}}."
     }
   }
 }

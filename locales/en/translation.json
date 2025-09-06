@@ -703,7 +703,10 @@
         "terms": "Terms",
         "cardDescription": "Card Description",
         "cardTerms": "Card terms",
-        "dailyPurchaseAmountError": "You have hit your daily purchase limit"
+        "dailyPurchaseAmountError": "You have hit your daily purchase limit",
+        "giftMessage": "Add a note to your gift",
+        "giftMessagePlaceholder": "Type your message here",
+        "selectForContactBTN": "Select Gift Card"
       },
       "giftCardOrderDetails": {
         "title": "Order Details",
@@ -1021,7 +1024,10 @@
       "cardDetailsError": "We couldn’t load your gift card right now. Please try again.",
       "giftCardRange": "Send {{amount}} - {{amount2}}",
       "giftCardAmountError": "Enter a value of at least {{amount}} and up to {{amount2}}",
-      "sendGiftText": "Send gift"
+      "sendGiftText": "Send gift",
+      "notVariableCard": "This gift card has a fixed amount. You can only send the price shown above.",
+      "giftCardText": "{{giftName}} Gift Card",
+      "giftMessage": "Gift Message"
     },
     "viewGiftCardCode": {
       "noCardInfoError": "We couldn't load your gift card right now. Please try again.",
@@ -1593,7 +1599,7 @@
       "updateMessage": "{{name}} {{option}} your request",
       "request": "{{name}} requested you {{amount}}",
       "payment": "{{name}} paid you {{amount}}",
-      "giftCard": "{{name}} send you a {{giftCardName}} Gift Card"
+      "giftCard": "{{name}} sent you a {{giftCardName}} Gift Card"
     }
   }
 }
