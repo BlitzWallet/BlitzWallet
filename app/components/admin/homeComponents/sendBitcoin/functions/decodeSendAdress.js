@@ -101,11 +101,8 @@ export default async function decodeSendAddress(props) {
         ? decodedAddress.address.toUpperCase()
         : decodedAddress.options.lightning?.toUpperCase();
 
-      if (!lightningInvoice) {
-        btcAdress = decodedAddress.address;
-      } else {
+      if (lightningInvoice)
         btcAdress = await hanndleLNURLAddress(lightningInvoice);
-      }
     }
 
     if (btcAdress.toLowerCase().startsWith('lnurl')) {
