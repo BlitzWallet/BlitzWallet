@@ -5,20 +5,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {ThemeText} from '../../../../../functions/CustomElements';
 import {
-  CENTER,
-  CONTENT_KEYBOARD_OFFSET,
-  ICONS,
-  SIZES,
-} from '../../../../../constants';
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../../functions/CustomElements';
+import {ICONS, SCREEN_DIMENSIONS, SIZES} from '../../../../../constants';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import {COLORS} from '../../../../../constants/theme';
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import FastImage from 'react-native-fast-image';
 import {useNavigation} from '@react-navigation/native';
-import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import {countrymap} from './receiveCountryCodes';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import {useTranslation} from 'react-i18next';
@@ -32,10 +28,17 @@ import {useGlobalContextProvider} from '../../../../../../context-store/context'
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
+import {keyboardNavigate} from '../../../../../functions/customNavigation';
+import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import Icon from '../../../../../functions/CustomElements/Icon';
+import CountryFlag from 'react-native-country-flag';
 
 const imgEndpoint = endpoint => `https://sms4sats.com/${endpoint}`;
 
-export default function SMSMessagingReceivedPage({smsServices}) {
+export default function SMSMessagingReceivedPage(props) {
+  const removeUserLocal = props.route.params?.removeUserLocal;
+  const [userLocal, setUserLocal] = useState({iso: 'WW', value: 999});
+  const smsServices = props.route.params?.smsServices || [];
   const [localSMSServicesList, setLocalSMSServicesList] = useState(smsServices);
   const {publicKey, contactsPrivateKey} = useKeysContext();
   const {masterInfoObject} = useGlobalContextProvider();
@@ -44,17 +47,23 @@ export default function SMSMessagingReceivedPage({smsServices}) {
   const {t} = useTranslation();
   const [searchInput, setSearchInput] = useState('');
   const {decodedMessages, toggleGlobalAppDataInformation} = useGlobalAppData();
-  const [location, setLocation] = useState(999);
+  const {theme} = useGlobalThemeContext();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useGlobalInsets();
   const navigate = useNavigation();
-  const {backgroundColor} = GetThemeColors();
+  const {backgroundColor, backgroundOffset} = GetThemeColors();
   const [isPurchasing, setIsPurchasing] = useState({
     isLoading: false,
     message: t('apps.sms4sats.sendPage.payingMessage'),
   });
   const [isLoadingLocationServices, setIsLoadingLocationServices] =
     useState(false);
+
+  useEffect(() => {
+    if (!removeUserLocal) return;
+    const value = countrymap.find(item => item.iso === removeUserLocal);
+    if (value) setUserLocal({value: value.value, iso: value.iso});
+    else setUserLocal({value: 999, iso: 'WW'});
+  }, [removeUserLocal]);
 
   const filteredList = useMemo(() => {
     return localSMSServicesList.filter(item => {
@@ -63,7 +72,7 @@ export default function SMSMessagingReceivedPage({smsServices}) {
   }, [searchInput, localSMSServicesList]);
 
   useEffect(() => {
-    if (location === 999) {
+    if (userLocal.value === 999) {
       setLocalSMSServicesList(smsServices);
       return;
     }
@@ -71,7 +80,7 @@ export default function SMSMessagingReceivedPage({smsServices}) {
       try {
         setIsLoadingLocationServices(true);
         const response = await fetch(
-          `https://api2.sms4sats.com/getnumbersstatus?country=${location}`,
+          `https://api2.sms4sats.com/getnumbersstatus?country=${userLocal.value}`,
           {
             method: 'GET',
           },
@@ -88,7 +97,7 @@ export default function SMSMessagingReceivedPage({smsServices}) {
       }
     }
     fetchLocationSpecificServices();
-  }, [location]);
+  }, [userLocal]);
 
   const handleItemSelector = useCallback(
     (serviceCode, title, imgSrc) => {
@@ -97,7 +106,7 @@ export default function SMSMessagingReceivedPage({smsServices}) {
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'confirmSMSReceive',
             serviceCode: serviceCode,
-            location: location,
+            location: userLocal.value,
             title,
             imgSrc,
             getReceiveCode: handlePurchase,
@@ -108,7 +117,7 @@ export default function SMSMessagingReceivedPage({smsServices}) {
       );
       Keyboard.dismiss();
     },
-    [navigate, handlePurchase, location],
+    [navigate, handlePurchase, userLocal],
   );
 
   const keyboardFocusFunction = useCallback(() => {
@@ -275,10 +284,10 @@ export default function SMSMessagingReceivedPage({smsServices}) {
 
   const handleSelctProcesss = useCallback(item => {
     if (typeof item !== 'number' && !item) {
-      setLocation(999);
+      setUserLocal(prev => ({...prev, value: 999}));
       return;
     }
-    setLocation(item.value);
+    setUserLocal(prev => ({...prev, value: item.value}));
   }, []);
 
   const handleInfoPress = useCallback(() => {
@@ -291,39 +300,6 @@ export default function SMSMessagingReceivedPage({smsServices}) {
   const renderItem = useCallback(
     ({item, index}) => {
       if (index === 0) {
-        return (
-          <View style={styles.countrySelectionContainer}>
-            <TouchableOpacity
-              onPress={handleInfoPress}
-              style={styles.selectCountryInfoContainer}>
-              <ThemeText
-                styles={styles.selectCountryInfoTitle}
-                content={t('apps.sms4sats.receivePage.selectCountry')}
-              />
-              <ThemeImage
-                styles={styles.selectCountryInfoImg}
-                lightModeIcon={ICONS.aboutIcon}
-                darkModeIcon={ICONS.aboutIcon}
-                lightsOutIcon={ICONS.aboutIconWhite}
-              />
-            </TouchableOpacity>
-            <DropdownMenu
-              selectedValue={
-                location == 999
-                  ? t('apps.sms4sats.receivePage.autoSelect')
-                  : countrymap.find(item => item.value === location)?.label
-              }
-              onSelect={handleSelctProcesss}
-              options={countrymap}
-              showClearIcon={true}
-              textStyles={styles.textStyles}
-              translateLabelText={false}
-            />
-          </View>
-        );
-      }
-
-      if (index === 1) {
         return (
           <View>
             <CustomSearchInput
@@ -344,7 +320,7 @@ export default function SMSMessagingReceivedPage({smsServices}) {
         );
       }
 
-      const serviceItem = filteredList[index - 2];
+      const serviceItem = filteredList[index - 1];
       if (!serviceItem) return null;
 
       return (
@@ -368,7 +344,7 @@ export default function SMSMessagingReceivedPage({smsServices}) {
     },
     [
       filteredList,
-      location,
+      userLocal,
       searchInput,
       handleItemSelector,
       handleInfoPress,
@@ -380,7 +356,7 @@ export default function SMSMessagingReceivedPage({smsServices}) {
   );
 
   const getItemCount = useCallback(() => {
-    return filteredList.length + 2;
+    return filteredList.length + 1;
   }, [filteredList.length]);
 
   const keyExtractor = useCallback(
@@ -393,11 +369,71 @@ export default function SMSMessagingReceivedPage({smsServices}) {
   );
 
   return (
-    <View
-      style={[
-        styles.homepage,
-        {paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0},
-      ]}>
+    <CustomKeyboardAvoidingView
+      useStandardWidth={true}
+      isKeyboardActive={isKeyboardActive}
+      useLocalPadding={true}>
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          onPress={() => {
+            keyboardNavigate(() => navigate.goBack());
+          }}>
+          <ThemeImage
+            lightModeIcon={ICONS.smallArrowLeft}
+            darkModeIcon={ICONS.smallArrowLeft}
+            lightsOutIcon={ICONS.arrow_small_left_white}
+          />
+        </TouchableOpacity>
+
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.topbarText}
+          content={t('constants.receive')}
+        />
+
+        <TouchableOpacity
+          onPress={() =>
+            keyboardNavigate(() =>
+              navigate.navigate('CountryList', {
+                onlyReturn: true,
+                pageName: 'SMSMessagingReceivedPage',
+              }),
+            )
+          }
+          style={{
+            padding: 5,
+            backgroundColor:
+              userLocal.iso === 'WW'
+                ? theme
+                  ? backgroundOffset
+                  : COLORS.darkModeText
+                : 'unset',
+            borderRadius: 8,
+            marginRight: 10,
+            marginLeft: 'auto',
+          }}>
+          {userLocal.iso === 'WW' ? (
+            <Icon
+              color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+              name={'globeIcon'}
+            />
+          ) : (
+            <CountryFlag isoCode={userLocal.iso} size={20} />
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            navigate.navigate('HistoricalSMSMessagingPage', {
+              selectedPage: 'receive',
+            })
+          }>
+          <ThemeImage
+            lightModeIcon={ICONS.receiptIcon}
+            darkModeIcon={ICONS.receiptIcon}
+            lightsOutIcon={ICONS.receiptWhite}
+          />
+        </TouchableOpacity>
+      </View>
       {isPurchasing.isLoading || isLoadingLocationServices ? (
         <FullLoadingScreen
           text={
@@ -411,27 +447,34 @@ export default function SMSMessagingReceivedPage({smsServices}) {
           data={Array(getItemCount()).fill(null)}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
-          stickyHeaderIndices={[1]}
+          stickyHeaderIndices={[0]}
           showsVerticalScrollIndicator={false}
           initialNumToRender={22}
           maxToRenderPerBatch={20}
           windowSize={3}
           contentContainerStyle={{
             paddingTop: 10,
-            paddingBottom: isKeyboardActive ? 0 : bottomPadding,
           }}
         />
       )}
-    </View>
+    </CustomKeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  homepage: {
-    flex: 1,
-    width: INSET_WINDOW_WIDTH,
-    ...CENTER,
-    marginTop: 10,
+  topBar: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    justifyContent: 'center',
+  },
+  topbarText: {
+    width: SCREEN_DIMENSIONS.width - 170,
+    flexShrink: 1,
+    textAlign: 'center',
+    fontSize: SIZES.xLarge,
+    position: 'absolute',
   },
   countrySelectionContainer: {
     paddingHorizontal: 0,
@@ -439,7 +482,7 @@ const styles = StyleSheet.create({
   },
   itemSearch: {
     marginTop: 0,
-    marginBottom: 30,
+    marginBottom: 10,
   },
   serviceRow: {
     flexDirection: 'row',

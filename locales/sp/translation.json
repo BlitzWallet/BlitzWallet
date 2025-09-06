@@ -264,7 +264,7 @@
       "VPNPlanPage": {
         "backupLoadingMessage": "Recuperando factura",
         "countrySearchPlaceholder": "Buscar por país",
-        "createVPNBTN": "Crear VPN",
+        "createVPNBTN": "Comprar VPN",
         "noLocationError": "Por favor selecciona un país donde se ubicará el VPN.",
         "payingInvoiceLoadingMessage": "Pagando factura",
         "backupPaymentError": "Error al pagar la factura.",

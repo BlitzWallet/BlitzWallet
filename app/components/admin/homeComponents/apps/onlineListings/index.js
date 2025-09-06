@@ -94,14 +94,22 @@ export default function ViewOnlineListings({removeUserLocal}) {
   }, [data, search, category, userLocal, t]);
 
   const dropdownData = useMemo(() => {
-    const uniuqeItems = Array.from(
+    const uniqueItems = Array.from(
       new Set(data?.statistics?.categories.map(item => item.toLowerCase())),
     );
-    return (
-      uniuqeItems?.map(item => {
+
+    const mappedItems =
+      uniqueItems?.map(item => {
         return {label: t(`apps.onlineListings.${item}`), value: item};
-      }) || []
-    );
+      }) || [];
+
+    return mappedItems.sort((a, b) => {
+      if (a.value === 'other' && b.value === 'other') return 0;
+      if (a.value === 'other') return 1;
+      if (b.value === 'other') return -1;
+
+      return a.label.localeCompare(b.label);
+    });
   }, [data?.statistics?.categories, t]);
 
   console.log(businesses, 'online buisnesses');
@@ -187,7 +195,10 @@ export default function ViewOnlineListings({removeUserLocal}) {
         <TouchableOpacity
           onPress={() =>
             keyboardNavigate(() =>
-              navigate.navigate('CountryList', {onlyReturn: true}),
+              navigate.navigate('CountryList', {
+                onlyReturn: true,
+                pageName: 'AppStorePageIndex',
+              }),
             )
           }
           style={{

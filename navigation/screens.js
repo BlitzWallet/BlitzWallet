@@ -22,6 +22,8 @@ import {
   SwitchGenerativeAIModel,
 } from '../app/components/admin/homeComponents/apps';
 import ConfirmSMSReceivePage from '../app/components/admin/homeComponents/apps/sms4sats/confirmReceivePaymentScreen';
+import SMSMessagingReceivedPage from '../app/components/admin/homeComponents/apps/sms4sats/receivePage';
+import SMSMessagingSendPage from '../app/components/admin/homeComponents/apps/sms4sats/sendPage';
 import HistoricalSMSMessagingPage from '../app/components/admin/homeComponents/apps/sms4sats/sentPayments';
 import ViewSmsReceiveCode from '../app/components/admin/homeComponents/apps/sms4sats/viewSMScode';
 import {
@@ -150,6 +152,8 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   {name: 'SparkSettingsPage', component: SparkSettingsPage},
   {name: 'Nip5VerificationPage', component: Nip5VerificationPage},
   {name: 'SelectGiftCardForContacts', component: SelectGiftCardForContacts},
+  {name: 'SMSMessagingReceivedPage', component: SMSMessagingReceivedPage},
+  {name: 'SMSMessagingSendPage', component: SMSMessagingSendPage},
 ];
 
 const FADE_SCREENS = [

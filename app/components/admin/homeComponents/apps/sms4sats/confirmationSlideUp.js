@@ -27,7 +27,6 @@ export default function ConfirmSMSPayment(props) {
     message,
     areaCodeNum,
     phoneNumber,
-    prices,
     page,
     sendTextMessage,
     theme,
@@ -37,9 +36,7 @@ export default function ConfirmSMSPayment(props) {
   const [invoiceInformation, setInvoiceInformation] = useState(null);
   const [error, setError] = useState('');
 
-  const price = page === 'sendSMS' ? 1000 : prices[page];
-
-  console.log(areaCodeNum, phoneNumber, prices, page, sendTextMessage);
+  console.log(areaCodeNum, phoneNumber, page, sendTextMessage);
 
   const formattedPhoneNumber = () => {
     try {

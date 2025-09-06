@@ -399,53 +399,6 @@ export default function ExpandedGiftCardPage(props) {
               styles={styles.infoSectionTitle}
               content={t('apps.giftCards.expandedGiftCardPage.terms')}
             />
-
-            {selectedItem.description && (
-              <View style={styles.infoItem}>
-                {isDescriptionHTML ? (
-                  <CustomButton
-                    buttonStyles={{
-                      ...styles.infoButton,
-                      borderColor:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary + '30',
-                    }}
-                    textStyles={{
-                      ...styles.infoButtonText,
-                      color:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
-                    }}
-                    textContent={t(
-                      'apps.giftCards.expandedGiftCardPage.cardDescription',
-                    )}
-                    actionFunction={() => {
-                      navigate.navigate('CustomWebView', {
-                        headerText: t(
-                          'apps.giftCards.expandedGiftCardPage.cardDescription',
-                        ),
-                        webViewURL: selectedItem.description,
-                        isHTML: true,
-                      });
-                    }}
-                  />
-                ) : (
-                  <View
-                    style={[
-                      styles.infoTextContainer,
-                      {backgroundColor: backgroundOffset},
-                    ]}>
-                    <ThemeText
-                      styles={styles.infoText}
-                      content={selectedItem.description}
-                    />
-                  </View>
-                )}
-              </View>
-            )}
-
             <View style={styles.infoItem}>
               {isTermsHTML ? (
                 <CustomButton

@@ -270,7 +270,7 @@
       "VPNPlanPage": {
         "backupLoadingMessage": "Retriving invoice",
         "countrySearchPlaceholder": "Search by country",
-        "createVPNBTN": "Create VPN",
+        "createVPNBTN": "Buy VPN",
         "noLocationError": "Please select a country for the VPN to be located in.",
         "payingInvoiceLoadingMessage": "Paying invoice",
         "backupPaymentError": "Error paying invoice.",

@@ -31,6 +31,7 @@ export default function CountryList(props) {
   const [showList, setShowList] = useState(false);
   const ISOCode = decodedGiftCards?.profile?.isoCode;
   const onlyReturn = props?.route?.params?.onlyReturn;
+  const pageName = props?.route?.params?.pageName;
   const {t} = useTranslation();
 
   useFocusEffect(
@@ -68,11 +69,7 @@ export default function CountryList(props) {
   const saveNewCountrySetting = useCallback(
     async isoCode => {
       if (onlyReturn) {
-        navigate.popTo(
-          'AppStorePageIndex',
-          {removeUserLocal: isoCode},
-          {merge: true},
-        );
+        navigate.popTo(pageName, {removeUserLocal: isoCode}, {merge: true});
         return;
       }
       const em = encriptMessage(

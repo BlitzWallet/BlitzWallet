@@ -241,29 +241,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...CENTER,
   },
-  giftCardRowContainer: {
-    flexDirection: 'row',
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderColor: COLORS.gray2,
-    alignItems: 'center',
-  },
-  cardLogo: {
-    width: 55,
-    height: 55,
-    marginRight: 10,
-    borderRadius: 10,
-    resizeMode: 'contain',
-  },
-  expandGiftCardBTN: {
-    marginLeft: 'auto',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  titleContinaer: {flex: 1, marginRight: 10},
-  companyNameText: {fontWeight: '500', marginBottom: 5},
-
   flatListContainer: {
     width: '90%',
     paddingBottom: 20,

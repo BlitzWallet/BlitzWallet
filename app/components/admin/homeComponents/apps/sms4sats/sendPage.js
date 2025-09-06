@@ -7,12 +7,14 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-
-import {ThemeText} from '../../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../../functions/CustomElements';
 import {
   CENTER,
   COLORS,
-  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
   SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../../constants';
@@ -36,13 +38,13 @@ import sendStorePayment from '../../../../../functions/apps/payments';
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
 import {useTranslation} from 'react-i18next';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import CountryFlag from 'react-native-country-flag';
+import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 
-export default function SMSMessagingSendPage({SMSprices}) {
+export default function SMSMessagingSendPage() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {fiatStats} = useNodeContext();
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
@@ -64,8 +66,6 @@ export default function SMSMessagingSendPage({SMSprices}) {
   const messageRef = useRef(null);
   const navigate = useNavigation();
   const {textColor, backgroundColor} = GetThemeColors();
-
-  const {bottomPadding} = useGlobalInsets();
 
   const selectedAreaCode = useMemo(() => {
     return sendCountryCodes.filter(
@@ -129,163 +129,181 @@ export default function SMSMessagingSendPage({SMSprices}) {
     <TouchableWithoutFeedback
       onPress={clearKeyboardFunc}
       style={styles.container}>
-      {!isSending ? (
-        <View
-          style={[
-            styles.container,
-            {
-              paddingBottom: focusedElement
-                ? CONTENT_KEYBOARD_OFFSET
-                : bottomPadding,
-            },
-          ]}>
-          <TextInput
-            style={styles.textInputHidden}
-            onChangeText={e => setPhoneNumber(e)}
-            ref={phoneRef}
-            keyboardType="number-pad"
-            maxLength={15}
-            onFocus={() => changeFunction('phoneNumber')}
-            onBlur={() => {
-              changeFunction('', true);
-            }}
-          />
-          <TextInput
-            keyboardAppearance={theme ? 'dark' : 'light'}
-            style={styles.textInputHidden}
-            onChangeText={e => setAreaCode(e)}
-            ref={areaCodeRef}
-            keyboardType="ascii-capable"
-            onFocus={() => {
-              changeFunction('country');
-            }}
-            onBlur={() => changeFunction('', true)}
-            value={areaCode}
-          />
+      <CustomKeyboardAvoidingView
+        isKeyboardActive={focusedElement}
+        useLocalPadding={true}
+        useStandardWidth={true}>
+        <CustomSettingsTopBar
+          customBackFunction={() => {
+            setTimeout(
+              navigate.goBack,
 
-          <ThemeText
-            styles={styles.inputDescription}
-            content={t('apps.sms4sats.sendPage.phoneNumberInputDescription')}
-          />
-
-          <TouchableOpacity
-            onPress={() => {
-              Keyboard.dismiss();
-              changeFunction('phoneNumber');
-            }}>
-            <ThemeText
-              styles={{
-                ...styles.inputStyles,
-                opacity: phoneNumber.length === 0 ? 0.5 : 1,
-              }}
-              content={
-                phoneNumber.length > 15
-                  ? phoneNumber.slice(0, 15) + '...'
-                  : phoneNumber.length === 0
-                  ? '(123) 456-7891'
-                  : `${new AsYouType().input(
-                      `${selectedAreaCode[0]?.cc || '+1'}${phoneNumber}`,
-                    )}`
-              }
-            />
-          </TouchableOpacity>
-
-          <ThemeText
-            styles={styles.inputDescription}
-            content={t('apps.sms4sats.sendPage.phoneNumberCountryDescription')}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              areaCodeRef.current.focus();
-            }}
-            style={styles.pushContentToBottom}>
-            <ThemeText
-              styles={{
-                ...styles.inputStyles,
-                opacity: areaCode.length === 0 ? 0.5 : 1,
-              }}
-              content={areaCode.length === 0 ? 'United States' : areaCode}
-            />
-          </TouchableOpacity>
-
-          {(focusedElement === 'country' || !focusedElement) && (
-            <FlatList
-              numColumns={3}
-              initialNumToRender={20}
-              maxToRenderPerBatch={20}
-              windowSize={3}
-              style={styles.flatListOuterContianer}
-              contentContainerStyle={styles.flatListContainer}
-              columnWrapperStyle={styles.row}
-              data={flatListData}
-              renderItem={flatListItem}
-              showsVerticalScrollIndicator={false}
-            />
-          )}
-
-          {(!focusedElement || focusedElement === 'message') && (
-            <>
-              <CustomSearchInput
-                onFocusFunction={() => {
-                  changeFunction('message');
-                }}
-                onBlurFunction={() => {
-                  changeFunction('', true);
-                }}
-                shouldDelayBlur={false}
-                textInputRef={messageRef}
-                setInputText={setMessage}
-                inputText={message}
-                placeholderText={t(
-                  'apps.sms4sats.sendPage.messageInputDescription',
-                )}
-                maxLength={135}
-                textInputMultiline={true}
-                containerStyles={{
-                  maxHeight: 120,
-                  width: INSET_WINDOW_WIDTH,
-                  marginTop: 10,
-                }}
-              />
-              {focusedElement !== 'message' && (
-                <CustomButton
-                  buttonStyles={{
-                    width: 'auto',
-                    marginTop: 10,
-                    opacity:
-                      phoneNumber.length === 0 ||
-                      message.length === 0 ||
-                      areaCode.length === 0
-                        ? 0.5
-                        : 1,
-                    ...CENTER,
-                  }}
-                  textStyles={{
-                    color: theme ? backgroundColor : COLORS.lightModeText,
-                  }}
-                  actionFunction={handleSubmit}
-                  textContent={t('apps.sms4sats.sendPage.sendBTN')}
-                />
-              )}
-            </>
-          )}
-
-          {focusedElement === 'phoneNumber' && (
-            <CustomNumberKeyboard
-              setInputValue={setPhoneNumber}
-              frompage={'sendSMSPage'}
-              usingForBalance={false}
-              fiatStats={fiatStats}
-              showDot={false}
-            />
-          )}
-        </View>
-      ) : (
-        <FullLoadingScreen
-          text={sendingMessage}
-          textStyles={{textAlign: 'center'}}
+              Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
+            );
+            Keyboard.dismiss();
+          }}
+          label={t(`constants.send`)}
+          showLeftImage={true}
+          leftImageBlue={ICONS.receiptIcon}
+          LeftImageDarkMode={ICONS.receiptWhite}
+          leftImageFunction={() => {
+            navigate.navigate('HistoricalSMSMessagingPage', {
+              selectedPage: 'send',
+            });
+          }}
         />
-      )}
+        {!isSending ? (
+          <View style={[styles.container]}>
+            <TextInput
+              style={styles.textInputHidden}
+              onChangeText={e => setPhoneNumber(e)}
+              ref={phoneRef}
+              keyboardType="number-pad"
+              maxLength={15}
+              onFocus={() => changeFunction('phoneNumber')}
+              onBlur={() => {
+                changeFunction('', true);
+              }}
+            />
+            <TextInput
+              keyboardAppearance={theme ? 'dark' : 'light'}
+              style={styles.textInputHidden}
+              onChangeText={e => setAreaCode(e)}
+              ref={areaCodeRef}
+              keyboardType="ascii-capable"
+              onFocus={() => {
+                changeFunction('country');
+              }}
+              onBlur={() => changeFunction('', true)}
+              value={areaCode}
+            />
+
+            <ThemeText
+              styles={styles.inputDescription}
+              content={t('apps.sms4sats.sendPage.phoneNumberInputDescription')}
+            />
+
+            <TouchableOpacity
+              onPress={() => {
+                Keyboard.dismiss();
+                changeFunction('phoneNumber');
+              }}>
+              <ThemeText
+                styles={{
+                  ...styles.inputStyles,
+                  opacity: phoneNumber.length === 0 ? 0.5 : 1,
+                }}
+                content={
+                  phoneNumber.length > 15
+                    ? phoneNumber.slice(0, 15) + '...'
+                    : phoneNumber.length === 0
+                    ? '(123) 456-7891'
+                    : `${new AsYouType().input(
+                        `${selectedAreaCode[0]?.cc || '+1'}${phoneNumber}`,
+                      )}`
+                }
+              />
+            </TouchableOpacity>
+
+            <ThemeText
+              styles={styles.inputDescription}
+              content={t(
+                'apps.sms4sats.sendPage.phoneNumberCountryDescription',
+              )}
+            />
+            <TouchableOpacity
+              onPress={() => {
+                areaCodeRef.current.focus();
+              }}
+              style={styles.pushContentToBottom}>
+              <ThemeText
+                styles={{
+                  ...styles.inputStyles,
+                  opacity: areaCode.length === 0 ? 0.5 : 1,
+                }}
+                content={areaCode.length === 0 ? 'United States' : areaCode}
+              />
+            </TouchableOpacity>
+
+            {(focusedElement === 'country' || !focusedElement) && (
+              <FlatList
+                numColumns={3}
+                initialNumToRender={20}
+                maxToRenderPerBatch={20}
+                windowSize={3}
+                style={styles.flatListOuterContianer}
+                contentContainerStyle={styles.flatListContainer}
+                columnWrapperStyle={styles.row}
+                data={flatListData}
+                renderItem={flatListItem}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
+
+            {(!focusedElement || focusedElement === 'message') && (
+              <>
+                <CustomSearchInput
+                  onFocusFunction={() => {
+                    changeFunction('message');
+                  }}
+                  onBlurFunction={() => {
+                    changeFunction('', true);
+                  }}
+                  shouldDelayBlur={false}
+                  textInputRef={messageRef}
+                  setInputText={setMessage}
+                  inputText={message}
+                  placeholderText={t(
+                    'apps.sms4sats.sendPage.messageInputDescription',
+                  )}
+                  maxLength={135}
+                  textInputMultiline={true}
+                  containerStyles={{
+                    maxHeight: 120,
+                    width: INSET_WINDOW_WIDTH,
+                    marginTop: 10,
+                  }}
+                />
+                {focusedElement !== 'message' && (
+                  <CustomButton
+                    buttonStyles={{
+                      width: 'auto',
+                      marginTop: 10,
+                      opacity:
+                        phoneNumber.length === 0 ||
+                        message.length === 0 ||
+                        areaCode.length === 0
+                          ? 0.5
+                          : 1,
+                      ...CENTER,
+                    }}
+                    textStyles={{
+                      color: theme ? backgroundColor : COLORS.lightModeText,
+                    }}
+                    actionFunction={handleSubmit}
+                    textContent={t('apps.sms4sats.sendPage.sendBTN')}
+                  />
+                )}
+              </>
+            )}
+
+            {focusedElement === 'phoneNumber' && (
+              <CustomNumberKeyboard
+                setInputValue={setPhoneNumber}
+                frompage={'sendSMSPage'}
+                usingForBalance={false}
+                fiatStats={fiatStats}
+                showDot={false}
+              />
+            )}
+          </View>
+        ) : (
+          <FullLoadingScreen
+            text={sendingMessage}
+            textStyles={{textAlign: 'center'}}
+          />
+        )}
+      </CustomKeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 
@@ -318,7 +336,6 @@ export default function SMSMessagingSendPage({SMSprices}) {
       () => {
         navigate.navigate('CustomHalfModal', {
           wantedContent: 'confirmSMS',
-          prices: SMSprices,
           phoneNumber: phoneNumber,
           areaCodeNum: selectedAreaCode[0].cc,
           sendTextMessage: sendTextMessage,

@@ -114,7 +114,6 @@ export default function CustomHalfModal(props) {
           <ConfirmSMSPayment
             theme={theme}
             darkModeType={darkModeType}
-            prices={props.route.params?.prices}
             message={props.route.params?.message}
             phoneNumber={props.route.params?.phoneNumber}
             areaCodeNum={props.route.params?.areaCodeNum}
