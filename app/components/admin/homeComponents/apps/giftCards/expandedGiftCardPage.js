@@ -57,7 +57,7 @@ export default function ExpandedGiftCardPage(props) {
   const [giftMessageForContacts, setGiftMessageForContacts] = useState('');
   const isVariable =
     selectedItem.denominationType === 'Variable' &&
-    selectedItem.denominations.length >= 2;
+    selectedItem.denominations?.length >= 2;
   const [selectedDenomination, setSelectedDenomination] = useState(
     isVariable ? '' : selectedItem.denominations[0],
   );
@@ -75,8 +75,8 @@ export default function ExpandedGiftCardPage(props) {
   const {bottomPadding} = useGlobalInsets();
 
   const variableRange = [
-    selectedItem.denominations[0],
-    selectedItem.denominations[selectedItem.denominations.length - 1],
+    selectedItem.denominations?.[0],
+    selectedItem.denominations?.[selectedItem.denominations.length - 1],
   ];
   const step = Math.round((variableRange[1] - variableRange[0]) / 7);
 
@@ -144,7 +144,7 @@ export default function ExpandedGiftCardPage(props) {
     selectedDenomination <= variableRange[1];
 
   const isTermsHTML =
-    selectedItem.terms.includes('<p>') || selectedItem.terms.includes('br');
+    selectedItem?.terms?.includes('<p>') || selectedItem?.terms?.includes('br');
 
   const customBack = useCallback(() => {
     keyboardGoBack(navigate);
@@ -396,55 +396,57 @@ export default function ExpandedGiftCardPage(props) {
           </View>
 
           {/* Terms and Description Section */}
-          <View>
-            <ThemeText
-              styles={styles.infoSectionTitle}
-              content={t('apps.giftCards.expandedGiftCardPage.terms')}
-            />
-            <View style={styles.infoItem}>
-              {isTermsHTML ? (
-                <CustomButton
-                  buttonStyles={{
-                    ...styles.infoButton,
-                    borderColor:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary + '30',
-                  }}
-                  textStyles={{
-                    ...styles.infoButtonText,
-                    color:
-                      theme && darkModeType
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
-                  }}
-                  textContent={t(
-                    'apps.giftCards.expandedGiftCardPage.cardTerms',
-                  )}
-                  actionFunction={() => {
-                    navigate.navigate('CustomWebView', {
-                      headerText: t(
-                        'apps.giftCards.expandedGiftCardPage.cardTerms',
-                      ),
-                      webViewURL: selectedItem.terms,
-                      isHTML: true,
-                    });
-                  }}
-                />
-              ) : (
-                <View
-                  style={[
-                    styles.infoTextContainer,
-                    {backgroundColor: backgroundOffset},
-                  ]}>
-                  <ThemeText
-                    styles={styles.infoText}
-                    content={selectedItem.terms}
+          {selectedItem.terms && (
+            <View>
+              <ThemeText
+                styles={styles.infoSectionTitle}
+                content={t('apps.giftCards.expandedGiftCardPage.terms')}
+              />
+              <View style={styles.infoItem}>
+                {isTermsHTML ? (
+                  <CustomButton
+                    buttonStyles={{
+                      ...styles.infoButton,
+                      borderColor:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary + '30',
+                    }}
+                    textStyles={{
+                      ...styles.infoButtonText,
+                      color:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                    }}
+                    textContent={t(
+                      'apps.giftCards.expandedGiftCardPage.cardTerms',
+                    )}
+                    actionFunction={() => {
+                      navigate.navigate('CustomWebView', {
+                        headerText: t(
+                          'apps.giftCards.expandedGiftCardPage.cardTerms',
+                        ),
+                        webViewURL: selectedItem.terms,
+                        isHTML: true,
+                      });
+                    }}
                   />
-                </View>
-              )}
+                ) : (
+                  <View
+                    style={[
+                      styles.infoTextContainer,
+                      {backgroundColor: backgroundOffset},
+                    ]}>
+                    <ThemeText
+                      styles={styles.infoText}
+                      content={selectedItem.terms}
+                    />
+                  </View>
+                )}
+              </View>
             </View>
-          </View>
+          )}
         </ScrollView>
       )}
     </CustomKeyboardAvoidingView>
