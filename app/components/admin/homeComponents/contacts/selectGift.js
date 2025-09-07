@@ -219,7 +219,7 @@ export default function SelectGiftCardForContacts() {
         </TouchableOpacity>
       </View>
 
-      {errorMessage ? (
+      {errorMessage || !giftCardsList.length ? (
         <FullLoadingScreen
           containerStyles={{
             justifyContent: !errorMessage ? 'center' : 'start',
