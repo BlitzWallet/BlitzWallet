@@ -859,7 +859,8 @@
         "descriptionInputPlaceholder": "Descrizione..."
       },
       "buttonContainer": {
-        "format": "Scegli Rete"
+        "format": "Scegli Rete",
+        "infoMessage": "Gli importi personalizzati non sono supportati nei pagamenti Spark o Rootstock."
       },
 
       "switchReceiveOptionPage": {

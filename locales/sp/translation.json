@@ -708,7 +708,8 @@
         "descriptionInputPlaceholder": "Descripción..."
       },
       "buttonContainer": {
-        "format": "Elegir red"
+        "format": "Elegir red",
+        "infoMessage": "No se admiten montos personalizados en los pagos de Spark o Rootstock."
       },
       "switchReceiveOptionPage": {
         "title": "Elegir red",

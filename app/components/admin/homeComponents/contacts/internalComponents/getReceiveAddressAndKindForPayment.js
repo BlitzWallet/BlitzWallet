@@ -1,6 +1,6 @@
 import {getDataFromCollection} from '../../../../../../db';
 import {getBolt11InvoiceForContact} from '../../../../../functions/contacts';
-import {formatBip21SparkAddress} from '../../../../../functions/spark/handleBip21SparkAddress';
+import {formatBip21Address} from '../../../../../functions/spark/handleBip21SparkAddress';
 
 export default async function getReceiveAddressForContactPayment(
   sendingAmountSat,
@@ -38,10 +38,11 @@ export default async function getReceiveAddressForContactPayment(
       if (lnurlInvoice) {
         receiveAddress = lnurlInvoice;
       } else {
-        receiveAddress = formatBip21SparkAddress({
+        receiveAddress = formatBip21Address({
           address: retrivedContact?.contacts?.myProfile?.sparkAddress,
           amountSat: sendingAmountSat,
           message: myProfileMessage,
+          prefix: 'spark',
         });
       }
     } else throw new Error('errormessages.legacyContactError');

@@ -145,10 +145,14 @@ export default function EditReceivePaymentInformation(props) {
         description: paymentDescription,
       });
     } else {
-      navigate.popTo('ReceiveBTC', {
-        receiveAmount: sendAmount,
-        description: paymentDescription,
-      });
+      navigate.popTo(
+        'ReceiveBTC',
+        {
+          receiveAmount: sendAmount,
+          description: paymentDescription,
+        },
+        {merge: true},
+      );
     }
 
     setAmountValue('');

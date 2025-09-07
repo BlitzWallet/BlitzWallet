@@ -859,7 +859,8 @@
         "descriptionInputPlaceholder": "Description..."
       },
       "buttonContainer": {
-        "format": "Choose Network"
+        "format": "Choose Network",
+        "infoMessage": "Custom amounts aren’t supported on Spark or Rootstock payments."
       },
 
       "switchReceiveOptionPage": {

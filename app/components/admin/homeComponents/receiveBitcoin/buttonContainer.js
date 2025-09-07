@@ -7,23 +7,36 @@ import {ThemeText} from '../../../../functions/CustomElements';
 import {useTranslation} from 'react-i18next';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useToast} from '../../../../../context-store/toastManager';
+import {useCallback} from 'react';
 
 export default function ButtonsContainer(props) {
   const {showToast} = useToast();
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {t} = useTranslation();
+
+  const editAmount = useCallback(() => {
+    if (
+      props.selectedRecieveOption?.toLowerCase() === 'spark' ||
+      props.selectedRecieveOption?.toLowerCase() === 'rootstock'
+    ) {
+      navigate.navigate('InformationPopup', {
+        textContent: t('wallet.receivePages.buttonContainer.infoMessage'),
+        buttonText: t('constants.understandText'),
+      });
+      return;
+    }
+    navigate.navigate('EditReceivePaymentInformation', {
+      from: 'receivePage',
+      receiveType: props.selectedRecieveOption,
+    });
+  }, [props, navigate]);
   return (
     <View style={styles.buttonContainer}>
       <View style={styles.buttonRow}>
         <CustomButton
           buttonStyles={styles.mainButtons}
-          actionFunction={() =>
-            navigate.navigate('EditReceivePaymentInformation', {
-              from: 'receivePage',
-              receiveType: props.selectedRecieveOption,
-            })
-          }
+          actionFunction={editAmount}
           textContent={t('constants.amount')}
         />
         <CustomButton

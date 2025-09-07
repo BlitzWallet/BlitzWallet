@@ -10,14 +10,15 @@ import {crashlyticsLogReport} from '../crashlyticsLogs';
  * @param {string} params.address - The destination Liquid address.
  * @param {number} params.amountSat - Amount in satoshis to include in the URI.
  * @param {string} [params.message] - Optional message or label to include.
- *
+ * @param {string} params.prefix - The prefix to the bip21 address.
  * @returns {string} A formatted BIP21 spark URI (e.g., spark:address?amount=...&message=...), or an empty string if an error occurs.
  */
 
-export function formatBip21SparkAddress({
+export function formatBip21Address({
   address = '',
   amountSat = 0,
-  message = '',
+  message,
+  prefix = '',
 }) {
   try {
     const formattedAmount = amountSat;
@@ -29,7 +30,7 @@ export function formatBip21SparkAddress({
         message: message,
         label: message,
       },
-      'spark',
+      prefix,
     );
 
     return liquidBip21;
@@ -47,11 +48,11 @@ export function formatBip21SparkAddress({
  * @returns {Object|string} Decoded object containing address, amount, and parameters, or an empty string if an error occurs.
  */
 
-export function decodeBip21SparkAddress(address) {
+export function decodeBip21Address(address, prefix) {
   try {
     crashlyticsLogReport('decoding bip21 spark');
 
-    return decode(address, 'spark');
+    return decode(address, prefix);
   } catch (err) {
     console.log('format bip21 spark address error', err);
     return '';

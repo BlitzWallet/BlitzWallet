@@ -8,6 +8,7 @@ import customUUID from '../customUUID';
 import {crashlyticsLogReport} from '../crashlyticsLogs';
 import {sparkReceivePaymentWrapper} from '../spark/payments';
 import {getRootstockAddress} from '../boltz/rootstock/submarineSwap';
+import {formatBip21Address} from '../spark/handleBip21SparkAddress';
 // import * as bip21 from 'bip21';
 
 let invoiceTracker = [];
@@ -59,11 +60,19 @@ export async function initializeAddressProcess(wolletInfo) {
         memo: wolletInfo.description,
         mnemoinc: wolletInfo.currentWalletMnemoinc,
       });
-      // const response = await generateBitcoinAddress(wolletInfo);
       if (!response.didWork)
         throw new Error('errormessages.bitcoinInvoiceError');
       stateTracker = {
-        generatedAddress: response.invoice,
+        generatedAddress: wolletInfo.receivingAmount
+          ? formatBip21Address({
+              address: response.invoice,
+              amountSat: (wolletInfo.receivingAmount / SATSPERBITCOIN).toFixed(
+                8,
+              ),
+              message: wolletInfo.description,
+              prefix: 'bitcoin',
+            })
+          : response.invoice,
         fee: 0,
       };
       // stateTracker = response;
