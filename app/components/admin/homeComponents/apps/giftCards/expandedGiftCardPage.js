@@ -493,7 +493,12 @@ export default function ExpandedGiftCardPage(props) {
       const [fiatRates, dailyPurchaseAmount] = await Promise.all([
         fiatStats.coin === 'USD'
           ? Promise.resolve({didWork: true, fiatRateResponse: fiatStats})
-          : loadNewFiatData('usd', contactsPrivateKey, publicKey, false),
+          : loadNewFiatData(
+              'usd',
+              contactsPrivateKey,
+              publicKey,
+              masterInfoObject,
+            ),
         getLocalStorageItem('dailyPurchaeAmount').then(JSON.parse),
       ]);
 

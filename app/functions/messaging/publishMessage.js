@@ -15,6 +15,7 @@ export async function publishMessage({
   privateKey,
   retrivedContact,
   currentTime,
+  masterInfoObject,
 }) {
   try {
     crashlyticsLogReport('Begining to publish contact message');
@@ -36,6 +37,7 @@ export async function publishMessage({
       data: data,
       privateKey,
       retrivedContact,
+      masterInfoObject,
     });
   } catch (err) {
     console.log(err), 'pubishing message to server error';
@@ -48,6 +50,7 @@ export async function sendPushNotification({
   data,
   privateKey,
   retrivedContact,
+  masterInfoObject,
 }) {
   try {
     crashlyticsLogReport('Sending push notification');
@@ -120,7 +123,7 @@ export async function sendPushNotification({
         sendingContactFiatCurrency,
         privateKey,
         myProfile.uuid,
-        false,
+        masterInfoObject,
       );
       const didFindCurrency = fiatValue?.didWork;
       const fiatAmount =

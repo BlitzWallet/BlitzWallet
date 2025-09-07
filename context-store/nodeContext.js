@@ -53,6 +53,7 @@ const GLobalNodeContextProider = ({children}) => {
         selectedCurrency,
         contactsPrivateKey,
         publicKey,
+        masterInfoObject,
       );
       if (response.didWork) {
         toggleFiatStats(response.fiatRateResponse);

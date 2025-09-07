@@ -145,6 +145,7 @@ export default function FiatCurrencyPage() {
         selectedCurrency,
         contactsPrivateKey,
         publicKey,
+        {fiatCurrency: selectedCurrency},
       );
 
       if (!response.didWork) throw new Error('error saving fiat data');

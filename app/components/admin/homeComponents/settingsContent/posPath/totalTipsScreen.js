@@ -160,6 +160,7 @@ export default function TotalTipsScreen(props) {
             privateKey: contactsPrivateKey,
             retrivedContact: selectedContact,
             currentTime,
+            masterInfoObject,
           });
           // update internal db state of paid tips so you dont pay a tip twice
           await updateInteralDBState(unpaidTxs);
@@ -200,6 +201,7 @@ export default function TotalTipsScreen(props) {
     totalTipAmount,
     unpaidTxs,
     getServerTime,
+    masterInfoObject,
   ]);
 
   const updateInteralDBState = useCallback(async txList => {

@@ -251,46 +251,17 @@ export default function ConnectingToNodeLoadingScreen({
 
   async function setupFiatCurrencies() {
     console.log('Process 8', new Date().getTime());
-    const fetchResponse = JSON.parse(
-      await getLocalStorageItem('didFetchFiatRateToday'),
-    ) || {
-      lastFetched: new Date().getTime() - 1000 * 60 * 60 * 24 * 30,
-      fiatRate: null, // ✅ new format default
-    };
 
     const currency = masterInfoObject.fiatCurrency;
 
-    console.log('Process 9', new Date().getTime());
-
-    // 1. Check old format (backwards compatibility)
-    if (fetchResponse.rates && fetchResponse.rates.length > 0) {
-      const [fiatRate] = fetchResponse.rates.filter(
-        rate => rate.coin.toLowerCase() === currency.toLowerCase(),
-      );
-      if (fiatRate) {
-        // normalize -> new format
-        await setLocalStorageItem(
-          'didFetchFiatRateToday',
-          JSON.stringify({
-            lastFetched: fetchResponse.lastFetched,
-            fiatRate,
-          }),
-        );
-        return fiatRate;
-      }
-    }
-
-    // 2. Check new format
-    if (fetchResponse.fiatRate) {
-      return fetchResponse.fiatRate;
-    }
-
-    console.log('Process 10', new Date().getTime());
-
-    //  3. No cache → fetch a fresh fiat rate
     let fiatRate;
     try {
-      fiatRate = await loadNewFiatData(currency, contactsPrivateKey, publicKey);
+      fiatRate = await loadNewFiatData(
+        currency,
+        contactsPrivateKey,
+        publicKey,
+        masterInfoObject,
+      );
 
       if (!fiatRate.didWork) {
         // fallback API

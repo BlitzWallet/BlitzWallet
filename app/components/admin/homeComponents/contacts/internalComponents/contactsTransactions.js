@@ -172,6 +172,7 @@ function ConfirmedOrSentTransaction({
 export default function ContactsTransactionItem(props) {
   const {selectedContact, transaction, myProfile, currentTime} = props;
   const {t} = useTranslation();
+  const {masterInfoObject} = useGlobalContextProvider();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundColor} = GetThemeColors();
@@ -254,6 +255,7 @@ export default function ContactsTransactionItem(props) {
             },
             privateKey: contactsPrivateKey,
             retrivedContact,
+            masterInfoObject,
           }),
 
           retrivedContact.isUsingEncriptedMessaging
@@ -300,6 +302,7 @@ export default function ContactsTransactionItem(props) {
       publicKey,
       getServerTime,
       navigate,
+      masterInfoObject,
     ],
   );
 

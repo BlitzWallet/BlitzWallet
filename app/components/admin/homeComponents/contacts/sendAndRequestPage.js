@@ -210,6 +210,7 @@ export default function SendAndRequestPage(props) {
                 privateKey: contactsPrivateKey,
                 retrivedContact,
                 currentTime,
+                masterInfoObject,
               }),
           });
         } else {
@@ -275,6 +276,7 @@ export default function SendAndRequestPage(props) {
               privateKey: contactsPrivateKey,
               retrivedContact,
               currentTime,
+              masterInfoObject,
             }),
         });
       } else {
@@ -295,6 +297,7 @@ export default function SendAndRequestPage(props) {
           privateKey: contactsPrivateKey,
           retrivedContact,
           currentTime,
+          masterInfoObject,
         });
         navigate.goBack();
       }
@@ -320,6 +323,7 @@ export default function SendAndRequestPage(props) {
     globalContactsInformation,
     getServerTime,
     giftOption,
+    masterInfoObject,
   ]);
 
   return (

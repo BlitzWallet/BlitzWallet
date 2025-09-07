@@ -23,8 +23,10 @@ import CountryFlag from 'react-native-country-flag';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
 import {useKeysContext} from '../../../../../context-store/keys';
+import {useGlobalContextProvider} from '../../../../../context-store/context';
 
 export default function SelectGiftCardForContacts() {
+  const {masterInfoObject} = useGlobalContextProvider();
   const {decodedGiftCards, toggleGiftCardsList, giftCardsList} =
     useGlobalAppData();
   const {fiatStats} = useNodeContext();
@@ -93,7 +95,7 @@ export default function SelectGiftCardForContacts() {
                   item.currency,
                   contactsPrivateKey,
                   publicKey,
-                  false,
+                  masterInfoObject,
                 );
                 if (response.didWork) fiatPrice = response.fiatRateResponse;
               }
@@ -182,6 +184,7 @@ export default function SelectGiftCardForContacts() {
       contactsPrivateKey,
       publicKey,
       isLoading,
+      masterInfoObject,
     ],
   );
 
