@@ -193,7 +193,7 @@ export default function SendAndRequestPage(props) {
               amount: amount,
               description:
                 descriptionValue ||
-                t('contacts.sendAndRequestPage.giftCardappVersionError', {
+                t('contacts.sendAndRequestPage.giftCardDescription', {
                   name: selectedContact.name || selectedContact.uniqueName,
                   giftCardName: giftOption.name,
                 }),

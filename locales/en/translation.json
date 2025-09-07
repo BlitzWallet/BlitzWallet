@@ -706,7 +706,8 @@
         "dailyPurchaseAmountError": "You have hit your daily purchase limit",
         "giftMessage": "Add a note to your gift",
         "giftMessagePlaceholder": "Type your message here",
-        "selectForContactBTN": "Select Gift Card"
+        "selectForContactBTN": "Select Gift Card",
+        "noAmountError": "Please choose a gift card amount"
       },
       "giftCardOrderDetails": {
         "title": "Order Details",

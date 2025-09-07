@@ -558,7 +558,8 @@
         "dailyPurchaseAmountError": "Has alcanzado tu límite diario de compras",
         "giftMessage": "Añade una nota a tu regalo",
         "giftMessagePlaceholder": "Escribe tu mensaje aquí",
-        "selectForContactBTN": "Selecciona la tarjeta de regalo"
+        "selectForContactBTN": "Selecciona la tarjeta de regalo",
+        "noAmountError": "Seleccione un importe para la tarjeta de regalo"
       },
       "giftCardOrderDetails": {
         "title": "Detalles del pedido",

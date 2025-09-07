@@ -143,9 +143,6 @@ export default function ExpandedGiftCardPage(props) {
     selectedDenomination >= variableRange[0] &&
     selectedDenomination <= variableRange[1];
 
-  const isDescriptionHTML =
-    selectedItem.description.includes('<p>') ||
-    selectedItem.description.includes('br');
   const isTermsHTML =
     selectedItem.terms.includes('<p>') || selectedItem.terms.includes('br');
 
@@ -154,7 +151,9 @@ export default function ExpandedGiftCardPage(props) {
   }, [navigate]);
 
   const isFormValid =
-    canPurchaseCard && numberOfGiftCards >= 1 && EMAIL_REGEX.test(email);
+    canPurchaseCard &&
+    numberOfGiftCards >= 1 &&
+    (fromSelectGiftPage || EMAIL_REGEX.test(email));
 
   return (
     <CustomKeyboardAvoidingView useStandardWidth={true}>
@@ -339,10 +338,7 @@ export default function ExpandedGiftCardPage(props) {
           {/* Purchase Button */}
           <View style={styles.purchaseSection}>
             <CustomButton
-              buttonStyles={{
-                ...styles.purchaseButton,
-                opacity: isFormValid ? 1 : 0.5,
-              }}
+              buttonStyles={styles.purchaseButton}
               textStyles={styles.purchaseButtonText}
               textContent={t(
                 `apps.giftCards.expandedGiftCardPage.${
@@ -350,6 +346,14 @@ export default function ExpandedGiftCardPage(props) {
                 }`,
               )}
               actionFunction={() => {
+                if (!canPurchaseCard) {
+                  navigate.navigate('ErrorScreen', {
+                    errorMessage: t(
+                      'apps.giftCards.expandedGiftCardPage.noAmountError',
+                    ),
+                  });
+                  return;
+                }
                 if (fromSelectGiftPage) {
                   navigate.popTo(
                     'SendAndRequestPage',
@@ -364,8 +368,6 @@ export default function ExpandedGiftCardPage(props) {
                   );
                   return;
                 }
-                if (!isFormValid) return;
-
                 if (email != decodedGiftCards?.profile?.email) {
                   navigate.navigate('ConfirmActionPage', {
                     confirmMessage: t(
