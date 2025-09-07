@@ -281,11 +281,6 @@ export default function ViewGiftCardCodePage({
                     ? backgroundColor
                     : backgroundOffset
                   : COLORS.darkModeText,
-                borderColor: theme
-                  ? darkModeType
-                    ? backgroundOffset
-                    : backgroundColor
-                  : backgroundOffset,
               },
             ]}>
             <ThemeText
@@ -554,7 +549,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     marginBottom: 20,
-    borderWidth: 1,
   },
   messageLabel: {
     opacity: 0.7,
@@ -581,6 +575,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: SIZES.large,
+    includeFontPadding: false,
   },
   codesContainer: {
     borderRadius: 8,

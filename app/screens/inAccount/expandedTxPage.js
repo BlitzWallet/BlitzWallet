@@ -308,7 +308,6 @@ export default function ExpandedTx(props) {
                   content={t('transactionLabelText.memo')}
                   styles={styles.descriptionHeader}
                 />
-
                 <View
                   style={[
                     styles.descriptionContentContainer,
@@ -317,6 +316,7 @@ export default function ExpandedTx(props) {
                     },
                   ]}>
                   <ScrollView
+                    nestedScrollEnabled={true}
                     horizontal={false}
                     showsVerticalScrollIndicator={false}>
                     <ThemeText

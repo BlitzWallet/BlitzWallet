@@ -176,13 +176,10 @@ export default function ViewAllGiftCards() {
         </View>
 
         {/* Right side - Amount */}
-        <View style={styles.amountContainer}>
-          <FormattedSatText
-            neverHideBalance={true}
-            balance={giftCardInfo?.amount || 0}
-          />
-        </View>
-
+        <FormattedSatText
+          neverHideBalance={true}
+          balance={giftCardInfo?.amount || 0}
+        />
         <ThemeImage
           styles={styles.chevronContainer}
           lightModeIcon={ICONS.leftCheveronIcon}
@@ -334,38 +331,13 @@ const styles = StyleSheet.create({
   cardDate: {
     fontSize: SIZES.xSmall,
   },
-  cardType: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-  },
-  loadingText: {
-    fontSize: SIZES.small,
-    opacity: 0.5,
-    fontStyle: 'italic',
-  },
-  amountContainer: {
-    alignItems: 'flex-end',
-    marginRight: 8,
-  },
-  amountValue: {
-    fontSize: SIZES.medium,
-    marginBottom: 1,
-  },
-  amountSats: {
-    fontSize: SIZES.small,
-    opacity: 0.7,
-  },
-  loadingAmount: {
-    fontSize: SIZES.medium,
-    opacity: 0.3,
-  },
   chevronContainer: {
     width: 20,
     height: 20,
     opacity: 0.6,
     transform: [{rotate: '180deg'}],
+    marginLeft: 5,
   },
-
   separator: {
     height: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
@@ -395,5 +367,6 @@ const styles = StyleSheet.create({
 
   claimedPillText: {
     fontSize: SIZES.xSmall,
+    includeFontPadding: false,
   },
 });
