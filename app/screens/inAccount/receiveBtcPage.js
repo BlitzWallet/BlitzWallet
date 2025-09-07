@@ -426,7 +426,9 @@ function LNURLContainer({
           selectedRecieveOption.toLowerCase() === 'lightning' &&
           !initialSendAmount
             ? `${globalContactsInformation?.myProfile?.uniqueName}@blitz-wallet.com`
-            : selectedRecieveOption.toLowerCase() !== 'lightning'
+            : !initialSendAmount ||
+              selectedRecieveOption.toLowerCase() === 'spark' ||
+              selectedRecieveOption.toLowerCase() === 'rootstock'
             ? ' '
             : displayCorrectDenomination({
                 amount: initialSendAmount,
