@@ -361,9 +361,8 @@ export default function SMSMessagingReceivedPage(props) {
 
   const keyExtractor = useCallback(
     (item, index) => {
-      if (index === 0) return 'country-selection';
-      if (index === 1) return 'search-input';
-      return `service-${filteredList[index - 2]?.key}-${index}`;
+      if (index === 0) return 'search-input';
+      return `service-${filteredList[index - 1]?.key}-${index}`;
     },
     [filteredList],
   );

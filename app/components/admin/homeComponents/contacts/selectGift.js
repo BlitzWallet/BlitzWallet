@@ -1,5 +1,8 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import {useCallback, useMemo, useRef, useState} from 'react';
 import {useGlobalAppData} from '../../../../../context-store/appData';
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
@@ -9,6 +12,7 @@ import getGiftCardsList from '../apps/giftCards/giftCardAPI';
 import {useTranslation} from 'react-i18next';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import {
+  CONTENT_KEYBOARD_OFFSET,
   ICONS,
   SATSPERBITCOIN,
   SCREEN_DIMENSIONS,
@@ -24,6 +28,7 @@ import {useNodeContext} from '../../../../../context-store/nodeContext';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
 import {useKeysContext} from '../../../../../context-store/keys';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
+import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 
 export default function SelectGiftCardForContacts() {
   const {masterInfoObject} = useGlobalContextProvider();
@@ -31,12 +36,14 @@ export default function SelectGiftCardForContacts() {
     useGlobalAppData();
   const {fiatStats} = useNodeContext();
   const navigate = useNavigation();
-  const {backgroundOffset} = GetThemeColors();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
   const [errorMessage, setErrorMessage] = useState('');
   const {bottomPadding} = useGlobalInsets();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const [isLoading, setIsLoading] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -64,18 +71,16 @@ export default function SelectGiftCardForContacts() {
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const filteredGiftCards = useMemo(
     () =>
-      giftCardsList
-        .filter(
-          giftCard =>
-            giftCard.countries.includes(userLocal || 'US') &&
-            giftCard.paymentTypes.includes('Lightning') &&
-            giftCard.denominations.length !== 0 &&
-            giftCard.cardType !== 'Donation' &&
-            //   giftCard.denominationType === 'Variable' &&
-            giftCard.stock,
-        )
-        .sort((a, b) => a.name.localeCompare(b.name)),
-    [userLocal, giftCardsList],
+      giftCardsList.filter(
+        giftCard =>
+          giftCard.countries.includes(userLocal || 'US') &&
+          giftCard.paymentTypes.includes('Lightning') &&
+          giftCard.denominations.length !== 0 &&
+          giftCard.cardType !== 'Donation' &&
+          giftCard.stock &&
+          giftCard.name.toLowerCase().startsWith(searchQuery.toLowerCase()),
+      ),
+    [userLocal, giftCardsList, searchQuery],
   );
 
   const renderItem = useCallback(
@@ -191,7 +196,11 @@ export default function SelectGiftCardForContacts() {
   console.log(giftCardsList.length);
 
   return (
-    <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
+    <CustomKeyboardAvoidingView
+      globalThemeViewStyles={{
+        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+      }}
+      useStandardWidth={true}>
       <View style={styles.topBar}>
         <TouchableOpacity
           onPress={navigate.goBack}
@@ -210,36 +219,52 @@ export default function SelectGiftCardForContacts() {
         </TouchableOpacity>
       </View>
 
-      {filteredGiftCards.length === 0 || errorMessage ? (
+      {errorMessage ? (
         <FullLoadingScreen
           containerStyles={{
-            justifyContent:
-              giftCardsList.length === 0 || !errorMessage ? 'center' : 'start',
-            marginTop: giftCardsList.length === 0 || !errorMessage ? 0 : 30,
+            justifyContent: !errorMessage ? 'center' : 'start',
+            marginTop: !errorMessage ? 0 : 30,
           }}
-          showLoadingIcon={
-            giftCardsList.length === 0 && !errorMessage ? true : false
-          }
+          showLoadingIcon={!errorMessage ? true : false}
           text={
-            giftCardsList.length === 0 && !errorMessage
+            !errorMessage
               ? t('apps.giftCards.giftCardsPage.loadingCardsMessage')
-              : errorMessage || t('contacts.selectGiftPage.noCards')
+              : errorMessage
           }
         />
       ) : (
         <FlatList
           numColumns={3}
-          initialNumToRender={20}
-          maxToRenderPerBatch={20}
+          initialNumToRender={24}
+          maxToRenderPerBatch={24}
           windowSize={3}
           data={filteredGiftCards}
           renderItem={renderItem}
           ListHeaderComponent={
-            <ThemeText
-              styles={styles.titleText}
-              content={t('contacts.selectGiftPage.header')}
-            />
+            <View style={{backgroundColor, paddingBottom: 10}}>
+              <ThemeText
+                styles={styles.titleText}
+                content={t('contacts.selectGiftPage.header')}
+              />
+              <CustomSearchInput
+                inputText={searchQuery}
+                setInputText={setSearchQuery}
+                placeholderText={t(
+                  'apps.giftCards.giftCardsPage.searchPlaceholder',
+                )}
+                onFocusFunction={() => setIsKeyboardActive(true)}
+                onBlurFunction={() => setIsKeyboardActive(false)}
+              />
+
+              {!filteredGiftCards.length && (
+                <ThemeText
+                  styles={styles.noCardsText}
+                  content={t('contacts.selectGiftPage.noCards')}
+                />
+              )}
+            </View>
           }
+          stickyHeaderIndices={[0]}
           keyExtractor={item => item.id.toString()}
           contentContainerStyle={{
             ...styles.flatListContainer,
@@ -249,7 +274,7 @@ export default function SelectGiftCardForContacts() {
           columnWrapperStyle={styles.row}
         />
       )}
-    </GlobalThemeView>
+    </CustomKeyboardAvoidingView>
   );
 }
 
@@ -273,7 +298,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     gap: 15,
     alignSelf: 'center',
-    marginTop: 20,
+    paddingTop: 20,
   },
   row: {
     gap: 15,
@@ -321,5 +346,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 8,
+  },
+  noCardsText: {
+    textAlign: 'center',
+    marginTop: 20,
   },
 });

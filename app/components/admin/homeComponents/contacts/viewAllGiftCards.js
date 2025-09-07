@@ -16,13 +16,66 @@ import {useNavigation} from '@react-navigation/native';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useTranslation} from 'react-i18next';
+import {getGiftCardData} from '../../../../functions/contacts/giftCardStorage';
 
 export default function ViewAllGiftCards() {
   const {giftCardsList} = useGlobalContacts();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundColor, backgroundOffset} = GetThemeColors();
+  const {backgroundColor, backgroundOffset, textColor} = GetThemeColors();
   const navigate = useNavigation();
   const {t} = useTranslation();
+  const [allCardsWithInfo, setAllCardsWithInfo] = useState([]);
+
+  useEffect(() => {
+    async function getAllCardInfo() {
+      try {
+        const cardsWithData = await Promise.allSettled(
+          giftCardsList.map(async item => {
+            try {
+              const cardData = await getGiftCardData(
+                item.message.giftCardInfo.invoice,
+              );
+              return {
+                ...item,
+                expandedCardInfo: cardData,
+                hasError: false,
+              };
+            } catch (error) {
+              console.warn(
+                `Failed to fetch data for card ${item.message.giftCardInfo.uuid}:`,
+                error,
+              );
+              return {
+                ...item,
+                expandedCardInfo: null,
+                hasError: true,
+              };
+            }
+          }),
+        );
+
+        const processedCards = cardsWithData
+          .filter(result => result.status === 'fulfilled')
+          .map(result => result.value);
+
+        setAllCardsWithInfo(processedCards);
+      } catch (error) {
+        console.error('Error fetching gift card data:', error);
+        // Fallback: set cards without expanded info
+        setAllCardsWithInfo(
+          giftCardsList.map(item => ({
+            ...item,
+            expandedCardInfo: null,
+            hasError: true,
+          })),
+        );
+      }
+    }
+
+    if (giftCardsList?.length > 0) {
+      getAllCardInfo();
+    }
+  }, [giftCardsList]);
 
   const handleGiftCardPress = message => {
     const giftCard = message.message.giftCardInfo;
@@ -45,6 +98,7 @@ export default function ViewAllGiftCards() {
 
   const renderGiftCardItem = ({item}) => {
     const giftCardInfo = item.message.giftCardInfo;
+    const expandedCardInfo = item.expandedCardInfo;
 
     return (
       <TouchableOpacity
@@ -60,6 +114,36 @@ export default function ViewAllGiftCards() {
         ]}
         onPress={() => handleGiftCardPress(item)}
         activeOpacity={0.7}>
+        {/* Claimed Status Pill */}
+        {expandedCardInfo?.userMarkedClaimed && (
+          <View
+            style={[
+              styles.claimedPill,
+              {
+                backgroundColor: true
+                  ? theme
+                    ? darkModeType
+                      ? COLORS.darkModeText
+                      : COLORS.primary
+                    : COLORS.primary
+                  : 'transparent',
+              },
+            ]}>
+            <ThemeText
+              styles={{
+                ...styles.claimedPillText,
+                color: true
+                  ? theme
+                    ? darkModeType
+                      ? COLORS.lightModeText
+                      : COLORS.darkModeText
+                    : COLORS.darkModeText
+                  : textColor,
+              }}
+              content={t('contacts.viewGiftCardCode.claimed')}
+            />
+          </View>
+        )}
         {/* Left side - Logo */}
         <View style={styles.logoContainer}>
           {giftCardInfo?.logo ? (
@@ -84,6 +168,7 @@ export default function ViewAllGiftCards() {
               t('contacts.internalComponents.viewAllGiftCards.cardNamePlaceH')
             }
           />
+
           <ThemeText
             styles={styles.cardDate}
             content={new Date(item.timestamp).toLocaleDateString()}
@@ -148,7 +233,7 @@ export default function ViewAllGiftCards() {
           styles={styles.headerSubtitle}
           content={t(
             `contacts.internalComponents.viewAllGiftCards.cardsLengh${
-              giftCardsList.length !== 1 ? 'Singular' : 'Plurl'
+              giftCardsList.length !== 1 ? 'Plurl' : 'Singular'
             }`,
             {
               num: giftCardsList.length,
@@ -159,7 +244,7 @@ export default function ViewAllGiftCards() {
 
       {/* Gift Cards List */}
       <FlatList
-        data={giftCardsList}
+        data={allCardsWithInfo}
         renderItem={renderGiftCardItem}
         keyExtractor={(item, index) => item.invoice || index.toString()}
         contentContainerStyle={styles.listContainer}
@@ -242,6 +327,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   cardName: {
+    flexShrink: 1,
     fontSize: SIZES.medium,
     marginBottom: 2,
   },
@@ -296,5 +382,18 @@ const styles = StyleSheet.create({
   emptySubtext: {
     textAlign: 'center',
     lineHeight: 20,
+  },
+
+  claimedPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    borderTopRightRadius: 12,
+  },
+
+  claimedPillText: {
+    fontSize: SIZES.xSmall,
   },
 });

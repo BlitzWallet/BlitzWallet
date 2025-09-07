@@ -672,7 +672,7 @@
     },
     "giftCards": {
       "giftCardsPage": {
-        "searchPlaceholder": "Search",
+        "searchPlaceholder": "Search for a Gift Card",
         "leftPageMessage": "Where'd you go?",
         "loadingCardsMessage": "Getting gift cards",
         "noCardsAvailable": "No gift cards available"
@@ -1044,8 +1044,8 @@
       "helpDesc": "If you need assistance with this gift card, copy the Card UUID above and include it in your email to our support team.",
       "unpaidMessage": "This card is unpaid. If payment was made but not reflected, please use the email below to get help.",
       "messageLabel": "Message:",
-      "claimed": "Claimed",
-      "markAsClaimed": "Mark as Claimed"
+      "claimed": "Used",
+      "markAsClaimed": "Mark as Used"
     },
 
     "selectGiftPage": {

@@ -524,7 +524,7 @@
 
     "giftCards": {
       "giftCardsPage": {
-        "searchPlaceholder": "Buscar",
+        "searchPlaceholder": "Buscar una tarjeta de regalo",
         "leftPageMessage": "¿A dónde fuiste?",
         "loadingCardsMessage": "Obteniendo tarjetas de regalo",
         "noCardsAvailable": "No hay tarjetas de regalo disponibles"
@@ -886,8 +886,8 @@
       "helpDesc": "Si necesitas asistencia con esta tarjeta de regalo, copia el UUID de la tarjeta de arriba e inclúyelo en tu correo electrónico a nuestro equipo de soporte.",
       "unpaidMessage": "Esta tarjeta no está pagada. Si el pago se realizó pero no se refleja, utiliza el correo electrónico a continuación para obtener ayuda.",
       "messageLabel": "Mensaje:",
-      "claimed": "Reclamado",
-      "markAsClaimed": "Mark como se afirma"
+      "claimed": "Usato",
+      "markAsClaimed": "Contrassegna come usato"
     },
     "selectGiftPage": {
       "noCards": "No hay tarjetas disponibles",
