@@ -179,6 +179,7 @@ export default function ViewAllGiftCards() {
         <FormattedSatText
           neverHideBalance={true}
           balance={giftCardInfo?.amount || 0}
+          useMillionDenomination={true}
         />
         <ThemeImage
           styles={styles.chevronContainer}

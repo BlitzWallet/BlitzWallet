@@ -18,9 +18,6 @@ import {
 import {COLORS, ICONS, SIZES} from '../../../../constants';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
 import CustomButton from '../../../../functions/CustomElements/button';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
@@ -28,6 +25,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
 import {copyToClipboard} from '../../../../functions';
 import {useToast} from '../../../../../context-store/toastManager';
+import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 
 export default function ViewGiftCardCodePage({
   giftCardInfo,
@@ -39,8 +37,6 @@ export default function ViewGiftCardCodePage({
   const isUserMarkedClaimed = codeInformation?.userMarkedClaimed;
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {backgroundColor, backgroundOffset, textColor} = GetThemeColors();
-  const {fiatStats} = useNodeContext();
-  const {masterInfoObject} = useGlobalContextProvider();
   const navigate = useNavigation();
   const {t} = useTranslation();
   const {showToast} = useToast();
@@ -200,27 +196,19 @@ export default function ViewGiftCardCodePage({
               styles={styles.amountLabel}
               content={t('contacts.viewGiftCardCode.valueHeader')}
             />
-            <ThemeText
+            <FormattedSatText
               styles={styles.amountValue}
-              content={displayCorrectDenomination({
-                amount: codeInformation.amountSats,
-                fiatStats,
-                masterInfoObject: {
-                  satDisplay: masterInfoObject.satDisplay,
-                  userBalanceDenomination: 'fiat',
-                },
-              })}
+              balance={codeInformation.amountSats}
+              useMillionDenomination={true}
+              globalBalanceDenomination={'fiat'}
+              neverHideBalance={true}
             />
-            <ThemeText
+            <FormattedSatText
               styles={styles.amountSats}
-              content={displayCorrectDenomination({
-                amount: codeInformation.amountSats,
-                fiatStats,
-                masterInfoObject: {
-                  satDisplay: masterInfoObject.satDisplay,
-                  userBalanceDenomination: 'sats',
-                },
-              })}
+              balance={codeInformation.amountSats}
+              useMillionDenomination={true}
+              globalBalanceDenomination={'sats'}
+              neverHideBalance={true}
             />
 
             {/* UUID integrated into amount section */}
