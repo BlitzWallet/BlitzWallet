@@ -8,7 +8,11 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {COLORS, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
-import {CENTER, NOSTR_RELAY_URL} from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  NOSTR_RELAY_URL,
+} from '../../../../../constants';
 import SettingsItemWithSlider from '../../../../../functions/CustomElements/settings/settingsItemWithSlider';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
@@ -393,6 +397,7 @@ export default function CreateNostrConnectAccount(props) {
               actionFunction={handleAccountCreation}
               buttonStyles={{
                 ...CENTER,
+                marginTop: CONTENT_KEYBOARD_OFFSET,
               }}
               textContent={t('constants.save')}
             />

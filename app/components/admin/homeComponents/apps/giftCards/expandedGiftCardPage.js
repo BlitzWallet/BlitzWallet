@@ -156,7 +156,11 @@ export default function ExpandedGiftCardPage(props) {
     (fromSelectGiftPage || EMAIL_REGEX.test(email));
 
   return (
-    <CustomKeyboardAvoidingView useStandardWidth={true}>
+    <CustomKeyboardAvoidingView
+      globalThemeViewStyles={{
+        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+      }}
+      useStandardWidth={true}>
       <CustomSettingsTopBar
         containerStyles={styles.topBar}
         customBackFunction={customBack}
@@ -174,9 +178,7 @@ export default function ExpandedGiftCardPage(props) {
       ) : (
         <ScrollView
           contentContainerStyle={{
-            paddingBottom: isKeyboardActive
-              ? CONTENT_KEYBOARD_OFFSET
-              : bottomPadding,
+            paddingBottom: bottomPadding,
           }}
           showsVerticalScrollIndicator={false}>
           {/* Header Section */}

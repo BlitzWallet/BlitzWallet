@@ -249,7 +249,10 @@ export default function PosSettingsPage() {
             inputText={textInput}
             setInputText={setTextInput}
             placeholderText={currentCurrency}
-            containerStyles={{marginTop: 10}}
+            containerStyles={{
+              marginTop: 10,
+              marginBottom: CONTENT_KEYBOARD_OFFSET,
+            }}
             onBlurFunction={() => setIsKeyboardActive(false)}
             onFocusFunction={() => setIsKeyboardActive(true)}
             shouldDelayBlur={false}
@@ -404,7 +407,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     width: INSET_WINDOW_WIDTH,
-    marginTop: 5,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
   },
 });

@@ -17,7 +17,12 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import CountryFlag from 'react-native-country-flag';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {CENTER, COLORS, ICONS} from '../../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
+} from '../../../../../constants';
 import {SIZES} from '../../../../../constants/theme';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import {useNavigation} from '@react-navigation/native';
@@ -374,7 +379,7 @@ const styles = StyleSheet.create({
   stickySearchHeader: {
     width: '100%',
     alignSelf: 'center',
-    paddingBottom: 15,
+    paddingBottom: CONTENT_KEYBOARD_OFFSET,
   },
   dropdownContainer: {
     width: '100%',
@@ -479,7 +484,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   submitListingBTN: {
-    marginTop: 10,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
     alignSelf: 'center',
   },
 });

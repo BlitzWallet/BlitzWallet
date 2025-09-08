@@ -6,7 +6,7 @@ import {useCallback, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {CENTER, COLORS} from '../../../../constants';
+import {CENTER, COLORS, CONTENT_KEYBOARD_OFFSET} from '../../../../constants';
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     paddingTop: 8,
+    paddingBottom: CONTENT_KEYBOARD_OFFSET,
   },
   currencyContainer: {
     width: '100%',

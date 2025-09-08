@@ -377,8 +377,6 @@ export default function SMSMessagingReceivedPage(props) {
   return (
     <CustomKeyboardAvoidingView
       useStandardWidth={true}
-      // isKeyboardActive={isKeyboardActive}
-      // useLocalPadding={true}
       globalThemeViewStyles={{
         paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
       }}>
@@ -493,6 +491,7 @@ const styles = StyleSheet.create({
   itemSearch: {
     marginTop: 0,
     marginBottom: 10,
+    paddingBottom: CONTENT_KEYBOARD_OFFSET,
   },
   serviceRow: {
     flexDirection: 'row',

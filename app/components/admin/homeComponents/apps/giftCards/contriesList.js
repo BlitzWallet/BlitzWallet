@@ -200,5 +200,9 @@ const styles = StyleSheet.create({
     width: '90%',
     ...CENTER,
   },
-  searchInput: {width: '90%', marginTop: 0},
+  searchInput: {
+    width: '90%',
+    marginTop: 0,
+    paddingBottom: CONTENT_KEYBOARD_OFFSET,
+  },
 });

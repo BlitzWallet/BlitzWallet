@@ -162,7 +162,11 @@ export default function Nip5VerificationPage() {
           <CustomButton
             useLoading={isLoading}
             actionFunction={saveNip5Information}
-            buttonStyles={{...CENTER, marginBottom: CONTENT_KEYBOARD_OFFSET}}
+            buttonStyles={{
+              ...CENTER,
+              marginBottom: CONTENT_KEYBOARD_OFFSET,
+              marginTop: CONTENT_KEYBOARD_OFFSET,
+            }}
             textContent={
               inputs.name || inputs.pubkey
                 ? t('constants.update')

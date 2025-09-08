@@ -170,6 +170,8 @@ export default function SMSMessagingSendPage() {
               onChangeText={e => setAreaCode(e)}
               ref={areaCodeRef}
               keyboardType="ascii-capable"
+              autoComplete="off"
+              autoCorrect={false}
               onFocus={() => {
                 changeFunction('country');
               }}

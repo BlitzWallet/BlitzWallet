@@ -4,14 +4,18 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  unstable_batchedUpdates,
   View,
 } from 'react-native';
 import {ThemeText} from '../../../../functions/CustomElements';
 import {CENTER} from '../../../../constants/styles';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {COLORS, EMAIL_REGEX, FONT, ICONS, SIZES} from '../../../../constants';
+import {
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  EMAIL_REGEX,
+  ICONS,
+  SIZES,
+} from '../../../../constants';
 import {useGlobalContacts} from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
 import {useRef, useState} from 'react';
@@ -168,121 +172,116 @@ export default function AddContactsHalfModal(props) {
   };
 
   return (
-    <TouchableWithoutFeedback>
-      <View style={styles.container}>
-        <View style={styles.innerContainer}>
-          <View style={styles.titleContainer}>
-            <ThemeText
-              styles={styles.titleText}
-              content={t('contacts.addContactsHalfModal.title')}
+    <View style={styles.innerContainer}>
+      <View style={styles.titleContainer}>
+        <ThemeText
+          styles={styles.titleText}
+          content={t('contacts.addContactsHalfModal.title')}
+        />
+        {isSearching && (
+          <ActivityIndicator
+            size={'small'}
+            color={theme && darkModeType ? COLORS.darkModeText : COLORS.primary}
+          />
+        )}
+      </View>
+      <CustomSearchInput
+        placeholderText={t('contacts.addContactsHalfModal.searchPlaceholder')}
+        setInputText={handleSearch}
+        inputText={searchInput}
+        textInputRef={keyboardRef}
+        blurOnSubmit={false}
+        containerStyles={{
+          justifyContent: 'center',
+          marginBottom: CONTENT_KEYBOARD_OFFSET,
+        }}
+        textInputStyles={{paddingRight: 45}}
+        onSubmitEditingFunction={() => {
+          clearHalfModalForLNURL();
+        }}
+        buttonComponent={
+          <TouchableOpacity
+            onPress={() => {
+              keyboardNavigate(() =>
+                navigate.navigate('CameraModal', {
+                  updateBitcoinAdressFunc: parseContact,
+                  fromPage: 'addContact',
+                }),
+              );
+            }}
+            style={{
+              position: 'absolute',
+              right: 10,
+              zIndex: 1,
+            }}>
+            <ThemeImage
+              darkModeIcon={ICONS.scanQrCodeBlue}
+              lightModeIcon={ICONS.scanQrCodeBlue}
+              lightsOutIcon={ICONS.scanQrCodeDark}
             />
-            {isSearching && (
-              <ActivityIndicator
-                size={'small'}
-                color={
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                }
-              />
-            )}
-          </View>
-          <CustomSearchInput
-            placeholderText={t(
-              'contacts.addContactsHalfModal.searchPlaceholder',
-            )}
-            setInputText={handleSearch}
-            inputText={searchInput}
-            textInputRef={keyboardRef}
-            blurOnSubmit={false}
-            containerStyles={{justifyContent: 'center'}}
-            textInputStyles={{paddingRight: 45}}
-            onSubmitEditingFunction={() => {
+          </TouchableOpacity>
+        }
+      />
+
+      {searchInput.includes('@') ? (
+        <ScrollView
+          keyboardShouldPersistTaps="always"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            alignItems: 'center',
+            marginTop: 10,
+          }}>
+          <ThemeText
+            content={t('contacts.addContactsHalfModal.lnurlAddMessage')}
+          />
+          <ThemeText content={searchInput} />
+
+          <CustomButton
+            buttonStyles={{
+              width: 'auto',
+              ...CENTER,
+              marginTop: 25,
+            }}
+            actionFunction={() => {
               clearHalfModalForLNURL();
             }}
-            buttonComponent={
-              <TouchableOpacity
-                onPress={() => {
-                  keyboardNavigate(() =>
-                    navigate.navigate('CameraModal', {
-                      updateBitcoinAdressFunc: parseContact,
-                      fromPage: 'addContact',
-                    }),
-                  );
-                }}
-                style={{
-                  position: 'absolute',
-                  right: 10,
-                  zIndex: 1,
-                }}>
-                <ThemeImage
-                  darkModeIcon={ICONS.scanQrCodeBlue}
-                  lightModeIcon={ICONS.scanQrCodeBlue}
-                  lightsOutIcon={ICONS.scanQrCodeDark}
-                />
-              </TouchableOpacity>
-            }
+            textContent={t('constants.continue')}
           />
-
-          {searchInput.includes('@') ? (
-            <ScrollView
-              keyboardShouldPersistTaps="always"
+        </ScrollView>
+      ) : (
+        <>
+          {users.length ? (
+            <FlatList
+              key={sha256Hash(users.join('') + `${isSearching}`)}
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{
-                alignItems: 'center',
-                marginTop: 10,
-              }}>
-              <ThemeText
-                content={t('contacts.addContactsHalfModal.lnurlAddMessage')}
-              />
-              <ThemeText content={searchInput} />
-
-              <CustomButton
-                buttonStyles={{
-                  width: 'auto',
-                  ...CENTER,
-                  marginTop: 25,
-                }}
-                actionFunction={() => {
-                  clearHalfModalForLNURL();
-                }}
-                textContent={t('constants.continue')}
-              />
-            </ScrollView>
-          ) : (
-            <>
-              {users.length ? (
-                <FlatList
-                  key={sha256Hash(users.join('') + `${isSearching}`)}
-                  showsVerticalScrollIndicator={false}
-                  data={users}
-                  renderItem={({item}) => (
-                    <ContactListItem
-                      savedContact={item}
-                      contactsPrivateKey={contactsPrivateKey}
-                      theme={theme}
-                      darkModeType={darkModeType}
-                    />
-                  )}
-                  keyExtractor={item => item?.uniqueName}
-                  keyboardShouldPersistTaps="handled"
-                  keyboardDismissMode="none"
-                />
-              ) : (
-                <ThemeText
-                  styles={{textAlign: 'center', marginTop: 20}}
-                  content={
-                    isSearching && searchInput.length > 0
-                      ? ''
-                      : searchInput.length > 0
-                      ? t('contacts.addContactsHalfModal.noProfilesFound')
-                      : t('contacts.addContactsHalfModal.startTypingMessage')
-                  }
+              data={users}
+              renderItem={({item}) => (
+                <ContactListItem
+                  savedContact={item}
+                  contactsPrivateKey={contactsPrivateKey}
+                  theme={theme}
+                  darkModeType={darkModeType}
                 />
               )}
-            </>
+              keyExtractor={item => item?.uniqueName}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="none"
+            />
+          ) : (
+            <ThemeText
+              styles={{textAlign: 'center', marginTop: 10}}
+              content={
+                isSearching && searchInput.length > 0
+                  ? ''
+                  : searchInput.length > 0
+                  ? t('contacts.addContactsHalfModal.noProfilesFound')
+                  : t('contacts.addContactsHalfModal.startTypingMessage')
+              }
+            />
           )}
-        </View>
-      </View>
-    </TouchableWithoutFeedback>
+        </>
+      )}
+    </View>
   );
 }
 function ContactListItem(props) {
@@ -335,10 +334,6 @@ function ContactListItem(props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-  },
   innerContainer: {flex: 1, width: '90%', ...CENTER},
 
   titleContainer: {

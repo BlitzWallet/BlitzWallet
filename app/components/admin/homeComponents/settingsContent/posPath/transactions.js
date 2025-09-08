@@ -1,7 +1,7 @@
 import {useCallback, useMemo, useState} from 'react';
 import {CENTER, ICONS} from '../../../../../constants';
 import {
-  GlobalThemeView,
+  CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
@@ -67,7 +67,9 @@ export default function ViewPOSTransactions() {
   }, []);
 
   return (
-    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
+    <CustomKeyboardAvoidingView
+      styles={styles.globalContainer}
+      useStandardWidth={true}>
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
         showLeftImage={false}
@@ -101,7 +103,7 @@ export default function ViewPOSTransactions() {
           />
         )}
       </View>
-    </GlobalThemeView>
+    </CustomKeyboardAvoidingView>
   );
 }
 

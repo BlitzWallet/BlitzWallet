@@ -20,6 +20,7 @@ import {useTranslation} from 'react-i18next';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
 import {fiatCurrencies} from '../../../../functions/currencyOptions';
 import {useKeysContext} from '../../../../../context-store/keys';
+import GetThemeColors from '../../../../hooks/themeColors';
 
 export default function FiatCurrencyPage() {
   const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
@@ -35,7 +36,7 @@ export default function FiatCurrencyPage() {
   const {t} = useTranslation();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const {bottomPadding} = useGlobalInsets();
-
+  const {backgroundColor} = GetThemeColors();
   const navigate = useNavigation();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -100,6 +101,9 @@ export default function FiatCurrencyPage() {
 
   return (
     <CustomKeyboardAvoidingView
+      globalThemeViewStyles={{
+        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+      }}
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}>
       <CustomSettingsTopBar
@@ -112,9 +116,7 @@ export default function FiatCurrencyPage() {
         contentContainerStyle={{
           flexGrow: 1,
           paddingTop: 20,
-          paddingBottom: isKeyboardActive
-            ? CONTENT_KEYBOARD_OFFSET
-            : bottomPadding,
+          paddingBottom: bottomPadding,
         }}
         stickyHeaderIndices={[0]}
         ListHeaderComponent={
@@ -122,7 +124,11 @@ export default function FiatCurrencyPage() {
             setInputText={setTextInput}
             inputText={textInput}
             placeholderText={t('settings.fiatCurrency.placeholderText')}
-            containerStyles={{width: INSET_WINDOW_WIDTH}}
+            containerStyles={{
+              backgroundColor,
+              width: INSET_WINDOW_WIDTH,
+              paddingBottom: CONTENT_KEYBOARD_OFFSET,
+            }}
             onBlurFunction={() => setIsKeyboardActive(false)}
             onFocusFunction={() => setIsKeyboardActive(true)}
           />

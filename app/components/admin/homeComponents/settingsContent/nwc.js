@@ -189,6 +189,7 @@ export default function NosterWalletConnect() {
           inputText={accountName}
           setInputText={setAccountName}
           placeholderText={t('settings.nwc.searchAccountPlaceholder')}
+          containerStyles={{marginBottom: CONTENT_KEYBOARD_OFFSET}}
         />
         <ScrollView contentContainerStyle={{paddingBottom: 20}}>
           {nwcElements.length > 0 ? (

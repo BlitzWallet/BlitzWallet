@@ -386,7 +386,7 @@ export default function CustomHalfModal(props) {
               contentType === 'manualEnterSendAddress' ||
               contentType === 'switchGenerativeAiModel' ||
               contentType === 'addPOSItemsHalfModal' ||
-              'editLNURLOnReceive'
+              contentType === 'editLNURLOnReceive'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : bottomPadding

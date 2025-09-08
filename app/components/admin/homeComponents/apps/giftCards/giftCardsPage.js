@@ -1,6 +1,6 @@
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {
-  GlobalThemeView,
+  CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
@@ -11,6 +11,7 @@ import GetThemeColors from '../../../../../hooks/themeColors';
 import {
   CENTER,
   COLORS,
+  CONTENT_KEYBOARD_OFFSET,
   ICONS,
   SCREEN_DIMENSIONS,
   SIZES,
@@ -35,6 +36,7 @@ export default function GiftCardPage() {
   const [giftCardSearch, setGiftCardSearch] = useState('');
   const navigate = useNavigation();
   const [showList, setShowList] = useState(false);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -152,84 +154,91 @@ export default function GiftCardPage() {
   );
 
   return (
-    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
-      <View style={{flex: 1}}>
-        <View style={styles.topBar}>
-          <TouchableOpacity
-            onPress={() => {
-              keyboardNavigate(() => navigate.popTo('HomeAdmin'));
-            }}
-            style={{marginRight: 'auto'}}>
-            <ThemeImage
-              lightModeIcon={ICONS.smallArrowLeft}
-              darkModeIcon={ICONS.smallArrowLeft}
-              lightsOutIcon={ICONS.arrow_small_left_white}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() =>
-              keyboardNavigate(() => navigate.navigate('CountryList'))
-            }>
-            <CountryFlag isoCode={userLocal} size={20} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{marginLeft: 10}}
-            onPress={() =>
-              keyboardNavigate(() =>
-                navigate.navigate('HistoricalGiftCardPurchases'),
-              )
-            }>
-            <ThemeImage
-              darkModeIcon={ICONS.receiptIcon}
-              lightModeIcon={ICONS.receiptIcon}
-              lightsOutIcon={ICONS.receiptWhite}
-            />
-          </TouchableOpacity>
-        </View>
-        <CustomSearchInput
-          inputText={giftCardSearch}
-          setInputText={setGiftCardSearch}
-          placeholderText={t('apps.giftCards.giftCardsPage.searchPlaceholder')}
-          containerStyles={{width: '90%', marginTop: 20}}
-        />
-
-        {filteredGiftCards.length === 0 || errorMessage || !showList ? (
-          <FullLoadingScreen
-            containerStyles={{
-              justifyContent:
-                giftCards.length === 0 && !errorMessage ? 'center' : 'start',
-              marginTop: giftCards.length === 0 && !errorMessage ? 0 : 30,
-            }}
-            showLoadingIcon={
-              giftCards.length === 0 && !errorMessage ? true : false
-            }
-            text={
-              !showList
-                ? t('apps.giftCards.giftCardsPage.leftPageMessage')
-                : giftCards.length === 0 && !errorMessage
-                ? t('apps.giftCards.giftCardsPage.loadingCardsMessage')
-                : errorMessage
-            }
+    <CustomKeyboardAvoidingView
+      globalThemeViewStyles={{
+        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+      }}
+      useStandardWidth={true}>
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          onPress={() => {
+            keyboardNavigate(() => navigate.popTo('HomeAdmin'));
+          }}
+          style={{marginRight: 'auto'}}>
+          <ThemeImage
+            lightModeIcon={ICONS.smallArrowLeft}
+            darkModeIcon={ICONS.smallArrowLeft}
+            lightsOutIcon={ICONS.arrow_small_left_white}
           />
-        ) : (
-          <FlatList
-            numColumns={3}
-            initialNumToRender={20}
-            maxToRenderPerBatch={20}
-            windowSize={3}
-            data={filteredGiftCards}
-            renderItem={renderItem}
-            keyExtractor={item => item.id.toString()}
-            contentContainerStyle={{
-              ...styles.flatListContainer,
-              paddingBottom: bottomPadding,
-            }}
-            showsVerticalScrollIndicator={false}
-            columnWrapperStyle={styles.row}
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            keyboardNavigate(() => navigate.navigate('CountryList'))
+          }>
+          <CountryFlag isoCode={userLocal} size={20} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{marginLeft: 10}}
+          onPress={() =>
+            keyboardNavigate(() =>
+              navigate.navigate('HistoricalGiftCardPurchases'),
+            )
+          }>
+          <ThemeImage
+            darkModeIcon={ICONS.receiptIcon}
+            lightModeIcon={ICONS.receiptIcon}
+            lightsOutIcon={ICONS.receiptWhite}
           />
-        )}
+        </TouchableOpacity>
       </View>
-    </GlobalThemeView>
+      <CustomSearchInput
+        inputText={giftCardSearch}
+        setInputText={setGiftCardSearch}
+        placeholderText={t('apps.giftCards.giftCardsPage.searchPlaceholder')}
+        containerStyles={{
+          marginTop: 20,
+          paddingBottom: CONTENT_KEYBOARD_OFFSET,
+        }}
+        onFocusFunction={() => setIsKeyboardActive(true)}
+        onBlurFunction={() => setIsKeyboardActive(false)}
+      />
+
+      {filteredGiftCards.length === 0 || errorMessage || !showList ? (
+        <FullLoadingScreen
+          containerStyles={{
+            justifyContent:
+              giftCards.length === 0 && !errorMessage ? 'center' : 'start',
+            marginTop: giftCards.length === 0 && !errorMessage ? 0 : 30,
+          }}
+          showLoadingIcon={
+            giftCards.length === 0 && !errorMessage ? true : false
+          }
+          text={
+            !showList
+              ? t('apps.giftCards.giftCardsPage.leftPageMessage')
+              : giftCards.length === 0 && !errorMessage
+              ? t('apps.giftCards.giftCardsPage.loadingCardsMessage')
+              : errorMessage
+          }
+        />
+      ) : (
+        <FlatList
+          numColumns={3}
+          initialNumToRender={20}
+          maxToRenderPerBatch={20}
+          windowSize={3}
+          data={filteredGiftCards}
+          renderItem={renderItem}
+          keyExtractor={item => item.id.toString()}
+          contentContainerStyle={{
+            ...styles.flatListContainer,
+            paddingBottom: bottomPadding,
+          }}
+          showsVerticalScrollIndicator={false}
+          columnWrapperStyle={styles.row}
+        />
+      )}
+    </CustomKeyboardAvoidingView>
   );
 }
 
@@ -242,7 +251,7 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   flatListContainer: {
-    width: '90%',
+    width: '100%',
     paddingBottom: 20,
     gap: 15,
     alignSelf: 'center',

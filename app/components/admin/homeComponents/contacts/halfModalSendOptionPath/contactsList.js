@@ -138,6 +138,9 @@ export default function ChooseContactHalfModal() {
   return (
     <CustomKeyboardAvoidingView
       useStandardWidth={true}
+      globalThemeViewStyles={{
+        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+      }}
       useTouchableWithoutFeedback={true}>
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
@@ -149,16 +152,16 @@ export default function ChooseContactHalfModal() {
         stickyHeaderIndices={[0]}
         contentContainerStyle={{
           ...styles.innerContainer,
-          flexGrow: 1,
-          paddingBottom: isKeyboardActive
-            ? CONTENT_KEYBOARD_OFFSET
-            : bottomPadding,
+          paddingBottom: bottomPadding,
         }}>
         <CustomSearchInput
           inputText={inputText}
           setInputText={setInputText}
           placeholderText={t('wallet.contactsPage.inputTextPlaceholder')}
-          containerStyles={{marginBottom: 10, backgroundColor}}
+          containerStyles={{
+            paddingBottom: CONTENT_KEYBOARD_OFFSET,
+            backgroundColor,
+          }}
           onBlurFunction={() => {
             setIskeyboardActive(false);
           }}
@@ -176,6 +179,7 @@ export default function ChooseContactHalfModal() {
 const styles = StyleSheet.create({
   innerContainer: {
     paddingTop: 10,
+    flexGrow: 1,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },

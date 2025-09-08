@@ -6,7 +6,13 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
+  SIZES,
+} from '../../../../constants';
 import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {encriptMessage} from '../../../../functions/messaging/encodingAndDecodingMessages';
@@ -89,6 +95,7 @@ export default function ContactsPage({navigation}) {
   const searchInputStyle = useMemo(
     () => ({
       width: '100%',
+      paddingBottom: CONTENT_KEYBOARD_OFFSET,
       backgroundColor,
     }),
     [backgroundColor],
