@@ -8,7 +8,7 @@ import {CENTER, COLORS} from '../../../../../constants';
 import {CountryCodeList} from 'react-native-country-picker-modal';
 import CountryFlag from 'react-native-country-flag';
 import {getCountryInfoAsync} from 'react-native-country-picker-modal/lib/CountryService';
-import {useCallback, useState} from 'react';
+import {useCallback, useRef, useState} from 'react';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -29,6 +29,7 @@ export default function CountryList(props) {
   const [allCountries, setAllCountries] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [showList, setShowList] = useState(false);
+  const didClick = useRef(false);
   const ISOCode = decodedGiftCards?.profile?.isoCode;
   const onlyReturn = props?.route?.params?.onlyReturn;
   const pageName = props?.route?.params?.pageName;
@@ -68,6 +69,8 @@ export default function CountryList(props) {
 
   const saveNewCountrySetting = useCallback(
     async isoCode => {
+      if (didClick.current) return;
+      didClick.current = true;
       if (onlyReturn) {
         navigate.popTo(pageName, {removeUserLocal: isoCode}, {merge: true});
         return;
@@ -86,9 +89,8 @@ export default function CountryList(props) {
 
       toggleGlobalAppDataInformation({giftCards: em}, true);
 
-      setTimeout(() => {
-        navigate.goBack();
-      }, 150);
+      navigate.goBack();
+      didClick.current = false;
     },
     [
       contactsPrivateKey,
@@ -97,6 +99,7 @@ export default function CountryList(props) {
       toggleGlobalAppDataInformation,
       navigate,
       onlyReturn,
+      didClick,
     ],
   );
 
