@@ -9,7 +9,12 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {ICONS, SCREEN_DIMENSIONS, SIZES} from '../../../../../constants';
+import {
+  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
+  SCREEN_DIMENSIONS,
+  SIZES,
+} from '../../../../../constants';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {COLORS} from '../../../../../constants/theme';
 import {useCallback, useEffect, useMemo, useState} from 'react';
@@ -32,6 +37,7 @@ import {keyboardNavigate} from '../../../../../functions/customNavigation';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import CountryFlag from 'react-native-country-flag';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 const imgEndpoint = endpoint => `https://sms4sats.com/${endpoint}`;
 
@@ -48,6 +54,7 @@ export default function SMSMessagingReceivedPage(props) {
   const [searchInput, setSearchInput] = useState('');
   const {decodedMessages, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {theme} = useGlobalThemeContext();
+  const {bottomPadding} = useGlobalInsets();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
@@ -370,8 +377,11 @@ export default function SMSMessagingReceivedPage(props) {
   return (
     <CustomKeyboardAvoidingView
       useStandardWidth={true}
-      isKeyboardActive={isKeyboardActive}
-      useLocalPadding={true}>
+      // isKeyboardActive={isKeyboardActive}
+      // useLocalPadding={true}
+      globalThemeViewStyles={{
+        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+      }}>
       <View style={styles.topBar}>
         <TouchableOpacity
           onPress={() => {
@@ -453,6 +463,7 @@ export default function SMSMessagingReceivedPage(props) {
           windowSize={3}
           contentContainerStyle={{
             paddingTop: 10,
+            paddingBottom: bottomPadding,
           }}
         />
       )}

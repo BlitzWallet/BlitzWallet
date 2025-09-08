@@ -130,14 +130,13 @@ export default function SMSMessagingSendPage() {
       onPress={clearKeyboardFunc}
       style={styles.container}>
       <CustomKeyboardAvoidingView
-        isKeyboardActive={focusedElement}
+        isKeyboardActive={focusedElement && focusedElement !== 'phoneNumber'}
         useLocalPadding={true}
         useStandardWidth={true}>
         <CustomSettingsTopBar
           customBackFunction={() => {
             setTimeout(
               navigate.goBack,
-
               Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
             );
             Keyboard.dismiss();

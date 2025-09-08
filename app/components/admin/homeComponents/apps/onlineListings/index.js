@@ -72,9 +72,9 @@ export default function ViewOnlineListings({removeUserLocal}) {
     if (!data?.businesses) return [];
     return Object.values(data.businesses)
       .filter(biz => {
-        const matchSearch =
-          biz.name.toLowerCase().includes(search.toLowerCase()) ||
-          biz.description.toLowerCase().includes(search.toLowerCase());
+        const matchSearch = biz.name
+          .toLowerCase()
+          .startsWith(search.toLowerCase());
         const matchCategory =
           category === 'All' ||
           biz.category?.toLowerCase() === category.toLowerCase();

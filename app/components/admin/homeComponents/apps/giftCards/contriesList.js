@@ -4,7 +4,11 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {CENTER, COLORS} from '../../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+} from '../../../../../constants';
 import {CountryCodeList} from 'react-native-country-picker-modal';
 import CountryFlag from 'react-native-country-flag';
 import {getCountryInfoAsync} from 'react-native-country-picker-modal/lib/CountryService';
@@ -19,11 +23,12 @@ import {keyboardGoBack} from '../../../../../functions/customNavigation';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import {useTranslation} from 'react-i18next';
+import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 
 export default function CountryList(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {toggleGlobalAppDataInformation, decodedGiftCards} = useGlobalAppData();
-
+  const {bottomPadding} = useGlobalInsets();
   const {textColor, backgroundOffset} = GetThemeColors();
   const navigate = useNavigation();
   const [allCountries, setAllCountries] = useState([]);
@@ -34,6 +39,7 @@ export default function CountryList(props) {
   const onlyReturn = props?.route?.params?.onlyReturn;
   const pageName = props?.route?.params?.pageName;
   const {t} = useTranslation();
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -157,17 +163,26 @@ export default function CountryList(props) {
   }, [navigate]);
 
   return (
-    <CustomKeyboardAvoidingView useStandardWidth={true}>
+    <CustomKeyboardAvoidingView
+      globalThemeViewStyles={{
+        paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
+      }}
+      useStandardWidth={true}>
       <CustomSettingsTopBar customBackFunction={keyboardDismissBack} />
       <CustomSearchInput
         inputText={searchInput}
         setInputText={setSearchInput}
         placeholderText={t('apps.chatGPT.countrySearch.inputPlaceholder')}
         containerStyles={styles.searchInput}
+        onFocusFunction={() => setIsKeyboardActive(true)}
+        onBlurFunction={() => setIsKeyboardActive(false)}
       />
       {showList && (
         <FlatList
-          contentContainerStyle={styles.flatlist}
+          contentContainerStyle={[
+            styles.flatlist,
+            {paddingBottom: bottomPadding},
+          ]}
           renderItem={flatListElement}
           key={item => item.code}
           initialNumToRender={20}

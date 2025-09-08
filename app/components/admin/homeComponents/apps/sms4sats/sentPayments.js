@@ -30,13 +30,14 @@ export default function HistoricalSMSMessagingPage({route}) {
   const {t} = useTranslation();
   const clickData = useRef({});
 
-  const selectedPage = route?.params?.selectedPage || 'Send';
-  const isReceiveMode = selectedPage !== 'Send';
+  const selectedPage = route?.params?.selectedPage?.toLowerCase() || 'send';
+  const isReceiveMode = selectedPage !== 'send';
 
   const formatPhoneNumber = useCallback(number => {
     if (!number) return '';
     try {
-      return parsePhoneNumberWithError('+' + number).formatInternational();
+      let formmattedNumber = number.includes('+') ? number : '+' + number;
+      return parsePhoneNumberWithError(formmattedNumber).formatInternational();
     } catch (error) {
       console.warn('Phone formatting error:', error);
       return number;

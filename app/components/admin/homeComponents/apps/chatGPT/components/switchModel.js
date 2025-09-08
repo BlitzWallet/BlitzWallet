@@ -25,7 +25,7 @@ export default function SwitchGenerativeAIModel({
   );
 
   const filteredList = AI_MODEL_COST.filter(item =>
-    item.name.startsWith(modelSearch),
+    item.name?.toLowerCase()?.startsWith(modelSearch.toLowerCase()),
   );
 
   const listItem = useCallback(
