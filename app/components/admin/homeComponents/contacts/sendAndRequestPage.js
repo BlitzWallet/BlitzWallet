@@ -33,6 +33,8 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import fetchBackend from '../../../../../db/handleBackend';
 import {getDataFromCollection} from '../../../../../db';
 import FastImage from 'react-native-fast-image';
+import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
+import giftCardPurchaseAmountTracker from '../../../../functions/apps/giftCardPurchaseTracker';
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
@@ -170,6 +172,34 @@ export default function SendAndRequestPage(props) {
         if (response.result) {
           const {amount, invoice, orderId, uuid} = response.result;
 
+          const fiatRates = await (fiatStats.coin?.toLowerCase() === 'usd'
+            ? Promise.resolve({didWork: true, fiatRateResponse: fiatStats})
+            : loadNewFiatData(
+                'usd',
+                contactsPrivateKey,
+                publicKey,
+                masterInfoObject,
+              ));
+
+          const USDBTCValue = fiatRates.didWork
+            ? fiatRates.fiatRateResponse
+            : {coin: 'USD', value: 100_000};
+
+          const sendingAmountSat = amount;
+
+          const isOverDailyLimit = await giftCardPurchaseAmountTracker({
+            sendingAmountSat: sendingAmountSat,
+            USDBTCValue: USDBTCValue,
+            testOnly: true,
+          });
+
+          if (isOverDailyLimit.shouldBlock) {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: isOverDailyLimit.reason,
+            });
+            return;
+          }
+
           sendObject['amountMsat'] = amount;
           sendObject['description'] = giftOption.memo || '';
           sendObject['uuid'] = UUID;
@@ -199,7 +229,11 @@ export default function SendAndRequestPage(props) {
                 }),
             },
             fromPage: 'contacts',
-            publishMessageFunc: () =>
+            publishMessageFunc: () => {
+              giftCardPurchaseAmountTracker({
+                sendingAmountSat: sendingAmountSat,
+                USDBTCValue: USDBTCValue,
+              });
               publishMessage({
                 toPubKey: selectedContact.uuid,
                 fromPubKey: globalContactsInformation.myProfile.uuid,
@@ -211,7 +245,8 @@ export default function SendAndRequestPage(props) {
                 retrivedContact,
                 currentTime,
                 masterInfoObject,
-              }),
+              });
+            },
           });
         } else {
           navigate.navigate('ErrorScreen', {
@@ -324,6 +359,7 @@ export default function SendAndRequestPage(props) {
     getServerTime,
     giftOption,
     masterInfoObject,
+    fiatStats,
   ]);
 
   return (

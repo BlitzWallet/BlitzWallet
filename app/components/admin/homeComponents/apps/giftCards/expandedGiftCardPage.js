@@ -40,6 +40,7 @@ import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import loadNewFiatData from '../../../../../functions/saveAndUpdateFiatData';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import FastImage from 'react-native-fast-image';
+import giftCardPurchaseAmountTracker from '../../../../../functions/apps/giftCardPurchaseTracker';
 
 export default function ExpandedGiftCardPage(props) {
   const {sparkInformation} = useSparkWallet();
@@ -494,17 +495,14 @@ export default function ExpandedGiftCardPage(props) {
       });
       const responseInvoice = responseObject.invoice;
 
-      const [fiatRates, dailyPurchaseAmount] = await Promise.all([
-        fiatStats.coin === 'USD'
-          ? Promise.resolve({didWork: true, fiatRateResponse: fiatStats})
-          : loadNewFiatData(
-              'usd',
-              contactsPrivateKey,
-              publicKey,
-              masterInfoObject,
-            ),
-        getLocalStorageItem('dailyPurchaeAmount').then(JSON.parse),
-      ]);
+      const fiatRates = await (fiatStats.coin?.toLowerCase()
+        ? Promise.resolve({didWork: true, fiatRateResponse: fiatStats})
+        : loadNewFiatData(
+            'usd',
+            contactsPrivateKey,
+            publicKey,
+            masterInfoObject,
+          ));
 
       const USDBTCValue = fiatRates.didWork
         ? fiatRates.fiatRateResponse
@@ -513,49 +511,16 @@ export default function ExpandedGiftCardPage(props) {
       const memo = responseObject.description;
       const currentTime = new Date();
 
-      if (dailyPurchaseAmount) {
-        if (isMoreThanADayOld(dailyPurchaseAmount.date)) {
-          setLocalStorageItem(
-            'dailyPurchaeAmount',
-            JSON.stringify({date: currentTime, amount: sendingAmountSat}),
-          );
-        } else {
-          const totalPurchaseAmount = Math.round(
-            ((dailyPurchaseAmount.amount + sendingAmountSat) / SATSPERBITCOIN) *
-              USDBTCValue.value,
-          );
+      const isOverDailyLimit = await giftCardPurchaseAmountTracker({
+        sendingAmountSat: sendingAmountSat,
+        USDBTCValue: USDBTCValue,
+      });
 
-          if (totalPurchaseAmount > 9000) {
-            setIsPurchasingGift(prev => {
-              return {
-                hasError: false,
-                errorMessage: '',
-                isPurasing: false,
-              };
-            });
-            navigate.navigate('ErrorScreen', {
-              errorMessage: t(
-                'apps.giftCards.expandedGiftCardPage.dailyPurchaseAmountError',
-              ),
-            });
-            return;
-          }
-          setLocalStorageItem(
-            'dailyPurchaeAmount',
-            JSON.stringify({
-              date: dailyPurchaseAmount.date,
-              amount: dailyPurchaseAmount.amount + sendingAmountSat,
-            }),
-          );
-        }
-      } else {
-        setLocalStorageItem(
-          'dailyPurchaeAmount',
-          JSON.stringify({
-            date: currentTime,
-            amount: sendingAmountSat,
-          }),
-        );
+      if (isOverDailyLimit.shouldBlock) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: isOverDailyLimit.reason,
+        });
+        return;
       }
 
       const paymentResponse = await sendStorePayment({
