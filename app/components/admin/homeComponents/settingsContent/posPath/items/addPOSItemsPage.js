@@ -10,7 +10,13 @@ import {useMemo, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../../../context-store/context';
 import {useNavigation} from '@react-navigation/native';
 import GetThemeColors from '../../../../../../hooks/themeColors';
-import {CENTER, COLORS, ICONS, SIZES} from '../../../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
+  SIZES,
+} from '../../../../../../constants';
 import {formatCurrency} from '../../../../../../functions/formatCurrency';
 import ThemeImage from '../../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../../functions/CustomElements/Icon';
@@ -24,20 +30,17 @@ export default function AddPOSItemsPage() {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const posItems = masterInfoObject.posSettings.items || [];
-  const {backgroundOffset} = GetThemeColors();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
   const currentCurrency = masterInfoObject.posSettings?.storeCurrency;
 
   const removePOSItem = itemUUID => {
     let posObject = JSON.parse(JSON.stringify(masterInfoObject?.posSettings));
 
-    console.log(itemUUID);
     const newItemArray = posObject.items.filter(
       savedItem => savedItem.uuid !== itemUUID,
     );
     posObject.items = newItemArray;
-
-    console.log(posObject);
 
     toggleMasterInfoObject({posSettings: posObject});
   };
@@ -143,6 +146,7 @@ export default function AddPOSItemsPage() {
         <CustomSearchInput
           inputText={posItemSearch}
           setInputText={setPosItemSearch}
+          containerStyles={{...styles.searchInput, backgroundColor}}
           placeholderText={t(
             'settings.posPath.items.addPOSItemsPage.itemSearchPlaceholder',
           )}
@@ -180,7 +184,7 @@ export default function AddPOSItemsPage() {
 
 const styles = StyleSheet.create({
   posItemContainer: {
-    width: '95%',
+    width: '100%',
     marginVertical: 10,
     borderRadius: 8,
     ...CENTER,
@@ -200,6 +204,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   addItemButton: {
+    marginTop: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
+  },
+  searchInput: {
+    paddingBottom: CONTENT_KEYBOARD_OFFSET,
   },
 });
