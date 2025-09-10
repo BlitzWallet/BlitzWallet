@@ -20,7 +20,7 @@
     "@azure/core-asynciterator-polyfill": "^1.0.2",
     "@bitcoinerlab/secp256k1": "^1.2.0",
     "@breeztech/react-native-breez-sdk-liquid": "^0.10.1",
-    "@buildonspark/spark-sdk": "^0.3.1",
+    "@buildonspark/spark-sdk": "0.2.12",
     "@craftzdog/react-native-buffer": "^6.0.5",
     "@miblanchard/react-native-slider": "^2.6.0",
     "@noble/hashes": "^1.8.0",
