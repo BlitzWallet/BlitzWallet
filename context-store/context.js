@@ -43,6 +43,7 @@ const GlobalContextProvider = ({children}) => {
               budgetSettings: value.budgetRenewalSettings,
             },
           })),
+          accountsLookup: Object.keys(newData.accounts),
         };
       }
 
