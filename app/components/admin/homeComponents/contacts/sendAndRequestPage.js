@@ -1,5 +1,10 @@
 import {StyleSheet, ScrollView, TouchableOpacity, View} from 'react-native';
-import {CENTER, ICONS, SATSPERBITCOIN} from '../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
+  SATSPERBITCOIN,
+} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
@@ -18,10 +23,8 @@ import FormattedBalanceInput from '../../../../functions/CustomElements/formatte
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../context-store/appStatus';
 import {useKeysContext} from '../../../../../context-store/keys';
-import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
-import getReceiveAddressForContactPayment from './internalComponents/getReceiveAddressAndKindForPayment';
 import {useServerTimeOnly} from '../../../../../context-store/serverTime';
 import {useTranslation} from 'react-i18next';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
@@ -35,10 +38,21 @@ import {getDataFromCollection} from '../../../../../db';
 import FastImage from 'react-native-fast-image';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
 import giftCardPurchaseAmountTracker from '../../../../functions/apps/giftCardPurchaseTracker';
+import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
+import {useSparkWallet} from '../../../../../context-store/sparkContext';
+import getReceiveAddressAndContactForContactsPayment from './internalComponents/getReceiveAddressAndKindForPayment';
+
+const MAX_SEND_OPTIONS = [
+  {label: '25%', value: '25'},
+  {label: '50%', value: '50'},
+  {label: '75%', value: '75'},
+  {label: '100%', value: '100'},
+];
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
   const {masterInfoObject} = useGlobalContextProvider();
+  const {sparkInformation} = useSparkWallet();
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {isConnectedToTheInternet} = useAppStatus();
   const {fiatStats} = useNodeContext();
@@ -52,14 +66,16 @@ export default function SendAndRequestPage(props) {
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination,
   );
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset, textColor} = GetThemeColors();
+  const {theme} = useGlobalThemeContext();
+  const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
   const descriptionRef = useRef(null);
+
   const selectedContact = props.route.params.selectedContact;
   const paymentType = props.route.params.paymentType;
   const fromPage = props.route.params.fromPage;
   const giftOption = props.route.params.cardInfo;
+
   const isBTCdenominated =
     inputDenomination == 'hidden' || inputDenomination == 'sats';
 
@@ -75,7 +91,33 @@ export default function SendAndRequestPage(props) {
     () => convertedSendAmount,
     [convertedSendAmount, minMaxLiquidSwapAmounts, paymentType],
   );
-  useHandleBackPressNew();
+
+  const handleSelctProcesss = useCallback(
+    async item => {
+      try {
+        const balance = sparkInformation.balance;
+        const selectedPercent = !item ? 100 : item.value;
+        const sendingBalance =
+          Math.round(balance * (selectedPercent / 100)) *
+          (item.value == '100' ? 0.98 : 1); //adding small buffer to 100% send since we are not calculating fees
+
+        const maxAmountSats = Number(sendingBalance);
+
+        const convertedMax =
+          inputDenomination != 'fiat'
+            ? Math.round(Number(maxAmountSats))
+            : (
+                Number(maxAmountSats) /
+                Math.round(SATSPERBITCOIN / fiatStats?.value)
+              ).toFixed(2);
+
+        setAmountValue(convertedMax);
+      } catch (err) {
+        console.log(err, 'ERROR');
+      }
+    },
+    [sparkInformation, inputDenomination],
+  );
 
   useEffect(() => {
     if (!giftOption) {
@@ -86,7 +128,6 @@ export default function SendAndRequestPage(props) {
       giftOption.selectedDenomination * giftOption.satsPerDollar,
     );
     const localfiatSatsPerDollar = fiatStats.value / SATSPERBITCOIN;
-
     setAmountValue(
       String(
         isBTCdenominated
@@ -114,8 +155,6 @@ export default function SendAndRequestPage(props) {
       setIsLoading(true);
 
       const sendingAmountMsat = convertedSendAmount * 1000;
-      const address = selectedContact.receiveAddress;
-
       const contactMessage = descriptionValue;
       const myProfileMessage = !!descriptionValue
         ? descriptionValue
@@ -135,6 +174,7 @@ export default function SendAndRequestPage(props) {
       const currentTime = getServerTime();
       const UUID = customUUID();
       let sendObject = {};
+
       if (giftOption) {
         const retrivedContact = await getDataFromCollection(
           'blitzWalletUsers',
@@ -146,7 +186,6 @@ export default function SendAndRequestPage(props) {
           });
           return;
         }
-
         if (!retrivedContact.enabledGiftCards) {
           navigate.navigate('ErrorScreen', {
             errorMessage: t(
@@ -162,6 +201,7 @@ export default function SendAndRequestPage(props) {
           cardValue: giftOption.selectedDenomination, //number
           quantity: Number(1), //number
         };
+
         const response = await fetchBackend(
           'theBitcoinCompanyV3',
           postData,
@@ -171,7 +211,6 @@ export default function SendAndRequestPage(props) {
 
         if (response.result) {
           const {amount, invoice, orderId, uuid} = response.result;
-
           const fiatRates = await (fiatStats.coin?.toLowerCase() === 'usd'
             ? Promise.resolve({didWork: true, fiatRateResponse: fiatStats})
             : loadNewFiatData(
@@ -180,13 +219,11 @@ export default function SendAndRequestPage(props) {
                 publicKey,
                 masterInfoObject,
               ));
-
           const USDBTCValue = fiatRates.didWork
             ? fiatRates.fiatRateResponse
             : {coin: 'USD', value: 100_000};
 
           const sendingAmountSat = amount;
-
           const isOverDailyLimit = await giftCardPurchaseAmountTracker({
             sendingAmountSat: sendingAmountSat,
             USDBTCValue: USDBTCValue,
@@ -253,34 +290,24 @@ export default function SendAndRequestPage(props) {
             errorMessage: t('contacts.sendAndRequestPage.cardDetailsError'),
           });
         }
-
         return;
       }
 
-      let receiveAddress;
-      let retrivedContact;
-      if (selectedContact.isLNURL) {
-        receiveAddress = address;
-        retrivedContact = selectedContact;
-        // note do not need to set an amount for lnurl taken care of down below with entered payment information object
-      } else {
-        const addressResposne = await getReceiveAddressForContactPayment(
-          convertedSendAmount,
+      const {receiveAddress, retrivedContact, didWork, error} =
+        await getReceiveAddressAndContactForContactsPayment({
+          sendingAmountSat: convertedSendAmount,
           selectedContact,
           myProfileMessage,
           payingContactMessage,
-        );
+          onlyGetContact: paymentType !== 'send',
+        });
 
-        if (!addressResposne.didWork) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: addressResposne.error,
-            useTranslationString: true,
-          });
-          return;
-        } else {
-          retrivedContact = addressResposne.retrivedContact;
-          receiveAddress = addressResposne.receiveAddress;
-        }
+      if (!didWork) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: error,
+          useTranslationString: true,
+        });
+        return;
       }
 
       if (paymentType === 'send') {
@@ -322,6 +349,7 @@ export default function SendAndRequestPage(props) {
         sendObject['isRedeemed'] = null;
         sendObject['wasSeen'] = null;
         sendObject['didSend'] = null;
+
         await publishMessage({
           toPubKey: selectedContact.uuid,
           fromPubKey: globalContactsInformation.myProfile.uuid,
@@ -334,6 +362,7 @@ export default function SendAndRequestPage(props) {
           currentTime,
           masterInfoObject,
         });
+
         navigate.goBack();
       }
     } catch (err) {
@@ -362,6 +391,16 @@ export default function SendAndRequestPage(props) {
     fiatStats,
   ]);
 
+  const memorizedContainerStyles = useMemo(() => {
+    return {
+      flex: 0,
+      borderRadius: 8,
+      height: 'unset',
+      minWidth: 'unset',
+      justifyContent: 'center',
+    };
+  }, []);
+
   return (
     <CustomKeyboardAvoidingView
       isKeyboardActive={!isAmountFocused}
@@ -379,7 +418,6 @@ export default function SendAndRequestPage(props) {
             containerFunction={() => {
               setInputDenomination(prev => {
                 const newPrev = prev === 'sats' ? 'fiat' : 'sats';
-
                 return newPrev;
               });
               setAmountValue(
@@ -391,8 +429,10 @@ export default function SendAndRequestPage(props) {
               );
             }}
           />
+
           <FormattedSatText
             containerStyles={{
+              ...styles.convertedAmount,
               opacity: !amountValue ? 0.5 : 1,
             }}
             neverHideBalance={true}
@@ -401,6 +441,23 @@ export default function SendAndRequestPage(props) {
             }
             balance={convertedSendAmount}
           />
+
+          {/* Send Max Button */}
+          {paymentType === 'send' && !giftOption && (
+            <View>
+              <DropdownMenu
+                selectedValue={t(
+                  `wallet.sendPages.sendMaxComponent.${'sendMax'}`,
+                )}
+                onSelect={handleSelctProcesss}
+                options={MAX_SEND_OPTIONS}
+                showClearIcon={false}
+                textStyles={styles.sendMaxText}
+                showVerticalArrows={false}
+                customButtonStyles={memorizedContainerStyles}
+              />
+            </View>
+          )}
 
           {giftOption && (
             <>
@@ -411,10 +468,15 @@ export default function SendAndRequestPage(props) {
                       wantedContent: 'giftCardSendAndReceiveOption',
                     })
                   }
-                  style={{
-                    ...styles.pill,
-                    borderColor: backgroundOffset,
-                  }}>
+                  style={[
+                    styles.pill,
+                    {
+                      borderColor: backgroundOffset,
+                      backgroundColor: theme
+                        ? backgroundOffset
+                        : backgroundOffset,
+                    },
+                  ]}>
                   <View style={styles.logoContainer}>
                     <FastImage
                       style={styles.cardLogo}
@@ -430,26 +492,21 @@ export default function SendAndRequestPage(props) {
                     })}
                   />
                   <View
-                    style={{
-                      backgroundColor: backgroundOffset,
-                      width: 30,
-                      height: 30,
-                      borderRadius: 15,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      position: 'absolute',
-                      right: -15,
-                      top: -15,
-                    }}>
+                    style={[
+                      styles.editButton,
+                      {
+                        backgroundColor: backgroundOffset,
+                        borderColor: backgroundColor,
+                      },
+                    ]}>
                     <ThemeImage
-                      styles={{width: 20, height: 20}}
+                      styles={styles.editIcon}
                       lightModeIcon={ICONS.editIcon}
                       darkModeIcon={ICONS.editIconLight}
                       lightsOutIcon={ICONS.editIconLight}
                     />
                   </View>
                 </TouchableOpacity>
-
                 {giftOption.memo && (
                   <View style={styles.memoSection}>
                     <ThemeText
@@ -479,6 +536,7 @@ export default function SendAndRequestPage(props) {
             </>
           )}
         </ScrollView>
+
         {!giftOption && (
           <>
             <View style={styles.inputAndGiftContainer}>
@@ -500,7 +558,6 @@ export default function SendAndRequestPage(props) {
                     <Icon color={textColor} name={'giftIcon'} />
                   </TouchableOpacity>
                 )}
-
               <CustomSearchInput
                 onFocusFunction={() => {
                   setIsAmountFocused(false);
@@ -512,9 +569,7 @@ export default function SendAndRequestPage(props) {
                 placeholderText={t(
                   'contacts.sendAndRequestPage.descriptionPlaceholder',
                 )}
-                containerStyles={{
-                  marginTop: 5,
-                }}
+                containerStyles={styles.descriptionInput}
                 setInputText={setDescriptionValue}
                 inputText={descriptionValue}
                 textInputMultiline={true}
@@ -522,7 +577,6 @@ export default function SendAndRequestPage(props) {
                 maxLength={149}
               />
             </View>
-
             {isAmountFocused && (
               <CustomNumberKeyboard
                 showDot={masterInfoObject.userBalanceDenomination === 'fiat'}
@@ -534,13 +588,9 @@ export default function SendAndRequestPage(props) {
             )}
           </>
         )}
-
         {isAmountFocused && (
           <CustomButton
-            buttonStyles={{
-              opacity: canSendPayment ? 1 : 0.5,
-              ...styles.button,
-            }}
+            buttonStyles={{...styles.button, opacity: canSendPayment ? 1 : 0.5}}
             useLoading={isLoading}
             actionFunction={handleSubmit}
             textContent={
@@ -556,12 +606,26 @@ export default function SendAndRequestPage(props) {
 }
 
 const styles = StyleSheet.create({
-  topBar: {marginTop: 0, marginBottom: 0},
+  topBar: {
+    marginTop: 0,
+    marginBottom: 0,
+  },
   scrollViewContainer: {
     paddingBottom: 20,
     alignItems: 'center',
     justifyContent: 'center',
     flexGrow: 1,
+  },
+  amountSection: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  sendMaxText: {
+    textAlign: 'center',
+    includeFontPadding: false,
+  },
+  convertedAmount: {
+    marginBottom: 16,
   },
   profileImage: {
     width: 100,
@@ -571,7 +635,6 @@ const styles = StyleSheet.create({
     ...CENTER,
     alignItems: 'center',
     justifyContent: 'center',
-    // marginTop: 20,
     marginBottom: 5,
     overflow: 'hidden',
   },
@@ -579,88 +642,106 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     alignSelf: 'center',
   },
-
   profileName: {
     ...CENTER,
     marginBottom: 20,
   },
   giftAmountContainer: {
     width: INSET_WINDOW_WIDTH,
-    marginTop: 10,
+    marginTop: 20,
   },
   giftAmountText: {
     textAlign: 'center',
   },
-
   giftContainer: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 16,
+    marginTop: CONTENT_KEYBOARD_OFFSET,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-end',
-    marginBottom: 10,
+    marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
   giftText: {
-    marginRight: 5,
+    marginRight: 8,
     includeFontPadding: false,
   },
-
   button: {
     width: 'auto',
     ...CENTER,
+    marginTop: 8,
   },
-
   pill: {
     width: '100%',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    gap: 12,
-    borderWidth: 3,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 24,
+    gap: 16,
+    borderWidth: 2,
     alignSelf: 'center',
+    position: 'relative',
   },
   logoContainer: {
-    width: 45,
+    width: 48,
     aspectRatio: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.darkModeText,
-    borderRadius: 8,
-    padding: 5,
+    borderRadius: 12,
+    padding: 6,
   },
   cardLogo: {
     width: '100%',
     height: '100%',
     maxWidth: 80,
     maxHeight: 80,
-    borderRadius: 12,
+    borderRadius: 8,
   },
   pillText: {
     flexShrink: 1,
     includeFontPadding: false,
+    fontSize: SIZES.medium,
+  },
+  editButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: -8,
+    top: -8,
+    borderWidth: 3,
+  },
+  editIcon: {
+    width: 18,
+    height: 18,
   },
   memoSection: {
-    marginTop: 24,
+    marginTop: 28,
   },
   memoLabel: {
-    marginBottom: 8,
-    fontSize: SIZES.small,
+    marginBottom: 10,
     opacity: 0.8,
   },
   memoContainer: {
-    padding: 16,
-    borderRadius: 12,
+    padding: 18,
+    borderRadius: 16,
     borderWidth: 1,
-    minHeight: 56,
+    minHeight: 60,
     justifyContent: 'center',
   },
   memoText: {
-    lineHeight: 20,
+    lineHeight: 22,
     letterSpacing: 0.3,
+    fontSize: SIZES.medium,
+  },
+  descriptionInput: {
+    marginTop: 8,
   },
 });
