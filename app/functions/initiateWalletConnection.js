@@ -58,7 +58,6 @@ async function initializeSparkSession({
     cleanStalePendingSparkLightningTransactions();
     const [balance, sparkAddress, identityPubKey] = await Promise.all([
       getSparkBalance(mnemonic),
-
       getSparkAddress(mnemonic),
       getSparkIdentityPubKey(mnemonic),
     ]);

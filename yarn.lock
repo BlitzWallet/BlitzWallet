@@ -1688,13 +1688,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.2.12":
-  version: 0.2.12
-  resolution: "@buildonspark/spark-sdk@npm:0.2.12"
+"@buildonspark/spark-sdk@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "@buildonspark/spark-sdk@npm:0.3.1"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@bufbuild/protobuf": ^2.2.5
-    "@lightsparkdev/core": ^1.4.3
+    "@lightsparkdev/core": ^1.4.4
     "@noble/curves": ^1.8.0
     "@noble/hashes": ^1.7.0
     "@opentelemetry/api": ^1.9.0
@@ -1739,7 +1739,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 2ae11b036a07d7252c5cc2a940e200dc8de860dd4d7ef288e63e2ec7c3143c36a63699f469a258045e17c7741c91947090fb5c8c4e7d1d6ef1b803e95c4597a6
+  checksum: 40dccc25d0f5bbed9dfe51c847eb01b8947f1ab797fd13585e89dc41efa481b054310a82cebaf23f984ec1f83c713b7b05f3694c0cbf28f17b68793701a453b8
   languageName: node
   linkType: hard
 
@@ -3188,9 +3188,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lightsparkdev/core@npm:^1.4.3":
-  version: 1.4.3
-  resolution: "@lightsparkdev/core@npm:1.4.3"
+"@lightsparkdev/core@npm:^1.4.4":
+  version: 1.4.4
+  resolution: "@lightsparkdev/core@npm:1.4.4"
   dependencies:
     dayjs: ^1.11.7
     graphql: ^16.6.0
@@ -3198,7 +3198,7 @@ __metadata:
     secp256k1: ^5.0.1
     ws: ^8.12.1
     zen-observable-ts: ^1.1.0
-  checksum: 18dea91ed5c943feb6de51c6c06da9e3747a914d7d745f8b1981e5f665514817dfd81a92bd793a919adc458729b75b9cb13bbccb3b5141f5ff9313195f0f3129
+  checksum: 737482eb3eac4c3f76188732cb94c8fd5d305f547c716fc203b6724cb616c68b346aea26060b1be67104db0df7bc064cb0bb7767cb8e42e46c91a9a7a07d7df6
   languageName: node
   linkType: hard
 
@@ -4874,7 +4874,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.10.1
-    "@buildonspark/spark-sdk": ^0.2.12
+    "@buildonspark/spark-sdk": ^0.3.1
     "@craftzdog/react-native-buffer": ^6.0.5
     "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
