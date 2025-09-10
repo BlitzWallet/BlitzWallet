@@ -23,9 +23,8 @@ import {getSparkPaymentStatus, sparkPaymentType} from '../spark';
 import {pushInstantNotification} from '../notifications';
 import NWCInvoiceManager from './cachedNWCTxs';
 import {NOSTR_RELAY_URL, NWC_IDENTITY_PUB_KEY} from '../../constants';
-import {finalizeEvent} from 'nostr-tools';
+import {finalizeEvent, nip44} from 'nostr-tools';
 import {getFunctions} from '@react-native-firebase/functions';
-import {Platform} from 'react-native';
 import fetchBackend from '../../../db/handleBackend';
 import {getLocalStorageItem} from '../localStorage';
 import sha256Hash from '../hash';
@@ -81,6 +80,7 @@ const handleGetInfo = selectedNWCAccount => ({
     block_height: 1,
     block_hash: 'N/A',
     methods: getSupportedMethods(selectedNWCAccount.permissions),
+    notifications: ['payment_received'],
   },
 });
 
@@ -223,6 +223,73 @@ const handleMakeInvoice = async (
       },
     },
   });
+};
+
+const handlePublish = async (data, nwcAccounts) => {
+  const formattedEvents = data.requestObjects.map(item => {
+    const account = nwcAccounts[item.account];
+    console.log({
+      notification_type: item.notification_type,
+      notificaion: item.notification,
+    });
+
+    const coversationKey = nip44.v2.utils.getConversationKey(
+      account.privateKey,
+      item.event.clientPubKey,
+    );
+
+    const legacyNWCNotificationResponse = {
+      kind: 23196,
+      created_at: Math.round(Date.now() / 1000),
+      tags: [
+        ['p', item.event.clientPubKey],
+        ['e', item.event.id],
+      ],
+      content: encriptMessage(
+        account.privateKey,
+        item.event.clientPubKey,
+        JSON.stringify({
+          notification_type: item.notification_type,
+          notificaion: item.notification,
+        }),
+      ),
+    };
+    const newNWCNotificationResponse = {
+      kind: 23197,
+      created_at: Math.round(Date.now() / 1000),
+      tags: [['p', item.event.clientPubKey]],
+      content: nip44.v2.encrypt(
+        JSON.stringify({
+          notification_type: item.notification_type,
+          notificaion: item.notification,
+        }),
+        coversationKey,
+      ),
+    };
+    console.log(legacyNWCNotificationResponse, newNWCNotificationResponse);
+
+    const finalizedEventLeg = finalizeEvent(
+      legacyNWCNotificationResponse,
+      Buffer.from(account.privateKey, 'hex'),
+    );
+    const finalizedEventNew = finalizeEvent(
+      newNWCNotificationResponse,
+      Buffer.from(account.privateKey, 'hex'),
+    );
+    return [finalizedEventLeg, finalizedEventNew];
+  });
+
+  // Post all events in parallel and wait for all to complete
+  const publishPromises = formattedEvents
+    .flat(1)
+    .map(event => publishToSingleRelay([event], RELAY_URL));
+
+  try {
+    const results = await Promise.all(publishPromises);
+    console.log('All events published successfully:', results);
+  } catch (error) {
+    console.error('Error publishing events:', error);
+  }
 };
 
 const handleLookupInvoice = async (
@@ -589,14 +656,21 @@ export default async function handleNWCBackgroundEvent(notificationData) {
 
     try {
       nwcEvent = JSON.parse(nwcEvent);
-    } catch (err) {}
+    } catch (err) {
+      nwcEvent = nwcEvent;
+    }
+
+    fullStorageObject = await getNWCData();
+    nwcAccounts = fullStorageObject.accounts;
+
+    if (nwcEvent.requestMethod === 'publish_notification') {
+      await handlePublish(nwcEvent, nwcAccounts);
+      return;
+    }
 
     // // Filter out already handled events upfront
     const newEvents = nwcEvent?.events;
     if (!newEvents) return;
-
-    fullStorageObject = await getNWCData();
-    nwcAccounts = fullStorageObject.accounts;
 
     pushInstantNotification(
       `Received ${newEvents.length} event${newEvents.length === 1 ? '' : 's'}`,
