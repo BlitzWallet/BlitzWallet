@@ -58,7 +58,11 @@ export default async function decodeSendAddress(props) {
 
     crashlyticsLogReport('Parsing bitcoin address input');
 
-    if (btcAdress.startsWith('spark:') || btcAdress.startsWith('sp1p')) {
+    if (
+      btcAdress?.toLowerCase()?.startsWith('spark:') ||
+      btcAdress?.toLowerCase()?.startsWith('sp1p') ||
+      btcAdress?.toLowerCase()?.startsWith('spark1')
+    ) {
       if (btcAdress.startsWith('spark:')) {
         const processedAddress = decodeBip21SparkAddress(btcAdress);
         parsedInvoice = {
