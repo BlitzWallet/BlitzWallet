@@ -11,12 +11,12 @@ import {getDataFromCollection, updateMessage} from '../../../../../../db';
 import {sendPushNotification} from '../../../../../functions/messaging/publishMessage';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
-import getReceiveAddressForContactPayment from './getReceiveAddressAndKindForPayment';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {useServerTimeOnly} from '../../../../../../context-store/serverTime';
 import {useTranslation} from 'react-i18next';
 import GiftCardTxItem from './giftCardTxItem';
 import {getTimeDisplay} from '../../../../../functions/contacts';
+import getReceiveAddressAndContactForContactsPayment from './getReceiveAddressAndKindForPayment';
 
 function ConfirmedOrSentTransaction({
   txParsed,
@@ -327,25 +327,28 @@ export default function ContactsTransactionItem(props) {
         },
       );
 
-      const receiveAddress = await getReceiveAddressForContactPayment(
-        sendingAmount,
-        selectedContact,
-        myProfileMessage,
-        payingContactMessage,
-      );
-      if (!receiveAddress.didWork) {
+      const {receiveAddress, didWork, error} =
+        await getReceiveAddressAndContactForContactsPayment({
+          sendingAmountSat: sendingAmount,
+          selectedContact,
+          myProfileMessage,
+          payingContactMessage,
+        });
+
+      if (!didWork) {
         navigate.navigate('ErrorScreen', {
-          errorMessage: receiveAddress.error,
+          errorMessage: error,
           useTranslationString: true,
         });
         return;
       }
+
       setIsLoading(prev => ({
         ...prev,
         sendBTN: false,
       }));
       navigate.navigate('ConfirmPaymentScreen', {
-        btcAdress: receiveAddress.receiveAddress,
+        btcAdress: receiveAddress,
         comingFromAccept: true,
         enteredPaymentInfo: {
           amount: sendingAmount,

@@ -187,6 +187,7 @@ const DropdownMenu = ({
                 width: buttonLayout.width,
               },
               {
+                borderColor: backgroundColor,
                 backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
               },
             ]}>
@@ -285,6 +286,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     zIndex: 2000,
     overflow: 'hidden',
+    borderWidth: 2,
   },
   dropdownItem: {
     height: 45,
