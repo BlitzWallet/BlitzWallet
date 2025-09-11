@@ -38,7 +38,9 @@ export async function transformTxToPaymentObject(
       numTxsBeingRestored < 20
         ? invoice
           ? decode(invoice).tags.find(tag => tag.tagName === 'description')
-              ?.data || ''
+              ?.data ||
+            foundInvoice?.description ||
+            ''
           : foundInvoice?.description || ''
         : '';
 
