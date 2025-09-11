@@ -17,6 +17,7 @@ import {useTranslation} from 'react-i18next';
 import GiftCardTxItem from './giftCardTxItem';
 import {getTimeDisplay} from '../../../../../functions/contacts';
 import getReceiveAddressAndContactForContactsPayment from './getReceiveAddressAndKindForPayment';
+import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
 
 function ConfirmedOrSentTransaction({
   txParsed,
@@ -178,7 +179,7 @@ export default function ContactsTransactionItem(props) {
   const {textColor, backgroundColor} = GetThemeColors();
   const navigate = useNavigation();
   const getServerTime = useServerTimeOnly();
-
+  const {globalContactsInformation} = useGlobalContacts();
   const [isLoading, setIsLoading] = useState({
     sendBTN: false,
     declineBTN: false,
@@ -323,7 +324,9 @@ export default function ContactsTransactionItem(props) {
       const payingContactMessage = t(
         'contacts.internalComponents.contactsTransactions.acceptPayingContactMessage',
         {
-          name: selectedContact.name || selectedContact.uniqueName,
+          name:
+            globalContactsInformation.myProfile.name ||
+            globalContactsInformation.myProfile.uniqueName,
         },
       );
 
@@ -359,7 +362,7 @@ export default function ContactsTransactionItem(props) {
       });
       return;
     },
-    [myProfile, navigate, updatePaymentStatus],
+    [myProfile, navigate, updatePaymentStatus, globalContactsInformation],
   );
 
   if (txParsed === undefined) return;
