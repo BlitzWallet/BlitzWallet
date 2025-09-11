@@ -1688,13 +1688,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:0.2.12":
-  version: 0.2.12
-  resolution: "@buildonspark/spark-sdk@npm:0.2.12"
+"@buildonspark/spark-sdk@npm:^0.3.3":
+  version: 0.3.3
+  resolution: "@buildonspark/spark-sdk@npm:0.3.3"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@bufbuild/protobuf": ^2.2.5
-    "@lightsparkdev/core": ^1.4.3
+    "@lightsparkdev/core": ^1.4.4
     "@noble/curves": ^1.8.0
     "@noble/hashes": ^1.7.0
     "@opentelemetry/api": ^1.9.0
@@ -1739,7 +1739,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 2ae11b036a07d7252c5cc2a940e200dc8de860dd4d7ef288e63e2ec7c3143c36a63699f469a258045e17c7741c91947090fb5c8c4e7d1d6ef1b803e95c4597a6
+  checksum: 1b2df4df2b1c9dba030a4cdc682a60ae1e9ad6e9f6f2aea993a6535cda5d39e144e252681eb8eb6bf779705c7fb69d4bef405515b7d099fdf801363e8a270eea
   languageName: node
   linkType: hard
 
@@ -3188,7 +3188,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lightsparkdev/core@npm:^1.4.3":
+"@lightsparkdev/core@npm:^1.4.4":
   version: 1.4.4
   resolution: "@lightsparkdev/core@npm:1.4.4"
   dependencies:
@@ -4874,7 +4874,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.10.1
-    "@buildonspark/spark-sdk": 0.2.12
+    "@buildonspark/spark-sdk": ^0.3.3
     "@craftzdog/react-native-buffer": ^6.0.5
     "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
