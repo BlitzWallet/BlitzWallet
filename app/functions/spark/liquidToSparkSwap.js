@@ -1,5 +1,6 @@
 import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {breezLiquidLNAddressPaymentWrapper} from '../breezLiquid';
+import i18next from 'i18next';
 
 export default async function liquidToSparkSwap(contactUsername) {
   try {
@@ -21,7 +22,7 @@ export default async function liquidToSparkSwap(contactUsername) {
     if (!parsedData) throw new Error('errormessages.invoiceRetrivalError');
 
     const paymentResponse = await breezLiquidLNAddressPaymentWrapper({
-      description: 'Liquid to Spark Swap',
+      description: i18next.t('swapMessages.liquid'),
       paymentInfo: parsedData.data,
       shouldDrain: true,
     });

@@ -1405,6 +1405,11 @@
     "loadingText": "Estamos configurando todo. ¡Espera un momento! Esto podría tardar hasta un minuto.",
     "errorText1": "Error al conectar con tu nodo. Intenta recargar la app."
   },
+
+  "swapMessages": {
+    "liquid": "Intercambio de Liquid a Spark"
+  },
+
   "tabs": {
     "home": "Billetera",
     "appStore": "Tienda",

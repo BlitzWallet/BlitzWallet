@@ -1585,6 +1585,11 @@
       "depositLabel": "Pagamento indirizzo deposito"
     }
   },
+
+  "swapMessages": {
+    "liquid": "Scambio da Liquid a Spark"
+  },
+
   "tabs": {
     "home": "Portafoglio",
     "appStore": "Negozio",

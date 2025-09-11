@@ -1586,6 +1586,10 @@
       "depositLabel": "Deposit address payment"
     }
   },
+
+  "swapMessages": {
+    "liquid": "Liquid to Spark Swap"
+  },
   "tabs": {
     "home": "Wallet",
     "appStore": "Store",
