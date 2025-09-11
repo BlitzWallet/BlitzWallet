@@ -32,15 +32,24 @@ import {useTranslation} from 'react-i18next';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
 import CustomButton from '../../../../../functions/CustomElements/button';
 
+function useDebouncedValue(value, delay = 300) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debounced;
+}
+
 export default function ViewOnlineListings({removeUserLocal}) {
   const [userLocal, setUserLocal] = useState('WW');
   const [data, setData] = useState(null);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search, 300);
   const [category, setCategory] = useState('All');
   const [loading, setLoading] = useState(true);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const reTryCounter = useRef(0);
-
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const {t} = useTranslation();
@@ -58,7 +67,6 @@ export default function ViewOnlineListings({removeUserLocal}) {
           'https://bitcoinlistings.org/.well-known/business',
         );
         const json = await res.json();
-
         if (!json.businesses && reTryCounter.current < 2) {
           fetchListings();
           reTryCounter.current += 1;
@@ -73,51 +81,52 @@ export default function ViewOnlineListings({removeUserLocal}) {
     fetchListings();
   }, []);
 
-  const businesses = useMemo(() => {
+  // Preprocess businesses once (lowercased fields, sorted)
+  const preprocessedBusinesses = useMemo(() => {
     if (!data?.businesses) return [];
     return Object.values(data.businesses)
-      .filter(biz => {
-        const matchSearch = biz.name
-          .toLowerCase()
-          .startsWith(search.toLowerCase());
-        const matchCategory =
-          category === 'All' ||
-          biz.category?.toLowerCase() === category.toLowerCase();
-        const matchLocation =
-          userLocal === 'WW' ||
-          biz.country?.code?.toLowerCase() === userLocal.toLowerCase();
-        const usesLightning = biz.payment_methods?.lightning;
-        const usesonChain = biz.payment_methods?.bitcoin_onchain;
-        return (
-          matchSearch &&
-          matchCategory &&
-          matchLocation &&
-          (usesLightning || usesonChain)
-        );
-      })
+      .map(biz => ({
+        ...biz,
+        _name: biz.name.toLowerCase(),
+        _description: biz.description?.toLowerCase() || '',
+        _category: biz.category?.toLowerCase() || '',
+        _countryCode: biz.country?.code?.toLowerCase() || '',
+      }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [data, search, category, userLocal, t]);
+  }, [data]);
 
+  // Build category dropdown data
   const dropdownData = useMemo(() => {
     const uniqueItems = Array.from(
       new Set(data?.statistics?.categories.map(item => item.toLowerCase())),
     );
-
     const mappedItems =
       uniqueItems?.map(item => {
         return {label: t(`apps.onlineListings.${item}`), value: item};
       }) || [];
-
     return mappedItems.sort((a, b) => {
       if (a.value === 'other' && b.value === 'other') return 0;
       if (a.value === 'other') return 1;
       if (b.value === 'other') return -1;
-
       return a.label.localeCompare(b.label);
     });
   }, [data?.statistics?.categories, t]);
 
-  console.log(businesses, 'online buisnesses');
+  const businesses = useMemo(() => {
+    if (!preprocessedBusinesses.length) return [];
+    const query = debouncedSearch.toLowerCase();
+    return preprocessedBusinesses.filter(biz => {
+      const matchSearch =
+        !query || biz._name.includes(query) || biz._description.includes(query);
+      const matchCategory =
+        category === 'All' || biz._category === category.toLowerCase();
+      const matchLocation =
+        userLocal === 'WW' || biz._countryCode === userLocal.toLowerCase();
+      const acceptsBitcoin =
+        biz.payment_methods?.lightning || biz.payment_methods?.bitcoin_onchain;
+      return matchSearch && matchCategory && matchLocation && acceptsBitcoin;
+    });
+  }, [preprocessedBusinesses, debouncedSearch, category, userLocal]);
 
   const handleSelectProcess = useCallback(item => {
     if (!item) {
@@ -127,41 +136,79 @@ export default function ViewOnlineListings({removeUserLocal}) {
     }
   }, []);
 
-  const flatListData = businesses.length
-    ? [
-        <View style={styles.dropdownContainer}>
-          <DropdownMenu
-            selectedValue={
-              category?.toLowerCase() === 'all'
-                ? t('apps.onlineListings.selectCategoryPlaceholder')
-                : t(`apps.onlineListings.${category}`)
-            }
-            onSelect={handleSelectProcess}
-            options={dropdownData}
-            showClearIcon={true}
-            textStyles={styles.textStyles}
-            translateLabelText={false}
+  const dropdownComponent = useMemo(
+    () => (
+      <View style={styles.dropdownContainer}>
+        <DropdownMenu
+          selectedValue={
+            category?.toLowerCase() === 'all'
+              ? t('apps.onlineListings.selectCategoryPlaceholder')
+              : t(`apps.onlineListings.${category}`)
+          }
+          onSelect={handleSelectProcess}
+          options={dropdownData}
+          showClearIcon={true}
+          textStyles={styles.textStyles}
+          translateLabelText={false}
+        />
+      </View>
+    ),
+    [category, handleSelectProcess, dropdownData, t],
+  );
+
+  const noItemsComponent = useMemo(
+    () => (
+      <ThemeText
+        key={'noItems'}
+        styles={styles.noItemsText}
+        content={t('apps.onlineListings.noBuisMessage')}
+      />
+    ),
+    [t],
+  );
+
+  const flatListData = useMemo(() => {
+    return businesses.length
+      ? [dropdownComponent, ...businesses]
+      : [dropdownComponent, 'placeholder'];
+  }, [businesses, dropdownComponent]);
+
+  const renderItem = useCallback(
+    ({item, index}) => {
+      if (index === 0) {
+        return item;
+      } else if (!businesses.length) {
+        return noItemsComponent;
+      } else {
+        return (
+          <BusinessCard
+            item={item}
+            index={index}
+            theme={theme}
+            darkModeType={darkModeType}
+            backgroundColor={backgroundColor}
+            backgroundOffset={backgroundOffset}
+            t={t}
           />
-        </View>,
-        ...businesses,
-      ]
-    : [
-        <View key={'dropdown'} style={styles.dropdownContainer}>
-          <DropdownMenu
-            selectedValue={
-              category?.toLowerCase() === 'all'
-                ? t('apps.onlineListings.selectCategoryPlaceholder')
-                : t(`apps.onlineListings.${category}`)
-            }
-            onSelect={handleSelectProcess}
-            options={dropdownData}
-            showClearIcon={true}
-            textStyles={styles.textStyles}
-            translateLabelText={false}
-          />
-        </View>,
-        'plaecholder',
-      ];
+        );
+      }
+    },
+    [
+      businesses.length,
+      noItemsComponent,
+      theme,
+      darkModeType,
+      backgroundColor,
+      backgroundOffset,
+      t,
+    ],
+  );
+
+  const keyExtractor = useCallback((item, index) => {
+    if (index === 0) return 'dropdown';
+    if (typeof item === 'string') return item;
+    return item.name + index;
+  }, []);
 
   if (loading) {
     return (
@@ -228,14 +275,13 @@ export default function ViewOnlineListings({removeUserLocal}) {
       </View>
 
       {/* FlatList with Sticky Search Header */}
-
       <FlatList
         data={flatListData}
         showsVerticalScrollIndicator={false}
-        // keyExtractor={(item, idx) => item.name + idx}
+        keyExtractor={keyExtractor}
         style={styles.flatList}
         contentContainerStyle={styles.listContent}
-        stickyHeaderIndices={[0]} // only the search bar sticks
+        stickyHeaderIndices={[0]}
         ListHeaderComponent={
           <View style={[styles.stickySearchHeader, {backgroundColor}]}>
             <CustomSearchInput
@@ -248,104 +294,9 @@ export default function ViewOnlineListings({removeUserLocal}) {
             />
           </View>
         }
-        renderItem={({item, index}) => {
-          if (index === 0) {
-            return item;
-          } else if (!businesses.length) {
-            return (
-              <ThemeText
-                key={'noItems'}
-                styles={styles.noItemsText}
-                content={t('apps.onlineListings.noBuisMessage')}
-              />
-            );
-          } else {
-            return (
-              <View
-                key={item.name + index}
-                style={[
-                  styles.card,
-                  {
-                    backgroundColor: theme
-                      ? backgroundOffset
-                      : COLORS.darkModeText,
-                  },
-                ]}>
-                <View style={styles.infoContainer}>
-                  {item.country.code !== 'WW' ? (
-                    <CountryFlag isoCode={item.country.code} size={20} />
-                  ) : (
-                    <View style={[styles.flagContainer, {backgroundColor}]}>
-                      <Icon
-                        color={
-                          theme ? COLORS.darkModeText : COLORS.lightModeText
-                        }
-                        name={'globeIcon'}
-                      />
-                    </View>
-                  )}
-                  <View style={styles.nameContainer}>
-                    <ThemeText content={item.name} styles={styles.title} />
-                    <ThemeText
-                      content={item.country.name}
-                      styles={styles.countryLocation}
-                    />
-                  </View>
-                  {item.payment_methods?.lightning && (
-                    <View
-                      style={[
-                        styles.usesLightningContainer,
-                        {
-                          backgroundColor:
-                            theme && darkModeType
-                              ? backgroundColor
-                              : COLORS.primary,
-                        },
-                      ]}>
-                      <Image
-                        style={styles.lightningIcon}
-                        source={ICONS.lightningReceiveIcon}
-                      />
-                    </View>
-                  )}
-                </View>
-                <View style={[styles.categoryContainer, {backgroundColor}]}>
-                  <ThemeText
-                    styles={styles.categoryText}
-                    content={t(
-                      `apps.onlineListings.${item.category.toLowerCase()}`,
-                    )}
-                  />
-                </View>
-                <ThemeText content={item.description} styles={styles.desc} />
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    {
-                      borderColor: theme
-                        ? COLORS.darkModeText
-                        : backgroundColor,
-                    },
-                  ]}
-                  onPress={() => {
-                    Linking.openURL(item.website);
-                  }}>
-                  <Icon
-                    color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-                    width={15}
-                    height={15}
-                    name={'globeIcon'}
-                  />
-                  <ThemeText
-                    content={t('apps.onlineListings.visitWebsite')}
-                    styles={styles.buttonText}
-                  />
-                </TouchableOpacity>
-              </View>
-            );
-          }
-        }}
+        renderItem={renderItem}
       />
+
       {!isKeyboardActive && (
         <CustomButton
           actionFunction={() =>
@@ -359,10 +310,97 @@ export default function ViewOnlineListings({removeUserLocal}) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+// BusinessCard (unchanged except memoization)
+const BusinessCard = React.memo(
+  ({
+    item,
+    index,
+    theme,
+    darkModeType,
+    backgroundColor,
+    backgroundOffset,
+    t,
+  }) => {
+    const handleWebsitePress = useCallback(() => {
+      Linking.openURL(item.website);
+    }, [item.website]);
+
+    return (
+      <View
+        key={item.name + index}
+        style={[
+          styles.card,
+          {
+            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+          },
+        ]}>
+        <View style={styles.infoContainer}>
+          {item.country.code !== 'WW' ? (
+            <CountryFlag isoCode={item.country.code} size={20} />
+          ) : (
+            <View style={[styles.flagContainer, {backgroundColor}]}>
+              <Icon
+                color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+                name={'globeIcon'}
+              />
+            </View>
+          )}
+          <View style={styles.nameContainer}>
+            <ThemeText content={item.name} styles={styles.title} />
+            <ThemeText
+              content={item.country.name}
+              styles={styles.countryLocation}
+            />
+          </View>
+          {item.payment_methods?.lightning && (
+            <View
+              style={[
+                styles.usesLightningContainer,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : COLORS.primary,
+                },
+              ]}>
+              <Image
+                style={styles.lightningIcon}
+                source={ICONS.lightningReceiveIcon}
+              />
+            </View>
+          )}
+        </View>
+        <View style={[styles.categoryContainer, {backgroundColor}]}>
+          <ThemeText
+            styles={styles.categoryText}
+            content={t(`apps.onlineListings.${item.category.toLowerCase()}`)}
+          />
+        </View>
+        <ThemeText content={item.description} styles={styles.desc} />
+        <TouchableOpacity
+          style={[
+            styles.button,
+            {
+              borderColor: theme ? COLORS.darkModeText : backgroundColor,
+            },
+          ]}
+          onPress={handleWebsitePress}>
+          <Icon
+            color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+            width={15}
+            height={15}
+            name={'globeIcon'}
+          />
+          <ThemeText
+            content={t('apps.onlineListings.visitWebsite')}
+            styles={styles.buttonText}
+          />
+        </TouchableOpacity>
+      </View>
+    );
   },
+);
+
+const styles = StyleSheet.create({
+  container: {flex: 1},
   topBar: {
     width: '95%',
     flexDirection: 'row',
@@ -386,20 +424,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 30,
   },
-  flatList: {
-    flex: 1,
-    width: '95%',
-    alignSelf: 'center',
-  },
-  listContent: {
-    paddingTop: 10,
-    paddingBottom: 20,
-  },
-  card: {
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 12,
-  },
+  flatList: {flex: 1, width: '95%', alignSelf: 'center'},
+  listContent: {paddingTop: 10, paddingBottom: 20},
+  card: {borderRadius: 8, padding: 10, marginBottom: 12},
   flagContainer: {
     borderRadius: 8,
     overflow: 'hidden',
@@ -408,15 +435,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  infoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  nameContainer: {
-    flexShrink: 1,
-    marginLeft: 10,
-    marginRight: 10,
-  },
+  infoContainer: {flexDirection: 'row', alignItems: 'center'},
+  nameContainer: {flexShrink: 1, marginLeft: 10, marginRight: 10},
   usesLightningContainer: {
     width: 30,
     height: 30,
@@ -433,16 +453,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     alignSelf: 'center',
   },
-  image: {
-    width: '100%',
-    height: 120,
-    borderRadius: 8,
-    marginBottom: 8,
-    resizeMode: 'cover',
-  },
-  title: {
-    includeFontPadding: false,
-  },
+  title: {includeFontPadding: false},
   countryLocation: {
     marginTop: 0,
     includeFontPadding: false,
@@ -456,13 +467,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginRight: 'auto',
   },
-  categoryText: {
-    fontSize: SIZES.small,
-    includeFontPadding: false,
-  },
-  desc: {
-    marginBottom: 10,
-  },
+  categoryText: {fontSize: SIZES.small, includeFontPadding: false},
+  desc: {marginBottom: 10},
   button: {
     borderWidth: 2,
     padding: 10,
@@ -471,20 +477,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  buttonText: {
-    marginLeft: 5,
-  },
-  textStyles: {
-    flexGrow: 1,
-  },
-  textInputContainer: {
-    // marginBottom: 10,
-  },
-  noItemsText: {
-    textAlign: 'center',
-  },
-  submitListingBTN: {
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-    alignSelf: 'center',
-  },
+  buttonText: {marginLeft: 5},
+  textStyles: {flexGrow: 1},
+  noItemsText: {textAlign: 'center'},
+  submitListingBTN: {marginTop: CONTENT_KEYBOARD_OFFSET, alignSelf: 'center'},
 });
