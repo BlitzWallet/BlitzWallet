@@ -5,7 +5,6 @@ import {
   ContactsPageLongPressActions,
   EditReceivePaymentInformation,
   ErrorScreen,
-  LiquidSettingsPage,
   SendPaymentScreen,
   SwitchReceiveOptionPage,
 } from '../app/components/admin';
@@ -36,11 +35,8 @@ import {
   SendAndRequestPage,
 } from '../app/components/admin/homeComponents/contacts';
 import SparkErrorScreen from '../app/components/admin/homeComponents/homeLightning/sparkErrorScreen';
-// import ExplainBalanceScreen from '../app/components/admin/homeComponents/sendBitcoin/components/balanceExplainerScreen';
 import {
   ConfirmActionPage,
-  // HistoricalOnChainPayments,
-  // LspDescriptionPopup,
   NosterWalletConnect,
   TotalTipsScreen,
   ViewPOSTransactions,
@@ -48,21 +44,14 @@ import {
 import AccountPaymentPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/accountPaymentPage';
 import CreateCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/createAccountPage';
 import ViewCustodyAccountPage from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewAccountPage';
-// import ViewCustodyKey from '../app/components/admin/homeComponents/settingsContent/accountComponents/viewCustodyKey';
-// import EcashSettings from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/ecashSettings';
-// import MigrateProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/migrateProofsPopup';
-// import RestoreProofsPopup from '../app/components/admin/homeComponents/settingsContent/experimentalComponents/restoreProofsPopup';
-// import RefundLiquidSwapPopup from '../app/components/admin/homeComponents/settingsContent/failedLiquidSwapsComponents/refundSwapPopup';
 import ConfirmPinForLoginMode from '../app/components/admin/homeComponents/settingsContent/loginSecurity/enterPinPage';
 import Nip5VerificationPage from '../app/components/admin/homeComponents/settingsContent/nip5/nip5Account';
 import CreateNostrConnectAccount from '../app/components/admin/homeComponents/settingsContent/nwc/createNWCAccount';
-// import NWCWallet from '../app/components/admin/homeComponents/settingsContent/nwc/NWCWalletPage';
 import NWCWalletSetup from '../app/components/admin/homeComponents/settingsContent/nwc/showSeedPage';
 import AddPOSItemsPage from '../app/components/admin/homeComponents/settingsContent/posPath/items/addPOSItemsPage';
 import POSInstructionsPath from '../app/components/admin/homeComponents/settingsContent/posPath/posInstructionsPath';
 import SparkSettingsPage from '../app/components/admin/homeComponents/settingsContent/sparkLrc20';
 import RoostockSwapInfo from '../app/components/admin/homeComponents/settingsContent/swapsComponents/rootstockSwapInfo';
-import ManualSwapPopup from '../app/components/admin/homeComponents/settingsContent/walletInfoComponents/manualSwapPopup';
 import {CustomWebView} from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';

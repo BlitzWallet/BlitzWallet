@@ -16,7 +16,6 @@ import {initializeDatabase} from '../../functions/messaging/cachedMessages';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useNodeContext} from '../../../context-store/nodeContext';
 import {useKeysContext} from '../../../context-store/keys';
-import {initEcashDBTables} from '../../functions/eCash/db';
 import {initializePOSTransactionsDatabase} from '../../functions/pos';
 import {updateMascatWalkingAnimation} from '../../functions/lottieViewColorTransformer';
 import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
