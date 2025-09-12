@@ -19,10 +19,6 @@ const MONTH_IN_MILLS = 1000 * 60 * 60 * 24 * 31;
 const WEEK_IN_MILLS = 1000 * 60 * 60 * 24 * 7;
 const DAY_IN_MILLS = 1000 * 60 * 60 * 24;
 
-//   // Optionally, if you want to show something like the past few years dynamically:
-//   const currentYear = new Date().getFullYear();
-//   const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => currentYear - i); // e.g., [2025, 2024, 2023, 2022, 2021]
-
 export {
   WEEK_OPTIONS,
   MONTH_GROUPING,

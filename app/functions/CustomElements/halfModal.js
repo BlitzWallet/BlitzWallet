@@ -30,7 +30,6 @@ import MyProfileQRCode from '../../components/admin/homeComponents/contacts/inte
 import ExpandedMessageHalfModal from '../../components/admin/homeComponents/contacts/expandedMessageHalfModal';
 // import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 import ManualEnterSendAddress from '../../components/admin/homeComponents/homeLightning/manualEnterSendAddress';
-import ConfirmInternalTransferHalfModal from '../../components/admin/homeComponents/settingsContent/walletInfoComponents/confirmTransferHalfModal';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {KEYBOARDTIMEOUT} from '../../constants/styles';
 import {useGlobalThemeContext} from '../../../context-store/theme';
@@ -213,17 +212,6 @@ export default function CustomHalfModal(props) {
             setIsKeyboardActive={setIsKeyboardActive}
             theme={theme}
             darkModeType={darkModeType}
-          />
-        );
-      case 'confirmInternalTransferHalfModal':
-        return (
-          <ConfirmInternalTransferHalfModal
-            theme={theme}
-            darkModeType={darkModeType}
-            amount={props.route.params?.amount}
-            fee={props.route.params?.fee}
-            transferInfo={props.route.params?.transferInfo}
-            startTransferFunction={props.route.params?.startTransferFunction}
           />
         );
       case 'addPOSItemsHalfModal':

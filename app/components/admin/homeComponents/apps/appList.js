@@ -7,20 +7,6 @@ const APPLIST = [
     description: 'apps.appList.AIDescription',
     pageName: 'AI',
   },
-  // {
-  //   name: 'Point Of Sale',
-  //   iconLight: ICONS.posLight,
-  //   iconDark: ICONS.posDark,
-  //   description: 'Simple point of sale system for merchants',
-  //   pageName: 'POS',
-  // },
-  // {
-  //   name: 'Restaurant',
-  //   iconLight: ICONS.resturantIconLight,
-  //   iconDark: ICONS.resturantIconDark,
-  //   description: 'Order food directly from your wallet',
-  //   pageName: 'resturant',
-  // },
   {
     name: 'apps.appList.SMS',
     iconLight: ICONS.messagesLight,
@@ -40,12 +26,6 @@ const APPLIST = [
     description: 'apps.appList.onlineListingsDescription',
     pageName: 'onlineListings',
   },
-  // {
-  //   name: 'apps.appList.Soon',
-  //   svgName: 'clock',
-  //   description: 'apps.appList.SoonDescription',
-  //   pageName: 'soon',
-  // },
 ];
 
 export {APPLIST};

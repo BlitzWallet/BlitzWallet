@@ -8,13 +8,8 @@ import {
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
-  SATSPERBITCOIN,
   SIZES,
 } from '../../../../../constants';
-import {
-  getLocalStorageItem,
-  setLocalStorageItem,
-} from '../../../../../functions';
 import {useCallback, useMemo, useState} from 'react';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomButton from '../../../../../functions/CustomElements/button';
@@ -23,7 +18,6 @@ import {useNavigation} from '@react-navigation/native';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import {isMoreThanADayOld} from '../../../../../functions/rotateAddressDateChecker';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useKeysContext} from '../../../../../../context-store/keys';
