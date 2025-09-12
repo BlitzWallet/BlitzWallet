@@ -15,7 +15,6 @@ import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import sendStorePayment from '../../../../../functions/apps/payments';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
@@ -23,6 +22,7 @@ import {useActiveCustodyAccount} from '../../../../../../context-store/activeAcc
 import {useTranslation} from 'react-i18next';
 import CountryFlag from 'react-native-country-flag';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import {decode} from 'bolt11';
 
 export default function VPNPlanPage({countryList}) {
   const {theme, darkModeType} = useGlobalThemeContext();
@@ -249,8 +249,10 @@ export default function VPNPlanPage({countryList}) {
           t('apps.VPN.VPNPlanPage.payingInvoiceLoadingMessage'),
         );
         saveVPNConfigsToDB(savedVPNConfigs);
-        const parsedInput = await parse(invoice.payment_request);
-        const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
+        const parsedInvoice = decode(invoice.payment_request);
+
+        const sendingAmountSat = parsedInvoice.satoshis;
+
         const paymentResponse = await sendStorePayment({
           invoice: invoice.payment_request,
           masterInfoObject,

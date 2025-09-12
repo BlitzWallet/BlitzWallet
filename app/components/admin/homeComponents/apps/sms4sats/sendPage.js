@@ -35,7 +35,6 @@ import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import sendStorePayment from '../../../../../functions/apps/payments';
-import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
@@ -43,6 +42,7 @@ import {useTranslation} from 'react-i18next';
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import CountryFlag from 'react-native-country-flag';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import {decode} from 'bolt11';
 
 export default function SMSMessagingSendPage() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -397,8 +397,9 @@ export default function SMSMessagingSendPage() {
         phone: `${selectedAreaCode[0].cc}${phoneNumber}`,
       });
 
-      const parsedInput = await parse(orderInformation.payreq);
-      const sendingAmountSat = parsedInput.invoice.amountMsat / 1000;
+      const invoiceDetails = decode(orderInformation.payreq);
+
+      const sendingAmountSat = invoiceDetails.satoshis;
       setSendingMessage(t('apps.sms4sats.sendPage.payingMessage'));
       const paymentResponse = await sendStorePayment({
         invoice: orderInformation.payreq,
