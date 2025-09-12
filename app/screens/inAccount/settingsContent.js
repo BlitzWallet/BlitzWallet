@@ -4,22 +4,14 @@ import {
   AboutPage,
   LoginSecurity,
   DisplayOptions,
-  // ExperimentalItemsPage,
   FastPay,
   FiatCurrencyPage,
-  // LSPPage,
-  // LiquidWallet,
-  // NodeInfo,
   PosSettingsPage,
   ResetPage,
-  // RestoreChannel,
   SeedPhrasePage,
-  // SendOnChainBitcoin,
-  // WalletInformation,
   CrashReportingSettingsPage,
   CreateCustodyAccounts,
   SparkInfo,
-  // SupportWorkPage,
   NotificationPreferances,
   BlitzFeeInformation,
   ViewSwapsHome,
@@ -32,10 +24,7 @@ import {EditMyProfilePage} from '../../components/admin';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-// import {useGlobalContextProvider} from '../../../context-store/context';
-// import {useGlobaleCash} from '../../../context-store/eCash';
 import {useCallback} from 'react';
-// import {keyboardGoBack} from '../../functions/customNavigation';
 import ExploreUsers from './explorePage';
 import NostrHome from '../../components/admin/homeComponents/settingsContent/nostrHome';
 import {useTranslation} from 'react-i18next';
@@ -43,66 +32,35 @@ import ChooseLangugae from '../../components/admin/homeComponents/settingsConten
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
-  // const {masterInfoObject} = useGlobalContextProvider();
-  // const {ecashWalletInformation} = useGlobaleCash();
+
   const {t} = useTranslation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const selectedPage = props?.route?.params?.for;
   const isDoomsday = props?.route?.params?.isDoomsday;
-  // const enabledEcash = masterInfoObject?.enabledEcash;
-  // const currentMintURL = ecashWalletInformation?.mintURL;
+
   const extraData = props?.route?.params?.extraData;
   const handleBackPressFunction = useCallback(() => {
-    // if (selectedPage?.toLowerCase() === 'experimental') {
-    //   if (!currentMintURL && enabledEcash) {
-    //     navigate.navigate('ErrorScreen', {
-    //       errorMessage: 'Must input a mintURL to enable ecash',
-    //     });
-    //   } else keyboardGoBack(navigate);
-    // } else {
     navigate.goBack();
-    // }
-  }, [
-    navigate,
-    //  currentMintURL,
-    // enabledEcash,
-    // selectedPage
-  ]);
+  }, [navigate]);
   useHandleBackPressNew(handleBackPressFunction);
 
   return (
     <>
       {selectedPage?.toLowerCase() === 'display currency' ||
-      // selectedPage?.toLowerCase() === 'experimental' ||
-      // selectedPage?.toLowerCase() === 'bank' ||
       selectedPage?.toLowerCase() === 'point-of-sale' ||
       selectedPage?.toLowerCase() === 'edit contact profile' ||
-      // selectedPage?.toLowerCase() === 'channel closure' ||
       selectedPage?.toLowerCase() === 'accounts' ||
-      selectedPage?.toLowerCase() === 'support our work' ||
       selectedPage?.toLowerCase() === 'viewallswaps' ? (
         <>
           {selectedPage?.toLowerCase() === 'display currency' && (
             <FiatCurrencyPage theme={theme} />
           )}
-          {/* {selectedPage?.toLowerCase() === 'experimental' && (
-            <ExperimentalItemsPage />
-          )} */}
-          {/* {selectedPage?.toLowerCase() === 'bank' && (
-            <LiquidWallet theme={theme} />
-          )} */}
           {selectedPage?.toLowerCase() === 'point-of-sale' && (
             <PosSettingsPage />
           )}
           {selectedPage?.toLowerCase() === 'edit contact profile' && (
             <EditMyProfilePage fromSettings={true} pageType="myProfile" />
           )}
-          {/* {selectedPage?.toLowerCase() === 'channel closure' && (
-            <SendOnChainBitcoin isDoomsday={isDoomsday} theme={theme} />
-          )} */}
-          {/* {selectedPage?.toLowerCase() === 'support our work' && (
-            <SupportWorkPage />
-          )} */}
           {selectedPage?.toLowerCase() === 'accounts' && (
             <CreateCustodyAccounts />
           )}

@@ -78,9 +78,7 @@ export default function CustomNumberKeyboard({
       styles.keyboardContainer,
       {
         marginTop:
-          frompage === 'sendContactsPage' ||
-          frompage === 'contactsAutomatedPayments' ||
-          frompage === 'sendSMSPage'
+          frompage === 'sendContactsPage' || frompage === 'sendSMSPage'
             ? 0
             : 'auto',
       },
