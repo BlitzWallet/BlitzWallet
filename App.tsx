@@ -40,6 +40,7 @@ import {
 } from './app/constants';
 import {LiquidEventProvider} from './context-store/liquidEventContext';
 import {
+  LiquidNavigationListener,
   RootstockNavigationListener,
   // EcashNavigationListener,
   // LightningNavigationListener,
@@ -400,6 +401,7 @@ function ResetStack(): JSX.Element | null {
       <HandleLNURLPayments />
       <SparkNavigationListener />
       <RootstockNavigationListener />
+      <LiquidNavigationListener />
       <ToastContainer />
       <SparkConnectionManager />
       {/* <EcashNavigationListener /> */}

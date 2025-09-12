@@ -73,6 +73,7 @@ const SparkWalletProvider = ({children}) => {
     didConnect: null,
   });
   const [pendingNavigation, setPendingNavigation] = useState(null);
+  const [pendingLiquidPayment, setPendingLiquidPayment] = useState(null);
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
   const updatePendingPaymentsIntervalRef = useRef(null);
@@ -736,6 +737,7 @@ const SparkWalletProvider = ({children}) => {
     async function swapLiquidToSpark() {
       try {
         if (liquidNodeInformation.userBalance > minMaxLiquidSwapAmounts.min) {
+          setPendingLiquidPayment(true);
           await liquidToSparkSwap(
             globalContactsInformation.myProfile.uniqueName,
           );
@@ -776,6 +778,8 @@ const SparkWalletProvider = ({children}) => {
       connectToSparkWallet,
       sparkConnectionError,
       setSparkConnectionError,
+      pendingLiquidPayment,
+      setPendingLiquidPayment,
     }),
     [
       sparkInformation,
@@ -787,6 +791,8 @@ const SparkWalletProvider = ({children}) => {
       connectToSparkWallet,
       sparkConnectionError,
       setSparkConnectionError,
+      pendingLiquidPayment,
+      setPendingLiquidPayment,
     ],
   );
 
