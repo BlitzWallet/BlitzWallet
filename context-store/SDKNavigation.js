@@ -75,6 +75,41 @@ export function RootstockNavigationListener() {
   return null;
 }
 
+export function LiquidNavigationListener() {
+  const navigation = useNavigation();
+  const {didGetToHomepage} = useAppStatus();
+  const {pendingLiquidPayment, setPendingLiquidPayment} = useSparkWallet();
+  const isNavigating = useRef(false); // Use a ref for local state
+
+  useEffect(() => {
+    if (!pendingLiquidPayment) return;
+    if (!didGetToHomepage) {
+      setPendingLiquidPayment(null);
+      return;
+    }
+    if (isNavigating.current) return;
+    crashlyticsLogReport(
+      `Navigating to confirm tx page in spark listener with: ${JSON.stringify(
+        pendingLiquidPayment,
+      )}`,
+    );
+    isNavigating.current = true;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        navigation.navigate('ErrorScreen', {
+          errorMessage: i18next.t('errormessages.receivedLiquid'),
+        });
+        isNavigating.current = false;
+        console.log('cleaning up navigation');
+      });
+    });
+
+    setPendingLiquidPayment(null);
+  }, [pendingLiquidPayment, didGetToHomepage]);
+
+  return null;
+}
+
 export function SparkNavigationListener() {
   const navigation = useNavigation();
   const {didGetToHomepage} = useAppStatus();
