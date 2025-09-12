@@ -6,7 +6,7 @@ Blitz Wallet is a React Native application that allows users to interact with th
 
 <hr>
 
-⚠️ This is a SELF-CUSTODIAL Bitcoin Lightning wallet. Blitz, nor Spark has access to your seed phrase or funds. If you lose your seed phrase, access to your funds will be lost. Also, do not share your seed phrase with anyone. If you do, they will be able to steal your funds.
+⚠️ This is a SELF-CUSTODIAL Bitcoin Lightning wallet. Neither Blitz nor Spark has access to your seed phrase or funds. If you lose your seed phrase, access to your funds will be lost. Also, do not share your seed phrase with anyone. If you do, they will be able to steal your funds.
 
 ## Features
 
@@ -24,12 +24,12 @@ Blitz Wallet is a React Native application that allows users to interact with th
 - Wallet recovery
 - Support for numerous fiat currencies
 - Export transactions in a CSV file
-- View a detailed description of payments (date, time fee, payment type) + technical details (payment hash, payment preimage, payment ID)
+- View a detailed description of payments (date, time, fee, payment type) + technical details (payment hash, payment preimage, payment ID)
 - Change balance denomination between Fiat, Sats, or hidden
 - Opt-in Biometric login
 - Dark mode, Light mode, and Lights out mode
 - Easy left slide QR code scanning on the wallet page
-- Built in store where you can purchase gift cards, vpns, generative AI, and SMS messages
+- Built-in store where you can purchase gift cards, VPNs, generative AI, and SMS messages
 
 ## TODO
 
@@ -41,10 +41,10 @@ Blitz Wallet is a React Native application that allows users to interact with th
 - [x] Integrate Bitcoin Liquid Wallet
 - [x] Add apps to store
 - [x] Add Rootstock as a receive option
-- [x] Ability to create sub accounts within wallet
+- [x] Ability to create sub-accounts within wallet
 - [x] NWC
-- [ ] Improve noticications
-- [ ] Improve inital load speed
+- [ ] Improve notifications
+- [ ] Improve initial load speed
 - [ ] Create build option
 
 ## Download Blitz Wallet
