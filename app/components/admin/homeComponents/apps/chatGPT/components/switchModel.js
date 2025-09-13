@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {SIZES} from '../../../../../../constants';
+import {CONTENT_KEYBOARD_OFFSET, SIZES} from '../../../../../../constants';
 import {ThemeText} from '../../../../../../functions/CustomElements';
 import {AI_MODEL_COST} from '../contants/AIModelCost';
 import {useTranslation} from 'react-i18next';
@@ -73,6 +73,7 @@ export default function SwitchGenerativeAIModel({
         onFocusFunction={() => setIsKeyboardActive(true)}
         onBlurFunction={() => setIsKeyboardActive(false)}
         placeholderText="OpenAI: o4 Mini"
+        containerStyles={{marginBottom: CONTENT_KEYBOARD_OFFSET}}
       />
       {filteredList.length ? (
         <FlatList
