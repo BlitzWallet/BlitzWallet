@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
-import {useEffect, useMemo} from 'react';
+import {useCallback, useEffect, useMemo} from 'react';
 import {
   decryptMessage,
   encriptMessage,
@@ -100,145 +100,159 @@ export default function ExpandedContactsPage(props) {
   }, [contactTransactions]);
 
   // Header component for the FlatList
-  const ListHeaderComponent = () => (
-    <>
-      <TouchableOpacity
-        activeOpacity={
-          !selectedContact?.isLNURL && selectedContact?.uniqueName ? 0.2 : 1
-        }
-        onPress={() => {
-          if (selectedContact?.isLNURL || !selectedContact?.uniqueName) return;
-          Share.share({
-            title: 'Blitz Contact',
-            message: `https://blitz-wallet.com/u/${selectedContact?.uniqueName}`,
-          });
-        }}
-        style={{...CENTER}}>
+  const ListHeaderComponent = useCallback(
+    () => (
+      <>
+        <TouchableOpacity
+          activeOpacity={
+            !selectedContact?.isLNURL && selectedContact?.uniqueName ? 0.2 : 1
+          }
+          onPress={() => {
+            if (selectedContact?.isLNURL || !selectedContact?.uniqueName)
+              return;
+            Share.share({
+              title: 'Blitz Contact',
+              message: `https://blitz-wallet.com/u/${selectedContact?.uniqueName}`,
+            });
+          }}
+          style={styles.profileImageContainer}>
+          <View
+            style={[
+              styles.profileImage,
+              {
+                backgroundColor: backgroundOffset,
+              },
+            ]}>
+            <ContactProfileImage
+              updated={imageData?.updated}
+              uri={imageData?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
+          {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
+            <View style={styles.selectFromPhotos}>
+              <ThemeImage
+                styles={{width: 20, height: 20}}
+                darkModeIcon={ICONS.shareBlack}
+                lightModeIcon={ICONS.shareBlack}
+                lightsOutIcon={ICONS.shareBlack}
+              />
+            </View>
+          )}
+        </TouchableOpacity>
+
+        <ThemeText
+          styles={styles.profileName}
+          content={selectedContact.name || selectedContact.uniqueName}
+        />
+
         <View
-          style={[
-            styles.profileImage,
-            {
-              backgroundColor: backgroundOffset,
-            },
-          ]}>
-          <ContactProfileImage
-            updated={imageData?.updated}
-            uri={imageData?.localUri}
-            darkModeType={darkModeType}
-            theme={theme}
+          style={{
+            ...styles.buttonGlobalContainer,
+            marginBottom: selectedContact?.bio ? 10 : 0,
+          }}>
+          <CustomSendAndRequsetBTN
+            btnType={'send'}
+            btnFunction={() => {
+              if (!isConnectedToTheInternet) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t('errormessages.nointernet'),
+                });
+                return;
+              }
+              navigate.navigate('SendAndRequestPage', {
+                selectedContact: selectedContact,
+                paymentType: 'send',
+              });
+            }}
+            arrowColor={
+              theme
+                ? darkModeType
+                  ? COLORS.lightsOutBackground
+                  : COLORS.darkModeBackground
+                : COLORS.primary
+            }
+            containerBackgroundColor={COLORS.darkModeText}
+            containerStyles={{marginRight: 30}}
+          />
+
+          <CustomSendAndRequsetBTN
+            btnType={'receive'}
+            activeOpacity={selectedContact.isLNURL ? 1 : undefined}
+            btnFunction={() => {
+              if (selectedContact.isLNURL) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t(
+                    'contacts.expandedContactPage.requestLNURLError',
+                  ),
+                });
+                return;
+              }
+              if (!isConnectedToTheInternet) {
+                navigate.navigate('ErrorScreen', {
+                  errorMessage: t('errormessages.nointernet'),
+                });
+                return;
+              }
+              navigate.navigate('SendAndRequestPage', {
+                selectedContact: selectedContact,
+                paymentType: 'request',
+              });
+            }}
+            arrowColor={
+              theme
+                ? darkModeType
+                  ? COLORS.lightsOutBackground
+                  : COLORS.darkModeBackground
+                : COLORS.primary
+            }
+            containerBackgroundColor={COLORS.darkModeText}
+            containerStyles={{opacity: selectedContact.isLNURL ? 0.5 : 1}}
           />
         </View>
-        {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
-          <View style={styles.selectFromPhotos}>
-            <ThemeImage
-              styles={{width: 20, height: 20}}
-              darkModeIcon={ICONS.shareBlack}
-              lightModeIcon={ICONS.shareBlack}
-              lightsOutIcon={ICONS.shareBlack}
+
+        {selectedContact?.bio && (
+          <View
+            style={[
+              styles.bioContainer,
+              {marginTop: 10, backgroundColor: textInputBackground},
+            ]}>
+            <ScrollView
+              contentContainerStyle={{
+                alignItems: selectedContact.bio ? null : 'center',
+                flexGrow: selectedContact.bio ? null : 1,
+              }}
+              showsVerticalScrollIndicator={false}>
+              <ThemeText
+                styles={{...styles.bioText, color: textInputColor}}
+                content={selectedContact?.bio}
+              />
+            </ScrollView>
+          </View>
+        )}
+
+        {contactTransactions.length === 0 && (
+          <View style={{alignItems: 'center', marginTop: 30}}>
+            <ThemeText
+              styles={{textAlign: 'center', width: INSET_WINDOW_WIDTH}}
+              content={t('contacts.expandedContactPage.noTransactions')}
             />
           </View>
         )}
-      </TouchableOpacity>
-
-      <ThemeText
-        styles={styles.profileName}
-        content={selectedContact.name || selectedContact.uniqueName}
-      />
-
-      <View
-        style={{
-          ...styles.buttonGlobalContainer,
-          marginBottom: selectedContact?.bio ? 10 : 0,
-        }}>
-        <CustomSendAndRequsetBTN
-          btnType={'send'}
-          btnFunction={() => {
-            if (!isConnectedToTheInternet) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: t('errormessages.nointernet'),
-              });
-              return;
-            }
-            navigate.navigate('SendAndRequestPage', {
-              selectedContact: selectedContact,
-              paymentType: 'send',
-            });
-          }}
-          arrowColor={
-            theme
-              ? darkModeType
-                ? COLORS.lightsOutBackground
-                : COLORS.darkModeBackground
-              : COLORS.primary
-          }
-          containerBackgroundColor={COLORS.darkModeText}
-          containerStyles={{marginRight: 30}}
-        />
-
-        <CustomSendAndRequsetBTN
-          btnType={'receive'}
-          activeOpacity={selectedContact.isLNURL ? 1 : undefined}
-          btnFunction={() => {
-            if (selectedContact.isLNURL) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: t(
-                  'contacts.expandedContactPage.requestLNURLError',
-                ),
-              });
-              return;
-            }
-            if (!isConnectedToTheInternet) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: t('errormessages.nointernet'),
-              });
-              return;
-            }
-            navigate.navigate('SendAndRequestPage', {
-              selectedContact: selectedContact,
-              paymentType: 'request',
-            });
-          }}
-          arrowColor={
-            theme
-              ? darkModeType
-                ? COLORS.lightsOutBackground
-                : COLORS.darkModeBackground
-              : COLORS.primary
-          }
-          containerBackgroundColor={COLORS.darkModeText}
-          containerStyles={{opacity: selectedContact.isLNURL ? 0.5 : 1}}
-        />
-      </View>
-
-      {selectedContact?.bio && (
-        <View
-          style={[
-            styles.bioContainer,
-            {marginTop: 10, backgroundColor: textInputBackground},
-          ]}>
-          <ScrollView
-            contentContainerStyle={{
-              alignItems: selectedContact.bio ? null : 'center',
-              flexGrow: selectedContact.bio ? null : 1,
-            }}
-            showsVerticalScrollIndicator={false}>
-            <ThemeText
-              styles={{...styles.bioText, color: textInputColor}}
-              content={selectedContact?.bio}
-            />
-          </ScrollView>
-        </View>
-      )}
-
-      {contactTransactions.length === 0 && (
-        <View style={{alignItems: 'center', marginTop: 30}}>
-          <ThemeText
-            styles={{textAlign: 'center', width: INSET_WINDOW_WIDTH}}
-            content={t('contacts.expandedContactPage.noTransactions')}
-          />
-        </View>
-      )}
-    </>
+      </>
+    ),
+    [
+      theme,
+      darkModeType,
+      selectedContact?.name,
+      selectedContact?.uniqueName,
+      selectedContact?.bio,
+      selectedContact?.isLNURL,
+      imageData?.updated,
+      imageData?.localUri,
+      isConnectedToTheInternet,
+    ],
   );
 
   return (
@@ -377,6 +391,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
+  },
+  profileImageContainer: {
+    ...CENTER,
   },
 
   profileImage: {
