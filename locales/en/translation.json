@@ -1500,7 +1500,9 @@
         "bitcoinTxId": "Bitcoin Txid",
         "paymentExp": "Payment Expiry",
         "noInformationLabel": "{{item}} is not shown since this payment was restored from history or used a zero amount invoice.",
-        "privacyMessage": "To preserve the receiver’s privacy, all other information is hidden."
+        "privacyMessage": "To preserve the {{type}} privacy, all other information is hidden.",
+        "receivers": "receiver's",
+        "senders": "sender's"
       },
       "viewAllTxPage": {
         "title": "Transactions"

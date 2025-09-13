@@ -117,6 +117,13 @@ export default function TechnicalTransactionDetails(props) {
           <ThemeText
             content={t(
               'screens.inAccount.technicalTransactionDetails.privacyMessage',
+              {
+                type: t(
+                  `screens.inAccount.technicalTransactionDetails.${
+                    details?.direction === 'OUTGOING' ? 'receivers' : 'senders'
+                  }`,
+                ),
+              },
             )}
           />
         )}

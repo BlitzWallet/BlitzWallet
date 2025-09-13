@@ -1499,7 +1499,9 @@
         "bitcoinTxId": "Txid Bitcoin",
         "paymentExp": "Scadenza Pagamento",
         "noInformationLabel": "{{item}} non è mostrato poiché questo pagamento è stato ripristinato dalla cronologia o ha utilizzato una fattura con importo zero.",
-        "privacyMessage": "Per preservare la privacy del destinatario, tutte le altre informazioni sono nascoste."
+        "privacyMessage": "Per preservare la privacy {{type}}, tutte le altre informazioni sono nascoste.",
+        "receivers": "del destinatario",
+        "senders": "del mittente"
       },
       "viewAllTxPage": {
         "title": "Transazioni"

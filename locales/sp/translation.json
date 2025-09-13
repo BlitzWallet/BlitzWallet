@@ -1328,7 +1328,9 @@
         "bitcoinTxId": "Txid de Bitcoin",
         "paymentExp": "Expiración del pago",
         "noInformationLabel": "{{item}} no se muestra ya que este pago fue restaurado desde el historial o usó una factura de monto cero.",
-        "privacyMessage": "Para preservar la privacidad del receptor, toda la otra información está oculta."
+        "privacyMessage": "Para preservar la privacidad {{type}}, toda la demás información se oculta.",
+        "receivers": "del receptor",
+        "senders": "del remitente"
       },
       "viewAllTxPage": {
         "title": "Transacciones"
