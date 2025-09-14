@@ -3,7 +3,7 @@ import {StyleSheet, View, ScrollView} from 'react-native';
 import {CENTER, SIZES} from '../../../../../constants';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useNavigation} from '@react-navigation/native';
-import {getInfo} from '@breeztech/react-native-breez-sdk-liquid';
+import {getInfo, sync} from '@breeztech/react-native-breez-sdk-liquid';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
@@ -36,6 +36,7 @@ export default function LiquidSwapsPage() {
   const retriveLiquidBalance = async isRescan => {
     try {
       setIsLoading(true);
+      await sync();
       const infoResponse = await getInfo();
 
       setLiquidInfoResponse(infoResponse);
