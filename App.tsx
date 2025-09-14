@@ -22,7 +22,7 @@ import {
 
 import {GlobalContextProvider} from './context-store/context';
 
-import {WebViewProvider} from './context-store/webViewContext';
+// import {WebViewProvider} from './context-store/webViewContext';
 import {Linking, Platform} from 'react-native';
 
 import SplashScreen from './app/screens/splashScreen';
@@ -122,28 +122,28 @@ function App(): JSX.Element {
                               {/* <GlobalConbinedTxContextProvider> */}
                               <GlobalAppDataProvider>
                                 <POSTransactionsProvider>
-                                  <WebViewProvider>
-                                    <PushNotificationProvider>
-                                      <LiquidEventProvider>
-                                        <RootstockSwapProvider>
-                                          <LRC20EventProvider>
-                                            <GlobalNostrWalletConnectProvider>
-                                              {/* <LightningEventProvider> */}
-                                              <ImageCacheProvider>
-                                                <GlobalServerTimeProvider>
-                                                  {/* <Suspense
+                                  {/* <WebViewProvider> */}
+                                  <PushNotificationProvider>
+                                    <LiquidEventProvider>
+                                      <RootstockSwapProvider>
+                                        <LRC20EventProvider>
+                                          <GlobalNostrWalletConnectProvider>
+                                            {/* <LightningEventProvider> */}
+                                            <ImageCacheProvider>
+                                              <GlobalServerTimeProvider>
+                                                {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                  <ResetStack />
-                                                  {/* </Suspense> */}
-                                                </GlobalServerTimeProvider>
-                                              </ImageCacheProvider>
-                                              {/* </LightningEventProvider> */}
-                                            </GlobalNostrWalletConnectProvider>
-                                          </LRC20EventProvider>
-                                        </RootstockSwapProvider>
-                                      </LiquidEventProvider>
-                                    </PushNotificationProvider>
-                                  </WebViewProvider>
+                                                <ResetStack />
+                                                {/* </Suspense> */}
+                                              </GlobalServerTimeProvider>
+                                            </ImageCacheProvider>
+                                            {/* </LightningEventProvider> */}
+                                          </GlobalNostrWalletConnectProvider>
+                                        </LRC20EventProvider>
+                                      </RootstockSwapProvider>
+                                    </LiquidEventProvider>
+                                  </PushNotificationProvider>
+                                  {/* </WebViewProvider> */}
                                 </POSTransactionsProvider>
                               </GlobalAppDataProvider>
                               {/* <BreezTest /> */}

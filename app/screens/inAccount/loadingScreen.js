@@ -4,7 +4,7 @@ import {useGlobalContextProvider} from '../../../context-store/context';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
-import claimUnclaimedBoltzSwaps from '../../functions/boltz/claimUnclaimedTxs';
+// import claimUnclaimedBoltzSwaps from '../../functions/boltz/claimUnclaimedTxs';
 import {useGlobalContacts} from '../../../context-store/globalContacts';
 import {useGlobalAppData} from '../../../context-store/appData';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
@@ -142,7 +142,7 @@ export default function ConnectingToNodeLoadingScreen({
             t('screens.inAccount.loadingScreen.userSettingsError'),
           );
         crashlyticsLogReport('Loaded users settings from firebase');
-        claimUnclaimedBoltzSwaps();
+        // claimUnclaimedBoltzSwaps();
         setDidOpenDatabases(true);
         console.log('Process 3', new Date().getTime());
       } catch (err) {

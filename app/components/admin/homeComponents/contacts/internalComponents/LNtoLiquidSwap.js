@@ -1,61 +1,61 @@
-import {createBoltzSwapKeys} from '../../../../../functions/boltz/createKeys';
-import {getBoltzApiUrl} from '../../../../../functions/boltz/boltzEndpoitns';
-import {randomBytes} from 'react-native-quick-crypto';
-import {Buffer} from 'buffer';
-import {BLITZ_DEFAULT_PAYMENT_DESCRIPTION} from '../../../../../constants';
-import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
-import sha256Hash from '../../../../../functions/hash';
+// import {createBoltzSwapKeys} from '../../../../../functions/boltz/createKeys';
+// import {getBoltzApiUrl} from '../../../../../functions/boltz/boltzEndpoitns';
+// import {randomBytes} from 'react-native-quick-crypto';
+// import {Buffer} from 'buffer';
+// import {BLITZ_DEFAULT_PAYMENT_DESCRIPTION} from '../../../../../constants';
+// import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
+// import sha256Hash from '../../../../../functions/hash';
 
-export async function contactsLNtoLiquidSwapInfo(
-  liquidAddress,
-  swapAmountSats,
-  description,
-) {
-  try {
-    crashlyticsLogReport('Creating boltz swap keys');
-    const {publicKey, privateKeyString, keys} = await createBoltzSwapKeys();
-    const preimage = randomBytes(32);
+// export async function contactsLNtoLiquidSwapInfo(
+//   liquidAddress,
+//   swapAmountSats,
+//   description,
+// ) {
+//   try {
+//     crashlyticsLogReport('Creating boltz swap keys');
+//     const {publicKey, privateKeyString, keys} = await createBoltzSwapKeys();
+//     const preimage = randomBytes(32);
 
-    const preimageHash = sha256Hash(preimage);
+//     const preimageHash = sha256Hash(preimage);
 
-    const signature = Buffer.from(
-      keys.signSchnorr(sha256Hash(Buffer.from(liquidAddress, 'utf-8'))),
-    ).toString('hex');
+//     const signature = Buffer.from(
+//       keys.signSchnorr(sha256Hash(Buffer.from(liquidAddress, 'utf-8'))),
+//     ).toString('hex');
 
-    const response = await fetch(
-      `${getBoltzApiUrl(process.env.BOLTZ_ENVIRONMENT)}/v2/swap/reverse`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          address: liquidAddress,
-          addressSignature: signature,
-          claimPublicKey: publicKey,
-          from: 'BTC',
-          invoiceAmount: swapAmountSats,
-          preimageHash: preimageHash,
-          to: 'L-BTC',
-          // referralId: 'blitzWallet',
-          description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
-        }),
-      },
-    );
+//     const response = await fetch(
+//       `${getBoltzApiUrl(process.env.BOLTZ_ENVIRONMENT)}/v2/swap/reverse`,
+//       {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({
+//           address: liquidAddress,
+//           addressSignature: signature,
+//           claimPublicKey: publicKey,
+//           from: 'BTC',
+//           invoiceAmount: swapAmountSats,
+//           preimageHash: preimageHash,
+//           to: 'L-BTC',
+//           // referralId: 'blitzWallet',
+//           description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
+//         }),
+//       },
+//     );
 
-    const data = await response.json();
-    console.log(data);
+//     const data = await response.json();
+//     console.log(data);
 
-    return {
-      data,
-      publicKey,
-      privateKey: privateKeyString,
-      keys,
-      preimage: preimage.toString('hex'),
-      liquidAddress,
-    };
-  } catch (err) {
-    console.log(err, 'ERR');
-    return false;
-  }
-}
+//     return {
+//       data,
+//       publicKey,
+//       privateKey: privateKeyString,
+//       keys,
+//       preimage: preimage.toString('hex'),
+//       liquidAddress,
+//     };
+//   } catch (err) {
+//     console.log(err, 'ERR');
+//     return false;
+//   }
+// }

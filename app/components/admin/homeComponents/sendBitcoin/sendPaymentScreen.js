@@ -17,7 +17,7 @@ import {CustomKeyboardAvoidingView} from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
 import decodeSendAddress from './functions/decodeSendAdress';
 import {useNavigation} from '@react-navigation/native';
-import {useWebView} from '../../../../../context-store/webViewContext';
+// import {useWebView} from '../../../../../context-store/webViewContext';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import NavbarBalance from './components/navBarBalance';
@@ -69,7 +69,7 @@ export default function SendPaymentScreen(props) {
   const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
-  const {webViewRef} = useWebView();
+  // const {webViewRef} = useWebView();
 
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [paymentInfo, setPaymentInfo] = useState({});
@@ -158,7 +158,7 @@ export default function SendPaymentScreen(props) {
         liquidNodeInformation,
         masterInfoObject,
         // setWebViewArgs,
-        webViewRef,
+        // webViewRef,
         navigate,
         maxZeroConf:
           minMaxLiquidSwapAmounts?.submarineSwapStats?.limits?.maximalZeroConf,
@@ -195,17 +195,17 @@ export default function SendPaymentScreen(props) {
     }, 150);
   }, [paymentInfo, canEditPaymentAmount]);
 
-  useEffect(() => {
-    // unmounting started websocket if it exists
-    const unsubscribe = navigate.addListener('beforeRemove', () => {
-      console.log('Really leaving the screen, closing websocket');
-      if (paymentInfo?.websocket?.readyState === WebSocket.OPEN) {
-        paymentInfo.websocket.close();
-      }
-    });
+  // useEffect(() => {
+  //   // unmounting started websocket if it exists
+  //   const unsubscribe = navigate.addListener('beforeRemove', () => {
+  //     console.log('Really leaving the screen, closing websocket');
+  //     if (paymentInfo?.websocket?.readyState === WebSocket.OPEN) {
+  //       paymentInfo.websocket.close();
+  //     }
+  //   });
 
-    return unsubscribe;
-  }, [navigate, paymentInfo]);
+  //   return unsubscribe;
+  // }, [navigate, paymentInfo]);
 
   if (!Object.keys(paymentInfo).length && !errorMessage)
     return <FullLoadingScreen text={loadingMessage} />;
@@ -386,7 +386,7 @@ export default function SendPaymentScreen(props) {
                 setLoadingMessage={setLoadingMessage}
                 fromPage={fromPage}
                 publishMessageFunc={publishMessageFunc}
-                webViewRef={webViewRef}
+                // webViewRef={webViewRef}
                 minLNURLSatAmount={minLNURLSatAmount}
                 maxLNURLSatAmount={maxLNURLSatAmount}
                 sparkInformation={sparkInformation}
@@ -420,7 +420,7 @@ export default function SendPaymentScreen(props) {
               setLoadingMessage={setLoadingMessage}
               fromPage={fromPage}
               publishMessageFunc={publishMessageFunc}
-              webViewRef={webViewRef}
+              // webViewRef={webViewRef}
               minLNURLSatAmount={minLNURLSatAmount}
               maxLNURLSatAmount={maxLNURLSatAmount}
               sparkInformation={sparkInformation}
@@ -527,9 +527,9 @@ export default function SendPaymentScreen(props) {
         });
       });
     } else {
-      if (paymentInfo?.webSocket) {
-        paymentInfo?.webSocket?.close();
-      }
+      // if (paymentInfo?.webSocket) {
+      //   paymentInfo?.webSocket?.close();
+      // }
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           navigate.reset({
