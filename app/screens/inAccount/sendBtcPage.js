@@ -120,9 +120,14 @@ export default function SendPaymentHome({pageViewPage, from}) {
         return;
       }
 
-      navigate.navigate('ConfirmPaymentScreen', {
-        btcAdress: response.btcAdress,
-      });
+      if (from === 'home')
+        navigate.navigate('ConfirmPaymentScreen', {
+          btcAdress: response.btcAdress,
+        });
+      else
+        navigate.replace('ConfirmPaymentScreen', {
+          btcAdress: response.btcAdress,
+        });
     },
     [navigate, from],
   );

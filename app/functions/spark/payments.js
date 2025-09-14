@@ -316,7 +316,7 @@ async function handleSupportPayment(masterInfoObject, supportFee, mnemonic) {
       });
       await Promise.race([
         txPromise,
-        new Promise(res => setTimeout(res, 3000)),
+        new Promise(res => setTimeout(res, 10000)),
       ]);
       txPromise.catch(err =>
         console.log('Error sending support payment (late)', err),
