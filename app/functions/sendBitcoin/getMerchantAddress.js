@@ -51,13 +51,45 @@ const merchants = [
       regtest: 'staging.cryptoqr.net',
     },
   },
+  {
+    id: 'zapper',
+    identifierRegex:
+      /^\s*(?<identifier>((.*zapper\.com.*)|(.{2}\/.{4}\/.{20})|(.*payat\.io.*)|(.*(paynow\.netcash|paynow\.sagepay)\.co\.za.*)|(SK-\d{1,}-\d{23})|(.*\d+\.zap\.pe(.*\n?)*)|(.*transactionjunction\.co\.za.*)|(CRSTPC-\d+-\d+-\d+-\d+-\d+)))\s*$/iu,
+    defaultDomain: 'cryptoqr.net',
+    domains: {
+      mainnet: 'cryptoqr.net',
+      signet: 'staging.cryptoqr.net',
+      regtest: 'staging.cryptoqr.net',
+    },
+  },
+  {
+    id: 'scantopay',
+    identifierRegex: /(?<identifier>.*(scantopay\.io).*)/iu,
+    defaultDomain: 'cryptoqr.net',
+    domains: {
+      mainnet: 'cryptoqr.net',
+      signet: 'staging.cryptoqr.net',
+      regtest: 'staging.cryptoqr.net',
+    },
+  },
+  {
+    id: 'snapscan',
+    identifierRegex: /(?<identifier>.*(snapscan).*)/iu,
+    defaultDomain: 'cryptoqr.net',
+    domains: {
+      mainnet: 'cryptoqr.net',
+      signet: 'staging.cryptoqr.net',
+      regtest: 'staging.cryptoqr.net',
+    },
+  },
 ];
 
-const urlEncodeLightningAddress = qrContent => {
-  return qrContent
-    .replace(/\+/g, '%2b')
-    .replace(/\//g, '%2f')
-    .replace(/\r/g, '');
+const isUrlEncoded = str => {
+  try {
+    return str !== decodeURIComponent(str);
+  } catch (e) {
+    return true;
+  }
 };
 
 export const convertMerchantQRToLightningAddress = ({qrContent, network}) => {
@@ -67,10 +99,14 @@ export const convertMerchantQRToLightningAddress = ({qrContent, network}) => {
 
   for (const merchant of merchants) {
     const match = qrContent.match(merchant.identifierRegex);
-    if (match && match[1]) {
+    if (match) {
+      let encodedIdentifier = qrContent;
+      if (isUrlEncoded(encodedIdentifier)) {
+        encodedIdentifier = decodeURIComponent(encodedIdentifier);
+      }
       const domain = merchant.domains[network] || merchant.defaultDomain;
-      const urlSafeQrContent = urlEncodeLightningAddress(qrContent);
-      return `${urlSafeQrContent}@${domain}`;
+      console.log(`${encodeURIComponent(encodedIdentifier)}@${domain}`);
+      return `${encodeURIComponent(encodedIdentifier)}@${domain}`;
     }
   }
 

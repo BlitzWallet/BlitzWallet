@@ -29,12 +29,11 @@ import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {backArrow} from '../../constants/styles';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import {useTranslation} from 'react-i18next';
-import {convertMerchantQRToLightningAddress} from '../../functions/sendBitcoin/getMerchantAddress';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {CameraPageNavBar} from '../../functions/CustomElements/camera/cameraPageNavbar';
 import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
-import testURLForInvoice from '../../functions/testURLForInvoice';
+import handlePreSendPageParsing from '../../functions/sendBitcoin/handlePreSendPageParsing';
 
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
@@ -104,6 +103,30 @@ export default function SendPaymentHome({pageViewPage, from}) {
     })();
   }, []);
 
+  const handleInvoice = useCallback(
+    data => {
+      const response = handlePreSendPageParsing(data);
+
+      if (response.error) {
+        navigate.navigate('ErrorScreen', {errorMessage: response.error});
+        return;
+      }
+
+      if (response.navigateToWebView) {
+        navigate.navigate('CustomWebView', {
+          headerText: '',
+          webViewURL: response.webViewURL,
+        });
+        return;
+      }
+
+      navigate.navigate('ConfirmPaymentScreen', {
+        btcAdress: response.btcAdress,
+      });
+    },
+    [navigate, from],
+  );
+
   const handleBarCodeScanned = codes => {
     if (didScanRef.current || codes.length === 0) return;
     const [data] = codes;
@@ -111,40 +134,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
     if (data.type !== 'qr') return;
     crashlyticsLogReport('Hanlding scanned baracode');
     didScanRef.current = true;
-    if (WEBSITE_REGEX.test(data.value)) {
-      const invoice = testURLForInvoice(data.value);
-
-      if (!invoice) {
-        navigate.navigate('CustomWebView', {
-          headerText: '',
-          webViewURL: data.value,
-        });
-        return;
-      }
-      if (from === 'home')
-        navigate.navigate('ConfirmPaymentScreen', {
-          btcAdress: invoice,
-        });
-      else
-        navigate.replace('ConfirmPaymentScreen', {
-          btcAdress: invoice,
-        });
-      return;
-    }
-
-    const merchantLNAddress = convertMerchantQRToLightningAddress({
-      qrContent: data.value,
-      network: process.env.BOLTZ_ENVIRONMENT,
-    });
-    crashlyticsLogReport('Navigating to confirm payment screen');
-    if (from === 'home')
-      navigate.navigate('ConfirmPaymentScreen', {
-        btcAdress: merchantLNAddress || data.value,
-      });
-    else
-      navigate.replace('ConfirmPaymentScreen', {
-        btcAdress: merchantLNAddress || data.value,
-      });
+    handleInvoice(data.value);
   };
 
   const codeScanner = useCodeScanner({
@@ -167,7 +157,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
       if (isPhotoeLibraryOpen.current) return;
       crashlyticsLogReport('Getting photoe');
       isPhotoeLibraryOpen.current = true;
-      const response = await getQRImage(navigate, 'modal');
+      const response = await getQRImage();
       const canGoBack = navigate.canGoBack();
       if (response.error) {
         if (canGoBack) {
@@ -191,14 +181,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
 
       if (!response.didWork || !response.btcAdress) return;
       crashlyticsLogReport('Navigating to confirm payment screen');
-      if (from === 'home')
-        navigate.navigate('ConfirmPaymentScreen', {
-          btcAdress: response.btcAdress,
-        });
-      else
-        navigate.replace('ConfirmPaymentScreen', {
-          btcAdress: response.btcAdress,
-        });
+      handleInvoice(response.btcAdress);
     } catch (err) {
       console.log('Error in getting QR image', err);
     } finally {
