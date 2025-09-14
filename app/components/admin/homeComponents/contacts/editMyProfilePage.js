@@ -687,7 +687,7 @@ function InnerContent({
       return;
     }
 
-    await refreshCache(selectedAddedContact.uuid, imgURL.uri);
+    await refreshCache(selectedAddedContact.uuid, imgURL.uri, false);
   }
   async function uploadProfileImage({imgURL, removeImage}) {
     try {
@@ -711,6 +711,7 @@ function InnerContent({
           await refreshCache(
             globalContactsInformation.myProfile.uuid,
             response,
+            false,
           );
           return true;
         } else

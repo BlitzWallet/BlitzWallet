@@ -71,16 +71,24 @@ export function ImageCacheProvider({children}) {
         refreshArray.push({uuid: masterInfoObject.uuid});
         setLocalStorageItem('didCheckForProfileImage', 'true');
       }
+      const cacheUpdates = {};
       for (let index = 0; index < refreshArray.length; index++) {
         const element = refreshArray[index];
         if (element.isLNURL) continue;
-        await refreshCache(element.uuid);
+        const newCacheEntry = await refreshCache(element.uuid, null, true);
+        if (newCacheEntry) {
+          cacheUpdates[element.uuid] = newCacheEntry;
+        }
+      }
+
+      if (Object.keys(cacheUpdates).length > 0) {
+        setCache(prev => ({...prev, ...cacheUpdates}));
       }
     }
     refreshContactsImages();
   }, [decodedAddedContacts, didGetToHomepage, masterInfoObject?.uuid]);
 
-  async function refreshCache(uuid, hasdownloadURL) {
+  async function refreshCache(uuid, hasdownloadURL, skipCacheUpdate = false) {
     try {
       console.log('Refreshing image for', uuid);
       const key = `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}`;
@@ -121,7 +129,10 @@ export function ImageCacheProvider({children}) {
       };
 
       await setLocalStorageItem(key, JSON.stringify(newCacheEntry));
-      setCache(prev => ({...prev, [uuid]: newCacheEntry}));
+
+      if (!skipCacheUpdate) {
+        setCache(prev => ({...prev, [uuid]: newCacheEntry}));
+      }
 
       return newCacheEntry;
     } catch (err) {

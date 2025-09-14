@@ -98,6 +98,7 @@ export default function EditLNURLContactOnReceivePage({
           await refreshCache(
             globalContactsInformation.myProfile.uuid,
             response,
+            false,
           );
           return true;
         } else
