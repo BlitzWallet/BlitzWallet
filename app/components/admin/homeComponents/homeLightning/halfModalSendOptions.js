@@ -46,7 +46,7 @@ export default function HalfModalSendOptions(props) {
             `Running in half modal sent options navigation function`,
           );
           if (item === 'img') {
-            const response = await getQRImage(navigate, 'modal');
+            const response = await getQRImage();
             if (response.error) {
               navigate.replace('ErrorScreen', {
                 errorMessage: t(response.error),

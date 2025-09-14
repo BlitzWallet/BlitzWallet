@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import {ThemeText} from '../../../../functions/CustomElements';
-import {ICONS, WEBSITE_REGEX} from '../../../../constants';
+import {ICONS} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useRef, useState} from 'react';
 import {CENTER, KEYBOARDTIMEOUT} from '../../../../constants/styles';
@@ -16,7 +16,7 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useTranslation} from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
-import testURLForInvoice from '../../../../functions/testURLForInvoice';
+import handlePreSendPageParsing from '../../../../functions/sendBitcoin/handlePreSendPageParsing';
 
 export default function ManualEnterSendAddress(props) {
   const navigate = useNavigation();
@@ -85,28 +85,30 @@ export default function ManualEnterSendAddress(props) {
     crashlyticsLogReport(
       'Running in custom enter send adddress submit function',
     );
-    Keyboard.dismiss();
     const formattedInput = inputValue.trim();
     setTimeout(
       () => {
-        let btcAddress;
-        if (WEBSITE_REGEX.test(formattedInput)) {
-          const invoice = testURLForInvoice(formattedInput);
-          if (!invoice) {
-            navigate.navigate('CustomWebView', {
-              headerText: '',
-              webViewURL: formattedInput,
-            });
-            return;
-          }
-          btcAddress = invoice;
+        const response = handlePreSendPageParsing(formattedInput);
+
+        if (response.error) {
+          navigate.navigate('ErrorScreen', {errorMessage: response.error});
+          return;
+        }
+
+        if (response.navigateToWebView) {
+          navigate.navigate('CustomWebView', {
+            headerText: '',
+            webViewURL: response.webViewURL,
+          });
+          return;
         }
         navigate.replace('ConfirmPaymentScreen', {
-          btcAdress: btcAddress || formattedInput,
+          btcAdress: response.btcAdress,
         });
       },
       Keyboard.isVisible() ? KEYBOARDTIMEOUT : 0,
     );
+    Keyboard.dismiss();
   }
 }
 

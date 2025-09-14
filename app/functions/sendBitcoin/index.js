@@ -1,9 +1,7 @@
-import {WEBSITE_REGEX} from '../../constants';
-import {convertMerchantQRToLightningAddress} from './getMerchantAddress';
 import {getImageFromLibrary} from '../imagePickerWrapper';
 import RNQRGenerator from 'rn-qr-generator';
 import getClipboardText from '../getClipboardText';
-import testURLForInvoice from '../testURLForInvoice';
+import handlePreSendPageParsing from './handlePreSendPageParsing';
 
 async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
   const response = await getClipboardText();
@@ -13,40 +11,35 @@ async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
     return;
   }
   const clipboardData = response.data?.trim();
-  let data;
 
-  if (WEBSITE_REGEX.test(clipboardData)) {
-    const invoice = testURLForInvoice(clipboardData);
+  const preParsingResponse = handlePreSendPageParsing(clipboardData);
 
-    if (!invoice) {
-      navigate.navigate('CustomWebView', {
-        headerText: '',
-        webViewURL: clipboardData,
-      });
-      return;
-    }
-    data = invoice;
-  } else {
-    const merchantLNAddress = convertMerchantQRToLightningAddress({
-      qrContent: clipboardData,
-      network: process.env.BOLTZ_ENVIRONEMNT,
+  if (preParsingResponse.error) {
+    navigate.navigate('ErrorScreen', {errorMessage: preParsingResponse.error});
+    return;
+  }
+
+  if (preParsingResponse.navigateToWebView) {
+    navigate.navigate('CustomWebView', {
+      headerText: '',
+      webViewURL: preParsingResponse.webViewURL,
     });
-    data = merchantLNAddress;
+    return;
   }
 
   if (from === 'home')
     navigate.navigate('ConfirmPaymentScreen', {
-      btcAdress: data || clipboardData,
+      btcAdress: preParsingResponse.btcAdress,
       fromPage: callLocation === 'slideCamera' ? 'slideCamera' : '',
     });
   else
     navigate.replace('ConfirmPaymentScreen', {
-      btcAdress: data || clipboardData,
+      btcAdress: preParsingResponse.btcAdress,
       fromPage: callLocation === 'slideCamera' ? 'slideCamera' : '',
     });
 }
 
-async function getQRImage(navigate, callLocation) {
+async function getQRImage() {
   const imagePickerResponse = await getImageFromLibrary();
   const {didRun, error, imgURL} = imagePickerResponse;
   if (!didRun) return {btcAdress: '', didWork: true, error: ''};
@@ -83,24 +76,25 @@ async function getQRImage(navigate, callLocation) {
     };
   }
 
-  if (WEBSITE_REGEX.test(address)) {
-    const invoice = testURLForInvoice(address);
+  const preParsingResponse = handlePreSendPageParsing(address);
 
-    if (!invoice) {
-      navigate.navigate('CustomWebView', {
-        headerText: '',
-        webViewURL: address,
-      });
-      return {btcAdress: '', didWork: false, error: ''};
-    }
-    return {btcAdress: invoice, didWork: true, error: ''};
+  if (preParsingResponse.error) {
+    return {
+      btcAdress: '',
+      didWork: false,
+      error: preParsingResponse.error,
+    };
   }
-  const merchantLNAddress = convertMerchantQRToLightningAddress({
-    qrContent: address,
-    network: process.env.BOLTZ_ENVIRONEMNT,
-  });
 
-  return {btcAdress: merchantLNAddress || address, didWork: true, error: ''};
+  if (preParsingResponse.navigateToWebView) {
+    return {
+      btcAdress: '',
+      didWork: false,
+      error: 'errormessages.noInvoiceInImageError',
+    };
+  }
+
+  return {btcAdress: preParsingResponse.btcAdress, didWork: true, error: ''};
 }
 
 export {navigateToSendUsingClipboard, getQRImage};
