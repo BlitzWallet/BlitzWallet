@@ -96,9 +96,11 @@ export default function SendMaxComponent({
 
           if (!feeResponse.didWork) throw new Error(feeResponse.error);
 
-          const maxAmountSats =
+          const maxAmountSats = Math.max(
             Number(sendingBalance) -
-            (feeResponse.fee + feeResponse.supportFee) * 1.1;
+              (feeResponse.fee + feeResponse.supportFee) * 1.1,
+            0,
+          );
 
           const convertedMax =
             masterInfoObject.userBalanceDenomination != 'fiat'

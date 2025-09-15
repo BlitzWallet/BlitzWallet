@@ -105,22 +105,28 @@ export default function SendAndRequestPage(props) {
     async item => {
       try {
         const balance = sparkInformation.balance;
-        const selectedPercent = !item ? 100 : item.value;
-        const sendingBalance = Math.round(balance * (selectedPercent / 100));
+        const selectedPercent = !item ? 100 : Number(item.value);
+
+        const sendingBalance = Math.floor(
+          balance *
+            (selectedPercent === 100 ? 0.98 : 1) *
+            (selectedPercent / 100),
+        );
+
         const fee = await calculateProgressiveBracketFee(
           balance,
           'lightning',
           currentWalletMnemoinc,
         );
 
-        const maxAmountSats = Number(sendingBalance) - fee * 2.1;
+        const maxAmountSats = Math.max(Number(sendingBalance) - fee * 2.1, 0);
 
         const convertedMax =
           inputDenomination != 'fiat'
-            ? Math.round(Number(maxAmountSats))
+            ? Math.floor(Number(maxAmountSats))
             : (
                 Number(maxAmountSats) /
-                Math.round(SATSPERBITCOIN / fiatStats?.value)
+                Math.floor(SATSPERBITCOIN / fiatStats?.value)
               ).toFixed(2);
 
         setAmountValue(convertedMax);
