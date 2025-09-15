@@ -60,7 +60,7 @@ export const sparkPaymenWrapper = async ({
 
         if (!routingFee.didWork)
           throw new Error(routingFee.error || 'Unable to get routing fee');
-        calculatedFee = routingFee.response;
+        calculatedFee = Math.ceil(routingFee.response * 1.5);
       } else if (paymentType === 'bitcoin') {
         const feeResponse = await getSparkBitcoinPaymentFeeEstimate({
           amountSats,
@@ -108,7 +108,7 @@ export const sparkPaymenWrapper = async ({
       await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
       const lightningPayResponse = await sendSparkLightningPayment({
-        maxFeeSats: Math.ceil(initialFee * 1.2), //addding 20% buffer so we dont undershoot it
+        maxFeeSats: Math.ceil(initialFee * 1.5), //addding 20% buffer so we dont undershoot it
         invoice: address,
         amountSats: usingZeroAmountInvoice ? amountSats : undefined,
         mnemonic,
@@ -321,6 +321,7 @@ async function handleSupportPayment(masterInfoObject, supportFee, mnemonic) {
       txPromise.catch(err =>
         console.log('Error sending support payment (late)', err),
       );
+      await new Promise(res => setTimeout(res, 800)); // wait a bit
     }
   } catch (err) {
     console.log('Error sending support payment', err);
