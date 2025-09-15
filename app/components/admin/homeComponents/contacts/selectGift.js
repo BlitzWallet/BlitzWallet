@@ -222,7 +222,7 @@ export default function SelectGiftCardForContacts() {
       {errorMessage || !giftCardsList.length ? (
         <FullLoadingScreen
           containerStyles={{
-            justifyContent: !errorMessage ? 'center' : 'start',
+            justifyContent: !errorMessage ? 'center' : 'flex-start',
             marginTop: !errorMessage ? 0 : 30,
           }}
           showLoadingIcon={!errorMessage ? true : false}

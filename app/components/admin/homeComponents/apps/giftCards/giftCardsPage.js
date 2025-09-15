@@ -207,7 +207,7 @@ export default function GiftCardPage() {
         <FullLoadingScreen
           containerStyles={{
             justifyContent:
-              giftCards.length === 0 && !errorMessage ? 'center' : 'start',
+              giftCards.length === 0 && !errorMessage ? 'center' : 'flex-start',
             marginTop: giftCards.length === 0 && !errorMessage ? 0 : 30,
           }}
           showLoadingIcon={

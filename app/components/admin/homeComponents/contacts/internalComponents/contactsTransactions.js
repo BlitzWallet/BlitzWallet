@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
   transactionContainer: {
     width: '95%',
     flexDirection: 'row',
-    alignItems: 'start',
+    alignItems: 'flex-start',
     marginVertical: 12.5,
     ...CENTER,
   },
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     width: '100%',
     flexWrap: 'wrap',
-    justifyContent: 'start',
+    justifyContent: 'flex-start',
   },
   descriptionText: {
     fontSize: SIZES.medium,

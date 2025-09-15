@@ -57,7 +57,7 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
           cache={cache}
         />
       ) : (
-        <View style={{...styles.transactionContainer}}>
+        <View style={styles.transactionContainer}>
           <View
             style={{
               ...styles.selectImage,
@@ -147,7 +147,7 @@ function ConfirmedOrSentTransaction({
   }
 
   return (
-    <View style={[styles.transactionContainer, {alignItems: 'center'}]}>
+    <View style={styles.transactionContainer}>
       {didDeclinePayment ? (
         <Image
           style={styles.icons}
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   transactionContainer: {
     width: '95%',
     flexDirection: 'row',
-    alignItems: 'start',
+    alignItems: 'center',
     marginVertical: 12.5,
     ...CENTER,
   },
