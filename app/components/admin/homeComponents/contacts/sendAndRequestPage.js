@@ -4,6 +4,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
   SATSPERBITCOIN,
+  SCREEN_DIMENSIONS,
 } from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
@@ -75,6 +76,7 @@ export default function SendAndRequestPage(props) {
   const paymentType = props.route.params.paymentType;
   const fromPage = props.route.params.fromPage;
   const giftOption = props.route.params.cardInfo;
+  const useAltLayout = SCREEN_DIMENSIONS.height < 720;
 
   const isBTCdenominated =
     inputDenomination == 'hidden' || inputDenomination == 'sats';
@@ -447,7 +449,7 @@ export default function SendAndRequestPage(props) {
           />
 
           {/* Send Max Button */}
-          {paymentType === 'send' && !giftOption && (
+          {paymentType === 'send' && !giftOption && !useAltLayout && (
             <View>
               <DropdownMenu
                 selectedValue={t(
@@ -553,7 +555,12 @@ export default function SendAndRequestPage(props) {
                     }
                     style={[
                       styles.giftContainer,
-                      {backgroundColor: backgroundOffset},
+                      {
+                        backgroundColor: backgroundOffset,
+                        marginBottom: useAltLayout
+                          ? 0
+                          : CONTENT_KEYBOARD_OFFSET,
+                      },
                     ]}>
                     <ThemeText
                       styles={styles.giftText}
@@ -573,6 +580,10 @@ export default function SendAndRequestPage(props) {
                 placeholderText={t(
                   'contacts.sendAndRequestPage.descriptionPlaceholder',
                 )}
+                textInputStyles={{
+                  borderRadius: useAltLayout ? 15 : 8,
+                  height: useAltLayout ? 50 : 'unset',
+                }}
                 containerStyles={styles.descriptionInput}
                 setInputText={setDescriptionValue}
                 inputText={descriptionValue}
@@ -580,6 +591,53 @@ export default function SendAndRequestPage(props) {
                 textAlignVertical={'center'}
                 maxLength={149}
               />
+
+              {useAltLayout && (
+                <View style={styles.maxAndAcceptContainer}>
+                  <View
+                    style={{
+                      flexShrink: useAltLayout ? 0 : 1,
+                      marginRight: useAltLayout ? 10 : 0,
+                      marginBottom: useAltLayout ? 0 : 20,
+                      alignSelf: useAltLayout ? 'unset' : 'center',
+                    }}>
+                    <DropdownMenu
+                      selectedValue={t(
+                        `wallet.sendPages.sendMaxComponent.${'sendMax'}`,
+                      )}
+                      onSelect={handleSelctProcesss}
+                      options={MAX_SEND_OPTIONS}
+                      showClearIcon={false}
+                      textStyles={styles.sendMaxText}
+                      showVerticalArrows={false}
+                      customButtonStyles={{
+                        flex: 0,
+                        borderRadius: useAltLayout ? 30 : 8,
+                        height: useAltLayout ? 50 : 'unset',
+                        minWidth: useAltLayout ? 70 : 'unset',
+                        justifyContent: 'center',
+                      }}
+                    />
+                  </View>
+
+                  <CustomButton
+                    buttonStyles={{
+                      borderRadius: useAltLayout ? 30 : 8,
+                      height: useAltLayout ? 50 : 'unset',
+                      flexShrink: useAltLayout ? 1 : 0,
+                      width: useAltLayout ? '100%' : 'auto',
+                      ...CENTER,
+                    }}
+                    useLoading={isLoading}
+                    actionFunction={handleSubmit}
+                    textContent={
+                      paymentType === 'send'
+                        ? t('constants.confirm')
+                        : t('constants.request')
+                    }
+                  />
+                </View>
+              )}
             </View>
             {isAmountFocused && (
               <CustomNumberKeyboard
@@ -592,7 +650,7 @@ export default function SendAndRequestPage(props) {
             )}
           </>
         )}
-        {isAmountFocused && (
+        {((isAmountFocused && !useAltLayout) || giftOption) && (
           <CustomButton
             buttonStyles={{...styles.button, opacity: canSendPayment ? 1 : 0.5}}
             useLoading={isLoading}
@@ -665,7 +723,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-end',
-    marginBottom: CONTENT_KEYBOARD_OFFSET,
   },
   giftText: {
     marginRight: 8,
@@ -674,7 +731,6 @@ const styles = StyleSheet.create({
   button: {
     width: 'auto',
     ...CENTER,
-    marginTop: 8,
   },
   pill: {
     width: '100%',
@@ -747,5 +803,11 @@ const styles = StyleSheet.create({
   },
   descriptionInput: {
     marginTop: 8,
+  },
+  maxAndAcceptContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
   },
 });
