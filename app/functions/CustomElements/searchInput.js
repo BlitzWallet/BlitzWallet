@@ -2,7 +2,7 @@ import {StyleSheet, TextInput, View} from 'react-native';
 import {CENTER, COLORS, FONT, SIZES} from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useCallback, useMemo, useState} from 'react';
+import {useCallback, useMemo} from 'react';
 import ThemeText from './textTheme';
 
 export default function CustomSearchInput({
@@ -27,7 +27,6 @@ export default function CustomSearchInput({
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textInputColor, textInputBackground} = GetThemeColors();
-  const [textInputLayout, setTextInputLayout] = useState({});
   const memorizedStyles = useMemo(
     () => ({
       ...styles.searchInput,
@@ -68,7 +67,7 @@ export default function CustomSearchInput({
   const placeholderTextStyle = useMemo(() => {
     return {color: placeholderTextColorStyles, includeFontPadding: false};
   }, [placeholderTextColorStyles]);
-  console.log(textInputLayout);
+
   const blurOnSubmitValue = useMemo(() => {
     return blurOnSubmit != undefined ? blurOnSubmit : true;
   }, [blurOnSubmit]);
@@ -119,9 +118,6 @@ export default function CustomSearchInput({
         </View>
       )}
       <TextInput
-        onLayout={e => {
-          setTextInputLayout(e.nativeEvent.layout);
-        }}
         keyboardAppearance={keyboardAppearance}
         placeholder={''}
         placeholderTextColor={placeholderTextColorStyles}
