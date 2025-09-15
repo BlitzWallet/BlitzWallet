@@ -310,7 +310,7 @@
         "title": "Per usare questa VPN scarica l’app client Wireguard VPN",
         "downloadApp": "Scarica qui",
         "status": "",
-        "apiConnectionError": "Impossibile ottenere i paesi disponibili.",
+        "apiConnectionError": "LNVPN è temporaneamente non disponibile. Riprova più tardi.",
         "selectPlan": "Seleziona piano"
       },
       "generatedFile": {
