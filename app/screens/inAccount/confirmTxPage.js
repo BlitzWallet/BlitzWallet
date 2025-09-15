@@ -81,13 +81,13 @@ export default function ConfirmTxPage(props) {
         source={didSucceed ? confirmAnimation : errorAnimation}
         loop={false}
         style={{
-          width: SCREEN_DIMENSIONS / 1.5,
-          height: SCREEN_DIMENSIONS / 1.5,
+          width: SCREEN_DIMENSIONS.width / 1.5,
+          height: SCREEN_DIMENSIONS.width / 1.5,
         }}
       />
       {!isLNURLAuth && (
         <ThemeText
-          styles={{fontWeight: 400, fontSize: SIZES.large, marginBottom: 10}}
+          styles={{fontSize: SIZES.large, marginBottom: 10}}
           content={
             !didSucceed
               ? t('screens.inAccount.confirmTxPage.failedToSend')
@@ -187,8 +187,6 @@ export default function ConfirmTxPage(props) {
             width: '95%',
             maxWidth: 300,
             minHeight: 100,
-
-            color: 'red',
           }}>
           <ScrollView contentContainerStyle={{padding: 10}}>
             <ThemeText content={errorMessage} />
