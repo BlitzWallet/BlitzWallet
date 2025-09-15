@@ -254,7 +254,10 @@ export default function ViewOnlineListings({removeUserLocal}) {
             )
           }
           style={{
-            padding: 10,
+            width: 30,
+            height: 30,
+            alignItems: 'center',
+            justifyContent: 'center',
             backgroundColor:
               userLocal === 'WW'
                 ? theme
@@ -265,6 +268,8 @@ export default function ViewOnlineListings({removeUserLocal}) {
           }}>
           {userLocal === 'WW' ? (
             <Icon
+              width={15}
+              height={15}
               color={theme ? COLORS.darkModeText : COLORS.lightModeText}
               name={'globeIcon'}
             />
@@ -402,10 +407,9 @@ const BusinessCard = React.memo(
 const styles = StyleSheet.create({
   container: {flex: 1},
   topBar: {
-    width: '95%',
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    ...CENTER,
     marginBottom: 10,
   },
   topbarText: {
@@ -413,6 +417,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginHorizontal: 5,
     fontSize: SIZES.xLarge,
+    includeFontPadding: false,
   },
   stickySearchHeader: {
     width: '100%',

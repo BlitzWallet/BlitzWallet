@@ -408,7 +408,10 @@ export default function SMSMessagingReceivedPage(props) {
             )
           }
           style={{
-            padding: 5,
+            width: 30,
+            height: 30,
+            alignItems: 'center',
+            justifyContent: 'center',
             backgroundColor:
               userLocal.iso === 'WW'
                 ? theme
@@ -416,11 +419,13 @@ export default function SMSMessagingReceivedPage(props) {
                   : COLORS.darkModeText
                 : 'unset',
             borderRadius: 8,
-            marginRight: 10,
+            marginRight: 5,
             marginLeft: 'auto',
           }}>
           {userLocal.iso === 'WW' ? (
             <Icon
+              width={15}
+              height={15}
               color={theme ? COLORS.darkModeText : COLORS.lightModeText}
               name={'globeIcon'}
             />
@@ -478,7 +483,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   topbarText: {
-    width: SCREEN_DIMENSIONS.width - 170,
+    width: SCREEN_DIMENSIONS.width * 0.95 - 140,
     flexShrink: 1,
     textAlign: 'center',
     fontSize: SIZES.xLarge,

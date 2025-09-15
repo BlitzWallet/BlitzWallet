@@ -609,7 +609,7 @@ export default function SendAndRequestPage(props) {
                     }}>
                     <DropdownMenu
                       selectedValue={t(
-                        `wallet.sendPages.sendMaxComponent.${'sendMax'}`,
+                        `wallet.sendPages.sendMaxComponent.${'sendMaxShort'}`,
                       )}
                       onSelect={handleSelctProcesss}
                       options={MAX_SEND_OPTIONS}
