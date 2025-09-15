@@ -113,7 +113,7 @@ export default function SendAndRequestPage(props) {
           currentWalletMnemoinc,
         );
 
-        const maxAmountSats = Number(sendingBalance) - fee * 1.75;
+        const maxAmountSats = Number(sendingBalance) - fee * 2.1;
 
         const convertedMax =
           inputDenomination != 'fiat'
@@ -605,7 +605,7 @@ export default function SendAndRequestPage(props) {
                       flexShrink: useAltLayout ? 0 : 1,
                       marginRight: useAltLayout ? 10 : 0,
                       marginBottom: useAltLayout ? 0 : 20,
-                      alignSelf: useAltLayout ? 'unset' : 'center',
+                      alignSelf: useAltLayout ? 'auto' : 'center',
                     }}>
                     <DropdownMenu
                       selectedValue={t(

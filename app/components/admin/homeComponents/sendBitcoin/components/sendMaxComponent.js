@@ -130,7 +130,7 @@ export default function SendMaxComponent({
       flexShrink: useAltLayout ? 0 : 1,
       marginRight: useAltLayout ? 10 : 0,
       marginBottom: useAltLayout ? 0 : 20,
-      alignSelf: useAltLayout ? 'unset' : 'center',
+      alignSelf: useAltLayout ? 'auto' : 'center',
     };
   }, [useAltLayout]);
 
