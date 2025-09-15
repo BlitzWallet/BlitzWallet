@@ -5,11 +5,12 @@ import {applyErrorAnimationTheme} from '../../../../functions/lottieViewColorTra
 import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import LottieView from 'lottie-react-native';
-import {StyleSheet, useWindowDimensions} from 'react-native';
+import {StyleSheet} from 'react-native';
 import fetchBackend from '../../../../../db/handleBackend';
 import {useKeysContext} from '../../../../../context-store/keys';
 import {setLocalStorageItem} from '../../../../functions';
 import {useTranslation} from 'react-i18next';
+import {SCREEN_DIMENSIONS} from '../../../../constants';
 const errorTxAnimation = require('../../../../assets/errorTxAnimation.json');
 export default function NoDataView() {
   const [isLoading, setIsLoading] = useState(false);
@@ -60,8 +61,8 @@ export default function NoDataView() {
         source={errorAnimation}
         loop={false}
         style={{
-          width: useWindowDimensions().width / 1.5,
-          height: useWindowDimensions().width / 1.5,
+          width: SCREEN_DIMENSIONS.width / 1.5,
+          height: SCREEN_DIMENSIONS.width / 1.5,
           marginTop: 'auto',
         }}
       />

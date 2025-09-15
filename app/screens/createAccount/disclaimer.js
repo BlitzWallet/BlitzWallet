@@ -1,10 +1,5 @@
-import {
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-} from 'react-native';
-import {COLORS} from '../../constants';
+import {ScrollView, StyleSheet, TouchableOpacity} from 'react-native';
+import {COLORS, SCREEN_DIMENSIONS} from '../../constants';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {SIZES} from '../../constants/theme';
 import CustomButton from '../../functions/CustomElements/button';
@@ -17,7 +12,6 @@ import {useState} from 'react';
 
 export default function DislaimerPage({navigation: {navigate}}) {
   const [contentHeight, setContentHeight] = useState(0);
-  const windowDimentiosn = useWindowDimensions().height;
   const {t} = useTranslation();
   useHandleBackPressNew();
 
@@ -36,7 +30,7 @@ export default function DislaimerPage({navigation: {navigate}}) {
       webViewURL: 'https://blitz-wallet.com/pages/terms/',
     });
   };
-  console.log(contentHeight, windowDimentiosn);
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <ScrollView
@@ -44,7 +38,7 @@ export default function DislaimerPage({navigation: {navigate}}) {
         contentContainerStyle={[
           styles.contentContainer,
           {
-            flexGrow: contentHeight > windowDimentiosn ? 0 : 1,
+            flexGrow: contentHeight > SCREEN_DIMENSIONS.height ? 0 : 1,
           },
         ]}
         onLayout={handleLayout}>

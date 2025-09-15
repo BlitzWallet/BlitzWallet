@@ -1,14 +1,8 @@
-import {
-  Keyboard,
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import ThemeImage from './themeImage';
 import ThemeText from './textTheme';
 import {useNavigation} from '@react-navigation/native';
-import {CENTER, FONT, ICONS, SIZES} from '../../constants';
+import {CENTER, FONT, ICONS, SCREEN_DIMENSIONS, SIZES} from '../../constants';
 import {keyboardGoBack} from '../customNavigation';
 
 export default function CustomSettingsTopBar({
@@ -24,7 +18,6 @@ export default function CustomSettingsTopBar({
   customBackFunction,
 }) {
   const navigate = useNavigation();
-  const windowWidth = useWindowDimensions().width;
   return (
     <View style={{...styles.topbar, ...containerStyles}}>
       <TouchableOpacity
@@ -52,7 +45,7 @@ export default function CustomSettingsTopBar({
         content={label || ''}
         styles={{
           ...styles.topBarText,
-          width: windowWidth * 0.95 - 60,
+          width: SCREEN_DIMENSIONS.width * 0.95 - 60,
           ...textStyles,
         }}
       />

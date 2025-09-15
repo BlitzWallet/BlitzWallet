@@ -86,7 +86,6 @@ export async function payPOSLNURL({
  * @param {string} params.description - Payment description
  * @param {Object} params.webViewRef - Referance to the global webview
  * @param {string} params.sparkInformation - Information about the current spark wallet context
- * @param {Object} params.minMaxLiquidSwapAmounts - Min/max amounts for swaps
  * @param {Object} params.currentWalletMnemoinc - Admin wallets mnemoinc
  * @returns {Promise<boolean>} - True if payment successful, false otherwise
  */

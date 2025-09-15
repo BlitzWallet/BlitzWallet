@@ -1,11 +1,5 @@
-import {
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from 'react-native';
-import {CENTER, COLORS, SIZES} from '../../../../constants';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {CENTER, COLORS, SCREEN_DIMENSIONS, SIZES} from '../../../../constants';
 import {useMemo, useState} from 'react';
 import {terminateAccount} from '../../../../functions/secureStore';
 import RNRestart from 'react-native-restart';
@@ -42,7 +36,6 @@ export default function ResetPage(props) {
   const [contentHeight, setContentHeight] = useState(0);
   const {backgroundOffset} = GetThemeColors();
   const navigate = useNavigation();
-  const windowDimentions = useWindowDimensions();
   const {t} = useTranslation();
 
   const backgroundColor = useMemo(() => {
@@ -55,7 +48,7 @@ export default function ResetPage(props) {
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{
-        flexGrow: contentHeight > windowDimentions ? 0 : 1,
+        flexGrow: contentHeight > SCREEN_DIMENSIONS.height ? 0 : 1,
         width: INSET_WINDOW_WIDTH,
         ...CENTER,
       }}>
@@ -63,7 +56,7 @@ export default function ResetPage(props) {
         style={{
           width: '100%',
           alignItems: 'center',
-          flexGrow: contentHeight > windowDimentions ? 0 : 1,
+          flexGrow: contentHeight > SCREEN_DIMENSIONS.height ? 0 : 1,
         }}
         onLayout={e => {
           if (!e.nativeEvent.layout.height) return;

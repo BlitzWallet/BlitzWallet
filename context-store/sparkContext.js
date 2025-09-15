@@ -92,7 +92,6 @@ const SparkWalletProvider = ({children}) => {
   const pendingTransferIds = useRef(new Set());
 
   const toggleIsSendingPayment = isSending => {
-    console.log('Sending vaeriable', isSending);
     setIsSendingPayment(isSending);
   };
 
@@ -422,7 +421,6 @@ const SparkWalletProvider = ({children}) => {
       sparkTransactionsEventEmitter.listenerCount(SPARK_TX_UPDATE_ENVENT_NAME),
       'Nymber of event emiitter litsenrs',
     );
-    console.log(prevAccountMnemoincRef.current);
 
     if (
       sparkTransactionsEventEmitter.listenerCount(SPARK_TX_UPDATE_ENVENT_NAME)
@@ -489,7 +487,6 @@ const SparkWalletProvider = ({children}) => {
     const handleDepositAddressCheck = async () => {
       try {
         console.log('l1Deposit check running....');
-        console.log(AppState.currentState);
         if (AppState.currentState !== 'active') return;
         const allTxs = await getAllSparkTransactions(
           null,

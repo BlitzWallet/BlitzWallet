@@ -3,7 +3,6 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import {
@@ -12,6 +11,7 @@ import {
   EMAIL_REGEX,
   ICONS,
   POINT_OF_SALE_PAYOUT_DESCRIPTION,
+  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../../constants';
 import {ThemeText} from '../../../../../functions/CustomElements';
@@ -65,10 +65,9 @@ export default function TotalTipsScreen(props) {
   const {contactsPrivateKey, accountMnemoinc} = useKeysContext();
   const {fiatStats} = useNodeContext();
   const {sparkInformation} = useSparkWallet();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
+  // const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {masterInfoObject} = useGlobalContextProvider();
   const navigate = useNavigation();
-  const height = useWindowDimensions().height;
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const [paymentUpdate, setPaymentUpdate] = useState({
     isSending: false,
@@ -195,7 +194,7 @@ export default function TotalTipsScreen(props) {
       setPaymentUpdate(prev => ({...prev, isSending: false}));
     }
   }, [
-    minMaxLiquidSwapAmounts,
+    // minMaxLiquidSwapAmounts,
     decodedAddedContacts,
     name,
     totalTipAmount,
@@ -223,7 +222,10 @@ export default function TotalTipsScreen(props) {
     [masterInfoObject, fiatStats, t],
   );
 
-  const viewHeight = useMemo(() => height * 0.5, [height]);
+  const viewHeight = useMemo(
+    () => SCREEN_DIMENSIONS.height * 0.5,
+    [SCREEN_DIMENSIONS.height],
+  );
   const removeEmployee = useCallback(async name => {
     navigate.navigate('ConfirmActionPage', {
       confirmMessage: t(

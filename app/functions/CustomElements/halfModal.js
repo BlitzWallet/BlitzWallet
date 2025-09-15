@@ -4,13 +4,16 @@ import {
   Keyboard,
   StyleSheet,
   View,
-  useWindowDimensions,
   PanResponder,
   TouchableOpacity,
 } from 'react-native';
 import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {useNavigation} from '@react-navigation/native';
-import {COLORS, CONTENT_KEYBOARD_OFFSET} from '../../constants';
+import {
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  SCREEN_DIMENSIONS,
+} from '../../constants';
 import {
   HalfModalSendOptions,
   SwitchReceiveOptionPage,
@@ -51,7 +54,6 @@ import ViewAllGiftCards from '../../components/admin/homeComponents/contacts/vie
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const navigation = useNavigation();
-  const windowDimensions = useWindowDimensions();
   const contentType = props?.route?.params?.wantedContent;
   const slideHeight = props?.route?.params?.sliderHight || 0.5;
   const {backgroundColor, backgroundOffset} = GetThemeColors();
@@ -60,10 +62,9 @@ export default function CustomHalfModal(props) {
   const {bottomPadding, topPadding} = useGlobalInsets();
 
   const translateY = useRef(
-    new Animated.Value(windowDimensions.height),
+    new Animated.Value(SCREEN_DIMENSIONS.height),
   ).current;
   const panY = useRef(new Animated.Value(0)).current;
-  const deviceHeight = useWindowDimensions().height;
 
   const handleBackPressFunction = useCallback(() => {
     slideOut();
@@ -92,7 +93,7 @@ export default function CustomHalfModal(props) {
 
   const slideOut = () => {
     Animated.timing(translateY, {
-      toValue: windowDimensions.height,
+      toValue: SCREEN_DIMENSIONS.height,
       duration: 200,
       useNativeDriver: true,
     }).start();
@@ -359,7 +360,9 @@ export default function CustomHalfModal(props) {
         style={[
           styles.contentContainer,
           {
-            height: contentHeight ? contentHeight : deviceHeight * slideHeight,
+            height: contentHeight
+              ? contentHeight
+              : SCREEN_DIMENSIONS.height * slideHeight,
             backgroundColor: 'black', //removes opacity background
             transform: [{translateY: Animated.add(translateY, panY)}],
             marginTop: topPadding,

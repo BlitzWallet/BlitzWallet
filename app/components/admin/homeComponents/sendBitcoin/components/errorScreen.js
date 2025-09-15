@@ -1,11 +1,11 @@
-import {ScrollView, StyleSheet, useWindowDimensions} from 'react-native';
+import {ScrollView, StyleSheet} from 'react-native';
 import LottieView from 'lottie-react-native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {CENTER, SIZES} from '../../../../../constants';
+import {CENTER, SCREEN_DIMENSIONS, SIZES} from '../../../../../constants';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useMemo, useRef} from 'react';
@@ -15,7 +15,6 @@ import {useTranslation} from 'react-i18next';
 export default function ErrorWithPayment({reason}) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const navigate = useNavigation();
-  const windowWidth = useWindowDimensions().width;
   const animationRef = useRef(null);
   const {t} = useTranslation();
 
@@ -40,8 +39,8 @@ export default function ErrorWithPayment({reason}) {
         source={errorAnimation}
         loop={false}
         style={{
-          width: windowWidth / 1.5,
-          height: windowWidth / 1.5,
+          width: SCREEN_DIMENSIONS.width / 1.5,
+          height: SCREEN_DIMENSIONS.width / 1.5,
         }}
       />
       <ThemeText

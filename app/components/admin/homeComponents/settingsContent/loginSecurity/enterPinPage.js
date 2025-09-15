@@ -4,12 +4,16 @@ import {
   ScrollView,
   StyleSheet,
   TouchableWithoutFeedback,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {useNavigation} from '@react-navigation/native';
-import {CENTER, COLORS, SIZES} from '../../../../../constants';
+import {
+  CENTER,
+  COLORS,
+  SCREEN_DIMENSIONS,
+  SIZES,
+} from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
@@ -21,7 +25,6 @@ import {useTranslation} from 'react-i18next';
 export default function ConfirmPinForLoginMode() {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const windowDimensions = useWindowDimensions();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
   const [pinSettings, setPinSettings] = useState({
     enteredPin: [null, null, null, null],
@@ -32,7 +35,7 @@ export default function ConfirmPinForLoginMode() {
 
   const {bottomPadding} = useGlobalInsets();
   const translateY = useRef(
-    new Animated.Value(windowDimensions.height),
+    new Animated.Value(SCREEN_DIMENSIONS.height),
   ).current;
   const panY = useRef(new Animated.Value(0)).current;
 
@@ -59,7 +62,7 @@ export default function ConfirmPinForLoginMode() {
 
   const slideOut = () => {
     Animated.timing(translateY, {
-      toValue: windowDimensions.height,
+      toValue: SCREEN_DIMENSIONS.height,
       duration: 200,
       useNativeDriver: true,
     }).start();
@@ -156,7 +159,7 @@ export default function ConfirmPinForLoginMode() {
         <View
           style={{
             ...styles.pinContentContainer,
-            maxHeight: windowDimensions.height * 0.7,
+            maxHeight: SCREEN_DIMENSIONS.height * 0.7,
           }}>
           <ScrollView
             contentContainerStyle={{marginBottom: 80}}

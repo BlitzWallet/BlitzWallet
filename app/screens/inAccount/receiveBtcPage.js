@@ -1,11 +1,5 @@
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  ScrollView,
-  useWindowDimensions,
-} from 'react-native';
-import {CENTER, SIZES, ICONS, COLORS} from '../../constants';
+import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
+import {CENTER, SIZES, ICONS, COLORS, SCREEN_DIMENSIONS} from '../../constants';
 import {useEffect, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {copyToClipboard} from '../../functions';
@@ -43,7 +37,6 @@ export default function ReceivePaymentHome(props) {
   const {startLrc20EventListener} = useLRC20EventContext();
   const {t} = useTranslation();
   const {isUsingAltAccount, currentWalletMnemoinc} = useActiveCustodyAccount();
-  const windowDimentions = useWindowDimensions().height;
   const [contentHeight, setContentHeight] = useState(0);
   const {startLiquidEventListener} = useLiquidEvent();
   const initialSendAmount = props.route.params?.receiveAmount || 0;
@@ -94,7 +87,7 @@ export default function ReceivePaymentHome(props) {
         receivingAmount: initialSendAmount,
         description: paymentDescription,
         masterInfoObject,
-        minMaxSwapAmounts: minMaxLiquidSwapAmounts,
+        // minMaxSwapAmounts: minMaxLiquidSwapAmounts,
         // mintURL: currentMintURL,
         setAddressState: setAddressState,
         selectedRecieveOption: selectedRecieveOption,
@@ -121,7 +114,7 @@ export default function ReceivePaymentHome(props) {
     <GlobalThemeView useStandardWidth={true}>
       <ScrollView
         contentContainerStyle={{
-          flexGrow: contentHeight > windowDimentions ? 0 : 1,
+          flexGrow: contentHeight > SCREEN_DIMENSIONS.height ? 0 : 1,
         }}
         showsVerticalScrollIndicator={false}>
         <View
@@ -132,7 +125,7 @@ export default function ReceivePaymentHome(props) {
           style={{
             width: '100%',
             alignItems: 'center',
-            flexGrow: contentHeight > windowDimentions ? 0 : 1,
+            flexGrow: contentHeight > SCREEN_DIMENSIONS.height ? 0 : 1,
           }}>
           <TopBar navigate={navigate} />
 
@@ -200,7 +193,7 @@ export default function ReceivePaymentHome(props) {
                   {
                     fee: displayCorrectDenomination({
                       amount:
-                        minMaxLiquidSwapAmounts?.rsk?.reverse?.fees
+                        minMaxLiquidSwapAmounts?.rsk?.submarine?.fees
                           ?.minerFees || 32,
                       masterInfoObject,
                       fiatStats,

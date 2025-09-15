@@ -18,24 +18,24 @@ export function InsetsProvider({children}) {
   const [insets, setInsets] = useState({
     topPadding: safeInsets.top,
     bottomPadding: safeInsets.bottom,
-    leftPadding: safeInsets.left,
-    rightPadding: safeInsets.right,
   });
 
   console.log(insets, 'safe area insets in context');
   // 3. Update when safeInsets change
   useEffect(() => {
+    if (
+      safeInsets.top === insets.topPadding &&
+      safeInsets.bottom === insets.bottomPadding
+    )
+      return;
     setInsets({
       topPadding: safeInsets.top,
       bottomPadding: safeInsets.bottom,
-      leftPadding: safeInsets.left,
-      rightPadding: safeInsets.right,
     });
   }, [safeInsets]);
 
   const contextValues = useMemo(() => {
     return {
-      ...insets,
       topPadding: insets.topPadding !== 0 ? insets.topPadding : ANDROIDSAFEAREA,
       bottomPadding:
         insets.bottomPadding !== 0 ? insets.bottomPadding : ANDROIDSAFEAREA,

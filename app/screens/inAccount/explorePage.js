@@ -5,11 +5,16 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import GetThemeColors from '../../hooks/themeColors';
-import {BLITZ_GOAL_USER_COUNT, CENTER, COLORS, SIZES} from '../../constants';
+import {
+  BLITZ_GOAL_USER_COUNT,
+  CENTER,
+  COLORS,
+  SCREEN_DIMENSIONS,
+  SIZES,
+} from '../../constants';
 import DateCountdown from '../../components/admin/homeComponents/explore/dateCountdown';
 import {
   DAY_IN_MILLS,
@@ -37,7 +42,6 @@ export default function ExploreUsers() {
   const [targetUserCountBarWidth, setTargetUserCountBarWidth] = useState(0);
   const [yAxisWidth, setYAxisWidth] = useState(0);
   const dataObject = JSON.parse(JSON.stringify(masterInfoObject.exploreData));
-  const windowDimensions = useWindowDimensions().width;
   const data = dataObject ? dataObject[timeFrame].reverse() : [];
 
   const min = data.reduce((prev, current) => {
@@ -204,7 +208,7 @@ export default function ExploreUsers() {
       <View style={styles.chartContainer}>
         <CustomLineChart
           data={data.map(d => d.value)}
-          width={windowDimensions * 0.95 - yAxisWidth}
+          width={SCREEN_DIMENSIONS.width * 0.95 - yAxisWidth}
           height={250}
           min={Math.round(min * 0.95)}
           max={Math.round(max * (timeFrame !== 'day' ? 1.2 : 1.05))}

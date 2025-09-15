@@ -5,9 +5,8 @@ import {
   StyleSheet,
   ScrollView,
   Platform,
-  useWindowDimensions,
 } from 'react-native';
-import {CENTER, COLORS, SIZES} from '../../constants';
+import {CENTER, COLORS, SCREEN_DIMENSIONS, SIZES} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {APPLIST} from '../../components/admin/homeComponents/apps/appList';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
@@ -29,7 +28,6 @@ export default function AppStore({navigation}) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset} = GetThemeColors();
   const {decodedGiftCards} = useGlobalAppData();
-  const windowWidth = useWindowDimensions();
   const navigate = useNavigation();
   const {t} = useTranslation();
 
@@ -40,8 +38,8 @@ export default function AppStore({navigation}) {
   useHandleBackPressNew(handleBackPressFunction);
 
   const gridGap = Platform.select({
-    ios: Math.round(windowWidth.width * 0.95 * 0.05),
-    android: Math.round(windowWidth.width * 0.95 * 0.05),
+    ios: Math.round(SCREEN_DIMENSIONS.width * 0.95 * 0.05),
+    android: Math.round(SCREEN_DIMENSIONS.width * 0.95 * 0.05),
   });
 
   const appElements = APPLIST.map((app, id) => {
@@ -74,11 +72,15 @@ export default function AppStore({navigation}) {
         style={{
           ...styles.appRowContainer,
           width:
-            (windowWidth.width * 0.95 * (Platform.OS === 'ios' ? 0.95 : 0.95)) /
+            (SCREEN_DIMENSIONS.width *
+              0.95 *
+              (Platform.OS === 'ios' ? 0.95 : 0.95)) /
               2 -
             gridGap,
           height:
-            (windowWidth.width * 0.95 * (Platform.OS === 'ios' ? 0.95 : 0.95)) /
+            (SCREEN_DIMENSIONS.width *
+              0.95 *
+              (Platform.OS === 'ios' ? 0.95 : 0.95)) /
               2 -
             gridGap,
           flexGrow: 1,

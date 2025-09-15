@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import {
@@ -12,6 +11,7 @@ import {
   BITCOIN_SATS_ICON,
   CENTER,
   FONT,
+  SCREEN_DIMENSIONS,
 } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import {useGlobalContextProvider} from '../../../context-store/context';
@@ -34,7 +34,6 @@ export default function FormattedBalanceInput({
   const [inputWidth, setInputWidth] = useState(0);
   const [labelWidth, setLabelWidth] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
-  const windowWidth = useWindowDimensions().width;
   const {masterInfoObject} = useGlobalContextProvider();
   const {fiatStats} = useNodeContext();
   const currencyText = fiatStats.coin || 'USD';
@@ -55,7 +54,7 @@ export default function FormattedBalanceInput({
   const showSats =
     inputDenomination === 'sats' || inputDenomination === 'hidden';
 
-  const maxContainerWidth = windowWidth * maxWidth;
+  const maxContainerWidth = SCREEN_DIMENSIONS.width * maxWidth;
   const availableInputWidth = useMemo(() => {
     if (labelWidth === 0) return 0;
 
@@ -181,7 +180,7 @@ export default function FormattedBalanceInput({
           console.log(e.nativeEvent.layout.width, 'INPUT WIDTH');
           const newWidth = Math.min(
             e.nativeEvent.layout.width + (Platform.OS === 'android' ? 10 : 5),
-            windowWidth * maxWidth,
+            SCREEN_DIMENSIONS.width * maxWidth,
           );
           setInputWidth(newWidth);
         }}>

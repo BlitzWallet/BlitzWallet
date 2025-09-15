@@ -23,7 +23,7 @@ export default function SendMaxComponent({
   setPaymentInfo,
   paymentFee,
   paymentType,
-  minMaxLiquidSwapAmounts,
+  // minMaxLiquidSwapAmounts,
   seletctedToken,
   selectedLRC20Asset,
   useAltLayout,
@@ -44,27 +44,27 @@ export default function SendMaxComponent({
         crashlyticsLogReport('Starting send max process');
         setIsGettingMax(true);
 
-        if (paymentInfo.type === 'liquid') {
-          const supportFee =
-            Math.ceil(
-              Number(sendingBalance) *
-                masterInfoObject?.enabledDeveloperSupport.baseFeePercent,
-            ) + Number(masterInfoObject?.enabledDeveloperSupport?.baseFee);
+        // if (paymentInfo.type === 'liquid') {
+        //   const supportFee =
+        //     Math.ceil(
+        //       Number(sendingBalance) *
+        //         masterInfoObject?.enabledDeveloperSupport.baseFeePercent,
+        //     ) + Number(masterInfoObject?.enabledDeveloperSupport?.baseFee);
 
-          const boltzFee = calculateBoltzFeeNew(
-            Number(sendingBalance),
-            'ln-liquid',
-            minMaxLiquidSwapAmounts.reverseSwapStats,
-          );
+        //   const boltzFee = calculateBoltzFeeNew(
+        //     Number(sendingBalance),
+        //     'ln-liquid',
+        //     minMaxLiquidSwapAmounts.reverseSwapStats,
+        //   );
 
-          setPaymentInfo(prev => ({
-            ...prev,
-            sendAmount: String(
-              Number(sendingBalance) - (supportFee + boltzFee) * 1.5,
-            ),
-          }));
-          return;
-        }
+        //   setPaymentInfo(prev => ({
+        //     ...prev,
+        //     sendAmount: String(
+        //       Number(sendingBalance) - (supportFee + boltzFee) * 1.5,
+        //     ),
+        //   }));
+        //   return;
+        // }
 
         if (selectedLRC20Asset !== 'Bitcoin') {
           setPaymentInfo(prev => ({

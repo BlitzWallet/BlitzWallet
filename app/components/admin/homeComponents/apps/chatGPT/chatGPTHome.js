@@ -7,7 +7,6 @@ import {
   Keyboard,
   TextInput,
   Platform,
-  useWindowDimensions,
   ScrollView,
 } from 'react-native';
 import {
@@ -74,7 +73,6 @@ export default function ChatGPTHome(props) {
   const totalAvailableCredits = decodedChatGPT.credits;
   const [showScrollBottomIndicator, setShowScrollBottomIndicator] =
     useState(false);
-  const windowDimension = useWindowDimensions();
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(true);
   const {t} = useTranslation();
 
@@ -153,7 +151,7 @@ export default function ChatGPTHome(props) {
               ) : (
                 <View
                   style={{
-                    width: windowDimension.width * 0.95 * 0.95 - 35,
+                    width: SCREEN_DIMENSIONS.width * 0.95 * 0.95 - 35,
                   }}>
                   <FullLoadingScreen size="small" showText={false} />
                 </View>
@@ -168,7 +166,7 @@ export default function ChatGPTHome(props) {
     navigate,
     theme,
     darkModeType,
-    windowDimension,
+    // windowDimension,
     forceUpdate,
   ]);
 

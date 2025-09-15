@@ -4,7 +4,6 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
@@ -14,6 +13,7 @@ import {
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
+  SCREEN_DIMENSIONS,
   VALID_USERNAME_REGEX,
 } from '../../../../../constants';
 import {
@@ -46,7 +46,6 @@ export default function PosSettingsPage() {
   const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
   const navigate = useNavigation();
-  const windowWidth = useWindowDimensions().width;
   const [textInput, setTextInput] = useState('');
   const [storeNameInput, setStoreNameInput] = useState(
     masterInfoObject?.posSettings?.storeName,
@@ -178,7 +177,7 @@ export default function PosSettingsPage() {
           content={t('settings.posPath.settings.title')}
           styles={{
             ...styles.topBarText,
-            width: windowWidth * 0.95 - 130,
+            width: SCREEN_DIMENSIONS.width * 0.95 - 130,
           }}
         />
 

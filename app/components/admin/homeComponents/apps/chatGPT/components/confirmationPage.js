@@ -1,4 +1,4 @@
-import {StyleSheet, useWindowDimensions, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../../../functions/CustomElements';
 import {SIZES} from '../../../../../../constants';

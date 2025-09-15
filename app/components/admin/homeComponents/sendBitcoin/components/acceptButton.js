@@ -26,7 +26,7 @@ export default function AcceptButtonSendPage({
   paymentDescription,
   setPaymentInfo,
   setLoadingMessage,
-  isLiquidPayment,
+  // isLiquidPayment,
   fromPage,
   publishMessageFunc,
   // webViewRef,
@@ -43,16 +43,16 @@ export default function AcceptButtonSendPage({
 
   const {masterInfoObject} = useGlobalContextProvider();
   const {liquidNodeInformation, fiatStats} = useNodeContext();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
+  // const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
 
-  const isLiquidAmountValid = useMemo(() => {
-    if (!isLiquidPayment) return true;
-    return (
-      convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
-      convertedSendAmount <= minMaxLiquidSwapAmounts.max
-    );
-  }, [isLiquidPayment, convertedSendAmount, minMaxLiquidSwapAmounts]);
+  // const isLiquidAmountValid = useMemo(() => {
+  //   if (!isLiquidPayment) return true;
+  //   return (
+  //     convertedSendAmount >= minMaxLiquidSwapAmounts.min &&
+  //     convertedSendAmount <= minMaxLiquidSwapAmounts.max
+  //   );
+  // }, [isLiquidPayment, convertedSendAmount, minMaxLiquidSwapAmounts]);
 
   const isLNURLAmountValid = useMemo(() => {
     if (paymentInfo?.type !== 'lnUrlPay') return true;
@@ -77,39 +77,39 @@ export default function AcceptButtonSendPage({
     return sparkInformation.balance >= 10;
   }, [isLRC20Payment, sparkInformation?.balance]);
 
-  const buttonOpacity = useMemo(() => {
-    return canSendPayment &&
-      isLiquidAmountValid &&
-      isLNURLAmountValid &&
-      isBitcoinAmountValid &&
-      isLRC20Valid
-      ? 1
-      : 0.5;
-  }, [
-    canSendPayment,
-    isLiquidAmountValid,
-    isLNURLAmountValid,
-    isBitcoinAmountValid,
-    isLRC20Valid,
-  ]);
+  // const buttonOpacity = useMemo(() => {
+  //   return canSendPayment &&
+  //     // isLiquidAmountValid &&
+  //     isLNURLAmountValid &&
+  //     isBitcoinAmountValid &&
+  //     isLRC20Valid
+  //     ? 1
+  //     : 0.5;
+  // }, [
+  //   canSendPayment,
+  //   // isLiquidAmountValid,
+  //   isLNURLAmountValid,
+  //   isBitcoinAmountValid,
+  //   isLRC20Valid,
+  // ]);
 
-  const handleLiquidAmountError = () => {
-    const isMinError = convertedSendAmount < minMaxLiquidSwapAmounts.min;
-    const errorAmount = isMinError
-      ? minMaxLiquidSwapAmounts.min
-      : minMaxLiquidSwapAmounts.max;
+  // const handleLiquidAmountError = () => {
+  //   const isMinError = convertedSendAmount < minMaxLiquidSwapAmounts.min;
+  //   const errorAmount = isMinError
+  //     ? minMaxLiquidSwapAmounts.min
+  //     : minMaxLiquidSwapAmounts.max;
 
-    navigate.navigate('ErrorScreen', {
-      errorMessage: t('wallet.sendPages.acceptButton.liquidError', {
-        overFlowType: isMinError ? 'Minimum' : 'Maximum',
-        amount: displayCorrectDenomination({
-          amount: errorAmount,
-          fiatStats,
-          masterInfoObject,
-        }),
-      }),
-    });
-  };
+  //   navigate.navigate('ErrorScreen', {
+  //     errorMessage: t('wallet.sendPages.acceptButton.liquidError', {
+  //       overFlowType: isMinError ? 'Minimum' : 'Maximum',
+  //       amount: displayCorrectDenomination({
+  //         amount: errorAmount,
+  //         fiatStats,
+  //         masterInfoObject,
+  //       }),
+  //     }),
+  //   });
+  // };
 
   const handleBitcoinAmountError = () => {
     navigate.navigate('ErrorScreen', {
@@ -174,10 +174,10 @@ export default function AcceptButtonSendPage({
       return false;
     }
 
-    if (!isLiquidAmountValid) {
-      handleLiquidAmountError();
-      return false;
-    }
+    // if (!isLiquidAmountValid) {
+    //   handleLiquidAmountError();
+    //   return false;
+    // }
 
     if (!isBitcoinAmountValid) {
       handleBitcoinAmountError();
@@ -221,8 +221,8 @@ export default function AcceptButtonSendPage({
         liquidNodeInformation,
         masterInfoObject,
         navigate,
-        maxZeroConf:
-          minMaxLiquidSwapAmounts?.submarineSwapStats?.limits?.maximalZeroConf,
+        // maxZeroConf:
+        //   minMaxLiquidSwapAmounts?.submarineSwapStats?.limits?.maximalZeroConf,
         comingFromAccept: true,
         enteredPaymentInfo: {
           amount: convertedSendAmount,

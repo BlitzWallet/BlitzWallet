@@ -56,7 +56,7 @@ export default function SendAndRequestPage(props) {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const {isConnectedToTheInternet} = useAppStatus();
   const {fiatStats} = useNodeContext();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
+  // const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {globalContactsInformation} = useGlobalContacts();
   const getServerTime = useServerTimeOnly();
   const [amountValue, setAmountValue] = useState('');
@@ -89,7 +89,11 @@ export default function SendAndRequestPage(props) {
 
   const canSendPayment = useMemo(
     () => convertedSendAmount,
-    [convertedSendAmount, minMaxLiquidSwapAmounts, paymentType],
+    [
+      convertedSendAmount,
+      // minMaxLiquidSwapAmounts
+      paymentType,
+    ],
   );
 
   const handleSelctProcesss = useCallback(

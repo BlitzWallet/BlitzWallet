@@ -1,12 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {useToast} from '../../../../../../context-store/toastManager';
-import {
-  Animated,
-  ScrollView,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import {Animated, ScrollView, StyleSheet, View} from 'react-native';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {useNavigation} from '@react-navigation/native';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -19,6 +13,7 @@ import {
   CENTER,
   NWC_IDENTITY_PUB_KEY,
   NWC_SECURE_STORE_MNEMOINC,
+  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../../constants';
 import {COLORS, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
@@ -40,11 +35,10 @@ import {useGlobalContextProvider} from '../../../../../../context-store/context'
 export default function NWCWalletSetup(props) {
   const {toggleMasterInfoObject} = useGlobalContextProvider();
   const {showToast} = useToast();
-  const dimentions = useWindowDimensions();
   const fromWallet = props?.route?.params?.fromWallet;
   const {accountMnemoinc} = useKeysContext();
   const fadeAnim = useRef(
-    new Animated.Value(fromWallet ? dimentions.height * 2 : 0),
+    new Animated.Value(fromWallet ? SCREEN_DIMENSIONS.height * 2 : 0),
   ).current;
   const {topPadding, bottomPadding} = useGlobalInsets();
   const [NWCMnemonic, setNWCMnemoinc] = useState(null);
@@ -181,7 +175,7 @@ export default function NWCWalletSetup(props) {
 
   function fadeout() {
     Animated.timing(fadeAnim, {
-      toValue: dimentions.height * 2,
+      toValue: SCREEN_DIMENSIONS.height * 2,
       duration: 500,
       useNativeDriver: true,
     }).start();

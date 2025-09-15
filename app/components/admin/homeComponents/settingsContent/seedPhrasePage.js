@@ -1,13 +1,13 @@
-import {
-  Animated,
-  ScrollView,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import {Animated, ScrollView, StyleSheet, View} from 'react-native';
 import {KeyContainer} from '../../../login';
 import {useEffect, useRef, useState} from 'react';
-import {COLORS, SIZES, SHADOWS, CENTER} from '../../../../constants';
+import {
+  COLORS,
+  SIZES,
+  SHADOWS,
+  CENTER,
+  SCREEN_DIMENSIONS,
+} from '../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {ThemeText} from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -27,7 +27,6 @@ export default function SeedPhrasePage({extraData}) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const {accountMnemoinc} = useKeysContext();
   const isInitialRender = useRef(true);
-  const dimentions = useWindowDimensions();
   const mnemonic = accountMnemoinc.split(' ');
   const [showSeed, setShowSeed] = useState(false);
   const navigate = useNavigation();
@@ -145,7 +144,7 @@ export default function SeedPhrasePage({extraData}) {
 
   function fadeout() {
     Animated.timing(fadeAnim, {
-      toValue: dimentions.height * 2,
+      toValue: SCREEN_DIMENSIONS.height * 2,
       duration: 500,
       useNativeDriver: true,
     }).start();

@@ -1,11 +1,6 @@
 import React, {useState, useEffect, useRef, useMemo, memo} from 'react';
-import {
-  StyleSheet,
-  Animated,
-  AccessibilityInfo,
-  useWindowDimensions,
-} from 'react-native';
-import {CENTER, COLORS, FONT, SIZES} from '../../constants';
+import {StyleSheet, Animated, AccessibilityInfo} from 'react-native';
+import {CENTER, COLORS, FONT, SCREEN_DIMENSIONS, SIZES} from '../../constants';
 import FullLoadingScreen from './loadingScreen';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import GetThemeColors from '../../hooks/themeColors';
@@ -62,7 +57,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundColor, backgroundOffset} = GetThemeColors();
-  const windowDimensions = useWindowDimensions().width * width;
+  const windowDimensions = SCREEN_DIMENSIONS.width * width;
   const layoutWidth = windowDimensions > maxWidth ? maxWidth : windowDimensions;
   const [screenReaderEnabled, setScreenReaderEnabled] = useState(false);
   const [isUnmounting, setIsUnmounting] = useState(false);

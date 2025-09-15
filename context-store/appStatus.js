@@ -25,7 +25,7 @@ const AppStatusProvider = ({children}) => {
     },
   });
   const [isConnectedToTheInternet, setIsConnectedToTheInternet] =
-    useState(null);
+    useState(true);
   const [didGetToHomepage, setDidGetToHomePage] = useState(false);
   const [appState, setAppState] = useState(AppState.currentState);
 
@@ -93,8 +93,11 @@ const AppStatusProvider = ({children}) => {
 
     (async () => {
       try {
-        const [submarineSwapStats, reverseSwapStats] = await Promise.all([
-          getBoltzSwapPairInformation('submarine'),
+        const [
+          // submarineSwapStats,
+          reverseSwapStats,
+        ] = await Promise.all([
+          // getBoltzSwapPairInformation('submarine'),
           getBoltzSwapPairInformation('reverse'),
         ]);
 
@@ -103,13 +106,13 @@ const AppStatusProvider = ({children}) => {
         const max = liquidReverse?.limits?.maximal || 25000000;
 
         toggleMinMaxLiquidSwapAmounts({
-          reverseSwapStats: liquidReverse,
-          submarineSwapStats: submarineSwapStats['L-BTC'].BTC,
+          // reverseSwapStats: liquidReverse,
+          // submarineSwapStats: submarineSwapStats['L-BTC'].BTC,
           min,
           max,
           rsk: {
             submarine: reverseSwapStats.BTC.RBTC,
-            reverse: submarineSwapStats.RBTC.BTC,
+            // reverse: submarineSwapStats.RBTC.BTC,
             min: reverseSwapStats.BTC.RBTC.limits.minimal,
             max: reverseSwapStats.BTC.RBTC.limits.maximal,
           },

@@ -1,11 +1,5 @@
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  useWindowDimensions,
-  ScrollView,
-} from 'react-native';
-import {CENTER, COLORS, FONT, SIZES} from '../../constants';
+import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
+import {CENTER, COLORS, FONT, SCREEN_DIMENSIONS, SIZES} from '../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useMemo, useRef} from 'react';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
@@ -87,8 +81,8 @@ export default function ConfirmTxPage(props) {
         source={didSucceed ? confirmAnimation : errorAnimation}
         loop={false}
         style={{
-          width: useWindowDimensions().width / 1.5,
-          height: useWindowDimensions().width / 1.5,
+          width: SCREEN_DIMENSIONS / 1.5,
+          height: SCREEN_DIMENSIONS / 1.5,
         }}
       />
       {!isLNURLAuth && (

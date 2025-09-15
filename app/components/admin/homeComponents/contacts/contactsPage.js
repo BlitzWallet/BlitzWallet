@@ -1,16 +1,11 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
+  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../constants';
 import {memo, useCallback, useEffect, useMemo, useState} from 'react';
@@ -65,7 +60,6 @@ export default function ContactsPage({navigation}) {
   const currentTime = getServerTime();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
-  const dimensions = useWindowDimensions();
   const [inputText, setInputText] = useState('');
   const hideUnknownContacts = masterInfoObject.hideUnknownContacts;
   const tabsNavigate = navigation.navigate;
@@ -162,7 +156,7 @@ export default function ContactsPage({navigation}) {
           theme={theme}
           backgroundOffset={backgroundOffset}
           navigateToExpandedContact={navigateToExpandedContact}
-          dimensions={dimensions}
+          // dimensions={dimensions}
           navigate={navigate}
         />
       ));
@@ -173,7 +167,7 @@ export default function ContactsPage({navigation}) {
     theme,
     backgroundOffset,
     navigateToExpandedContact,
-    dimensions,
+    // dimensions,
     navigate,
   ]);
 
@@ -400,15 +394,15 @@ const PinnedContactElement = memo(
     theme,
     backgroundOffset,
     navigateToExpandedContact,
-    dimensions,
+    // dimensions,
     navigate,
   }) => {
     const [textWidth, setTextWidth] = useState(0);
 
     // Memoize calculated dimensions
     const containerSize = useMemo(
-      () => (dimensions.width * 0.95) / 4.5,
-      [dimensions.width],
+      () => (SCREEN_DIMENSIONS.width * 0.95) / 4.5,
+      [SCREEN_DIMENSIONS.width],
     );
 
     const imageContainerStyle = useMemo(

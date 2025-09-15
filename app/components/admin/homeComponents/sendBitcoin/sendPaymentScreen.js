@@ -1,15 +1,10 @@
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
 import {
   CENTER,
   ICONS,
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
+  SCREEN_DIMENSIONS,
 } from '../../../../constants';
 import {useEffect, useMemo, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
@@ -60,13 +55,12 @@ export default function SendPaymentScreen(props) {
     enteredPaymentInfo = {},
     errorMessage,
   } = props.route.params;
-  const dimensions = Dimensions.get('window');
-  const useAltLayout = dimensions.height < 720;
+  const useAltLayout = SCREEN_DIMENSIONS.height < 720;
   const {t} = useTranslation();
   const {sparkInformation} = useSparkWallet();
   const {masterInfoObject} = useGlobalContextProvider();
   const {liquidNodeInformation, fiatStats} = useNodeContext();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
+  // const {minMaxLiquidSwapAmounts} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
   // const {webViewRef} = useWebView();
@@ -160,8 +154,8 @@ export default function SendPaymentScreen(props) {
         // setWebViewArgs,
         // webViewRef,
         navigate,
-        maxZeroConf:
-          minMaxLiquidSwapAmounts?.submarineSwapStats?.limits?.maximalZeroConf,
+        // maxZeroConf:
+        //   minMaxLiquidSwapAmounts?.submarineSwapStats?.limits?.maximalZeroConf,
         comingFromAccept,
         enteredPaymentInfo,
         setLoadingMessage,
@@ -331,7 +325,7 @@ export default function SendPaymentScreen(props) {
               masterInfoObject={masterInfoObject}
               paymentFee={paymentFee}
               paymentType={paymentInfo?.paymentNetwork}
-              minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+              // minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
               selectedLRC20Asset={selectedLRC20Asset}
               seletctedToken={seletctedToken}
               useAltLayout={useAltLayout}
@@ -367,7 +361,7 @@ export default function SendPaymentScreen(props) {
                 masterInfoObject={masterInfoObject}
                 paymentFee={paymentFee}
                 paymentType={paymentInfo?.paymentNetwork}
-                minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+                // minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
                 selectedLRC20Asset={selectedLRC20Asset}
                 seletctedToken={seletctedToken}
                 useAltLayout={useAltLayout}

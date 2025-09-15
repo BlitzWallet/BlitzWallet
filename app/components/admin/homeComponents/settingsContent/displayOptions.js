@@ -3,7 +3,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import {
@@ -11,6 +10,7 @@ import {
   CENTER,
   COLORS,
   ICONS,
+  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../constants';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
@@ -56,7 +56,6 @@ export default function DisplayOptions() {
   const currencySymbol = formattedCurrency[2];
 
   const steps = [15, 20, 25, 30, 35, 40];
-  const windowDimensions = useWindowDimensions();
 
   return (
     <ScrollView
@@ -301,7 +300,7 @@ export default function DisplayOptions() {
       <ThemeText
         styles={{
           ...styles.infoHeaders,
-          width: windowDimensions.width * 0.95 * 0.9 * 0.9,
+          width: SCREEN_DIMENSIONS.width * 0.95 * 0.9 * 0.9,
         }}
         content={t('settings.displayOptions.text13')}
       />
@@ -320,7 +319,7 @@ export default function DisplayOptions() {
                 top: -20,
                 left:
                   (index / (steps.length - 1)) *
-                    (windowDimensions.width * 0.95 * 0.9 * 0.9 - 25) +
+                    (SCREEN_DIMENSIONS.width * 0.95 * 0.9 * 0.9 - 25) +
                   25 / 2 -
                   labelSize / 2,
               }}
@@ -331,7 +330,7 @@ export default function DisplayOptions() {
         </View>
         <Slider
           trackStyle={{
-            width: windowDimensions.width * 0.95 * 0.9 * 0.9,
+            width: SCREEN_DIMENSIONS.width * 0.95 * 0.9 * 0.9,
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             height: 10,
             borderRadius: 20,

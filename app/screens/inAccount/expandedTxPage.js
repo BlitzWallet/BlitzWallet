@@ -3,7 +3,6 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
-  useWindowDimensions,
   Platform,
 } from 'react-native';
 import {
@@ -11,6 +10,7 @@ import {
   COLORS,
   FONT,
   ICONS,
+  SCREEN_DIMENSIONS,
   SIZES,
   TOKEN_TICKER_MAX_LENGTH,
 } from '../../constants';
@@ -356,7 +356,7 @@ export default function ExpandedTx(props) {
 
 function Border() {
   const {theme, darkModeType} = useGlobalThemeContext();
-  const dotsWidth = useWindowDimensions().width * 0.95 - 30;
+  const dotsWidth = SCREEN_DIMENSIONS.width * 0.95 - 30;
   const numDots = Math.floor(dotsWidth / 25);
 
   let dotElements = [];
@@ -380,7 +380,7 @@ function Border() {
 
 function ReceiptDots() {
   const {backgroundColor} = GetThemeColors();
-  const dotsWidth = useWindowDimensions().width * 0.95 - 30;
+  const dotsWidth = SCREEN_DIMENSIONS.width * 0.95 - 30;
   const numDots = Math.floor(dotsWidth / 25);
 
   let dotElements = [];
