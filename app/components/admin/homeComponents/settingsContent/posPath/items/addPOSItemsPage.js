@@ -81,7 +81,7 @@ export default function AddPOSItemsPage() {
                   content={t(
                     'settings.posPath.items.addPOSItemsPage.denominationError',
                     {
-                      currency: item.initialCurrency,
+                      currency1: item.initialCurrency,
                       currency2: currentCurrency,
                     },
                   )}
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   buttonsContainer: {
-    width: 80,
+    width: 65,
     marginLeft: 'auto',
     flexDirection: 'row',
     alignItems: 'center',
