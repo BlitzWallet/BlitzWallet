@@ -100,11 +100,9 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Blitz Wallet uses your camera to scan QR codes invoices or contact information for seamless payments.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Allow Blitz to use FaceID</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Blitz wallet is now using your location</string>
+	<string>Blitz Wallet uses Face ID to securely unlock your wallet</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Give Blitz Wallet permission to save photos</string>
+	<string>Blitz Wallet needs photo library access to select contact images and read payment QR codes.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Poppins-Black.ttf</string>
