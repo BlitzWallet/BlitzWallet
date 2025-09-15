@@ -8,6 +8,7 @@ import {useActiveCustodyAccount} from '../../../../../../context-store/activeAcc
 import {useTranslation} from 'react-i18next';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import {StyleSheet, View} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
 const MAX_SEND_OPTIONS = [
   {label: '25%', value: '25'},
@@ -28,6 +29,7 @@ export default function SendMaxComponent({
   selectedLRC20Asset,
   useAltLayout,
 }) {
+  const navigate = useNavigation();
   const {t} = useTranslation();
   const [isGettingMax, setIsGettingMax] = useState(false);
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
@@ -114,6 +116,7 @@ export default function SendMaxComponent({
           }));
         }
       } catch (err) {
+        navigate.navigate('ErrorScreen', {errorMessage: err.message});
         console.log(err, 'ERROR');
       } finally {
         setIsGettingMax(false);
