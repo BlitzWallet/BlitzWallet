@@ -730,7 +730,7 @@
 
     "sendPages": {
       "sendPaymentScreen": {
-        "initialLoadingMessage": "Obteniendo información de la factura",
+        "initialLoadingMessage": "Preparación de detalles de facturas",
         "alreadyPaidInvoiceError": "Ya has pagado esta factura",
         "descriptionPlaceholder": "Descripción del pago...",
         "fallbackErrorMessage": "Error al decodificar la factura"
@@ -739,7 +739,7 @@
         "invlidFormat": "Las direcciones deben ser solo texto. Por favor revisa e intenta de nuevo.",
         "parseError": "No se pudo analizar la dirección",
         "paymentProcessingError": "Error al procesar la información del pago",
-        "tooLowSendingAmount": "La cantidad a enviar es demasiado baja para cubrir el pago y las tarifas. La cantidad máxima a enviar es {{amount}}",
+        "tooLowSendingAmount": "El monto de envío es demasiado alto para cubrir el pago y las tarifas. La cantidad máxima de envío es {{cantidad}}",
         "processInputError": "No se pudo procesar la entrada",
         "unkonwDecodeError": "Ocurrió un error de decodificación desconocido",
         "invalidInputType": "No es un tipo de dirección válido",
@@ -752,7 +752,7 @@
         "lnurlWithdrawlInvoiceError": "No se pudo generar la factura para retiro LNURL",
         "waitingForLnurlWithdrawl": "Esperando pago...",
         "lnurlwithdrawlsuccess": "¡Retiro exitoso! Su pago está en camino.",
-        "invoiceDetails": "Obteniendo detalles de la factura"
+        "invoiceDetails": "Detalles de carga"
       },
       "errorScreen": {
         "ok": "OK",

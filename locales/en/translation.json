@@ -882,7 +882,7 @@
     },
     "sendPages": {
       "sendPaymentScreen": {
-        "initialLoadingMessage": "Getting invoice information",
+        "initialLoadingMessage": "Preparing invoice details",
         "alreadyPaidInvoiceError": "You have already paid this invoice",
         "descriptionPlaceholder": "Payment description...",
         "fallbackErrorMessage": "Error decoding invoice"
@@ -891,7 +891,7 @@
         "invlidFormat": "Addresses should be text only. Please check and try again.",
         "parseError": "Unable to parse address",
         "paymentProcessingError": "Error processing payment info",
-        "tooLowSendingAmount": "Sending amount is too low to cover the payment and fees. Maximum send amount is {{amount}}",
+        "tooLowSendingAmount": "The sending amount is too high to cover the payment and fees. Maximum send amount is {{amount}}",
         "processInputError": "Unable to process input",
         "unkonwDecodeError": "Unknown decoding error occurred",
         "invalidInputType": "Not a valid address type",
@@ -904,7 +904,7 @@
         "lnurlWithdrawlInvoiceError": "Unable to generate invoice for lnurl withdrawl",
         "waitingForLnurlWithdrawl": "Waiting for payment...",
         "lnurlWithdrawlSuccess": "Withdrawal successful! Your payment is on its way.",
-        "invoiceDetails": "Getting invoice details"
+        "invoiceDetails": "Loading details"
       },
 
       "errorScreen": {
