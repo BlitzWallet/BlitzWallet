@@ -7,6 +7,7 @@ import {useTranslation} from 'react-i18next';
 import CustomSearchInput from '../../../../../../functions/CustomElements/searchInput';
 import {INSET_WINDOW_WIDTH} from '../../../../../../constants/theme';
 import {useCallback, useState} from 'react';
+import {useGlobalInsets} from '../../../../../../../context-store/insetsProvider';
 
 export default function SwitchGenerativeAIModel({
   setSelectedRecieveOption,
@@ -15,6 +16,7 @@ export default function SwitchGenerativeAIModel({
   const navigate = useNavigation();
   const {t} = useTranslation();
   const [modelSearch, setModelSearch] = useState('');
+  const {bottomPadding} = useGlobalInsets();
 
   const handleClick = useCallback(
     selectedOption => {
@@ -81,6 +83,7 @@ export default function SwitchGenerativeAIModel({
           renderItem={listItem}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="always"
+          contentContainerStyle={{paddingBottom: bottomPadding}}
         />
       ) : (
         <ThemeText

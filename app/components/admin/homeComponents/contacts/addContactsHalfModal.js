@@ -35,14 +35,17 @@ import {getCachedProfileImage} from '../../../../functions/cachedImage';
 import {useImageCache} from '../../../../../context-store/imageCache';
 import {useTranslation} from 'react-i18next';
 
-export default function AddContactsHalfModal(props) {
+export default function AddContactsHalfModal({
+  slideHeight,
+  setIsKeyboardActive,
+}) {
   const {contactsPrivateKey} = useKeysContext();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {globalContactsInformation} = useGlobalContacts();
   const [searchInput, setSearchInput] = useState('');
   const [users, setUsers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const sliderHight = props.slideHeight;
+  const sliderHight = slideHeight;
   const navigate = useNavigation();
   const keyboardRef = useRef(null);
   const {refreshCacheObject} = useImageCache();
@@ -221,6 +224,8 @@ export default function AddContactsHalfModal(props) {
             />
           </TouchableOpacity>
         }
+        onFocusFunction={() => setIsKeyboardActive(true)}
+        onBlurFunction={() => setIsKeyboardActive(false)}
       />
 
       {searchInput.includes('@') ? (

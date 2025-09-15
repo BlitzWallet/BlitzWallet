@@ -191,6 +191,7 @@ export default function CustomHalfModal(props) {
             theme={theme}
             darkModeType={darkModeType}
             slideHeight={slideHeight}
+            setIsKeyboardActive={setIsKeyboardActive}
           />
         );
 
@@ -377,12 +378,14 @@ export default function CustomHalfModal(props) {
               contentType === 'manualEnterSendAddress' ||
               contentType === 'switchGenerativeAiModel' ||
               contentType === 'addPOSItemsHalfModal' ||
-              contentType === 'editLNURLOnReceive'
+              contentType === 'editLNURLOnReceive' ||
+              contentType === 'addContacts'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
+                  : contentType === 'switchGenerativeAiModel' ||
+                    contentType === 'addContacts'
+                  ? 0
                   : bottomPadding
-                : contentType === 'addContacts'
-                ? 0
                 : bottomPadding,
           }}>
           <View {...panResponder.panHandlers} style={styles.topBarContainer}>
