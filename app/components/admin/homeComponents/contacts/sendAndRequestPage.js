@@ -42,6 +42,8 @@ import giftCardPurchaseAmountTracker from '../../../../functions/apps/giftCardPu
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import getReceiveAddressAndContactForContactsPayment from './internalComponents/getReceiveAddressAndKindForPayment';
+import calculateProgressiveBracketFee from '../../../../functions/spark/calculateSupportFee';
+import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
 
 const MAX_SEND_OPTIONS = [
   {label: '25%', value: '25'},
@@ -67,6 +69,7 @@ export default function SendAndRequestPage(props) {
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination,
   );
+  const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {theme} = useGlobalThemeContext();
   const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
@@ -103,11 +106,14 @@ export default function SendAndRequestPage(props) {
       try {
         const balance = sparkInformation.balance;
         const selectedPercent = !item ? 100 : item.value;
-        const sendingBalance =
-          Math.round(balance * (selectedPercent / 100)) *
-          (item.value == '100' ? 0.98 : 1); //adding small buffer to 100% send since we are not calculating fees
+        const sendingBalance = Math.round(balance * (selectedPercent / 100));
+        const fee = await calculateProgressiveBracketFee(
+          balance,
+          'lightning',
+          currentWalletMnemoinc,
+        );
 
-        const maxAmountSats = Number(sendingBalance);
+        const maxAmountSats = Number(sendingBalance) - fee * 1.75;
 
         const convertedMax =
           inputDenomination != 'fiat'
@@ -122,7 +128,7 @@ export default function SendAndRequestPage(props) {
         console.log(err, 'ERROR');
       }
     },
-    [sparkInformation, inputDenomination],
+    [sparkInformation, inputDenomination, currentWalletMnemoinc],
   );
 
   useEffect(() => {
