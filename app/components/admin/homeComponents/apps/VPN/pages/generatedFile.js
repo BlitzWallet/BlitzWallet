@@ -17,7 +17,6 @@ import {
   INSET_WINDOW_WIDTH,
   WINDOWWIDTH,
 } from '../../../../../../constants/theme';
-import {backArrow} from '../../../../../../constants/styles';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import QrCodeWrapper from '../../../../../../functions/CustomElements/QrWrapper';
 import writeAndShareFileToFilesystem from '../../../../../../functions/writeFileToFilesystem';
@@ -25,6 +24,7 @@ import {useToast} from '../../../../../../../context-store/toastManager';
 import {useTranslation} from 'react-i18next';
 import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
 import customUUID from '../../../../../../functions/customUUID';
+import sha256Hash from '../../../../../../functions/hash';
 
 export default function GeneratedVPNFile(props) {
   const generatedFile =
@@ -104,7 +104,8 @@ function VPNFileDisplay({generatedFile}) {
 
 async function downloadVPNFile({generatedFile, navigate}) {
   const content = generatedFile;
-  const fileName = `blitzVPN-${customUUID()}.conf`;
+  const fileHash = sha256Hash(content);
+  const fileName = `blitzVPN-${fileHash?.slice(0, 8) || customUUID()}.conf`;
 
   const response = await writeAndShareFileToFilesystem(
     content,
