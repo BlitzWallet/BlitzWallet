@@ -145,18 +145,24 @@ export default function LiquidSwapsPage() {
         </>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
-          <ThemeText
-            styles={styles.amountText}
-            content={t('settings.viewAllLiquidSwaps.totalBalance')}
-          />
-          <FormattedSatText styles={styles.valueText} balance={liquidBalance} />
-
           <View
             style={{
-              marginTop: 40,
+              marginTop: 20,
               width: INSET_WINDOW_WIDTH,
               ...CENTER,
             }}>
+            <ThemeText
+              styles={styles.amountText}
+              content={t('settings.viewAllLiquidSwaps.totalBalance')}
+            />
+            <FormattedSatText
+              neverHideBalance={true}
+              styles={styles.valueText}
+              containerStyles={{marginBottom: 40}}
+              balance={liquidBalance}
+              useMillionDenomination={true}
+            />
+
             <ThemeText
               styles={{textAlign: 'center'}}
               content={t('settings.viewAllLiquidSwaps.swapMessage')}
@@ -181,9 +187,9 @@ const styles = StyleSheet.create({
   },
   amountText: {
     textTransform: 'uppercase',
-    marginBottom: 0,
+    // marginBottom: 0,
     textAlign: 'center',
-    marginTop: 20,
+    // marginTop: 20,
   },
   valueText: {
     fontSize: SIZES.xxLarge,
