@@ -411,7 +411,7 @@ export default function SettingsIndex(props) {
             onPress={() => {
               openWebBrowser({
                 navigate,
-                link: 'https://recover.blitz-wallet.com/',
+                link: 'https://recover.blitzwalletapp.com/',
               });
             }}
             style={{

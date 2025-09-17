@@ -142,7 +142,7 @@ export default function Nip5VerificationPage() {
               style={styles.nip5AddressContainer}
               onPress={() => {
                 if (!inputs.name.length) return;
-                copyToClipboard(`${inputs.name}@blitz-wallet.com`, showToast);
+                copyToClipboard(`${inputs.name}@blitzwalletapp.com`, showToast);
               }}>
               <ThemeImage
                 styles={{width: 25, height: 25}}
@@ -155,7 +155,7 @@ export default function Nip5VerificationPage() {
                 styles={styles.nip5AddressText}
                 content={`${
                   inputs.name.length ? inputs.name : '...'
-                }@blitz-wallet.com`}
+                }@blitzwalletapp.com`}
               />
             </TouchableOpacity>
           </ScrollView>

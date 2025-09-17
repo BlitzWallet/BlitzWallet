@@ -198,12 +198,12 @@ export default function ConfirmTxPage(props) {
           onPress={async () => {
             try {
               await openComposer({
-                to: 'blake@blitz-wallet.com',
+                to: 'blake@blitzwalletapp.com',
                 subject: 'Payment Failed',
                 body: errorMessage,
               });
             } catch (err) {
-              copyToClipboard('blake@blitz-wallet.com', showToast);
+              copyToClipboard('blake@blitzwalletapp.com', showToast);
             }
           }}>
           <ThemeText
