@@ -77,7 +77,11 @@ export default function HistoricalVPNPurchases() {
             />
             <ThemeText
               styles={{...styles.value}}
-              content={t(t(`constants.${item.duration?.toLowerCase()}`))}
+              content={
+                typeof item.duration === 'string'
+                  ? t(t(`constants.${item.duration?.toLowerCase()}`))
+                  : t(`apps.VPN.durationSlider.${item.duration}`)
+              }
             />
           </View>
           <TouchableOpacity
@@ -90,7 +94,7 @@ export default function HistoricalVPNPurchases() {
               content={t('apps.VPN.historicalPurchasesPage.paymentHash')}
             />
             <ThemeText
-              CustomNumberOfLines={2}
+              CustomNumberOfLines={1}
               styles={{...styles.value}}
               content={`${item.payment_hash}`}
             />
@@ -154,86 +158,121 @@ export default function HistoricalVPNPurchases() {
       });
     else {
       setIsRetryingConfig(true);
-      (async () => {
-        const response = await getConfig(item.payment_hash, item.country);
-        if (response.didWork) {
-          const newCardsList = decodedVPNS
-            ?.map(vpn => {
-              if (vpn.payment_hash === item.payment_hash) {
-                return {...vpn, config: response.config};
-              } else return vpn;
-            })
-            .filter(Boolean);
+      const response = await getConfig(
+        item.paymentIdentifier || item.payment_hash,
+        item.country,
+        item.countryCode,
+      );
+      if (response.didWork) {
+        const newCardsList = decodedVPNS
+          ?.map(vpn => {
+            if (vpn.payment_hash === item.payment_hash) {
+              return {...vpn, config: response.config};
+            } else return vpn;
+          })
+          .filter(Boolean);
 
-          const em = encriptMessage(
-            contactsPrivateKey,
-            publicKey,
-            JSON.stringify(newCardsList),
-          );
-          toggleGlobalAppDataInformation({VPNplans: em}, true);
+        const em = encriptMessage(
+          contactsPrivateKey,
+          publicKey,
+          JSON.stringify(newCardsList),
+        );
+        toggleGlobalAppDataInformation({VPNplans: em}, true);
+        requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              navigate.navigate('GeneratedVPNFile', {
-                generatedFile: response.config,
-              });
+            navigate.navigate('GeneratedVPNFile', {
+              generatedFile: response.config,
             });
           });
-          setIsRetryingConfig(false);
-          return;
-        }
+        });
+        setIsRetryingConfig(false);
+      } else {
         setIsRetryingConfig(false);
         navigate.navigate('ErrorScreen', {
           errorMessage: response.error,
         });
-      })();
+      }
     }
   }
-  async function getConfig(paymentHash, location) {
+  async function getConfig(payment_hash, location, countryCode) {
     try {
-      const countriesListResponse = await fetch(
-        'https://lnvpn.net/api/v1/countryList',
-        {
-          method: 'GET',
-        },
-      );
+      let countryCodeIdentifier = '';
+      if (!countryCode) {
+        const countriesListResponse = await fetch(
+          process.env.LNVPN_COUNTRY_LIST,
+          {
+            method: 'GET',
+          },
+        );
 
-      const countriesList = await countriesListResponse.json();
-      console.log(countriesList);
-      const [{cc}] = countriesList.filter(item => {
-        console.log(item.country, location);
-        return isCountryMatch(item.country, location);
-      });
-      console.log(cc);
-      if (!cc) {
-        return {
-          didWork: false,
-          error: t('apps.VPN.historicalPurchasesPage.noValidCountryCodeError'),
-        };
+        const countriesList = await countriesListResponse.json();
+
+        if (
+          countriesListResponse.status !== 200 ||
+          !countriesList?.data?.countries
+        ) {
+          return {
+            didWork: false,
+            error: t(
+              'apps.VPN.historicalPurchasesPage.noValidCountryCodeError',
+            ),
+          };
+        }
+
+        const [{code}] = countriesList.data.countries.filter(item => {
+          console.log(item, location);
+          return isCountryMatch(item.name, location);
+        });
+
+        if (!code) {
+          return {
+            didWork: false,
+            error: t(
+              'apps.VPN.historicalPurchasesPage.noValidCountryCodeError',
+            ),
+          };
+        }
+        countryCodeIdentifier = code;
+      } else {
+        countryCodeIdentifier = countryCode;
       }
 
-      const response = await fetch('https://lnvpn.net/api/v1/getTunnelConfig', {
+      const response = await fetch(process.env.LNVPN_CONFIG_DOWNLOAD, {
         method: 'POST',
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: '*/*',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
-          paymentHash,
-          location: `${cc}`,
+        body: JSON.stringify({
+          paymentIdentifier: payment_hash,
+          paymentMethod: 'lightning',
+          country: countryCodeIdentifier,
           partnerCode: 'BlitzWallet',
-        }).toString(),
+        }),
       });
+      const contentType = response.headers.get('content-type');
 
-      const data = await response.json();
-      if (!data.WireguardConfig) {
+      let dataResponse;
+      if (contentType && contentType.includes('application/json')) {
+        dataResponse = await response.json();
+      } else {
+        dataResponse = await response.text();
+      }
+
+      if (dataResponse?.error || response.status !== 200) {
         return {
           didWork: false,
           error:
-            data?.error ||
+            dataResponse?.error ||
             t('apps.VPN.historicalPurchasesPage.claimConfigError'),
         };
       }
-      return {didWork: true, config: data.WireguardConfig};
+
+      const configFile =
+        typeof dataResponse === 'string'
+          ? dataResponse
+          : dataResponse.data.config;
+      return {didWork: true, config: configFile};
     } catch (err) {
       console.log(err);
       return {didWork: false, error: String(err)};

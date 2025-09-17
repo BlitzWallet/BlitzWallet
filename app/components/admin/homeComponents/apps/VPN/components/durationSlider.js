@@ -9,76 +9,49 @@ import {useTranslation} from 'react-i18next';
 export default function VPNDurationSlider({
   setSelectedDuration,
   selectedDuration,
+  vpnInformation,
 }) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {textColor} = GetThemeColors();
   const {t} = useTranslation();
+  const durations = vpnInformation.durations || [];
 
   const durationOption = useMemo(() => {
-    return [
-      [
-        t('apps.VPN.durationSlider.durationOption', {
-          duration: t('constants.hour'),
-        }),
-        'hour',
-      ],
-      [
-        t('apps.VPN.durationSlider.durationOption', {
-          duration: t('constants.day'),
-        }),
-        'day',
-      ],
-      [
-        t('apps.VPN.durationSlider.durationOption', {
-          duration: t('constants.week'),
-        }),
-        'week',
-      ],
-      [
-        t('apps.VPN.durationSlider.durationOption', {
-          duration: t('constants.month'),
-        }),
-        'month',
-      ],
-      [
-        t('apps.VPN.durationSlider.durationOption', {
-          duration: t('constants.quarter'),
-        }),
-        'quarter',
-      ],
-    ].map(item => {
-      const [name, itemSelector] = item;
+    return durations.map(item => {
+      const {duration} = item;
       return (
         <TouchableOpacity
-          onPress={() => setSelectedDuration(itemSelector)}
+          onPress={() => setSelectedDuration(duration)}
           style={{
             ...styles.durationButton,
             borderColor: theme ? COLORS.darkModeText : COLORS.primary,
             backgroundColor:
-              selectedDuration === itemSelector
+              selectedDuration === duration
                 ? theme
                   ? COLORS.darkModeText
                   : COLORS.primary
                 : 'transparent',
           }}
-          key={name}>
+          key={duration}>
           <ThemeText
             styles={{
               padding: 10,
               color:
-                selectedDuration === itemSelector
+                selectedDuration === duration
                   ? theme
                     ? COLORS.lightModeText
                     : COLORS.darkModeText
                   : textColor,
               includeFontPadding: false,
             }}
-            content={name}
+            content={t('apps.VPN.durationSlider.durationOption', {
+              duration: t(`apps.VPN.durationSlider.${duration}`),
+            })}
           />
         </TouchableOpacity>
       );
     });
-  }, [selectedDuration, theme]);
+  }, [selectedDuration, theme, durations]);
 
   return (
     <View style={styles.durationContainer}>
@@ -86,7 +59,13 @@ export default function VPNDurationSlider({
         styles={{...styles.infoHeaders}}
         content={t('apps.VPN.durationSlider.duration')}
       />
-      <View style={styles.durationInnerContianer}>{durationOption}</View>
+      <View style={styles.durationInnerContianer}>
+        {durationOption.length ? (
+          durationOption
+        ) : (
+          <ThemeText content={t('apps.VPN.durationSlider.noDurations')} />
+        )}
+      </View>
     </View>
   );
 }

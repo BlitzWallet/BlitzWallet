@@ -6,16 +6,13 @@ import VPNDurationSlider from './components/durationSlider';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {useNavigation} from '@react-navigation/native';
-import {SATSPERBITCOIN} from '../../../../../constants/math';
 import GeneratedFile from './pages/generatedFile';
 import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import sendStorePayment from '../../../../../functions/apps/payments';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
@@ -24,13 +21,13 @@ import CountryFlag from 'react-native-country-flag';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {decode} from 'bolt11';
 
-export default function VPNPlanPage({countryList}) {
+export default function VPNPlanPage({vpnInformation}) {
+  const countryList = vpnInformation.countries;
   const {theme, darkModeType} = useGlobalThemeContext();
   const [searchInput, setSearchInput] = useState('');
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const {sparkInformation} = useSparkWallet();
   const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {fiatStats} = useNodeContext();
   const {decodedVPNS, toggleGlobalAppDataInformation} = useGlobalAppData();
   const {masterInfoObject} = useGlobalContextProvider();
   const [selectedDuration, setSelectedDuration] = useState('week');
@@ -47,25 +44,25 @@ export default function VPNPlanPage({countryList}) {
       return (
         <TouchableOpacity
           onPress={() => {
-            if (item.country === searchInput) {
+            if (item.name === searchInput) {
               setSearchInput('');
               return;
             }
-            setSearchInput(item.country);
+            setSearchInput(item.name);
           }}
           style={[
             styles.countryItem,
             {
               borderWidth: 2,
               borderColor:
-                searchInput === item.country
+                searchInput === item.name
                   ? theme && darkModeType
                     ? COLORS.darkModeText
                     : COLORS.primary
                   : 'transparent',
             },
           ]}
-          key={item.country}>
+          key={item.name}>
           <CountryFlag
             style={{marginBottom: 5, borderRadius: 8}}
             size={50}
@@ -74,7 +71,7 @@ export default function VPNPlanPage({countryList}) {
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.countryText}
-            content={item.country
+            content={item.name
               .replace(/[\u{1F1E6}-\u{1F1FF}]{2}\s*/gu, '')
               .replace(/-/g, ' ')}
           />
@@ -86,7 +83,7 @@ export default function VPNPlanPage({countryList}) {
 
   const handleSubmit = useCallback(() => {
     const didAddLocation = countryList.filter(item => {
-      return item.country === searchInput;
+      return item.name === searchInput;
     });
 
     if (didAddLocation.length === 0) {
@@ -97,27 +94,13 @@ export default function VPNPlanPage({countryList}) {
       return;
     }
 
-    const [{cc, country}] = didAddLocation;
-
-    const cost = Math.round(
-      (SATSPERBITCOIN / fiatStats.value) *
-        (selectedDuration === 'hour'
-          ? 0.1
-          : selectedDuration === 'day'
-          ? 0.5
-          : selectedDuration === 'week'
-          ? 1.5
-          : selectedDuration === 'month'
-          ? 4
-          : 9),
-    );
+    const [{name}] = didAddLocation;
 
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'confirmVPN',
-      country: country,
+      country: name,
       duration: selectedDuration,
       createVPN: createVPN,
-      price: cost,
       sliderHight: 0.5,
     });
   }, [countryList, navigate, selectedDuration, createVPN]);
@@ -148,6 +131,7 @@ export default function VPNPlanPage({countryList}) {
           <VPNDurationSlider
             setSelectedDuration={setSelectedDuration}
             selectedDuration={selectedDuration}
+            vpnInformation={vpnInformation}
           />
 
           <FlatList
@@ -177,77 +161,30 @@ export default function VPNPlanPage({countryList}) {
     setIsPaying(true);
     let savedVPNConfigs = JSON.parse(JSON.stringify(decodedVPNS));
 
-    const [{cc, country}] = countryList.filter(item => {
-      return item.country === searchInput;
+    const [{code, name}] = countryList.filter(item => {
+      return item.name === searchInput;
     });
 
     try {
-      let invoice = '';
+      let invoice = invoiceInformation;
 
       if (
-        invoiceInformation.payment_request &&
-        invoiceInformation.payment_hash
+        invoice.payment_hash &&
+        invoice.payment_request &&
+        invoice.paymentIdentifier
       ) {
-        invoice = invoiceInformation;
-      } else {
-        const response = await fetch('https://lnvpn.net/api/v1/getInvoice', {
-          method: 'POST',
-          body: new URLSearchParams({
-            duration:
-              selectedDuration === 'hour'
-                ? 0.1
-                : selectedDuration === 'day'
-                ? 0.5
-                : selectedDuration === 'week'
-                ? 1.5
-                : selectedDuration === 'month'
-                ? 4
-                : 9,
-          }).toString(),
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        });
-        const responseData = await response.json();
-        const cost = Math.round(
-          (SATSPERBITCOIN / fiatStats.value) *
-            (selectedDuration === 'week'
-              ? 1.5
-              : selectedDuration === 'month'
-              ? 4
-              : 9),
-        );
-
-        const fee = await sparkPaymenWrapper({
-          getFee: true,
-          address: responseData.payment_request,
-          paymentType: 'lightning',
-          amountSats: cost,
-          masterInfoObject,
-          sparkInformation,
-          userBalance: sparkInformation.balance,
-          mnemonic: currentWalletMnemoinc,
-        });
-        if (!fee.didWork) throw new Error(fee.error);
-        invoice = {
-          ...responseData,
-          supportFee: fee.supportFee,
-          fee: fee.fee,
-        };
-      }
-
-      if (invoice.payment_hash && invoice.payment_request) {
-        savedVPNConfigs.push({
-          payment_hash: invoice.payment_hash,
-          payment_request: invoice.payment_request,
-          createdTime: new Date(),
-          duration: selectedDuration,
-          country: country,
-        });
         setLoadingMessage(
           t('apps.VPN.VPNPlanPage.payingInvoiceLoadingMessage'),
         );
+        savedVPNConfigs.push({
+          payment_hash: invoice.payment_hash,
+          payment_request: invoice.payment_request,
+          paymentIdentifier: invoice.paymentIdentifier,
+          createdTime: new Date(),
+          duration: selectedDuration,
+          country: name,
+          countryCode: code,
+        });
         saveVPNConfigsToDB(savedVPNConfigs);
         const parsedInvoice = decode(invoice.payment_request);
 
@@ -276,7 +213,8 @@ export default function VPNPlanPage({countryList}) {
         }
         getVPNConfig({
           paymentHash: invoice.payment_hash,
-          location: cc,
+          paymentIdentifier: invoice.paymentIdentifier,
+          location: code,
           savedVPNConfigs,
         });
       } else {
@@ -293,9 +231,14 @@ export default function VPNPlanPage({countryList}) {
     }
   }
 
-  async function getVPNConfig({paymentHash, location, savedVPNConfigs}) {
+  async function getVPNConfig({
+    paymentHash,
+    paymentIdentifier,
+    location,
+    savedVPNConfigs,
+  }) {
     let didSettleInvoice = false;
-    let runCount = 0;
+    let runCount = 1;
 
     while (!didSettleInvoice && runCount < 10) {
       try {
@@ -307,38 +250,45 @@ export default function VPNPlanPage({countryList}) {
         );
 
         runCount += 1;
-        const response = await fetch(
-          'https://lnvpn.net/api/v1/getTunnelConfig',
-          {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-              paymentHash,
-              location: `${location}`,
-              partnerCode: 'BlitzWallet',
-            }).toString(),
+        const apiResponse = await fetch(process.env.LNVPN_CONFIG_DOWNLOAD, {
+          method: 'POST',
+          headers: {
+            Accept: '*/*',
+            'Content-Type': 'application/json',
           },
-        );
+          body: JSON.stringify({
+            paymentIdentifier: paymentIdentifier,
+            paymentMethod: 'lightning',
+            country: location,
+            partnerCode: 'BlitzWallet',
+          }),
+        });
 
-        const data = await response.json();
+        const contentType = apiResponse.headers.get('content-type');
 
-        if (data.WireguardConfig) {
-          didSettleInvoice = true;
-          setGeneratedFile(data.WireguardConfig);
-
-          const updatedList = savedVPNConfigs.map(item => {
-            if (item.payment_hash === paymentHash) {
-              return {...item, config: data.WireguardConfig};
-            } else return item;
-          });
-          saveVPNConfigsToDB(updatedList);
+        let dataResponse;
+        if (contentType && contentType.includes('application/json')) {
+          dataResponse = await apiResponse.json();
         } else {
-          console.log('Wating for confirmation...');
-          await new Promise(resolve => setTimeout(resolve, 12000));
+          dataResponse = await apiResponse.text();
         }
+
+        if (dataResponse?.error || apiResponse.status !== 200)
+          throw new Error('Error with backend', dataResponse?.error);
+
+        didSettleInvoice = true;
+        const configFile =
+          typeof dataResponse === 'string'
+            ? dataResponse
+            : dataResponse.data.config; // make sure to match with actual api
+
+        const updatedList = savedVPNConfigs.map(item => {
+          if (item.payment_hash === paymentHash) {
+            return {...item, config: configFile};
+          } else return item;
+        });
+        await saveVPNConfigsToDB(updatedList);
+        setGeneratedFile(configFile);
       } catch (err) {
         console.log(err);
         console.log('Wating for confirmation...');
@@ -350,7 +300,6 @@ export default function VPNPlanPage({countryList}) {
         errorMessage: t('apps.VPN.VPNPlanPage.configError'),
       });
       setIsPaying(false);
-      return;
     }
   }
 
