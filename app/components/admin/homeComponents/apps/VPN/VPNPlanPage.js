@@ -145,6 +145,7 @@ export default function VPNPlanPage({vpnInformation}) {
             data={countryList}
             renderItem={flatListElement}
             keyExtractor={item => item.isoCode}
+            showsVerticalScrollIndicator={false}
           />
 
           <CustomButton

@@ -76,14 +76,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   durationInnerContianer: {
-    columnGap: 10,
-    rowGap: 10,
+    gap: 10,
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   durationButton: {
     borderWidth: 2,
     flexGrow: 1,
+    minWidth: '45%',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8,
