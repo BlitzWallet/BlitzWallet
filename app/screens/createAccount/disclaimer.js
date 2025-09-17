@@ -45,7 +45,10 @@ export default function DislaimerPage({navigation: {navigate}}) {
         <LoginNavbar />
 
         <ThemeText
-          styles={styles.headerText}
+          styles={{
+            ...styles.headerText,
+            marginTop: contentHeight > SCREEN_DIMENSIONS.height ? 15 : 30,
+          }}
           content={t('createAccount.disclaimerPage.header')}
         />
         <ThemeText
@@ -53,8 +56,14 @@ export default function DislaimerPage({navigation: {navigate}}) {
           content={t('createAccount.disclaimerPage.subHeader')}
         />
         <Svg
-          width="300"
-          height="300"
+          width={
+            SCREEN_DIMENSIONS.width *
+            (contentHeight > SCREEN_DIMENSIONS.height ? 0.5 : 0.8)
+          }
+          height={
+            SCREEN_DIMENSIONS.width *
+            (contentHeight > SCREEN_DIMENSIONS.height ? 0.5 : 0.8)
+          }
           viewBox="50 50 630 630"
           fill="none"
           xmlns="http://www.w3.org/2000/svg">
@@ -81,19 +90,21 @@ export default function DislaimerPage({navigation: {navigate}}) {
           content={t('createAccount.disclaimerPage.imgCaption')}
         />
 
+        <TouchableOpacity
+          onPress={openTermsAndConditions}
+          style={styles.termsButton}>
+          <ThemeText
+            styles={styles.termsText}
+            content={t('createAccount.disclaimerPage.terms&Conditions')}
+          />
+        </TouchableOpacity>
+
         <CustomButton
           buttonStyles={styles.buttonStyles}
           textStyles={styles.buttonText}
           textContent={t('constants.next')}
           actionFunction={nextPage}
         />
-        <TouchableOpacity
-          onPress={openTermsAndConditions}
-          style={styles.termsText}>
-          <ThemeText
-            content={t('createAccount.disclaimerPage.terms&Conditions')}
-          />
-        </TouchableOpacity>
       </ScrollView>
     </GlobalThemeView>
   );
@@ -105,16 +116,15 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: SIZES.xxLarge,
-    fontWeight: '500',
+
     marginTop: 'auto',
     marginBottom: 15,
   },
   subHeaderText: {
-    fontWeight: '500',
     width: '95%',
     textAlign: 'center',
     maxWidth: 400,
-    marginBottom: 10,
+    marginBottom: 'auto',
   },
   imgCaptionText: {
     width: '85%',
@@ -122,13 +132,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
-  termsText: {marginTop: 10, opacity: 0.8},
+
   buttonStyles: {
     width: 145,
     backgroundColor: COLORS.primary,
-    marginTop: 'auto',
   },
   buttonText: {
     color: COLORS.darkModeText,
+  },
+  termsButton: {
+    marginTop: 'auto',
+    marginBottom: 10,
+  },
+  termsText: {
+    opacity: 0.7,
+    fontSize: SIZES.small,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
 });

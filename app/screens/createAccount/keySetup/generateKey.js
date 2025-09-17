@@ -32,20 +32,48 @@ export default function GenerateKey() {
     height: 0,
     width: 0,
   });
+
   const {t} = useTranslation();
   const hookNavigate = useNavigation();
   const {backgroundColor} = GetThemeColors();
+
   useHandleBackPressNew();
 
   const handleScrollViewLayout = e => {
     setScrollViewDimensions(e.nativeEvent.layout);
   };
+
   const handleKeyContainerLayout = e => {
     setKeyContainerDimensions(e.nativeEvent.layout);
   };
+
   const handleWarningMessageLayout = e => {
     setWarningViewDimensions(e.nativeEvent.layout);
   };
+
+  const handleCopyPress = () => {
+    if (mnemonic.length !== 12) {
+      crashlyticsRecordErrorReport(
+        'Not able to generate valid seed on create account path',
+      );
+      hookNavigate.navigate('ErrorScreen', {
+        errorMessage: 'createAccount.keySetup.generateKey.invalidSeedError',
+      });
+      return;
+    }
+    copyToClipboard(mnemonic.join(' '), showToast);
+  };
+
+  const handleNextPress = () => {
+    if (mnemonic.length !== 12) return;
+    hookNavigate.navigate('RestoreWallet', {
+      fromPath: 'newWallet',
+      goBackName: 'GenerateKey',
+    });
+  };
+
+  const isValidMnemonic = mnemonic.length === 12;
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <LoginNavbar />
@@ -55,44 +83,47 @@ export default function GenerateKey() {
           content={t('createAccount.keySetup.generateKey.header')}
         />
 
-        {mnemonic.length != 12 ? (
+        {!isValidMnemonic ? (
           <FullLoadingScreen
             showLoadingIcon={false}
             text={t('createAccount.keySetup.generateKey.keyGenError')}
           />
         ) : (
-          <ScrollView
-            onLayout={handleScrollViewLayout}
-            showsHorizontalScrollIndicator={false}
-            style={styles.scrollViewContainer}>
-            <View onLayout={handleKeyContainerLayout}>
-              <KeyContainer keys={mnemonic} />
-            </View>
+          <View style={styles.contentWrapper}>
+            <ScrollView
+              onLayout={handleScrollViewLayout}
+              showsHorizontalScrollIndicator={false}
+              showsVerticalScrollIndicator={false}
+              style={styles.scrollViewContainer}
+              contentContainerStyle={styles.scrollContentContainer}>
+              <View onLayout={handleKeyContainerLayout}>
+                <KeyContainer keys={mnemonic} />
+              </View>
+            </ScrollView>
+
             {!showSeed && (
               <View
-                style={{
-                  height: keyContainerDimensions.height,
-                  width: keyContainerDimensions.width,
-                  backgroundColor,
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  alignItems: 'center',
-                }}>
+                style={[
+                  styles.overlay,
+                  {
+                    height: keyContainerDimensions.height + 20,
+                    width: keyContainerDimensions.width,
+                    backgroundColor,
+                  },
+                ]}>
                 <View
                   onLayout={handleWarningMessageLayout}
-                  style={{
-                    backgroundColor: COLORS.darkModeText,
-                    padding: 15,
-                    borderRadius: 8,
-                    position: 'absolute',
-                    top: Math.max(
-                      0,
-                      (scrollViewDimensions.height -
-                        warningViewDimensions.height) /
-                        2,
-                    ),
-                  }}>
+                  style={[
+                    styles.warningContainer,
+                    {
+                      top: Math.max(
+                        0,
+                        (scrollViewDimensions.height -
+                          warningViewDimensions.height) /
+                          2,
+                      ),
+                    },
+                  ]}>
                   <ThemeText
                     styles={styles.seedPrivacyMessage}
                     content={t(
@@ -100,65 +131,45 @@ export default function GenerateKey() {
                     )}
                   />
                   <CustomButton
-                    actionFunction={() => {
-                      setShowSeed(true);
-                    }}
-                    buttonStyles={{backgroundColor: backgroundColor}}
+                    actionFunction={() => setShowSeed(true)}
+                    buttonStyles={{...styles.revealButton, backgroundColor}}
                     textContent={t('createAccount.keySetup.generateKey.showIt')}
                   />
                 </View>
               </View>
             )}
-          </ScrollView>
+          </View>
         )}
 
-        <ThemeText
-          styles={{width: '80%', textAlign: 'center'}}
-          content={t('createAccount.keySetup.generateKey.subHeader')}
-        />
-        <ThemeText
-          styles={{fontWeight: 'bold'}}
-          content={t('createAccount.keySetup.generateKey.disclaimer')}
-        />
+        <View style={styles.footerContent}>
+          <ThemeText
+            styles={styles.subHeader}
+            content={t('createAccount.keySetup.generateKey.subHeader')}
+          />
+          <ThemeText
+            styles={styles.disclaimer}
+            content={t('createAccount.keySetup.generateKey.disclaimer')}
+          />
+        </View>
+
         <View style={styles.buttonsContainer}>
           <CustomButton
             buttonStyles={{
-              width: 145,
-              marginRight: 10,
-              opacity: mnemonic.length === 0 ? 0.5 : 1,
+              ...styles.actionButton,
+              opacity: isValidMnemonic ? 1 : 0.5,
             }}
             textContent={t('constants.copy')}
-            actionFunction={() => {
-              if (mnemonic.length !== 12) {
-                crashlyticsRecordErrorReport(
-                  'Not able to genrate valid seed on create account path',
-                );
-                hookNavigate.navigate('ErrorScreen', {
-                  errorMessage:
-                    'createAccount.keySetup.generateKey.invalidSeedError',
-                });
-                return;
-              }
-              copyToClipboard(mnemonic.join(' '), showToast);
-            }}
+            actionFunction={handleCopyPress}
           />
           <CustomButton
             buttonStyles={{
-              width: 145,
-              backgroundColor: COLORS.primary,
-              opacity: mnemonic.length != 12 ? 0.2 : 1,
+              ...styles.actionButton,
+              ...styles.nextButton,
+              opacity: isValidMnemonic ? 1 : 0.2,
             }}
-            textStyles={{
-              color: COLORS.darkModeText,
-            }}
+            textStyles={styles.nextButtonText}
             textContent={t('constants.next')}
-            actionFunction={() => {
-              if (mnemonic.length != 12) return;
-              hookNavigate.navigate('RestoreWallet', {
-                fromPath: 'newWallet',
-                goBackName: 'GenerateKey',
-              });
-            }}
+            actionFunction={handleNextPress}
           />
         </View>
       </View>
@@ -167,59 +178,102 @@ export default function GenerateKey() {
 }
 
 const styles = StyleSheet.create({
-  contentContainer: {
-    flex: 1,
-  },
   container: {
-    width: '100%',
     flex: 1,
     alignItems: 'center',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginTop: 20,
-    justifyContent: 'center',
+    paddingHorizontal: SIZES.medium,
+    paddingTop: SIZES.large,
   },
 
   header: {
-    width: '80%',
+    width: '100%',
     textAlign: 'center',
+    marginBottom: SIZES.xLarge,
     marginTop: 30,
-    marginBottom: 30,
   },
-  subHeader: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Descriptoin_Regular,
-    textAlign: 'center',
-    marginBottom: 20,
-    color: COLORS.lightModeText,
+
+  contentWrapper: {
+    flex: 1,
+    width: '100%',
+    position: 'relative',
   },
+
   scrollViewContainer: {
     flex: 1,
-    width: '90%',
-    marginBottom: 20,
-    ...CENTER,
+    width: '100%',
   },
-  button: {
-    width: '45%',
-    height: 45,
 
+  scrollContentContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingVertical: SIZES.small,
+  },
+
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.primary,
-
-    borderRadius: 5,
   },
 
-  buttonText: {
-    fontSize: SIZES.large,
-    paddingVertical: 5,
+  warningContainer: {
+    backgroundColor: COLORS.darkModeText,
+    padding: SIZES.large,
+    borderRadius: SIZES.small,
+    position: 'absolute',
+    marginHorizontal: SIZES.medium,
   },
 
-  seedPrivacyMessage: {textAlign: 'center', marginBottom: 20},
-  buttonsContainer: {
+  revealButton: {
+    marginTop: SIZES.small,
+  },
+
+  seedPrivacyMessage: {
+    textAlign: 'center',
+    marginBottom: SIZES.medium,
+    lineHeight: SIZES.large,
+  },
+
+  footerContent: {
+    width: '100%',
+    alignItems: 'center',
+    paddingVertical: SIZES.medium,
+    gap: SIZES.small,
+  },
+
+  subHeader: {
     width: '90%',
+    textAlign: 'center',
+    fontSize: SIZES.medium,
+    lineHeight: SIZES.large,
+  },
+
+  disclaimer: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: SIZES.medium,
+  },
+
+  buttonsContainer: {
+    width: '100%',
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 30,
+    gap: SIZES.small,
+  },
+
+  actionButton: {
+    flex: 1,
+    maxWidth: 145,
+    minHeight: 48,
+    borderRadius: SIZES.small,
+  },
+
+  nextButton: {
+    backgroundColor: COLORS.primary,
+  },
+
+  nextButtonText: {
+    color: COLORS.darkModeText,
   },
 });
