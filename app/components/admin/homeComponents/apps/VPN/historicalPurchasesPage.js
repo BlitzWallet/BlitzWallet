@@ -3,8 +3,8 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../../../../constants/theme';
-import {CENTER} from '../../../../../constants';
+import {COLORS, SIZES} from '../../../../../constants/theme';
+import {CENTER, CONTENT_KEYBOARD_OFFSET} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useState} from 'react';
 import {copyToClipboard, getLocalStorageItem} from '../../../../../functions';
@@ -17,6 +17,8 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import openWebBrowser from '../../../../../functions/openWebBrowser';
 import {useToast} from '../../../../../../context-store/toastManager';
 import {useTranslation} from 'react-i18next';
+import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import GetThemeColors from '../../../../../hooks/themeColors';
 
 export default function HistoricalVPNPurchases() {
   const {showToast} = useToast();
@@ -26,6 +28,8 @@ export default function HistoricalVPNPurchases() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const [isRetryingConfig, setIsRetryingConfig] = useState(false);
   const {t} = useTranslation();
+  const {theme} = useGlobalThemeContext();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
 
   useEffect(() => {
     async function getSavedPurchases() {
@@ -43,7 +47,10 @@ export default function HistoricalVPNPurchases() {
       return (
         <TouchableOpacity
           key={item.createdTime}
-          style={styles.container}
+          style={[
+            styles.purchaseCard,
+            {backgroundColor: theme ? backgroundOffset : COLORS.darkModeText},
+          ]}
           onPress={() => handleConfigClick(item)}
           onLongPress={() => {
             navigate.navigate('ConfirmActionPage', {
@@ -53,30 +60,19 @@ export default function HistoricalVPNPurchases() {
               confirmFunction: () => removeVPNFromList(item.payment_hash),
             });
           }}>
-          <View style={styles.infoContainer}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.countryBadge, {backgroundColor}]}>
+              <ThemeText styles={styles.countryText} content={item.country} />
+            </View>
             <ThemeText
-              styles={{...styles.label}}
-              content={t('apps.VPN.historicalPurchasesPage.country')}
-            />
-            <ThemeText styles={{...styles.value}} content={item.country} />
-          </View>
-          <View style={styles.infoContainer}>
-            <ThemeText
-              styles={{...styles.label}}
-              content={t('apps.VPN.historicalPurchasesPage.createdAt')}
-            />
-            <ThemeText
-              styles={{...styles.value}}
-              content={new Date(item.createdTime).toLocaleString()}
+              styles={styles.dateText}
+              content={new Date(item.createdTime).toLocaleDateString()}
             />
           </View>
-          <View style={styles.infoContainer}>
+
+          <View style={styles.durationContainer}>
             <ThemeText
-              styles={{...styles.label}}
-              content={t('apps.VPN.historicalPurchasesPage.duration')}
-            />
-            <ThemeText
-              styles={{...styles.value}}
+              styles={styles.durationText}
               content={
                 typeof item.duration === 'string'
                   ? t(t(`constants.${item.duration?.toLowerCase()}`))
@@ -84,59 +80,63 @@ export default function HistoricalVPNPurchases() {
               }
             />
           </View>
+
           <TouchableOpacity
             onPress={() => {
               copyToClipboard(item.payment_hash, showToast);
             }}
-            style={styles.infoContainer}>
+            style={styles.hashContainer}>
             <ThemeText
-              styles={{...styles.label}}
+              styles={styles.hashLabel}
               content={t('apps.VPN.historicalPurchasesPage.paymentHash')}
             />
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={{...styles.value}}
-              content={`${item.payment_hash}`}
-            />
+            <View style={[styles.hashBox, {backgroundColor}]}>
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.hashText}
+                content={`${item.payment_hash}`}
+              />
+            </View>
           </TouchableOpacity>
         </TouchableOpacity>
       );
     })
     .filter(Boolean);
+
   return (
-    <GlobalThemeView>
-      <View style={styles.globalContainer}>
-        <CustomSettingsTopBar
-          containerStyles={{
-            marginBottom: 0,
-          }}
-          label={t('apps.VPN.historicalPurchasesPage.title')}
+    <GlobalThemeView useStandardWidth={true}>
+      <CustomSettingsTopBar
+        containerStyles={styles.topBarStyle}
+        label={t('apps.VPN.historicalPurchasesPage.title')}
+      />
+
+      {isRetryingConfig ? (
+        <FullLoadingScreen
+          text={t('apps.VPN.historicalPurchasesPage.retryClaim')}
         />
-        {isRetryingConfig ? (
-          <FullLoadingScreen
-            text={t('apps.VPN.historicalPurchasesPage.retryClaim')}
+      ) : purchaseElements.length === 0 ? (
+        <View style={styles.emptyState}>
+          <ThemeText
+            styles={styles.emptyText}
+            content={t('apps.VPN.historicalPurchasesPage.noPurchases')}
           />
-        ) : purchaseElements.length === 0 ? (
-          <View
-            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        </View>
+      ) : (
+        <>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContainer}
+            style={styles.scrollView}>
+            {purchaseElements}
+          </ScrollView>
+
+          <View style={styles.bottomSection}>
             <ThemeText
-              content={t('apps.VPN.historicalPurchasesPage.noPurchases')}
-            />
-          </View>
-        ) : (
-          <>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{paddingVertical: 30}}
-              style={{width: '90%', ...CENTER}}>
-              {purchaseElements}
-            </ScrollView>
-            <ThemeText
-              styles={{textAlign: 'center', paddingTop: 5}}
+              styles={styles.assistanceText}
               content={t('apps.VPN.historicalPurchasesPage.assistanceText')}
             />
             <CustomButton
-              buttonStyles={{...CENTER, marginTop: 10}}
+              buttonStyles={styles.contactButton}
               textContent={t('apps.VPN.historicalPurchasesPage.contact')}
               actionFunction={async () => {
                 await openWebBrowser({
@@ -145,9 +145,9 @@ export default function HistoricalVPNPurchases() {
                 });
               }}
             />
-          </>
-        )}
-      </View>
+          </View>
+        </>
+      )}
     </GlobalThemeView>
   );
 
@@ -171,7 +171,6 @@ export default function HistoricalVPNPurchases() {
             } else return vpn;
           })
           .filter(Boolean);
-
         const em = encriptMessage(
           contactsPrivateKey,
           publicKey,
@@ -194,6 +193,7 @@ export default function HistoricalVPNPurchases() {
       }
     }
   }
+
   async function getConfig(payment_hash, location, countryCode) {
     try {
       let countryCodeIdentifier = '';
@@ -204,9 +204,7 @@ export default function HistoricalVPNPurchases() {
             method: 'GET',
           },
         );
-
         const countriesList = await countriesListResponse.json();
-
         if (
           countriesListResponse.status !== 200 ||
           !countriesList?.data?.countries
@@ -218,12 +216,10 @@ export default function HistoricalVPNPurchases() {
             ),
           };
         }
-
         const [{code}] = countriesList.data.countries.filter(item => {
           console.log(item, location);
           return isCountryMatch(item.name, location);
         });
-
         if (!code) {
           return {
             didWork: false,
@@ -236,7 +232,6 @@ export default function HistoricalVPNPurchases() {
       } else {
         countryCodeIdentifier = countryCode;
       }
-
       const response = await fetch(process.env.LNVPN_CONFIG_DOWNLOAD, {
         method: 'POST',
         headers: {
@@ -251,14 +246,12 @@ export default function HistoricalVPNPurchases() {
         }),
       });
       const contentType = response.headers.get('content-type');
-
       let dataResponse;
       if (contentType && contentType.includes('application/json')) {
         dataResponse = await response.json();
       } else {
         dataResponse = await response.text();
       }
-
       if (dataResponse?.error || response.status !== 200) {
         return {
           didWork: false,
@@ -267,7 +260,6 @@ export default function HistoricalVPNPurchases() {
             t('apps.VPN.historicalPurchasesPage.claimConfigError'),
         };
       }
-
       const configFile =
         typeof dataResponse === 'string'
           ? dataResponse
@@ -278,11 +270,11 @@ export default function HistoricalVPNPurchases() {
       return {didWork: false, error: String(err)};
     }
   }
+
   function removeVPNFromList(selctedVPN) {
     const newCardsList = decodedVPNS?.filter(
       vpn => vpn.payment_hash !== selctedVPN,
     );
-
     const em = encriptMessage(
       contactsPrivateKey,
       publicKey,
@@ -291,6 +283,7 @@ export default function HistoricalVPNPurchases() {
     toggleGlobalAppDataInformation({VPNplans: em}, true);
   }
 }
+
 function isCountryMatch(selected, text) {
   // Normalize by removing flags, making lowercase, and replacing hyphens with spaces
   const normalize = str =>
@@ -298,29 +291,89 @@ function isCountryMatch(selected, text) {
       .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '') // Remove emoji flags
       .toLowerCase()
       .replace(/[-\s]+/g, ' '); // Normalize spaces and hyphens
-
   return normalize(text).includes(normalize(selected));
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
+  topBarStyle: {
+    marginBottom: 0,
+  },
+  scrollView: {
+    width: '100%',
     flex: 1,
-    width: WINDOWWIDTH,
-    ...CENTER,
   },
-  container: {
-    marginVertical: 10,
+  scrollContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 100,
   },
-  infoContainer: {
+
+  // Purchase Card Styles
+  purchaseCard: {
+    borderRadius: 16,
+    marginBottom: 16,
+    padding: 20,
+  },
+  cardHeader: {
     flexDirection: 'row',
-    marginBottom: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
-  label: {
-    fontWeight: 'bold',
-    marginRight: 10,
+  countryBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
-  value: {
+  countryText: {
+    // fontSize: 14,
+  },
+  dateText: {
+    fontSize: SIZES.small,
+  },
+  durationContainer: {
+    marginBottom: 16,
+  },
+  durationText: {
+    fontSize: 14,
+  },
+  hashContainer: {
+    marginTop: 4,
+  },
+  hashLabel: {
+    fontSize: 12,
+    marginBottom: 6,
+  },
+  hashBox: {
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  hashText: {
+    fontSize: SIZES.small,
+    opacity: 0.7,
+  },
+
+  // Empty State Styles
+  emptyState: {
     flex: 1,
-    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  emptyText: {
+    textAlign: 'center',
+  },
+
+  // Bottom Section Styles
+  bottomSection: {marginTop: CONTENT_KEYBOARD_OFFSET},
+  assistanceText: {
+    textAlign: 'center',
+    opacity: 0.7,
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  contactButton: {
+    ...CENTER,
   },
 });
