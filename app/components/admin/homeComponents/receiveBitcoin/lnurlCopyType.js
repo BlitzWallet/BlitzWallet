@@ -18,7 +18,7 @@ export default function ChooseLNURLCopyFormat() {
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
 
-  const lightningAddress = `${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`;
+  const lightningAddress = `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`;
   const lightningString = `${encodeLNURL(
     globalContactsInformation.myProfile.uniqueName,
   )}`;
@@ -45,7 +45,7 @@ export default function ChooseLNURLCopyFormat() {
           <ThemeText
             styles={styles.copyPreviewText}
             CustomNumberOfLines={1}
-            content={`${globalContactsInformation.myProfile.uniqueName}@blitz-wallet.com`}
+            content={`${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`}
           />
         </View>
       </TouchableOpacity>
@@ -71,7 +71,7 @@ export default function ChooseLNURLCopyFormat() {
             styles={styles.copyPreviewText}
             content={`${encodeLNURL(
               globalContactsInformation.myProfile.uniqueName,
-            )}@blitz-wallet.com`}
+            )}@blitzwalletapp.com`}
           />
         </View>
       </TouchableOpacity>

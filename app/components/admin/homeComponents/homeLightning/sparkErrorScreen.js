@@ -47,7 +47,7 @@ export default function SparkErrorScreen(props) {
       }
       try {
         const didRun = await openComposer({
-          to: 'blake@blitz-wallet.com',
+          to: 'blake@blitzwalletapp.com',
           subject: 'Spark Wallet Error Report',
           body:
             errorMessage ||
@@ -55,7 +55,7 @@ export default function SparkErrorScreen(props) {
         });
         console.log(didRun);
       } catch (err) {
-        copyToClipboard('blake@blitz-wallet.com', showToast);
+        copyToClipboard('blake@blitzwalletapp.com', showToast);
       }
     } catch (err) {
       console.log('handleing spark error submit', err);

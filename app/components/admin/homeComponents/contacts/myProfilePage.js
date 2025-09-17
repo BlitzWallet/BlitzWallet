@@ -170,7 +170,7 @@ export default function MyContactProfilePage({navigation}) {
           onPress={() => {
             Share.share({
               title: 'Blitz Contact',
-              message: `https://blitz-wallet.com/u/${myContact.uniqueName}`,
+              message: `https://blitzwalletapp.com/u/${myContact.uniqueName}`,
             });
           }}>
           <ThemeImage

@@ -18,7 +18,7 @@ export default function POSInstructionsPath() {
   const navigate = useNavigation();
   const {showToast} = useToast();
   const {t} = useTranslation();
-  const posURL = `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`;
+  const posURL = `https://pay.blitzwalletapp.com/${masterInfoObject.posSettings.storeName}`;
 
   return (
     <GlobalThemeView

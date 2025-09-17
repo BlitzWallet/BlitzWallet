@@ -352,7 +352,7 @@ export default function PosSettingsPage() {
               } else {
                 openWebBrowser({
                   navigate,
-                  link: `https://pay.blitz-wallet.com/${masterInfoObject.posSettings.storeName}`,
+                  link: `https://pay.blitzwalletapp.com/${masterInfoObject.posSettings.storeName}`,
                 });
               }
             }}
