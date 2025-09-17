@@ -10,7 +10,7 @@ export default async function liquidToSparkSwap(contactUsername) {
     while (maxRunCount > runCount && !parsedData) {
       runCount += 1;
       try {
-        const parsed = await parse(`${contactUsername}@blitz-wallet.com`);
+        const parsed = await parse(`${contactUsername}@blitzwalletapp.com`);
         parsedData = parsed;
         break;
       } catch (err) {

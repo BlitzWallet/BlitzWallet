@@ -266,12 +266,12 @@ export default function AppStore({navigation}) {
             actionFunction={async () => {
               try {
                 const didRun = await openComposer({
-                  to: 'blake@blitz-wallet.com',
+                  to: 'blake@blitzwalletapp.com',
                   subject: 'App store integration request',
                 });
                 console.log(didRun);
               } catch (err) {
-                copyToClipboard('blake@blitz-wallet.com', showToast);
+                copyToClipboard('blake@blitzwalletapp.com', showToast);
               }
             }}
           />

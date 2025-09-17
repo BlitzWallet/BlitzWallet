@@ -27,7 +27,7 @@ export default function DislaimerPage({navigation: {navigate}}) {
   const openTermsAndConditions = () => {
     crashlyticsLogReport('Navigating to custom webview from displaimer page');
     navigate('CustomWebView', {
-      webViewURL: 'https://blitz-wallet.com/pages/terms/',
+      webViewURL: 'https://blitzwalletapp.com/pages/terms/',
     });
   };
 

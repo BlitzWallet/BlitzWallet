@@ -23,7 +23,7 @@ export async function getBolt11InvoiceForContact(
 
     while (runCount < maxRunCount) {
       try {
-        const url = `https://blitz-wallet.com/.well-known/lnurlp/${contactUniqueName}?amount=${
+        const url = `https://blitzwalletapp.com/.well-known/lnurlp/${contactUniqueName}?amount=${
           sendingValue * 1000
         }&isBlitzContact=${useBlitzContact ? true : false}${
           !!description

@@ -418,7 +418,7 @@ function LNURLContainer({
         content={
           selectedRecieveOption.toLowerCase() === 'lightning' &&
           !initialSendAmount
-            ? `${globalContactsInformation?.myProfile?.uniqueName}@blitz-wallet.com`
+            ? `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`
             : !initialSendAmount ||
               selectedRecieveOption.toLowerCase() === 'spark' ||
               selectedRecieveOption.toLowerCase() === 'rootstock'

@@ -730,7 +730,7 @@
         "notUsingMainAccountWarning": "Advertencia: No estás utilizando tu cuenta de billetera principal. Todos los intercambios de {{swapType}} se enviarán a tu billetera principal."
       },
       "editLNURLContact": {
-        "informationMessage": "Cambiar tu nombre de usuario actualiza cómo otros te encuentran en Blitz Contacts y tu dirección Lightning (usuario@blitz-wallet.com).\n\nUna dirección Lightning permite que otros te envíen Bitcoin fácilmente. Solo comparte tu dirección (usuario@blitz-wallet.com) para recibir pagos.",
+        "informationMessage": "Cambiar tu nombre de usuario actualiza cómo otros te encuentran en Blitz Contacts y tu dirección Lightning (usuario@blitzwalletapp.com).\n\nUna dirección Lightning permite que otros te envíen Bitcoin fácilmente. Solo comparte tu dirección (usuario@blitzwalletapp.com) para recibir pagos.",
         "usernameInputDesc": "Editar nombre de usuario"
       }
     },

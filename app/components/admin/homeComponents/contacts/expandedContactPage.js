@@ -112,7 +112,7 @@ export default function ExpandedContactsPage(props) {
               return;
             Share.share({
               title: 'Blitz Contact',
-              message: `https://blitz-wallet.com/u/${selectedContact?.uniqueName}`,
+              message: `https://blitzwalletapp.com/u/${selectedContact?.uniqueName}`,
             });
           }}
           style={styles.profileImageContainer}>

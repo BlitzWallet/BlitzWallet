@@ -8,7 +8,7 @@ import {bech32} from 'bech32';
 export function encodeLNURL(uniqueName) {
   try {
     const urlBytes = Buffer.from(
-      `https://blitz-wallet.com/p/${uniqueName}`,
+      `https://blitzwalletapp.com/p/${uniqueName}`,
       'utf8',
     );
 
@@ -18,7 +18,7 @@ export function encodeLNURL(uniqueName) {
 
     return lnurl.toUpperCase();
   } catch (error) {
-    return `${uniqueName}@blitz-wallet.com`;
+    return `${uniqueName}@blitzwalletapp.com`;
   }
 }
 
