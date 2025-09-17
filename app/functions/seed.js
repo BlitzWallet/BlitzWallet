@@ -47,8 +47,14 @@ export function handleRestoreFromText(seedString) {
     let currentWord = '';
 
     while (currentIndex <= maxIndex && wordArray.length < 13) {
+      // Early break if we've processed too many characters without finding any words
+      if (currentIndex > 20 && wordArray.length === 0) {
+        break;
+      }
       const letter = seedString[currentIndex];
+
       const isLetter = IS_LETTER_REGEX.test(letter);
+
       if (!isLetter) {
         currentIndex += 1;
         continue;
@@ -61,14 +67,29 @@ export function handleRestoreFromText(seedString) {
       );
 
       if (!posibleOptins.length) {
-        const lastPosibleOption = currentWord.slice(0, currentWord.length - 1);
+        let backtrackWord = currentWord.slice(0, currentWord.length - 1);
+        let backtrackAmount = 1;
 
-        if (!lastPosibleOption) {
+        while (
+          backtrackWord &&
+          !wordlist.find(
+            word => word.toLowerCase() === backtrackWord.toLowerCase(),
+          )
+        ) {
+          backtrackAmount++;
+          backtrackWord = currentWord.slice(
+            0,
+            currentWord.length - backtrackAmount,
+          );
+        }
+
+        if (!backtrackWord) {
           currentIndex += 1;
           continue;
         }
-        wordArray.push(lastPosibleOption);
+        wordArray.push(backtrackWord);
         currentWord = '';
+        currentIndex -= backtrackAmount - 1;
         continue;
       }
       if (
@@ -88,7 +109,6 @@ export function handleRestoreFromText(seedString) {
     return {didWork: false, error: err.message};
   }
 }
-
 export function deriveKeyFromMnemonic(mnemonic, index = 0) {
   try {
     const derivationPath = `m/44'/0'/0'/0/${index}`;
