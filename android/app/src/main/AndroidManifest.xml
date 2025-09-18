@@ -44,6 +44,14 @@
         android:name="com.google.firebase.messaging.default_notification_color"
         android:resource="@color/colorAccent" />
 
+      <!-- Expo notification settings -->
+        <meta-data
+          android:name="expo.modules.notifications.default_notification_icon"
+          android:resource="@mipmap/ic_stat_transparenticon" />
+        <meta-data
+          android:name="expo.modules.notifications.default_notification_color"
+          android:resource="@color/colorAccent" />
+
 
       <activity
         android:name=".MainActivity"

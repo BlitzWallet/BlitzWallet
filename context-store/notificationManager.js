@@ -139,9 +139,9 @@ async function registerForPushNotificationsAsync() {
   try {
     const hasGooglePlayServics = checkGooglePlayServices();
     if (!hasGooglePlayServics) throw new Error('errormessages.noGooglePlay');
-    console.log('Registering notification channel on android');
 
     if (Platform.OS === 'android') {
+      console.log('Registering notification channel on android');
       await setNotificationChannelAsync('blitzWalletNotifications', {
         name: 'blitzWalletNotifications',
         importance: AndroidImportance.MAX,
@@ -152,9 +152,9 @@ async function registerForPushNotificationsAsync() {
       });
     }
 
-    if (isEmulatorSync()) {
-      throw new Error('Must use physical device for Push Notifications');
-    }
+    // if (isEmulatorSync()) {
+    //   throw new Error('Must use physical device for Push Notifications');
+    // }
 
     const permissionsResult = await getPermissionsAsync();
     let finalStatus = permissionsResult.status;
@@ -255,12 +255,12 @@ async function formatPushNotification(data) {
 }
 
 TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async ({data, error}) => {
+  console.log(data, error, 'RUNNING IN BACKGROUND');
   if (error) {
     console.error('Background task error:', error);
     return;
   }
   if (data) {
-    console.log(data, 'RUNNING IN BACKGROUND');
     if (data.data.body?.format) {
       await formatPushNotification(data.data.body);
       return;
@@ -274,11 +274,22 @@ export async function registerBackgroundNotificationTask() {
     if (Platform.OS === 'android') {
       setBackgroundMessageHandler(firebaseMessaging, async data => {
         console.log(data, 'RUNNING IN BACKGROUND');
-        if (data.data.body?.format) {
-          await formatPushNotification(data.data.body);
-          return;
+        if (data) {
+          let parsedData;
+          try {
+            parsedData = JSON.parse(data.data.body);
+          } catch (err) {
+            parsedData = data.data.body;
+          }
+
+          console.log(parsedData, 'PARSED DATA');
+
+          if (parsedData?.format) {
+            await formatPushNotification(parsedData);
+            return;
+          }
+          await handleNWCBackgroundEvent(data);
         }
-        await handleNWCBackgroundEvent(data);
       });
     } else {
       await registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
