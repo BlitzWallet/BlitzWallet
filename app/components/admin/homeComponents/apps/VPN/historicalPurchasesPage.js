@@ -19,6 +19,7 @@ import {useToast} from '../../../../../../context-store/toastManager';
 import {useTranslation} from 'react-i18next';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
+import CountryFlag from 'react-native-country-flag';
 
 export default function HistoricalVPNPurchases() {
   const {showToast} = useToast();
@@ -62,8 +63,20 @@ export default function HistoricalVPNPurchases() {
           }}>
           <View style={styles.cardHeader}>
             <View style={[styles.countryBadge, {backgroundColor}]}>
-              <ThemeText styles={styles.countryText} content={item.country} />
+              {item.isoCode ? (
+                <CountryFlag size={15} isoCode={item.isoCode} />
+              ) : (
+                <ThemeText
+                  styles={styles.dateText}
+                  content={
+                    item.country
+                      ?.replace(/[\u{1F1E6}-\u{1F1FF}]{2}\s*/gu, '')
+                      ?.replace(/-/g, ' ') || ''
+                  }
+                />
+              )}
             </View>
+
             <ThemeText
               styles={styles.dateText}
               content={new Date(item.createdTime).toLocaleDateString()}
@@ -75,7 +88,7 @@ export default function HistoricalVPNPurchases() {
               styles={styles.durationText}
               content={
                 typeof item.duration === 'string'
-                  ? t(t(`constants.${item.duration?.toLowerCase()}`))
+                  ? t(`constants.${item.duration?.toLowerCase()}`)
                   : t(`apps.VPN.durationSlider.${item.duration}`)
               }
             />
@@ -321,13 +334,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   countryBadge: {
+    flexShrink: 1,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
+    marginRight: 10,
   },
-  countryText: {
-    // fontSize: 14,
-  },
+  countryText: {},
   dateText: {
     fontSize: SIZES.small,
   },

@@ -162,7 +162,7 @@ export default function VPNPlanPage({vpnInformation}) {
     setIsPaying(true);
     let savedVPNConfigs = JSON.parse(JSON.stringify(decodedVPNS));
 
-    const [{code, name}] = countryList.filter(item => {
+    const [{code, name, isoCode}] = countryList.filter(item => {
       return item.name === searchInput;
     });
 
@@ -185,6 +185,7 @@ export default function VPNPlanPage({vpnInformation}) {
           duration: selectedDuration,
           country: name,
           countryCode: code,
+          isoCode: isoCode,
         });
         saveVPNConfigsToDB(savedVPNConfigs);
         const parsedInvoice = decode(invoice.payment_request);
