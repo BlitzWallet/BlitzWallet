@@ -69,7 +69,7 @@ export default function ConfirmVPNPage(props) {
           parsedInvoice.satoshis + fee.supportFee + fee.fee
         ) {
           throw new Error(
-            t('error.insufficientBalanceError', {planType: 'VPN'}),
+            t('errormessages.insufficientBalanceError', {planType: 'VPN'}),
           );
         }
 
