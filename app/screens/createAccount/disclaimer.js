@@ -1,5 +1,10 @@
 import {ScrollView, StyleSheet, TouchableOpacity} from 'react-native';
-import {COLORS, SCREEN_DIMENSIONS} from '../../constants';
+import {
+  CENTER,
+  COLORS,
+  CONTENT_KEYBOARD_OFFSET,
+  SCREEN_DIMENSIONS,
+} from '../../constants';
 import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import {SIZES} from '../../constants/theme';
 import CustomButton from '../../functions/CustomElements/button';
@@ -33,6 +38,7 @@ export default function DislaimerPage({navigation: {navigate}}) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
+      <LoginNavbar />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
@@ -42,12 +48,10 @@ export default function DislaimerPage({navigation: {navigate}}) {
           },
         ]}
         onLayout={handleLayout}>
-        <LoginNavbar />
-
         <ThemeText
           styles={{
             ...styles.headerText,
-            marginTop: contentHeight > SCREEN_DIMENSIONS.height ? 15 : 30,
+            marginTop: contentHeight > SCREEN_DIMENSIONS.height ? 15 : 20,
           }}
           content={t('createAccount.disclaimerPage.header')}
         />
@@ -89,23 +93,22 @@ export default function DislaimerPage({navigation: {navigate}}) {
           styles={styles.imgCaptionText}
           content={t('createAccount.disclaimerPage.imgCaption')}
         />
-
-        <TouchableOpacity
-          onPress={openTermsAndConditions}
-          style={styles.termsButton}>
-          <ThemeText
-            styles={styles.termsText}
-            content={t('createAccount.disclaimerPage.terms&Conditions')}
-          />
-        </TouchableOpacity>
-
-        <CustomButton
-          buttonStyles={styles.buttonStyles}
-          textStyles={styles.buttonText}
-          textContent={t('constants.next')}
-          actionFunction={nextPage}
-        />
       </ScrollView>
+      <TouchableOpacity
+        onPress={openTermsAndConditions}
+        style={styles.termsButton}>
+        <ThemeText
+          styles={styles.termsText}
+          content={t('createAccount.disclaimerPage.terms&Conditions')}
+        />
+      </TouchableOpacity>
+
+      <CustomButton
+        buttonStyles={styles.buttonStyles}
+        textStyles={styles.buttonText}
+        textContent={t('constants.next')}
+        actionFunction={nextPage}
+      />
     </GlobalThemeView>
   );
 }
@@ -131,17 +134,19 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
     marginBottom: 10,
+    marginTop: 'auto',
   },
 
   buttonStyles: {
     width: 145,
     backgroundColor: COLORS.primary,
+    ...CENTER,
   },
   buttonText: {
     color: COLORS.darkModeText,
   },
   termsButton: {
-    marginTop: 'auto',
+    marginTop: CONTENT_KEYBOARD_OFFSET,
     marginBottom: 10,
   },
   termsText: {
