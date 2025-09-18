@@ -40,6 +40,7 @@ export async function publishToSingleRelay(events, relayUrl) {
         }
 
         const result = await response.json();
+        console.log(result);
         return result;
       } catch (error) {
         console.error(`Fetch failed for event ${index}:`, error);
