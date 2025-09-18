@@ -31,34 +31,31 @@ export default function ConfirmVPNPage(props) {
   useEffect(() => {
     async function fetchInvoice() {
       try {
-        const response = await fetch('https://lnvpn.net/api/v1/getInvoice', {
+        const response = await fetch(process.env.LNVPN_PURCHASE_REQUEST, {
           method: 'POST',
-          body: new URLSearchParams({
-            duration:
-              duration === 'hour'
-                ? 0.1
-                : duration === 'day'
-                ? 0.5
-                : duration === 'week'
-                ? 1.5
-                : duration === 'month'
-                ? 4
-                : 9,
-          }).toString(),
+          body: JSON.stringify({
+            duration: duration,
+            paymentMethod: 'lightning',
+            refCode: 'BlitzWallet',
+          }),
           headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded',
+            Accept: '*/*',
+            'Content-Type': 'application/json',
           },
         });
         const invoice = await response.json();
-        if (!invoice || !invoice.payment_hash || !invoice.payment_request)
+
+        if (!invoice.success)
+          throw new Error(t('apps.VPN.confirmationSlideUp.invoiceInfoError'));
+        const {data} = invoice;
+        if (!data.payment_hash || !data.payment_request)
           throw new Error(t('apps.VPN.confirmationSlideUp.invoiceInfoError'));
 
-        const parsedInvoice = decode(invoice.payment_request);
+        const parsedInvoice = decode(data.payment_request);
 
         const fee = await sparkPaymenWrapper({
           getFee: true,
-          address: invoice.payment_request,
+          address: data.payment_request,
           paymentType: 'lightning',
           amountSats: parsedInvoice.satoshis,
           masterInfoObject,
@@ -74,8 +71,9 @@ export default function ConfirmVPNPage(props) {
         }
 
         setInvoiceInformation({
-          payment_hash: invoice.payment_hash,
-          payment_request: invoice.payment_request,
+          payment_hash: data.payment_hash,
+          payment_request: data.payment_request,
+          paymentIdentifier: data.paymentIdentifier,
           supportFee: fee.supportFee,
           fee: fee.fee,
           price: parsedInvoice.satoshis,
@@ -121,7 +119,7 @@ export default function ConfirmVPNPage(props) {
           />
           <ThemeText
             styles={{marginTop: 5}}
-            content={'1 ' + t(`constants.${duration.toLowerCase()}`)}
+            content={'1 ' + t(`apps.VPN.durationSlider.${duration}`)}
           />
           <FormattedSatText
             neverHideBalance={true}

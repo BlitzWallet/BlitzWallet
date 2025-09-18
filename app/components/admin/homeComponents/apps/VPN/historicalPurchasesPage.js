@@ -3,8 +3,8 @@ import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../../../../constants/theme';
-import {CENTER} from '../../../../../constants';
+import {COLORS, SIZES} from '../../../../../constants/theme';
+import {CENTER, CONTENT_KEYBOARD_OFFSET} from '../../../../../constants';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useState} from 'react';
 import {copyToClipboard, getLocalStorageItem} from '../../../../../functions';
@@ -17,6 +17,9 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import openWebBrowser from '../../../../../functions/openWebBrowser';
 import {useToast} from '../../../../../../context-store/toastManager';
 import {useTranslation} from 'react-i18next';
+import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import GetThemeColors from '../../../../../hooks/themeColors';
+import CountryFlag from 'react-native-country-flag';
 
 export default function HistoricalVPNPurchases() {
   const {showToast} = useToast();
@@ -26,6 +29,8 @@ export default function HistoricalVPNPurchases() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
   const [isRetryingConfig, setIsRetryingConfig] = useState(false);
   const {t} = useTranslation();
+  const {theme} = useGlobalThemeContext();
+  const {backgroundOffset, backgroundColor} = GetThemeColors();
 
   useEffect(() => {
     async function getSavedPurchases() {
@@ -43,7 +48,10 @@ export default function HistoricalVPNPurchases() {
       return (
         <TouchableOpacity
           key={item.createdTime}
-          style={styles.container}
+          style={[
+            styles.purchaseCard,
+            {backgroundColor: theme ? backgroundOffset : COLORS.darkModeText},
+          ]}
           onPress={() => handleConfigClick(item)}
           onLongPress={() => {
             navigate.navigate('ConfirmActionPage', {
@@ -53,86 +61,95 @@ export default function HistoricalVPNPurchases() {
               confirmFunction: () => removeVPNFromList(item.payment_hash),
             });
           }}>
-          <View style={styles.infoContainer}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.countryBadge, {backgroundColor}]}>
+              {item.isoCode ? (
+                <CountryFlag size={15} isoCode={item.isoCode} />
+              ) : (
+                <ThemeText
+                  styles={styles.dateText}
+                  content={
+                    item.country
+                      ?.replace(/[\u{1F1E6}-\u{1F1FF}]{2}\s*/gu, '')
+                      ?.replace(/-/g, ' ') || ''
+                  }
+                />
+              )}
+            </View>
+
             <ThemeText
-              styles={{...styles.label}}
-              content={t('apps.VPN.historicalPurchasesPage.country')}
-            />
-            <ThemeText styles={{...styles.value}} content={item.country} />
-          </View>
-          <View style={styles.infoContainer}>
-            <ThemeText
-              styles={{...styles.label}}
-              content={t('apps.VPN.historicalPurchasesPage.createdAt')}
-            />
-            <ThemeText
-              styles={{...styles.value}}
-              content={new Date(item.createdTime).toLocaleString()}
-            />
-          </View>
-          <View style={styles.infoContainer}>
-            <ThemeText
-              styles={{...styles.label}}
-              content={t('apps.VPN.historicalPurchasesPage.duration')}
-            />
-            <ThemeText
-              styles={{...styles.value}}
-              content={t(t(`constants.${item.duration?.toLowerCase()}`))}
+              styles={styles.dateText}
+              content={new Date(item.createdTime).toLocaleDateString()}
             />
           </View>
+
+          <View style={styles.durationContainer}>
+            <ThemeText
+              styles={styles.durationText}
+              content={
+                typeof item.duration === 'string'
+                  ? t(`constants.${item.duration?.toLowerCase()}`)
+                  : t(`apps.VPN.durationSlider.${item.duration}`)
+              }
+            />
+          </View>
+
           <TouchableOpacity
             onPress={() => {
               copyToClipboard(item.payment_hash, showToast);
             }}
-            style={styles.infoContainer}>
+            style={styles.hashContainer}>
             <ThemeText
-              styles={{...styles.label}}
+              styles={styles.hashLabel}
               content={t('apps.VPN.historicalPurchasesPage.paymentHash')}
             />
-            <ThemeText
-              CustomNumberOfLines={2}
-              styles={{...styles.value}}
-              content={`${item.payment_hash}`}
-            />
+            <View style={[styles.hashBox, {backgroundColor}]}>
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.hashText}
+                content={`${item.payment_hash}`}
+              />
+            </View>
           </TouchableOpacity>
         </TouchableOpacity>
       );
     })
     .filter(Boolean);
+
   return (
-    <GlobalThemeView>
-      <View style={styles.globalContainer}>
-        <CustomSettingsTopBar
-          containerStyles={{
-            marginBottom: 0,
-          }}
-          label={t('apps.VPN.historicalPurchasesPage.title')}
+    <GlobalThemeView useStandardWidth={true}>
+      <CustomSettingsTopBar
+        containerStyles={styles.topBarStyle}
+        label={t('apps.VPN.historicalPurchasesPage.title')}
+      />
+
+      {isRetryingConfig ? (
+        <FullLoadingScreen
+          text={t('apps.VPN.historicalPurchasesPage.retryClaim')}
         />
-        {isRetryingConfig ? (
-          <FullLoadingScreen
-            text={t('apps.VPN.historicalPurchasesPage.retryClaim')}
+      ) : purchaseElements.length === 0 ? (
+        <View style={styles.emptyState}>
+          <ThemeText
+            styles={styles.emptyText}
+            content={t('apps.VPN.historicalPurchasesPage.noPurchases')}
           />
-        ) : purchaseElements.length === 0 ? (
-          <View
-            style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        </View>
+      ) : (
+        <>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContainer}
+            style={styles.scrollView}>
+            {purchaseElements}
+          </ScrollView>
+
+          <View style={styles.bottomSection}>
             <ThemeText
-              content={t('apps.VPN.historicalPurchasesPage.noPurchases')}
-            />
-          </View>
-        ) : (
-          <>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{paddingVertical: 30}}
-              style={{width: '90%', ...CENTER}}>
-              {purchaseElements}
-            </ScrollView>
-            <ThemeText
-              styles={{textAlign: 'center', paddingTop: 5}}
+              styles={styles.assistanceText}
               content={t('apps.VPN.historicalPurchasesPage.assistanceText')}
             />
             <CustomButton
-              buttonStyles={{...CENTER, marginTop: 10}}
+              buttonStyles={styles.contactButton}
               textContent={t('apps.VPN.historicalPurchasesPage.contact')}
               actionFunction={async () => {
                 await openWebBrowser({
@@ -141,9 +158,9 @@ export default function HistoricalVPNPurchases() {
                 });
               }}
             />
-          </>
-        )}
-      </View>
+          </View>
+        </>
+      )}
     </GlobalThemeView>
   );
 
@@ -154,96 +171,123 @@ export default function HistoricalVPNPurchases() {
       });
     else {
       setIsRetryingConfig(true);
-      (async () => {
-        const response = await getConfig(item.payment_hash, item.country);
-        if (response.didWork) {
-          const newCardsList = decodedVPNS
-            ?.map(vpn => {
-              if (vpn.payment_hash === item.payment_hash) {
-                return {...vpn, config: response.config};
-              } else return vpn;
-            })
-            .filter(Boolean);
-
-          const em = encriptMessage(
-            contactsPrivateKey,
-            publicKey,
-            JSON.stringify(newCardsList),
-          );
-          toggleGlobalAppDataInformation({VPNplans: em}, true);
+      const response = await getConfig(
+        item.paymentIdentifier || item.payment_hash,
+        item.country,
+        item.countryCode,
+      );
+      if (response.didWork) {
+        const newCardsList = decodedVPNS
+          ?.map(vpn => {
+            if (vpn.payment_hash === item.payment_hash) {
+              return {...vpn, config: response.config};
+            } else return vpn;
+          })
+          .filter(Boolean);
+        const em = encriptMessage(
+          contactsPrivateKey,
+          publicKey,
+          JSON.stringify(newCardsList),
+        );
+        toggleGlobalAppDataInformation({VPNplans: em}, true);
+        requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              navigate.navigate('GeneratedVPNFile', {
-                generatedFile: response.config,
-              });
+            navigate.navigate('GeneratedVPNFile', {
+              generatedFile: response.config,
             });
           });
-          setIsRetryingConfig(false);
-          return;
-        }
+        });
+        setIsRetryingConfig(false);
+      } else {
         setIsRetryingConfig(false);
         navigate.navigate('ErrorScreen', {
           errorMessage: response.error,
         });
-      })();
+      }
     }
   }
-  async function getConfig(paymentHash, location) {
+
+  async function getConfig(payment_hash, location, countryCode) {
     try {
-      const countriesListResponse = await fetch(
-        'https://lnvpn.net/api/v1/countryList',
-        {
-          method: 'GET',
-        },
-      );
-
-      const countriesList = await countriesListResponse.json();
-      console.log(countriesList);
-      const [{cc}] = countriesList.filter(item => {
-        console.log(item.country, location);
-        return isCountryMatch(item.country, location);
-      });
-      console.log(cc);
-      if (!cc) {
-        return {
-          didWork: false,
-          error: t('apps.VPN.historicalPurchasesPage.noValidCountryCodeError'),
-        };
+      let countryCodeIdentifier = '';
+      if (!countryCode) {
+        const countriesListResponse = await fetch(
+          process.env.LNVPN_COUNTRY_LIST,
+          {
+            method: 'GET',
+          },
+        );
+        const countriesList = await countriesListResponse.json();
+        if (
+          countriesListResponse.status !== 200 ||
+          !countriesList?.data?.countries
+        ) {
+          return {
+            didWork: false,
+            error: t(
+              'apps.VPN.historicalPurchasesPage.noValidCountryCodeError',
+            ),
+          };
+        }
+        const [{code}] = countriesList.data.countries.filter(item => {
+          console.log(item, location);
+          return isCountryMatch(item.name, location);
+        });
+        if (!code) {
+          return {
+            didWork: false,
+            error: t(
+              'apps.VPN.historicalPurchasesPage.noValidCountryCodeError',
+            ),
+          };
+        }
+        countryCodeIdentifier = code;
+      } else {
+        countryCodeIdentifier = countryCode;
       }
-
-      const response = await fetch('https://lnvpn.net/api/v1/getTunnelConfig', {
+      const response = await fetch(process.env.LNVPN_CONFIG_DOWNLOAD, {
         method: 'POST',
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: '*/*',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
-          paymentHash,
-          location: `${cc}`,
+        body: JSON.stringify({
+          paymentIdentifier: payment_hash,
+          paymentMethod: 'lightning',
+          country: countryCodeIdentifier,
           partnerCode: 'BlitzWallet',
-        }).toString(),
+        }),
       });
-
-      const data = await response.json();
-      if (!data.WireguardConfig) {
+      const contentType = response.headers.get('content-type');
+      let dataResponse;
+      if (contentType && contentType.includes('application/json')) {
+        dataResponse = await response.json();
+      } else {
+        dataResponse = await response.text();
+      }
+      if (dataResponse?.error || response.status !== 200) {
         return {
           didWork: false,
           error:
-            data?.error ||
+            dataResponse?.error ||
             t('apps.VPN.historicalPurchasesPage.claimConfigError'),
         };
       }
-      return {didWork: true, config: data.WireguardConfig};
+      const configFile =
+        typeof dataResponse === 'string'
+          ? dataResponse
+          : dataResponse.data.config;
+      return {didWork: true, config: configFile};
     } catch (err) {
       console.log(err);
       return {didWork: false, error: String(err)};
     }
   }
+
   function removeVPNFromList(selctedVPN) {
     const newCardsList = decodedVPNS?.filter(
       vpn => vpn.payment_hash !== selctedVPN,
     );
-
     const em = encriptMessage(
       contactsPrivateKey,
       publicKey,
@@ -252,6 +296,7 @@ export default function HistoricalVPNPurchases() {
     toggleGlobalAppDataInformation({VPNplans: em}, true);
   }
 }
+
 function isCountryMatch(selected, text) {
   // Normalize by removing flags, making lowercase, and replacing hyphens with spaces
   const normalize = str =>
@@ -259,29 +304,89 @@ function isCountryMatch(selected, text) {
       .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '') // Remove emoji flags
       .toLowerCase()
       .replace(/[-\s]+/g, ' '); // Normalize spaces and hyphens
-
   return normalize(text).includes(normalize(selected));
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {
+  topBarStyle: {
+    marginBottom: 0,
+  },
+  scrollView: {
+    width: '100%',
     flex: 1,
-    width: WINDOWWIDTH,
-    ...CENTER,
   },
-  container: {
-    marginVertical: 10,
+  scrollContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 100,
   },
-  infoContainer: {
+
+  // Purchase Card Styles
+  purchaseCard: {
+    borderRadius: 16,
+    marginBottom: 16,
+    padding: 20,
+  },
+  cardHeader: {
     flexDirection: 'row',
-    marginBottom: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
-  label: {
-    fontWeight: 'bold',
+  countryBadge: {
+    flexShrink: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
     marginRight: 10,
   },
-  value: {
+  countryText: {},
+  dateText: {
+    fontSize: SIZES.small,
+  },
+  durationContainer: {
+    marginBottom: 16,
+  },
+  durationText: {
+    fontSize: 14,
+  },
+  hashContainer: {
+    marginTop: 4,
+  },
+  hashLabel: {
+    fontSize: 12,
+    marginBottom: 6,
+  },
+  hashBox: {
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  hashText: {
+    fontSize: SIZES.small,
+    opacity: 0.7,
+  },
+
+  // Empty State Styles
+  emptyState: {
     flex: 1,
-    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  emptyText: {
+    textAlign: 'center',
+  },
+
+  // Bottom Section Styles
+  bottomSection: {marginTop: CONTENT_KEYBOARD_OFFSET},
+  assistanceText: {
+    textAlign: 'center',
+    opacity: 0.7,
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  contactButton: {
+    ...CENTER,
   },
 });

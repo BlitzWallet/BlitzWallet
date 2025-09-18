@@ -284,7 +284,14 @@
       "durationSlider": {
         "durationOption": "1 {{duration}}",
         "price": "Precio: ",
-        "duration": "Duración"
+        "noDurations": "No hay duraciones disponibles",
+        "duration": "Duración",
+        "0.1": "ora",
+        "0.5": "giorno",
+        "1.5": "settimana",
+        "3": "mese",
+        "8": "trimestre",
+        "30": "anno"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "¿Estás seguro de que quieres eliminar este VPN?",

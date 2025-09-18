@@ -29,23 +29,24 @@ export default function VPNHome() {
   const navigate = useNavigation();
   const {theme, darkModeType} = useGlobalThemeContext();
   const [selectedPage, setSelectedPage] = useState(null);
-  const [countryList, setCountriesList] = useState([]);
+  const [vpnInformation, setVpnInformation] = useState({
+    countries: [],
+    durations: [],
+  });
   const {t} = useTranslation();
   useEffect(() => {
     async function getAvailableCountries() {
       try {
-        const response = await fetch('https://lnvpn.net/api/v1/countryList', {
+        const response = await fetch(process.env.LNVPN_COUNTRY_LIST, {
           method: 'GET',
         });
         const data = await response.json();
-
-        setCountriesList(data);
+        if (data.success) {
+          setVpnInformation(data.data);
+        } else throw new Error('Unable to fetch vpn information');
       } catch (err) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t('apps.VPN.home.apiConnectionError'),
-          customNavigator: () => {
-            navigate.popTo('HomeAdmin');
-          },
         });
         console.log(err);
       }
@@ -112,15 +113,22 @@ export default function VPNHome() {
             <CustomButton
               buttonStyles={{width: '80%', marginTop: 50}}
               actionFunction={() => {
-                if (!countryList.length) return;
+                if (
+                  !vpnInformation.countries.length ||
+                  !vpnInformation.durations.length
+                )
+                  return;
                 setSelectedPage('Select Plan');
               }}
               textContent={t('constants.continue')}
-              useLoading={!countryList.length}
+              useLoading={
+                !vpnInformation.countries.length ||
+                !vpnInformation.durations.length
+              }
             />
           </View>
         ) : (
-          <VPNPlanPage countryList={countryList} />
+          <VPNPlanPage vpnInformation={vpnInformation} />
         )}
       </View>
     </CustomKeyboardAvoidingView>
