@@ -64,7 +64,10 @@ export default function ConfirmVPNPage(props) {
           mnemonic: currentWalletMnemoinc,
         });
         if (!fee.didWork) throw new Error(fee.error);
-        if (sparkInformation.balance < fee.supportFee + fee.fee) {
+        if (
+          sparkInformation.balance <
+          parsedInvoice.satoshis + fee.supportFee + fee.fee
+        ) {
           throw new Error(
             t('error.insufficientBalanceError', {planType: 'VPN'}),
           );
