@@ -23,7 +23,7 @@ import {getSparkPaymentStatus, sparkPaymentType} from '../spark';
 import {pushInstantNotification} from '../notifications';
 import NWCInvoiceManager from './cachedNWCTxs';
 import {NOSTR_RELAY_URL, NWC_IDENTITY_PUB_KEY} from '../../constants';
-import {finalizeEvent, nip44} from 'nostr-tools';
+import {finalizeEvent} from 'nostr-tools';
 import {getFunctions} from '@react-native-firebase/functions';
 import fetchBackend from '../../../db/handleBackend';
 import {getLocalStorageItem} from '../localStorage';
@@ -80,7 +80,6 @@ const handleGetInfo = selectedNWCAccount => ({
     block_height: 1,
     block_hash: 'N/A',
     methods: getSupportedMethods(selectedNWCAccount.permissions),
-    notifications: ['payment_received'],
   },
 });
 
@@ -223,73 +222,6 @@ const handleMakeInvoice = async (
       },
     },
   });
-};
-
-const handlePublish = async (data, nwcAccounts) => {
-  const formattedEvents = data.requestObjects.map(item => {
-    const account = nwcAccounts[item.account];
-    console.log({
-      notification_type: item.notification_type,
-      notificaion: item.notification,
-    });
-
-    const coversationKey = nip44.v2.utils.getConversationKey(
-      account.privateKey,
-      item.event.clientPubKey,
-    );
-
-    const legacyNWCNotificationResponse = {
-      kind: 23196,
-      created_at: Math.round(Date.now() / 1000),
-      tags: [
-        ['p', item.event.clientPubKey],
-        ['e', item.event.id],
-      ],
-      content: encriptMessage(
-        account.privateKey,
-        item.event.clientPubKey,
-        JSON.stringify({
-          notification_type: item.notification_type,
-          notificaion: item.notification,
-        }),
-      ),
-    };
-    const newNWCNotificationResponse = {
-      kind: 23197,
-      created_at: Math.round(Date.now() / 1000),
-      tags: [['p', item.event.clientPubKey]],
-      content: nip44.v2.encrypt(
-        JSON.stringify({
-          notification_type: item.notification_type,
-          notificaion: item.notification,
-        }),
-        coversationKey,
-      ),
-    };
-    console.log(legacyNWCNotificationResponse, newNWCNotificationResponse);
-
-    const finalizedEventLeg = finalizeEvent(
-      legacyNWCNotificationResponse,
-      Buffer.from(account.privateKey, 'hex'),
-    );
-    const finalizedEventNew = finalizeEvent(
-      newNWCNotificationResponse,
-      Buffer.from(account.privateKey, 'hex'),
-    );
-    return [finalizedEventLeg, finalizedEventNew];
-  });
-
-  // Post all events in parallel and wait for all to complete
-  const publishPromises = formattedEvents
-    .flat(1)
-    .map(event => publishToSingleRelay([event], RELAY_URL));
-
-  try {
-    const results = await Promise.all(publishPromises);
-    console.log('All events published successfully:', results);
-  } catch (error) {
-    console.error('Error publishing events:', error);
-  }
 };
 
 const handleLookupInvoice = async (
@@ -533,6 +465,33 @@ const handleGetBalance = async (selectedNWCAccount, fullStorageObject) => {
   };
 };
 
+const handleEventProcess = async (event, selectedNWCAccount) => {
+  for (const nwcEvent of event.requestObjects) {
+    console.log(nwcEvent, selectedNWCAccount);
+    const eventTemplate = {
+      kind: nwcEvent.notification_type === 'payment_received' ? 23196 : 0,
+      created_at: Math.floor(Date.now() / 1000),
+      tags: [
+        ['p', nwcEvent.event.clientPubKey],
+        // ['e', event.id],
+      ],
+      content: encriptMessage(
+        selectedNWCAccount.privateKey,
+        nwcEvent.event.clientPubKey,
+        JSON.stringify(nwcEvent.notification),
+      ),
+    };
+    console.log(eventTemplate);
+
+    const finalizedEvent = finalizeEvent(
+      eventTemplate,
+      Buffer.from(selectedNWCAccount.privateKey, 'hex'),
+    );
+
+    await publishToSingleRelay([finalizedEvent], RELAY_URL);
+  }
+};
+
 const processEvent = async (event, selectedNWCAccount) => {
   const {requestMethod, requestParams} = event;
 
@@ -542,6 +501,9 @@ const processEvent = async (event, selectedNWCAccount) => {
   let returnObject;
 
   switch (requestMethod) {
+    case 'publish_notification':
+      await handleEventProcess(event, selectedNWCAccount);
+      break;
     case 'get_info':
       returnObject = handleGetInfo(selectedNWCAccount);
       break;
@@ -656,21 +618,14 @@ export default async function handleNWCBackgroundEvent(notificationData) {
 
     try {
       nwcEvent = JSON.parse(nwcEvent);
-    } catch (err) {
-      nwcEvent = nwcEvent;
-    }
-
-    fullStorageObject = await getNWCData();
-    nwcAccounts = fullStorageObject.accounts;
-
-    if (nwcEvent.requestMethod === 'publish_notification') {
-      await handlePublish(nwcEvent, nwcAccounts);
-      return;
-    }
+    } catch (err) {}
 
     // // Filter out already handled events upfront
     const newEvents = nwcEvent?.events;
     if (!newEvents) return;
+
+    fullStorageObject = await getNWCData();
+    nwcAccounts = fullStorageObject.accounts;
 
     pushInstantNotification(
       `Received ${newEvents.length} event${newEvents.length === 1 ? '' : 's'}`,
@@ -680,7 +635,15 @@ export default async function handleNWCBackgroundEvent(notificationData) {
     const filteredEvents = newEvents
       .map((event, index) => {
         const selectedNWCAccount = nwcAccounts[event.pubkey];
-        const parsedData = decryptEventMessage(selectedNWCAccount, event);
+
+        let parsedData;
+        try {
+          const decoded = decryptEventMessage(selectedNWCAccount, event);
+          if (!decoded) throw new Error('ALready decoded');
+          parsedData = decoded;
+        } catch (err) {
+          parsedData = event;
+        }
 
         const {method: requestMethod, params: requestParams} = parsedData;
         const handledKey = `${event.clientPubKey}-${requestMethod}`;
@@ -693,7 +656,7 @@ export default async function handleNWCBackgroundEvent(notificationData) {
 
     await filteredEvents.forEach(async (event, index) => {
       const selectedNWCAccount = nwcAccounts[event.pubkey];
-      console.log(selectedNWCAccount, 'SELECTED NWC ACCOUNT');
+
       if (!selectedNWCAccount) return null;
 
       try {
