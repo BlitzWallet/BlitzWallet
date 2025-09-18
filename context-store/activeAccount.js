@@ -140,10 +140,7 @@ export const ActiveCustodyAccountProvider = ({children}) => {
       console.log(savedAccountInformation);
       await setLocalStorageItem(
         CUSTODY_ACCOUNTS_STORAGE_KEY,
-        JSON.stringify(
-          encriptAccountsList(savedAccountInformation),
-          accountMnemoinc,
-        ),
+        JSON.stringify(encriptAccountsList(savedAccountInformation)),
       );
       setCustodyAccounts(savedAccountInformation);
       return {didWork: true};
@@ -164,7 +161,7 @@ export const ActiveCustodyAccountProvider = ({children}) => {
 
       await setLocalStorageItem(
         CUSTODY_ACCOUNTS_STORAGE_KEY,
-        JSON.stringify(encriptAccountsList(newAccounts), accountMnemoinc),
+        JSON.stringify(encriptAccountsList(newAccounts)),
       );
       setCustodyAccounts(newAccounts);
       return {didWork: true};
