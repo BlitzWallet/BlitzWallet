@@ -26,6 +26,7 @@ import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useSparkWallet} from '../../../context-store/sparkContext';
 import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 import {useTranslation} from 'react-i18next';
+import {useGlobalInsets} from '../../../context-store/insetsProvider';
 
 export default function ExpandedTx(props) {
   const {sparkInformation} = useSparkWallet();
@@ -33,39 +34,185 @@ export default function ExpandedTx(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
+  const {bottomPadding} = useGlobalInsets();
+
   const transaction = props.route.params.transaction;
-  console.log(transaction, 'transaction');
   const transactionPaymentType = transaction.paymentType;
-
   const isFailedPayment = transaction.paymentStatus === 'failed';
-
   const isPending = transaction.paymentStatus === 'pending';
-
+  const isSuccessful = !isFailedPayment && !isPending;
   const paymentDate = new Date(transaction.details.time);
-
+  const amount = transaction?.details?.amount;
   const description = transaction.details.description;
 
   const month = paymentDate.toLocaleString('default', {month: 'short'});
   const day = paymentDate.getDate();
   const year = paymentDate.getFullYear();
+
   useHandleBackPressNew();
 
   const isLRC20Payment = transaction.details.isLRC20Payment;
   const selectedToken = isLRC20Payment
     ? sparkInformation.tokens?.[transaction.details.LRC20Token]
     : '';
-
   const formattedTokensBalance = formatTokensNumber(
     transaction?.details?.amount,
     selectedToken?.tokenMetadata?.decimals,
   );
 
+  const getStatusColors = () => {
+    if (isPending) {
+      return {
+        outer: theme
+          ? COLORS.expandedTxDarkModePendingOuter
+          : COLORS.expandedTXLightModePendingOuter,
+        inner: theme
+          ? COLORS.expandedTxDarkModePendingInner
+          : COLORS.expandedTXLightModePendingInner,
+        text: theme
+          ? COLORS.darkModeText
+          : COLORS.expandedTXLightModePendingInner,
+        bg: theme
+          ? COLORS.expandedTxDarkModePendingInner
+          : COLORS.expandedTXLightModePendingOuter,
+      };
+    }
+
+    if (isFailedPayment) {
+      return {
+        outer:
+          theme && darkModeType
+            ? COLORS.lightsOutBackgroundOffset
+            : COLORS.expandedTXLightModeFailed,
+        inner: theme && darkModeType ? COLORS.white : COLORS.cancelRed,
+        text: theme && darkModeType ? COLORS.white : COLORS.cancelRed,
+        bg:
+          theme && darkModeType
+            ? COLORS.lightsOutBackground
+            : COLORS.expandedTXLightModeFailed,
+      };
+    }
+
+    return {
+      outer: theme
+        ? COLORS.expandedTXDarkModeConfirmd
+        : COLORS.expandedTXLightModeConfirmd,
+      inner: theme ? COLORS.darkModeText : COLORS.primary,
+      text: theme ? COLORS.darkModeText : COLORS.primary,
+      bg: theme
+        ? COLORS.expandedTXDarkModeConfirmd
+        : COLORS.expandedTXLightModeConfirmd,
+    };
+  };
+
+  const statusColors = getStatusColors();
+
+  const renderStatusIcon = () => {
+    const iconSize = isPending ? 40 : 25;
+    const iconColor = isPending
+      ? theme
+        ? COLORS.darkModeText
+        : backgroundColor
+      : backgroundColor;
+
+    const iconName = isPending
+      ? 'pendingTxIcon'
+      : isFailedPayment
+      ? 'expandedTxClose'
+      : 'expandedTxCheck';
+
+    return (
+      <Icon
+        width={iconSize}
+        height={iconSize}
+        color={iconColor}
+        name={iconName}
+      />
+    );
+  };
+
+  const renderPaymentStatus = () => (
+    <View style={styles.paymentStatusContainer}>
+      <ThemeText
+        content={t('screens.inAccount.expandedTxPage.paymentStatus')}
+      />
+      <View style={[styles.statusBadge, {backgroundColor: statusColors.bg}]}>
+        <ThemeText
+          styles={{...styles.statusText, color: statusColors.text}}
+          content={
+            isPending
+              ? t('transactionLabelText.pending')
+              : isFailedPayment
+              ? t('transactionLabelText.failed')
+              : t('transactionLabelText.successful')
+          }
+        />
+      </View>
+    </View>
+  );
+
+  const renderInfoRow = (label, value, isLarge = false) => (
+    <View style={styles.infoRow}>
+      <ThemeText content={label} />
+
+      <ThemeText
+        content={value}
+        styles={{
+          ...styles.infoValue,
+          ...(isLarge ? styles.infoValueLarge : {}),
+        }}
+      />
+    </View>
+  );
+
+  const renderLRC20TokenRow = () => {
+    if (!isLRC20Payment) return null;
+
+    return (
+      <View style={styles.infoRow}>
+        <ThemeText content={t('constants.token')} />
+        <ThemeText
+          CustomNumberOfLines={1}
+          content={selectedToken?.tokenMetadata?.tokenTicker
+            ?.toUpperCase()
+            ?.slice(0, TOKEN_TICKER_MAX_LENGTH)}
+          styles={styles.tokenText}
+        />
+      </View>
+    );
+  };
+
+  const renderDescription = () => {
+    if (!description) return null;
+
+    return (
+      <View style={styles.descriptionContainer}>
+        <ThemeText
+          content={t('transactionLabelText.memo')}
+          styles={styles.descriptionHeader}
+        />
+        <View style={[styles.descriptionContent, {backgroundColor}]}>
+          <ScrollView
+            nestedScrollEnabled={true}
+            showsVerticalScrollIndicator={false}>
+            <ThemeText content={description} />
+          </ScrollView>
+        </View>
+      </View>
+    );
+  };
+
+  const formatTime = date => {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
+
   return (
-    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
-      <View style={{flex: 1}}>
-        <TouchableOpacity
-          style={{marginRight: 'auto'}}
-          onPress={navigate.goBack}>
+    <GlobalThemeView styles={styles.container} useStandardWidth={true}>
+      <View style={styles.content}>
+        {/* Header */}
+        <TouchableOpacity style={styles.backButton} onPress={navigate.goBack}>
           <ThemeImage
             darkModeIcon={ICONS.smallArrowLeft}
             lightModeIcon={ICONS.smallArrowLeft}
@@ -75,74 +222,35 @@ export default function ExpandedTx(props) {
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollViewContentContainer}>
+          contentContainerStyle={[
+            styles.scrollContent,
+            {paddingBottom: bottomPadding},
+          ]}>
           <View
-            style={{
-              ...styles.receiptContainer,
-              backgroundColor: theme ? backgroundOffset : COLORS.white,
-            }}>
-            <View
-              style={{
-                ...styles.paymentStatusOuterContainer,
-                backgroundColor: backgroundColor,
-              }}>
+            style={[
+              styles.receiptContainer,
+              {backgroundColor: theme ? backgroundOffset : COLORS.white},
+            ]}>
+            {/* Status Circle */}
+            <View style={[styles.statusOuterCircle, {backgroundColor}]}>
               <View
-                style={{
-                  ...styles.paymentStatusFirstCircle,
-                  backgroundColor: isPending
-                    ? theme
-                      ? COLORS.expandedTxDarkModePendingOuter
-                      : COLORS.expandedTXLightModePendingOuter
-                    : isFailedPayment
-                    ? theme && darkModeType
-                      ? COLORS.lightsOutBackgroundOffset
-                      : COLORS.expandedTXLightModeFailed
-                    : theme
-                    ? COLORS.expandedTXDarkModeConfirmd
-                    : COLORS.expandedTXLightModeConfirmd,
-                }}>
+                style={[
+                  styles.statusFirstCircle,
+                  {backgroundColor: statusColors.outer},
+                ]}>
                 <View
-                  style={{
-                    ...styles.paymentStatusSecondCircle,
-                    backgroundColor: isPending
-                      ? theme
-                        ? COLORS.expandedTxDarkModePendingInner
-                        : COLORS.expandedTXLightModePendingInner
-                      : isFailedPayment
-                      ? theme && darkModeType
-                        ? COLORS.white
-                        : COLORS.cancelRed
-                      : theme
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                  }}>
-                  <Icon
-                    width={isPending ? 40 : 25}
-                    height={isPending ? 40 : 25}
-                    color={
-                      isPending
-                        ? theme
-                          ? COLORS.darkModeText
-                          : backgroundColor
-                        : backgroundColor
-                    }
-                    name={
-                      isPending
-                        ? 'pendingTxIcon'
-                        : isFailedPayment
-                        ? 'expandedTxClose'
-                        : 'expandedTxCheck'
-                    }
-                  />
+                  style={[
+                    styles.statusSecondCircle,
+                    {backgroundColor: statusColors.inner},
+                  ]}>
+                  {renderStatusIcon()}
                 </View>
               </View>
             </View>
+
+            {/* Transaction Message */}
             <ThemeText
-              styles={{
-                marginTop: 10,
-                fontWeight: 'light',
-                includeFontPadding: false,
-              }}
+              styles={styles.confirmMessage}
               content={t('screens.inAccount.expandedTxPage.confirmMessage', {
                 direction:
                   transaction.details.direction === 'OUTGOING' ||
@@ -151,31 +259,37 @@ export default function ExpandedTx(props) {
                     : t('constants.received'),
               })}
             />
+
+            {/* Amount */}
             <FormattedSatText
-              containerStyles={{marginTop: -5}}
+              containerStyles={styles.amountContainer}
               neverHideBalance={true}
-              styles={{
-                fontSize: SIZES.xxLarge,
-                includeFontPadding: false,
-                textAlign: 'center',
-              }}
+              styles={styles.primaryAmount}
               balance={
                 isLRC20Payment && formattedTokensBalance > 1
                   ? formattedTokensBalance
-                  : transaction.details.amount
+                  : amount
               }
               useCustomLabel={isLRC20Payment}
               customLabel={selectedToken?.tokenMetadata?.tokenTicker}
               useMillionDenomination={true}
             />
+
+            {/* Secondary Amount Display */}
+            {!isLRC20Payment && amount >= 1_000_000 && (
+              <FormattedSatText
+                containerStyles={styles.secondaryAmountContainer}
+                neverHideBalance={true}
+                styles={styles.secondaryAmount}
+                balance={amount}
+              />
+            )}
+
             {isLRC20Payment && formattedTokensBalance < 1 && (
               <FormattedSatText
-                containerStyles={{marginTop: -5}}
+                containerStyles={styles.secondaryAmountContainer}
                 neverHideBalance={true}
-                styles={{
-                  fontSize: SIZES.small,
-                  includeFontPadding: false,
-                }}
+                styles={styles.secondaryAmount}
                 balance={formatTokensNumber(
                   transaction.details.amount,
                   selectedToken?.tokenMetadata?.decimals,
@@ -185,155 +299,57 @@ export default function ExpandedTx(props) {
                 useMillionDenomination={true}
               />
             )}
-            <View style={styles.paymentStatusTextContainer}>
-              <ThemeText
-                content={t('screens.inAccount.expandedTxPage.paymentStatus')}
-              />
-              <View
-                style={{
-                  backgroundColor: isPending
-                    ? theme
-                      ? COLORS.expandedTxDarkModePendingInner
-                      : COLORS.expandedTXLightModePendingOuter
-                    : isFailedPayment
-                    ? theme && darkModeType
-                      ? COLORS.lightsOutBackground
-                      : COLORS.expandedTXLightModeFailed
-                    : theme
-                    ? COLORS.expandedTXDarkModeConfirmd
-                    : COLORS.expandedTXLightModeConfirmd,
-                  paddingVertical: 2,
-                  paddingHorizontal: 25,
-                  borderRadius: 20,
-                }}>
-                <ThemeText
-                  styles={{
-                    color: isPending
-                      ? theme
-                        ? COLORS.darkModeText
-                        : COLORS.expandedTXLightModePendingInner
-                      : isFailedPayment
-                      ? theme && darkModeType
-                        ? COLORS.white
-                        : COLORS.cancelRed
-                      : theme
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                    includeFontPadding: false,
-                  }}
-                  content={
-                    isPending
-                      ? t('transactionLabelText.pending')
-                      : isFailedPayment
-                      ? t('transactionLabelText.failed')
-                      : t('transactionLabelText.successful')
-                  }
-                />
-              </View>
-            </View>
+
+            {/* Payment Status */}
+            {renderPaymentStatus()}
+
+            {/* Divider */}
             <Border />
-            <View style={styles.infoLine}>
-              <ThemeText content={t('transactionLabelText.date')} />
-              <ThemeText
-                styles={{fontSize: SIZES.large}}
-                content={`${month} ${day} ${year}`}
-              />
-            </View>
-            <View style={styles.infoLine}>
-              <ThemeText content={t('transactionLabelText.time')} />
-              <ThemeText
-                content={`${
-                  paymentDate.getHours() <= 9
-                    ? '0' + paymentDate.getHours()
-                    : paymentDate.getHours()
-                }:${
-                  paymentDate.getMinutes() <= 9
-                    ? '0' + paymentDate.getMinutes()
-                    : paymentDate.getMinutes()
-                }`}
-                styles={{fontSize: SIZES.large}}
-              />
-            </View>
-            <View style={styles.infoLine}>
-              <ThemeText content={t('constants.fee')} />
-              <FormattedSatText
-                neverHideBalance={true}
-                styles={{fontSize: SIZES.large}}
-                balance={isFailedPayment ? 0 : transaction.details.fee}
-              />
-            </View>
-            <View style={styles.infoLine}>
-              <ThemeText content={t('constants.type')} />
-              <ThemeText
-                content={transactionPaymentType}
-                styles={{fontSize: SIZES.large, textTransform: 'capitalize'}}
-              />
-            </View>
-            {isLRC20Payment && (
-              <View style={styles.infoLine}>
-                <ThemeText content={t('constants.token')} />
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  content={selectedToken?.tokenMetadata?.tokenTicker
-                    ?.toUpperCase()
-                    ?.slice(0, TOKEN_TICKER_MAX_LENGTH)}
-                  styles={{
-                    fontSize: SIZES.large,
-                    textTransform: 'uppercase',
-                    flexGrow: 1,
-                    textAlign: 'right',
-                    marginLeft: 10,
-                  }}
+
+            {/* Transaction Details */}
+            <View style={styles.detailsSection}>
+              {renderInfoRow(
+                t('transactionLabelText.date'),
+                `${month} ${day} ${year}`,
+                true,
+              )}
+
+              {renderInfoRow(
+                t('transactionLabelText.time'),
+                formatTime(paymentDate),
+                true,
+              )}
+
+              <View style={styles.infoRow}>
+                <ThemeText content={t('constants.fee')} />
+                <FormattedSatText
+                  neverHideBalance={true}
+                  styles={styles.infoValueLarge}
+                  balance={isFailedPayment ? 0 : transaction.details.fee}
                 />
               </View>
-            )}
 
-            {isPending && transaction.paymentType === 'bitcoin' && (
-              <View style={styles.infoLine}>
-                <ThemeText
-                  content={t('screens.inAccount.expandedTxPage.confReqired')}
-                />
-                <ThemeText
-                  styles={{fontSize: SIZES.large}}
-                  content={
-                    transaction.details.direction === 'INCOMING' ? '3' : '2'
-                  }
-                />
-              </View>
-            )}
+              {renderInfoRow(t('constants.type'), transactionPaymentType, true)}
 
-            {description && (
-              <View style={styles.descriptionContainer}>
-                <ThemeText
-                  content={t('transactionLabelText.memo')}
-                  styles={styles.descriptionHeader}
-                />
-                <View
-                  style={[
-                    styles.descriptionContentContainer,
-                    {
-                      backgroundColor: backgroundColor,
-                    },
-                  ]}>
-                  <ScrollView
-                    nestedScrollEnabled={true}
-                    horizontal={false}
-                    showsVerticalScrollIndicator={false}>
-                    <ThemeText
-                      content={description}
-                      styles={styles.buttonText}
-                    />
-                  </ScrollView>
-                </View>
-              </View>
-            )}
+              {renderLRC20TokenRow()}
 
+              {isPending &&
+                transaction.paymentType === 'bitcoin' &&
+                renderInfoRow(
+                  t('screens.inAccount.expandedTxPage.confReqired'),
+                  transaction.details.direction === 'INCOMING' ? '3' : '2',
+                  true,
+                )}
+            </View>
+
+            {/* Description */}
+            {renderDescription()}
+
+            {/* Details Button */}
             <CustomButton
               buttonStyles={{
-                width: 'auto',
-                ...CENTER,
+                ...styles.detailsButton,
                 backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-                marginVertical: 20,
               }}
               textStyles={{
                 color: theme ? COLORS.lightModeText : COLORS.darkModeText,
@@ -346,6 +362,7 @@ export default function ExpandedTx(props) {
               }}
             />
 
+            {/* Receipt Dots */}
             <ReceiptDots />
           </View>
         </ScrollView>
@@ -355,25 +372,23 @@ export default function ExpandedTx(props) {
 }
 
 function Border() {
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const {theme} = useGlobalThemeContext();
   const dotsWidth = SCREEN_DIMENSIONS.width * 0.95 - 30;
   const numDots = Math.floor(dotsWidth / 25);
 
-  let dotElements = [];
-
-  for (let index = 0; index < numDots; index++) {
-    dotElements.push(
-      <View
-        key={index}
-        style={{
-          width: 20,
-          height: 2,
+  const dotElements = Array.from({length: numDots}, (_, index) => (
+    <View
+      key={index}
+      style={[
+        styles.borderDot,
+        {
           backgroundColor: theme
             ? COLORS.darkModeText
             : COLORS.lightModeBackground,
-        }}></View>,
-    );
-  }
+        },
+      ]}
+    />
+  ));
 
   return <View style={styles.borderContainer}>{dotElements}</View>;
 }
@@ -383,116 +398,169 @@ function ReceiptDots() {
   const dotsWidth = SCREEN_DIMENSIONS.width * 0.95 - 30;
   const numDots = Math.floor(dotsWidth / 25);
 
-  let dotElements = [];
-
-  for (let index = 0; index < numDots; index++) {
-    dotElements.push(
-      <View
-        key={index}
-        style={{
-          width: 20,
-          height: 20,
-          borderRadius: 10,
-          backgroundColor: backgroundColor,
-        }}></View>,
-    );
-  }
+  const dotElements = Array.from({length: numDots}, (_, index) => (
+    <View key={index} style={[styles.receiptDot, {backgroundColor}]} />
+  ));
 
   return <View style={styles.receiptDotsContainer}>{dotElements}</View>;
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {paddingBottom: 0},
-  borderContainer: {
-    width: '100%',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    marginBottom: 20,
+  container: {
+    paddingBottom: 0,
   },
-  receiptDotsContainer: {
-    position: 'absolute',
-    bottom: Platform.OS == 'ios' ? -12 : -10,
-    width: '100%',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
+  content: {
+    flex: 1,
   },
-  scrollViewContentContainer: {
+  backButton: {
+    marginRight: 'auto',
+  },
+  scrollContent: {
     width: '95%',
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     ...CENTER,
   },
   receiptContainer: {
     width: '100%',
-    height: 'auto',
     borderTopRightRadius: 20,
     borderTopLeftRadius: 20,
-    padding: 15,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
     paddingTop: 40,
     ...CENTER,
     alignItems: 'center',
-    marginTop: 80,
-    marginBottom: 20,
+    marginTop: 50,
+    // marginBottom: 20,
   },
-  paymentStatusOuterContainer: {
+  statusOuterCircle: {
     width: 100,
     height: 100,
     position: 'absolute',
-    top: -70,
+    top: -50,
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  paymentStatusFirstCircle: {
+  statusFirstCircle: {
     width: 80,
     height: 80,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 40,
   },
-  paymentStatusSecondCircle: {
+  statusSecondCircle: {
     width: 60,
     height: 60,
-    borderRadius: 40,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  paymentStatusTextContainer: {
+  confirmMessage: {
+    marginTop: 20,
+    includeFontPadding: false,
+    textAlign: 'center',
+  },
+  amountContainer: {
+    marginTop: 8,
+  },
+  primaryAmount: {
+    fontSize: SIZES.xxLarge,
+    includeFontPadding: false,
+    textAlign: 'center',
+  },
+  secondaryAmountContainer: {
+    marginTop: 4,
+  },
+  secondaryAmount: {
+    fontSize: SIZES.small,
+    includeFontPadding: false,
+    textAlign: 'center',
+    opacity: 0.7,
+  },
+  paymentStatusContainer: {
     width: '100%',
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
-    marginTop: 30,
-    marginBottom: 10,
+    marginTop: 24,
   },
-  infoLine: {
+  statusBadge: {
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+  },
+  statusText: {
+    includeFontPadding: false,
+    fontSize: SIZES.small,
+  },
+  borderContainer: {
+    width: '100%',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    marginVertical: 20,
+  },
+  borderDot: {
+    width: 20,
+    height: 2,
+    borderRadius: 1,
+  },
+  detailsSection: {
+    width: '100%',
+    gap: 12, // Using gap for consistent spacing
+  },
+  infoRow: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
   },
-
+  infoValue: {
+    fontSize: SIZES.medium,
+  },
+  infoValueLarge: {
+    fontSize: SIZES.large,
+  },
+  tokenText: {
+    fontSize: SIZES.large,
+    textTransform: 'uppercase',
+    flex: 1,
+    textAlign: 'right',
+    marginLeft: 10,
+  },
   descriptionContainer: {
     width: '100%',
-    maxWidth: 300,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 20,
   },
   descriptionHeader: {
-    fontSize: SIZES.medium,
-    fontFamily: FONT.Title_Regular,
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  descriptionContentContainer: {
+  descriptionContent: {
     width: '100%',
-    height: 100,
-    padding: 10,
+    maxHeight: 120,
+    minHeight: 100,
+    padding: 12,
     borderRadius: 8,
   },
 
-  buttonText: {
-    fontFamily: FONT.Descriptoin_Regular,
-    fontSize: SIZES.medium,
+  detailsButton: {
+    width: 'auto',
+    ...CENTER,
+    marginVertical: 24,
+    borderRadius: 8,
+  },
+  receiptDotsContainer: {
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? -10 : -8,
+    width: '100%',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+  },
+  receiptDot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
   },
 });
