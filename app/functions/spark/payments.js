@@ -42,11 +42,12 @@ export const sparkPaymenWrapper = async ({
     console.log('Begining spark payment');
     if (!sparkWallet[sha256Hash(mnemonic)])
       throw new Error('sparkWallet not initialized');
-    const supportFee = await calculateProgressiveBracketFee(
-      amountSats,
-      paymentType,
-      mnemonic,
-    );
+    const supportFee = 0;
+    // await calculateProgressiveBracketFee(
+    //   amountSats,
+    //   paymentType,
+    //   mnemonic,
+    // );
     if (getFee) {
       console.log('Calculating spark payment fee');
       let calculatedFee = 0;
@@ -309,19 +310,19 @@ async function handleSupportPayment(masterInfoObject, supportFee, mnemonic) {
   try {
     if (!supportFee) return;
     if (masterInfoObject?.enabledDeveloperSupport?.isEnabled) {
-      const txPromise = sendSparkPayment({
-        receiverSparkAddress: process.env.BLITZ_SPARK_SUPPORT_ADDRESSS,
-        amountSats: supportFee,
-        mnemonic,
-      });
-      await Promise.race([
-        txPromise,
-        new Promise(res => setTimeout(res, 30000)),
-      ]);
-      txPromise.catch(err =>
-        console.log('Error sending support payment (late)', err),
-      );
-      await new Promise(res => setTimeout(res, 800)); // wait a bit
+      // const txPromise = sendSparkPayment({
+      //   receiverSparkAddress: process.env.BLITZ_SPARK_SUPPORT_ADDRESSS,
+      //   amountSats: supportFee,
+      //   mnemonic,
+      // });
+      // await Promise.race([
+      //   txPromise,
+      //   new Promise(res => setTimeout(res, 30000)),
+      // ]);
+      // txPromise.catch(err =>
+      //   console.log('Error sending support payment (late)', err),
+      // );
+      // await new Promise(res => setTimeout(res, 800)); // wait a bit
     }
   } catch (err) {
     console.log('Error sending support payment', err);
