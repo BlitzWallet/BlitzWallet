@@ -519,7 +519,20 @@ const SparkWalletProvider = ({children}) => {
                 txid.txid,
                 currentWalletMnemoinc,
               );
-            console.log('Deposit address quote:', quote);
+            const hasAlreadySaved = savedTxMap.has(txid.txid);
+
+            if (!txid.isConfirmed) {
+              if (!hasAlreadySaved) {
+                await addPendingTransaction(
+                  {
+                    transactionId: txid.txid,
+                    creditAmountSats: txid.amount - txid.fee,
+                  },
+                  address,
+                  sparkInformation,
+                );
+              }
+            }
 
             if (!didwork || !quote) {
               console.log(error, 'Error getting deposit address quote');
@@ -533,17 +546,6 @@ const SparkWalletProvider = ({children}) => {
 
             if (claimedTxs?.includes(quote.signature)) {
               continue;
-            }
-
-            const hasAlreadySaved = savedTxMap.has(quote.transactionId);
-            console.log('Has already saved transaction:', hasAlreadySaved);
-
-            // Add transaction if not already saved (regardless of claim status)
-            if (!txid.isConfirmed) {
-              if (!hasAlreadySaved) {
-                await addPendingTransaction(quote, address, sparkInformation);
-              }
-              continue; // Don't attempt claiming until confirmed
             }
 
             // Case 2: Transaction is confirmed - attempt to claim
