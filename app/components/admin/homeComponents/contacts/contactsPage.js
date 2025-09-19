@@ -456,36 +456,35 @@ const PinnedContactElement = memo(
     }, []);
 
     return (
-      <TouchableOpacity onLongPress={handleLongPress} onPress={handlePress}>
-        <View style={pinnedContactStyle}>
-          <View style={imageContainerStyle}>
-            <ContactProfileImage
-              updated={cache[contact.uuid]?.updated}
-              uri={cache[contact.uuid]?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          </View>
+      <TouchableOpacity
+        style={pinnedContactStyle}
+        onLongPress={handleLongPress}
+        onPress={handlePress}>
+        <View style={imageContainerStyle}>
+          <ContactProfileImage
+            updated={cache[contact.uuid]?.updated}
+            uri={cache[contact.uuid]?.localUri}
+            darkModeType={darkModeType}
+            theme={theme}
+          />
+        </View>
 
-          <View style={memoizedStyles.pinnedContactNotificationContainer}>
-            {hasUnlookedTransaction && <View style={notificationStyle} />}
-            <View
-              style={pinnedContactTextContinaer}
-              onLayout={handleTextLayout}>
-              <ThemeText
-                CustomEllipsizeMode="tail"
-                CustomNumberOfLines={1}
-                styles={{
-                  fontSize: SIZES.small,
-                  textAlign: 'center',
-                }}
-                content={
-                  contact.name?.length
-                    ? contact.name.trim()
-                    : contact.uniqueName.trim()
-                }
-              />
-            </View>
+        <View style={memoizedStyles.pinnedContactNotificationContainer}>
+          {hasUnlookedTransaction && <View style={notificationStyle} />}
+          <View style={pinnedContactTextContinaer} onLayout={handleTextLayout}>
+            <ThemeText
+              CustomEllipsizeMode="tail"
+              CustomNumberOfLines={1}
+              styles={{
+                fontSize: SIZES.small,
+                textAlign: 'center',
+              }}
+              content={
+                contact.name?.length
+                  ? contact.name.trim()
+                  : contact.uniqueName.trim()
+              }
+            />
           </View>
         </View>
       </TouchableOpacity>
@@ -546,81 +545,80 @@ const ContactElement = memo(
     }, [contact, navigateToExpandedContact]);
 
     return (
-      <TouchableOpacity onLongPress={handleLongPress} onPress={handlePress}>
-        <View style={memoizedStyles.contactRowContainer}>
-          <View style={imageContainerStyle}>
-            <ContactProfileImage
-              updated={cache[contact.uuid]?.updated}
-              uri={cache[contact.uuid]?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
+      <TouchableOpacity
+        style={memoizedStyles.contactRowContainer}
+        onLongPress={handleLongPress}
+        onPress={handlePress}>
+        <View style={imageContainerStyle}>
+          <ContactProfileImage
+            updated={cache[contact.uuid]?.updated}
+            uri={cache[contact.uuid]?.localUri}
+            darkModeType={darkModeType}
+            theme={theme}
+          />
+        </View>
+        <View style={memoizedStyles.globalContainer}>
+          <View style={memoizedStyles.contactsRowInlineStyle}>
+            <ThemeText
+              CustomEllipsizeMode={'tail'}
+              CustomNumberOfLines={1}
+              styles={{
+                flex: 1,
+                width: '100%',
+                marginRight: 5,
+              }}
+              content={contact.name?.length ? contact.name : contact.uniqueName}
             />
-          </View>
-          <View style={memoizedStyles.globalContainer}>
+            {hasUnlookedTransaction && <View style={notificationStyle} />}
             <View style={memoizedStyles.contactsRowInlineStyle}>
               <ThemeText
-                CustomEllipsizeMode={'tail'}
-                CustomNumberOfLines={1}
                 styles={{
-                  flex: 1,
-                  width: '100%',
+                  fontSize: SIZES.small,
                   marginRight: 5,
                 }}
                 content={
-                  contact.name?.length ? contact.name : contact.uniqueName
+                  lastUpdated
+                    ? createFormattedDate(
+                        lastUpdated - serverTimeOffset,
+                        currentTime - serverTimeOffset,
+                        t,
+                      )
+                    : ''
                 }
               />
-              {hasUnlookedTransaction && <View style={notificationStyle} />}
-              <View style={memoizedStyles.contactsRowInlineStyle}>
-                <ThemeText
-                  styles={{
-                    fontSize: SIZES.small,
-                    marginRight: 5,
-                  }}
-                  content={
-                    lastUpdated
-                      ? createFormattedDate(
-                          lastUpdated - serverTimeOffset,
-                          currentTime - serverTimeOffset,
-                          t,
-                        )
-                      : ''
-                  }
-                />
-                <ThemeImage
-                  styles={{
-                    width: 20,
-                    height: 20,
-                    transform: [{rotate: '180deg'}],
-                  }}
-                  darkModeIcon={ICONS.leftCheveronIcon}
-                  lightModeIcon={ICONS.leftCheveronIcon}
-                  lightsOutIcon={ICONS.left_cheveron_white}
-                />
-              </View>
+              <ThemeImage
+                styles={{
+                  width: 20,
+                  height: 20,
+                  transform: [{rotate: '180deg'}],
+                }}
+                darkModeIcon={ICONS.leftCheveronIcon}
+                lightModeIcon={ICONS.leftCheveronIcon}
+                lightsOutIcon={ICONS.left_cheveron_white}
+              />
             </View>
-            <View style={memoizedStyles.contactsRowInlineStyle}>
+          </View>
+          <View style={memoizedStyles.contactsRowInlineStyle}>
+            <ThemeText
+              CustomNumberOfLines={2}
+              styles={{
+                fontSize: SIZES.small,
+              }}
+              content={lastUpdated ? formatMessage(firstMessage) || ' ' : ' '}
+            />
+            {!contact.isAdded && (
               <ThemeText
-                CustomNumberOfLines={2}
                 styles={{
                   fontSize: SIZES.small,
+                  color:
+                    darkModeType && theme
+                      ? COLORS.darkModeText
+                      : COLORS.primary,
+                  marginLeft: 'auto',
                 }}
-                content={lastUpdated ? formatMessage(firstMessage) || ' ' : ' '}
+                content={t('contacts.contactsPage.unknownSender')}
               />
-              {!contact.isAdded && (
-                <ThemeText
-                  styles={{
-                    fontSize: SIZES.small,
-                    color:
-                      darkModeType && theme
-                        ? COLORS.darkModeText
-                        : COLORS.primary,
-                    marginLeft: 'auto',
-                  }}
-                  content={t('contacts.contactsPage.unknownSender')}
-                />
-              )}
-            </View>
+            )}
           </View>
         </View>
       </TouchableOpacity>

@@ -17,6 +17,7 @@ import {memo, useMemo, useCallback} from 'react';
 import {crashlyticsLogReport} from './crashlyticsLogs';
 import SkeletonPlaceholder from './CustomElements/skeletonView';
 import formatTokensNumber from './lrc20/formatTokensBalance';
+import FastImage from 'react-native-fast-image';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -382,7 +383,6 @@ export const UserTransaction = memo(function UserTransaction({
         ? COLORS.darkModeText
         : COLORS.lightModeText,
       fontStyle: isFailedPayment ? 'italic' : 'normal',
-      marginRight: 20,
     }),
     [isFailedPayment, theme, darkModeType],
   );
@@ -470,69 +470,60 @@ export const UserTransaction = memo(function UserTransaction({
   return (
     <TouchableOpacity
       style={{
+        ...styles.transactionContainer,
         width: containerWidth,
-        ...CENTER,
       }}
       activeOpacity={frompage === TRANSACTION_CONSTANTS.SPARK_WALLET ? 1 : 0.5}
       onPress={handlePress}>
-      <View style={styles.transactionContainer}>
-        {showPendingTransactionStatusIcon ? (
-          <View style={styles.icons}>
-            <Icon
-              width={27}
-              height={27}
-              color={
-                darkModeType && theme ? COLORS.darkModeText : COLORS.primary
-              }
-              name="pendingTxIcon"
-            />
-          </View>
-        ) : (
-          <Image
-            source={paymentImage}
-            style={[styles.icons, imageTransformStyle]}
-            resizeMode="contain"
-          />
-        )}
-        <View style={styles.transactionContent}>
-          <ThemeText
-            CustomEllipsizeMode="tail"
-            CustomNumberOfLines={1}
-            styles={descriptionTextStyle}
-            content={descriptionContent}
-          />
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={dateTextStyle}
-            content={timeDisplayContent}
+      {showPendingTransactionStatusIcon ? (
+        <View style={styles.icons}>
+          <Icon
+            width={27}
+            height={27}
+            color={darkModeType && theme ? COLORS.darkModeText : COLORS.primary}
+            name="pendingTxIcon"
           />
         </View>
-        {!isFailedPayment && (
-          <FormattedSatText
-            containerStyles={styles.amountContainer}
-            frontText={
-              userBalanceDenomination !== 'hidden'
-                ? transaction.details.direction ===
-                  TRANSACTION_CONSTANTS.INCOMING
-                  ? '+'
-                  : '-'
-                : ''
-            }
-            styles={styles.amountText}
-            balance={
-              isLRC20Payment
-                ? formatTokensNumber(
-                    transaction.details.amount,
-                    token?.decimals,
-                  )
-                : transaction.details.amount
-            }
-            useCustomLabel={isLRC20Payment}
-            customLabel={token?.tokenTicker?.slice(0, 3)}
-            useMillionDenomination={true}
-          />
-        )}
+      ) : (
+        <FastImage
+          source={paymentImage}
+          style={[styles.icons, imageTransformStyle]}
+          resizeMode="contain"
+        />
+      )}
+      <View style={styles.transactionContent}>
+        <ThemeText
+          CustomEllipsizeMode="tail"
+          CustomNumberOfLines={1}
+          styles={descriptionTextStyle}
+          content={descriptionContent}
+        />
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={dateTextStyle}
+          content={timeDisplayContent}
+        />
       </View>
+      {!isFailedPayment && (
+        <FormattedSatText
+          containerStyles={styles.amountContainer}
+          frontText={
+            userBalanceDenomination !== 'hidden'
+              ? transaction.details.direction === TRANSACTION_CONSTANTS.INCOMING
+                ? '+'
+                : '-'
+              : ''
+          }
+          balance={
+            isLRC20Payment
+              ? formatTokensNumber(transaction.details.amount, token?.decimals)
+              : transaction.details.amount
+          }
+          useCustomLabel={isLRC20Payment}
+          customLabel={token?.tokenTicker?.slice(0, 3)}
+          useMillionDenomination={true}
+        />
+      )}
     </TouchableOpacity>
   );
 });
@@ -555,19 +546,16 @@ const styles = StyleSheet.create({
   transactionContent: {
     flex: 1,
     width: '100%',
+    marginRight: 20,
   },
   descriptionText: {
     includeFontPadding: false,
-    fontWeight: 400,
-    marginRight: 20,
   },
   dateText: {
     fontSize: SIZES.small,
     includeFontPadding: false,
   },
-  amountText: {
-    fontWeight: 400,
-  },
+
   amountContainer: {
     marginLeft: 'auto',
     marginBottom: 'auto',

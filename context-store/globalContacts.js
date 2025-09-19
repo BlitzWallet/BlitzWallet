@@ -279,6 +279,19 @@ export const GlobalContactsList = ({children}) => {
     return giftCards;
   }, [contactsMessags]);
 
+  const hasUnlookedTransactions = useMemo(() => {
+    return Object.keys(contactsMessags).some(contactUUID => {
+      if (
+        contactUUID === 'lastMessageTimestamp' ||
+        contactUUID === globalContactsInformation?.myProfile?.uuid
+      ) {
+        return false;
+      }
+      const messages = contactsMessags[contactUUID]?.messages;
+      return messages?.some(message => !message.message.wasSeen) || false;
+    });
+  }, [contactsMessags, globalContactsInformation?.myProfile?.uuid]);
+
   const contextValue = useMemo(
     () => ({
       decodedAddedContacts,
@@ -287,6 +300,7 @@ export const GlobalContactsList = ({children}) => {
       contactsMessags,
       updatedCachedMessagesStateFunction,
       giftCardsList,
+      hasUnlookedTransactions,
     }),
     [
       decodedAddedContacts,
@@ -295,6 +309,7 @@ export const GlobalContactsList = ({children}) => {
       contactsMessags,
       updatedCachedMessagesStateFunction,
       giftCardsList,
+      hasUnlookedTransactions,
     ],
   );
 

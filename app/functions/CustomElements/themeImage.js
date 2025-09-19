@@ -1,7 +1,6 @@
-import {Image, Text, View} from 'react-native';
-import Icon from './Icon';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useMemo} from 'react';
+import FastImage from 'react-native-fast-image';
 
 export default function ThemeImage({
   imgName,
@@ -26,7 +25,5 @@ export default function ThemeImage({
         : darkModeIcon
       : lightModeIcon;
   }, [theme, darkModeType, lightsOutIcon, darkModeIcon, lightModeIcon]);
-  return (
-    <>{isSVG ? <Icon /> : <Image style={imageStyles} source={imageSource} />}</>
-  );
+  return <FastImage style={imageStyles} source={imageSource} />;
 }

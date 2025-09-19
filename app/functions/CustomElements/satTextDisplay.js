@@ -19,7 +19,6 @@ export default function FormattedSatText({
   reversed,
   frontText,
   containerStyles,
-  isFailedPayment,
   neverHideBalance,
   globalBalanceDenomination,
   backText,
@@ -30,6 +29,7 @@ export default function FormattedSatText({
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const {fiatStats} = useNodeContext();
+
   const localBalanceDenomination =
     globalBalanceDenomination || masterInfoObject.userBalanceDenomination;
   const currencyText = fiatStats.coin || 'USD';
@@ -77,165 +77,67 @@ export default function FormattedSatText({
     localBalanceDenomination === 'sats' ||
     localBalanceDenomination === 'fiat';
 
-  // Hidding balance format
+  const renderText = (content, extra = {}) => (
+    <ThemeText
+      key={content}
+      reversed={reversed}
+      styles={{includeFontPadding: false, ...styles, ...extra}}
+      content={content}
+    />
+  );
+
+  let children = [];
+
   if (!shouldShowAmount) {
-    return (
-      <View
-        style={{
-          ...localStyles.textContainer,
-          ...containerStyles,
-        }}>
-        {frontText && (
-          <ThemeText
-            styles={{includeFontPadding: false, ...styles}}
-            content={`${frontText}`}
-          />
-        )}
-        <ThemeText
-          reversed={reversed}
-          content={HIDDEN_BALANCE_TEXT}
-          styles={{includeFontPadding: false, ...styles}}
-        />
-        {backText && (
-          <ThemeText
-            styles={{includeFontPadding: false, ...styles}}
-            content={`${backText}`}
-          />
-        )}
-      </View>
-    );
-  }
-  if (useCustomLabel) {
-    return (
-      <View
-        style={{
-          ...localStyles.textContainer,
-          ...containerStyles,
-        }}>
-        {frontText && (
-          <ThemeText
-            styles={{includeFontPadding: false, marginLeft: 'auto', ...styles}}
-            content={`${frontText}`}
-          />
-        )}
-        <ThemeText
-          reversed={reversed}
-          content={`${formatBalanceAmount(balance, useMillionDenomination)}`}
-          styles={{
-            includeFontPadding: false,
-            marginLeft: frontText ? 0 : 'auto',
-            ...styles,
-          }}
-        />
-
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={{
-            includeFontPadding: false,
-            flexShrink: 1,
-            ...styles,
-          }}
-          content={` ${customLabel
-            ?.toUpperCase()
-            ?.slice(0, TOKEN_TICKER_MAX_LENGTH)}`}
-        />
-
-        {backText && (
-          <ThemeText
-            styles={{includeFontPadding: false, ...styles}}
-            content={`${backText}`}
-          />
-        )}
-      </View>
-    );
-  }
-  // Bitcoin sats formatting
-  if (showSats) {
-    return (
-      <View
-        style={{
-          ...localStyles.textContainer,
-          ...containerStyles,
-        }}>
-        {frontText && (
-          <ThemeText
-            styles={{includeFontPadding: false, ...styles}}
-            content={`${frontText}`}
-          />
-        )}
-        {showSymbol && (
-          <ThemeText
-            styles={{includeFontPadding: false, ...styles}}
-            content={BITCOIN_SATS_ICON}
-          />
-        )}
-        <ThemeText
-          reversed={reversed}
-          content={`${formattedBalance}`}
-          styles={{includeFontPadding: false, ...styles}}
-        />
-        {!showSymbol && (
-          <ThemeText
-            styles={{includeFontPadding: false, ...styles}}
-            content={` ${BITCOIN_SAT_TEXT}`}
-          />
-        )}
-
-        {backText && (
-          <ThemeText
-            styles={{includeFontPadding: false, ...styles}}
-            content={`${backText}`}
-          />
-        )}
-      </View>
-    );
+    children = [
+      frontText && renderText(frontText),
+      renderText(HIDDEN_BALANCE_TEXT),
+      backText && renderText(backText),
+    ];
+  } else if (useCustomLabel) {
+    children = [
+      frontText && renderText(frontText, {marginLeft: 'auto'}),
+      renderText(formatBalanceAmount(balance, useMillionDenomination), {
+        marginLeft: frontText ? 0 : 'auto',
+      }),
+      renderText(
+        ` ${customLabel?.toUpperCase()?.slice(0, TOKEN_TICKER_MAX_LENGTH)}`,
+        {flexShrink: 1},
+      ),
+      backText && renderText(backText),
+    ];
+  } else if (showSats) {
+    children = [
+      frontText && renderText(frontText),
+      renderText(
+        `${showSymbol ? BITCOIN_SATS_ICON : ''}${formattedBalance}${
+          !showSymbol ? ' ' + BITCOIN_SAT_TEXT : ''
+        }`,
+      ),
+      backText && renderText(backText),
+    ];
+  } else {
+    // Fiat
+    children = [
+      frontText && renderText(frontText),
+      renderText(
+        `${isSymbolInFront && showSymbol ? currencySymbol : ''}${
+          currencyOptions[1]
+        }${!isSymbolInFront && showSymbol ? currencySymbol : ''}${
+          !showSymbol ? ' ' + currencyText : ''
+        }`,
+      ),
+      backText && renderText(backText),
+    ];
   }
 
-  // Fiat format
   return (
-    <View
-      style={{
-        ...localStyles.textContainer,
-        ...containerStyles,
-      }}>
-      {frontText && (
-        <ThemeText
-          styles={{includeFontPadding: false, ...styles}}
-          content={`${frontText}`}
-        />
-      )}
-      {isSymbolInFront && showSymbol && (
-        <ThemeText
-          styles={{includeFontPadding: false, ...styles}}
-          content={currencySymbol}
-        />
-      )}
-      <ThemeText
-        reversed={reversed}
-        content={`${currencyOptions[1]}`}
-        styles={{includeFontPadding: false, ...styles}}
-      />
-      {!isSymbolInFront && showSymbol && (
-        <ThemeText
-          styles={{includeFontPadding: false, ...styles}}
-          content={currencySymbol}
-        />
-      )}
-      {!showSymbol && (
-        <ThemeText
-          styles={{includeFontPadding: false, ...styles}}
-          content={` ${currencyText}`}
-        />
-      )}
-      {backText && (
-        <ThemeText
-          styles={{includeFontPadding: false, ...styles}}
-          content={`${backText}`}
-        />
-      )}
+    <View style={{...localStyles.textContainer, ...containerStyles}}>
+      {children.filter(Boolean)}
     </View>
   );
 }
+
 const localStyles = StyleSheet.create({
   textContainer: {
     alignItems: 'center',
