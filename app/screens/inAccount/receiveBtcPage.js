@@ -110,6 +110,7 @@ export default function ReceivePaymentHome(props) {
     runAddressInit();
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
 
+  console.log(minMaxLiquidSwapAmounts);
   return (
     <GlobalThemeView useStandardWidth={true}>
       <ScrollView
@@ -193,8 +194,10 @@ export default function ReceivePaymentHome(props) {
                   {
                     fee: displayCorrectDenomination({
                       amount:
-                        minMaxLiquidSwapAmounts?.rsk?.submarine?.fees
-                          ?.minerFees || 32,
+                        (minMaxLiquidSwapAmounts?.rsk?.submarine?.fees
+                          ?.minerFees?.claim || 64) +
+                        (minMaxLiquidSwapAmounts?.rsk?.submarine?.fees
+                          ?.minerFees?.lockup || 121),
                       masterInfoObject,
                       fiatStats,
                     }),
