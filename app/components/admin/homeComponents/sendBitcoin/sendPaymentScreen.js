@@ -131,9 +131,8 @@ export default function SendPaymentScreen(props) {
   useEffect(() => {
     async function decodePayment() {
       crashlyticsLogReport('Begining decode payment process');
-      const didPay = hasAlredyPaidInvoice({
+      const didPay = await hasAlredyPaidInvoice({
         scannedAddress: btcAdress,
-        sparkInformation,
       });
       console.log(didPay, 'DID PAY');
       if (didPay) {

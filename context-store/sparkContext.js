@@ -157,10 +157,10 @@ const SparkWalletProvider = ({children}) => {
         );
       }
 
-      const savedTxs = await getAllSparkTransactions(
-        5,
-        sparkInformation.identityPubKey,
-      );
+      const savedTxs = await getAllSparkTransactions({
+        limit: 5,
+        accountId: sparkInformation.identityPubKey,
+      });
       return {
         txs: savedTxs,
         paymentObject: paymentObject || {},
@@ -270,10 +270,10 @@ const SparkWalletProvider = ({children}) => {
         'running update in spark context from db changes',
         updateType,
       );
-      const txs = await getAllSparkTransactions(
-        null,
-        sparkInformation.identityPubKey,
-      );
+      const txs = await getAllSparkTransactions({
+        limit: 50,
+        accountId: sparkInformation.identityPubKey,
+      });
       if (
         updateType === 'supportTx' ||
         updateType === 'restoreTxs' ||
@@ -488,10 +488,9 @@ const SparkWalletProvider = ({children}) => {
       try {
         console.log('l1Deposit check running....');
         if (AppState.currentState !== 'active') return;
-        const allTxs = await getAllSparkTransactions(
-          null,
-          sparkInformation.identityPubKey,
-        );
+        const allTxs = await getAllSparkTransactions({
+          accountId: sparkInformation.identityPubKey,
+        });
         const savedTxMap = new Map(allTxs.map(tx => [tx.sparkID, tx]));
         const depoistAddress = await queryAllStaticDepositAddresses(
           currentWalletMnemoinc,

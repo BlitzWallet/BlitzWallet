@@ -2,15 +2,15 @@ import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../../../../../functions/crashlyticsLogs';
+import {getAllSparkTransactions} from '../../../../../functions/spark/transactions';
 
-export default function hasAlredyPaidInvoice({
-  scannedAddress,
-  sparkInformation,
-}) {
+export default async function hasAlredyPaidInvoice({scannedAddress}) {
   try {
     crashlyticsLogReport('Begining already paid invoice function');
 
-    const didPayWithSpark = sparkInformation.transactions.find(tx => {
+    const allTransactions = await getAllSparkTransactions();
+
+    const didPayWithSpark = allTransactions.find(tx => {
       return (
         tx.paymentType === 'lightning' &&
         JSON.parse(tx.details).address?.trim() === scannedAddress?.trim()

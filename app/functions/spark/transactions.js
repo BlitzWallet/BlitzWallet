@@ -54,30 +54,39 @@ export const initializeSparkDatabase = async () => {
   }
 };
 
-export const getAllSparkTransactions = async (limit = null, accountId) => {
+export const getAllSparkTransactions = async (options = {}) => {
   try {
+    const {
+      limit = null,
+      offset = null,
+      accountId = null,
+      startRange = null,
+      endRange = null,
+    } = options;
+
     let query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}`;
     let params = [];
 
-    // Add WHERE clause if accountId is provided
     if (accountId) {
       query += ` WHERE accountId = ?`;
       params.push(String(accountId));
     }
 
-    // Add ORDER BY and LIMIT if limit is provided
-    if (limit) {
-      query += ` ORDER BY ROWID DESC LIMIT ?`;
+    query += ` ORDER BY ROWID DESC`;
+
+    if (startRange !== null && endRange !== null) {
+      const rangeLimit = endRange - startRange + 1;
+      query += ` LIMIT ? OFFSET ?`;
+      params.push(rangeLimit, startRange);
+    } else if (limit !== null && offset !== null) {
+      query += ` LIMIT ? OFFSET ?`;
+      params.push(limit, offset);
+    } else if (limit !== null) {
+      query += ` LIMIT ?`;
       params.push(limit);
     }
 
     const result = await sqlLiteDB.getAllAsync(query, params);
-
-    if (!limit) {
-      return result.sort(
-        (a, b) => JSON.parse(b.details).time - JSON.parse(a.details).time,
-      );
-    }
 
     return result.sort(
       (a, b) => JSON.parse(b.details).time - JSON.parse(a.details).time,
