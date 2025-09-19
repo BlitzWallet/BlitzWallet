@@ -975,7 +975,8 @@
       "sent/received": "Inviato/Ricevuto",
       "title": "Esporta la tua cronologia dei pagamenti in formato CSV (valore separato da virgola).",
       "paymentsCounter": "{{number}} pagamenti",
-      "paymentsCounterTracker": "{{number}} di {{total}}"
+      "paymentsCounterTracker": "{{number}} di {{total}}",
+      "loadingMessage": "Caricamento delle transazioni salvate"
     }
   },
 

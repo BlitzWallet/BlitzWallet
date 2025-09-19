@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-  Animated,
 } from 'react-native';
 import {CENTER, FONT, ICONS, SIZES} from '../../../../constants';
 import {ThemeText} from '../../../../functions/CustomElements';
@@ -14,7 +13,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {useTranslation} from 'react-i18next';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import {useState, useRef, useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {KEYBOARDTIMEOUT} from '../../../../constants/styles';
 import {COLORS, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {useAppStatus} from '../../../../../context-store/appStatus';
@@ -23,6 +22,11 @@ import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {useNodeContext} from '../../../../../context-store/nodeContext';
 import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
 import {useKeysContext} from '../../../../../context-store/keys';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 
 const MAIN_PAYMENTS = [
   ['Lightning', 'Instant'],
@@ -53,18 +57,19 @@ export default function SwitchReceiveOptionPage({
   const [contentHeight, setContentHeight] = useState(0);
   const isLRC20Enabled = masterInfoObject.lrc20Settings.isEnabled;
 
-  // Animation values
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-  const heightAnim = useRef(new Animated.Value(0)).current;
-  // const opacityAnim = useRef(new Animated.Value(0)).current;
+  // Reanimated shared values
+  const rotateAnim = useSharedValue(0);
+  const heightAnim = useSharedValue(0);
 
-  // Initialize height animation based on expanded state
-  useEffect(() => {
-    if (contentHeight > 0) {
-      heightAnim.setValue(isExpanded ? contentHeight : 0);
-      // opacityAnim.setValue(isExpanded ? 1 : 0);
-    }
-  }, [contentHeight]);
+  const toggleExpanded = () => {
+    const toValue = isExpanded ? 0 : 1;
+    const heightValue = isExpanded ? 0 : contentHeight;
+
+    rotateAnim.value = withTiming(toValue, {duration: 300});
+    heightAnim.value = withTiming(heightValue, {duration: 300});
+
+    setIsExpanded(!isExpanded);
+  };
 
   useEffect(() => {
     if (!didWarnSpark && !didWarnLiquid && !didWarnRootstock) return;
@@ -97,42 +102,25 @@ export default function SwitchReceiveOptionPage({
     );
   };
 
-  const toggleExpanded = () => {
-    const toValue = isExpanded ? 0 : 1;
-    const heightValue = isExpanded ? 0 : contentHeight;
+  const arrowStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          rotate: `${-90 + rotateAnim.value * 180}deg`,
+        },
+      ],
+    };
+  });
 
-    // Animate arrow rotation
-    Animated.timing(rotateAnim, {
-      toValue,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-
-    // Animate content height and opacity together
-    Animated.parallel([
-      Animated.timing(heightAnim, {
-        toValue: heightValue,
-        duration: 300,
-        useNativeDriver: false, // Height must use JS thread
-      }),
-      // Animated.timing(opacityAnim, {
-      //   toValue,
-      //   duration: 300,
-      //   useNativeDriver: false, // Keep consistent with height animation
-      // }),
-    ]).start();
-
-    setIsExpanded(!isExpanded);
-  };
-
-  // Calculate rotation interpolation
-  const arrowRotation = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['-90deg', '90deg'],
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    return {
+      height: heightAnim.value,
+      overflow: 'hidden',
+    };
   });
 
   const paymentTypes = MAIN_PAYMENTS.map((item, index) => {
-    const [name, paymentTime] = item;
+    const [name] = item;
     return (
       <TouchableOpacity
         key={name}
@@ -254,11 +242,7 @@ export default function SwitchReceiveOptionPage({
               : t('constants.moreLower'),
           })}
         />
-        <Animated.View
-          style={{
-            transform: [{rotate: arrowRotation}],
-            marginLeft: 5,
-          }}>
+        <Animated.View style={[arrowStyle, {marginLeft: 5}]}>
           <ThemeImage
             styles={{
               width: 15,
@@ -271,13 +255,7 @@ export default function SwitchReceiveOptionPage({
         </Animated.View>
       </TouchableOpacity>
 
-      <Animated.View
-        style={{
-          width: '100%',
-          height: heightAnim,
-          // opacity: opacityAnim,
-          overflow: 'hidden',
-        }}>
+      <Animated.View style={[{width: '100%'}, animatedContainerStyle]}>
         <View
           onLayout={e => {
             const height = e.nativeEvent.layout.height;

@@ -1,12 +1,12 @@
 import {useNavigation} from '@react-navigation/native';
-import {useMemo, useRef, useState, useEffect} from 'react';
-import {
-  Animated,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {useMemo, useState} from 'react';
+import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import Animated, {
+  Easing,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import {ThemeText} from '../../../../functions/CustomElements';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import {CENTER, ICONS} from '../../../../constants';
@@ -38,44 +38,53 @@ export default function LRC20Assets() {
       : COLORS.walletHomeLightModeOffset;
   }, [theme, darkModeType]);
 
-  // Dynamic height calculation
+  // Dynamic height
   const [isExpanded, setIsExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const rotateAnim = useRef(new Animated.Value(0)).current;
-  const heightAnim = useRef(new Animated.Value(0)).current;
+  const contentHeight = useMemo(() => {
+    return Object.entries(sparkInformation.tokens).length > 3 ? 220 : 150;
+  }, [sparkInformation.tokens]);
+
+  const height = useSharedValue(0);
+  const rotate = useSharedValue(0);
 
   const toggleExpanded = () => {
-    const toValue = isExpanded ? 0 : 1;
-
-    const targetHeight = isExpanded ? 0 : contentHeight;
-
-    Animated.parallel([
-      Animated.timing(heightAnim, {
-        toValue: targetHeight,
+    setIsExpanded(prev => {
+      const newExpanded = !prev;
+      height.value = withTiming(newExpanded ? contentHeight : 0, {
         duration: 300,
-        useNativeDriver: false,
-      }),
-      Animated.timing(rotateAnim, {
-        toValue,
+        easing: Easing.ease,
+      });
+      rotate.value = withTiming(newExpanded ? 1 : 0, {
         duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    setIsExpanded(!isExpanded);
+        easing: Easing.ease,
+      });
+      return newExpanded;
+    });
   };
 
-  const arrowRotation = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['-90deg', '90deg'],
+  const arrowStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          rotate: `${-90 + rotate.value * 180}deg`,
+        },
+      ],
+    };
+  });
+
+  const containerStyle = useAnimatedStyle(() => {
+    return {
+      height: height.value,
+      overflow: 'hidden',
+    };
   });
 
   const availableTokens = useMemo(() => {
     return Object.entries(sparkInformation.tokens);
   }, [sparkInformation.tokens]);
 
-  // Filter tokens based on search query
   const filteredTokens = useMemo(() => {
     if (!searchQuery.trim()) {
       return availableTokens;
@@ -90,13 +99,11 @@ export default function LRC20Assets() {
     });
   }, [availableTokens, searchQuery]);
 
-  const contentHeight = availableTokens.length > 3 ? 220 : 150;
-
   const tokens = useMemo(() => {
     return filteredTokens
-      .map((item, index) => {
+      .map(item => {
         const [tokenIdentifier, details] = item;
-        if (!tokenIdentifier || !details) return false;
+        if (!tokenIdentifier || !details) return null;
 
         const backgroundColor = stringToColorCrypto(
           tokenIdentifier,
@@ -161,7 +168,13 @@ export default function LRC20Assets() {
         );
       })
       .filter(Boolean);
-  }, [theme, darkModeType, filteredTokens]);
+  }, [
+    theme,
+    darkModeType,
+    filteredTokens,
+    homepageBackgroundOffsetColor,
+    navigate,
+  ]);
 
   return (
     <>
@@ -179,11 +192,7 @@ export default function LRC20Assets() {
           })}
         />
 
-        <Animated.View
-          style={{
-            transform: [{rotate: arrowRotation}],
-            marginLeft: 5,
-          }}>
+        <Animated.View style={[{marginLeft: 5}, arrowStyle]}>
           <ThemeImage
             styles={{
               width: 15,
@@ -195,12 +204,8 @@ export default function LRC20Assets() {
           />
         </Animated.View>
       </TouchableOpacity>
-      <Animated.View
-        style={{
-          width: '100%',
-          height: heightAnim,
-          overflow: 'hidden',
-        }}>
+
+      <Animated.View style={[{width: '100%'}, containerStyle]}>
         <ScrollView
           showsVerticalScrollIndicator={true}
           nestedScrollEnabled={true}

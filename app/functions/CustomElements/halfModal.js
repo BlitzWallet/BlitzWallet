@@ -1,12 +1,5 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {
-  Animated,
-  Keyboard,
-  StyleSheet,
-  View,
-  PanResponder,
-  TouchableOpacity,
-} from 'react-native';
+import {Keyboard, StyleSheet, View, TouchableOpacity} from 'react-native';
 import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
 import {useNavigation} from '@react-navigation/native';
 import {
@@ -51,6 +44,17 @@ import EditGiftHalfModal from '../../components/admin/homeComponents/contacts/in
 import ViewGiftCardCodePage from '../../components/admin/homeComponents/contacts/viewGiftCardCode';
 import ViewAllGiftCards from '../../components/admin/homeComponents/contacts/viewAllGiftCards';
 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  runOnJS,
+} from 'react-native-reanimated';
+import {GestureDetector, Gesture} from 'react-native-gesture-handler';
+
+const SCREEN_HEIGHT = SCREEN_DIMENSIONS.height; // keep your existing constant
+
 export default function CustomHalfModal(props) {
   const {theme, darkModeType} = useGlobalThemeContext();
   const navigation = useNavigation();
@@ -61,10 +65,7 @@ export default function CustomHalfModal(props) {
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const {bottomPadding, topPadding} = useGlobalInsets();
 
-  const translateY = useRef(
-    new Animated.Value(SCREEN_DIMENSIONS.height),
-  ).current;
-  const panY = useRef(new Animated.Value(0)).current;
+  const translateY = useSharedValue(SCREEN_HEIGHT);
 
   const handleBackPressFunction = useCallback(() => {
     slideOut();
@@ -84,19 +85,11 @@ export default function CustomHalfModal(props) {
   }, []);
 
   const slideIn = () => {
-    Animated.timing(translateY, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
+    translateY.value = withTiming(0, {duration: 200});
   };
 
   const slideOut = () => {
-    Animated.timing(translateY, {
-      toValue: SCREEN_DIMENSIONS.height,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
+    translateY.value = withTiming(SCREEN_HEIGHT, {duration: 200});
   };
 
   const renderContent = () => {
@@ -322,31 +315,24 @@ export default function CustomHalfModal(props) {
         return <ThemeText content={'TST'} />;
     }
   };
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return gestureState.dy > 5; // Only start gesture if dragging down
-      },
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          panY.setValue(gestureState.dy);
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 100) {
-          // Consider it a dismiss
-          handleBackPressFunction();
-        } else {
-          // Return to original position
-          Animated.timing(panY, {
-            toValue: 0,
-            duration: 200,
-            useNativeDriver: true,
-          }).start();
-        }
-      },
-    }),
-  ).current;
+
+  const panGesture = Gesture.Pan()
+    .onUpdate(e => {
+      if (e.translationY > 0) {
+        translateY.value = e.translationY;
+      }
+    })
+    .onEnd(e => {
+      if (e.translationY > 100) {
+        runOnJS(handleBackPressFunction)();
+      } else {
+        translateY.value = withSpring(0);
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{translateY: translateY.value}],
+  }));
 
   return (
     <KeyboardAvoidingView
@@ -360,12 +346,10 @@ export default function CustomHalfModal(props) {
       <Animated.View
         style={[
           styles.contentContainer,
+          animatedStyle,
           {
-            height: contentHeight
-              ? contentHeight
-              : SCREEN_DIMENSIONS.height * slideHeight,
-            backgroundColor: 'black', //removes opacity background
-            transform: [{translateY: Animated.add(translateY, panY)}],
+            height: contentHeight ? contentHeight : SCREEN_HEIGHT * slideHeight,
+            backgroundColor: 'black',
             marginTop: topPadding,
           },
         ]}>
@@ -388,18 +372,21 @@ export default function CustomHalfModal(props) {
                   : bottomPadding
                 : bottomPadding,
           }}>
-          <View {...panResponder.panHandlers} style={styles.topBarContainer}>
-            <View
-              style={[
-                styles.topBar,
-                {
-                  backgroundColor:
-                    theme && darkModeType ? backgroundColor : backgroundOffset,
-                },
-              ]}
-            />
-          </View>
-
+          <GestureDetector gesture={panGesture}>
+            <View style={styles.topBarContainer}>
+              <View
+                style={[
+                  styles.topBar,
+                  {
+                    backgroundColor:
+                      theme && darkModeType
+                        ? backgroundColor
+                        : backgroundOffset,
+                  },
+                ]}
+              />
+            </View>
+          </GestureDetector>
           {renderContent()}
         </View>
       </Animated.View>

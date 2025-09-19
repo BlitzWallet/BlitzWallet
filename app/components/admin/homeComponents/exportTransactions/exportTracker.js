@@ -1,9 +1,8 @@
 import {StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useMemo} from 'react';
 import {ThemeText} from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import writeAndShareFileToFilesystem from '../../../../functions/writeFileToFilesystem';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
@@ -11,6 +10,7 @@ import {CENTER} from '../../../../constants';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import {useTranslation} from 'react-i18next';
+import {getAllSparkTransactions} from '../../../../functions/spark/transactions';
 
 export default function ConfirmExportPayments({
   startExport,
@@ -21,14 +21,14 @@ export default function ConfirmExportPayments({
   const {sparkInformation} = useSparkWallet();
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
-  const totalPayments = sparkInformation?.transactions?.length || 10;
 
-  const [txNumber, setTxNumber] = useState(0);
-
-  useEffect(() => {
-    async function generateCSV() {
-      if (!startExport) return;
+  const onSwipeSuccess = useCallback(() => {
+    setTimeout(async () => {
       try {
+        const allTxs = await getAllSparkTransactions({
+          accountId: sparkInformation.identityPubKey,
+        });
+        if (!allTxs || !allTxs.length) return;
         crashlyticsLogReport('Stating transaction exporting');
         const headers = [
           [
@@ -41,13 +41,11 @@ export default function ConfirmExportPayments({
           ],
         ];
 
-        const conjoinedTxList = sparkInformation.transactions;
+        const conjoinedTxList = allTxs;
         let formatedData = [];
 
         for (let index = 0; index < conjoinedTxList.length; index++) {
           const tx = conjoinedTxList[index];
-
-          setTxNumber(prev => (prev += 1));
 
           try {
             const txDetails = JSON.parse(tx.details);
@@ -97,16 +95,7 @@ export default function ConfirmExportPayments({
           useTranslationString: true,
         });
       }
-    }
-    generateCSV();
-  }, [startExport]);
-
-  const onSwipeSuccess = useCallback(() => {
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'exportTransactions',
-      startExport: true,
-      sliderHight: 0.5,
-    });
+    }, 1000);
   }, []);
 
   const dynamicStyles = useMemo(() => {
@@ -123,31 +112,7 @@ export default function ConfirmExportPayments({
         styles={styles.titleText}
         content={t('wallet.exportTransactions.title')}
       />
-      <View
-        style={{
-          width: '100%',
-          marginBottom: 10,
-          flex: 1,
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-        }}>
-        {txNumber === 0 ? (
-          <ThemeText
-            content={t('wallet.exportTransactions.paymentsCounter', {
-              number: totalPayments,
-            })}
-          />
-        ) : (
-          <FullLoadingScreen
-            showLoadingIcon={false}
-            containerStyles={{justifyContent: 'flex-end'}}
-            text={t('wallet.exportTransactions.paymentsCounter', {
-              number: txNumber,
-              total: totalPayments,
-            })}
-          />
-        )}
-      </View>
+      <View style={styles.loadingMessageContainer} />
       <SwipeButtonNew
         onSwipeSuccess={onSwipeSuccess}
         width={0.95}
@@ -164,6 +129,13 @@ const styles = StyleSheet.create({
   titleText: {width: INSET_WINDOW_WIDTH, ...CENTER, textAlign: 'center'},
   containerStyle: {
     flex: 1,
+    alignItems: 'center',
+  },
+  loadingMessageContainer: {
+    width: '100%',
+    marginBottom: 10,
+    flex: 1,
+    justifyContent: 'flex-end',
     alignItems: 'center',
   },
 });

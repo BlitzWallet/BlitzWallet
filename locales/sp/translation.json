@@ -821,7 +821,8 @@
       "sent/received": "Enviado/Recibido",
       "title": "Exporta tu historial de pagos en formato CSV (valores separados por comas).",
       "paymentsCounter": "{{number}} pagos",
-      "paymentsCounterTracker": "{{number}} de {{total}}"
+      "paymentsCounterTracker": "{{number}} de {{total}}",
+      "loadingMessage": "Cargando transacciones guardadas"
     }
   },
   "contacts": {

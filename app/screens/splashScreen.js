@@ -1,28 +1,34 @@
 // SplashScreen.js
-import React, {useEffect, useMemo, useRef} from 'react';
-import {View, StyleSheet, Animated} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {View, StyleSheet} from 'react-native';
 import LottieView from 'lottie-react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
 import {COLORS} from '../constants';
 import {useGlobalThemeContext} from '../../context-store/theme';
 import {updateBlitzAnimationData} from '../functions/lottieViewColorTransformer';
 
 const SplashScreen = ({onAnimationFinish}) => {
-  const opacity = useRef(new Animated.Value(1)).current;
+  const opacity = useSharedValue(1);
   const {theme, darkModeType} = useGlobalThemeContext();
   const BlitzAnimation = require('../assets/BlitzAnimation.json');
 
   const animationRef = useRef(null);
 
   const blueModeColor = {
-    rectangleFill: [0.92157, 0.92157, 0.92157], // Dark blue-gray
-    shapeFill: [0.011765, 0.458824, 0.964706, 1], // Same blue as before
+    rectangleFill: [0.92157, 0.92157, 0.92157],
+    shapeFill: [0.011765, 0.458824, 0.964706, 1],
   };
 
   const darkModeColor = {
     rectangleFill: [0, 0.1451, 0.3059],
     shapeFill: [1, 1, 1],
-    // shapeFill: [0.011765, 0.458824, 0.964706, 1],
   };
+
   const lightsOutMode = {
     rectangleFill: [0, 0, 0],
     shapeFill: [1, 1, 1],
@@ -39,17 +45,17 @@ const SplashScreen = ({onAnimationFinish}) => {
     }, 250);
 
     setTimeout(() => {
-      Animated.timing(opacity, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start(() => {
-        if (onAnimationFinish) {
-          onAnimationFinish();
+      opacity.value = withTiming(0, {duration: 500}, isFinished => {
+        if (isFinished && onAnimationFinish) {
+          runOnJS(onAnimationFinish)();
         }
       });
     }, 2750);
-  }, [opacity]);
+  }, [opacity, onAnimationFinish]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
 
   return (
     <View
@@ -61,13 +67,7 @@ const SplashScreen = ({onAnimationFinish}) => {
             : COLORS.darkModeBackground
           : COLORS.lightModeBackground,
       }}>
-      <Animated.View
-        style={[
-          styles.container,
-          {
-            opacity,
-          },
-        ]}>
+      <Animated.View style={[styles.container, animatedStyle]}>
         <LottieView
           ref={animationRef}
           source={darkModeAnimation}
@@ -87,8 +87,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   lottie: {
-    width: 150, // adjust as necessary
-    height: 150, // adjust as necessary
+    width: 150,
+    height: 150,
   },
 });
 

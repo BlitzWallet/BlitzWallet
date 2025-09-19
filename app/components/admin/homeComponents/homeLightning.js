@@ -1,18 +1,11 @@
-import {
-  StyleSheet,
-  View,
-  Platform,
-  RefreshControl,
-  Animated,
-} from 'react-native';
+import {StyleSheet, View, Platform, RefreshControl} from 'react-native';
 import {UserSatAmount} from './homeLightning/userSatAmount';
 import {useGlobalContextProvider} from '../../../../context-store/context';
 import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
 import {NavBar} from './navBar';
-
 import {useNavigation} from '@react-navigation/native';
 import {useUpdateHomepageTransactions} from '../../../hooks/updateHomepageTransactions';
-import {memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useAppStatus} from '../../../../context-store/appStatus';
 import {useGlobalThemeContext} from '../../../../context-store/theme';
@@ -31,6 +24,13 @@ import {
 import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
 import {COLORS, SIZES} from '../../../constants';
 import FormattedSatText from '../../../functions/CustomElements/satTextDisplay';
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  interpolate,
+  runOnJS,
+} from 'react-native-reanimated';
 
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
@@ -49,24 +49,18 @@ export default function HomeLightning() {
   const {t} = useTranslation();
   const {backgroundColor} = GetThemeColors();
 
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const balanceOpacityInNav = useRef(new Animated.Value(0)).current;
-
-  const scrollListenerRef = useRef(null);
+  const scrollY = useSharedValue(0);
+  const [navbarHeight, setNavbarHeight] = useState(0);
 
   const [scrollContentChanges, setScrollContentChanges] = useState({
     borderRadius: false,
     backgroundColor: backgroundColor,
   });
   const [refreshing, setRefreshing] = useState(false);
-  const [navbarHeight, setNavbarHeight] = useState(0);
 
-  const scrollOffset = useRef(0);
-  const frame = useRef(null);
   const {startLiquidEventListener} = useLiquidEvent();
   const {startRootstockEventListener} = useRootstockProvider();
 
-  // Extract memoized values
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
   const enabledLRC20 = masterInfoObject.lrc20Settings?.isEnabled;
@@ -74,47 +68,58 @@ export default function HomeLightning() {
     () => masterInfoObject.lrc20Settings || {},
     [masterInfoObject.lrc20Settings],
   );
-
-  const BALANCE_FADE_START = navbarHeight; // When balance starts fading into navbar
-  const BALANCE_FADE_END = 100; // When balance is fully in navbar
-  const BALANCE_RETURN_START = 50; // When balance starts returning from navbar
-  const BALANCE_RETURN_END = navbarHeight; // When balance is fully back in original position
+  const BALANCE_FADE_START = navbarHeight;
+  const BALANCE_FADE_END = 100;
 
   useEffect(() => {
     toggleDidGetToHomepage(true);
   }, []);
 
-  useEffect(() => {
-    if (BALANCE_FADE_START === 0) return;
+  const handleStateUpdate = newObj => {
+    if (
+      newObj.borderRadius === scrollContentChanges.borderRadius &&
+      newObj.backgroundColor === scrollContentChanges.backgroundColor
+    )
+      return;
+    setScrollContentChanges(newObj);
+  };
 
-    if (scrollListenerRef.current) {
-      scrollY.removeListener(scrollListenerRef.current);
-    }
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: event => {
+      scrollY.value = event.contentOffset.y;
 
-    scrollListenerRef.current = scrollY.addListener(({value}) => {
-      if (value >= BALANCE_FADE_START && value <= BALANCE_FADE_END) {
-        const progress =
-          (value - BALANCE_FADE_START) /
-          (BALANCE_FADE_END - BALANCE_FADE_START);
-        balanceOpacityInNav.setValue(progress);
-      } else if (value >= BALANCE_RETURN_END && value <= BALANCE_RETURN_START) {
-        const progress =
-          (BALANCE_RETURN_START - value) /
-          (BALANCE_RETURN_START - BALANCE_RETURN_END);
-        balanceOpacityInNav.setValue(1 - progress);
-      } else if (value < BALANCE_RETURN_END) {
-        balanceOpacityInNav.setValue(0);
-      } else if (value > BALANCE_FADE_END) {
-        balanceOpacityInNav.setValue(1);
-      }
-    });
+      const offsetY = event.contentOffset.y;
+      const newBorderRadius = offsetY > 40;
+      const newBg = offsetY > 100;
 
-    return () => {
-      scrollY.removeListener(scrollListenerRef.current);
+      runOnJS(handleStateUpdate)({
+        borderRadius: newBorderRadius,
+        backgroundColor: newBg,
+      });
+    },
+  });
+
+  const balanceOpacityStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollY.value,
+      [BALANCE_FADE_START, BALANCE_FADE_END],
+      [0, 1],
+      'clamp',
+    );
+
+    const translateY = interpolate(
+      scrollY.value,
+      [BALANCE_FADE_START, BALANCE_FADE_END],
+      [10, 0],
+      'clamp',
+    );
+
+    return {
+      opacity,
+      transform: [{translateY}],
     };
-  }, [BALANCE_FADE_START]);
+  });
 
-  // Memoize the formatted transactions
   const flatListDataForSpark = useMemo(() => {
     return (
       getFormattedHomepageTxsForSpark({
@@ -168,7 +173,6 @@ export default function HomeLightning() {
     ];
   }, [flatListDataForSpark]);
 
-  // Memoize the refresh handler
   const handleRefresh = useCallback(async () => {
     crashlyticsLogReport(`Running in handle refresh function on homepage`);
     try {
@@ -184,36 +188,6 @@ export default function HomeLightning() {
       setRefreshing(false);
     }
   }, [startLiquidEventListener, startRootstockEventListener]);
-
-  const handleScroll = useCallback(
-    e => {
-      scrollOffset.current = e.nativeEvent.contentOffset.y;
-
-      if (frame.current) return;
-
-      frame.current = requestAnimationFrame(() => {
-        const offsetY = scrollOffset.current;
-
-        setScrollContentChanges(prev => {
-          const newBorderRadius = offsetY > 40;
-          const newBg = offsetY > 100;
-          if (
-            prev.borderRadius !== newBorderRadius ||
-            prev.backgroundColor !== newBg
-          ) {
-            return {
-              borderRadius: newBorderRadius,
-              backgroundColor: newBg,
-            };
-          }
-          return prev;
-        });
-
-        frame.current = null;
-      });
-    },
-    [enabledLRC20],
-  );
 
   const handleNavbarLayout = useCallback(event => {
     const {height} = event.nativeEvent.layout;
@@ -267,20 +241,7 @@ export default function HomeLightning() {
               />
 
               <Animated.View
-                style={[
-                  styles.navbarBalance,
-                  {
-                    opacity: balanceOpacityInNav,
-                    transform: [
-                      {
-                        translateY: balanceOpacityInNav.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [10, 0],
-                        }),
-                      },
-                    ],
-                  },
-                ]}
+                style={[styles.navbarBalance, balanceOpacityStyle]}
                 pointerEvents="none">
                 <FormattedSatText
                   styles={styles.navbarBalanceText}
@@ -291,7 +252,7 @@ export default function HomeLightning() {
           );
         case 'balance':
           return (
-            <Animated.View
+            <View
               style={[
                 styles.balanceSection,
                 {
@@ -312,7 +273,7 @@ export default function HomeLightning() {
                 darkModeType={darkModeType}
                 sparkInformation={sparkInformation}
               />
-            </Animated.View>
+            </View>
           );
         case 'buttons':
           return (
@@ -346,7 +307,7 @@ export default function HomeLightning() {
       backgroundColor,
       theme,
       toggleTheme,
-      balanceOpacityInNav,
+      balanceOpacityStyle,
       darkModeType,
       sparkInformation.balance,
       lrc20Settings.isEnabled,
@@ -379,6 +340,7 @@ export default function HomeLightning() {
     homepageBackgroundOffsetColor,
     backgroundColor,
   ]);
+
   const topPaddingForLRC20PageMemeStyles = useMemo(() => {
     return {
       backgroundColor: backgroundColor,
@@ -389,6 +351,7 @@ export default function HomeLightning() {
       zIndex: 99,
     };
   }, [backgroundColor, topPadding]);
+
   return (
     <GlobalThemeView styles={globlThemeViewMemodStlyes}>
       {enabledLRC20 && <View style={topPaddingForLRC20PageMemeStyles} />}
@@ -405,13 +368,8 @@ export default function HomeLightning() {
           backgroundColor: homepageBackgroundOffsetColor,
           flexGrow: 1,
         }}
-        onScroll={Animated.event(
-          [{nativeEvent: {contentOffset: {y: scrollY}}}],
-          {
-            useNativeDriver: false,
-            listener: handleScroll,
-          },
-        )}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         renderItem={renderItem}
         stickyHeaderIndices={[0]}
       />
@@ -438,12 +396,6 @@ const styles = StyleSheet.create({
   navbarBalanceText: {
     fontSize: SIZES.large,
     includeFontPadding: false,
-  },
-  topSection: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
   },
   balanceSection: {
     alignItems: 'center',

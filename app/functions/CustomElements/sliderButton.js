@@ -1,5 +1,12 @@
 import React, {useState, useEffect, useRef, useMemo, memo} from 'react';
-import {StyleSheet, Animated, AccessibilityInfo} from 'react-native';
+import {StyleSheet, AccessibilityInfo} from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+  runOnJS,
+} from 'react-native-reanimated';
 import {CENTER, COLORS, FONT, SCREEN_DIMENSIONS, SIZES} from '../../constants';
 import FullLoadingScreen from './loadingScreen';
 import {useGlobalThemeContext} from '../../../context-store/theme';
@@ -13,7 +20,6 @@ import {
 import {SwipeThumb} from './swipeButton/swipeThumb';
 import {useTranslation} from 'react-i18next';
 
-// Container styles
 const containerStyles = StyleSheet.create({
   container: {
     borderWidth: 1,
@@ -30,7 +36,6 @@ const containerStyles = StyleSheet.create({
   },
 });
 
-// Main SwipeButtonNew Component
 const SwipeButtonNew = memo(function SwipeButtonNew({
   containerStyles: customContainerStyles = {},
   disabled = false,
@@ -63,63 +68,64 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
   const [isUnmounting, setIsUnmounting] = useState(false);
   const {t} = useTranslation();
   const titleText = title || t('constants.slideToConfirm');
-  const containerAnimatedWidth = useRef(
-    new Animated.Value(layoutWidth),
-  ).current;
-  const textOpacity = useRef(new Animated.Value(1)).current;
-  const textTranslateX = useRef(new Animated.Value(0)).current;
-  const loadingAnimationOpacity = useRef(new Animated.Value(0)).current;
+
+  const containerAnimatedWidth = useSharedValue(layoutWidth);
+  const textOpacity = useSharedValue(1);
+  const textTranslateX = useSharedValue(0);
+  const loadingAnimationOpacity = useSharedValue(0);
+
   const [showLoadingIcon, setShowLoadingIcon] = useState(false);
   const prevPoint = useRef(0);
+
+  const containerStyle = useAnimatedStyle(() => {
+    return {
+      width: containerAnimatedWidth.value,
+    };
+  });
+
+  const textStyle = useAnimatedStyle(() => {
+    return {
+      opacity: textOpacity.value,
+      transform: [{translateX: textTranslateX.value}],
+    };
+  });
+
+  const loadingStyle = useAnimatedStyle(() => {
+    return {
+      opacity: loadingAnimationOpacity.value,
+    };
+  });
 
   const handleSwipeProgress = progress => {
     const jumpDistance = Math.abs(prevPoint.current - progress);
     prevPoint.current = progress;
-    const shouldAnimate = jumpDistance > 0.1;
-    // Update text opacity (1 -> 0)
-    Animated.timing(textOpacity, {
-      toValue: 1 - progress,
-      duration: shouldAnimate ? 200 : 0,
-      useNativeDriver: true,
-    }).start();
 
-    // Update text position (0 -> textSlideDistance)
-    Animated.timing(textTranslateX, {
-      toValue: progress * 100,
-      duration: shouldAnimate ? 200 : 0,
-      useNativeDriver: true,
-    }).start();
+    const shouldAnimate = jumpDistance > 0.1;
+    const duration = shouldAnimate ? 200 : 0;
+
+    textOpacity.value = withTiming(1 - progress, {
+      duration,
+      easing: Easing.linear,
+    });
+    textTranslateX.value = withTiming(progress * 100, {
+      duration,
+      easing: Easing.linear,
+    });
   };
 
   const reset = () => {
-    setShowLoadingIcon(false);
-    Animated.timing(containerAnimatedWidth, {
-      toValue: layoutWidth,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    Animated.timing(loadingAnimationOpacity, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
+    runOnJS(setShowLoadingIcon)(false);
+    containerAnimatedWidth.value = withTiming(layoutWidth, {duration: 200});
+    loadingAnimationOpacity.value = withTiming(0, {duration: 200});
   };
 
   const animateViewOnSuccess = () => {
     if (!shouldAnimateViewOnSuccess) return;
     const thumbSize = height + 3 + 2;
-    setShowLoadingIcon(true);
+    runOnJS(setShowLoadingIcon)(true);
 
-    Animated.timing(containerAnimatedWidth, {
-      toValue: thumbSize,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
-    Animated.timing(loadingAnimationOpacity, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: false,
-    }).start();
+    containerAnimatedWidth.value = withTiming(thumbSize, {duration: 200});
+    loadingAnimationOpacity.value = withTiming(1, {duration: 200});
 
     if (!shouldDisplaySuccessState && shouldResetAfterSuccess) {
       const resetDelay =
@@ -140,11 +146,10 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
     }
   }, [shouldDisplaySuccessState]);
 
+  // Accessibility setup
   useEffect(() => {
     const handleScreenReaderToggled = isEnabled => {
-      if (isUnmounting || screenReaderEnabled === isEnabled) {
-        return;
-      }
+      if (isUnmounting || screenReaderEnabled === isEnabled) return;
       setScreenReaderEnabled(isEnabled);
     };
 
@@ -156,16 +161,12 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
         'change',
         handleScreenReaderToggled,
       );
-    } catch (error) {
-      // Fallback for older React Native versions
+    } catch {
       AccessibilityInfo.addEventListener('change', handleScreenReaderToggled);
     }
 
     AccessibilityInfo.isScreenReaderEnabled().then(isEnabled => {
-      if (isUnmounting) {
-        return;
-      }
-      setScreenReaderEnabled(isEnabled);
+      if (!isUnmounting) setScreenReaderEnabled(isEnabled);
     });
 
     return () => {
@@ -173,7 +174,6 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
       if (subscription && subscription.remove) {
         subscription.remove();
       } else {
-        // Fallback for older React Native versions
         AccessibilityInfo.removeEventListener(
           'change',
           handleScreenReaderToggled,
@@ -207,16 +207,15 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
     <Animated.View
       style={[
         containerStyles.container,
+        containerStyle,
         {
-          width: containerAnimatedWidth,
           ...railDynamicStyles,
           ...customContainerStyles,
           borderRadius: (height + 3 + 2) / 2,
         },
       ]}>
       {showLoadingIcon ? (
-        <Animated.View
-          style={{height: height + 3 + 2, opacity: loadingAnimationOpacity}}>
+        <Animated.View style={[{height: height + 3 + 2}, loadingStyle]}>
           <FullLoadingScreen
             loadingColor={COLORS.lightModeText}
             size="small"
@@ -227,19 +226,12 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
         <>
           <Animated.Text
             maxFontSizeMultiplier={1}
-            ellipsizeMode={'tail'}
+            ellipsizeMode="tail"
             numberOfLines={1}
             importantForAccessibility={
               screenReaderEnabled ? 'no-hide-descendants' : ''
             }
-            style={[
-              containerStyles.title,
-              {
-                opacity: textOpacity,
-                transform: [{translateX: textTranslateX}],
-                ...titleDynamicStyles,
-              },
-            ]}>
+            style={[containerStyles.title, textStyle, titleDynamicStyles]}>
             {titleText}
           </Animated.Text>
 

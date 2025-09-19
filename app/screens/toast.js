@@ -1,5 +1,13 @@
-import React, {useEffect, useRef, useCallback} from 'react';
-import {View, StyleSheet, Animated, PanResponder} from 'react-native';
+import React, {useEffect, useCallback, useRef} from 'react';
+import {View, StyleSheet} from 'react-native';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+  withSpring,
+  runOnJS,
+} from 'react-native-reanimated';
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {ThemeText} from '../functions/CustomElements';
 import ThemeImage from '../functions/CustomElements/themeImage';
 import {COLORS, ICONS} from '../constants';
@@ -8,75 +16,58 @@ import {WINDOWWIDTH} from '../constants/theme';
 import {useTranslation} from 'react-i18next';
 
 export function Toast({toast, onHide}) {
-  const slideAnim = useRef(new Animated.Value(50)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(0)).current;
   const {topPadding} = useGlobalInsets();
-  const isAnimatingOut = useRef(false);
   const {t} = useTranslation();
 
-  // Memoize the hide animation to prevent recreating it
+  // shared values
+  const slideY = useSharedValue(50);
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const isAnimatingOut = useRef(false);
+
+  // Animate out
   const animateOut = useCallback(
     callback => {
-      if (isAnimatingOut.current) return; // Prevent multiple animations
+      if (isAnimatingOut.current) return;
       isAnimatingOut.current = true;
 
-      Animated.parallel([
-        Animated.timing(translateY, {
-          toValue: -100,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        if (callback) callback();
+      slideY.value = withTiming(-100, {duration: 300});
+      opacity.value = withTiming(0, {duration: 200}, finished => {
+        if (finished && callback) {
+          runOnJS(callback)();
+        }
       });
     },
-    [translateY, opacityAnim],
+    [opacity, slideY],
   );
 
+  // Animate in
   useEffect(() => {
-    // Slide in animation
-    Animated.parallel([
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [slideAnim, opacityAnim]);
+    slideY.value = withTiming(0, {duration: 200});
+    opacity.value = withTiming(1, {duration: 300});
+  }, [slideY, opacity]);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return Math.abs(gestureState.dy) > 5;
-      },
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy < 0) {
-          translateY.setValue(gestureState.dy);
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy < -topPadding) {
-          animateOut(() => onHide());
-        } else {
-          Animated.spring(translateY, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
-        }
-      },
-    }),
-  ).current;
+  // Gesture for swipe up
+  const panGesture = Gesture.Pan()
+    .onUpdate(event => {
+      if (event.translationY < 0) {
+        translateY.value = event.translationY;
+      }
+    })
+    .onEnd(event => {
+      if (event.translationY < -topPadding) {
+        runOnJS(animateOut)(onHide);
+      } else {
+        translateY.value = withSpring(0);
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{translateY: slideY.value + translateY.value}],
+      opacity: opacity.value,
+    };
+  });
 
   const getToastStyle = () => {
     const baseStyle = [styles.toast];
@@ -112,38 +103,32 @@ export function Toast({toast, onHide}) {
   };
 
   return (
-    <Animated.View
-      style={[
-        styles.toastContainer,
-        {
-          top: topPadding,
-          transform: [{translateY: Animated.add(slideAnim, translateY)}],
-          opacity: opacityAnim,
-        },
-      ]}
-      {...panResponder.panHandlers}>
-      <View style={getToastStyle()}>
-        <View style={styles.toastContent}>
-          {toast.type === 'clipboard' ? (
-            <ThemeImage
-              styles={{width: 25, height: 25, marginRight: 15}}
-              lightModeIcon={ICONS.clipboardDark}
-              darkModeIcon={ICONS.clipboardDark}
-              lightsOutIcon={ICONS.clipboardDark}
-            />
-          ) : (
-            <ThemeText styles={styles.toastIcon} content={getIconForType()} />
-          )}
-          <View style={styles.textContainer}>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.toastTitle}
-              content={t(toast.title)}
-            />
+    <GestureDetector gesture={panGesture}>
+      <Animated.View
+        style={[styles.toastContainer, {top: topPadding}, animatedStyle]}>
+        <View style={getToastStyle()}>
+          <View style={styles.toastContent}>
+            {toast.type === 'clipboard' ? (
+              <ThemeImage
+                styles={{width: 25, height: 25, marginRight: 15}}
+                lightModeIcon={ICONS.clipboardDark}
+                darkModeIcon={ICONS.clipboardDark}
+                lightsOutIcon={ICONS.clipboardDark}
+              />
+            ) : (
+              <ThemeText styles={styles.toastIcon} content={getIconForType()} />
+            )}
+            <View style={styles.textContainer}>
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.toastTitle}
+                content={t(toast.title)}
+              />
+            </View>
           </View>
         </View>
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </GestureDetector>
   );
 }
 

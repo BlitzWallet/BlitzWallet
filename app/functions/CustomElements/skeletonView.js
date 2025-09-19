@@ -1,20 +1,17 @@
 import MaskedView from '@react-native-masked-view/masked-view';
-import {
-  Animated,
-  Dimensions,
-  Easing,
-  LayoutRectangle,
-  StyleProp,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from 'react-native';
+import {Dimensions, Fragment, StyleSheet, View} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {SKELETON_ANIMATION_SPEED} from '../../constants';
-import {Children, Fragment, useEffect, useMemo, useRef, useState} from 'react';
+import {Children, useEffect, useMemo, useState} from 'react';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
-
 const logEnabled = false;
 
 const SkeletonPlaceholder = ({
@@ -28,46 +25,37 @@ const SkeletonPlaceholder = ({
   shimmerWidth,
 }) => {
   const [layout, setLayout] = useState();
-  const animatedValueRef = useRef(new Animated.Value(0));
+  const progress = useSharedValue(0);
   const isAnimationReady = Boolean(speed && layout?.width && layout?.height);
 
   useEffect(() => {
     if (!isAnimationReady) return;
-
-    const loop = Animated.loop(
-      Animated.timing(animatedValueRef.current, {
-        toValue: 1,
+    progress.value = withRepeat(
+      withTiming(1, {
         duration: speed,
         easing: Easing.ease,
-        useNativeDriver: true,
       }),
+      -1,
+      false,
     );
-    loop.start();
-    return () => loop.stop();
   }, [isAnimationReady, speed]);
 
-  const animatedGradientStyle = useMemo(() => {
+  const animatedGradientStyle = useAnimatedStyle(() => {
     const animationWidth = WINDOW_WIDTH + (shimmerWidth ?? 0);
+    const translateX =
+      direction === 'right'
+        ? -animationWidth + progress.value * (2 * animationWidth)
+        : animationWidth - progress.value * (2 * animationWidth);
+
     return {
       ...StyleSheet.absoluteFillObject,
       flexDirection: 'row',
-      transform: [
-        {
-          translateX: animatedValueRef.current.interpolate({
-            inputRange: [0, 1],
-            outputRange:
-              direction === 'right'
-                ? [-animationWidth, animationWidth]
-                : [animationWidth, -animationWidth],
-          }),
-        },
-      ],
+      transform: [{translateX}],
     };
-  }, [direction, WINDOW_WIDTH, shimmerWidth]);
+  });
 
   const placeholders = useMemo(() => {
     if (!enabled) return null;
-
     return (
       <View style={styles.placeholderContainer}>
         {transformToPlaceholder(children, backgroundColor, borderRadius)}
@@ -89,25 +77,19 @@ const SkeletonPlaceholder = ({
       </View>
     );
 
-  // https://github.com/react-native-linear-gradient/react-native-linear-gradient/issues/358
-  // to make transparent gradient we need to use original color with alpha
-
   return (
     <MaskedView
       style={{height: layout.height, width: layout.width}}
       maskElement={placeholders}>
       <View style={[StyleSheet.absoluteFill, {backgroundColor}]} />
-
-      {isAnimationReady &&
-        highlightColor !== undefined &&
-        transparentColor !== undefined && (
-          <Animated.View style={animatedGradientStyle}>
-            <LinearGradient
-              {...getGradientProps(shimmerWidth)}
-              colors={[transparentColor, highlightColor, transparentColor]}
-            />
-          </Animated.View>
-        )}
+      {isAnimationReady && highlightColor && transparentColor && (
+        <Animated.View style={animatedGradientStyle}>
+          <LinearGradient
+            {...getGradientProps(shimmerWidth)}
+            colors={[transparentColor, highlightColor, transparentColor]}
+          />
+        </Animated.View>
+      )}
     </MaskedView>
   );
 };
@@ -133,7 +115,7 @@ const transformToPlaceholder = (rootElement, backgroundColor, radius) => {
   return Children.map(rootElement, (element, index) => {
     if (!element) return null;
 
-    if (element.type === Fragment)
+    if (element.type === Fragment) {
       return (
         <>
           {transformToPlaceholder(
@@ -143,12 +125,14 @@ const transformToPlaceholder = (rootElement, backgroundColor, radius) => {
           )}
         </>
       );
+    }
 
     const isPlaceholder =
       !element.props?.children ||
       typeof element.props.children === 'string' ||
       (Array.isArray(element.props.children) &&
         element.props.children.every(x => x == null || typeof x === 'string'));
+
     const props = element.props;
     const style =
       element.type?.displayName === SkeletonPlaceholder.Item.displayName
@@ -170,19 +154,13 @@ const transformToPlaceholder = (rootElement, backgroundColor, radius) => {
       isPlaceholder
         ? [styles.placeholder, {backgroundColor}]
         : styles.placeholderContainer,
-      {
-        height,
-        width,
-        borderRadius,
-      },
+      {height, width, borderRadius},
     ];
 
     logEnabled &&
       console.log(
         isPlaceholder ? '[skeleton] placeholder' : '[skeleton] container',
-        {
-          element,
-        },
+        {element},
       );
 
     return (
@@ -219,34 +197,28 @@ const getColorType = color => {
     new RegExp(
       /^rgba\((0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d),(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d),(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d),(0|0?\.\d|1(\.0)?)\)$/,
     ).test(color)
-  ) {
+  )
     return 'rgba';
-  }
   if (
     new RegExp(
       /^rgb\((0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d),(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d),(0|255|25[0-4]|2[0-4]\d|1\d\d|0?\d?\d)\)$/,
     ).test(color)
-  ) {
+  )
     return 'rgb';
-  }
-
-  if (new RegExp(/^#?([a-f\d]{3,4}|[a-f\d]{6}|[a-f\d]{8})$/i).test(color)) {
+  if (new RegExp(/^#?([a-f\d]{3,4}|[a-f\d]{6}|[a-f\d]{8})$/i).test(color))
     return 'hex';
-  }
 
   throw `The provided color ${color} is not a valid (hex | rgb | rgba) color`;
 };
 
 const getTransparentColor = color => {
   const type = getColorType(color);
-
   if (type === 'hex') {
     if (color.length < 6) {
       return color.substring(0, 4) + '0';
     }
     return color.substring(0, 7) + '00';
   }
-  //@ts-ignore
   const [r, g, b] = color.match(/\d+/g);
   return `rgba(${r},${g},${b},0)`;
 };

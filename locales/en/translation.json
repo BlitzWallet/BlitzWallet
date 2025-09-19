@@ -976,7 +976,8 @@
       "sent/received": "Sent/Received",
       "title": "Export your payment history in CSV (comma seperated value) format.",
       "paymentsCounter": "{{number}} payments",
-      "paymentsCounterTracker": "{{number}} of {{total}}"
+      "paymentsCounterTracker": "{{number}} of {{total}}",
+      "loadingMessage": "Loading saved transactions"
     }
   },
 

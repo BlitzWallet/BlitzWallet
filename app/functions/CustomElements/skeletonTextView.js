@@ -9,15 +9,15 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  Animated,
-  Dimensions,
-  Easing,
-  StyleSheet,
-  View,
-  Text,
-} from 'react-native';
+import {Dimensions, StyleSheet, View, Text} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import {COLORS, SKELETON_ANIMATION_SPEED} from '../../constants';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
@@ -32,41 +32,34 @@ const SkeletonTextPlaceholder = ({
   shimmerWidth,
 }) => {
   const [layout, setLayout] = useState();
-  const animatedValueRef = useRef(new Animated.Value(0));
+  const progress = useSharedValue(0);
   const isAnimationReady = Boolean(speed && layout?.width && layout?.height);
 
   useEffect(() => {
     if (!isAnimationReady) return;
-    const loop = Animated.loop(
-      Animated.timing(animatedValueRef.current, {
-        toValue: 1,
+    progress.value = withRepeat(
+      withTiming(1, {
         duration: speed,
         easing: Easing.ease,
-        useNativeDriver: true,
       }),
+      -1, // infinite
+      false,
     );
-    loop.start();
-    return () => loop.stop();
   }, [isAnimationReady, speed]);
 
-  const animatedGradientStyle = useMemo(() => {
+  const animatedGradientStyle = useAnimatedStyle(() => {
     const animationWidth = WINDOW_WIDTH + (shimmerWidth ?? 0);
+    const translateX =
+      direction === 'right'
+        ? -animationWidth + progress.value * (2 * animationWidth)
+        : animationWidth - progress.value * (2 * animationWidth);
+
     return {
       ...StyleSheet.absoluteFillObject,
       flexDirection: 'row',
-      transform: [
-        {
-          translateX: animatedValueRef.current.interpolate({
-            inputRange: [0, 1],
-            outputRange:
-              direction === 'right'
-                ? [-animationWidth, animationWidth]
-                : [animationWidth, -animationWidth],
-          }),
-        },
-      ],
+      transform: [{translateX}],
     };
-  }, [direction, WINDOW_WIDTH, shimmerWidth]);
+  });
 
   const transparentColor = useMemo(
     () => getTransparentColor(highlightColor.replace(/ /g, '')),
@@ -75,7 +68,6 @@ const SkeletonTextPlaceholder = ({
 
   if (!enabled) return children;
 
-  // Simple approach: render the children with white text color for masking
   const maskElement = (
     <View style={styles.maskContainer}>
       <TextColorProvider color="white">{children}</TextColorProvider>
@@ -95,16 +87,14 @@ const SkeletonTextPlaceholder = ({
       style={{height: layout.height, width: layout.width}}
       maskElement={maskElement}>
       <View style={[StyleSheet.absoluteFill, {backgroundColor}]} />
-      {isAnimationReady &&
-        highlightColor !== undefined &&
-        transparentColor !== undefined && (
-          <Animated.View style={animatedGradientStyle}>
-            <LinearGradient
-              {...getGradientProps(shimmerWidth)}
-              colors={[transparentColor, highlightColor, transparentColor]}
-            />
-          </Animated.View>
-        )}
+      {isAnimationReady && highlightColor && transparentColor && (
+        <Animated.View style={animatedGradientStyle}>
+          <LinearGradient
+            {...getGradientProps(shimmerWidth)}
+            colors={[transparentColor, highlightColor, transparentColor]}
+          />
+        </Animated.View>
+      )}
     </MaskedView>
   );
 };
@@ -136,18 +126,15 @@ const transformElementsForMask = (children, textColor) => {
     if (isValidElement(child)) {
       const props = {key: index};
 
-      // If it's a Text component, override the color
       if (child.type === Text) {
         props.style = [
           child.props?.style,
           {color: textColor, backgroundColor: 'transparent'},
         ];
       } else {
-        // For other components, make sure background is transparent
         props.style = [child.props?.style, {backgroundColor: 'transparent'}];
       }
 
-      // If it has children, recursively transform them
       if (child.props?.children) {
         props.children = transformElementsForMask(
           child.props.children,
@@ -155,10 +142,7 @@ const transformElementsForMask = (children, textColor) => {
         );
       }
 
-      // Handle custom text components that might use a 'content' prop
       if (child.props?.content && typeof child.props.content === 'string') {
-        // This is likely a custom text component like ThemeText
-        // We'll create a regular Text component instead
         return (
           <Text
             key={index}
