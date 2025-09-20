@@ -56,9 +56,9 @@ export default async function getReceiveAddressAndContactForContactsPayment({
           });
         }
       } else throw new Error('errormessages.legacyContactError');
-
-      return {didWork: true, receiveAddress, retrivedContact};
     }
+
+    return {didWork: true, receiveAddress, retrivedContact};
   } catch (err) {
     console.log('error getting receive address for contact payment');
     return {didWork: false, error: err.message};
