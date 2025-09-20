@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {useToast} from '../../../../../../context-store/toastManager';
-import {Animated, ScrollView, StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import {useKeysContext} from '../../../../../../context-store/keys';
 import {useNavigation} from '@react-navigation/native';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -31,15 +31,20 @@ import {
   initializeNWCWallet,
 } from '../../../../../functions/nwc/wallet';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 
 export default function NWCWalletSetup(props) {
   const {toggleMasterInfoObject} = useGlobalContextProvider();
   const {showToast} = useToast();
   const fromWallet = props?.route?.params?.fromWallet;
   const {accountMnemoinc} = useKeysContext();
-  const fadeAnim = useRef(
-    new Animated.Value(fromWallet ? SCREEN_DIMENSIONS.height * 2 : 0),
-  ).current;
+  const fadeAnim = useSharedValue(
+    fromWallet ? SCREEN_DIMENSIONS.height * 2 : 0,
+  );
   const {topPadding, bottomPadding} = useGlobalInsets();
   const [NWCMnemonic, setNWCMnemoinc] = useState(null);
   const isInitialRender = useRef(true);
@@ -89,6 +94,17 @@ export default function NWCWalletSetup(props) {
       storeData(NWC_SECURE_STORE_MNEMOINC, mnemonic.join(' '));
     }
   }, [showSeed, mnemonic, fromWallet]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{translateY: fadeAnim.value}],
+    backgroundColor: backgroundColor,
+  }));
+
+  function fadeout() {
+    fadeAnim.value = withTiming(SCREEN_DIMENSIONS.height * 2, {
+      duration: 500,
+    });
+  }
 
   if (!NWCMnemonic) {
     return (
@@ -149,14 +165,7 @@ export default function NWCWalletSetup(props) {
         </View>
       </ScrollView>
 
-      <Animated.View
-        style={[
-          styles.confirmPopup,
-          {
-            transform: [{translateY: fadeAnim}],
-            backgroundColor: backgroundColor,
-          },
-        ]}>
+      <Animated.View style={[styles.confirmPopup, animatedStyle]}>
         <View style={styles.confirmPopupInnerContainer}>
           <ThemeText
             styles={styles.confirmPopupTitle}
@@ -172,14 +181,6 @@ export default function NWCWalletSetup(props) {
       </Animated.View>
     </View>
   );
-
-  function fadeout() {
-    Animated.timing(fadeAnim, {
-      toValue: SCREEN_DIMENSIONS.height * 2,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }
 }
 
 const styles = StyleSheet.create({

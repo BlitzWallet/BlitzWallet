@@ -1,4 +1,4 @@
-import {Animated, ScrollView, StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import {KeyContainer} from '../../../login';
 import {useEffect, useRef, useState} from 'react';
 import {
@@ -21,10 +21,15 @@ import calculateSeedQR from './seedQR';
 import {copyToClipboard} from '../../../../functions';
 import {useToast} from '../../../../../context-store/toastManager';
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 
 export default function SeedPhrasePage({extraData}) {
   const {showToast} = useToast();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useSharedValue(0);
   const {accountMnemoinc} = useKeysContext();
   const isInitialRender = useRef(true);
   const mnemonic = accountMnemoinc.split(' ');
@@ -47,6 +52,17 @@ export default function SeedPhrasePage({extraData}) {
       fadeout();
     }
   }, [showSeed]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{translateY: fadeAnim.value}],
+    backgroundColor: backgroundColor,
+  }));
+
+  function fadeout() {
+    fadeAnim.value = withTiming(SCREEN_DIMENSIONS.height * 2, {
+      duration: 500,
+    });
+  }
 
   return (
     <View style={styles.globalContainer}>
@@ -107,14 +123,7 @@ export default function SeedPhrasePage({extraData}) {
         />
       </ScrollView>
 
-      <Animated.View
-        style={[
-          styles.confirmPopup,
-          {
-            transform: [{translateY: fadeAnim}],
-            backgroundColor: backgroundColor,
-          },
-        ]}>
+      <Animated.View style={[styles.confirmPopup, animatedStyle]}>
         <View style={styles.confirmPopupInnerContainer}>
           <ThemeText
             styles={{...styles.confirmPopupTitle}}
@@ -131,7 +140,6 @@ export default function SeedPhrasePage({extraData}) {
               textContent={t('constants.yes')}
               actionFunction={() => setShowSeed(true)}
             />
-
             <CustomButton
               textContent={t('constants.no')}
               actionFunction={navigate.goBack}
@@ -141,14 +149,6 @@ export default function SeedPhrasePage({extraData}) {
       </Animated.View>
     </View>
   );
-
-  function fadeout() {
-    Animated.timing(fadeAnim, {
-      toValue: SCREEN_DIMENSIONS.height * 2,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }
 }
 
 const styles = StyleSheet.create({

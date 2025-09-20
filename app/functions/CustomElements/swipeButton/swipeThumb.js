@@ -1,13 +1,18 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
-import GetThemeColors from '../../../hooks/themeColors';
+import {useCallback, useEffect, useState} from 'react';
 import {
-  Animated,
   I18nManager,
-  PanResponder,
   StyleSheet,
   TouchableNativeFeedback,
   View,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
+import GetThemeColors from '../../../hooks/themeColors';
 import {
   DEFAULT_ANIMATION_DURATION,
   RESET_AFTER_SUCCESS_DEFAULT_DELAY,
@@ -38,43 +43,41 @@ export const SwipeThumb = ({
   thumbIconStyles = {},
   thumbIconWidth,
   title,
-  animateViewOnSuccess,
+  animateViewOnSuccess = () => {},
   handleSwipeProgress,
   theme,
 }) => {
-  const {backgroundColor, backgroundOffset} = GetThemeColors();
+  const {backgroundColor} = GetThemeColors();
   const paddingAndMarginsOffset = borderWidth + 2 * margin;
   const defaultContainerWidth = thumbIconHeight;
   const maxWidth = layoutWidth - paddingAndMarginsOffset;
   const isRTL = I18nManager.isRTL;
-  const animatedWidth = useRef(
-    new Animated.Value(defaultContainerWidth),
-  ).current;
-  const [defaultWidth, setDefaultWidth] = useState(defaultContainerWidth);
-  const [shouldDisableTouch, disableTouch] = useState(false);
 
-  const reset = () => {
-    disableTouch(false);
-    setDefaultWidth(defaultContainerWidth);
+  const [shouldDisableTouch, setShouldDisableTouch] = useState(false);
 
-    handleSwipeProgress && handleSwipeProgress(0);
-  };
+  const widthSV = useSharedValue(defaultContainerWidth);
+
+  const reset = useCallback(() => {
+    setShouldDisableTouch(false);
+    widthSV.value = withTiming(defaultContainerWidth, {
+      duration: DEFAULT_ANIMATION_DURATION,
+    });
+    if (handleSwipeProgress) runOnJS(handleSwipeProgress)(0);
+  }, [defaultContainerWidth, handleSwipeProgress, widthSV]);
 
   const invokeOnSwipeSuccess = () => {
-    disableTouch(disableResetOnTap);
+    setShouldDisableTouch(disableResetOnTap);
     animateViewOnSuccess();
-    onSwipeSuccess && onSwipeSuccess();
+    if (onSwipeSuccess) onSwipeSuccess();
   };
 
   const finishRemainingSwipe = () => {
-    // Animate to final position
-    setDefaultWidth(maxWidth);
-
-    handleSwipeProgress && handleSwipeProgress(1);
-
+    widthSV.value = withTiming(maxWidth, {
+      duration: DEFAULT_ANIMATION_DURATION,
+    });
+    if (handleSwipeProgress) handleSwipeProgress(1);
     invokeOnSwipeSuccess();
 
-    // Animate back to initial position after successfully swiped
     const resetDelay =
       DEFAULT_ANIMATION_DURATION +
       (resetAfterSuccessAnimDelay !== undefined
@@ -87,10 +90,8 @@ export const SwipeThumb = ({
   };
 
   const onSwipeNotMetSuccessThreshold = () => {
-    // Animate to initial position
-    setDefaultWidth(defaultContainerWidth);
-    onSwipeFail && onSwipeFail();
-    handleSwipeProgress && handleSwipeProgress(0);
+    reset();
+    if (onSwipeFail) onSwipeFail();
   };
 
   const onSwipeMetSuccessThreshold = newWidth => {
@@ -102,97 +103,60 @@ export const SwipeThumb = ({
     reset();
   };
 
-  const onPanResponderStart = () => {
-    if (disabled) {
-      return;
-    }
-    onSwipeStart && onSwipeStart();
-  };
+  const panGesture = Gesture.Pan()
+    .onBegin(() => {
+      if (disabled) return;
+      if (onSwipeStart) runOnJS(onSwipeStart)();
+    })
+    .onUpdate(e => {
+      if (disabled) return;
+      const reverseMultiplier = enableReverseSwipe ? -1 : 1;
+      const rtlMultiplier = isRTL ? -1 : 1;
+      const newWidth =
+        defaultContainerWidth +
+        rtlMultiplier * reverseMultiplier * e.translationX;
 
-  const onPanResponderMove = async (event, gestureState) => {
-    if (disabled) {
-      return;
-    }
-    const reverseMultiplier = enableReverseSwipe ? -1 : 1;
-    const rtlMultiplier = isRTL ? -1 : 1;
-    const newWidth =
-      defaultContainerWidth +
-      rtlMultiplier * reverseMultiplier * gestureState.dx;
+      if (newWidth < defaultContainerWidth) {
+        runOnJS(reset)();
+      } else if (newWidth > maxWidth) {
+        widthSV.value = maxWidth;
+        if (handleSwipeProgress) runOnJS(handleSwipeProgress)(1);
+      } else {
+        widthSV.value = newWidth;
+        const progress =
+          (newWidth - defaultContainerWidth) /
+          (maxWidth - defaultContainerWidth);
+        if (handleSwipeProgress) runOnJS(handleSwipeProgress)(progress);
+      }
+    })
+    .onEnd(e => {
+      if (disabled) return;
+      const reverseMultiplier = enableReverseSwipe ? -1 : 1;
+      const rtlMultiplier = isRTL ? -1 : 1;
+      const newWidth =
+        defaultContainerWidth +
+        rtlMultiplier * reverseMultiplier * e.translationX;
+      const successThresholdWidth = maxWidth * (swipeSuccessThreshold / 100);
 
-    if (newWidth < defaultContainerWidth) {
-      // Reached starting position
-
-      reset();
-    } else if (newWidth > maxWidth) {
-      // Reached end position
-
-      setDefaultWidth(maxWidth);
-      handleSwipeProgress && handleSwipeProgress(1);
-    } else {
-      Animated.timing(animatedWidth, {
-        toValue: newWidth,
-        duration: 0,
-        useNativeDriver: false,
-      }).start();
-      setDefaultWidth(newWidth);
-
-      const progress =
-        (newWidth - defaultContainerWidth) / (maxWidth - defaultContainerWidth);
-      handleSwipeProgress && handleSwipeProgress(progress);
-    }
-  };
-
-  const onPanResponderRelease = (event, gestureState) => {
-    if (disabled) {
-      return;
-    }
-    const reverseMultiplier = enableReverseSwipe ? -1 : 1;
-    const rtlMultiplier = isRTL ? -1 : 1;
-    const newWidth =
-      defaultContainerWidth +
-      rtlMultiplier * reverseMultiplier * gestureState.dx;
-    const successThresholdWidth = maxWidth * (swipeSuccessThreshold / 100);
-
-    newWidth < successThresholdWidth
-      ? onSwipeNotMetSuccessThreshold()
-      : onSwipeMetSuccessThreshold(newWidth);
-  };
-
-  const panResponder = useCallback(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onStartShouldSetPanResponderCapture: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponderCapture: () => true,
-      onShouldBlockNativeResponder: () => true,
-      onPanResponderStart,
-      onPanResponderMove,
-      onPanResponderRelease,
-    }),
-    [
-      disabled,
-      enableReverseSwipe,
-      maxWidth,
-      defaultContainerWidth,
-      swipeSuccessThreshold,
-    ],
-  );
+      if (newWidth < successThresholdWidth) {
+        runOnJS(onSwipeNotMetSuccessThreshold)();
+      } else {
+        runOnJS(onSwipeMetSuccessThreshold)(newWidth);
+      }
+    });
 
   useEffect(() => {
-    Animated.timing(animatedWidth, {
-      toValue: defaultWidth,
-      duration: 400,
-      useNativeDriver: false,
-    }).start();
-  }, [animatedWidth, defaultWidth]);
+    if (forceReset) {
+      forceReset(reset);
+    }
+  }, [forceReset, reset]);
 
-  useEffect(() => {
-    forceReset && forceReset(reset);
-  }, [forceReset]);
+  const animatedStyle = useAnimatedStyle(() => ({
+    width: widthSV.value,
+  }));
 
   const renderThumbIcon = () => {
     const iconWidth = thumbIconWidth || thumbIconHeight;
-
     const dynamicStyles = {
       height: thumbIconHeight,
       width: iconWidth,
@@ -203,22 +167,10 @@ export const SwipeThumb = ({
     };
 
     return (
-      <View style={[thumbStyles.icon, {...dynamicStyles}]}>
-        {ThumbIconComponent && (
-          <View>
-            <ThumbIconComponent />
-          </View>
-        )}
+      <View style={[thumbStyles.icon, dynamicStyles]}>
+        {ThumbIconComponent && <ThumbIconComponent />}
       </View>
     );
-  };
-
-  const panStyle = {
-    backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
-    borderColor: theme ? backgroundColor : COLORS.darkModeText,
-    width: animatedWidth,
-    ...(enableReverseSwipe ? thumbStyles.containerRTL : thumbStyles.container),
-    ...railStyles,
   };
 
   return screenReaderEnabled ? (
@@ -229,17 +181,26 @@ export const SwipeThumb = ({
       disabled={disabled}
       onPress={onSwipeSuccess}
       accessible>
-      <View style={[panStyle, {width: defaultContainerWidth}]}>
+      <View style={[thumbStyles.container, {width: defaultContainerWidth}]}>
         {renderThumbIcon()}
       </View>
     </TouchableNativeFeedback>
   ) : (
-    <Animated.View
-      style={[panStyle]}
-      {...panResponder.panHandlers}
-      pointerEvents={shouldDisableTouch ? 'none' : 'auto'}>
-      {renderThumbIcon()}
-    </Animated.View>
+    <GestureDetector gesture={panGesture}>
+      <Animated.View
+        style={[
+          enableReverseSwipe ? thumbStyles.containerRTL : thumbStyles.container,
+          animatedStyle,
+          {
+            backgroundColor: theme ? backgroundColor : COLORS.darkModeText,
+            borderColor: theme ? backgroundColor : COLORS.darkModeText,
+            ...railStyles,
+          },
+        ]}
+        pointerEvents={shouldDisableTouch ? 'none' : 'auto'}>
+        {renderThumbIcon()}
+      </Animated.View>
+    </GestureDetector>
   );
 };
 

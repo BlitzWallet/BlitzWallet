@@ -1,33 +1,31 @@
-import {Animated, StyleSheet, View} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {useEffect, useMemo, useRef} from 'react';
 import GetThemeColors from '../../hooks/themeColors';
 import {COLORS} from '../../constants';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  withSequence,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 export default function PinDot({dotNum, pin}) {
   const {theme} = useGlobalThemeContext();
   const isInitialLoad = useRef(true);
 
   const {textColor, backgroundOffset} = GetThemeColors();
-  const dotScale = useRef(new Animated.Value(1)).current;
+  const dotScale = useSharedValue(1);
 
   useEffect(() => {
     if (isInitialLoad.current) {
       isInitialLoad.current = false;
     }
     if (typeof pin[dotNum] === 'number') {
-      Animated.sequence([
-        Animated.timing(dotScale, {
-          toValue: 1.1,
-          duration: 100, // Adjust the duration as needed
-          useNativeDriver: true,
-        }),
-        Animated.timing(dotScale, {
-          toValue: 1,
-          duration: 100, // Adjust the duration as needed
-          useNativeDriver: true,
-        }),
-      ]).start();
+      dotScale.value = withSequence(
+        withTiming(1.1, {duration: 100}),
+        withTiming(1, {duration: 100}),
+      );
     }
   }, [pin[dotNum], dotScale]);
 
@@ -42,14 +40,12 @@ export default function PinDot({dotNum, pin}) {
       };
     }
   }, [pin, dotNum, theme]);
-  return (
-    <Animated.View
-      style={{
-        ...memorizedStyles,
-        ...styles.dot,
-        transform: [{scale: dotScale}],
-      }}></Animated.View>
-  );
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{scale: dotScale.value}],
+  }));
+
+  return <Animated.View style={[memorizedStyles, styles.dot, animatedStyle]} />;
 }
 
 const styles = StyleSheet.create({
@@ -64,6 +60,5 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     borderWidth: 1,
-    // backgroundColor: COLORS.primary,
   },
 });

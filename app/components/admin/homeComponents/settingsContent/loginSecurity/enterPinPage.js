@@ -1,6 +1,4 @@
 import {
-  Animated,
-  PanResponder,
   ScrollView,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -21,6 +19,13 @@ import PinDot from '../../../../../functions/CustomElements/pinDot';
 import KeyForKeyboard from '../../../../../functions/CustomElements/key';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useTranslation} from 'react-i18next';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 
 export default function ConfirmPinForLoginMode() {
   const navigate = useNavigation();
@@ -34,10 +39,9 @@ export default function ConfirmPinForLoginMode() {
   const [errorMessage, setErrorMessage] = useState('');
 
   const {bottomPadding} = useGlobalInsets();
-  const translateY = useRef(
-    new Animated.Value(SCREEN_DIMENSIONS.height),
-  ).current;
-  const panY = useRef(new Animated.Value(0)).current;
+
+  const translateY = useSharedValue(SCREEN_DIMENSIONS.height);
+  const panY = useSharedValue(0);
 
   const handleBackPressFunction = useCallback(() => {
     slideOut();
@@ -53,46 +57,32 @@ export default function ConfirmPinForLoginMode() {
     }, 100);
   }, []);
   const slideIn = () => {
-    Animated.timing(translateY, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
+    translateY.value = withTiming(0, {duration: 200});
   };
 
   const slideOut = () => {
-    Animated.timing(translateY, {
-      toValue: SCREEN_DIMENSIONS.height,
+    translateY.value = withTiming(SCREEN_DIMENSIONS.height * 2, {
       duration: 200,
-      useNativeDriver: true,
-    }).start();
+    });
   };
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return gestureState.dy > 5; // Only start gesture if dragging down
-      },
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          panY.setValue(gestureState.dy);
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > 100) {
-          // Consider it a dismiss
-          handleBackPressFunction();
-        } else {
-          // Return to original position
-          Animated.timing(panY, {
-            toValue: 0,
-            duration: 200,
-            useNativeDriver: true,
-          }).start();
-        }
-      },
-    }),
-  ).current;
+  const panGesture = Gesture.Pan()
+    .onUpdate(e => {
+      if (e.translationY > 0) {
+        panY.value = e.translationY;
+      }
+    })
+    .onEnd(e => {
+      if (e.translationY > 100) {
+        runOnJS(handleBackPressFunction)();
+      } else {
+        panY.value = withTiming(0, {duration: 200});
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{translateY: translateY.value + panY.value}],
+  }));
 
   useEffect(() => {
     const filteredPin = pinSettings.enteredPin.filter(Boolean);
@@ -142,20 +132,22 @@ export default function ConfirmPinForLoginMode() {
             backgroundColor:
               theme && darkModeType ? backgroundOffset : backgroundColor,
             paddingBottom: bottomPadding,
-            transform: [{translateY: Animated.add(translateY, panY)}],
           },
+          animatedStyle,
         ]}>
-        <View {...panResponder.panHandlers} style={styles.topBarContainer}>
-          <View
-            style={[
-              styles.topBar,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
-            ]}
-          />
-        </View>
+        <GestureDetector gesture={panGesture}>
+          <View style={styles.topBarContainer}>
+            <View
+              style={[
+                styles.topBar,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundColor : backgroundOffset,
+                },
+              ]}
+            />
+          </View>
+        </GestureDetector>
         <View
           style={{
             ...styles.pinContentContainer,

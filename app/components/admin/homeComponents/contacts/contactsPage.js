@@ -535,14 +535,23 @@ const ContactElement = memo(
         });
         return;
       }
-      navigate.navigate('ContactsPageLongPressActions', {
-        contact: contact,
-      });
+      navigate.navigate('ContactsPageLongPressActions', {contact});
     }, [contact, isConnectedToTheInternet, navigate]);
 
     const handlePress = useCallback(() => {
       navigateToExpandedContact(contact);
     }, [contact, navigateToExpandedContact]);
+
+    const displayName = contact.name?.length
+      ? contact.name
+      : contact.uniqueName;
+    const formattedDate = lastUpdated
+      ? createFormattedDate(
+          lastUpdated - serverTimeOffset,
+          currentTime - serverTimeOffset,
+          t,
+        )
+      : '';
 
     return (
       <TouchableOpacity
@@ -560,50 +569,28 @@ const ContactElement = memo(
         <View style={memoizedStyles.globalContainer}>
           <View style={memoizedStyles.contactsRowInlineStyle}>
             <ThemeText
-              CustomEllipsizeMode={'tail'}
+              CustomEllipsizeMode="tail"
               CustomNumberOfLines={1}
-              styles={{
-                flex: 1,
-                width: '100%',
-                marginRight: 5,
-              }}
-              content={contact.name?.length ? contact.name : contact.uniqueName}
+              styles={{flex: 1, marginRight: 5}}
+              content={displayName}
             />
             {hasUnlookedTransaction && <View style={notificationStyle} />}
-            <View style={memoizedStyles.contactsRowInlineStyle}>
-              <ThemeText
-                styles={{
-                  fontSize: SIZES.small,
-                  marginRight: 5,
-                }}
-                content={
-                  lastUpdated
-                    ? createFormattedDate(
-                        lastUpdated - serverTimeOffset,
-                        currentTime - serverTimeOffset,
-                        t,
-                      )
-                    : ''
-                }
-              />
-              <ThemeImage
-                styles={{
-                  width: 20,
-                  height: 20,
-                  transform: [{rotate: '180deg'}],
-                }}
-                darkModeIcon={ICONS.leftCheveronIcon}
-                lightModeIcon={ICONS.leftCheveronIcon}
-                lightsOutIcon={ICONS.left_cheveron_white}
-              />
-            </View>
+            <ThemeText
+              styles={{fontSize: SIZES.small, marginRight: 5}}
+              content={formattedDate}
+            />
+            <ThemeImage
+              styles={{width: 20, height: 20, transform: [{rotate: '180deg'}]}}
+              darkModeIcon={ICONS.leftCheveronIcon}
+              lightModeIcon={ICONS.leftCheveronIcon}
+              lightsOutIcon={ICONS.left_cheveron_white}
+            />
           </View>
+
           <View style={memoizedStyles.contactsRowInlineStyle}>
             <ThemeText
               CustomNumberOfLines={2}
-              styles={{
-                fontSize: SIZES.small,
-              }}
+              styles={{fontSize: SIZES.small}}
               content={lastUpdated ? formatMessage(firstMessage) || ' ' : ' '}
             />
             {!contact.isAdded && (

@@ -1,10 +1,4 @@
-import {
-  Animated,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {COLORS, ICONS, SIZES} from '../../constants';
 import {ThemeText} from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
@@ -13,9 +7,15 @@ import {backArrow} from '../../constants/styles';
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 export default function SkipCreateAccountPathMessage() {
-  const BlurViewAnimation = useRef(new Animated.Value(0)).current;
+  const blurViewAnimation = useSharedValue(0);
   const isInitialLoad = useRef(true);
   const navigate = useNavigation();
   const [goBack, setGoGack] = useState(false);
@@ -29,28 +29,27 @@ export default function SkipCreateAccountPathMessage() {
 
   useEffect(() => {
     if (isInitialLoad.current) {
-      Animated.timing(BlurViewAnimation, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
+      blurViewAnimation.value = withTiming(1, {duration: 500});
       isInitialLoad.current = false;
     }
     if (goBack) {
-      Animated.timing(BlurViewAnimation, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start(() => {
-        navigate.goBack();
-        if (goToPinRef.current)
-          navigate.navigate('PinSetup', {isInitialLoad: true});
+      blurViewAnimation.value = withTiming(0, {duration: 500}, isFinished => {
+        if (isFinished) {
+          runOnJS(navigate.goBack)();
+          if (goToPinRef.current) {
+            runOnJS(navigate.navigate)('PinSetup', {isInitialLoad: true});
+          }
+        }
       });
     }
   }, [goBack]);
 
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: blurViewAnimation.value,
+  }));
+
   return (
-    <Animated.View style={[styles.absolute, {opacity: BlurViewAnimation}]}>
+    <Animated.View style={[styles.absolute, animatedStyle]}>
       <View style={styles.container}>
         <View style={styles.contentContainer}>
           <TouchableOpacity

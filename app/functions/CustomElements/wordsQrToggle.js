@@ -1,12 +1,11 @@
-import {
-  Animated,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Dimensions,
-} from 'react-native';
+import {StyleSheet, TouchableOpacity, View, Dimensions} from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import GetThemeColors from '../../hooks/themeColors';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import ThemeText from './textTheme';
 import {useTranslation} from 'react-i18next';
 import {useNavigation} from '@react-navigation/native';
@@ -14,7 +13,7 @@ import {COLORS} from '../../constants';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 
 const {width: deviceWidth} = Dimensions.get('window');
-const PADDING_HORIZONTAL = 20; // Total horizontal padding for container
+const PADDING_HORIZONTAL = 20;
 const MAX_CONTAINER_WIDTH = deviceWidth - PADDING_HORIZONTAL;
 
 export default function WordsQrToggle({
@@ -27,7 +26,8 @@ export default function WordsQrToggle({
   const {backgroundOffset, backgroundColor} = GetThemeColors();
   const {t} = useTranslation();
   const navigate = useNavigation();
-  const sliderAnimation = useRef(new Animated.Value(3)).current;
+
+  const sliderAnimation = useSharedValue(3);
 
   const [containerWidth, setContainerWidth] = useState(200);
   const [buttonWidth, setButtonWidth] = useState(95);
@@ -59,24 +59,21 @@ export default function WordsQrToggle({
 
   const handleSlide = useCallback(
     type => {
-      Animated.timing(sliderAnimation, {
-        toValue: type === 'words' ? 3 : buttonWidth + 3,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
+      sliderAnimation.value = withTiming(
+        type === 'words' ? 3 : buttonWidth + 3,
+        {duration: 200},
+      );
     },
     [buttonWidth],
   );
 
   const handleWordsTextLayout = useCallback(event => {
     const {width} = event.nativeEvent.layout;
-    console.log(width, 'testing1');
     setWordsTextWidth(width);
   }, []);
 
   const handleQrTextLayout = useCallback(event => {
     const {width} = event.nativeEvent.layout;
-    console.log(width, 'testing');
     setQrTextWidth(width);
   }, []);
 
@@ -97,6 +94,12 @@ export default function WordsQrToggle({
     setSelectedDisplayOption('qrcode');
     handleSlide('qrcode');
   }, [canViewQrCode, navigate, handleSlide]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{translateX: sliderAnimation.value}, {translateY: 3}],
+    backgroundColor: theme && darkModeType ? backgroundColor : COLORS.primary,
+    width: buttonWidth,
+  }));
 
   return (
     <View
@@ -145,17 +148,7 @@ export default function WordsQrToggle({
             content={t('settings.seedPhrase.qrText')}
           />
         </TouchableOpacity>
-        <Animated.View
-          style={[
-            styles.activeSchemeStyle,
-            {
-              transform: [{translateX: sliderAnimation}, {translateY: 3}],
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : COLORS.primary,
-              width: buttonWidth,
-            },
-          ]}
-        />
+        <Animated.View style={[styles.activeSchemeStyle, animatedStyle]} />
       </View>
       <ThemeText
         onLayout={handleWordsTextLayout}
@@ -178,7 +171,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   colorSchemeContainer: {
-    height: 'auto',
     flexDirection: 'row',
     position: 'relative',
     zIndex: 1,
@@ -201,7 +193,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   activeSchemeStyle: {
-    backgroundColor: COLORS.primary,
     position: 'absolute',
     height: '100%',
     top: -3,

@@ -1,4 +1,4 @@
-import {Animated, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useEffect, useRef, useState} from 'react';
 import {COLORS, ICONS} from '../../constants';
@@ -7,9 +7,15 @@ import CustomButton from './button';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeImage from './themeImage';
 import {useGlobalThemeContext} from '../../../context-store/theme';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  runOnJS,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 export default function InformationPopup(props) {
-  const BlurViewAnimation = useRef(new Animated.Value(0)).current;
+  const BlurViewAnimation = useSharedValue(0);
   const isInitialLoad = useRef(true);
   const navigate = useNavigation();
   const [goBack, setGoGack] = useState(false);
@@ -23,30 +29,29 @@ export default function InformationPopup(props) {
 
   useEffect(() => {
     if (isInitialLoad.current) {
-      Animated.timing(BlurViewAnimation, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
+      BlurViewAnimation.value = withTiming(1, {duration: 500});
+
       isInitialLoad.current = false;
     }
     if (goBack) {
-      Animated.timing(BlurViewAnimation, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start(() => {
-        if (customNavigation) {
-          customNavigation();
-        } else {
-          navigate.goBack();
+      BlurViewAnimation.value = withTiming(0, {duration: 500}, isFinished => {
+        if (isFinished) {
+          if (customNavigation) {
+            runOnJS(customNavigation)();
+          } else {
+            runOnJS(navigate.goBack)();
+          }
         }
       });
     }
   }, [goBack]);
 
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: BlurViewAnimation.value,
+  }));
+
   return (
-    <Animated.View style={[styles.absolute, {opacity: BlurViewAnimation}]}>
+    <Animated.View style={[styles.absolute, animatedStyle]}>
       <View style={styles.container}>
         <View
           style={{
