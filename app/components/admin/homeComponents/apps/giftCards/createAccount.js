@@ -226,7 +226,26 @@ export default function CreateGiftCardAccount(props) {
         );
         toggleGlobalAppDataInformation({giftCards: em}, true);
       }
-      navigate.navigate('GiftCardsPage');
+
+      if (decodedGiftCards.profile?.isoCode) {
+        navigate.navigate('GiftCardsPage');
+      } else {
+        navigate.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'HomeAdmin',
+              params: {screen: 'App Store'},
+            },
+            {
+              name: 'GiftCardsPage',
+            },
+            {
+              name: 'CountryList',
+            },
+          ],
+        });
+      }
     } catch (err) {
       setHasError(t('errormessages.nointernet'));
       console.log('sign user in error', err);

@@ -55,9 +55,12 @@ export default function CountryList(props) {
           return countryInfoList;
         };
         const response = await retriveCountries();
-        if (onlyReturn) {
+        if (onlyReturn && pageName !== 'GiftCardsPage') {
           setAllCountries([
-            {code: 'WW', countryName: 'World Wide'},
+            {
+              code: 'WW',
+              countryName: 'World Wide',
+            },
             ...response,
           ]);
         } else {

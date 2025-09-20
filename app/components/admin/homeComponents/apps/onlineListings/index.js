@@ -31,6 +31,7 @@ import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import {useTranslation} from 'react-i18next';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
 import CustomButton from '../../../../../functions/CustomElements/button';
+import {useGlobalAppData} from '../../../../../../context-store/appData';
 
 function useDebouncedValue(value, delay = 300) {
   const [debounced, setDebounced] = useState(value);
@@ -42,7 +43,9 @@ function useDebouncedValue(value, delay = 300) {
 }
 
 export default function ViewOnlineListings({removeUserLocal}) {
-  const [userLocal, setUserLocal] = useState('WW');
+  const {decodedGiftCards} = useGlobalAppData();
+  const startLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'WW';
+  const [userLocal, setUserLocal] = useState(startLocal);
   const [data, setData] = useState(null);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 300);

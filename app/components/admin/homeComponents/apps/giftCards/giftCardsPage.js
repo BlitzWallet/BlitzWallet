@@ -4,7 +4,7 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
-import {useCallback, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import {formatBalanceAmount} from '../../../../../functions';
 import GetThemeColors from '../../../../../hooks/themeColors';
@@ -26,10 +26,15 @@ import {keyboardNavigate} from '../../../../../functions/customNavigation';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useTranslation} from 'react-i18next';
 import FastImage from 'react-native-fast-image';
+import Icon from '../../../../../functions/CustomElements/Icon';
+import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 
-export default function GiftCardPage() {
+export default function GiftCardPage(props) {
   const {decodedGiftCards, toggleGiftCardsList, giftCardsList} =
     useGlobalAppData();
+  const startLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'WW';
+  const {theme} = useGlobalThemeContext();
+  const [userLocal, setUserLocal] = useState(startLocal);
   const {t} = useTranslation();
   const {backgroundOffset} = GetThemeColors();
   const [errorMessage, setErrorMessage] = useState('');
@@ -37,6 +42,11 @@ export default function GiftCardPage() {
   const navigate = useNavigation();
   const [showList, setShowList] = useState(false);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+
+  useEffect(() => {
+    if (!props.route?.params?.removeUserLocal) return;
+    setUserLocal(props.route?.params?.removeUserLocal);
+  }, [props.route?.params?.removeUserLocal]);
 
   useFocusEffect(
     useCallback(() => {
@@ -69,7 +79,6 @@ export default function GiftCardPage() {
   );
   const {bottomPadding} = useGlobalInsets();
 
-  const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const giftCards = giftCardsList;
   const handleBackPress = useCallback(() => {
     navigate.popTo('HomeAdmin');
@@ -90,7 +99,7 @@ export default function GiftCardPage() {
       ),
     [userLocal, giftCardSearch, giftCards],
   );
-
+  console.log(userLocal, filteredGiftCards);
   const renderItem = useCallback(
     ({item}) => {
       const isVariable =
@@ -173,9 +182,36 @@ export default function GiftCardPage() {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>
-            keyboardNavigate(() => navigate.navigate('CountryList'))
-          }>
-          <CountryFlag isoCode={userLocal} size={20} />
+            keyboardNavigate(() =>
+              navigate.navigate('CountryList', {
+                onlyReturn: true,
+                pageName: 'GiftCardsPage',
+              }),
+            )
+          }
+          style={{
+            width: 30,
+            height: 30,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor:
+              userLocal === 'WW'
+                ? theme
+                  ? backgroundOffset
+                  : COLORS.darkModeText
+                : 'unset',
+            borderRadius: 8,
+          }}>
+          {userLocal === 'WW' ? (
+            <Icon
+              width={15}
+              height={15}
+              color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+              name={'globeIcon'}
+            />
+          ) : (
+            <CountryFlag isoCode={userLocal} size={20} />
+          )}
         </TouchableOpacity>
         <TouchableOpacity
           style={{marginLeft: 10}}
@@ -208,7 +244,11 @@ export default function GiftCardPage() {
           containerStyles={{
             justifyContent:
               giftCards.length === 0 && !errorMessage ? 'center' : 'flex-start',
-            marginTop: giftCards.length === 0 && !errorMessage ? 0 : 30,
+            marginTop:
+              (giftCards.length === 0 && !errorMessage) ||
+              filteredGiftCards.length === 0
+                ? 0
+                : 30,
           }}
           showLoadingIcon={
             giftCards.length === 0 && !errorMessage ? true : false
@@ -218,6 +258,8 @@ export default function GiftCardPage() {
               ? t('apps.giftCards.giftCardsPage.leftPageMessage')
               : giftCards.length === 0 && !errorMessage
               ? t('apps.giftCards.giftCardsPage.loadingCardsMessage')
+              : filteredGiftCards.length === 0
+              ? t('apps.giftCards.giftCardsPage.noCardsAvailable')
               : errorMessage
           }
         />

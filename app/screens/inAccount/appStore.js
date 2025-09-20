@@ -21,6 +21,7 @@ import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useToast} from '../../../context-store/toastManager';
 import {useTranslation} from 'react-i18next';
+import CountryFlag from 'react-native-country-flag';
 
 export default function AppStore({navigation}) {
   const {showToast} = useToast();
@@ -30,6 +31,8 @@ export default function AppStore({navigation}) {
   const {decodedGiftCards} = useGlobalAppData();
   const navigate = useNavigation();
   const {t} = useTranslation();
+
+  const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'WW';
 
   function handleBackPressFunction() {
     navigation.navigate('Home');
@@ -142,10 +145,41 @@ export default function AppStore({navigation}) {
 
   return (
     <GlobalThemeView styles={styles.globalConatiner} useStandardWidth={true}>
-      <ThemeText
-        content={t('screens.inAccount.appStore.title')}
-        styles={{...styles.headerText}}
-      />
+      <View style={styles.headerContainer}>
+        <ThemeText
+          CustomNumberOfLines={1}
+          content={t('screens.inAccount.appStore.title')}
+          styles={styles.headerText}
+        />
+        <TouchableOpacity
+          onPress={() => navigate.navigate('CountryList')}
+          style={{
+            width: 30,
+            height: 30,
+            alignItems: 'center',
+            marginLeft: 'auto',
+            justifyContent: 'center',
+            backgroundColor:
+              userLocal === 'WW'
+                ? theme
+                  ? backgroundOffset
+                  : COLORS.darkModeText
+                : 'unset',
+            borderRadius: 8,
+          }}>
+          {userLocal === 'WW' ? (
+            <Icon
+              width={15}
+              height={15}
+              color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+              name={'globeIcon'}
+            />
+          ) : (
+            <CountryFlag isoCode={userLocal} size={20} />
+          )}
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollViewStyles}>
@@ -283,7 +317,18 @@ export default function AppStore({navigation}) {
 
 const styles = StyleSheet.create({
   globalConatiner: {paddingBottom: 0},
-  headerText: {fontSize: SIZES.large, ...CENTER},
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerText: {
+    position: 'absolute',
+    fontSize: SIZES.large,
+    width: SCREEN_DIMENSIONS.width * 0.95 - 70,
+    textAlign: 'center',
+    flexShrink: 1,
+  },
 
   giftCardContainer: {
     minHeight: 120,
