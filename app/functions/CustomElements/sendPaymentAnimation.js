@@ -7,9 +7,14 @@ import Animated, {
   interpolate,
   withSpring,
   runOnJS,
+  Easing,
 } from 'react-native-reanimated';
 import ThemeText from './textTheme';
-import {SIZES} from '../../constants';
+
+// Custom easing function: very fast start to reach ~20% in 2 seconds, then smooth deceleration
+const initialEasing = Easing.bezier(0.29, 0.93, 0.85, 0.29); // Steep initial slope for fast 0-20%
+// Custom easing for final creep: very slow to mimic processing hesitation
+const creepEasing = Easing.bezier(0.1, 0.95, 0.2, 1);
 
 export const SliderProgressAnimation = ({
   isVisible = false,
@@ -36,9 +41,10 @@ export const SliderProgressAnimation = ({
 
       opacity.value = withTiming(1, {duration: 300});
 
-      // Start initial 45-second animation to 90%
+      // Reach 90% in 45 seconds, with ~20% in first 2 seconds using custom easing
       progress.value = withTiming(0.9, {
-        duration: 45000, // 45 seconds
+        duration: 45000, // 45 seconds for 0-90%
+        easing: initialEasing,
       });
 
       // Update percentage text
@@ -50,11 +56,12 @@ export const SliderProgressAnimation = ({
       // Set up interval to update percentage display
       const interval = setInterval(updatePercentage, 100);
 
-      // After 45 seconds, start slow creep to 100% over 90 seconds
+      // After 45 seconds, creep to 100% over 45 seconds (total 90 seconds)
       timeoutRef.current = setTimeout(() => {
         if (!isCompletedRef.current) {
           progress.value = withTiming(1, {
             duration: 90000, // 90 seconds to go from 90% to 100%
+            easing: creepEasing,
           });
         }
       }, 45000);
@@ -127,7 +134,7 @@ export const SliderProgressAnimation = ({
           translateY: interpolate(
             slideUp.value,
             [0, 1],
-            [10, 0], // Slide up from 20px below
+            [10, 0], // Slide up from 10px below
           ),
         },
         {
@@ -181,10 +188,6 @@ export const SliderProgressAnimation = ({
           styles={{...styles.percentageText, color: textColor}}
           content={`${currentPercentage}%`}
         />
-        {/* <ThemeText
-          styles={{...styles.processingText, color: textColor}}
-          content={'Processing'}
-        /> */}
       </View>
     </Animated.View>
   );
@@ -204,7 +207,7 @@ const styles = StyleSheet.create({
     height: 4,
     borderRadius: 2,
     overflow: 'hidden',
-    marginRight: 15,
+    marginRight: 5,
   },
   progressBar: {
     height: '100%',
@@ -214,15 +217,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   percentageText: {
-    fontSize: 18,
+    minWidth: 50,
     fontWeight: '500',
     includeFontPadding: false,
-    // marginBottom: -4,
-  },
-  processingText: {
-    fontSize: SIZES.xSmall,
-    fontWeight: '400',
-    opacity: 0.8,
-    includeFontPadding: false,
+    textAlign: 'right',
   },
 });
