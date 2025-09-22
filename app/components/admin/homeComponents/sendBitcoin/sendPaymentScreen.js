@@ -6,7 +6,7 @@ import {
   SATSPERBITCOIN,
   SCREEN_DIMENSIONS,
 } from '../../../../constants';
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
 import {CustomKeyboardAvoidingView} from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
@@ -41,10 +41,13 @@ import SelectLRC20Token from './components/selectLRC20Token';
 import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import {useTranslation} from 'react-i18next';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import {COLORS, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import {SliderProgressAnimation} from '../../../../functions/CustomElements/sendPaymentAnimation';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
+  const [showProgressAnimation, setShowProgressAnimation] = useState(false);
+  const progressAnimationRef = useRef(null);
   const {currentWalletMnemoinc} = useActiveCustodyAccount();
   const navigate = useNavigation();
   const {
@@ -67,7 +70,7 @@ export default function SendPaymentScreen(props) {
 
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [paymentInfo, setPaymentInfo] = useState({});
-  const [isSendingPayment, setIsSendingPayment] = useState(false);
+  const isSendingPayment = useRef(null);
   const [paymentDescription, setPaymentDescription] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(
     t('wallet.sendPages.sendPaymentScreen.initialLoadingMessage'),
@@ -426,37 +429,61 @@ export default function SendPaymentScreen(props) {
       )}
 
       {!canEditPaymentAmount && (
-        <SwipeButtonNew
-          onSwipeSuccess={sendPayment}
-          width={0.95}
-          resetAfterSuccessAnimDuration={true}
-          shouldAnimateViewOnSuccess={true}
-          shouldResetAfterSuccess={!canSendPayment}
-          shouldDisplaySuccessState={isSendingPayment}
-          containerStyles={{
-            opacity: isSendingPayment ? 1 : canSendPayment ? 1 : 0.2,
-          }}
-          thumbIconStyles={{
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-            borderColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          }}
-          railStyles={{
-            backgroundColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-            borderColor:
-              theme && darkModeType ? backgroundOffset : backgroundColor,
-          }}
-        />
+        <View style={styles.buttonContainer}>
+          {/* Show slider progress animation instead of swipe button when processing */}
+          {showProgressAnimation ? (
+            <SliderProgressAnimation
+              ref={progressAnimationRef}
+              isVisible={showProgressAnimation}
+              textColor={COLORS.darkModeText}
+              backgroundColor={
+                theme && darkModeType ? backgroundOffset : COLORS.primary
+              }
+              width={0.95}
+            />
+          ) : (
+            <SwipeButtonNew
+              onSwipeSuccess={sendPayment}
+              width={0.95}
+              resetAfterSuccessAnimDuration={true}
+              // shouldAnimateViewOnSuccess={true}
+              shouldResetAfterSuccess={!canSendPayment}
+              // shouldDisplaySuccessState={isSendingPayment}
+              containerStyles={{
+                opacity: canSendPayment ? 1 : 0.2,
+              }}
+              thumbIconStyles={{
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+                borderColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+              }}
+              railStyles={{
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+                borderColor:
+                  theme && darkModeType ? backgroundOffset : backgroundColor,
+              }}
+            />
+          )}
+        </View>
       )}
     </CustomKeyboardAvoidingView>
   );
 
   async function sendPayment() {
     if (!canSendPayment) return;
-    if (isSendingPayment) return;
-    setIsSendingPayment(true);
+    if (isSendingPayment.current) return;
+    isSendingPayment.current = true;
+    setShowProgressAnimation(true);
+
+    // await new Promise(res => setTimeout(res, 4000));
+
+    // if (progressAnimationRef.current) {
+    //   progressAnimationRef.current.completeProgress();
+    // }
+
+    // return;
 
     const formmateedSparkPaymentInfo = formatSparkPaymentAddress(
       paymentInfo,
@@ -493,6 +520,11 @@ export default function SendPaymentScreen(props) {
 
     // Shouuld be same for all paymetns
     const paymentResponse = await sparkPaymenWrapper(paymentObject);
+
+    if (progressAnimationRef.current) {
+      progressAnimationRef.current.completeProgress();
+      await new Promise(res => setTimeout(res, 600));
+    }
 
     if (paymentResponse.didWork) {
       if (fromPage === 'contacts') {
@@ -577,5 +609,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
     ...CENTER,
+  },
+  buttonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
