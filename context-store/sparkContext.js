@@ -271,7 +271,7 @@ const SparkWalletProvider = ({children}) => {
         updateType,
       );
       const txs = await getAllSparkTransactions({
-        limit: 50,
+        limit: null,
         accountId: sparkInformation.identityPubKey,
       });
       if (

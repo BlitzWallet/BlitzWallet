@@ -65,7 +65,7 @@ async function initializeSparkSession({
     if (!balance.didWork)
       throw new Error('Unable to initialize spark from history');
 
-    const transactions = await getCachedSparkTransactions(50, identityPubKey);
+    const transactions = await getCachedSparkTransactions(null, identityPubKey);
 
     if (transactions === undefined)
       throw new Error('Unable to initialize spark from history');
