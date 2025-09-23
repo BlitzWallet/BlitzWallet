@@ -38,7 +38,10 @@ const MemoizedSendRecieveBTNs = memo(SendRecieveBTNs);
 const MemoizedLRC20Assets = memo(LRC20Assets);
 
 export default function HomeLightning() {
-  const {sparkInformation, numberOfCachedTxs} = useSparkWallet();
+  const {
+    sparkInformation,
+    // numberOfCachedTxs
+  } = useSparkWallet();
   const {theme, darkModeType, toggleTheme} = useGlobalThemeContext();
   const {masterInfoObject} = useGlobalContextProvider();
   const {isConnectedToTheInternet, didGetToHomepage, toggleDidGetToHomepage} =
@@ -141,7 +144,7 @@ export default function HomeLightning() {
         theme,
         darkModeType,
         userBalanceDenomination,
-        numberOfCachedTxs,
+        // numberOfCachedTxs,
         didGetToHomepage,
         enabledLRC20,
       }) || []
@@ -151,7 +154,7 @@ export default function HomeLightning() {
     sparkInformation.transactions,
     homepageTxPreferance,
     userBalanceDenomination,
-    numberOfCachedTxs,
+    // numberOfCachedTxs,
     didGetToHomepage,
     theme,
     darkModeType,

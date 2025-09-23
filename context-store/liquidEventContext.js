@@ -22,14 +22,21 @@ const REQUIRED_SYNC_COUNT = 2;
 
 // Create a context for the WebView ref
 export function LiquidEventProvider({children}) {
-  const {toggleLiquidNodeInformation} = useNodeContext();
-
+  const {toggleLiquidNodeInformation, liquidNodeInformation} = useNodeContext();
+  const initialLiquidRun = useRef(null);
   const liquidEventRunCounter = useRef(0);
   const numberOfLiquidEvents = useRef(DEFAULT_EVENT_LIMIT);
   const liquidEventListenerId = useRef(null);
   const intervalId = useRef(null);
   const debounceTimer = useRef(null);
   const syncRunCounter = useRef(0);
+
+  useEffect(() => {
+    if (!liquidNodeInformation.didConnectToNode) return;
+    if (initialLiquidRun.current) return;
+    initialLiquidRun.current = true;
+    startLiquidEventListener(3);
+  }, [liquidNodeInformation.didConnectToNode]);
 
   const cleanup = useCallback(() => {
     if (debounceTimer.current) {

@@ -160,7 +160,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
     theme,
     darkModeType,
     userBalanceDenomination,
-    numberOfCachedTxs,
+    // numberOfCachedTxs,
     didGetToHomepage,
     enabledLRC20,
   } = props;
@@ -176,10 +176,8 @@ export default function getFormattedHomepageTxsForSpark(props) {
   const sparkTransactionsLength = sparkTransactions?.length || 0;
 
   // Early return with loading skeleton
-  if (!sparkInformation.didConnect && numberOfCachedTxs) {
-    return [
-      createLoadingSkeleton(numberOfCachedTxs, frompage, theme, darkModeType),
-    ];
+  if (!sparkInformation.didConnect) {
+    return [createLoadingSkeleton(20, frompage, theme, darkModeType)];
   }
 
   const formattedTxs = [];

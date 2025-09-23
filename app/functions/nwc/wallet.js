@@ -27,7 +27,7 @@ export const initializeNWCWallet = async () => {
 
     return {isConnected: true};
   } catch (err) {
-    console.log('Initialize spark wallet error', err);
+    console.log('Initialize spark wallet error nwc', err);
     nwcWallet = null;
     return {isConnected: false, error: err.message};
   }
