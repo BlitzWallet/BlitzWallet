@@ -1,6 +1,8 @@
+import {InputTypes} from 'bitcoin-address-parser';
 import {getLNAddressForLiquidPayment} from '../../components/admin/homeComponents/sendBitcoin/functions/payments';
+import getLNURLDetails from '../lnurl/getLNURLDetails';
 import {sparkPaymenWrapper} from '../spark/payments';
-import {parse} from '@breeztech/react-native-breez-sdk-liquid';
+// import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 
 /**
  * Pay to a Lightning address using the most efficient available payment method
@@ -26,7 +28,9 @@ export async function payPOSLNURL({
   try {
     // Parse the LNURL address first as it's needed for all payment methods
 
-    const parsedInput = await parse(LNURLAddress);
+    const didGetData = await getLNURLDetails(LNURLAddress);
+    if (!didGetData) throw new Error('Unable to get lnurl data');
+    const parsedInput = {type: InputTypes.LNURL_PAY, data: didGetData};
 
     const invoice = await getLNAddressForLiquidPayment(
       parsedInput,

@@ -1,13 +1,10 @@
 import React, {useState, useMemo} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {useTranslation} from 'react-i18next';
-import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
-
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
 import {useAppStatus} from '../../../../../../context-store/appStatus';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
-
 import CustomButton from '../../../../../functions/CustomElements/button';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 
@@ -15,6 +12,7 @@ import {
   CENTER,
   SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
 } from '../../../../../constants';
+import {InputTypes} from 'bitcoin-address-parser';
 
 export default function AcceptButtonSendPage({
   canSendPayment,
@@ -184,10 +182,7 @@ export default function AcceptButtonSendPage({
       return false;
     }
 
-    if (
-      paymentInfo?.type === InputTypeVariant.LN_URL_PAY &&
-      !isLNURLAmountValid
-    ) {
+    if (paymentInfo?.type === InputTypes.LNURL_PAY && !isLNURLAmountValid) {
       handleLNURLPayError();
       return false;
     }

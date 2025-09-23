@@ -1,8 +1,4 @@
 import {getLNAddressForLiquidPayment} from './payments';
-import {
-  InputTypeVariant,
-  parse,
-} from '@breeztech/react-native-breez-sdk-liquid';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import processBitcoinAddress from './processBitcoinAddress';
 import processBolt11Invoice from './processBolt11Invoice';
@@ -18,7 +14,7 @@ import {
   isSupportedPNPQR,
 } from '../../../../../functions/sendBitcoin/getMerchantAddress';
 import hanndleLNURLAddress from '../../../../../functions/sendBitcoin/handleLNURL';
-
+import {parseInput, InputTypes} from 'bitcoin-address-parser';
 export default async function decodeSendAddress(props) {
   let {
     btcAdress,
@@ -117,7 +113,7 @@ export default async function decodeSendAddress(props) {
 
     const chosenPath = parsedInvoice
       ? Promise.resolve(parsedInvoice)
-      : parse(btcAdress);
+      : parseInput(btcAdress);
 
     let input;
     try {
@@ -188,9 +184,9 @@ export default async function decodeSendAddress(props) {
       }
       setPaymentInfo({...processedPaymentInfo, decodedInput: input});
     } else {
-      if (input.type === InputTypeVariant.LN_URL_AUTH) return;
+      if (input.type === InputTypes.LNURL_AUTH) return;
 
-      if (input.type === InputTypeVariant.LN_URL_WITHDRAW) {
+      if (input.type === InputTypes.LNURL_WITHDRAWL) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t(
             'wallet.sendPages.handlingAddressErrors.lnurlWithdrawlSuccess',
@@ -219,19 +215,19 @@ async function processInputType(input, context) {
   crashlyticsLogReport('Getting invoice detials');
 
   switch (input.type) {
-    case InputTypeVariant.BITCOIN_ADDRESS:
+    case InputTypes.BITCOIN_ADDRESS:
       return await processBitcoinAddress(input, context);
 
-    case InputTypeVariant.BOLT11:
+    case InputTypes.BOLT11:
       return await processBolt11Invoice(input, context);
 
-    case InputTypeVariant.LN_URL_AUTH:
+    case InputTypes.LNURL_AUTH:
       return await processLNUrlAuth(input, context);
 
-    case InputTypeVariant.LN_URL_PAY:
+    case InputTypes.LNURL_PAY:
       return await processLNUrlPay(input, context);
 
-    case InputTypeVariant.LN_URL_WITHDRAW:
+    case InputTypes.LNURL_WITHDRAWL:
       return await processLNUrlWithdraw(input, context);
 
     // case LiquidTypeVarient.LIQUID_ADDRESS:

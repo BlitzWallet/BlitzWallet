@@ -1,6 +1,8 @@
-import {parse} from '@breeztech/react-native-breez-sdk-liquid';
+// import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import {breezLiquidLNAddressPaymentWrapper} from '../breezLiquid';
 import i18next from 'i18next';
+import getLNURLDetails from '../lnurl/getLNURLDetails';
+import {InputTypes} from 'bitcoin-address-parser';
 
 export default async function liquidToSparkSwap(contactUsername) {
   try {
@@ -10,7 +12,18 @@ export default async function liquidToSparkSwap(contactUsername) {
     while (maxRunCount > runCount && !parsedData) {
       runCount += 1;
       try {
-        const parsed = await parse(`${contactUsername}@blitzwalletapp.com`);
+        const didGetData = await getLNURLDetails(
+          `${contactUsername}@blitzwalletapp.com`,
+        );
+        if (!didGetData) throw new Error('Unable to get lnurl data');
+        const parsed = {
+          type: InputTypes.LNURL_PAY,
+          data: {
+            ...didGetData,
+            metadataStr: didGetData.metadata, //added for breeze
+            domain: 'blitzwalletapp.com', //added for breeze
+          },
+        };
         parsedData = parsed;
         break;
       } catch (err) {

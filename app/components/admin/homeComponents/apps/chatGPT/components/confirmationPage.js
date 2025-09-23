@@ -9,12 +9,13 @@ import {useCallback, useEffect, useState} from 'react';
 import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
 import {getLNAddressForLiquidPayment} from '../../../sendBitcoin/functions/payments';
 import {sparkPaymenWrapper} from '../../../../../../functions/spark/payments';
-import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {useGlobalContextProvider} from '../../../../../../../context-store/context';
 import {useSparkWallet} from '../../../../../../../context-store/sparkContext';
 import StoreErrorPage from '../../components/errorScreen';
 import {useActiveCustodyAccount} from '../../../../../../../context-store/activeAccount';
 import {useTranslation} from 'react-i18next';
+import getLNURLDetails from '../../../../../../functions/lnurl/getLNURLDetails';
+import {InputTypes} from 'bitcoin-address-parser';
 
 export default function ConfirmChatGPTPage(props) {
   const navigate = useNavigation();
@@ -38,7 +39,9 @@ export default function ConfirmChatGPTPage(props) {
         const lnPayoutLNURL = process.env.GPT_PAYOUT_LNURL;
         let input;
         try {
-          input = await parse(lnPayoutLNURL);
+          const didGetData = await getLNURLDetails(lnPayoutLNURL);
+          if (!didGetData) throw new Error('Unable to get lnurl data');
+          input = {type: InputTypes.LNURL_PAY, data: didGetData};
         } catch (err) {
           setError(t('errormessages.invoiceRetrivalError'));
           return;

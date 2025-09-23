@@ -1,3 +1,4 @@
+import {InputTypes} from 'bitcoin-address-parser';
 import {SATSPERBITCOIN} from '../../../../../constants';
 import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
@@ -13,17 +14,18 @@ export default async function processBitcoinAddress(input, context) {
   } = context;
 
   crashlyticsLogReport('Begining decode Bitcoin address');
+  const bip21AmountSat = input.data.amount * SATSPERBITCOIN;
 
   const amountSat = comingFromAccept
     ? enteredPaymentInfo.amount
-    : input.address.amountSat || 0;
+    : bip21AmountSat || 0;
 
   const fiatValue =
     Number(amountSat) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
   let newPaymentInfo = {
-    address: input.address.address,
+    address: input.data.address,
     amount: amountSat,
-    label: input.address.label || '',
+    label: input.data.label || '',
   };
   let paymentFee = 0;
   let supportFee = 0;
@@ -40,7 +42,7 @@ export default async function processBitcoinAddress(input, context) {
     } else {
       const paymentFeeResponse = await sparkPaymenWrapper({
         getFee: true,
-        address: input.address.address,
+        address: input.data.address,
         paymentType: 'bitcoin',
         amountSats: amountSat,
         masterInfoObject,
@@ -58,9 +60,9 @@ export default async function processBitcoinAddress(input, context) {
 
   return {
     data: newPaymentInfo,
-    type: 'Bitcoin',
+    type: InputTypes.BITCOIN_ADDRESS,
     paymentNetwork: 'Bitcoin',
-    address: input.address.address,
+    address: input.data.address,
     paymentFee: paymentFee,
     supportFee: supportFee,
     feeQuote,
@@ -73,6 +75,6 @@ export default async function processBitcoinAddress(input, context) {
             ? ''
             : `${fiatValue.toFixed(2)}`
         }`,
-    canEditPayment: comingFromAccept || input.address.amountSat ? false : true,
+    canEditPayment: comingFromAccept || input.data.amountSat ? false : true,
   };
 }

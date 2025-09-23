@@ -88,6 +88,7 @@ export default function ConnectingToNodeLoadingScreen({
         );
         console.log('Process 1', new Date().getTime());
         connectToSparkWallet();
+        connectToLiquidNode(accountMnemoinc);
         const [
           didOpen,
           giftCardTable,
@@ -115,12 +116,12 @@ export default function ConnectingToNodeLoadingScreen({
         console.log('Process 2', new Date().getTime());
         crashlyticsLogReport('Opened all SQL lite tables');
         const [
-          didConnectToLiquidNode,
+          // didConnectToLiquidNode,
           txs,
           didLoadUserSettings,
           signerResponse,
         ] = await Promise.all([
-          connectToLiquidNode(accountMnemoinc),
+          // connectToLiquidNode(accountMnemoinc),
           getCachedSparkTransactions(),
           initializeUserSettingsFromHistory({
             accountMnemoinc,
@@ -134,7 +135,7 @@ export default function ConnectingToNodeLoadingScreen({
           createSigner(),
         ]);
 
-        liquidNodeConnectionRef.current = didConnectToLiquidNode;
+        // liquidNodeConnectionRef.current = didConnectToLiquidNode;
         numberOfCachedTransactionsRef.current = txs;
 
         if (!didLoadUserSettings)
@@ -217,30 +218,28 @@ export default function ConnectingToNodeLoadingScreen({
       console.log('Process 5', new Date().getTime());
       crashlyticsLogReport('Trying to connect to nodes');
       setNumberOfCachedTxs(txs?.length || 0);
-      if (didConnectToLiquidNode.isConnected) {
-        crashlyticsLogReport('Loading node balances for session');
-        console.log('Process 6', new Date().getTime());
-        const didSetLiquid = await setLiquidNodeInformationForSession();
+      // if (didConnectToLiquidNode.isConnected) {
+      crashlyticsLogReport('Loading node balances for session');
+      console.log('Process 6', new Date().getTime());
+      const didSetLiquid = await setLiquidNodeInformationForSession();
 
-        console.log('Process 19', new Date().getTime());
-        if (didSetLiquid) {
-          console.log('Process 20', new Date().getTime());
-          // navigate.preload('HomeAdmin');
+      console.log('Process 19', new Date().getTime());
+      if (didSetLiquid) {
+        console.log('Process 20', new Date().getTime());
+        // navigate.preload('HomeAdmin');
+        requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              console.log('Process 21', new Date().getTime());
-              replace('HomeAdmin', {screen: 'Home'});
-            });
+            console.log('Process 21', new Date().getTime());
+            replace('HomeAdmin', {screen: 'Home'});
           });
-        } else
-          throw new Error(
-            t('screens.inAccount.loadingScreen.liquidWalletError'),
-          );
-      } else {
-        throw new Error(
-          t('screens.inAccount.loadingScreen.liquidWalletError2'),
-        );
-      }
+        });
+      } else
+        throw new Error(t('screens.inAccount.loadingScreen.liquidWalletError'));
+      // } else {
+      //   throw new Error(
+      //     t('screens.inAccount.loadingScreen.liquidWalletError2'),
+      //   );
+      // }
     } catch (err) {
       setHasError(String(err.message));
       crashlyticsLogReport(err.message);

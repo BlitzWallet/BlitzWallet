@@ -1,8 +1,9 @@
-import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
+// import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import {SATSPERBITCOIN} from '../../../../../constants';
 import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import {getLNAddressForLiquidPayment} from './payments';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
+import {InputTypes} from 'bitcoin-address-parser';
 
 export default async function processLNUrlPay(input, context) {
   const {
@@ -26,7 +27,7 @@ export default async function processLNUrlPay(input, context) {
   let invoice = '';
 
   const defaultLNURLDescription =
-    JSON.parse(input.data.metadataStr)?.find(item => {
+    JSON.parse(input.data.metadata)?.find(item => {
       const [tag, value] = item;
       if (tag === 'text/plain') return true;
     }) || [];
@@ -92,7 +93,7 @@ export default async function processLNUrlPay(input, context) {
       : input.data,
     paymentFee,
     supportFee,
-    type: InputTypeVariant.LN_URL_PAY,
+    type: InputTypes.LNURL_PAY,
     paymentNetwork: 'lightning',
     sendAmount: comingFromAccept
       ? `${

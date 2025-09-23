@@ -1,4 +1,5 @@
-import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
+// import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
+import {InputTypes} from 'bitcoin-address-parser';
 
 const merchants = [
   {
@@ -159,7 +160,7 @@ export const handleCryptoQRAddress = async (
     }
 
     const bolt11 = await getLNAddressForLiquidPayment(
-      {data, type: InputTypeVariant.LN_URL_PAY},
+      {data, type: InputTypes.LNURL_PAY},
       data.minSendable / 1000,
     );
 
