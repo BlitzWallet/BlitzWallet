@@ -4410,6 +4410,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/aes-js@npm:^3.1.1":
+  version: 3.1.4
+  resolution: "@types/aes-js@npm:3.1.4"
+  checksum: 49a322dd8ae49fed4175b345e2198b6b72636d1dce06c13ac846aff6959a7bc109fc6bee5b7f2fb22d9faac7c15c534bb4ac12d9383401020ababa55e0fc47f5
+  languageName: node
+  linkType: hard
+
 "@types/babel__core@npm:^7.1.14":
   version: 7.20.5
   resolution: "@types/babel__core@npm:7.20.5"
@@ -4448,6 +4455,13 @@ __metadata:
   dependencies:
     "@babel/types": ^7.20.7
   checksum: 2a2e5ad29c34a8b776162b0fe81c9ccb6459b2b46bf230f756ba0276a0258fcae1cbcfdccbb93a1e8b1df44f4939784ee8a1a269f95afe0c78b24b9cb6d50dd1
+  languageName: node
+  linkType: hard
+
+"@types/base64-js@npm:^1.2.5":
+  version: 1.3.2
+  resolution: "@types/base64-js@npm:1.3.2"
+  checksum: 2081c32bb357cee5b39238aa96bd008722d7d88f0175cd13d06e1aa76ebc64aaa916bf463f7f0da90bae4f0aaa8cd2ba1bbcd9da9bea2112490372217175d79d
   languageName: node
   linkType: hard
 
@@ -4907,6 +4921,7 @@ __metadata:
     babel-plugin-transform-remove-console: ^6.9.4
     bech32: ^2.0.0
     bip21: ^3.0.0
+    bitcoin-address-parser: ^1.0.0
     bolt11: ^1.4.1
     boltz-core: ^3.0.0
     boltz-swap-web-context: "github:BlakeKaufman/boltz-swap-web-context"
@@ -5047,6 +5062,13 @@ __metadata:
   version: 4.0.0-beta.5
   resolution: "aes-js@npm:4.0.0-beta.5"
   checksum: cc2ea969d77df939c32057f7e361b6530aa6cb93cb10617a17a45cd164e6d761002f031ff6330af3e67e58b1f0a3a8fd0b63a720afd591a653b02f649470e15b
+  languageName: node
+  linkType: hard
+
+"aes-js@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "aes-js@npm:3.1.2"
+  checksum: 062154d50b1e433cc8c3b8ca7879f3a6375d5e79c2a507b2b6c4ec920b4cd851bf2afa7f65c98761a9da89c0ab618cbe6529e8e9a1c71f93290b53128fb8f712
   languageName: node
   linkType: hard
 
@@ -5775,6 +5797,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"base58-js@npm:^3.0.2":
+  version: 3.0.3
+  resolution: "base58-js@npm:3.0.3"
+  checksum: 62bad85b233290102ec3acdd47f604a3f657e20c1cb8a2de960c645f5f34d4a15806ece82e0fec75af5c66ea020d37be3c9daa00b92652570b7c43c4ecf7224a
+  languageName: node
+  linkType: hard
+
 "base64-js@npm:0.0.8":
   version: 0.0.8
   resolution: "base64-js@npm:0.0.8"
@@ -5789,7 +5818,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bech32@npm:^1.1.2":
+"bech32@npm:^1.1.2, bech32@npm:^1.1.4":
   version: 1.1.4
   resolution: "bech32@npm:1.1.4"
   checksum: 0e98db619191548390d6f09ff68b0253ba7ae6a55db93dfdbb070ba234c1fd3308c0606fbcc95fad50437227b10011e2698b89f0181f6e7f845c499bd14d0f4b
@@ -5874,6 +5903,20 @@ __metadata:
   version: 2.0.0
   resolution: "bip66@npm:2.0.0"
   checksum: 919b25d3ed2b9d774eefe550ae6e825e29e1aa450fc1af12e7cef39115a8bc867018b5aa3d8e68b459ec198decabfc1ebe2bdbae9edfdca61c97e862d1db098d
+  languageName: node
+  linkType: hard
+
+"bitcoin-address-parser@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "bitcoin-address-parser@npm:1.0.0"
+  dependencies:
+    base58-js: ^3.0.2
+    bech32: ^2.0.0
+    bip21: ^3.0.0
+    bolt11: ^1.4.1
+    js-lnurl: ^0.6.0
+    sha256-uint8array: ^0.10.7
+  checksum: 3d41453625dc4b4a8dc821ba87dcfcdef3f7bddc8b3b12fa91ed0831a366070cfb3df7ff10466954b5a0226f38b5c6a07cd215b7abd94561d35492ae6f463489
   languageName: node
   linkType: hard
 
@@ -6268,7 +6311,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.4.3, buffer@npm:^5.5.0":
+"buffer@npm:^5.4.3, buffer@npm:^5.5.0, buffer@npm:^5.6.0":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
   dependencies:
@@ -6847,6 +6890,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cross-fetch@npm:^3.0.4":
+  version: 3.2.0
+  resolution: "cross-fetch@npm:3.2.0"
+  dependencies:
+    node-fetch: ^2.7.0
+  checksum: 8ded5ea35f705e81e569e7db244a3f96e05e95996ff51877c89b0c1ec1163c76bb5dad77d0f8fba6bb35a0abacb36403d7271dc586d8b1f636110ee7a8d959fd
+  languageName: node
+  linkType: hard
+
 "cross-spawn@npm:^7.0.2, cross-spawn@npm:^7.0.3, cross-spawn@npm:^7.0.6":
   version: 7.0.6
   resolution: "cross-spawn@npm:7.0.6"
@@ -7092,7 +7144,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"decode-uri-component@npm:^0.2.2":
+"decode-uri-component@npm:^0.2.0, decode-uri-component@npm:^0.2.2":
   version: 0.2.2
   resolution: "decode-uri-component@npm:0.2.2"
   checksum: 95476a7d28f267292ce745eac3524a9079058bbb35767b76e3ee87d42e34cd0275d2eb19d9d08c3e167f97556e8a2872747f5e65cbebcac8b0c98d83e285f139
@@ -10360,6 +10412,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-lnurl@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "js-lnurl@npm:0.6.0"
+  dependencies:
+    "@types/aes-js": ^3.1.1
+    "@types/base64-js": ^1.2.5
+    aes-js: ^3.1.2
+    base64-js: ^1.3.1
+    bech32: ^1.1.4
+    buffer: ^5.6.0
+    cross-fetch: ^3.0.4
+    query-string: ^6.12.1
+    safe-buffer: ^5.2.1
+  checksum: f3a1718fcb1f1dde418336a1475cda439d9a2e57d71a01f11225fe93f4ad3c9f4d37758ba3ca9bfbfcf00ed1c785aa22b4609559a364ade0d050623eceab581a
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -11602,6 +11671,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-fetch@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "node-fetch@npm:2.7.0"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: d76d2f5edb451a3f05b15115ec89fc6be39de37c6089f1b6368df03b91e1633fd379a7e01b7ab05089a25034b2023d959b47e59759cb38d88341b2459e89d6e5
+  languageName: node
+  linkType: hard
+
 "node-forge@npm:^1.2.1, node-forge@npm:^1.3.1":
   version: 1.3.1
   resolution: "node-forge@npm:1.3.1"
@@ -12482,6 +12565,18 @@ __metadata:
   dependencies:
     side-channel: ^1.0.6
   checksum: e9404dc0fc2849245107108ce9ec2766cde3be1b271de0bf1021d049dc5b98d1a2901e67b431ac5509f865420a7ed80b7acb3980099fe1c118a1c5d2e1432ad8
+  languageName: node
+  linkType: hard
+
+"query-string@npm:^6.12.1":
+  version: 6.14.1
+  resolution: "query-string@npm:6.14.1"
+  dependencies:
+    decode-uri-component: ^0.2.0
+    filter-obj: ^1.1.0
+    split-on-first: ^1.0.0
+    strict-uri-encode: ^2.0.0
+  checksum: f2c7347578fa0f3fd4eaace506470cb4e9dc52d409a7ddbd613f614b9a594d750877e193b5d5e843c7477b3b295b857ec328903c943957adc41a3efb6c929449
   languageName: node
   linkType: hard
 
@@ -13670,6 +13765,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sha256-uint8array@npm:^0.10.7":
+  version: 0.10.7
+  resolution: "sha256-uint8array@npm:0.10.7"
+  checksum: ff735efd42664ab3d663cbc71a2e5f58a02637e9d57e072c509b5765f5368a2dc34fafefa390e065ef24415946b780ac72fd4582eeeb745ece42256de5b85e94
+  languageName: node
+  linkType: hard
+
 "shebang-command@npm:^2.0.0":
   version: 2.0.0
   resolution: "shebang-command@npm:2.0.0"
@@ -14460,6 +14562,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tr46@npm:~0.0.3":
+  version: 0.0.3
+  resolution: "tr46@npm:0.0.3"
+  checksum: 726321c5eaf41b5002e17ffbd1fb7245999a073e8979085dacd47c4b4e8068ff5777142fc6726d6ca1fd2ff16921b48788b87225cbc57c72636f6efa8efbffe3
+  languageName: node
+  linkType: hard
+
 "ts-api-utils@npm:^1.3.0":
   version: 1.4.3
   resolution: "ts-api-utils@npm:1.4.3"
@@ -14996,6 +15105,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"webidl-conversions@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "webidl-conversions@npm:3.0.1"
+  checksum: c92a0a6ab95314bde9c32e1d0a6dfac83b578f8fa5f21e675bc2706ed6981bc26b7eb7e6a1fab158e5ce4adf9caa4a0aee49a52505d4d13c7be545f15021b17c
+  languageName: node
+  linkType: hard
+
 "webidl-conversions@npm:^5.0.0":
   version: 5.0.0
   resolution: "webidl-conversions@npm:5.0.0"
@@ -15036,6 +15152,16 @@ __metadata:
     punycode: ^2.1.1
     webidl-conversions: ^5.0.0
   checksum: 1fe266f7161e0bd961087c1254a5a59d1138c3d402064495eed65e7590d9caed5a1d9acfd6e7a1b0bf0431253b0e637ee3e4ffc08387cd60e0b2ddb9d4687a4b
+  languageName: node
+  linkType: hard
+
+"whatwg-url@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "whatwg-url@npm:5.0.0"
+  dependencies:
+    tr46: ~0.0.3
+    webidl-conversions: ^3.0.0
+  checksum: b8daed4ad3356cc4899048a15b2c143a9aed0dfae1f611ebd55073310c7b910f522ad75d727346ad64203d7e6c79ef25eafd465f4d12775ca44b90fa82ed9e2c
   languageName: node
   linkType: hard
 
