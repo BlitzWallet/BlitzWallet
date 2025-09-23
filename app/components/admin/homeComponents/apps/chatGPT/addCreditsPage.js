@@ -12,10 +12,8 @@ import FormattedSatText from '../../../../../functions/CustomElements/satTextDis
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {useGlobalAppData} from '../../../../../../context-store/appData';
 import {AI_MODEL_COST} from './contants/AIModelCost';
-import {getLNAddressForLiquidPayment} from '../../sendBitcoin/functions/payments';
 import {useGlobalThemeContext} from '../../../../../../context-store/theme';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {parse} from '@breeztech/react-native-breez-sdk-liquid';
 import {useSparkWallet} from '../../../../../../context-store/sparkContext';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
@@ -211,44 +209,13 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
       creditPrice += 150; //blitz flat fee
       creditPrice += Math.ceil(creditPrice * 0.005);
 
-      if (invoiceInformation.invoice) {
-        invoice = invoiceInformation.invoice;
-      } else {
-        creditPrice = selectedPlan.price;
-        creditPrice += 150; //blitz flat fee
-        creditPrice += Math.ceil(creditPrice * 0.005);
+      invoice = invoiceInformation.invoice;
 
-        // const lightningFee = creditPrice * 0.005 + 4;
-        const lnPayoutLNURL = process.env.GPT_PAYOUT_LNURL;
-        const input = await parse(lnPayoutLNURL);
-        const lnInvoice = await getLNAddressForLiquidPayment(
-          input,
-          creditPrice,
-          'Store - chatGPT',
-        );
-        invoice = lnInvoice;
-      }
+      creditPrice = selectedPlan.price;
 
-      if (invoiceInformation.fee && invoiceInformation.supportFee) {
-        fee = invoiceInformation.fee + invoiceInformation.supportFee;
-      } else {
-        const feeResponse = await sparkPaymenWrapper({
-          getFee: true,
-          address: invoice,
-          paymentType: 'lightning',
-          amountSats: creditPrice,
-          masterInfoObject,
-          sparkInformation,
-          userBalance: sparkInformation.balance,
-          mnemonic: currentWalletMnemoinc,
-        });
+      fee = invoiceInformation.fee + invoiceInformation.supportFee;
 
-        if (!feeResponse.didWork) throw new Error(feeResponse.error);
-
-        fee = feeResponse.fee + feeResponse.supportFee;
-      }
-
-      if (sparkInformation.balance < fee)
+      if (sparkInformation.balance < creditPrice + fee)
         throw new Error('Insufficent balance');
 
       const paymentResponse = await sparkPaymenWrapper({
