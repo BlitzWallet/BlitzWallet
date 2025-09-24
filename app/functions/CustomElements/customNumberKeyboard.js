@@ -2,7 +2,6 @@ import {StyleSheet, View} from 'react-native';
 import {SATSPERBITCOIN} from '../../constants';
 import KeyForKeyboard from './key';
 import {useCallback, useMemo} from 'react';
-import numberConverter from '../numberConverter';
 
 export default function CustomNumberKeyboard({
   setInputValue,
@@ -11,23 +10,24 @@ export default function CustomNumberKeyboard({
   usingForBalance,
   fiatStats,
   useMaxBalance = true,
+  customFunction,
 }) {
   const addPin = useCallback(
     id => {
+      if (customFunction) {
+        customFunction(id);
+        return;
+      }
       if (id === null) {
         setInputValue(prev => {
-          return frompage === 'sendingPage'
-            ? String(prev / 1000).slice(0, -1) * 1000
-            : String(prev).slice(0, -1);
+          return String(prev).slice(0, -1);
         });
       } else if (id === 'C') {
         setInputValue('');
       } else {
         setInputValue(prev => {
           let newNumber = '';
-          if (frompage === 'sendingPage') {
-            newNumber = (String(prev / 1000) + id) * 1000;
-          } else if (prev?.includes('.') && id === '.') {
+          if (prev?.includes('.') && id === '.') {
             newNumber = prev;
           } else if (prev?.includes('.') && prev.split('.')[1].length > 1) {
             newNumber = prev;
@@ -40,13 +40,6 @@ export default function CustomNumberKeyboard({
               showDot || showDot === undefined
                 ? (SATSPERBITCOIN / (fiatStats?.value || 65000)) * newNumber
                 : newNumber;
-
-            numberConverter(
-              newNumber,
-              showDot || showDot === undefined ? 'fiat' : 'sats',
-              undefined,
-              fiatStats,
-            );
 
             if (convertedValue > 25_000_000 && useMaxBalance) return prev;
           }
@@ -62,6 +55,7 @@ export default function CustomNumberKeyboard({
       usingForBalance,
       fiatStats,
       useMaxBalance,
+      customFunction,
     ],
   );
 

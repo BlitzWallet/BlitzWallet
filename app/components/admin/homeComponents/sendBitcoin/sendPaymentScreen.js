@@ -85,15 +85,13 @@ export default function SendPaymentScreen(props) {
   const [masterTokenInfo, setMasterTokenInfo] = useState({});
   const selectedLRC20Asset = masterTokenInfo?.tokenName || 'Bitcoin';
   const seletctedToken = masterTokenInfo?.details || {};
+  const isUsingLRC20 = selectedLRC20Asset !== 'Bitcoin';
 
-  const convertedSendAmount =
-    selectedLRC20Asset === 'Bitcoin'
-      ? isBTCdenominated
-        ? Math.round(Number(sendingAmount))
-        : Math.round(
-            (SATSPERBITCOIN / fiatStats?.value) * Number(sendingAmount),
-          )
-      : Math.round(Number(sendingAmount));
+  const convertedSendAmount = !isUsingLRC20
+    ? isBTCdenominated
+      ? Math.round(Number(sendingAmount))
+      : Math.round((SATSPERBITCOIN / fiatStats?.value) * Number(sendingAmount))
+    : Number(sendingAmount);
 
   const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
   const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
@@ -111,13 +109,13 @@ export default function SendPaymentScreen(props) {
 
   const paymentFee =
     (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
-  const canSendPayment =
-    selectedLRC20Asset === 'Bitcoin'
-      ? Number(sparkInformation.balance) >=
-          Number(convertedSendAmount) + paymentFee && sendingAmount != 0
-      : sparkInformation.balance >= paymentFee &&
-        sendingAmount != 0 &&
-        seletctedToken.balance >= convertedSendAmount;
+  const canSendPayment = !isUsingLRC20
+    ? Number(sparkInformation.balance) >=
+        Number(convertedSendAmount) + paymentFee && sendingAmount != 0
+    : sparkInformation.balance >= paymentFee &&
+      sendingAmount != 0 &&
+      seletctedToken.balance >=
+        sendingAmount * 10 ** seletctedToken?.tokenMetadata?.decimals;
   console.log(
     canSendPayment,
     'can send payment',
@@ -271,13 +269,11 @@ export default function SendPaymentScreen(props) {
           inputDenomination={masterInfoObject.userBalanceDenomination}
           activeOpacity={!sendingAmount ? 0.5 : 1}
           customCurrencyCode={
-            selectedLRC20Asset !== 'Bitcoin'
-              ? seletctedToken?.tokenMetadata?.tokenTicker
-              : ''
+            isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
           }
         />
 
-        {selectedLRC20Asset !== 'Bitcoin' && (
+        {/* {isUsingLRC20 && (
           <FormattedSatText
             neverHideBalance={true}
             containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
@@ -289,8 +285,8 @@ export default function SendPaymentScreen(props) {
               seletctedToken?.tokenMetadata?.decimals,
             )}
           />
-        )}
-        {selectedLRC20Asset === 'Bitcoin' && (
+        )} */}
+        {!isUsingLRC20 && (
           <FormattedSatText
             containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
             neverHideBalance={true}
@@ -387,7 +383,7 @@ export default function SendPaymentScreen(props) {
                 maxLNURLSatAmount={maxLNURLSatAmount}
                 sparkInformation={sparkInformation}
                 seletctedToken={seletctedToken}
-                isLRC20Payment={selectedLRC20Asset !== 'Bitcoin'}
+                isLRC20Payment={isUsingLRC20}
                 useAltLayout={useAltLayout}
               />
             </View>
@@ -399,6 +395,7 @@ export default function SendPaymentScreen(props) {
               setPaymentInfo={setPaymentInfo}
               fiatStats={fiatStats}
               selectedLRC20Asset={selectedLRC20Asset}
+              seletctedToken={seletctedToken}
             />
           )}
 
@@ -421,7 +418,7 @@ export default function SendPaymentScreen(props) {
               maxLNURLSatAmount={maxLNURLSatAmount}
               sparkInformation={sparkInformation}
               seletctedToken={seletctedToken}
-              isLRC20Payment={selectedLRC20Asset !== 'Bitcoin'}
+              isLRC20Payment={isUsingLRC20}
               useAltLayout={useAltLayout}
             />
           )}
@@ -503,10 +500,12 @@ export default function SendPaymentScreen(props) {
     const paymentObject = {
       getFee: false,
       ...formmateedSparkPaymentInfo,
-      amountSats:
-        paymentInfo?.type === 'Bitcoin'
-          ? convertedSendAmount + (paymentInfo?.paymentFee || 0)
-          : convertedSendAmount,
+      amountSats: isUsingLRC20
+        ? paymentInfo?.sendAmount *
+          10 ** seletctedToken?.tokenMetadata?.decimals
+        : paymentInfo?.type === 'Bitcoin'
+        ? convertedSendAmount + (paymentInfo?.paymentFee || 0)
+        : convertedSendAmount,
       masterInfoObject,
       fee: paymentFee,
       memo,

@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
 import {useGlobalContextProvider} from '../../../../../../context-store/context';
 
@@ -7,9 +7,11 @@ export default function NumberInputSendPage({
   paymentInfo,
   fiatStats,
   selectedLRC20Asset,
+  seletctedToken,
 }) {
   const {masterInfoObject} = useGlobalContextProvider();
   const [amount, setAmount] = useState(paymentInfo?.sendAmount);
+  const decimals = seletctedToken?.tokenMetadata?.decimals;
 
   useEffect(() => {
     let value = amount.trim();
@@ -37,16 +39,43 @@ export default function NumberInputSendPage({
     }
   }, [paymentInfo?.sendAmount]);
 
+  const lrc20InputFunction = useCallback(
+    input => {
+      if (input === null) {
+        const newAmount = String(amount).slice(0, -1);
+        setAmount(newAmount);
+      } else {
+        let newNumber = '';
+        if (amount?.includes('.') && input === '.') {
+          newNumber = amount;
+        } else if (
+          amount?.includes('.') &&
+          amount.split('.')[1].length >= decimals
+        ) {
+          newNumber = amount;
+        } else {
+          newNumber = String(amount) + input;
+        }
+        setAmount(newNumber);
+      }
+    },
+    [amount],
+  );
+
   return (
     <CustomNumberKeyboard
       showDot={
-        masterInfoObject.userBalanceDenomination === 'fiat' &&
-        selectedLRC20Asset === 'Bitcoin'
+        (masterInfoObject.userBalanceDenomination === 'fiat' &&
+          selectedLRC20Asset === 'Bitcoin') ||
+        selectedLRC20Asset !== 'Bitcoin'
       }
       setInputValue={setAmount}
       usingForBalance={true}
       fiatStats={fiatStats}
       useMaxBalance={selectedLRC20Asset === 'Bitcoin'}
+      customFunction={
+        selectedLRC20Asset !== 'Bitcoin' ? lrc20InputFunction : null
+      }
     />
   );
 }

@@ -57,9 +57,14 @@ export default function formatBalanceAmount(
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
     // Rejoin with the decimal part if it exists
-    return decimalPart
+
+    const finalForm = decimalPart
       ? `${integerPart}${decimalSeparator}${decimalPart}`
+      : decimalSeparator
+      ? `${integerPart}${decimalSeparator}`
       : integerPart;
+
+    return finalForm;
   } catch (err) {
     console.log('format balance amount error', err);
     return '0';

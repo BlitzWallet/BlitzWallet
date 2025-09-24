@@ -74,8 +74,12 @@ export default function AcceptButtonSendPage({
 
   const isLRC20Valid = useMemo(() => {
     if (!isLRC20Payment) return true;
-    return sparkInformation.balance >= 10;
-  }, [isLRC20Payment, sparkInformation?.balance]);
+    return (
+      sparkInformation.balance >= 10 &&
+      seletctedToken?.balance >=
+        paymentInfo?.sendAmount * 10 ** seletctedToken?.tokenMetadata?.decimals
+    );
+  }, [isLRC20Payment, sparkInformation?.balance, seletctedToken, paymentInfo]);
 
   // const buttonOpacity = useMemo(() => {
   //   return canSendPayment &&
@@ -141,18 +145,21 @@ export default function AcceptButtonSendPage({
 
   const handleLRC20Error = () => {
     navigate.navigate('ErrorScreen', {
-      errorMessage: t('wallet.sendPages.acceptButton.lrc20FeeError', {
-        amount: displayCorrectDenomination({
-          amount: 10,
-          masterInfoObject,
-          fiatStats,
-        }),
-        balance: displayCorrectDenomination({
-          amount: sparkInformation.balance,
-          masterInfoObject,
-          fiatStats,
-        }),
-      }),
+      errorMessage:
+        sparkInformation.balance >= 10
+          ? t('wallet.sendPages.acceptButton.balanceError')
+          : t('wallet.sendPages.acceptButton.lrc20FeeError', {
+              amount: displayCorrectDenomination({
+                amount: 10,
+                masterInfoObject,
+                fiatStats,
+              }),
+              balance: displayCorrectDenomination({
+                amount: sparkInformation.balance,
+                masterInfoObject,
+                fiatStats,
+              }),
+            }),
     });
   };
 
