@@ -1,68 +1,37 @@
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {FlatList, Platform, StyleSheet, View} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {FlatList, StyleSheet, View} from 'react-native';
 import {ICONS} from '../../constants';
 import {GlobalThemeView} from '../../functions/CustomElements';
 import {useTranslation} from 'react-i18next';
-
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import {useUpdateHomepageTransactions} from '../../hooks/updateHomepageTransactions';
 import {useGlobalContextProvider} from '../../../context-store/context';
-import {useCallback, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import getFormattedHomepageTxsForSpark from '../../functions/combinedTransactionsSpark';
 import {useSparkWallet} from '../../../context-store/sparkContext';
 import {useGlobalInsets} from '../../../context-store/insetsProvider';
-import {getAllSparkTransactions} from '../../functions/spark/transactions';
 
 export default function ViewAllTxPage() {
   const navigate = useNavigation();
   const {sparkInformation} = useSparkWallet();
   const {masterInfoObject} = useGlobalContextProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
-  const [transactionsList, setTransactionsList] = useState([]);
   const [txs, setTxs] = useState([]);
   const currentTime = useUpdateHomepageTransactions();
   const {t} = useTranslation();
   useHandleBackPressNew();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
   const {bottomPadding} = useGlobalInsets();
-
-  const sparkInformationLocal = useCallback(
-    () => ({
-      transactions: transactionsList,
-    }),
-    [transactionsList],
-  );
-
+  console.log(sparkInformation);
   useEffect(() => {
-    let isMounted = true;
-    async function loadTxs() {
-      try {
-        const allTxs = await getAllSparkTransactions({
-          accountId: sparkInformation.identityPubKey,
-        });
-        if (isMounted) {
-          setTransactionsList(allTxs);
-        }
-      } catch (error) {
-        console.error('Error loading transactions:', error);
-      }
-    }
-    loadTxs();
-    return () => {
-      isMounted = false;
-      setTransactionsList(null);
-    };
-  }, [sparkInformation.identityPubKey]);
-
-  useEffect(() => {
-    if (!transactionsList) return;
+    if (!sparkInformation.transactions) return;
 
     const txs = getFormattedHomepageTxsForSpark({
       currentTime,
-      sparkInformation: sparkInformationLocal(),
+      sparkInformation,
       navigate,
       frompage: 'viewAllTx',
       viewAllTxText: t('wallet.see_all_txs'),
@@ -82,7 +51,7 @@ export default function ViewAllTxPage() {
     setTxs(txs);
   }, [
     currentTime,
-    transactionsList,
+    sparkInformation,
     t,
     navigate,
     theme,
