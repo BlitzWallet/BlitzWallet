@@ -1,7 +1,7 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {COLORS, ICONS} from '../../constants';
 import {useGlobalContextProvider} from '../../../context-store/context';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
 // import claimUnclaimedBoltzSwaps from '../../functions/boltz/claimUnclaimedTxs';
@@ -11,7 +11,7 @@ import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
 import LottieView from 'lottie-react-native';
 import {useNavigation} from '@react-navigation/native';
 import ThemeImage from '../../functions/CustomElements/themeImage';
-import connectToLiquidNode from '../../functions/connectToLiquid';
+// import connectToLiquidNode from '../../functions/connectToLiquid';
 import {initializeDatabase} from '../../functions/messaging/cachedMessages';
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useNodeContext} from '../../../context-store/nodeContext';
@@ -38,14 +38,20 @@ export default function ConnectingToNodeLoadingScreen({
   const {toggleMasterInfoObject, masterInfoObject, setMasterInfoObject} =
     useGlobalContextProvider();
   const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {setNumberOfCachedTxs, connectToSparkWallet} = useSparkWallet();
+  const {
+    // setNumberOfCachedTxs,
+    connectToSparkWallet,
+  } = useSparkWallet();
   const {toggleContactsPrivateKey, accountMnemoinc} = useKeysContext();
-  const {toggleLiquidNodeInformation, toggleFiatStats} = useNodeContext();
+  const {
+    // toggleLiquidNodeInformation,
+    toggleFiatStats,
+  } = useNodeContext();
   const {createSigner} = useRootstockProvider();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {toggleGlobalContactsInformation, globalContactsInformation} =
     useGlobalContacts();
-  const {startLiquidEventListener} = useLiquidEvent();
+  // const {startLiquidEventListener} = useLiquidEvent();
   const {toggleGlobalAppDataInformation} = useGlobalAppData();
   const [hasError, setHasError] = useState(null);
   const {t} = useTranslation();
@@ -56,8 +62,8 @@ export default function ConnectingToNodeLoadingScreen({
 
   const didLoadInformation = useRef(false);
 
-  const liquidNodeConnectionRef = useRef(null);
-  const numberOfCachedTransactionsRef = useRef(null);
+  // const liquidNodeConnectionRef = useRef(null);
+  // const numberOfCachedTransactionsRef = useRef(null);
   const didStartConnectionRef = useRef(null);
 
   const transformedAnimation = useMemo(() => {
@@ -88,40 +94,21 @@ export default function ConnectingToNodeLoadingScreen({
         );
         console.log('Process 1', new Date().getTime());
         connectToSparkWallet();
+        // connectToLiquidNode(accountMnemoinc);
         const [
           didOpen,
           giftCardTable,
           posTransactions,
           sparkTxs,
           rootstockSwaps,
+          didLoadUserSettings,
+          signerResponse,
         ] = await Promise.all([
           initializeDatabase(),
           initializeGiftCardDatabase(),
           initializePOSTransactionsDatabase(),
           initializeSparkDatabase(),
           initRootstockSwapDB(),
-        ]);
-        // DO tables need to open before these other processes???/
-
-        if (
-          !didOpen ||
-          !giftCardTable ||
-          !posTransactions ||
-          !sparkTxs ||
-          !rootstockSwaps
-        )
-          throw new Error(t('screens.inAccount.loadingScreen.dbInitError'));
-
-        console.log('Process 2', new Date().getTime());
-        crashlyticsLogReport('Opened all SQL lite tables');
-        const [
-          didConnectToLiquidNode,
-          txs,
-          didLoadUserSettings,
-          signerResponse,
-        ] = await Promise.all([
-          connectToLiquidNode(accountMnemoinc),
-          getCachedSparkTransactions(),
           initializeUserSettingsFromHistory({
             accountMnemoinc,
             setContactsPrivateKey: toggleContactsPrivateKey,
@@ -133,9 +120,40 @@ export default function ConnectingToNodeLoadingScreen({
           }),
           createSigner(),
         ]);
+        // DO tables need to open before these other processes???/
+        if (
+          !didOpen ||
+          !giftCardTable ||
+          !posTransactions ||
+          !sparkTxs ||
+          !rootstockSwaps
+        )
+          throw new Error(t('screens.inAccount.loadingScreen.dbInitError'));
 
-        liquidNodeConnectionRef.current = didConnectToLiquidNode;
-        numberOfCachedTransactionsRef.current = txs;
+        console.log('Process 2', new Date().getTime());
+        crashlyticsLogReport('Opened all SQL lite tables');
+        // const [
+        //   // didConnectToLiquidNode,
+        //   txs,
+        //   // didLoadUserSettings,
+        //   // signerResponse,
+        // ] = await Promise.all([
+        //   // connectToLiquidNode(accountMnemoinc),
+        //   getCachedSparkTransactions(),
+        //   // initializeUserSettingsFromHistory({
+        //   //   accountMnemoinc,
+        //   //   setContactsPrivateKey: toggleContactsPrivateKey,
+        //   //   setMasterInfoObject,
+        //   //   toggleGlobalContactsInformation,
+        //   //   // toggleGLobalEcashInformation,
+        //   //   toggleGlobalAppDataInformation,
+        //   //   toggleMasterInfoObject,
+        //   // }),
+        //   // createSigner(),
+        // ]);
+
+        // liquidNodeConnectionRef.current = didConnectToLiquidNode;
+        // numberOfCachedTransactionsRef.current = txs;
 
         if (!didLoadUserSettings)
           throw new Error(
@@ -152,7 +170,8 @@ export default function ConnectingToNodeLoadingScreen({
     }
     if (didStartConnectionRef.current) return;
     didStartConnectionRef.current = true;
-    startConnectProcess();
+
+    setTimeout(startConnectProcess, 500);
   }, []);
 
   useEffect(() => {
@@ -167,10 +186,9 @@ export default function ConnectingToNodeLoadingScreen({
     crashlyticsLogReport('Initializing wallet settings');
 
     console.log('Process 4', new Date().getTime());
-    initWallet(
-      liquidNodeConnectionRef.current,
-      numberOfCachedTransactionsRef.current,
-    );
+    initWallet();
+    // liquidNodeConnectionRef.current,
+    // numberOfCachedTransactionsRef.current,
   }, [masterInfoObject, globalContactsInformation, didOpenDatabases]);
 
   return (
@@ -216,31 +234,29 @@ export default function ConnectingToNodeLoadingScreen({
     try {
       console.log('Process 5', new Date().getTime());
       crashlyticsLogReport('Trying to connect to nodes');
-      setNumberOfCachedTxs(txs?.length || 0);
-      if (didConnectToLiquidNode.isConnected) {
-        crashlyticsLogReport('Loading node balances for session');
-        console.log('Process 6', new Date().getTime());
-        const didSetLiquid = await setLiquidNodeInformationForSession();
+      // setNumberOfCachedTxs(txs?.length || 0);
+      // if (didConnectToLiquidNode.isConnected) {
+      crashlyticsLogReport('Loading node balances for session');
+      console.log('Process 6', new Date().getTime());
+      const didSetLiquid = await setLiquidNodeInformationForSession();
 
-        console.log('Process 19', new Date().getTime());
-        if (didSetLiquid) {
-          console.log('Process 20', new Date().getTime());
-          // navigate.preload('HomeAdmin');
+      console.log('Process 19', new Date().getTime());
+      if (didSetLiquid) {
+        console.log('Process 20', new Date().getTime());
+        // navigate.preload('HomeAdmin');
+        requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              console.log('Process 21', new Date().getTime());
-              replace('HomeAdmin', {screen: 'Home'});
-            });
+            console.log('Process 21', new Date().getTime());
+            replace('HomeAdmin', {screen: 'Home'});
           });
-        } else
-          throw new Error(
-            t('screens.inAccount.loadingScreen.liquidWalletError'),
-          );
-      } else {
-        throw new Error(
-          t('screens.inAccount.loadingScreen.liquidWalletError2'),
-        );
-      }
+        });
+      } else
+        throw new Error(t('screens.inAccount.loadingScreen.liquidWalletError'));
+      // } else {
+      //   throw new Error(
+      //     t('screens.inAccount.loadingScreen.liquidWalletError2'),
+      //   );
+      // }
     } catch (err) {
       setHasError(String(err.message));
       crashlyticsLogReport(err.message);
@@ -315,7 +331,7 @@ export default function ConnectingToNodeLoadingScreen({
       const [fiat_rate] = await Promise.all([setupFiatCurrencies()]);
 
       console.log('Process 16', new Date().getTime());
-      startLiquidEventListener(3);
+      // startLiquidEventListener(3);
 
       console.log('Process 17', new Date().getTime());
       console.log(fiat_rate, 'hty');
@@ -323,9 +339,9 @@ export default function ConnectingToNodeLoadingScreen({
       console.log('Process 18', new Date().getTime());
       toggleFiatStats(fiat_rate);
 
-      toggleLiquidNodeInformation({
-        didConnectToNode: true,
-      });
+      // toggleLiquidNodeInformation({
+      //   didConnectToNode: true,
+      // });
 
       return true;
     } catch (err) {

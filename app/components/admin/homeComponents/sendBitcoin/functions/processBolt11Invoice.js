@@ -1,7 +1,8 @@
-import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
+// import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import {SATSPERBITCOIN} from '../../../../../constants';
 import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
+import {InputTypes} from 'bitcoin-address-parser';
 
 export default async function processBolt11Invoice(input, context) {
   const {
@@ -16,7 +17,7 @@ export default async function processBolt11Invoice(input, context) {
 
   crashlyticsLogReport('Handling decode bolt11 invoices');
   const currentTime = Math.floor(Date.now() / 1000);
-  const expirationTime = input.invoice.timestamp + input.invoice.expiry;
+  const expirationTime = input.data.timestamp + input.data.expiry;
   const isExpired = currentTime > expirationTime;
   if (isExpired)
     throw new Error(
@@ -25,7 +26,7 @@ export default async function processBolt11Invoice(input, context) {
 
   const amountMsat = comingFromAccept
     ? enteredPaymentInfo.amount * 1000
-    : input.invoice.amountMsat || 0;
+    : input.data.amountMsat || 0;
   const fiatValue =
     !!amountMsat &&
     Number(amountMsat / 1000) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
@@ -39,7 +40,7 @@ export default async function processBolt11Invoice(input, context) {
     } else {
       fee = await sparkPaymenWrapper({
         getFee: true,
-        address: input.invoice.bolt11,
+        address: input.data.address,
         amountSats: Math.round(amountMsat / 1000),
         paymentType: 'lightning',
         masterInfoObject,
@@ -51,13 +52,13 @@ export default async function processBolt11Invoice(input, context) {
   }
 
   return {
-    data: {...input, message: input.invoice.description},
-    type: InputTypeVariant.BOLT11,
+    data: {...input, message: input.data.description},
+    type: InputTypes.BOLT11,
     paymentNetwork: 'lightning',
     paymentFee: fee.fee,
     supportFee: fee.supportFee,
-    address: input.invoice.bolt11,
-    usingZeroAmountInvoice: !input.invoice.amountMsat,
+    address: input.data.address,
+    usingZeroAmountInvoice: !input.data.amountMsat,
     sendAmount: !amountMsat
       ? ''
       : `${

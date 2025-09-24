@@ -745,7 +745,7 @@
       "handlingAddressErrors": {
         "invlidFormat": "Las direcciones deben ser solo texto. Por favor revisa e intenta de nuevo.",
         "parseError": "No se pudo analizar la dirección",
-        "paymentProcessingError": "Error al procesar la información del pago",
+        "paymentProcessingError": "No pudimos reconocer el tipo de pago. Ingrese una factura válida de Spark, en cadena, LNURL o BOLT11.",
         "tooLowSendingAmount": "El monto de envío es demasiado alto para cubrir el pago y las tarifas. La cantidad máxima de envío es {{cantidad}}",
         "processInputError": "No se pudo procesar la entrada",
         "unkonwDecodeError": "Ocurrió un error de decodificación desconocido",

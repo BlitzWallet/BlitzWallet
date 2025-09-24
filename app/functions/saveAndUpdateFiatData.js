@@ -23,7 +23,11 @@ export default async function loadNewFiatData(
       !isMoreThan40MinOld(cachedResponse.lastFetched)
     ) {
       if (isMainCurrency) await updateMainCurrency(cachedResponse.fiatRate);
-      return {didWork: true, fiatRateResponse: cachedResponse.fiatRate};
+      return {
+        didWork: true,
+        fiatRateResponse: cachedResponse.fiatRate,
+        usingCache: true,
+      };
     }
 
     const fiatRateResponse = await getFiatPrice(
@@ -46,10 +50,10 @@ export default async function loadNewFiatData(
       await updateMainCurrency(fiatRateResponse);
     }
 
-    return {didWork: true, fiatRateResponse};
+    return {didWork: true, fiatRateResponse, usingCache: false};
   } catch (err) {
     console.log('error loading fiat rates', err);
-    return {didWork: false, error: err.message};
+    return {didWork: false, error: err.message, usingCache: false};
   }
 }
 

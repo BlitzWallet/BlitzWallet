@@ -1,8 +1,4 @@
 import {getLNAddressForLiquidPayment} from './payments';
-import {
-  InputTypeVariant,
-  parse,
-} from '@breeztech/react-native-breez-sdk-liquid';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import processBitcoinAddress from './processBitcoinAddress';
 import processBolt11Invoice from './processBolt11Invoice';
@@ -17,8 +13,7 @@ import {
   handleCryptoQRAddress,
   isSupportedPNPQR,
 } from '../../../../../functions/sendBitcoin/getMerchantAddress';
-import hanndleLNURLAddress from '../../../../../functions/sendBitcoin/handleLNURL';
-
+import {parseInput, InputTypes} from 'bitcoin-address-parser';
 export default async function decodeSendAddress(props) {
   let {
     btcAdress,
@@ -90,38 +85,41 @@ export default async function decodeSendAddress(props) {
     }
 
     // handle bip21 qrs
-    if (
-      btcAdress.toLowerCase().startsWith('lightning') ||
-      btcAdress.toLowerCase().startsWith('bitcoin')
-    ) {
-      const decodedAddress = decodeBip21Address(
-        btcAdress,
-        btcAdress.toLowerCase().startsWith('lightning')
-          ? 'lightning'
-          : 'bitcoin',
-      );
+    // if (
+    //   btcAdress.toLowerCase().startsWith('lightning') ||
+    //   btcAdress.toLowerCase().startsWith('bitcoin')
+    // ) {
+    //   console.log(btcAdress);
+    //   const decodedAddress = decodeBip21Address(
+    //     btcAdress,
+    //     btcAdress.toLowerCase().startsWith('lightning')
+    //       ? 'lightning'
+    //       : 'bitcoin',
+    //   );
 
-      const lightningInvoice = btcAdress.toLowerCase().startsWith('lightning')
-        ? decodedAddress.address.toUpperCase()
-        : decodedAddress.options.lightning?.toUpperCase();
+    //   console.log(decodedAddress);
+    //   const lightningInvoice = btcAdress.toLowerCase().startsWith('lightning')
+    //     ? decodedAddress.address.toUpperCase()
+    //     : decodedAddress.options.lightning?.toUpperCase();
 
-      if (lightningInvoice)
-        btcAdress = await hanndleLNURLAddress(lightningInvoice);
-    }
+    //   console.log(lightningInvoice);
+    //   if (lightningInvoice)
+    //     btcAdress = await hanndleLNURLAddress(lightningInvoice);
+    // }
 
-    if (btcAdress.toLowerCase().startsWith('lnurl')) {
-      btcAdress = await hanndleLNURLAddress(btcAdress);
-    }
+    // if (btcAdress.toLowerCase().startsWith('lnurl')) {
+    //   btcAdress = await hanndleLNURLAddress(btcAdress);
+    // }
 
     console.log(btcAdress, 'bitcoin address');
 
-    const chosenPath = parsedInvoice
-      ? Promise.resolve(parsedInvoice)
-      : parse(btcAdress);
-
     let input;
     try {
+      const chosenPath = parsedInvoice
+        ? Promise.resolve(parsedInvoice)
+        : parseInput(btcAdress);
       input = await chosenPath;
+      if (!input) throw new Error('Invalid address provided');
     } catch (err) {
       console.log(err, 'parse error');
       return goBackFunction(
@@ -188,9 +186,9 @@ export default async function decodeSendAddress(props) {
       }
       setPaymentInfo({...processedPaymentInfo, decodedInput: input});
     } else {
-      if (input.type === InputTypeVariant.LN_URL_AUTH) return;
+      if (input.type === InputTypes.LNURL_AUTH) return;
 
-      if (input.type === InputTypeVariant.LN_URL_WITHDRAW) {
+      if (input.type === InputTypes.LNURL_WITHDRAWL) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t(
             'wallet.sendPages.handlingAddressErrors.lnurlWithdrawlSuccess',
@@ -219,19 +217,19 @@ async function processInputType(input, context) {
   crashlyticsLogReport('Getting invoice detials');
 
   switch (input.type) {
-    case InputTypeVariant.BITCOIN_ADDRESS:
+    case InputTypes.BITCOIN_ADDRESS:
       return await processBitcoinAddress(input, context);
 
-    case InputTypeVariant.BOLT11:
+    case InputTypes.BOLT11:
       return await processBolt11Invoice(input, context);
 
-    case InputTypeVariant.LN_URL_AUTH:
+    case InputTypes.LNURL_AUTH:
       return await processLNUrlAuth(input, context);
 
-    case InputTypeVariant.LN_URL_PAY:
+    case InputTypes.LNURL_PAY:
       return await processLNUrlPay(input, context);
 
-    case InputTypeVariant.LN_URL_WITHDRAW:
+    case InputTypes.LNURL_WITHDRAWL:
       return await processLNUrlWithdraw(input, context);
 
     // case LiquidTypeVarient.LIQUID_ADDRESS:

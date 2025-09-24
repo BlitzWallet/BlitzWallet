@@ -1,4 +1,4 @@
-import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
+import {InputTypes} from 'bitcoin-address-parser';
 
 export async function getLNAddressForLiquidPayment(
   paymentInfo,
@@ -7,7 +7,7 @@ export async function getLNAddressForLiquidPayment(
 ) {
   let invoiceAddress;
   try {
-    if (paymentInfo.type === InputTypeVariant.LN_URL_PAY) {
+    if (paymentInfo.type === InputTypes.LNURL_PAY) {
       const url = `${paymentInfo.data.callback}?amount=${sendingValue * 1000}${
         !!paymentInfo?.data.commentAllowed
           ? `&comment=${encodeURIComponent(

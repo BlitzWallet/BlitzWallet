@@ -11,12 +11,13 @@ import {useGlobalContextProvider} from './context';
 import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
 import {useKeysContext} from './keys';
 import {useAppStatus} from './appStatus';
+import connectToLiquidNode from '../app/functions/connectToLiquid';
 
 // Initiate context
 const NodeContextManager = createContext(null);
 
 const GLobalNodeContextProider = ({children}) => {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const {contactsPrivateKey, publicKey, accountMnemoinc} = useKeysContext();
   const {didGetToHomepage} = useAppStatus();
   const {masterInfoObject} = useGlobalContextProvider();
   const [liquidNodeInformation, setLiquidNodeInformation] = useState({
@@ -49,14 +50,22 @@ const GLobalNodeContextProider = ({children}) => {
     didRunCurrencyUpdate.current = true;
 
     async function initFiatData() {
-      const response = await loadNewFiatData(
-        selectedCurrency,
-        contactsPrivateKey,
-        publicKey,
-        masterInfoObject,
-      );
-      if (response.didWork) {
+      const [response, nodeConnection] = await Promise.all([
+        loadNewFiatData(
+          selectedCurrency,
+          contactsPrivateKey,
+          publicKey,
+          masterInfoObject,
+        ),
+        connectToLiquidNode(accountMnemoinc),
+      ]);
+      if (response.didWork && !response.usingCache) {
         toggleFiatStats(response.fiatRateResponse);
+      }
+      if (nodeConnection.isConnected) {
+        toggleLiquidNodeInformation({
+          didConnectToNode: true,
+        });
       }
     }
     initFiatData();

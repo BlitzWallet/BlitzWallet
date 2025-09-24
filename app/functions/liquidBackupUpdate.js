@@ -1,4 +1,4 @@
-import {getInfo, listPayments} from '@breeztech/react-native-breez-sdk-liquid';
+import {getInfo} from '@breeztech/react-native-breez-sdk-liquid';
 
 const runIntervalTimes = (callback, interval, times) => {
   let count = 0;
@@ -26,12 +26,11 @@ const startLiquidUpdateInterval = (toggleLiquidNodeInformation, runCount) => {
   const updateNodeInfo = async () => {
     console.log('RUNNING UPDATE LIQUID DATA');
     try {
-      const [info, payments] = await Promise.all([getInfo(), listPayments({})]);
+      const info = await getInfo();
 
       const balanceSat = info.walletInfo.balanceSat;
 
       const liquidNodeObject = {
-        transactions: payments,
         userBalance: balanceSat,
         pendingReceive: info.walletInfo.pendingReceiveSat,
         pendingSend: info.walletInfo.pendingSendSat,

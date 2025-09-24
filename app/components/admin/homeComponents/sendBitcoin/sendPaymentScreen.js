@@ -32,7 +32,6 @@ import {keyboardGoBack} from '../../../../functions/customNavigation';
 import ErrorWithPayment from './components/errorScreen';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
-import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 import {useSparkWallet} from '../../../../../context-store/sparkContext';
 import {sparkPaymenWrapper} from '../../../../functions/spark/payments';
 import InvoiceInfo from './components/invoiceInfo';
@@ -43,6 +42,7 @@ import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance'
 import {useTranslation} from 'react-i18next';
 import {COLORS, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {SliderProgressAnimation} from '../../../../functions/CustomElements/sendPaymentAnimation';
+import {InputTypes} from 'bitcoin-address-parser';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -97,7 +97,7 @@ export default function SendPaymentScreen(props) {
   const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
   const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
   const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
-  const isLNURLPayment = paymentInfo?.type === InputTypeVariant.LN_URL_PAY;
+  const isLNURLPayment = paymentInfo?.type === InputTypes.LNURL_PAY;
   const minLNURLSatAmount = isLNURLPayment
     ? paymentInfo?.data?.minSendable / 1000
     : 0;
