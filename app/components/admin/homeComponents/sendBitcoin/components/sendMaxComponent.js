@@ -69,9 +69,19 @@ export default function SendMaxComponent({
         // }
 
         if (selectedLRC20Asset !== 'Bitcoin') {
+          const decimals = seletctedToken?.tokenMetadata?.decimals || 8;
+          const converted = parseFloat(
+            (sendingBalance / Math.pow(10, decimals)).toFixed(decimals),
+          );
+
           setPaymentInfo(prev => ({
             ...prev,
-            sendAmount: String(sendingBalance),
+            sendAmount: String(converted),
+          }));
+
+          setPaymentInfo(prev => ({
+            ...prev,
+            sendAmount: parseFloat(converted.toFixed(decimals)).toString(),
           }));
         } else {
           let address = paymentInfo?.address;
