@@ -41,7 +41,7 @@ export default async function getReceiveAddressAndContactForContactsPayment({
         }
 
         const lnurlInvoice = await getBolt11InvoiceForContact(
-          selectedContact.uniqueName,
+          retrivedContact?.contacts?.myProfile?.uniqueName,
           sendingAmountSat,
           message,
         );
