@@ -66,7 +66,7 @@ export default function AcceptButtonSendPage({
   ]);
 
   const isBitcoinAmountValid = useMemo(() => {
-    if (paymentInfo?.type !== 'Bitcoin') return true;
+    if (paymentInfo?.type !== InputTypes.BITCOIN_ADDRESS) return true;
     return convertedSendAmount >= SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT;
   }, [paymentInfo?.type, convertedSendAmount]);
 
