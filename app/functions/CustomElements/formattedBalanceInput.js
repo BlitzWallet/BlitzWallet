@@ -105,7 +105,11 @@ export default function FormattedBalanceInput({
           }}>
           <ThemeText
             styles={styles.satText}
-            content={customCurrencyCode.toUpperCase()?.slice(0, 3)}
+            content={
+              customCurrencyCode.length > 4
+                ? customCurrencyCode.toUpperCase()?.slice(0, 2) + '..'
+                : customCurrencyCode.toUpperCase()
+            }
           />
         </View>
         {/* Hidden Text for Measuring Width */}

@@ -1182,10 +1182,10 @@
       "pubKey": "Chiave Pubblica"
     },
     "sparkLrc20": {
-      "balanceError": "Il tuo saldo wallet corrente è {{balance}}. Blitz aggiunge una commissione di {{fee}} a tutti i pagamenti LRC-20. Assicurati di avere un po' di Bitcoin nel tuo wallet per inviare token.",
+      "balanceError": "Il tuo saldo wallet corrente è {{balance}}. Blitz aggiunge una commissione di {{fee}} a tutti i pagamenti BTKN. Assicurati di avere un po' di Bitcoin nel tuo wallet per inviare token.",
       "title": "Impostazioni Spark",
-      "sliderTitle": "{{switchType}} LRC-20",
-      "sliderDesc": "LRC-20 è il token nativo di Spark. Abilitando LRC-20 puoi inviare e ricevere token sulla rete Spark.\n\nBlitz è un wallet focalizzato su Bitcoin. Non promuoviamo né endoriamo l'uso di token. Questa funzione esiste perché crediamo che gli utenti debbano avere la libertà di usare la tecnologia che vogliono usare.\n\nBlitz applica anche una commissione del {{fee}} a tutte le transazioni token, con il 20% di quella commissione donata a supporto dello sviluppo open-source di Bitcoin."
+      "sliderTitle": "{{switchType}} BTKN",
+      "sliderDesc": "BTKN è il token nativo di Spark. Abilitando BTKN puoi inviare e ricevere token sulla rete Spark.\n\nBlitz è un wallet focalizzato su Bitcoin. Non promuoviamo né endoriamo l'uso di token. Questa funzione esiste perché crediamo che gli utenti debbano avere la libertà di usare la tecnologia che vogliono usare.\n\nBlitz applica anche una commissione del {{fee}} a tutte le transazioni token, con il 20% di quella commissione donata a supporto dello sviluppo open-source di Bitcoin."
     },
 
     "viewSwapsHome": {

@@ -13,12 +13,12 @@ export default async function processSparkAddress(input, context) {
     seletctedToken,
     currentWalletMnemoinc,
   } = context;
+  crashlyticsLogReport('Handling decode spark payment');
 
   const isLRC20 =
     seletctedToken?.tokenMetadata?.tokenTicker !== undefined &&
     seletctedToken?.tokenMetadata?.tokenTicker !== 'Bitcoin';
 
-  crashlyticsLogReport('Handling decode spark payment');
   let addressInfo = JSON.parse(JSON.stringify(input?.address));
 
   if (comingFromAccept) {
@@ -30,7 +30,9 @@ export default async function processSparkAddress(input, context) {
     addressInfo.isBip21 = true;
   }
 
-  const amountMsat = comingFromAccept
+  const amountMsat = isLRC20
+    ? addressInfo.amount || 0
+    : comingFromAccept
     ? enteredPaymentInfo.amount * 1000
     : addressInfo.amount * 1000;
   const fiatValue =
@@ -46,7 +48,7 @@ export default async function processSparkAddress(input, context) {
         getFee: true,
         address: addressInfo.address,
         paymentType: isLRC20 ? 'lrc20' : 'spark',
-        amountSats: amountMsat / 1000,
+        amountSats: Math.round(amountMsat / (isLRC20 ? 1 : 1000)),
         masterInfoObject,
         mnemonic: currentWalletMnemoinc,
       });
@@ -65,6 +67,8 @@ export default async function processSparkAddress(input, context) {
     supportFee: addressInfo.supportFee,
     sendAmount: !amountMsat
       ? ''
+      : isLRC20
+      ? amountMsat
       : `${
           masterInfoObject.userBalanceDenomination != 'fiat'
             ? `${Math.round(amountMsat / 1000)}`

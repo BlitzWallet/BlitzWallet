@@ -28,8 +28,10 @@ export default function NavbarBalance({seletctedToken, selectedLRC20Asset}) {
         neverHideBalance={true}
         styles={styles.headerText}
         balance={
-          selectedLRC20Asset !== 'Bitcoin' && formattedTokensBalance > 1
-            ? Number(formattedTokensBalance).toFixed(2)
+          selectedLRC20Asset !== 'Bitcoin'
+            ? Number(formattedTokensBalance).toFixed(
+                formattedTokensBalance < 1 ? 4 : 2,
+              )
             : balance
         }
         useCustomLabel={
