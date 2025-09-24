@@ -13,7 +13,6 @@ import {
   handleCryptoQRAddress,
   isSupportedPNPQR,
 } from '../../../../../functions/sendBitcoin/getMerchantAddress';
-import hanndleLNURLAddress from '../../../../../functions/sendBitcoin/handleLNURL';
 import {parseInput, InputTypes} from 'bitcoin-address-parser';
 export default async function decodeSendAddress(props) {
   let {
@@ -86,37 +85,39 @@ export default async function decodeSendAddress(props) {
     }
 
     // handle bip21 qrs
-    if (
-      btcAdress.toLowerCase().startsWith('lightning') ||
-      btcAdress.toLowerCase().startsWith('bitcoin')
-    ) {
-      const decodedAddress = decodeBip21Address(
-        btcAdress,
-        btcAdress.toLowerCase().startsWith('lightning')
-          ? 'lightning'
-          : 'bitcoin',
-      );
+    // if (
+    //   btcAdress.toLowerCase().startsWith('lightning') ||
+    //   btcAdress.toLowerCase().startsWith('bitcoin')
+    // ) {
+    //   console.log(btcAdress);
+    //   const decodedAddress = decodeBip21Address(
+    //     btcAdress,
+    //     btcAdress.toLowerCase().startsWith('lightning')
+    //       ? 'lightning'
+    //       : 'bitcoin',
+    //   );
 
-      const lightningInvoice = btcAdress.toLowerCase().startsWith('lightning')
-        ? decodedAddress.address.toUpperCase()
-        : decodedAddress.options.lightning?.toUpperCase();
+    //   console.log(decodedAddress);
+    //   const lightningInvoice = btcAdress.toLowerCase().startsWith('lightning')
+    //     ? decodedAddress.address.toUpperCase()
+    //     : decodedAddress.options.lightning?.toUpperCase();
 
-      if (lightningInvoice)
-        btcAdress = await hanndleLNURLAddress(lightningInvoice);
-    }
+    //   console.log(lightningInvoice);
+    //   if (lightningInvoice)
+    //     btcAdress = await hanndleLNURLAddress(lightningInvoice);
+    // }
 
-    if (btcAdress.toLowerCase().startsWith('lnurl')) {
-      btcAdress = await hanndleLNURLAddress(btcAdress);
-    }
+    // if (btcAdress.toLowerCase().startsWith('lnurl')) {
+    //   btcAdress = await hanndleLNURLAddress(btcAdress);
+    // }
 
     console.log(btcAdress, 'bitcoin address');
 
-    const chosenPath = parsedInvoice
-      ? Promise.resolve(parsedInvoice)
-      : parseInput(btcAdress);
-
     let input;
     try {
+      const chosenPath = parsedInvoice
+        ? Promise.resolve(parsedInvoice)
+        : parseInput(btcAdress);
       input = await chosenPath;
     } catch (err) {
       console.log(err, 'parse error');
