@@ -192,39 +192,35 @@ export default function ConnectingToNodeLoadingScreen({
   }, [masterInfoObject, globalContactsInformation, didOpenDatabases]);
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
-      <View style={styles.globalContainer}>
-        {hasError && (
-          <TouchableOpacity
-            onPress={() =>
-              navigate.navigate('SettingsHome', {isDoomsday: true})
-            }
-            style={styles.doomsday}>
-            <ThemeImage
-              lightModeIcon={ICONS.settingsIcon}
-              darkModeIcon={ICONS.settingsIcon}
-              lightsOutIcon={ICONS.settingsWhite}
-            />
-          </TouchableOpacity>
-        )}
-        <LottieView
-          source={transformedAnimation}
-          autoPlay
-          loop={true}
-          style={{
-            width: 150, // adjust as necessary
-            height: 150, // adjust as necessary
-          }}
-        />
+    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
+      {hasError && (
+        <TouchableOpacity
+          onPress={() => navigate.navigate('SettingsHome', {isDoomsday: true})}
+          style={styles.doomsday}>
+          <ThemeImage
+            lightModeIcon={ICONS.settingsIcon}
+            darkModeIcon={ICONS.settingsIcon}
+            lightsOutIcon={ICONS.settingsWhite}
+          />
+        </TouchableOpacity>
+      )}
+      <LottieView
+        source={transformedAnimation}
+        autoPlay
+        loop={true}
+        style={{
+          width: 150, // adjust as necessary
+          height: 150, // adjust as necessary
+        }}
+      />
 
-        <ThemeText
-          styles={{
-            ...styles.waitingText,
-            color: theme ? COLORS.darkModeText : COLORS.primary,
-          }}
-          content={hasError ? hasError : message}
-        />
-      </View>
+      <ThemeText
+        styles={{
+          ...styles.waitingText,
+          color: theme ? COLORS.darkModeText : COLORS.primary,
+        }}
+        content={hasError ? hasError : message}
+      />
     </GlobalThemeView>
   );
 
