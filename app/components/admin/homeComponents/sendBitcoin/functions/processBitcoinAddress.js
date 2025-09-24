@@ -1,5 +1,8 @@
 import {InputTypes} from 'bitcoin-address-parser';
-import {SATSPERBITCOIN} from '../../../../../constants';
+import {
+  SATSPERBITCOIN,
+  SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
+} from '../../../../../constants';
 import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
 
@@ -22,15 +25,18 @@ export default async function processBitcoinAddress(input, context) {
 
   const fiatValue =
     Number(amountSat) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
+
   let newPaymentInfo = {
     address: input.data.address,
     amount: amountSat,
     label: input.data.label || '',
+    message: input.data.message || '',
   };
+
   let paymentFee = 0;
   let supportFee = 0;
   let feeQuote;
-  if (amountSat) {
+  if (amountSat && amountSat > SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT) {
     if (
       paymentInfo.paymentFee &&
       paymentInfo.supportFee &&
@@ -75,6 +81,9 @@ export default async function processBitcoinAddress(input, context) {
             ? ''
             : `${fiatValue.toFixed(2)}`
         }`,
-    canEditPayment: comingFromAccept || input.data.amountSat ? false : true,
+    canEditPayment:
+      comingFromAccept || amountSat > SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT
+        ? false
+        : true,
   };
 }
