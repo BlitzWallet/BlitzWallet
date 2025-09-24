@@ -101,7 +101,8 @@ export default function EditReceivePaymentInformation(props) {
         />
       </ScrollView>
 
-      {receiveType.toLowerCase() === 'lightning' && (
+      {(receiveType.toLowerCase() === 'lightning' ||
+        receiveType.toLowerCase() === 'bitcoin') && (
         <CustomSearchInput
           setInputText={setPaymentDescription}
           placeholderText={t(
