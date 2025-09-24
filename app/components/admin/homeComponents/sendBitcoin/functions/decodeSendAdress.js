@@ -7,7 +7,6 @@ import processLNUrlPay from './processLNUrlPay';
 import processLNUrlWithdraw from './processLNUrlWithdrawl';
 import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
 import processSparkAddress from './processSparkAddress';
-import {decodeBip21SparkAddress} from '../../../../../functions/spark/handleBip21SparkAddress';
 import {decodeBip21Address} from '../../../../../functions/bip21AddressFormmating';
 import {
   handleCryptoQRAddress,
@@ -59,7 +58,7 @@ export default async function decodeSendAddress(props) {
       btcAdress?.toLowerCase()?.startsWith('spark1')
     ) {
       if (btcAdress.startsWith('spark:')) {
-        const processedAddress = decodeBip21SparkAddress(btcAdress);
+        const processedAddress = decodeBip21Address(btcAdress, 'spark');
         parsedInvoice = {
           type: 'Spark',
           address: {
