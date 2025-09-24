@@ -936,7 +936,7 @@
         "noSendAmountError": "Inserisci un importo da inviare",
         "liquidError": "Importo invio {{overFlowType}} {{amount}}",
         "onchainError": "L'importo minimo da inviare on-chain è {{amount}}",
-        "lnurlPayError": "Importo invio {{overFLowTyoe}} {{amount}}",
+        "lnurlPayError": "Importo invio {{overFlowType}} {{amount}}",
         "lrc20FeeError": "Ti servono {{amount}} per inviare token. Il tuo saldo è {{balance}}. Ricevi prima qualche Bitcoin.",
         "balanceError": "Fondi insufficienti per coprire importo da inviare e commissioni"
       }

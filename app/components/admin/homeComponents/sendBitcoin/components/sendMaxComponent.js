@@ -9,6 +9,7 @@ import {useTranslation} from 'react-i18next';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import {StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {InputTypes} from 'bitcoin-address-parser';
 
 const MAX_SEND_OPTIONS = [
   {label: '25%', value: '25'},
@@ -86,7 +87,7 @@ export default function SendMaxComponent({
         } else {
           let address = paymentInfo?.address;
 
-          if (paymentInfo.type === 'lnUrlPay') {
+          if (paymentInfo.type === InputTypes.LNURL_PAY) {
             const invoice = await getLNAddressForLiquidPayment(
               paymentInfo,
               Number(sendingBalance),

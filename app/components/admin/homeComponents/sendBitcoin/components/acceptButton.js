@@ -53,7 +53,7 @@ export default function AcceptButtonSendPage({
   // }, [isLiquidPayment, convertedSendAmount, minMaxLiquidSwapAmounts]);
 
   const isLNURLAmountValid = useMemo(() => {
-    if (paymentInfo?.type !== 'lnUrlPay') return true;
+    if (paymentInfo?.type !== InputTypes.LNURL_PAY) return true;
     return (
       convertedSendAmount >= minLNURLSatAmount &&
       convertedSendAmount <= maxLNURLSatAmount

@@ -490,7 +490,7 @@ export default function SendPaymentScreen(props) {
     console.log(formmateedSparkPaymentInfo, 'manual spark information');
 
     const memo =
-      paymentInfo.type === 'bolt11'
+      paymentInfo.type === InputTypes.BOLT11
         ? enteredPaymentInfo?.description ||
           paymentDescription ||
           paymentInfo?.data.message ||

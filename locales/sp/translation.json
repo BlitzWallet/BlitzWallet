@@ -783,7 +783,7 @@
         "noSendAmountError": "Por favor ingresa una cantidad a enviar",
         "liquidError": "{{overFlowType}} cantidad a enviar {{amount}}",
         "onchainError": "La cantidad mínima para enviar en cadena es {{amount}}",
-        "lnurlPayError": "{{overFLowTyoe}} cantidad a enviar {{amount}}",
+        "lnurlPayError": "{{overFlowType}} cantidad a enviar {{amount}}",
         "lrc20FeeError": "Necesitas {{amount}} para enviar tokens. Tu saldo es {{balance}}. Por favor recibe algo de Bitcoin primero.",
         "balanceError": "Fondos insuficientes para cubrir el envío y las tarifas"
       }
