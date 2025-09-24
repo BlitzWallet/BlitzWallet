@@ -896,7 +896,7 @@
       "handlingAddressErrors": {
         "invlidFormat": "Gli indirizzi devono essere solo testo. Controlla e riprova.",
         "parseError": "Impossibile analizzare l'indirizzo",
-        "paymentProcessingError": "Errore nell'elaborazione delle informazioni di pagamento",
+        "paymentProcessingError": "Non siamo riusciti a riconoscere il tipo di pagamento. Inserisci una fattura Spark, on-chain, LNURL o BOLT11 valida.",
         "tooLowSendingAmount": "L'importo di invio è troppo alto per coprire il pagamento e le commissioni. L'importo di invio massimo è {{importo}}",
         "processInputError": "Impossibile elaborare l'input",
         "unkonwDecodeError": "Si è verificato un errore di decodifica sconosciuto",

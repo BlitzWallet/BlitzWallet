@@ -119,6 +119,7 @@ export default async function decodeSendAddress(props) {
         ? Promise.resolve(parsedInvoice)
         : parseInput(btcAdress);
       input = await chosenPath;
+      if (!input) throw new Error('Invalid address provided');
     } catch (err) {
       console.log(err, 'parse error');
       return goBackFunction(
