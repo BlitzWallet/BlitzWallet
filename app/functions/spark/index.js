@@ -348,7 +348,7 @@ export const getSparkBitcoinPaymentFeeEstimate = async ({
       sha256Hash(mnemonic)
     ].getWithdrawalFeeQuote({
       amountSats,
-      withdrawalAddress: withdrawalAddress.toLowerCase(),
+      withdrawalAddress: withdrawalAddress,
     });
     return {didWork: true, response};
   } catch (err) {
@@ -451,7 +451,7 @@ export const sendSparkBitcoinPayment = async ({
     if (!sparkWallet[sha256Hash(mnemonic)])
       throw new Error('sparkWallet not initialized');
     const response = await sparkWallet[sha256Hash(mnemonic)].withdraw({
-      onchainAddress: onchainAddress.toLowerCase(),
+      onchainAddress: onchainAddress,
       exitSpeed,
       amountSats,
       feeQuote,

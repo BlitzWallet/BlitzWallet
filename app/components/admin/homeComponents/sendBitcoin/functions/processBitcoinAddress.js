@@ -36,7 +36,13 @@ export default async function processBitcoinAddress(input, context) {
   let paymentFee = 0;
   let supportFee = 0;
   let feeQuote;
-  if (amountSat && amountSat > SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT) {
+  if (
+    (amountSat && amountSat >= SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT) ||
+    (comingFromAccept &&
+      (!paymentInfo.paymentFee ||
+        !paymentInfo.supportFee ||
+        !paymentInfo.feeQuote))
+  ) {
     if (
       paymentInfo.paymentFee &&
       paymentInfo.supportFee &&
