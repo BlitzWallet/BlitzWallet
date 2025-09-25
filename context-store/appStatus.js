@@ -7,7 +7,7 @@ import {
   useCallback,
   useRef,
 } from 'react';
-import {AppState} from 'react-native';
+import {AppState, Platform} from 'react-native';
 import {getBoltzSwapPairInformation} from '../app/functions/boltz/boltzSwapInfo';
 import * as Network from 'expo-network';
 import {navigationRef} from '../navigation/navigationService';
@@ -134,20 +134,24 @@ const AppStatusProvider = ({children}) => {
     console.log('Setting up network monitoring - first time app is active');
     hasInitializedNetworkMonitoring.current = true;
 
-    Network.addNetworkStateListener(
-      ({type, isConnected, isInternetReachable}) => {
-        console.log(
-          `Network type: ${type}, Connected: ${isConnected}, Internet Reachable: ${isInternetReachable}`,
-        );
-        setIsConnectedToTheInternet(isConnected);
-      },
-    );
+    if (Platform.OS == 'ios') {
+      Network.addNetworkStateListener(
+        ({type, isConnected, isInternetReachable}) => {
+          console.log(
+            `Network type: ${type}, Connected: ${isConnected}, Internet Reachable: ${isInternetReachable}`,
+          );
+          setIsConnectedToTheInternet(isInternetReachable);
+        },
+      );
+    }
 
     const checkNetworkState = async () => {
       try {
         const networkState = await Network.getNetworkStateAsync();
         console.log(networkState, 'network state in startup function');
-        setIsConnectedToTheInternet(networkState.isConnected);
+        setIsConnectedToTheInternet(
+          Platform.OS === 'ios' ? networkState.isConnected : true,
+        );
       } catch (error) {
         console.error('Error checking network state:', error);
       }
