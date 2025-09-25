@@ -342,6 +342,7 @@ const styles = StyleSheet.create({
 
   keyboardContainer: {
     width: '100%',
+    maxWidth: 400,
     marginTop: 'auto',
   },
   keyboard_row: {

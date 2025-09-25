@@ -14,7 +14,6 @@ const GlobalThemeView = memo(function GlobalThemeView({
   const {topPadding, bottomPadding} = useGlobalInsets();
   const {backgroundColor} = GetThemeColors();
 
-  console.log(topPadding, bottomPadding, 'GLOBAL THEME VIEW');
   const useStandardWidthOuterStyles = useMemo(() => {
     return {
       flex: 1,

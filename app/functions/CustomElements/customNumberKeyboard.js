@@ -1,5 +1,5 @@
 import {StyleSheet, View} from 'react-native';
-import {SATSPERBITCOIN} from '../../constants';
+import {CENTER, SATSPERBITCOIN} from '../../constants';
 import KeyForKeyboard from './key';
 import {useCallback, useMemo} from 'react';
 
@@ -100,7 +100,7 @@ export default function CustomNumberKeyboard({
 }
 
 const styles = StyleSheet.create({
-  keyboardContainer: {width: '100%'},
+  keyboardContainer: {width: '100%', maxWidth: 400, ...CENTER},
   keyboard_row: {
     width: '100%',
     flexDirection: 'row',

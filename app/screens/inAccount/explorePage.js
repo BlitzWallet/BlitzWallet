@@ -208,7 +208,7 @@ export default function ExploreUsers() {
       <View style={styles.chartContainer}>
         <CustomLineChart
           data={data.map(d => d.value)}
-          width={SCREEN_DIMENSIONS.width * 0.95 - yAxisWidth}
+          width={SCREEN_DIMENSIONS.width * 0.9 - yAxisWidth}
           height={250}
           min={Math.round(min * 0.95)}
           max={Math.round(max * (timeFrame !== 'day' ? 1.2 : 1.05))}

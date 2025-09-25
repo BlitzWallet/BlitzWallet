@@ -6,7 +6,11 @@ import {useTranslation} from 'react-i18next';
 import CustomButton from '../../functions/CustomElements/button';
 import {StyleSheet, View} from 'react-native';
 import {CENTER, SIZES} from '../../constants';
-import {COLORS, INSET_WINDOW_WIDTH} from '../../constants/theme';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  MAX_CONTENT_WIDTH,
+} from '../../constants/theme';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import {getLocalStorageItem} from '../../functions';
 import {useNavigation} from '@react-navigation/native';
@@ -88,6 +92,7 @@ const styles = StyleSheet.create({
   },
   dropdownContainer: {
     width: INSET_WINDOW_WIDTH,
+    maxWidth: MAX_CONTENT_WIDTH,
     backgroundColor: COLORS.darkModeText,
     height: 46,
     borderRadius: 8,

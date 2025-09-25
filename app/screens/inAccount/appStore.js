@@ -21,6 +21,7 @@ import {useAppStatus} from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useToast} from '../../../context-store/toastManager';
 import {useTranslation} from 'react-i18next';
+import {MAX_CONTENT_WIDTH} from '../../constants/theme';
 
 export default function AppStore({navigation}) {
   const {showToast} = useToast();
@@ -359,7 +360,9 @@ const styles = StyleSheet.create({
 
   scrollViewStyles: {
     width: '100%',
+    maxWidth: MAX_CONTENT_WIDTH,
     paddingTop: 20,
     paddingBottom: 20,
+    ...CENTER,
   },
 });

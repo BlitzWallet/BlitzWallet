@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   },
 
   currencyContainer: {
-    width: '85%',
+    width: '90%',
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 'auto',

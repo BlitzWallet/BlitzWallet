@@ -13,6 +13,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import {MAX_CONTENT_WIDTH} from '../../constants/theme';
 
 export default function SkipCreateAccountPathMessage() {
   const blurViewAnimation = useSharedValue(0);
@@ -102,6 +103,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     width: '70%',
+    maxWidth: MAX_CONTENT_WIDTH,
     backgroundColor: COLORS.darkModeText,
     padding: 10,
     borderRadius: 8,

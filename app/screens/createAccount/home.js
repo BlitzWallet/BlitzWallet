@@ -10,6 +10,7 @@ import {
   crashlyticsRecordErrorReport,
 } from '../../functions/crashlyticsLogs';
 import {useKeysContext} from '../../../context-store/keys';
+import {MAX_CONTENT_WIDTH} from '../../constants/theme';
 
 export default function CreateAccountHome({navigation: {navigate}}) {
   const {t} = useTranslation();
@@ -81,6 +82,7 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     width: '80%',
+    maxWidth: MAX_CONTENT_WIDTH,
     marginBottom: 20,
   },
 
