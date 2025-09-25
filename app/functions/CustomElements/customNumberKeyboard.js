@@ -26,13 +26,17 @@ export default function CustomNumberKeyboard({
         setInputValue('');
       } else {
         setInputValue(prev => {
+          let previousNumber = typeof prev !== 'string' ? String(prev) : prev;
           let newNumber = '';
-          if (prev?.includes('.') && id === '.') {
-            newNumber = prev;
-          } else if (prev?.includes('.') && prev.split('.')[1].length > 1) {
-            newNumber = prev;
+          if (previousNumber?.includes('.') && id === '.') {
+            newNumber = previousNumber;
+          } else if (
+            previousNumber?.includes('.') &&
+            previousNumber.split('.')[1].length > 1
+          ) {
+            newNumber = previousNumber;
           } else {
-            newNumber = String(prev) + id;
+            newNumber = String(previousNumber) + id;
           }
 
           if (usingForBalance) {
@@ -41,7 +45,8 @@ export default function CustomNumberKeyboard({
                 ? (SATSPERBITCOIN / (fiatStats?.value || 65000)) * newNumber
                 : newNumber;
 
-            if (convertedValue > 25_000_000 && useMaxBalance) return prev;
+            if (convertedValue > 25_000_000 && useMaxBalance)
+              return previousNumber;
           }
 
           return newNumber;
