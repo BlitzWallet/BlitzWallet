@@ -33,6 +33,7 @@ const GLobalNodeContextProider = ({children}) => {
   }, []);
 
   const didRunCurrencyUpdate = useRef(null);
+  const didRunLiquidConnection = useRef(null);
 
   const toggleLiquidNodeInformation = useCallback(newInfo => {
     setLiquidNodeInformation(prev => ({...prev, ...newInfo}));
@@ -50,26 +51,40 @@ const GLobalNodeContextProider = ({children}) => {
     didRunCurrencyUpdate.current = true;
 
     async function initFiatData() {
-      const [response, nodeConnection] = await Promise.all([
-        loadNewFiatData(
-          selectedCurrency,
-          contactsPrivateKey,
-          publicKey,
-          masterInfoObject,
-        ),
-        connectToLiquidNode(accountMnemoinc),
-      ]);
+      const response = await loadNewFiatData(
+        selectedCurrency,
+        contactsPrivateKey,
+        publicKey,
+        masterInfoObject,
+      );
       if (response.didWork && !response.usingCache) {
         toggleFiatStats(response.fiatRateResponse);
       }
-      if (nodeConnection.isConnected) {
+    }
+    initFiatData();
+  }, [contactsPrivateKey, selectedCurrency, publicKey, didGetToHomepage]);
+
+  useEffect(() => {
+    if (
+      !contactsPrivateKey ||
+      !publicKey ||
+      didRunLiquidConnection.current ||
+      !didGetToHomepage
+    )
+      return;
+    didRunLiquidConnection.current = true;
+
+    async function connectToLiquid() {
+      const connectionResponse = await connectToLiquidNode(accountMnemoinc);
+      console.log('liquid connection response', connectionResponse);
+      if (connectionResponse.isConnected) {
         toggleLiquidNodeInformation({
           didConnectToNode: true,
         });
       }
     }
-    initFiatData();
-  }, [contactsPrivateKey, selectedCurrency, publicKey, didGetToHomepage]);
+    connectToLiquid();
+  }, [contactsPrivateKey, publicKey, didGetToHomepage, accountMnemoinc]);
 
   const contextValue = useMemo(
     () => ({
