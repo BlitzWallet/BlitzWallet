@@ -83,6 +83,8 @@ export default function ConfirmTxPage(props) {
         style={{
           width: SCREEN_DIMENSIONS.width / 1.5,
           height: SCREEN_DIMENSIONS.width / 1.5,
+          maxWidth: 400,
+          maxHeight: 400,
         }}
       />
       {!isLNURLAuth && (

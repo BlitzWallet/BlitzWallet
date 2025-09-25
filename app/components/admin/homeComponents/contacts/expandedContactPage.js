@@ -252,6 +252,7 @@ export default function ExpandedContactsPage(props) {
       imageData?.updated,
       imageData?.localUri,
       isConnectedToTheInternet,
+      contactTransactions,
     ],
   );
 
