@@ -98,7 +98,7 @@ const handleGetTransactions = async requestParams => {
 
   let allTransactions = [];
   let currentOffset = 0;
-  const chunkSize = 100;
+  const chunkSize = limit * 1.5;
   let hasMore = true;
 
   while (hasMore) {
@@ -155,7 +155,7 @@ const handleGetTransactions = async requestParams => {
   );
 
   const formatted = paginatedTransactions.map(tx => ({
-    type: tx.transferDirection?.toLowerCase() || 'unknown',
+    type: tx.transferDirection?.toLowerCase(),
     invoice: '',
     description: '',
     description_hash: null,
@@ -213,16 +213,16 @@ const handleMakeInvoice = async (
     selectedNWCAccount.privateKey,
     selectedNWCAccount.publicKey,
   );
-  await splitAndStoreNWCData({
-    ...fullStorageObject,
-    accounts: {
-      ...fullStorageObject.accounts,
-      [selectedNWCAccount.publicKey]: {
-        ...selectedNWCAccount,
-        shouldGetNewBalance: true,
-      },
-    },
-  });
+  // await splitAndStoreNWCData({
+  //   ...fullStorageObject,
+  //   accounts: {
+  //     ...fullStorageObject.accounts,
+  //     [selectedNWCAccount.publicKey]: {
+  //       ...selectedNWCAccount,
+  //       shouldGetNewBalance: true,
+  //     },
+  //   },
+  // });
 };
 
 const handleLookupInvoice = async (
@@ -400,16 +400,16 @@ const handlePayInvoice = async (
     );
   }
 
-  await splitAndStoreNWCData({
-    ...fullStorageObject,
-    accounts: {
-      ...fullStorageObject.accounts,
-      [selectedNWCAccount.publicKey]: {
-        ...selectedNWCAccount,
-        shouldGetNewBalance: true,
-      },
-    },
-  });
+  // await splitAndStoreNWCData({
+  //   ...fullStorageObject,
+  //   accounts: {
+  //     ...fullStorageObject.accounts,
+  //     [selectedNWCAccount.publicKey]: {
+  //       ...selectedNWCAccount,
+  //       shouldGetNewBalance: true,
+  //     },
+  //   },
+  // });
 
   return {
     result_type: 'pay_invoice',
@@ -421,19 +421,19 @@ const handlePayInvoice = async (
 
 const handleGetBalance = async (selectedNWCAccount, fullStorageObject) => {
   console.log('running in get balance');
-  if (
-    !selectedNWCAccount.shouldGetNewBalance &&
-    selectedNWCAccount.walletBalance &&
-    selectedNWCAccount.lastChecked - Date.now() < 60 * 60
-  ) {
-    console.log('running cached wallet balance');
-    return {
-      result_type: 'get_balance',
-      result: {
-        balance: Number(selectedNWCAccount.walletBalance) * 1000,
-      },
-    };
-  }
+  // if (
+  //   // !selectedNWCAccount.shouldGetNewBalance &&
+  //   // selectedNWCAccount.walletBalance &&
+  //   // selectedNWCAccount.lastChecked - Date.now() < 60 * 5
+  // ) {
+  //   console.log('running cached wallet balance');
+  //   return {
+  //     result_type: 'get_balance',
+  //     result: {
+  //       balance: Number(selectedNWCAccount.walletBalance) * 1000,
+  //     },
+  //   };
+  // }
   const connectResponse = await ensureWalletConnection();
   console.log('conection response');
   if (!connectResponse.isConnected) {
@@ -446,18 +446,18 @@ const handleGetBalance = async (selectedNWCAccount, fullStorageObject) => {
 
   const balance = await getNWCSparkBalance();
 
-  await splitAndStoreNWCData({
-    ...fullStorageObject,
-    accounts: {
-      ...fullStorageObject.accounts,
-      [selectedNWCAccount.publicKey]: {
-        ...selectedNWCAccount,
-        shouldGetNewBalance: false,
-        walletBalance: Number(balance.balance),
-        lastChecked: Date.now(),
-      },
-    },
-  });
+  // await splitAndStoreNWCData({
+  //   ...fullStorageObject,
+  //   accounts: {
+  //     ...fullStorageObject.accounts,
+  //     [selectedNWCAccount.publicKey]: {
+  //       ...selectedNWCAccount,
+  //       shouldGetNewBalance: false,
+  //       walletBalance: Number(balance.balance),
+  //       lastChecked: Date.now(),
+  //     },
+  //   },
+  // });
   return {
     result_type: 'get_balance',
     result: {
