@@ -150,7 +150,7 @@ export default function CreateNostrConnectAccount(props) {
         kind: 13194,
         created_at: Math.floor(Date.now() / 1000),
         content: getSupportedMethods(accountPermissions).join(' '),
-        tags: [],
+        tags: [['notifications', 'payment_received']],
       };
 
       const signedEvent = finalizeEvent(
