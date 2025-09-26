@@ -51,6 +51,7 @@ export default function ExploreUsers() {
   const {t} = useTranslation();
   const [targetUserCountBarWidth, setTargetUserCountBarWidth] = useState(0);
   const [yAxisWidth, setYAxisWidth] = useState(0);
+  const [chartWidth, setChartWidth] = useState(0);
   const dataObject = masterInfoObject.exploreData
     ? JSON.parse(JSON.stringify(masterInfoObject.exploreData))
     : false;
@@ -262,10 +263,15 @@ export default function ExploreUsers() {
         </View>
       </View>
 
-      <View style={styles.chartContainer}>
+      <View
+        onLayout={e => {
+          setChartWidth(e.nativeEvent.layout.width);
+        }}
+        style={styles.chartContainer}>
         <CustomLineChart
           data={data.map(d => d.value)}
-          width={SCREEN_DIMENSIONS.width * 0.9 - yAxisWidth}
+          width={chartWidth}
+          leftPadding={yAxisWidth * 1.1}
           height={250}
           min={Math.round(min * 0.95)}
           max={Math.round(max * (timeFrame !== 'day' ? 1.2 : 1.05))}

@@ -11,8 +11,9 @@ export default function CustomLineChart({
   xLabels,
   strokeColor,
   textColor,
+  leftPadding = 30,
 }) {
-  const padding = {top: 20, bottom: 30, left: 30, right: 20};
+  const padding = {top: 10, bottom: 30, left: leftPadding, right: 20};
 
   // Scales
   const xScale = scale
