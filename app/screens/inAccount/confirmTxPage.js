@@ -205,7 +205,7 @@ export default function ConfirmTxPage(props) {
                 body: errorMessage,
               });
             } catch (err) {
-              copyToClipboard('blake@blitzwalletapp.com', showToast);
+              copyToClipboard(String(errorMessage), showToast);
             }
           }}>
           <ThemeText
