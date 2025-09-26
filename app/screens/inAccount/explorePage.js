@@ -1,5 +1,5 @@
 import {ThemeText} from '../../functions/CustomElements';
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -24,7 +24,11 @@ import {
   WEEK_OPTIONS,
   YEAR_IN_MILLS,
 } from '../../components/admin/homeComponents/explore/constants';
-import {formatBalanceAmount} from '../../functions';
+import {
+  formatBalanceAmount,
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from '../../functions';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import NoDataView from '../../components/admin/homeComponents/explore/noDataView';
 import {FONT, INSET_WINDOW_WIDTH} from '../../constants/theme';
@@ -32,16 +36,24 @@ import {useGlobalThemeContext} from '../../../context-store/theme';
 import {findLargestByVisualWidth} from '../../components/admin/homeComponents/explore/largestNumber';
 import {useTranslation} from 'react-i18next';
 import CustomLineChart from '../../functions/CustomElements/customLineChart';
+import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
+import {shouldLoadExploreData} from '../../functions/initializeUserSettingsHelpers';
+import fetchBackend from '../../../db/handleBackend';
+import {useKeysContext} from '../../../context-store/keys';
 
 export default function ExploreUsers() {
+  const {contactsPrivateKey, publicKey} = useKeysContext();
   const [timeFrame, setTimeFrame] = useState('day');
-  const {masterInfoObject} = useGlobalContextProvider();
+  const [isLoading, setIsLoading] = useState(true);
+  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
   const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {t} = useTranslation();
   const [targetUserCountBarWidth, setTargetUserCountBarWidth] = useState(0);
   const [yAxisWidth, setYAxisWidth] = useState(0);
-  const dataObject = JSON.parse(JSON.stringify(masterInfoObject.exploreData));
+  const dataObject = masterInfoObject.exploreData
+    ? JSON.parse(JSON.stringify(masterInfoObject.exploreData))
+    : false;
   const data = dataObject ? dataObject[timeFrame].reverse() : [];
 
   const min = data.reduce((prev, current) => {
@@ -133,6 +145,51 @@ export default function ExploreUsers() {
       }
     });
   }, [timeFrame, t]);
+
+  useEffect(() => {
+    async function loadExploreData() {
+      try {
+        if (masterInfoObject.exploreData) return;
+        const pastExploreData = await getLocalStorageItem(
+          'savedExploreData',
+        ).then(data => JSON.parse(data));
+
+        const shouldLoadExporeDataResp = shouldLoadExploreData(pastExploreData);
+
+        if (!shouldLoadExporeDataResp) {
+          toggleMasterInfoObject({exploreData: pastExploreData.data});
+          throw new Error('Blocking call since data is up to date');
+        }
+
+        const freshExploreData = await fetchBackend(
+          'getTotalUserCount',
+          {data: publicKey},
+          contactsPrivateKey,
+          publicKey,
+        );
+
+        if (freshExploreData) {
+          toggleMasterInfoObject({exploreData: freshExploreData});
+          await setLocalStorageItem(
+            'savedExploreData',
+            JSON.stringify({
+              lastUpdated: new Date().getTime(),
+              data: freshExploreData,
+            }),
+          );
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadExploreData();
+  }, []);
+
+  if (isLoading) {
+    return <FullLoadingScreen />;
+  }
 
   if (
     !masterInfoObject.exploreData ||

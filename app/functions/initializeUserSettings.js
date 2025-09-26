@@ -45,28 +45,35 @@ export default async function initializeUserSettingsFromHistory({
 
     if (!privateKey || !publicKey) throw Error('Failed to retrieve keys');
 
-    const [_, pastExploreData, savedNWCData] = await Promise.all([
+    const [
+      _,
+      // pastExploreData,
+      savedNWCData,
+    ] = await Promise.all([
       initializeFirebase(publicKey, privateKey),
-      getLocalStorageItem('savedExploreData').then(data => JSON.parse(data)),
+      // getLocalStorageItem('savedExploreData').then(data => JSON.parse(data)),
       getNWCData().then(data => data || {}),
     ]);
 
-    const shouldLoadExporeDataResp = shouldLoadExploreData(pastExploreData);
+    // const shouldLoadExporeDataResp = shouldLoadExploreData(pastExploreData);
 
     // Wrap both of thses in promise.all to fetch together.
-    let [blitzStoredData, localStoredData, freshExploreData] =
-      await Promise.all([
-        getDataFromCollection('blitzWalletUsers', publicKey),
-        fetchLocalStorageItems(),
-        shouldLoadExporeDataResp
-          ? fetchBackend(
-              'getTotalUserCount',
-              {data: publicKey},
-              privateKey,
-              publicKey,
-            )
-          : Promise.resolve(null),
-      ]);
+    let [
+      blitzStoredData,
+      localStoredData,
+      //  freshExploreData
+    ] = await Promise.all([
+      getDataFromCollection('blitzWalletUsers', publicKey),
+      fetchLocalStorageItems(),
+      // shouldLoadExporeDataResp
+      //   ? fetchBackend(
+      //       'getTotalUserCount',
+      //       {data: publicKey},
+      //       privateKey,
+      //       publicKey,
+      //     )
+      //   : Promise.resolve(null),
+    ]);
 
     let {
       storedUserTxPereferance,
@@ -327,20 +334,20 @@ export default async function initializeUserSettingsFromHistory({
     //   needsToUpdate = true;
     // }
 
-    if (shouldLoadExporeDataResp && freshExploreData) {
-      if (freshExploreData) {
-        tempObject['exploreData'] = freshExploreData;
-        setLocalStorageItem(
-          'savedExploreData',
-          JSON.stringify({
-            lastUpdated: new Date().getTime(),
-            data: freshExploreData,
-          }),
-        );
-      } else tempObject['exploreData'] = null;
-    } else {
-      tempObject['exploreData'] = pastExploreData.data;
-    }
+    // if (shouldLoadExporeDataResp && freshExploreData) {
+    //   if (freshExploreData) {
+    //     tempObject['exploreData'] = freshExploreData;
+    //     setLocalStorageItem(
+    //       'savedExploreData',
+    //       JSON.stringify({
+    //         lastUpdated: new Date().getTime(),
+    //         data: freshExploreData,
+    //       }),
+    //     );
+    //   } else tempObject['exploreData'] = null;
+    // } else {
+    //   tempObject['exploreData'] = pastExploreData.data;
+    // }
 
     tempObject['homepageTxPreferance'] = storedUserTxPereferance;
     tempObject['userBalanceDenomination'] = userBalanceDenomination;
