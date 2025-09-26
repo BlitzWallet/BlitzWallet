@@ -39,8 +39,8 @@ export default function AppStore({navigation}) {
   useHandleBackPressNew(handleBackPressFunction);
 
   const gridGap = Platform.select({
-    ios: Math.round(SCREEN_DIMENSIONS.width * 0.95 * 0.05),
-    android: Math.round(SCREEN_DIMENSIONS.width * 0.95 * 0.05),
+    ios: Math.min(Math.round(SCREEN_DIMENSIONS.width * 0.95 * 0.05), 20),
+    android: Math.min(Math.round(SCREEN_DIMENSIONS.width * 0.95 * 0.05), 20),
   });
 
   const appElements = APPLIST.map((app, id) => {
@@ -72,18 +72,10 @@ export default function AppStore({navigation}) {
         }}
         style={{
           ...styles.appRowContainer,
-          width:
-            (SCREEN_DIMENSIONS.width *
-              0.95 *
-              (Platform.OS === 'ios' ? 0.95 : 0.95)) /
-              2 -
-            gridGap,
-          height:
-            (SCREEN_DIMENSIONS.width *
-              0.95 *
-              (Platform.OS === 'ios' ? 0.95 : 0.95)) /
-              2 -
-            gridGap,
+          width: (SCREEN_DIMENSIONS.width * 0.95) / 2 - gridGap / 2,
+          maxWidth: MAX_CONTENT_WIDTH / 2 - gridGap / 2,
+          height: (SCREEN_DIMENSIONS.width * 0.95) / 2 - gridGap / 2,
+          maxHeight: MAX_CONTENT_WIDTH / 2 - gridGap / 2,
           flexGrow: 1,
           overflow: 'scroll',
           backgroundColor: backgroundOffset,
@@ -345,7 +337,6 @@ const styles = StyleSheet.create({
   appRowContainer: {
     minWidth: 100,
     minHeight: 150,
-
     paddingBottom: 30,
     borderRadius: 10,
   },
