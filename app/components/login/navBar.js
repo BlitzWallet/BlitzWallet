@@ -5,19 +5,23 @@ import CustomButton from '../../functions/CustomElements/button';
 import {useTranslation} from 'react-i18next';
 import {CONTENT_KEYBOARD_OFFSET} from '../../constants';
 
-export default function LoginNavbar() {
+export default function LoginNavbar({page}) {
   const navigate = useNavigation();
   const {t} = useTranslation();
   return (
     <View style={styles.container}>
       <Back_BTN />
-      <CustomButton
-        buttonStyles={{
-          width: 'auto',
-        }}
-        textContent={t('constants.skip_all')}
-        actionFunction={() => navigate.navigate('SkipCreateAccountPathMessage')}
-      />
+      {page !== 'disclaimer' && (
+        <CustomButton
+          buttonStyles={{
+            width: 'auto',
+          }}
+          textContent={t('constants.skip_all')}
+          actionFunction={() =>
+            navigate.navigate('SkipCreateAccountPathMessage')
+          }
+        />
+      )}
     </View>
   );
 }

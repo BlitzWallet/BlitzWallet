@@ -31,9 +31,9 @@ export default function CreateAccountHome({navigation: {navigate}}) {
     initializeWallet();
   }, []);
 
-  const navigateFunction = page => {
+  const navigateFunction = (page, nextPage) => {
     crashlyticsLogReport(`Navigating to ${page} from create account home`);
-    navigate(page);
+    navigate(page, {nextPage});
   };
 
   return (
@@ -47,13 +47,15 @@ export default function CreateAccountHome({navigation: {navigate}}) {
         }}
         textStyles={{color: COLORS.darkModeText}}
         textContent={t('createAccount.homePage.buttons.button2')}
-        actionFunction={() => navigateFunction('DisclaimerPage')}
+        actionFunction={() => navigateFunction('DisclaimerPage', 'GenerateKey')}
       />
       <CustomButton
         buttonStyles={styles.buttonStyle}
         textStyles={{color: COLORS.lightModeText}}
         textContent={t('createAccount.homePage.buttons.button1')}
-        actionFunction={() => navigateFunction('RestoreWallet')}
+        actionFunction={() =>
+          navigateFunction('DisclaimerPage', 'RestoreWallet')
+        }
       />
 
       <ThemeText

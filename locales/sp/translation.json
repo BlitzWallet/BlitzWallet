@@ -192,7 +192,9 @@
       "header": "Autocustodia",
       "subHeader": "Blitz no puede acceder a tus fondos ni ayudarte a recuperarlos si se pierden. Al continuar, aceptas los términos y condiciones de Blitz Wallet.",
       "imgCaption": "'Un gran poder conlleva una gran responsabilidad' - Tío Ben",
+      "acceptPrefix": "Acepto el ",
       "terms&Conditions": "Términos y condiciones",
+      "acceptError": "Para continuar, debe aceptar los Términos y Condiciones.",
       "continueBTN": "Siguiente"
     },
     "verifyKeyPage": {

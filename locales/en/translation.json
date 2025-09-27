@@ -196,7 +196,9 @@
       "header": "Self-custodial",
       "subHeader": "Blitz cannot access your funds or help recover them if lost. By continuing, you agree to Blitz Wallet's terms and conditions.",
       "imgCaption": "'With great power comes great responsibility' - Uncle Ben",
+      "acceptPrefix": "I accept the ",
       "terms&Conditions": "Terms and Conditions",
+      "acceptError": "To continue, you must accept the Terms and Conditions.",
       "continueBTN": "Next"
     },
     "verifyKeyPage": {
