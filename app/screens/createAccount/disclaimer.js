@@ -73,14 +73,16 @@ export default function DislaimerPage({navigation: {navigate}, route}) {
           content={t('createAccount.disclaimerPage.subHeader')}
         />
         <Svg
-          width={
+          width={Math.min(
             SCREEN_DIMENSIONS.width *
-            (contentHeight > SCREEN_DIMENSIONS.height ? 0.5 : 0.8)
-          }
-          height={
+              (contentHeight > SCREEN_DIMENSIONS.height ? 0.5 : 0.8),
+            400,
+          )}
+          height={Math.min(
             SCREEN_DIMENSIONS.width *
-            (contentHeight > SCREEN_DIMENSIONS.height ? 0.5 : 0.8)
-          }
+              (contentHeight > SCREEN_DIMENSIONS.height ? 0.5 : 0.8),
+            400,
+          )}
           viewBox="50 50 630 630"
           fill="none"
           xmlns="http://www.w3.org/2000/svg">
