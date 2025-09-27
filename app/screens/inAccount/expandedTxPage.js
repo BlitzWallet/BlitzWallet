@@ -337,7 +337,7 @@ export default function ExpandedTx(props) {
                 transaction.paymentType === 'bitcoin' &&
                 renderInfoRow(
                   t('screens.inAccount.expandedTxPage.confReqired'),
-                  transaction.details.direction === 'INCOMING' ? '3' : '2',
+                  '3',
                   true,
                 )}
             </View>
