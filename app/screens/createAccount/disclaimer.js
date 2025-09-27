@@ -109,35 +109,33 @@ export default function DislaimerPage({navigation: {navigate}, route}) {
       </ScrollView>
 
       {/* Terms Acceptance Section */}
-      <View style={styles.termsAcceptanceContainer}>
-        <TouchableOpacity
-          onPress={toggleTermsAcceptance}
-          style={styles.checkboxContainer}>
-          <View
-            style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}>
-            {termsAccepted && (
-              <Icon
-                width={10}
-                height={10}
-                color={COLORS.darkModeText}
-                name={'expandedTxCheck'}
-              />
-            )}
-          </View>
-          <View style={styles.termsTextContainer}>
-            <ThemeText
-              styles={styles.checkboxText}
-              content={t('createAccount.disclaimerPage.acceptPrefix')}
+      <TouchableOpacity
+        onPress={toggleTermsAcceptance}
+        style={styles.checkboxContainer}>
+        <View
+          style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}>
+          {termsAccepted && (
+            <Icon
+              width={10}
+              height={10}
+              color={COLORS.darkModeText}
+              name={'expandedTxCheck'}
             />
-            <TouchableOpacity onPress={openTermsAndConditions}>
-              <ThemeText
-                styles={styles.termsLinkText}
-                content={t('createAccount.disclaimerPage.terms&Conditions')}
-              />
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </View>
+          )}
+        </View>
+        <View style={styles.termsTextContainer}>
+          <ThemeText
+            styles={styles.checkboxText}
+            content={t('createAccount.disclaimerPage.acceptPrefix')}
+          />
+          <TouchableOpacity onPress={openTermsAndConditions}>
+            <ThemeText
+              styles={styles.termsLinkText}
+              content={t('createAccount.disclaimerPage.terms&Conditions')}
+            />
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
 
       <CustomButton
         buttonStyles={{
@@ -183,14 +181,13 @@ const styles = StyleSheet.create({
     color: COLORS.darkModeText,
   },
 
-  termsAcceptanceContainer: {
-    alignItems: 'center',
-    marginTop: CONTENT_KEYBOARD_OFFSET,
-    marginBottom: 10,
-  },
   checkboxContainer: {
+    paddingVertical: 15,
+    marginBottom: 5,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    ...CENTER,
   },
   termsTextContainer: {
     flexDirection: 'row',
