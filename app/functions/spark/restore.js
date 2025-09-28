@@ -341,6 +341,7 @@ export const updateSparkTxStatus = async (mnemoninc, accountId) => {
         txsByType.lightning,
         unpaidInvoicesByAmount,
         mnemoninc,
+        accountId,
       ),
       processBitcoinTransactions(txsByType.bitcoin, mnemoninc),
       processSparkTransactions(txsByType.spark),
@@ -369,6 +370,7 @@ async function processLightningTransactions(
   lightningTxs,
   unpaidInvoicesByAmount,
   mnemonic,
+  accountId,
 ) {
   const CONCURRENCY_LIMIT = 5;
   const updatedTxs = [];
@@ -430,16 +432,17 @@ async function processLightningTransactions(
       continue;
     }
 
-    newTxs.push({
-      ...result,
-      paymentStatus: getSparkPaymentStatus(bitcoinTransfer.status),
-      details: {
-        amount: bitcoinTransfer.totalValue,
-        direction: bitcoinTransfer.transferDirection,
-        preimage: '',
-        address: '',
-      },
-    });
+    const transformedObject = transformTxToPaymentObject(
+      bitcoinTransfer,
+      undefined,
+      undefined,
+      false,
+      [],
+      accountId,
+      1,
+    );
+
+    newTxs.push(transformedObject);
   }
 
   return newTxs;
@@ -459,6 +462,7 @@ async function processLightningTransaction(
       !IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID) &&
       !possibleOptions.length
     ) {
+      // goes to be handled later by transform tx to payment
       return {
         id: txStateUpdate.sparkID,
         paymentStatus: '',
@@ -533,6 +537,11 @@ async function processLightningTransaction(
       };
 
     if (!sparkResponse?.transfer) return null;
+
+    // const fee =
+    //   sparkResponse.fee.originalValue /
+    //   (sparkResponse.fee.originalUnit === 'MILLISATOSHI' ? 1000 : 1);
+
     return {
       useTempId: true,
       tempId: txStateUpdate.sparkID,
@@ -542,6 +551,8 @@ async function processLightningTransaction(
       accountId: txStateUpdate.accountId,
       details: {
         ...details,
+        // fee: Math.round(fee),
+        // totalFee: Math.round(fee) + (details.supportFee || 0),
         preimage: sparkResponse.paymentPreimage || '',
       },
     };

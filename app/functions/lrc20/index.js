@@ -74,6 +74,8 @@ export async function getLRC20Transactions({
       accountId: ownerPublicKeys[0],
       details: {
         fee: 0,
+        totalFee: didSend ? 10 : 0,
+        supportFee: didSend ? 10 : 0,
         amount: amount,
         address: sparkAddress,
         time: new Date(

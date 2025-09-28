@@ -628,6 +628,10 @@ const SparkWalletProvider = ({children}) => {
                     fee: Math.abs(
                       quote.creditAmountSats - bitcoinTransfer.totalValue,
                     ),
+                    totalFee: Math.abs(
+                      quote.creditAmountSats - bitcoinTransfer.totalValue,
+                    ),
+                    supportFee: 0,
                   },
                 };
               }

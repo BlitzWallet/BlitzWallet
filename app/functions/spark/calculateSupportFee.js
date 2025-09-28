@@ -1,4 +1,3 @@
-import {getSparkPaymentFeeEstimate} from '.';
 // Lightning brackets
 export const lightningBrackets = [
   {upTo: 50, fixedFee: 1, percentage: 0}, // 0% + 1 sat
@@ -45,9 +44,7 @@ export default async function calculateProgressiveBracketFee(
     if (amount <= bracket.upTo) {
       const fee = Math.ceil(amount * bracket.percentage) + bracket.fixedFee;
 
-      const sparkFeeResponse = await getSparkPaymentFeeEstimate(fee, mnemonic);
-
-      return Math.max(0, fee - sparkFeeResponse);
+      return fee;
     }
   }
 

@@ -539,6 +539,7 @@ export const getSparkPaymentStatus = status => {
     status === LightningSendRequestStatus.TRANSFER_COMPLETED ||
     status === SparkCoopExitRequestStatus.SUCCEEDED ||
     status === LightningReceiveRequestStatus.TRANSFER_COMPLETED ||
+    status === LightningSendRequestStatus.PREIMAGE_PROVIDED ||
     status === SparkLeavesSwapRequestStatus.SUCCEEDED ||
     status === SparkUserRequestStatus.SUCCEEDED ||
     status === ClaimStaticDepositStatus.TRANSFER_COMPLETED

@@ -1,5 +1,6 @@
 import {decode} from 'bolt11';
 import {getSparkPaymentStatus, sparkPaymentType} from '.';
+import calculateProgressiveBracketFee from './calculateSupportFee';
 
 export async function transformTxToPaymentObject(
   tx,
@@ -14,6 +15,7 @@ export async function transformTxToPaymentObject(
   const paymentType = forcePaymentType
     ? forcePaymentType
     : sparkPaymentType(tx);
+  const paymentAmount = tx.totalValue;
 
   if (paymentType === 'lightning') {
     const foundInvoice = unpaidLNInvoices.find(item => {
@@ -34,6 +36,18 @@ export async function transformTxToPaymentObject(
         : userRequest.invoice?.encodedInvoice
       : '';
 
+    const paymentFee = userRequest
+      ? isSendRequest
+        ? userRequest.fee.originalValue /
+          (userRequest.fee.originalUnit === 'MILLISATOSHI' ? 1000 : 1)
+        : 0
+      : 0;
+
+    const supportFee = calculateProgressiveBracketFee(
+      paymentAmount,
+      'lightning',
+    );
+
     const description =
       numTxsBeingRestored < 20
         ? invoice
@@ -50,8 +64,10 @@ export async function transformTxToPaymentObject(
       paymentType: 'lightning',
       accountId: identityPubKey,
       details: {
-        fee: 0,
-        amount: tx.totalValue,
+        fee: paymentFee,
+        totalFee: paymentFee + supportFee,
+        supportFee: supportFee,
+        amount: paymentAmount,
         address: userRequest
           ? isSendRequest
             ? userRequest?.encodedInvoice
@@ -74,14 +90,21 @@ export async function transformTxToPaymentObject(
       },
     };
   } else if (paymentType === 'spark') {
+    const paymentFee = tx.transferDirection === 'OUTGOING' ? 0 : 0;
+    const supportFee = await (tx.transferDirection === 'OUTGOING'
+      ? calculateProgressiveBracketFee(paymentAmount, 'spark')
+      : Promise.resolve(0));
+
     return {
       id: tx.id,
       paymentStatus: 'completed',
       paymentType: 'spark',
       accountId: identityPubKey,
       details: {
-        fee: 0,
-        amount: tx.totalValue,
+        fee: paymentFee,
+        totalFee: paymentFee + supportFee,
+        supportFee: supportFee,
+        amount: paymentAmount,
         address: sparkAddress,
         time: tx.updatedTime
           ? new Date(tx.updatedTime).getTime()
@@ -97,6 +120,7 @@ export async function transformTxToPaymentObject(
     const userRequest = tx.userRequest;
 
     let fee = 0;
+    let blitzFee = 0;
 
     if (
       tx.transferDirection === 'OUTGOING' &&
@@ -104,8 +128,12 @@ export async function transformTxToPaymentObject(
       userRequest?.l1BroadcastFee
     ) {
       fee =
-        userRequest.fee.originalValue +
-        userRequest.l1BroadcastFee.originalValue;
+        userRequest.fee.originalValue /
+          (userRequest.fee.originalUnit === 'SATOSHI' ? 1 : 1000) +
+        userRequest.l1BroadcastFee.originalValue /
+          (userRequest.l1BroadcastFee.originalUnit === 'SATOSHI' ? 1 : 1000);
+
+      blitzFee = await calculateProgressiveBracketFee(paymentAmount, 'bitcoin');
     }
 
     return {
@@ -115,7 +143,9 @@ export async function transformTxToPaymentObject(
       accountId: identityPubKey,
       details: {
         fee,
-        amount: tx.totalValue,
+        totalFee: blitzFee + fee,
+        supportFee: blitzFee,
+        amount: paymentAmount,
         address: tx.address || '',
         time: tx.updatedTime
           ? new Date(tx.updatedTime).getTime()

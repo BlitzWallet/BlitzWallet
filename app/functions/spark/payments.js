@@ -42,12 +42,11 @@ export const sparkPaymenWrapper = async ({
     console.log('Begining spark payment');
     if (!sparkWallet[sha256Hash(mnemonic)])
       throw new Error('sparkWallet not initialized');
-    const supportFee = 0;
-    // await calculateProgressiveBracketFee(
-    //   amountSats,
-    //   paymentType,
-    //   mnemonic,
-    // );
+    const supportFee = await calculateProgressiveBracketFee(
+      amountSats,
+      paymentType,
+      mnemonic,
+    );
     if (getFee) {
       console.log('Calculating spark payment fee');
       let calculatedFee = 0;
@@ -61,7 +60,7 @@ export const sparkPaymenWrapper = async ({
 
         if (!routingFee.didWork)
           throw new Error(routingFee.error || 'Unable to get routing fee');
-        calculatedFee = Math.ceil(routingFee.response * 1.5);
+        calculatedFee = Math.ceil(routingFee.response * 1.5); //addding 50% buffer so we dont undershoot it
       } else if (paymentType === 'bitcoin') {
         const feeResponse = await getSparkBitcoinPaymentFeeEstimate({
           amountSats,
@@ -109,7 +108,7 @@ export const sparkPaymenWrapper = async ({
       await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
       const lightningPayResponse = await sendSparkLightningPayment({
-        maxFeeSats: Math.ceil(initialFee * 1.5), //addding 20% buffer so we dont undershoot it
+        maxFeeSats: initialFee,
         invoice: address,
         amountSats: usingZeroAmountInvoice ? amountSats : undefined,
         mnemonic,
@@ -122,13 +121,20 @@ export const sparkPaymenWrapper = async ({
       console.log(lightningPayResponse, 'lightniing pay response');
       const data = lightningPayResponse.paymentResponse;
 
+      const realPaymentFee = data?.fee?.originalValue
+        ? data?.fee?.originalValue /
+          (data?.fee?.originalUnit === 'MILLISATOSHI' ? 1000 : 1)
+        : initialFee;
+
       const tx = {
         id: data.id,
         paymentStatus: 'pending',
         paymentType: 'lightning',
         accountId: sparkInformation.identityPubKey,
         details: {
-          fee: fee,
+          fee: realPaymentFee,
+          totalFee: supportFee + realPaymentFee,
+          supportFee: supportFee,
           amount: amountSats,
           description: memo || '',
           address: address,
@@ -168,7 +174,9 @@ export const sparkPaymenWrapper = async ({
         paymentType: 'bitcoin',
         accountId: sparkInformation.identityPubKey,
         details: {
-          fee: fee + supportFee,
+          fee: fee,
+          totalFee: supportFee + fee,
+          supportFee: supportFee,
           amount: amountSats,
           address: address,
           time: new Date(data.updatedAt).getTime(),
@@ -211,7 +219,9 @@ export const sparkPaymenWrapper = async ({
         paymentType: 'spark',
         accountId: sparkInformation.identityPubKey,
         details: {
-          fee: supportFee,
+          fee: 0,
+          totalFee: 0 + supportFee,
+          supportFee: supportFee,
           amount: amountSats,
           address: address,
           time:
