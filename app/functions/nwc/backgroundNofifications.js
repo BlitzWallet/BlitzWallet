@@ -29,6 +29,7 @@ import {Platform} from 'react-native';
 import fetchBackend from '../../../db/handleBackend';
 import {getLocalStorageItem} from '../localStorage';
 import sha256Hash from '../hash';
+import {transformTxToPaymentObject} from '../spark/transformTxToPayment';
 
 const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
@@ -154,23 +155,37 @@ const handleGetTransactions = async requestParams => {
     offset + limit,
   );
 
-  const formatted = paginatedTransactions.map(tx => ({
-    type: tx.transferDirection?.toLowerCase(),
-    invoice: '',
-    description: '',
-    description_hash: null,
-    preimage: '',
-    payment_hash: '',
-    amount: tx.totalValue * 1000,
-    fees_paid: 0,
-    created_at: tx.createdTime
-      ? Math.floor(new Date(tx.createdTime).getTime() / 1000)
-      : null,
-    settled_at: tx.expiryTime
-      ? Math.floor(new Date(tx.updatedTime).getTime() / 1000)
-      : null,
-    metadata: {},
-  }));
+  const formatted = await Promise.all(
+    paginatedTransactions.map(async tx => {
+      const transformedObjct = await transformTxToPaymentObject(
+        tx,
+        undefined,
+        undefined,
+        false,
+        [],
+        undefined,
+        1,
+      );
+
+      return {
+        type: tx.transferDirection?.toLowerCase(),
+        invoice: transformedObjct.details.address,
+        description: transformedObjct.details.description,
+        description_hash: null,
+        preimage: transformedObjct.details.preimage,
+        payment_hash: sha256Hash(transformedObjct.details.preimage),
+        amount: tx.totalValue * 1000,
+        fees_paid: transformedObjct.details.fee,
+        created_at: tx.createdTime
+          ? Math.floor(new Date(tx.createdTime).getTime() / 1000)
+          : null,
+        settled_at: tx.expiryTime
+          ? Math.floor(new Date(tx.updatedTime).getTime() / 1000)
+          : null,
+        metadata: {},
+      };
+    }),
+  );
 
   return {
     result_type: 'list_transactions',

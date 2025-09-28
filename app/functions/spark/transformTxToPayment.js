@@ -43,7 +43,7 @@ export async function transformTxToPaymentObject(
         : 0
       : 0;
 
-    const supportFee = calculateProgressiveBracketFee(
+    const supportFee = await calculateProgressiveBracketFee(
       paymentAmount,
       'lightning',
     );
