@@ -3005,9 +3005,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-quick-base64 (2.2.0):
-    - React-Core
-  - react-native-quick-crypto (0.7.15):
+  - react-native-quick-crypto (0.7.17):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3883,7 +3881,6 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-keyboard-controller (from `../node_modules/react-native-keyboard-controller`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
-  - react-native-quick-base64 (from `../node_modules/react-native-quick-base64`)
   - react-native-quick-crypto (from `../node_modules/react-native-quick-crypto`)
   - react-native-restart (from `../node_modules/react-native-restart`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -4116,8 +4113,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-keyboard-controller"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
-  react-native-quick-base64:
-    :path: "../node_modules/react-native-quick-base64"
   react-native-quick-crypto:
     :path: "../node_modules/react-native-quick-crypto"
   react-native-restart:
@@ -4330,8 +4325,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: f6ece66f251f4a17aab08f5add7be6eb9e7f5356
   react-native-keyboard-controller: a54cdf81b0d755fb3737e574e8899df410e8d84b
   react-native-pager-view: 04ff926ac8977b63970da40effd02963b60e0970
-  react-native-quick-base64: 17dc4b8daee50e680d5f57cc3ee6773b6ee0110a
-  react-native-quick-crypto: 0806d70f3d88be12492adb815a50014e0e9983a9
+  react-native-quick-crypto: acc34a06d35fad008ad97a333c9f6c99e2df6dcd
   react-native-restart: 0bc732f4461709022a742bb29bcccf6bbc5b4863
   react-native-safe-area-context: 5928d84c879db2f9eb6969ca70e68f58623dbf25
   react-native-webview: 69c118d283fccfbc4fca0cd680e036ff3bf188fa

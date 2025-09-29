@@ -23,7 +23,6 @@ import {useNavigation} from '@react-navigation/native';
 import {searchUsers} from '../../../../../db';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {atob} from 'react-native-quick-base64';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import customUUID from '../../../../functions/customUUID';
 import {useKeysContext} from '../../../../../context-store/keys';

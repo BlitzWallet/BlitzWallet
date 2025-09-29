@@ -1,6 +1,5 @@
 import {StyleSheet, View} from 'react-native';
 import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
-import {btoa} from 'react-native-quick-base64';
 import QrCodeWrapper from '../../../../../functions/CustomElements/QrWrapper';
 import {useTranslation} from 'react-i18next';
 

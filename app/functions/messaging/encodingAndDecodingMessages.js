@@ -1,7 +1,6 @@
 import {Buffer} from 'buffer';
 import {getSharedSecret} from '@noble/secp256k1';
 import {createCipheriv, createDecipheriv} from 'react-native-quick-crypto';
-import {btoa, atob} from 'react-native-quick-base64';
 
 function encriptMessage(privkey, pubkey, text) {
   //   const encripted = await nostr.nip04.encrypt(privkey, pubkey, text);

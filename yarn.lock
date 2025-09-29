@@ -1755,7 +1755,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@craftzdog/react-native-buffer@npm:^6.0.5":
+"@craftzdog/react-native-buffer@npm:^6.0.5, @craftzdog/react-native-buffer@npm:^6.1.0":
   version: 6.1.0
   resolution: "@craftzdog/react-native-buffer@npm:6.1.0"
   dependencies:
@@ -4888,7 +4888,7 @@ __metadata:
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.2
     "@buildonspark/spark-sdk": ^0.3.8
-    "@craftzdog/react-native-buffer": ^6.0.5
+    "@craftzdog/react-native-buffer": ^6.1.0
     "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
     "@noble/secp256k1": ^2.2.3
@@ -4972,8 +4972,7 @@ __metadata:
     react-native-keyboard-controller: ^1.17.5
     react-native-pager-view: 6.7.1
     react-native-qrcode-svg: ^6.3.15
-    react-native-quick-base64: ^2.1.2
-    react-native-quick-crypto: ^0.7.13
+    react-native-quick-crypto: ^0.7.17
     react-native-reanimated: ~3.17.4
     react-native-restart: ^0.0.27
     react-native-safe-area-context: 5.4.0
@@ -12941,7 +12940,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-quick-base64@npm:^2.0.5, react-native-quick-base64@npm:^2.1.2":
+"react-native-quick-base64@npm:^2.0.5":
   version: 2.2.0
   resolution: "react-native-quick-base64@npm:2.2.0"
   peerDependencies:
@@ -12951,16 +12950,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-quick-crypto@npm:^0.7.13":
-  version: 0.7.15
-  resolution: "react-native-quick-crypto@npm:0.7.15"
+"react-native-quick-crypto@npm:^0.7.17":
+  version: 0.7.17
+  resolution: "react-native-quick-crypto@npm:0.7.17"
   dependencies:
     "@craftzdog/react-native-buffer": ^6.0.5
     events: ^3.3.0
     readable-stream: ^4.5.2
     string_decoder: ^1.3.0
     util: ^0.12.5
-  checksum: 0fd25e84ab6ba02b794cba5d2cb697686e9c97da453c2c6c00c4918eb1f6f469283e6851333a036249dc5fc820c2f900551a3b2db39515625c97f40cf05225e4
+  checksum: 5864b483900b504bff353721dffce2458635d7ad15a4bb87389a9161d83fd60a809c2881293a58ef03de3492ded8e9bf19efc8ae1d1694b500feedc26eee1e5c
   languageName: node
   linkType: hard
 
