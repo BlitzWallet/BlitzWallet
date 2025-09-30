@@ -150,3 +150,11 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:33.4.0')
     implementation('com.google.firebase:firebase-messaging')
 }
+
+// Fixing 16kb package bug with JNA
+configurations.all {
+    resolutionStrategy {
+        force "net.java.dev.jna:jna:5.17.0"
+        force "net.java.dev.jna:jna-platform:5.17.0"
+    }
+}
