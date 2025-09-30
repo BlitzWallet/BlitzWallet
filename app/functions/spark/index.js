@@ -23,36 +23,50 @@ import sha256Hash from '../hash';
 
 export let sparkWallet = {};
 
+// Hash cache to avoid recalculating hashes
+const mnemonicHashCache = new Map();
+
+const getMnemonicHash = mnemonic => {
+  if (!mnemonicHashCache.has(mnemonic)) {
+    mnemonicHashCache.set(mnemonic, sha256Hash(mnemonic));
+  }
+  return mnemonicHashCache.get(mnemonic);
+};
+
+// Centralizes wallet lookup and error handling, reducing code duplication
+const getWallet = mnemonic => {
+  const hash = getMnemonicHash(mnemonic);
+  const wallet = sparkWallet[hash];
+
+  if (!wallet) {
+    throw new Error('sparkWallet not initialized');
+  }
+
+  return wallet;
+};
+
+// Clear cache when needed (call this on logout/cleanup)
+export const clearMnemonicCache = () => {
+  mnemonicHashCache.clear();
+};
+
 export const initializeSparkWallet = async mnemonic => {
   try {
-    if (sparkWallet[sha256Hash(mnemonic)]) return {isConnected: true};
+    const hash = getMnemonicHash(mnemonic);
+
+    // Early return if already initialized
+    if (sparkWallet[hash]) {
+      return {isConnected: true};
+    }
 
     const {wallet} = await SparkWallet.initialize({
       signer: new ReactNativeSparkSigner(),
       mnemonicOrSeed: mnemonic,
       options: {network: 'MAINNET'},
     });
-    // const [type, value] = await Promise.race([
-    //   SparkWallet.initialize({
-    //     signer: new ReactNativeSparkSigner(),
-    //     mnemonicOrSeed: mnemonic,
-    //     options: {network: 'MAINNET'},
-    //   }).then(res => ['wallet', res]),
-    //   new Promise(res => setTimeout(() => res(['timeout', false]), 30000)),
-    // ]);
-    sparkWallet[sha256Hash(mnemonic)] = wallet;
 
+    sparkWallet[hash] = wallet;
     return {isConnected: true};
-
-    // if (type === 'wallet') {
-    //   const {wallet} = value;
-    //   console.log('Wallet initialized:', await wallet.getIdentityPublicKey());
-    //   sparkWallet = wallet;
-
-    //   return {isConnected: true};
-    // } else if (type === 'timeout') {
-    //   return {isConnected: false};
-    // }
   } catch (err) {
     console.log('Initialize spark wallet error function', err);
     return {isConnected: false, error: err.message};
@@ -61,32 +75,19 @@ export const initializeSparkWallet = async mnemonic => {
 
 export const getSparkIdentityPubKey = async mnemonic => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    return await sparkWallet[sha256Hash(mnemonic)].getIdentityPublicKey();
+    // Now uses optimized getWallet helper
+    return await getWallet(mnemonic).getIdentityPublicKey();
   } catch (err) {
     console.log('Get spark balance error', err);
   }
 };
-// export const initializeTempSparkWallet = async mnemoinc => {
-//   try {
-//     const {wallet: w} = await SparkWallet.initialize({
-//       signer: new ReactNativeSparkSigner(),
-//       mnemonicOrSeed: mnemoinc,
-//       options: {network: 'MAINNET'},
-//     });
-
-//     return w;
-//   } catch (err) {
-//     console.log('Initialize spark wallet error', err);
-//   }
-// };
 
 export const getSparkBalance = async mnemonic => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    const balance = await sparkWallet[sha256Hash(mnemonic)].getBalance();
+    const wallet = getWallet(mnemonic);
+    const hash = getMnemonicHash(mnemonic);
+
+    const balance = await wallet.getBalance();
     console.log('Spark Balance:', balance);
     console.log('Tokens balance size:', balance.tokenBalances.size);
     console.log(
@@ -121,7 +122,7 @@ export const getSparkBalance = async mnemonic => {
     await saveCachedTokens(allTokens);
 
     return {
-      tokensObj: allTokens[sha256Hash(mnemonic)],
+      tokensObj: allTokens[hash],
       balance: balance.balance,
       didWork: true,
     };
@@ -131,20 +132,9 @@ export const getSparkBalance = async mnemonic => {
   }
 };
 
-// export const getSparkBitcoinL1Address = async () => {
-//   try {
-//     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-//     return await sparkWallet.getSingleUseDepositAddress();
-//   } catch (err) {
-//     console.log('Get Bitcoin mainchain address error', err);
-//   }
-// };
-
 export const getSparkStaticBitcoinL1Address = async mnemonic => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    return await sparkWallet[sha256Hash(mnemonic)].getStaticDepositAddress();
+    return await getWallet(mnemonic).getStaticDepositAddress();
   } catch (err) {
     console.log('Get reusable Bitcoin mainchain address error', err);
   }
@@ -152,30 +142,22 @@ export const getSparkStaticBitcoinL1Address = async mnemonic => {
 
 export const queryAllStaticDepositAddresses = async mnemonic => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    return await sparkWallet[
-      sha256Hash(mnemonic)
-    ].queryStaticDepositAddresses();
+    return await getWallet(mnemonic).queryStaticDepositAddresses();
   } catch (err) {
     console.log('refund reusable Bitcoin mainchain address error', err);
   }
 };
+
 export const getSparkStaticBitcoinL1AddressQuote = async (txid, mnemonic) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    return {
-      didwork: true,
-      quote: await sparkWallet[sha256Hash(mnemonic)].getClaimStaticDepositQuote(
-        txid,
-      ),
-    };
+    const quote = await getWallet(mnemonic).getClaimStaticDepositQuote(txid);
+    return {didwork: true, quote};
   } catch (err) {
     console.log('Get reusable Bitcoin mainchain address quote error', err);
     return {didwork: false, error: err.message};
   }
 };
+
 export const refundSparkStaticBitcoinL1AddressQuote = async ({
   depositTransactionId,
   destinationAddress,
@@ -183,9 +165,7 @@ export const refundSparkStaticBitcoinL1AddressQuote = async ({
   mnemonic,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    return await sparkWallet[sha256Hash(mnemonic)].refundStaticDeposit({
+    return await getWallet(mnemonic).refundStaticDeposit({
       depositTransactionId,
       destinationAddress,
       fee,
@@ -203,15 +183,11 @@ export const claimnSparkStaticDepositAddress = async ({
   mnemonic,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    const response = await sparkWallet[sha256Hash(mnemonic)].claimStaticDeposit(
-      {
-        creditAmountSats,
-        sspSignature,
-        transactionId,
-      },
-    );
+    const response = await getWallet(mnemonic).claimStaticDeposit({
+      creditAmountSats,
+      sspSignature,
+      transactionId,
+    });
     return {didWork: true, response};
   } catch (err) {
     console.log('claim static deposit address error', err);
@@ -219,42 +195,9 @@ export const claimnSparkStaticDepositAddress = async ({
   }
 };
 
-// export const getUnusedSparkBitcoinL1Address = async () => {
-//   try {
-//     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-//     return (await sparkWallet.getUnusedDepositAddresses()) || [];
-//   } catch (err) {
-//     console.log('Get Bitcoin mainchain address error', err);
-//   }
-// };
-
-// export const querySparkBitcoinL1Transaction = async depositAddress => {
-//   try {
-//     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-//     return await getLatestDepositTxId(depositAddress);
-//   } catch (err) {
-//     console.log('Get latest deposit address information error', err);
-//   }
-// };
-
-// export const claimSparkBitcoinL1Transaction = async depositAddress => {
-//   try {
-//     if (!sparkWallet) throw new Error('sparkWallet not initialized');
-//     const txId = await querySparkBitcoinL1Transaction(depositAddress);
-//     const claimResponse = await (txId
-//       ? sparkWallet.claimDeposit(txId)
-//       : Promise.resolve(null));
-//     return [txId, claimResponse];
-//   } catch (err) {
-//     console.log('Claim bitcoin mainnet payment error', err);
-//   }
-// };
-
 export const getSparkAddress = async mnemonic => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    const response = await sparkWallet[sha256Hash(mnemonic)].getSparkAddress();
+    const response = await getWallet(mnemonic).getSparkAddress();
     return {didWork: true, response};
   } catch (err) {
     console.log('Get spark address error', err);
@@ -268,9 +211,7 @@ export const sendSparkPayment = async ({
   mnemonic,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    const response = await sparkWallet[sha256Hash(mnemonic)].transfer({
+    const response = await getWallet(mnemonic).transfer({
       receiverSparkAddress: receiverSparkAddress.toLowerCase(),
       amountSats,
     });
@@ -289,9 +230,7 @@ export const sendSparkTokens = async ({
   mnemonic,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    const response = await sparkWallet[sha256Hash(mnemonic)].transferTokens({
+    const response = await getWallet(mnemonic).transferTokens({
       tokenIdentifier,
       tokenAmount: BigInt(tokenAmount),
       receiverSparkAddress,
@@ -309,11 +248,7 @@ export const getSparkLightningPaymentFeeEstimate = async (
   mnemonic,
 ) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    const response = await sparkWallet[
-      sha256Hash(mnemonic)
-    ].getLightningSendFeeEstimate({
+    const response = await getWallet(mnemonic).getLightningSendFeeEstimate({
       encodedInvoice: invoice.toLowerCase(),
       amountSats: amountSat,
     });
@@ -326,11 +261,7 @@ export const getSparkLightningPaymentFeeEstimate = async (
 
 export const getSparkBitcoinPaymentRequest = async (paymentId, mnemonic) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    return await sparkWallet[sha256Hash(mnemonic)].getCoopExitRequest(
-      paymentId,
-    );
+    return await getWallet(mnemonic).getCoopExitRequest(paymentId);
   } catch (err) {
     console.log('Get bitcoin payment fee estimate error', err);
   }
@@ -342,11 +273,7 @@ export const getSparkBitcoinPaymentFeeEstimate = async ({
   mnemonic,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    const response = await sparkWallet[
-      sha256Hash(mnemonic)
-    ].getWithdrawalFeeQuote({
+    const response = await getWallet(mnemonic).getWithdrawalFeeQuote({
       amountSats,
       withdrawalAddress: withdrawalAddress,
     });
@@ -359,11 +286,9 @@ export const getSparkBitcoinPaymentFeeEstimate = async ({
 
 export const getSparkPaymentFeeEstimate = async (amountSats, mnemonic) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    const feeResponse = await sparkWallet[
-      sha256Hash(mnemonic)
-    ].getSwapFeeEstimate(amountSats);
+    const feeResponse = await getWallet(mnemonic).getSwapFeeEstimate(
+      amountSats,
+    );
     return feeResponse.feeEstimate.originalValue || SPARK_TO_SPARK_FEE;
   } catch (err) {
     console.log('Get bitcoin payment fee estimate error', err);
@@ -377,11 +302,7 @@ export const receiveSparkLightningPayment = async ({
   mnemonic,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    const response = await sparkWallet[
-      sha256Hash(mnemonic)
-    ].createLightningInvoice({
+    const response = await getWallet(mnemonic).createLightningInvoice({
       amountSats,
       memo,
       expirySeconds: 60 * 60 * 12, // 12 hour invoice expiry
@@ -392,11 +313,10 @@ export const receiveSparkLightningPayment = async ({
     return {didWork: false, error: err.message};
   }
 };
+
 export const getSparkLightningSendRequest = async (id, mnemonic) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    return await sparkWallet[sha256Hash(mnemonic)].getLightningSendRequest(id);
+    return await getWallet(mnemonic).getLightningSendRequest(id);
   } catch (err) {
     console.log('Get spark lightning send request error', err);
   }
@@ -407,9 +327,7 @@ export const getSparkLightningPaymentStatus = async ({
   mnemonic,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    return await sparkWallet[sha256Hash(mnemonic)].getLightningReceiveRequest(
+    return await getWallet(mnemonic).getLightningReceiveRequest(
       lightningInvoiceId,
     );
   } catch (err) {
@@ -424,11 +342,7 @@ export const sendSparkLightningPayment = async ({
   mnemonic,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    const paymentResponse = await sparkWallet[
-      sha256Hash(mnemonic)
-    ].payLightningInvoice({
+    const paymentResponse = await getWallet(mnemonic).payLightningInvoice({
       invoice: invoice.toLowerCase(),
       maxFeeSats: maxFeeSats,
       amountSatsToSend: amountSats,
@@ -439,6 +353,7 @@ export const sendSparkLightningPayment = async ({
     return {didWork: false, error: err.message};
   }
 };
+
 export const sendSparkBitcoinPayment = async ({
   onchainAddress,
   exitSpeed,
@@ -448,9 +363,7 @@ export const sendSparkBitcoinPayment = async ({
   mnemonic,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    const response = await sparkWallet[sha256Hash(mnemonic)].withdraw({
+    const response = await getWallet(mnemonic).withdraw({
       onchainAddress: onchainAddress,
       exitSpeed,
       amountSats,
@@ -470,12 +383,7 @@ export const getSparkTransactions = async (
   mnemonic,
 ) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    return await sparkWallet[sha256Hash(mnemonic)].getTransfers(
-      transferCount,
-      offsetIndex,
-    );
+    return await getWallet(mnemonic).getTransfers(transferCount, offsetIndex);
   } catch (err) {
     console.log('get spark transactions error', err);
     return {transfers: []};
@@ -491,9 +399,7 @@ export const getSparkTokenTransactions = async ({
   mnemonic,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
-    return await sparkWallet[sha256Hash(mnemonic)].queryTokenTransactions({
+    return await getWallet(mnemonic).queryTokenTransactions({
       ownerPublicKeys,
       issuerPublicKeys,
       tokenTransactionHashes,
@@ -505,6 +411,7 @@ export const getSparkTokenTransactions = async ({
     return [];
   }
 };
+
 export const getCachedSparkTransactions = async (limit, identifyPubKey) => {
   try {
     const txResponse = await getAllSparkTransactions({
@@ -517,6 +424,7 @@ export const getCachedSparkTransactions = async (limit, identifyPubKey) => {
     console.log('get cached spark transaction error', err);
   }
 };
+
 export const sparkPaymentType = tx => {
   try {
     const isLightningPayment = tx.type === 'PREIMAGE_SWAP';
@@ -605,7 +513,7 @@ export const findTransactionTxFromTxHistory = async (
   mnemonic,
 ) => {
   try {
-    // First check cached transactions
+    // Early return with cached transaction
     const cachedTx = previousTxs.find(tx => tx.id === sparkTxId);
     if (cachedTx) {
       console.log('Using cache tx history');
@@ -617,12 +525,14 @@ export const findTransactionTxFromTxHistory = async (
       };
     }
 
+    const wallet = getWallet(mnemonic);
     let offset = previousOffset;
     let foundTransfers = [];
     let bitcoinTransfer = undefined;
     const maxAttempts = 20;
+
     while (offset < maxAttempts) {
-      const transfers = await getSparkTransactions(100, 100 * offset, mnemonic);
+      const transfers = await wallet.getTransfers(100, 100 * offset);
       foundTransfers = transfers.transfers;
 
       if (!foundTransfers.length) {

@@ -105,14 +105,15 @@ export const sparkPaymenWrapper = async ({
     if (paymentType === 'lightning') {
       const initialFee = Math.round(fee - supportFee);
 
-      await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
+      // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
       const lightningPayResponse = await sendSparkLightningPayment({
-        maxFeeSats: initialFee,
+        // maxFeeSats: initialFee,
         invoice: address,
         amountSats: usingZeroAmountInvoice ? amountSats : undefined,
         mnemonic,
       });
+
       if (!lightningPayResponse.didWork)
         throw new Error(
           lightningPayResponse.error || 'Error when sending lightning payment',
@@ -146,10 +147,10 @@ export const sparkPaymenWrapper = async ({
       };
       response = tx;
 
-      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
+      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
     } else if (paymentType === 'bitcoin') {
       // make sure to import exist speed
-      await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
+      // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
       const onChainPayResponse = await sendSparkBitcoinPayment({
         onchainAddress: address,
@@ -186,11 +187,11 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
+      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
     } else {
       let sparkPayResponse;
 
-      await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
+      // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
       if (seletctedToken !== 'Bitcoin') {
         sparkPayResponse = await sendSparkTokens({
@@ -237,7 +238,7 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
+      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
     }
     console.log(response, 'resonse in send function');
     return {didWork: true, response};
