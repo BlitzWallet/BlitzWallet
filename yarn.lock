@@ -4972,6 +4972,7 @@ __metadata:
     react-native-keyboard-controller: ^1.17.5
     react-native-pager-view: 6.7.1
     react-native-qrcode-svg: ^6.3.15
+    react-native-quick-base64: ^2.2.2
     react-native-quick-crypto: ^0.7.17
     react-native-reanimated: ~3.17.4
     react-native-restart: ^0.0.27
@@ -12947,6 +12948,16 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: f11eedd224601e45c67bdba17dc0a60fc1b6e9afe9fb1557a809ca6cc5b0c640b885b067a99a2b2bdc6e2acb086d703c7a1c4959f500719c2181138eacae8e9a
+  languageName: node
+  linkType: hard
+
+"react-native-quick-base64@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "react-native-quick-base64@npm:2.2.2"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 51cd8df0b7f78d4c10996f157927cc075b8a9e85f7d0e48790a4247a033ca335e440c96572969fb6f6b49135d51dbf87c6d659fba509b51b9237957d41a6c580
   languageName: node
   linkType: hard
 
