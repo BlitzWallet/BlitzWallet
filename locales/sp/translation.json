@@ -742,7 +742,8 @@
         "initialLoadingMessage": "Preparación de detalles de facturas",
         "alreadyPaidInvoiceError": "Ya has pagado esta factura",
         "descriptionPlaceholder": "Descripción del pago...",
-        "fallbackErrorMessage": "Error al decodificar la factura"
+        "fallbackErrorMessage": "Error al decodificar la factura",
+        "connectToSparkMessage": "Conectándose a Spark"
       },
       "handlingAddressErrors": {
         "invlidFormat": "Las direcciones deben ser solo texto. Por favor revisa e intenta de nuevo.",

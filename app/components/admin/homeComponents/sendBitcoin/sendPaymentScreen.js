@@ -8,7 +8,10 @@ import {
 } from '../../../../constants';
 import {useEffect, useRef, useState} from 'react';
 import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {CustomKeyboardAvoidingView} from '../../../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  GlobalThemeView,
+} from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
 import decodeSendAddress from './functions/decodeSendAdress';
 import {useNavigation} from '@react-navigation/native';
@@ -43,6 +46,7 @@ import {useTranslation} from 'react-i18next';
 import {COLORS, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {SliderProgressAnimation} from '../../../../functions/CustomElements/sendPaymentAnimation';
 import {InputTypes} from 'bitcoin-address-parser';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
@@ -73,7 +77,9 @@ export default function SendPaymentScreen(props) {
   const isSendingPayment = useRef(null);
   const [paymentDescription, setPaymentDescription] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(
-    t('wallet.sendPages.sendPaymentScreen.initialLoadingMessage'),
+    sparkInformation.didConnect
+      ? t('wallet.sendPages.sendPaymentScreen.initialLoadingMessage')
+      : t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage'),
   );
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
@@ -168,10 +174,17 @@ export default function SendPaymentScreen(props) {
         t,
       });
     }
-    setTimeout(decodePayment, 1000);
-  }, []);
+    if (!sparkInformation.didConnect) return;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        decodePayment();
+      });
+    });
+  }, [sparkInformation.didConnect]);
 
   useEffect(() => {
+    if (!!sparkInformation.didConnect) return;
     if (!Object.keys(paymentInfo).length) return;
     if (!masterInfoObject[QUICK_PAY_STORAGE_KEY].isFastPayEnabled) return;
     if (!canSendPayment) return;
@@ -187,7 +200,7 @@ export default function SendPaymentScreen(props) {
     setTimeout(() => {
       sendPayment();
     }, 150);
-  }, [paymentInfo, canEditPaymentAmount]);
+  }, [paymentInfo, canEditPaymentAmount, sparkInformation.didConnect]);
 
   // useEffect(() => {
   //   // unmounting started websocket if it exists
@@ -201,8 +214,16 @@ export default function SendPaymentScreen(props) {
   //   return unsubscribe;
   // }, [navigate, paymentInfo]);
 
-  if (!Object.keys(paymentInfo).length && !errorMessage)
-    return <FullLoadingScreen text={loadingMessage} />;
+  if (
+    (!Object.keys(paymentInfo).length && !errorMessage) ||
+    !sparkInformation.didConnect
+  )
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        {!sparkInformation.didConnect && <CustomSettingsTopBar />}
+        <FullLoadingScreen text={loadingMessage} />
+      </GlobalThemeView>
+    );
 
   if (errorMessage) {
     return <ErrorWithPayment reason={errorMessage} />;

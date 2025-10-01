@@ -894,7 +894,8 @@
         "initialLoadingMessage": "Preparing invoice details",
         "alreadyPaidInvoiceError": "You have already paid this invoice",
         "descriptionPlaceholder": "Payment description...",
-        "fallbackErrorMessage": "Error decoding invoice"
+        "fallbackErrorMessage": "Error decoding invoice",
+        "connectToSparkMessage": "Connecting to Spark"
       },
       "handlingAddressErrors": {
         "invlidFormat": "Addresses should be text only. Please check and try again.",
