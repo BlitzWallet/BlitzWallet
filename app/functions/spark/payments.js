@@ -147,7 +147,7 @@ export const sparkPaymenWrapper = async ({
       };
       response = tx;
 
-      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
+      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
     } else if (paymentType === 'bitcoin') {
       // make sure to import exist speed
       // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
@@ -187,7 +187,7 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
+      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
     } else {
       let sparkPayResponse;
 
@@ -238,7 +238,7 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', supportFee);
+      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
     }
     console.log(response, 'resonse in send function');
     return {didWork: true, response};
