@@ -5,21 +5,21 @@ import {InteractionManager, StyleSheet} from 'react-native';
 import {SIZES} from '../../../../constants';
 import {useTranslation} from 'react-i18next';
 
-export default function DateCountdown() {
+export default function DateCountdown({getServerTime}) {
   const [minuteTick, setMinuteTick] = useState();
   const intervalRef = useRef(null);
   const {t} = useTranslation();
   useFocusEffect(
     useCallback(() => {
       console.log('Starting stable time interval');
-      setMinuteTick(getFommattedTime());
+      setMinuteTick(getFommattedTime(getServerTime));
 
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
 
       intervalRef.current = setInterval(() => {
-        setMinuteTick(getFommattedTime());
+        setMinuteTick(getFommattedTime(getServerTime));
       }, 1000);
 
       return () => {
@@ -43,9 +43,8 @@ export default function DateCountdown() {
   );
 }
 
-function getFommattedTime() {
-  const timestamp = new Date().getTime();
-  const date = new Date(timestamp);
+function getFommattedTime(getServerTime) {
+  const date = new Date(getServerTime());
 
   // Get midnight of the same day
   const midnight = new Date(date);

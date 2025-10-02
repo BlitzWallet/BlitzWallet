@@ -40,6 +40,10 @@ import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import {shouldLoadExploreData} from '../../functions/initializeUserSettingsHelpers';
 import fetchBackend from '../../../db/handleBackend';
 import {useKeysContext} from '../../../context-store/keys';
+import {
+  useServerTime,
+  useServerTimeOnly,
+} from '../../../context-store/serverTime';
 
 export default function ExploreUsers() {
   const {contactsPrivateKey, publicKey} = useKeysContext();
@@ -56,6 +60,8 @@ export default function ExploreUsers() {
     ? JSON.parse(JSON.stringify(masterInfoObject.exploreData))
     : false;
   const data = dataObject ? dataObject[timeFrame].reverse() : [];
+  const getServerTime = useServerTimeOnly();
+  const currentTime = getServerTime();
 
   const min = data.reduce((prev, current) => {
     if (current?.value < prev) return current.value;
@@ -116,24 +122,24 @@ export default function ExploreUsers() {
   const xLabels = useMemo(() => {
     return [0, 1, 2, 3, 4, 5, 6].map((_, index) => {
       if (timeFrame === 'year') {
-        const now = new Date().getTime();
+        const now = currentTime;
         return `${new Date(
           now - YEAR_IN_MILLS * Math.abs(6 - index),
         ).getFullYear()}`;
       } else if (timeFrame === 'month') {
-        const now = new Date().getTime();
+        const now = currentTime;
         const dateIndex = new Date(
           now - MONTH_IN_MILLS * Math.abs(6 - index),
         ).getMonth();
         return t(`months.${MONTH_GROUPING[dateIndex]}`).slice(0, 3);
       } else if (timeFrame === 'day') {
-        const now = new Date().getTime() - DAY_IN_MILLS;
+        const now = currentTime - DAY_IN_MILLS;
         const dateIndex = new Date(
           now - DAY_IN_MILLS * Math.abs(7 - index),
         ).getDay();
         return t(`weekdays.${WEEK_OPTIONS[dateIndex]}`).slice(0, 3);
       } else {
-        const now = new Date();
+        const now = new Date(currentTime);
         const todayDay = now.getDay();
         const daysToSunday = 7 - (todayDay === 0 ? 7 : todayDay);
         const endOfWeek = new Date(now.getTime() + daysToSunday * DAY_IN_MILLS);
@@ -145,7 +151,7 @@ export default function ExploreUsers() {
         return `${month}/${day}`;
       }
     });
-  }, [timeFrame, t]);
+  }, [timeFrame, t, currentTime]);
 
   useEffect(() => {
     async function loadExploreData() {
@@ -221,7 +227,7 @@ export default function ExploreUsers() {
           content={t('constants.today')}
         />
         <View style={styles.statsCardHorizontal}>
-          <DateCountdown />
+          <DateCountdown getServerTime={getServerTime} />
           <ThemeText
             styles={styles.statsCardNumberText}
             content={`${formatBalanceAmount(max)} of ${formatBalanceAmount(
