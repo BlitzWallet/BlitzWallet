@@ -1,5 +1,7 @@
-blitzWallet:
-  android:
-    repository: https://github.com/BlitzWallet/BlitzWallet
-    artifacts:
-      - Android-v%v-beta.apk
+identifier: com.blitzwallet
+name: Blitz Wallet
+summary: The simplest self-custodial bitcoin wallet. Send, spend, and accept BTC.
+repository: https://github.com/BlitzWallet/BlitzWallet
+license: Apache 2.0
+assets:
+  - .*.apk
