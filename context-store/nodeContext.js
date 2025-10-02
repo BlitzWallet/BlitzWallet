@@ -83,7 +83,7 @@ const GLobalNodeContextProider = ({children}) => {
         });
       }
     }
-    connectToLiquid();
+    // connectToLiquid();
   }, [contactsPrivateKey, publicKey, didGetToHomepage, accountMnemoinc]);
 
   const contextValue = useMemo(

@@ -341,7 +341,8 @@
         "casualPlanTitle": "Piano Casual",
         "proPlanTitle": "Piano Pro",
         "powerPlanTitle": "Piano Power",
-        "paymentMemo": "Negozio - chatGPT"
+        "paymentMemo": "Negozio - chatGPT",
+        "notAvailableMessage": "Purtroppo, a causa delle linee guida di Apple per gli acquisti in-app, questa funzionalità non è attualmente disponibile su iOS. Stiamo valutando come renderla disponibile su iOS in futuro."
       },
       "countrySearch": {
         "inputPlaceholder": "Cerca un paese"

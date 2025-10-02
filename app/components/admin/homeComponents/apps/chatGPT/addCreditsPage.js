@@ -1,4 +1,10 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {CENTER, COLORS, ICONS, SIZES} from '../../../../../constants';
 import {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
@@ -129,6 +135,25 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
       />
     );
   });
+
+  if (Platform.OS === 'ios' || Platform.OS === 'macos') {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <CustomSettingsTopBar label={t('apps.chatGPT.addCreditsPage.title')} />
+        <View style={styles.errorContainer}>
+          <ThemeText
+            styles={styles.errorText}
+            content={t('apps.chatGPT.addCreditsPage.notAvailableMessage')}
+          />
+          <CustomButton
+            actionFunction={navigate.goBack}
+            textContent={t('settings.posPath.totalTipsScreen.goBack')}
+          />
+        </View>
+      </GlobalThemeView>
+    );
+  }
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar label={t('apps.chatGPT.addCreditsPage.title')} />
@@ -257,6 +282,17 @@ const styles = StyleSheet.create({
     flex: 1,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
+  },
+
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    width: '95%',
+    textAlign: 'center',
+    marginBottom: 20,
   },
 
   optionContainer: {

@@ -335,7 +335,8 @@
         "casualPlanTitle": "Plan casual",
         "proPlanTitle": "Plan profesional",
         "powerPlanTitle": "Plan avanzado",
-        "paymentMemo": "Tienda - chatGPT"
+        "paymentMemo": "Tienda - chatGPT",
+        "notAvailableMessage": "Desafortunadamente, debido a las normas de compras dentro de la aplicación de Apple, esta función no está disponible actualmente en iOS. Estamos explorando maneras de incorporarla a iOS en el futuro."
       },
       "countrySearch": {
         "inputPlaceholder": "Buscar un país"
