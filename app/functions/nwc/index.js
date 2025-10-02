@@ -36,6 +36,7 @@ export function getSupportedMethods(accountPermissions) {
     supportedCommands.push('lookup_invoice');
   }
   supportedCommands.push('get_info');
+  supportedCommands.push('notifications');
 
   return supportedCommands;
 }
