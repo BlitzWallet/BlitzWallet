@@ -16,6 +16,7 @@ import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import {useGlobalContextProvider} from '../../../context-store/context';
 import openWebBrowser from '../../functions/openWebBrowser';
 import {useTranslation} from 'react-i18next';
+import GetThemeColors from '../../hooks/themeColors';
 
 const GENERALOPTIONS = [
   {
@@ -295,6 +296,7 @@ export default function SettingsIndex(props) {
   const {isConnectedToTheInternet} = useAppStatus();
   const {theme, darkModeType} = useGlobalThemeContext();
   const {t} = useTranslation();
+  const {backgroundOffset} = GetThemeColors();
   const isDoomsday = props?.route?.params?.isDoomsday;
   const navigate = useNavigation();
   useHandleBackPressNew();
@@ -307,7 +309,12 @@ export default function SettingsIndex(props) {
         return (
           <TouchableOpacity
             activeOpacity={0.5}
-            style={styles.listContainer}
+            style={[
+              styles.listContainer,
+              {
+                borderBottomColor: backgroundOffset,
+              },
+            ]}
             key={id}
             onPress={() => {
               if (
@@ -352,7 +359,6 @@ export default function SettingsIndex(props) {
               CustomNumberOfLines={1}
               styles={{
                 ...styles.listText,
-
                 textTransform:
                   element.name === 'Experimental' ? 'none' : 'capitalize',
               }}
@@ -380,7 +386,7 @@ export default function SettingsIndex(props) {
                 ? t('screens.inAccount.settingsContent.technical settings')
                 : t('screens.inAccount.settingsContent.experimental features')
             }
-            styles={{...styles.optionsTitle}}
+            styles={{...styles.optionsTitle, marginTop: id === 0 ? 10 : 20}}
           />
           <View style={[styles.optionsListContainer]}>{internalElements}</View>
         </View>
@@ -489,11 +495,11 @@ const styles = StyleSheet.create({
   },
   optionsTitle: {
     textTransform: 'capitalize',
-    marginBottom: 5,
-    fontSize: SIZES.large,
+    marginTop: 20,
+    opacity: 0.8,
   },
   optionsListContainer: {
-    width: '95%',
+    width: '100%',
     padding: 5,
     borderRadius: 8,
     ...CENTER,
@@ -501,12 +507,12 @@ const styles = StyleSheet.create({
   listContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
   },
   listText: {
     marginRight: 'auto',
     marginLeft: 10,
-    fontSize: SIZES.large,
     includeFontPadding: false,
     flexShrink: 1,
   },
@@ -520,6 +526,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     marginBottom: 10,
+    marginTop: 20,
     alignItems: 'center',
   },
 });
