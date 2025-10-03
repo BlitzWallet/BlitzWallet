@@ -1150,18 +1150,18 @@
       "toggleSecurityModeError": "Something went wrong while switching your security settings. Please try again.",
       "noBiometricsError": "Device does not support Biometric login",
       "noBiometricProfileError": "Device does not have a Biometric profile. Create one in settings to continue.",
-      "biometricSignInError": "Error logging in with Biometrics",
+      "biometricSignInError": "Erro ao acessar com biometria",
       "migratingStorageMessgae": "Migrating storage to new security.",
-      "createPinPageHeader": "{{type}} your Blitz PIN",
-      "invalidPinconfirmation": "PIN's do not match. Try again!"
+      "createPinPageHeader": "{{type}} seu PIN Blitz",
+      "invalidPinconfirmation": "Os PINs não correspondem. Tente novamente!"
     },
     "seedPhrase": {
-      "header": "Keep this phrase in a secure and safe place",
-      "headerDesc": "Do not share it with anyone!",
+      "header": "Guarde esta frase em um lugar seguro e protegido",
+      "headerDesc": "Não compartilhe com ninguém!",
       "qrWarning": "Are you sure you want to show this QR Code?\n\nScanning your seed is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe.",
-      "wordsText": "Words",
-      "qrText": "QR Code",
-      "showSeedWarning": "Are you sure you want to show your recovery phrase?"
+      "wordsText": "Palavras",
+      "qrText": "Código QR",
+      "showSeedWarning": "Tem certeza de que deseja mostrar sua frase de recuperação?"
     },
     "crashReporting": {
       "enabled": "Enabled",
@@ -1175,7 +1175,7 @@
       "buttonCTA": "Swap Funds"
     },
     "resetWallet": {
-      "header": "Are you sure?",
+      "header": "Tem certeza?",
       "dataDeleteHeader": "Select data to delete from this device.",
       "dataDeleteDesc": "Any option that is selected will be removed forever. If your seed is forgotten, you WILL lose your funds.",
       "seedAndPinOpt": "Delete seed phrase and pin from my device",
@@ -1185,9 +1185,9 @@
       "secureStorageError": "Not able to delete secure stored information"
     },
     "sparkInfo": {
-      "title": "Wallet Info",
-      "sparkAddress": "Spark Address",
-      "pubKey": "Public Key"
+      "title": "Informações da carteira",
+      "sparkAddress": "Endereço Spark",
+      "pubKey": "Chave pública"
     },
     "sparkLrc20": {
       "balanceError": "Your current wallet balance is {{balance}}. Blitz adds a {{fee}} fee to all BTKN payments. Make sure you have some Bitcoin in your wallet to send tokens.",
@@ -1427,7 +1427,7 @@
     },
     "popups": {
       "confirmActionPage": {
-        "defaultMessage": "Are you sure you want to drain your wallet?",
+        "defaultMessage": "Tem certeza de que deseja esvaziar sua carteira?",
         "ctaBTN": "Mark as {{option}}"
       }
     }
@@ -1449,7 +1449,7 @@
         "confirmMessage": "{{direction}} succesfully",
         "paymentErrorMessage": "Ocorreu um problema ao enviar este pagamento. Tente novamente.",
         "sendReport": "Enviar relatório ao desenvolvedor",
-        "lnurlAuthSuccess": "Wallet authentication successful! You’re now logged in."
+        "lnurlAuthSuccess": "Autenticação da carteira realizada com sucesso! Você está conectado."
       },
       "expandedTxPage": {
         "confirmMessage": "{{direction}} quantia",
@@ -1493,7 +1493,7 @@
         "blitz stats": "Estatísticas Blitz",
         "accounts": "Contas",
         "nostr": "nostr",
-        "login mode": "Opções de login",
+        "login mode": "Opções de acesso",
         "backup wallet": "Backup da carteira",
         "spark info": "Informações Spark",
         "delete wallet": "Remover carteira",
