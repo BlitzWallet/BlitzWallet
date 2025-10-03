@@ -7,10 +7,14 @@ import {
   Platform,
 } from 'react-native';
 
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
-import {CENTER, COLORS, ICONS, WEBSITE_REGEX} from '../../constants';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import { CENTER, COLORS, ICONS, WEBSITE_REGEX } from '../../constants';
+import {
+  useFocusEffect,
+  useIsFocused,
+  useNavigation,
+} from '@react-navigation/native';
 
 import {
   Camera,
@@ -23,16 +27,15 @@ import Reanimated, {
   useAnimatedProps,
   useSharedValue,
 } from 'react-native-reanimated';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
-import {navigateToSendUsingClipboard, getQRImage} from '../../functions';
-import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
-import {backArrow} from '../../constants/styles';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { navigateToSendUsingClipboard, getQRImage } from '../../functions';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
+import { backArrow } from '../../constants/styles';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
-import {useTranslation} from 'react-i18next';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {CameraPageNavBar} from '../../functions/CustomElements/camera/cameraPageNavbar';
-import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
+import { useTranslation } from 'react-i18next';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { CameraPageNavBar } from '../../functions/CustomElements/camera/cameraPageNavbar';
+import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import handlePreSendPageParsing from '../../functions/sendBitcoin/handlePreSendPageParsing';
 
 Reanimated.addWhitelistedNativeProps({
@@ -40,13 +43,13 @@ Reanimated.addWhitelistedNativeProps({
 });
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 
-export default function SendPaymentHome({pageViewPage, from}) {
+export default function SendPaymentHome({ pageViewPage, from }) {
   console.log('SCREEN OPTIONS PAGE');
   const navigate = useNavigation();
   const isFocused = useIsFocused();
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const isPhotoeLibraryOpen = useRef(false);
-  const {hasPermission, requestPermission} = useCameraPermission();
+  const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
   const minZoom = device?.minZoom || 1;
   const maxZoom = device?.maxZoom || 100;
@@ -54,7 +57,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
   const zoom = useSharedValue(device?.neutralZoom || 1);
   const [isFlashOn, setIsFlashOn] = useState(false);
   const didScanRef = useRef(false);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const screenDimensions = useMemo(() => Dimensions.get('screen'), []);
   const screenAspectRatio = useMemo(
@@ -62,7 +65,7 @@ export default function SendPaymentHome({pageViewPage, from}) {
     [screenDimensions],
   );
   const format = useCameraFormat(device?.formats?.length ? device : undefined, [
-    {photoAspectRatio: screenAspectRatio},
+    { photoAspectRatio: screenAspectRatio },
   ]);
   const isCameraActive = useMemo(
     () => (navigate.canGoBack() ? isFocused : pageViewPage === 0),
@@ -88,27 +91,28 @@ export default function SendPaymentHome({pageViewPage, from}) {
 
       zoom.value = newZoom;
     });
-  const animatedProps = useAnimatedProps(() => ({zoom: zoom.value}), [zoom]);
-  useHandleBackPressNew();
+  const animatedProps = useAnimatedProps(() => ({ zoom: zoom.value }), [zoom]);
 
-  useEffect(() => {
-    crashlyticsLogReport('Opening send BTC camera page');
-    (async () => {
-      try {
-        crashlyticsLogReport('Requesting camera permission');
-        await requestPermission();
-      } catch (err) {
-        console.log(err);
+  useFocusEffect(
+    useCallback(() => {
+      crashlyticsLogReport('Loading camera model page');
+
+      if (!hasPermission) {
+        requestPermission();
       }
-    })();
-  }, []);
+
+      return () => {
+        didScanRef.current = false;
+      };
+    }, [hasPermission, requestPermission]),
+  );
 
   const handleInvoice = useCallback(
     data => {
       const response = handlePreSendPageParsing(data);
 
       if (response.error) {
-        navigate.navigate('ErrorScreen', {errorMessage: response.error});
+        navigate.navigate('ErrorScreen', { errorMessage: response.error });
         return;
       }
 
@@ -198,7 +202,9 @@ export default function SendPaymentHome({pageViewPage, from}) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         {from != 'home' && <CameraPageNavBar />}
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <View
+          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+        >
           <ThemeText
             styles={styles.errorText}
             content={t('wallet.cameraPage.noCameraAccess')}
@@ -225,28 +231,17 @@ export default function SendPaymentHome({pageViewPage, from}) {
 
   return (
     <GestureDetector gesture={gesture}>
-      <View style={{flex: 1}}>
+      <View style={StyleSheet.absoluteFill}>
         <ReanimatedCamera
           codeScanner={codeScanner}
-          style={{
-            flex: 1,
-          }}
+          style={StyleSheet.absoluteFill}
           device={device}
           isActive={isCameraActive}
           format={format}
           animatedProps={animatedProps}
           torch={isFlashOn ? 'on' : 'off'}
         />
-        <View
-          style={{
-            position: 'absolute',
-            zIndex: 1,
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            flex: 1,
-          }}>
+        <View style={styles.cameraOverlay}>
           <View style={styles.overlay}>
             {from != 'home' && (
               <CameraPageNavBar useFullWidth={false} showWhiteImage={true} />
@@ -264,7 +259,8 @@ export default function SendPaymentHome({pageViewPage, from}) {
               </TouchableOpacity>
               <TouchableOpacity
                 disabled={isPhotoeLibraryOpen.current}
-                onPress={getPhoto}>
+                onPress={getPhoto}
+              >
                 <Image style={backArrow} source={ICONS.ImagesIcon} />
               </TouchableOpacity>
             </View>
@@ -279,19 +275,11 @@ export default function SendPaymentHome({pageViewPage, from}) {
               onPress={() => {
                 navigateToSendUsingClipboard(navigate, 'sendBTCPage', from, t);
               }}
-              style={{
-                ...styles.pasteBTN,
-                borderColor: COLORS.darkModeText,
-                marginTop: 10,
-              }}
-              activeOpacity={0.2}>
+              style={styles.pasteBTN}
+              activeOpacity={0.2}
+            >
               <ThemeText
-                styles={{
-                  color: COLORS.darkModeText,
-                  includeFontPadding: false,
-                  paddingHorizontal: 40,
-                  paddingVertical: Platform.OS === 'ios' ? 8 : 5,
-                }}
+                styles={styles.pastBTNText}
                 content={t('constants.paste')}
               />
             </TouchableOpacity>
@@ -303,11 +291,20 @@ export default function SendPaymentHome({pageViewPage, from}) {
 }
 
 const styles = StyleSheet.create({
-  errorText: {width: '80%', textAlign: 'center'},
+  errorText: { width: '80%', textAlign: 'center' },
   qrBoxOutline: {
     width: 250,
     height: 250,
     borderWidth: 3,
+  },
+  cameraOverlay: {
+    position: 'absolute',
+    zIndex: 1,
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    flex: 1,
   },
 
   qrVerticalBackground: {
@@ -324,6 +321,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...CENTER,
+    borderColor: COLORS.darkModeText,
+    marginTop: 10,
   },
 
   overlay: {
@@ -332,5 +331,11 @@ const styles = StyleSheet.create({
   },
   middleRow: {
     flexDirection: 'row',
+  },
+  pastBTNText: {
+    color: COLORS.darkModeText,
+    includeFontPadding: false,
+    paddingHorizontal: 40,
+    paddingVertical: Platform.OS === 'ios' ? 8 : 5,
   },
 });

@@ -1,10 +1,9 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   StyleSheet,
   View,
   Image,
   TouchableOpacity,
-  Dimensions,
   Platform,
 } from 'react-native';
 import {
@@ -14,73 +13,84 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {CENTER, COLORS, ICONS} from '../../../constants';
-import {ThemeText, GlobalThemeView} from '../../../functions/CustomElements';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CENTER, COLORS, ICONS } from '../../../constants';
+import { ThemeText, GlobalThemeView } from '../../../functions/CustomElements';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import {backArrow} from '../../../constants/styles';
-import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
-import {getImageFromLibrary} from '../../../functions/imagePickerWrapper';
+import { backArrow } from '../../../constants/styles';
+import { getImageFromLibrary } from '../../../functions/imagePickerWrapper';
 import RNQRGenerator from 'rn-qr-generator';
-import {useGlobalThemeContext} from '../../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
 import getClipboardText from '../../../functions/getClipboardText';
-import {CameraPageNavBar} from '../../../functions/CustomElements/camera/cameraPageNavbar';
+import { CameraPageNavBar } from '../../../functions/CustomElements/camera/cameraPageNavbar';
 import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../../../functions/crashlyticsLogs';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import { useAppStatus } from '../../../../context-store/appStatus';
 
 export default function CameraModal(props) {
   console.log('SCREEN OPTIONS PAGE');
   const navigate = useNavigation();
-  const windowDimensions = Dimensions.get('window');
-  const screenDimensions = Dimensions.get('screen');
+  const { screenDimensions } = useAppStatus();
   const screenAspectRatio = screenDimensions.height / screenDimensions.width;
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {hasPermission, requestPermission} = useCameraPermission();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
-  const {t} = useTranslation();
-  const [showCamera, setShowCamera] = useState(false);
+  const { t } = useTranslation();
+  const [isFocused, setIsFocused] = useState(false);
+  const [isFlashOn, setIsFlashOn] = useState(false);
+  const didScanRef = useRef(false);
 
   useFocusEffect(
     useCallback(() => {
       crashlyticsLogReport('Loading camera model page');
-      setShowCamera(true);
-      return () => setShowCamera(false);
-    }, []),
-  );
 
-  const [isFlashOn, setIsFlashOn] = useState(false);
-  const didScanRef = useRef(false);
-
-  useHandleBackPressNew();
-
-  useEffect(() => {
-    (async () => {
-      try {
-        crashlyticsLogReport('Running request permission in camera model');
+      if (!hasPermission) {
         requestPermission();
-      } catch (err) {
-        console.log(err);
       }
-    })();
-  }, [requestPermission]);
+
+      setIsFocused(true);
+
+      return () => {
+        setIsFocused(false);
+        didScanRef.current = false;
+      };
+    }, [hasPermission, requestPermission]),
+  );
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
-    onCodeScanned: handleBarCodeScanned,
+    onCodeScanned: useCallback(
+      codes => {
+        if (didScanRef.current) return;
+        const [data] = codes;
+        if (data.type !== 'qr') return;
+
+        didScanRef.current = true;
+        crashlyticsLogReport('handling scanned barcode');
+        navigate.goBack();
+
+        setTimeout(() => {
+          props.route.params.updateBitcoinAdressFunc(data.value);
+        }, 150);
+      },
+      [navigate, props.route.params],
+    ),
   });
 
   const format = useCameraFormat(device?.formats?.length ? device : undefined, [
-    {photoAspectRatio: screenAspectRatio},
+    { photoAspectRatio: screenAspectRatio },
   ]);
 
   if (!hasPermission) {
     return (
       <GlobalThemeView useStandardWidth={true}>
         <CameraPageNavBar />
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <View
+          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+        >
           <ThemeText
             styles={styles.errorText}
             content={t('wallet.cameraModal.noCamera')}
@@ -106,30 +116,16 @@ export default function CameraModal(props) {
   }
 
   return (
-    <GlobalThemeView>
+    <View style={StyleSheet.absoluteFill}>
       <Camera
         codeScanner={codeScanner}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          height: windowDimensions.height,
-          width: windowDimensions.width,
-        }}
+        style={StyleSheet.absoluteFill}
         device={device}
-        isActive={showCamera}
+        isActive={isFocused}
         format={format}
         torch={isFlashOn ? 'on' : 'off'}
       />
-      <View
-        style={{
-          position: 'absolute',
-          zIndex: 1,
-          top: 0,
-          left: 0,
-          height: windowDimensions.height,
-          width: windowDimensions.width,
-        }}>
+      <View style={styles.cameraOverlay}>
         <View style={styles.topOverlay}>
           <CameraPageNavBar useFullWidth={false} showWhiteImage={true} />
           <View style={styles.qrVerticalBackground}>
@@ -161,26 +157,18 @@ export default function CameraModal(props) {
           {props?.route?.params?.fromPage !== 'addContact' && (
             <TouchableOpacity
               onPress={dataFromClipboard}
-              style={{
-                ...styles.pasteBTN,
-                borderColor: COLORS.darkModeText,
-                marginTop: 10,
-              }}
-              activeOpacity={0.2}>
+              style={styles.pasteBTN}
+              activeOpacity={0.2}
+            >
               <ThemeText
-                styles={{
-                  color: COLORS.darkModeText,
-                  includeFontPadding: false,
-                  paddingHorizontal: 40,
-                  paddingVertical: Platform.OS === 'ios' ? 8 : 5,
-                }}
+                styles={styles.pastBTNText}
                 content={t('constants.paste')}
               />
             </TouchableOpacity>
           )}
         </View>
       </View>
-    </GlobalThemeView>
+    </View>
   );
   function toggleFlash() {
     if (!device?.hasTorch) {
@@ -196,7 +184,7 @@ export default function CameraModal(props) {
     try {
       const response = await getClipboardText();
       if (!response.didWork) {
-        navigate.navigate('ErrorScreen', {errorMessage: t(response.reason)});
+        navigate.navigate('ErrorScreen', { errorMessage: t(response.reason) });
         return;
       }
       crashlyticsLogReport('handling data from clipboard');
@@ -206,24 +194,10 @@ export default function CameraModal(props) {
       console.log(err);
     }
   }
-  async function handleBarCodeScanned(codes) {
-    if (didScanRef.current) return;
-    const [data] = codes;
-
-    if (data.type !== 'qr') return;
-    didScanRef.current = true;
-
-    crashlyticsLogReport('handling scanned barcode');
-
-    navigate.goBack();
-    setTimeout(() => {
-      props.route.params.updateBitcoinAdressFunc(data.value);
-    }, 150);
-  }
 
   async function getQRImage() {
     const imagePickerResponse = await getImageFromLibrary();
-    const {didRun, error, imgURL} = imagePickerResponse;
+    const { didRun, error, imgURL } = imagePickerResponse;
     if (!didRun) return;
     if (error) {
       crashlyticsRecordErrorReport(error);
@@ -281,7 +255,7 @@ export default function CameraModal(props) {
 }
 
 const styles = StyleSheet.create({
-  errorText: {width: '80%', textAlign: 'center'},
+  errorText: { width: '80%', textAlign: 'center' },
   backArrow: {
     width: 30,
     height: 30,
@@ -310,6 +284,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     ...CENTER,
+    borderColor: COLORS.darkModeText,
+    marginTop: 10,
+  },
+  cameraOverlay: {
+    position: 'absolute',
+    zIndex: 1,
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    flex: 1,
   },
 
   overlay: {
@@ -329,5 +314,11 @@ const styles = StyleSheet.create({
   bottomOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  pastBTNText: {
+    color: COLORS.darkModeText,
+    includeFontPadding: false,
+    paddingHorizontal: 40,
+    paddingVertical: Platform.OS === 'ios' ? 8 : 5,
   },
 });

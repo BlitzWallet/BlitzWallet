@@ -1,41 +1,40 @@
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {COLORS, ICONS, SIZES} from '../../app/constants';
-import {CENTER} from '../../app/constants/styles';
-import {ThemeText} from '../../app/functions/CustomElements';
-import {useGlobalContacts} from '../../context-store/globalContacts';
-import {ContactsPage} from '../../app/components/admin';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { COLORS, ICONS, SIZES } from '../../app/constants';
+import { CENTER } from '../../app/constants/styles';
+import { ThemeText } from '../../app/functions/CustomElements';
+import { useGlobalContacts } from '../../context-store/globalContacts';
 import GetThemeColors from '../../app/hooks/themeColors';
-import {useGlobalThemeContext} from '../../context-store/theme';
+import { useGlobalThemeContext } from '../../context-store/theme';
 import ExploreUsers from '../../app/screens/inAccount/explorePage';
-import {useGlobalInsets} from '../../context-store/insetsProvider';
-import {useTranslation} from 'react-i18next';
-import {Image} from 'expo-image';
+import { useGlobalInsets } from '../../context-store/insetsProvider';
+import { useTranslation } from 'react-i18next';
+import { Image } from 'expo-image';
+import { useMemo } from 'react';
 
 const Tab = createBottomTabNavigator();
 
-function MyTabBar({state, descriptors, navigation}) {
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {hasUnlookedTransactions} = useGlobalContacts();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
-  const {bottomPadding} = useGlobalInsets();
+function MyTabBar({ state, descriptors, navigation }) {
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { hasUnlookedTransactions } = useGlobalContacts();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
+
+  const memorizedTabContainerStyles = useMemo(() => {
+    return {
+      backgroundColor: backgroundColor,
+      borderTopColor: backgroundOffset,
+      paddingBottom: bottomPadding,
+      ...styles.tabsContainer,
+    };
+  }, [backgroundColor, backgroundOffset, bottomPadding]);
 
   return (
-    <View
-      style={{
-        backgroundColor: backgroundColor,
-        borderTopColor: backgroundOffset,
-        paddingBottom: bottomPadding,
-        ...styles.tabsContainer,
-      }}>
-      <View
-        style={{
-          // paddingBottom: bottomPadding,
-          ...styles.tabsInnerContainer,
-        }}>
+    <View style={memorizedTabContainerStyles}>
+      <View style={styles.tabsInnerContainer}>
         {state.routes.map((route, index) => {
-          const {options} = descriptors[route.key];
+          const { options } = descriptors[route.key];
           const label =
             options.tabBarLabel !== undefined
               ? options.tabBarLabel
@@ -63,12 +62,13 @@ function MyTabBar({state, descriptors, navigation}) {
             <TouchableOpacity
               key={index}
               accessibilityRole="button"
-              accessibilityState={isFocused ? {selected: true} : {}}
+              accessibilityState={isFocused ? { selected: true } : {}}
               accessibilityLabel={options.tabBarAccessibilityLabel}
               testID={options.tabBarTestID}
               onPress={onPress}
               activeOpacity={1}
-              style={{flex: 1, alignItems: 'center'}}>
+              style={styles.tabItemContainer}
+            >
               <View style={styles.iconAndLabelContainer}>
                 <Image
                   style={styles.icon}
@@ -146,8 +146,9 @@ export function MyTabs(props) {
       screenOptions={{
         headerShown: false,
       }}
-      tabBar={props => <MyTabBar {...props} />}>
-      <Tab.Screen name="ContactsPageInit" component={ContactsPage} />
+      tabBar={props => <MyTabBar {...props} />}
+    >
+      <Tab.Screen name="ContactsPageInit" component={props.ContactsPage} />
       <Tab.Screen name="Home" component={props.adminHome} />
       {/* <Tab.Screen
         screenOptions={{
@@ -175,6 +176,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     ...CENTER,
   },
+  tabItemContainer: { flex: 1, alignItems: 'center' },
   iconAndLabelContainer: {
     width: 30,
     height: 30,

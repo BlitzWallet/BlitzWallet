@@ -1,28 +1,28 @@
-import {StyleSheet, View, Platform, RefreshControl} from 'react-native';
-import {UserSatAmount} from './homeLightning/userSatAmount';
-import {useGlobalContextProvider} from '../../../../context-store/context';
-import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
-import {NavBar} from './navBar';
-import {useNavigation} from '@react-navigation/native';
-import {useUpdateHomepageTransactions} from '../../../hooks/updateHomepageTransactions';
-import {memo, useCallback, useEffect, useMemo, useState} from 'react';
-import {useTranslation} from 'react-i18next';
-import {useAppStatus} from '../../../../context-store/appStatus';
-import {useGlobalThemeContext} from '../../../../context-store/theme';
-import {SendRecieveBTNs} from './homeLightning/sendReciveBTNs';
-import {useSparkWallet} from '../../../../context-store/sparkContext';
+import { StyleSheet, View, Platform, RefreshControl } from 'react-native';
+import { UserSatAmount } from './homeLightning/userSatAmount';
+import { useGlobalContextProvider } from '../../../../context-store/context';
+import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
+import { NavBar } from './navBar';
+import { useNavigation } from '@react-navigation/native';
+import { useUpdateHomepageTransactions } from '../../../hooks/updateHomepageTransactions';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAppStatus } from '../../../../context-store/appStatus';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
+import { SendRecieveBTNs } from './homeLightning/sendReciveBTNs';
+import { useSparkWallet } from '../../../../context-store/sparkContext';
 import getFormattedHomepageTxsForSpark from '../../../functions/combinedTransactionsSpark';
 import GetThemeColors from '../../../hooks/themeColors';
-import {useGlobalInsets} from '../../../../context-store/insetsProvider';
+import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 import LRC20Assets from './homeLightning/lrc20Assets';
-import {useLiquidEvent} from '../../../../context-store/liquidEventContext';
-import {useRootstockProvider} from '../../../../context-store/rootstockSwapContext';
+import { useLiquidEvent } from '../../../../context-store/liquidEventContext';
+import { useRootstockProvider } from '../../../../context-store/rootstockSwapContext';
 import {
   SPARK_TX_UPDATE_ENVENT_NAME,
   sparkTransactionsEventEmitter,
 } from '../../../functions/spark/transactions';
-import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
-import {COLORS, SIZES} from '../../../constants';
+import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
+import { COLORS, SIZES } from '../../../constants';
 import FormattedSatText from '../../../functions/CustomElements/satTextDisplay';
 import Animated, {
   useSharedValue,
@@ -42,15 +42,15 @@ export default function HomeLightning() {
     sparkInformation,
     // numberOfCachedTxs
   } = useSparkWallet();
-  const {theme, darkModeType, toggleTheme} = useGlobalThemeContext();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {isConnectedToTheInternet, didGetToHomepage, toggleDidGetToHomepage} =
+  const { theme, darkModeType, toggleTheme } = useGlobalThemeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { isConnectedToTheInternet, didGetToHomepage, toggleDidGetToHomepage } =
     useAppStatus();
-  const {topPadding} = useGlobalInsets();
+  const { topPadding } = useGlobalInsets();
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
-  const {t} = useTranslation();
-  const {backgroundColor} = GetThemeColors();
+  const { t } = useTranslation();
+  const { backgroundColor } = GetThemeColors();
 
   const scrollY = useSharedValue(0);
   const [navbarHeight, setNavbarHeight] = useState(0);
@@ -61,8 +61,8 @@ export default function HomeLightning() {
   });
   const [refreshing, setRefreshing] = useState(false);
 
-  const {startLiquidEventListener} = useLiquidEvent();
-  const {startRootstockEventListener} = useRootstockProvider();
+  const { startLiquidEventListener } = useLiquidEvent();
+  const { startRootstockEventListener } = useRootstockProvider();
 
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
@@ -119,7 +119,7 @@ export default function HomeLightning() {
 
     return {
       opacity,
-      transform: [{translateY}],
+      transform: [{ translateY }],
     };
   });
 
@@ -165,9 +165,9 @@ export default function HomeLightning() {
   // Memoize the list data
   const listData = useMemo(() => {
     return [
-      {type: 'navbar', key: 'navbar'},
-      {type: 'balance', key: 'balance'},
-      {type: 'buttons', key: 'buttons'},
+      { type: 'navbar', key: 'navbar' },
+      { type: 'balance', key: 'balance' },
+      { type: 'buttons', key: 'buttons' },
       ...flatListDataForSpark?.map((tx, i) => ({
         type: 'tx',
         item: tx,
@@ -180,7 +180,7 @@ export default function HomeLightning() {
     crashlyticsLogReport(`Running in handle refresh function on homepage`);
     try {
       startLiquidEventListener(2);
-      startRootstockEventListener({intervalMs: 30000});
+      startRootstockEventListener({ intervalMs: 30000 });
       sparkTransactionsEventEmitter.emit(
         SPARK_TX_UPDATE_ENVENT_NAME,
         'fullUpdate',
@@ -193,7 +193,7 @@ export default function HomeLightning() {
   }, [startLiquidEventListener, startRootstockEventListener]);
 
   const handleNavbarLayout = useCallback(event => {
-    const {height} = event.nativeEvent.layout;
+    const { height } = event.nativeEvent.layout;
     setNavbarHeight(height);
   }, []);
 
@@ -219,7 +219,7 @@ export default function HomeLightning() {
   );
 
   const renderItem = useCallback(
-    ({item}) => {
+    ({ item }) => {
       switch (item.type) {
         case 'navbar':
           return (
@@ -236,7 +236,8 @@ export default function HomeLightning() {
                     ? 30
                     : 0,
                 },
-              ]}>
+              ]}
+            >
               <MemoizedNavBar
                 darkModeType={darkModeType}
                 theme={theme}
@@ -245,7 +246,8 @@ export default function HomeLightning() {
 
               <Animated.View
                 style={[styles.navbarBalance, balanceOpacityStyle]}
-                pointerEvents="none">
+                pointerEvents="none"
+              >
                 <FormattedSatText
                   styles={styles.navbarBalanceText}
                   balance={sparkInformation.balance}
@@ -261,14 +263,15 @@ export default function HomeLightning() {
                 {
                   backgroundColor: backgroundColor,
                 },
-              ]}>
+              ]}
+            >
               <ThemeText
                 content={
                   lrc20Settings.isEnabled
                     ? t('constants.sat_balance')
                     : t('constants.total_balance')
                 }
-                styles={{textTransform: 'uppercase'}}
+                styles={{ textTransform: 'uppercase' }}
               />
               <MemoizedUserSatAmount
                 isConnectedToTheInternet={isConnectedToTheInternet}
@@ -283,8 +286,9 @@ export default function HomeLightning() {
             <View
               style={[
                 styles.buttonsContainer,
-                {backgroundColor: backgroundColor},
-              ]}>
+                { backgroundColor: backgroundColor },
+              ]}
+            >
               <MemoizedSendRecieveBTNs
                 theme={theme}
                 darkModeType={darkModeType}
@@ -344,6 +348,10 @@ export default function HomeLightning() {
     backgroundColor,
   ]);
 
+  const scrollViewContainerStyles = useMemo(() => {
+    return { flexGrow: 1, backgroundColor: homepageBackgroundOffsetColor };
+  }, [homepageBackgroundOffsetColor]);
+
   const topPaddingForLRC20PageMemeStyles = useMemo(() => {
     return {
       backgroundColor: backgroundColor,
@@ -367,10 +375,7 @@ export default function HomeLightning() {
         data={listData}
         keyExtractor={(item, index) => item.key || index.toString()}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          backgroundColor: homepageBackgroundOffsetColor,
-          flexGrow: 1,
-        }}
+        contentContainerStyle={scrollViewContainerStyles}
         onScroll={onScroll}
         scrollEventThrottle={16}
         renderItem={renderItem}
