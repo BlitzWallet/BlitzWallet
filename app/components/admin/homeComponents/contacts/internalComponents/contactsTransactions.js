@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
     width: '95%',
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginVertical: 12.5,
+    paddingVertical: 12.5,
     ...CENTER,
   },
   icons: {

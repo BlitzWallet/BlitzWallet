@@ -79,7 +79,7 @@ export default function CustomSearchInput({
     return textAlignVertical != undefined ? textAlignVertical : 'center';
   }, [textAlignVertical]);
   const maxLenValue = useMemo(() => {
-    return maxLength != undefined ? maxLength : null;
+    return maxLength != undefined ? maxLength : undefined;
   }, [maxLength]);
   const submitEditingFunction = useCallback(() => {
     if (onSubmitEditingFunction) {
@@ -124,7 +124,7 @@ export default function CustomSearchInput({
         value={inputText}
         ref={textInputRef}
         onChangeText={setInputText}
-        blurOnSubmit={blurOnSubmitValue}
+        submitBehavior={blurOnSubmitValue ? 'blurAndSubmit' : undefined}
         keyboardType={keyboardType}
         onSubmitEditing={submitEditingFunction}
         onFocus={focusFunction}

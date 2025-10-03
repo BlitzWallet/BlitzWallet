@@ -38,12 +38,23 @@ export default function AppStore({navigation}) {
 
   useHandleBackPressNew(handleBackPressFunction);
 
+  const localScreenWidth = Math.min(
+    MAX_CONTENT_WIDTH,
+    SCREEN_DIMENSIONS.width * 0.95,
+  );
+
   const gridGap = Platform.select({
-    ios: Math.min(Math.round(SCREEN_DIMENSIONS.width * 0.95 * 0.05), 20),
-    android: Math.min(Math.round(SCREEN_DIMENSIONS.width * 0.95 * 0.05), 20),
+    ios: Math.min(Math.ceil(localScreenWidth * 0.95 * 0.05), 20),
+    android: Math.min(Math.ceil(localScreenWidth * 0.95 * 0.05), 20),
   });
 
   const appElements = APPLIST.map((app, id) => {
+    const containerWidth = localScreenWidth - gridGap;
+    const appElementWidth = containerWidth / 2;
+    const appElementWidthPercent = `${
+      (appElementWidth / localScreenWidth) * 100
+    }%`;
+
     return (
       <TouchableOpacity
         key={id}
@@ -72,10 +83,8 @@ export default function AppStore({navigation}) {
         }}
         style={{
           ...styles.appRowContainer,
-          width: (SCREEN_DIMENSIONS.width * 0.95) / 2 - gridGap / 2,
-          maxWidth: MAX_CONTENT_WIDTH / 2 - gridGap / 2,
-          height: (SCREEN_DIMENSIONS.width * 0.95) / 2 - gridGap / 2,
-          maxHeight: MAX_CONTENT_WIDTH / 2 - gridGap / 2,
+          width: appElementWidthPercent,
+          height: appElementWidth,
           flexGrow: 1,
           overflow: 'scroll',
           backgroundColor: backgroundOffset,
@@ -323,7 +332,6 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
   },
 
   appTitle: {

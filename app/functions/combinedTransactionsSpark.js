@@ -1,4 +1,4 @@
-import {Image, StyleSheet, View, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, TouchableOpacity} from 'react-native';
 import {
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   CENTER,
@@ -17,7 +17,7 @@ import {memo, useMemo, useCallback} from 'react';
 import {crashlyticsLogReport} from './crashlyticsLogs';
 import SkeletonPlaceholder from './CustomElements/skeletonView';
 import formatTokensNumber from './lrc20/formatTokensBalance';
-import FastImage from 'react-native-fast-image';
+import {Image} from 'expo-image';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -483,10 +483,10 @@ export const UserTransaction = memo(function UserTransaction({
           />
         </View>
       ) : (
-        <FastImage
-          source={paymentImage}
+        <Image
           style={[styles.icons, imageTransformStyle]}
-          resizeMode="contain"
+          source={paymentImage}
+          contentFit="contain"
         />
       )}
       <View style={styles.transactionContent}>
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 12.5,
+    paddingVertical: 12.5,
     ...CENTER,
   },
   icons: {
