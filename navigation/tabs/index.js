@@ -10,7 +10,7 @@ import {useGlobalThemeContext} from '../../context-store/theme';
 import ExploreUsers from '../../app/screens/inAccount/explorePage';
 import {useGlobalInsets} from '../../context-store/insetsProvider';
 import {useTranslation} from 'react-i18next';
-import FastImage from 'react-native-fast-image';
+import {Image} from 'expo-image';
 
 const Tab = createBottomTabNavigator();
 
@@ -70,7 +70,7 @@ function MyTabBar({state, descriptors, navigation}) {
               activeOpacity={1}
               style={{flex: 1, alignItems: 'center'}}>
               <View style={styles.iconAndLabelContainer}>
-                <FastImage
+                <Image
                   style={styles.icon}
                   source={
                     label === 'Contacts'

@@ -36,7 +36,7 @@ import {useGlobalThemeContext} from '../../../../../context-store/theme';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import fetchBackend from '../../../../../db/handleBackend';
 import {getDataFromCollection} from '../../../../../db';
-import FastImage from 'react-native-fast-image';
+import {Image} from 'expo-image';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
 import giftCardPurchaseAmountTracker from '../../../../functions/apps/giftCardPurchaseTracker';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
@@ -496,10 +496,10 @@ export default function SendAndRequestPage(props) {
                     },
                   ]}>
                   <View style={styles.logoContainer}>
-                    <FastImage
+                    <Image
                       style={styles.cardLogo}
                       source={{uri: giftOption.logo}}
-                      resizeMode={FastImage.resizeMode.contain}
+                      contentFit="contain"
                     />
                   </View>
                   <ThemeText

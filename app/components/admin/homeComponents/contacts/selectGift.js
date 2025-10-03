@@ -18,7 +18,7 @@ import {
   SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../constants';
-import FastImage from 'react-native-fast-image';
+import {Image} from 'expo-image';
 import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
 import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
 import {keyboardNavigate} from '../../../../functions/customNavigation';
@@ -132,10 +132,10 @@ export default function SelectGiftCardForContacts() {
           ) : (
             <>
               <View style={styles.logoContainer}>
-                <FastImage
+                <Image
                   style={styles.cardLogo}
                   source={{uri: item.logo}}
-                  resizeMode={FastImage.resizeMode.contain}
+                  contentFit="contain"
                 />
               </View>
               <View style={styles.titleContainer}>

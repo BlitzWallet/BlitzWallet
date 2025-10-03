@@ -18,7 +18,7 @@ import {
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import {COLORS} from '../../../../../constants/theme';
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import FastImage from 'react-native-fast-image';
+import {Image} from 'expo-image';
 import {useNavigation} from '@react-navigation/native';
 import {countrymap} from './receiveCountryCodes';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
@@ -340,10 +340,10 @@ export default function SMSMessagingReceivedPage(props) {
             )
           }
           style={styles.serviceRow}>
-          <FastImage
+          <Image
             style={styles.avatar}
             source={{uri: imgEndpoint(serviceItem.image?.src)}}
-            resizeMode={FastImage.resizeMode.contain}
+            contentFit="contain"
           />
           <ThemeText content={serviceItem.text} styles={styles.serviceText} />
         </TouchableOpacity>

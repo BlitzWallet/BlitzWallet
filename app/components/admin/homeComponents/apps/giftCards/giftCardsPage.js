@@ -25,7 +25,7 @@ import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import {keyboardNavigate} from '../../../../../functions/customNavigation';
 import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
 import {useTranslation} from 'react-i18next';
-import FastImage from 'react-native-fast-image';
+import {Image} from 'expo-image';
 
 export default function GiftCardPage() {
   const {decodedGiftCards, toggleGiftCardsList, giftCardsList} =
@@ -102,10 +102,10 @@ export default function GiftCardPage() {
           }}
           style={styles.giftCardGridItem}>
           <View style={styles.logoContainer}>
-            <FastImage
+            <Image
               style={styles.cardLogo}
               source={{uri: item.logo}}
-              resizeMode={FastImage.resizeMode.contain}
+              contentFit="contain"
             />
           </View>
           <View style={styles.titleContainer}>
