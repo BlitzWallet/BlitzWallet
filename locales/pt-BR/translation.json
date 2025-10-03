@@ -53,10 +53,10 @@
     "remove": "Remove",
     "update": "Update",
     "refresh": "Refresh",
-    "retry": "Retry",
+    "retry": "Tentar novamente",
     "download": "Download",
-    "contactUs": "Contact us",
-    "pay": "Pay",
+    "contactUs": "Contate-nos",
+    "pay": "Pagar",
     "processing": "Processando",
     "support": "Suporte",
     "change": "Change",
@@ -105,7 +105,7 @@
     "token": "Token",
     "veriable": "Veriable",
     "instant": "Instant",
-    "andLower": "and",
+    "andLower": "e",
     "onLower": "on",
     "offLower": "off"
   },
@@ -241,9 +241,9 @@
       }
     },
     "skipMessage": {
-      "header": "We recommend that you write down your seed phrase",
-      "subHeader": "If you do not have your seed phrase written down you risk losing your money.",
-      "btn": "I understand"
+      "header": "Recomendamos que você anote sua frase de recuperação",
+      "subHeader": "Se você não anotar e guardar sua frase de recuperação, você corre o risco de perder seus fundos",
+      "btn": "Eu compreendo"
     }
   },
 
@@ -275,32 +275,32 @@
         "countrySearchPlaceholder": "Search by country",
         "createVPNBTN": "Buy VPN",
         "noLocationError": "Please select a country for the VPN to be located in.",
-        "payingInvoiceLoadingMessage": "Paying invoice",
-        "backupPaymentError": "Error paying invoice.",
-        "createInvoiceError": "Error creating invoice.",
-        "payingInvoiveError": "Error paying invoice.",
+        "payingInvoiceLoadingMessage": "Pagando fatura",
+        "backupPaymentError": "Erro ao pagar fatura.",
+        "createInvoiceError": "Erro ao criar fatura.",
+        "payingInvoiveError": "Erro ao pagar fatura.",
         "runningTries": "Running {{runCount}} for {{maxTries}} tries",
         "configError": "Not able to get VPN config, please reach out to LNVPN.",
         "paymentMemo": "Store - VPN"
       },
       "confirmationSlideUp": {
-        "invoiceInfoError": "Error getting invoice information.",
+        "invoiceInfoError": "Erro ao obter informações da fatura.",
         "title": "Confirm VPN",
-        "duration": "Duration: 1 {{duration}}",
-        "price": "Price: ",
+        "duration": "Duração: 1 {{duration}}",
+        "price": "Preço: ",
         "fee": "Fee: "
       },
       "durationSlider": {
         "durationOption": "1 {{duration}}",
-        "price": "Price: ",
+        "price": "Preço: ",
         "noDurations": "No available durations",
-        "duration": "Duration",
-        "0.1": "hour",
-        "0.5": "day",
-        "1.5": "week",
-        "3": "month",
-        "8": "quarter",
-        "30": "year"
+        "duration": "Duração",
+        "0.1": "hora",
+        "0.5": "dia",
+        "1.5": "semana",
+        "3": "mês",
+        "8": "trimestre",
+        "30": "ano"
       },
       "historicalPurchasesPage": {
         "deleteVPNConfirmMessage": "Are you sure you want to remove this VPN.",
@@ -829,10 +829,10 @@
 
   "wallet": {
     "halfModal": {
-      "images": "From Image",
-      "clipboard": "From Clipboard",
-      "manual": "Manual Input",
-      "contacts": "From Contacts"
+      "images": "De uma imagem",
+      "clipboard": "Da área de transferência",
+      "manual": "Inserir manualmente",
+      "contacts": "De contatos"
     },
     "manualInputPage": {
       "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"
@@ -846,8 +846,8 @@
       "qrDecodeError": "Error decoding QR code"
     },
     "confirmClipboard": {
-      "clipboardContent": "Text Copied to Clipboard",
-      "errorWithCopy": "Error copying to clipboard",
+      "clipboardContent": "Texto copiado para a área de transferência",
+      "errorWithCopy": "Erro ao copiar para a área de transferência",
       "ok": "OK"
     },
     "see_all_txs": "Ver todas as transações",
@@ -863,7 +863,7 @@
       "settingsText": "Acesse as configurações para permitir que a Carteira Blitz acesse sua câmera",
       "noCameraDevice": "Você não tem um dispositivo com câmera.",
       "error1": "Device does not have a torch",
-      "error2": "You have already paid this invoice"
+      "error2": "Você já pagou esta fatura"
     },
     "receivePages": {
       "editPaymentInfo": {
@@ -871,8 +871,8 @@
         "descriptionInputPlaceholder": "Descrição..."
       },
       "buttonContainer": {
-        "format": "Escolher Rede",
-        "infoMessage": "Custom amounts aren’t supported on Spark or Rootstock payments."
+        "format": "Escolher rede",
+        "infoMessage": "Quantias personalizadas não são suportadas em pagamentos Spark ou Rootstock."
       },
 
       "switchReceiveOptionPage": {
@@ -916,7 +916,7 @@
         "lnurlWithdrawlInvoiceError": "Unable to generate invoice for lnurl withdrawl",
         "waitingForLnurlWithdrawl": "Waiting for payment...",
         "lnurlWithdrawlSuccess": "Withdrawal successful! Your payment is on its way.",
-        "invoiceDetails": "Loading details"
+        "invoiceDetails": "Carregando detalhes"
       },
 
       "errorScreen": {
@@ -924,7 +924,7 @@
         "title": "Error message"
       },
       "feeInfo": {
-        "title": "Taxa e Velocidade",
+        "title": "Taxa e velocidade",
         "backTextToAmount": "{{amount}}",
         "tenMinutes": "{{numMins}} minutos"
       },
@@ -948,13 +948,13 @@
       }
     },
     "switchOption": {
-      "lightning": "best for small payments",
-      "bitcoin": "best for larger payments"
+      "lightning": "ideal para pagamentos de menor valor",
+      "bitcoin": "ideal para pagamentos de valores maiores"
     },
     "homeLightning": {
       "home": {
         "see_all_txs": "Ver todas as transações",
-        "no_transaction_history": "Send or receive a transaction for it to show up here"
+        "no_transaction_history": "Envie ou receba uma transação para que ela apareça aqui"
       },
 
       "lrc20Assets": {
@@ -973,13 +973,13 @@
       }
     },
     "exportTransactions": {
-      "paymentType": "Tipo de Pagamento",
+      "paymentType": "Tipo de pagamento",
       "description": "Descrição",
       "date": "Data",
-      "txFees": "Transaction Fees (SAT)",
+      "txFees": "Taxas de transação (SAT)",
       "amount": "Quantia (SAT)",
       "sent/received": "Enviado/Recebido",
-      "title": "Export your payment history in CSV (comma seperated value) format.",
+      "title": "Exporte seu histórico de pagamentos no formato CSV (valores separados por vírgula).",
       "paymentsCounter": "{{number}} pagamentos",
       "paymentsCounterTracker": "{{number}} do {{total}}",
       "loadingMessage": "Loading saved transactions"
@@ -1196,7 +1196,7 @@
       "sliderDesc": "BTKN is Spark’s native token. Enabling BTKN allows you send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.\n\nBlitz also applies a {{fee}} fee to all token transactions, with 20% of that fee donated to support open-source Bitcoin development."
     },
     "viewSwapsHome": {
-      "swaps": "Swaps",
+      "swaps": "Trocas",
       "selectionTitle": "Escolher Rede",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
@@ -1214,7 +1214,7 @@
       "claimAddress": "Claim Address",
       "timeoutBHeight": "Timeout Block Height",
       "expAmount": "Expected Amount",
-      "invoice": "Invoice",
+      "invoice": "Fatura",
       "refundSwap": "Refund swap"
     },
 
@@ -1233,14 +1233,14 @@
       "swap": "Swap"
     },
     "notifications": {
-      "mainToggle": "{{state}} notifications",
-      "mainToggleDesc": "Notifications let you stay informed about important events and updates happening in the app.",
-      "optionsTitle": "Notification options",
-      "contact": "Contact",
+      "mainToggle": "{{state}} notificações",
+      "mainToggleDesc": "As notificações permitem que você fique informado sobre eventos e atualizações importantes que acontecem no aplicativo.",
+      "optionsTitle": "Opções de notificação",
+      "contact": "Contato",
       "lnurl": "LNURL",
       "nostrZaps": "Nostr zaps",
       "nwc": "Nostr Wallet Connect",
-      "pos": "Point-of-sale"
+      "pos": "Ponto de venda"
     },
     "nostrHome": {
       "nip5Title": "Nip5 Verification",
@@ -1257,9 +1257,9 @@
       "title": "",
       "description": "Blitz Wallet offers free and open‑source products for the Bitcoin community. \n\nTo help keep the project sustainable, we’ve added a small transaction fee to each payment.\n\nHere’s how those fees are distributed:",
       "upTo": "Up To",
-      "fixedFee": "Fixed Fee",
-      "percent": "Percent",
-      "noLimit": "No limit"
+      "fixedFee": "Taxa fixa",
+      "percent": "Por cento",
+      "noLimit": "Sem limite"
     },
 
     "nip5": {
@@ -1445,62 +1445,62 @@
       },
 
       "confirmTxPage": {
-        "failedToSend": "Failed to send",
+        "failedToSend": "Falha ao enviar",
         "confirmMessage": "{{direction}} succesfully",
-        "paymentErrorMessage": "There was an issue sending this payment, please try again.",
-        "sendReport": "Send report to developer",
+        "paymentErrorMessage": "Ocorreu um problema ao enviar este pagamento. Tente novamente.",
+        "sendReport": "Enviar relatório ao desenvolvedor",
         "lnurlAuthSuccess": "Wallet authentication successful! You’re now logged in."
       },
       "expandedTxPage": {
-        "confirmMessage": "{{direction}} amount",
-        "paymentStatus": "Payment status",
-        "confReqired": "Confs required",
-        "detailsBTN": "Technical details"
+        "confirmMessage": "{{direction}} quantia",
+        "paymentStatus": "Status do pagamento",
+        "confReqired": "Confirmações necessárias",
+        "detailsBTN": "Detalhes técnicos"
       },
       "explorePage": {
-        "timeLeft": "({{time}} left)",
-        "title": "Blitz Downloads"
+        "timeLeft": "({{time}} restante)",
+        "title": "Downloads Blitz "
       },
 
       "loadingScreen": {
-        "loadingMessage1": "Please don't close the app",
-        "loadingMessage2": "We are setting things up",
-        "loadingText": "We're setting things up. Hang tight! This could take up to  a minute.",
-        "dbInitError": "Unable to open the database. Please try again.",
-        "userSettingsError": "Unable to load user settings. Please try again.",
-        "liquidWalletError": "Wallet information was not set properly, please try again.",
-        "liquidWalletError2": "We were unable to set up your wallet. Please try again."
+        "loadingMessage1": "Por favor, não feche o aplicativo",
+        "loadingMessage2": "Estamos deixando tudo pronto",
+        "loadingText": "Estamos organizando tudo. Aguarde! Isso pode levar até um minuto.",
+        "dbInitError": "Não foi possível abrir o banco de dados. Tente novamente.",
+        "userSettingsError": "Não foi possível carregar as configurações do usuário. Tente novamente.",
+        "liquidWalletError": "As informações da carteira não foram definidas corretamente. Tente novamente.",
+        "liquidWalletError2": "Não foi possível configurar sua carteira. Tente novamente."
       },
 
       "receiveBtcPage": {
         "onchainFeeMessage": "On-chain payments have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.",
         "liquidFeeMessage": "Liquid payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
         "rootstockFeeMessage": "Rootstock payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
-        "generatingInvoice": "Generating Invoice"
+        "generatingInvoice": "Gerando fatura"
       },
 
       "settingsContent": {
         "about": "Sobre",
         "language": "Idioma",
-        "display currency": "Moeda de Exibição",
-        "display options": "Opções de Tela",
-        "edit contact profile": "Editar Perfil de Contato",
+        "display currency": "Moeda de exibição",
+        "display options": "Opções de tela",
+        "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Trocas",
-        "fast pay": "Pagamento Rápido",
-        "blitz fee details": "Taxas da Carteira Blitz",
-        "crash reports": "Relatórios de Travamentos",
+        "fast pay": "Pagamento rápido",
+        "blitz fee details": "Taxas da carteira Blitz",
+        "crash reports": "Relatórios de travamentos",
         "notifications": "Notificações",
         "blitz stats": "Estatísticas Blitz",
         "accounts": "Contas",
         "nostr": "nostr",
-        "login mode": "Opções de Login",
-        "backup wallet": "Backup da Carteira",
+        "login mode": "Opções de login",
+        "backup wallet": "Backup da carteira",
         "spark info": "Informações Spark",
-        "delete wallet": "Excluir Carteira",
+        "delete wallet": "Remover carteira",
         "general": "Geral",
         "security": "Segurança",
-        "technical settings": "Configurações Técnicas",
-        "experimental features": "Funções Experimentais",
+        "technical settings": "Configurações técnicas",
+        "experimental features": "Funções experimentais",
         "settings": "Configurações",
         "blitzRestore": "Blitz Restore",
         "point-of-sale": "Ponto de venda"
