@@ -13,10 +13,6 @@ linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
-else
-  # Add this to enable static frameworks
-  use_frameworks! :linkage => :static
-  $RNFirebaseAsStaticFramework = true
 end
 
 target 'BlitzWallet' do
@@ -39,6 +35,8 @@ target 'BlitzWallet' do
 
   config = use_native_modules!(config_command)
 
+  use_frameworks! :linkage => :static
+  $RNFirebaseAsStaticFramework = true
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
