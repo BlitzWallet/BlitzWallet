@@ -17,7 +17,7 @@ import {
   SendPaymentMethod,
 } from '@breeztech/breez-sdk-spark-react-native';
 import {useState, useEffect} from 'react';
-import {documentDirectory} from 'expo-file-system';
+import {documentDirectory} from 'expo-file-system/legacy';
 import {getOrCreateDirectory} from '../functions/connectToNode';
 
 // Event Listener Class

@@ -18,7 +18,7 @@ import {
   downloadAsync,
   getInfoAsync,
   makeDirectoryAsync,
-} from 'expo-file-system';
+} from 'expo-file-system/legacy';
 import {getAllLocalKeys, getMultipleItems} from '../app/functions/localStorage';
 const FILE_DIR = cacheDirectory + 'profile_images/';
 const ImageCacheContext = createContext();
