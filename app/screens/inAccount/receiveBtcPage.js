@@ -1,44 +1,46 @@
-import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
-import {CENTER, SIZES, ICONS, COLORS, SCREEN_DIMENSIONS} from '../../constants';
-import {useEffect, useRef, useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
-import {copyToClipboard} from '../../functions';
-import {useGlobalContextProvider} from '../../../context-store/context';
-import {ButtonsContainer} from '../../components/admin/homeComponents/receiveBitcoin';
-import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
+import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import { CENTER, SIZES, ICONS, COLORS } from '../../constants';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { copyToClipboard } from '../../functions';
+import { useGlobalContextProvider } from '../../../context-store/context';
+import { ButtonsContainer } from '../../components/admin/homeComponents/receiveBitcoin';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeImage from '../../functions/CustomElements/themeImage';
-import {initializeAddressProcess} from '../../functions/receiveBitcoin/addressGeneration';
+import { initializeAddressProcess } from '../../functions/receiveBitcoin/addressGeneration';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import QrCodeWrapper from '../../functions/CustomElements/QrWrapper';
-import {useNodeContext} from '../../../context-store/nodeContext';
-import {useAppStatus} from '../../../context-store/appStatus';
+import { useNodeContext } from '../../../context-store/nodeContext';
+import { useAppStatus } from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
-import {useGlobalContacts} from '../../../context-store/globalContacts';
-import {useLiquidEvent} from '../../../context-store/liquidEventContext';
+import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
+import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { useLiquidEvent } from '../../../context-store/liquidEventContext';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useToast} from '../../../context-store/toastManager';
-import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
-import {encodeLNURL} from '../../functions/lnurl/bench32Formmater';
-import {useLRC20EventContext} from '../../../context-store/lrc20Listener';
-import {useActiveCustodyAccount} from '../../../context-store/activeAccount';
-import {useTranslation} from 'react-i18next';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useToast } from '../../../context-store/toastManager';
+import { useRootstockProvider } from '../../../context-store/rootstockSwapContext';
+import { encodeLNURL } from '../../functions/lnurl/bench32Formmater';
+import { useLRC20EventContext } from '../../../context-store/lrc20Listener';
+import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
+import { useTranslation } from 'react-i18next';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
-  const {fiatStats} = useNodeContext();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {globalContactsInformation} = useGlobalContacts();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const {signer, startRootstockEventListener} = useRootstockProvider();
-  const {startLrc20EventListener} = useLRC20EventContext();
-  const {t} = useTranslation();
-  const {isUsingAltAccount, currentWalletMnemoinc} = useActiveCustodyAccount();
+  const { fiatStats } = useNodeContext();
+
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { globalContactsInformation } = useGlobalContacts();
+  const { minMaxLiquidSwapAmounts, screenDimensions } = useAppStatus();
+  const { signer, startRootstockEventListener } = useRootstockProvider();
+  const { startLrc20EventListener } = useLRC20EventContext();
+  const { t } = useTranslation();
+  const { isUsingAltAccount, currentWalletMnemoinc } =
+    useActiveCustodyAccount();
   const [contentHeight, setContentHeight] = useState(0);
-  const {startLiquidEventListener} = useLiquidEvent();
+  const { startLiquidEventListener } = useLiquidEvent();
   const initialSendAmount = props.route.params?.receiveAmount || 0;
   const paymentDescription = props.route.params?.description;
   useHandleBackPressNew();
@@ -99,7 +101,7 @@ export default function ReceivePaymentHome(props) {
       if (selectedRecieveOption === 'Liquid') {
         startLiquidEventListener();
       } else if (selectedRecieveOption === 'Rootstock') {
-        startRootstockEventListener({durationMs: 1200000});
+        startRootstockEventListener({ durationMs: 1200000 });
       } else if (
         selectedRecieveOption === 'Spark' &&
         masterInfoObject.lrc20Settings?.isEnabled
@@ -115,9 +117,10 @@ export default function ReceivePaymentHome(props) {
     <GlobalThemeView useStandardWidth={true}>
       <ScrollView
         contentContainerStyle={{
-          flexGrow: contentHeight > SCREEN_DIMENSIONS.height ? 0 : 1,
+          flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
         }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         <View
           onLayout={e => {
             if (!e.nativeEvent.layout.height) return;
@@ -126,8 +129,9 @@ export default function ReceivePaymentHome(props) {
           style={{
             width: '100%',
             alignItems: 'center',
-            flexGrow: contentHeight > SCREEN_DIMENSIONS.height ? 0 : 1,
-          }}>
+            flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
+          }}
+        >
           <TopBar navigate={navigate} />
 
           <ThemeText styles={styles.title} content={selectedRecieveOption} />
@@ -151,7 +155,7 @@ export default function ReceivePaymentHome(props) {
             isUsingAltAccount={isUsingAltAccount}
           />
 
-          <View style={{marginBottom: 'auto'}}></View>
+          <View style={{ marginBottom: 'auto' }}></View>
 
           <TouchableOpacity
             activeOpacity={
@@ -211,7 +215,8 @@ export default function ReceivePaymentHome(props) {
             }}
             style={{
               alignItems: 'center',
-            }}>
+            }}
+          >
             <View style={styles.feeTitleContainer}>
               <ThemeText
                 styles={styles.feeTitleText}
@@ -233,7 +238,7 @@ export default function ReceivePaymentHome(props) {
             ) : (
               <FormattedSatText
                 neverHideBalance={true}
-                styles={{paddingBottom: 5}}
+                styles={{ paddingBottom: 5 }}
                 balance={0}
               />
             )}
@@ -256,9 +261,9 @@ function QrCode(props) {
     isUsingAltAccount,
     t,
   } = props;
-  const {showToast} = useToast();
-  const {theme} = useGlobalThemeContext();
-  const {backgroundOffset, textColor} = GetThemeColors();
+  const { showToast } = useToast();
+  const { theme } = useGlobalThemeContext();
+  const { backgroundOffset, textColor } = GetThemeColors();
   if (addressState.isGeneratingInvoice) {
     return (
       <View style={styles.qrCodeContainer}>
@@ -266,7 +271,8 @@ function QrCode(props) {
           style={{
             ...styles.qrCodeContainer,
             backgroundColor: backgroundOffset,
-          }}>
+          }}
+        >
           <FullLoadingScreen
             text={t('screens.inAccount.receiveBtcPage.generatingInvoice')}
           />
@@ -293,7 +299,8 @@ function QrCode(props) {
           style={{
             ...styles.qrCodeContainer,
             backgroundColor: backgroundOffset,
-          }}>
+          }}
+        >
           <ThemeText
             styles={styles.errorText}
             content={
@@ -340,15 +347,16 @@ function QrCode(props) {
             backgroundColor: backgroundOffset,
             paddingBottom: !!addressState.errorMessageText.text ? 10 : 0,
           },
-        ]}>
+        ]}
+      >
         <QrCodeWrapper
-          outerContainerStyle={{backgroundColor: 'transparent'}}
+          outerContainerStyle={{ backgroundColor: 'transparent' }}
           QRData={addressState.generatedAddress}
         />
 
         {addressState.errorMessageText.text && (
           <ThemeText
-            styles={{textAlign: 'center', width: 275, marginTop: 10}}
+            styles={{ textAlign: 'center', width: 275, marginTop: 10 }}
             content={
               t(addressState.errorMessageText.text) ||
               t('errormessages.invoiceRetrivalError')
@@ -410,7 +418,8 @@ function LNURLContainer({
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'center',
-      }}>
+      }}
+    >
       <ThemeText
         styles={{
           includeFontPadding: false,
@@ -436,7 +445,7 @@ function LNURLContainer({
       {selectedRecieveOption.toLowerCase() === 'lightning' &&
         !initialSendAmount && (
           <ThemeImage
-            styles={{height: 20, width: 20}}
+            styles={{ height: 20, width: 20 }}
             lightModeIcon={ICONS.editIcon}
             darkModeIcon={ICONS.editIconLight}
             lightsOutIcon={ICONS.editIconLight}
@@ -449,9 +458,10 @@ function LNURLContainer({
 function TopBar(props) {
   return (
     <TouchableOpacity
-      style={{marginRight: 'auto'}}
+      style={{ marginRight: 'auto' }}
       activeOpacity={0.6}
-      onPress={props.navigate.goBack}>
+      onPress={props.navigate.goBack}
+    >
       <ThemeImage
         darkModeIcon={ICONS.smallArrowLeft}
         lightModeIcon={ICONS.smallArrowLeft}

@@ -12,52 +12,54 @@ import {
 import {
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
-  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../../constants';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {COLORS} from '../../../../../constants/theme';
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {Image} from 'expo-image';
-import {useNavigation} from '@react-navigation/native';
-import {countrymap} from './receiveCountryCodes';
+import { COLORS } from '../../../../../constants/theme';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Image } from 'expo-image';
+import { useNavigation } from '@react-navigation/native';
+import { countrymap } from './receiveCountryCodes';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {useGlobalAppData} from '../../../../../../context-store/appData';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
 import sendStorePayment from '../../../../../functions/apps/payments';
-import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import {useKeysContext} from '../../../../../../context-store/keys';
-import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
-import {keyboardNavigate} from '../../../../../functions/customNavigation';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { useSparkWallet } from '../../../../../../context-store/sparkContext';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
+import { useKeysContext } from '../../../../../../context-store/keys';
+import { KEYBOARDTIMEOUT } from '../../../../../constants/styles';
+import { keyboardNavigate } from '../../../../../functions/customNavigation';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import CountryFlag from 'react-native-country-flag';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
 
 const imgEndpoint = endpoint => `https://sms4sats.com/${endpoint}`;
 
 export default function SMSMessagingReceivedPage(props) {
   const removeUserLocal = props.route.params?.removeUserLocal;
-  const [userLocal, setUserLocal] = useState({iso: 'WW', value: 999});
+  const [userLocal, setUserLocal] = useState({ iso: 'WW', value: 999 });
   const smsServices = props.route.params?.smsServices || [];
   const [localSMSServicesList, setLocalSMSServicesList] = useState(smsServices);
-  const {publicKey, contactsPrivateKey} = useKeysContext();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {sparkInformation} = useSparkWallet();
-  const {t} = useTranslation();
+  const { publicKey, contactsPrivateKey } = useKeysContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { sparkInformation } = useSparkWallet();
+  const { t } = useTranslation();
   const [searchInput, setSearchInput] = useState('');
-  const {decodedMessages, toggleGlobalAppDataInformation} = useGlobalAppData();
-  const {theme} = useGlobalThemeContext();
-  const {bottomPadding} = useGlobalInsets();
+  const { decodedMessages, toggleGlobalAppDataInformation } =
+    useGlobalAppData();
+  const { screenDimensions } = useAppStatus();
+  const { theme } = useGlobalThemeContext();
+  const { bottomPadding } = useGlobalInsets();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
-  const {backgroundColor, backgroundOffset} = GetThemeColors();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const [isPurchasing, setIsPurchasing] = useState({
     isLoading: false,
     message: t('apps.sms4sats.sendPage.payingMessage'),
@@ -68,8 +70,8 @@ export default function SMSMessagingReceivedPage(props) {
   useEffect(() => {
     if (!removeUserLocal) return;
     const value = countrymap.find(item => item.iso === removeUserLocal);
-    if (value) setUserLocal({value: value.value, iso: value.iso});
-    else setUserLocal({value: 999, iso: 'WW'});
+    if (value) setUserLocal({ value: value.value, iso: value.iso });
+    else setUserLocal({ value: 999, iso: 'WW' });
   }, [removeUserLocal]);
 
   const filteredList = useMemo(() => {
@@ -143,7 +145,7 @@ export default function SMSMessagingReceivedPage(props) {
         JSON.stringify(messageObject),
       );
 
-      toggleGlobalAppDataInformation({messagesApp: em}, true);
+      toggleGlobalAppDataInformation({ messagesApp: em }, true);
     },
     [contactsPrivateKey, publicKey],
   );
@@ -152,7 +154,7 @@ export default function SMSMessagingReceivedPage(props) {
     async invoiceInfo => {
       let savedMessages = null;
       try {
-        setIsPurchasing(prev => ({...prev, isLoading: true}));
+        setIsPurchasing(prev => ({ ...prev, isLoading: true }));
         savedMessages = JSON.parse(JSON.stringify(decodedMessages));
 
         const pendingOrder = {
@@ -271,7 +273,7 @@ export default function SMSMessagingReceivedPage(props) {
         });
       } catch (err) {
         console.log('error purchasing code', err);
-        navigate.navigate('ErrorScreen', {errorMessage: err.message});
+        navigate.navigate('ErrorScreen', { errorMessage: err.message });
       } finally {
         setIsPurchasing(prev => ({
           ...prev,
@@ -291,10 +293,10 @@ export default function SMSMessagingReceivedPage(props) {
 
   const handleSelctProcesss = useCallback(item => {
     if (typeof item !== 'number' && !item) {
-      setUserLocal(prev => ({...prev, value: 999}));
+      setUserLocal(prev => ({ ...prev, value: 999 }));
       return;
     }
-    setUserLocal(prev => ({...prev, value: item.value}));
+    setUserLocal(prev => ({ ...prev, value: item.value }));
   }, []);
 
   const handleInfoPress = useCallback(() => {
@@ -305,14 +307,14 @@ export default function SMSMessagingReceivedPage(props) {
   }, [navigate]);
 
   const renderItem = useCallback(
-    ({item, index}) => {
+    ({ item, index }) => {
       if (index === 0) {
         return (
           <View>
             <CustomSearchInput
               inputText={searchInput}
               setInputText={setSearchInput}
-              containerStyles={{...styles.itemSearch, backgroundColor}}
+              containerStyles={{ ...styles.itemSearch, backgroundColor }}
               onFocusFunction={keyboardFocusFunction}
               onBlurFunction={keyboardBlurFunction}
               placeholderText={t('apps.sms4sats.receivePage.inputPlaceholder')}
@@ -339,10 +341,11 @@ export default function SMSMessagingReceivedPage(props) {
               serviceItem.image?.src,
             )
           }
-          style={styles.serviceRow}>
+          style={styles.serviceRow}
+        >
           <Image
             style={styles.avatar}
-            source={{uri: imgEndpoint(serviceItem.image?.src)}}
+            source={{ uri: imgEndpoint(serviceItem.image?.src) }}
             contentFit="contain"
           />
           <ThemeText content={serviceItem.text} styles={styles.serviceText} />
@@ -379,12 +382,14 @@ export default function SMSMessagingReceivedPage(props) {
       useStandardWidth={true}
       globalThemeViewStyles={{
         paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
-      }}>
+      }}
+    >
       <View style={styles.topBar}>
         <TouchableOpacity
           onPress={() => {
             keyboardNavigate(() => navigate.goBack());
-          }}>
+          }}
+        >
           <ThemeImage
             lightModeIcon={ICONS.smallArrowLeft}
             darkModeIcon={ICONS.smallArrowLeft}
@@ -394,7 +399,10 @@ export default function SMSMessagingReceivedPage(props) {
 
         <ThemeText
           CustomNumberOfLines={1}
-          styles={styles.topbarText}
+          styles={{
+            ...styles.topbarText,
+            width: screenDimensions?.width * 0.95 - 140,
+          }}
           content={t('constants.receive')}
         />
 
@@ -421,7 +429,8 @@ export default function SMSMessagingReceivedPage(props) {
             borderRadius: 8,
             marginRight: 5,
             marginLeft: 'auto',
-          }}>
+          }}
+        >
           {userLocal.iso === 'WW' ? (
             <Icon
               width={15}
@@ -438,7 +447,8 @@ export default function SMSMessagingReceivedPage(props) {
             navigate.navigate('HistoricalSMSMessagingPage', {
               selectedPage: 'receive',
             })
-          }>
+          }
+        >
           <ThemeImage
             lightModeIcon={ICONS.receiptIcon}
             darkModeIcon={ICONS.receiptIcon}
@@ -483,7 +493,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   topbarText: {
-    width: SCREEN_DIMENSIONS.width * 0.95 - 140,
     flexShrink: 1,
     textAlign: 'center',
     fontSize: SIZES.xLarge,

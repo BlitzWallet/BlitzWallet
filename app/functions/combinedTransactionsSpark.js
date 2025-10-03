@@ -1,23 +1,22 @@
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
 import {
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   CENTER,
   COLORS,
   HIDDEN_BALANCE_TEXT,
   ICONS,
-  SCREEN_DIMENSIONS,
   SIZES,
   SKELETON_ANIMATION_SPEED,
 } from '../constants';
-import {ThemeText} from './CustomElements';
+import { ThemeText } from './CustomElements';
 import FormattedSatText from './CustomElements/satTextDisplay';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import Icon from './CustomElements/Icon';
-import {memo, useMemo, useCallback} from 'react';
-import {crashlyticsLogReport} from './crashlyticsLogs';
+import { memo, useMemo, useCallback } from 'react';
+import { crashlyticsLogReport } from './crashlyticsLogs';
 import SkeletonPlaceholder from './CustomElements/skeletonView';
 import formatTokensNumber from './lrc20/formatTokensBalance';
-import {Image} from 'expo-image';
+import { Image } from 'expo-image';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -61,11 +60,11 @@ const calculateTimeDifference = (currentTime, paymentDate) => {
   const hours = minutes / 60;
   const days = hours / 24;
   const years = days / 365;
-  return {minutes, hours, days, years, timeDifferenceMs};
+  return { minutes, hours, days, years, timeDifferenceMs };
 };
 
 const generateBannerText = (timeDifference, texts) => {
-  const {todayText, yesterdayText, dayText, monthText, yearText, agoText} =
+  const { todayText, yesterdayText, dayText, monthText, yearText, agoText } =
     texts;
 
   if (timeDifference < 0.5) return todayText;
@@ -89,7 +88,7 @@ const generateBannerText = (timeDifference, texts) => {
 
 const getContainerWidth = frompage => {
   return frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE ||
-    SCREEN_DIMENSIONS.width < 370
+    Dimensions.get('screen').width < 370
     ? '90%'
     : '85%';
 };
@@ -103,14 +102,15 @@ const createLoadingSkeleton = (
   const arrayLength = Math.min(numberOfCachedTxs, 20);
   const containerWidth = getContainerWidth(frompage);
 
-  const loadingTxElements = Array.from({length: arrayLength}, (_, i) => (
+  const loadingTxElements = Array.from({ length: arrayLength }, (_, i) => (
     <View
       key={i}
       style={{
         ...styles.transactionContainer,
         width: containerWidth,
         ...CENTER,
-      }}>
+      }}
+    >
       <View style={SKELETON_STYLES.icon} />
       <View style={SKELETON_STYLES.content}>
         <View style={SKELETON_STYLES.line} />
@@ -130,7 +130,8 @@ const createLoadingSkeleton = (
       }
       backgroundColor={COLORS.opaicityGray}
       enabled={true}
-      speed={SKELETON_ANIMATION_SPEED}>
+      speed={SKELETON_ANIMATION_SPEED}
+    >
       {loadingTxElements}
     </SkeletonPlaceholder>
   );
@@ -259,7 +260,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
       const styledTx = (
         <UserTransaction
           key={uniuqeIDFromTx}
-          tx={{...currentTransaction, details: paymentDetails}}
+          tx={{ ...currentTransaction, details: paymentDetails }}
           currentTime={currentTime}
           navigate={navigate}
           transactionPaymentType={transactionPaymentType}
@@ -305,7 +306,8 @@ export default function getFormattedHomepageTxsForSpark(props) {
       <TouchableOpacity
         key="view_all_tx_btn"
         style={[styles.viewAllButton, CENTER]}
-        onPress={() => navigate.navigate('ViewAllTxPage')}>
+        onPress={() => navigate.navigate('ViewAllTxPage')}
+      >
         <ThemeText content={viewAllTxText} styles={styles.headerText} />
       </TouchableOpacity>,
     );
@@ -329,7 +331,7 @@ export const UserTransaction = memo(function UserTransaction({
   sparkInformation,
   isLRC20Payment,
 }) {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const timeDifference = useMemo(
     () => calculateTimeDifference(currentTime, paymentDate),
@@ -361,7 +363,7 @@ export const UserTransaction = memo(function UserTransaction({
   const handlePress = useCallback(() => {
     if (frompage === TRANSACTION_CONSTANTS.SPARK_WALLET) return;
     crashlyticsLogReport('Navigating to expanded tx from user transaction');
-    navigate.navigate('ExpandedTx', {isFailedPayment: {}, transaction});
+    navigate.navigate('ExpandedTx', { isFailedPayment: {}, transaction });
   }, [frompage, navigate, transaction]);
 
   const showPendingTransactionStatusIcon =
@@ -443,7 +445,7 @@ export const UserTransaction = memo(function UserTransaction({
 
   // Pre-calculate time display
   const timeDisplayContent = useMemo(() => {
-    const {minutes, hours, days, years} = timeDifference;
+    const { minutes, hours, days, years } = timeDifference;
 
     if (minutes <= 1) return 'Just now';
 
@@ -472,7 +474,8 @@ export const UserTransaction = memo(function UserTransaction({
         width: containerWidth,
       }}
       activeOpacity={frompage === TRANSACTION_CONSTANTS.SPARK_WALLET ? 1 : 0.5}
-      onPress={handlePress}>
+      onPress={handlePress}
+    >
       {showPendingTransactionStatusIcon ? (
         <View style={styles.icons}>
           <Icon

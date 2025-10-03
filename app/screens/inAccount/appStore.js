@@ -6,31 +6,31 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import {CENTER, COLORS, SCREEN_DIMENSIONS, SIZES} from '../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {APPLIST} from '../../components/admin/homeComponents/apps/appList';
-import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
+import { CENTER, COLORS, SIZES } from '../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { APPLIST } from '../../components/admin/homeComponents/apps/appList';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import Icon from '../../functions/CustomElements/Icon';
 import GetThemeColors from '../../hooks/themeColors';
-import {useGlobalAppData} from '../../../context-store/appData';
+import { useGlobalAppData } from '../../../context-store/appData';
 import CustomButton from '../../functions/CustomElements/button';
-import {openComposer} from 'react-native-email-link';
-import {copyToClipboard} from '../../functions';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useAppStatus} from '../../../context-store/appStatus';
+import { openComposer } from 'react-native-email-link';
+import { copyToClipboard } from '../../functions';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useAppStatus } from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {useToast} from '../../../context-store/toastManager';
-import {useTranslation} from 'react-i18next';
-import {MAX_CONTENT_WIDTH} from '../../constants/theme';
+import { useToast } from '../../../context-store/toastManager';
+import { useTranslation } from 'react-i18next';
+import { MAX_CONTENT_WIDTH } from '../../constants/theme';
 
-export default function AppStore({navigation}) {
-  const {showToast} = useToast();
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor, backgroundOffset} = GetThemeColors();
-  const {decodedGiftCards} = useGlobalAppData();
+export default function AppStore({ navigation }) {
+  const { showToast } = useToast();
+  const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor, backgroundOffset } = GetThemeColors();
+  const { decodedGiftCards } = useGlobalAppData();
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   function handleBackPressFunction() {
     navigation.navigate('Home');
@@ -40,7 +40,7 @@ export default function AppStore({navigation}) {
 
   const localScreenWidth = Math.min(
     MAX_CONTENT_WIDTH,
-    SCREEN_DIMENSIONS.width * 0.95,
+    screenDimensions.width * 0.95,
   );
 
   const gridGap = Platform.select({
@@ -79,7 +79,7 @@ export default function AppStore({navigation}) {
             return;
           }
 
-          navigate.navigate('AppStorePageIndex', {page: app.pageName});
+          navigate.navigate('AppStorePageIndex', { page: app.pageName });
         }}
         style={{
           ...styles.appRowContainer,
@@ -88,13 +88,15 @@ export default function AppStore({navigation}) {
           flexGrow: 1,
           overflow: 'scroll',
           backgroundColor: backgroundOffset,
-        }}>
+        }}
+      >
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
             padding: 10,
-          }}>
+          }}
+        >
           <View
             style={[
               styles.appIcon,
@@ -105,7 +107,8 @@ export default function AppStore({navigation}) {
                     : COLORS.darkModeBackground
                   : COLORS.darkModeText,
               },
-            ]}>
+            ]}
+          >
             {app.svgName ? (
               <Icon
                 color={
@@ -121,21 +124,21 @@ export default function AppStore({navigation}) {
               <Image
                 // resizeMethod="scale"
                 resizeMode="contain"
-                style={{width: 25, height: 25}}
+                style={{ width: 25, height: 25 }}
                 source={theme && !darkModeType ? app.iconLight : app.iconDark}
               />
             )}
           </View>
           <ThemeText
             content={t(app.name)}
-            styles={{...styles.appTitle, flex: 1}}
+            styles={{ ...styles.appTitle, flex: 1 }}
           />
         </View>
         <View>
           <ThemeText
             content={t(app.description)}
             CustomNumberOfLines={3}
-            styles={{...styles.appDescription, padding: 10}}
+            styles={{ ...styles.appDescription, padding: 10 }}
           />
         </View>
       </TouchableOpacity>
@@ -146,11 +149,12 @@ export default function AppStore({navigation}) {
     <GlobalThemeView styles={styles.globalConatiner} useStandardWidth={true}>
       <ThemeText
         content={t('screens.inAccount.appStore.title')}
-        styles={{...styles.headerText}}
+        styles={{ ...styles.headerText }}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollViewStyles}>
+        contentContainerStyle={styles.scrollViewStyles}
+      >
         <TouchableOpacity
           onPress={() => {
             if (!isConnectedToTheInternet) {
@@ -172,9 +176,10 @@ export default function AppStore({navigation}) {
                 ? COLORS.darkModeText
                 : COLORS.darkModeBackgroundOffset
               : COLORS.darkModeText,
-          }}>
+          }}
+        >
           <ThemeText
-            styles={{marginBottom: 10, color: COLORS.darkModeText}}
+            styles={{ marginBottom: 10, color: COLORS.darkModeText }}
             content={t('screens.inAccount.appStore.shopTitle')}
           />
           <ThemeText
@@ -192,7 +197,8 @@ export default function AppStore({navigation}) {
               height: 90,
               width: 90,
               zIndex: -2,
-            }}>
+            }}
+          >
             <Icon
               height={90}
               width={90}
@@ -221,7 +227,8 @@ export default function AppStore({navigation}) {
                   ? COLORS.lightsOutBackground
                   : COLORS.darkModeBackgroundOffset
                 : COLORS.primary,
-            }}></View>
+            }}
+          ></View>
           <View
             style={{
               ...styles.backgroundBlue2,
@@ -230,7 +237,8 @@ export default function AppStore({navigation}) {
                   ? COLORS.giftcardlightsout2
                   : COLORS.giftcarddarkblue2
                 : COLORS.giftcardblue2,
-            }}></View>
+            }}
+          ></View>
           <View
             style={{
               ...styles.backgroundBlue3,
@@ -239,20 +247,23 @@ export default function AppStore({navigation}) {
                   ? COLORS.giftcardlightsout3
                   : COLORS.giftcarddarkblue3
                 : COLORS.giftcardblue3,
-            }}></View>
+            }}
+          ></View>
         </TouchableOpacity>
         <View
           style={{
             ...styles.appElementsContainer,
             rowGap: gridGap,
             columnGap: gridGap,
-          }}>
+          }}
+        >
           {appElements}
         </View>
         <View
           style={{
             alignItems: 'center',
-          }}>
+          }}
+        >
           <ThemeText content={t('screens.inAccount.appStore.callToAction')} />
           <CustomButton
             buttonStyles={{
@@ -284,8 +295,8 @@ export default function AppStore({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  globalConatiner: {paddingBottom: 0},
-  headerText: {fontSize: SIZES.large, ...CENTER},
+  globalConatiner: { paddingBottom: 0 },
+  headerText: { fontSize: SIZES.large, ...CENTER },
 
   giftCardContainer: {
     minHeight: 120,

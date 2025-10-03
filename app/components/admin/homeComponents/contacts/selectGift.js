@@ -1,46 +1,45 @@
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import {useCallback, useMemo, useRef, useState} from 'react';
-import {useGlobalAppData} from '../../../../../context-store/appData';
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {formatBalanceAmount} from '../../../../functions';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { useGlobalAppData } from '../../../../../context-store/appData';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { formatBalanceAmount } from '../../../../functions';
 import GetThemeColors from '../../../../hooks/themeColors';
 import getGiftCardsList from '../apps/giftCards/giftCardAPI';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import {
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
   SATSPERBITCOIN,
-  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../constants';
-import {Image} from 'expo-image';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
-import {keyboardNavigate} from '../../../../functions/customNavigation';
+import { Image } from 'expo-image';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import { keyboardNavigate } from '../../../../functions/customNavigation';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import CountryFlag from 'react-native-country-flag';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
-import {useKeysContext} from '../../../../../context-store/keys';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
+import { useKeysContext } from '../../../../../context-store/keys';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 
 export default function SelectGiftCardForContacts() {
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {decodedGiftCards, toggleGiftCardsList, giftCardsList} =
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { decodedGiftCards, toggleGiftCardsList, giftCardsList } =
     useGlobalAppData();
-  const {fiatStats} = useNodeContext();
+  const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
   const [errorMessage, setErrorMessage] = useState('');
-  const {bottomPadding} = useGlobalInsets();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const { bottomPadding } = useGlobalInsets();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
   const [isLoading, setIsLoading] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
@@ -84,7 +83,7 @@ export default function SelectGiftCardForContacts() {
   );
 
   const renderItem = useCallback(
-    ({item}) => {
+    ({ item }) => {
       const isVariable =
         item.denominationType === 'Variable' && item.denominations.length >= 2;
       return (
@@ -126,7 +125,8 @@ export default function SelectGiftCardForContacts() {
             }
           }}
           activeOpacity={isLoading ? 1 : 0.2}
-          style={styles.giftCardGridItem}>
+          style={styles.giftCardGridItem}
+        >
           {isLoading === item.id ? (
             <FullLoadingScreen />
           ) : (
@@ -134,7 +134,7 @@ export default function SelectGiftCardForContacts() {
               <View style={styles.logoContainer}>
                 <Image
                   style={styles.cardLogo}
-                  source={{uri: item.logo}}
+                  source={{ uri: item.logo }}
                   contentFit="contain"
                 />
               </View>
@@ -200,11 +200,13 @@ export default function SelectGiftCardForContacts() {
       globalThemeViewStyles={{
         paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
       }}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       <View style={styles.topBar}>
         <TouchableOpacity
           onPress={navigate.goBack}
-          style={{marginRight: 'auto'}}>
+          style={{ marginRight: 'auto' }}
+        >
           <ThemeImage
             lightModeIcon={ICONS.smallArrowLeft}
             darkModeIcon={ICONS.smallArrowLeft}
@@ -214,7 +216,8 @@ export default function SelectGiftCardForContacts() {
         <TouchableOpacity
           onPress={() =>
             keyboardNavigate(() => navigate.navigate('CountryList'))
-          }>
+          }
+        >
           <CountryFlag isoCode={userLocal} size={20} />
         </TouchableOpacity>
       </View>
@@ -241,7 +244,7 @@ export default function SelectGiftCardForContacts() {
           data={filteredGiftCards}
           renderItem={renderItem}
           ListHeaderComponent={
-            <View style={{backgroundColor, paddingBottom: 10}}>
+            <View style={{ backgroundColor, paddingBottom: 10 }}>
               <ThemeText
                 styles={styles.titleText}
                 content={t('contacts.selectGiftPage.header')}
@@ -279,7 +282,7 @@ export default function SelectGiftCardForContacts() {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {paddingBottom: 0},
+  globalContainer: { paddingBottom: 0 },
   topBar: {
     width: '100%',
     flexDirection: 'row',
@@ -305,7 +308,6 @@ const styles = StyleSheet.create({
   },
   giftCardGridItem: {
     flex: 1,
-    maxWidth: SCREEN_DIMENSIONS.width * 0.3333 - 15,
     alignItems: 'center',
   },
   logoContainer: {

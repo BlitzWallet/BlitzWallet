@@ -1,12 +1,8 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {Keyboard, StyleSheet, View, TouchableOpacity} from 'react-native';
-import {KeyboardAvoidingView} from 'react-native-keyboard-controller';
-import {useNavigation} from '@react-navigation/native';
-import {
-  COLORS,
-  CONTENT_KEYBOARD_OFFSET,
-  SCREEN_DIMENSIONS,
-} from '../../constants';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Keyboard, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { useNavigation } from '@react-navigation/native';
+import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../constants';
 import {
   HalfModalSendOptions,
   SwitchReceiveOptionPage,
@@ -27,11 +23,11 @@ import ExpandedMessageHalfModal from '../../components/admin/homeComponents/cont
 // import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 import ManualEnterSendAddress from '../../components/admin/homeComponents/homeLightning/manualEnterSendAddress';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {KEYBOARDTIMEOUT} from '../../constants/styles';
-import {useGlobalThemeContext} from '../../../context-store/theme';
+import { KEYBOARDTIMEOUT } from '../../constants/styles';
+import { useGlobalThemeContext } from '../../../context-store/theme';
 
 import AddPOSItemHalfModal from '../../components/admin/homeComponents/settingsContent/posPath/items/addItemHalfModal';
-import {useGlobalInsets} from '../../../context-store/insetsProvider';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import EditLNURLContactOnReceivePage from '../../components/admin/homeComponents/receiveBitcoin/editLNURLContact';
 import CustomInputHalfModal from './CustomInputHalfModal';
 import CustomQrCode from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
@@ -51,21 +47,21 @@ import Animated, {
   withSpring,
   runOnJS,
 } from 'react-native-reanimated';
-import {GestureDetector, Gesture} from 'react-native-gesture-handler';
-
-const SCREEN_HEIGHT = SCREEN_DIMENSIONS.height; // keep your existing constant
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import { useAppStatus } from '../../../context-store/appStatus';
 
 export default function CustomHalfModal(props) {
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { screenDimensions } = useAppStatus();
   const navigation = useNavigation();
   const contentType = props?.route?.params?.wantedContent;
   const slideHeight = props?.route?.params?.sliderHight || 0.5;
-  const {backgroundColor, backgroundOffset} = GetThemeColors();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const [contentHeight, setContentHeight] = useState(0);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding, topPadding} = useGlobalInsets();
+  const { bottomPadding, topPadding } = useGlobalInsets();
 
-  const translateY = useSharedValue(SCREEN_HEIGHT);
+  const translateY = useSharedValue(screenDimensions.height);
 
   const handleBackPressFunction = useCallback(() => {
     slideOut();
@@ -85,11 +81,11 @@ export default function CustomHalfModal(props) {
   }, []);
 
   const slideIn = () => {
-    translateY.value = withTiming(0, {duration: 200});
+    translateY.value = withTiming(0, { duration: 200 });
   };
 
   const slideOut = () => {
-    translateY.value = withTiming(SCREEN_HEIGHT, {duration: 200});
+    translateY.value = withTiming(screenDimensions.height, { duration: 200 });
   };
 
   const renderContent = () => {
@@ -331,13 +327,14 @@ export default function CustomHalfModal(props) {
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateY: translateY.value}],
+    transform: [{ translateY: translateY.value }],
   }));
 
   return (
     <KeyboardAvoidingView
       behavior={'padding'}
-      style={styles.keyboardAvoidingView}>
+      style={styles.keyboardAvoidingView}
+    >
       <TouchableOpacity
         style={styles.backdrop}
         activeOpacity={1}
@@ -348,11 +345,14 @@ export default function CustomHalfModal(props) {
           styles.contentContainer,
           animatedStyle,
           {
-            height: contentHeight ? contentHeight : SCREEN_HEIGHT * slideHeight,
+            height: contentHeight
+              ? contentHeight
+              : screenDimensions.height * slideHeight,
             backgroundColor: 'black',
             marginTop: topPadding,
           },
-        ]}>
+        ]}
+      >
         <View
           style={{
             flex: 1,
@@ -371,7 +371,8 @@ export default function CustomHalfModal(props) {
                   ? 0
                   : bottomPadding
                 : bottomPadding,
-          }}>
+          }}
+        >
           <GestureDetector gesture={panGesture}>
             <View style={styles.topBarContainer}>
               <View

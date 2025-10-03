@@ -1,5 +1,5 @@
-import {ThemeText} from '../../functions/CustomElements';
-import React, {useEffect, useMemo, useState} from 'react';
+import { ThemeText } from '../../functions/CustomElements';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -8,13 +8,7 @@ import {
   View,
 } from 'react-native';
 import GetThemeColors from '../../hooks/themeColors';
-import {
-  BLITZ_GOAL_USER_COUNT,
-  CENTER,
-  COLORS,
-  SCREEN_DIMENSIONS,
-  SIZES,
-} from '../../constants';
+import { BLITZ_GOAL_USER_COUNT, CENTER, COLORS, SIZES } from '../../constants';
 import DateCountdown from '../../components/admin/homeComponents/explore/dateCountdown';
 import {
   DAY_IN_MILLS,
@@ -29,30 +23,31 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from '../../functions';
-import {useGlobalContextProvider} from '../../../context-store/context';
+import { useGlobalContextProvider } from '../../../context-store/context';
 import NoDataView from '../../components/admin/homeComponents/explore/noDataView';
-import {FONT, INSET_WINDOW_WIDTH} from '../../constants/theme';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import {findLargestByVisualWidth} from '../../components/admin/homeComponents/explore/largestNumber';
-import {useTranslation} from 'react-i18next';
+import { FONT, INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { findLargestByVisualWidth } from '../../components/admin/homeComponents/explore/largestNumber';
+import { useTranslation } from 'react-i18next';
 import CustomLineChart from '../../functions/CustomElements/customLineChart';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
-import {shouldLoadExploreData} from '../../functions/initializeUserSettingsHelpers';
+import { shouldLoadExploreData } from '../../functions/initializeUserSettingsHelpers';
 import fetchBackend from '../../../db/handleBackend';
-import {useKeysContext} from '../../../context-store/keys';
+import { useKeysContext } from '../../../context-store/keys';
 import {
   useServerTime,
   useServerTimeOnly,
 } from '../../../context-store/serverTime';
 
 export default function ExploreUsers() {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
   const [timeFrame, setTimeFrame] = useState('day');
   const [isLoading, setIsLoading] = useState(true);
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {t} = useTranslation();
+  const { masterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
+  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { t } = useTranslation();
   const [targetUserCountBarWidth, setTargetUserCountBarWidth] = useState(0);
   const [yAxisWidth, setYAxisWidth] = useState(0);
   const [chartWidth, setChartWidth] = useState(0);
@@ -101,7 +96,8 @@ export default function ExploreUsers() {
             borderColor:
               theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
             ...styles.timeFrameElement,
-          }}>
+          }}
+        >
           <ThemeText
             styles={{
               color:
@@ -164,19 +160,19 @@ export default function ExploreUsers() {
         const shouldLoadExporeDataResp = shouldLoadExploreData(pastExploreData);
 
         if (!shouldLoadExporeDataResp) {
-          toggleMasterInfoObject({exploreData: pastExploreData.data});
+          toggleMasterInfoObject({ exploreData: pastExploreData.data });
           throw new Error('Blocking call since data is up to date');
         }
 
         const freshExploreData = await fetchBackend(
           'getTotalUserCount',
-          {data: publicKey},
+          { data: publicKey },
           contactsPrivateKey,
           publicKey,
         );
 
         if (freshExploreData) {
-          toggleMasterInfoObject({exploreData: freshExploreData});
+          toggleMasterInfoObject({ exploreData: freshExploreData });
           await setLocalStorageItem(
             'savedExploreData',
             JSON.stringify({
@@ -208,22 +204,24 @@ export default function ExploreUsers() {
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.scrollView}>
+      contentContainerStyle={styles.scrollView}
+    >
       <Text
         onLayout={event => {
           setYAxisWidth(Math.round(event.nativeEvent.layout.width));
         }}
-        style={styles.sizingText}>
+        style={styles.sizingText}
+      >
         {largestNumber}
       </Text>
-      <View style={{...styles.statsCard, backgroundColor: backgroundOffset}}>
+      <View style={{ ...styles.statsCard, backgroundColor: backgroundOffset }}>
         <ThemeText
           styles={styles.statsCardHeader}
           content={t('screens.inAccount.explorePage.title')}
         />
         <ThemeText
           CustomNumberOfLines={1}
-          styles={{marginBottom: 5}}
+          styles={{ marginBottom: 5 }}
           content={t('constants.today')}
         />
         <View style={styles.statsCardHorizontal}>
@@ -242,7 +240,8 @@ export default function ExploreUsers() {
           style={{
             backgroundColor: backgroundColor,
             ...styles.statsCardBar,
-          }}>
+          }}
+        >
           <View
             style={{
               width: targetUserCountBarWidth * (max / BLITZ_GOAL_USER_COUNT),
@@ -273,7 +272,8 @@ export default function ExploreUsers() {
         onLayout={e => {
           setChartWidth(e.nativeEvent.layout.width);
         }}
-        style={styles.chartContainer}>
+        style={styles.chartContainer}
+      >
         <CustomLineChart
           data={data.map(d => d.value)}
           width={chartWidth}
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     ...CENTER,
   },
-  statsCard: {borderRadius: 8, padding: 10},
+  statsCard: { borderRadius: 8, padding: 10 },
   statsCardHeader: {
     fontSize: SIZES.xLarge,
     textAlign: 'center',

@@ -1,4 +1,4 @@
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import {
   View,
   TouchableOpacity,
@@ -15,50 +15,51 @@ import {
   FONT,
   ICONS,
   SATSPERBITCOIN,
-  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../../constants';
-import {useEffect, useMemo, useRef, useState} from 'react';
-import {copyToClipboard} from '../../../../../functions';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { copyToClipboard } from '../../../../../functions';
 import ContextMenu from 'react-native-context-menu-view';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {SHADOWS, WINDOWWIDTH} from '../../../../../constants/theme';
+import { SHADOWS, WINDOWWIDTH } from '../../../../../constants/theme';
 import ExampleGPTSearchCard from './exampleSearchCards';
 import saveChatGPTChat from './functions/saveChat';
 import Icon from '../../../../../functions/CustomElements/Icon';
-import {useGlobalAppData} from '../../../../../../context-store/appData';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {AI_MODEL_COST} from './contants/AIModelCost';
-import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
+import { AI_MODEL_COST } from './contants/AIModelCost';
+import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import fetchBackend from '../../../../../../db/handleBackend';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {useKeysContext} from '../../../../../../context-store/keys';
-import {keyboardNavigate} from '../../../../../functions/customNavigation';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import { useKeysContext } from '../../../../../../context-store/keys';
+import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import customUUID from '../../../../../functions/customUUID';
-import {useToast} from '../../../../../../context-store/toastManager';
-import {useTranslation} from 'react-i18next';
-import {ONEMILLION} from '../../../../../constants/math';
+import { useToast } from '../../../../../../context-store/toastManager';
+import { useTranslation } from 'react-i18next';
+import { ONEMILLION } from '../../../../../constants/math';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
 
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
-  const {showToast} = useToast();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {fiatStats} = useNodeContext();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor, backgroundOffset} = GetThemeColors();
+  const { showToast } = useToast();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { fiatStats } = useNodeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor, backgroundOffset } = GetThemeColors();
+  const { screenDimensions } = useAppStatus();
   const chatHistoryFromProps = props.route.params?.chatHistory;
   const {
     decodedChatGPT,
     toggleGlobalAppDataInformation,
     globalAppDataInformation,
   } = useGlobalAppData();
-  const {globalContactsInformation} = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContacts();
   const flatListRef = useRef(null);
   const [chatHistory, setChatHistory] = useState({
     conversation: [],
@@ -74,7 +75,7 @@ export default function ChatGPTHome(props) {
   const [showScrollBottomIndicator, setShowScrollBottomIndicator] =
     useState(false);
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(true);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!chatHistoryFromProps) return;
@@ -100,9 +101,10 @@ export default function ChatGPTHome(props) {
           }}
           previewBackgroundColor={backgroundOffset}
           actions={[
-            {title: t('constants.copy')},
-            {title: t('constants.edit')},
-          ]}>
+            { title: t('constants.copy') },
+            { title: t('constants.edit') },
+          ]}
+        >
           <View style={chatObjectStyles.container}>
             <View
               style={{
@@ -110,7 +112,8 @@ export default function ChatGPTHome(props) {
                 backgroundColor: theme
                   ? COLORS.darkModeText
                   : COLORS.lightModeBackgroundOffset,
-              }}>
+              }}
+            >
               {item.role === 'user' ? (
                 <Image
                   style={chatObjectStyles.logoIcon}
@@ -125,7 +128,7 @@ export default function ChatGPTHome(props) {
                 />
               )}
             </View>
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
               <ThemeText
                 styles={chatObjectStyles.userLabel}
                 content={
@@ -151,8 +154,9 @@ export default function ChatGPTHome(props) {
               ) : (
                 <View
                   style={{
-                    width: SCREEN_DIMENSIONS.width * 0.95 * 0.95 - 35,
-                  }}>
+                    width: screenDimensions.width * 0.95 * 0.95 - 35,
+                  }}
+                >
                   <FullLoadingScreen size="small" showText={false} />
                 </View>
               )}
@@ -174,11 +178,13 @@ export default function ChatGPTHome(props) {
     <CustomKeyboardAvoidingView
       isKeyboardActive={isKeyboardFocused}
       useLocalPadding={true}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       <View style={styles.topBar}>
         <TouchableOpacity
-          style={{position: 'absolute', left: 0}}
-          onPress={() => keyboardNavigate(closeChat)}>
+          style={{ position: 'absolute', left: 0 }}
+          onPress={() => keyboardNavigate(closeChat)}
+        >
           <ThemeImage
             lightModeIcon={ICONS.smallArrowLeft}
             darkModeIcon={ICONS.smallArrowLeft}
@@ -199,9 +205,10 @@ export default function ChatGPTHome(props) {
           }}
           style={{
             ...styles.switchModel,
-            maxWidth: SCREEN_DIMENSIONS.width * 0.95 - 80,
+            maxWidth: screenDimensions.width * 0.95 - 80,
             backgroundColor: backgroundOffset,
-          }}>
+          }}
+        >
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.topBarText}
@@ -216,11 +223,12 @@ export default function ChatGPTHome(props) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{position: 'absolute', right: 0}}
+          style={{ position: 'absolute', right: 0 }}
           onPress={() => {
             Keyboard.dismiss();
             props.navigation.openDrawer();
-          }}>
+          }}
+        >
           <ThemeImage
             lightModeIcon={ICONS.drawerList}
             darkModeIcon={ICONS.drawerList}
@@ -229,7 +237,7 @@ export default function ChatGPTHome(props) {
         </TouchableOpacity>
       </View>
       <ThemeText
-        styles={{textAlign: 'center'}}
+        styles={{ textAlign: 'center' }}
         content={t('apps.chatGPT.chatGPTHome.availableCredits', {
           credits: totalAvailableCredits.toFixed(2),
         })}
@@ -240,8 +248,9 @@ export default function ChatGPTHome(props) {
           <View
             style={[
               styles.container,
-              {alignItems: 'center', justifyContent: 'center'},
-            ]}>
+              { alignItems: 'center', justifyContent: 'center' },
+            ]}
+          >
             <View
               style={[
                 styles.noChatHistoryImgContainer,
@@ -250,9 +259,10 @@ export default function ChatGPTHome(props) {
                     ? COLORS.darkModeText
                     : COLORS.lightModeBackgroundOffset,
                 },
-              ]}>
+              ]}
+            >
               <Image
-                style={{width: '50%', height: '50%'}}
+                style={{ width: '50%', height: '50%' }}
                 source={ICONS.logoIcon}
               />
             </View>
@@ -260,17 +270,19 @@ export default function ChatGPTHome(props) {
         ) : (
           <View style={styles.flasListContianer}>
             <ScrollView
-              style={{transform: [{scaleY: -1}]}}
+              style={{ transform: [{ scaleY: -1 }] }}
               horizontal={false}
               onScroll={e => {
                 const offset = e.nativeEvent.contentOffset.y;
                 if (offset > 20) setShowScrollBottomIndicator(true);
                 else setShowScrollBottomIndicator(false);
               }}
-              ref={flatListRef}>
+              ref={flatListRef}
+            >
               <View
                 key={'invertedContainer'}
-                style={{transform: [{scaleY: -1}]}}>
+                style={{ transform: [{ scaleY: -1 }] }}
+              >
                 {userChatHistory}
               </View>
             </ScrollView>
@@ -278,12 +290,13 @@ export default function ChatGPTHome(props) {
               <TouchableOpacity
                 activeOpacity={1}
                 onPress={() => {
-                  flatListRef.current.scrollTo({x: 0, y: 0, animated: true});
+                  flatListRef.current.scrollTo({ x: 0, y: 0, animated: true });
                 }}
                 style={{
                   ...styles.scrollToBottom,
                   backgroundColor: backgroundOffset,
-                }}>
+                }}
+              >
                 <Image
                   style={styles.scrollToBottomIcon}
                   source={ICONS.smallArrowLeft}
@@ -311,7 +324,7 @@ export default function ChatGPTHome(props) {
           placeholderTextColor={textColor}
           style={[
             styles.bottomBarTextInput,
-            {color: textColor, borderColor: textColor},
+            { color: textColor, borderColor: textColor },
           ]}
           value={userChatText}
           onFocus={() => {
@@ -337,7 +350,8 @@ export default function ChatGPTHome(props) {
               ? COLORS.lightModeBackground
               : COLORS.lightModeText,
             marginLeft: 10,
-          }}>
+          }}
+        >
           <Icon
             width={30}
             height={30}
@@ -530,7 +544,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   topBarIcon: {
-    transform: [{rotate: '90deg'}],
+    transform: [{ rotate: '90deg' }],
     width: 20,
     height: 20,
   },
@@ -557,13 +571,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 5,
     left: '50%',
-    transform: [{translateX: -20}],
+    transform: [{ translateX: -20 }],
     ...SHADOWS.small,
   },
   scrollToBottomIcon: {
     width: 20,
     height: 20,
-    transform: [{rotate: '270deg'}],
+    transform: [{ rotate: '270deg' }],
   },
 
   bottomBarContainer: {
@@ -605,5 +619,5 @@ const chatObjectStyles = StyleSheet.create({
     height: '50%',
     width: '50%',
   },
-  userLabel: {fontWeight: '500', marginBottom: 5},
+  userLabel: { fontWeight: '500', marginBottom: 5 },
 });

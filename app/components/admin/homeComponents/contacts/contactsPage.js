@@ -1,34 +1,33 @@
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
-  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../constants';
-import {memo, useCallback, useEffect, useMemo, useState} from 'react';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {encriptMessage} from '../../../../functions/messaging/encodingAndDecodingMessages';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { encriptMessage } from '../../../../functions/messaging/encodingAndDecodingMessages';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {useGlobalContacts} from '../../../../../context-store/globalContacts';
+import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../functions/CustomElements/Icon';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useAppStatus} from '../../../../../context-store/appStatus';
-import {useKeysContext} from '../../../../../context-store/keys';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useAppStatus } from '../../../../../context-store/appStatus';
+import { useKeysContext } from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import {keyboardNavigate} from '../../../../functions/customNavigation';
-import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import { keyboardNavigate } from '../../../../functions/customNavigation';
+import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import ContactProfileImage from './internalComponents/profileImage';
-import {useImageCache} from '../../../../../context-store/imageCache';
+import { useImageCache } from '../../../../../context-store/imageCache';
 import {
   createFormattedDate,
   formatMessage,
@@ -41,25 +40,25 @@ import {
   useServerTime,
   useServerTimeOnly,
 } from '../../../../../context-store/serverTime';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
-export default function ContactsPage({navigation}) {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {cache} = useImageCache();
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {theme, darkModeType} = useGlobalThemeContext();
+export default function ContactsPage({ navigation }) {
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { cache } = useImageCache();
+  const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const {
     decodedAddedContacts,
     globalContactsInformation,
     contactsMessags,
     toggleGlobalContactsInformation,
   } = useGlobalContacts();
-  const {serverTimeOffset} = useServerTime();
+  const { serverTimeOffset } = useServerTime();
   const getServerTime = useServerTimeOnly();
   const currentTime = getServerTime();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
   const hideUnknownContacts = masterInfoObject.hideUnknownContacts;
   const tabsNavigate = navigation.navigate;
@@ -117,7 +116,7 @@ export default function ContactsPage({navigation}) {
 
         toggleGlobalContactsInformation(
           {
-            myProfile: {...globalContactsInformation.myProfile},
+            myProfile: { ...globalContactsInformation.myProfile },
             addedContacts: encriptMessage(
               contactsPrivateKey,
               publicKey,
@@ -158,6 +157,7 @@ export default function ContactsPage({navigation}) {
           navigateToExpandedContact={navigateToExpandedContact}
           // dimensions={dimensions}
           navigate={navigate}
+          screenDimensions={screenDimensions}
         />
       ));
   }, [
@@ -271,7 +271,8 @@ export default function ContactsPage({navigation}) {
   return (
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       {didEditProfile && (
         <View style={memoizedStyles.topBar}>
           <TouchableOpacity
@@ -282,8 +283,9 @@ export default function ContactsPage({navigation}) {
             }
             style={[
               memoizedStyles.giftContainer,
-              {backgroundColor: backgroundOffset},
-            ]}>
+              { backgroundColor: backgroundOffset },
+            ]}
+          >
             <ThemeText
               styles={memoizedStyles.giftText}
               content={t('wallet.contactsPage.giftsText')}
@@ -317,7 +319,8 @@ export default function ContactsPage({navigation}) {
               style={[
                 memoizedStyles.profileImageContainer,
                 profileContainerStyle,
-              ]}>
+              ]}
+            >
               <ContactProfileImage
                 updated={cache[masterInfoObject?.uuid]?.updated}
                 uri={cache[masterInfoObject?.uuid]?.localUri}
@@ -333,13 +336,15 @@ export default function ContactsPage({navigation}) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={scrollContentStyle}
           style={memoizedStyles.contactsPageWithContactsScrollview}
-          stickyHeaderIndices={stickyHeaderIndicesValue}>
+          stickyHeaderIndices={stickyHeaderIndicesValue}
+        >
           {pinnedContacts.length !== 0 && (
             <View style={memoizedStyles.pinnedContactsScrollviewContainer}>
               <ScrollView
                 showsHorizontalScrollIndicator={false}
                 horizontal
-                contentContainerStyle={memoizedStyles.pinnedContactsContainer}>
+                contentContainerStyle={memoizedStyles.pinnedContactsContainer}
+              >
                 {pinnedContacts}
               </ScrollView>
             </View>
@@ -396,13 +401,14 @@ const PinnedContactElement = memo(
     navigateToExpandedContact,
     // dimensions,
     navigate,
+    screenDimensions,
   }) => {
     const [textWidth, setTextWidth] = useState(0);
 
     // Memoize calculated dimensions
     const containerSize = useMemo(
-      () => (SCREEN_DIMENSIONS.width * 0.95) / 4.5,
-      [SCREEN_DIMENSIONS.width],
+      () => (screenDimensions.width * 0.95) / 4.5,
+      [screenDimensions.width],
     );
 
     const imageContainerStyle = useMemo(
@@ -435,7 +441,7 @@ const PinnedContactElement = memo(
           darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
         position: 'absolute',
         left: '50%',
-        transform: [{translateX: -(textWidth / 2 + 5 + 10)}],
+        transform: [{ translateX: -(textWidth / 2 + 5 + 10) }],
       }),
       [darkModeType, theme, textWidth],
     );
@@ -459,7 +465,8 @@ const PinnedContactElement = memo(
       <TouchableOpacity
         style={pinnedContactStyle}
         onLongPress={handleLongPress}
-        onPress={handlePress}>
+        onPress={handlePress}
+      >
         <View style={imageContainerStyle}>
           <ContactProfileImage
             updated={cache[contact.uuid]?.updated}
@@ -535,7 +542,7 @@ const ContactElement = memo(
         });
         return;
       }
-      navigate.navigate('ContactsPageLongPressActions', {contact});
+      navigate.navigate('ContactsPageLongPressActions', { contact });
     }, [contact, isConnectedToTheInternet, navigate]);
 
     const handlePress = useCallback(() => {
@@ -557,7 +564,8 @@ const ContactElement = memo(
       <TouchableOpacity
         style={memoizedStyles.contactRowContainer}
         onLongPress={handleLongPress}
-        onPress={handlePress}>
+        onPress={handlePress}
+      >
         <View style={imageContainerStyle}>
           <ContactProfileImage
             updated={cache[contact.uuid]?.updated}
@@ -571,16 +579,20 @@ const ContactElement = memo(
             <ThemeText
               CustomEllipsizeMode="tail"
               CustomNumberOfLines={1}
-              styles={{flex: 1, marginRight: 5}}
+              styles={{ flex: 1, marginRight: 5 }}
               content={displayName}
             />
             {hasUnlookedTransaction && <View style={notificationStyle} />}
             <ThemeText
-              styles={{fontSize: SIZES.small, marginRight: 5}}
+              styles={{ fontSize: SIZES.small, marginRight: 5 }}
               content={formattedDate}
             />
             <ThemeImage
-              styles={{width: 20, height: 20, transform: [{rotate: '180deg'}]}}
+              styles={{
+                width: 20,
+                height: 20,
+                transform: [{ rotate: '180deg' }],
+              }}
               darkModeIcon={ICONS.leftCheveronIcon}
               lightModeIcon={ICONS.leftCheveronIcon}
               lightsOutIcon={ICONS.left_cheveron_white}
@@ -590,7 +602,7 @@ const ContactElement = memo(
           <View style={memoizedStyles.contactsRowInlineStyle}>
             <ThemeText
               CustomNumberOfLines={2}
-              styles={{fontSize: SIZES.small}}
+              styles={{ fontSize: SIZES.small }}
               content={lastUpdated ? formatMessage(firstMessage) || ' ' : ' '}
             />
             {!contact.isAdded && (
@@ -617,7 +629,7 @@ const memoizedStyles = StyleSheet.create({
   globalContainer: {
     flex: 1,
   },
-  contactsPageWithContactsScrollview: {flex: 1, overflow: 'hidden'},
+  contactsPageWithContactsScrollview: { flex: 1, overflow: 'hidden' },
   profileImageContainer: {
     position: 'relative',
     width: 35,
@@ -653,7 +665,7 @@ const memoizedStyles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
   },
-  pinnedContactsScrollviewContainer: {height: 120},
+  pinnedContactsScrollviewContainer: { height: 120 },
   pinnedContact: {
     marginHorizontal: 5,
     alignItems: 'center',

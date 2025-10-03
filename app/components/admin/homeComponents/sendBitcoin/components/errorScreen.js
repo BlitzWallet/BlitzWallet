@@ -1,22 +1,24 @@
-import {ScrollView, StyleSheet} from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import LottieView from 'lottie-react-native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {CENTER, SCREEN_DIMENSIONS, SIZES} from '../../../../../constants';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useNavigation} from '@react-navigation/native';
-import {useEffect, useMemo, useRef} from 'react';
-import {applyErrorAnimationTheme} from '../../../../../functions/lottieViewColorTransformer';
-import {useTranslation} from 'react-i18next';
+import { CENTER, SIZES } from '../../../../../constants';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect, useMemo, useRef } from 'react';
+import { applyErrorAnimationTheme } from '../../../../../functions/lottieViewColorTransformer';
+import { useTranslation } from 'react-i18next';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
 
-export default function ErrorWithPayment({reason}) {
-  const {theme, darkModeType} = useGlobalThemeContext();
+export default function ErrorWithPayment({ reason }) {
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
   const animationRef = useRef(null);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const errorAnimation = useMemo(() => {
     const confirmTxAnimationDarkMode = require('../../../../../assets/errorTxAnimation.json');
@@ -39,8 +41,8 @@ export default function ErrorWithPayment({reason}) {
         source={errorAnimation}
         loop={false}
         style={{
-          width: SCREEN_DIMENSIONS.width / 1.5,
-          height: SCREEN_DIMENSIONS.width / 1.5,
+          width: screenDimensions.width / 1.5,
+          height: screenDimensions.width / 1.5,
         }}
       />
       <ThemeText
@@ -48,15 +50,16 @@ export default function ErrorWithPayment({reason}) {
         content={t('wallet.sendPages.errorScreen.title')}
       />
       <ScrollView
-        style={{flex: 1, width: '90%', ...CENTER}}
-        contentContainerStyle={{alignItems: 'center', paddingVertical: 20}}>
-        <ThemeText styles={{textAlign: 'center'}} content={String(reason)} />
+        style={{ flex: 1, width: '90%', ...CENTER }}
+        contentContainerStyle={{ alignItems: 'center', paddingVertical: 20 }}
+      >
+        <ThemeText styles={{ textAlign: 'center' }} content={String(reason)} />
       </ScrollView>
       <CustomButton
         buttonStyles={styles.buttonStyle}
         textContent={t('constants.continue')}
         actionFunction={() => {
-          navigate.popTo('HomeAdmin', {screen: 'Home'});
+          navigate.popTo('HomeAdmin', { screen: 'Home' });
         }}
       />
     </GlobalThemeView>

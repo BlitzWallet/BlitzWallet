@@ -1,37 +1,36 @@
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {useGlobalAppData} from '../../../../../../context-store/appData';
-import {useCallback, useMemo, useState} from 'react';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
+import { useCallback, useMemo, useState } from 'react';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {formatBalanceAmount} from '../../../../../functions';
+import { formatBalanceAmount } from '../../../../../functions';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
-  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../../constants';
 import CountryFlag from 'react-native-country-flag';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import getGiftCardsList from './giftCardAPI';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import {keyboardNavigate} from '../../../../../functions/customNavigation';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
-import {useTranslation} from 'react-i18next';
-import {Image} from 'expo-image';
+import { keyboardNavigate } from '../../../../../functions/customNavigation';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { useTranslation } from 'react-i18next';
+import { Image } from 'expo-image';
 
 export default function GiftCardPage() {
-  const {decodedGiftCards, toggleGiftCardsList, giftCardsList} =
+  const { decodedGiftCards, toggleGiftCardsList, giftCardsList } =
     useGlobalAppData();
-  const {t} = useTranslation();
-  const {backgroundOffset} = GetThemeColors();
+  const { t } = useTranslation();
+  const { backgroundOffset } = GetThemeColors();
   const [errorMessage, setErrorMessage] = useState('');
   const [giftCardSearch, setGiftCardSearch] = useState('');
   const navigate = useNavigation();
@@ -67,7 +66,7 @@ export default function GiftCardPage() {
       };
     }, []),
   );
-  const {bottomPadding} = useGlobalInsets();
+  const { bottomPadding } = useGlobalInsets();
 
   const userLocal = decodedGiftCards?.profile?.isoCode?.toUpperCase() || 'US';
   const giftCards = giftCardsList;
@@ -92,19 +91,20 @@ export default function GiftCardPage() {
   );
 
   const renderItem = useCallback(
-    ({item}) => {
+    ({ item }) => {
       const isVariable =
         item.denominationType === 'Variable' && item.denominations.length >= 2;
       return (
         <TouchableOpacity
           onPress={() => {
-            navigate.navigate('ExpandedGiftCardPage', {selectedItem: item});
+            navigate.navigate('ExpandedGiftCardPage', { selectedItem: item });
           }}
-          style={styles.giftCardGridItem}>
+          style={styles.giftCardGridItem}
+        >
           <View style={styles.logoContainer}>
             <Image
               style={styles.cardLogo}
-              source={{uri: item.logo}}
+              source={{ uri: item.logo }}
               contentFit="contain"
             />
           </View>
@@ -158,13 +158,15 @@ export default function GiftCardPage() {
       globalThemeViewStyles={{
         paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
       }}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       <View style={styles.topBar}>
         <TouchableOpacity
           onPress={() => {
             keyboardNavigate(() => navigate.popTo('HomeAdmin'));
           }}
-          style={{marginRight: 'auto'}}>
+          style={{ marginRight: 'auto' }}
+        >
           <ThemeImage
             lightModeIcon={ICONS.smallArrowLeft}
             darkModeIcon={ICONS.smallArrowLeft}
@@ -174,16 +176,18 @@ export default function GiftCardPage() {
         <TouchableOpacity
           onPress={() =>
             keyboardNavigate(() => navigate.navigate('CountryList'))
-          }>
+          }
+        >
           <CountryFlag isoCode={userLocal} size={20} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={{marginLeft: 10}}
+          style={{ marginLeft: 10 }}
           onPress={() =>
             keyboardNavigate(() =>
               navigate.navigate('HistoricalGiftCardPurchases'),
             )
-          }>
+          }
+        >
           <ThemeImage
             darkModeIcon={ICONS.receiptIcon}
             lightModeIcon={ICONS.receiptIcon}
@@ -243,7 +247,7 @@ export default function GiftCardPage() {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {paddingBottom: 0},
+  globalContainer: { paddingBottom: 0 },
   topBar: {
     width: '100%',
     flexDirection: 'row',
@@ -262,7 +266,6 @@ const styles = StyleSheet.create({
   },
   giftCardGridItem: {
     flex: 1,
-    maxWidth: SCREEN_DIMENSIONS.width * 0.3333 - 15,
     alignItems: 'center',
   },
   logoContainer: {

@@ -1,20 +1,19 @@
-import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
 import {
   CENTER,
   ICONS,
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
-  SCREEN_DIMENSIONS,
 } from '../../../../constants';
-import {useEffect, useRef, useState} from 'react';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
+import { useEffect, useRef, useState } from 'react';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
   CustomKeyboardAvoidingView,
   GlobalThemeView,
 } from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
 import decodeSendAddress from './functions/decodeSendAdress';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 // import {useWebView} from '../../../../../context-store/webViewContext';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
@@ -26,33 +25,34 @@ import AcceptButtonSendPage from './components/acceptButton';
 import NumberInputSendPage from './components/numberInput';
 import SendMaxComponent from './components/sendMaxComponent';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
-import {useAppStatus} from '../../../../../context-store/appStatus';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { useAppStatus } from '../../../../../context-store/appStatus';
 import hasAlredyPaidInvoice from './functions/hasPaid';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import {keyboardGoBack} from '../../../../functions/customNavigation';
+import { keyboardGoBack } from '../../../../functions/customNavigation';
 import ErrorWithPayment from './components/errorScreen';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
-import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
-import {useSparkWallet} from '../../../../../context-store/sparkContext';
-import {sparkPaymenWrapper} from '../../../../functions/spark/payments';
+import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import InvoiceInfo from './components/invoiceInfo';
 import formatSparkPaymentAddress from './functions/formatSparkPaymentAddress';
 import SelectLRC20Token from './components/selectLRC20Token';
-import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
+import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
-import {useTranslation} from 'react-i18next';
-import {COLORS, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {SliderProgressAnimation} from '../../../../functions/CustomElements/sendPaymentAnimation';
-import {InputTypes} from 'bitcoin-address-parser';
+import { useTranslation } from 'react-i18next';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
+import { InputTypes } from 'bitcoin-address-parser';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 
 export default function SendPaymentScreen(props) {
   console.log('CONFIRM SEND PAYMENT SCREEN');
   const [showProgressAnimation, setShowProgressAnimation] = useState(false);
   const progressAnimationRef = useRef(null);
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
   const {
     btcAdress,
@@ -62,14 +62,14 @@ export default function SendPaymentScreen(props) {
     enteredPaymentInfo = {},
     errorMessage,
   } = props.route.params;
-  const useAltLayout = SCREEN_DIMENSIONS.height < 720;
-  const {t} = useTranslation();
-  const {sparkInformation} = useSparkWallet();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {liquidNodeInformation, fiatStats} = useNodeContext();
+  const useAltLayout = screenDimensions.height < 720;
+  const { t } = useTranslation();
+  const { sparkInformation } = useSparkWallet();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { liquidNodeInformation, fiatStats } = useNodeContext();
   // const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   // const {webViewRef} = useWebView();
 
   const [isAmountFocused, setIsAmountFocused] = useState(true);
@@ -245,7 +245,7 @@ export default function SendPaymentScreen(props) {
   }
 
   const clearSettings = () => {
-    setPaymentInfo(prev => ({...prev, canEditPayment: true, sendAmount: ''}));
+    setPaymentInfo(prev => ({ ...prev, canEditPayment: true, sendAmount: '' }));
     setMasterTokenInfo({});
   };
 
@@ -253,7 +253,8 @@ export default function SendPaymentScreen(props) {
     <CustomKeyboardAvoidingView
       useLocalPadding={true}
       isKeyboardActive={!isAmountFocused}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       <View style={styles.topBar}>
         <TouchableOpacity
           style={styles.backArrow}
@@ -263,7 +264,8 @@ export default function SendPaymentScreen(props) {
             paymentInfo.type === 'spark'
               ? clearSettings
               : goBackFunction
-          }>
+          }
+        >
           <ThemeImage
             lightModeIcon={ICONS.smallArrowLeft}
             darkModeIcon={ICONS.smallArrowLeft}
@@ -283,7 +285,8 @@ export default function SendPaymentScreen(props) {
           alignItems: 'center',
           justifyContent: 'center',
           paddingVertical: 10,
-        }}>
+        }}
+      >
         <FormattedBalanceInput
           maxWidth={0.9}
           amountValue={sendingAmount}
@@ -309,9 +312,9 @@ export default function SendPaymentScreen(props) {
         )} */}
         {!isUsingLRC20 && (
           <FormattedSatText
-            containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
+            containerStyles={{ opacity: !sendingAmount ? 0.5 : 1 }}
             neverHideBalance={true}
-            styles={{includeFontPadding: false, ...styles.satValue}}
+            styles={{ includeFontPadding: false, ...styles.satValue }}
             globalBalanceDenomination={
               masterInfoObject.userBalanceDenomination === 'sats' ||
               masterInfoObject.userBalanceDenomination === 'hidden'
@@ -622,7 +625,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  backArrow: {position: 'absolute', zIndex: 99, left: 0},
+  backArrow: { position: 'absolute', zIndex: 99, left: 0 },
   maxAndAcceptContainer: {
     width: INSET_WINDOW_WIDTH,
     flexDirection: 'row',

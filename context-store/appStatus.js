@@ -7,15 +7,15 @@ import {
   useCallback,
   useRef,
 } from 'react';
-import {AppState, Platform} from 'react-native';
-import {getBoltzSwapPairInformation} from '../app/functions/boltz/boltzSwapInfo';
+import { AppState, Dimensions, Platform } from 'react-native';
+import { getBoltzSwapPairInformation } from '../app/functions/boltz/boltzSwapInfo';
 import * as Network from 'expo-network';
-import {navigationRef} from '../navigation/navigationService';
+import { navigationRef } from '../navigation/navigationService';
 
 // Initiate context
 const AppStatusManager = createContext(null);
 
-const AppStatusProvider = ({children}) => {
+const AppStatusProvider = ({ children }) => {
   const [minMaxLiquidSwapAmounts, setMinMaxLiquidSwapAmounts] = useState({
     min: 1000,
     max: 25000000,
@@ -28,6 +28,7 @@ const AppStatusProvider = ({children}) => {
     useState(true);
   const [didGetToHomepage, setDidGetToHomePage] = useState(false);
   const [appState, setAppState] = useState(AppState.currentState);
+  const [screenDimensions, setScreenDimensions] = useState(0);
 
   const hasInitializedNavListener = useRef(false);
   const hasInitializedBoltzData = useRef(false);
@@ -38,7 +39,16 @@ const AppStatusProvider = ({children}) => {
   }, []);
 
   const toggleMinMaxLiquidSwapAmounts = useCallback(newInfo => {
-    setMinMaxLiquidSwapAmounts(prev => ({...prev, ...newInfo}));
+    setMinMaxLiquidSwapAmounts(prev => ({ ...prev, ...newInfo }));
+  }, []);
+
+  useEffect(() => {
+    const handleWindowSizechange = newDimensions => {
+      console.log('Window size state changed to:', newDimensions.screen);
+      setScreenDimensions(newDimensions.screen);
+    };
+    setScreenDimensions(Dimensions.get('screen'));
+    Dimensions.addEventListener('change', handleWindowSizechange);
   }, []);
 
   useEffect(() => {
@@ -136,7 +146,7 @@ const AppStatusProvider = ({children}) => {
 
     if (Platform.OS == 'ios') {
       Network.addNetworkStateListener(
-        ({type, isConnected, isInternetReachable}) => {
+        ({ type, isConnected, isInternetReachable }) => {
           console.log(
             `Network type: ${type}, Connected: ${isConnected}, Internet Reachable: ${isInternetReachable}`,
           );
@@ -170,6 +180,7 @@ const AppStatusProvider = ({children}) => {
       didGetToHomepage,
       toggleDidGetToHomepage,
       appState,
+      screenDimensions,
     }),
     [
       minMaxLiquidSwapAmounts,
@@ -178,6 +189,7 @@ const AppStatusProvider = ({children}) => {
       didGetToHomepage,
       toggleDidGetToHomepage,
       appState,
+      screenDimensions,
     ],
   );
 
@@ -196,4 +208,4 @@ function useAppStatus() {
   return context;
 }
 
-export {AppStatusManager, AppStatusProvider, useAppStatus};
+export { AppStatusManager, AppStatusProvider, useAppStatus };
