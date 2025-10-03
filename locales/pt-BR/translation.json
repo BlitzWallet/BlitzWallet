@@ -851,7 +851,7 @@
       "ok": "OK"
     },
     "see_all_txs": "Ver todas as transações",
-    "no_transaction_history": "Send or receive a transaction for it to show up here",
+    "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui",
     "contactsPage": {
       "header": "Select recipient",
       "inputTextPlaceholder": "Search username...",
@@ -954,18 +954,18 @@
     "homeLightning": {
       "home": {
         "see_all_txs": "Ver todas as transações",
-        "no_transaction_history": "Envie ou receba uma transação para que ela apareça aqui"
+        "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui"
       },
 
       "lrc20Assets": {
         "actionText": "{{action}} tokens",
-        "tokensSearchPlaceholder": "Search tokens...",
-        "noTokensText": "You have no tokens",
-        "noTokensFoundText": "No tokens found"
+        "tokensSearchPlaceholder": "Procurar tokens...",
+        "noTokensText": "Você não possui tokens",
+        "noTokensFoundText": "Nenhum token encontrado"
       },
       "manualEnterSendAddress": {
         "title": "Enter in destination",
-        "paymentTypesDesc": "Blitz wallet can send to spark, on-chain, LNURL and BOLT 11 addresses"
+        "paymentTypesDesc": "A carteira Blitz pode enviar para endereços Spark, on-chain, LNURL e BOLT 11"
       },
       "sparkErrorScreen": {
         "connectionError": "We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your seed phrase keeps your funds safe.",
@@ -1249,9 +1249,9 @@
       "nwcDesc": "Connect your Blitz Wallet to apps using Nostr."
     },
     "fiatCurrency": {
-      "title": "Display Currency",
-      "placeholderText": "Search currency",
-      "saveCurrencyError": "We were unable to save the selected currency, please try again."
+      "title": "Moeda de exibição",
+      "placeholderText": "Procurar moeda",
+      "saveCurrencyError": "Não foi possível salvar a moeda selecionada, tente novamente."
     },
     "feeInformation": {
       "title": "",
