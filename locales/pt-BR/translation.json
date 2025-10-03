@@ -158,52 +158,52 @@
   },
 
   "transactionLabelText": {
-    "notSent": "Payment not sent",
-    "txTime_just_now": "Just now",
-    "ago": "ago",
-    "pending": "Pending",
-    "confirmed": "Confirmed",
-    "processing": "Processing",
-    "successful": "Successful",
-    "failed": "Failed",
+    "notSent": "Pagamento não enviado",
+    "txTime_just_now": "Agora mesmo",
+    "ago": "atrás",
+    "pending": "Pendente",
+    "confirmed": "Confirmado",
+    "processing": "Processando",
+    "successful": "Sucesso",
+    "failed": "Falhou",
     "requestDeclined": "Request declined",
     "declinedRequest": "Declined request",
     "requestSent": "Payment request sent",
     "requestPaid": "Request paid",
     "paidRequest": "Paid request",
-    "sent": "Sent",
-    "received": "Received",
-    "paidLower": "paid",
+    "sent": "Enviado",
+    "received": "Recebido",
+    "paidLower": "pago",
     "declinedLower": "declined",
     "receivedRequest": "Received request",
-    "date": "Date",
-    "time": "Time",
+    "date": "Data",
+    "time": "Hora",
     "memo": "Memo",
-    "roostockSwap": "Rootstock to Spark Swap"
+    "roostockSwap": "Troca da Rootstock para Spark"
   },
 
   "createAccount": {
     "chooseLanguage": {
-      "title": "Choose Language"
+      "title": "Escolher idioma"
     },
     "homePage": {
-      "subtitle": "Your wallet, your coins, 100% open-source",
+      "subtitle": "Sua carteira, seu dinheiro, 100% código livre",
       "buttons": {
-        "button1": "Enter seed phrase",
-        "button2": "Make new wallet"
+        "button1": "Insira sua frase de recuperação",
+        "button2": "Criar nova carteira"
       }
     },
     "disclaimerPage": {
-      "header": "Self-custodial",
+      "header": "Custódia própria",
       "subHeader": "Blitz cannot access your funds or help recover them if lost. By continuing, you agree to Blitz Wallet's terms and conditions.",
       "imgCaption": "'With great power comes great responsibility' - Uncle Ben",
-      "acceptPrefix": "I accept the ",
-      "terms&Conditions": "Terms and Conditions",
-      "acceptError": "To continue, you must accept the Terms and Conditions.",
-      "continueBTN": "Next"
+      "acceptPrefix": "Eu aceito os ",
+      "terms&Conditions": "Termos e Condições",
+      "acceptError": "Para continuar, você deve aceitar os Termos e Condições.",
+      "continueBTN": "Próximo"
     },
     "verifyKeyPage": {
-      "header": "Let's confirm your backup!"
+      "header": "Vamos confirmar seu backup!"
     },
     "keySetup": {
       "generateKey": {
@@ -214,21 +214,21 @@
         "keyGenError": "Not able to generate valid seed",
         "seedPrivacyMessage": "Make sure no one is around who can see your screen.",
         "showIt": "Show it",
-        "invalidSeedError": "Not able to generate valid seed"
+        "invalidSeedError": "Não foi possível gerar uma seed válida"
       },
       "pin": {
-        "savePinError": "Unable to save pin",
-        "removeWalletError": "Error removing wallet",
-        "wrongPinError": "Try again",
-        "enterPinMessage": "Create PIN",
-        "confirmPin": "Confirm Pin",
-        "attemptsText": "{{number}} attempts left"
+        "savePinError": "Não foi possível salvar o PIN",
+        "removeWalletError": "Erro ao remover a carteira",
+        "wrongPinError": "Tente novamente",
+        "enterPinMessage": "Criar PIN",
+        "confirmPin": "Confirmar Pin",
+        "attemptsText": "{{number}} tentativas restantes"
       }
     },
     "restoreWallet": {
       "home": {
-        "header": "Enter your recovery phrase",
-        "continueBTN": "Restore wallet",
+        "header": "Insira sua chave de recuperação",
+        "continueBTN": "Restaurar carteira",
         "error1": "Please enter all of your keys.",
         "error2": "This is not a valid mnemonic.",
         "error3": "Your words are not the same as the generated words",
@@ -250,9 +250,9 @@
   "adminLogin": {
     "pinPage": {
       "isBiometricEnabledConfirmAction": "Since biometric setting are enabled you cannot use the default pin login method. Would you like to terminate your account?",
-      "wrongPinError": "Wrong PIN, try again",
-      "enterPinMessage": "Enter PIN",
-      "attemptsText": "{{attempts}} attempts left"
+      "wrongPinError": "PIN incorreto, tente novamente",
+      "enterPinMessage": "Inserir PIN",
+      "attemptsText": "{{attempts}} tentativas restantes"
     }
   },
 
@@ -838,9 +838,9 @@
       "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"
     },
     "cameraModal": {
-      "noCamera": "No access to camera",
-      "settingsText": "Go to settings to let Blitz Wallet access your camera",
-      "noCameraDevice": "You do not have a camera device.",
+      "noCamera": "Sem acesso à câmera",
+      "settingsText": "Acesse as configurações para permitir que a Carteira Blitz acesse sua câmera",
+      "noCameraDevice": "Você não tem um dispositivo com câmera.",
       "noFlash": " Device does not have a torch",
       "sanningResponse": "Only QRcodes are accepted.",
       "qrDecodeError": "Error decoding QR code"
@@ -850,7 +850,7 @@
       "errorWithCopy": "Error copying to clipboard",
       "ok": "OK"
     },
-    "see_all_txs": "See all transactions",
+    "see_all_txs": "Ver todas as transações",
     "no_transaction_history": "Send or receive a transaction for it to show up here",
     "contactsPage": {
       "header": "Select recipient",
@@ -859,24 +859,24 @@
       "giftsText": "My Gifts"
     },
     "cameraPage": {
-      "noCameraAccess": "No access to camera",
-      "settingsText": "Go to settings to let Blitz Wallet access your camera",
-      "noCameraDevice": "You do not have a camera device.",
+      "noCameraAccess": "Sem acesso à câmera",
+      "settingsText": "Acesse as configurações para permitir que a Carteira Blitz acesse sua câmera",
+      "noCameraDevice": "Você não tem um dispositivo com câmera.",
       "error1": "Device does not have a torch",
       "error2": "You have already paid this invoice"
     },
     "receivePages": {
       "editPaymentInfo": {
         "receive_amount": "receive amount",
-        "descriptionInputPlaceholder": "Description..."
+        "descriptionInputPlaceholder": "Descrição..."
       },
       "buttonContainer": {
-        "format": "Choose Network",
+        "format": "Escolher Rede",
         "infoMessage": "Custom amounts aren’t supported on Spark or Rootstock payments."
       },
 
       "switchReceiveOptionPage": {
-        "title": "Choose Network",
+        "title": "Escolher Rede",
         "actionBTN": "Show {{action}}",
         "sparkWarningMessage": "Receiving directly via Spark will expose your balance to the person paying and is not considered private.",
         "swapWarning": "{{swapType}} payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the {{swapType}} payment is confirmed.",
@@ -893,11 +893,11 @@
     },
     "sendPages": {
       "sendPaymentScreen": {
-        "initialLoadingMessage": "Preparing invoice details",
-        "alreadyPaidInvoiceError": "You have already paid this invoice",
-        "descriptionPlaceholder": "Payment description...",
-        "fallbackErrorMessage": "Error decoding invoice",
-        "connectToSparkMessage": "Connecting to Spark"
+        "initialLoadingMessage": "Preparando detalhes da fatura",
+        "alreadyPaidInvoiceError": "Você já pagou esta fatura",
+        "descriptionPlaceholder": "Descrição do pagamento...",
+        "fallbackErrorMessage": "Erro ao decodificar a fatura",
+        "connectToSparkMessage": "Conectando à Spark"
       },
       "handlingAddressErrors": {
         "invlidFormat": "Addresses should be text only. Please check and try again.",
@@ -924,9 +924,9 @@
         "title": "Error message"
       },
       "feeInfo": {
-        "title": "Fee and Speed",
+        "title": "Taxa e Velocidade",
         "backTextToAmount": "{{amount}}",
-        "tenMinutes": "{{numMins}} minutes"
+        "tenMinutes": "{{numMins}} minutos"
       },
 
       "selectLRC20Token": {
@@ -953,7 +953,7 @@
     },
     "homeLightning": {
       "home": {
-        "see_all_txs": "See all transactions",
+        "see_all_txs": "Ver todas as transações",
         "no_transaction_history": "Send or receive a transaction for it to show up here"
       },
 
@@ -973,15 +973,15 @@
       }
     },
     "exportTransactions": {
-      "paymentType": "Payment Type",
-      "description": "Description",
-      "date": "Date",
+      "paymentType": "Tipo de Pagamento",
+      "description": "Descrição",
+      "date": "Data",
       "txFees": "Transaction Fees (SAT)",
-      "amount": "Amount (SAT)",
-      "sent/received": "Sent/Received",
+      "amount": "Quantia (SAT)",
+      "sent/received": "Enviado/Recebido",
       "title": "Export your payment history in CSV (comma seperated value) format.",
-      "paymentsCounter": "{{number}} payments",
-      "paymentsCounterTracker": "{{number}} of {{total}}",
+      "paymentsCounter": "{{number}} pagamentos",
+      "paymentsCounterTracker": "{{number}} do {{total}}",
       "loadingMessage": "Loading saved transactions"
     }
   },
@@ -1197,10 +1197,10 @@
     },
     "viewSwapsHome": {
       "swaps": "Swaps",
-      "selectionTitle": "Choose Network",
+      "selectionTitle": "Escolher Rede",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
-      "pageTitle": "{{type}} Swaps"
+      "pageTitle": "{{type}} Trocas"
     },
 
     "viewRoostockSwaps": {
@@ -1480,33 +1480,33 @@
       },
 
       "settingsContent": {
-        "about": "About",
-        "language": "Language",
-        "display currency": "Display Currency",
-        "display options": "Display Options",
-        "edit contact profile": "Edit Contact Profile",
-        "view all swaps": "Swaps",
-        "fast pay": "Fast Pay",
-        "blitz fee details": "Blitz Fee Details",
-        "crash reports": "Crash Reports",
-        "notifications": "Notifications",
-        "blitz stats": "Blitz Stats",
-        "accounts": "Accounts",
+        "about": "Sobre",
+        "language": "Idioma",
+        "display currency": "Moeda de Exibição",
+        "display options": "Opções de Tela",
+        "edit contact profile": "Editar Perfil de Contato",
+        "view all swaps": "Trocas",
+        "fast pay": "Pagamento Rápido",
+        "blitz fee details": "Taxas da Carteira Blitz",
+        "crash reports": "Relatórios de Travamentos",
+        "notifications": "Notificações",
+        "blitz stats": "Estatísticas Blitz",
+        "accounts": "Contas",
         "nostr": "nostr",
-        "login mode": "Login Mode",
-        "backup wallet": "Backup Wallet",
-        "spark info": "Spark Info",
-        "delete wallet": "Delete Wallet",
-        "general": "General",
-        "security": "Security",
-        "technical settings": "Technical Settings",
-        "experimental features": "Experimental Features",
-        "settings": "Settings",
+        "login mode": "Opções de Login",
+        "backup wallet": "Backup da Carteira",
+        "spark info": "Informações Spark",
+        "delete wallet": "Excluir Carteira",
+        "general": "Geral",
+        "security": "Segurança",
+        "technical settings": "Configurações Técnicas",
+        "experimental features": "Funções Experimentais",
+        "settings": "Configurações",
         "blitzRestore": "Blitz Restore",
-        "point-of-sale": "Point-of-sale"
+        "point-of-sale": "Ponto de venda"
       },
       "technicalTransactionDetails": {
-        "txHash": "Transaction Hash",
+        "txHash": "Hash da Transação",
         "paymentId": "Payment Id",
         "preimage": "Payment Preimage",
         "address": "Payment Address",
@@ -1518,11 +1518,11 @@
         "senders": "sender's"
       },
       "viewAllTxPage": {
-        "title": "Transactions"
+        "title": "Transações"
       },
 
       "lrc20HalfModal": {
-        "title": "Search Tokens",
+        "title": "Procurar Tokens",
         "searchPlaceholder": "Token name...",
         "noTokens": "No tokens found"
       },
@@ -1536,14 +1536,14 @@
   },
 
   "toastmessages": {
-    "confirmCopy": "Copied to clipboard",
-    "failedCopy": "Failed to copy"
+    "confirmCopy": "Copiado para a área de transferência",
+    "failedCopy": "Falha ao copiar"
   },
 
   "errormessages": {
-    "nointernet": "Please reconnect to the internet to use this feature",
-    "genericError": "An unexpected error occurred",
-    "tryAgain": "Please try again",
+    "nointernet": "Reconecte-se à Internet para usar este recurso",
+    "genericError": "Ocorreu um erro inesperado",
+    "tryAgain": "Por favor, tente novamente",
     "contactSupport": "Please contact support if the issue persists",
     "deleteAccount": "Error deleting account.",
     "failedToDecryptPin": "Failed to decrypt pin",
@@ -1592,10 +1592,10 @@
   },
 
   "loadingScreen": {
-    "message1": "Please don't close the app",
-    "message2": "We are setting things up",
-    "loadingText": "We're setting things up. Hang tight! This could take up to a minute.",
-    "errorText1": "Error connecting to your node. Try reloading the app."
+    "message1": "Por favor, não feche o aplicativo",
+    "message2": "Estamos deixando tudo pronto",
+    "loadingText": "Estamos organizando tudo. Aguarde! Isso pode levar até um minuto.",
+    "errorText1": "Erro ao conectar ao seu nó. Tente recarregar o aplicativo."
   },
   "contexts": {
     "spark": {
@@ -1607,14 +1607,14 @@
     "liquid": "Liquid to Spark Swap"
   },
   "tabs": {
-    "home": "Wallet",
-    "appStore": "Store",
-    "contacts": "Contacts"
+    "home": "Carteira",
+    "appStore": "Loja",
+    "contacts": "Contatos"
   },
   "pushNotifications": {
     "LNURL": {
-      "zapped": "You were zapped {{totalAmount}}",
-      "regular": "You just received {{totalAmount}}"
+      "zapped": "Você recebeu um Zap {{totalAmount}}",
+      "regular": "Você acabou de receber {{totalAmount}}"
     },
     "POS": "Order received: {{totalAmount}}",
     "contacts": {
