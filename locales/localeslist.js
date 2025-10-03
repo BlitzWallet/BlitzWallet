@@ -20,4 +20,11 @@ export const supportedLanguagesList = [
     id: 'it',
     flagCode: 'it',
   },
+  {
+    languageName: 'Português (Brasil)',
+    fullySupported: false,
+    translatedName: 'languages.portuguese_br',
+    id: 'pt-BR',
+    flagCode: 'br',
+  },
 ];

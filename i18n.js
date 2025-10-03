@@ -5,11 +5,12 @@ import {initReactI18next} from 'react-i18next';
 import enTranslation from './locales/en/translation.json';
 import spTranslation from './locales/sp/translation.json';
 import itTranslation from './locales/it/translation.json';
+import ptBrTranslation from './locales/pt-BR/translation.json';
 
 i18n.use(initReactI18next).init({
   debug: true,
   fallbackLng: 'en',
-  supportedLngs: ['en', 'sp', 'it'],
+  supportedLngs: ['en', 'sp', 'it', 'pt-BR'],
   interpolation: {
     escapeValue: false,
   },
@@ -22,6 +23,9 @@ i18n.use(initReactI18next).init({
     },
     it: {
       translation: itTranslation,
+    },
+    'pt-BR': {
+      translation: ptBrTranslation,
     },
   },
 });
