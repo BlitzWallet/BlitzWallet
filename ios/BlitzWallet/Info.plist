@@ -101,10 +101,12 @@
 	<string>Blitz Wallet uses your camera to scan QR codes invoices or contact information for seamless payments.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Blitz Wallet uses Face ID to securely unlock your wallet</string>
-	<key>NSLocationWhenInUseUsageDescription</key> 
+	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Blitz wallet is now using your location</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Blitz Wallet needs photo library access to select contact images and read payment QR codes.</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Poppins-Black.ttf</string>
@@ -132,7 +134,7 @@
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
-	<string></string>
+	<string/>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>arm64</string>
@@ -140,7 +142,7 @@
 	<key>UIStatusBarHidden</key>
 	<false/>
 	<key>UIStatusBarStyle</key>
-	<string></string>
+	<string/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

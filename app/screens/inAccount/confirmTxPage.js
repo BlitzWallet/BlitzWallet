@@ -1,34 +1,36 @@
-import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
-import {CENTER, COLORS, FONT, SCREEN_DIMENSIONS, SIZES} from '../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {useEffect, useMemo, useRef} from 'react';
-import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
+import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import { CENTER, COLORS, FONT, SIZES } from '../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect, useMemo, useRef } from 'react';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
 import LottieView from 'lottie-react-native';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
-import {copyToClipboard} from '../../functions';
+import { copyToClipboard } from '../../functions';
 import GetThemeColors from '../../hooks/themeColors';
-import {openComposer} from 'react-native-email-link';
-import {useGlobalThemeContext} from '../../../context-store/theme';
+import { openComposer } from 'react-native-email-link';
+import { useGlobalThemeContext } from '../../../context-store/theme';
 import {
   applyErrorAnimationTheme,
   updateConfirmAnimation,
 } from '../../functions/lottieViewColorTransformer';
-import {useToast} from '../../../context-store/toastManager';
-import {useSparkWallet} from '../../../context-store/sparkContext';
+import { useToast } from '../../../context-store/toastManager';
+import { useSparkWallet } from '../../../context-store/sparkContext';
 import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import { useAppStatus } from '../../../context-store/appStatus';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
 export default function ConfirmTxPage(props) {
-  const {sparkInformation} = useSparkWallet();
+  const { sparkInformation } = useSparkWallet();
+  const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
-  const {showToast} = useToast();
-  const {backgroundOffset} = GetThemeColors();
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { showToast } = useToast();
+  const { backgroundOffset } = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const animationRef = useRef(null);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const isLNURLAuth = props.route.params?.useLNURLAuth;
   const transaction = props.route.params?.transaction;
   const hasError = props.route.params?.error;
@@ -81,15 +83,15 @@ export default function ConfirmTxPage(props) {
         source={didSucceed ? confirmAnimation : errorAnimation}
         loop={false}
         style={{
-          width: SCREEN_DIMENSIONS.width / 1.5,
-          height: SCREEN_DIMENSIONS.width / 1.5,
+          width: screenDimensions.width / 1.5,
+          height: screenDimensions.width / 1.5,
           maxWidth: 400,
           maxHeight: 400,
         }}
       />
       {!isLNURLAuth && (
         <ThemeText
-          styles={{fontSize: SIZES.large, marginBottom: 10}}
+          styles={{ fontSize: SIZES.large, marginBottom: 10 }}
           content={
             !didSucceed
               ? t('screens.inAccount.confirmTxPage.failedToSend')
@@ -104,7 +106,7 @@ export default function ConfirmTxPage(props) {
       )}
 
       {didSucceed && !isLNURLAuth && (
-        <View style={{marginBottom: 10}}>
+        <View style={{ marginBottom: 10 }}>
           <FormattedSatText
             styles={{
               fontSize: SIZES.huge,
@@ -189,8 +191,9 @@ export default function ConfirmTxPage(props) {
             width: '95%',
             maxWidth: 300,
             minHeight: 100,
-          }}>
-          <ScrollView contentContainerStyle={{padding: 10}}>
+          }}
+        >
+          <ScrollView contentContainerStyle={{ padding: 10 }}>
             <ThemeText content={errorMessage} />
           </ScrollView>
         </View>
@@ -207,9 +210,10 @@ export default function ConfirmTxPage(props) {
             } catch (err) {
               copyToClipboard(String(errorMessage), showToast);
             }
-          }}>
+          }}
+        >
           <ThemeText
-            styles={{marginTop: 10, marginBottom: 20}}
+            styles={{ marginTop: 10, marginBottom: 20 }}
             content={t('screens.inAccount.confirmTxPage.sendReport')}
           />
         </TouchableOpacity>

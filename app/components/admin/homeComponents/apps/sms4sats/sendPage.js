@@ -11,52 +11,47 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {
-  CENTER,
-  COLORS,
-  ICONS,
-  SCREEN_DIMENSIONS,
-  SIZES,
-} from '../../../../../constants';
-import {useCallback, useMemo, useRef, useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
-import {sendCountryCodes} from './sendCountryCodes';
+import { CENTER, COLORS, ICONS, SIZES } from '../../../../../constants';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { sendCountryCodes } from './sendCountryCodes';
 import CustomNumberKeyboard from '../../../../../functions/CustomElements/customNumberKeyboard';
-import {KEYBOARDTIMEOUT} from '../../../../../constants/styles';
-import {AsYouType} from 'libphonenumber-js';
+import { KEYBOARDTIMEOUT } from '../../../../../constants/styles';
+import { AsYouType } from 'libphonenumber-js';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import {useGlobalAppData} from '../../../../../../context-store/appData';
+import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {useKeysContext} from '../../../../../../context-store/keys';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import { useKeysContext } from '../../../../../../context-store/keys';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import sendStorePayment from '../../../../../functions/apps/payments';
-import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
-import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
-import {useTranslation} from 'react-i18next';
-import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
+import { useSparkWallet } from '../../../../../../context-store/sparkContext';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import { useTranslation } from 'react-i18next';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import CountryFlag from 'react-native-country-flag';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {decode} from 'bolt11';
+import { decode } from 'bolt11';
 
 export default function SMSMessagingSendPage() {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {fiatStats} = useNodeContext();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {sparkInformation} = useSparkWallet();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {decodedMessages, toggleGlobalAppDataInformation} = useGlobalAppData();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { fiatStats } = useNodeContext();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { sparkInformation } = useSparkWallet();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { decodedMessages, toggleGlobalAppDataInformation } =
+    useGlobalAppData();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [areaCode, setAreaCode] = useState('');
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [sendingMessage, setSendingMessage] = useState(
     t('apps.sms4sats.sendPage.startingSendingMessage'),
   );
@@ -65,7 +60,7 @@ export default function SMSMessagingSendPage() {
   const areaCodeRef = useRef(null);
   const messageRef = useRef(null);
   const navigate = useNavigation();
-  const {textColor, backgroundColor} = GetThemeColors();
+  const { textColor, backgroundColor } = GetThemeColors();
 
   const selectedAreaCode = useMemo(() => {
     return sendCountryCodes.filter(
@@ -91,7 +86,7 @@ export default function SMSMessagingSendPage() {
   }, [areaCode]);
 
   const flatListItem = useCallback(
-    ({item}) => {
+    ({ item }) => {
       return (
         <TouchableOpacity
           style={styles.countryItem}
@@ -102,9 +97,10 @@ export default function SMSMessagingSendPage() {
             setTimeout(() => {
               messageRef.current?.focus();
             }, KEYBOARDTIMEOUT);
-          }}>
+          }}
+        >
           <CountryFlag
-            style={{padding: 0, borderRadius: 8, marginBottom: 5}}
+            style={{ padding: 0, borderRadius: 8, marginBottom: 5 }}
             isoCode={item.isoCode}
             size={50}
           />
@@ -128,11 +124,13 @@ export default function SMSMessagingSendPage() {
   return (
     <TouchableWithoutFeedback
       onPress={clearKeyboardFunc}
-      style={styles.container}>
+      style={styles.container}
+    >
       <CustomKeyboardAvoidingView
         isKeyboardActive={focusedElement && focusedElement !== 'phoneNumber'}
         useLocalPadding={true}
-        useStandardWidth={true}>
+        useStandardWidth={true}
+      >
         <CustomSettingsTopBar
           customBackFunction={() => {
             setTimeout(
@@ -188,7 +186,8 @@ export default function SMSMessagingSendPage() {
               onPress={() => {
                 Keyboard.dismiss();
                 changeFunction('phoneNumber');
-              }}>
+              }}
+            >
               <ThemeText
                 styles={{
                   ...styles.inputStyles,
@@ -216,7 +215,8 @@ export default function SMSMessagingSendPage() {
               onPress={() => {
                 areaCodeRef.current.focus();
               }}
-              style={styles.pushContentToBottom}>
+              style={styles.pushContentToBottom}
+            >
               <ThemeText
                 styles={{
                   ...styles.inputStyles,
@@ -301,7 +301,7 @@ export default function SMSMessagingSendPage() {
         ) : (
           <FullLoadingScreen
             text={sendingMessage}
-            textStyles={{textAlign: 'center'}}
+            textStyles={{ textAlign: 'center' }}
           />
         )}
       </CustomKeyboardAvoidingView>
@@ -370,7 +370,7 @@ export default function SMSMessagingSendPage() {
           `https://api2.sms4sats.com/createsendorder`,
           {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           },
         );
@@ -388,7 +388,11 @@ export default function SMSMessagingSendPage() {
         });
         if (!fee.didWork) throw new Error(fee.error);
 
-        orderInformation = {...data, fee: fee.fee, supportFee: fee.supportFee};
+        orderInformation = {
+          ...data,
+          fee: fee.fee,
+          supportFee: fee.supportFee,
+        };
       }
 
       savedMessages.sent.push({
@@ -456,7 +460,7 @@ export default function SMSMessagingSendPage() {
             routes: [
               {
                 name: 'HomeAdmin',
-                params: {screen: 'Home'},
+                params: { screen: 'Home' },
               },
               {
                 name: 'ConfirmTxPage',
@@ -493,12 +497,12 @@ export default function SMSMessagingSendPage() {
       JSON.stringify(messageObject),
     );
 
-    toggleGlobalAppDataInformation({messagesApp: em}, true);
+    toggleGlobalAppDataInformation({ messagesApp: em }, true);
   }
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1},
+  container: { flex: 1 },
 
   inputStyles: {
     width: '100%',
@@ -543,7 +547,6 @@ const styles = StyleSheet.create({
   },
   countryItem: {
     flex: 1,
-    maxWidth: SCREEN_DIMENSIONS.width * 0.3333 - 15,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -1,23 +1,22 @@
-import {useEffect, useRef, useState} from 'react';
-import {useToast} from '../../../../../../context-store/toastManager';
-import {ScrollView, StyleSheet, View} from 'react-native';
-import {useKeysContext} from '../../../../../../context-store/keys';
-import {useNavigation} from '@react-navigation/native';
+import { useEffect, useRef, useState } from 'react';
+import { useToast } from '../../../../../../context-store/toastManager';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useKeysContext } from '../../../../../../context-store/keys';
+import { useNavigation } from '@react-navigation/native';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useTranslation} from 'react-i18next';
-import {deriveKeyFromMnemonic} from '../../../../../functions/seed';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useTranslation } from 'react-i18next';
+import { deriveKeyFromMnemonic } from '../../../../../functions/seed';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {ThemeText} from '../../../../../functions/CustomElements';
+import { ThemeText } from '../../../../../functions/CustomElements';
 import {
   CENTER,
   NWC_IDENTITY_PUB_KEY,
   NWC_SECURE_STORE_MNEMOINC,
-  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../../constants';
-import {COLORS, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
-import {KeyContainer} from '../../../../login';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import { KeyContainer } from '../../../../login';
 import {
   copyToClipboard,
   retrieveData,
@@ -25,35 +24,35 @@ import {
 } from '../../../../../functions';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import {
   getNWCSparkIdentityPubKey,
   initializeNWCWallet,
 } from '../../../../../functions/nwc/wallet';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
 
 export default function NWCWalletSetup(props) {
-  const {toggleMasterInfoObject} = useGlobalContextProvider();
-  const {showToast} = useToast();
+  const { screenDimensions } = useAppStatus();
+  const { toggleMasterInfoObject } = useGlobalContextProvider();
+  const { showToast } = useToast();
   const fromWallet = props?.route?.params?.fromWallet;
-  const {accountMnemoinc} = useKeysContext();
-  const fadeAnim = useSharedValue(
-    fromWallet ? SCREEN_DIMENSIONS.height * 2 : 0,
-  );
-  const {topPadding, bottomPadding} = useGlobalInsets();
+  const { accountMnemoinc } = useKeysContext();
+  const fadeAnim = useSharedValue(fromWallet ? screenDimensions.height * 2 : 0);
+  const { topPadding, bottomPadding } = useGlobalInsets();
   const [NWCMnemonic, setNWCMnemoinc] = useState(null);
   const isInitialRender = useRef(true);
   const mnemonic = NWCMnemonic?.split(' ');
   const [showSeed, setShowSeed] = useState(!!fromWallet);
   const navigate = useNavigation();
-  const {backgroundColor, backgroundOffset} = GetThemeColors();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {t} = useTranslation();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { t } = useTranslation();
 
   useEffect(() => {
     function initPage() {
@@ -68,13 +67,13 @@ export default function NWCWalletSetup(props) {
 
           const response = deriveKeyFromMnemonic(accountMnemoinc, 2);
           if (response.error) {
-            navigate.navigate('ErrorScreen', {errorMessage: response.error});
+            navigate.navigate('ErrorScreen', { errorMessage: response.error });
             return;
           }
           const didInit = await initializeNWCWallet();
           if (didInit.isConnected) {
             const pubkey = await getNWCSparkIdentityPubKey();
-            toggleMasterInfoObject({[NWC_IDENTITY_PUB_KEY]: pubkey});
+            toggleMasterInfoObject({ [NWC_IDENTITY_PUB_KEY]: pubkey });
           }
           setNWCMnemoinc(response.derivedMnemonic);
         });
@@ -96,12 +95,12 @@ export default function NWCWalletSetup(props) {
   }, [showSeed, mnemonic, fromWallet]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateY: fadeAnim.value}],
+    transform: [{ translateY: fadeAnim.value }],
     backgroundColor: backgroundColor,
   }));
 
   function fadeout() {
-    fadeAnim.value = withTiming(SCREEN_DIMENSIONS.height * 2, {
+    fadeAnim.value = withTiming(screenDimensions.height * 2, {
       duration: 500,
     });
   }
@@ -119,13 +118,15 @@ export default function NWCWalletSetup(props) {
         paddingBottom: fromWallet ? bottomPadding : 0,
         width: fromWallet ? INSET_WINDOW_WIDTH : '100%',
         ...CENTER,
-      }}>
+      }}
+    >
       {fromWallet && <CustomSettingsTopBar />}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollViewStyles}>
+        contentContainerStyle={styles.scrollViewStyles}
+      >
         <ThemeText
-          styles={{...styles.headerPhrase}}
+          styles={{ ...styles.headerPhrase }}
           content={t('settings.seedPhrase.header')}
         />
         <ThemeText
@@ -142,7 +143,7 @@ export default function NWCWalletSetup(props) {
           <KeyContainer keys={mnemonic} />
         </View>
 
-        <View style={{...styles.confirmationContainer, marginTop: 20}}>
+        <View style={{ ...styles.confirmationContainer, marginTop: 20 }}>
           <CustomButton
             actionFunction={() =>
               copyToClipboard(mnemonic.join(' '), showToast)
@@ -157,7 +158,7 @@ export default function NWCWalletSetup(props) {
                   theme && darkModeType ? backgroundOffset : COLORS.primary,
                 marginRight: 20,
               }}
-              textStyles={{color: COLORS.darkModeText}}
+              textStyles={{ color: COLORS.darkModeText }}
               textContent={t('constants.continue')}
               actionFunction={() => props.setHasSeenMnemoinc(true)}
             />

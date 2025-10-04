@@ -1,46 +1,46 @@
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {useCallback, useState} from 'react';
-import {COLORS, SCREEN_DIMENSIONS, SIZES} from '../../../../../constants';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { useCallback, useState } from 'react';
+import { COLORS, SIZES } from '../../../../../constants';
 import VPNDurationSlider from './components/durationSlider';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import GeneratedFile from './pages/generatedFile';
-import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import {useGlobalAppData} from '../../../../../../context-store/appData';
+import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useKeysContext} from '../../../../../../context-store/keys';
+import { useKeysContext } from '../../../../../../context-store/keys';
 import sendStorePayment from '../../../../../functions/apps/payments';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
-import {useTranslation} from 'react-i18next';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useSparkWallet } from '../../../../../../context-store/sparkContext';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import { useTranslation } from 'react-i18next';
 import CountryFlag from 'react-native-country-flag';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {decode} from 'bolt11';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { decode } from 'bolt11';
 
-export default function VPNPlanPage({vpnInformation}) {
+export default function VPNPlanPage({ vpnInformation }) {
   const countryList = vpnInformation.countries;
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const [searchInput, setSearchInput] = useState('');
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {sparkInformation} = useSparkWallet();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {decodedVPNS, toggleGlobalAppDataInformation} = useGlobalAppData();
-  const {masterInfoObject} = useGlobalContextProvider();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { sparkInformation } = useSparkWallet();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { decodedVPNS, toggleGlobalAppDataInformation } = useGlobalAppData();
+  const { masterInfoObject } = useGlobalContextProvider();
   const [selectedDuration, setSelectedDuration] = useState('week');
   const [isPaying, setIsPaying] = useState(false);
   const [generatedFile, setGeneratedFile] = useState(null);
   const navigate = useNavigation();
-  const {textColor} = GetThemeColors();
+  const { textColor } = GetThemeColors();
   const [loadingMessage, setLoadingMessage] = useState('');
-  const {bottomPadding} = useGlobalInsets();
-  const {t} = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
+  const { t } = useTranslation();
 
   const flatListElement = useCallback(
-    ({item}) => {
+    ({ item }) => {
       return (
         <TouchableOpacity
           onPress={() => {
@@ -62,9 +62,10 @@ export default function VPNPlanPage({vpnInformation}) {
                   : 'transparent',
             },
           ]}
-          key={item.name}>
+          key={item.name}
+        >
           <CountryFlag
-            style={{marginBottom: 5, borderRadius: 8}}
+            style={{ marginBottom: 5, borderRadius: 8 }}
             size={50}
             isoCode={item.isoCode}
           />
@@ -94,7 +95,7 @@ export default function VPNPlanPage({vpnInformation}) {
       return;
     }
 
-    const [{name}] = didAddLocation;
+    const [{ name }] = didAddLocation;
 
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'confirmVPN',
@@ -110,7 +111,8 @@ export default function VPNPlanPage({vpnInformation}) {
       style={{
         flex: 1,
         paddingBottom: bottomPadding,
-      }}>
+      }}
+    >
       {isPaying ? (
         <>
           {generatedFile ? (
@@ -162,7 +164,7 @@ export default function VPNPlanPage({vpnInformation}) {
     setIsPaying(true);
     let savedVPNConfigs = JSON.parse(JSON.stringify(decodedVPNS));
 
-    const [{code, name, isoCode}] = countryList.filter(item => {
+    const [{ code, name, isoCode }] = countryList.filter(item => {
       return item.name === searchInput;
     });
 
@@ -286,7 +288,7 @@ export default function VPNPlanPage({vpnInformation}) {
 
         const updatedList = savedVPNConfigs.map(item => {
           if (item.payment_hash === paymentHash) {
-            return {...item, config: configFile};
+            return { ...item, config: configFile };
           } else return item;
         });
         await saveVPNConfigsToDB(updatedList);
@@ -312,12 +314,12 @@ export default function VPNPlanPage({vpnInformation}) {
       JSON.stringify(configList),
     );
 
-    toggleGlobalAppDataInformation({VPNplans: em}, true);
+    toggleGlobalAppDataInformation({ VPNplans: em }, true);
   }
 }
 
 const styles = StyleSheet.create({
-  countryElementPadding: {paddingVertical: 10},
+  countryElementPadding: { paddingVertical: 10 },
   flatListOuterContianer: {
     marginTop: 10,
   },
@@ -333,7 +335,6 @@ const styles = StyleSheet.create({
   },
   countryItem: {
     flex: 1,
-    maxWidth: SCREEN_DIMENSIONS.width * 0.3333 - 15,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,

@@ -11,43 +11,44 @@ import {
   EMAIL_REGEX,
   ICONS,
   POINT_OF_SALE_PAYOUT_DESCRIPTION,
-  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../../constants';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {useNavigation} from '@react-navigation/native';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { useNavigation } from '@react-navigation/native';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {formatDateToDayMonthYear} from '../../../../../functions/rotateAddressDateChecker';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { formatDateToDayMonthYear } from '../../../../../functions/rotateAddressDateChecker';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {useCallback, useMemo, useState} from 'react';
-import {useAppStatus} from '../../../../../../context-store/appStatus';
+import { useCallback, useMemo, useState } from 'react';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
+import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
 import {
   payPOSContact,
   payPOSLNURL,
 } from '../../../../../functions/pos/payments';
 import customUUID from '../../../../../functions/customUUID';
-import {publishMessage} from '../../../../../functions/messaging/publishMessage';
-import {useKeysContext} from '../../../../../../context-store/keys';
-import {bulkUpdateDidPay, deleteEmployee} from '../../../../../functions/pos';
-import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import { publishMessage } from '../../../../../functions/messaging/publishMessage';
+import { useKeysContext } from '../../../../../../context-store/keys';
+import { bulkUpdateDidPay, deleteEmployee } from '../../../../../functions/pos';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import TipsTXItem from './internalComponents/tipTx';
-import {usePOSTransactions} from '../../../../../../context-store/pos';
-import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import {getSingleContact} from '../../../../../../db';
-import {useServerTimeOnly} from '../../../../../../context-store/serverTime';
-import {useTranslation} from 'react-i18next';
+import { usePOSTransactions } from '../../../../../../context-store/pos';
+import { useSparkWallet } from '../../../../../../context-store/sparkContext';
+import { getSingleContact } from '../../../../../../db';
+import { useServerTimeOnly } from '../../../../../../context-store/serverTime';
+import { useTranslation } from 'react-i18next';
 
 export default function TotalTipsScreen(props) {
-  const {decodedAddedContacts, globalContactsInformation} = useGlobalContacts();
-  const {groupedTxs} = usePOSTransactions();
-  const {t} = useTranslation();
+  const { decodedAddedContacts, globalContactsInformation } =
+    useGlobalContacts();
+  const { screenDimensions } = useAppStatus();
+  const { groupedTxs } = usePOSTransactions();
+  const { t } = useTranslation();
   const [wantedName, {}] = props.route?.params?.item;
   const [
     name,
@@ -61,14 +62,14 @@ export default function TotalTipsScreen(props) {
     },
   ] = groupedTxs.find(item => item[0] === wantedName);
   const getServerTime = useServerTimeOnly();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {contactsPrivateKey, accountMnemoinc} = useKeysContext();
-  const {fiatStats} = useNodeContext();
-  const {sparkInformation} = useSparkWallet();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { contactsPrivateKey, accountMnemoinc } = useKeysContext();
+  const { fiatStats } = useNodeContext();
+  const { sparkInformation } = useSparkWallet();
   // const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const {masterInfoObject} = useGlobalContextProvider();
+  const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
-  const {backgroundColor, backgroundOffset} = GetThemeColors();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const [paymentUpdate, setPaymentUpdate] = useState({
     isSending: false,
     errorMessage: '',
@@ -85,7 +86,7 @@ export default function TotalTipsScreen(props) {
         });
         return;
       }
-      setPaymentUpdate(prev => ({...prev, isSending: true}));
+      setPaymentUpdate(prev => ({ ...prev, isSending: true }));
       const [blitzContact] = await Promise.all([
         getSingleContact(name?.toLowerCase()),
       ]);
@@ -189,9 +190,9 @@ export default function TotalTipsScreen(props) {
       } else throw new Error(t('settings.posPath.totalTipsScreen.invalidName'));
     } catch (err) {
       console.log('handle tips payment error', err);
-      navigate.navigate('ErrorScreen', {errorMessage: err.message});
+      navigate.navigate('ErrorScreen', { errorMessage: err.message });
     } finally {
-      setPaymentUpdate(prev => ({...prev, isSending: false}));
+      setPaymentUpdate(prev => ({ ...prev, isSending: false }));
     }
   }, [
     // minMaxLiquidSwapAmounts,
@@ -209,7 +210,7 @@ export default function TotalTipsScreen(props) {
   }, []);
 
   const renderItem = useCallback(
-    ({item}) => {
+    ({ item }) => {
       return (
         <TipsTXItem
           item={item}
@@ -223,8 +224,8 @@ export default function TotalTipsScreen(props) {
   );
 
   const viewHeight = useMemo(
-    () => SCREEN_DIMENSIONS.height * 0.5,
-    [SCREEN_DIMENSIONS.height],
+    () => screenDimensions.height * 0.5,
+    [screenDimensions.height],
   );
   const removeEmployee = useCallback(async name => {
     navigate.navigate('ConfirmActionPage', {
@@ -246,13 +247,14 @@ export default function TotalTipsScreen(props) {
           backgroundColor:
             theme && darkModeType ? backgroundOffset : backgroundColor,
           height: viewHeight,
-        }}>
+        }}
+      >
         {!paymentUpdate.isSending && (
           <View style={styles.navBarButtons}>
             {!viewTips && (
               <TouchableOpacity onPress={() => removeEmployee(name)}>
                 <ThemeImage
-                  styles={{width: 23, height: 23}}
+                  styles={{ width: 23, height: 23 }}
                   lightModeIcon={ICONS.trashIcon}
                   darkModeIcon={ICONS.trashIcon}
                   lightsOutIcon={ICONS.trashIconWhite}
@@ -263,7 +265,8 @@ export default function TotalTipsScreen(props) {
               onPress={() => {
                 if (viewTips) setViewTips(false);
                 else navigate.goBack();
-              }}>
+              }}
+            >
               <ThemeImage
                 lightModeIcon={
                   viewTips ? ICONS.smallArrowLeft : ICONS.xSmallIcon
@@ -283,7 +286,7 @@ export default function TotalTipsScreen(props) {
         {paymentUpdate.isSending ? (
           <>
             <FullLoadingScreen
-              textStyles={{textAlign: 'center'}}
+              textStyles={{ textAlign: 'center' }}
               text={
                 paymentUpdate.errorMessage ||
                 paymentUpdate.updateMessage ||
@@ -291,7 +294,7 @@ export default function TotalTipsScreen(props) {
                   'settings.posPath.totalTipsScreen.startingPaymentProcessMessage',
                 )
               }
-              containerStyles={{height: 250}}
+              containerStyles={{ height: 250 }}
             />
             {paymentUpdate.didComplete && (
               <CustomButton
@@ -301,7 +304,7 @@ export default function TotalTipsScreen(props) {
           </>
         ) : viewTips ? (
           <FlatList
-            contentContainerStyle={{paddingTop: 10, paddingBottom: 20}}
+            contentContainerStyle={{ paddingTop: 10, paddingBottom: 20 }}
             data={txs}
             keyExtractor={item => item.dbDateAdded.toString()}
             renderItem={renderItem}
@@ -313,7 +316,7 @@ export default function TotalTipsScreen(props) {
               styles={styles.employeeName}
               content={name}
             />
-            <ScrollView contentContainerStyle={{paddingBottom: 20}}>
+            <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
               <View style={styles.attributeContainer}>
                 <ThemeText
                   CustomNumberOfLines={1}
@@ -359,7 +362,7 @@ export default function TotalTipsScreen(props) {
             <CustomButton
               actionFunction={() => setViewTips(true)}
               textContent={t('settings.posPath.totalTipsScreen.viewTips')}
-              buttonStyles={{marginTop: 10}}
+              buttonStyles={{ marginTop: 10 }}
             />
           </>
         )}

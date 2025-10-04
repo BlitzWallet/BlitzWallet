@@ -1,15 +1,14 @@
-import {StyleSheet, ScrollView, TouchableOpacity, View} from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
   SATSPERBITCOIN,
-  SCREEN_DIMENSIONS,
 } from '../../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {publishMessage} from '../../../../functions/messaging/publishMessage';
+import { useNavigation } from '@react-navigation/native';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { publishMessage } from '../../../../functions/messaging/publishMessage';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -17,50 +16,50 @@ import {
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {useGlobalContacts} from '../../../../../context-store/globalContacts';
+import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import customUUID from '../../../../functions/customUUID';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
-import {useAppStatus} from '../../../../../context-store/appStatus';
-import {useKeysContext} from '../../../../../context-store/keys';
-import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { useAppStatus } from '../../../../../context-store/appStatus';
+import { useKeysContext } from '../../../../../context-store/keys';
+import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import convertTextInputValue from '../../../../functions/textInputConvertValue';
-import {useServerTimeOnly} from '../../../../../context-store/serverTime';
-import {useTranslation} from 'react-i18next';
+import { useServerTimeOnly } from '../../../../../context-store/serverTime';
+import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import Icon from '../../../../functions/CustomElements/Icon';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {COLORS, INSET_WINDOW_WIDTH, SIZES} from '../../../../constants/theme';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import fetchBackend from '../../../../../db/handleBackend';
-import {getDataFromCollection} from '../../../../../db';
-import FastImage from 'react-native-fast-image';
+import { getDataFromCollection } from '../../../../../db';
+import { Image } from 'expo-image';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
 import giftCardPurchaseAmountTracker from '../../../../functions/apps/giftCardPurchaseTracker';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
-import {useSparkWallet} from '../../../../../context-store/sparkContext';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import getReceiveAddressAndContactForContactsPayment from './internalComponents/getReceiveAddressAndKindForPayment';
 import calculateProgressiveBracketFee from '../../../../functions/spark/calculateSupportFee';
-import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
+import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 
 const MAX_SEND_OPTIONS = [
-  {label: '25%', value: '25'},
-  {label: '50%', value: '50'},
-  {label: '75%', value: '75'},
-  {label: '100%', value: '100'},
+  { label: '25%', value: '25' },
+  { label: '50%', value: '50' },
+  { label: '75%', value: '75' },
+  { label: '100%', value: '100' },
 ];
 
 export default function SendAndRequestPage(props) {
   const navigate = useNavigation();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {sparkInformation} = useSparkWallet();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {fiatStats} = useNodeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { sparkInformation } = useSparkWallet();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
+  const { fiatStats } = useNodeContext();
   // const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const {globalContactsInformation} = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContacts();
   const getServerTime = useServerTimeOnly();
   const [amountValue, setAmountValue] = useState('');
   const [isAmountFocused, setIsAmountFocused] = useState(true);
@@ -69,17 +68,17 @@ export default function SendAndRequestPage(props) {
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination,
   );
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {theme} = useGlobalThemeContext();
-  const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { theme } = useGlobalThemeContext();
+  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
   const descriptionRef = useRef(null);
 
   const selectedContact = props.route.params.selectedContact;
   const paymentType = props.route.params.paymentType;
   const fromPage = props.route.params.fromPage;
   const giftOption = props.route.params.cardInfo;
-  const useAltLayout = SCREEN_DIMENSIONS.height < 720;
+  const useAltLayout = screenDimensions.height < 720;
 
   const isBTCdenominated =
     inputDenomination == 'hidden' || inputDenomination == 'sats';
@@ -228,9 +227,9 @@ export default function SendAndRequestPage(props) {
         );
 
         if (response.result) {
-          const {amount, invoice, orderId, uuid} = response.result;
+          const { amount, invoice, orderId, uuid } = response.result;
           const fiatRates = await (fiatStats.coin?.toLowerCase() === 'usd'
-            ? Promise.resolve({didWork: true, fiatRateResponse: fiatStats})
+            ? Promise.resolve({ didWork: true, fiatRateResponse: fiatStats })
             : loadNewFiatData(
                 'usd',
                 contactsPrivateKey,
@@ -239,7 +238,7 @@ export default function SendAndRequestPage(props) {
               ));
           const USDBTCValue = fiatRates.didWork
             ? fiatRates.fiatRateResponse
-            : {coin: 'USD', value: 100_000};
+            : { coin: 'USD', value: 100_000 };
 
           const sendingAmountSat = amount;
           const isOverDailyLimit = await giftCardPurchaseAmountTracker({
@@ -311,7 +310,7 @@ export default function SendAndRequestPage(props) {
         return;
       }
 
-      const {receiveAddress, retrivedContact, didWork, error} =
+      const { receiveAddress, retrivedContact, didWork, error } =
         await getReceiveAddressAndContactForContactsPayment({
           sendingAmountSat: convertedSendAmount,
           selectedContact,
@@ -423,12 +422,14 @@ export default function SendAndRequestPage(props) {
     <CustomKeyboardAvoidingView
       isKeyboardActive={!isAmountFocused}
       useLocalPadding={true}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       <CustomSettingsTopBar containerStyles={styles.topBar} />
       <>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollViewContainer}>
+          contentContainerStyle={styles.scrollViewContainer}
+        >
           <FormattedBalanceInput
             maxWidth={0.9}
             amountValue={amountValue || 0}
@@ -494,12 +495,13 @@ export default function SendAndRequestPage(props) {
                         ? backgroundOffset
                         : backgroundOffset,
                     },
-                  ]}>
+                  ]}
+                >
                   <View style={styles.logoContainer}>
-                    <FastImage
+                    <Image
                       style={styles.cardLogo}
-                      source={{uri: giftOption.logo}}
-                      resizeMode={FastImage.resizeMode.contain}
+                      source={{ uri: giftOption.logo }}
+                      contentFit="contain"
                     />
                   </View>
                   <ThemeText
@@ -516,7 +518,8 @@ export default function SendAndRequestPage(props) {
                         backgroundColor: backgroundOffset,
                         borderColor: backgroundColor,
                       },
-                    ]}>
+                    ]}
+                  >
                     <ThemeImage
                       styles={styles.editIcon}
                       lightModeIcon={ICONS.editIcon}
@@ -542,7 +545,8 @@ export default function SendAndRequestPage(props) {
                             ? backgroundOffset
                             : 'rgba(255,255,255,0.1)',
                         },
-                      ]}>
+                      ]}
+                    >
                       <ThemeText
                         styles={styles.memoText}
                         content={giftOption.memo}
@@ -573,7 +577,8 @@ export default function SendAndRequestPage(props) {
                           ? 0
                           : CONTENT_KEYBOARD_OFFSET,
                       },
-                    ]}>
+                    ]}
+                  >
                     <ThemeText
                       styles={styles.giftText}
                       content={t('contacts.sendAndRequestPage.sendGiftText')}
@@ -612,7 +617,8 @@ export default function SendAndRequestPage(props) {
                       marginRight: useAltLayout ? 10 : 0,
                       marginBottom: useAltLayout ? 0 : 20,
                       alignSelf: useAltLayout ? 'auto' : 'center',
-                    }}>
+                    }}
+                  >
                     <DropdownMenu
                       selectedValue={t(
                         `wallet.sendPages.sendMaxComponent.${'sendMaxShort'}`,
@@ -664,7 +670,10 @@ export default function SendAndRequestPage(props) {
         )}
         {((isAmountFocused && !useAltLayout) || giftOption) && (
           <CustomButton
-            buttonStyles={{...styles.button, opacity: canSendPayment ? 1 : 0.5}}
+            buttonStyles={{
+              ...styles.button,
+              opacity: canSendPayment ? 1 : 0.5,
+            }}
             useLoading={isLoading}
             actionFunction={handleSubmit}
             textContent={

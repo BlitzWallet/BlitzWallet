@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import { useMemo, useState } from 'react';
 import {
   Keyboard,
   ScrollView,
@@ -6,14 +6,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useNavigation} from '@react-navigation/native';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useNavigation } from '@react-navigation/native';
 import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
-  SCREEN_DIMENSIONS,
   VALID_USERNAME_REGEX,
 } from '../../../../../constants';
 import {
@@ -21,13 +20,17 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {canUsePOSName} from '../../../../../../db';
+import { canUsePOSName } from '../../../../../../db';
 import openWebBrowser from '../../../../../functions/openWebBrowser';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useAppStatus} from '../../../../../../context-store/appStatus';
-import {FONT, INSET_WINDOW_WIDTH, SIZES} from '../../../../../constants/theme';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
+import {
+  FONT,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../../constants/theme';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
@@ -35,23 +38,24 @@ import {
   keyboardGoBack,
   keyboardNavigate,
 } from '../../../../../functions/customNavigation';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
-import {useTranslation} from 'react-i18next';
-import {fiatCurrencies} from '../../../../../functions/currencyOptions';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { useTranslation } from 'react-i18next';
+import { fiatCurrencies } from '../../../../../functions/currencyOptions';
 
 export default function PosSettingsPage() {
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset, textColor, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { masterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
+  const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
   const navigate = useNavigation();
   const [textInput, setTextInput] = useState('');
   const [storeNameInput, setStoreNameInput] = useState(
     masterInfoObject?.posSettings?.storeName,
   );
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useGlobalInsets();
+  const { bottomPadding } = useGlobalInsets();
 
   const savedCurrencies = useMemo(() => {
     return fiatCurrencies.sort((a, b) => a.id.localeCompare(b.id));
@@ -127,8 +131,9 @@ export default function PosSettingsPage() {
             onPress={() => {
               Keyboard.dismiss();
               setTextInput('');
-              savePOSSettings({storeCurrency: item.id}, 'currency');
-            }}>
+              savePOSSettings({ storeCurrency: item.id }, 'currency');
+            }}
+          >
             <CheckMarkCircle
               isActive={
                 item.id?.toLowerCase() === currentCurrency?.toLowerCase()
@@ -158,13 +163,15 @@ export default function PosSettingsPage() {
   return (
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
-      useStandardWidth={true}>
-      <View style={{...styles.topbar}}>
+      useStandardWidth={true}
+    >
+      <View style={{ ...styles.topbar }}>
         <TouchableOpacity
           style={styles.backArrow}
           onPress={() => {
             keyboardGoBack(navigate);
-          }}>
+          }}
+        >
           <ThemeImage
             lightsOutIcon={ICONS.arrow_small_left_white}
             darkModeIcon={ICONS.smallArrowLeft}
@@ -177,15 +184,16 @@ export default function PosSettingsPage() {
           content={t('settings.posPath.settings.title')}
           styles={{
             ...styles.topBarText,
-            width: SCREEN_DIMENSIONS.width * 0.95 - 130,
+            width: screenDimensions.width * 0.95 - 130,
           }}
         />
 
         <TouchableOpacity
-          style={{position: 'absolute', top: 0, right: 35, zIndex: 1}}
+          style={{ position: 'absolute', top: 0, right: 35, zIndex: 1 }}
           onPress={() => {
             navigate.navigate('POSInstructionsPath');
-          }}>
+          }}
+        >
           <ThemeImage
             lightsOutIcon={ICONS.aboutIconWhite}
             darkModeIcon={ICONS.aboutIcon}
@@ -193,7 +201,7 @@ export default function PosSettingsPage() {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          style={{position: 'absolute', top: 0, right: 0, zIndex: 1}}
+          style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}
           onPress={() => {
             keyboardNavigate(() => {
               if (!isConnectedToTheInternet) {
@@ -204,7 +212,8 @@ export default function PosSettingsPage() {
               }
               navigate.navigate('ViewPOSTransactions');
             });
-          }}>
+          }}
+        >
           <ThemeImage
             lightsOutIcon={ICONS.receiptWhite}
             darkModeIcon={ICONS.receiptIcon}
@@ -213,7 +222,7 @@ export default function PosSettingsPage() {
         </TouchableOpacity>
       </View>
       <ScrollView
-        style={{flex: 1, width: '95%', ...CENTER}}
+        style={{ flex: 1, width: '95%', ...CENTER }}
         contentContainerStyle={{
           paddingBottom: isKeyboardActive
             ? CONTENT_KEYBOARD_OFFSET
@@ -221,8 +230,9 @@ export default function PosSettingsPage() {
         }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        stickyHeaderIndices={[1]}>
-        <View style={{marginTop: 20, marginBottom: 10}}>
+        stickyHeaderIndices={[1]}
+      >
+        <View style={{ marginTop: 20, marginBottom: 10 }}>
           <ThemeText
             content={t('settings.posPath.settings.storeNameInputDesc')}
           />
@@ -232,7 +242,7 @@ export default function PosSettingsPage() {
             placeholderText={t(
               'settings.posPath.settings.storeNameInputPlaceholder',
             )}
-            containerStyles={{marginTop: 10}}
+            containerStyles={{ marginTop: 10 }}
             onBlurFunction={() => setIsKeyboardActive(false)}
             onFocusFunction={() => setIsKeyboardActive(true)}
             shouldDelayBlur={false}
@@ -240,7 +250,7 @@ export default function PosSettingsPage() {
         </View>
 
         {/* Sticky Header Section */}
-        <View style={{backgroundColor: backgroundColor, paddingTop: 10}}>
+        <View style={{ backgroundColor: backgroundColor, paddingTop: 10 }}>
           <ThemeText
             content={t('settings.posPath.settings.displayCurrencyDesc')}
           />
@@ -264,10 +274,11 @@ export default function PosSettingsPage() {
           ...styles.addItemContainer,
           marginBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 20,
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-        }}>
+        }}
+      >
         <ThemeText
           CustomNumberOfLines={1}
-          styles={{includeFontPadding: false, marginRight: 5, flexShrink: 1}}
+          styles={{ includeFontPadding: false, marginRight: 5, flexShrink: 1 }}
           content={t('settings.posPath.settings.numAddeditems', {
             number: posItemsList.length,
             isPlurl:
@@ -287,7 +298,8 @@ export default function PosSettingsPage() {
               buttonText: t('constants.understandText'),
             })
           }
-          style={{marginRight: 5}}>
+          style={{ marginRight: 5 }}
+        >
           {showErrorIcon ? (
             <Icon
               color={
@@ -297,7 +309,7 @@ export default function PosSettingsPage() {
             />
           ) : (
             <ThemeImage
-              styles={{height: 20, width: 20}}
+              styles={{ height: 20, width: 20 }}
               lightModeIcon={ICONS.aboutIcon}
               darkModeIcon={ICONS.aboutIcon}
               lightsOutIcon={ICONS.aboutIconWhite}
@@ -312,9 +324,10 @@ export default function PosSettingsPage() {
             padding: 5,
             borderRadius: 8,
             marginLeft: 'auto',
-          }}>
+          }}
+        >
           <ThemeImage
-            styles={{transform: [{rotate: '180deg'}]}}
+            styles={{ transform: [{ rotate: '180deg' }] }}
             lightModeIcon={ICONS.leftCheveronIcon}
             darkModeIcon={ICONS.leftCheveronIcon}
             lightsOutIcon={ICONS.left_cheveron_white}
@@ -380,7 +393,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginBottom: 10,
   },
-  backArrow: {position: 'absolute', top: 0, left: 0, zIndex: 1},
+  backArrow: { position: 'absolute', top: 0, left: 0, zIndex: 1 },
 
   topBarText: {
     fontSize: SIZES.xLarge,

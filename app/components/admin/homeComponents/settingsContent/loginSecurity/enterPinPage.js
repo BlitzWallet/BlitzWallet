@@ -4,43 +4,40 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {useNavigation} from '@react-navigation/native';
-import {
-  CENTER,
-  COLORS,
-  SCREEN_DIMENSIONS,
-  SIZES,
-} from '../../../../../constants';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { useNavigation } from '@react-navigation/native';
+import { CENTER, COLORS, SIZES } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import PinDot from '../../../../../functions/CustomElements/pinDot';
 import KeyForKeyboard from '../../../../../functions/CustomElements/key';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
-import {useTranslation} from 'react-i18next';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { useTranslation } from 'react-i18next';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   runOnJS,
 } from 'react-native-reanimated';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
 
 export default function ConfirmPinForLoginMode() {
   const navigate = useNavigation();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundColor, backgroundOffset} = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const [pinSettings, setPinSettings] = useState({
     enteredPin: [null, null, null, null],
     savedPin: [null, null, null, null],
   });
-  const {t} = useTranslation();
+  const { screenDimensions } = useAppStatus();
+  const { t } = useTranslation();
   const [errorMessage, setErrorMessage] = useState('');
 
-  const {bottomPadding} = useGlobalInsets();
+  const { bottomPadding } = useGlobalInsets();
 
-  const translateY = useSharedValue(SCREEN_DIMENSIONS.height);
+  const translateY = useSharedValue(screenDimensions.height);
   const panY = useSharedValue(0);
 
   const handleBackPressFunction = useCallback(() => {
@@ -57,11 +54,11 @@ export default function ConfirmPinForLoginMode() {
     }, 100);
   }, []);
   const slideIn = () => {
-    translateY.value = withTiming(0, {duration: 200});
+    translateY.value = withTiming(0, { duration: 200 });
   };
 
   const slideOut = () => {
-    translateY.value = withTiming(SCREEN_DIMENSIONS.height * 2, {
+    translateY.value = withTiming(screenDimensions.height * 2, {
       duration: 200,
     });
   };
@@ -76,12 +73,12 @@ export default function ConfirmPinForLoginMode() {
       if (e.translationY > 100) {
         runOnJS(handleBackPressFunction)();
       } else {
-        panY.value = withTiming(0, {duration: 200});
+        panY.value = withTiming(0, { duration: 200 });
       }
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateY: translateY.value + panY.value}],
+    transform: [{ translateY: translateY.value + panY.value }],
   }));
 
   useEffect(() => {
@@ -105,7 +102,7 @@ export default function ConfirmPinForLoginMode() {
         // navigte back to login mode and pass pin to switch function
         navigate.popTo('SettingsContentHome', {
           for: 'Login Mode',
-          extraData: {pin: pinSettings.enteredPin},
+          extraData: { pin: pinSettings.enteredPin },
         });
       } else {
         setErrorMessage(t('settings.loginSecurity.invalidPinconfirmation'));
@@ -134,7 +131,8 @@ export default function ConfirmPinForLoginMode() {
             paddingBottom: bottomPadding,
           },
           animatedStyle,
-        ]}>
+        ]}
+      >
         <GestureDetector gesture={panGesture}>
           <View style={styles.topBarContainer}>
             <View
@@ -151,11 +149,13 @@ export default function ConfirmPinForLoginMode() {
         <View
           style={{
             ...styles.pinContentContainer,
-            maxHeight: SCREEN_DIMENSIONS.height * 0.7,
-          }}>
+            maxHeight: screenDimensions.height * 0.7,
+          }}
+        >
           <ScrollView
-            contentContainerStyle={{marginBottom: 80}}
-            showsVerticalScrollIndicator={true}>
+            contentContainerStyle={{ marginBottom: 80 }}
+            showsVerticalScrollIndicator={true}
+          >
             <ThemeText
               styles={styles.headerText}
               content={
@@ -217,7 +217,7 @@ export default function ConfirmPinForLoginMode() {
               return null;
             } else return item;
           });
-          return {...prev, enteredPin: newPin};
+          return { ...prev, enteredPin: newPin };
         });
       } else {
         setPinSettings(prev => ({
@@ -234,7 +234,7 @@ export default function ConfirmPinForLoginMode() {
             return id;
           } else return number;
         });
-        return {...prev, enteredPin: newPin};
+        return { ...prev, enteredPin: newPin };
       });
     }
   }
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.halfModalBackgroundColor,
     justifyContent: 'flex-end',
   },
-  container: {flex: 1},
+  container: { flex: 1 },
   topBarContainer: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -283,6 +283,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     marginTop: 'auto',
+    alignSelf: 'center',
   },
   keyboard_row: {
     width: '100%',

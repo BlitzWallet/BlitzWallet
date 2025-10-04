@@ -55,7 +55,9 @@ react {
 
     /* Autolinking */
     autolinkLibrariesWithApp()
-    //
+    
+    // Ensure Gradle uses the right Node binary
+    nodeExecutableAndArgs = [project.hasProperty("NODE_BINARY") ? project.getProperty("NODE_BINARY") : "node"]
     // Added by install-expo-modules
     entryFile = file(["node", "-e", "require('expo/scripts/resolveAppEntry')", rootDir.getAbsoluteFile().getParentFile().getAbsolutePath(), "android", "absolute"].execute(null, rootDir).text.trim())
     cliFile = new File(["node", "--print", "require.resolve('@expo/cli')"].execute(null, rootDir).text.trim())
@@ -147,14 +149,14 @@ dependencies {
 
 
     // Adding firebase implementations
-    implementation platform('com.google.firebase:firebase-bom:33.4.0')
+    implementation platform('com.google.firebase:firebase-bom:34.3.0')
     implementation('com.google.firebase:firebase-messaging')
 }
 
-// Fixing 16kb package bug with JNA
-configurations.all {
-    resolutionStrategy {
-        force "net.java.dev.jna:jna:5.17.0"
-        force "net.java.dev.jna:jna-platform:5.17.0"
-    }
-}
+// // Fixing 16kb package bug with JNA
+// configurations.all {
+//     resolutionStrategy {
+//         force "net.java.dev.jna:jna:5.17.0"
+//         force "net.java.dev.jna:jna-platform:5.17.0"
+//     }
+// }

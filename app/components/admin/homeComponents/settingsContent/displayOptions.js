@@ -10,38 +10,37 @@ import {
   CENTER,
   COLORS,
   ICONS,
-  SCREEN_DIMENSIONS,
   SIZES,
 } from '../../../../constants';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useNavigation} from '@react-navigation/native';
-import {ThemeText} from '../../../../functions/CustomElements';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useNavigation } from '@react-navigation/native';
+import { ThemeText } from '../../../../functions/CustomElements';
 
-import {useRef, useState} from 'react';
+import { useRef, useState } from 'react';
 
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
-import {Slider} from '@miblanchard/react-native-slider';
+import { Slider } from '@miblanchard/react-native-slider';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../hooks/themeColors';
 import handleDBStateChange from '../../../../functions/handleDBStateChange';
-import {formatCurrency} from '../../../../functions/formatCurrency';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
-import {useAppStatus} from '../../../../../context-store/appStatus';
+import { formatCurrency } from '../../../../functions/formatCurrency';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { useAppStatus } from '../../../../../context-store/appStatus';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {FONT, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {useTranslation} from 'react-i18next';
+import { FONT, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 
 export default function DisplayOptions() {
-  const {toggleMasterInfoObject, setMasterInfoObject, masterInfoObject} =
+  const { toggleMasterInfoObject, setMasterInfoObject, masterInfoObject } =
     useGlobalContextProvider();
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {fiatStats, toggleFiat} = useNodeContext();
-  const {theme, darkModeType, toggleDarkModeType} = useGlobalThemeContext();
+  const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
+  const { fiatStats, toggleFiat } = useNodeContext();
+  const { theme, darkModeType, toggleDarkModeType } = useGlobalThemeContext();
   const [labelSize, setLabelSize] = useState(0);
-  const {t} = useTranslation();
-  const {backgroundOffset, textColor} = GetThemeColors();
+  const { t } = useTranslation();
+  const { backgroundOffset, textColor } = GetThemeColors();
   const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
 
   const saveTimeoutRef = useRef(null);
@@ -60,8 +59,9 @@ export default function DisplayOptions() {
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{alignItems: 'center'}}
-      style={styles.innerContainer}>
+      contentContainerStyle={{ alignItems: 'center' }}
+      style={styles.innerContainer}
+    >
       <ThemeText
         styles={styles.infoHeaders}
         content={t('settings.displayOptions.text1')}
@@ -71,7 +71,8 @@ export default function DisplayOptions() {
           if (darkModeType) return;
           toggleDarkModeType(!darkModeType);
         }}
-        style={styles.darkModeStyleContainer}>
+        style={styles.darkModeStyleContainer}
+      >
         <ThemeText
           styles={styles.removeFontPadding}
           content={t('settings.displayOptions.text2')}
@@ -83,7 +84,8 @@ export default function DisplayOptions() {
           if (!darkModeType) return;
           toggleDarkModeType(!darkModeType);
         }}
-        style={styles.darkModeStyleContainer}>
+        style={styles.darkModeStyleContainer}
+      >
         <ThemeText
           styles={styles.removeFontPadding}
           content={t('settings.displayOptions.text3')}
@@ -100,7 +102,8 @@ export default function DisplayOptions() {
           {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
           },
-        ]}>
+        ]}
+      >
         <ThemeText
           CustomNumberOfLines={1}
           styles={styles.removeFontPadding}
@@ -116,7 +119,7 @@ export default function DisplayOptions() {
             }
             if (masterInfoObject.userBalanceDenomination === 'sats')
               handleDBStateChange(
-                {userBalanceDenomination: 'fiat'},
+                { userBalanceDenomination: 'fiat' },
                 setMasterInfoObject,
                 toggleMasterInfoObject,
                 saveTimeoutRef,
@@ -124,7 +127,7 @@ export default function DisplayOptions() {
               );
             else if (masterInfoObject.userBalanceDenomination === 'fiat')
               handleDBStateChange(
-                {userBalanceDenomination: 'hidden'},
+                { userBalanceDenomination: 'hidden' },
                 setMasterInfoObject,
                 toggleMasterInfoObject,
                 saveTimeoutRef,
@@ -132,7 +135,7 @@ export default function DisplayOptions() {
               );
             else
               handleDBStateChange(
-                {userBalanceDenomination: 'sats'},
+                { userBalanceDenomination: 'sats' },
                 setMasterInfoObject,
                 toggleMasterInfoObject,
                 saveTimeoutRef,
@@ -144,7 +147,8 @@ export default function DisplayOptions() {
             backgroundColor: theme
               ? COLORS.darkModeText
               : COLORS.lightModeBackground,
-          }}>
+          }}
+        >
           <ThemeText
             styles={{
               color:
@@ -171,7 +175,8 @@ export default function DisplayOptions() {
           {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
           },
-        ]}>
+        ]}
+      >
         <ThemeText
           CustomNumberOfLines={1}
           styles={{
@@ -188,7 +193,7 @@ export default function DisplayOptions() {
         <TouchableOpacity
           onPress={() => {
             if (masterInfoObject.satDisplay === 'symbol') return;
-            toggleMasterInfoObject({satDisplay: 'symbol'});
+            toggleMasterInfoObject({ satDisplay: 'symbol' });
           }}
           style={{
             ...styles.denominationContainer,
@@ -201,7 +206,8 @@ export default function DisplayOptions() {
                 ? COLORS.darkModeText
                 : COLORS.lightModeBackground,
             marginRight: 10,
-          }}>
+          }}
+        >
           <ThemeText
             styles={{
               fontSize: SIZES.large,
@@ -223,7 +229,7 @@ export default function DisplayOptions() {
         <TouchableOpacity
           onPress={() => {
             if (masterInfoObject.satDisplay === 'word') return;
-            toggleMasterInfoObject({satDisplay: 'word'});
+            toggleMasterInfoObject({ satDisplay: 'word' });
           }}
           style={{
             ...styles.denominationContainerWord,
@@ -235,7 +241,8 @@ export default function DisplayOptions() {
                 : theme
                 ? COLORS.darkModeText
                 : COLORS.lightModeBackground,
-          }}>
+          }}
+        >
           <ThemeText
             styles={{
               color:
@@ -273,11 +280,12 @@ export default function DisplayOptions() {
           {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
           },
-        ]}>
+        ]}
+      >
         <View style={styles.swipeForCameraContainer}>
           <ThemeText
             CustomNumberOfLines={1}
-            styles={{...styles.removeFontPadding, marginRight: 5}}
+            styles={{ ...styles.removeFontPadding, marginRight: 5 }}
             content={t('settings.displayOptions.text11')}
           />
           <TouchableOpacity
@@ -286,9 +294,10 @@ export default function DisplayOptions() {
                 textContent: t('settings.displayOptions.text12'),
                 buttonText: t('constants.understandText'),
               });
-            }}>
+            }}
+          >
             <ThemeImage
-              styles={{width: 20, height: 20}}
+              styles={{ width: 20, height: 20 }}
               lightModeIcon={ICONS.aboutIcon}
               darkModeIcon={ICONS.aboutIcon}
               lightsOutIcon={ICONS.aboutIconWhite}
@@ -300,7 +309,7 @@ export default function DisplayOptions() {
       <ThemeText
         styles={{
           ...styles.infoHeaders,
-          width: SCREEN_DIMENSIONS.width * 0.95 * 0.9 * 0.9,
+          width: screenDimensions.width * 0.95 * 0.9 * 0.9,
         }}
         content={t('settings.displayOptions.text13')}
       />
@@ -319,25 +328,26 @@ export default function DisplayOptions() {
                 top: -20,
                 left:
                   (index / (steps.length - 1)) *
-                    (SCREEN_DIMENSIONS.width * 0.95 * 0.9 * 0.9 - 25) +
+                    (screenDimensions.width * 0.95 * 0.9 * 0.9 - 25) +
                   25 / 2 -
                   labelSize / 2,
               }}
-              key={value}>
+              key={value}
+            >
               {value}
             </Text>
           ))}
         </View>
         <Slider
           trackStyle={{
-            width: SCREEN_DIMENSIONS.width * 0.95 * 0.9 * 0.9,
+            width: screenDimensions.width * 0.95 * 0.9 * 0.9,
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             height: 10,
             borderRadius: 20,
           }}
           onSlidingComplete={e => {
             const [num] = e;
-            toggleMasterInfoObject({homepageTxPreferance: num});
+            toggleMasterInfoObject({ homepageTxPreferance: num });
           }}
           value={sliderValue}
           minimumValue={15}
@@ -367,7 +377,8 @@ export default function DisplayOptions() {
           {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
           },
-        ]}>
+        ]}
+      >
         <ThemeText
           CustomNumberOfLines={1}
           styles={styles.removeFontPadding}
@@ -442,7 +453,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  balancePrev: {marginBottom: 20},
+  balancePrev: { marginBottom: 20 },
   removeFontPadding: {
     includeFontPadding: false,
     flexShrink: 1,

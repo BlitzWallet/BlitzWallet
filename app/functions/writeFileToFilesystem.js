@@ -5,7 +5,7 @@ import {
   EncodingType,
   StorageAccessFramework,
   writeAsStringAsync,
-} from 'expo-file-system';
+} from 'expo-file-system/legacy';
 
 export default async function writeAndShareFileToFilesystem(
   fileData,

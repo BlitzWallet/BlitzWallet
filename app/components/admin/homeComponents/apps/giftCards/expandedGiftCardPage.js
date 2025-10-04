@@ -33,7 +33,7 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
 import loadNewFiatData from '../../../../../functions/saveAndUpdateFiatData';
 import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import FastImage from 'react-native-fast-image';
+import {Image} from 'expo-image';
 import giftCardPurchaseAmountTracker from '../../../../../functions/apps/giftCardPurchaseTracker';
 
 export default function ExpandedGiftCardPage(props) {
@@ -179,10 +179,10 @@ export default function ExpandedGiftCardPage(props) {
           {/* Header Section */}
           <View style={styles.headerSection}>
             <View style={styles.logoContainer}>
-              <FastImage
+              <Image
                 style={styles.companyLogo}
                 source={{uri: selectedItem.logo}}
-                resizeMode={FastImage.resizeMode.contain}
+                contentFit="contain"
               />
             </View>
             <ThemeText
