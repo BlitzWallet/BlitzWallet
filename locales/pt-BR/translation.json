@@ -18,7 +18,7 @@
     "sent": "Enviada",
     "received": "Recebida",
     "store": "Loja",
-    "faucet": "Faucet",
+    "faucet": "Torneira",
     "today": "Hoje",
     "yesterday": "Ontem",
     "day": "dia",
@@ -35,9 +35,9 @@
     "type": "Tipo",
     "edit": "Editar",
     "iunderstand": "Eu compreendo",
-    "save": "Save",
-    "yes": "Yes",
-    "no": "No",
+    "save": "Salvar",
+    "yes": "Sim",
+    "no": "Não",
     "confirm": "Confirmar",
     "balance": "Saldo",
     "loading": "Carregando",
@@ -48,26 +48,26 @@
     "continue": "Continuar",
     "back": "Voltar",
     "close": "Fechar",
-    "delete": "Delete",
+    "delete": "Deletar",
     "add": "Adicionar",
     "remove": "Remove",
-    "update": "Update",
-    "refresh": "Refresh",
+    "update": "Atualizar",
+    "refresh": "Atualizar",
     "retry": "Tentar novamente",
     "download": "Download",
     "contactUs": "Contate-nos",
     "pay": "Pagar",
     "processing": "Processando",
     "support": "Suporte",
-    "change": "Change",
-    "unpin": "Unpin",
+    "change": "Mudar",
+    "unpin": "Desafixar",
     "pin": "Pin",
-    "noBioSet": "No bio set",
-    "noTransactions": "Send or request a payment to see transaction history.",
+    "noBioSet": "Sem bio definida",
+    "noTransactions": "Envie ou solicite um pagamento para ver o histórico de transações.",
     "leftPageMessage": "Where'd you go?",
-    "tryAgain": "Try again",
-    "noDescription": "No description",
-    "slideToExport": "Slide to export",
+    "tryAgain": "Tentar novamente",
+    "noDescription": "Sem descrição",
+    "slideToExport": "Deslize para exportar",
     "hide": "Esconder",
     "show": "Mostrar",
     "understandText": "Eu compreendo",
@@ -89,22 +89,22 @@
     "active": "Ativar",
     "create": "Criar",
     "experimentalLower": "experimental",
-    "enabled": "Enabled",
-    "disabled": "Disabled",
-    "unlimited": "Unlimited",
-    "custom...": "Custom...",
-    "enable": "Enable",
-    "disable": "Disable",
-    "paidLower": "paid",
-    "unpaidLower": "unpaid",
+    "enabled": "Habilitado",
+    "disabled": "Desabilitado",
+    "unlimited": "Ilimitado",
+    "custom...": "Personalizado...",
+    "enable": "Habilitar",
+    "disable": "Desabilitar",
+    "paidLower": "pago",
+    "unpaidLower": "não pago",
     "view": "Ver",
-    "reset": "Reset",
-    "noData": "No data available",
+    "reset": "Resetar",
+    "noData": "Sem dados disponíveis",
     "selectOption": "Selecione uma opção",
     "slideToConfirm": "Arraste para confirmar",
     "token": "Token",
-    "veriable": "Veriable",
-    "instant": "Instant",
+    "veriable": "Variável",
+    "instant": "instantâneo",
     "andLower": "e",
     "onLower": "on",
     "offLower": "off"
@@ -151,10 +151,10 @@
     "days": "dias",
     "year": "ano",
     "years": "anos",
-    "daily": "Daily",
-    "weekly": "Weekly",
-    "monthly": "Monthly",
-    "yearly": "Yearly"
+    "daily": "Diário",
+    "weekly": "Semanalmente",
+    "monthly": "Mensal",
+    "yearly": "Anual"
   },
 
   "transactionLabelText": {
@@ -166,16 +166,16 @@
     "processing": "Processando",
     "successful": "Sucesso",
     "failed": "Falhou",
-    "requestDeclined": "Request declined",
-    "declinedRequest": "Declined request",
-    "requestSent": "Payment request sent",
-    "requestPaid": "Request paid",
-    "paidRequest": "Paid request",
+    "requestDeclined": "Solicitação recusada",
+    "declinedRequest": "Solicitação recusada",
+    "requestSent": "Solicitação de pagamento enviada",
+    "requestPaid": "Solicitação paga",
+    "paidRequest": "Solicitação paga",
     "sent": "Enviada",
     "received": "Recebida",
     "paidLower": "pago",
     "declinedLower": "recusada",
-    "receivedRequest": "Received request",
+    "receivedRequest": "Solicitação recebida",
     "date": "Data",
     "time": "Hora",
     "memo": "Memo",
@@ -207,14 +207,14 @@
     },
     "keySetup": {
       "generateKey": {
-        "header": "This is your password to your money, if you lose it you lose your money!",
-        "subHeader": "Write it down with pen and paper and keep it safe!",
-        "disclaimer": "WE CAN NOT HELP YOU IF YOU LOSE IT",
-        "errorText": "Error Fetching recovery phrase",
-        "keyGenError": "Not able to generate valid seed",
+        "header": "Esta é a sua senha para o seu dinheiro. Se você perdê-la, você perde seu dinheiro!",
+        "subHeader": "Escreva com caneta e papel e guarde em um local seguro!",
+        "disclaimer": "NÃO PODEMOS AJUDÁ-LO SE VOCÊ O PERDER",
+        "errorText": "Erro ao buscar frase de recuperação",
+        "keyGenError": "Não foi possível gerar uma frase de recuperação válida",
         "seedPrivacyMessage": "Certifique-se de que não haja ninguém por perto que possa ver sua tela.",
         "showIt": "Mostrar",
-        "invalidSeedError": "Não foi possível gerar uma seed válida"
+        "invalidSeedError": "Não foi possível gerar uma frase de recuperação válida"
       },
       "pin": {
         "savePinError": "Não foi possível salvar o PIN",
@@ -882,8 +882,8 @@
         "swapWarning": "{{swapType}} payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the {{swapType}} payment is confirmed.",
         "unalignedSeeds": "Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.",
         "rootstockWarningText": "Rootstock payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the Rootsock payment is confirmed.",
-        "oneMinute": "~ {{numMins}} minute",
-        "tenMinutes": "~ {{numMins}} minutes",
+        "oneMinute": "~ {{numMins}} minuto",
+        "tenMinutes": "~ {{numMins}} minutos",
         "notUsingMainAccountWarning": "Warning: You’re not using your main wallet account. All {{swapType}} swaps will be sent to your main wallet."
       },
       "editLNURLContact": {
@@ -921,7 +921,7 @@
 
       "errorScreen": {
         "ok": "OK",
-        "title": "Error message"
+        "title": "Mensagem de erro"
       },
       "feeInfo": {
         "title": "Taxa e velocidade",
@@ -930,21 +930,21 @@
       },
 
       "selectLRC20Token": {
-        "title": "Select Token",
-        "searchPlaceholder": "Token name...",
-        "noTokensFoundText": "No tokens found"
+        "title": "Selecionar token",
+        "searchPlaceholder": "Nome do token...",
+        "noTokensFoundText": "Nenhum token encontrado"
       },
       "sendMaxComponent": {
-        "sendMax": "Send Max",
-        "sendMaxShort": "Max"
+        "sendMax": "Enviar máx",
+        "sendMaxShort": "Máx"
       },
       "acceptButton": {
-        "noSendAmountError": "Please enter a send amount",
-        "liquidError": "{{overFlowType}} send amount {{amount}}",
-        "onchainError": "Minimum on-chain send amount is {{amount}}",
-        "lnurlPayError": "{{overFlowType}} send amount {{amount}}",
-        "lrc20FeeError": "You need {{amount}} to send tokens. Your balance is {{balance}}. Please receive some Bitcoin first.",
-        "balanceError": "Not enough funds to cover sending amount and fees"
+        "noSendAmountError": "Por favor, insira uma quantia para envio",
+        "liquidError": "{{overFlowType}} enviar quantia {{amount}}",
+        "onchainError": "A quantia mínima de envio na cadeia on-chain é {{amount}}",
+        "lnurlPayError": "{{overFlowType}} enviar quantia {{amount}}",
+        "lrc20FeeError": "Você precisa {{amount}} para enviar tokens. Seu saldo é {{balance}}. Por favor, deposite alguns Bitcoins primeiro.",
+        "balanceError": "Fundos insuficientes para cobrir o valor de envio e as taxas"
       }
     },
     "switchOption": {
@@ -991,17 +991,17 @@
       "searchContactsPlaceholder": "Search added contacts",
       "noContactsMessage": "You have no contacts",
       "editContactProfileMessage": "Edit your profile to begin using contacts.",
-      "addContactButton": "Add Contact",
-      "editContactButton": "Edit Profile",
-      "unknownSender": "Unknown sender"
+      "addContactButton": "Adicionar contato",
+      "editContactButton": "Editar perfil",
+      "unknownSender": "Remetente desconhecido"
     },
     "addContactsHalfModal": {
-      "noContactsMessage": "Not able to find contact.",
-      "title": "Add contact",
-      "searchPlaceholder": "Find a contact",
-      "lnurlAddMessage": "You are about to add",
-      "noProfilesFound": "No profiles match this search",
-      "startTypingMessage": "Search by LNURL (e.g. name@service.com) or Blitz username."
+      "noContactsMessage": "Não foi possível encontrar o contato.",
+      "title": "Adicionar contato",
+      "searchPlaceholder": "Encontre um contato",
+      "lnurlAddMessage": "Você está prestes a adicionar",
+      "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
+      "startTypingMessage": "Procurar por LNURL (e.g. name@service.com) ou nome de usuário Blitz."
     },
 
     "expandedContactPage": {
@@ -1078,7 +1078,7 @@
         "requestTitle": "Received request for "
       },
       "viewAllGiftCards": {
-        "cardNamePlaceH": "Gift Card",
+        "cardNamePlaceH": "Cartão Presente",
         "noCardsText": "Seus cartões-presente aparecerão aqui assim que você os receber",
         "header": "Seus cartões-presente",
         "cardsLenghSingular": "{{num}} cartão",
@@ -1523,14 +1523,14 @@
 
       "lrc20HalfModal": {
         "title": "Procurar Tokens",
-        "searchPlaceholder": "Token name...",
-        "noTokens": "No tokens found"
+        "searchPlaceholder": "Nome do token...",
+        "noTokens": "Nenhum token encontrado"
       },
       "lrc20TokenDataHalfModal": {
-        "balance": "Balance",
-        "maxSupply": "Max Supply",
-        "tokenTicker": "Token Ticker",
-        "tokenPubKey": "Token Public Key"
+        "balance": "Saldo",
+        "maxSupply": "Fornecimento máximo",
+        "tokenTicker": "Ticker de token",
+        "tokenPubKey": "Chave pública do token"
       }
     }
   },
