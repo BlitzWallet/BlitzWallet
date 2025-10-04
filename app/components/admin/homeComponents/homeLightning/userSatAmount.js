@@ -86,11 +86,7 @@ export const UserSatAmount = memo(function UserSatAmount({
         enabled={!sparkInformation.didConnect}
       >
         <View style={styles.valueContainer}>
-          <FormattedSatText
-            useMillionDenomination={true}
-            styles={styles.valueText}
-            balance={userBalance}
-          />
+          <FormattedSatText styles={styles.valueText} balance={userBalance} />
         </View>
       </SkeletonTextPlaceholder>
     </TouchableOpacity>
@@ -100,7 +96,7 @@ export const UserSatAmount = memo(function UserSatAmount({
 const styles = StyleSheet.create({
   balanceContainer: {
     justifyContent: 'center',
-    marginVertical: 20,
+    marginBottom: 20,
     position: 'relative',
   },
   valueContainer: {
@@ -117,7 +113,7 @@ const styles = StyleSheet.create({
   informationText: { marginBottom: 20, textAlign: 'center' },
 
   valueText: {
-    fontSize: SIZES.huge,
+    fontSize: SIZES.xxLarge,
     textAlign: 'center',
   },
 });

@@ -267,6 +267,14 @@ export default function HomeLightning() {
                 },
               ]}
             >
+              <ThemeText
+                content={
+                  lrc20Settings.isEnabled
+                    ? t('constants.sat_balance')
+                    : t('constants.total_balance')
+                }
+                styles={{ textTransform: 'uppercase' }}
+              />
               <MemoizedUserSatAmount
                 isConnectedToTheInternet={isConnectedToTheInternet}
                 theme={theme}
