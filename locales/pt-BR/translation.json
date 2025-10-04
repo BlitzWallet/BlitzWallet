@@ -15,8 +15,8 @@
     "total_balance": "Saldo Total",
     "sat_balance": "Saldo total",
     "amount": "Quantia",
-    "sent": "Enviado",
-    "received": "Recebido",
+    "sent": "Enviada",
+    "received": "Recebida",
     "store": "Loja",
     "faucet": "Faucet",
     "today": "Hoje",
@@ -171,8 +171,8 @@
     "requestSent": "Payment request sent",
     "requestPaid": "Request paid",
     "paidRequest": "Paid request",
-    "sent": "Enviado",
-    "received": "Recebido",
+    "sent": "Enviada",
+    "received": "Recebida",
     "paidLower": "pago",
     "declinedLower": "recusada",
     "receivedRequest": "Received request",
@@ -854,9 +854,9 @@
     "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui",
     "contactsPage": {
       "header": "Select recipient",
-      "inputTextPlaceholder": "Search username...",
-      "subHeader": "All Contacts",
-      "giftsText": "My Gifts"
+      "inputTextPlaceholder": "Procurar nome de usuário...",
+      "subHeader": "Todos contatos",
+      "giftsText": "Meus presentes"
     },
     "cameraPage": {
       "noCameraAccess": "Sem acesso à câmera",
@@ -978,7 +978,7 @@
       "date": "Data",
       "txFees": "Taxas de transação (SAT)",
       "amount": "Quantia (SAT)",
-      "sent/received": "Enviado/Recebido",
+      "sent/received": "Enviada/Recebida",
       "title": "Exporte seu histórico de pagamentos no formato CSV (valores separados por vírgula).",
       "paymentsCounter": "{{number}} pagamentos",
       "paymentsCounterTracker": "{{number}} do {{total}}",
@@ -1079,13 +1079,13 @@
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Gift Card",
-        "noCardsText": "Your gift cards will appear here once you receive them",
-        "header": "Your Gift Cards",
-        "cardsLenghSingular": "{{num}} card",
-        "cardsLenghPlurl": "{{num}} cards"
+        "noCardsText": "Seus cartões-presente aparecerão aqui assim que você os receber",
+        "header": "Seus cartões-presente",
+        "cardsLenghSingular": "{{num}} cartão",
+        "cardsLenghPlurl": "{{num}} cartões"
       },
       "editGiftCard": {
-        "header": "What would you like to do with your gift?"
+        "header": "O que você gostaria de fazer com seu presente?"
       }
     }
   },
@@ -1171,7 +1171,7 @@
     },
 
     "accounts": {
-      "inputPlaceholder": "Account name",
+      "inputPlaceholder": "Nome da conta",
       "buttonCTA": "Swap Funds"
     },
     "resetWallet": {
@@ -1197,7 +1197,7 @@
     },
     "viewSwapsHome": {
       "swaps": "Trocas",
-      "selectionTitle": "Escolher Rede",
+      "selectionTitle": "Escolher rede",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
       "pageTitle": "{{type}} Trocas"
@@ -1255,10 +1255,10 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet offers free and open‑source products for the Bitcoin community. \n\nTo help keep the project sustainable, we’ve added a small transaction fee to each payment.\n\nHere’s how those fees are distributed:",
-      "upTo": "Up To",
+      "description": "A Blitz Wallet oferece produtos gratuitos e de código aberto para a comunidade Bitcoin. \n\nPara ajudar a manter o projeto sustentável, adicionamos uma pequena taxa de transação a cada pagamento.\n\nVeja como essas taxas são distribuídas:",
+      "upTo": "Até",
       "fixedFee": "Taxa fixa",
-      "percent": "Por cento",
+      "percent": "Porcentagem",
       "noLimit": "Sem limite"
     },
 
@@ -1452,7 +1452,7 @@
         "lnurlAuthSuccess": "Autenticação da carteira realizada com sucesso! Você está conectado."
       },
       "expandedTxPage": {
-        "confirmMessage": "{{direction}} quantia",
+        "confirmMessage": "Quantia {{direction}}",
         "paymentStatus": "Status do pagamento",
         "confReqired": "Confirmações necessárias",
         "detailsBTN": "Detalhes técnicos"
