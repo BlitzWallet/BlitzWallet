@@ -802,28 +802,28 @@
       }
     },
     "onlineListings": {
-      "food & beverages": "Food & Beverages",
-      "services": "Services",
-      "apparel": "Apparel",
-      "other": "Other",
-      "travel": "Travel",
+      "food & beverages": "Alimentos & Bebidas",
+      "services": "Serviços",
+      "apparel": "Vestuário",
+      "other": "Outros",
+      "travel": "Viagem",
       "e-commerce": "E-commerce",
       "health": "Health",
-      "art & collectibles": "Art & Collectibles",
-      "legal & services": "Legal & Services",
+      "art & collectibles": "Arte & Colecionáveis",
+      "legal & services": "Jurídico & Serviços",
       "app": "App",
-      "education": "Education",
-      "media": "Media",
-      "tech": "Tech",
-      "charity": "Charity",
-      "sustainability": "Sustainability",
-      "selectCategoryPlaceholder": "Select Category",
-      "topBarLabel": "Shops",
-      "loadingShopMessage": "Loading online shops",
-      "inputPlaceHolder": "Search businesses...",
-      "noBuisMessage": "We couldn’t find anything matching your search.",
-      "visitWebsite": "Visit Website",
-      "addListing": "Add Shop"
+      "education": "Educação",
+      "media": "Mídia",
+      "tech": "Tecnologia",
+      "charity": "Caridade",
+      "sustainability": "Sustentabilidade",
+      "selectCategoryPlaceholder": "Selecionar categoria",
+      "topBarLabel": "E-commerce",
+      "loadingShopMessage": "Carregando",
+      "inputPlaceHolder": "Procurar lojas...",
+      "noBuisMessage": "Não conseguimos encontrar nada que corresponda à sua pesquisa.",
+      "visitWebsite": "Visitar site",
+      "addListing": "Adicionar loja"
     }
   },
 
@@ -835,15 +835,15 @@
       "contacts": "De contatos"
     },
     "manualInputPage": {
-      "inputPlaceholder": "Enter or paste a Liquid, or Lightning address/invoice"
+      "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"
     },
     "cameraModal": {
       "noCamera": "Sem acesso à câmera",
       "settingsText": "Acesse as configurações para permitir que a Carteira Blitz acesse sua câmera",
       "noCameraDevice": "Você não tem um dispositivo com câmera.",
       "noFlash": " Device does not have a torch",
-      "sanningResponse": "Only QRcodes are accepted.",
-      "qrDecodeError": "Error decoding QR code"
+      "sanningResponse": "Somente códigos QR são aceitos.",
+      "qrDecodeError": "Erro ao decodificar o código QR"
     },
     "confirmClipboard": {
       "clipboardContent": "Texto copiado para a área de transferência",
