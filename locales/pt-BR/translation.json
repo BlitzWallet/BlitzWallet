@@ -264,10 +264,10 @@
       "SMSDescription": "Send and receive SMS messages worldwide using Bitcoin",
       "VPN": "VPN",
       "VPNDescription": "Securely browse and protect privacy",
-      "onlineListings": "Shops",
-      "onlineListingsDescription": "Directory of online businesses accepting Bitcoin payments",
+      "onlineListings": "Lojas",
+      "onlineListingsDescription": "Diretório de empresas on-line que aceitam pagamentos em Bitcoin",
       "Soon": "Soon",
-      "SoonDescription": "More apps coming soon"
+      "SoonDescription": "Mais aplicativos em breve"
     },
     "VPN": {
       "VPNPlanPage": {
@@ -1440,8 +1440,8 @@
         "title": "Store",
         "shopTitle": "Shop with Bitcoin",
         "shopDescription": "Buy gift cards from thousands of different merchants around the world",
-        "callToAction": "Anything you want here?",
-        "featuredApps": "Anything you want here?"
+        "callToAction": "Gostaria de ver algo aqui?",
+        "featuredApps": "Gostaria de ver algo aqui?"
       },
 
       "confirmTxPage": {
