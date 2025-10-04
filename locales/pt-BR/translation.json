@@ -258,12 +258,12 @@
 
   "apps": {
     "appList": {
-      "AI": "AI",
-      "AIDescription": "Chat with the latest generative Ai models",
+      "AI": "IA",
+      "AIDescription": "Converse com os mais recentes modelos de IA generativa",
       "SMS": "SMS",
-      "SMSDescription": "Send and receive SMS messages worldwide using Bitcoin",
+      "SMSDescription": "Envie e receba mensagens SMS para todo o mundo usando Bitcoin",
       "VPN": "VPN",
-      "VPNDescription": "Securely browse and protect privacy",
+      "VPNDescription": "Navegue com segurança e proteja a sua privacidade",
       "onlineListings": "Lojas",
       "onlineListingsDescription": "Diretório de empresas on-line que aceitam pagamentos em Bitcoin",
       "Soon": "Soon",
@@ -1437,16 +1437,16 @@
     "inAccount": {
       "appStore": {
         "soonMessage": "We love that you want more apps. Suggest them below!",
-        "title": "Store",
-        "shopTitle": "Shop with Bitcoin",
-        "shopDescription": "Buy gift cards from thousands of different merchants around the world",
+        "title": "Loja",
+        "shopTitle": "Compre com Bitcoin",
+        "shopDescription": "Compre vales-presente de milhares de várias lojas ao redor do mundo",
         "callToAction": "Gostaria de ver algo aqui?",
         "featuredApps": "Gostaria de ver algo aqui?"
       },
 
       "confirmTxPage": {
         "failedToSend": "Falha ao enviar",
-        "confirmMessage": "{{direction}} succesfully",
+        "confirmMessage": "{{direction}} sucesso",
         "paymentErrorMessage": "Ocorreu um problema ao enviar este pagamento. Tente novamente.",
         "sendReport": "Enviar relatório ao desenvolvedor",
         "lnurlAuthSuccess": "Autenticação da carteira realizada com sucesso! Você está conectado."
