@@ -28,29 +28,17 @@ function MyTabBar({ state, descriptors, navigation }) {
   const { bottomPadding } = useGlobalInsets();
   const firstRender = useRef(true);
 
-  const overlayTranslateX = useSharedValue(1);
-  const [tabWidth, setTabWidth] = useState(0);
-
-  const numberOfTabs = state.routes.length;
-
-  const onLayoutTabs = e => {
-    const width = e.nativeEvent.layout.width;
-    setTabWidth(width / numberOfTabs);
-  };
+  const overlayTranslateX = useSharedValue(83.333); //position 1
+  const tabWidth = 250 / 3;
 
   useEffect(() => {
-    if (tabWidth > 0) {
-      if (firstRender.current) {
-        // instantly position overlay — no animation
-        overlayTranslateX.value = state.index * tabWidth;
-        firstRender.current = false;
-      } else {
-        // animate on subsequent tab changes
-        overlayTranslateX.value = withTiming(state.index * tabWidth, {
-          duration: 150,
-        });
-      }
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
     }
+    overlayTranslateX.value = withTiming(state.index * tabWidth, {
+      duration: 150,
+    });
   }, [state.index, tabWidth]);
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
@@ -68,7 +56,6 @@ function MyTabBar({ state, descriptors, navigation }) {
   return (
     <View style={memorizedTabContainerStyles}>
       <View
-        onLayout={onLayoutTabs}
         style={[
           styles.tabsInnerContainer,
           {
