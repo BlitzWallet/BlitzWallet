@@ -212,8 +212,8 @@
         "disclaimer": "WE CAN NOT HELP YOU IF YOU LOSE IT",
         "errorText": "Error Fetching recovery phrase",
         "keyGenError": "Not able to generate valid seed",
-        "seedPrivacyMessage": "Make sure no one is around who can see your screen.",
-        "showIt": "Show it",
+        "seedPrivacyMessage": "Certifique-se de que não haja ninguém por perto que possa ver sua tela.",
+        "showIt": "Mostrar",
         "invalidSeedError": "Não foi possível gerar uma seed válida"
       },
       "pin": {
