@@ -266,7 +266,7 @@
       "VPNDescription": "Navegue com segurança e proteja a sua privacidade",
       "onlineListings": "Lojas",
       "onlineListingsDescription": "Diretório de empresas on-line que aceitam pagamentos em Bitcoin",
-      "Soon": "Soon",
+      "Soon": "Em breve",
       "SoonDescription": "Mais aplicativos em breve"
     },
     "VPN": {
@@ -288,7 +288,7 @@
         "title": "Confirm VPN",
         "duration": "Duração: 1 {{duration}}",
         "price": "Preço: ",
-        "fee": "Fee: "
+        "fee": "Taxa: "
       },
       "durationSlider": {
         "durationOption": "1 {{duration}}",
