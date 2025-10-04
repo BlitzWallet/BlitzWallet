@@ -31,6 +31,7 @@ import Animated, {
   interpolate,
   runOnJS,
 } from 'react-native-reanimated';
+import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
 
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
@@ -46,7 +47,7 @@ export default function HomeLightning() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet, didGetToHomepage, toggleDidGetToHomepage } =
     useAppStatus();
-  const { topPadding } = useGlobalInsets();
+  const { topPadding, bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
   const { t } = useTranslation();
@@ -249,6 +250,7 @@ export default function HomeLightning() {
                 pointerEvents="none"
               >
                 <FormattedSatText
+                  useMillionDenomination={true}
                   styles={styles.navbarBalanceText}
                   balance={sparkInformation.balance}
                 />
@@ -265,14 +267,6 @@ export default function HomeLightning() {
                 },
               ]}
             >
-              <ThemeText
-                content={
-                  lrc20Settings.isEnabled
-                    ? t('constants.sat_balance')
-                    : t('constants.total_balance')
-                }
-                styles={{ textTransform: 'uppercase' }}
-              />
               <MemoizedUserSatAmount
                 isConnectedToTheInternet={isConnectedToTheInternet}
                 theme={theme}
@@ -349,8 +343,12 @@ export default function HomeLightning() {
   ]);
 
   const scrollViewContainerStyles = useMemo(() => {
-    return { flexGrow: 1, backgroundColor: homepageBackgroundOffsetColor };
-  }, [homepageBackgroundOffsetColor]);
+    return {
+      flexGrow: 1,
+      backgroundColor: homepageBackgroundOffsetColor,
+      paddingBottom: bottomPadding + TAB_ITEM_HEIGHT,
+    };
+  }, [homepageBackgroundOffsetColor, bottomPadding]);
 
   const topPaddingForLRC20PageMemeStyles = useMemo(() => {
     return {

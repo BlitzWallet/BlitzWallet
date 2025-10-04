@@ -1,11 +1,11 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {CENTER, COLORS, ICONS} from '../../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { CENTER, COLORS, ICONS } from '../../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {memo, useCallback, useMemo} from 'react';
+import { useCallback } from 'react';
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
-import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 
 export function SendRecieveBTNs({
   theme,
@@ -15,7 +15,7 @@ export function SendRecieveBTNs({
 }) {
   console.log('Loading send and receive btns componeent');
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const handleSettingsCheck = useCallback(() => {
     try {
@@ -80,7 +80,8 @@ export function SendRecieveBTNs({
           }
 
           navigate.navigate('SendBTC');
-        }}>
+        }}
+      >
         <View
           style={{
             ...styles.scanQrIcon,
@@ -89,7 +90,8 @@ export function SendRecieveBTNs({
                 ? COLORS.lightsOutBackgroundOffset
                 : COLORS.darkModeBackgroundOffset
               : COLORS.primary,
-          }}>
+          }}
+        >
           <ThemeImage
             darkModeIcon={ICONS.scanQrCodeLight}
             lightsOutIcon={ICONS.scanQrCodeLight}
@@ -105,8 +107,9 @@ export function SendRecieveBTNs({
       style={{
         ...styles.container,
         marginBottom: isNWCWallet ? 0 : 50,
-        width: isNWCWallet ? 160 : 220,
-      }}>
+        width: isNWCWallet ? 160 : 250,
+      }}
+    >
       {buttonElements}
     </View>
   );
@@ -122,10 +125,11 @@ const styles = StyleSheet.create({
   },
 
   scanQrIcon: {
-    width: 60,
-    height: 60,
+    width: 70,
+    height: 70,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 30,
+    borderRadius: 35,
+    overflow: 'hidden',
   },
 });

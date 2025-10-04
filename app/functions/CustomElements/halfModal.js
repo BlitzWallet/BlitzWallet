@@ -60,15 +60,19 @@ export default function CustomHalfModal(props) {
   const [contentHeight, setContentHeight] = useState(0);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const { bottomPadding, topPadding } = useGlobalInsets();
+  const didHandleBackpress = useRef(false);
 
   const translateY = useSharedValue(screenDimensions.height);
 
   const handleBackPressFunction = useCallback(() => {
+    if (didHandleBackpress.current) return;
+    didHandleBackpress.current = true;
     slideOut();
     Keyboard.dismiss();
     setTimeout(
       () => {
         navigation.goBack();
+        didHandleBackpress.current = false;
       },
       Keyboard.isVisible() ? KEYBOARDTIMEOUT : 200,
     );

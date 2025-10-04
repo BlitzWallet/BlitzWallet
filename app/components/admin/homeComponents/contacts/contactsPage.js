@@ -41,6 +41,8 @@ import {
   useServerTimeOnly,
 } from '../../../../../context-store/serverTime';
 import { useTranslation } from 'react-i18next';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import { TAB_ITEM_HEIGHT } from '../../../../../navigation/tabs';
 
 export default function ContactsPage({ navigation }) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -48,6 +50,7 @@ export default function ContactsPage({ navigation }) {
   const { cache } = useImageCache();
   const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { bottomPadding } = useGlobalInsets();
   const {
     decodedAddedContacts,
     globalContactsInformation,
@@ -97,9 +100,9 @@ export default function ContactsPage({ navigation }) {
   const scrollContentStyle = useMemo(
     () => ({
       paddingTop: contactInfoList.some(c => c.contact.isFavorite) ? 0 : 10,
-      paddingBottom: 10,
+      paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 10,
     }),
-    [contactInfoList],
+    [contactInfoList, bottomPadding],
   );
 
   const navigateToExpandedContact = useCallback(
