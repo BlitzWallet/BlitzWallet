@@ -188,7 +188,7 @@
     "homePage": {
       "subtitle": "Il tuo portafoglio, i tuoi satoshi, 100% open-source",
       "buttons": {
-        "button1": "Inserisci seed phrase",
+        "button1": "Inserisci frase di recupero",
         "button2": "Crea nuovo portafoglio"
       }
     },
@@ -202,18 +202,18 @@
       "continueBTN": "Avanti"
     },
     "verifyKeyPage": {
-      "header": "Conferma il tuo backup!"
+      "header": "¡Confirmemos tu frase semilla!"
     },
     "keySetup": {
       "generateKey": {
         "header": "Questa è la tua password per i tuoi fondi, se la perdi perdi i tuoi fondi!",
         "subHeader": "Scrivila con penna e carta e conservala al sicuro!",
         "disclaimer": "NON POSSIAMO AIUTARTI SE LA PERDI",
-        "errorText": "Errore nel recupero del seed di backup",
-        "keyGenError": "Impossibile generare un seed valido",
+        "errorText": "Errore durante il recupero della frase seed",
+        "keyGenError": "Impossibile generare una frase seed valida",
         "seedPrivacyMessage": "Assicurati che nessuno sia vicino e veda lo schermo.",
         "showIt": "Mostra",
-        "invalidSeedError": "Impossibile generare un seed valido"
+        "invalidSeedError": "Impossibile generare una frase seed valida"
       },
       "pin": {
         "savePinError": "Impossibile salvare il PIN",
@@ -226,16 +226,16 @@
     },
     "restoreWallet": {
       "home": {
-        "header": "Inserisci le parole seed di recupero",
+        "header": "Ingrese su frase semilla",
         "continueBTN": "Ripristina portafoglio",
-        "error1": "Inserisci tutte le tue parole.",
-        "error2": "Questa mnemonica non è valida.",
+        "error1": "Inserisci tutte le parole della frase seme.",
+        "error2": "Questa non è una frase seed valida.",
         "error3": "Le parole non corrispondono a quelle generate",
-        "noSeedInString": "Impossibile trovare il seed nella stringa",
+        "noSeedInString": "Impossibile trovare una frase seed nella stringa",
         "invalidWordLen": "Non tutte le parole hanno una lunghezza valida",
-        "cannotFind12Words": "Impossibile trovare 12 parole dalla frase copiata.",
-        "noSeedInNumberArray": "Impossibile trovare il seed nell'array numerico",
-        "noSeedInQr": "Impossibile ottenere il seed dal QR Code",
+        "cannotFind12Words": "Impossibile trovare 12 parole dalla frase seme copiata.",
+        "noSeedInNumberArray": "Impossibile trovare una frase seed nell'array numerico",
+        "noSeedInQr": "Impossibile ottenere una frase seed dal codice QR",
         "scanQr": "Scansiona QR Code"
       }
     },
@@ -1092,7 +1092,7 @@
       "text2": "Blitz è un'app gratuita e open source sotto la ",
       "text3": "Licenza Apache",
       "text4": " Versione 2.0",
-      "text5": "Questo è un wallet Bitcoin Lightning self-custodial. Blitz non ha accesso ai tuoi fondi; se perdi la tua frase di backup, potrebbe risultare nella perdita dei fondi.",
+      "text5": "Questo è un portafoglio Bitcoin Lightning auto-custodito. Blitz non ha accesso ai tuoi fondi. Se perdi la tua seed phrase, potresti subire una perdita di fondi.",
       "text6": "Blitz utilizza ",
       "text7": "Breez Liquid SDK, ",
       "text8": "Spark, ",
@@ -1152,12 +1152,12 @@
       "invalidPinconfirmation": "I PIN non corrispondono. Riprova!"
     },
     "seedPhrase": {
-      "header": "Tieni questa frase in un posto sicuro e sicuro",
+      "header": "Conserva questa frase seme in un luogo sicuro e protetto",
       "headerDesc": "Non condividerla con nessuno!",
-      "qrWarning": "Sei sicuro di voler mostrare questo QR Code?\n\nScansionare il tuo seed è comodo, ma assicurati di usare un dispositivo sicuro e affidabile. Questo aiuta a mantenere il tuo wallet sicuro.",
+      "qrWarning": "Sei sicuro di voler mostrare questo codice QR?\n\nScansionare la tua frase seed è comodo, ma assicurati di utilizzare un dispositivo sicuro e affidabile. Questo aiuta a proteggere il tuo portafoglio.",
       "wordsText": "Parole",
       "qrText": "QR Code",
-      "showSeedWarning": "Sei sicuro di voler mostrare la tua frase di recupero?"
+      "showSeedWarning": "Sei sicuro di voler mostrare la tua frase seed?"
     },
     "crashReporting": {
       "enabled": "Abilitato",
@@ -1173,7 +1173,7 @@
     "resetWallet": {
       "header": "Sei sicuro?",
       "dataDeleteHeader": "Seleziona i dati da eliminare da questo dispositivo.",
-      "dataDeleteDesc": "Qualsiasi opzione selezionata verrà rimossa per sempre. Se dimentichi il tuo seed, PERDERAI i tuoi fondi.",
+      "dataDeleteDesc": "Qualsiasi opzione selezionata verrà rimossa per sempre. Se dimentichi la tua frase seed, PERDERAI i tuoi fondi.",
       "seedAndPinOpt": "Elimina frase seed e PIN dal mio dispositivo",
       "localData": "Elimina i dati memorizzati localmente dal mio dispositivo",
       "balanceText": "Il tuo saldo è",
@@ -1313,9 +1313,9 @@
         "wanringMessage": "Per usare Nostr Wallet Connect devi avere le notifiche push per Nostr Wallet Connect abilitate.\n\nAbilita le notifiche push nelle impostazioni e riprova."
       },
       "showSeedPage": {
-        "loadingMessage": "Generazione Mnemonic",
-        "wanringMessage": "Per mantenere il tuo wallet sicuro, Nostr Wallet Connect crea una frase seed separata dal seed del tuo wallet principale.\n\nQuesto wallet usa il secondo percorso di derivazione e può sempre essere recuperato usando il seed del tuo wallet principale.\n\nSe non sei tecnico e non sei sicuro su come recuperare l'indirizzo wallet, per favore scrivi questa frase seed.",
-        "viewSeed": "Visualizza seed"
+        "loadingMessage": "Generazione della frase seed",
+        "wanringMessage": "Per proteggere il tuo portafoglio, Nostr Wallet Connect crea una seed phrase separata da quella del tuo portafoglio principale.\n\nQuesto portafoglio utilizza il percorso di seconda derivazione e può sempre essere recuperato utilizzando la seed phrase del tuo portafoglio principale.\n\nSe non sei esperto di tecnologia e non sei sicuro di come recuperare l'indirizzo del portafoglio, annota questa seed phrase.",
+        "viewSeed": "Visualizza seed phrase"
       }
     },
     "accountComponents": {
@@ -1333,7 +1333,7 @@
         "inputPlaceHolderText": "Swap Account"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "Questo seed esiste già per un altro account",
+        "alreadyUsingSeedError": "Questa frase seed esiste già per un altro account",
         "editTitle": "Modifica Account",
         "createTitle": "Crea Account",
         "updateTitle": "Aggiorna Account",
@@ -1342,7 +1342,7 @@
         "inputDesc": "Nome Account",
         "nameTakenError": "Questo nome è attualmente in uso. Usa un nome account differente.",
         "nameInputPlaceholder": "Nome...",
-        "seedHeader": "Seed Account"
+        "seedHeader": "Frase iniziale dell'account"
       },
       "viewAccountPage": {
         "informationMessage": "Sei sicuro di voler mostrare questo QR Code?\n\nScansionare il tuo seed è comodo, ma assicurati di usare un dispositivo sicuro e affidabile. Questo aiuta a mantenere il tuo wallet sicuro."
@@ -1573,9 +1573,9 @@
     "noDataInQRError": "Impossibile trovare i dati nell'immagine.",
     "noInvoiceInImageError": "Impossibile ottenere la fattura dall'immagine.",
     "savingImageError": "Impossibile salvare l'immagine, riprova.",
-    "invalidSeedError": "Non hai inserito un seed valido",
+    "invalidSeedError": "Non è stata inserita una frase seed valida",
     "invalidSeedWordLengthErorr": "Non tutte le parole sono della lunghezza valida",
-    "invalidSeedLengthError": "Impossibile trovare 12 parole dalla frase di recupero copiata.",
+    "invalidSeedLengthError": "Impossibile trovare 12 parole dalla frase seed copiata.",
     "noGooglePlay": "I servizi Google Play sono necessari per ricevere notifiche.",
     "noNotificationPermission": "Blitz non ha i permessi per le notifiche. Abilitali nelle impostazioni per usare le notifiche.",
     "rootstockInvoiceError": "C'è stato un problema nella generazione del tuo indirizzo Rootstock. Riprova.",
