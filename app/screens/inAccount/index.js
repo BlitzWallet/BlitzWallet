@@ -7,7 +7,6 @@ import BuyBitcoinHome from './buyBitcoinHome';
 import ConfirmTxPage from './confirmTxPage';
 
 import ExpandedTx from './expandedTxPage';
-import AdminHome from './home';
 import AdminHomeIndex from './homeIndex';
 import ConnectingToNodeLoadingScreen from './loadingScreen';
 import AdminLogin from './login';
@@ -20,7 +19,6 @@ import ViewAllTxPage from './viewAllTxPage';
 
 export {
   ExpandedTx,
-  AdminHome,
   AdminLogin,
   ReceivePaymentHome,
   SendPaymentHome,

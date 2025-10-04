@@ -17,7 +17,7 @@ import {
   IS_SPARK_ID,
   IS_SPARK_REQUEST_ID,
 } from '../../constants';
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 import {
   bulkUpdateSparkTransactions,
   deleteSparkTransaction,
@@ -25,7 +25,7 @@ import {
   getAllPendingSparkPayments,
   getAllUnpaidSparkLightningInvoices,
 } from './transactions';
-import {transformTxToPaymentObject} from './transformTxToPayment';
+import { transformTxToPaymentObject } from './transformTxToPayment';
 
 export const restoreSparkTxState = async (
   BATCH_SIZE,
@@ -122,10 +122,10 @@ export const restoreSparkTxState = async (
 
     console.log(`Total restored transactions: ${restoredTxs.length}`);
 
-    return {txs: restoredTxs};
+    return { txs: restoredTxs };
   } catch (error) {
     console.error('Error in spark restore history state:', error);
-    return {txs: []};
+    return { txs: [] };
   }
 };
 
@@ -293,10 +293,10 @@ export const findSignleTxFromHistory = async (txid, BATCH_SIZE, mnemonic) => {
     // Filter out any already-saved txs or dontation payments
     console.log(`Restored transaction`, restoredTx);
 
-    return {tx: restoredTx};
+    return { tx: restoredTx };
   } catch (error) {
     console.error('Error in spark restore history state:', error);
-    return {tx: null};
+    return { tx: null };
   }
 };
 let isUpdatingSparkTxStatus = false;
@@ -311,7 +311,7 @@ export const updateSparkTxStatus = async (mnemoninc, accountId) => {
     console.log('running pending payments');
     const savedTxs = await getAllPendingSparkPayments(accountId);
 
-    if (!savedTxs.length) return {updated: []};
+    if (!savedTxs.length) return { updated: [] };
     const txsByType = {
       lightning: savedTxs.filter(tx => tx.paymentType === 'lightning'),
       bitcoin: savedTxs.filter(tx => tx.paymentType === 'bitcoin'),
@@ -353,14 +353,14 @@ export const updateSparkTxStatus = async (mnemoninc, accountId) => {
       ...sparkUpdates,
     ];
 
-    if (!updatedTxs.length) return {updated: []};
+    if (!updatedTxs.length) return { updated: [] };
 
     await bulkUpdateSparkTransactions(updatedTxs, 'restoreTxs');
     console.log(`Updated transactions:`, updatedTxs);
-    return {updated: updatedTxs};
+    return { updated: updatedTxs };
   } catch (error) {
     console.error('Error in spark restore:', error);
-    return {updated: []};
+    return { updated: [] };
   } finally {
     isUpdatingSparkTxStatus = false;
   }
@@ -418,7 +418,7 @@ async function processLightningTransactions(
 
     if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer) continue;
 
-    const {offset, foundTransfers, bitcoinTransfer} = findTxResponse;
+    const { offset, foundTransfers, bitcoinTransfer } = findTxResponse;
     transfersOffset = offset;
     cachedTransfers = foundTransfers;
 
@@ -432,7 +432,7 @@ async function processLightningTransactions(
       continue;
     }
 
-    const transformedObject = transformTxToPaymentObject(
+    const transformedObject = await transformTxToPaymentObject(
       bitcoinTransfer,
       undefined,
       undefined,
@@ -574,7 +574,7 @@ async function findMatchingInvoice(possibleOptions, sparkID, mnemonic) {
         mnemonic,
       );
       if (paymentDetails?.transfer?.sparkId === sparkID) {
-        return {invoice, paymentDetails};
+        return { invoice, paymentDetails };
       }
       return null;
     });
@@ -590,7 +590,7 @@ async function findMatchingInvoice(possibleOptions, sparkID, mnemonic) {
     }
   }
 
-  return {savedInvoice: null, matchedUnpaidInvoice: null};
+  return { savedInvoice: null, matchedUnpaidInvoice: null };
 }
 
 async function getPaymentDetailsWithRetry(
@@ -660,7 +660,7 @@ async function processBitcoinTransactions(bitcoinTxs, mnemonic) {
 
       if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer) continue;
 
-      const {offset, foundTransfers, bitcoinTransfer} = findTxResponse;
+      const { offset, foundTransfers, bitcoinTransfer } = findTxResponse;
       transfersOffset = offset;
       cachedTransfers = foundTransfers;
 

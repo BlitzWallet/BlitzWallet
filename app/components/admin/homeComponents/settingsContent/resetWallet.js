@@ -1,42 +1,44 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {CENTER, COLORS, SCREEN_DIMENSIONS, SIZES} from '../../../../constants';
-import {useMemo, useState} from 'react';
-import {terminateAccount} from '../../../../functions/secureStore';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { CENTER, COLORS, SIZES } from '../../../../constants';
+import { useMemo, useState } from 'react';
+import { terminateAccount } from '../../../../functions/secureStore';
 import RNRestart from 'react-native-restart';
-import {ThemeText} from '../../../../functions/CustomElements';
+import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Icon from '../../../../functions/CustomElements/Icon';
-import {deleteTable} from '../../../../functions/messaging/cachedMessages';
+import { deleteTable } from '../../../../functions/messaging/cachedMessages';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {signOut} from '@react-native-firebase/auth';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import { signOut } from '@react-native-firebase/auth';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 // import {deleteEcashDBTables} from '../../../../functions/eCash/db';
-import {deletePOSTransactionsTable} from '../../../../functions/pos';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {removeAllLocalData} from '../../../../functions/localStorage';
+import { deletePOSTransactionsTable } from '../../../../functions/pos';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { removeAllLocalData } from '../../../../functions/localStorage';
 import {
   deleteSparkTransactionTable,
   deleteUnpaidSparkLightningTransactionTable,
 } from '../../../../functions/spark/transactions';
-import {useSparkWallet} from '../../../../../context-store/sparkContext';
-import {firebaseAuth} from '../../../../../db/initializeFirebase';
-import {useTranslation} from 'react-i18next';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import { firebaseAuth } from '../../../../../db/initializeFirebase';
+import { useTranslation } from 'react-i18next';
+import { useAppStatus } from '../../../../../context-store/appStatus';
 
 export default function ResetPage(props) {
   const [selectedOptions, setSelectedOptions] = useState({
     securedItems: false,
     localStoredItems: false,
   });
-  const {sparkInformation} = useSparkWallet();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {liquidNodeInformation} = useNodeContext();
+  const { screenDimensions } = useAppStatus();
+  const { sparkInformation } = useSparkWallet();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { liquidNodeInformation } = useNodeContext();
   const [contentHeight, setContentHeight] = useState(0);
-  const {backgroundOffset} = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const backgroundColor = useMemo(() => {
     return theme ? backgroundOffset : COLORS.darkModeText;
@@ -48,20 +50,22 @@ export default function ResetPage(props) {
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{
-        flexGrow: contentHeight > SCREEN_DIMENSIONS.height ? 0 : 1,
+        flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
         width: INSET_WINDOW_WIDTH,
         ...CENTER,
-      }}>
+      }}
+    >
       <View
         style={{
           width: '100%',
           alignItems: 'center',
-          flexGrow: contentHeight > SCREEN_DIMENSIONS.height ? 0 : 1,
+          flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
         }}
         onLayout={e => {
           if (!e.nativeEvent.layout.height) return;
           setContentHeight(e.nativeEvent.layout.height);
-        }}>
+        }}
+      >
         <View
           style={[
             styles.infoContainer,
@@ -69,7 +73,8 @@ export default function ResetPage(props) {
               marginTop: 30,
               backgroundColor: backgroundColor,
             },
-          ]}>
+          ]}
+        >
           <ThemeText
             styles={{
               ...styles.warningHeader,
@@ -85,13 +90,14 @@ export default function ResetPage(props) {
             {
               backgroundColor: backgroundColor,
             },
-          ]}>
+          ]}
+        >
           <ThemeText
             styles={styles.infoTitle}
             content={t('settings.resetWallet.dataDeleteHeader')}
           />
           <ThemeText
-            styles={{marginBottom: 15}}
+            styles={{ marginBottom: 15 }}
             content={t('settings.resetWallet.dataDeleteDesc')}
           />
 
@@ -103,8 +109,9 @@ export default function ResetPage(props) {
                   ? COLORS.darkModeText
                   : COLORS.lightModeText,
               },
-            ]}></View>
-          <View style={{marginTop: 15}}>
+            ]}
+          ></View>
+          <View style={{ marginTop: 15 }}>
             <View style={styles.selectorContainer}>
               <TouchableOpacity
                 onPress={() => handleSelectedItems('securedItems')}
@@ -121,7 +128,8 @@ export default function ResetPage(props) {
                       ? COLORS.darkModeText
                       : COLORS.lightModeText,
                   },
-                ]}>
+                ]}
+              >
                 {selectedOptions.securedItems && (
                   <Icon
                     width={15}
@@ -136,7 +144,7 @@ export default function ResetPage(props) {
                 content={t('settings.resetWallet.seedAndPinOpt')}
               />
             </View>
-            <View style={{...styles.selectorContainer, marginBottom: 0}}>
+            <View style={{ ...styles.selectorContainer, marginBottom: 0 }}>
               <TouchableOpacity
                 onPress={() => handleSelectedItems('localStoredItems')}
                 style={[
@@ -152,7 +160,8 @@ export default function ResetPage(props) {
                       ? COLORS.darkModeText
                       : COLORS.lightModeText,
                   },
-                ]}>
+                ]}
+              >
                 {selectedOptions.localStoredItems && (
                   <Icon
                     width={15}
@@ -163,7 +172,7 @@ export default function ResetPage(props) {
                 )}
               </TouchableOpacity>
               <ThemeText
-                styles={{...styles.selectorText}}
+                styles={{ ...styles.selectorText }}
                 content={t('settings.resetWallet.localData')}
               />
             </View>
@@ -176,13 +185,14 @@ export default function ResetPage(props) {
               {
                 backgroundColor: backgroundColor,
               },
-            ]}>
+            ]}
+          >
             <ThemeText
-              styles={{...styles.infoTitle, textAlign: 'center'}}
+              styles={{ ...styles.infoTitle, textAlign: 'center' }}
               content={t('settings.resetWallet.balanceText')}
             />
             <FormattedSatText
-              styles={{fontSize: SIZES.large}}
+              styles={{ fontSize: SIZES.large }}
               neverHideBalance={true}
               balance={
                 Number(sparkInformation.balance) +
@@ -211,8 +221,8 @@ export default function ResetPage(props) {
   function handleSelectedItems(item) {
     setSelectedOptions(prev => {
       if (item === 'securedItems')
-        return {...prev, securedItems: !prev.securedItems};
-      else return {...prev, localStoredItems: !prev.localStoredItems};
+        return { ...prev, securedItems: !prev.securedItems };
+      else return { ...prev, localStoredItems: !prev.localStoredItems };
     });
   }
 
@@ -256,7 +266,7 @@ export default function ResetPage(props) {
     } catch (err) {
       const errorMessage = err.message;
       console.log(errorMessage);
-      navigate.navigate('ErrorScreen', {errorMessage: errorMessage});
+      navigate.navigate('ErrorScreen', { errorMessage: errorMessage });
     }
   }
 }

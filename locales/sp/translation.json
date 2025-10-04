@@ -185,7 +185,7 @@
     "homePage": {
       "subtitle": "Tu billetera, tus monedas, 100% código abierto",
       "buttons": {
-        "button1": "Ingresar frase semilla",
+        "button1": "Ingrese la frase de recuperación",
         "button2": "Crear nueva billetera"
       }
     },
@@ -199,18 +199,18 @@
       "continueBTN": "Siguiente"
     },
     "verifyKeyPage": {
-      "header": "¡Vamos a confirmar tu copia de seguridad!"
+      "header": "¡Confirmemos tu frase semilla!"
     },
     "keySetup": {
       "generateKey": {
         "header": "Esta es tu contraseña para tu dinero; si la pierdes, pierdes tu dinero.",
         "subHeader": "Escríbela en papel y guárdala en un lugar seguro.",
         "disclaimer": "NO PODEMOS AYUDARTE SI LA PIERDES",
-        "errorText": "Error al obtener la frase de recuperación",
-        "keyGenError": "No se puede generar una semilla válida",
+        "errorText": "Error al obtener la frase semilla",
+        "keyGenError": "No se puede generar una frase semilla válida",
         "seedPrivacyMessage": "Asegúrate de que no haya nadie cerca que pueda ver tu pantalla.",
         "showIt": "Mostrarla",
-        "invalidSeedError": "No se puede generar una semilla válida"
+        "invalidSeedError": "No se puede generar una frase semilla válida"
       },
       "pin": {
         "savePinError": "No se pudo guardar el PIN",
@@ -223,16 +223,16 @@
     },
     "restoreWallet": {
       "home": {
-        "header": "Introduce tu frase de recuperación",
+        "header": "Ingrese su frase semilla",
         "continueBTN": "Restaurar billetera",
-        "error1": "Por favor ingresa todas tus llaves.",
-        "error2": "Esto no es un mnemónico válido.",
+        "error1": "Por favor ingrese todas las palabras de su frase inicial.",
+        "error2": "Esta no es una frase semilla válida.",
         "error3": "Tus palabras no coinciden con las generadas",
-        "noSeedInString": "No se pudo encontrar una semilla en el texto",
+        "noSeedInString": "No se puede encontrar una frase semilla en la cadena",
         "invalidWordLen": "No todas las palabras tienen una longitud válida",
-        "cannotFind12Words": "No se encontraron 12 palabras en la frase de recuperación copiada.",
-        "noSeedInNumberArray": "No se pudo encontrar semilla en la matriz numérica",
-        "noSeedInQr": "No se pudo obtener semilla del código QR",
+        "cannotFind12Words": "No se pueden encontrar 12 palabras de la frase inicial copiada.",
+        "noSeedInNumberArray": "No se puede encontrar una frase inicial en la matriz de números",
+        "noSeedInQr": "No se puede obtener una frase inicial del código QR",
         "scanQr": "Escanear QR"
       }
     },
@@ -935,7 +935,7 @@
       "text2": "Blitz es una aplicación gratuita y de código abierto bajo la ",
       "text3": "Licencia Apache",
       "text4": " Versión 2.0",
-      "text5": "Esta es una billetera Lightning de Bitcoin de autocustodia. Blitz no tiene acceso a tus fondos; si pierdes tu frase de respaldo, puede resultar en la pérdida de fondos.",
+      "text5": "Esta es una billetera Bitcoin Lightning autocustodiada. Blitz no tiene acceso a sus fondos. Si pierde su frase semilla, podría perder sus fondos.",
       "text6": "Blitz utiliza ",
       "text7": "Breez Liquid SDK, ",
       "text8": "Spark, ",
@@ -992,12 +992,12 @@
       "invalidPinconfirmation": "Los PIN no coinciden. ¡Intenta de nuevo!"
     },
     "seedPhrase": {
-      "header": "Guarda esta frase en un lugar seguro",
+      "header": "Guarde esta frase semilla en un lugar seguro y protegido",
       "headerDesc": "¡No la compartas con nadie!",
-      "qrWarning": "¿Estás seguro de que quieres mostrar este código QR?\n\nEscanear tu semilla es conveniente, pero asegúrate de usar un dispositivo seguro y confiable. Esto ayuda a mantener tu billetera segura.",
+      "qrWarning": "¿Seguro que desea mostrar este código QR?\n\nEscanear su frase inicial es conveniente, pero asegúrese de usar un dispositivo seguro y confiable. Esto ayuda a proteger su billetera.",
       "wordsText": "palabras",
       "qrText": "Código QR",
-      "showSeedWarning": "¿Estás seguro de que quieres mostrar tu frase de recuperación?"
+      "showSeedWarning": "¿Estás seguro de que quieres mostrar tu frase inicial?"
     },
     "crashReporting": {
       "enabled": "Habilitado",
@@ -1012,7 +1012,7 @@
     "resetWallet": {
       "header": "¿Estás seguro?",
       "dataDeleteHeader": "Selecciona los datos a eliminar de este dispositivo.",
-      "dataDeleteDesc": "Cualquier opción seleccionada se eliminará para siempre. Si olvidas tu semilla, PERDERÁS tus fondos.",
+      "dataDeleteDesc": "Cualquier opción seleccionada se eliminará permanentemente. Si olvida su frase inicial, PERDERÁ sus fondos.",
       "seedAndPinOpt": "Eliminar frase semilla y PIN de mi dispositivo",
       "localData": "Eliminar datos almacenados localmente en mi dispositivo",
       "balanceText": "Tu saldo es",
@@ -1148,9 +1148,9 @@
         "wanringMessage": "Para usar Nostr Wallet Connect necesitas tener habilitadas las notificaciones push para Nostr Wallet Connect.\n\nPor favor habilita las notificaciones en configuración e intenta de nuevo."
       },
       "showSeedPage": {
-        "loadingMessage": "Generando mnemónico",
-        "wanringMessage": "Para mantener tu billetera segura, Nostr Wallet Connect crea una frase semilla separada de la semilla de tu billetera principal.\n\nEsta billetera usa la segunda ruta de derivación y siempre puede recuperarse usando la semilla de tu billetera principal.\n\nSi no eres experto en tecnología y no estás seguro de cómo recuperar la dirección, por favor escribe esta frase semilla.",
-        "viewSeed": "Ver semilla"
+        "loadingMessage": "Generando frase semilla",
+        "wanringMessage": "Para mantener tu billetera segura, Nostr Wallet Connect crea una frase semilla independiente de la frase semilla de tu billetera principal.\n\nEsta billetera usa la segunda ruta de derivación y siempre se puede recuperar usando la frase semilla de tu billetera principal.\n\nSi no tienes conocimientos técnicos y no estás seguro de cómo recuperar la dirección de la billetera, anota esta frase semilla.",
+        "viewSeed": "Ver frase semilla"
       }
     },
     "accountComponents": {
@@ -1168,7 +1168,7 @@
         "inputPlaceHolderText": "Intercambio de cuenta"
       },
       "createAccountPage": {
-        "alreadyUsingSeedError": "Esta semilla ya existe para otra cuenta",
+        "alreadyUsingSeedError": "Esta frase semilla ya existe para otra cuenta",
         "editTitle": "Editar cuenta",
         "createTitle": "Crear cuenta",
         "updateTitle": "Actualizar cuenta",
@@ -1177,7 +1177,7 @@
         "inputDesc": "Nombre de la cuenta",
         "nameTakenError": "Este nombre ya está en uso. Por favor usa un nombre de cuenta diferente.",
         "nameInputPlaceholder": "Nombre...",
-        "seedHeader": "Semilla de cuenta"
+        "seedHeader": "Frase inicial de la cuenta"
       },
       "viewAccountPage": {
         "informationMessage": "¿Estás seguro de que quieres mostrar este código QR?\n\nEscanear tu semilla es conveniente, pero asegúrate de usar un dispositivo seguro y confiable. Esto ayuda a mantener tu billetera segura."
@@ -1400,9 +1400,9 @@
     "noDataInQRError": "No se pudo encontrar datos en la imagen.",
     "noInvoiceInImageError": "No se pudo obtener factura de la imagen.",
     "savingImageError": "No se pudo guardar la imagen, intenta de nuevo.",
-    "invalidSeedError": "No se ingresó una semilla válida",
+    "invalidSeedError": "No se ingresó una frase semilla válida",
     "invalidSeedWordLengthErorr": "No todas las palabras tienen una longitud válida",
-    "invalidSeedLengthError": "No se pudieron encontrar 12 palabras en la frase de recuperación copiada.",
+    "invalidSeedLengthError": "No se pueden encontrar 12 palabras de la frase inicial copiada.",
     "noGooglePlay": "Se requieren los servicios de Google Play para recibir notificaciones.",
     "noNotificationPermission": "Blitz no tiene permisos de notificación. Actívalos en configuración para usar notificaciones.",
     "rootstockInvoiceError": "Hubo un problema al generar tu dirección Rootstock. Intenta de nuevo.",

@@ -1,7 +1,7 @@
 import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
 import {Platform} from 'react-native';
 import customUUID from './customUUID';
-import {getInfoAsync, makeDirectoryAsync} from 'expo-file-system';
+import {getInfoAsync, makeDirectoryAsync} from 'expo-file-system/legacy';
 
 export async function getOrCreateDirectory(uuidKey, workingDir) {
   try {

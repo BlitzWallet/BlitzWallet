@@ -8,33 +8,33 @@ import {
 import {
   CENTER,
   COLORS,
-  FONT,
   ICONS,
-  SCREEN_DIMENSIONS,
   SIZES,
   TOKEN_TICKER_MAX_LENGTH,
 } from '../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
+import { useNavigation } from '@react-navigation/native';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import Icon from '../../functions/CustomElements/Icon';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../functions/CustomElements/button';
 import GetThemeColors from '../../hooks/themeColors';
 import ThemeImage from '../../functions/CustomElements/themeImage';
-import {useGlobalThemeContext} from '../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {useSparkWallet} from '../../../context-store/sparkContext';
+import { useSparkWallet } from '../../../context-store/sparkContext';
 import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
-import {useTranslation} from 'react-i18next';
-import {useGlobalInsets} from '../../../context-store/insetsProvider';
+import { useTranslation } from 'react-i18next';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
+import { useAppStatus } from '../../../context-store/appStatus';
 
 export default function ExpandedTx(props) {
-  const {sparkInformation} = useSparkWallet();
+  const { screenDimensions } = useAppStatus();
+  const { sparkInformation } = useSparkWallet();
   const navigate = useNavigation();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
-  const {bottomPadding} = useGlobalInsets();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
 
   const transaction = props.route.params.transaction;
   const transactionPaymentType = transaction.paymentType;
@@ -45,7 +45,7 @@ export default function ExpandedTx(props) {
   const amount = transaction?.details?.amount;
   const description = transaction.details.description;
 
-  const month = paymentDate.toLocaleString('default', {month: 'short'});
+  const month = paymentDate.toLocaleString('default', { month: 'short' });
   const day = paymentDate.getDate();
   const year = paymentDate.getFullYear();
 
@@ -136,9 +136,9 @@ export default function ExpandedTx(props) {
       <ThemeText
         content={t('screens.inAccount.expandedTxPage.paymentStatus')}
       />
-      <View style={[styles.statusBadge, {backgroundColor: statusColors.bg}]}>
+      <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
         <ThemeText
-          styles={{...styles.statusText, color: statusColors.text}}
+          styles={{ ...styles.statusText, color: statusColors.text }}
           content={
             isPending
               ? t('transactionLabelText.pending')
@@ -191,10 +191,11 @@ export default function ExpandedTx(props) {
           content={t('transactionLabelText.memo')}
           styles={styles.descriptionHeader}
         />
-        <View style={[styles.descriptionContent, {backgroundColor}]}>
+        <View style={[styles.descriptionContent, { backgroundColor }]}>
           <ScrollView
             nestedScrollEnabled={true}
-            showsVerticalScrollIndicator={false}>
+            showsVerticalScrollIndicator={false}
+          >
             <ThemeText content={description} />
           </ScrollView>
         </View>
@@ -224,25 +225,29 @@ export default function ExpandedTx(props) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
-            {paddingBottom: bottomPadding},
-          ]}>
+            { paddingBottom: bottomPadding },
+          ]}
+        >
           <View
             style={[
               styles.receiptContainer,
-              {backgroundColor: theme ? backgroundOffset : COLORS.white},
-            ]}>
+              { backgroundColor: theme ? backgroundOffset : COLORS.white },
+            ]}
+          >
             {/* Status Circle */}
-            <View style={[styles.statusOuterCircle, {backgroundColor}]}>
+            <View style={[styles.statusOuterCircle, { backgroundColor }]}>
               <View
                 style={[
                   styles.statusFirstCircle,
-                  {backgroundColor: statusColors.outer},
-                ]}>
+                  { backgroundColor: statusColors.outer },
+                ]}
+              >
                 <View
                   style={[
                     styles.statusSecondCircle,
-                    {backgroundColor: statusColors.inner},
-                  ]}>
+                    { backgroundColor: statusColors.inner },
+                  ]}
+                >
                   {renderStatusIcon()}
                 </View>
               </View>
@@ -304,7 +309,7 @@ export default function ExpandedTx(props) {
             {renderPaymentStatus()}
 
             {/* Divider */}
-            <Border />
+            <Border screenDimensions={screenDimensions} />
 
             {/* Transaction Details */}
             <View style={styles.detailsSection}>
@@ -363,7 +368,7 @@ export default function ExpandedTx(props) {
             />
 
             {/* Receipt Dots */}
-            <ReceiptDots />
+            <ReceiptDots screenDimensions={screenDimensions} />
           </View>
         </ScrollView>
       </View>
@@ -371,12 +376,12 @@ export default function ExpandedTx(props) {
   );
 }
 
-function Border() {
-  const {theme} = useGlobalThemeContext();
-  const dotsWidth = SCREEN_DIMENSIONS.width * 0.95 - 30;
+function Border({ screenDimensions }) {
+  const { theme } = useGlobalThemeContext();
+  const dotsWidth = screenDimensions.width * 0.95 - 30;
   const numDots = Math.floor(dotsWidth / 25);
 
-  const dotElements = Array.from({length: numDots}, (_, index) => (
+  const dotElements = Array.from({ length: numDots }, (_, index) => (
     <View
       key={index}
       style={[
@@ -393,13 +398,13 @@ function Border() {
   return <View style={styles.borderContainer}>{dotElements}</View>;
 }
 
-function ReceiptDots() {
-  const {backgroundColor} = GetThemeColors();
-  const dotsWidth = SCREEN_DIMENSIONS.width * 0.95 - 30;
+function ReceiptDots({ screenDimensions }) {
+  const { backgroundColor } = GetThemeColors();
+  const dotsWidth = screenDimensions.width * 0.95 - 30;
   const numDots = Math.floor(dotsWidth / 25);
 
-  const dotElements = Array.from({length: numDots}, (_, index) => (
-    <View key={index} style={[styles.receiptDot, {backgroundColor}]} />
+  const dotElements = Array.from({ length: numDots }, (_, index) => (
+    <View key={index} style={[styles.receiptDot, { backgroundColor }]} />
   ));
 
   return <View style={styles.receiptDotsContainer}>{dotElements}</View>;

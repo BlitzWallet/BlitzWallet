@@ -1,28 +1,59 @@
-import {StyleSheet, View} from 'react-native';
-import {useCallback, useState} from 'react';
-import {useGlobalContextProvider} from '../../../context-store/context';
+import { BackHandler, StyleSheet, View } from 'react-native';
+import { useCallback, useRef, useState } from 'react';
+import { useGlobalContextProvider } from '../../../context-store/context';
 import PagerView from 'react-native-pager-view';
-import {MyTabs} from '../../../navigation/tabs';
-import AdminHome from './home';
-import {ContactsDrawer} from '../../../navigation/drawers';
+import Animated, { useHandler, useEvent } from 'react-native-reanimated';
+import { MyTabs } from '../../../navigation/tabs';
 import AppStore from './appStore';
 import SendPaymentHome from './sendBtcPage';
-import GetThemeColors from '../../hooks/themeColors';
-import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
+import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
+import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
+import { ContactsPage, HomeLightning } from '../../components/admin';
+
+const AnimatedPagerView = Animated.createAnimatedComponent(PagerView);
 
 const CAMERA_PAGE = 0;
 const HOME_PAGE = 1;
 
+function usePagerScrollHandler(handlers, dependencies) {
+  const { context, doDependenciesDiffer } = useHandler(handlers, dependencies);
+  const subscribeForEvents = ['onPageScroll'];
+
+  return useEvent(
+    event => {
+      'worklet';
+      const { onPageScroll } = handlers;
+      if (onPageScroll && event.eventName.endsWith('onPageScroll')) {
+        onPageScroll(event, context);
+      }
+    },
+    subscribeForEvents,
+    doDependenciesDiffer,
+  );
+}
+
 export default function AdminHomeIndex() {
-  const {masterInfoObject} = useGlobalContextProvider();
-  const [currentPage, setCurrentPage] = useState(HOME_PAGE);
+  const { masterInfoObject } = useGlobalContextProvider();
   const [isCameraActive, setIsCameraActive] = useState(false);
-  const {backgroundColor} = GetThemeColors();
+  const pagerRef = useRef(null);
+  const currentPageRef = useRef(HOME_PAGE);
+
+  const handleBackPressFunction = useCallback(() => {
+    if (currentPageRef.current !== HOME_PAGE) {
+      console.log('RUNNING');
+      requestAnimationFrame(() => pagerRef.current?.setPage(HOME_PAGE));
+    } else {
+      BackHandler.exitApp();
+    }
+    return true;
+  }, []);
+
+  useHandleBackPressNew(handleBackPressFunction);
 
   const handlePageChange = useCallback(e => {
     crashlyticsLogReport('Handling page change with pagerView');
     const newPage = e.nativeEvent.position;
-    setCurrentPage(newPage);
+    currentPageRef.current = newPage;
 
     if (newPage === CAMERA_PAGE) {
       setIsCameraActive(true);
@@ -31,18 +62,21 @@ export default function AdminHomeIndex() {
     }
   }, []);
 
-  const handlePageScroll = e => {
-    const state = e.nativeEvent.pageScrollState;
-    if (state === 'dragging' && currentPage === HOME_PAGE) {
-      setIsCameraActive(true);
-    }
-  };
+  const scrollHandler = usePagerScrollHandler({
+    onPageScroll: e => {
+      'worklet';
+      // Trigger camera activation when starting to drag from HOME_PAGE
+      if (e.position === HOME_PAGE && e.offset > 0) {
+        setIsCameraActive(true);
+      }
+    },
+  });
 
   const MainContent = useCallback(
     () => (
       <MyTabs
-        adminHome={AdminHome}
-        contactsDrawer={ContactsDrawer}
+        adminHome={HomeLightning}
+        ContactsPage={ContactsPage}
         appStore={AppStore}
       />
     ),
@@ -51,27 +85,29 @@ export default function AdminHomeIndex() {
 
   if (!masterInfoObject.enabledSlidingCamera) {
     return (
-      <View style={{...styles.container, backgroundColor}}>
+      <View style={styles.container}>
         <MainContent />
       </View>
     );
   }
 
   return (
-    <PagerView
-      style={{...styles.container, backgroundColor}}
+    <AnimatedPagerView
+      ref={pagerRef}
+      style={styles.container}
       initialPage={HOME_PAGE}
       onPageSelected={handlePageChange}
-      onPageScrollStateChanged={handlePageScroll}>
-      <View style={{flex: 1}} key={CAMERA_PAGE}>
+      onPageScroll={scrollHandler}
+    >
+      <View style={styles.container} key={CAMERA_PAGE}>
         {isCameraActive && (
-          <SendPaymentHome from="home" pageViewPage={currentPage} />
+          <SendPaymentHome from="home" pageViewPage={currentPageRef.current} />
         )}
       </View>
       <View key={HOME_PAGE} style={styles.container}>
         <MainContent />
       </View>
-    </PagerView>
+    </AnimatedPagerView>
   );
 }
 

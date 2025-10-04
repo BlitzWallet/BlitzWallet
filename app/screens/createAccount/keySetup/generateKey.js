@@ -1,23 +1,23 @@
-import {StyleSheet, View, ScrollView} from 'react-native';
-import {KeyContainer} from '../../../components/login';
-import {CENTER, COLORS, FONT, SIZES} from '../../../constants';
-import {useTranslation} from 'react-i18next';
-import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
+import { StyleSheet, View, ScrollView } from 'react-native';
+import { KeyContainer } from '../../../components/login';
+import { CENTER, COLORS, FONT, SIZES } from '../../../constants';
+import { useTranslation } from 'react-i18next';
+import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import LoginNavbar from '../../../components/login/navBar';
 import CustomButton from '../../../functions/CustomElements/button';
-import {copyToClipboard} from '../../../functions';
-import {useNavigation} from '@react-navigation/native';
+import { copyToClipboard } from '../../../functions';
+import { useNavigation } from '@react-navigation/native';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
-import {crashlyticsRecordErrorReport} from '../../../functions/crashlyticsLogs';
-import {useKeysContext} from '../../../../context-store/keys';
-import {useToast} from '../../../../context-store/toastManager';
-import {useState} from 'react';
+import { crashlyticsRecordErrorReport } from '../../../functions/crashlyticsLogs';
+import { useKeysContext } from '../../../../context-store/keys';
+import { useToast } from '../../../../context-store/toastManager';
+import { useState } from 'react';
 import GetThemeColors from '../../../hooks/themeColors';
 
 export default function GenerateKey() {
-  const {showToast} = useToast();
-  const {accountMnemoinc} = useKeysContext();
+  const { showToast } = useToast();
+  const { accountMnemoinc } = useKeysContext();
   const mnemonic = accountMnemoinc.split(' ');
   const [showSeed, setShowSeed] = useState(false);
   const [keyContainerDimensions, setKeyContainerDimensions] = useState({
@@ -33,9 +33,9 @@ export default function GenerateKey() {
     width: 0,
   });
 
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const hookNavigate = useNavigation();
-  const {backgroundColor} = GetThemeColors();
+  const { backgroundColor } = GetThemeColors();
 
   useHandleBackPressNew();
 
@@ -95,7 +95,8 @@ export default function GenerateKey() {
               showsHorizontalScrollIndicator={false}
               showsVerticalScrollIndicator={false}
               style={styles.scrollViewContainer}
-              contentContainerStyle={styles.scrollContentContainer}>
+              contentContainerStyle={styles.scrollContentContainer}
+            >
               <View onLayout={handleKeyContainerLayout}>
                 <KeyContainer keys={mnemonic} />
               </View>
@@ -110,7 +111,8 @@ export default function GenerateKey() {
                     width: keyContainerDimensions.width,
                     backgroundColor,
                   },
-                ]}>
+                ]}
+              >
                 <View
                   onLayout={handleWarningMessageLayout}
                   style={[
@@ -123,7 +125,8 @@ export default function GenerateKey() {
                           2,
                       ),
                     },
-                  ]}>
+                  ]}
+                >
                   <ThemeText
                     styles={styles.seedPrivacyMessage}
                     content={t(
@@ -132,7 +135,7 @@ export default function GenerateKey() {
                   />
                   <CustomButton
                     actionFunction={() => setShowSeed(true)}
-                    buttonStyles={{...styles.revealButton, backgroundColor}}
+                    buttonStyles={{ ...styles.revealButton, backgroundColor }}
                     textContent={t('createAccount.keySetup.generateKey.showIt')}
                   />
                 </View>

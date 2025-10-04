@@ -1,43 +1,39 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
-import {KeyContainer} from '../../../login';
-import {useEffect, useRef, useState} from 'react';
-import {
-  COLORS,
-  SIZES,
-  SHADOWS,
-  CENTER,
-  SCREEN_DIMENSIONS,
-} from '../../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {ThemeText} from '../../../../functions/CustomElements';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { KeyContainer } from '../../../login';
+import { useEffect, useRef, useState } from 'react';
+import { COLORS, SIZES, SHADOWS, CENTER } from '../../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useTranslation} from 'react-i18next';
-import {useKeysContext} from '../../../../../context-store/keys';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useTranslation } from 'react-i18next';
+import { useKeysContext } from '../../../../../context-store/keys';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 import calculateSeedQR from './seedQR';
-import {copyToClipboard} from '../../../../functions';
-import {useToast} from '../../../../../context-store/toastManager';
+import { copyToClipboard } from '../../../../functions';
+import { useToast } from '../../../../../context-store/toastManager';
 import WordsQrToggle from '../../../../functions/CustomElements/wordsQrToggle';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
+import { useAppStatus } from '../../../../../context-store/appStatus';
 
-export default function SeedPhrasePage({extraData}) {
-  const {showToast} = useToast();
+export default function SeedPhrasePage({ extraData }) {
+  const { showToast } = useToast();
   const fadeAnim = useSharedValue(0);
-  const {accountMnemoinc} = useKeysContext();
+  const { screenDimensions } = useAppStatus();
+  const { accountMnemoinc } = useKeysContext();
   const isInitialRender = useRef(true);
   const mnemonic = accountMnemoinc.split(' ');
   const [showSeed, setShowSeed] = useState(false);
   const navigate = useNavigation();
-  const {backgroundColor, backgroundOffset} = GetThemeColors();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {t} = useTranslation();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { t } = useTranslation();
   const [seedContainerHeight, setSeedContainerHeight] = useState();
   const [selectedDisplayOption, setSelectedDisplayOption] = useState('words');
   const canViewQrCode = extraData?.canViewQrCode;
@@ -54,12 +50,12 @@ export default function SeedPhrasePage({extraData}) {
   }, [showSeed]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateY: fadeAnim.value}],
+    transform: [{ translateY: fadeAnim.value }],
     backgroundColor: backgroundColor,
   }));
 
   function fadeout() {
-    fadeAnim.value = withTiming(SCREEN_DIMENSIONS.height * 2, {
+    fadeAnim.value = withTiming(screenDimensions.height * 2, {
       duration: 500,
     });
   }
@@ -68,9 +64,10 @@ export default function SeedPhrasePage({extraData}) {
     <View style={styles.globalContainer}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollViewStyles}>
+        contentContainerStyle={styles.scrollViewStyles}
+      >
         <ThemeText
-          styles={{...styles.headerPhrase}}
+          styles={{ ...styles.headerPhrase }}
           content={t('settings.seedPhrase.header')}
         />
         <ThemeText
@@ -88,7 +85,8 @@ export default function SeedPhrasePage({extraData}) {
               height: seedContainerHeight,
               alignItems: 'center',
               justifyContent: 'center',
-            }}>
+            }}
+          >
             <QrCodeWrapper QRData={qrValue} />
           </View>
         ) : (
@@ -96,7 +94,8 @@ export default function SeedPhrasePage({extraData}) {
             onLayout={event => {
               setSeedContainerHeight(event.nativeEvent.layout.height);
             }}
-            style={styles.scrollViewContainer}>
+            style={styles.scrollViewContainer}
+          >
             <KeyContainer keys={mnemonic} />
           </View>
         )}
@@ -107,12 +106,12 @@ export default function SeedPhrasePage({extraData}) {
           qrNavigateFunc={() =>
             navigate.popTo('SettingsContentHome', {
               for: 'Backup wallet',
-              extraData: {canViewQrCode: true},
+              extraData: { canViewQrCode: true },
             })
           }
         />
         <CustomButton
-          buttonStyles={{marginTop: 10}}
+          buttonStyles={{ marginTop: 10 }}
           actionFunction={() =>
             copyToClipboard(
               selectedDisplayOption === 'words' ? accountMnemoinc : qrValue,
@@ -126,7 +125,7 @@ export default function SeedPhrasePage({extraData}) {
       <Animated.View style={[styles.confirmPopup, animatedStyle]}>
         <View style={styles.confirmPopupInnerContainer}>
           <ThemeText
-            styles={{...styles.confirmPopupTitle}}
+            styles={{ ...styles.confirmPopupTitle }}
             content={t('settings.seedPhrase.showSeedWarning')}
           />
           <View style={styles.confirmationContainer}>
@@ -136,7 +135,7 @@ export default function SeedPhrasePage({extraData}) {
                   theme && darkModeType ? backgroundOffset : COLORS.primary,
                 marginRight: 20,
               }}
-              textStyles={{color: COLORS.darkModeText}}
+              textStyles={{ color: COLORS.darkModeText }}
               textContent={t('constants.yes')}
               actionFunction={() => setShowSeed(true)}
             />

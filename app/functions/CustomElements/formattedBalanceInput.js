@@ -11,15 +11,15 @@ import {
   BITCOIN_SATS_ICON,
   CENTER,
   FONT,
-  SCREEN_DIMENSIONS,
 } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
-import {useGlobalContextProvider} from '../../../context-store/context';
+import { useGlobalContextProvider } from '../../../context-store/context';
 import formatBalanceAmount from '../formatNumber';
 import ThemeText from './textTheme';
-import {formatCurrency} from '../formatCurrency';
-import {useMemo, useState} from 'react';
-import {useNodeContext} from '../../../context-store/nodeContext';
+import { formatCurrency } from '../formatCurrency';
+import { useMemo, useState } from 'react';
+import { useNodeContext } from '../../../context-store/nodeContext';
+import { useAppStatus } from '../../../context-store/appStatus';
 
 export default function FormattedBalanceInput({
   amountValue = 0,
@@ -31,11 +31,12 @@ export default function FormattedBalanceInput({
   maxWidth = 0.95,
   customCurrencyCode = '',
 }) {
+  const { screenDimensions } = useAppStatus();
   const [inputWidth, setInputWidth] = useState(0);
   const [labelWidth, setLabelWidth] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {fiatStats} = useNodeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
   const currencyText = fiatStats.coin || 'USD';
   const showSymbol = masterInfoObject.satDisplay != 'word';
 
@@ -50,11 +51,11 @@ export default function FormattedBalanceInput({
 
   const isSymbolInFront = currencyInfo[3];
   const currencySymbol = currencyInfo[2];
-  const {textColor} = GetThemeColors();
+  const { textColor } = GetThemeColors();
   const showSats =
     inputDenomination === 'sats' || inputDenomination === 'hidden';
 
-  const maxContainerWidth = SCREEN_DIMENSIONS.width * maxWidth;
+  const maxContainerWidth = screenDimensions.width * maxWidth;
   const availableInputWidth = useMemo(() => {
     if (labelWidth === 0) return 0;
 
@@ -77,18 +78,20 @@ export default function FormattedBalanceInput({
             maxWidth: maxContainerWidth,
             ...customTextInputContainerStyles,
           },
-        ]}>
-        <View style={[styles.inputWrapper, {width: availableInputWidth}]}>
+        ]}
+      >
+        <View style={[styles.inputWrapper, { width: availableInputWidth }]}>
           <ScrollView
             onTouchStart={() => setIsScrolling(false)}
             onTouchMove={() => setIsScrolling(true)}
             onTouchEnd={() => setIsScrolling(false)}
             horizontal
-            showsHorizontalScrollIndicator={false}>
+            showsHorizontalScrollIndicator={false}
+          >
             <TextInput
               style={[
                 styles.textInput,
-                {color: textColor},
+                { color: textColor },
                 customTextInputStyles,
               ]}
               value={formatBalanceAmount(amountValue)}
@@ -102,7 +105,8 @@ export default function FormattedBalanceInput({
           onLayout={e => {
             console.log(e.nativeEvent.layout, 'layout change');
             setLabelWidth(e.nativeEvent.layout.width);
-          }}>
+          }}
+        >
           <ThemeText
             styles={styles.satText}
             content={
@@ -120,7 +124,8 @@ export default function FormattedBalanceInput({
             const measuredWidth =
               e.nativeEvent.layout.width + (Platform.OS === 'android' ? 10 : 5);
             setInputWidth(measuredWidth);
-          }}>
+          }}
+        >
           {formatBalanceAmount(amountValue)}
         </Text>
       </View>
@@ -141,24 +146,26 @@ export default function FormattedBalanceInput({
           maxWidth: maxContainerWidth,
           ...customTextInputContainerStyles,
         },
-      ]}>
+      ]}
+    >
       {isSymbolInFront && !showSats && showSymbol && (
         <ThemeText styles={styles.satText} content={currencySymbol} />
       )}
       {showSats && showSymbol && (
         <ThemeText styles={styles.satText} content={BITCOIN_SATS_ICON} />
       )}
-      <View style={[styles.inputWrapper, {width: inputWidth}]}>
+      <View style={[styles.inputWrapper, { width: inputWidth }]}>
         <ScrollView
           onTouchStart={() => setIsScrolling(false)}
           onTouchMove={() => setIsScrolling(true)}
           onTouchEnd={() => setIsScrolling(false)}
           horizontal
-          showsHorizontalScrollIndicator={false}>
+          showsHorizontalScrollIndicator={false}
+        >
           <TextInput
             style={[
               styles.textInput,
-              {color: textColor},
+              { color: textColor },
               customTextInputStyles,
             ]}
             value={formatBalanceAmount(amountValue)}
@@ -184,10 +191,11 @@ export default function FormattedBalanceInput({
           console.log(e.nativeEvent.layout.width, 'INPUT WIDTH');
           const newWidth = Math.min(
             e.nativeEvent.layout.width + (Platform.OS === 'android' ? 10 : 5),
-            SCREEN_DIMENSIONS.width * maxWidth,
+            screenDimensions.width * maxWidth,
           );
           setInputWidth(newWidth);
-        }}>
+        }}
+      >
         {formatBalanceAmount(amountValue)}
       </Text>
     </View>

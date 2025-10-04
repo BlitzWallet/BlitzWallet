@@ -1,7 +1,7 @@
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {ThemeText} from '../../../../../functions/CustomElements';
 import {CENTER, COLORS, SIZES} from '../../../../../constants';
-import FastImage from 'react-native-fast-image';
+import {Image} from 'expo-image';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 
 export default function GiftCardTxItem({
@@ -45,10 +45,10 @@ export default function GiftCardTxItem({
             borderColor: backgroundOffset,
           },
         ]}>
-        <FastImage
+        <Image
           style={styles.cardLogo}
           source={{uri: txParsed.giftCardInfo.logo}}
-          resizeMode={FastImage.resizeMode.contain}
+          contentFit="contain"
         />
       </View>
 
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     width: '95%',
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 12.5,
+    paddingVertical: 12.5,
     ...CENTER,
   },
   logoContainer: {

@@ -1,8 +1,8 @@
-import {StyleSheet, TextInput, View} from 'react-native';
-import {CENTER, COLORS, FONT, SIZES} from '../../constants';
+import { StyleSheet, TextInput, View } from 'react-native';
+import { CENTER, COLORS, FONT, SIZES } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useCallback, useMemo} from 'react';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useCallback, useMemo } from 'react';
 import ThemeText from './textTheme';
 
 export default function CustomSearchInput({
@@ -25,8 +25,8 @@ export default function CustomSearchInput({
   shouldDelayBlur = true,
   autoCapitalize = 'none',
 }) {
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textInputColor, textInputBackground} = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textInputColor, textInputBackground } = GetThemeColors();
   const memorizedStyles = useMemo(
     () => ({
       ...styles.searchInput,
@@ -38,7 +38,7 @@ export default function CustomSearchInput({
   );
 
   const viewContainerStyles = useMemo(() => {
-    return {...styles.inputContainer, ...containerStyles};
+    return { ...styles.inputContainer, ...containerStyles };
   }, [containerStyles]);
 
   const keyboardAppearance = useMemo(() => {
@@ -65,7 +65,7 @@ export default function CustomSearchInput({
   );
 
   const placeholderTextStyle = useMemo(() => {
-    return {color: placeholderTextColorStyles, includeFontPadding: false};
+    return { color: placeholderTextColorStyles, includeFontPadding: false };
   }, [placeholderTextColorStyles]);
 
   const blurOnSubmitValue = useMemo(() => {
@@ -79,7 +79,7 @@ export default function CustomSearchInput({
     return textAlignVertical != undefined ? textAlignVertical : 'center';
   }, [textAlignVertical]);
   const maxLenValue = useMemo(() => {
-    return maxLength != undefined ? maxLength : null;
+    return maxLength != undefined ? maxLength : undefined;
   }, [maxLength]);
   const submitEditingFunction = useCallback(() => {
     if (onSubmitEditingFunction) {
@@ -109,7 +109,8 @@ export default function CustomSearchInput({
           style={{
             ...placeholderStyles,
             justifyContent: 'center',
-          }}>
+          }}
+        >
           <ThemeText
             styles={placeholderTextStyle}
             CustomNumberOfLines={1}
@@ -124,7 +125,7 @@ export default function CustomSearchInput({
         value={inputText}
         ref={textInputRef}
         onChangeText={setInputText}
-        blurOnSubmit={blurOnSubmitValue}
+        submitBehavior={blurOnSubmitValue ? 'blurAndSubmit' : undefined}
         keyboardType={keyboardType}
         onSubmitEditing={submitEditingFunction}
         onFocus={focusFunction}

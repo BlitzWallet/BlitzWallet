@@ -1,6 +1,6 @@
 import {useGlobalThemeContext} from '../../../context-store/theme';
 import {useMemo} from 'react';
-import FastImage from 'react-native-fast-image';
+import {Image} from 'expo-image';
 
 export default function ThemeImage({
   imgName,
@@ -25,5 +25,5 @@ export default function ThemeImage({
         : darkModeIcon
       : lightModeIcon;
   }, [theme, darkModeType, lightsOutIcon, darkModeIcon, lightModeIcon]);
-  return <FastImage style={imageStyles} source={imageSource} />;
+  return <Image style={imageStyles} source={imageSource} />;
 }

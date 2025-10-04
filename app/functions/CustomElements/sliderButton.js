@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useRef, useMemo, memo} from 'react';
-import {StyleSheet, AccessibilityInfo} from 'react-native';
+import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
+import { StyleSheet, AccessibilityInfo } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -7,9 +7,9 @@ import Animated, {
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
-import {CENTER, COLORS, FONT, SCREEN_DIMENSIONS, SIZES} from '../../constants';
+import { CENTER, COLORS, FONT, SIZES } from '../../constants';
 import FullLoadingScreen from './loadingScreen';
-import {useGlobalThemeContext} from '../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../context-store/theme';
 import GetThemeColors from '../../hooks/themeColors';
 import {
   DEFAULT_ANIMATION_DURATION,
@@ -17,8 +17,9 @@ import {
   SHOULD_ANIMATE_VIEW_ON_SUCCESS,
   SWIPE_SUCCESS_THRESHOLD,
 } from './swipeButton/constants';
-import {SwipeThumb} from './swipeButton/swipeThumb';
-import {useTranslation} from 'react-i18next';
+import { SwipeThumb } from './swipeButton/swipeThumb';
+import { useTranslation } from 'react-i18next';
+import { useAppStatus } from '../../../context-store/appStatus';
 
 const containerStyles = StyleSheet.create({
   container: {
@@ -60,13 +61,14 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
   maxWidth = 375,
   shouldDisplaySuccessState = false,
 }) {
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundColor, backgroundOffset} = GetThemeColors();
-  const windowDimensions = SCREEN_DIMENSIONS.width * width;
+  const { screenDimensions } = useAppStatus();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const windowDimensions = screenDimensions.width * width;
   const layoutWidth = windowDimensions > maxWidth ? maxWidth : windowDimensions;
   const [screenReaderEnabled, setScreenReaderEnabled] = useState(false);
   const [isUnmounting, setIsUnmounting] = useState(false);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const titleText = title || t('constants.slideToConfirm');
 
   const containerAnimatedWidth = useSharedValue(layoutWidth);
@@ -86,7 +88,7 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
   const textStyle = useAnimatedStyle(() => {
     return {
       opacity: textOpacity.value,
-      transform: [{translateX: textTranslateX.value}],
+      transform: [{ translateX: textTranslateX.value }],
     };
   });
 
@@ -115,8 +117,8 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
 
   const reset = () => {
     runOnJS(setShowLoadingIcon)(false);
-    containerAnimatedWidth.value = withTiming(layoutWidth, {duration: 200});
-    loadingAnimationOpacity.value = withTiming(0, {duration: 200});
+    containerAnimatedWidth.value = withTiming(layoutWidth, { duration: 200 });
+    loadingAnimationOpacity.value = withTiming(0, { duration: 200 });
   };
 
   const animateViewOnSuccess = () => {
@@ -124,8 +126,8 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
     const thumbSize = height + 3 + 2;
     runOnJS(setShowLoadingIcon)(true);
 
-    containerAnimatedWidth.value = withTiming(thumbSize, {duration: 200});
-    loadingAnimationOpacity.value = withTiming(1, {duration: 200});
+    containerAnimatedWidth.value = withTiming(thumbSize, { duration: 200 });
+    loadingAnimationOpacity.value = withTiming(1, { duration: 200 });
 
     if (!shouldDisplaySuccessState && shouldResetAfterSuccess) {
       const resetDelay =
@@ -213,9 +215,10 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
           ...customContainerStyles,
           borderRadius: (height + 3 + 2) / 2,
         },
-      ]}>
+      ]}
+    >
       {showLoadingIcon ? (
-        <Animated.View style={[{height: height + 3 + 2}, loadingStyle]}>
+        <Animated.View style={[{ height: height + 3 + 2 }, loadingStyle]}>
           <FullLoadingScreen
             loadingColor={COLORS.lightModeText}
             size="small"
@@ -231,7 +234,8 @@ const SwipeButtonNew = memo(function SwipeButtonNew({
             importantForAccessibility={
               screenReaderEnabled ? 'no-hide-descendants' : ''
             }
-            style={[containerStyles.title, textStyle, titleDynamicStyles]}>
+            style={[containerStyles.title, textStyle, titleDynamicStyles]}
+          >
             {titleText}
           </Animated.Text>
 
