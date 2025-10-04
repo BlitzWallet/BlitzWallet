@@ -237,7 +237,7 @@
         "cannotFind12Words": "Unable to find 12 words from copied recovery phrase.",
         "noSeedInNumberArray": "Unable to find seed in number array",
         "noSeedInQr": "Unable to get seed from QR code",
-        "scanQr": "Scan QR"
+        "scanQr": "Ler código QR"
       }
     },
     "skipMessage": {
@@ -1132,11 +1132,11 @@
       "text15": "Ocultar remetentes desconhecidos"
     },
     "fastPay": {
-      "text1": "Error adding inputed value, plase try again.",
-      "text2": "Amount cannot be 0",
-      "text3": "Enable Fast Pay",
-      "text4": "Fast pay threshold (SAT)",
-      "text5": "Fast pay allows you to instantly pay invoices below a specified threshold without needing to swipe for confirmation."
+      "text1": "Erro ao inserir o valor, tente novamente.",
+      "text2": "A quantia não pode ser 0",
+      "text3": "Habilitar pagamentos rápidos",
+      "text4": "Limite máximo (SAT)",
+      "text5": "A função pagamento rápido permite que você pague instantaneamente faturas abaixo de um limite especificado, sem precisar confirmar o pagamento."
     },
     "loginSecurity": {
       "text1": "Enable Login Security",
