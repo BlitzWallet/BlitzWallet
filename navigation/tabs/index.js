@@ -1,49 +1,101 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, ICONS, SIZES } from '../../app/constants';
-import { CENTER } from '../../app/constants/styles';
-import { ThemeText } from '../../app/functions/CustomElements';
-import { useGlobalContacts } from '../../context-store/globalContacts';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Image } from 'expo-image';
+import { CENTER, COLORS, ICONS } from '../../app/constants';
 import GetThemeColors from '../../app/hooks/themeColors';
 import { useGlobalThemeContext } from '../../context-store/theme';
-import ExploreUsers from '../../app/screens/inAccount/explorePage';
+import { useGlobalContacts } from '../../context-store/globalContacts';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
-import { useTranslation } from 'react-i18next';
-import { Image } from 'expo-image';
-import { useMemo } from 'react';
+import { useGlobalContextProvider } from '../../context-store/context';
 
 const Tab = createBottomTabNavigator();
+
+export const TAB_ITEM_HEIGHT = 60;
+const OVERLAY_HEIGHT = 50;
+const OVERLAY_WIDTH = 70;
 
 function MyTabBar({ state, descriptors, navigation }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { hasUnlookedTransactions } = useGlobalContacts();
+  const { masterInfoObject } = useGlobalContextProvider();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const { t } = useTranslation();
   const { bottomPadding } = useGlobalInsets();
+  const firstRender = useRef(true);
 
-  const memorizedTabContainerStyles = useMemo(() => {
-    return {
-      backgroundColor: backgroundColor,
-      borderTopColor: backgroundOffset,
-      paddingBottom: bottomPadding,
+  const overlayTranslateX = useSharedValue(83.333); //position 1
+  const tabWidth = 250 / 3;
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    overlayTranslateX.value = withTiming(state.index * tabWidth, {
+      duration: 150,
+    });
+  }, [state.index, tabWidth]);
+
+  const overlayAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: overlayTranslateX.value }],
+  }));
+
+  const memorizedTabContainerStyles = useMemo(
+    () => ({
+      bottom: bottomPadding,
       ...styles.tabsContainer,
-    };
-  }, [backgroundColor, backgroundOffset, bottomPadding]);
+    }),
+    [bottomPadding],
+  );
 
   return (
     <View style={memorizedTabContainerStyles}>
-      <View style={styles.tabsInnerContainer}>
+      <View
+        style={[
+          styles.tabsInnerContainer,
+          {
+            backgroundColor:
+              masterInfoObject.lrc20Settings.isEnabled && state.index === 1
+                ? backgroundColor
+                : backgroundOffset,
+          },
+        ]}
+      >
+        {/* Animated overlay */}
+        {tabWidth > 0 && (
+          <Animated.View
+            style={[
+              styles.overlayContainer,
+              overlayAnimatedStyle,
+              { width: tabWidth, alignItems: 'center' },
+            ]}
+          >
+            <View
+              style={[
+                styles.overlay,
+                {
+                  backgroundColor:
+                    theme && darkModeType
+                      ? 'rgba(255, 255, 255, 0.1)'
+                      : 'rgba(0, 122, 255, 0.1)',
+                },
+              ]}
+            />
+          </Animated.View>
+        )}
+
+        {/* Tabs */}
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const label =
-            options.tabBarLabel !== undefined
-              ? options.tabBarLabel
-              : options.title !== undefined
-              ? options.title
-              : route.name === 'ContactsPageInit'
-              ? 'Contacts'
-              : route.name;
-
+            options.tabBarLabel ??
+            options.title ??
+            (route.name === 'ContactsPageInit' ? 'Contacts' : route.name);
           const isFocused = state.index === index;
 
           const onPress = () => {
@@ -52,85 +104,67 @@ function MyTabBar({ state, descriptors, navigation }) {
               target: route.key,
               canPreventDefault: true,
             });
-
             if (!isFocused && !event.defaultPrevented) {
               navigation.navigate(route.name, route.params);
             }
           };
 
+          const icon =
+            label === 'Contacts'
+              ? theme && darkModeType
+                ? isFocused
+                  ? ICONS.contactsIconSelectedWhite
+                  : ICONS.contactsIconWhite
+                : isFocused
+                ? ICONS.contactsIconBlueSelected
+                : ICONS.contactsIconBlue
+              : label === 'Home'
+              ? theme && darkModeType
+                ? isFocused
+                  ? ICONS.wallet_white
+                  : ICONS.adminHomeWallet_white
+                : isFocused
+                ? ICONS.walletBlueIcon
+                : ICONS.adminHomeWallet
+              : label === 'App Store'
+              ? theme && darkModeType
+                ? isFocused
+                  ? ICONS.appStoreFilled_white
+                  : ICONS.appStore_white
+                : isFocused
+                ? ICONS.appstoreFilled
+                : ICONS.appstore
+              : theme && darkModeType
+              ? isFocused
+                ? ICONS.navigationIconFillWhite
+                : ICONS.navigationIconWhite
+              : isFocused
+              ? ICONS.navigationIconFill
+              : ICONS.navigationIcon;
+
           return (
             <TouchableOpacity
               key={index}
-              accessibilityRole="button"
-              accessibilityState={isFocused ? { selected: true } : {}}
-              accessibilityLabel={options.tabBarAccessibilityLabel}
-              testID={options.tabBarTestID}
               onPress={onPress}
-              activeOpacity={1}
+              activeOpacity={0.7}
               style={styles.tabItemContainer}
             >
               <View style={styles.iconAndLabelContainer}>
-                <Image
-                  style={styles.icon}
-                  source={
-                    label === 'Contacts'
-                      ? theme && darkModeType
-                        ? isFocused
-                          ? ICONS.contactsIconSelectedWhite
-                          : ICONS.contactsIconWhite
-                        : isFocused
-                        ? ICONS.contactsIconBlueSelected
-                        : ICONS.contactsIconBlue
-                      : label === 'Home'
-                      ? theme && darkModeType
-                        ? isFocused
-                          ? ICONS.wallet_white
-                          : ICONS.adminHomeWallet_white
-                        : isFocused
-                        ? ICONS.walletBlueIcon
-                        : ICONS.adminHomeWallet
-                      : label === 'App Store'
-                      ? theme && darkModeType
-                        ? isFocused
-                          ? ICONS.appStoreFilled_white
-                          : ICONS.appStore_white
-                        : isFocused
-                        ? ICONS.appstoreFilled
-                        : ICONS.appstore
-                      : theme && darkModeType
-                      ? isFocused
-                        ? ICONS.navigationIconFillWhite
-                        : ICONS.navigationIconWhite
-                      : isFocused
-                      ? ICONS.navigationIconFill
-                      : ICONS.navigationIcon
-                  }
-                />
+                <Image source={icon} style={styles.icon} />
                 {label === 'Contacts' &&
                   hasUnlookedTransactions &&
                   !isFocused && (
                     <View
                       style={{
+                        ...styles.hasMessageDot,
                         backgroundColor:
                           theme && darkModeType
                             ? COLORS.darkModeText
                             : COLORS.primary,
-                        ...styles.hasMessageDot,
                       }}
                     />
                   )}
               </View>
-              <ThemeText
-                CustomNumberOfLines={1}
-                styles={styles.labelText}
-                content={
-                  label === 'Home'
-                    ? t('tabs.home')
-                    : label === 'App Store'
-                    ? t('tabs.appStore')
-                    : t('tabs.contacts')
-                }
-              />
             </TouchableOpacity>
           );
         })}
@@ -142,21 +176,12 @@ function MyTabBar({ state, descriptors, navigation }) {
 export function MyTabs(props) {
   return (
     <Tab.Navigator
-      initialRouteName={'Home'}
-      screenOptions={{
-        headerShown: false,
-      }}
+      initialRouteName="Home"
+      screenOptions={{ headerShown: false }}
       tabBar={props => <MyTabBar {...props} />}
     >
       <Tab.Screen name="ContactsPageInit" component={props.ContactsPage} />
       <Tab.Screen name="Home" component={props.adminHome} />
-      {/* <Tab.Screen
-        screenOptions={{
-          headerShown: true,
-        }}
-        name="Explore"
-        component={ExploreUsers}
-      /> */}
       <Tab.Screen name="App Store" component={props.appStore} />
     </Tab.Navigator>
   );
@@ -165,39 +190,49 @@ export function MyTabs(props) {
 const styles = StyleSheet.create({
   tabsContainer: {
     width: '100%',
+    position: 'absolute',
     zIndex: 1,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    borderTopWidth: 3,
-    paddingTop: 15,
   },
   tabsInnerContainer: {
-    width: 300,
+    width: 250,
     flexDirection: 'row',
+    borderRadius: 30,
+    marginHorizontal: 20,
+    position: 'relative',
+    overflow: 'hidden',
     ...CENTER,
   },
-  tabItemContainer: { flex: 1, alignItems: 'center' },
-  iconAndLabelContainer: {
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-    width: 30,
-    height: 30,
-  },
-  hasMessageDot: {
+  overlayContainer: {
     position: 'absolute',
     top: 0,
-    right: -2.5,
-    width: 10,
-    height: 10,
-    borderRadius: 10,
+    height: '100%',
+    justifyContent: 'center',
   },
-  labelText: {
-    fontSize: SIZES.small,
-    marginTop: 2,
-    fontWeight: 500,
+  overlay: {
+    width: OVERLAY_WIDTH,
+    height: OVERLAY_HEIGHT,
+    borderRadius: 25,
+  },
+  tabItemContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: TAB_ITEM_HEIGHT,
+  },
+  iconAndLabelContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 18,
+    minWidth: 44,
+    minHeight: 44,
+  },
+  icon: { width: 26, height: 26 },
+  hasMessageDot: {
+    position: 'absolute',
+    top: 17,
+    right: 16,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
 });

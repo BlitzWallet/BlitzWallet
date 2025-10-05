@@ -1,4 +1,4 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Icon from './Icon';
 
 export default function CustomSendAndRequsetBTN({
@@ -17,13 +17,15 @@ export default function CustomSendAndRequsetBTN({
       key={btnType}
       onPress={() => {
         btnFunction();
-      }}>
+      }}
+    >
       <View
         style={{
           ...styles.scanQrIcon,
           backgroundColor: containerBackgroundColor,
           ...containerStyles,
-        }}>
+        }}
+      >
         <Icon
           name={'arrow'}
           width={width}
@@ -42,10 +44,10 @@ export default function CustomSendAndRequsetBTN({
 
 const styles = StyleSheet.create({
   scanQrIcon: {
-    width: 60,
-    height: 60,
+    width: 70,
+    height: 70,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 30,
+    borderRadius: 35,
   },
 });

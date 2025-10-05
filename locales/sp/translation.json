@@ -244,7 +244,7 @@
   },
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Como la configuración biométrica está habilitada, no puedes usar el método de inicio de sesión por PIN predeterminado. ¿Quieres cerrar tu cuenta?",
+      "isBiometricEnabledConfirmAction": "No puedes usar tu PIN mientras la biometría esté activada.\n\n ¿Quieres eliminar todos los datos de tu monedero? Asegúrate de tener una copia de seguridad de tu frase semilla.\n",
       "wrongPinError": "PIN incorrecto, intenta de nuevo",
       "enterPinMessage": "Ingresar PIN",
       "attemptsText": "{{attempts}} intentos restantes"

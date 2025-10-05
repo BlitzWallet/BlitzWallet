@@ -1,4 +1,4 @@
-import {db} from './initializeFirebase';
+import { db } from './initializeFirebase';
 import {
   getCachedMessages,
   queueSetCashedMessages,
@@ -19,7 +19,7 @@ import {
   orderBy,
   deleteDoc,
 } from '@react-native-firebase/firestore';
-import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
+import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
@@ -38,7 +38,7 @@ export async function addDataToCollection(dataObject, collectionName, uuid) {
     const db = getFirestore();
     const docRef = doc(db, collectionName, uuid);
 
-    await setDoc(docRef, dataObject, {merge: true});
+    await setDoc(docRef, dataObject, { merge: true });
 
     console.log('Document merged with ID: ', uuid);
     return true;
@@ -55,7 +55,7 @@ const saveToLocalDB = async dataObject => {
     let userData = existingData ? JSON.parse(existingData) : {};
 
     // Merge new data with existing local user data
-    userData = {...userData, ...dataObject};
+    userData = { ...userData, ...dataObject };
 
     // Save back to AsyncStorage
     await setLocalStorageItem(
@@ -129,10 +129,10 @@ export async function batchDeleteLnurlPayments(uuid, paymentIds) {
 
     await batch.commit();
 
-    return {success: true, count: paymentIds.length};
+    return { success: true, count: paymentIds.length };
   } catch (err) {
     console.error('Error batch deleting payments:', err);
-    return {success: false, message: err.message};
+    return { success: false, message: err.message };
   }
 }
 
@@ -287,6 +287,7 @@ export async function updateMessage({
       message: newMessage,
       timestamp,
       serverTimestamp: currentTime,
+      isGiftCard: !!newMessage?.giftCardInfo,
     };
 
     if (onlySaveToLocal) {
@@ -399,7 +400,7 @@ function processWithRAF(allMessages, myPubKey, privateKey) {
               console.log('error parsing decoded message', err);
               continue;
             }
-            processedMessages.push({...message, message: parsedMessage});
+            processedMessages.push({ ...message, message: parsedMessage });
           } else {
             processedMessages.push(message);
           }
@@ -445,7 +446,7 @@ export async function addNip5toCollection(dataObject, uuid) {
     const db = getFirestore();
     const docRef = doc(db, 'nip5Verification', uuid);
 
-    await setDoc(docRef, dataObject, {merge: true});
+    await setDoc(docRef, dataObject, { merge: true });
 
     return true;
   } catch (e) {

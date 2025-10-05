@@ -249,7 +249,7 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Since biometric setting are enabled you cannot use the default pin login method. Would you like to terminate your account?",
+      "isBiometricEnabledConfirmAction": "You can’t use your PIN while biometrics are enabled.\n\nWould you like to delete all wallet data? Make sure your seed phrase is backed up.\n",
       "wrongPinError": "Wrong PIN, try again",
       "enterPinMessage": "Enter PIN",
       "attemptsText": "{{attempts}} attempts left"

@@ -427,7 +427,7 @@ export const UserTransaction = memo(function UserTransaction({
   // Pre-calculate description content
   const descriptionContent = useMemo(() => {
     if (isFailedPayment) return t('transactionLabelText.notSent');
-    if (userBalanceDenomination === 'hidden') return HIDDEN_BALANCE_TEXT;
+    // if (userBalanceDenomination === 'hidden') return HIDDEN_BALANCE_TEXT;
     if (isDefaultDescription || !paymentDescription) {
       return transaction.details.direction === TRANSACTION_CONSTANTS.OUTGOING
         ? t('constants.sent')

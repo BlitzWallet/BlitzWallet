@@ -22,6 +22,8 @@ import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { useToast } from '../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
 import { MAX_CONTENT_WIDTH } from '../../constants/theme';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
+import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
 
 export default function AppStore({ navigation }) {
   const { showToast } = useToast();
@@ -29,6 +31,7 @@ export default function AppStore({ navigation }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset } = GetThemeColors();
   const { decodedGiftCards } = useGlobalAppData();
+  const { bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
   const { t } = useTranslation();
 
@@ -153,7 +156,10 @@ export default function AppStore({ navigation }) {
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollViewStyles}
+        contentContainerStyle={[
+          styles.scrollViewStyles,
+          { paddingBottom: bottomPadding + TAB_ITEM_HEIGHT + 10 },
+        ]}
       >
         <TouchableOpacity
           onPress={() => {
@@ -372,7 +378,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: MAX_CONTENT_WIDTH,
     paddingTop: 20,
-    paddingBottom: 20,
+    // paddingBottom: 20,
     ...CENTER,
   },
 });
