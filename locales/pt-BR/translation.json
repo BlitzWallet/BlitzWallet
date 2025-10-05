@@ -988,8 +988,8 @@
 
   "contacts": {
     "contactsPage": {
-      "searchContactsPlaceholder": "Search added contacts",
-      "noContactsMessage": "You have no contacts",
+      "searchContactsPlaceholder": "Pesquisar contatos adicionados",
+      "noContactsMessage": "Você não tem contatos",
       "editContactProfileMessage": "Edit your profile to begin using contacts.",
       "addContactButton": "Adicionar contato",
       "editContactButton": "Editar perfil",
@@ -1005,24 +1005,24 @@
     },
 
     "expandedContactPage": {
-      "loadingContactError": "Unable to load contact, please try again.",
-      "requestLNURLError": "You can only request money from Blitz contacts, not LNURL addresses.",
-      "noTransactions": "Send or request a payment to see transaction history."
+      "loadingContactError": "Não foi possível carregar o contato, tente novamente.",
+      "requestLNURLError": "Você só pode solicitar dinheiro dos contatos da Blitz, não de endereços LNURL.",
+      "noTransactions": "Envie ou solicite um pagamento para ver o histórico de transações."
     },
     "expandedMessageHalfModal": {
       "title": "Full message",
       "noDescription": "No description"
     },
     "editMyProfilePage": {
-      "navTitle": "Edit Contact Profile",
-      "nameInputDesc": "Name",
+      "navTitle": "Editar perfil de contato",
+      "nameInputDesc": "Nome",
       "nameInputPlaceholder": "Enter your name",
       "lnurlInputDesc": "LNURL Address",
       "lnurlInputPlaceholder": "Enter your LNURL address",
-      "uniqueNameInputDesc": "Username",
+      "uniqueNameInputDesc": "Nome de usuário",
       "uniqueNameInputPlaceholder": "Enter your username",
       "bioInputDesc": "Bio",
-      "bioInputPlaceholder": "Enter a short bio",
+      "bioInputPlaceholder": "Digite uma introdução curta",
       "addContactBTN": " Add Contact",
       "unqiueNameRegexError": "You can only have letters, numbers, or underscores in your username, and must contain at least 1 letter.",
       "usernameAlreadyExistsError": "This username already exists, please choose another.",
@@ -1032,8 +1032,8 @@
 
     "sendAndRequestPage": {
       "descriptionPlaceholder": "Payment description",
-      "profileMessage": "Paying {{name}}",
-      "contactMessage": "{{name}} paid you",
+      "profileMessage": "Pagando {{name}}",
+      "contactMessage": "{{name}} pagou você",
       "giftCardappVersionError": "You cannot send a gift card to this contact. They have not updated to the latest verison of Blitz Wallet.",
       "giftCardDescription": "You sent {{name}} a {{giftCardName}} Gift Card",
       "cardDetailsError": "We couldn’t load your gift card right now. Please try again.",
