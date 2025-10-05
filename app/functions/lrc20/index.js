@@ -1,10 +1,13 @@
 import sha256Hash from '../hash';
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
-import {getCachedSparkTransactions, getSparkTokenTransactions} from '../spark';
-import {bulkUpdateSparkTransactions} from '../spark/transactions';
-import {convertToBech32m} from './bech32';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
+import {
+  getCachedSparkTransactions,
+  getSparkTokenTransactions,
+} from '../spark';
+import { bulkUpdateSparkTransactions } from '../spark/transactions';
+import { convertToBech32m } from './bech32';
 import tokenBufferAmountToDecimal from './bufferToDecimal';
-import {getCachedTokens} from './cachedTokens';
+import { getCachedTokens } from './cachedTokens';
 const MINUTE_BUFFER = 1000 * 60;
 export async function getLRC20Transactions({
   ownerPublicKeys,
@@ -18,10 +21,11 @@ export async function getLRC20Transactions({
     ),
     getCachedSparkTransactions(null, ownerPublicKeys[0]),
     getCachedTokens(),
-    getSparkTokenTransactions({ownerPublicKeys, mnemonic}),
+    getSparkTokenTransactions({ ownerPublicKeys, mnemonic }),
   ]);
 
   if (!tokenTxs?.tokenTransactionsWithStatus) return;
+  const hashedMnemoinc = sha256Hash(mnemonic);
   const tokenTransactions = tokenTxs.tokenTransactionsWithStatus;
 
   const savedIds = new Set(savedTxs?.map(tx => tx.sparkID) || []);
@@ -43,7 +47,7 @@ export async function getLRC20Transactions({
     if (!tokenIdentifier) continue;
     const tokenbech32m = convertToBech32m(tokenIdentifierHex);
 
-    if (!cachedTokens[sha256Hash(mnemonic)]?.[tokenbech32m]) {
+    if (!cachedTokens[hashedMnemoinc]?.[tokenbech32m]) {
       console.log('NO TOKEN DATA FOUND');
       continue;
     }

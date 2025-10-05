@@ -1,15 +1,14 @@
-import {StyleSheet, View} from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
-import {CENTER, COLORS, ICONS} from '../../constants';
+import { CENTER, COLORS, ICONS } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 
-import {useGlobalContextProvider} from '../../../context-store/context';
-import {useImageCache} from '../../../context-store/imageCache';
-import customUUID from '../customUUID';
+import { useGlobalContextProvider } from '../../../context-store/context';
+import { useImageCache } from '../../../context-store/imageCache';
 import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useTranslation} from 'react-i18next';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useTranslation } from 'react-i18next';
 
 const createTransparentLogo = size => {
   // Create SVG string for a transparent circle/square of the specified size
@@ -30,11 +29,11 @@ export default function QrCodeWrapper({
   logoMargin = 5,
   logoBorderRadius = 50,
 }) {
-  const {cache} = useImageCache();
-  const {darkModeType, theme} = useGlobalThemeContext();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { cache } = useImageCache();
+  const { darkModeType, theme } = useGlobalThemeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
   const imageData = cache[masterInfoObject.uuid];
   const image = cache[masterInfoObject.uuid]?.localUri;
 
@@ -47,8 +46,9 @@ export default function QrCodeWrapper({
         backgroundColor:
           theme && darkModeType ? backgroundColor : backgroundOffset,
         ...outerContainerStyle,
-      }}>
-      <View style={{...styles.qrInnerContianer, ...innerContainerStyle}}>
+      }}
+    >
+      <View style={{ ...styles.qrInnerContianer, ...innerContainerStyle }}>
         <QRCode
           size={qrSize}
           quietZone={quietZone}
@@ -70,7 +70,8 @@ export default function QrCodeWrapper({
           overflow: 'hidden',
           borderRadius: 50,
           zIndex: 10,
-        }}>
+        }}
+      >
         <ContactProfileImage
           updated={imageData?.updated}
           uri={imageData?.uri}

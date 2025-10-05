@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {ThemeText} from '../../../../functions/CustomElements';
-import {CENTER} from '../../../../constants/styles';
+import { ThemeText } from '../../../../functions/CustomElements';
+import { CENTER } from '../../../../constants/styles';
 import GetThemeColors from '../../../../hooks/themeColors';
 import {
   COLORS,
@@ -16,40 +16,39 @@ import {
   ICONS,
   SIZES,
 } from '../../../../constants';
-import {useGlobalContacts} from '../../../../../context-store/globalContacts';
+import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
-import {useRef, useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
-import {searchUsers} from '../../../../../db';
+import { useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { searchUsers } from '../../../../../db';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import CustomButton from '../../../../functions/CustomElements/button';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import customUUID from '../../../../functions/customUUID';
-import {useKeysContext} from '../../../../../context-store/keys';
-import {keyboardNavigate} from '../../../../functions/customNavigation';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import sha256Hash from '../../../../functions/hash';
+import { useKeysContext } from '../../../../../context-store/keys';
+import { keyboardNavigate } from '../../../../functions/customNavigation';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import ContactProfileImage from './internalComponents/profileImage';
-import {getCachedProfileImage} from '../../../../functions/cachedImage';
-import {useImageCache} from '../../../../../context-store/imageCache';
-import {useTranslation} from 'react-i18next';
+import { getCachedProfileImage } from '../../../../functions/cachedImage';
+import { useImageCache } from '../../../../../context-store/imageCache';
+import { useTranslation } from 'react-i18next';
 
 export default function AddContactsHalfModal({
   slideHeight,
   setIsKeyboardActive,
 }) {
-  const {contactsPrivateKey} = useKeysContext();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {globalContactsInformation} = useGlobalContacts();
+  const { contactsPrivateKey } = useKeysContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { globalContactsInformation } = useGlobalContacts();
   const [searchInput, setSearchInput] = useState('');
   const [users, setUsers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const sliderHight = slideHeight;
   const navigate = useNavigation();
   const keyboardRef = useRef(null);
-  const {refreshCacheObject} = useImageCache();
+  const { refreshCacheObject } = useImageCache();
   const searchTrackerRef = useRef(null);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const handleSearchTrackerRef = () => {
     const requestUUID = customUUID();
@@ -143,7 +142,7 @@ export default function AddContactsHalfModal({
         isAdded: true,
         // profileImage: '',
       };
-      navigate.replace('ExpandedAddContactsPage', {newContact: newContact});
+      navigate.replace('ExpandedAddContactsPage', { newContact: newContact });
     } catch (err) {
       setIsSearching(false);
       console.log('parse contact half modal error', err);
@@ -197,7 +196,7 @@ export default function AddContactsHalfModal({
           justifyContent: 'center',
           marginBottom: CONTENT_KEYBOARD_OFFSET,
         }}
-        textInputStyles={{paddingRight: 45}}
+        textInputStyles={{ paddingRight: 45 }}
         onSubmitEditingFunction={() => {
           clearHalfModalForLNURL();
         }}
@@ -215,7 +214,8 @@ export default function AddContactsHalfModal({
               position: 'absolute',
               right: 10,
               zIndex: 1,
-            }}>
+            }}
+          >
             <ThemeImage
               darkModeIcon={ICONS.scanQrCodeBlue}
               lightModeIcon={ICONS.scanQrCodeBlue}
@@ -234,7 +234,8 @@ export default function AddContactsHalfModal({
           contentContainerStyle={{
             alignItems: 'center',
             marginTop: 10,
-          }}>
+          }}
+        >
           <ThemeText
             content={t('contacts.addContactsHalfModal.lnurlAddMessage')}
           />
@@ -256,10 +257,9 @@ export default function AddContactsHalfModal({
         <>
           {users.length ? (
             <FlatList
-              key={sha256Hash(users.join('') + `${isSearching}`)}
               showsVerticalScrollIndicator={false}
               data={users}
-              renderItem={({item}) => (
+              renderItem={({ item }) => (
                 <ContactListItem
                   savedContact={item}
                   contactsPrivateKey={contactsPrivateKey}
@@ -273,7 +273,7 @@ export default function AddContactsHalfModal({
             />
           ) : (
             <ThemeText
-              styles={{textAlign: 'center', marginTop: 10}}
+              styles={{ textAlign: 'center', marginTop: 10 }}
               content={
                 isSearching && searchInput.length > 0
                   ? ''
@@ -289,7 +289,7 @@ export default function AddContactsHalfModal({
   );
 }
 function ContactListItem(props) {
-  const {textColor, backgroundOffset} = GetThemeColors();
+  const { textColor, backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
 
   const newContact = {
@@ -304,9 +304,12 @@ function ContactListItem(props) {
     <TouchableOpacity
       onPress={() => {
         keyboardNavigate(() =>
-          navigate.replace('ExpandedAddContactsPage', {newContact: newContact}),
+          navigate.replace('ExpandedAddContactsPage', {
+            newContact: newContact,
+          }),
         );
-      }}>
+      }}
+    >
       <View style={[styles.contactListContainer, {}]}>
         <View
           style={[
@@ -314,7 +317,8 @@ function ContactListItem(props) {
             {
               backgroundColor: backgroundOffset,
             },
-          ]}>
+          ]}
+        >
           <ContactProfileImage
             updated={newContact.updated}
             uri={newContact.localUri}
@@ -324,11 +328,11 @@ function ContactListItem(props) {
         </View>
         <View>
           <ThemeText
-            styles={{includeFontPadding: false}}
+            styles={{ includeFontPadding: false }}
             content={newContact.uniqueName}
           />
           <ThemeText
-            styles={{includeFontPadding: false, fontSize: SIZES.small}}
+            styles={{ includeFontPadding: false, fontSize: SIZES.small }}
             content={newContact.name || 'No name set'}
           />
         </View>
@@ -338,7 +342,7 @@ function ContactListItem(props) {
 }
 
 const styles = StyleSheet.create({
-  innerContainer: {flex: 1, width: '90%', ...CENTER},
+  innerContainer: { flex: 1, width: '90%', ...CENTER },
 
   titleContainer: {
     alignItems: 'center',

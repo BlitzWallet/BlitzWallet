@@ -241,10 +241,10 @@ export const sparkPaymenWrapper = async ({
       bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
     }
     console.log(response, 'resonse in send function');
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Send lightning payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   } finally {
     if (!getFee) {
       isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, false);
@@ -313,7 +313,7 @@ export const sparkReceivePaymentWrapper = async ({
     }
   } catch (err) {
     console.log('Receive spark payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 
