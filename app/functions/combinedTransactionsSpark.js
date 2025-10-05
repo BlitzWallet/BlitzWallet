@@ -368,7 +368,7 @@ export const UserTransaction = memo(function UserTransaction({
 
   const showPendingTransactionStatusIcon =
     transaction.paymentStatus === TRANSACTION_CONSTANTS.PENDING;
-  const paymentDescription = transaction.details?.description;
+  const paymentDescription = transaction.details?.description?.trim();
   const isDefaultDescription =
     paymentDescription === BLITZ_DEFAULT_PAYMENT_DESCRIPTION;
 

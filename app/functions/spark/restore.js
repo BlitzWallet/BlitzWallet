@@ -23,13 +23,14 @@ import {
   deleteSparkTransaction,
   deleteUnpaidSparkLightningTransaction,
   getAllPendingSparkPayments,
+  getAllSparkTransactions,
   getAllUnpaidSparkLightningInvoices,
 } from './transactions';
 import { transformTxToPaymentObject } from './transformTxToPayment';
 
 export const restoreSparkTxState = async (
   BATCH_SIZE,
-  savedTxs,
+  identityPubKey,
   isSendingPayment,
   mnemonic,
   accountId,
@@ -37,8 +38,12 @@ export const restoreSparkTxState = async (
   const restoredTxs = [];
 
   try {
-    const savedIds = new Set(savedTxs?.map(tx => tx.sparkID) || []);
-    const pendingTxs = await getAllPendingSparkPayments(accountId);
+    const [savedTxs, pendingTxs] = await Promise.all([
+      getAllSparkTransactions({ accountId: identityPubKey, idsOnly: true }),
+      getAllPendingSparkPayments(accountId),
+    ]);
+
+    const savedIds = new Set(savedTxs);
 
     const txsByType = {
       lightning: pendingTxs.filter(tx => tx.paymentType === 'lightning'),
@@ -183,15 +188,14 @@ export async function fullRestoreSparkState({
 }) {
   try {
     console.log('running');
-    const savedTxs = await getCachedSparkTransactions(null, identityPubKey);
     const restored = await restoreSparkTxState(
       batchSize,
-      savedTxs,
+      identityPubKey,
       isSendingPayment,
       mnemonic,
       identityPubKey,
     );
-
+    if (!restored.txs.length) return;
     const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
     const txChunks = chunkArray(restored.txs, chunkSize);
 
@@ -418,11 +422,7 @@ async function processLightningTransactions(
 
     if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer) continue;
 
-    const { offset, foundTransfers, bitcoinTransfer } = findTxResponse;
-    transfersOffset = offset;
-    cachedTransfers = foundTransfers;
-
-    if (!bitcoinTransfer) continue;
+    const { bitcoinTransfer } = findTxResponse;
 
     const paymentStatus = getSparkPaymentStatus(bitcoinTransfer.status);
     const expiryDate = new Date(bitcoinTransfer.expiryTime);

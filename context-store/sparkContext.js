@@ -9,6 +9,7 @@ import {
 } from 'react';
 import {
   claimnSparkStaticDepositAddress,
+  findTransactionTxFromTxHistory,
   getSparkBalance,
   getSparkStaticBitcoinL1AddressQuote,
   getSparkTransactions,
@@ -124,7 +125,7 @@ const SparkWalletProvider = ({ children }) => {
         console.log('Running full history sweep');
         const singleTxResponse = await findSignleTxFromHistory(
           recevedTxId,
-          25,
+          5,
           currentWalletMnemoinc,
         );
         if (!singleTxResponse.tx)
@@ -231,7 +232,6 @@ const SparkWalletProvider = ({ children }) => {
     });
   };
 
-  // Debounced version of handleIncomingPayment
   const debouncedHandleIncomingPayment = useCallback(
     async balance => {
       if (pendingTransferIds.current.size === 0) return;
@@ -243,15 +243,29 @@ const SparkWalletProvider = ({ children }) => {
         'Processing debounced incoming payments:',
         transferIdsToProcess,
       );
-      const transactions = await getSparkTransactions(
-        1,
-        undefined,
-        currentWalletMnemoinc,
-      );
-      // Process all pending transfer IDs
+      let transfersOffset = 0;
+      let cachedTransfers = [];
+
       for (const transferId of transferIdsToProcess) {
         try {
-          await handleIncomingPayment(transferId, transactions, balance);
+          const findTxResponse = await findTransactionTxFromTxHistory(
+            transferId,
+            transfersOffset,
+            cachedTransfers,
+            currentWalletMnemoinc,
+          );
+          if (findTxResponse.offset && findTxResponse.foundTransfers) {
+            transfersOffset = findTxResponse.offset;
+            cachedTransfers = findTxResponse.foundTransfers;
+          }
+
+          if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer)
+            continue;
+          await handleIncomingPayment(
+            transferId,
+            { transfers: cachedTransfers },
+            balance,
+          );
         } catch (error) {
           console.error(
             'Error processing incoming payment:',
@@ -261,7 +275,7 @@ const SparkWalletProvider = ({ children }) => {
         }
       }
     },
-    [navigationRef, currentWalletMnemoinc, sparkInformation.identityPubKey],
+    [currentWalletMnemoinc, sparkInformation.identityPubKey, sessionTime],
   );
 
   const handleUpdate = async (...args) => {
@@ -379,7 +393,7 @@ const SparkWalletProvider = ({ children }) => {
 
       await fullRestoreSparkState({
         sparkAddress: sparkInformation.sparkAddress,
-        batchSize: isInitialRestore.current ? 15 : 5,
+        batchSize: isInitialRestore.current ? 10 : 2,
         isSendingPayment: isSendingPayment,
         mnemonic: currentWalletMnemoinc,
         identityPubKey: sparkInformation.identityPubKey,
@@ -417,6 +431,10 @@ const SparkWalletProvider = ({ children }) => {
   };
 
   const removeListeners = () => {
+    if (!prevAccountMnemoincRef.current) {
+      prevAccountMnemoincRef.current = currentWalletMnemoinc;
+      return;
+    }
     console.log('Removing spark listeners');
     const hashedMnemoinc = sha256Hash(prevAccountMnemoincRef.current);
     console.log(
@@ -689,21 +707,19 @@ const SparkWalletProvider = ({ children }) => {
   // This function connects to the spark node and sets the session up
 
   const connectToSparkWallet = useCallback(() => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(async () => {
-        const { didWork, error } = await initWallet({
-          setSparkInformation,
-          // toggleGlobalContactsInformation,
-          // globalContactsInformation,
-          mnemonic: accountMnemoinc,
-        });
-        if (!didWork) {
-          setSparkInformation(prev => ({ ...prev, didConnect: false }));
-          setSparkConnectionError(error);
-          console.log('Error connecting to spark wallet:', error);
-          return;
-        }
+    requestAnimationFrame(async () => {
+      const { didWork, error } = await initWallet({
+        setSparkInformation,
+        // toggleGlobalContactsInformation,
+        // globalContactsInformation,
+        mnemonic: accountMnemoinc,
       });
+      if (!didWork) {
+        setSparkInformation(prev => ({ ...prev, didConnect: false }));
+        setSparkConnectionError(error);
+        console.log('Error connecting to spark wallet:', error);
+        return;
+      }
     });
   }, [accountMnemoinc]);
 

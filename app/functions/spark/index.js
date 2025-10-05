@@ -11,8 +11,8 @@ import {
   SparkUserRequestStatus,
   ClaimStaticDepositStatus,
 } from '@buildonspark/spark-sdk/types';
-import {getAllSparkTransactions} from './transactions';
-import {SPARK_TO_SPARK_FEE} from '../../constants/math';
+import { getAllSparkTransactions } from './transactions';
+import { SPARK_TO_SPARK_FEE } from '../../constants/math';
 import {
   getCachedTokens,
   mergeTokensWithCache,
@@ -56,20 +56,20 @@ export const initializeSparkWallet = async mnemonic => {
 
     // Early return if already initialized
     if (sparkWallet[hash]) {
-      return {isConnected: true};
+      return { isConnected: true };
     }
 
-    const {wallet} = await SparkWallet.initialize({
+    const { wallet } = await SparkWallet.initialize({
       signer: new ReactNativeSparkSigner(),
       mnemonicOrSeed: mnemonic,
-      options: {network: 'MAINNET'},
+      options: { network: 'MAINNET' },
     });
 
     sparkWallet[hash] = wallet;
-    return {isConnected: true};
+    return { isConnected: true };
   } catch (err) {
     console.log('Initialize spark wallet error function', err);
-    return {isConnected: false, error: err.message};
+    return { isConnected: false, error: err.message };
   }
 };
 
@@ -128,7 +128,7 @@ export const getSparkBalance = async mnemonic => {
     };
   } catch (err) {
     console.log('Get spark balance error', err);
-    return {didWork: false};
+    return { didWork: false };
   }
 };
 
@@ -151,10 +151,10 @@ export const queryAllStaticDepositAddresses = async mnemonic => {
 export const getSparkStaticBitcoinL1AddressQuote = async (txid, mnemonic) => {
   try {
     const quote = await getWallet(mnemonic).getClaimStaticDepositQuote(txid);
-    return {didwork: true, quote};
+    return { didwork: true, quote };
   } catch (err) {
     console.log('Get reusable Bitcoin mainchain address quote error', err);
-    return {didwork: false, error: err.message};
+    return { didwork: false, error: err.message };
   }
 };
 
@@ -188,20 +188,20 @@ export const claimnSparkStaticDepositAddress = async ({
       sspSignature,
       transactionId,
     });
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('claim static deposit address error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 
 export const getSparkAddress = async mnemonic => {
   try {
     const response = await getWallet(mnemonic).getSparkAddress();
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Get spark address error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 
@@ -216,10 +216,10 @@ export const sendSparkPayment = async ({
       amountSats,
     });
     console.log('spark payment response', response);
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Send spark payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 
@@ -235,10 +235,10 @@ export const sendSparkTokens = async ({
       tokenAmount: BigInt(tokenAmount),
       receiverSparkAddress,
     });
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Send spark token error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 
@@ -252,10 +252,10 @@ export const getSparkLightningPaymentFeeEstimate = async (
       encodedInvoice: invoice.toLowerCase(),
       amountSats: amountSat,
     });
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Get lightning payment fee error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 
@@ -277,10 +277,10 @@ export const getSparkBitcoinPaymentFeeEstimate = async ({
       amountSats,
       withdrawalAddress: withdrawalAddress,
     });
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Get bitcoin payment fee estimate error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 
@@ -307,10 +307,10 @@ export const receiveSparkLightningPayment = async ({
       memo,
       expirySeconds: 60 * 60 * 12, // 12 hour invoice expiry
     });
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Receive lightning payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 
@@ -347,10 +347,10 @@ export const sendSparkLightningPayment = async ({
       maxFeeSats: maxFeeSats,
       amountSatsToSend: amountSats,
     });
-    return {didWork: true, paymentResponse};
+    return { didWork: true, paymentResponse };
   } catch (err) {
     console.log('Send lightning payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 
@@ -370,10 +370,10 @@ export const sendSparkBitcoinPayment = async ({
       feeQuote,
       deductFeeFromWithdrawalAmount,
     });
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Send Bitcoin payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 
@@ -386,7 +386,7 @@ export const getSparkTransactions = async (
     return await getWallet(mnemonic).getTransfers(transferCount, offsetIndex);
   } catch (err) {
     console.log('get spark transactions error', err);
-    return {transfers: []};
+    return { transfers: [] };
   }
 };
 
@@ -553,9 +553,9 @@ export const findTransactionTxFromTxHistory = async (
       offset += 1;
     }
 
-    return {didWork: true, offset, foundTransfers, bitcoinTransfer};
+    return { didWork: true, offset, foundTransfers, bitcoinTransfer };
   } catch (err) {
     console.log('Error finding bitcoin tx from history', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
