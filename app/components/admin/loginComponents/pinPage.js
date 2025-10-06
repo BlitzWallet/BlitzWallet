@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { signOut } from '@react-native-firebase/auth';
 import {
@@ -35,6 +35,7 @@ export default function PinPage() {
     enteredPinCount: 0,
     needsToBeMigrated: null,
   });
+  const numRetriesBiometric = useRef(0);
   const { setAccountMnemonic } = useKeysContext();
   const { t } = useTranslation();
 
@@ -59,12 +60,10 @@ export default function PinPage() {
       sha256Hash(JSON.stringify(loginSettings.enteredPin)),
       comparisonHash,
     );
-
+    if (loginSettings.isBiometricEnabled) return;
     if (
       comparisonHash === sha256Hash(JSON.stringify(loginSettings.enteredPin))
     ) {
-      if (loginSettings.isBiometricEnabled) return;
-
       if (loginSettings.needsToBeMigrated) {
         const savedMnemonic = await retrieveData('encryptedMnemonic');
         const migrationResponse = await handleLoginSecuritySwitch(
@@ -194,13 +193,16 @@ export default function PinPage() {
         }
 
         const decryptResponse = await decryptMnemonicWithBiometrics();
-
         if (decryptResponse) {
           setAccountMnemonic(decryptResponse);
           navigate.replace('ConnectingToNodeLoadingScreen', {
             isInitialLoad: false,
           });
         } else {
+          if (numRetriesBiometric.current++ < 3) {
+            loadPageInformation();
+            return;
+          }
           navigate.navigate('ConfirmActionPage', {
             confirmMessage: t(
               'adminLogin.pinPage.isBiometricEnabledConfirmAction',
