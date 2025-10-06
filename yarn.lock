@@ -58,7 +58,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.20.0, @babel/core@npm:^7.23.9, @babel/core@npm:^7.25.2":
+"@babel/core@npm:^7.11.6, @babel/core@npm:^7.12.3, @babel/core@npm:^7.20.0, @babel/core@npm:^7.23.9, @babel/core@npm:^7.25.2, @babel/core@npm:^7.28.4":
   version: 7.28.4
   resolution: "@babel/core@npm:7.28.4"
   dependencies:
@@ -1393,7 +1393,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-env@npm:^7.25.3":
+"@babel/preset-env@npm:^7.28.3":
   version: 7.28.3
   resolution: "@babel/preset-env@npm:7.28.3"
   dependencies:
@@ -4792,9 +4792,9 @@ __metadata:
   resolution: "BlitzWallet@workspace:."
   dependencies:
     "@azure/core-asynciterator-polyfill": ^1.0.2
-    "@babel/core": ^7.25.2
+    "@babel/core": ^7.28.4
     "@babel/plugin-transform-class-static-block": ^7.28.3
-    "@babel/preset-env": ^7.25.3
+    "@babel/preset-env": ^7.28.3
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.2
@@ -4833,7 +4833,7 @@ __metadata:
     babel-preset-expo: ~54.0.0
     bech32: ^2.0.0
     bip21: ^3.0.0
-    bitcoin-address-parser: ^1.0.0
+    bitcoin-address-parser: ^1.0.2
     bolt11: ^1.4.1
     boltz-core: ^3.0.0
     crypto-es: ^2.1.0
@@ -4863,7 +4863,7 @@ __metadata:
     expo-web-browser: ~15.0.8
     i18next: ^25.2.0
     intl-pluralrules: ^2.0.1
-    jest: ^29.6.3
+    jest: ~29.7.0
     libphonenumber-js: ^1.12.8
     liquidjs-lib: ^6.0.2-liquid.37
     lottie-react-native: ^7.3.4
@@ -5828,9 +5828,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bitcoin-address-parser@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "bitcoin-address-parser@npm:1.0.1"
+"bitcoin-address-parser@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "bitcoin-address-parser@npm:1.0.2"
   dependencies:
     base58-js: ^3.0.2
     bech32: ^2.0.0
@@ -5838,7 +5838,7 @@ __metadata:
     bolt11: ^1.4.1
     js-lnurl: ^0.6.0
     sha256-uint8array: ^0.10.7
-  checksum: 4b5c5590f2a9d40730fb97d6175b9fed27628847ae1c7da3ca89169425c091a6711c5f5db58d184250618942d488cea30d3a8e2078b413f9a72b0a16b9fac48e
+  checksum: 129563b63d74a4c74da35ea1c6dc94c3738c27e5ac1861ef7492ec8398311224cb2fa24db4c50c323c4e680bb6090f71ef40ebab2ab143f4f3ef1969250edb8c
   languageName: node
   linkType: hard
 
@@ -10100,7 +10100,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.6.3":
+"jest@npm:~29.7.0":
   version: 29.7.0
   resolution: "jest@npm:29.7.0"
   dependencies:
