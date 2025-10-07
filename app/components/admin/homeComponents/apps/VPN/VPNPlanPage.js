@@ -20,8 +20,10 @@ import { useTranslation } from 'react-i18next';
 import CountryFlag from 'react-native-country-flag';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import { decode } from 'bolt11';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 
 export default function VPNPlanPage({ vpnInformation }) {
+  const { sendWebViewRequest } = useWebView();
   const countryList = vpnInformation.countries;
   const { theme, darkModeType } = useGlobalThemeContext();
   const [searchInput, setSearchInput] = useState('');
@@ -204,6 +206,7 @@ export default function VPNPlanPage({ vpnInformation }) {
           sparkInformation,
           description: t('apps.VPN.VPNPlanPage.paymentMemo'),
           currentWalletMnemoinc: currentWalletMnemoinc,
+          sendWebViewRequest,
         });
 
         if (!paymentResponse.didWork) {

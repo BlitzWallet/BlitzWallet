@@ -1,8 +1,8 @@
 // import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
-import {SATSPERBITCOIN} from '../../../../../constants';
-import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
-import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
-import {InputTypes} from 'bitcoin-address-parser';
+import { SATSPERBITCOIN } from '../../../../../constants';
+import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
+import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
+import { InputTypes } from 'bitcoin-address-parser';
 
 export default async function processBolt11Invoice(input, context) {
   const {
@@ -13,6 +13,7 @@ export default async function processBolt11Invoice(input, context) {
     paymentInfo,
     currentWalletMnemoinc,
     t,
+    sendWebViewRequest,
   } = context;
 
   crashlyticsLogReport('Handling decode bolt11 invoices');
@@ -45,6 +46,7 @@ export default async function processBolt11Invoice(input, context) {
         paymentType: 'lightning',
         masterInfoObject,
         mnemonic: currentWalletMnemoinc,
+        sendWebViewRequest,
       });
 
       if (!fee.didWork) throw new Error(fee.error);
@@ -52,7 +54,7 @@ export default async function processBolt11Invoice(input, context) {
   }
 
   return {
-    data: {...input, message: input.data.description},
+    data: { ...input, message: input.data.description },
     type: InputTypes.BOLT11,
     paymentNetwork: 'lightning',
     paymentFee: fee.fee,

@@ -1600,9 +1600,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.3.9":
-  version: 0.3.9
-  resolution: "@buildonspark/spark-sdk@npm:0.3.9"
+"@buildonspark/spark-sdk@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@buildonspark/spark-sdk@npm:0.4.0"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@bufbuild/protobuf": ^2.2.5
@@ -1650,7 +1650,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 17b82026c439e2c7c2e7c87cb6c5308fafcd74038023b3ec0539ec063ec8956f2b9304ce54715ccd2eef391a66eea282eb10bda107111143af98c18d718edde5
+  checksum: a1f2c06f7607485730507403172a465ffebdf6057b765dbecf446df687bbfd929d0b48bfdea902a3e74706bc108bcfcb6f2246d10e0a3bc5be6cc6552266d52e
   languageName: node
   linkType: hard
 
@@ -4798,7 +4798,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.2
-    "@buildonspark/spark-sdk": ^0.3.9
+    "@buildonspark/spark-sdk": ^0.4.0
     "@craftzdog/react-native-buffer": ^6.1.0
     "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
@@ -4896,6 +4896,7 @@ __metadata:
     react-native-worklets: 0.5.1
     react-test-renderer: 19.1.0
     rn-qr-generator: ^1.4.3
+    spark-web-context: "https://github.com/BlakeKaufman/spark-web-context.git"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
     text-encoding-polyfill: ^0.6.7
@@ -13830,6 +13831,15 @@ __metadata:
   version: 0.6.1
   resolution: "source-map@npm:0.6.1"
   checksum: 59ce8640cf3f3124f64ac289012c2b8bd377c238e316fb323ea22fbfe83da07d81e000071d7242cad7a23cd91c7de98e4df8830ec3f133cb6133a5f6e9f67bc2
+  languageName: node
+  linkType: hard
+
+"spark-web-context@https://github.com/BlakeKaufman/spark-web-context.git":
+  version: 1.0.0
+  resolution: "spark-web-context@https://github.com/BlakeKaufman/spark-web-context.git#commit=372ecbd2db69e423a23b7255d5a2c0064bb7e9f4"
+  dependencies:
+    "@buildonspark/spark-sdk": ^0.4.0
+  checksum: 64487cf73cff5dd2535c9b704d463adbf284066ee9e741fb3699845b0d029d7bc753fc6f0a8d88b43d328937195401c3d04034ed43b97821b74589cea38bcf5e
   languageName: node
   linkType: hard
 

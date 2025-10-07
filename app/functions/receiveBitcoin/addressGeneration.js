@@ -2,18 +2,19 @@ import {
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   SATSPERBITCOIN,
 } from '../../constants';
-import {breezLiquidReceivePaymentWrapper} from '../breezLiquid';
+import { breezLiquidReceivePaymentWrapper } from '../breezLiquid';
 
 import customUUID from '../customUUID';
-import {crashlyticsLogReport} from '../crashlyticsLogs';
-import {sparkReceivePaymentWrapper} from '../spark/payments';
-import {getRootstockAddress} from '../boltz/rootstock/submarineSwap';
-import {formatBip21Address} from '../spark/handleBip21SparkAddress';
+import { crashlyticsLogReport } from '../crashlyticsLogs';
+import { sparkReceivePaymentWrapper } from '../spark/payments';
+import { getRootstockAddress } from '../boltz/rootstock/submarineSwap';
+import { formatBip21Address } from '../spark/handleBip21SparkAddress';
 // import * as bip21 from 'bip21';
 
 let invoiceTracker = [];
 export async function initializeAddressProcess(wolletInfo) {
-  const {setAddressState, selectedRecieveOption} = wolletInfo;
+  const { setAddressState, selectedRecieveOption, sendWebViewRequest } =
+    wolletInfo;
   const requestUUID = customUUID();
   invoiceTracker.push(requestUUID);
   let stateTracker = {};
@@ -44,6 +45,7 @@ export async function initializeAddressProcess(wolletInfo) {
         amountSats: wolletInfo.receivingAmount,
         memo: wolletInfo.description,
         mnemoinc: wolletInfo.currentWalletMnemoinc,
+        sendWebViewRequest,
       });
       // const response = await generateLightningAddress(wolletInfo);
       if (!response.didWork)
@@ -59,6 +61,7 @@ export async function initializeAddressProcess(wolletInfo) {
         amountSats: wolletInfo.receivingAmount,
         memo: wolletInfo.description,
         mnemoinc: wolletInfo.currentWalletMnemoinc,
+        sendWebViewRequest,
       });
       if (!response.didWork)
         throw new Error('errormessages.bitcoinInvoiceError');
@@ -82,6 +85,7 @@ export async function initializeAddressProcess(wolletInfo) {
         amountSats: wolletInfo.receivingAmount,
         memo: wolletInfo.description,
         mnemoinc: wolletInfo.currentWalletMnemoinc,
+        sendWebViewRequest,
       });
       // const response = await generateBitcoinAddress(wolletInfo);
       if (!response.didWork) throw new Error('errormessages.sparkInvioceError');
@@ -131,7 +135,7 @@ export async function initializeAddressProcess(wolletInfo) {
 }
 
 async function generateLiquidAddress(wolletInfo) {
-  const {receivingAmount, setAddressState, description} = wolletInfo;
+  const { receivingAmount, setAddressState, description } = wolletInfo;
 
   const addressResponse = await breezLiquidReceivePaymentWrapper({
     sendAmount: receivingAmount,
@@ -148,7 +152,7 @@ async function generateLiquidAddress(wolletInfo) {
     };
   }
 
-  const {destination, receiveFeesSat} = addressResponse;
+  const { destination, receiveFeesSat } = addressResponse;
 
   return {
     generatedAddress: destination,
@@ -157,7 +161,7 @@ async function generateLiquidAddress(wolletInfo) {
 }
 
 async function generateRootstockAddress(wolletInfo) {
-  const {signer} = wolletInfo;
+  const { signer } = wolletInfo;
 
   const address = await getRootstockAddress(signer);
   if (!address)

@@ -5,10 +5,10 @@
  * @format
  */
 
-import {DefaultTheme, NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React, {JSX, useCallback, useEffect, useMemo, useState} from 'react';
-import {registerRootComponent} from 'expo';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { JSX, useCallback, useEffect, useMemo, useState } from 'react';
+import { registerRootComponent } from 'expo';
 import {
   getLocalStorageItem,
   retrieveData,
@@ -20,25 +20,25 @@ import {
   ConnectingToNodeLoadingScreen,
 } from './app/screens/inAccount';
 
-import {GlobalContextProvider} from './context-store/context';
+import { GlobalContextProvider } from './context-store/context';
 
-// import {WebViewProvider} from './context-store/webViewContext';
-import {Linking, Platform} from 'react-native';
+import { WebViewProvider } from './context-store/webViewContext';
+import { Linking, Platform } from 'react-native';
 
 import SplashScreen from './app/screens/splashScreen';
-import {GlobalContactsList} from './context-store/globalContacts';
+import { GlobalContactsList } from './context-store/globalContacts';
 
 // import {GlobaleCashVariables} from './context-store/eCash';
-import {ChooseLangugaePage} from './app/screens/createAccount';
-import {GlobalAppDataProvider} from './context-store/appData';
-import {PushNotificationProvider} from './context-store/notificationManager';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import { ChooseLangugaePage } from './app/screens/createAccount';
+import { GlobalAppDataProvider } from './context-store/appData';
+import { PushNotificationProvider } from './context-store/notificationManager';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import GetThemeColors from './app/hooks/themeColors';
 import {
   LOGIN_SECUITY_MODE_KEY,
   LOGIN_SECURITY_MODE_TYPE_KEY,
 } from './app/constants';
-import {LiquidEventProvider} from './context-store/liquidEventContext';
+import { LiquidEventProvider } from './context-store/liquidEventContext';
 import {
   LiquidNavigationListener,
   RootstockNavigationListener,
@@ -52,10 +52,10 @@ import {
   GlobalThemeProvider,
   useGlobalThemeContext,
 } from './context-store/theme';
-import {GLobalNodeContextProider} from './context-store/nodeContext';
-import {AppStatusProvider, useAppStatus} from './context-store/appStatus';
-import {KeysContextProvider, useKeysContext} from './context-store/keys';
-import {POSTransactionsProvider} from './context-store/pos';
+import { GLobalNodeContextProider } from './context-store/nodeContext';
+import { AppStatusProvider, useAppStatus } from './context-store/appStatus';
+import { KeysContextProvider, useKeysContext } from './context-store/keys';
+import { POSTransactionsProvider } from './context-store/pos';
 import {
   FADE_SCREENS,
   FADE_TRANSPARENT_MODAL_SCREENS,
@@ -63,18 +63,18 @@ import {
   SLIDE_FROM_RIGHT_SCREENS,
 } from './navigation/screens';
 import getDeepLinkUser from './app/components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
-import {navigationRef} from './navigation/navigationService';
+import { navigationRef } from './navigation/navigationService';
 // import {GlobalConbinedTxContextProvider} from './context-store/combinedTransactionsContext';
 // import BreezTest from './app/screens/breezTest';
-import {ImageCacheProvider} from './context-store/imageCache';
+import { ImageCacheProvider } from './context-store/imageCache';
 import {
   runPinAndMnemoicMigration,
   runSecureStoreMigrationV2,
 } from './app/functions/secureStore';
-import {KeyboardProvider} from 'react-native-keyboard-controller';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 // import {SparkConnectionListener} from './context-store/connectToNode';
-import {SparkWalletProvider} from './context-store/sparkContext';
+import { SparkWalletProvider } from './context-store/sparkContext';
 
 // let setStatusBarBackgroundColor: ((color: string) => void) | undefined;
 // let setStatusBarStyle: ((style: 'light' | 'dark') => void) | undefined;
@@ -89,18 +89,21 @@ import {SparkWalletProvider} from './context-store/sparkContext';
 //   NavigationBar = require('expo-navigation-bar');
 // }
 import * as NavigationBar from 'expo-navigation-bar';
-import {setStatusBarBackgroundColor, setStatusBarStyle} from 'expo-status-bar';
+import {
+  setStatusBarBackgroundColor,
+  setStatusBarStyle,
+} from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
-import {InsetsProvider} from './context-store/insetsProvider';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {ToastContainer, ToastProvider} from './context-store/toastManager';
-import {RootstockSwapProvider} from './context-store/rootstockSwapContext';
-import {SparkConnectionManager} from './context-store/sparkConnection';
-import {GlobalNostrWalletConnectProvider} from './context-store/NWC';
-import {GlobalServerTimeProvider} from './context-store/serverTime';
-import {ActiveCustodyAccountProvider} from './context-store/activeAccount';
-import {LRC20EventProvider} from './context-store/lrc20Listener';
-import {useTranslation} from 'react-i18next';
+import { InsetsProvider } from './context-store/insetsProvider';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ToastContainer, ToastProvider } from './context-store/toastManager';
+import { RootstockSwapProvider } from './context-store/rootstockSwapContext';
+import { SparkConnectionManager } from './context-store/sparkConnection';
+import { GlobalNostrWalletConnectProvider } from './context-store/NWC';
+import { GlobalServerTimeProvider } from './context-store/serverTime';
+import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
+import { LRC20EventProvider } from './context-store/lrc20Listener';
+import { useTranslation } from 'react-i18next';
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
@@ -110,53 +113,53 @@ function App(): JSX.Element {
         <InsetsProvider>
           <KeyboardProvider>
             <ToastProvider>
-              <KeysContextProvider>
-                <GlobalContactsList>
-                  <GlobalContextProvider>
-                    <ActiveCustodyAccountProvider>
-                      <AppStatusProvider>
-                        <GlobalThemeProvider>
-                          {/* <GlobaleCashVariables> */}
-                          <GLobalNodeContextProider>
-                            <SparkWalletProvider>
-                              {/* <GlobalConbinedTxContextProvider> */}
-                              <GlobalAppDataProvider>
-                                <POSTransactionsProvider>
-                                  {/* <WebViewProvider> */}
-                                  <PushNotificationProvider>
-                                    <LiquidEventProvider>
-                                      <RootstockSwapProvider>
-                                        <LRC20EventProvider>
-                                          <GlobalNostrWalletConnectProvider>
-                                            {/* <LightningEventProvider> */}
-                                            <ImageCacheProvider>
-                                              <GlobalServerTimeProvider>
-                                                {/* <Suspense
+              <WebViewProvider>
+                <KeysContextProvider>
+                  <GlobalContactsList>
+                    <GlobalContextProvider>
+                      <ActiveCustodyAccountProvider>
+                        <AppStatusProvider>
+                          <GlobalThemeProvider>
+                            {/* <GlobaleCashVariables> */}
+                            <GLobalNodeContextProider>
+                              <SparkWalletProvider>
+                                {/* <GlobalConbinedTxContextProvider> */}
+                                <GlobalAppDataProvider>
+                                  <POSTransactionsProvider>
+                                    <PushNotificationProvider>
+                                      <LiquidEventProvider>
+                                        <RootstockSwapProvider>
+                                          <LRC20EventProvider>
+                                            <GlobalNostrWalletConnectProvider>
+                                              {/* <LightningEventProvider> */}
+                                              <ImageCacheProvider>
+                                                <GlobalServerTimeProvider>
+                                                  {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                <ResetStack />
-                                                {/* </Suspense> */}
-                                              </GlobalServerTimeProvider>
-                                            </ImageCacheProvider>
-                                            {/* </LightningEventProvider> */}
-                                          </GlobalNostrWalletConnectProvider>
-                                        </LRC20EventProvider>
-                                      </RootstockSwapProvider>
-                                    </LiquidEventProvider>
-                                  </PushNotificationProvider>
-                                  {/* </WebViewProvider> */}
-                                </POSTransactionsProvider>
-                              </GlobalAppDataProvider>
-                              {/* <BreezTest /> */}
-                              {/* </GlobalConbinedTxContextProvider> */}
-                            </SparkWalletProvider>
-                          </GLobalNodeContextProider>
-                          {/* </GlobaleCashVariables> */}
-                        </GlobalThemeProvider>
-                      </AppStatusProvider>
-                    </ActiveCustodyAccountProvider>
-                  </GlobalContextProvider>
-                </GlobalContactsList>
-              </KeysContextProvider>
+                                                  <ResetStack />
+                                                  {/* </Suspense> */}
+                                                </GlobalServerTimeProvider>
+                                              </ImageCacheProvider>
+                                              {/* </LightningEventProvider> */}
+                                            </GlobalNostrWalletConnectProvider>
+                                          </LRC20EventProvider>
+                                        </RootstockSwapProvider>
+                                      </LiquidEventProvider>
+                                    </PushNotificationProvider>
+                                  </POSTransactionsProvider>
+                                </GlobalAppDataProvider>
+                                {/* <BreezTest /> */}
+                                {/* </GlobalConbinedTxContextProvider> */}
+                              </SparkWalletProvider>
+                            </GLobalNodeContextProider>
+                            {/* </GlobaleCashVariables> */}
+                          </GlobalThemeProvider>
+                        </AppStatusProvider>
+                      </ActiveCustodyAccountProvider>
+                    </GlobalContextProvider>
+                  </GlobalContactsList>
+                </KeysContextProvider>
+              </WebViewProvider>
             </ToastProvider>
           </KeyboardProvider>
         </InsetsProvider>
@@ -182,15 +185,15 @@ function ResetStack(): JSX.Element | null {
     url: '',
     timestamp: null,
   });
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {didGetToHomepage} = useAppStatus();
-  const {publicKey, setAccountMnemonic} = useKeysContext();
-  const {backgroundColor} = GetThemeColors();
-  const {i18n} = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { didGetToHomepage } = useAppStatus();
+  const { publicKey, setAccountMnemonic } = useKeysContext();
+  const { backgroundColor } = GetThemeColors();
+  const { i18n } = useTranslation();
 
   const handleDeepLink = useCallback(
-    (event: {url: string}) => {
-      const {url} = event;
+    (event: { url: string }) => {
+      const { url } = event;
       console.log('Deep link URL:', url);
 
       setPendingLinkData({
@@ -211,7 +214,7 @@ function ResetStack(): JSX.Element | null {
   const getInitialURL = useCallback(async () => {
     const url = await Linking.getInitialURL();
     if (url) {
-      handleDeepLink({url});
+      handleDeepLink({ url });
       console.log('Initial deep link stored:', url);
     }
   }, []);
@@ -232,7 +235,7 @@ function ResetStack(): JSX.Element | null {
 
   useEffect(() => {
     async function handleDeeplink() {
-      const {url, timestamp} = pendingLinkData;
+      const { url, timestamp } = pendingLinkData;
       if (!url) return;
       console.log(
         'Processing link:',
@@ -256,7 +259,7 @@ function ResetStack(): JSX.Element | null {
           } else if (url.includes('blitz')) {
             const deepLinkContact = await getDeepLinkUser({
               deepLinkContent: url,
-              userProfile: {uuid: publicKey},
+              userProfile: { uuid: publicKey },
             });
 
             if (deepLinkContact.didWork) {
@@ -352,7 +355,7 @@ function ResetStack(): JSX.Element | null {
 
   const handleAnimationFinish = () => {
     setInitSettings(prev => {
-      return {...prev, isLoaded: true};
+      return { ...prev, isLoaded: true };
     });
   };
   const navigationTheme = useMemo(
@@ -438,8 +441,9 @@ function ResetStack(): JSX.Element | null {
           screenOptions={{
             presentation: 'containedTransparentModal',
             animation: 'slide_from_bottom',
-          }}>
-          {SLIDE_FROM_BOTTOM_SCREENS.map(({name, component: Component}) => (
+          }}
+        >
+          {SLIDE_FROM_BOTTOM_SCREENS.map(({ name, component: Component }) => (
             <Stack.Screen
               key={name}
               name={name}
@@ -450,14 +454,15 @@ function ResetStack(): JSX.Element | null {
         <Stack.Group
           screenOptions={{
             animation: 'slide_from_right',
-          }}>
+          }}
+        >
           {SLIDE_FROM_RIGHT_SCREENS.map(
-            ({name, component: Component, options = {}}) => (
+            ({ name, component: Component, options = {} }) => (
               <Stack.Screen
                 key={name}
                 name={name}
                 component={Component as React.ComponentType<any>}
-                options={{...options}}
+                options={{ ...options }}
               />
             ),
           )}
@@ -466,12 +471,13 @@ function ResetStack(): JSX.Element | null {
           screenOptions={{
             animation: 'fade',
             presentation: 'containedTransparentModal',
-          }}>
-          {FADE_SCREENS.map(({name, component: Component, options = {}}) => (
+          }}
+        >
+          {FADE_SCREENS.map(({ name, component: Component, options = {} }) => (
             <Stack.Screen
               key={name}
               name={name}
-              options={{...options}}
+              options={{ ...options }}
               component={Component as React.ComponentType<any>}
             />
           ))}
@@ -480,9 +486,10 @@ function ResetStack(): JSX.Element | null {
           screenOptions={{
             animation: 'fade',
             presentation: 'transparentModal',
-          }}>
+          }}
+        >
           {FADE_TRANSPARENT_MODAL_SCREENS.map(
-            ({name, component: Component}) => (
+            ({ name, component: Component }) => (
               <Stack.Screen
                 key={name}
                 name={name}

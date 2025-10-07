@@ -1,27 +1,29 @@
-import {StyleSheet, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {SIZES} from '../../../../../constants';
+import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { SIZES } from '../../../../../constants';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
 import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton';
-import {useCallback, useEffect, useState} from 'react';
-import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
+import { useCallback, useEffect, useState } from 'react';
+import { useSparkWallet } from '../../../../../../context-store/sparkContext';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import StoreErrorPage from '../components/errorScreen';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
-import {useTranslation} from 'react-i18next';
-import {decode} from 'bolt11';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import { useTranslation } from 'react-i18next';
+import { decode } from 'bolt11';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 
 export default function ConfirmSMSReceiveCode(props) {
+  const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {sparkInformation} = useSparkWallet();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { sparkInformation } = useSparkWallet();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
   const {
     serviceCode,
     getReceiveCode,
@@ -57,7 +59,7 @@ export default function ConfirmSMSReceiveCode(props) {
 
         const response = await fetch(`https://api2.sms4sats.com/createorder`, {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
 
@@ -76,6 +78,7 @@ export default function ConfirmSMSReceiveCode(props) {
           sparkInformation,
           userBalance: sparkInformation.balance,
           mnemonic: currentWalletMnemoinc,
+          sendWebViewRequest,
         });
         if (!fee.didWork) throw new Error(fee.error);
         if (
@@ -123,17 +126,17 @@ export default function ConfirmSMSReceiveCode(props) {
       ) : (
         <>
           <ThemeText
-            styles={{fontSize: SIZES.xLarge, textAlign: 'center'}}
+            styles={{ fontSize: SIZES.xLarge, textAlign: 'center' }}
             content={t('apps.sms4sats.confirmationSlideUp.receiveTitle')}
           />
           <ThemeText
-            styles={{fontSize: SIZES.large, textAlign: 'center'}}
+            styles={{ fontSize: SIZES.large, textAlign: 'center' }}
             content={title}
           />
 
           <FormattedSatText
             neverHideBalance={true}
-            containerStyles={{marginTop: 'auto'}}
+            containerStyles={{ marginTop: 'auto' }}
             styles={{
               fontSize: SIZES.large,
               textAlign: 'center',
@@ -143,7 +146,7 @@ export default function ConfirmSMSReceiveCode(props) {
           />
           <FormattedSatText
             neverHideBalance={true}
-            containerStyles={{marginTop: 10, marginBottom: 'auto'}}
+            containerStyles={{ marginTop: 10, marginBottom: 'auto' }}
             styles={{
               textAlign: 'center',
             }}
@@ -153,7 +156,7 @@ export default function ConfirmSMSReceiveCode(props) {
           <SwipeButtonNew
             onSwipeSuccess={onSwipeSuccess}
             width={0.95}
-            containerStyles={{marginBottom: 20}}
+            containerStyles={{ marginBottom: 20 }}
             thumbIconStyles={{
               backgroundColor:
                 theme && darkModeType ? backgroundOffset : backgroundColor,

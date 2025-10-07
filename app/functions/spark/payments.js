@@ -37,11 +37,12 @@ export const sparkPaymenWrapper = async ({
   usingZeroAmountInvoice = false,
   seletctedToken = 'Bitcoin',
   mnemonic,
+  sendWebViewRequest,
 }) => {
   try {
     console.log('Begining spark payment');
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
+    // if (!sparkWallet[sha256Hash(mnemonic)])
+    //   throw new Error('sparkWallet not initialized');
     const supportFee = await calculateProgressiveBracketFee(
       amountSats,
       paymentType,
@@ -56,6 +57,7 @@ export const sparkPaymenWrapper = async ({
           address,
           amountSats,
           mnemonic,
+          sendWebViewRequest,
         );
 
         if (!routingFee.didWork)
@@ -66,6 +68,7 @@ export const sparkPaymenWrapper = async ({
           amountSats,
           withdrawalAddress: address,
           mnemonic,
+          sendWebViewRequest,
         });
 
         if (!feeResponse.didWork)
@@ -84,6 +87,7 @@ export const sparkPaymenWrapper = async ({
         const feeResponse = await getSparkPaymentFeeEstimate(
           amountSats,
           mnemonic,
+          sendWebViewRequest,
         );
         calculatedFee = feeResponse;
       }
@@ -112,6 +116,7 @@ export const sparkPaymenWrapper = async ({
         invoice: address,
         amountSats: usingZeroAmountInvoice ? amountSats : undefined,
         mnemonic,
+        sendWebViewRequest,
       });
 
       if (!lightningPayResponse.didWork)
@@ -159,6 +164,7 @@ export const sparkPaymenWrapper = async ({
         feeQuote,
         deductFeeFromWithdrawalAmount: true,
         mnemonic,
+        sendWebViewRequest,
       });
 
       if (!onChainPayResponse.didWork)
@@ -199,12 +205,14 @@ export const sparkPaymenWrapper = async ({
           tokenAmount: amountSats,
           receiverSparkAddress: address,
           mnemonic,
+          sendWebViewRequest,
         });
       } else {
         sparkPayResponse = await sendSparkPayment({
           receiverSparkAddress: address,
           amountSats,
           mnemonic,
+          sendWebViewRequest,
         });
       }
 
@@ -258,16 +266,18 @@ export const sparkReceivePaymentWrapper = async ({
   paymentType,
   shouldNavigate,
   mnemoinc,
+  sendWebViewRequest,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemoinc)])
-      throw new Error('sparkWallet not initialized');
+    // if (!sparkWallet[sha256Hash(mnemoinc)])
+    //   throw new Error('sparkWallet not initialized');
 
     if (paymentType === 'lightning') {
       const invoiceResponse = await receiveSparkLightningPayment({
         amountSats,
         memo,
         mnemonic: mnemoinc,
+        sendWebViewRequest,
       });
 
       if (!invoiceResponse.didWork) throw new Error(invoiceResponse.error);
@@ -294,14 +304,17 @@ export const sparkReceivePaymentWrapper = async ({
       };
     } else if (paymentType === 'bitcoin') {
       // Handle storage of tx when claiming in spark context
-      const depositAddress = await getSparkStaticBitcoinL1Address(mnemoinc);
+      const depositAddress = await getSparkStaticBitcoinL1Address(
+        mnemoinc,
+        sendWebViewRequest,
+      );
       return {
         didWork: true,
         invoice: depositAddress,
       };
     } else {
       // No need to save address since it is constant
-      const sparkAddress = await getSparkAddress(mnemoinc);
+      const sparkAddress = await getSparkAddress(mnemoinc, sendWebViewRequest);
       if (!sparkAddress.didWork) throw new Error(sparkAddress.error);
 
       const data = sparkAddress.response;

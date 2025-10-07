@@ -63,7 +63,7 @@ export const mergeTokensWithCache = (currentTokens, cachedTokens, mnemonic) => {
     };
   }
 
-  for (const [identifier, tokensData] of currentTokens) {
+  for (const [identifier, tokensData] of Object.entries(currentTokens)) {
     merged[identifier] = {
       balance: Number(tokensData.balance),
       tokenMetadata: {

@@ -14,6 +14,7 @@ export async function getLRC20Transactions({
   sparkAddress,
   isInitialRun,
   mnemonic,
+  sendWebViewRequest,
 }) {
   const [storedDate, savedTxs, cachedTokens, tokenTxs] = await Promise.all([
     getLocalStorageItem('lastRunLRC20Tokens').then(
@@ -21,7 +22,11 @@ export async function getLRC20Transactions({
     ),
     getCachedSparkTransactions(null, ownerPublicKeys[0]),
     getCachedTokens(),
-    getSparkTokenTransactions({ ownerPublicKeys, mnemonic }),
+    getSparkTokenTransactions({
+      ownerPublicKeys,
+      mnemonic,
+      sendWebViewRequest,
+    }),
   ]);
 
   if (!tokenTxs?.tokenTransactionsWithStatus) return;
@@ -41,9 +46,9 @@ export async function getLRC20Transactions({
     );
     const tokenOutput = tokenTx.tokenTransaction.tokenOutputs[0];
     const tokenIdentifier = tokenOutput?.tokenIdentifier;
-
-    const tokenIdentifierHex = Buffer.from(tokenIdentifier).toString('hex');
-
+    const tokenIdentifierHex = Buffer.from(
+      Object.values(tokenIdentifier),
+    ).toString('hex');
     if (!tokenIdentifier) continue;
     const tokenbech32m = convertToBech32m(tokenIdentifierHex);
 
@@ -57,22 +62,31 @@ export async function getLRC20Transactions({
     const tokenOutputs = tokenTx.tokenTransaction.tokenOutputs;
 
     const ownerPublicKey = Buffer.from(
-      tokenOutputs[0]?.ownerPublicKey,
+      Object.values(tokenOutputs[0]?.ownerPublicKey),
     ).toString('hex');
     const amount = Number(
       tokenBufferAmountToDecimal(tokenOutputs[0]?.tokenAmount),
     );
     const didSend = ownerPublicKey !== ownerPublicKeys[0];
-
+    console.log(
+      Object.values(tokenTx.tokenTransactionHash),
+      'token transaction hash',
+    );
     if (
-      savedIds.has(Buffer.from(tokenTx.tokenTransactionHash).toString('hex'))
+      savedIds.has(
+        Buffer.from(Object.values(tokenTx.tokenTransactionHash)).toString(
+          'hex',
+        ),
+      )
     ) {
       console.log('Transaction already saved');
       continue;
     }
 
     const tx = {
-      id: Buffer.from(tokenTx.tokenTransactionHash).toString('hex'),
+      id: Buffer.from(Object.values(tokenTx.tokenTransactionHash)).toString(
+        'hex',
+      ),
       paymentStatus: 'completed',
       paymentType: 'spark',
       accountId: ownerPublicKeys[0],

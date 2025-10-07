@@ -1,7 +1,7 @@
-import {InputTypes} from 'bitcoin-address-parser';
-import {getLNAddressForLiquidPayment} from '../../components/admin/homeComponents/sendBitcoin/functions/payments';
+import { InputTypes } from 'bitcoin-address-parser';
+import { getLNAddressForLiquidPayment } from '../../components/admin/homeComponents/sendBitcoin/functions/payments';
 import getLNURLDetails from '../lnurl/getLNURLDetails';
-import {sparkPaymenWrapper} from '../spark/payments';
+import { sparkPaymenWrapper } from '../spark/payments';
 // import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
 
 /**
@@ -30,7 +30,7 @@ export async function payPOSLNURL({
 
     const didGetData = await getLNURLDetails(LNURLAddress);
     if (!didGetData) throw new Error('Unable to get lnurl data');
-    const parsedInput = {type: InputTypes.LNURL_PAY, data: didGetData};
+    const parsedInput = { type: InputTypes.LNURL_PAY, data: didGetData };
 
     const invoice = await getLNAddressForLiquidPayment(
       parsedInput,
@@ -49,6 +49,7 @@ export async function payPOSLNURL({
       fee: 0,
       description: '',
       mnemonic: currentWalletMnemoinc,
+      sendWebViewRequest,
     });
     if (!feeResponse.didWork) throw new Error(feeResponse.error);
 
@@ -68,6 +69,7 @@ export async function payPOSLNURL({
       sparkInformation,
       userBalance: sparkInformation.balance,
       mnemonic: currentWalletMnemoinc,
+      sendWebViewRequest,
     });
 
     if (!paymentResponse.didWork) throw new Error('Unable to send payment');
@@ -113,6 +115,7 @@ export async function payPOSContact({
       fee: 0,
       description: '',
       mnemonic: currentWalletMnemoinc,
+      sendWebViewRequest,
     });
 
     if (!feeResponse.didWork) throw new Error(feeResponse.error);
@@ -133,6 +136,7 @@ export async function payPOSContact({
       sparkInformation,
       userBalance: sparkInformation.balance,
       mnemonic: currentWalletMnemoinc,
+      sendWebViewRequest,
     });
 
     if (!paymentResponse.didWork) throw new Error('Unable to send payment');

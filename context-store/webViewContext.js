@@ -1,111 +1,93 @@
-// import React, {createContext, use, useEffect, useRef, useState} from 'react';
-// import WebView from 'react-native-webview';
-// import {Platform} from 'react-native';
-// import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
-// import handleWebviewClaimMessage from '../app/functions/boltz/handle-webview-claim-message';
-// import {useAppStatus} from './appStatus';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import WebView from 'react-native-webview';
+import { Platform } from 'react-native';
+import customUUID from '../app/functions/customUUID';
 
-// // Create a context for the WebView ref
-// const WebViewContext = createContext(null);
+// WebView context
+const WebViewContext = createContext(null);
 
-// export const WebViewProvider = ({children}) => {
-//   const {didGetToHomepage} = useAppStatus();
-//   const webViewRef = useRef(null);
-//   const [isWEbViewReady, setIsWebViewReady] = useState(false);
-//   const handleClaimRetryRef = useRef(null);
-//   const startClaimRetryRef = useRef(null);
-//   // const [webViewArgs, setWebViewArgs] = useState({
-//   //   navigate: null,
-//   //   page: null,
-//   //   function: null,
-//   // });
+export const WebViewProvider = ({ children }) => {
+  const webViewRef = useRef(null);
+  const [isWebViewReady, setIsWebViewReady] = useState(false);
 
-//   // useEffect(() => {
-//   //   if (!didGetToHomepage) return;
-//   //   if (!isWEbViewReady) return;
-//   //   if (startClaimRetryRef.current) return;
-//   //   startClaimRetryRef.current = true;
+  // Store pending requests: { id: resolveFunction }
+  const pendingRequests = useRef({});
 
-//   //   async function handleUnclaimedReverseSwaps() {
-//   //     console.log('Checking for unclaimed reverse swaps');
-//   //     let savedClaimInfo =
-//   //       JSON.parse(await getLocalStorageItem('savedReverseSwapInfo')) || [];
+  // Handle messages from WebView
+  const handleWebViewResponse = useCallback(event => {
+    try {
+      const message = JSON.parse(event.nativeEvent.data);
 
-//   //     console.log('Saved claim info length:', savedClaimInfo.length);
-//   //     console.log('Saved claim info:', savedClaimInfo);
-//   //     if (savedClaimInfo.length === 0) return;
-//   //     let newClaims = [];
-//   //     for (const claim in savedClaimInfo) {
-//   //       const createdOn = new Date(claim.createdOn);
-//   //       const now = new Date();
-//   //       if (!claim?.swapInfo?.id) continue;
-//   //       if (claim.numberOfTries > 15) continue;
-//   //       if (createdOn - now < 1000 * 60 * 3) {
-//   //         // If the claim is less than 3 minutes old, skip it to prevent race condition with the websocket
-//   //         newClaims.push(claim);
-//   //         continue;
-//   //       }
+      if (message.isResponse && message.id) {
+        const resolve = pendingRequests.current[message.id];
+        if (resolve) {
+          console.log(
+            'receiving message from webview',
+            JSON.parse(message.result || null),
+          );
+          resolve(JSON.parse(message.result || null));
+          delete pendingRequests.current[message.id];
+        }
+      }
+    } catch (err) {
+      console.error('Error handling WebView message:', err);
+    }
+  }, []);
 
-//   //       newClaims.push({...claim, numberOfTries: claim.numberOfTries + 1});
+  // Function to send a request to the WebView and return a promise
+  const sendWebViewRequest = useCallback(
+    (action, args = {}) => {
+      return new Promise((resolve, reject) => {
+        if (!webViewRef.current || !isWebViewReady) {
+          return reject(new Error('WebView not ready'));
+        }
 
-//   //       console.log('Processing claim:', claim);
-//   //       const claimInfo = JSON.stringify(claim);
-//   //       webViewRef.current.injectJavaScript(
-//   //         `window.claimReverseSubmarineSwap(${claimInfo}); void(0);`,
-//   //       );
-//   //       await new Promise(resolve => setTimeout(resolve, 3000));
-//   //     }
-//   //     setLocalStorageItem('savedReverseSwapInfo', JSON.stringify(newClaims));
-//   //   }
+        const id = customUUID(); // generate unique ID for this request
+        pendingRequests.current[id] = resolve;
 
-//   //   if (handleClaimRetryRef.current) {
-//   //     console.log(
-//   //       'Clearing previous claim retry interval',
-//   //       handleClaimRetryRef.current,
-//   //     );
-//   //     clearInterval(handleClaimRetryRef.current);
-//   //   }
+        const message = {
+          id,
+          action,
+          args,
+        };
 
-//   //   console.log('Setting up claim retry interval');
-//   //   // handleClaimRetryRef.current = setInterval(
-//   //   //   handleUnclaimedReverseSwaps,
-//   //   //   30000,
-//   //   // );
-//   // }, [isWEbViewReady, didGetToHomepage]);
+        console.log('Sending message to webview', message);
 
-//   return (
-//     <WebViewContext.Provider
-//       value={{
-//         webViewRef,
-//         // webViewArgs,
-//         // setWebViewArgs,
-//       }}>
-//       {children}
-//       <WebView
-//         domStorageEnabled
-//         javaScriptEnabled
-//         ref={webViewRef}
-//         containerStyle={{position: 'absolute', top: 1000, left: 1000}}
-//         source={
-//           Platform.OS === 'ios'
-//             ? require('boltz-swap-web-context')
-//             : {uri: 'file:///android_asset/boltzSwap.html'}
-//         }
-//         originWhitelist={['*']}
-//         onMessage={event =>
-//           handleWebviewClaimMessage(
-//             // webViewArgs.navigate,
-//             event,
-//             // webViewArgs.page,
-//             // webViewArgs.function,
-//           )
-//         }
-//         onLoadEnd={() => setIsWebViewReady(true)}
-//       />
-//     </WebViewContext.Provider>
-//   );
-// };
+        webViewRef.current.postMessage(JSON.stringify(message));
+      });
+    },
+    [isWebViewReady],
+  );
 
-// export const useWebView = () => {
-//   return React.useContext(WebViewContext);
-// };
+  return (
+    <WebViewContext.Provider value={{ webViewRef, sendWebViewRequest }}>
+      {children}
+      <WebView
+        domStorageEnabled
+        javaScriptEnabled
+        ref={webViewRef}
+        containerStyle={{ position: 'absolute', top: 1000, left: 1000 }}
+        source={
+          {
+            uri: 'http://192.168.68.54:8081/assets/node_modules/spark-web-context/dist/index.html',
+          }
+          //   Platform.OS === 'ios'
+          //     ? require('spark-web-context/dist/index.html')
+          //     : { uri: 'file:///android_asset/sparkWebview.html' }
+        }
+        originWhitelist={['*']}
+        onMessage={handleWebViewResponse}
+        onLoadEnd={() => setIsWebViewReady(true)}
+      />
+    </WebViewContext.Provider>
+  );
+};
+
+// Hook to use the WebView API
+export const useWebView = () => React.useContext(WebViewContext);

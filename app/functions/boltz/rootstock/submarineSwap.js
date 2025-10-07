@@ -1,16 +1,16 @@
 import bolt11 from 'bolt11';
 import EtherSwapArtifact from 'boltz-core/out/EtherSwap.sol/EtherSwap.json';
-import {Contract} from 'ethers';
-import {getBoltzApiUrl} from '../boltzEndpoitns';
+import { Contract } from 'ethers';
+import { getBoltzApiUrl } from '../boltzEndpoitns';
 import {
   rootstockEnvironment,
   satoshisToWei,
   satoshiWeiFactor,
   weiToSatoshis,
 } from '.';
-import {loadSwaps, saveSwap} from './swapDb';
-import {randomBytes} from 'react-native-quick-crypto';
-import {sparkReceivePaymentWrapper} from '../../spark/payments';
+import { loadSwaps, saveSwap } from './swapDb';
+import { randomBytes } from 'react-native-quick-crypto';
+import { sparkReceivePaymentWrapper } from '../../spark/payments';
 import i18next from 'i18next';
 
 export async function createRootstockSubmarineSwap(invoice) {
@@ -18,8 +18,8 @@ export async function createRootstockSubmarineSwap(invoice) {
     getBoltzApiUrl(rootstockEnvironment) + '/v2/swap/submarine',
     {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({invoice, to: 'BTC', from: 'RBTC'}),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invoice, to: 'BTC', from: 'RBTC' }),
     },
   );
   const swap = await res.json();
@@ -47,8 +47,8 @@ export async function getRootstockAddress(signer) {
 }
 
 export async function lockSubmarineSwap(swap, signer) {
-  const {claimAddress, timeoutBlockHeight, expectedAmount} = swap.data.swap;
-  const {invoice} = swap.data;
+  const { claimAddress, timeoutBlockHeight, expectedAmount } = swap.data.swap;
+  const { invoice } = swap.data;
 
   // Fetch current contract addresses from Boltz
   const contractsRes = await fetch(
@@ -87,6 +87,7 @@ export async function executeSubmarineSwap(
   swapLimits,
   provider,
   signer,
+  sendWebViewRequest,
 ) {
   console.log('Running rootstock excecution');
   const address = await signer.getAddress();
@@ -110,6 +111,7 @@ export async function executeSubmarineSwap(
     paymentType: 'lightning',
     shouldNavigate: false,
     mnemoinc: signerMnemonic,
+    sendWebViewRequest,
   });
   if (!sparkInvoice.didWork) return;
 
@@ -157,7 +159,7 @@ export async function calculateMaxSubmarineSwapAmount({
       preimage,
       userAddress,
       timeoutBlockHeight,
-      {value: 1n},
+      { value: 1n },
     );
     console.log('Gas limit:', gasLimit);
 
@@ -185,7 +187,7 @@ export async function calculateMaxSubmarineSwapAmount({
       satoshisToWei(boltzFee) -
       satoshisToWei(outboundSwapsBalance);
     if (usableWei <= 0n) {
-      return {maxSats: 0n, reason: 'Insufficient RBTC for fee'};
+      return { maxSats: 0n, reason: 'Insufficient RBTC for fee' };
     }
 
     const usableSats = weiToSatoshis(usableWei);
@@ -193,7 +195,7 @@ export async function calculateMaxSubmarineSwapAmount({
     const min = BigInt(limits.rsk.min);
     const max = BigInt(limits.rsk.max);
     if (usableSats < min) {
-      return {maxSats: 0n, reason: 'Below Boltz min swap'};
+      return { maxSats: 0n, reason: 'Below Boltz min swap' };
     }
 
     const maxSats = usableSats > max ? max : usableSats;

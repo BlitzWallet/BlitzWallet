@@ -1,34 +1,36 @@
-import {StyleSheet, View} from 'react-native';
-import {ThemeText} from '../../../../../functions/CustomElements';
+import { StyleSheet, View } from 'react-native';
+import { ThemeText } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {SIZES} from '../../../../../constants';
+import { SIZES } from '../../../../../constants';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
-import {useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect, useState} from 'react';
-import {useGlobalAppData} from '../../../../../../context-store/appData';
+import { useNavigation } from '@react-navigation/native';
+import { useCallback, useEffect, useState } from 'react';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {getCountryInfoAsync} from 'react-native-country-picker-modal/lib/CountryService';
+import { getCountryInfoAsync } from 'react-native-country-picker-modal/lib/CountryService';
 import fetchBackend from '../../../../../../db/handleBackend';
-import {useKeysContext} from '../../../../../../context-store/keys';
+import { useKeysContext } from '../../../../../../context-store/keys';
 import SwipeButtonNew from '../../../../../functions/CustomElements/sliderButton';
-import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import StoreErrorPage from '../components/errorScreen';
-import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
-import {useTranslation} from 'react-i18next';
-import {decode} from 'bolt11';
+import { useSparkWallet } from '../../../../../../context-store/sparkContext';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import { useTranslation } from 'react-i18next';
+import { decode } from 'bolt11';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 
 export default function ConfirmGiftCardPurchase(props) {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {sparkInformation} = useSparkWallet();
-  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
-  const {decodedGiftCards} = useGlobalAppData();
+  const { sendWebViewRequest } = useWebView();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { sparkInformation } = useSparkWallet();
+  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { decodedGiftCards } = useGlobalAppData();
   const navigate = useNavigation();
   const [error, setError] = useState('');
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const [retrivedInformation, setRetrivedInformation] = useState({
     countryInfo: {},
@@ -78,6 +80,7 @@ export default function ConfirmGiftCardPurchase(props) {
           amountSats: decodedInvoice.satoshis,
           masterInfoObject,
           mnemonic: currentWalletMnemoinc,
+          sendWebViewRequest,
         });
 
         if (!fee.didWork) throw new Error(fee.error);
@@ -146,7 +149,7 @@ export default function ConfirmGiftCardPurchase(props) {
             })}
           />
           <ThemeText
-            styles={{fontSize: SIZES.large, marginTop: 10}}
+            styles={{ fontSize: SIZES.large, marginTop: 10 }}
             content={t('apps.giftCards.confimPurchase.cardAmount', {
               amount: props.price,
               currency: retrivedInformation.countryInfo.currency,
@@ -155,7 +158,7 @@ export default function ConfirmGiftCardPurchase(props) {
 
           <FormattedSatText
             neverHideBalance={true}
-            containerStyles={{marginTop: 'auto'}}
+            containerStyles={{ marginTop: 'auto' }}
             styles={{
               fontSize: SIZES.large,
               textAlign: 'center',
@@ -166,7 +169,7 @@ export default function ConfirmGiftCardPurchase(props) {
 
           <FormattedSatText
             neverHideBalance={true}
-            containerStyles={{marginTop: 5, marginBottom: 'auto'}}
+            containerStyles={{ marginTop: 5, marginBottom: 'auto' }}
             styles={{
               textAlign: 'center',
             }}
@@ -177,7 +180,7 @@ export default function ConfirmGiftCardPurchase(props) {
           <SwipeButtonNew
             onSwipeSuccess={onSwipeSuccess}
             width={0.95}
-            containerStyles={{marginBottom: 20}}
+            containerStyles={{ marginBottom: 20 }}
             thumbIconStyles={{
               backgroundColor:
                 theme && darkModeType ? backgroundOffset : backgroundColor,

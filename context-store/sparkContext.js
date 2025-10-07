@@ -12,7 +12,6 @@ import {
   findTransactionTxFromTxHistory,
   getSparkBalance,
   getSparkStaticBitcoinL1AddressQuote,
-  getSparkTransactions,
   queryAllStaticDepositAddresses,
   sparkWallet,
 } from '../app/functions/spark';
@@ -48,6 +47,7 @@ import { getLRC20Transactions } from '../app/functions/lrc20';
 import { useActiveCustodyAccount } from './activeAccount';
 import sha256Hash from '../app/functions/hash';
 import i18n from 'i18next';
+import { useWebView } from './webViewContext';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -56,6 +56,7 @@ export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
 const SparkWalletManager = createContext(null);
 
 const SparkWalletProvider = ({ children }) => {
+  const { sendWebViewRequest } = useWebView();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { didGetToHomepage, minMaxLiquidSwapAmounts, appState } =
@@ -127,6 +128,7 @@ const SparkWalletProvider = ({ children }) => {
           recevedTxId,
           5,
           currentWalletMnemoinc,
+          sendWebViewRequest,
         );
         if (!singleTxResponse.tx)
           throw new Error('Unable to find tx in all of history');
@@ -253,6 +255,7 @@ const SparkWalletProvider = ({ children }) => {
             transfersOffset,
             cachedTransfers,
             currentWalletMnemoinc,
+            sendWebViewRequest,
           );
           if (findTxResponse.offset && findTxResponse.foundTransfers) {
             transfersOffset = findTxResponse.offset;
@@ -313,7 +316,10 @@ const SparkWalletProvider = ({ children }) => {
         }));
         return;
       }
-      const balance = await getSparkBalance(currentWalletMnemoinc);
+      const balance = await getSparkBalance(
+        currentWalletMnemoinc,
+        sendWebViewRequest,
+      );
 
       if (updateType === 'paymentWrapperTx') {
         setSparkInformation(prev => {
@@ -382,10 +388,10 @@ const SparkWalletProvider = ({ children }) => {
     sparkTransactionsEventEmitter.on(SPARK_TX_UPDATE_ENVENT_NAME, handleUpdate);
 
     if (mode === 'full') {
-      sparkWallet[sha256Hash(currentWalletMnemoinc)].on(
-        'transfer:claimed',
-        transferHandler,
-      );
+      // sparkWallet[sha256Hash(currentWalletMnemoinc)].on(
+      //   'transfer:claimed',
+      //   transferHandler,
+      // );
 
       if (isInitialRestore.current) {
         isInitialRestore.current = false;
@@ -397,11 +403,13 @@ const SparkWalletProvider = ({ children }) => {
         isSendingPayment: isSendingPayment,
         mnemonic: currentWalletMnemoinc,
         identityPubKey: sparkInformation.identityPubKey,
+        sendWebViewRequest,
       });
 
       await updateSparkTxStatus(
         currentWalletMnemoinc,
         sparkInformation.identityPubKey,
+        sendWebViewRequest,
       );
 
       if (updatePendingPaymentsIntervalRef.current) {
@@ -413,12 +421,14 @@ const SparkWalletProvider = ({ children }) => {
           await updateSparkTxStatus(
             currentWalletMnemoinc,
             sparkInformation.identityPubKey,
+            sendWebViewRequest,
           );
           await getLRC20Transactions({
             ownerPublicKeys: [sparkInformation.identityPubKey],
             sparkAddress: sparkInformation.sparkAddress,
             isInitialRun: isInitialLRC20Run.current,
             mnemonic: currentWalletMnemoinc,
+            sendWebViewRequest,
           });
           if (isInitialLRC20Run.current) {
             isInitialLRC20Run.current = false;
@@ -449,12 +459,12 @@ const SparkWalletProvider = ({ children }) => {
         SPARK_TX_UPDATE_ENVENT_NAME,
       );
     }
-    if (
-      prevAccountMnemoincRef.current &&
-      sparkWallet[hashedMnemoinc].listenerCount('transfer:claimed')
-    ) {
-      sparkWallet[hashedMnemoinc]?.removeAllListeners('transfer:claimed');
-    }
+    // if (
+    //   prevAccountMnemoincRef.current &&
+    //   sparkWallet[hashedMnemoinc].listenerCount('transfer:claimed')
+    // ) {
+    //   sparkWallet[hashedMnemoinc]?.removeAllListeners('transfer:claimed');
+    // }
     prevAccountMnemoincRef.current = currentWalletMnemoinc;
 
     // Clear debounce timeout when removing listeners
@@ -510,6 +520,7 @@ const SparkWalletProvider = ({ children }) => {
         const savedTxMap = new Map(allTxs.map(tx => [tx.sparkID, tx]));
         const depoistAddress = await queryAllStaticDepositAddresses(
           currentWalletMnemoinc,
+          sendWebViewRequest,
         );
 
         for (const address of depoistAddress) {
@@ -534,6 +545,7 @@ const SparkWalletProvider = ({ children }) => {
               await getSparkStaticBitcoinL1AddressQuote(
                 txid.txid,
                 currentWalletMnemoinc,
+                sendWebViewRequest,
               );
             const hasAlreadySaved = savedTxMap.has(txid.txid);
 
@@ -573,6 +585,7 @@ const SparkWalletProvider = ({ children }) => {
               ...quote,
               sspSignature: quote.signature,
               mnemonic: currentWalletMnemoinc,
+              sendWebViewRequest,
             });
 
             if (!claimTx || !didWork) {
@@ -608,6 +621,7 @@ const SparkWalletProvider = ({ children }) => {
               claimTx.transferId,
               5,
               currentWalletMnemoinc,
+              sendWebViewRequest,
             );
 
             let updatedTx = {};
@@ -713,6 +727,7 @@ const SparkWalletProvider = ({ children }) => {
         // toggleGlobalContactsInformation,
         // globalContactsInformation,
         mnemonic: accountMnemoinc,
+        sendWebViewRequest,
       });
       if (!didWork) {
         setSparkInformation(prev => ({ ...prev, didConnect: false }));

@@ -1,10 +1,10 @@
-import {InputTypes} from 'bitcoin-address-parser';
+import { InputTypes } from 'bitcoin-address-parser';
 import {
   SATSPERBITCOIN,
   SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
 } from '../../../../../constants';
-import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
-import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
+import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
+import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 
 export default async function processBitcoinAddress(input, context) {
   const {
@@ -14,6 +14,7 @@ export default async function processBitcoinAddress(input, context) {
     fiatStats,
     paymentInfo,
     currentWalletMnemoinc,
+    sendWebViewRequest,
   } = context;
 
   crashlyticsLogReport('Begining decode Bitcoin address');
@@ -59,6 +60,7 @@ export default async function processBitcoinAddress(input, context) {
         amountSats: amountSat,
         masterInfoObject,
         mnemonic: currentWalletMnemoinc,
+        sendWebViewRequest,
       });
 
       if (!paymentFeeResponse.didWork)

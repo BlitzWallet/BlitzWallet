@@ -1,10 +1,10 @@
-import React, {useState, useMemo} from 'react';
-import {useNavigation} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {useAppStatus} from '../../../../../../context-store/appStatus';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import React, { useState, useMemo } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import { useAppStatus } from '../../../../../../context-store/appStatus';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 
@@ -12,7 +12,7 @@ import {
   CENTER,
   SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
 } from '../../../../../constants';
-import {InputTypes} from 'bitcoin-address-parser';
+import { InputTypes } from 'bitcoin-address-parser';
 
 export default function AcceptButtonSendPage({
   canSendPayment,
@@ -34,15 +34,16 @@ export default function AcceptButtonSendPage({
   seletctedToken,
   isLRC20Payment,
   useAltLayout,
+  sendWebViewRequest,
 }) {
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
 
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {liquidNodeInformation, fiatStats} = useNodeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { liquidNodeInformation, fiatStats } = useNodeContext();
   // const {minMaxLiquidSwapAmounts} = useAppStatus();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
 
   // const isLiquidAmountValid = useMemo(() => {
   //   if (!isLiquidPayment) return true;
@@ -240,6 +241,7 @@ export default function AcceptButtonSendPage({
         seletctedToken,
         currentWalletMnemoinc,
         t,
+        sendWebViewRequest,
       });
     } catch (error) {
       console.log('Accept button error:', error);
