@@ -1616,7 +1616,7 @@
       "zapped": "Você recebeu um Zap {{totalAmount}}",
       "regular": "Você acabou de receber {{totalAmount}}"
     },
-    "POS": "Order received: {{totalAmount}}",
+    "POS": "Pedido recebido: {{totalAmount}}",
     "contacts": {
       "updateMessage": "{{name}} {{option}} your request",
       "request": "{{name}} requested you {{amount}}",
