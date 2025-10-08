@@ -749,56 +749,56 @@
       },
 
       "sendPage": {
-        "startingSendingMessage": "Creating send order",
-        "phoneNumberInputDescription": "Enter phone number",
-        "phoneNumberCountryDescription": "Phone number country",
-        "messageInputDescription": "Enter message",
-        "sendBTN": "Send message",
-        "invalidInputError": "Must have a {{errorTyoe}}",
-        "invalidCountryError": "Not a valid country",
-        "payingMessage": "Paying...",
-        "runningTries": "Running {{runCount}} for {{maxTries}} tries",
-        "notAbleToSettleInvoice": "Not able to settle invoice.",
-        "paymentMemo": "Store - SMS Send"
+        "startingSendingMessage": "Criando ordem de envio",
+        "phoneNumberInputDescription": "Digite o número de telefone",
+        "phoneNumberCountryDescription": "País do número de telefone",
+        "messageInputDescription": "Digite a mensagem",
+        "sendBTN": "Enviar mensagem",
+        "invalidInputError": "Deve ter um {{errorTyoe}}",
+        "invalidCountryError": "Não é um país válido",
+        "payingMessage": "Pagando...",
+        "runningTries": "Executando {{runCount}} para {{maxTries}} tentativas",
+        "notAbleToSettleInvoice": "Não fi possível liquidar a fatura.",
+        "paymentMemo": "Loja - Envio de SMS"
       },
       "sentPayments": {
-        "titlesend": "Sent Messages",
-        "titlereceive": "Received Codes",
-        "noPaymentssend": "You have not sent any messages",
-        "noPaymentsreceive": "You have not received any codes",
-        "helpMessage": "For help, reach out to:",
-        "orderId": "Order ID",
-        "pending": "Order pending",
-        "refunded": "Order refunded",
-        "retryClaim": "Get code",
-        "fetchOrderError": "Failed to fetch order status",
-        "failedUpdate": "Failed to update order status",
-        "refundedOrder": "Order has been refunded, funds will automatically return to your wallet after 21 minutes",
-        "reclaimComplete": "Rety complete. If no code is generated, you will be auto-refunded after 21 minutes.",
-        "noCode": "No code",
-        "rateLimitError": "Too many requests. You can only make 5 requests every 30 seconds. Please wait before trying again."
+        "titlesend": "Mensagens enviadas",
+        "titlereceive": "Códigos recebidos",
+        "noPaymentssend": "Você não enviou nenhuma mensagem",
+        "noPaymentsreceive": "Você não recebeu nenhum código",
+        "helpMessage": "Para obter ajuda, entre em contato com:",
+        "orderId": "ID da ordem",
+        "pending": "Ordem pendente",
+        "refunded": "Ordem reembolsada",
+        "retryClaim": "Obter código",
+        "fetchOrderError": "Falha ao obter o status do pedido",
+        "failedUpdate": "Falha ao atualizar o status do pedido",
+        "refundedOrder": "A ordem foi reembolsada, os fundos retornarão automaticamente para sua carteira após 21 minutos",
+        "reclaimComplete": "Reenvio concluído. Se nenhum código for gerado, você será reembolsado automaticamente após 21 minutos.",
+        "noCode": "Sem código",
+        "rateLimitError": "Excesso de solicitações. Você só pode fazer 5 solicitações a cada 30 segundos. Aguarde antes de tentar novamente."
       },
       "receivePage": {
-        "paymentMemo": "Store - SMS Receive",
-        "selectCountry": "Select Country",
-        "autoSelectInfoMessage": "Choose the country of the phone number you want to use. For the best chance of receiving your code, we recommend keeping it on Auto Select so the system picks the most reliable option.",
-        "autoSelect": "Auto Select",
-        "inputPlaceholder": "Search for a service",
-        "loacationLoadingMessage": "Getting location-based services",
-        "noAvailableServices": "This location has no services",
-        "orderDetailsLoading": "Getting order details"
+        "paymentMemo": "Loja - Receber SMS",
+        "selectCountry": "Selecione o país",
+        "autoSelectInfoMessage": "Selecione o país do número de telefone que você deseja usar. Para ter mais chances de receber seu código, recomendamos mantê-lo em seleção automática para que o sistema escolha a opção mais confiável.",
+        "autoSelect": "Seleção automática",
+        "inputPlaceholder": "Pesquisar um serviço",
+        "loacationLoadingMessage": "Obtendo serviços baseados em localização",
+        "noAvailableServices": "Este local não possui serviços",
+        "orderDetailsLoading": "Obtendo detalhes do pedido"
       },
       "confirmCodePage": {
-        "header": "Your order has been successfully initiated. Here's what happens next:",
-        "phoneNumberLabel": "Your Number:",
-        "step1": "• Click the receipt icon in the top right to view your order history",
-        "step2": "• Use the 'Get Code' button to retrieve your verification code, after adding the number to the service",
-        "step3": "• If no code is received, your payment will be automatically refunded in 21 minutes",
-        "automaticRefund": "No number was available for this service. Your funds have already been refunded.",
-        "waitedRefund": "No number was available for this service. Your funds will be refunded automatically after 21 minutes."
+        "header": "Seu pedido foi iniciado com sucesso. Veja o que acontece em seguida:",
+        "phoneNumberLabel": "Seu número:",
+        "step1": "• Clique no ícone de recibo no canto superior direito para visualizar seu histórico de pedidos",
+        "step2": "• Use o botão 'Obter código' para recuperar seu código de verificação, após adicionar o número ao serviço",
+        "step3": "• Se nenhum código for recebido, seu pagamento será reembolsado automaticamente em 21 minutos",
+        "automaticRefund": "Nenhum número estava disponível para este serviço. Seus fundos já foram reembolsados.",
+        "waitedRefund": "Nenhum número estava disponível para este serviço. Seus fundos serão reembolsados ​​automaticamente após 21 minutos."
       },
       "viewSMSReceiveCode": {
-        "header": "Your code"
+        "header": "Seu código"
       }
     },
     "onlineListings": {
@@ -867,7 +867,7 @@
     },
     "receivePages": {
       "editPaymentInfo": {
-        "receive_amount": "receive amount",
+        "receive_amount": "receber quantia",
         "descriptionInputPlaceholder": "Descrição..."
       },
       "buttonContainer": {
@@ -876,8 +876,8 @@
       },
 
       "switchReceiveOptionPage": {
-        "title": "Escolher Rede",
-        "actionBTN": "Show {{action}}",
+        "title": "Escolher rede",
+        "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Receiving directly via Spark will expose your balance to the person paying and is not considered private.",
         "swapWarning": "{{swapType}} payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the {{swapType}} payment is confirmed.",
         "unalignedSeeds": "Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.",
