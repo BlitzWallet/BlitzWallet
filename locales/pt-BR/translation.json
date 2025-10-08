@@ -249,7 +249,7 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Since biometric setting are enabled you cannot use the default pin login method. Would you like to terminate your account?",
+      "isBiometricEnabledConfirmAction": "Como as configurações biométricas estão ativadas, você não pode usar o método de login com PIN padrão. Deseja encerrar sua conta?",
       "wrongPinError": "PIN incorreto, tente novamente",
       "enterPinMessage": "Inserir PIN",
       "attemptsText": "{{attempts}} tentativas restantes"
@@ -279,7 +279,7 @@
         "backupPaymentError": "Erro ao pagar fatura.",
         "createInvoiceError": "Erro ao criar fatura.",
         "payingInvoiveError": "Erro ao pagar fatura.",
-        "runningTries": "Running {{runCount}} for {{maxTries}} tries",
+        "runningTries": "Executando {{runCount}} para {{maxTries}} tentativas",
         "configError": "Não foi possível obter a configuração da VPN. Entre em contato com a LNVPN.",
         "paymentMemo": "Loja - VPN"
       },
@@ -340,7 +340,7 @@
         "price": "Preço: ",
         "estSearches": "Est. de pesquisas: {{num}}",
         "casualPlanTitle": "Plano Casual",
-        "proPlanTitle": "Pano Pro",
+        "proPlanTitle": "Plano Pro",
         "powerPlanTitle": "Plano Power",
         "paymentMemo": "Loja - chatGPT",
         "notAvailableMessage": "Infelizmente, devido às diretrizes de compra no aplicativo da Apple, esse recurso não está disponível no iOS no momento. Estamos explorando maneiras de trazê-lo para o iOS no futuro."
@@ -878,17 +878,17 @@
       "switchReceiveOptionPage": {
         "title": "Escolher rede",
         "actionBTN": "Mostrar {{action}}",
-        "sparkWarningMessage": "Receiving directly via Spark will expose your balance to the person paying and is not considered private.",
-        "swapWarning": "{{swapType}} payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the {{swapType}} payment is confirmed.",
-        "unalignedSeeds": "Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.",
-        "rootstockWarningText": "Rootstock payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the Rootsock payment is confirmed.",
+        "sparkWarningMessage": "Receber diretamente via Spark exporá seu saldo à pessoa que está pagando e não é considerado privado.",
+        "swapWarning": "{{swapType}} os pagamentos serão trocados para Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após o {{swapType}} pagamento ser confirmado.",
+        "unalignedSeeds": "Aviso: Você não está usando sua conta da carteira principal. Todos os swaps da Liquid serão enviados para sua carteira principal.",
+        "rootstockWarningText": "Os pagamentos Rootstock serão trocados por Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após a confirmação do pagamento Rootstock.",
         "oneMinute": "~ {{numMins}} minuto",
         "tenMinutes": "~ {{numMins}} minutos",
-        "notUsingMainAccountWarning": "Warning: You’re not using your main wallet account. All {{swapType}} swaps will be sent to your main wallet."
+        "notUsingMainAccountWarning": "Aviso: Você não está usando sua conta da carteira principal. Todos {{swapType}} fundos trocados serão enviadas para sua carteira principal."
       },
       "editLNURLContact": {
-        "informationMessage": "Changing your username updates how others find you in Blitz Contacts and your Lightning address (username @blitzwalletapp.com).\n\nA Lightning address lets others easily send you Bitcoin. Just share your address (username@blitzwalletapp.com) to get paid.",
-        "usernameInputDesc": "Edit Username"
+        "informationMessage": "Alterar seu nome de usuário atualiza a forma como outras pessoas o encontram nos contatos Blitz e seu endereço Lightning (usuário @blitzwalletapp.com).\n\nUm endereço Lightning permite que outras pessoas lhe enviem Bitcoin facilmente. Basta compartilhar seu endereço (usuário@blitzwalletapp.com) para receber um pagamento.",
+        "usernameInputDesc": "Editar nome de usuário"
       }
     },
     "sendPages": {
@@ -900,22 +900,22 @@
         "connectToSparkMessage": "Conectando à Spark"
       },
       "handlingAddressErrors": {
-        "invlidFormat": "Addresses should be text only. Please check and try again.",
-        "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark, on-chain, LNURL, or BOLT11 invoice.",
-        "paymentProcessingError": "Error processing payment info",
-        "tooLowSendingAmount": "The sending amount is too high to cover the payment and fees. Maximum send amount is {{amount}}",
-        "processInputError": "Unable to process input",
-        "unkonwDecodeError": "Unknown decoding error occurred",
-        "invalidInputType": "Not a valid address type",
-        "expiredLightningInvoice": "This lightning invoice has expired",
-        "lnurlAuthStartMeessage": "Starting LNURL auth",
-        "lnurlFailedAuthMessage": "Failed to authenticate LNURL",
-        "lnurlConfirmMessage": "LNURL successfully authenticated",
-        "lnurlPayInvoiceError": "Unable to retrive invoice from LNURL, please try again.",
-        "lnurlWithdrawlStart": "Generating invoice for withdrawl",
-        "lnurlWithdrawlInvoiceError": "Unable to generate invoice for lnurl withdrawl",
-        "waitingForLnurlWithdrawl": "Waiting for payment...",
-        "lnurlWithdrawlSuccess": "Withdrawal successful! Your payment is on its way.",
+        "invlidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
+        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira uma fatura Spark, endereço on-chain, LNURL ou BOLT11 válidos.",
+        "paymentProcessingError": "Erro ao processar informações de pagamento",
+        "tooLowSendingAmount": "O valor do envio é muito alto para cobrir o pagamento e as taxas. O valor máximo de envio é {{amount}}",
+        "processInputError": "Não é possível processar a entrada",
+        "unkonwDecodeError": "Ocorreu um erro de decodificação desconhecido",
+        "invalidInputType": "Não é um tipo de endereço válido",
+        "expiredLightningInvoice": "Esta fatura lightning expirou",
+        "lnurlAuthStartMeessage": "Iniciando autenticação LNURL",
+        "lnurlFailedAuthMessage": "Falha ao autenticar LNURL",
+        "lnurlConfirmMessage": "LNURL autenticado com sucesso",
+        "lnurlPayInvoiceError": "Não foi possível recuperar os dados da fatura a partir do LNURL, tente novamente.",
+        "lnurlWithdrawlStart": "Gerando fatura para saque",
+        "lnurlWithdrawlInvoiceError": "Não foi possível gerar a fatura para retirada a partir do lnurl",
+        "waitingForLnurlWithdrawl": "Aguardando pagamento...",
+        "lnurlWithdrawlSuccess": "Saque realizado com sucesso! Seu pagamento está a caminho.",
         "invoiceDetails": "Carregando detalhes"
       },
 
@@ -964,12 +964,12 @@
         "noTokensFoundText": "Nenhum token encontrado"
       },
       "manualEnterSendAddress": {
-        "title": "Enter in destination",
+        "title": "Digite o destino",
         "paymentTypesDesc": "A carteira Blitz pode enviar para endereços Spark, on-chain, LNURL e BOLT 11"
       },
       "sparkErrorScreen": {
-        "connectionError": "We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your seed phrase keeps your funds safe.",
-        "retry": "We couldn’t load your wallet right now. Please try again. \n\nYour funds are safe as long as you have your seed phrase."
+        "connectionError": "Estamos com problemas para conectar à sua carteira. Por favor, informe-nos sobre este problema.\n\nLembre-se de que sua frase-semente mantém seus fundos seguros.",
+        "retry": "Não foi possível carregar sua carteira. Por favor, tente novamente. \n\nSeus fundos estarão seguros enquanto você tiver sua frase-semente."
       }
     },
     "exportTransactions": {
@@ -982,7 +982,7 @@
       "title": "Exporte seu histórico de pagamentos no formato CSV (valores separados por vírgula).",
       "paymentsCounter": "{{number}} pagamentos",
       "paymentsCounterTracker": "{{number}} do {{total}}",
-      "loadingMessage": "Loading saved transactions"
+      "loadingMessage": "Carregando transações salvas"
     }
   },
 
@@ -1016,66 +1016,66 @@
     "editMyProfilePage": {
       "navTitle": "Editar perfil de contato",
       "nameInputDesc": "Nome",
-      "nameInputPlaceholder": "Enter your name",
-      "lnurlInputDesc": "LNURL Address",
-      "lnurlInputPlaceholder": "Enter your LNURL address",
+      "nameInputPlaceholder": "Digite seu nome",
+      "lnurlInputDesc": "Endereço LNURL",
+      "lnurlInputPlaceholder": "Digite seu endereço LNURL",
       "uniqueNameInputDesc": "Nome de usuário",
-      "uniqueNameInputPlaceholder": "Enter your username",
+      "uniqueNameInputPlaceholder": "Digite seu nome de usuário",
       "bioInputDesc": "Bio",
       "bioInputPlaceholder": "Digite uma introdução curta",
-      "addContactBTN": " Add Contact",
-      "unqiueNameRegexError": "You can only have letters, numbers, or underscores in your username, and must contain at least 1 letter.",
-      "usernameAlreadyExistsError": "This username already exists, please choose another.",
-      "unableToSaveError": "Unable to save profile image, please try again.",
-      "deleteProfileImageError": "Unable to delete profile image, please try again."
+      "addContactBTN": " Adicionar contato",
+      "unqiueNameRegexError": "O nome de usuário só pode ter letras, números ou sublinhados e deve conter pelo menos 1 letra.",
+      "usernameAlreadyExistsError": "Este nome de usuário já existe, escolha outro.",
+      "unableToSaveError": "Não foi possível salvar a imagem do perfil, tente novamente.",
+      "deleteProfileImageError": "Não foi possível excluir a imagem do perfil, tente novamente."
     },
 
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Payment description",
+      "descriptionPlaceholder": "Descrição do pagamento",
       "profileMessage": "Pagando {{name}}",
       "contactMessage": "{{name}} pagou você",
-      "giftCardappVersionError": "You cannot send a gift card to this contact. They have not updated to the latest verison of Blitz Wallet.",
-      "giftCardDescription": "You sent {{name}} a {{giftCardName}} Gift Card",
-      "cardDetailsError": "We couldn’t load your gift card right now. Please try again.",
-      "giftCardRange": "Send {{amount}} - {{amount2}}",
-      "giftCardAmountError": "Enter a value of at least {{amount}} and up to {{amount2}}",
-      "sendGiftText": "Send gift",
-      "notVariableCard": "This gift card has a fixed amount. You can only send the price shown above.",
-      "giftCardText": "{{giftName}} Gift Card",
-      "giftMessage": "Gift Message"
+      "giftCardappVersionError": "Você não pode enviar um vale-presente para este contato. Eles não atualizaram para a versão mais recente da carteira Blitz.",
+      "giftCardDescription": "Você enviou {{name}} um {{giftCardName}} Cartão Presente",
+      "cardDetailsError": "Não foi possível carregar seu vale-presente neste momento. Tente novamente.",
+      "giftCardRange": "Enviar {{amount}} - {{amount2}}",
+      "giftCardAmountError": "Insira um valor de pelo menos {{amount}} e até {{amount2}}",
+      "sendGiftText": "Enviar presente",
+      "notVariableCard": "Este vale-presente tem um valor fixo. Você só pode enviar o valor mostrado acima.",
+      "giftCardText": "{{giftName}} Cartão Presente",
+      "giftMessage": "Mensagem de presente"
     },
     "viewGiftCardCode": {
-      "noCardInfoError": "We couldn't load your gift card right now. Please try again.",
-      "loadingMessage": "Loading gift card information...",
-      "valueHeader": "Gift Card Value",
-      "redeemHeader": "How to Redeem",
-      "openClaimText": "Open Gift Card",
-      "instructionsHeader": "Redemption Instructions",
-      "terms&conditions": "Terms & Conditions",
-      "cardUUID": "Card UUID",
-      "helpHeader": "Need Help?",
-      "helpDesc": "If you need assistance with this gift card, copy the Card UUID above and include it in your email to our support team.",
-      "unpaidMessage": "This card is unpaid. If payment was made but not reflected, please use the email below to get help.",
-      "messageLabel": "Message:",
-      "claimed": "Used",
-      "markAsClaimed": "Mark as Used"
+      "noCardInfoError": "Não foi possível carregar seu vale-presente neste momento. Tente novamente.",
+      "loadingMessage": "Carregando informações do vale-presente...",
+      "valueHeader": "Valor do vale-presente",
+      "redeemHeader": "Como resgatar",
+      "openClaimText": "Abrir Cartão Presente",
+      "instructionsHeader": "Instruções para resgate",
+      "terms&conditions": "Termos & Condições",
+      "cardUUID": "Cartão UUID",
+      "helpHeader": "Precisa de ajuda?",
+      "helpDesc": "Se precisar de ajuda com este cartão-presente, copie o UUID do cartão acima e envie para o e-mail da nossa equipe de suporte.",
+      "unpaidMessage": "Este cartão não está pago. Se o pagamento foi efetuado, mas não foi reconhecido, use o e-mail abaixo para obter ajuda.",
+      "messageLabel": "Mesangem:",
+      "claimed": "Usado",
+      "markAsClaimed": "Marcar como usado"
     },
 
     "selectGiftPage": {
-      "noCards": "No cards available",
-      "header": "Select the Gift Card you want to send",
-      "inputPlaceholder": "Search for a Gift Card"
+      "noCards": "Nenhum cartão disponível",
+      "header": "Selecione o vale-presente que deseja enviar",
+      "inputPlaceholder": "Procure um vale-presente"
     },
 
     "internalComponents": {
       "addOrDeleteImageScreen": {
-        "pageMessage": "Do you want to {{option}} {{option2}} photo"
+        "pageMessage": "Você deseja a {{option}} {{option2}} da foto"
       },
       "contactsTransactions": {
-        "pushNotificationUpdateMessage": "{{name}} {{option}} your request",
-        "acceptProfileMessage": "Paid {{name}}'s request",
-        "acceptPayingContactMessage": "{{name}} paid your request",
-        "requestTitle": "Received request for "
+        "pushNotificationUpdateMessage": "{{name}} {{option}} seu pedido",
+        "acceptProfileMessage": "Pago {{name}}'s pedido",
+        "acceptPayingContactMessage": "{{name}} pagou seu pedido",
+        "requestTitle": "Peddo recebido para "
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Cartão Presente",
