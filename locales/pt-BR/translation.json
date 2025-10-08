@@ -336,14 +336,14 @@
         "title": "Adicionar créditos",
         "description": "Para usar os modelos de IA generativa mais recentes, você precisa comprar créditos. Escolha uma opção abaixo para começar.",
         "supportedModels": "Modelos suportados",
-        "feeInfo": "Depending on the length of your question and response, the number of searches you get might be different. Blitz adds a 150 sat fee + 0.5% of purchase price onto all purchases.",
+        "feeInfo": "Dependendo do tamanho da sua pergunta e resposta, o número de pesquisas que você obtém pode ser diferente. A Blitz adiciona uma taxa de 150 sat + 0,5% do preço de compra em todas as compras.",
         "price": "Preço: ",
-        "estSearches": "Est. searches: {{num}}",
-        "casualPlanTitle": "Casual Plan",
-        "proPlanTitle": "Pro Plan",
-        "powerPlanTitle": "Power Plan",
-        "paymentMemo": "Store - chatGPT",
-        "notAvailableMessage": "Unfortunately, due to Apple’s in-app purchase guidelines, this feature is not currently available on iOS. We’re exploring ways to bring it to iOS in the future."
+        "estSearches": "Est. de pesquisas: {{num}}",
+        "casualPlanTitle": "Plano Casual",
+        "proPlanTitle": "Pano Pro",
+        "powerPlanTitle": "Plano Power",
+        "paymentMemo": "Loja - chatGPT",
+        "notAvailableMessage": "Infelizmente, devido às diretrizes de compra no aplicativo da Apple, esse recurso não está disponível no iOS no momento. Estamos explorando maneiras de trazê-lo para o iOS no futuro."
       },
       "countrySearch": {
         "inputPlaceholder": "Pesquisar um país"
@@ -365,86 +365,86 @@
       },
 
       "switchModel": {
-        "inputLabel": "Input: {{amount}}/M",
-        "outputLabel": "Output: {{amount}}/M",
-        "chooseModel": "Choose Model",
-        "noModels": "No models match that name. Please check the spelling or try a different name."
+        "inputLabel": "Entrada: {{amount}}/M",
+        "outputLabel": "Saída: {{amount}}/M",
+        "chooseModel": "Escolha o modelo",
+        "noModels": "Nenhum modelo corresponde a esse nome. Verifique a ortografia ou tente um nome diferente."
       },
 
       "exampleSearchCards": {
-        "title": "Example Search Cards",
+        "title": "Exemplos de pesquisas",
         "examples": [
           {
-            "topLine": "How do I start learning React Native?",
-            "bottomLine": "like I have never coded before"
+            "topLine": "Como começo a aprender React Native?",
+            "bottomLine": "como se eu nunca tivesse programado antes"
           },
           {
-            "topLine": "What is the difference between Web2 and Web3?",
-            "bottomLine": "like I'm a teenager"
+            "topLine": "Qual é a diferença entre Web2 e Web3?",
+            "bottomLine": "como se eu fosse um adolescente"
           },
           {
-            "topLine": "How does the stock market work?",
-            "bottomLine": "like I am 12"
+            "topLine": "Como funciona o mercado de ações?",
+            "bottomLine": "como se eu tivesse 12 anos"
           },
           {
-            "topLine": "What is quantum computing?",
-            "bottomLine": "like I'm 10 years old"
+            "topLine": "O que é computação quântica?",
+            "bottomLine": "como se eu tivesse 10 anos"
           },
           {
-            "topLine": "Explain climate change",
-            "bottomLine": "like I’m 8"
+            "topLine": "Explique as mudanças climáticas",
+            "bottomLine": "como se eu tivesse 8 anos"
           },
           {
-            "topLine": "What is artificial intelligence?",
-            "bottomLine": "like I'm a high schooler"
+            "topLine": "O que é inteligência artificial?",
+            "bottomLine": "como se eu fosse um estudante do ensino médio"
           },
           {
-            "topLine": "How do credit cards work?",
-            "bottomLine": "like I am 15"
+            "topLine": "Como funcionam os cartões de crédito?",
+            "bottomLine": "como se eu tivesse 15 anos"
           },
           {
-            "topLine": "What is blockchain technology?",
-            "bottomLine": "like I am in middle school"
+            "topLine": "O que é a tecnologia blockchain?",
+            "bottomLine": "como se eu estivesse no ensino médio"
           },
           {
-            "topLine": "How does GPS work?",
-            "bottomLine": "like I’m 7 years old"
+            "topLine": "Como funciona o GPS?",
+            "bottomLine": "como se eu tivesse 7 anos"
           },
           {
-            "topLine": "Explain how airplanes fly",
-            "bottomLine": "like I'm 9"
+            "topLine": "Explique como os aviões voam",
+            "bottomLine": "como se eu tivesse 9 anos"
           },
           {
-            "topLine": "What is a meme?",
-            "bottomLine": "like I’m a grandparent"
+            "topLine": "O que é um meme?",
+            "bottomLine": "como se eu fosse um avô"
           },
           {
-            "topLine": "How do wireless networks work?",
-            "bottomLine": "like I'm a beginner"
+            "topLine": "Como funcionam as redes sem fio?",
+            "bottomLine": "como se eu fosse um iniciante"
           },
           {
-            "topLine": "What is cryptocurrency?",
-            "bottomLine": "like I am a teenager"
+            "topLine": "O que é criptomoeda?",
+            "bottomLine": "como se eu fosse um adolescente"
           },
           {
-            "topLine": "How does the internet work?",
-            "bottomLine": "like I am 6"
+            "topLine": "Como funciona a internet?",
+            "bottomLine": "como se eu tivesse 6 anos"
           },
           {
-            "topLine": "What is an API?",
-            "bottomLine": "like I am new to programming"
+            "topLine": "O que é uma API?",
+            "bottomLine": "como se eu fosse novo em programação"
           },
           {
-            "topLine": "Explain photosynthesis",
-            "bottomLine": "like I'm in 5th grade"
+            "topLine": "Explique a fotossíntese",
+            "bottomLine": "como se eu estivesse na 5ª série"
           },
           {
-            "topLine": "How do electric cars work?",
-            "bottomLine": "like I’m 14"
+            "topLine": "Como funcionam os carros elétricos?",
+            "bottomLine": "como se eu tivesse 14 anos"
           },
           {
-            "topLine": "What is a smart contract?",
-            "bottomLine": "like I am in high school"
+            "topLine": "O que é um contrato inteligente?",
+            "bottomLine": "como se eu estivesse no ensino médio"
           },
           {
             "topLine": "How does space travel work?",
