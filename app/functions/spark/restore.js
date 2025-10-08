@@ -409,12 +409,15 @@ async function processLightningTransactions(
     const batch = lightningTxs.slice(i, i + CONCURRENCY_LIMIT);
 
     const batchPromises = batch.map(tx =>
-      processLightningTransaction(tx, unpaidInvoicesByAmount, mnemonic).catch(
-        err => {
-          console.error('Error processing lightning tx:', tx.sparkID, err);
-          return null;
-        },
-      ),
+      processLightningTransaction(
+        tx,
+        unpaidInvoicesByAmount,
+        mnemonic,
+        sendWebViewRequest,
+      ).catch(err => {
+        console.error('Error processing lightning tx:', tx.sparkID, err);
+        return null;
+      }),
     );
 
     const results = await Promise.all(batchPromises);
@@ -439,6 +442,7 @@ async function processLightningTransactions(
       cachedTransfers,
       mnemonic,
       sendWebViewRequest,
+      100,
     );
 
     if (findTxResponse.offset && findTxResponse.foundTransfers) {
@@ -697,6 +701,7 @@ async function processBitcoinTransactions(
         cachedTransfers,
         mnemonic,
         sendWebViewRequest,
+        50,
       );
 
       if (findTxResponse.offset && findTxResponse.foundTransfers) {

@@ -47,7 +47,11 @@ import { getLRC20Transactions } from '../app/functions/lrc20';
 import { useActiveCustodyAccount } from './activeAccount';
 import sha256Hash from '../app/functions/hash';
 import i18n from 'i18next';
-import { useWebView } from './webViewContext';
+import {
+  INCOMING_SPARK_TX_NAME,
+  incomingSparkTransaction,
+  useWebView,
+} from './webViewContext';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -84,11 +88,22 @@ const SparkWalletProvider = ({ children }) => {
   const isInitialLRC20Run = useRef(true);
   const didInitializeSendingPaymentEvent = useRef(false);
   const initialBitcoinIntervalRun = useRef(null);
+  const sparkInfoRef = useRef(sparkInformation);
+  const sessionTimeRef = useRef(sessionTime);
   const [numberOfCachedTxs, setNumberOfCachedTxs] = useState(0);
+  const handledTransfers = useRef(new Set());
 
   const sessionTime = useMemo(() => {
     return Date.now();
   }, [currentWalletMnemoinc]);
+
+  useEffect(() => {
+    sparkInfoRef.current = sparkInformation;
+  }, [sparkInformation]);
+
+  useEffect(() => {
+    sessionTimeRef.current = sessionTime;
+  }, [sessionTime]);
 
   // Debounce refs
   const debounceTimeoutRef = useRef(null);
@@ -115,6 +130,7 @@ const SparkWalletProvider = ({ children }) => {
     balance,
   ) => {
     try {
+      console.log(recevedTxId, transactions, balance);
       if (!transactions)
         throw new Error('Unable to get transactions from spark');
       const { transfers } = transactions;
@@ -145,11 +161,11 @@ const SparkWalletProvider = ({ children }) => {
       const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
       const paymentObject = await transformTxToPaymentObject(
         selectedSparkTransaction,
-        sparkInformation.sparkAddress,
+        sparkInfoRef.current.sparkAddress,
         undefined,
         false,
         unpaidInvoices,
-        sparkInformation.identityPubKey,
+        sparkInfoRef.current.identityPubKey,
       );
 
       if (paymentObject) {
@@ -163,7 +179,7 @@ const SparkWalletProvider = ({ children }) => {
 
       const savedTxs = await getAllSparkTransactions({
         limit: 5,
-        accountId: sparkInformation.identityPubKey,
+        accountId: sparkInfoRef.current.identityPubKey,
       });
       return {
         txs: savedTxs,
@@ -215,7 +231,7 @@ const SparkWalletProvider = ({ children }) => {
     )
       return;
     if (details.isRestore) return;
-    if (storedTransaction.paymentCreatedTime < sessionTime) return;
+    if (storedTransaction.paymentCreatedTime < sessionTimeRef.current) return;
     // Handle confirm animation here
     setPendingNavigation({
       routes: [
@@ -256,8 +272,9 @@ const SparkWalletProvider = ({ children }) => {
             cachedTransfers,
             currentWalletMnemoinc,
             sendWebViewRequest,
+            5,
           );
-          if (findTxResponse.offset && findTxResponse.foundTransfers) {
+          if (findTxResponse.offset || findTxResponse.foundTransfers) {
             transfersOffset = findTxResponse.offset;
             cachedTransfers = findTxResponse.foundTransfers;
           }
@@ -278,7 +295,7 @@ const SparkWalletProvider = ({ children }) => {
         }
       }
     },
-    [currentWalletMnemoinc, sparkInformation.identityPubKey, sessionTime],
+    [currentWalletMnemoinc, sendWebViewRequest],
   );
 
   const handleUpdate = async (...args) => {
@@ -290,7 +307,7 @@ const SparkWalletProvider = ({ children }) => {
       );
       const txs = await getAllSparkTransactions({
         limit: null,
-        accountId: sparkInformation.identityPubKey,
+        accountId: sparkInfoRef.current.identityPubKey,
       });
       if (
         updateType === 'supportTx' ||
@@ -362,6 +379,8 @@ const SparkWalletProvider = ({ children }) => {
   };
 
   const transferHandler = (transferId, balance) => {
+    if (handledTransfers.current.has(transferId)) return;
+    handledTransfers.current.add(transferId);
     console.log(`Transfer ${transferId} claimed. New balance: ${balance}`);
 
     // Add transferId to pending set
@@ -377,6 +396,23 @@ const SparkWalletProvider = ({ children }) => {
       debouncedHandleIncomingPayment(balance);
     }, 500);
   };
+
+  useEffect(() => {
+    // setup listener for webview once
+    console.log('adding web view listeners');
+    console.log(
+      'number of current listeners',
+      incomingSparkTransaction.listenerCount(INCOMING_SPARK_TX_NAME),
+    );
+    if (incomingSparkTransaction.listenerCount(INCOMING_SPARK_TX_NAME)) {
+      incomingSparkTransaction.removeAllListeners(INCOMING_SPARK_TX_NAME);
+    }
+    console.log(
+      'number of current listeners after clearnig',
+      incomingSparkTransaction.listenerCount(INCOMING_SPARK_TX_NAME),
+    );
+    incomingSparkTransaction.on(INCOMING_SPARK_TX_NAME, transferHandler);
+  }, [sendWebViewRequest, currentWalletMnemoinc]);
 
   const addListeners = async mode => {
     console.log('Adding Spark listeners...');
@@ -398,17 +434,18 @@ const SparkWalletProvider = ({ children }) => {
       }
 
       await fullRestoreSparkState({
-        sparkAddress: sparkInformation.sparkAddress,
+        sparkAddress: sparkInfoRef.current.sparkAddress,
         batchSize: isInitialRestore.current ? 10 : 2,
         isSendingPayment: isSendingPayment,
         mnemonic: currentWalletMnemoinc,
-        identityPubKey: sparkInformation.identityPubKey,
+        identityPubKey: sparkInfoRef.current.identityPubKey,
         sendWebViewRequest,
       });
+      console.log(sendWebViewRequest, 'spark webciew request');
 
       await updateSparkTxStatus(
         currentWalletMnemoinc,
-        sparkInformation.identityPubKey,
+        sparkInfoRef.current.identityPubKey,
         sendWebViewRequest,
       );
 
@@ -418,14 +455,15 @@ const SparkWalletProvider = ({ children }) => {
       }
       updatePendingPaymentsIntervalRef.current = setInterval(async () => {
         try {
+          console.log(sendWebViewRequest, 'spark webciew request');
           await updateSparkTxStatus(
             currentWalletMnemoinc,
-            sparkInformation.identityPubKey,
+            sparkInfoRef.current.identityPubKey,
             sendWebViewRequest,
           );
           await getLRC20Transactions({
-            ownerPublicKeys: [sparkInformation.identityPubKey],
-            sparkAddress: sparkInformation.sparkAddress,
+            ownerPublicKeys: [sparkInfoRef.current.identityPubKey],
+            sparkAddress: sparkInfoRef.current.sparkAddress,
             isInitialRun: isInitialLRC20Run.current,
             mnemonic: currentWalletMnemoinc,
             sendWebViewRequest,
@@ -503,6 +541,7 @@ const SparkWalletProvider = ({ children }) => {
     didGetToHomepage,
     isSendingPayment,
     currentWalletMnemoinc,
+    sendWebViewRequest,
   ]);
 
   useEffect(() => {
@@ -736,7 +775,7 @@ const SparkWalletProvider = ({ children }) => {
         return;
       }
     });
-  }, [accountMnemoinc]);
+  }, [accountMnemoinc, sendWebViewRequest]);
 
   // Function to update db when all reqiured information is loaded
   useEffect(() => {

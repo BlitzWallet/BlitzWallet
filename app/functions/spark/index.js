@@ -561,6 +561,7 @@ export const getSparkTokenTransactions = async ({
   outputIds,
   mnemonic,
   sendWebViewRequest,
+  lastSavedTransactionId,
 }) => {
   try {
     const response = await sendWebViewRequest('getSparkTokenTransactions', {
@@ -570,6 +571,7 @@ export const getSparkTokenTransactions = async ({
       tokenTransactionHashes,
       tokenIdentifiers,
       outputIds,
+      lastSavedTransactionId,
     });
     if (!response) throw new Error('unable to get trasnactions');
     return response;
@@ -686,6 +688,7 @@ export const findTransactionTxFromTxHistory = async (
   previousTxs = [],
   mnemonic,
   sendWebViewRequest,
+  transferCount = 100,
 ) => {
   try {
     // Early return with cached transaction
@@ -706,12 +709,12 @@ export const findTransactionTxFromTxHistory = async (
     const maxAttempts = 20;
 
     while (offset < maxAttempts) {
-      const transfers = await getSparkTransactions(
-        100,
-        100 * offset,
+      const transfers = await sendWebViewRequest('getSparkTransactions', {
         mnemonic,
-        sendWebViewRequest,
-      );
+        transferCount: transferCount,
+        offsetIndex: transferCount * offset,
+      });
+
       foundTransfers = transfers.transfers;
 
       if (!foundTransfers.length) {

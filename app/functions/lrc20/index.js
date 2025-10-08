@@ -16,18 +16,29 @@ export async function getLRC20Transactions({
   mnemonic,
   sendWebViewRequest,
 }) {
-  const [storedDate, savedTxs, cachedTokens, tokenTxs] = await Promise.all([
+  const [storedDate, savedTxs, cachedTokens] = await Promise.all([
     getLocalStorageItem('lastRunLRC20Tokens').then(
       data => JSON.parse(data) || 0,
     ),
     getCachedSparkTransactions(null, ownerPublicKeys[0]),
     getCachedTokens(),
-    getSparkTokenTransactions({
-      ownerPublicKeys,
-      mnemonic,
-      sendWebViewRequest,
-    }),
   ]);
+
+  const lastSavedTokenTx = (savedTxs || []).find(tx => {
+    const parsed = JSON.parse(tx?.details);
+    return parsed?.isLRC20Payment;
+  });
+
+  const lastSavedTransactionId = lastSavedTokenTx
+    ? lastSavedTokenTx.sparkID || lastSavedTokenTx.id || null
+    : null;
+
+  const tokenTxs = await getSparkTokenTransactions({
+    ownerPublicKeys,
+    mnemonic,
+    sendWebViewRequest,
+    lastSavedTransactionId,
+  });
 
   if (!tokenTxs?.tokenTransactionsWithStatus) return;
   const hashedMnemoinc = sha256Hash(mnemonic);
