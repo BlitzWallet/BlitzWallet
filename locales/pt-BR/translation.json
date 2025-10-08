@@ -64,7 +64,7 @@
     "pin": "Pin",
     "noBioSet": "Sem bio definida",
     "noTransactions": "Envie ou solicite um pagamento para ver o histórico de transações.",
-    "leftPageMessage": "Where'd you go?",
+    "leftPageMessage": "Aonde você foi?",
     "tryAgain": "Tentar novamente",
     "noDescription": "Sem descrição",
     "slideToExport": "Deslize para exportar",
@@ -82,7 +82,7 @@
     "to": "Para",
     "from": "De",
     "description": "Descrição",
-    "regenerate": "Regenerate",
+    "regenerate": "Regenerada",
     "restore": "Restaurar",
     "words": "Palavras",
     "qrCode": "Código QR",
@@ -232,10 +232,10 @@
         "error1": "Por favor, insira todas as suas palavras.",
         "error2": "Esta não é uma frase semente válida",
         "error3": "Suas palavras não são as mesmas que as palavras geradas",
-        "noSeedInString": "Unable to find seed in string",
+        "noSeedInString": "Não foi possível encontrar a semente na string",
         "invalidWordLen": "Nem toda palavra tem comprimento válido",
         "cannotFind12Words": "Não foi possível encontrar 12 palavras da frase semente copiada.",
-        "noSeedInNumberArray": "Unable to find seed in number array",
+        "noSeedInNumberArray": "Não foi possível encontrar a semente na matriz numérica",
         "noSeedInQr": "Não foi possível obter a frase semente a partir do código QR",
         "scanQr": "Ler código QR"
       }
@@ -990,7 +990,7 @@
     "contactsPage": {
       "searchContactsPlaceholder": "Pesquisar contatos adicionados",
       "noContactsMessage": "Você não tem contatos",
-      "editContactProfileMessage": "Edit your profile to begin using contacts.",
+      "editContactProfileMessage": "Edite seu perfil para começar a usar contatos.",
       "addContactButton": "Adicionar contato",
       "editContactButton": "Editar perfil",
       "unknownSender": "Remetente desconhecido"
@@ -1158,7 +1158,7 @@
     "seedPhrase": {
       "header": "Guarde esta frase em um lugar seguro e protegido",
       "headerDesc": "Não compartilhe com ninguém!",
-      "qrWarning": "Are you sure you want to show this QR Code?\n\nScanning your seed is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe.",
+      "qrWarning": "Tem certeza de que deseja mostrar este código QR?\n\nLer sua frase-semente é prático, mas certifique-se de usar um dispositivo seguro e confiável. Isso ajuda a manter sua carteira segura.",
       "wordsText": "Palavras",
       "qrText": "Código QR",
       "showSeedWarning": "Tem certeza de que deseja mostrar sua frase semente?"
@@ -1176,13 +1176,13 @@
     },
     "resetWallet": {
       "header": "Tem certeza?",
-      "dataDeleteHeader": "Select data to delete from this device.",
-      "dataDeleteDesc": "Any option that is selected will be removed forever. If your seed is forgotten, you WILL lose your funds.",
-      "seedAndPinOpt": "Delete seed phrase and pin from my device",
-      "localData": "Delete locally stored data from my device",
-      "balanceText": "Your balance is",
-      "localStorageError": "Not able to delete local stored information",
-      "secureStorageError": "Not able to delete secure stored information"
+      "dataDeleteHeader": "Selecione os dados a serem excluídos deste dispositivo.",
+      "dataDeleteDesc": "Qualquer opção selecionada será removida para sempre. Se sua frase-semente for perdida, você PERDERÁ seus fundos.",
+      "seedAndPinOpt": "Excluir frase-semente e o PIN do meu dispositivo",
+      "localData": "Excluir dados armazenados localmente do meu dispositivo",
+      "balanceText": "Seu saldo é",
+      "localStorageError": "Não foi possível excluir as informações armazenadas localmente",
+      "secureStorageError": "Não foi possível excluir as informações armazenadas com segurança"
     },
     "sparkInfo": {
       "title": "Informações da carteira",
@@ -1190,10 +1190,10 @@
       "pubKey": "Chave pública"
     },
     "sparkLrc20": {
-      "balanceError": "Your current wallet balance is {{balance}}. Blitz adds a {{fee}} fee to all BTKN payments. Make sure you have some Bitcoin in your wallet to send tokens.",
-      "title": "Spark Settings",
+      "balanceError": "O saldo atual da sua carteira é {{balance}}. A Blitz adiciona uma {{fee}} taxa em todos os pagamentos BTKN. Certifique-se de ter Bitcoin na sua carteira antes de enviar tokens.",
+      "title": "Configurações Spark",
       "sliderTitle": "{{switchType}} BTKN",
-      "sliderDesc": "BTKN is Spark’s native token. Enabling BTKN allows you send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.\n\nBlitz also applies a {{fee}} fee to all token transactions, with 20% of that fee donated to support open-source Bitcoin development."
+      "sliderDesc": "BTKN é o padrão de tokens da Spark. Habilitar BTKN permite que você envie e receba tokens na rede Spark.\n\nBlitz é uma carteira focada em Bitcoin. Não promovemos nem endossamos o uso de tokens. Este recurso existe porque acreditamos que os usuários devem ter a liberdade de usar a tecnologia que desejarem..\n\nA Blitz cobra uma {{fee}} taxa em todas as transações de tokens, com 20% dessa taxa doada para apoiar o desenvolvimento do Bitcoin de código aberto."
     },
     "viewSwapsHome": {
       "swaps": "Trocas",
