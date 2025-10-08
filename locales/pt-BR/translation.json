@@ -271,21 +271,21 @@
     },
     "VPN": {
       "VPNPlanPage": {
-        "backupLoadingMessage": "Retriving invoice",
-        "countrySearchPlaceholder": "Search by country",
-        "createVPNBTN": "Buy VPN",
-        "noLocationError": "Please select a country for the VPN to be located in.",
+        "backupLoadingMessage": "Recuperando fatura",
+        "countrySearchPlaceholder": "Procurar por país",
+        "createVPNBTN": "Comprar VPN",
+        "noLocationError": "Selecione um país onde a VPN ficará localizada.",
         "payingInvoiceLoadingMessage": "Pagando fatura",
         "backupPaymentError": "Erro ao pagar fatura.",
         "createInvoiceError": "Erro ao criar fatura.",
         "payingInvoiveError": "Erro ao pagar fatura.",
         "runningTries": "Running {{runCount}} for {{maxTries}} tries",
-        "configError": "Not able to get VPN config, please reach out to LNVPN.",
-        "paymentMemo": "Store - VPN"
+        "configError": "Não foi possível obter a configuração da VPN. Entre em contato com a LNVPN.",
+        "paymentMemo": "Loja - VPN"
       },
       "confirmationSlideUp": {
         "invoiceInfoError": "Erro ao obter informações da fatura.",
-        "title": "Confirm VPN",
+        "title": "Confirmar VPN",
         "duration": "Duração: 1 {{duration}}",
         "price": "Preço: ",
         "fee": "Taxa: "
@@ -293,7 +293,7 @@
       "durationSlider": {
         "durationOption": "1 {{duration}}",
         "price": "Preço: ",
-        "noDurations": "No available durations",
+        "noDurations": "Nenhuma duração disponível",
         "duration": "Duração",
         "0.1": "hora",
         "0.5": "dia",
@@ -303,41 +303,41 @@
         "30": "ano"
       },
       "historicalPurchasesPage": {
-        "deleteVPNConfirmMessage": "Are you sure you want to remove this VPN.",
-        "country": "Country:",
-        "createdAt": "Created at:",
-        "duration": "Duration:",
-        "paymentHash": "Payment Hash:",
-        "title": "Purchases",
-        "retryClaim": "Trying to create file",
-        "noPurchases": "You have no VPN configuations",
-        "assistanceText": "For assistance, reach out to LNVPN",
-        "noValidCountryCodeError": "Not able to get valid country code",
-        "claimConfigError": "Not able to get VPN config, please reach out to LNVPN.",
-        "contact": "Contact"
+        "deleteVPNConfirmMessage": "Tem certeza de que deseja remover esta VPN?",
+        "country": "País:",
+        "createdAt": "Criado em:",
+        "duration": "Duração:",
+        "paymentHash": "Hash de pagamento:",
+        "title": "Compras",
+        "retryClaim": "Tentando criar arquivo",
+        "noPurchases": "Você não tem configurações de VPN",
+        "assistanceText": "Para obter assistência, entre em contato com a LNVPN",
+        "noValidCountryCodeError": "Não foi possível obter um código de país válido",
+        "claimConfigError": "Não foi possível obter a configuração da VPN. Entre em contato com a LNVPN.",
+        "contact": "Contato"
       },
       "home": {
-        "title": "To use this VPN please download the Wireguard VPN client app",
-        "downloadApp": "Download Here",
+        "title": "Para usar esta VPN, baixe o aplicativo cliente Wireguard VPN",
+        "downloadApp": "Baixe aqui",
         "status": "",
-        "apiConnectionError": "LNVPN is temporarily unavailable. Please try again shortly.",
-        "selectPlan": "Select Plan"
+        "apiConnectionError": "A LNVPN está temporariamente indisponível. Tente novamente em breve.",
+        "selectPlan": "Selecione o plano"
       },
       "generatedFile": {
-        "title": "Wiregurard Config File",
-        "iosDownloadInstructions": "When dowloading, click save to files.",
-        "androidDownloadInstructions": "When dowloading, you will need to give permission to a location where we can save the config file to."
+        "title": "Arquivo de configuração do Wireguard",
+        "iosDownloadInstructions": "Ao fazer o download, clique em salvar em arquivos.",
+        "androidDownloadInstructions": "Ao fazer o download, você precisará dar permissão para um local onde podemos salvar o arquivo de configuração."
       }
     },
     "chatGPT": {
-      "newChat": "New Chat",
-      "loadingMessage": "Loading previous chats",
+      "newChat": "Novo chat",
+      "loadingMessage": "Carregando chats anteriores",
       "addCreditsPage": {
-        "title": "Add Credits",
-        "description": "In order to use the latest generative AI models, you must buy credits. Choose an option below to begin.",
-        "supportedModels": "Supported Models",
+        "title": "Adicionar créditos",
+        "description": "Para usar os modelos de IA generativa mais recentes, você precisa comprar créditos. Escolha uma opção abaixo para começar.",
+        "supportedModels": "Modelos suportados",
         "feeInfo": "Depending on the length of your question and response, the number of searches you get might be different. Blitz adds a 150 sat fee + 0.5% of purchase price onto all purchases.",
-        "price": "Price: ",
+        "price": "Preço: ",
         "estSearches": "Est. searches: {{num}}",
         "casualPlanTitle": "Casual Plan",
         "proPlanTitle": "Pro Plan",
@@ -346,22 +346,22 @@
         "notAvailableMessage": "Unfortunately, due to Apple’s in-app purchase guidelines, this feature is not currently available on iOS. We’re exploring ways to bring it to iOS in the future."
       },
       "countrySearch": {
-        "inputPlaceholder": "Search for a country"
+        "inputPlaceholder": "Pesquisar um país"
       },
       "chatGPTHome": {
-        "availableCredits": "Available credits: {{credits}}",
-        "noAvailableCreditsError": "You have run out of credits.",
-        "inputPlaceholder": "Message {{gptName}}",
-        "youText": "You"
+        "availableCredits": "Créditos disponíveis: {{credits}}",
+        "noAvailableCreditsError": "Você ficou sem créditos.",
+        "inputPlaceholder": "Mensagem {{gptName}}",
+        "youText": "Você"
       },
       "confirmLeaveChat": {
-        "title": "Do you want to save your chat?"
+        "title": "Você quer salvar seu chat?"
       },
       "confirmationPage": {
-        "title": "Confirm Purchase",
-        "plan": "Plan: {{planType}}",
-        "price": "Price: ",
-        "fee": "Fee: "
+        "title": "Confirmar compra",
+        "plan": "Plano: {{planType}}",
+        "price": "Preço: ",
+        "fee": "Taxa: "
       },
 
       "switchModel": {
