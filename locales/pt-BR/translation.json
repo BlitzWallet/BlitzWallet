@@ -1428,7 +1428,7 @@
     "popups": {
       "confirmActionPage": {
         "defaultMessage": "Tem certeza de que deseja esvaziar sua carteira?",
-        "ctaBTN": "Mark as {{option}}"
+        "ctaBTN": "Marcar como {{option}}"
       }
     }
   },
@@ -1436,7 +1436,7 @@
   "screens": {
     "inAccount": {
       "appStore": {
-        "soonMessage": "We love that you want more apps. Suggest them below!",
+        "soonMessage": "Adoramos que você queira mais apps. Sugira-os abaixo!",
         "title": "Loja",
         "shopTitle": "Compre com Bitcoin",
         "shopDescription": "Compre vales-presente de milhares de várias lojas ao redor do mundo",
@@ -1473,9 +1473,9 @@
       },
 
       "receiveBtcPage": {
-        "onchainFeeMessage": "On-chain payments have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.",
-        "liquidFeeMessage": "Liquid payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
-        "rootstockFeeMessage": "Rootstock payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
+        "onchainFeeMessage": "Os pagamentos na rede on-chain têm uma taxa de rede e uma taxa Spark de 0,1%.\n\nSe você enviar dinheiro para si mesmo, pagará a taxa de rede duas vezes: uma para enviar e outra para reivindicar.\n\nSe outra pessoa lhe enviar dinheiro, você pagará a taxa de rede apenas uma vez para reivindicá-lo.",
+        "liquidFeeMessage": "Os pagamentos Liquid precisam ser trocados para Spark.\n\nEste processo inclui uma taxa de bloqueio de cerca de {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}}, e uma taxa de serviço de 0,1% da Boltz com base no valor que você está enviando.",
+        "rootstockFeeMessage": "Os pagamentos Rootstock precisam ser trocados para Spark.\n\nEste processo inclui uma taxa de bloqueio de cerca de {{fee}}, e uma taxa de serviço de 0,1% da Boltz com base no valor que você está enviando.",
         "generatingInvoice": "Gerando fatura"
       },
 
@@ -1507,15 +1507,15 @@
       },
       "technicalTransactionDetails": {
         "txHash": "Hash da Transação",
-        "paymentId": "Payment Id",
-        "preimage": "Payment Preimage",
-        "address": "Payment Address",
+        "paymentId": "Id do pagamento",
+        "preimage": "Pré-imagem do pagamento",
+        "address": "Endereço de pagamento",
         "bitcoinTxId": "Bitcoin Txid",
-        "paymentExp": "Payment Expiry",
-        "noInformationLabel": "{{item}} is not shown since this payment was restored from history or used a zero amount invoice.",
-        "privacyMessage": "To preserve the {{type}} privacy, all other information is hidden.",
-        "receivers": "receiver's",
-        "senders": "sender's"
+        "paymentExp": "Vencimento do pagamento",
+        "noInformationLabel": "{{item}} não é mostrado porque este pagamento foi restaurado do histórico ou usou uma fatura de valor zero.",
+        "privacyMessage": "Para preservar a {{type}} privacidade, todas as outras informações ficam ocultas.",
+        "receivers": "do receptor",
+        "senders": "do remetente"
       },
       "viewAllTxPage": {
         "title": "Transações"
@@ -1544,9 +1544,9 @@
     "nointernet": "Reconecte-se à Internet para usar este recurso",
     "genericError": "Ocorreu um erro inesperado",
     "tryAgain": "Por favor, tente novamente",
-    "contactSupport": "Please contact support if the issue persists",
-    "deleteAccount": "Error deleting account.",
-    "failedToDecryptPin": "Failed to decrypt pin",
+    "contactSupport": "Entre em contato com o suporte se o problema persistir",
+    "deleteAccount": "Erro ao excluir conta.",
+    "failedToDecryptPin": "Falha ao descriptografar o PIN",
     "decodePinWithBio": "Unable to decode pin with biometrics",
     "insufficientBalanceError": "Insufficient balance to purchase {{planType}}",
     "internetReconnection": "Please reconnect to the internet to use this feature",
