@@ -424,10 +424,10 @@ const SparkWalletProvider = ({ children }) => {
     sparkTransactionsEventEmitter.on(SPARK_TX_UPDATE_ENVENT_NAME, handleUpdate);
 
     if (mode === 'full') {
-      // sparkWallet[sha256Hash(currentWalletMnemoinc)].on(
-      //   'transfer:claimed',
-      //   transferHandler,
-      // );
+      sparkWallet[sha256Hash(currentWalletMnemoinc)]?.on(
+        'transfer:claimed',
+        transferHandler,
+      );
 
       if (isInitialRestore.current) {
         isInitialRestore.current = false;
@@ -497,12 +497,12 @@ const SparkWalletProvider = ({ children }) => {
         SPARK_TX_UPDATE_ENVENT_NAME,
       );
     }
-    // if (
-    //   prevAccountMnemoincRef.current &&
-    //   sparkWallet[hashedMnemoinc].listenerCount('transfer:claimed')
-    // ) {
-    //   sparkWallet[hashedMnemoinc]?.removeAllListeners('transfer:claimed');
-    // }
+    if (
+      prevAccountMnemoincRef.current &&
+      sparkWallet[hashedMnemoinc]?.listenerCount('transfer:claimed')
+    ) {
+      sparkWallet[hashedMnemoinc]?.removeAllListeners('transfer:claimed');
+    }
     prevAccountMnemoincRef.current = currentWalletMnemoinc;
 
     // Clear debounce timeout when removing listeners
@@ -580,14 +580,7 @@ const SparkWalletProvider = ({ children }) => {
             JSON.parse(await getLocalStorageItem('claimedBitcoinTxs')) || [];
 
           for (const txid of unpaidTxids) {
-            const { didwork, quote, error } =
-              await getSparkStaticBitcoinL1AddressQuote(
-                txid.txid,
-                currentWalletMnemoinc,
-                sendWebViewRequest,
-              );
             const hasAlreadySaved = savedTxMap.has(txid.txid);
-
             if (!txid.isConfirmed) {
               if (!hasAlreadySaved) {
                 await addPendingTransaction(
@@ -599,7 +592,14 @@ const SparkWalletProvider = ({ children }) => {
                   sparkInformation,
                 );
               }
+              continue;
             }
+            const { didwork, quote, error } =
+              await getSparkStaticBitcoinL1AddressQuote(
+                txid.txid,
+                currentWalletMnemoinc,
+                sendWebViewRequest,
+              );
 
             if (!didwork || !quote) {
               console.log(error, 'Error getting deposit address quote');
