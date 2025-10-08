@@ -1204,33 +1204,33 @@
     },
 
     "viewRoostockSwaps": {
-      "loadingMessage": "Loading saved Roostock swaps",
-      "noSwapsMessage": "You have no saved Roostock swaps"
+      "loadingMessage": "Carregando trocas Roostock salvos",
+      "noSwapsMessage": "Você não tem nenhuma troca de Roostock salva"
     },
     "rootstockSwapInfo": {
-      "title": "Submarine Swap",
+      "title": "Trocas submarinas",
       "id": "ID",
-      "swapDetails": "Swap Details",
-      "claimAddress": "Claim Address",
-      "timeoutBHeight": "Timeout Block Height",
-      "expAmount": "Expected Amount",
+      "swapDetails": "Detalhes da troca",
+      "claimAddress": "Endereço de reclamação",
+      "timeoutBHeight": "Altura do bloco de tempo limite",
+      "expAmount": "Quantidade esperada",
       "invoice": "Fatura",
-      "refundSwap": "Refund swap"
+      "refundSwap": "Reembolso da troca"
     },
 
     "viewAllLiquidSwaps": {
-      "rescanComplete": "Rescan complete",
-      "swapStartedMessage": "The swap has started. It may take 10–20 seconds for the payment to show up.",
-      "balanceError": "Current liquid balance is {{balance}} but the minimum swap amount is {{swapAmount}}",
-      "loadingMessage": "Getting liquid info",
-      "breakdownHead": "Balance Breakdown",
-      "incoming": "{{amount}} pending incoming",
-      "outgoing": "{{amount}} pending outgoing",
-      "balance": "{{amount}} liquid balance",
-      "rescan": "Rescan",
-      "totalBalance": "Total Balance",
-      "swapMessage": "Blitz Wallet will try to swap your Liquid funds into Spark when you first load the app or when you receive Liquid payments.\n\nHowever, in some cases a swap might be missed. To move these funds into Spark manually, just click the Swap button below.",
-      "swap": "Swap"
+      "rescanComplete": "Verificação concluída",
+      "swapStartedMessage": "A troca foi iniciada. Pode levar de 10 a 20 segundos para o pagamento aparecer.",
+      "balanceError": "O saldo Liquid atual é {{balance}} mas o valor mínimo de troca é {{swapAmount}}",
+      "loadingMessage": "Obtendo informações Liquid",
+      "breakdownHead": "Desagregação do saldo",
+      "incoming": "{{amount}} entrada pendente",
+      "outgoing": "{{amount}} pendente de saída",
+      "balance": "{{amount}} Saldo Liquid",
+      "rescan": "Verificar",
+      "totalBalance": "Saldo total",
+      "swapMessage": "A Blitz Wallet tentará transferir seus fundos Liquid para Spark quando você carregar o aplicativo pela primeira vez ou quando receber pagamentos Liquid.\n\nNo entanto, em alguns casos, uma troca pode ser perdida. Para transferir esses fundos para o Spark manualmente, basta clicar no botão trocar abaixo.",
+      "swap": "Trocar"
     },
     "notifications": {
       "mainToggle": "{{state}} notificações",
@@ -1243,10 +1243,10 @@
       "pos": "Ponto de venda"
     },
     "nostrHome": {
-      "nip5Title": "Nip5 Verification",
-      "nip5Desc": "Quickly verify your Nostr identity using Blitz.",
+      "nip5Title": "Verificação Nip5",
+      "nip5Desc": "Verifique rapidamente sua identidade Nostr usando a Blitz.",
       "nwcTitle": "Nostr Wallet Connect",
-      "nwcDesc": "Connect your Blitz Wallet to apps using Nostr."
+      "nwcDesc": "Conecte sua carteira Blitz aos aplicativos que usam o Nostr."
     },
     "fiatCurrency": {
       "title": "Moeda de exibição",
