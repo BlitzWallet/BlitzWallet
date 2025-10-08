@@ -678,74 +678,74 @@
       },
 
       "saveChat": {
-        "errorMessage": "Sorry, we could not save your conversation."
+        "errorMessage": "Desculpe, não conseguimos salvar sua conversa."
       }
     },
     "giftCards": {
       "giftCardsPage": {
-        "searchPlaceholder": "Search for a Gift Card",
-        "leftPageMessage": "Where'd you go?",
-        "loadingCardsMessage": "Getting gift cards",
-        "noCardsAvailable": "No gift cards available"
+        "searchPlaceholder": "Procure um vale-presente",
+        "leftPageMessage": "Aonde você foi?",
+        "loadingCardsMessage": "Obtendo cartões-presente",
+        "noCardsAvailable": "Nenhum cartão-presente disponível"
       },
       "confimPurchase": {
-        "quantity": "Quantity {{quantity}}",
-        "cardAmount": "Card Amount: {{amount}} {{currency}}",
-        "price": "Price: ",
-        "fee": "Fee: "
+        "quantity": "Quantidade {{quantity}}",
+        "cardAmount": "Valor do cartão: {{amount}} {{currency}}",
+        "price": "Preço: ",
+        "fee": "Taxa: "
       },
 
       "createAccount": {
-        "title": "Powered by",
-        "saveEmail": "You do not have an email saved. Speed up the checkout process by saving an email.",
-        "termsAndConditions1": "By continuing you agree to The Bitcoin Company's",
-        "termsAndConditions2": "Terms of Service",
-        "termsAndConditions3": "and",
-        "termsAndConditions4": "Privacy policy"
+        "title": "Distribuído por",
+        "saveEmail": "Você não tem um e-mail salvo. Acelere o processo de finalização da compra salvando um e-mail.",
+        "termsAndConditions1": "Ao continuar, você concorda com os termos de uso da The Bitcoin Company",
+        "termsAndConditions2": "Termos de serviço",
+        "termsAndConditions3": "e",
+        "termsAndConditions4": "Política de privacidade"
       },
       "expandedGiftCardPage": {
-        "purchasingCardMessage": "Purchasing gift card, do not leave the page.",
-        "selectamount": "Select an amount",
-        "sendingto": "Sending to: ",
-        "minMaxPurchaseAmount": "You can buy a {{min}} amount of {{max}} {{currency}}",
-        "emailPlaceholder": "Enter email address",
-        "purchaseBTN": "Purchase gift card",
-        "differentEmailMessage": "The current email is different than the saved one. Would you like to make this email your primary?",
-        "terms": "Terms",
-        "cardDescription": "Card Description",
-        "cardTerms": "Card terms",
-        "dailyPurchaseAmountError": "You have hit your daily purchase limit",
-        "giftMessage": "Add a note to your gift",
-        "giftMessagePlaceholder": "Type your message here",
-        "selectForContactBTN": "Select Gift Card",
-        "noAmountError": "Please choose a gift card amount"
+        "purchasingCardMessage": "Adquirindo vale-presente, não saia da página.",
+        "selectamount": "Selecione um valor",
+        "sendingto": "Enviando para: ",
+        "minMaxPurchaseAmount": "Você pode comprar um {{min}} quantidade de {{max}} {{currency}}",
+        "emailPlaceholder": "Digite o endereço de e-mail",
+        "purchaseBTN": "Comprar vale-presente",
+        "differentEmailMessage": "O e-mail atual é diferente do salvo. Deseja tornar este e-mail o seu e-mail principal?",
+        "terms": "Termos",
+        "cardDescription": "Descrição do cartão",
+        "cardTerms": "Termos do cartão",
+        "dailyPurchaseAmountError": "Você atingiu seu limite de compra diária",
+        "giftMessage": "Adicione uma nota ao seu presente",
+        "giftMessagePlaceholder": "Digite sua mensagem aqui",
+        "selectForContactBTN": "Selecione Cartão Presente",
+        "noAmountError": "Por favor, escolha o valor do vale-presente"
       },
       "giftCardOrderDetails": {
-        "title": "Order Details",
-        "invoice": "Invoice",
-        "orderId": "Order ID",
+        "title": "Detalhes do pedido",
+        "invoice": "Fatura",
+        "orderId": "ID da ordem",
         "uuid": "UUID",
-        "openInbox": "Open inbox"
+        "openInbox": "Abrir caixa de entrada"
       },
       "historicalPurchasesPage": {
-        "confirmRemoval": "Are you sure you want to remove this gift card?",
-        "purchased": "Purchased:",
-        "noPurchases": "You have no gift card purchases",
-        "customCopyMessage": "Support email copied"
+        "confirmRemoval": "Tem certeza de que deseja remover este vale-presente?",
+        "purchased": "Comprado:",
+        "noPurchases": "Você não tem compras de vale-presente",
+        "customCopyMessage": "E-mail de suporte copiado"
       }
     },
 
     "sms4sats": {
       "home": {
-        "pageDescription": "Send and Receive sms messages without giving away your personal phone number.",
-        "pricingError": "Unable to get SMS pricing"
+        "pageDescription": "Envie e receba mensagens SMS sem revelar seu número de telefone pessoal.",
+        "pricingError": "Não foi possível obter preços de SMS"
       },
       "confirmationSlideUp": {
-        "title": "Confirm number",
-        "price": "Price: ",
-        "fee": "Fee: ",
-        "invalidNumber": "Not a valid phone number",
-        "receiveTitle": "Confirm Receive"
+        "title": "Confirmar número",
+        "price": "Preço: ",
+        "fee": "Taxa: ",
+        "invalidNumber": "Não é um número de telefone válido",
+        "receiveTitle": "Confirmar recebimento"
       },
 
       "sendPage": {
@@ -808,7 +808,7 @@
       "other": "Outros",
       "travel": "Viagem",
       "e-commerce": "E-commerce",
-      "health": "Health",
+      "health": "Saúde",
       "art & collectibles": "Arte & Colecionáveis",
       "legal & services": "Jurídico & Serviços",
       "app": "App",
