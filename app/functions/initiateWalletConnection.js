@@ -19,10 +19,7 @@ export async function initWallet({
 }) {
   try {
     crashlyticsLogReport('Trying to connect to nodes');
-    const didConnectToSpark = await initializeSparkWallet(
-      mnemonic,
-      sendWebViewRequest,
-    );
+    const didConnectToSpark = await initializeSparkWallet(mnemonic);
 
     if (didConnectToSpark.isConnected) {
       crashlyticsLogReport('Loading node balances for session');
@@ -63,9 +60,9 @@ async function initializeSparkSession({
     // Clean DB state but do not hold up process
     cleanStalePendingSparkLightningTransactions();
     const [balance, sparkAddress, identityPubKey] = await Promise.all([
-      getSparkBalance(mnemonic, sendWebViewRequest),
-      getSparkAddress(mnemonic, sendWebViewRequest),
-      getSparkIdentityPubKey(mnemonic, sendWebViewRequest),
+      getSparkBalance(mnemonic),
+      getSparkAddress(mnemonic),
+      getSparkIdentityPubKey(mnemonic),
     ]);
 
     if (!balance.didWork)

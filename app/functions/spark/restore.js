@@ -56,12 +56,7 @@ export const restoreSparkTxState = async (
     const donationPubKey = process.env.BLITZ_SPARK_PUBLICKEY;
 
     while (true) {
-      const txs = await getSparkTransactions(
-        localBatchSize,
-        offset,
-        mnemonic,
-        sendWebViewRequest,
-      );
+      const txs = await getSparkTransactions(localBatchSize, offset, mnemonic);
 
       const batchTxs = txs.transfers || [];
 
@@ -288,7 +283,6 @@ export const findSignleTxFromHistory = async (
         start + BATCH_SIZE,
         start,
         mnemonic,
-        sendWebViewRequest,
       );
       const batchTxs = txs.transfers || [];
 
@@ -552,13 +546,8 @@ async function processLightningTransaction(
         ? await getSparkLightningPaymentStatus({
             lightningInvoiceId: txStateUpdate.sparkID,
             mnemonic,
-            sendWebViewRequest,
           })
-        : await getSparkLightningSendRequest(
-            txStateUpdate.sparkID,
-            mnemonic,
-            sendWebViewRequest,
-          );
+        : await getSparkLightningSendRequest(txStateUpdate.sparkID, mnemonic);
 
     if (
       details.direction === 'OUTGOING' &&
@@ -647,7 +636,6 @@ async function getPaymentDetailsWithRetry(
       const result = await getSparkLightningPaymentStatus({
         lightningInvoiceId,
         mnemonic,
-        sendWebViewRequest,
       });
       if (result?.transfer !== undefined) {
         return result;
@@ -728,7 +716,6 @@ async function processBitcoinTransactions(
       const sparkResponse = await getSparkBitcoinPaymentRequest(
         txStateUpdate.sparkID,
         mnemonic,
-        sendWebViewRequest,
       );
 
       if (!sparkResponse?.transfer) {

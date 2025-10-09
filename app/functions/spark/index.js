@@ -20,6 +20,10 @@ import {
   saveCachedTokens,
 } from '../lrc20/cachedTokens';
 import sha256Hash from '../hash';
+import {
+  getHandshakeComplete,
+  sendWebViewRequestGlobal,
+} from '../../../context-store/webViewContext';
 
 export let sparkWallet = {};
 
@@ -33,163 +37,253 @@ const getMnemonicHash = mnemonic => {
   return mnemonicHashCache.get(mnemonic);
 };
 
-// Centralizes wallet lookup and error handling, reducing code duplication
-const getWallet = mnemonic => {
+const getWallet = async mnemonic => {
   const hash = getMnemonicHash(mnemonic);
-  const wallet = sparkWallet[hash];
+  let wallet = sparkWallet[hash];
 
   if (!wallet) {
-    throw new Error('sparkWallet not initialized');
+    console.log('Creating native wallet because none exists');
+    wallet = await initializeWallet(mnemonic);
+    sparkWallet[hash] = wallet;
   }
 
   return wallet;
 };
 
+let forceUseOfNativeRuntime = null;
+/**
+ * Determines which runtime to use for Spark functions.
+ * @param {string} mnemonic - user mnemonic
+ * @param {boolean} isInitialLoad - true only on first connection attempt
+ * @param {boolean?} force - optional force to native runtime
+ * @returns { 'native' | 'webview' }
+ */
+export const selectSparkRuntime = async (
+  mnemonic,
+  isInitialLoad = false,
+  force = undefined,
+) => {
+  // Force native runtime explicitly
+  if (isInitialLoad && force) {
+    forceUseOfNativeRuntime = true;
+  }
+
+  if (forceUseOfNativeRuntime) {
+    return 'native';
+  }
+
+  const handshakeDone = getHandshakeComplete();
+
+  if (handshakeDone) {
+    return 'webview';
+  }
+
+  // Handshake not done → fallback to native
+  const walletHash = getMnemonicHash(mnemonic);
+  if (!sparkWallet[walletHash]) {
+    await getWallet(mnemonic);
+  }
+
+  return 'native';
+};
+
 // Clear cache when needed (call this on logout/cleanup)
 export const clearMnemonicCache = () => {
   mnemonicHashCache.clear();
+  sparkWallet = {};
 };
 
-export const initializeSparkWallet = async (mnemonic, sendWebViewRequest) => {
+export const initializeSparkWallet = async (mnemonic, isInitialLoad = true) => {
   try {
-    const response = await sendWebViewRequest('initializeSparkWallet', {
-      mnemonic,
-    });
-    if (!response.isConnected) throw new Error(response.error);
-    return response;
-    const hash = getMnemonicHash(mnemonic);
+    const runtime = await selectSparkRuntime(mnemonic, isInitialLoad);
 
-    // Early return if already initialized
-    if (sparkWallet[hash]) {
+    if (runtime === 'webview') {
+      // Use WebView to initialize wallet
+      const response = await sendWebViewRequestGlobal('initializeSparkWallet', {
+        mnemonic,
+      });
+      if (!response.isConnected)
+        throw new Error(response.error || 'WebView init failed');
+      return response;
+    } else {
+      const hash = getMnemonicHash(mnemonic);
+
+      // Early return if already initialized
+      if (sparkWallet[hash]) {
+        return { isConnected: true };
+      }
+
+      const wallet = await initializeWallet(mnemonic);
+      sparkWallet[hash] = wallet;
+
       return { isConnected: true };
     }
-
-    const { wallet } = await SparkWallet.initialize({
-      signer: new ReactNativeSparkSigner(),
-      mnemonicOrSeed: mnemonic,
-      options: { network: 'MAINNET' },
-    });
-
-    sparkWallet[hash] = wallet;
-    return { isConnected: true };
   } catch (err) {
-    console.log('Initialize spark wallet error function', err);
+    console.log('Initialize spark wallet error:', err);
     return { isConnected: false, error: err.message };
   }
 };
 
+const initializeWallet = async mnemonic => {
+  const { wallet } = await SparkWallet.initialize({
+    signer: new ReactNativeSparkSigner(),
+    mnemonicOrSeed: mnemonic,
+    options: { network: 'MAINNET' },
+  });
+
+  console.log('did initialize wallet');
+  return wallet;
+};
+
 export const getSparkIdentityPubKey = async (mnemonic, sendWebViewRequest) => {
   try {
-    const response = await sendWebViewRequest('getSparkIdentityPubKey', {
-      mnemonic,
-    });
-    if (!response) throw new Error('unable to generate spak identity pubkey');
-    return response;
-    // Now uses optimized getWallet helper
-    return await getWallet(mnemonic).getIdentityPublicKey();
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'getSparkIdentityPubKey',
+        {
+          mnemonic,
+        },
+      );
+      if (!response) throw new Error('unable to generate spak identity pubkey');
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return await wallet.getIdentityPublicKey();
+    }
   } catch (err) {
     console.log('Get spark balance error', err);
   }
 };
 
-export const getSparkBalance = async (mnemonic, sendWebViewRequest) => {
+export const getSparkBalance = async mnemonic => {
   try {
-    const response = await sendWebViewRequest('getSparkBalance', { mnemonic });
+    const runtime = await selectSparkRuntime(mnemonic);
+    const hash = getMnemonicHash(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal('getSparkBalance', {
+        mnemonic,
+      });
+      if (!response.didWork) throw new Error('unable to get balance');
+      const balanceString = response.balance;
+      const tokensObject = response.tokensObject;
 
-    if (!response.didWork) throw new Error('unable to get balance');
+      const balance = BigInt(balanceString);
 
-    const balanceString = response.balance; // balance as string
-    const tokensObject = response.tokensObject; // plain object from WebView
-    console.log(balanceString, tokensObject);
-    // Convert balances back to BigInt
-    const balance = BigInt(balanceString);
+      const convertedTokensObj = {};
+      for (const [tokensIdentifier, tokensData] of Object.entries(
+        tokensObject,
+      )) {
+        console.log(tokensIdentifier, tokensData);
+        convertedTokensObj[tokensIdentifier] = {
+          ...tokensData,
+          balance: BigInt(tokensData.balance),
+          tokenMetadata: {
+            ...tokensData.tokenMetadata,
+            maxSupply: BigInt(tokensData.tokenMetadata.maxSupply),
+          },
+        };
+      }
 
-    const convertedTokensObj = {};
-    for (const [tokensIdentifier, tokensData] of Object.entries(tokensObject)) {
-      console.log(tokensIdentifier, tokensData);
-      convertedTokensObj[tokensIdentifier] = {
-        ...tokensData,
-        balance: BigInt(tokensData.balance),
-        tokenMetadata: {
-          ...tokensData.tokenMetadata,
-          maxSupply: BigInt(tokensData.tokenMetadata.maxSupply),
-        },
+      const cachedTokens = await migrateCachedTokens(mnemonic);
+
+      const allTokens = mergeTokensWithCache(
+        convertedTokensObj,
+        cachedTokens,
+        mnemonic,
+      );
+
+      await saveCachedTokens(allTokens);
+
+      return {
+        tokensObj: allTokens[hash],
+        balance,
+        didWork: true,
+      };
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const balance = await wallet.getBalance();
+      const cachedTokens = await migrateCachedTokens(mnemonic);
+
+      let currentTokensObj = {};
+      for (const [tokensIdentifier, tokensData] of balance.tokenBalances) {
+        currentTokensObj[tokensIdentifier] = tokensData;
+      }
+
+      const allTokens = mergeTokensWithCache(
+        balance.tokenBalances,
+        cachedTokens,
+        mnemonic,
+      );
+
+      await saveCachedTokens(allTokens);
+
+      return {
+        tokensObj: allTokens[hash],
+        balance: balance.balance,
+        didWork: true,
       };
     }
-    console.log(convertedTokensObj, 'converted objcet');
-
-    const cachedTokens = await migrateCachedTokens(mnemonic);
-
-    console.log(cachedTokens);
-
-    const hash = getMnemonicHash(mnemonic);
-    const allTokens = mergeTokensWithCache(
-      convertedTokensObj,
-      cachedTokens,
-      mnemonic,
-    );
-
-    await saveCachedTokens(allTokens);
-
-    return {
-      tokensObj: allTokens[hash],
-      balance,
-      didWork: true,
-    };
   } catch (err) {
     console.log('Get spark balance error', err);
     return { didWork: false };
   }
 };
 
-export const getSparkStaticBitcoinL1Address = async (
-  mnemonic,
-  sendWebViewRequest,
-) => {
+export const getSparkStaticBitcoinL1Address = async mnemonic => {
   try {
-    const response = await sendWebViewRequest(
-      'getSparkStaticBitcoinL1Address',
-      { mnemonic },
-    );
-    if (!response) throw new Error('Not abler to generate bitcoin l1 daddress');
-    return response;
-    return await getWallet(mnemonic).getStaticDepositAddress();
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'getSparkStaticBitcoinL1Address',
+        { mnemonic },
+      );
+      if (!response)
+        throw new Error('Not abler to generate bitcoin l1 daddress');
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return await wallet.getStaticDepositAddress();
+    }
   } catch (err) {
     console.log('Get reusable Bitcoin mainchain address error', err);
   }
 };
 
-export const queryAllStaticDepositAddresses = async (
-  mnemonic,
-  sendWebViewRequest,
-) => {
+export const queryAllStaticDepositAddresses = async mnemonic => {
   try {
-    const response = await sendWebViewRequest(
-      'queryAllStaticDepositAddresses',
-      { mnemonic },
-    );
-    if (!response) throw new Error(response.error);
-    return response;
-    return await getWallet(mnemonic).queryStaticDepositAddresses();
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'queryAllStaticDepositAddresses',
+        { mnemonic },
+      );
+      if (!response) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return wallet.queryStaticDepositAddresses();
+    }
   } catch (err) {
     console.log('refund reusable Bitcoin mainchain address error', err);
   }
 };
 
-export const getSparkStaticBitcoinL1AddressQuote = async (
-  txid,
-  mnemonic,
-  sendWebViewRequest,
-) => {
+export const getSparkStaticBitcoinL1AddressQuote = async (txid, mnemonic) => {
   try {
-    const response = await sendWebViewRequest(
-      'getSparkStaticBitcoinL1AddressQuote',
-      { mnemonic, txid },
-    );
-    if (!response.didWork) throw new Error(response.error);
-    return response;
-    const quote = await getWallet(mnemonic).getClaimStaticDepositQuote(txid);
-    return { didwork: true, quote };
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'getSparkStaticBitcoinL1AddressQuote',
+        { mnemonic, txid },
+      );
+      if (!response.didwork) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const quote = await wallet.getClaimStaticDepositQuote(txid);
+      return { didwork: true, quote };
+    }
   } catch (err) {
     console.log('Get reusable Bitcoin mainchain address quote error', err);
     return { didwork: false, error: err.message };
@@ -203,11 +297,21 @@ export const refundSparkStaticBitcoinL1AddressQuote = async ({
   mnemonic,
 }) => {
   try {
-    return await getWallet(mnemonic).refundStaticDeposit({
-      depositTransactionId,
-      destinationAddress,
-      fee,
-    });
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      return await getWallet(mnemonic).refundStaticDeposit({
+        depositTransactionId,
+        destinationAddress,
+        fee,
+      });
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return await wallet.refundStaticDeposit({
+        depositTransactionId,
+        destinationAddress,
+        fee,
+      });
+    }
   } catch (err) {
     console.log('refund reusable Bitcoin mainchain address error', err);
   }
@@ -219,34 +323,45 @@ export const claimnSparkStaticDepositAddress = async ({
   sspSignature,
   transactionId,
   mnemonic,
-  sendWebViewRequest,
 }) => {
   try {
-    const response = await sendWebViewRequest(
-      'getSparkStaticBitcoinL1AddressQuote',
-      { mnemonic, creditAmountSats, sspSignature, transactionId },
-    );
-    if (!response.didWork) throw new Error(response.error);
-    return response;
-    // const response = await getWallet(mnemonic).claimStaticDeposit({
-    //   creditAmountSats,
-    //   sspSignature,
-    //   transactionId,
-    // });
-    // return { didWork: true, response };
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'claimnSparkStaticDepositAddress',
+        { mnemonic, creditAmountSats, sspSignature, transactionId },
+      );
+      if (!response.didWork) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const response = await wallet.claimStaticDeposit({
+        creditAmountSats,
+        sspSignature,
+        transactionId,
+      });
+      return { didWork: true, response };
+    }
   } catch (err) {
     console.log('claim static deposit address error', err);
     return { didWork: false, error: err.message };
   }
 };
 
-export const getSparkAddress = async (mnemonic, sendWebViewRequest) => {
+export const getSparkAddress = async mnemonic => {
   try {
-    const response = await sendWebViewRequest('getSparkAddress', { mnemonic });
-    if (!response.didWork) throw new Error(response.error);
-    return response;
-    // getWallet(mnemonic).getSparkAddress();
-    // return { didWork: true, response };
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal('getSparkAddress', {
+        mnemonic,
+      });
+      if (!response.didWork) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const response = wallet.getSparkAddress();
+      return { didWork: true, response };
+    }
   } catch (err) {
     console.log('Get spark address error', err);
     return { didWork: false, error: err.message };
@@ -257,22 +372,25 @@ export const sendSparkPayment = async ({
   receiverSparkAddress,
   amountSats,
   mnemonic,
-  sendWebViewRequest,
 }) => {
   try {
-    const response = await sendWebViewRequest('sendSparkPayment', {
-      mnemonic,
-      receiverSparkAddress,
-      amountSats,
-    });
-    if (!response.didWork) throw new Error(response.error);
-    return response;
-    // const response = await getWallet(mnemonic).transfer({
-    //   receiverSparkAddress: receiverSparkAddress.toLowerCase(),
-    //   amountSats,
-    // });
-    // console.log('spark payment response', response);
-    // return { didWork: true, response };
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal('sendSparkPayment', {
+        mnemonic,
+        receiverSparkAddress,
+        amountSats,
+      });
+      if (!response.didWork) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const response = await wallet.transfer({
+        receiverSparkAddress: receiverSparkAddress.toLowerCase(),
+        amountSats,
+      });
+      return { didWork: true, response };
+    }
   } catch (err) {
     console.log('Send spark payment error', err);
     return { didWork: false, error: err.message };
@@ -284,23 +402,27 @@ export const sendSparkTokens = async ({
   tokenAmount,
   receiverSparkAddress,
   mnemonic,
-  sendWebViewRequest,
 }) => {
   try {
-    const response = await sendWebViewRequest('sendSparkTokens', {
-      mnemonic,
-      tokenIdentifier,
-      tokenAmount,
-      receiverSparkAddress,
-    });
-    if (!response.didWork) throw new Error(response.error);
-    return response;
-    // const response = await getWallet(mnemonic).transferTokens({
-    //   tokenIdentifier,
-    //   tokenAmount: BigInt(tokenAmount),
-    //   receiverSparkAddress,
-    // });
-    // return { didWork: true, response };
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal('sendSparkTokens', {
+        mnemonic,
+        tokenIdentifier,
+        tokenAmount,
+        receiverSparkAddress,
+      });
+      if (!response.didWork) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const response = await wallet.transferTokens({
+        tokenIdentifier,
+        tokenAmount: BigInt(tokenAmount),
+        receiverSparkAddress,
+      });
+      return { didWork: true, response };
+    }
   } catch (err) {
     console.log('Send spark token error', err);
     return { didWork: false, error: err.message };
@@ -311,43 +433,51 @@ export const getSparkLightningPaymentFeeEstimate = async (
   invoice,
   amountSat,
   mnemonic,
-  sendWebViewRequest,
 ) => {
   try {
-    const response = await sendWebViewRequest(
-      'getSparkLightningPaymentFeeEstimate',
-      {
-        mnemonic,
-        amountSat,
-        invoice,
-      },
-    );
-    if (!response.didWork) throw new Error(response.error);
-    return response;
-    // const response = await getWallet(mnemonic).getLightningSendFeeEstimate({
-    //   encodedInvoice: invoice.toLowerCase(),
-    //   amountSats: amountSat,
-    // });
-    // return { didWork: true, response };
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'getSparkLightningPaymentFeeEstimate',
+        {
+          mnemonic,
+          amountSat,
+          invoice,
+        },
+      );
+      if (!response.didWork) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const response = await wallet.getLightningSendFeeEstimate({
+        encodedInvoice: invoice.toLowerCase(),
+        amountSats: amountSat,
+      });
+      return { didWork: true, response };
+    }
   } catch (err) {
     console.log('Get lightning payment fee error', err);
     return { didWork: false, error: err.message };
   }
 };
 
-export const getSparkBitcoinPaymentRequest = async (
-  paymentId,
-  mnemonic,
-  sendWebViewRequest,
-) => {
+export const getSparkBitcoinPaymentRequest = async (paymentId, mnemonic) => {
   try {
-    const response = await sendWebViewRequest('getSparkBitcoinPaymentRequest', {
-      mnemonic,
-      paymentId,
-    });
-    if (!response) throw new Error(response.error);
-    return response;
-    return await getWallet(mnemonic).getCoopExitRequest(paymentId);
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'getSparkBitcoinPaymentRequest',
+        {
+          mnemonic,
+          paymentId,
+        },
+      );
+      if (!response) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return await wallet.getCoopExitRequest(paymentId);
+    }
   } catch (err) {
     console.log('Get bitcoin payment fee estimate error', err);
   }
@@ -357,46 +487,52 @@ export const getSparkBitcoinPaymentFeeEstimate = async ({
   amountSats,
   withdrawalAddress,
   mnemonic,
-  sendWebViewRequest,
 }) => {
   try {
-    const response = await sendWebViewRequest(
-      'getSparkBitcoinPaymentFeeEstimate',
-      {
-        mnemonic,
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'getSparkBitcoinPaymentFeeEstimate',
+        {
+          mnemonic,
+          amountSats,
+          withdrawalAddress,
+        },
+      );
+      if (!response.didWork) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const response = await wallet.getWithdrawalFeeQuote({
         amountSats,
-        withdrawalAddress,
-      },
-    );
-    if (!response.didWork) throw new Error(response.error);
-    return response;
-    // const response = await getWallet(mnemonic).getWithdrawalFeeQuote({
-    //   amountSats,
-    //   withdrawalAddress: withdrawalAddress,
-    // });
-    // return { didWork: true, response };
+        withdrawalAddress: withdrawalAddress,
+      });
+      return { didWork: true, response };
+    }
   } catch (err) {
     console.log('Get bitcoin payment fee estimate error', err);
     return { didWork: false, error: err.message };
   }
 };
 
-export const getSparkPaymentFeeEstimate = async (
-  amountSats,
-  mnemonic,
-  sendWebViewRequest,
-) => {
+export const getSparkPaymentFeeEstimate = async (amountSats, mnemonic) => {
   try {
-    const response = await sendWebViewRequest('getSparkPaymentFeeEstimate', {
-      mnemonic,
-      amountSats,
-    });
-    if (!response) throw new Error(response.error);
-    return response;
-    // const feeResponse = await getWallet(mnemonic).getSwapFeeEstimate(
-    //   amountSats,
-    // );
-    // return feeResponse.feeEstimate.originalValue || SPARK_TO_SPARK_FEE;
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'getSparkPaymentFeeEstimate',
+        {
+          mnemonic,
+          amountSats,
+        },
+      );
+      if (!response) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const feeResponse = await wallet.getSwapFeeEstimate(amountSats);
+      return feeResponse.feeEstimate.originalValue || SPARK_TO_SPARK_FEE;
+    }
   } catch (err) {
     console.log('Get bitcoin payment fee estimate error', err);
     return SPARK_TO_SPARK_FEE;
@@ -407,41 +543,52 @@ export const receiveSparkLightningPayment = async ({
   amountSats,
   memo,
   mnemonic,
-  sendWebViewRequest,
 }) => {
   try {
-    const response = await sendWebViewRequest('receiveSparkLightningPayment', {
-      mnemonic,
-      amountSats,
-      memo,
-    });
-    if (!response.didWork) throw new Error(response.error);
-    return response;
-    // const response = await getWallet(mnemonic).createLightningInvoice({
-    //   amountSats,
-    //   memo,
-    //   expirySeconds: 60 * 60 * 12, // 12 hour invoice expiry
-    // });
-    // return { didWork: true, response };
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'receiveSparkLightningPayment',
+        {
+          mnemonic,
+          amountSats,
+          memo,
+        },
+      );
+      if (!response.didWork) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const response = await wallet.createLightningInvoice({
+        amountSats,
+        memo,
+        expirySeconds: 60 * 60 * 12, // 12 hour invoice expiry
+      });
+      return { didWork: true, response };
+    }
   } catch (err) {
     console.log('Receive lightning payment error', err);
     return { didWork: false, error: err.message };
   }
 };
 
-export const getSparkLightningSendRequest = async (
-  id,
-  mnemonic,
-  sendWebViewRequest,
-) => {
+export const getSparkLightningSendRequest = async (id, mnemonic) => {
   try {
-    const response = await sendWebViewRequest('getSparkLightningSendRequest', {
-      mnemonic,
-      id,
-    });
-    if (!response) throw new Error(response.error);
-    return response;
-    // return await getWallet(mnemonic).getLightningSendRequest(id);
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'getSparkLightningSendRequest',
+        {
+          mnemonic,
+          id,
+        },
+      );
+      if (!response) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return await wallet.getLightningSendRequest(id);
+    }
   } catch (err) {
     console.log('Get spark lightning send request error', err);
   }
@@ -450,21 +597,23 @@ export const getSparkLightningSendRequest = async (
 export const getSparkLightningPaymentStatus = async ({
   lightningInvoiceId,
   mnemonic,
-  sendWebViewRequest,
 }) => {
   try {
-    const response = await sendWebViewRequest(
-      'getSparkLightningPaymentStatus',
-      {
-        mnemonic,
-        lightningInvoiceId,
-      },
-    );
-    if (!response) throw new Error(response.error);
-    return response;
-    // return await getWallet(mnemonic).getLightningReceiveRequest(
-    //   lightningInvoiceId,
-    // );
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'getSparkLightningPaymentStatus',
+        {
+          mnemonic,
+          lightningInvoiceId,
+        },
+      );
+      if (!response) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return await wallet.getLightningReceiveRequest(lightningInvoiceId);
+    }
   } catch (err) {
     console.log('Get lightning payment status error', err);
   }
@@ -475,23 +624,30 @@ export const sendSparkLightningPayment = async ({
   maxFeeSats,
   amountSats,
   mnemonic,
-  sendWebViewRequest,
 }) => {
   try {
-    const response = await sendWebViewRequest('sendSparkLightningPayment', {
-      mnemonic,
-      invoice,
-      maxFeeSats,
-      amountSats,
-    });
-    if (!response.didWork) throw new Error(response.error);
-    return response;
-    // const paymentResponse = await getWallet(mnemonic).payLightningInvoice({
-    //   invoice: invoice.toLowerCase(),
-    //   maxFeeSats: maxFeeSats,
-    //   amountSatsToSend: amountSats,
-    // });
-    // return { didWork: true, paymentResponse };
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'sendSparkLightningPayment',
+        {
+          mnemonic,
+          invoice,
+          maxFeeSats,
+          amountSats,
+        },
+      );
+      if (!response.didWork) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const paymentResponse = await wallet.payLightningInvoice({
+        invoice: invoice.toLowerCase(),
+        maxFeeSats: maxFeeSats,
+        amountSatsToSend: amountSats,
+      });
+      return { didWork: true, paymentResponse };
+    }
   } catch (err) {
     console.log('Send lightning payment error', err);
     return { didWork: false, error: err.message };
@@ -505,27 +661,34 @@ export const sendSparkBitcoinPayment = async ({
   feeQuote,
   deductFeeFromWithdrawalAmount = false,
   mnemonic,
-  sendWebViewRequest,
 }) => {
   try {
-    const response = await sendWebViewRequest('sendSparkBitcoinPayment', {
-      mnemonic,
-      onchainAddress,
-      exitSpeed,
-      feeQuote,
-      amountSats,
-      deductFeeFromWithdrawalAmount,
-    });
-    if (!response.didWork) throw new Error(response.error);
-    return response;
-    // const response = await getWallet(mnemonic).withdraw({
-    //   onchainAddress: onchainAddress,
-    //   exitSpeed,
-    //   amountSats,
-    //   feeQuote,
-    //   deductFeeFromWithdrawalAmount,
-    // });
-    // return { didWork: true, response };
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'sendSparkBitcoinPayment',
+        {
+          mnemonic,
+          onchainAddress,
+          exitSpeed,
+          feeQuote,
+          amountSats,
+          deductFeeFromWithdrawalAmount,
+        },
+      );
+      if (!response.didWork) throw new Error(response.error);
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const response = await wallet.withdraw({
+        onchainAddress: onchainAddress,
+        exitSpeed,
+        amountSats,
+        feeQuote,
+        deductFeeFromWithdrawalAmount,
+      });
+      return { didWork: true, response };
+    }
   } catch (err) {
     console.log('Send Bitcoin payment error', err);
     return { didWork: false, error: err.message };
@@ -536,17 +699,21 @@ export const getSparkTransactions = async (
   transferCount = 100,
   offsetIndex,
   mnemonic,
-  sendWebViewRequest,
 ) => {
   try {
-    const response = await sendWebViewRequest('getSparkTransactions', {
-      mnemonic,
-      transferCount,
-      offsetIndex,
-    });
-    if (!response) throw new Error('unable to get trasnactions');
-    return response;
-    // return await getWallet(mnemonic).getTransfers(transferCount, offsetIndex);
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal('getSparkTransactions', {
+        mnemonic,
+        transferCount,
+        offsetIndex,
+      });
+      if (!response) throw new Error('unable to get trasnactions');
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return await wallet.getTransfers(transferCount, offsetIndex);
+    }
   } catch (err) {
     console.log('get spark transactions error', err);
     return { transfers: [] };
@@ -560,30 +727,38 @@ export const getSparkTokenTransactions = async ({
   tokenIdentifiers,
   outputIds,
   mnemonic,
-  sendWebViewRequest,
+
   lastSavedTransactionId,
 }) => {
   try {
-    const response = await sendWebViewRequest('getSparkTokenTransactions', {
-      mnemonic,
-      ownerPublicKeys,
-      issuerPublicKeys,
-      tokenTransactionHashes,
-      tokenIdentifiers,
-      outputIds,
-      lastSavedTransactionId,
-    });
-    if (!response) throw new Error('unable to get trasnactions');
-    return response;
-    // return await getWallet(mnemonic).queryTokenTransactions({
-    //   ownerPublicKeys,
-    //   issuerPublicKeys,
-    //   tokenTransactionHashes,
-    //   tokenIdentifiers,
-    //   outputIds,
-    // });
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        'getSparkTokenTransactions',
+        {
+          mnemonic,
+          ownerPublicKeys,
+          issuerPublicKeys,
+          tokenTransactionHashes,
+          tokenIdentifiers,
+          outputIds,
+          lastSavedTransactionId,
+        },
+      );
+      if (!response) throw new Error('unable to get trasnactions');
+      return response;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return await wallet.queryTokenTransactions({
+        ownerPublicKeys,
+        issuerPublicKeys,
+        tokenTransactionHashes,
+        tokenIdentifiers,
+        outputIds,
+      });
+    }
   } catch (err) {
-    console.log('get spark transactions error', err);
+    console.log('get spark Tokens transactions error', err);
     return [];
   }
 };
@@ -605,7 +780,7 @@ export const sparkPaymentType = tx => {
   try {
     const isLightningPayment = tx.type === 'PREIMAGE_SWAP';
     const isBitcoinPayment =
-      tx.type == 'COOPERATIVE_EXIT' || tx.type === 'UTXO_SWAP';
+      tx.type === 'COOPERATIVE_EXIT' || tx.type === 'UTXO_SWAP';
     const isSparkPayment = tx.type === 'TRANSFER';
 
     return isLightningPayment
@@ -691,6 +866,7 @@ export const findTransactionTxFromTxHistory = async (
   transferCount = 100,
 ) => {
   try {
+    const runtime = await selectSparkRuntime(mnemonic);
     // Early return with cached transaction
     const cachedTx = previousTxs.find(tx => tx.id === sparkTxId);
     if (cachedTx) {
@@ -705,15 +881,27 @@ export const findTransactionTxFromTxHistory = async (
 
     let offset = previousOffset;
     let foundTransfers = [];
-    let bitcoinTransfer = undefined;
+    let bitcoinTransfer;
     const maxAttempts = 20;
+    let wallet;
+    if (runtime === 'native') {
+      wallet = await getWallet(mnemonic);
+    }
 
     while (offset < maxAttempts) {
-      const transfers = await sendWebViewRequest('getSparkTransactions', {
-        mnemonic,
-        transferCount: transferCount,
-        offsetIndex: transferCount * offset,
-      });
+      let transfers;
+      if (runtime === 'webview') {
+        transfers = await sendWebViewRequestGlobal('getSparkTransactions', {
+          mnemonic,
+          transferCount: transferCount,
+          offsetIndex: transferCount * offset,
+        });
+      } else {
+        transfers = await wallet.getTransfers(
+          transferCount,
+          transferCount * offset,
+        );
+      }
 
       foundTransfers = transfers.transfers;
 

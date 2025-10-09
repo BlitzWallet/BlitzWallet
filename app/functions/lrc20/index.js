@@ -36,7 +36,7 @@ export async function getLRC20Transactions({
   const tokenTxs = await getSparkTokenTransactions({
     ownerPublicKeys,
     mnemonic,
-    sendWebViewRequest,
+
     lastSavedTransactionId,
   });
 
@@ -74,10 +74,7 @@ export async function getLRC20Transactions({
       tokenBufferAmountToDecimal(tokenOutputs[0]?.tokenAmount),
     );
     const didSend = ownerPublicKey !== ownerPublicKeys[0];
-    console.log(
-      Object.values(tokenTx.tokenTransactionHash),
-      'token transaction hash',
-    );
+
     if (
       savedIds.has(
         Buffer.from(Object.values(tokenTx.tokenTransactionHash)).toString(

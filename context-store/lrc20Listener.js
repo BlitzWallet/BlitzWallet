@@ -55,10 +55,7 @@ export function LRC20EventProvider({ children }) {
           currentAttempts.current += 1;
 
           try {
-            const data = await getSparkBalance(
-              currentWalletMnemoinc,
-              sendWebViewRequest,
-            );
+            const data = await getSparkBalance(currentWalletMnemoinc);
             if (data.didWork) {
               const hashedData = sha256Hash(JSON.stringify(data.tokensObj));
               const compareHash = prevData.current

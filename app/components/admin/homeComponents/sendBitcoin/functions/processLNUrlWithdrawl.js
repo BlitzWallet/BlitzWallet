@@ -58,7 +58,6 @@ async function pollForResponse(
     const sparkReceiveResposne = await getSparkLightningPaymentStatus({
       lightningInvoiceId: invoiceData.id,
       mnemonic: currentWalletMnemoinc,
-      sendWebViewRequest,
     });
     if (sparkReceiveResposne.transfer) break;
   }

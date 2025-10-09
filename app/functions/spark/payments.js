@@ -57,7 +57,6 @@ export const sparkPaymenWrapper = async ({
           address,
           amountSats,
           mnemonic,
-          sendWebViewRequest,
         );
 
         if (!routingFee.didWork)
@@ -68,7 +67,6 @@ export const sparkPaymenWrapper = async ({
           amountSats,
           withdrawalAddress: address,
           mnemonic,
-          sendWebViewRequest,
         });
 
         if (!feeResponse.didWork)
@@ -87,7 +85,6 @@ export const sparkPaymenWrapper = async ({
         const feeResponse = await getSparkPaymentFeeEstimate(
           amountSats,
           mnemonic,
-          sendWebViewRequest,
         );
         calculatedFee = feeResponse;
       }
@@ -116,7 +113,6 @@ export const sparkPaymenWrapper = async ({
         invoice: address,
         amountSats: usingZeroAmountInvoice ? amountSats : undefined,
         mnemonic,
-        sendWebViewRequest,
       });
 
       if (!lightningPayResponse.didWork)
@@ -164,7 +160,6 @@ export const sparkPaymenWrapper = async ({
         feeQuote,
         deductFeeFromWithdrawalAmount: true,
         mnemonic,
-        sendWebViewRequest,
       });
 
       if (!onChainPayResponse.didWork)
@@ -205,14 +200,12 @@ export const sparkPaymenWrapper = async ({
           tokenAmount: amountSats,
           receiverSparkAddress: address,
           mnemonic,
-          sendWebViewRequest,
         });
       } else {
         sparkPayResponse = await sendSparkPayment({
           receiverSparkAddress: address,
           amountSats,
           mnemonic,
-          sendWebViewRequest,
         });
       }
 
@@ -277,7 +270,6 @@ export const sparkReceivePaymentWrapper = async ({
         amountSats,
         memo,
         mnemonic: mnemoinc,
-        sendWebViewRequest,
       });
 
       if (!invoiceResponse.didWork) throw new Error(invoiceResponse.error);
@@ -304,17 +296,14 @@ export const sparkReceivePaymentWrapper = async ({
       };
     } else if (paymentType === 'bitcoin') {
       // Handle storage of tx when claiming in spark context
-      const depositAddress = await getSparkStaticBitcoinL1Address(
-        mnemoinc,
-        sendWebViewRequest,
-      );
+      const depositAddress = await getSparkStaticBitcoinL1Address(mnemoinc);
       return {
         didWork: true,
         invoice: depositAddress,
       };
     } else {
       // No need to save address since it is constant
-      const sparkAddress = await getSparkAddress(mnemoinc, sendWebViewRequest);
+      const sparkAddress = await getSparkAddress(mnemoinc);
       if (!sparkAddress.didWork) throw new Error(sparkAddress.error);
 
       const data = sparkAddress.response;

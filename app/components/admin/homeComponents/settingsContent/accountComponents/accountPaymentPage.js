@@ -133,7 +133,7 @@ export default function AccountPaymentPage(props) {
       }
       setTransferInfo(prev => ({ ...prev, isDoingTransfer: true }));
 
-      const toSparkAddress = await getSparkAddress(to, sendWebViewRequest);
+      const toSparkAddress = await getSparkAddress(to);
 
       if (!toSparkAddress.didWork) {
         throw new Error(
@@ -143,8 +143,8 @@ export default function AccountPaymentPage(props) {
 
       const [accountIdentifyPubKey, toAccountIdentityPubKey] =
         await Promise.all([
-          getSparkIdentityPubKey(from, sendWebViewRequest),
-          getSparkIdentityPubKey(to, sendWebViewRequest),
+          getSparkIdentityPubKey(from),
+          getSparkIdentityPubKey(to),
         ]);
 
       if (!accountIdentifyPubKey || !toAccountIdentityPubKey) {

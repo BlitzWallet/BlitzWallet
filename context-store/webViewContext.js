@@ -14,9 +14,12 @@ import { randomBytes } from '@noble/hashes/utils';
 import { Platform } from 'react-native';
 import { getSharedSecret, getPublicKey, utils } from '@noble/secp256k1';
 import { createCipheriv, createDecipheriv } from 'react-native-quick-crypto';
+import sha256Hash from '../app/functions/hash';
 
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
+let handshakeComplete = false;
+let globalSendWebViewRequest = null;
 
 const WebViewContext = createContext(null);
 
@@ -36,10 +39,21 @@ function deriveAesKeyFromSharedX(sharedX) {
   return Buffer.from(keyBytes); // Buffer of length 32
 }
 
-let handshakeComplete = false;
-
 const setHandshakeComplete = value => {
   handshakeComplete = value;
+};
+
+export const sendWebViewRequestGlobal = async (
+  action,
+  args = {},
+  encrypt = true,
+) => {
+  if (!globalSendWebViewRequest) {
+    throw new Error(
+      'WebView not initialized. Ensure WebViewProvider is mounted.',
+    );
+  }
+  return globalSendWebViewRequest(action, args, encrypt);
 };
 
 export const getHandshakeComplete = () => handshakeComplete;
@@ -135,7 +149,7 @@ export const WebViewProvider = ({ children }) => {
     }
   }, []);
 
-  const sendWebViewRequest = useCallback(
+  const sendWebViewRequestInternal = useCallback(
     async (action, args = {}, encrypt = true) => {
       return new Promise(async (resolve, reject) => {
         if (!webViewRef.current || !isWebViewReady)
@@ -143,6 +157,10 @@ export const WebViewProvider = ({ children }) => {
 
         const id = customUUID();
         pendingRequests.current[id] = resolve;
+
+        if (args.mnemonic && action !== 'initializeSparkWallet') {
+          args.mnemonic = sha256Hash(args.mnemonic);
+        }
 
         let payload = { id, action, args };
 
@@ -172,8 +190,8 @@ export const WebViewProvider = ({ children }) => {
       publicKey: Buffer.from(pubN).toString('hex'),
     };
 
-    sendWebViewRequest('handshake:init', { pubN: pubNHex });
-  }, [sendWebViewRequest]);
+    sendWebViewRequestInternal('handshake:init', { pubN: pubNHex });
+  }, [sendWebViewRequestInternal]);
 
   useEffect(() => {
     if (!webViewRef.current) return;
@@ -182,8 +200,14 @@ export const WebViewProvider = ({ children }) => {
     initHandshake();
   }, [isWebViewReady]);
 
+  useEffect(() => {
+    globalSendWebViewRequest = sendWebViewRequestInternal;
+  }, [sendWebViewRequestInternal]);
+
   return (
-    <WebViewContext.Provider value={{ webViewRef, sendWebViewRequest }}>
+    <WebViewContext.Provider
+      value={{ webViewRef, sendWebViewRequest: sendWebViewRequestInternal }}
+    >
       {children}
       <WebView
         domStorageEnabled={false}
@@ -200,7 +224,7 @@ export const WebViewProvider = ({ children }) => {
         source={
           Platform.OS === 'ios'
             ? require('spark-web-context')
-            : { uri: 'file:///android_asset/sparkWebview.html' }
+            : { uri: 'file:///android_asset/sparkContext.html' }
         }
         originWhitelist={['*']}
         onMessage={handleWebViewResponse}
