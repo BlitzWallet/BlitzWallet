@@ -850,7 +850,7 @@ const SparkWalletProvider = ({ children }) => {
     swapLiquidToSpark();
   }, [
     didGetToHomepage,
-    liquidNodeInformation,
+    liquidNodeInformation.userBalance,
     minMaxLiquidSwapAmounts,
     sparkInformation.didConnect,
     globalContactsInformation?.myProfile?.uniqueName,
