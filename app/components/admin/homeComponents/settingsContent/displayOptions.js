@@ -6,6 +6,7 @@ import {
   View,
 } from 'react-native';
 import {
+  BITCOIN_SAT_TEXT,
   BITCOIN_SATS_ICON,
   CENTER,
   COLORS,
@@ -53,7 +54,7 @@ export default function DisplayOptions() {
     code: currencyText,
   });
   const currencySymbol = formattedCurrency[2];
-
+  console.log(currencySymbol);
   const steps = [15, 20, 25, 30, 35, 40];
 
   return (
@@ -186,7 +187,7 @@ export default function DisplayOptions() {
           }}
           content={`${t('settings.displayOptions.text7')} ${
             masterInfoObject.userBalanceDenomination !== 'fiat'
-              ? 'sats'
+              ? BITCOIN_SAT_TEXT
               : `${t('settings.displayOptions.text8')}`
           } `}
         />
@@ -257,7 +258,7 @@ export default function DisplayOptions() {
             }}
             content={
               masterInfoObject.userBalanceDenomination !== 'fiat'
-                ? 'Sats'
+                ? BITCOIN_SAT_TEXT
                 : currencyText
             }
           />
@@ -427,6 +428,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 5,
   },
   denominationContainerWord: {
     height: 40,
@@ -457,6 +459,5 @@ const styles = StyleSheet.create({
   removeFontPadding: {
     includeFontPadding: false,
     flexShrink: 1,
-    marginRight: 5,
   },
 });
