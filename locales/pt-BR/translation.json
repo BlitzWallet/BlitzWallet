@@ -862,7 +862,7 @@
       "noCameraAccess": "Sem acesso à câmera",
       "settingsText": "Acesse as configurações para permitir que a Carteira Blitz acesse sua câmera",
       "noCameraDevice": "Você não tem um dispositivo com câmera.",
-      "error1": "Device does not have a torch",
+      "error1": "O dispositivo não possui lanterna",
       "error2": "Você já pagou esta fatura"
     },
     "receivePages": {
@@ -1547,35 +1547,35 @@
     "contactSupport": "Entre em contato com o suporte se o problema persistir",
     "deleteAccount": "Erro ao excluir conta.",
     "failedToDecryptPin": "Falha ao descriptografar o PIN",
-    "decodePinWithBio": "Unable to decode pin with biometrics",
-    "insufficientBalanceError": "Insufficient balance to purchase {{planType}}",
-    "internetReconnection": "Please reconnect to the internet to use this feature",
-    "requestError": "There was an error with the request, please try again.",
-    "invoiceRetrivalError": "There was an error retrieving the invoice, please try again.",
-    "payingInvoiceError": "There was an error paying the invoice, please try again.",
-    "noMailAppsFoundError": " No mail apps found on your device. Please install a mail app to use this feature.",
-    "retriveingPhotoesError": " There was an error retrieving photos, please try again.",
-    "clipboardContentError": "No data in clipboard",
-    "userDataFetchError": "Unable to get user from database.",
-    "updateContactMessageError": "There was a problem updating this message, please try again.",
-    "declinePaymentError": "There was a problem declining this payment, please try again.",
-    "payingContactError": "We were not able to get the contacts address, please try again.",
-    "noUserFoundDeeplinkError": "Not able to find any user for this username.",
-    "cannotAddSelfError": "You cannot add yourself as a contact.",
-    "fullDeeplinkError": "Unable to retrive contact information, please try again.",
-    "processingDeepLinkError": "Failed to process link: {{error}}",
-    "legacyContactError": "Contact has not updated thier wallet yet. Please ask them to update their wallet to send this.",
-    "contactInvoiceGenerationError": "Error generating invoice. Make sure this is a valid LNURL address.",
-    "explorePagenoDataError": "We were unable to retrive Blitz user count.",
-    "savingFileError": "Error saving file to document",
-    "savingFilePermissionsError": "Error getting permissions",
-    "writtingFileError": "Error writing file to filesystem",
-    "createTransactionsFileError": "Unable to create transaction file",
-    "noQrInScanError": "Not able to get find QRcode from image.",
-    "noDataInQRError": "Not able to get find data from image.",
-    "noInvoiceInImageError": "Not able to get invoice from image.",
-    "savingImageError": "Unable to save image, pleae try again.",
-    "invalidSeedError": "Did not enter a valid seed",
+    "decodePinWithBio": "Não foi possível decodificar o PIN com biometria",
+    "insufficientBalanceError": "Saldo insuficiente para comprar {{planType}}",
+    "internetReconnection": "Reconecte-se à Internet para usar este recurso",
+    "requestError": "Ocorreu um erro na solicitação, tente novamente.",
+    "invoiceRetrivalError": "Ocorreu um erro ao recuperar a fatura, tente novamente.",
+    "payingInvoiceError": "Ocorreu um erro ao pagar a fatura, tente novamente.",
+    "noMailAppsFoundError": " Nenhum aplicativo de e-mail encontrado no seu dispositivo. Instale um aplicativo de e-mail para usar este recurso..",
+    "retriveingPhotoesError": " Ocorreu um erro ao recuperar as fotos, tente novamente.",
+    "clipboardContentError": "Nenhum dado na área de transferência",
+    "userDataFetchError": "Não foi possível obter o usuário a partir do banco de dados.",
+    "updateContactMessageError": "Ocorreu um problema ao atualizar esta mensagem. Tente novamente.",
+    "declinePaymentError": "Ocorreu um problema ao recusar este pagamento, tente novamente.",
+    "payingContactError": "Não conseguimos obter o endereço de contato, tente novamente.",
+    "noUserFoundDeeplinkError": "Não foi possível encontrar nenhum usuário para este nome de usuário.",
+    "cannotAddSelfError": "Você não pode adicionar a si mesmo como um contato.",
+    "fullDeeplinkError": "Não foi possível recuperar as informações de contato, tente novamente.",
+    "processingDeepLinkError": "Falha ao processar o link: {{error}}",
+    "legacyContactError": "O contato ainda não atualizou a carteira. Peça para ele atualizar a carteira para enviar isso..",
+    "contactInvoiceGenerationError": "Erro ao gerar fatura. Certifique-se de que seja um endereço LNURL válido.",
+    "explorePagenoDataError": "Não foi possível recuperar a contagem de usuários da Blitz.",
+    "savingFileError": "Erro ao salvar arquivo no documento",
+    "savingFilePermissionsError": "Erro ao obter permissões",
+    "writtingFileError": "Erro ao gravar arquivo no sistema de arquivos",
+    "createTransactionsFileError": "Não foi possível criar o arquivo de transação",
+    "noQrInScanError": "Não foi possível encontrar o código QR da imagem.",
+    "noDataInQRError": "Não foi possível encontrar dados da imagem.",
+    "noInvoiceInImageError": "Não foi possível obter a fatura a partir da imagem.",
+    "savingImageError": "Não foi possível salvar a imagem, tente novamente.",
+    "invalidSeedError": "Não foi inserida uma frase-semente válida",
     "invalidSeedWordLengthErorr": "Not every word is of valid length",
     "invalidSeedLengthError": "Unable to find 12 words from copied recovery phrase.",
     "noGooglePlay": "Google Play Services are required to receive notifications.",
@@ -1599,12 +1599,12 @@
   },
   "contexts": {
     "spark": {
-      "depositLabel": "Deposit address payment"
+      "depositLabel": "Endereço de depósito para pagamento"
     }
   },
 
   "swapMessages": {
-    "liquid": "Liquid to Spark Swap"
+    "liquid": "Troca de Liquid para Spark"
   },
   "tabs": {
     "home": "Carteira",
@@ -1618,10 +1618,10 @@
     },
     "POS": "Pedido recebido: {{totalAmount}}",
     "contacts": {
-      "updateMessage": "{{name}} {{option}} your request",
-      "request": "{{name}} requested you {{amount}}",
-      "payment": "{{name}} paid you {{amount}}",
-      "giftCard": "{{name}} sent you a {{giftCardName}} Gift Card"
+      "updateMessage": "{{name}} {{option}} sua solicitção",
+      "request": "{{name}} solicitou você {{amount}}",
+      "payment": "{{name}} pagou você {{amount}}",
+      "giftCard": "{{name}} enviou para você um {{giftCardName}} cartão presente"
     }
   }
 }
