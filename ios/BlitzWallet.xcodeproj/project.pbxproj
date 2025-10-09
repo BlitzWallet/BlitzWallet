@@ -444,7 +444,9 @@
 				DEVELOPMENT_TEAM = 38WX44YTA6;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = BlitzWallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				INFOPLIST_KEY_CFBundleDisplayName = "Blitz Wallet";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -479,7 +481,9 @@
 				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_TEAM = 38WX44YTA6;
 				INFOPLIST_FILE = BlitzWallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				INFOPLIST_KEY_CFBundleDisplayName = "Blitz Wallet";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
