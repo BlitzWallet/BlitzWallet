@@ -113,11 +113,7 @@ export default function ConfirmTxPage(props) {
               includeFontPadding: false,
             }}
             neverHideBalance={true}
-            balance={
-              isLRC20Payment && formattedTokensBalance > 1
-                ? formattedTokensBalance
-                : amount
-            }
+            balance={isLRC20Payment ? formattedTokensBalance : amount}
             useCustomLabel={isLRC20Payment}
             customLabel={token?.tokenMetadata?.tokenTicker}
             useMillionDenomination={true}
