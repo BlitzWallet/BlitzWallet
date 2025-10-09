@@ -5,7 +5,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image } from 'expo-image';
 import { CENTER, COLORS, ICONS } from '../../app/constants';
 import GetThemeColors from '../../app/hooks/themeColors';
@@ -174,11 +174,13 @@ function MyTabBar({ state, descriptors, navigation }) {
 }
 
 export function MyTabs(props) {
+  const renderTabBar = useCallback(tabProps => <MyTabBar {...tabProps} />, []);
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={{ headerShown: false }}
-      tabBar={props => <MyTabBar {...props} />}
+      tabBar={renderTabBar}
     >
       <Tab.Screen name="ContactsPageInit" component={props.ContactsPage} />
       <Tab.Screen name="Home" component={props.adminHome} />
