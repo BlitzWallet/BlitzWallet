@@ -853,7 +853,7 @@
     "see_all_txs": "Ver tudo",
     "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui",
     "contactsPage": {
-      "header": "Select recipient",
+      "header": "Selecione o destinatário",
       "inputTextPlaceholder": "Procurar nome de usuário...",
       "subHeader": "Todos contatos",
       "giftsText": "Meus presentes"
@@ -1172,7 +1172,7 @@
 
     "accounts": {
       "inputPlaceholder": "Nome da conta",
-      "buttonCTA": "Swap Funds"
+      "buttonCTA": "Trocar fundos"
     },
     "resetWallet": {
       "header": "Tem certeza?",
