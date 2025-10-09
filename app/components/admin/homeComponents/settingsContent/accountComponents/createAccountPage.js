@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -21,27 +21,27 @@ import {
   SIZES,
 } from '../../../../../constants';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {useNavigation} from '@react-navigation/native';
-import {createAccountMnemonic} from '../../../../../functions';
+import { useNavigation } from '@react-navigation/native';
+import { createAccountMnemonic } from '../../../../../functions';
 import {
   COLORS,
   FONT,
   INSET_WINDOW_WIDTH,
   WINDOWWIDTH,
 } from '../../../../../constants/theme';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import SuggestedWordContainer from '../../../../login/suggestedWords';
 import isValidMnemonic from '../../../../../functions/isValidMnemonic';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import customUUID from '../../../../../functions/customUUID';
 import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
-import {handleRestoreFromText} from '../../../../../functions/seed';
+import { handleRestoreFromText } from '../../../../../functions/seed';
 import getClipboardText from '../../../../../functions/getClipboardText';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
-import {useTranslation} from 'react-i18next';
-const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { useTranslation } from 'react-i18next';
+const NUMARRAY = Array.from({ length: 12 }, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   acc[`key${num}`] = '';
   return acc;
@@ -49,10 +49,10 @@ const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
 
 export default function CreateCustodyAccountPage(props) {
   const selectedAccount = props?.route?.params?.account;
-  const {createAccount, currentWalletMnemoinc, removeAccount, updateAccount} =
+  const { createAccount, currentWalletMnemoinc, removeAccount, updateAccount } =
     useActiveCustodyAccount();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {bottomPadding} = useGlobalInsets();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { bottomPadding } = useGlobalInsets();
 
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
@@ -71,7 +71,7 @@ export default function CreateCustodyAccountPage(props) {
   const keyRefs = useRef({});
   const blockDeleteAccountRef = useRef(null);
 
-  const {backgroundOffset, textColor} = GetThemeColors();
+  const { backgroundOffset, textColor } = GetThemeColors();
 
   const accounts = useCustodyAccountList();
   const navigate = useNavigation();
@@ -88,7 +88,7 @@ export default function CreateCustodyAccountPage(props) {
     Boolean(foundAccount) && foundAccount?.name !== selectedAccount?.name;
 
   const enteredAllSeeds = Object.values(inputedKey).filter(item => item);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const handleInputElement = useCallback((text, keyNumber) => {
     const restoredSeed = handleRestoreFromText(text);
@@ -103,7 +103,7 @@ export default function CreateCustodyAccountPage(props) {
       return;
     }
 
-    setInputedKey(prev => ({...prev, [`key${keyNumber}`]: text}));
+    setInputedKey(prev => ({ ...prev, [`key${keyNumber}`]: text }));
   }, []);
 
   const handleFocus = useCallback(keyNumber => {
@@ -215,12 +215,12 @@ export default function CreateCustodyAccountPage(props) {
       navigate.goBack();
     } catch (err) {
       console.log('Create custody account error', err);
-      navigate.navigate('ErrorScreen', {errorMessage: err.message});
+      navigate.navigate('ErrorScreen', { errorMessage: err.message });
     }
   };
 
   const seedItemBackgroundColor = useMemo(
-    () => (theme ? COLORS.darkModeBackgroundOffset : COLORS.darkModeText),
+    () => (theme ? backgroundOffset : COLORS.darkModeText),
     [theme],
   );
 
@@ -235,13 +235,15 @@ export default function CreateCustodyAccountPage(props) {
       rows.push(
         <View
           key={`row${item1}`}
-          style={[styles.seedRow, {marginBottom: item2 !== 12 ? 10 : 0}]}>
+          style={[styles.seedRow, { marginBottom: item2 !== 12 ? 10 : 0 }]}
+        >
           {/* First item in row */}
           <View
             style={[
               styles.seedItem,
-              {backgroundColor: seedItemBackgroundColor},
-            ]}>
+              { backgroundColor: seedItemBackgroundColor },
+            ]}
+          >
             <ThemeText styles={styles.numberText} content={`${item1}.`} />
             <TextInput
               keyboardAppearance={theme ? 'dark' : 'light'}
@@ -253,7 +255,7 @@ export default function CreateCustodyAccountPage(props) {
               // blurOnSubmit={false}
               submitBehavior="submit"
               cursorColor={COLORS.lightModeText}
-              style={styles.textInputStyle}
+              style={[styles.textInputStyle, { color: textColor }]}
             />
           </View>
 
@@ -261,8 +263,9 @@ export default function CreateCustodyAccountPage(props) {
           <View
             style={[
               styles.seedItem,
-              {backgroundColor: seedItemBackgroundColor},
-            ]}>
+              { backgroundColor: seedItemBackgroundColor },
+            ]}
+          >
             <ThemeText styles={styles.numberText} content={`${item2}.`} />
             <TextInput
               keyboardAppearance={theme ? 'dark' : 'light'}
@@ -273,7 +276,7 @@ export default function CreateCustodyAccountPage(props) {
               onChangeText={e => handleInputElement(e, item2)}
               submitBehavior="submit"
               cursorColor={COLORS.lightModeText}
-              style={styles.textInputStyle}
+              style={[styles.textInputStyle, { color: textColor }]}
             />
           </View>
         </View>,
@@ -316,8 +319,9 @@ export default function CreateCustodyAccountPage(props) {
             : CONTENT_KEYBOARD_OFFSET
           : bottomPadding,
       }}
-      isKeyboardActive={isKeyboardActive}>
-      <View style={{width: '95%'}}>
+      isKeyboardActive={isKeyboardActive}
+    >
+      <View style={{ width: '95%' }}>
         <CustomSettingsTopBar
           shouldDismissKeyboard={true}
           label={
@@ -348,15 +352,17 @@ export default function CreateCustodyAccountPage(props) {
         />
       </View>
       <ScrollView
-        style={{width: INSET_WINDOW_WIDTH}}
-        contentContainerStyle={{paddingTop: 10, paddingBottom: 10}}
-        showsVerticalScrollIndicator={false}>
+        style={{ width: INSET_WINDOW_WIDTH }}
+        contentContainerStyle={{ paddingTop: 10, paddingBottom: 10 }}
+        showsVerticalScrollIndicator={false}
+      >
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
             marginBottom: 10,
-          }}>
+          }}
+        >
           <ThemeText
             styles={{
               fontSize: SIZES.large,
@@ -375,7 +381,8 @@ export default function CreateCustodyAccountPage(props) {
                   ),
                   buttonText: t('constants.understandText'),
                 });
-              }}>
+              }}
+            >
               <Icon
                 color={
                   theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
@@ -389,7 +396,7 @@ export default function CreateCustodyAccountPage(props) {
           inputText={accountInformation.name}
           setInputText={e => {
             setAccountInformation(prev => {
-              return {...prev, name: e};
+              return { ...prev, name: e };
             });
           }}
           containerStyles={{
@@ -441,14 +448,15 @@ export default function CreateCustodyAccountPage(props) {
                 marginTop: 10,
                 columnGap: 10,
                 rowGap: 10,
-              }}>
+              }}
+            >
               <CustomButton
                 buttonStyles={{
                   flex: 1,
                   minWidth: 150,
                   backgroundColor: theme ? backgroundOffset : COLORS.primary,
                 }}
-                textStyles={{color: COLORS.darkModeText}}
+                textStyles={{ color: COLORS.darkModeText }}
                 actionFunction={regenerateSeed}
                 textContent={t('constants.regenerate')}
               />
@@ -459,7 +467,7 @@ export default function CreateCustodyAccountPage(props) {
                   minWidth: 150,
                   backgroundColor: theme ? backgroundOffset : COLORS.primary,
                 }}
-                textStyles={{color: COLORS.darkModeText}}
+                textStyles={{ color: COLORS.darkModeText }}
                 textContent={t('constants.restore')}
               />
             </View>
@@ -581,7 +589,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
   },
-  textInputContainer: {width: '100%'},
+  textInputContainer: { width: '100%' },
   textInputContainerDescriptionText: {
     marginBottom: 5,
   },
@@ -642,7 +650,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.large,
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-    color: COLORS.lightModeText,
   },
 
   mainBTCContainer: {
