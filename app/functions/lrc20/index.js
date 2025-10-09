@@ -8,7 +8,7 @@ import { bulkUpdateSparkTransactions } from '../spark/transactions';
 import { convertToBech32m } from './bech32';
 import tokenBufferAmountToDecimal from './bufferToDecimal';
 import { getCachedTokens } from './cachedTokens';
-const MINUTE_BUFFER = 1000 * 60;
+
 export async function getLRC20Transactions({
   ownerPublicKeys,
   sparkAddress,
@@ -52,9 +52,6 @@ export async function getLRC20Transactions({
   let newTxs = [];
 
   for (const tokenTx of tokenTransactions) {
-    const tokenReceivedDate = new Date(
-      tokenTx.tokenTransaction.clientCreatedTimestamp,
-    );
     const tokenOutput = tokenTx.tokenTransaction.tokenOutputs[0];
     const tokenIdentifier = tokenOutput?.tokenIdentifier;
     const tokenIdentifierHex = Buffer.from(
@@ -67,8 +64,6 @@ export async function getLRC20Transactions({
       console.log('NO TOKEN DATA FOUND');
       continue;
     }
-
-    if (tokenReceivedDate < timeCutoff - MINUTE_BUFFER) continue;
 
     const tokenOutputs = tokenTx.tokenTransaction.tokenOutputs;
 

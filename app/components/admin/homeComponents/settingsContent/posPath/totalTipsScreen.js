@@ -206,6 +206,7 @@ export default function TotalTipsScreen(props) {
     unpaidTxs,
     getServerTime,
     masterInfoObject,
+    sendWebViewRequest,
   ]);
 
   const updateInteralDBState = useCallback(async txList => {

@@ -24,6 +24,7 @@ export async function payPOSLNURL({
   description,
   sparkInformation,
   currentWalletMnemoinc,
+  sendWebViewRequest,
 }) {
   try {
     // Parse the LNURL address first as it's needed for all payment methods
@@ -103,6 +104,7 @@ export async function payPOSContact({
   // webViewRef,
   sparkInformation,
   currentWalletMnemoinc,
+  sendWebViewRequest,
 }) {
   try {
     const address = blitzContact.contacts.myProfile.sparkAddress;
