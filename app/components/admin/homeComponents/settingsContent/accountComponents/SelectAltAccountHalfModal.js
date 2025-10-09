@@ -96,6 +96,7 @@ export default function SelectAltAccountHalfModal(props) {
                 theme && darkModeType ? backgroundOffset : backgroundColor,
             }}
             textStyles={{ color: textColor }}
+            loadingColor={textColor}
             textContent={t('constants.select')}
             useLoading={
               isLoading.accountBeingLoaded === account.mnemoinc &&

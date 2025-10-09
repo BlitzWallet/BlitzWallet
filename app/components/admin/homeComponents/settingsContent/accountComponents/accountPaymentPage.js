@@ -43,7 +43,6 @@ export default function AccountPaymentPage(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { textColor } = GetThemeColors();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const sendingAmount = props?.route?.params?.amount || 0;
   const from = props?.route?.params?.from;
@@ -57,7 +56,7 @@ export default function AccountPaymentPage(props) {
     isCalculatingFee: false,
     paymentFee: 0,
   });
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, textColor } = GetThemeColors();
   const { t } = useTranslation();
 
   const accounts = useCustodyAccountList();
@@ -172,6 +171,7 @@ export default function AccountPaymentPage(props) {
           identityPubKey: accountIdentifyPubKey,
         },
         mnemonic: from,
+        sendWebViewRequest,
       });
 
       if (!sendingResponse.didWork) {
