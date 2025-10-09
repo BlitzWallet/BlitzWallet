@@ -1010,8 +1010,8 @@
       "noTransactions": "Envie ou solicite um pagamento para ver o histórico de transações."
     },
     "expandedMessageHalfModal": {
-      "title": "Full message",
-      "noDescription": "No description"
+      "title": "Mensagem completa",
+      "noDescription": "Sem descrição"
     },
     "editMyProfilePage": {
       "navTitle": "Editar perfil de contato",
@@ -1347,81 +1347,81 @@
         "seedHeader": "Frase-semente da conta"
       },
       "viewAccountPage": {
-        "informationMessage": "Are you sure you want to show this QR Code?\n\nScanning your seed is convenient, but be sure you're using a secure and trusted device. This helps keep your wallet safe."
+        "informationMessage": "Tem certeza de que deseja mostrar este códdigo QR?\n\nLer sua frase-semente é conveniente, mas certifique-se de estar usando um dispositivo seguro e confiável. Isso ajuda a manter sua carteira segura."
       }
     },
     "posPath": {
       "settings": {
-        "nameTakenError": "This point-of-sale name is already in use.",
-        "nameRegexError": "Name can only include letters and numbers.",
-        "title": "Point-of-sale",
-        "storeNameInputDesc": "Store name",
-        "storeNameInputPlaceholder": "Enter store name",
-        "displayCurrencyDesc": "Display currency",
-        "numAddeditems": "{{number}} added item{{isPlurl}}",
+        "nameTakenError": "Este nome de ponto de venda já está em uso.",
+        "nameRegexError": "O nome só pode ter letras e números.",
+        "title": "Ponto de venda",
+        "storeNameInputDesc": "Nome da loja",
+        "storeNameInputPlaceholder": "Digite o nome da loja",
+        "displayCurrencyDesc": "Moeda de exibição",
+        "numAddeditems": "{{number}} item adicionado{{isPlurl}}",
         "plurlEnding": "s",
-        "differingCurrencyItemsError": "Your current currency is different from {{number}} of your saved items. Please update your item prices to ensure you're charging the correct amount",
-        "itemsDescription": "Adding items to your point-of-sale system means employees won’t have to type in prices manually. Instead, they can just click the product names, and the prices you set will be added to the total automatically.",
-        "updateItems": "Update Items",
-        "addItem": "Add Item",
-        "openPos": "Open POS"
+        "differingCurrencyItemsError": "Sua moeda atual é diferente da {{number}} dos seus itens salvos. Atualize os preços dos seus itens para garantir que você está cobrando o valor correto",
+        "itemsDescription": "Adicionar itens ao seu sistema de ponto de venda significa que os funcionários não precisarão digitar os preços manualmente. Em vez disso, eles podem simplesmente clicar nos nomes dos produtos e os preços definidos serão adicionados ao total automaticamente.",
+        "updateItems": "Atualizar itens",
+        "addItem": "Adicionar item",
+        "openPos": "Abrir PDV"
       },
       "posInstructionsPath": {
-        "title": "Instructions",
-        "head1": "How to accept",
-        "head2": "Bitcoin payments",
-        "step1": "1. Scan QR code with your camera",
-        "step2": "2. That's it."
+        "title": "Instruções",
+        "head1": "Como aceitar",
+        "head2": "Pagamentos Bitcoin",
+        "step1": "1. Leia o código QR com sua câmera",
+        "step2": "2. É isso."
       },
       "totalTipsScreen": {
-        "noTipBalanceError": "User does not have any tips balance.",
-        "updateContactMessage": "The recipient needs to update their Blitz app to get paid.",
-        "payingMessage": "Paying...",
-        "notifyngMessage": "Notifiying...",
-        "errorPaying": "Unable to pay blitz contact. Try again later.",
-        "invalidName": "Name is not an LNURL or a Blitz user.",
-        "removeEmployeeWarning": "Are you sure you want to remove this employee?",
-        "startingPaymentProcessMessage": "'Begining payment process, please do not leave this page or the app.",
-        "goBack": "Go back",
-        "lastSale": "Last sale:",
-        "numTipsPaid": "Tips paid:",
-        "numUnpaidTips": "Unpaid tips:",
-        "tipBalance": "Tip balance:",
-        "viewTips": "View Tips"
+        "noTipBalanceError": "O usuário não tem saldo de gorjetas.",
+        "updateContactMessage": "O destinatário precisa atualizar o aplicativo Blitz para receber o pagamento.",
+        "payingMessage": "Pagando...",
+        "notifyngMessage": "Notificando...",
+        "errorPaying": "Não foi possível pagar o contato Blitz. Tente novamente mais tarde.",
+        "invalidName": "Nome não é um LNURL nem um usuário do Blitz.",
+        "removeEmployeeWarning": "Tem certeza de que deseja remover este funcionário?",
+        "startingPaymentProcessMessage": "'Ao iniciar o processo de pagamento, por favor, não saia desta página ou do aplicativo.",
+        "goBack": "Voltar",
+        "lastSale": "Última venda:",
+        "numTipsPaid": "Gorjetas pagas:",
+        "numUnpaidTips": "Gorjetas não pagas:",
+        "tipBalance": "Saldo de gorjeta:",
+        "viewTips": "Ver gorjetas"
       },
       "transactions": {
-        "unpaidtips": "Tips: {{number}}",
-        "title": "Tips to pay",
-        "empNamePlaceholder": "Employee name",
-        "noTips": "Employee has no tips"
+        "unpaidtips": "Gorjetas: {{number}}",
+        "title": "Gorjetas a pagar",
+        "empNamePlaceholder": "Nome do funcionário",
+        "noTips": "O funcionário não tem gorjetas"
       },
       "items": {
         "addItemHalfModal": {
-          "nameLengthError": "Item name must be less than 60 characters.",
-          "addItemError": "There was a problem adding your item to the POS. Please try again.",
-          "editItem": "Edit item",
-          "addItem": "Add New Item",
-          "pricesLabel": "Prices are based on your saved currency ({{currency}})",
-          "editMessage": "Edit display currency in POS settings.",
-          "itemNamePlaceholder": "Item name",
-          "pricePlaceholder": "Price ({{number}})",
-          "updateCurrency": "Update Currency",
-          "addItemBTN": "Add Item"
+          "nameLengthError": "O nome do item deve ter menos de 60 caracteres.",
+          "addItemError": "Ocorreu um problema ao adicionar seu item ao PDV. Tente novamente.",
+          "editItem": "Editar item",
+          "addItem": "Adicionar novo item",
+          "pricesLabel": "Os preços são baseados na moeda que você salvou ({{currency}})",
+          "editMessage": "Editar moeda de exibição nas configurações do PDV.",
+          "itemNamePlaceholder": "Nome do item",
+          "pricePlaceholder": "Preço ({{number}})",
+          "updateCurrency": "Atualizar moeda",
+          "addItemBTN": "Adicionar item"
         },
         "addPOSItemsPage": {
-          "denominationError": "Price is in {{currency1}}, but store currency is {{currency2}}.",
-          "deleteItemMessage": "Are you sure you want to delete this point-of-sale item?",
-          "title": "POS items",
-          "itemSearchPlaceholder": "Item name...",
-          "noItemsSearch": "No items match your search.",
-          "noItemsAdded": "Add an item for it to show up here.",
-          "ctaBTN": "Add Item"
+          "denominationError": "O preço está em {{currency1}}, mas a moeda da loja é {{currency2}}.",
+          "deleteItemMessage": "Tem certeza de que deseja excluir este item do ponto de venda?",
+          "title": "Itens do PDV",
+          "itemSearchPlaceholder": "Nome do item...",
+          "noItemsSearch": "Nenhum item corresponde à sua pesquisa.",
+          "noItemsAdded": "Adicione um item para que ele apareça aqui.",
+          "ctaBTN": "Adicionar item"
         }
       },
       "internalComponents": {
         "tipTx": {
-          "tipMessage": "Tip: {{amount}}",
-          "ctaBTN": "Mark as {{option}}"
+          "tipMessage": "Gorjeta: {{amount}}",
+          "ctaBTN": "Marcar como {{option}}"
         }
       }
     },
