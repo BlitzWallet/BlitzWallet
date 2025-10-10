@@ -665,6 +665,7 @@ async function processBitcoinTransactions(
   if (lastRun && now - JSON.parse(lastRun) < cooldownPeriod) {
     console.log('Blocking bitcoin transaction processing');
     shouldBlockSendCheck = true;
+    return [];
   } else {
     console.log('Updating bitcoin transaction processing last run time');
     shouldBlockSendCheck = false;

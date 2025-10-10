@@ -553,6 +553,7 @@ export const receiveSparkLightningPayment = async ({
           mnemonic,
           amountSats,
           memo,
+          expirySeconds: 60 * 60 * 12,
         },
       );
       if (!response.didWork) throw new Error(response.error);
