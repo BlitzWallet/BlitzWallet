@@ -203,7 +203,7 @@ export const WebViewProvider = ({ children }) => {
     if (!webViewRef.current) return;
     if (!isWebViewReady) return;
 
-    initHandshake();
+    // initHandshake();
   }, [isWebViewReady]);
 
   useEffect(() => {

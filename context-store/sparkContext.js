@@ -435,9 +435,10 @@ const SparkWalletProvider = ({ children }) => {
     incomingSparkTransaction.on(INCOMING_SPARK_TX_NAME, transferHandler);
   }, [sendWebViewRequest, currentWalletMnemoinc]);
 
-  const addListeners = async (mode, runtime) => {
+  const addListeners = async mode => {
     console.log('Adding Spark listeners...');
     if (AppState.currentState !== 'active') return;
+    const runtime = await selectSparkRuntime(currentWalletMnemoinc);
 
     sparkTransactionsEventEmitter.removeAllListeners(
       SPARK_TX_UPDATE_ENVENT_NAME,
@@ -503,7 +504,8 @@ const SparkWalletProvider = ({ children }) => {
     }
   };
 
-  const removeListeners = runtime => {
+  const removeListeners = async () => {
+    const runtime = await selectSparkRuntime(currentWalletMnemoinc);
     if (!prevAccountMnemoincRef.current) {
       prevAccountMnemoincRef.current = currentWalletMnemoinc;
       return;
@@ -558,14 +560,13 @@ const SparkWalletProvider = ({ children }) => {
 
     const shouldHaveListeners = appState === 'active' && !isSendingPayment;
     const shouldHaveSparkEventEmitter = appState === 'active';
-    const runtime = selectSparkRuntime(currentWalletMnemoinc);
 
-    removeListeners(runtime);
+    removeListeners();
 
     if (shouldHaveListeners) {
-      addListeners('full', runtime);
+      addListeners('full');
     } else if (shouldHaveSparkEventEmitter && isSendingPayment) {
-      addListeners('sparkOnly', runtime);
+      addListeners('sparkOnly');
     }
   }, [
     appState,

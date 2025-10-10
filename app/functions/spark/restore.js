@@ -436,7 +436,7 @@ async function processLightningTransactions(
       cachedTransfers,
       mnemonic,
       sendWebViewRequest,
-      100,
+      25,
     );
 
     if (findTxResponse.offset && findTxResponse.foundTransfers) {
@@ -690,7 +690,7 @@ async function processBitcoinTransactions(
         cachedTransfers,
         mnemonic,
         sendWebViewRequest,
-        50,
+        25,
       );
 
       if (findTxResponse.offset && findTxResponse.foundTransfers) {
