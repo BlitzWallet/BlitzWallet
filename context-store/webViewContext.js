@@ -105,7 +105,7 @@ export const WebViewProvider = ({ children }) => {
   const handleWebViewResponse = useCallback(event => {
     try {
       const message = JSON.parse(event.nativeEvent.data);
-      console.log('receiving message from webview', message);
+
       if (message.type === 'handshake:reply' && message.pubW) {
         backendPubkey.current = Buffer.from(message.pubW, 'hex');
         const shared = getSharedSecret(
@@ -135,6 +135,7 @@ export const WebViewProvider = ({ children }) => {
           content = decrypted;
         }
       }
+      console.log('receiving message from webview', content);
 
       if (content.incomingPayment) {
         const data = JSON.parse(content.result);
@@ -170,7 +171,7 @@ export const WebViewProvider = ({ children }) => {
         }
 
         let payload = { id, action, args };
-
+        console.log('sending message to webview', action, payload);
         if (encrypt && sessionKeyRef.current && backendPubkey.current) {
           const encrypted = encryptMessage(
             sessionKeyRef.current.privateKey,
@@ -179,8 +180,6 @@ export const WebViewProvider = ({ children }) => {
           );
           payload = { type: 'secure:msg', encrypted };
         }
-        console.log('sending message to webview', action, payload);
-
         webViewRef.current.postMessage(JSON.stringify(payload));
       });
     },
@@ -223,6 +222,7 @@ export const WebViewProvider = ({ children }) => {
         allowUniversalAccessFromFileURLs={false}
         thirdPartyCookiesEnabled={false}
         incognito={true}
+        webviewDebuggingEnabled={false}
         cacheEnabled={false}
         mixedContentMode="never"
         javaScriptEnabled
