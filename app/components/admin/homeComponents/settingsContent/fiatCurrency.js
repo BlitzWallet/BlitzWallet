@@ -1,8 +1,8 @@
-import {FlatList, StyleSheet, TouchableOpacity} from 'react-native';
-import {COLORS, CONTENT_KEYBOARD_OFFSET} from '../../../../constants';
-import {useMemo, useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { COLORS, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
+import { useMemo, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
   CustomKeyboardAvoidingView,
   GlobalThemeView,
@@ -11,32 +11,33 @@ import {
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
-import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
-import {useTranslation} from 'react-i18next';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import { useTranslation } from 'react-i18next';
 import loadNewFiatData from '../../../../functions/saveAndUpdateFiatData';
-import {fiatCurrencies} from '../../../../functions/currencyOptions';
-import {useKeysContext} from '../../../../../context-store/keys';
+import { fiatCurrencies } from '../../../../functions/currencyOptions';
+import { useKeysContext } from '../../../../../context-store/keys';
 import GetThemeColors from '../../../../hooks/themeColors';
 
 export default function FiatCurrencyPage() {
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {toggleFiatStats} = useNodeContext();
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { masterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { toggleFiatStats } = useNodeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const currencies = useMemo(() => {
     return fiatCurrencies.sort((a, b) => a.id.localeCompare(b.id));
   }, []);
 
   const [textInput, setTextInput] = useState('');
   const currentCurrency = masterInfoObject?.fiatCurrency;
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useGlobalInsets();
-  const {backgroundColor} = GetThemeColors();
+  const { bottomPadding } = useGlobalInsets();
+  const { backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +51,7 @@ export default function FiatCurrencyPage() {
     else return false;
   });
 
-  const CurrencyElements = ({currency, id}) => {
+  const CurrencyElements = ({ currency, id }) => {
     return (
       <TouchableOpacity
         style={[
@@ -61,7 +62,8 @@ export default function FiatCurrencyPage() {
         ]}
         onPress={() => {
           saveCurrencySettings(currency.id);
-        }}>
+        }}
+      >
         <CheckMarkCircle
           isActive={
             currency.id?.toLowerCase() === currentCurrency?.toLowerCase()
@@ -69,6 +71,7 @@ export default function FiatCurrencyPage() {
           containerSize={25}
         />
         <ThemeText
+          CustomNumberOfLines={1}
           styles={{
             color: theme
               ? currency.id?.toLowerCase() === currentCurrency?.toLowerCase()
@@ -80,6 +83,7 @@ export default function FiatCurrencyPage() {
               ? COLORS.primary
               : COLORS.lightModeText,
             marginLeft: 10,
+            flexShrink: 1,
           }}
           content={`${currency.id} - ${currency.info.name}`}
         />
@@ -105,14 +109,15 @@ export default function FiatCurrencyPage() {
         paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
       }}
       useTouchableWithoutFeedback={true}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
         label={t('settings.fiatCurrency.title')}
       />
 
       <FlatList
-        style={{width: '100%'}}
+        style={{ width: '100%' }}
         contentContainerStyle={{
           flexGrow: 1,
           paddingTop: 20,
@@ -134,7 +139,7 @@ export default function FiatCurrencyPage() {
           />
         }
         data={filteredList}
-        renderItem={({item, index}) => (
+        renderItem={({ item, index }) => (
           <CurrencyElements id={index} currency={item} />
         )}
         keyExtractor={currency => currency.id}
@@ -151,13 +156,13 @@ export default function FiatCurrencyPage() {
         selectedCurrency,
         contactsPrivateKey,
         publicKey,
-        {fiatCurrency: selectedCurrency},
+        { fiatCurrency: selectedCurrency },
       );
 
       if (!response.didWork) throw new Error('error saving fiat data');
 
       toggleFiatStats(response.fiatRateResponse);
-      toggleMasterInfoObject({fiatCurrency: selectedCurrency});
+      toggleMasterInfoObject({ fiatCurrency: selectedCurrency });
       navigate.goBack();
     } catch (err) {
       setIsLoading(false);
