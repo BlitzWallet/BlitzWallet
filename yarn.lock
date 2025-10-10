@@ -1677,7 +1677,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ecies/ciphers@npm:^0.2.3":
+"@ecies/ciphers@npm:^0.2.3, @ecies/ciphers@npm:^0.2.4":
   version: 0.2.4
   resolution: "@ecies/ciphers@npm:0.2.4"
   peerDependencies:
@@ -6699,13 +6699,6 @@ __metadata:
   version: 2.1.0
   resolution: "crypto-es@npm:2.1.0"
   checksum: 1eb458b4ee07a8e28d03d381f41ef97ed18b7e2a3323ec14f5129bd1dbabf39725fc003b5d8d8fd91413a1a700987ab5d47725ba40286a2afd282c9789af0b70
-  languageName: node
-  linkType: hard
-
-"crypto-js@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "crypto-js@npm:4.2.0"
-  checksum: f051666dbc077c8324777f44fbd3aaea2986f198fe85092535130d17026c7c2ccf2d23ee5b29b36f7a4a07312db2fae23c9094b644cc35f7858b1b4fcaf27774
   languageName: node
   linkType: hard
 
@@ -13857,13 +13850,13 @@ __metadata:
 
 "spark-web-context@https://github.com/blitzwallet/spark-web-context.git":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=faa4d700d596827a7da15893214d1d17040e2f48"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=c3c96ebbcd03fb4beb6fac0b0e42f7a274d6aa32"
   dependencies:
     "@buildonspark/spark-sdk": ^0.4.0
+    "@ecies/ciphers": ^0.2.4
     "@noble/hashes": ^2.0.1
     "@noble/secp256k1": ^3.0.0
-    crypto-js: ^4.2.0
-  checksum: 9bc8953231824a44d56550540b99d1548d0d0b258395223bd49e25b1d024dc5721a364db892c358ee414eaa991490580aa08316491c72d64f7937a893f990a2a
+  checksum: 49feada97fbabe5a5cda38e9cba2d8701c1b4ebcd9af466893e569b62d3fecfb45f8f960b09b6de016cc7128f75023606e8a99fd6bb4a87ca9ac4d28d22bdcdc
   languageName: node
   linkType: hard
 

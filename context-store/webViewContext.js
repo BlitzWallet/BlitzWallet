@@ -69,11 +69,12 @@ export const WebViewProvider = ({ children }) => {
   const encryptMessage = useCallback((privkey, pubkey, plaintext) => {
     try {
       if (!aesKeyRef.current) throw new Error('AES key not initialized');
-      const iv = Buffer.from(randomBytes(16));
-      const cipher = createCipheriv('aes-256-cbc', aesKeyRef.current, iv);
+      const iv = Buffer.from(randomBytes(12));
+      const cipher = createCipheriv('aes-256-gcm', aesKeyRef.current, iv);
       let encrypted = cipher.update(plaintext, 'utf8', 'base64');
       encrypted += cipher.final('base64');
-      return `${encrypted}?iv=${iv.toString('base64')}`;
+      const authTag = cipher.getAuthTag().toString('base64'); // Get 16-byte auth tag
+      return `${encrypted}?iv=${iv.toString('base64')}&tag=${authTag}`;
     } catch (err) {
       console.log('error encripting message', err);
     }
@@ -82,11 +83,17 @@ export const WebViewProvider = ({ children }) => {
   const decryptMessage = useCallback((privkey, pubkey, encryptedText) => {
     try {
       if (!aesKeyRef.current) throw new Error('AES key not initialized');
-      if (!encryptedText.includes('?iv=')) throw new Error('Missing IV');
+      if (!encryptedText.includes('?iv=') || !encryptedText.includes('&tag=')) {
+        throw new Error('Missing IV or auth tag');
+      }
 
-      const [ciphertext, ivBase64] = encryptedText.split('?iv=');
+      const [ciphertext, params] = encryptedText.split('?iv=');
+      const [ivBase64, authTagBase64] = params.split('&tag=');
       const iv = Buffer.from(ivBase64, 'base64');
-      const decipher = createDecipheriv('aes-256-cbc', aesKeyRef.current, iv);
+      const authTag = Buffer.from(authTagBase64, 'base64');
+
+      const decipher = createDecipheriv('aes-256-gcm', aesKeyRef.current, iv);
+      decipher.setAuthTag(authTag); // Set auth tag for verification
       let decrypted = decipher.update(ciphertext, 'base64', 'utf8');
       decrypted += decipher.final('utf8');
       return decrypted;
@@ -98,6 +105,7 @@ export const WebViewProvider = ({ children }) => {
   const handleWebViewResponse = useCallback(event => {
     try {
       const message = JSON.parse(event.nativeEvent.data);
+      console.log('receiving message from webview', message);
       if (message.type === 'handshake:reply' && message.pubW) {
         backendPubkey.current = Buffer.from(message.pubW, 'hex');
         const shared = getSharedSecret(
@@ -128,7 +136,6 @@ export const WebViewProvider = ({ children }) => {
         }
       }
 
-      console.log('receiving message from webview', content);
       if (content.incomingPayment) {
         const data = JSON.parse(content.result);
         incomingSparkTransaction.emit(
@@ -172,7 +179,7 @@ export const WebViewProvider = ({ children }) => {
           );
           payload = { type: 'secure:msg', encrypted };
         }
-        console.log('sending message to webview', action);
+        console.log('sending message to webview', action, payload);
 
         webViewRef.current.postMessage(JSON.stringify(payload));
       });
