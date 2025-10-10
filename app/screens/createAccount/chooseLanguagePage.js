@@ -1,25 +1,25 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {supportedLanguagesList} from '../../../locales/localeslist';
-import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { supportedLanguagesList } from '../../../locales/localeslist';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import CustomButton from '../../functions/CustomElements/button';
-import {StyleSheet, View} from 'react-native';
-import {CENTER, SIZES} from '../../constants';
+import { StyleSheet, View } from 'react-native';
+import { CENTER, SIZES } from '../../constants';
 import {
   COLORS,
   INSET_WINDOW_WIDTH,
   MAX_CONTENT_WIDTH,
 } from '../../constants/theme';
-import {useGlobalContextProvider} from '../../../context-store/context';
-import {getLocalStorageItem} from '../../functions';
-import {useNavigation} from '@react-navigation/native';
+import { useGlobalContextProvider } from '../../../context-store/context';
+import { getLocalStorageItem } from '../../functions';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ChooseLangugaePage() {
-  const {toggleMasterInfoObject} = useGlobalContextProvider();
+  const { toggleMasterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
   const [selectedValue, setSelectedValue] = useState(null);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     async function getSavedLanguage() {
@@ -45,7 +45,7 @@ export default function ChooseLangugaePage() {
 
   const handleSelect = useCallback(item => {
     setSelectedValue(item.value);
-    toggleMasterInfoObject({userSelectedLanguage: item.id});
+    toggleMasterInfoObject({ userSelectedLanguage: item.id });
   }, []);
 
   const goToNextPage = useCallback(() => {

@@ -22,7 +22,7 @@ export const supportedLanguagesList = [
   },
   {
     languageName: 'Português (Brasil)',
-    fullySupported: false,
+    fullySupported: true,
     translatedName: 'languages.portuguese_br',
     id: 'pt-BR',
     flagCode: 'br',
