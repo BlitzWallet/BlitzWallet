@@ -1,8 +1,8 @@
-import {COLORS, FONT, SIZES, SHADOWS} from './theme';
+import { COLORS, FONT, SIZES, SHADOWS } from './theme';
 import ICONS from './icons';
-import {CENTER, BTN, Background} from './styles';
-import {SATSPERBITCOIN} from './math';
-import {Dimensions} from 'react-native';
+import { CENTER, BTN, Background } from './styles';
+import { SATSPERBITCOIN } from './math';
+import { Dimensions } from 'react-native';
 
 const WEBSITE_REGEX =
   /^(https?:\/\/|www\.)[a-z\d]([a-z\d-]*[a-z\d])*(\.[a-z]{2,})+/i;
@@ -29,6 +29,7 @@ const IS_LETTER_REGEX = /^[A-Za-z]$/;
 const BITCOIN_SATS_ICON = '\u20BF';
 const HIDDEN_BALANCE_TEXT = `* * * * *`;
 const BITCOIN_SAT_TEXT = 'SAT';
+const INFINITY_SYMBOL = '\u221E';
 
 const ECASH_TX_STORAGE_KEY = 'CASHU_TRANSACTIONS';
 const AUTO_CHANNEL_REBALANCE_STORAGE_KEY = 'ACR_STORAGE_KEY';
@@ -48,6 +49,8 @@ const BIOMETRIC_KEY = 'biometricEncryptionKey';
 const LOGIN_SECURITY_MODE_TYPE_KEY = 'LOGIN_SECURITY_MODE_TYPE';
 const SPARK_CACHED_BALANCE_KEY = 'CACHED_SPARK_BALANCE';
 const NWC_IDENTITY_PUB_KEY = 'NWC_WALLET_PUB_KEY';
+
+const SHOPS_DIRECTORY_KEY = 'SHOPS_CURRENCY_LOCATION';
 
 const BLITZ_SUPPORT_DEFAULT_PAYMENT_DESCRIPTION = 'Blitz support';
 const CUSTODY_ACCOUNTS_STORAGE_KEY = 'CUSTODY_ACCOUNTS';
@@ -136,4 +139,6 @@ export {
   NOSTR_RELAY_URL,
   NWC_IDENTITY_PUB_KEY,
   SCREEN_DIMENSIONS,
+  SHOPS_DIRECTORY_KEY,
+  INFINITY_SYMBOL,
 };

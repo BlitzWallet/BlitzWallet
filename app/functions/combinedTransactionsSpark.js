@@ -368,7 +368,7 @@ export const UserTransaction = memo(function UserTransaction({
 
   const showPendingTransactionStatusIcon =
     transaction.paymentStatus === TRANSACTION_CONSTANTS.PENDING;
-  const paymentDescription = transaction.details?.description;
+  const paymentDescription = transaction.details?.description?.trim();
   const isDefaultDescription =
     paymentDescription === BLITZ_DEFAULT_PAYMENT_DESCRIPTION;
 
@@ -427,7 +427,7 @@ export const UserTransaction = memo(function UserTransaction({
   // Pre-calculate description content
   const descriptionContent = useMemo(() => {
     if (isFailedPayment) return t('transactionLabelText.notSent');
-    if (userBalanceDenomination === 'hidden') return HIDDEN_BALANCE_TEXT;
+    // if (userBalanceDenomination === 'hidden') return HIDDEN_BALANCE_TEXT;
     if (isDefaultDescription || !paymentDescription) {
       return transaction.details.direction === TRANSACTION_CONSTANTS.OUTGOING
         ? t('constants.sent')

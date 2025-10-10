@@ -37,11 +37,12 @@ export const sparkPaymenWrapper = async ({
   usingZeroAmountInvoice = false,
   seletctedToken = 'Bitcoin',
   mnemonic,
+  sendWebViewRequest,
 }) => {
   try {
     console.log('Begining spark payment');
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
+    // if (!sparkWallet[sha256Hash(mnemonic)])
+    //   throw new Error('sparkWallet not initialized');
     const supportFee = await calculateProgressiveBracketFee(
       amountSats,
       paymentType,
@@ -147,7 +148,7 @@ export const sparkPaymenWrapper = async ({
       };
       response = tx;
 
-      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
+      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
     } else if (paymentType === 'bitcoin') {
       // make sure to import exist speed
       // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
@@ -187,7 +188,7 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
+      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
     } else {
       let sparkPayResponse;
 
@@ -238,13 +239,13 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
+      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
     }
     console.log(response, 'resonse in send function');
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Send lightning payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   } finally {
     if (!getFee) {
       isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, false);
@@ -258,10 +259,11 @@ export const sparkReceivePaymentWrapper = async ({
   paymentType,
   shouldNavigate,
   mnemoinc,
+  sendWebViewRequest,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemoinc)])
-      throw new Error('sparkWallet not initialized');
+    // if (!sparkWallet[sha256Hash(mnemoinc)])
+    //   throw new Error('sparkWallet not initialized');
 
     if (paymentType === 'lightning') {
       const invoiceResponse = await receiveSparkLightningPayment({
@@ -313,7 +315,7 @@ export const sparkReceivePaymentWrapper = async ({
     }
   } catch (err) {
     console.log('Receive spark payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 

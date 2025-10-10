@@ -1,43 +1,49 @@
-import {useNavigation} from '@react-navigation/native';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import FormattedBalanceInput from '../../../../../functions/CustomElements/formattedBalanceInput';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {CENTER, COLORS, ICONS, SATSPERBITCOIN} from '../../../../../constants';
-import {useTranslation} from 'react-i18next';
+import {
+  CENTER,
+  COLORS,
+  ICONS,
+  SATSPERBITCOIN,
+} from '../../../../../constants';
+import { useTranslation } from 'react-i18next';
 import useDebounce from '../../../../../hooks/useDebounce';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
-import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
-import {useKeysContext} from '../../../../../../context-store/keys';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
+import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
+import { useKeysContext } from '../../../../../../context-store/keys';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import {
   getSparkAddress,
   getSparkIdentityPubKey,
 } from '../../../../../functions/spark';
-import {bulkUpdateSparkTransactions} from '../../../../../functions/spark/transactions';
+import { bulkUpdateSparkTransactions } from '../../../../../functions/spark/transactions';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import Icon from '../../../../../functions/CustomElements/Icon';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 
 export default function AccountPaymentPage(props) {
+  const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
-  const {accountMnemoinc} = useKeysContext();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {fiatStats} = useNodeContext();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor} = GetThemeColors();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
+  const { accountMnemoinc } = useKeysContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const sendingAmount = props?.route?.params?.amount || 0;
   const from = props?.route?.params?.from;
   const to = props?.route?.params?.to;
@@ -50,8 +56,8 @@ export default function AccountPaymentPage(props) {
     isCalculatingFee: false,
     paymentFee: 0,
   });
-  const {backgroundOffset} = GetThemeColors();
-  const {t} = useTranslation();
+  const { backgroundOffset, textColor } = GetThemeColors();
+  const { t } = useTranslation();
 
   const accounts = useCustodyAccountList();
   const fromAccount = accounts.find(item => item.mnemoinc === from)?.name || '';
@@ -71,6 +77,7 @@ export default function AccountPaymentPage(props) {
       memo: 'Accounts Swap',
       amountSats: sendingAmount,
       mnemonic: accountMnemoinc,
+      sendWebViewRequest,
     });
 
     if (!feeResponse?.didWork) return;
@@ -85,7 +92,7 @@ export default function AccountPaymentPage(props) {
     if (!sendingAmount) return;
     if (prevBalance.current === sendingAmount) return;
     prevBalance.current = sendingAmount;
-    setTransferInfo(prev => ({...prev, isCalculatingFee: true}));
+    setTransferInfo(prev => ({ ...prev, isCalculatingFee: true }));
     debouncedSearch();
   }, [sendingAmount, toAccount, fromAccount]);
 
@@ -124,7 +131,7 @@ export default function AccountPaymentPage(props) {
           t('settings.accountComponents.accountPaymentPage.balanceError'),
         );
       }
-      setTransferInfo(prev => ({...prev, isDoingTransfer: true}));
+      setTransferInfo(prev => ({ ...prev, isDoingTransfer: true }));
 
       const toSparkAddress = await getSparkAddress(to);
 
@@ -164,6 +171,7 @@ export default function AccountPaymentPage(props) {
           identityPubKey: accountIdentifyPubKey,
         },
         mnemonic: from,
+        sendWebViewRequest,
       });
 
       if (!sendingResponse.didWork) {
@@ -208,12 +216,12 @@ export default function AccountPaymentPage(props) {
           });
         });
       });
-      setTransferInfo(prev => ({...prev, isDoingTransfer: false}));
+      setTransferInfo(prev => ({ ...prev, isDoingTransfer: false }));
       //   Navigat to half modal here
     } catch (err) {
       console.log('Swap error', err);
-      setTransferInfo(prev => ({...prev, isDoingTransfer: false}));
-      navigate.navigate('ErrorScreen', {errorMessage: err.message});
+      setTransferInfo(prev => ({ ...prev, isDoingTransfer: false }));
+      navigate.navigate('ErrorScreen', { errorMessage: err.message });
     }
   }, [
     sendingAmount,
@@ -233,18 +241,20 @@ export default function AccountPaymentPage(props) {
       isKeyboardActive={isKeyboardFocused}
       useLocalPadding={true}
       useStandardWidth={true}
-      useTouchableWithoutFeedback={true}>
+      useTouchableWithoutFeedback={true}
+    >
       <CustomSettingsTopBar
         label={t('settings.accountComponents.accountPaymentPage.title')}
       />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={{width: '100%'}}
-        contentContainerStyle={{paddingBottom: 10}}>
+        style={{ width: '100%' }}
+        contentContainerStyle={{ paddingBottom: 10 }}
+      >
         <ThemeImage
           styles={{
-            transform: [{rotate: '90deg'}],
+            transform: [{ rotate: '90deg' }],
             ...CENTER,
             marginTop: 30,
             marginBottom: 30,
@@ -260,7 +270,8 @@ export default function AccountPaymentPage(props) {
               returnLocation: 'CustodyAccountPaymentPage',
               sliderHight: 0.5,
             });
-          }}>
+          }}
+        >
           <FormattedBalanceInput
             maxWidth={0.9}
             amountValue={sendingAmount}
@@ -273,7 +284,7 @@ export default function AccountPaymentPage(props) {
               marginBottom: 50,
             }}
             neverHideBalance={true}
-            styles={{includeFontPadding: false}}
+            styles={{ includeFontPadding: false }}
             globalBalanceDenomination={
               masterInfoObject.userBalanceDenomination === 'sats' ||
               masterInfoObject.userBalanceDenomination === 'hidden'
@@ -288,13 +299,14 @@ export default function AccountPaymentPage(props) {
           style={{
             ...styles.transferAccountRow,
             borderBottomColor: backgroundOffset,
-          }}>
+          }}
+        >
           <View>
             <View style={styles.transferTextContainer}>
               <ThemeImage
                 styles={{
                   ...styles.transferTextIcon,
-                  transform: [{rotate: '-90deg'}],
+                  transform: [{ rotate: '-90deg' }],
                 }}
                 lightModeIcon={ICONS.arrowFromRight}
                 darkModeIcon={ICONS.arrowFromRight}
@@ -303,7 +315,7 @@ export default function AccountPaymentPage(props) {
               <ThemeText content={t('constants.from')} />
             </View>
             {fromAccount && (
-              <ThemeText styles={{opacity: 0.7}} content={fromAccount} />
+              <ThemeText styles={{ opacity: 0.7 }} content={fromAccount} />
             )}
           </View>
           <TouchableOpacity
@@ -321,16 +333,17 @@ export default function AccountPaymentPage(props) {
               alignItems: 'center',
               marginLeft: 10,
               flexShrink: 1,
-            }}>
+            }}
+          >
             {fromAccount ? (
               <FormattedSatText
                 neverHideBalance={true}
-                styles={{includeFontPadding: false}}
+                styles={{ includeFontPadding: false }}
                 balance={fromBalance}
               />
             ) : (
               <ThemeText
-                styles={{flexShrink: 1}}
+                styles={{ flexShrink: 1 }}
                 CustomNumberOfLines={1}
                 content={t(
                   'settings.accountComponents.accountPaymentPage.selectAccount',
@@ -341,7 +354,7 @@ export default function AccountPaymentPage(props) {
               styles={{
                 width: 20,
                 height: 20,
-                transform: [{rotate: '180deg'}],
+                transform: [{ rotate: '180deg' }],
               }}
               lightModeIcon={ICONS.leftCheveronIcon}
               darkModeIcon={ICONS.leftCheveronIcon}
@@ -353,12 +366,13 @@ export default function AccountPaymentPage(props) {
           style={{
             ...styles.transferAccountRow,
             borderBottomColor: backgroundOffset,
-          }}>
+          }}
+        >
           <View style={styles.transferTextContainer}>
             <ThemeImage
               styles={{
                 ...styles.transferTextIcon,
-                transform: [{rotate: '90deg'}],
+                transform: [{ rotate: '90deg' }],
               }}
               lightModeIcon={ICONS.arrowToRight}
               darkModeIcon={ICONS.arrowToRight}
@@ -376,9 +390,10 @@ export default function AccountPaymentPage(props) {
                 selectedTo: to,
                 transferType: 'to',
               });
-            }}>
+            }}
+          >
             <ThemeText
-              styles={{flexShrink: 1}}
+              styles={{ flexShrink: 1 }}
               CustomNumberOfLines={1}
               content={
                 toAccount
@@ -392,7 +407,7 @@ export default function AccountPaymentPage(props) {
               styles={{
                 width: 20,
                 height: 20,
-                transform: [{rotate: '180deg'}],
+                transform: [{ rotate: '180deg' }],
               }}
               lightModeIcon={ICONS.leftCheveronIcon}
               darkModeIcon={ICONS.leftCheveronIcon}
@@ -404,7 +419,8 @@ export default function AccountPaymentPage(props) {
           style={{
             ...styles.transferAccountRow,
             borderBottomColor: backgroundOffset,
-          }}>
+          }}
+        >
           <View style={styles.transferTextContainer}>
             <ThemeImage
               styles={{
@@ -429,7 +445,7 @@ export default function AccountPaymentPage(props) {
           ) : (
             <FormattedSatText
               neverHideBalance={true}
-              styles={{includeFontPadding: false}}
+              styles={{ includeFontPadding: false }}
               balance={transferInfo.paymentFee}
             />
           )}
@@ -438,7 +454,8 @@ export default function AccountPaymentPage(props) {
           style={{
             ...styles.transferAccountRow,
             borderBottomColor: backgroundOffset,
-          }}>
+          }}
+        >
           <View style={styles.transferTextContainer}>
             <View style={styles.transferTextIcon}>
               <Icon
@@ -480,7 +497,7 @@ export default function AccountPaymentPage(props) {
 }
 
 const styles = StyleSheet.create({
-  transferTextContainer: {flexDirection: 'row', alignItems: 'center'},
+  transferTextContainer: { flexDirection: 'row', alignItems: 'center' },
   transferTextIcon: {
     width: 20,
     height: 20,

@@ -1,5 +1,5 @@
-import {StyleSheet, View} from 'react-native';
-import {useGlobalContextProvider} from '../../../context-store/context';
+import { StyleSheet, View } from 'react-native';
+import { useGlobalContextProvider } from '../../../context-store/context';
 import {
   BITCOIN_SAT_TEXT,
   BITCOIN_SATS_ICON,
@@ -7,11 +7,11 @@ import {
   TOKEN_TICKER_MAX_LENGTH,
 } from '../../constants';
 import ThemeText from './textTheme';
-import {formatCurrency} from '../formatCurrency';
-import {useNodeContext} from '../../../context-store/nodeContext';
+import { formatCurrency } from '../formatCurrency';
+import { useNodeContext } from '../../../context-store/nodeContext';
 import formatBalanceAmount from '../formatNumber';
 import numberConverter from '../numberConverter';
-import {useMemo} from 'react';
+import { useMemo } from 'react';
 
 export default function FormattedSatText({
   balance = 0,
@@ -27,8 +27,8 @@ export default function FormattedSatText({
   customLabel = '',
   useMillionDenomination = false,
 }) {
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {fiatStats} = useNodeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
 
   const localBalanceDenomination =
     globalBalanceDenomination || masterInfoObject.userBalanceDenomination;
@@ -81,7 +81,7 @@ export default function FormattedSatText({
     <ThemeText
       key={content}
       reversed={reversed}
-      styles={{includeFontPadding: false, ...styles, ...extra}}
+      styles={{ includeFontPadding: false, ...styles, ...extra }}
       content={content}
     />
   );
@@ -96,13 +96,13 @@ export default function FormattedSatText({
     ];
   } else if (useCustomLabel) {
     children = [
-      frontText && renderText(frontText, {marginLeft: 'auto'}),
+      frontText && renderText(frontText, { marginLeft: 'auto' }),
       renderText(formatBalanceAmount(balance, useMillionDenomination), {
         marginLeft: frontText ? 0 : 'auto',
       }),
       renderText(
         ` ${customLabel?.toUpperCase()?.slice(0, TOKEN_TICKER_MAX_LENGTH)}`,
-        {flexShrink: 1},
+        { flexShrink: 1 },
       ),
       backText && renderText(backText),
     ];
@@ -132,7 +132,7 @@ export default function FormattedSatText({
   }
 
   return (
-    <View style={{...localStyles.textContainer, ...containerStyles}}>
+    <View style={{ ...localStyles.textContainer, ...containerStyles }}>
       {children.filter(Boolean)}
     </View>
   );

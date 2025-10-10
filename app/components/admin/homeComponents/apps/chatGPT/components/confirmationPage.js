@@ -1,32 +1,34 @@
-import {StyleSheet, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {ThemeText} from '../../../../../../functions/CustomElements';
-import {SIZES} from '../../../../../../constants';
+import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { ThemeText } from '../../../../../../functions/CustomElements';
+import { SIZES } from '../../../../../../constants';
 import FormattedSatText from '../../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import SwipeButtonNew from '../../../../../../functions/CustomElements/sliderButton';
-import {useCallback, useEffect, useState} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
-import {getLNAddressForLiquidPayment} from '../../../sendBitcoin/functions/payments';
-import {sparkPaymenWrapper} from '../../../../../../functions/spark/payments';
-import {useGlobalContextProvider} from '../../../../../../../context-store/context';
-import {useSparkWallet} from '../../../../../../../context-store/sparkContext';
+import { getLNAddressForLiquidPayment } from '../../../sendBitcoin/functions/payments';
+import { sparkPaymenWrapper } from '../../../../../../functions/spark/payments';
+import { useGlobalContextProvider } from '../../../../../../../context-store/context';
+import { useSparkWallet } from '../../../../../../../context-store/sparkContext';
 import StoreErrorPage from '../../components/errorScreen';
-import {useActiveCustodyAccount} from '../../../../../../../context-store/activeAccount';
-import {useTranslation} from 'react-i18next';
+import { useActiveCustodyAccount } from '../../../../../../../context-store/activeAccount';
+import { useTranslation } from 'react-i18next';
 import getLNURLDetails from '../../../../../../functions/lnurl/getLNURLDetails';
-import {InputTypes} from 'bitcoin-address-parser';
+import { InputTypes } from 'bitcoin-address-parser';
+import { useWebView } from '../../../../../../../context-store/webViewContext';
 
 export default function ConfirmChatGPTPage(props) {
+  const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {sparkInformation} = useSparkWallet();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { sparkInformation } = useSparkWallet();
   const theme = props?.theme;
   const darkModeType = props?.darkModeType;
-  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const [error, setError] = useState('');
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const [invoiceInformation, setInvoiceInformation] = useState(null);
 
@@ -41,7 +43,7 @@ export default function ConfirmChatGPTPage(props) {
         try {
           const didGetData = await getLNURLDetails(lnPayoutLNURL);
           if (!didGetData) throw new Error('Unable to get lnurl data');
-          input = {type: InputTypes.LNURL_PAY, data: didGetData};
+          input = { type: InputTypes.LNURL_PAY, data: didGetData };
         } catch (err) {
           setError(t('errormessages.invoiceRetrivalError'));
           return;
@@ -60,6 +62,7 @@ export default function ConfirmChatGPTPage(props) {
           sparkInformation,
           userBalance: sparkInformation.balance,
           mnemonic: currentWalletMnemoinc,
+          sendWebViewRequest,
         });
         if (!fee.didWork) throw new Error(fee.error);
         if (sparkInformation.balance < creditPrice + fee.supportFee + fee.fee) {
@@ -115,14 +118,14 @@ export default function ConfirmChatGPTPage(props) {
           />
 
           <ThemeText
-            styles={{fontSize: SIZES.large, marginTop: 10}}
+            styles={{ fontSize: SIZES.large, marginTop: 10 }}
             content={t('apps.chatGPT.confirmationPage.plan', {
               planType: t(props.plan),
             })}
           />
           <FormattedSatText
             neverHideBalance={true}
-            containerStyles={{marginTop: 'auto'}}
+            containerStyles={{ marginTop: 'auto' }}
             styles={{
               fontSize: SIZES.large,
               textAlign: 'center',
@@ -132,7 +135,7 @@ export default function ConfirmChatGPTPage(props) {
           />
           <FormattedSatText
             neverHideBalance={true}
-            containerStyles={{marginTop: 10, marginBottom: 'auto'}}
+            containerStyles={{ marginTop: 10, marginBottom: 'auto' }}
             styles={{
               textAlign: 'center',
             }}
@@ -142,7 +145,7 @@ export default function ConfirmChatGPTPage(props) {
           <SwipeButtonNew
             onSwipeSuccess={onSwipeSuccess}
             width={0.95}
-            containerStyles={{marginBottom: 20}}
+            containerStyles={{ marginBottom: 20 }}
             thumbIconStyles={{
               backgroundColor:
                 theme && darkModeType ? backgroundOffset : backgroundColor,
@@ -163,5 +166,5 @@ export default function ConfirmChatGPTPage(props) {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, alignItems: 'center'},
+  container: { flex: 1, alignItems: 'center' },
 });

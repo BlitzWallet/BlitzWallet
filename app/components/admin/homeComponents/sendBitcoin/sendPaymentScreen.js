@@ -46,8 +46,10 @@ import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
 import { InputTypes } from 'bitcoin-address-parser';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import { useWebView } from '../../../../../context-store/webViewContext';
 
 export default function SendPaymentScreen(props) {
+  const { sendWebViewRequest } = useWebView();
   console.log('CONFIRM SEND PAYMENT SCREEN');
   const [showProgressAnimation, setShowProgressAnimation] = useState(false);
   const progressAnimationRef = useRef(null);
@@ -172,6 +174,7 @@ export default function SendPaymentScreen(props) {
         seletctedToken,
         currentWalletMnemoinc,
         t,
+        sendWebViewRequest,
       });
     }
     if (!sparkInformation.didConnect) return;
@@ -409,6 +412,7 @@ export default function SendPaymentScreen(props) {
                 seletctedToken={seletctedToken}
                 isLRC20Payment={isUsingLRC20}
                 useAltLayout={useAltLayout}
+                sendWebViewRequest={sendWebViewRequest}
               />
             </View>
           )}
@@ -444,6 +448,7 @@ export default function SendPaymentScreen(props) {
               seletctedToken={seletctedToken}
               isLRC20Payment={isUsingLRC20}
               useAltLayout={useAltLayout}
+              sendWebViewRequest={sendWebViewRequest}
             />
           )}
         </>
@@ -539,6 +544,7 @@ export default function SendPaymentScreen(props) {
       usingZeroAmountInvoice: paymentInfo.usingZeroAmountInvoice,
       seletctedToken: selectedLRC20Asset,
       mnemonic: currentWalletMnemoinc,
+      sendWebViewRequest,
     };
 
     // Shouuld be same for all paymetns

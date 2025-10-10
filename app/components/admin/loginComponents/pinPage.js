@@ -1,29 +1,29 @@
-import {useCallback, useEffect, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {signOut} from '@react-native-firebase/auth';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { signOut } from '@react-native-firebase/auth';
 import {
   getLocalStorageItem,
   handleLogin,
   retrieveData,
   terminateAccount,
 } from '../../../functions';
-import {LOGIN_SECUITY_MODE_KEY, SIZES} from '../../../constants';
-import {useTranslation} from 'react-i18next';
-import {ThemeText} from '../../../functions/CustomElements';
+import { LOGIN_SECUITY_MODE_KEY, SIZES } from '../../../constants';
+import { useTranslation } from 'react-i18next';
+import { ThemeText } from '../../../functions/CustomElements';
 import KeyForKeyboard from '../../../functions/CustomElements/key';
 import RNRestart from 'react-native-restart';
 import PinDot from '../../../functions/CustomElements/pinDot';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import sha256Hash from '../../../functions/hash';
-import {useKeysContext} from '../../../../context-store/keys';
-import {storeData} from '../../../functions/secureStore';
+import { useKeysContext } from '../../../../context-store/keys';
+import { storeData } from '../../../functions/secureStore';
 import {
   decryptMnemonicWithBiometrics,
   decryptMnemonicWithPin,
   handleLoginSecuritySwitch,
 } from '../../../functions/handleMnemonic';
-import {firebaseAuth} from '../../../../db/initializeFirebase';
+import { firebaseAuth } from '../../../../db/initializeFirebase';
 
 export default function PinPage() {
   const [loginSettings, setLoginSettings] = useState({
@@ -35,8 +35,9 @@ export default function PinPage() {
     enteredPinCount: 0,
     needsToBeMigrated: null,
   });
-  const {setAccountMnemonic} = useKeysContext();
-  const {t} = useTranslation();
+  const numRetriesBiometric = useRef(0);
+  const { setAccountMnemonic } = useKeysContext();
+  const { t } = useTranslation();
 
   const navigate = useNavigation();
 
@@ -59,12 +60,10 @@ export default function PinPage() {
       sha256Hash(JSON.stringify(loginSettings.enteredPin)),
       comparisonHash,
     );
-
+    if (loginSettings.isBiometricEnabled) return;
     if (
       comparisonHash === sha256Hash(JSON.stringify(loginSettings.enteredPin))
     ) {
-      if (loginSettings.isBiometricEnabled) return;
-
       if (loginSettings.needsToBeMigrated) {
         const savedMnemonic = await retrieveData('encryptedMnemonic');
         const migrationResponse = await handleLoginSecuritySwitch(
@@ -194,13 +193,16 @@ export default function PinPage() {
         }
 
         const decryptResponse = await decryptMnemonicWithBiometrics();
-
         if (decryptResponse) {
           setAccountMnemonic(decryptResponse);
           navigate.replace('ConnectingToNodeLoadingScreen', {
             isInitialLoad: false,
           });
         } else {
+          if (numRetriesBiometric.current++ < 3) {
+            loadPageInformation();
+            return;
+          }
           navigate.navigate('ConfirmActionPage', {
             confirmMessage: t(
               'adminLogin.pinPage.isBiometricEnabledConfirmAction',
@@ -233,11 +235,11 @@ export default function PinPage() {
   return (
     <View style={styles.contentContainer}>
       <ThemeText
-        styles={{...styles.header}}
+        styles={styles.header}
         content={t('adminLogin.pinPage.enterPinMessage')}
       />
       <ThemeText
-        styles={{...styles.enterText}}
+        styles={styles.enterText}
         content={t('adminLogin.pinPage.attemptsText', {
           attempts: 8 - loginSettings.enteredPinCount,
         })}
@@ -287,7 +289,7 @@ export default function PinPage() {
               return null;
             } else return item;
           });
-          return {...prev, enteredPin: newPin};
+          return { ...prev, enteredPin: newPin };
         });
       } else {
         setLoginSettings(prev => ({
@@ -304,7 +306,7 @@ export default function PinPage() {
             return id;
           } else return number;
         });
-        return {...prev, enteredPin: newPin};
+        return { ...prev, enteredPin: newPin };
       });
     }
   }

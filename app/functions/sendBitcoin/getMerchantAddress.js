@@ -1,10 +1,10 @@
 // import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
-import {InputTypes} from 'bitcoin-address-parser';
+import { InputTypes } from 'bitcoin-address-parser';
 
 const merchants = [
   {
     id: 'picknpay',
-    identifierRegex: /(.*za\.co\.electrum\.picknpay.*)/i,
+    identifierRegex: /(.*za\.co\.electrum\.picknpay.*)/iu,
     defaultDomain: 'cryptoqr.net',
     domains: {
       liquid: 'cryptoqr.net',
@@ -14,7 +14,7 @@ const merchants = [
   },
   {
     id: 'moneybadger',
-    identifierRegex: /(.*cryptoqr\.net.*)/i,
+    identifierRegex: /(.*cryptoqr\.net.*)/iu,
     defaultDomain: 'cryptoqr.net',
     domains: {
       liquid: 'cryptoqr.net',
@@ -24,7 +24,7 @@ const merchants = [
   },
   {
     id: 'ecentric',
-    identifierRegex: /(.*za\.co\.ecentric.*)/i,
+    identifierRegex: /(.*za\.co\.ecentric.*)/iu,
     defaultDomain: 'cryptoqr.net',
     domains: {
       liquid: 'cryptoqr.net',
@@ -33,18 +33,8 @@ const merchants = [
     },
   },
   {
-    id: 'wigroup',
-    identifierRegex: /(.*wigroup\.co.*)/i,
-    defaultDomain: 'cryptoqr.net',
-    domains: {
-      liquid: 'cryptoqr.net',
-      testnet: 'staging.cryptoqr.net',
-      regtest: 'staging.cryptoqr.net',
-    },
-  },
-  {
-    id: 'yoyogroup',
-    identifierRegex: /(.*yoyogroup\.co.*)/i,
+    id: 'yoyo',
+    identifierRegex: /(.*(wigroup\.co|yoyogroup\.co).*)/iu,
     defaultDomain: 'cryptoqr.net',
     domains: {
       liquid: 'cryptoqr.net',
@@ -54,32 +44,101 @@ const merchants = [
   },
   {
     id: 'zapper',
-    identifierRegex:
-      /^\s*(?<identifier>((.*zapper\.com.*)|(.{2}\/.{4}\/.{20})|(.*payat\.io.*)|(.*(paynow\.netcash|paynow\.sagepay)\.co\.za.*)|(SK-\d{1,}-\d{23})|(.*\d+\.zap\.pe(.*\n?)*)|(.*transactionjunction\.co\.za.*)|(CRSTPC-\d+-\d+-\d+-\d+-\d+)))\s*$/iu,
+    identifierRegex: /(.*(zapper\.com|\d+\.zap\.pe).*)/iu,
     defaultDomain: 'cryptoqr.net',
     domains: {
-      mainnet: 'cryptoqr.net',
-      signet: 'staging.cryptoqr.net',
+      liquid: 'cryptoqr.net',
+      testnet: 'staging.cryptoqr.net',
+      regtest: 'staging.cryptoqr.net',
+    },
+  },
+  {
+    id: 'payat',
+    identifierRegex: /(.*payat\.io.*)/iu,
+    defaultDomain: 'cryptoqr.net',
+    domains: {
+      liquid: 'cryptoqr.net',
+      testnet: 'staging.cryptoqr.net',
+      regtest: 'staging.cryptoqr.net',
+    },
+  },
+  {
+    id: 'paynow-netcash',
+    identifierRegex: /(.*paynow\.netcash\.co\.za.*)/iu,
+    defaultDomain: 'cryptoqr.net',
+    domains: {
+      liquid: 'cryptoqr.net',
+      testnet: 'staging.cryptoqr.net',
+      regtest: 'staging.cryptoqr.net',
+    },
+  },
+  {
+    id: 'paynow-sagepay',
+    identifierRegex: /(.*paynow\.sagepay\.co\.za.*)/iu,
+    defaultDomain: 'cryptoqr.net',
+    domains: {
+      liquid: 'cryptoqr.net',
+      testnet: 'staging.cryptoqr.net',
+      regtest: 'staging.cryptoqr.net',
+    },
+  },
+  {
+    id: 'standard-bank-scantopay',
+    identifierRegex: /(SK-\d{1,}-\d{23})/iu,
+    defaultDomain: 'cryptoqr.net',
+    domains: {
+      liquid: 'cryptoqr.net',
+      testnet: 'staging.cryptoqr.net',
+      regtest: 'staging.cryptoqr.net',
+    },
+  },
+  {
+    id: 'transactionjunction',
+    identifierRegex: /(.*transactionjunction\.co\.za.*)/iu,
+    defaultDomain: 'cryptoqr.net',
+    domains: {
+      liquid: 'cryptoqr.net',
+      testnet: 'staging.cryptoqr.net',
+      regtest: 'staging.cryptoqr.net',
+    },
+  },
+  {
+    id: 'servest-parking',
+    identifierRegex: /(CRSTPC-\d+-\d+-\d+-\d+-\d+)/iu,
+    defaultDomain: 'cryptoqr.net',
+    domains: {
+      liquid: 'cryptoqr.net',
+      testnet: 'staging.cryptoqr.net',
+      regtest: 'staging.cryptoqr.net',
+    },
+  },
+  {
+    id: 'payat-generic',
+    identifierRegex: /(.{2}\/.{4}\/.{20})/iu,
+    defaultDomain: 'cryptoqr.net',
+    domains: {
+      liquid: 'cryptoqr.net',
+      testnet: 'staging.cryptoqr.net',
       regtest: 'staging.cryptoqr.net',
     },
   },
   {
     id: 'scantopay',
-    identifierRegex: /(?<identifier>.*(scantopay\.io).*)/iu,
+    identifierRegex: /(.*(scantopay\.io).*)/iu,
     defaultDomain: 'cryptoqr.net',
     domains: {
-      mainnet: 'cryptoqr.net',
-      signet: 'staging.cryptoqr.net',
+      liquid: 'cryptoqr.net',
+      testnet: 'staging.cryptoqr.net',
       regtest: 'staging.cryptoqr.net',
     },
   },
   {
     id: 'snapscan',
-    identifierRegex: /(?<identifier>.*(snapscan).*)/iu,
+    identifierRegex: /(.*(snapscan).*)/iu,
     defaultDomain: 'cryptoqr.net',
     domains: {
-      mainnet: 'cryptoqr.net',
-      signet: 'staging.cryptoqr.net',
+      liquid: 'cryptoqr.net',
+      testnet: 'staging.cryptoqr.net',
       regtest: 'staging.cryptoqr.net',
     },
   },
@@ -93,7 +152,7 @@ const isUrlEncoded = str => {
   }
 };
 
-export const convertMerchantQRToLightningAddress = ({qrContent, network}) => {
+export const convertMerchantQRToLightningAddress = ({ qrContent, network }) => {
   if (!qrContent) {
     return null;
   }
@@ -160,7 +219,7 @@ export const handleCryptoQRAddress = async (
     }
 
     const bolt11 = await getLNAddressForLiquidPayment(
-      {data, type: InputTypes.LNURL_PAY},
+      { data, type: InputTypes.LNURL_PAY },
       data.minSendable / 1000,
     );
 

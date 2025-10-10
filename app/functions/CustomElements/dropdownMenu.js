@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -6,13 +6,15 @@ import {
   StyleSheet,
   Dimensions,
   Modal,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import ThemeImage from './themeImage';
-import {COLORS, ICONS} from '../../constants';
+import { COLORS, ICONS } from '../../constants';
 import ThemeText from './textTheme';
 import GetThemeColors from '../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useTranslation} from 'react-i18next';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useTranslation } from 'react-i18next';
 import CountryFlag from 'react-native-country-flag';
 import FullLoadingScreen from './loadingScreen';
 
@@ -32,13 +34,13 @@ const DropdownMenu = ({
   customFunction,
   translateLabelText = true,
 }) => {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [buttonLayout, setButtonLayout] = useState(null);
   const [itemSelectorLayout, setItemSelectorLayout] = useState(null);
   const dropdownRef = useRef(null);
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const [dropdownHeight, setDropdownHeight] = useState(0);
   const placeholderText = placeholder || t('constants.selectOption');
 
@@ -101,7 +103,8 @@ const DropdownMenu = ({
     <View
       style={styles.container}
       // ref={dropdownRef}
-      onLayout={handleLayout}>
+      onLayout={handleLayout}
+    >
       <View style={styles.selectorContainer}>
         <TouchableOpacity
           activeOpacity={disableDropdownPress ? 1 : 0.2}
@@ -112,10 +115,11 @@ const DropdownMenu = ({
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
             ...customButtonStyles,
           }}
-          onPress={handleDropdownToggle}>
+          onPress={handleDropdownToggle}
+        >
           {showFlag && flag && (
             <CountryFlag
-              style={{padding: 0, marginRight: 5, backgroundColor: 'red'}}
+              style={{ padding: 0, marginRight: 5, backgroundColor: 'red' }}
               isoCode={flag}
               size={15}
             />
@@ -156,7 +160,8 @@ const DropdownMenu = ({
         {showClearIcon && (
           <TouchableOpacity
             style={styles.clearIconContainer}
-            onPress={() => handleSelect('')}>
+            onPress={() => handleSelect('')}
+          >
             <ThemeImage
               lightModeIcon={ICONS.xSmallIcon}
               darkModeIcon={ICONS.xSmallIcon}
@@ -169,7 +174,8 @@ const DropdownMenu = ({
         visible={isOpen}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setIsOpen(false)}>
+        onRequestClose={() => setIsOpen(false)}
+      >
         <View style={styles.modalOverlay}>
           <TouchableOpacity
             style={styles.modalTouchable}
@@ -181,8 +187,18 @@ const DropdownMenu = ({
               styles.dropdownMenu,
               buttonLayout && {
                 top: isTooLow
-                  ? buttonLayout.y - dropdownHeight - 5
-                  : buttonLayout.y + buttonLayout.height + 5,
+                  ? buttonLayout.y -
+                    dropdownHeight -
+                    5 -
+                    (Platform.Version < 31 && Platform.OS === 'android'
+                      ? StatusBar.currentHeight || 0
+                      : 0)
+                  : buttonLayout.y +
+                    buttonLayout.height +
+                    5 -
+                    (Platform.Version < 31 && Platform.OS === 'android'
+                      ? StatusBar.currentHeight || 0
+                      : 0),
                 left: buttonLayout.x,
                 width: buttonLayout.width,
               },
@@ -190,11 +206,13 @@ const DropdownMenu = ({
                 borderColor: backgroundColor,
                 backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
               },
-            ]}>
+            ]}
+          >
             <ScrollView
               onLayout={e => {
                 setDropdownHeight(e.nativeEvent.layout.height);
-              }}>
+              }}
+            >
               {options.map((item, index) => {
                 if (!item.label) return;
                 return (
@@ -206,7 +224,8 @@ const DropdownMenu = ({
                       borderBottomColor: backgroundColor,
                       ...dropdownItemCustomStyles,
                     }}
-                    onPress={() => handleSelect(item)}>
+                    onPress={() => handleSelect(item)}
+                  >
                     {showFlag && item.flagCode && (
                       <CountryFlag
                         style={{
@@ -251,14 +270,14 @@ const styles = StyleSheet.create({
   verticalTopArrow: {
     width: 20,
     height: 20,
-    transform: [{rotate: '90deg'}],
+    transform: [{ rotate: '90deg' }],
     position: 'absolute',
     top: -5,
   },
   verticalBottomArrow: {
     width: 20,
     height: 20,
-    transform: [{rotate: '270deg'}],
+    transform: [{ rotate: '270deg' }],
     position: 'absolute',
     bottom: -5,
   },
@@ -270,7 +289,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  clearIconContainer: {marginLeft: 10, marginRight: -5},
+  clearIconContainer: { marginLeft: 10, marginRight: -5 },
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-start',

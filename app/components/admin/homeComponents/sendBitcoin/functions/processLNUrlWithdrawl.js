@@ -1,9 +1,10 @@
-import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
-import {sparkReceivePaymentWrapper} from '../../../../../functions/spark/payments';
-import {getSparkLightningPaymentStatus} from '../../../../../functions/spark';
+import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
+import { sparkReceivePaymentWrapper } from '../../../../../functions/spark/payments';
+import { getSparkLightningPaymentStatus } from '../../../../../functions/spark';
 
 export default async function processLNUrlWithdraw(input, context) {
-  const {setLoadingMessage, currentWalletMnemoinc, t} = context;
+  const { setLoadingMessage, currentWalletMnemoinc, t, sendWebViewRequest } =
+    context;
   crashlyticsLogReport('Begining LNURL withdrawl process');
   setLoadingMessage(
     t('wallet.sendPages.handlingAddressErrors.lnurlWithdrawlStart'),
@@ -16,6 +17,7 @@ export default async function processLNUrlWithdraw(input, context) {
     memo: input.data.defaultDescription || '',
     paymentType: 'lightning',
     mnemoinc: currentWalletMnemoinc,
+    sendWebViewRequest,
   });
 
   if (!invoice.didWork)
@@ -36,10 +38,18 @@ export default async function processLNUrlWithdraw(input, context) {
   setLoadingMessage(
     t('wallet.sendPages.handlingAddressErrors.waitingForLnurlWithdrawl'),
   );
-  await pollForResponse(invoice.data, currentWalletMnemoinc);
+  await pollForResponse(
+    invoice.data,
+    currentWalletMnemoinc,
+    sendWebViewRequest,
+  );
 }
 
-async function pollForResponse(invoiceData, currentWalletMnemoinc) {
+async function pollForResponse(
+  invoiceData,
+  currentWalletMnemoinc,
+  sendWebViewRequest,
+) {
   let didFind = false;
   let maxCount = 5;
   let currentCount = 0;

@@ -38,10 +38,12 @@ import Icon from '../../../../../functions/CustomElements/Icon';
 import CountryFlag from 'react-native-country-flag';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 
 const imgEndpoint = endpoint => `https://sms4sats.com/${endpoint}`;
 
 export default function SMSMessagingReceivedPage(props) {
+  const { sendWebViewRequest } = useWebView();
   const removeUserLocal = props.route.params?.removeUserLocal;
   const [userLocal, setUserLocal] = useState({ iso: 'WW', value: 999 });
   const smsServices = props.route.params?.smsServices || [];
@@ -177,6 +179,7 @@ export default function SMSMessagingReceivedPage(props) {
           sparkInformation,
           description: t('apps.sms4sats.receivePage.paymentMemo'),
           currentWalletMnemoinc: currentWalletMnemoinc,
+          sendWebViewRequest,
         });
         if (!paymentResponse.didWork) throw new Error(paymentResponse.reason);
 

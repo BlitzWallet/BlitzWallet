@@ -1,16 +1,21 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useSparkWallet} from '../../../context-store/sparkContext';
-import {ThemeText} from '../CustomElements';
-import {CENTER, SIZES, TOKEN_TICKER_MAX_LENGTH} from '../../constants';
-import {useRef} from 'react';
-import {COLORS, INSET_WINDOW_WIDTH} from '../../constants/theme';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSparkWallet } from '../../../context-store/sparkContext';
+import { ThemeText } from '../CustomElements';
+import {
+  CENTER,
+  INFINITY_SYMBOL,
+  SIZES,
+  TOKEN_TICKER_MAX_LENGTH,
+} from '../../constants';
+import { useRef } from 'react';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import formatBalanceAmount from '../formatNumber';
 import GetThemeColors from '../../hooks/themeColors';
-import {useGlobalInsets} from '../../../context-store/insetsProvider';
-import {useToast} from '../../../context-store/toastManager';
+import { useGlobalInsets } from '../../../context-store/insetsProvider';
+import { useToast } from '../../../context-store/toastManager';
 import copyToClipboard from '../copyToClipboard';
 import formatTokensNumber from './formatTokensBalance';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 export default function LRC20TokenInformation({
   theme,
@@ -19,15 +24,15 @@ export default function LRC20TokenInformation({
   tokenIdentifier,
   setContentHeight,
 }) {
-  const {showToast} = useToast();
-  const {sparkInformation} = useSparkWallet();
+  const { showToast } = useToast();
+  const { sparkInformation } = useSparkWallet();
   const selectedToken = sparkInformation.tokens?.[tokenIdentifier];
-  const {balance, tokenMetadata} = selectedToken;
+  const { balance, tokenMetadata } = selectedToken;
   console.log(selectedToken);
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const initialValue = useRef(null);
-  const {topPadding} = useGlobalInsets();
-  const {t} = useTranslation();
+  const { topPadding } = useGlobalInsets();
+  const { t } = useTranslation();
 
   return (
     <View
@@ -37,7 +42,8 @@ export default function LRC20TokenInformation({
           setContentHeight(e.nativeEvent.layout.height + 80);
         }
       }}
-      style={{...styles.container, paddingBottom: topPadding}}>
+      style={{ ...styles.container, paddingBottom: topPadding }}
+    >
       <ThemeText
         CustomNumberOfLines={1}
         styles={styles.titleText}
@@ -52,7 +58,8 @@ export default function LRC20TokenInformation({
               ? backgroundColor
               : backgroundOffset
             : COLORS.darkModeText,
-        }}>
+        }}
+      >
         <View
           style={{
             ...styles.itemRow,
@@ -61,7 +68,8 @@ export default function LRC20TokenInformation({
                 ? backgroundOffset
                 : backgroundColor
               : backgroundColor,
-          }}>
+          }}
+        >
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
@@ -84,7 +92,8 @@ export default function LRC20TokenInformation({
                 ? backgroundOffset
                 : backgroundColor
               : backgroundColor,
-          }}>
+          }}
+        >
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
@@ -93,13 +102,17 @@ export default function LRC20TokenInformation({
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItem}
-            content={formatBalanceAmount(
-              formatTokensNumber(
-                tokenMetadata.maxSupply,
-                tokenMetadata?.decimals,
-              ),
-              true,
-            )}
+            content={
+              !tokenMetadata.maxSupply
+                ? INFINITY_SYMBOL
+                : formatBalanceAmount(
+                    formatTokensNumber(
+                      tokenMetadata.maxSupply,
+                      tokenMetadata?.decimals,
+                    ),
+                    true,
+                  )
+            }
           />
         </View>
         <View
@@ -110,7 +123,8 @@ export default function LRC20TokenInformation({
                 ? backgroundOffset
                 : backgroundColor
               : backgroundColor,
-          }}>
+          }}
+        >
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
@@ -128,7 +142,8 @@ export default function LRC20TokenInformation({
           style={{
             ...styles.itemRow,
             borderBottomWidth: 0,
-          }}>
+          }}
+        >
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItemDescription}
@@ -138,7 +153,8 @@ export default function LRC20TokenInformation({
             onPress={() => {
               copyToClipboard(tokenMetadata.tokenPublicKey, showToast);
             }}
-            style={styles.textItem}>
+            style={styles.textItem}
+          >
             <ThemeText
               CustomNumberOfLines={1}
               content={tokenMetadata.tokenPublicKey}

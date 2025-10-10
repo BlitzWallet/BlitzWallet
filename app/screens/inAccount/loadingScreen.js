@@ -1,60 +1,62 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {COLORS, ICONS} from '../../constants';
-import {useGlobalContextProvider} from '../../../context-store/context';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {useTranslation} from 'react-i18next';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { COLORS, ICONS } from '../../constants';
+import { useGlobalContextProvider } from '../../../context-store/context';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import initializeUserSettingsFromHistory from '../../functions/initializeUserSettings';
 // import claimUnclaimedBoltzSwaps from '../../functions/boltz/claimUnclaimedTxs';
-import {useGlobalContacts} from '../../../context-store/globalContacts';
-import {useGlobalAppData} from '../../../context-store/appData';
-import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
+import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { useGlobalAppData } from '../../../context-store/appData';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import LottieView from 'lottie-react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 // import connectToLiquidNode from '../../functions/connectToLiquid';
-import {initializeDatabase} from '../../functions/messaging/cachedMessages';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useNodeContext} from '../../../context-store/nodeContext';
-import {useKeysContext} from '../../../context-store/keys';
-import {initializePOSTransactionsDatabase} from '../../functions/pos';
-import {updateMascatWalkingAnimation} from '../../functions/lottieViewColorTransformer';
-import {crashlyticsLogReport} from '../../functions/crashlyticsLogs';
-import {useSparkWallet} from '../../../context-store/sparkContext';
-import {initializeSparkDatabase} from '../../functions/spark/transactions';
-import {getCachedSparkTransactions} from '../../functions/spark';
-import {getLocalStorageItem, setLocalStorageItem} from '../../functions';
-import {useLiquidEvent} from '../../../context-store/liquidEventContext';
-import {initRootstockSwapDB} from '../../functions/boltz/rootstock/swapDb';
-import {useRootstockProvider} from '../../../context-store/rootstockSwapContext';
+import { initializeDatabase } from '../../functions/messaging/cachedMessages';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useNodeContext } from '../../../context-store/nodeContext';
+import { useKeysContext } from '../../../context-store/keys';
+import { initializePOSTransactionsDatabase } from '../../functions/pos';
+import { updateMascatWalkingAnimation } from '../../functions/lottieViewColorTransformer';
+import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
+import { useSparkWallet } from '../../../context-store/sparkContext';
+import { initializeSparkDatabase } from '../../functions/spark/transactions';
+import { getCachedSparkTransactions } from '../../functions/spark';
+import { getLocalStorageItem, setLocalStorageItem } from '../../functions';
+import { useLiquidEvent } from '../../../context-store/liquidEventContext';
+import { initRootstockSwapDB } from '../../functions/boltz/rootstock/swapDb';
+import { useRootstockProvider } from '../../../context-store/rootstockSwapContext';
 import loadNewFiatData from '../../functions/saveAndUpdateFiatData';
-import {initializeGiftCardDatabase} from '../../functions/contacts/giftCardStorage';
+import { initializeGiftCardDatabase } from '../../functions/contacts/giftCardStorage';
+import { useWebView } from '../../../context-store/webViewContext';
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
 export default function ConnectingToNodeLoadingScreen({
-  navigation: {replace},
+  navigation: { replace },
   route,
 }) {
+  const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
-  const {toggleMasterInfoObject, masterInfoObject, setMasterInfoObject} =
+  const { toggleMasterInfoObject, masterInfoObject, setMasterInfoObject } =
     useGlobalContextProvider();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
   const {
     // setNumberOfCachedTxs,
     connectToSparkWallet,
   } = useSparkWallet();
-  const {toggleContactsPrivateKey, accountMnemoinc} = useKeysContext();
+  const { toggleContactsPrivateKey, accountMnemoinc } = useKeysContext();
   const {
     // toggleLiquidNodeInformation,
     toggleFiatStats,
   } = useNodeContext();
-  const {createSigner} = useRootstockProvider();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {toggleGlobalContactsInformation, globalContactsInformation} =
+  const { createSigner } = useRootstockProvider();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { toggleGlobalContactsInformation, globalContactsInformation } =
     useGlobalContacts();
   // const {startLiquidEventListener} = useLiquidEvent();
-  const {toggleGlobalAppDataInformation} = useGlobalAppData();
+  const { toggleGlobalAppDataInformation } = useGlobalAppData();
   const [hasError, setHasError] = useState(null);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [message, setMessage] = useState(
     t('screens.inAccount.loadingScreen.loadingMessage1'),
   );
@@ -120,6 +122,14 @@ export default function ConnectingToNodeLoadingScreen({
           }),
           createSigner(),
         ]);
+        console.log(
+          didOpen,
+          giftCardTable,
+          posTransactions,
+          sparkTxs,
+          rootstockSwaps,
+          didLoadUserSettings,
+        );
         // DO tables need to open before these other processes???/
         if (
           !didOpen ||
@@ -192,35 +202,40 @@ export default function ConnectingToNodeLoadingScreen({
   }, [masterInfoObject, globalContactsInformation, didOpenDatabases]);
 
   return (
-    <GlobalThemeView styles={styles.globalContainer} useStandardWidth={true}>
-      {hasError && (
-        <TouchableOpacity
-          onPress={() => navigate.navigate('SettingsHome', {isDoomsday: true})}
-          style={styles.doomsday}>
-          <ThemeImage
-            lightModeIcon={ICONS.settingsIcon}
-            darkModeIcon={ICONS.settingsIcon}
-            lightsOutIcon={ICONS.settingsWhite}
-          />
-        </TouchableOpacity>
-      )}
-      <LottieView
-        source={transformedAnimation}
-        autoPlay
-        loop={true}
-        style={{
-          width: 150, // adjust as necessary
-          height: 150, // adjust as necessary
-        }}
-      />
+    <GlobalThemeView useStandardWidth={true}>
+      <View style={styles.globalContainer}>
+        {hasError && (
+          <TouchableOpacity
+            onPress={() =>
+              navigate.navigate('SettingsHome', { isDoomsday: true })
+            }
+            style={styles.doomsday}
+          >
+            <ThemeImage
+              lightModeIcon={ICONS.settingsIcon}
+              darkModeIcon={ICONS.settingsIcon}
+              lightsOutIcon={ICONS.settingsWhite}
+            />
+          </TouchableOpacity>
+        )}
+        <LottieView
+          source={transformedAnimation}
+          autoPlay
+          loop={true}
+          style={{
+            width: 150, // adjust as necessary
+            height: 150, // adjust as necessary
+          }}
+        />
 
-      <ThemeText
-        styles={{
-          ...styles.waitingText,
-          color: theme ? COLORS.darkModeText : COLORS.primary,
-        }}
-        content={hasError ? hasError : message}
-      />
+        <ThemeText
+          styles={{
+            ...styles.waitingText,
+            color: theme ? COLORS.darkModeText : COLORS.primary,
+          }}
+          content={hasError ? hasError : message}
+        />
+      </View>
     </GlobalThemeView>
   );
 
@@ -243,7 +258,7 @@ export default function ConnectingToNodeLoadingScreen({
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             console.log('Process 21', new Date().getTime());
-            replace('HomeAdmin', {screen: 'Home'});
+            replace('HomeAdmin', { screen: 'Home' });
           });
         });
       } else
@@ -310,7 +325,7 @@ export default function ConnectingToNodeLoadingScreen({
       } else fiatRate = fiatRate.fiatRateResponse;
     } catch (error) {
       console.error('Failed to fetch fiat data:', error);
-      return {coin: 'USD', value: 100_000};
+      return { coin: 'USD', value: 100_000 };
     }
 
     console.log('Process 11', new Date().getTime());

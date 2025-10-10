@@ -5,9 +5,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {CENTER, COLORS, ICONS, SIZES} from '../../../../../constants';
-import {useEffect, useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
+import { CENTER, COLORS, ICONS, SIZES } from '../../../../../constants';
+import { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import {
   GlobalThemeView,
   ThemeText,
@@ -16,16 +16,17 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useGlobalAppData} from '../../../../../../context-store/appData';
-import {AI_MODEL_COST} from './contants/AIModelCost';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
-import {useTranslation} from 'react-i18next';
-import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
+import { AI_MODEL_COST } from './contants/AIModelCost';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useSparkWallet } from '../../../../../../context-store/sparkContext';
+import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import { useTranslation } from 'react-i18next';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 
 const CREDITOPTIONS = [
   {
@@ -49,28 +50,29 @@ const CREDITOPTIONS = [
 ];
 //price is in sats
 
-export default function AddChatGPTCredits({confirmationSliderData}) {
-  const {sparkInformation} = useSparkWallet();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {theme, darkModeType} = useGlobalThemeContext();
+export default function AddChatGPTCredits({ confirmationSliderData }) {
+  const { sendWebViewRequest } = useWebView();
+  const { sparkInformation } = useSparkWallet();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const {
     decodedChatGPT,
     toggleGlobalAppDataInformation,
     globalAppDataInformation,
   } = useGlobalAppData();
-  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
-  const {masterInfoObject} = useGlobalContextProvider();
+  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { masterInfoObject } = useGlobalContextProvider();
 
   const [selectedSubscription, setSelectedSubscription] =
     useState(CREDITOPTIONS);
   const [isPaying, setIsPaying] = useState(false);
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // FUNCTION TO PURCHASE CREDITS
     if (!confirmationSliderData?.purchaseCredits) return;
-    navigate.setParams({purchaseCredits: null});
+    navigate.setParams({ purchaseCredits: null });
     payForChatGPTCredits(confirmationSliderData?.invoiceInformation);
   }, [confirmationSliderData?.purchaseCredits]);
 
@@ -81,8 +83,8 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
           setSelectedSubscription(prev => {
             return prev.map(item => {
               if (item.title === subscription.title) {
-                return {...item, isSelected: true};
-              } else return {...item, isSelected: false};
+                return { ...item, isSelected: true };
+              } else return { ...item, isSelected: false };
             });
           });
         }}
@@ -90,7 +92,8 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
           width: '100%',
           marginBottom: id === selectedSubscription.length ? 0 : 20,
         }}
-        key={id}>
+        key={id}
+      >
         <View
           style={[
             styles.optionContainer,
@@ -100,22 +103,23 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
                 ? backgroundOffset
                 : 'transparent',
             },
-          ]}>
+          ]}
+        >
           <View>
             <ThemeText
-              styles={{fontWeight: 'bold', marginBottom: 10}}
+              styles={{ fontWeight: 'bold', marginBottom: 10 }}
               content={t(subscription.title)}
             />
             <FormattedSatText
               neverHideBalance={true}
-              styles={{...styles.infoDescriptions}}
+              styles={{ ...styles.infoDescriptions }}
               frontText={t('apps.chatGPT.addCreditsPage.price')}
               balance={subscription.price}
             />
           </View>
 
           <ThemeText
-            styles={{flexShrink: 1}}
+            styles={{ flexShrink: 1 }}
             CustomNumberOfLines={1}
             content={t('apps.chatGPT.addCreditsPage.estSearches', {
               num: subscription.numSerches,
@@ -130,7 +134,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
     return (
       <ThemeText
         key={item.name}
-        styles={{fontSize: SIZES.small, marginVertical: 2.5}}
+        styles={{ fontSize: SIZES.small, marginVertical: 2.5 }}
         content={item.name}
       />
     );
@@ -162,15 +166,16 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
           <View style={styles.globalContainer}>
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{paddingVertical: 20}}>
+              contentContainerStyle={{ paddingVertical: 20 }}
+            >
               <ThemeText
-                styles={{textAlign: 'center', marginBottom: 20}}
+                styles={{ textAlign: 'center', marginBottom: 20 }}
                 content={t('apps.chatGPT.addCreditsPage.description')}
               />
               {subscriptionElements}
-              <View style={{marginTop: 0, alignItems: 'center'}}>
+              <View style={{ marginTop: 0, alignItems: 'center' }}>
                 <ThemeText
-                  styles={{fontWeight: 500, fontSize: SIZES.large}}
+                  styles={{ fontWeight: 500, fontSize: SIZES.large }}
                   content={t('apps.chatGPT.addCreditsPage.supportedModels')}
                 />
                 {availableModels}
@@ -254,6 +259,7 @@ export default function AddChatGPTCredits({confirmationSliderData}) {
         sparkInformation,
         userBalance: sparkInformation.balance,
         mnemonic: currentWalletMnemoinc,
+        sendWebViewRequest,
       });
       if (!paymentResponse.didWork) throw new Error(paymentResponse.error);
 

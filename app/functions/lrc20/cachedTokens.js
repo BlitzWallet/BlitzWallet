@@ -1,5 +1,5 @@
 import sha256Hash from '../hash';
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 
 const TOKEN_CACHE_KEY = 'spark_wallet_tokens_cache';
 
@@ -49,9 +49,10 @@ export const migrateCachedTokens = async mnemonic => {
 };
 
 export const mergeTokensWithCache = (currentTokens, cachedTokens, mnemonic) => {
+  const hashedMnemoinc = sha256Hash(mnemonic);
   let merged = {};
-  const selctedCashedTokens = cachedTokens[sha256Hash(mnemonic)]
-    ? cachedTokens[sha256Hash(mnemonic)]
+  const selctedCashedTokens = cachedTokens[hashedMnemoinc]
+    ? cachedTokens[hashedMnemoinc]
     : {};
 
   // Update with current token data
@@ -62,7 +63,7 @@ export const mergeTokensWithCache = (currentTokens, cachedTokens, mnemonic) => {
     };
   }
 
-  for (const [identifier, tokensData] of currentTokens) {
+  for (const [identifier, tokensData] of Object.entries(currentTokens)) {
     merged[identifier] = {
       balance: Number(tokensData.balance),
       tokenMetadata: {
@@ -73,5 +74,5 @@ export const mergeTokensWithCache = (currentTokens, cachedTokens, mnemonic) => {
   }
   console.log(merged);
 
-  return {...cachedTokens, [sha256Hash(mnemonic)]: merged};
+  return { ...cachedTokens, [hashedMnemoinc]: merged };
 };

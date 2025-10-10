@@ -1,5 +1,5 @@
-import {decode} from 'bolt11';
-import {getSparkPaymentStatus, sparkPaymentType} from '.';
+import { decode } from 'bolt11';
+import { getSparkPaymentStatus, sparkPaymentType } from '.';
 import calculateProgressiveBracketFee from './calculateSupportFee';
 
 export async function transformTxToPaymentObject(
@@ -67,7 +67,7 @@ export async function transformTxToPaymentObject(
         fee: paymentFee,
         totalFee: paymentFee + supportFee,
         supportFee: supportFee,
-        amount: paymentAmount,
+        amount: paymentAmount - paymentFee,
         address: userRequest
           ? isSendRequest
             ? userRequest?.encodedInvoice
@@ -104,7 +104,7 @@ export async function transformTxToPaymentObject(
         fee: paymentFee,
         totalFee: paymentFee + supportFee,
         supportFee: supportFee,
-        amount: paymentAmount,
+        amount: paymentAmount - paymentFee,
         address: sparkAddress,
         time: tx.updatedTime
           ? new Date(tx.updatedTime).getTime()
@@ -145,7 +145,7 @@ export async function transformTxToPaymentObject(
         fee,
         totalFee: blitzFee + fee,
         supportFee: blitzFee,
-        amount: paymentAmount,
+        amount: paymentAmount - fee,
         address: tx.address || '',
         time: tx.updatedTime
           ? new Date(tx.updatedTime).getTime()

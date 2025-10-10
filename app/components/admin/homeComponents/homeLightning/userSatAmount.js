@@ -1,13 +1,13 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {COLORS, SIZES, SKELETON_ANIMATION_SPEED} from '../../../../constants';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { COLORS, SIZES, SKELETON_ANIMATION_SPEED } from '../../../../constants';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import {memo, useCallback, useEffect, useRef, useState} from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import handleDBStateChange from '../../../../functions/handleDBStateChange';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import SkeletonTextPlaceholder from '../../../../functions/CustomElements/skeletonTextView';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 export const UserSatAmount = memo(function UserSatAmount({
   isConnectedToTheInternet,
@@ -15,36 +15,36 @@ export const UserSatAmount = memo(function UserSatAmount({
   darkModeType,
   sparkInformation,
 }) {
-  const didMount = useRef(null);
+  // const didMount = useRef(null);
 
-  const {masterInfoObject, toggleMasterInfoObject, setMasterInfoObject} =
+  const { masterInfoObject, toggleMasterInfoObject, setMasterInfoObject } =
     useGlobalContextProvider();
-  const {backgroundColor} = GetThemeColors();
+  const { backgroundColor } = GetThemeColors();
 
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
-  const [balanceWidth, setBalanceWidth] = useState(0);
+  // const [balanceWidth, setBalanceWidth] = useState(0);
   const userBalance = sparkInformation.balance;
   const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
-  useEffect(() => {
-    didMount.current = true;
-    return () => (didMount.current = false);
-  }, []);
+  // useEffect(() => {
+  //   didMount.current = true;
+  //   return () => (didMount.current = false);
+  // }, []);
 
-  const handleLayout = useCallback(
-    event => {
-      const {width} = event.nativeEvent.layout;
-      if (!didMount.current) return;
-      setBalanceWidth(width);
-    },
-    [didMount],
-  );
+  // const handleLayout = useCallback(
+  //   event => {
+  //     const { width } = event.nativeEvent.layout;
+  //     if (!didMount.current) return;
+  //     setBalanceWidth(width);
+  //   },
+  //   [didMount],
+  // );
 
   return (
     <TouchableOpacity
-      onLayout={handleLayout}
+      // onLayout={handleLayout}
       style={styles.balanceContainer}
       onPress={() => {
         if (!isConnectedToTheInternet) {
@@ -55,7 +55,7 @@ export const UserSatAmount = memo(function UserSatAmount({
         }
         if (masterInfoObject.userBalanceDenomination === 'sats')
           handleDBStateChange(
-            {userBalanceDenomination: 'fiat'},
+            { userBalanceDenomination: 'fiat' },
             setMasterInfoObject,
             toggleMasterInfoObject,
             saveTimeoutRef,
@@ -63,7 +63,7 @@ export const UserSatAmount = memo(function UserSatAmount({
           );
         else if (masterInfoObject.userBalanceDenomination === 'fiat')
           handleDBStateChange(
-            {userBalanceDenomination: 'hidden'},
+            { userBalanceDenomination: 'hidden' },
             setMasterInfoObject,
             toggleMasterInfoObject,
             saveTimeoutRef,
@@ -71,18 +71,20 @@ export const UserSatAmount = memo(function UserSatAmount({
           );
         else
           handleDBStateChange(
-            {userBalanceDenomination: 'sats'},
+            { userBalanceDenomination: 'sats' },
             setMasterInfoObject,
             toggleMasterInfoObject,
             saveTimeoutRef,
             initialValueRef,
           );
-      }}>
+      }}
+    >
       <SkeletonTextPlaceholder
         highlightColor={backgroundColor}
         backgroundColor={COLORS.opaicityGray}
         speed={SKELETON_ANIMATION_SPEED}
-        enabled={!sparkInformation.didConnect}>
+        enabled={!sparkInformation.didConnect}
+      >
         <View style={styles.valueContainer}>
           <FormattedSatText styles={styles.valueText} balance={userBalance} />
         </View>
@@ -94,15 +96,11 @@ export const UserSatAmount = memo(function UserSatAmount({
 const styles = StyleSheet.create({
   balanceContainer: {
     justifyContent: 'center',
-    marginBottom: 5,
+    marginBottom: 20,
     position: 'relative',
   },
   valueContainer: {
-    width: '100%',
-    maxWidth: 280,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
 
   informationPopupContainer: {
@@ -110,11 +108,12 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     flexWrap: 'wrap',
   },
-  pendingBalanceChange: {position: 'absolute'},
+  pendingBalanceChange: { position: 'absolute' },
 
-  informationText: {marginBottom: 20, textAlign: 'center'},
+  informationText: { marginBottom: 20, textAlign: 'center' },
 
   valueText: {
     fontSize: SIZES.xxLarge,
+    textAlign: 'center',
   },
 });

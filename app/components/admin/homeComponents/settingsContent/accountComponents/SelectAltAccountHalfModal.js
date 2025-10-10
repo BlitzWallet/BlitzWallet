@@ -1,30 +1,32 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {CENTER, SIZES} from '../../../../../constants';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { CENTER, SIZES } from '../../../../../constants';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useState} from 'react';
+import { useState } from 'react';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
 import {
   getSparkBalance,
   initializeSparkWallet,
 } from '../../../../../functions/spark';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 
 export default function SelectAltAccountHalfModal(props) {
+  const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundColor, backgroundOffset, textColor} = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const [isLoading, setIsLoading] = useState({
     accountBeingLoaded: '',
     isLoading: '',
   });
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
-  const {selectedFrom, selectedTo, transferType} = props;
+  const { selectedFrom, selectedTo, transferType } = props;
 
   const accounts = useCustodyAccountList();
 
@@ -42,7 +44,8 @@ export default function SelectAltAccountHalfModal(props) {
             backgroundColor:
               theme && darkModeType ? backgroundColor : backgroundOffset,
             ...styles.accountRow,
-          }}>
+          }}
+        >
           <ThemeText
             styles={styles.accountName}
             CustomNumberOfLines={1}
@@ -89,7 +92,8 @@ export default function SelectAltAccountHalfModal(props) {
               backgroundColor:
                 theme && darkModeType ? backgroundOffset : backgroundColor,
             }}
-            textStyles={{color: textColor}}
+            textStyles={{ color: textColor }}
+            loadingColor={textColor}
             textContent={t('constants.select')}
             useLoading={
               isLoading.accountBeingLoaded === account.mnemoinc &&
@@ -122,7 +126,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
   },
-  container: {flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER},
+  container: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
   accountRow: {
     width: '100%',
     padding: 10,

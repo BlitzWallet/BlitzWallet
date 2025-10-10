@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -10,42 +10,45 @@ import {
   EMAIL_REGEX,
   SIZES,
 } from '../../../../../constants';
-import {useCallback, useMemo, useState} from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {useGlobalAppData} from '../../../../../../context-store/appData';
-import {useNavigation} from '@react-navigation/native';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
+import { useNavigation } from '@react-navigation/native';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
-import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
+import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useKeysContext} from '../../../../../../context-store/keys';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useKeysContext } from '../../../../../../context-store/keys';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import {keyboardGoBack} from '../../../../../functions/customNavigation';
+import { keyboardGoBack } from '../../../../../functions/customNavigation';
 import sendStorePayment from '../../../../../functions/apps/payments';
-import {useSparkWallet} from '../../../../../../context-store/sparkContext';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
-import {useTranslation} from 'react-i18next';
+import { useSparkWallet } from '../../../../../../context-store/sparkContext';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import loadNewFiatData from '../../../../../functions/saveAndUpdateFiatData';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {Image} from 'expo-image';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import { Image } from 'expo-image';
 import giftCardPurchaseAmountTracker from '../../../../../functions/apps/giftCardPurchaseTracker';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 
 export default function ExpandedGiftCardPage(props) {
-  const {sparkInformation} = useSparkWallet();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {globalContactsInformation} = useGlobalContacts();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {fiatStats} = useNodeContext();
-  const {decodedGiftCards, toggleGlobalAppDataInformation} = useGlobalAppData();
+  const { sendWebViewRequest } = useWebView();
+  const { sparkInformation } = useSparkWallet();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { globalContactsInformation } = useGlobalContacts();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { fiatStats } = useNodeContext();
+  const { decodedGiftCards, toggleGlobalAppDataInformation } =
+    useGlobalAppData();
   const [numberOfGiftCards, setNumberOfGiftCards] = useState('1');
   const fromSelectGiftPage = props.route?.params?.fromSelectGiftPage;
   const selectedItem = props.route?.params?.selectedItem;
@@ -56,7 +59,7 @@ export default function ExpandedGiftCardPage(props) {
   const [selectedDenomination, setSelectedDenomination] = useState(
     isVariable ? '' : selectedItem.denominations[0],
   );
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigation();
   useHandleBackPressNew();
 
@@ -67,7 +70,7 @@ export default function ExpandedGiftCardPage(props) {
   });
   const [email, setEmail] = useState(decodedGiftCards?.profile?.email || '');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useGlobalInsets();
+  const { bottomPadding } = useGlobalInsets();
 
   const variableRange = [
     selectedItem.denominations?.[0],
@@ -76,7 +79,7 @@ export default function ExpandedGiftCardPage(props) {
   const step = Math.round((variableRange[1] - variableRange[0]) / 7);
 
   const veriableArray = useMemo(() => {
-    return Array.from({length: 8}, (_, i) => {
+    return Array.from({ length: 8 }, (_, i) => {
       const floorAmount = Math.floor((variableRange[0] + step * i) / 50) * 50;
       const amount = variableRange[0] + step * i;
 
@@ -114,7 +117,8 @@ export default function ExpandedGiftCardPage(props) {
                 ? backgroundColor
                 : COLORS.white,
             },
-          ]}>
+          ]}
+        >
           <ThemeText
             styles={{
               ...styles.denominationText,
@@ -155,7 +159,8 @@ export default function ExpandedGiftCardPage(props) {
       globalThemeViewStyles={{
         paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
       }}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       <CustomSettingsTopBar
         containerStyles={styles.topBar}
         customBackFunction={customBack}
@@ -175,13 +180,14 @@ export default function ExpandedGiftCardPage(props) {
           contentContainerStyle={{
             paddingBottom: bottomPadding,
           }}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+        >
           {/* Header Section */}
           <View style={styles.headerSection}>
             <View style={styles.logoContainer}>
               <Image
                 style={styles.companyLogo}
-                source={{uri: selectedItem.logo}}
+                source={{ uri: selectedItem.logo }}
                 contentFit="contain"
               />
             </View>
@@ -201,8 +207,9 @@ export default function ExpandedGiftCardPage(props) {
             <View
               style={[
                 styles.cardContainer,
-                {backgroundColor: backgroundOffset},
-              ]}>
+                { backgroundColor: backgroundOffset },
+              ]}
+            >
               {selectedItem.denominationType === 'Variable' && (
                 <View style={styles.customAmountSection}>
                   <CustomSearchInput
@@ -274,8 +281,9 @@ export default function ExpandedGiftCardPage(props) {
               <View
                 style={[
                   styles.cardContainer,
-                  {backgroundColor: backgroundOffset},
-                ]}>
+                  { backgroundColor: backgroundOffset },
+                ]}
+              >
                 <CustomSearchInput
                   inputText={giftMessageForContacts}
                   setInputText={setGiftMessageForContacts}
@@ -307,8 +315,9 @@ export default function ExpandedGiftCardPage(props) {
               <View
                 style={[
                   styles.cardContainer,
-                  {backgroundColor: backgroundOffset},
-                ]}>
+                  { backgroundColor: backgroundOffset },
+                ]}
+              >
                 <CustomSearchInput
                   inputText={email}
                   setInputText={setEmail}
@@ -361,7 +370,7 @@ export default function ExpandedGiftCardPage(props) {
                         memo: giftMessageForContacts,
                       },
                     },
-                    {merge: true},
+                    { merge: true },
                   );
                   return;
                 }
@@ -433,8 +442,9 @@ export default function ExpandedGiftCardPage(props) {
                   <View
                     style={[
                       styles.infoTextContainer,
-                      {backgroundColor: backgroundOffset},
-                    ]}>
+                      { backgroundColor: backgroundOffset },
+                    ]}
+                  >
                     <ThemeText
                       styles={styles.infoText}
                       content={selectedItem.terms}
@@ -462,7 +472,7 @@ export default function ExpandedGiftCardPage(props) {
           },
         }),
       );
-      toggleGlobalAppDataInformation({giftCards: em}, true);
+      toggleGlobalAppDataInformation({ giftCards: em }, true);
     } else {
       setEmail(decodedGiftCards?.profile?.email || '');
     }
@@ -485,12 +495,12 @@ export default function ExpandedGiftCardPage(props) {
 
     try {
       setIsPurchasingGift(prev => {
-        return {...prev, isPurasing: true};
+        return { ...prev, isPurasing: true };
       });
       const responseInvoice = responseObject.invoice;
 
       const fiatRates = await (fiatStats.coin?.toLowerCase()
-        ? Promise.resolve({didWork: true, fiatRateResponse: fiatStats})
+        ? Promise.resolve({ didWork: true, fiatRateResponse: fiatStats })
         : loadNewFiatData(
             'usd',
             contactsPrivateKey,
@@ -500,7 +510,7 @@ export default function ExpandedGiftCardPage(props) {
 
       const USDBTCValue = fiatRates.didWork
         ? fiatRates.fiatRateResponse
-        : {coin: 'USD', value: 100_000};
+        : { coin: 'USD', value: 100_000 };
       const sendingAmountSat = responseObject.amountSat;
       const memo = responseObject.description;
       const currentTime = new Date();
@@ -526,6 +536,7 @@ export default function ExpandedGiftCardPage(props) {
         sparkInformation: sparkInformation,
         description: memo,
         currentWalletMnemoinc: currentWalletMnemoinc,
+        sendWebViewRequest,
       });
 
       if (!paymentResponse.didWork) {
@@ -590,13 +601,13 @@ export default function ExpandedGiftCardPage(props) {
         purchasedCards: newCardsList,
       }),
     );
-    toggleGlobalAppDataInformation({giftCards: em}, true);
+    toggleGlobalAppDataInformation({ giftCards: em }, true);
     navigate.reset({
       index: 0,
       routes: [
         {
           name: 'HomeAdmin',
-          params: {screen: 'Home'},
+          params: { screen: 'Home' },
         },
         {
           name: 'ConfirmTxPage',

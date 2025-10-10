@@ -18,5 +18,6 @@ module.exports = {
     btoa: 'readonly', // both are native to Hermes now
     atob: 'readonly',
     TextDecoder: 'readonly',
+    TextEncoder: 'readonly',
   },
 };

@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
-import {handleEventEmitterPost} from '../handleEventEmitters';
-import {openDatabaseAsync} from 'expo-sqlite';
+import { handleEventEmitterPost } from '../handleEventEmitters';
+import { openDatabaseAsync } from 'expo-sqlite';
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
 export const SPARK_TRANSACTIONS_TABLE_NAME = 'SPARK_TRANSACTIONS';
 export const LIGHTNING_REQUEST_IDS_TABLE_NAME = 'LIGHTNING_REQUEST_IDS';
@@ -62,9 +62,12 @@ export const getAllSparkTransactions = async (options = {}) => {
       accountId = null,
       startRange = null,
       endRange = null,
+      idsOnly = false,
     } = options;
 
-    let query = `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}`;
+    let query = idsOnly
+      ? `SELECT sparkID FROM ${SPARK_TRANSACTIONS_TABLE_NAME}`
+      : `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}`;
     let params = [];
 
     if (accountId) {
@@ -72,7 +75,8 @@ export const getAllSparkTransactions = async (options = {}) => {
       params.push(String(accountId));
     }
 
-    query += ` ORDER BY ROWID DESC`;
+    // Sort by time in details JSON for both cases
+    query += ` ORDER BY json_extract(details, '$.time') DESC`;
 
     if (startRange !== null && endRange !== null) {
       const rangeLimit = endRange - startRange + 1;
@@ -88,9 +92,7 @@ export const getAllSparkTransactions = async (options = {}) => {
 
     const result = await sqlLiteDB.getAllAsync(query, params);
 
-    return result.sort(
-      (a, b) => JSON.parse(b.details).time - JSON.parse(a.details).time,
-    );
+    return idsOnly ? result.map(row => row.sparkID) : result;
   } catch (error) {
     console.error('Error fetching transactions:', error);
     return [];
@@ -200,19 +202,16 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
 
       // First pass: collect and merge transactions by final sparkID
       for (const tx of transactions) {
-        const finalSparkId = tx.id; // This is the final ID we want to use
+        const finalSparkId = tx.id;
         const accountId = tx.accountId;
         const tempSparkId = tx.useTempId ? tx.tempId : tx.id;
-
         const removeDuplicateKey = `${finalSparkId}_${accountId}`;
 
         if (processedTransactions.has(removeDuplicateKey)) {
-          // Merge with existing transaction
           const existingTx = processedTransactions.get(removeDuplicateKey);
 
-          // Merge details - only override if new value is not empty
-          let mergedDetails = {...existingTx.details};
-
+          // Merge details efficiently - only override if new value is meaningful
+          const mergedDetails = { ...existingTx.details };
           for (const key in tx.details) {
             const value = tx.details[key];
             if (
@@ -228,18 +227,14 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           console.log('Existing details', existingTx.details);
           console.log('merged detials', mergedDetails);
 
-          // Update the transaction with merged data
-          processedTransactions.set(removeDuplicateKey, {
-            sparkID: finalSparkId,
-            tempSparkId: existingTx.tempSparkId || tempSparkId, // Keep track of temp ID if it exists
-            paymentStatus: tx.paymentStatus || existingTx.paymentStatus,
-            paymentType: tx.paymentType || existingTx.paymentType || 'unknown',
-            accountId: tx.accountId || existingTx.accountId || 'unknown',
-            details: mergedDetails,
-            useTempId: tx.useTempId || existingTx.useTempId,
-          });
+          // Update with merged data
+          existingTx.paymentStatus =
+            tx.paymentStatus || existingTx.paymentStatus;
+          existingTx.paymentType = tx.paymentType || existingTx.paymentType;
+          existingTx.accountId = tx.accountId || existingTx.accountId;
+          existingTx.details = mergedDetails;
+          existingTx.useTempId = tx.useTempId || existingTx.useTempId;
         } else {
-          // Add new transaction
           processedTransactions.set(removeDuplicateKey, {
             sparkID: finalSparkId,
             tempSparkId: tx.useTempId ? tempSparkId : null,
@@ -252,38 +247,92 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
         }
       }
 
-      // Step 2: Begin database transaction
+      // Step 2: Batch fetch all existing transactions in one query
+      const allSparkIds = [];
+      const allTempIds = [];
+      const accountIds = [];
+
+      for (const [key, tx] of processedTransactions) {
+        allSparkIds.push(tx.sparkID);
+        accountIds.push(tx.accountId);
+        if (tx.tempSparkId && tx.tempSparkId !== tx.sparkID) {
+          allTempIds.push(tx.tempSparkId);
+        }
+      }
+
+      // Create a single query with OR conditions for better performance
+      const placeholders = allSparkIds.map(() => '?').join(',');
+      const accountPlaceholders = accountIds.map(() => '?').join(',');
+
+      let existingTxQuery = `
+        SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} 
+        WHERE sparkID IN (${placeholders})
+      `;
+
+      if (allTempIds.length > 0) {
+        const tempPlaceholders = allTempIds.map(() => '?').join(',');
+        existingTxQuery += ` OR sparkID IN (${tempPlaceholders})`;
+      }
+
+      const existingTxs = await sqlLiteDB.getAllAsync(
+        existingTxQuery,
+        allTempIds.length > 0 ? [...allSparkIds, ...allTempIds] : allSparkIds,
+      );
+
+      // Build lookup maps for O(1) access
+      const existingTxMap = new Map();
+      const existingTempTxMap = new Map();
+
+      for (const tx of existingTxs) {
+        const key = `${tx.sparkID}_${tx.accountId}`;
+        existingTxMap.set(key, tx);
+
+        // Also map by sparkID for temp lookups
+        for (const [_, processedTx] of processedTransactions) {
+          if (processedTx.tempSparkId === tx.sparkID) {
+            const tempKey = `${processedTx.tempSparkId}_${tx.accountId}`;
+            existingTempTxMap.set(tempKey, tx);
+          }
+        }
+      }
+
+      // Step 3: Begin database transaction
       await sqlLiteDB.execAsync('BEGIN TRANSACTION');
       let includedFailed = false;
 
-      // Step 3: Process each unique transaction
+      // Helper function to merge details
+      const mergeDetails = (existingDetailsStr, newDetails) => {
+        let existingDetails = {};
+        try {
+          existingDetails = JSON.parse(existingDetailsStr);
+        } catch {}
+
+        const merged = { ...existingDetails };
+        for (const key in newDetails) {
+          const value = newDetails[key];
+          if (
+            value !== '' &&
+            value !== null &&
+            value !== undefined &&
+            value !== 0
+          ) {
+            merged[key] = value;
+          }
+        }
+        return JSON.stringify(merged);
+      };
+
+      // Step 4: Process each unique transaction
       for (const [removeDuplicateKey, processedTx] of processedTransactions) {
         const [finalSparkId, accountId] = removeDuplicateKey.split('_');
-        // Check if transaction exists by final sparkID
-        const existingTx = await sqlLiteDB.getFirstAsync(
-          `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} 
-           WHERE sparkID = ? 
-           AND accountId = ?
-           LIMIT 1`,
-          [finalSparkId, accountId],
-        );
 
-        // Also check if temp ID exists (if different from final ID)
-        let existingTempTx = null;
-        if (
-          processedTx.tempSparkId &&
-          processedTx.tempSparkId !== finalSparkId
-        ) {
-          existingTempTx = await sqlLiteDB.getFirstAsync(
-            `SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME} 
-             WHERE sparkID = ? 
-             AND accountId = ?
-             LIMIT 1`,
-            [processedTx.tempSparkId, accountId],
-          );
-        }
+        const existingTx = existingTxMap.get(removeDuplicateKey);
+        const tempKey = processedTx.tempSparkId
+          ? `${processedTx.tempSparkId}_${accountId}`
+          : null;
+        const existingTempTx = tempKey ? existingTempTxMap.get(tempKey) : null;
+
         if (existingTx) {
-          // If new payment status is "failed", delete the existing payment
           if (processedTx.paymentStatus === 'failed') {
             includedFailed = true;
             await sqlLiteDB.runAsync(
@@ -291,7 +340,6 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
               [finalSparkId, accountId],
             );
 
-            // Also delete temp transaction if it exists and is different
             if (existingTempTx && processedTx.tempSparkId !== finalSparkId) {
               await sqlLiteDB.runAsync(
                 `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
@@ -299,25 +347,11 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
               );
             }
           } else {
-            // Update existing transaction with final ID
-            let existingDetails;
-            try {
-              existingDetails = JSON.parse(existingTx.details);
-            } catch {
-              existingDetails = {};
-            }
-            let mergedDetails = {...existingDetails};
-            for (const key in processedTx.details) {
-              const value = processedTx.details[key];
-              if (
-                value !== '' &&
-                value !== null &&
-                value !== undefined &&
-                value !== 0
-              ) {
-                mergedDetails[key] = value;
-              }
-            }
+            const mergedDetails = mergeDetails(
+              existingTx.details,
+              processedTx.details,
+            );
+
             await sqlLiteDB.runAsync(
               `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
                SET paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
@@ -326,12 +360,12 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
                 processedTx.paymentStatus,
                 processedTx.paymentType,
                 processedTx.accountId,
-                JSON.stringify(mergedDetails),
+                mergedDetails,
                 finalSparkId,
                 accountId,
               ],
             );
-            // Delete temp transaction if it exists and is different
+
             if (existingTempTx && processedTx.tempSparkId !== finalSparkId) {
               await sqlLiteDB.runAsync(
                 `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
@@ -340,7 +374,6 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
             }
           }
         } else if (existingTempTx) {
-          // If new payment status is "failed", delete the existing temp payment
           if (processedTx.paymentStatus === 'failed') {
             includedFailed = true;
             await sqlLiteDB.runAsync(
@@ -348,26 +381,10 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
               [processedTx.tempSparkId, accountId],
             );
           } else {
-            // Update temp transaction to use final sparkID
-            let existingDetails;
-            try {
-              existingDetails = JSON.parse(existingTempTx.details);
-            } catch {
-              existingDetails = {};
-            }
-
-            let mergedDetails = {...existingDetails};
-            for (const key in processedTx.details) {
-              const value = processedTx.details[key];
-              if (
-                value !== '' &&
-                value !== null &&
-                value !== undefined &&
-                value !== 0
-              ) {
-                mergedDetails[key] = value;
-              }
-            }
+            const mergedDetails = mergeDetails(
+              existingTempTx.details,
+              processedTx.details,
+            );
 
             await sqlLiteDB.runAsync(
               `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
@@ -378,14 +395,13 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
                 processedTx.paymentStatus,
                 processedTx.paymentType,
                 processedTx.accountId,
-                JSON.stringify(mergedDetails),
+                mergedDetails,
                 processedTx.tempSparkId,
                 accountId,
               ],
             );
           }
         } else {
-          // Only insert new transaction if payment status is not "failed"
           if (processedTx.paymentStatus !== 'failed') {
             await sqlLiteDB.runAsync(
               `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}
@@ -404,10 +420,11 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           }
         }
       }
+
       console.log('committing transactions');
-      // Commit transaction
       await sqlLiteDB.execAsync('COMMIT');
       console.log('running sql event emitter');
+
       handleEventEmitterPost(
         sparkTransactionsEventEmitter,
         SPARK_TX_UPDATE_ENVENT_NAME,
@@ -415,10 +432,10 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
         fee,
         passedBalance,
       );
+
       return true;
     } catch (error) {
       console.error('Error upserting transactions batch:', error);
-      // Rollback on error
       try {
         await sqlLiteDB.execAsync('ROLLBACK');
       } catch (rollbackError) {
@@ -577,7 +594,7 @@ const processBulkUpdateQueue = async () => {
   isProcessingBulkUpdate = true;
 
   while (bulkUpdateTransactionQueue.length > 0) {
-    const {operation, resolve, reject} = bulkUpdateTransactionQueue.shift();
+    const { operation, resolve, reject } = bulkUpdateTransactionQueue.shift();
 
     try {
       const result = await operation();

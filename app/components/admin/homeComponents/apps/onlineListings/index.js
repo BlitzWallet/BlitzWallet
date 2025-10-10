@@ -1,4 +1,10 @@
-import React, {useEffect, useState, useMemo, useCallback, useRef} from 'react';
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from 'react';
 import {
   View,
   FlatList,
@@ -16,21 +22,27 @@ import FullLoadingScreen from '../../../../../functions/CustomElements/loadingSc
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import CountryFlag from 'react-native-country-flag';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
+  SHOPS_DIRECTORY_KEY,
 } from '../../../../../constants';
-import {SIZES} from '../../../../../constants/theme';
+import { SIZES } from '../../../../../constants/theme';
 import Icon from '../../../../../functions/CustomElements/Icon';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
-import {useTranslation} from 'react-i18next';
-import {keyboardNavigate} from '../../../../../functions/customNavigation';
+import { useTranslation } from 'react-i18next';
+import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import CustomButton from '../../../../../functions/CustomElements/button';
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from '../../../../../functions';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
 
 function useDebouncedValue(value, delay = 300) {
   const [debounced, setDebounced] = useState(value);
@@ -41,8 +53,9 @@ function useDebouncedValue(value, delay = 300) {
   return debounced;
 }
 
-export default function ViewOnlineListings({removeUserLocal}) {
+export default function ViewOnlineListings({ removeUserLocal }) {
   const [userLocal, setUserLocal] = useState('WW');
+  const { decodedGiftCards } = useGlobalAppData();
   const [data, setData] = useState(null);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 300);
@@ -50,22 +63,28 @@ export default function ViewOnlineListings({removeUserLocal}) {
   const [loading, setLoading] = useState(true);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const reTryCounter = useRef(0);
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundColor, backgroundOffset} = GetThemeColors();
-  const {t} = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
+  const { t } = useTranslation();
   const navigate = useNavigation();
 
   useEffect(() => {
     if (!removeUserLocal) return;
+    setLocalStorageItem(SHOPS_DIRECTORY_KEY, removeUserLocal);
     setUserLocal(removeUserLocal);
   }, [removeUserLocal]);
-
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        const res = await fetch(
-          'https://bitcoinlistings.org/.well-known/business',
-        );
+        const [shopSavedLocation, res] = await Promise.all([
+          getLocalStorageItem(SHOPS_DIRECTORY_KEY),
+          fetch('https://bitcoinlistings.org/.well-known/business'),
+        ]);
+        if (shopSavedLocation) {
+          setUserLocal(shopSavedLocation);
+        } else if (decodedGiftCards?.profile?.isoCode) {
+          setUserLocal(decodedGiftCards.profile.isoCode);
+        }
         const json = await res.json();
         if (!json.businesses && reTryCounter.current < 2) {
           fetchListings();
@@ -102,7 +121,7 @@ export default function ViewOnlineListings({removeUserLocal}) {
     );
     const mappedItems =
       uniqueItems?.map(item => {
-        return {label: t(`apps.onlineListings.${item}`), value: item};
+        return { label: t(`apps.onlineListings.${item}`), value: item };
       }) || [];
     return mappedItems.sort((a, b) => {
       if (a.value === 'other' && b.value === 'other') return 0;
@@ -174,7 +193,7 @@ export default function ViewOnlineListings({removeUserLocal}) {
   }, [businesses, dropdownComponent]);
 
   const renderItem = useCallback(
-    ({item, index}) => {
+    ({ item, index }) => {
       if (index === 0) {
         return item;
       } else if (!businesses.length) {
@@ -215,7 +234,8 @@ export default function ViewOnlineListings({removeUserLocal}) {
       <CustomKeyboardAvoidingView
         isKeyboardActive={isKeyboardActive}
         useLocalPadding={true}
-        useStandardWidth={true}>
+        useStandardWidth={true}
+      >
         <CustomSettingsTopBar label={t('apps.onlineListings.topBarLabel')} />
         <FullLoadingScreen text={t('apps.onlineListings.loadingShopMessage')} />
       </CustomKeyboardAvoidingView>
@@ -227,13 +247,15 @@ export default function ViewOnlineListings({removeUserLocal}) {
       isKeyboardActive={isKeyboardActive}
       useLocalPadding={true}
       useStandardWidth={true}
-      globalThemeViewStyles={styles.container}>
+      globalThemeViewStyles={styles.container}
+    >
       {/* Top Bar */}
       <View style={styles.topBar}>
         <TouchableOpacity
           onPress={() => {
             keyboardNavigate(() => navigate.popTo('HomeAdmin'));
-          }}>
+          }}
+        >
           <ThemeImage
             lightModeIcon={ICONS.smallArrowLeft}
             darkModeIcon={ICONS.smallArrowLeft}
@@ -265,7 +287,8 @@ export default function ViewOnlineListings({removeUserLocal}) {
                   : COLORS.darkModeText
                 : 'unset',
             borderRadius: 8,
-          }}>
+          }}
+        >
           {userLocal === 'WW' ? (
             <Icon
               width={15}
@@ -288,7 +311,7 @@ export default function ViewOnlineListings({removeUserLocal}) {
         contentContainerStyle={styles.listContent}
         stickyHeaderIndices={[0]}
         ListHeaderComponent={
-          <View style={[styles.stickySearchHeader, {backgroundColor}]}>
+          <View style={[styles.stickySearchHeader, { backgroundColor }]}>
             <CustomSearchInput
               inputText={search}
               setInputText={setSearch}
@@ -338,12 +361,13 @@ const BusinessCard = React.memo(
           {
             backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
           },
-        ]}>
+        ]}
+      >
         <View style={styles.infoContainer}>
           {item.country.code !== 'WW' ? (
             <CountryFlag isoCode={item.country.code} size={20} />
           ) : (
-            <View style={[styles.flagContainer, {backgroundColor}]}>
+            <View style={[styles.flagContainer, { backgroundColor }]}>
               <Icon
                 color={theme ? COLORS.darkModeText : COLORS.lightModeText}
                 name={'globeIcon'}
@@ -365,7 +389,8 @@ const BusinessCard = React.memo(
                   backgroundColor:
                     theme && darkModeType ? backgroundColor : COLORS.primary,
                 },
-              ]}>
+              ]}
+            >
               <Image
                 style={styles.lightningIcon}
                 source={ICONS.lightningReceiveIcon}
@@ -373,7 +398,7 @@ const BusinessCard = React.memo(
             </View>
           )}
         </View>
-        <View style={[styles.categoryContainer, {backgroundColor}]}>
+        <View style={[styles.categoryContainer, { backgroundColor }]}>
           <ThemeText
             styles={styles.categoryText}
             content={t(`apps.onlineListings.${item.category.toLowerCase()}`)}
@@ -387,7 +412,8 @@ const BusinessCard = React.memo(
               borderColor: theme ? COLORS.darkModeText : backgroundColor,
             },
           ]}
-          onPress={handleWebsitePress}>
+          onPress={handleWebsitePress}
+        >
           <Icon
             color={theme ? COLORS.darkModeText : COLORS.lightModeText}
             width={15}
@@ -405,7 +431,7 @@ const BusinessCard = React.memo(
 );
 
 const styles = StyleSheet.create({
-  container: {flex: 1},
+  container: { flex: 1 },
   topBar: {
     width: '100%',
     flexDirection: 'row',
@@ -429,9 +455,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 30,
   },
-  flatList: {flex: 1, width: '95%', alignSelf: 'center'},
-  listContent: {paddingTop: 10, paddingBottom: 20},
-  card: {borderRadius: 8, padding: 10, marginBottom: 12},
+  flatList: { flex: 1, width: '95%', alignSelf: 'center' },
+  listContent: { paddingTop: 10, paddingBottom: 20 },
+  card: { borderRadius: 8, padding: 10, marginBottom: 12 },
   flagContainer: {
     borderRadius: 8,
     overflow: 'hidden',
@@ -440,8 +466,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  infoContainer: {flexDirection: 'row', alignItems: 'center'},
-  nameContainer: {flexShrink: 1, marginLeft: 10, marginRight: 10},
+  infoContainer: { flexDirection: 'row', alignItems: 'center' },
+  nameContainer: { flexShrink: 1, marginLeft: 10, marginRight: 10 },
   usesLightningContainer: {
     width: 30,
     height: 30,
@@ -458,7 +484,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     alignSelf: 'center',
   },
-  title: {includeFontPadding: false},
+  title: { includeFontPadding: false },
   countryLocation: {
     marginTop: 0,
     includeFontPadding: false,
@@ -472,8 +498,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginRight: 'auto',
   },
-  categoryText: {fontSize: SIZES.small, includeFontPadding: false},
-  desc: {marginBottom: 10},
+  categoryText: { fontSize: SIZES.small, includeFontPadding: false },
+  desc: { marginBottom: 10 },
   button: {
     borderWidth: 2,
     padding: 10,
@@ -482,8 +508,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  buttonText: {marginLeft: 5},
-  textStyles: {flexGrow: 1},
-  noItemsText: {textAlign: 'center'},
-  submitListingBTN: {marginTop: CONTENT_KEYBOARD_OFFSET, alignSelf: 'center'},
+  buttonText: { marginLeft: 5 },
+  textStyles: { flexGrow: 1 },
+  noItemsText: { textAlign: 'center' },
+  submitListingBTN: { marginTop: CONTENT_KEYBOARD_OFFSET, alignSelf: 'center' },
 });

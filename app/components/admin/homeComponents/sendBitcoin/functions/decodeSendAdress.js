@@ -1,18 +1,18 @@
-import {getLNAddressForLiquidPayment} from './payments';
+import { getLNAddressForLiquidPayment } from './payments';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import processBitcoinAddress from './processBitcoinAddress';
 import processBolt11Invoice from './processBolt11Invoice';
 import processLNUrlAuth from './processLNUrlAuth';
 import processLNUrlPay from './processLNUrlPay';
 import processLNUrlWithdraw from './processLNUrlWithdrawl';
-import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
+import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import processSparkAddress from './processSparkAddress';
-import {decodeBip21Address} from '../../../../../functions/bip21AddressFormmating';
+import { decodeBip21Address } from '../../../../../functions/bip21AddressFormmating';
 import {
   handleCryptoQRAddress,
   isSupportedPNPQR,
 } from '../../../../../functions/sendBitcoin/getMerchantAddress';
-import {parseInput, InputTypes} from 'bitcoin-address-parser';
+import { parseInput, InputTypes } from 'bitcoin-address-parser';
 export default async function decodeSendAddress(props) {
   let {
     btcAdress,
@@ -35,6 +35,7 @@ export default async function decodeSendAddress(props) {
     seletctedToken,
     currentWalletMnemoinc,
     t,
+    sendWebViewRequest,
   } = props;
 
   try {
@@ -145,6 +146,7 @@ export default async function decodeSendAddress(props) {
         seletctedToken,
         currentWalletMnemoinc,
         t,
+        sendWebViewRequest,
       });
     } catch (err) {
       return goBackFunction(
@@ -183,7 +185,7 @@ export default async function decodeSendAddress(props) {
 
         if (fromPage !== 'contacts') return;
       }
-      setPaymentInfo({...processedPaymentInfo, decodedInput: input});
+      setPaymentInfo({ ...processedPaymentInfo, decodedInput: input });
     } else {
       if (input.type === InputTypes.LNURL_AUTH) return;
 
@@ -192,7 +194,8 @@ export default async function decodeSendAddress(props) {
           errorMessage: t(
             'wallet.sendPages.handlingAddressErrors.lnurlWithdrawlSuccess',
           ),
-          customNavigator: () => navigate.popTo('HomeAdmin', {screen: 'home'}),
+          customNavigator: () =>
+            navigate.popTo('HomeAdmin', { screen: 'home' }),
         });
         return;
       }
@@ -211,7 +214,7 @@ export default async function decodeSendAddress(props) {
 }
 
 async function processInputType(input, context) {
-  const {setLoadingMessage, t} = context;
+  const { setLoadingMessage, t } = context;
   setLoadingMessage(t('wallet.sendPages.handlingAddressErrors.invoiceDetails'));
   crashlyticsLogReport('Getting invoice detials');
 

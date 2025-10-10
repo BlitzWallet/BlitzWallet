@@ -249,7 +249,7 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Poiché le impostazioni biometriche sono attivate, non puoi utilizzare il metodo di accesso predefinito con PIN. Vuoi terminare il tuo account?",
+      "isBiometricEnabledConfirmAction": "Non puoi utilizzare il PIN mentre i dati biometrici sono abilitati.\n\n Vuoi eliminare tutti i dati del portafoglio? Assicurati di aver eseguito il backup della frase seed.\n",
       "wrongPinError": "PIN errato, riprova",
       "enterPinMessage": "Inserisci PIN",
       "attemptsText": "{{attempts}} tentativi rimasti"

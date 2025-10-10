@@ -26,10 +26,12 @@ import { encodeLNURL } from '../../functions/lnurl/bench32Formmater';
 import { useLRC20EventContext } from '../../../context-store/lrc20Listener';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
+import { useWebView } from '../../../context-store/webViewContext';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const { fiatStats } = useNodeContext();
+  const { sendWebViewRequest } = useWebView();
 
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContacts();
@@ -97,6 +99,7 @@ export default function ReceivePaymentHome(props) {
         signer,
         // eCashBalance,
         currentWalletMnemoinc,
+        sendWebViewRequest,
       });
       if (selectedRecieveOption === 'Liquid') {
         startLiquidEventListener();
