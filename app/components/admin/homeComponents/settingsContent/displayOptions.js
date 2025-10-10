@@ -187,7 +187,7 @@ export default function DisplayOptions() {
           }}
           content={`${t('settings.displayOptions.text7')} ${
             masterInfoObject.userBalanceDenomination !== 'fiat'
-              ? BITCOIN_SAT_TEXT
+              ? 'sats'
               : `${t('settings.displayOptions.text8')}`
           } `}
         />
