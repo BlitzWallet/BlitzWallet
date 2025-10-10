@@ -37,8 +37,10 @@ import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import CountryFlag from 'react-native-country-flag';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { decode } from 'bolt11';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 
 export default function SMSMessagingSendPage() {
+  const { sendWebViewRequest } = useWebView();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { fiatStats } = useNodeContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -385,6 +387,7 @@ export default function SMSMessagingSendPage() {
           sparkInformation,
           userBalance: sparkInformation.balance,
           mnemonic: currentWalletMnemoinc,
+          sendWebViewRequest,
         });
         if (!fee.didWork) throw new Error(fee.error);
 
@@ -415,6 +418,7 @@ export default function SMSMessagingSendPage() {
         sparkInformation,
         description: t('apps.sms4sats.sendPage.paymentMemo'),
         currentWalletMnemoinc: currentWalletMnemoinc,
+        sendWebViewRequest,
       });
 
       if (!paymentResponse.didWork) {

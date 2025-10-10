@@ -42,8 +42,10 @@ import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { getSingleContact } from '../../../../../../db';
 import { useServerTimeOnly } from '../../../../../../context-store/serverTime';
 import { useTranslation } from 'react-i18next';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 
 export default function TotalTipsScreen(props) {
+  const { sendWebViewRequest } = useWebView();
   const { decodedAddedContacts, globalContactsInformation } =
     useGlobalContacts();
   const { screenDimensions } = useAppStatus();
@@ -117,6 +119,7 @@ export default function TotalTipsScreen(props) {
           // webViewRef,
           sparkInformation,
           currentWalletMnemoinc: accountMnemoinc,
+          sendWebViewRequest,
         });
         // const didPay = await payPOSLiquid({
         //   liquidNodeInformation,
@@ -182,6 +185,7 @@ export default function TotalTipsScreen(props) {
           // liquidNodeInformation,
           // nodeInformation,
           // minMaxLiquidSwapAmounts,
+          sendWebViewRequest,
         });
         if (didPay) {
           await updateInteralDBState(unpaidTxs);
@@ -202,6 +206,7 @@ export default function TotalTipsScreen(props) {
     unpaidTxs,
     getServerTime,
     masterInfoObject,
+    sendWebViewRequest,
   ]);
 
   const updateInteralDBState = useCallback(async txList => {

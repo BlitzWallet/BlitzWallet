@@ -1,20 +1,24 @@
-import React, {useState, useCallback, useMemo} from 'react';
-import {CENTER, ICONS} from '../../../../constants';
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
+import React, { useState, useCallback, useMemo } from 'react';
+import { CENTER, ICONS } from '../../../../constants';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import {useNavigation} from '@react-navigation/native';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {COLORS, INSET_WINDOW_WIDTH, SIZES} from '../../../../constants/theme';
+import { useNavigation } from '@react-navigation/native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {initWallet} from '../../../../functions/initiateWalletConnection';
-import {useSparkWallet} from '../../../../../context-store/sparkContext';
+import { initWallet } from '../../../../functions/initiateWalletConnection';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import useCustodyAccountList from '../../../../hooks/useCustodyAccountsList';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import { useWebView } from '../../../../../context-store/webViewContext';
 
 // Memoized account row component to prevent unnecessary re-renders
 const AccountRow = React.memo(
@@ -57,13 +61,14 @@ const AccountRow = React.memo(
         key={index}
         style={[
           styles.accountRow,
-          {backgroundColor: theme ? backgroundOffset : COLORS.darkModeText},
+          { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
         ]}
         onPress={() => {
           if (!isSpecialAccount) {
             onNavigateCreate(account);
           }
-        }}>
+        }}
+      >
         <ThemeText
           styles={styles.accountName}
           CustomNumberOfLines={1}
@@ -72,8 +77,9 @@ const AccountRow = React.memo(
 
         {!isMainWallet && (
           <TouchableOpacity
-            style={[styles.viewAccountArrowContainer, {backgroundColor}]}
-            onPress={() => onNavigateView(account)}>
+            style={[styles.viewAccountArrowContainer, { backgroundColor }]}
+            onPress={() => onNavigateView(account)}
+          >
             <ThemeImage
               styles={styles.arrowIcon}
               lightModeIcon={ICONS.keyIcon}
@@ -105,6 +111,7 @@ const AccountRow = React.memo(
               : textColor,
             paddingHorizontal: 0,
           }}
+          loadingColor={textColor}
           textContent={isActive ? t('constants.active') : t('constants.select')}
           useLoading={isAccountLoading}
         />
@@ -115,22 +122,23 @@ const AccountRow = React.memo(
 
 export default function CreateCustodyAccounts() {
   const navigate = useNavigation();
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const {
     selectedAltAccount,
     updateAccountCacheOnly,
     currentWalletMnemoinc,
     toggleIsUsingNostr,
   } = useActiveCustodyAccount();
-  const {setSparkInformation} = useSparkWallet();
-  const {backgroundOffset, backgroundColor, textColor} = GetThemeColors();
+  const { setSparkInformation } = useSparkWallet();
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const [searchInput, setSearchInput] = useState('');
   const [isLoading, setIsLoading] = useState({
     accountBeingLoaded: '',
     isLoading: false,
   });
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const accounts = useCustodyAccountList();
+  const { sendWebViewRequest } = useWebView();
 
   // Memoized filtered accounts to prevent recalculation on every render
   const filteredAccounts = useMemo(() => {
@@ -144,21 +152,21 @@ export default function CreateCustodyAccounts() {
   // Memoized navigation handlers
   const handleNavigateCreate = useCallback(
     account => {
-      navigate.navigate('CreateCustodyAccount', {account});
+      navigate.navigate('CreateCustodyAccount', { account });
     },
     [navigate],
   );
 
   const handleNavigateView = useCallback(
     account => {
-      navigate.navigate('ViewCustodyAccount', {account});
+      navigate.navigate('ViewCustodyAccount', { account });
     },
     [navigate],
   );
 
   const handleNavigateError = useCallback(
     errorMessage => {
-      navigate.navigate('ErrorScreen', {errorMessage});
+      navigate.navigate('ErrorScreen', { errorMessage });
     },
     [navigate],
   );
@@ -188,6 +196,7 @@ export default function CreateCustodyAccounts() {
         const initResponse = await initWallet({
           setSparkInformation,
           mnemonic: account.mnemoinc,
+          sendWebViewRequest,
         });
 
         if (!initResponse.didWork) {
@@ -206,7 +215,7 @@ export default function CreateCustodyAccounts() {
           });
           toggleIsUsingNostr(isNWC);
         } else {
-          await updateAccountCacheOnly({...account, isActive: true});
+          await updateAccountCacheOnly({ ...account, isActive: true });
           toggleIsUsingNostr(false);
         }
       } catch (error) {
@@ -225,6 +234,7 @@ export default function CreateCustodyAccounts() {
       updateAccountCacheOnly,
       toggleIsUsingNostr,
       handleNavigateError,
+      sendWebViewRequest,
     ],
   );
 
@@ -289,7 +299,7 @@ export default function CreateCustodyAccounts() {
 
   const topBarIconStyles = useMemo(
     () => ({
-      transform: [{rotate: '45deg'}],
+      transform: [{ rotate: '45deg' }],
     }),
     [],
   );
@@ -308,7 +318,8 @@ export default function CreateCustodyAccounts() {
       <ScrollView
         stickyHeaderIndices={[0]}
         contentContainerStyle={scrollViewContentStyle}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         <CustomSearchInput
           containerStyles={searchContainerStyles}
           inputText={searchInput}

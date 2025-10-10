@@ -1,4 +1,4 @@
-import {crashlyticsLogReport} from './crashlyticsLogs';
+import { crashlyticsLogReport } from './crashlyticsLogs';
 import {
   getCachedSparkTransactions,
   getSparkAddress,
@@ -8,13 +8,14 @@ import {
 } from './spark';
 import handleBalanceCache from './spark/handleBalanceCache';
 
-import {cleanStalePendingSparkLightningTransactions} from './spark/transactions';
+import { cleanStalePendingSparkLightningTransactions } from './spark/transactions';
 
 export async function initWallet({
   setSparkInformation,
   // toggleGlobalContactsInformation,
   // globalContactsInformation,
   mnemonic,
+  sendWebViewRequest,
 }) {
   try {
     crashlyticsLogReport('Trying to connect to nodes');
@@ -27,6 +28,7 @@ export async function initWallet({
         // globalContactsInformation,
         // toggleGlobalContactsInformation,
         mnemonic,
+        sendWebViewRequest,
       });
 
       if (!didSetSpark)
@@ -39,11 +41,11 @@ export async function initWallet({
           'We were unable to connect to the spark node. Please try again.',
       );
     }
-    return {didWork: true};
+    return { didWork: true };
   } catch (err) {
     console.log('initialize spark wallet error main', err);
     crashlyticsLogReport(err.message);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 }
 
@@ -52,6 +54,7 @@ async function initializeSparkSession({
   // globalContactsInformation,
   // toggleGlobalContactsInformation,
   mnemonic,
+  sendWebViewRequest,
 }) {
   try {
     // Clean DB state but do not hold up process
@@ -98,7 +101,10 @@ async function initializeSparkSession({
       if (runCount === 1) {
         currentBalance = Number(initialBalanceResponse.balance);
       } else {
-        const retryResponse = await getSparkBalance(mnemonic);
+        const retryResponse = await getSparkBalance(
+          mnemonic,
+          sendWebViewRequest,
+        );
         currentBalance = Number(retryResponse.balance);
       }
 

@@ -37,11 +37,12 @@ export const sparkPaymenWrapper = async ({
   usingZeroAmountInvoice = false,
   seletctedToken = 'Bitcoin',
   mnemonic,
+  sendWebViewRequest,
 }) => {
   try {
     console.log('Begining spark payment');
-    if (!sparkWallet[sha256Hash(mnemonic)])
-      throw new Error('sparkWallet not initialized');
+    // if (!sparkWallet[sha256Hash(mnemonic)])
+    //   throw new Error('sparkWallet not initialized');
     const supportFee = await calculateProgressiveBracketFee(
       amountSats,
       paymentType,
@@ -258,10 +259,11 @@ export const sparkReceivePaymentWrapper = async ({
   paymentType,
   shouldNavigate,
   mnemoinc,
+  sendWebViewRequest,
 }) => {
   try {
-    if (!sparkWallet[sha256Hash(mnemoinc)])
-      throw new Error('sparkWallet not initialized');
+    // if (!sparkWallet[sha256Hash(mnemoinc)])
+    //   throw new Error('sparkWallet not initialized');
 
     if (paymentType === 'lightning') {
       const invoiceResponse = await receiveSparkLightningPayment({

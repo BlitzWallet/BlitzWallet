@@ -1,21 +1,22 @@
-import {useCallback, useMemo, useState} from 'react';
-import {SATSPERBITCOIN} from '../../../../../constants/math';
-import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
-import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
-import {getLNAddressForLiquidPayment} from '../functions/payments';
-import {calculateBoltzFeeNew} from '../../../../../functions/boltz/boltzFeeNew';
-import {useActiveCustodyAccount} from '../../../../../../context-store/activeAccount';
-import {useTranslation} from 'react-i18next';
+import { useCallback, useMemo, useState } from 'react';
+import { SATSPERBITCOIN } from '../../../../../constants/math';
+import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
+import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
+import { getLNAddressForLiquidPayment } from '../functions/payments';
+import { calculateBoltzFeeNew } from '../../../../../functions/boltz/boltzFeeNew';
+import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
+import { useTranslation } from 'react-i18next';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
-import {StyleSheet, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {InputTypes} from 'bitcoin-address-parser';
+import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { InputTypes } from 'bitcoin-address-parser';
+import { useWebView } from '../../../../../../context-store/webViewContext';
 
 const MAX_SEND_OPTIONS = [
-  {label: '25%', value: '25'},
-  {label: '50%', value: '50'},
-  {label: '75%', value: '75'},
-  {label: '100%', value: '100'},
+  { label: '25%', value: '25' },
+  { label: '50%', value: '50' },
+  { label: '75%', value: '75' },
+  { label: '100%', value: '100' },
 ];
 export default function SendMaxComponent({
   fiatStats,
@@ -30,10 +31,11 @@ export default function SendMaxComponent({
   selectedLRC20Asset,
   useAltLayout,
 }) {
+  const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [isGettingMax, setIsGettingMax] = useState(false);
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
 
   const handleSelctProcesss = useCallback(
     async item => {
@@ -103,6 +105,7 @@ export default function SendMaxComponent({
             masterInfoObject,
             seletctedToken: selectedLRC20Asset,
             mnemonic: currentWalletMnemoinc,
+            sendWebViewRequest,
           });
 
           if (!feeResponse.didWork) throw new Error(feeResponse.error);
@@ -129,7 +132,7 @@ export default function SendMaxComponent({
           }));
         }
       } catch (err) {
-        navigate.navigate('ErrorScreen', {errorMessage: err.message});
+        navigate.navigate('ErrorScreen', { errorMessage: err.message });
         console.log(err, 'ERROR');
       } finally {
         setIsGettingMax(false);
@@ -181,7 +184,7 @@ export default function SendMaxComponent({
 }
 
 const styles = StyleSheet.create({
-  textStyles: {textAlign: 'center'},
+  textStyles: { textAlign: 'center' },
   containerStyles: {
     flex: 0,
   },

@@ -1,7 +1,7 @@
-import {privateKeyFromSeedWords} from './nostrCompatability';
-import {getPublicKey} from 'nostr-tools';
-import {addDataToCollection, getDataFromCollection} from '../../db';
-import {generateRandomContact} from './contacts';
+import { privateKeyFromSeedWords } from './nostrCompatability';
+import { getPublicKey } from 'nostr-tools';
+import { addDataToCollection, getDataFromCollection } from '../../db';
+import { generateRandomContact } from './contacts';
 import {
   getCurrentDateFormatted,
   getDateXDaysAgo,
@@ -11,17 +11,17 @@ import {
   NWC_IDENTITY_PUB_KEY,
   QUICK_PAY_STORAGE_KEY,
 } from '../constants';
-import {sendDataToDB} from '../../db/interactionManager';
-import {db, initializeFirebase} from '../../db/initializeFirebase';
+import { sendDataToDB } from '../../db/interactionManager';
+import { db, initializeFirebase } from '../../db/initializeFirebase';
 import {
   fetchLocalStorageItems,
   shouldLoadExploreData,
 } from './initializeUserSettingsHelpers';
-import {crashlyticsLogReport} from './crashlyticsLogs';
-import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
+import { crashlyticsLogReport } from './crashlyticsLogs';
+import { getLocalStorageItem, setLocalStorageItem } from './localStorage';
 import fetchBackend from '../../db/handleBackend';
-import {getNWCData} from './nwc';
-import {getNWCSparkIdentityPubKey, initializeNWCWallet} from './nwc/wallet';
+import { getNWCData } from './nwc';
+import { getNWCSparkIdentityPubKey, initializeNWCWallet } from './nwc/wallet';
 
 export default async function initializeUserSettingsFromHistory({
   accountMnemoinc,
@@ -40,8 +40,6 @@ export default async function initializeUserSettingsFromHistory({
     const privateKey = mnemonic ? privateKeyFromSeedWords(mnemonic) : null;
 
     const publicKey = privateKey ? getPublicKey(privateKey) : null;
-
-    console.log(privateKey, publicKey);
 
     if (!privateKey || !publicKey) throw Error('Failed to retrieve keys');
 
@@ -172,7 +170,10 @@ export default async function initializeUserSettingsFromHistory({
     //     //   isCurrentMint: null,
     //     // },
     //   ];
-    const messagesApp = blitzStoredData.messagesApp || {sent: [], received: []};
+    const messagesApp = blitzStoredData.messagesApp || {
+      sent: [],
+      received: [],
+    };
     const VPNplans = blitzStoredData.VPNplans || [];
 
     const posSettings = blitzStoredData.posSettings || {
@@ -317,7 +318,7 @@ export default async function initializeUserSettingsFromHistory({
       if (didInit.isConnected) {
         const pubkey = await getNWCSparkIdentityPubKey();
 
-        toggleMasterInfoObject({[NWC_IDENTITY_PUB_KEY]: pubkey});
+        toggleMasterInfoObject({ [NWC_IDENTITY_PUB_KEY]: pubkey });
       }
     }
 

@@ -1,7 +1,7 @@
-import {SATSPERBITCOIN} from '../../../../../constants';
-import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
+import { SATSPERBITCOIN } from '../../../../../constants';
+import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 
-import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
+import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 
 export default async function processSparkAddress(input, context) {
   const {
@@ -12,6 +12,7 @@ export default async function processSparkAddress(input, context) {
     fiatStats,
     seletctedToken,
     currentWalletMnemoinc,
+    sendWebViewRequest,
   } = context;
   crashlyticsLogReport('Handling decode spark payment');
 
@@ -51,6 +52,7 @@ export default async function processSparkAddress(input, context) {
         amountSats: Math.round(amountMsat / (isLRC20 ? 1 : 1000)),
         masterInfoObject,
         mnemonic: currentWalletMnemoinc,
+        sendWebViewRequest,
       });
       if (!fee.didWork) throw new Error(fee.error);
 

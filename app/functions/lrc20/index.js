@@ -8,21 +8,37 @@ import { bulkUpdateSparkTransactions } from '../spark/transactions';
 import { convertToBech32m } from './bech32';
 import tokenBufferAmountToDecimal from './bufferToDecimal';
 import { getCachedTokens } from './cachedTokens';
-const MINUTE_BUFFER = 1000 * 60;
+
 export async function getLRC20Transactions({
   ownerPublicKeys,
   sparkAddress,
   isInitialRun,
   mnemonic,
+  sendWebViewRequest,
 }) {
-  const [storedDate, savedTxs, cachedTokens, tokenTxs] = await Promise.all([
+  const [storedDate, savedTxs, cachedTokens] = await Promise.all([
     getLocalStorageItem('lastRunLRC20Tokens').then(
       data => JSON.parse(data) || 0,
     ),
     getCachedSparkTransactions(null, ownerPublicKeys[0]),
     getCachedTokens(),
-    getSparkTokenTransactions({ ownerPublicKeys, mnemonic }),
   ]);
+
+  const lastSavedTokenTx = (savedTxs || []).find(tx => {
+    const parsed = JSON.parse(tx?.details);
+    return parsed?.isLRC20Payment;
+  });
+
+  const lastSavedTransactionId = lastSavedTokenTx
+    ? lastSavedTokenTx.sparkID || lastSavedTokenTx.id || null
+    : null;
+
+  const tokenTxs = await getSparkTokenTransactions({
+    ownerPublicKeys,
+    mnemonic,
+
+    lastSavedTransactionId,
+  });
 
   if (!tokenTxs?.tokenTransactionsWithStatus) return;
   const hashedMnemoinc = sha256Hash(mnemonic);
@@ -36,14 +52,11 @@ export async function getLRC20Transactions({
   let newTxs = [];
 
   for (const tokenTx of tokenTransactions) {
-    const tokenReceivedDate = new Date(
-      tokenTx.tokenTransaction.clientCreatedTimestamp,
-    );
     const tokenOutput = tokenTx.tokenTransaction.tokenOutputs[0];
     const tokenIdentifier = tokenOutput?.tokenIdentifier;
-
-    const tokenIdentifierHex = Buffer.from(tokenIdentifier).toString('hex');
-
+    const tokenIdentifierHex = Buffer.from(
+      Object.values(tokenIdentifier),
+    ).toString('hex');
     if (!tokenIdentifier) continue;
     const tokenbech32m = convertToBech32m(tokenIdentifierHex);
 
@@ -52,12 +65,10 @@ export async function getLRC20Transactions({
       continue;
     }
 
-    if (tokenReceivedDate < timeCutoff - MINUTE_BUFFER) continue;
-
     const tokenOutputs = tokenTx.tokenTransaction.tokenOutputs;
 
     const ownerPublicKey = Buffer.from(
-      tokenOutputs[0]?.ownerPublicKey,
+      Object.values(tokenOutputs[0]?.ownerPublicKey),
     ).toString('hex');
     const amount = Number(
       tokenBufferAmountToDecimal(tokenOutputs[0]?.tokenAmount),
@@ -65,14 +76,20 @@ export async function getLRC20Transactions({
     const didSend = ownerPublicKey !== ownerPublicKeys[0];
 
     if (
-      savedIds.has(Buffer.from(tokenTx.tokenTransactionHash).toString('hex'))
+      savedIds.has(
+        Buffer.from(Object.values(tokenTx.tokenTransactionHash)).toString(
+          'hex',
+        ),
+      )
     ) {
       console.log('Transaction already saved');
       continue;
     }
 
     const tx = {
-      id: Buffer.from(tokenTx.tokenTransactionHash).toString('hex'),
+      id: Buffer.from(Object.values(tokenTx.tokenTransactionHash)).toString(
+        'hex',
+      ),
       paymentStatus: 'completed',
       paymentType: 'spark',
       accountId: ownerPublicKeys[0],

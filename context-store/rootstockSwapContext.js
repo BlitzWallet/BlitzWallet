@@ -21,22 +21,24 @@ import {
   executeSubmarineSwap,
   lockSubmarineSwap,
 } from '../app/functions/boltz/rootstock/submarineSwap';
-import {useKeysContext} from './keys';
-import {useAppStatus} from './appStatus';
+import { useKeysContext } from './keys';
+import { useAppStatus } from './appStatus';
 import {
   getRoostockProviderEndpoint,
   rootstockEnvironment,
 } from '../app/functions/boltz/rootstock';
-import {JsonRpcProvider, Wallet} from 'ethers';
-import {getBoltzWsUrl} from '../app/functions/boltz/boltzEndpoitns';
-import {useSparkWallet} from './sparkContext';
+import { JsonRpcProvider, Wallet } from 'ethers';
+import { getBoltzWsUrl } from '../app/functions/boltz/boltzEndpoitns';
+import { useSparkWallet } from './sparkContext';
+import { useWebView } from './webViewContext';
 
 export const RootstockSwapContext = createContext();
 
-export const RootstockSwapProvider = ({children}) => {
-  const {sparkInformation} = useSparkWallet();
-  const {accountMnemoinc} = useKeysContext();
-  const {didGetToHomepage, minMaxLiquidSwapAmounts} = useAppStatus();
+export const RootstockSwapProvider = ({ children }) => {
+  const { sendWebViewRequest } = useWebView();
+  const { sparkInformation } = useSparkWallet();
+  const { accountMnemoinc } = useKeysContext();
+  const { didGetToHomepage, minMaxLiquidSwapAmounts } = useAppStatus();
   const subscribedIdsRef = useRef(new Set());
   const activeSwapIdsRef = useRef(new Set()); // Track active swaps
   const [signer, setSigner] = useState(null);
@@ -165,6 +167,7 @@ export const RootstockSwapProvider = ({children}) => {
         minMaxLiquidSwapAmounts,
         provider,
         signer,
+        sendWebViewRequest,
       );
       if (swap) swaps.push(swap);
     }
@@ -219,11 +222,11 @@ export const RootstockSwapProvider = ({children}) => {
     if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
     // Open websocket once
-    startRootstockEventListener({durationMs: 30000, intervalMs: 15000});
+    startRootstockEventListener({ durationMs: 30000, intervalMs: 15000 });
   }, [accountMnemoinc, didGetToHomepage, sparkInformation.didConnect]);
 
   const startRootstockEventListener = useCallback(
-    async ({durationMs = 60000, intervalMs = 20000} = {}) => {
+    async ({ durationMs = 60000, intervalMs = 20000 } = {}) => {
       let swaps = await loadRootstockSwaps();
 
       // Check if we should open a new WebSocket or use existing one
@@ -291,7 +294,7 @@ export const RootstockSwapProvider = ({children}) => {
                 'transaction.lockupFailed',
               ].includes(status)
             ) {
-              await updateSwap(swapId, {didSwapFail: true});
+              await updateSwap(swapId, { didSwapFail: true });
               await refundRootstockSubmarineSwap(swap, signer);
               // Remove from active swaps when it fails/expires
               activeSwapIdsRef.current.delete(swapId);

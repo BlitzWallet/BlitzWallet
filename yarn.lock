@@ -1677,7 +1677,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ecies/ciphers@npm:^0.2.3":
+"@ecies/ciphers@npm:^0.2.3, @ecies/ciphers@npm:^0.2.4":
   version: 0.2.4
   resolution: "@ecies/ciphers@npm:0.2.4"
   peerDependencies:
@@ -3237,6 +3237,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/hashes@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@noble/hashes@npm:2.0.1"
+  checksum: aea67a671ca464027cd512d07666a804bd99abc343ba98c93ee8463a1c870c5594f8de468279ef3c60f3b23b6330db9f1a92bd23723b8a911ec73bddc9420248
+  languageName: node
+  linkType: hard
+
 "@noble/hashes@npm:~1.3.0, @noble/hashes@npm:~1.3.1":
   version: 1.3.3
   resolution: "@noble/hashes@npm:1.3.3"
@@ -3248,6 +3255,13 @@ __metadata:
   version: 2.3.0
   resolution: "@noble/secp256k1@npm:2.3.0"
   checksum: 423c7242203fe843f630b48eb3188ca73fffdc81dc29ce8b2579db850c381fb32cda82a8e721623007762241547527c0d5d76d56aa6570bfe077e71dcfbbd583
+  languageName: node
+  linkType: hard
+
+"@noble/secp256k1@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@noble/secp256k1@npm:3.0.0"
+  checksum: f5c3be6fa1f27bd00606051cba9de62031ee67c4c519b3df9232c7343a740b805ca092f7c7a8d2ac9d9db99e4cc7ae8a8929842db64911a80aa2a071317a4749
   languageName: node
   linkType: hard
 
@@ -4896,6 +4910,7 @@ __metadata:
     react-native-worklets: 0.5.1
     react-test-renderer: 19.1.0
     rn-qr-generator: ^1.4.3
+    spark-web-context: "https://github.com/blitzwallet/spark-web-context.git"
     stream-browserify: ^3.0.0
     text-encoding: ^0.7.0
     text-encoding-polyfill: ^0.6.7
@@ -13830,6 +13845,18 @@ __metadata:
   version: 0.6.1
   resolution: "source-map@npm:0.6.1"
   checksum: 59ce8640cf3f3124f64ac289012c2b8bd377c238e316fb323ea22fbfe83da07d81e000071d7242cad7a23cd91c7de98e4df8830ec3f133cb6133a5f6e9f67bc2
+  languageName: node
+  linkType: hard
+
+"spark-web-context@https://github.com/blitzwallet/spark-web-context.git":
+  version: 1.0.0
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=c3c96ebbcd03fb4beb6fac0b0e42f7a274d6aa32"
+  dependencies:
+    "@buildonspark/spark-sdk": ^0.4.0
+    "@ecies/ciphers": ^0.2.4
+    "@noble/hashes": ^2.0.1
+    "@noble/secp256k1": ^3.0.0
+  checksum: 49feada97fbabe5a5cda38e9cba2d8701c1b4ebcd9af466893e569b62d3fecfb45f8f960b09b6de016cc7128f75023606e8a99fd6bb4a87ca9ac4d28d22bdcdc
   languageName: node
   linkType: hard
 

@@ -1,29 +1,31 @@
-import {StyleSheet, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect, useState} from 'react';
-import {ThemeText} from '../../../../../../functions/CustomElements';
-import {SIZES} from '../../../../../../constants';
+import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useCallback, useEffect, useState } from 'react';
+import { ThemeText } from '../../../../../../functions/CustomElements';
+import { SIZES } from '../../../../../../constants';
 import FormattedSatText from '../../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import FullLoadingScreen from '../../../../../../functions/CustomElements/loadingScreen';
 import SwipeButtonNew from '../../../../../../functions/CustomElements/sliderButton';
-import {sparkPaymenWrapper} from '../../../../../../functions/spark/payments';
-import {useGlobalContextProvider} from '../../../../../../../context-store/context';
-import {useSparkWallet} from '../../../../../../../context-store/sparkContext';
+import { sparkPaymenWrapper } from '../../../../../../functions/spark/payments';
+import { useGlobalContextProvider } from '../../../../../../../context-store/context';
+import { useSparkWallet } from '../../../../../../../context-store/sparkContext';
 import StoreErrorPage from '../../components/errorScreen';
-import {useActiveCustodyAccount} from '../../../../../../../context-store/activeAccount';
-import {useTranslation} from 'react-i18next';
-import {decode} from 'bolt11';
+import { useActiveCustodyAccount } from '../../../../../../../context-store/activeAccount';
+import { useTranslation } from 'react-i18next';
+import { decode } from 'bolt11';
+import { useWebView } from '../../../../../../../context-store/webViewContext';
 
 export default function ConfirmVPNPage(props) {
+  const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {sparkInformation} = useSparkWallet();
-  const {duration, country, createVPN, slideHeight, theme, darkModeType} =
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { sparkInformation } = useSparkWallet();
+  const { duration, country, createVPN, slideHeight, theme, darkModeType } =
     props;
-  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
 
   const [invoiceInformation, setInvoiceInformation] = useState(null);
   const [error, setError] = useState('');
@@ -47,7 +49,7 @@ export default function ConfirmVPNPage(props) {
 
         if (!invoice.success)
           throw new Error(t('apps.VPN.confirmationSlideUp.invoiceInfoError'));
-        const {data} = invoice;
+        const { data } = invoice;
         if (!data.payment_hash || !data.payment_request)
           throw new Error(t('apps.VPN.confirmationSlideUp.invoiceInfoError'));
 
@@ -62,6 +64,7 @@ export default function ConfirmVPNPage(props) {
           sparkInformation,
           userBalance: sparkInformation.balance,
           mnemonic: currentWalletMnemoinc,
+          sendWebViewRequest,
         });
         if (!fee.didWork) throw new Error(fee.error);
         if (
@@ -69,7 +72,7 @@ export default function ConfirmVPNPage(props) {
           parsedInvoice.satoshis + fee.supportFee + fee.fee
         ) {
           throw new Error(
-            t('errormessages.insufficientBalanceError', {planType: 'VPN'}),
+            t('errormessages.insufficientBalanceError', { planType: 'VPN' }),
           );
         }
 
@@ -121,12 +124,12 @@ export default function ConfirmVPNPage(props) {
               .replace(/-/g, ' ')}
           />
           <ThemeText
-            styles={{marginTop: 5}}
+            styles={{ marginTop: 5 }}
             content={'1 ' + t(`apps.VPN.durationSlider.${duration}`)}
           />
           <FormattedSatText
             neverHideBalance={true}
-            containerStyles={{marginTop: 'auto'}}
+            containerStyles={{ marginTop: 'auto' }}
             styles={{
               fontSize: SIZES.large,
               textAlign: 'center',
@@ -136,7 +139,7 @@ export default function ConfirmVPNPage(props) {
           />
           <FormattedSatText
             neverHideBalance={true}
-            containerStyles={{marginTop: 10, marginBottom: 'auto'}}
+            containerStyles={{ marginTop: 10, marginBottom: 'auto' }}
             styles={{
               textAlign: 'center',
             }}
@@ -147,7 +150,7 @@ export default function ConfirmVPNPage(props) {
           <SwipeButtonNew
             onSwipeSuccess={onSwipeSuccess}
             width={0.95}
-            containerStyles={{marginBottom: 20}}
+            containerStyles={{ marginBottom: 20 }}
             thumbIconStyles={{
               backgroundColor:
                 theme && darkModeType ? backgroundOffset : backgroundColor,

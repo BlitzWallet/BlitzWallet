@@ -1,9 +1,9 @@
 // import {InputTypeVariant} from '@breeztech/react-native-breez-sdk-liquid';
-import {SATSPERBITCOIN} from '../../../../../constants';
-import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
-import {getLNAddressForLiquidPayment} from './payments';
-import {sparkPaymenWrapper} from '../../../../../functions/spark/payments';
-import {InputTypes} from 'bitcoin-address-parser';
+import { SATSPERBITCOIN } from '../../../../../constants';
+import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
+import { getLNAddressForLiquidPayment } from './payments';
+import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
+import { InputTypes } from 'bitcoin-address-parser';
 
 export default async function processLNUrlPay(input, context) {
   const {
@@ -14,6 +14,7 @@ export default async function processLNUrlPay(input, context) {
     paymentInfo,
     currentWalletMnemoinc,
     t,
+    sendWebViewRequest,
   } = context;
 
   crashlyticsLogReport('Beiging decode LNURL pay');
@@ -75,6 +76,7 @@ export default async function processLNUrlPay(input, context) {
         paymentType: 'lightning',
         masterInfoObject,
         mnemonic: currentWalletMnemoinc,
+        sendWebViewRequest,
       });
 
       if (!fee.didWork) throw new Error(fee.error);

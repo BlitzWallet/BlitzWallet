@@ -6,18 +6,20 @@ import {
   useRef,
   useMemo,
 } from 'react';
-import {getSparkBalance} from '../app/functions/spark';
+import { getSparkBalance } from '../app/functions/spark';
 import sha256Hash from '../app/functions/hash';
-import {useSparkWallet} from './sparkContext';
-import {useActiveCustodyAccount} from './activeAccount';
+import { useSparkWallet } from './sparkContext';
+import { useActiveCustodyAccount } from './activeAccount';
+import { useWebView } from './webViewContext';
 
 const LRC20EventContext = createContext(null);
 const DEFAULT_EVENT_LIMIT = 15;
 const POLLING_INTERVAL_MS = 12000;
 
-export function LRC20EventProvider({children}) {
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {sparkInformation} = useSparkWallet();
+export function LRC20EventProvider({ children }) {
+  const { sendWebViewRequest } = useWebView();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { sparkInformation } = useSparkWallet();
   const maxAttempts = useRef(DEFAULT_EVENT_LIMIT);
   const currentAttempts = useRef(0);
   const intervalId = useRef(null);
