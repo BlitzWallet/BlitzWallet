@@ -2,7 +2,6 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { Asset } from 'expo-asset';
 import { Platform } from 'react-native';
 import { randomBytes } from '@noble/hashes/utils';
-import sha256Hash from '../hash';
 
 /**
  * Verifies the bundled HTML, injects a nonce, and writes a verified version to cache.
@@ -10,6 +9,7 @@ import sha256Hash from '../hash';
 export async function verifyAndPrepareWebView(bundleSource) {
   try {
     let html;
+    let fileUri;
 
     const expectedHash = process.env.WEBVIEW_BUNDLE_HASH;
 
@@ -20,17 +20,20 @@ export async function verifyAndPrepareWebView(bundleSource) {
       html = await FileSystem.readAsStringAsync(htmlAsset.localUri, {
         encoding: FileSystem.EncodingType.UTF8,
       });
+      fileUri = htmlAsset.localUri;
     } else {
-      const fileUri = FileSystem.bundleDirectory + 'sparkContext.html';
+      fileUri = FileSystem.bundleDirectory + 'sparkContext.html';
       html = await FileSystem.readAsStringAsync(fileUri, {
         encoding: FileSystem.EncodingType.UTF8,
       });
     }
 
     // Compute hash
-    const hashHex = sha256Hash(html);
 
-    if (hashHex !== expectedHash)
+    const info = await FileSystem.getInfoAsync(fileUri, { md5: true });
+    const hashHex = info.md5;
+
+    if (hashHex.toString('hex') !== expectedHash)
       throw new Error('Bundle has been tampered with, Stop,.');
 
     // Generate nonce and inject
