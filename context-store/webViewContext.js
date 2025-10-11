@@ -12,9 +12,10 @@ import { sha256 } from '@noble/hashes/sha2';
 import { hkdf } from '@noble/hashes/hkdf';
 import { randomBytes } from '@noble/hashes/utils';
 import { Platform } from 'react-native';
-import { getSharedSecret, getPublicKey, utils } from '@noble/secp256k1';
+import { getSharedSecret, getPublicKey } from '@noble/secp256k1';
 import { createCipheriv, createDecipheriv } from 'react-native-quick-crypto';
 import sha256Hash from '../app/functions/hash';
+import { verifyAndPrepareWebView } from '../app/functions/webview/bundleVerification';
 
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
@@ -65,6 +66,8 @@ export const WebViewProvider = ({ children }) => {
   const sessionKeyRef = useRef(null);
   const backendPubkey = useRef(null);
   const aesKeyRef = useRef(null);
+  const expectedNonceRef = useRef(null);
+  const [verifiedPath, setVerifiedPath] = useState('');
 
   const encryptMessage = useCallback((privkey, pubkey, plaintext) => {
     try {
@@ -115,6 +118,15 @@ export const WebViewProvider = ({ children }) => {
         );
         const sharedX = shared.slice(1, 33);
         aesKeyRef.current = deriveAesKeyFromSharedX(sharedX);
+        const decodedNonce = decryptMessage(
+          sessionKeyRef.current.privateKey,
+          backendPubkey.current,
+          message.runtimeNonce,
+        );
+        if (expectedNonceRef.current !== decodedNonce) {
+          console.log('Invalid runtime nonce, something went wrong');
+          return;
+        }
         console.log('Handshake complete. Got backend public key.');
         setHandshakeComplete(true);
         return;
@@ -202,9 +214,30 @@ export const WebViewProvider = ({ children }) => {
   useEffect(() => {
     if (!webViewRef.current) return;
     if (!isWebViewReady) return;
+    if (!verifiedPath) return;
 
-    // initHandshake();
-  }, [isWebViewReady]);
+    initHandshake();
+  }, [isWebViewReady, verifiedPath]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { htmlPath, nonceHex } = await verifyAndPrepareWebView(
+          Platform.OS === 'ios'
+            ? require('spark-web-context')
+            : 'file:///android_asset/sparkContext.html',
+        );
+
+        expectedNonceRef.current = nonceHex;
+        setVerifiedPath(htmlPath);
+      } catch (err) {
+        console.log(
+          'WebView bundle verification failed. Using react-native bundle',
+          err,
+        );
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     globalSendWebViewRequest = sendWebViewRequestInternal;
@@ -217,7 +250,7 @@ export const WebViewProvider = ({ children }) => {
       {children}
       <WebView
         domStorageEnabled={false}
-        allowFileAccess={false}
+        allowFileAccess={true}
         allowFileAccessFromFileURLs={false}
         allowUniversalAccessFromFileURLs={false}
         thirdPartyCookiesEnabled={false}
@@ -228,12 +261,12 @@ export const WebViewProvider = ({ children }) => {
         javaScriptEnabled
         ref={webViewRef}
         containerStyle={{ position: 'absolute', top: 1000, left: 1000 }}
-        source={
-          Platform.OS === 'ios'
-            ? require('spark-web-context')
-            : { uri: 'file:///android_asset/sparkContext.html' }
-        }
-        originWhitelist={['*']}
+        source={{ uri: verifiedPath }}
+        originWhitelist={['file://']}
+        onShouldStartLoadWithRequest={request => {
+          // Only allow your verified local file
+          return request.url === verifiedPath;
+        }}
         onMessage={handleWebViewResponse}
         onLoadEnd={() => setIsWebViewReady(true)}
         onContentProcessDidTerminate={() => {
