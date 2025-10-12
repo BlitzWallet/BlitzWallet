@@ -64,12 +64,11 @@ export const WebViewProvider = ({ children }) => {
   const [isWebViewReady, setIsWebViewReady] = useState(false);
   const pendingRequests = useRef({});
   const sessionKeyRef = useRef(null);
-  const backendPubkey = useRef(null);
   const aesKeyRef = useRef(null);
   const expectedNonceRef = useRef(null);
   const [verifiedPath, setVerifiedPath] = useState('');
 
-  const encryptMessage = useCallback((privkey, pubkey, plaintext) => {
+  const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
     const iv = Buffer.from(randomBytes(12));
     const cipher = createCipheriv('aes-256-gcm', aesKeyRef.current, iv);
@@ -79,7 +78,7 @@ export const WebViewProvider = ({ children }) => {
     return `${encrypted}?iv=${iv.toString('base64')}&tag=${authTag}`;
   }, []);
 
-  const decryptMessage = useCallback((privkey, pubkey, encryptedText) => {
+  const decryptMessage = useCallback(encryptedText => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
     if (!encryptedText.includes('?iv=') || !encryptedText.includes('&tag=')) {
       throw new Error('Missing IV or auth tag');
@@ -101,19 +100,16 @@ export const WebViewProvider = ({ children }) => {
       const message = JSON.parse(event.nativeEvent.data);
 
       if (message.type === 'handshake:reply' && message.pubW) {
-        backendPubkey.current = Buffer.from(message.pubW, 'hex');
         const shared = getSharedSecret(
-          sessionKeyRef.current.privateKey,
-          backendPubkey.current,
+          Buffer.from(sessionKeyRef.current.privateKey).toString('hex'),
+          Buffer.from(message.pubW, 'hex'),
           true,
         );
         const sharedX = shared.slice(1, 33);
         aesKeyRef.current = deriveAesKeyFromSharedX(sharedX);
-        const decodedNonce = decryptMessage(
-          sessionKeyRef.current.privateKey,
-          backendPubkey.current,
-          message.runtimeNonce,
-        );
+        sessionKeyRef.current = null;
+
+        const decodedNonce = decryptMessage(message.runtimeNonce);
         if (expectedNonceRef.current !== decodedNonce) {
           console.log('Invalid runtime nonce, something went wrong');
           return;
@@ -125,12 +121,8 @@ export const WebViewProvider = ({ children }) => {
 
       let content = message;
 
-      if (message.encrypted && sessionKeyRef.current) {
-        const decrypted = decryptMessage(
-          sessionKeyRef.current.privateKey,
-          backendPubkey.current,
-          message.encrypted,
-        );
+      if (message.encrypted && aesKeyRef.current) {
+        const decrypted = decryptMessage(message.encrypted);
 
         try {
           content = JSON.parse(decrypted);
@@ -176,12 +168,8 @@ export const WebViewProvider = ({ children }) => {
 
           let payload = { id, action, args };
           console.log('sending message to webview', action, payload);
-          if (encrypt && sessionKeyRef.current && backendPubkey.current) {
-            const encrypted = encryptMessage(
-              sessionKeyRef.current.privateKey,
-              backendPubkey.current,
-              JSON.stringify(payload),
-            );
+          if (encrypt && aesKeyRef.current) {
+            const encrypted = encryptMessage(JSON.stringify(payload));
             payload = { type: 'secure:msg', encrypted };
           }
           webViewRef.current.postMessage(JSON.stringify(payload));
@@ -193,7 +181,7 @@ export const WebViewProvider = ({ children }) => {
         }
       });
     },
-    [isWebViewReady, webViewRef, sessionKeyRef, backendPubkey],
+    [isWebViewReady, webViewRef, aesKeyRef],
   );
 
   const initHandshake = useCallback(() => {
@@ -202,7 +190,7 @@ export const WebViewProvider = ({ children }) => {
     const pubNHex = Buffer.from(pubN).toString('hex');
 
     sessionKeyRef.current = {
-      privateKey: Buffer.from(privN).toString('hex'),
+      privateKey: privN,
       publicKey: Buffer.from(pubN).toString('hex'),
     };
 
@@ -273,7 +261,6 @@ export const WebViewProvider = ({ children }) => {
           setHandshakeComplete(false);
           pendingRequests.current = {};
           sessionKeyRef.current = null;
-          backendPubkey.current = null;
           aesKeyRef.current = null;
           webViewRef.current?.reload();
         }}
