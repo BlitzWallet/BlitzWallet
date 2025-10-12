@@ -527,7 +527,8 @@ export const getSparkPaymentFeeEstimate = async (amountSats, mnemonic) => {
         },
       );
       if (!response) throw new Error(response.error);
-      return response;
+      const amount = response.feeEstimate.originalValue;
+      return amount;
     } else {
       const wallet = await getWallet(mnemonic);
       const feeResponse = await wallet.getSwapFeeEstimate(amountSats);
