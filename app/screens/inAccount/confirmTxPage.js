@@ -118,7 +118,7 @@ export default function ConfirmTxPage(props) {
             customLabel={token?.tokenMetadata?.tokenTicker}
             useMillionDenomination={true}
           />
-          {isLRC20Payment && formattedTokensBalance < 1 && (
+          {/* {isLRC20Payment && formattedTokensBalance < 1 && (
             <FormattedSatText
               containerStyles={{
                 ...CENTER,
@@ -135,7 +135,7 @@ export default function ConfirmTxPage(props) {
               useCustomLabel={isLRC20Payment}
               customLabel={token?.tokenMetadata?.tokenTicker}
             />
-          )}
+          )} */}
         </View>
       )}
 

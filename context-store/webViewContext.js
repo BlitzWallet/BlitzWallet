@@ -218,15 +218,14 @@ export const WebViewProvider = ({ children }) => {
   useEffect(() => {
     (async () => {
       try {
-        const { htmlPath, nonceHex, sha256Hash } =
-          await verifyAndPrepareWebView(
-            Platform.OS === 'ios'
-              ? require('spark-web-context')
-              : 'file:///android_asset/sparkContext.html',
-          );
+        const { htmlPath, nonceHex, hashHex } = await verifyAndPrepareWebView(
+          Platform.OS === 'ios'
+            ? require('spark-web-context')
+            : 'file:///android_asset/sparkContext.html',
+        );
 
         expectedNonceRef.current = nonceHex;
-        setFileHash(sha256Hash);
+        setFileHash(hashHex);
         setVerifiedPath(htmlPath);
       } catch (err) {
         console.log(

@@ -30,12 +30,17 @@ export async function verifyAndPrepareWebView(bundleSource) {
     }
 
     // Compute hash
-    const sha256Hash = await Crypto.digestStringAsync(
-      Crypto.CryptoDigestAlgorithm.SHA256,
-      html,
-    );
+    /**
+     * Note: Uses MD5 for performance (native, non-blocking).
+     * While MD5 has known collision vulnerabilities, second-preimage attacks
+     * (finding a different file with the same hash) remain computationally
+     * infeasible. The runtime nonce-based handshake provides additional
+     * verification that the bundle is legitimate.
+     */
+    const info = await FileSystem.getInfoAsync(fileUri, { md5: true });
+    const hashHex = info.md5;
 
-    if (sha256Hash !== expectedHash)
+    if (hashHex !== expectedHash)
       throw new Error('Bundle has been tampered with, Stop,.');
 
     // Generate nonce and inject
@@ -50,9 +55,9 @@ export async function verifyAndPrepareWebView(bundleSource) {
       encoding: FileSystem.EncodingType.UTF8,
     });
 
-    return { htmlPath: verifiedPath, nonceHex, sha256Hash };
+    return { htmlPath: verifiedPath, nonceHex, hashHex };
   } catch (error) {
-    console.error('[WebView] ❌ Verification failed:', error);
+    console.error('[WebView] Verification failed:', error);
     throw error;
   }
 }
