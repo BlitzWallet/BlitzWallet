@@ -1109,7 +1109,13 @@
       "text15": "allowing for fast, low-fee, and non-custodial transfers without touching the blockchain.",
       "text16": "Creator",
       "text17": "Version:",
-      "learnMore": "Learn More"
+      "learnMore": "Learn More",
+      "webpackVerified": "Webpack Verified",
+      "webpackUnvarified": "Webpack Unvarified",
+      "showTechnicals": "Show Technical Details",
+      "hideTechnicals": "Hide Technical Details",
+      "backendHash": "Backend Hash",
+      "expectedHash": "Expected Hash"
     },
     "language": {
       "inputPlaceHolder": ""

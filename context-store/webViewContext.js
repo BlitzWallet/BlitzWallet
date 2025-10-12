@@ -67,6 +67,7 @@ export const WebViewProvider = ({ children }) => {
   const aesKeyRef = useRef(null);
   const expectedNonceRef = useRef(null);
   const [verifiedPath, setVerifiedPath] = useState('');
+  const [fileHash, setFileHash] = useState('');
 
   const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
@@ -107,6 +108,14 @@ export const WebViewProvider = ({ children }) => {
         );
         const sharedX = shared.slice(1, 33);
         aesKeyRef.current = deriveAesKeyFromSharedX(sharedX);
+        sessionKeyRef.current = null;
+
+        shared.fill(0);
+        sharedX.fill(0);
+
+        if (sessionKeyRef.current?.privateKey) {
+          sessionKeyRef.current.privateKey.fill(0);
+        }
         sessionKeyRef.current = null;
 
         const decodedNonce = decryptMessage(message.runtimeNonce);
@@ -175,9 +184,10 @@ export const WebViewProvider = ({ children }) => {
           webViewRef.current.postMessage(JSON.stringify(payload));
         } catch (err) {
           console.log(
-            'Error sending webview requset from internal function',
+            'Error sending webview request from internal function',
             err,
           );
+          reject(err);
         }
       });
     },
@@ -208,13 +218,15 @@ export const WebViewProvider = ({ children }) => {
   useEffect(() => {
     (async () => {
       try {
-        const { htmlPath, nonceHex } = await verifyAndPrepareWebView(
-          Platform.OS === 'ios'
-            ? require('spark-web-context')
-            : 'file:///android_asset/sparkContext.html',
-        );
+        const { htmlPath, nonceHex, sha256Hash } =
+          await verifyAndPrepareWebView(
+            Platform.OS === 'ios'
+              ? require('spark-web-context')
+              : 'file:///android_asset/sparkContext.html',
+          );
 
         expectedNonceRef.current = nonceHex;
+        setFileHash(sha256Hash);
         setVerifiedPath(htmlPath);
       } catch (err) {
         console.log(
@@ -231,7 +243,11 @@ export const WebViewProvider = ({ children }) => {
 
   return (
     <WebViewContext.Provider
-      value={{ webViewRef, sendWebViewRequest: sendWebViewRequestInternal }}
+      value={{
+        webViewRef,
+        sendWebViewRequest: sendWebViewRequestInternal,
+        fileHash,
+      }}
     >
       {children}
       <WebView
@@ -257,6 +273,11 @@ export const WebViewProvider = ({ children }) => {
         onLoadEnd={() => setIsWebViewReady(true)}
         onContentProcessDidTerminate={() => {
           console.warn('WebView content process terminated — reloading...');
+          Object.values(pendingRequests.current).forEach(reject => {
+            if (typeof reject === 'function') {
+              reject(new Error('WebView terminated unexpectedly'));
+            }
+          });
           setIsWebViewReady(false);
           setHandshakeComplete(false);
           pendingRequests.current = {};

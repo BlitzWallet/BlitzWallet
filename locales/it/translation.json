@@ -1106,7 +1106,13 @@
       "text15": "permettendo trasferimenti veloci, a basse commissioni e non custodial senza toccare la blockchain.",
       "text16": "Creatore",
       "text17": "Versione:",
-      "learnMore": "Scopri di più"
+      "learnMore": "Scopri di più",
+      "webpackVerified": "Webpack verificato",
+      "webpackUnvarified": "Webpack non modificato",
+      "showTechnicals": "Mostra dettagli tecnici",
+      "hideTechnicals": "Nascondi dettagli tecnici",
+      "backendHash": "Hash backend",
+      "expectedHash": "Hash previsto"
     },
     "language": {
       "inputPlaceHolder": ""

@@ -50,7 +50,7 @@ export async function verifyAndPrepareWebView(bundleSource) {
       encoding: FileSystem.EncodingType.UTF8,
     });
 
-    return { htmlPath: verifiedPath, nonceHex };
+    return { htmlPath: verifiedPath, nonceHex, sha256Hash };
   } catch (error) {
     console.error('[WebView] ❌ Verification failed:', error);
     throw error;

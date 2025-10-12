@@ -948,7 +948,13 @@
       "text15": "permitiendo transferencias rápidas, de bajo costo y no custodiadas sin tocar la blockchain.",
       "text16": "Creador",
       "text17": "Versión:",
-      "learnMore": "Aprender más"
+      "learnMore": "Aprender más",
+      "webpackVerified": "Webpack verificado",
+      "webpackUnvarified": "Webpack sin verificar",
+      "showTechnicals": "Mostrar detalles técnicos",
+      "hideTechnicals": "Ocultar detalles técnicos",
+      "backendHash": "Hash del backend",
+      "expectedHash": "Hash esperado"
     },
     "displayOptions": {
       "text1": "Estilo de modo oscuro",

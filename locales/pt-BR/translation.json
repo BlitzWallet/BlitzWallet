@@ -1109,7 +1109,13 @@
       "text15": "permitindo transferências rápidas, de custo baixo e sem ceder a custódia dos fundos.",
       "text16": "Criador",
       "text17": "Versão:",
-      "learnMore": "Saiba mais"
+      "learnMore": "Saiba mais",
+      "webpackVerified": "Webpack verificado",
+      "webpackUnvarified": "Webpack não verificado",
+      "showTechnicals": "Mostrar detalhes técnicos",
+      "hideTechnicals": "Ocultar detalhes técnicos",
+      "backendHash": "Hash de backend",
+      "expectedHash": "Hash esperado"
     },
     "language": {
       "inputPlaceHolder": ""
