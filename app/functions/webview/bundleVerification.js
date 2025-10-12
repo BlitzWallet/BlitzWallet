@@ -29,11 +29,17 @@ export async function verifyAndPrepareWebView(bundleSource) {
     }
 
     // Compute hash
-
+    /**
+     * Note: Uses MD5 for performance (native, non-blocking).
+     * While MD5 has known collision vulnerabilities, second-preimage attacks
+     * (finding a different file with the same hash) remain computationally
+     * infeasible. The runtime nonce-based handshake provides additional
+     * verification that the bundle is legitimate.
+     */
     const info = await FileSystem.getInfoAsync(fileUri, { md5: true });
     const hashHex = info.md5;
 
-    if (hashHex.toString('hex') !== expectedHash)
+    if (hashHex !== expectedHash)
       throw new Error('Bundle has been tampered with, Stop,.');
 
     // Generate nonce and inject

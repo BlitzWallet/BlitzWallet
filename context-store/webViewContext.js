@@ -70,39 +70,30 @@ export const WebViewProvider = ({ children }) => {
   const [verifiedPath, setVerifiedPath] = useState('');
 
   const encryptMessage = useCallback((privkey, pubkey, plaintext) => {
-    try {
-      if (!aesKeyRef.current) throw new Error('AES key not initialized');
-      const iv = Buffer.from(randomBytes(12));
-      const cipher = createCipheriv('aes-256-gcm', aesKeyRef.current, iv);
-      let encrypted = cipher.update(plaintext, 'utf8', 'base64');
-      encrypted += cipher.final('base64');
-      const authTag = cipher.getAuthTag().toString('base64'); // Get 16-byte auth tag
-      return `${encrypted}?iv=${iv.toString('base64')}&tag=${authTag}`;
-    } catch (err) {
-      console.log('error encripting message', err);
-    }
+    if (!aesKeyRef.current) throw new Error('AES key not initialized');
+    const iv = Buffer.from(randomBytes(12));
+    const cipher = createCipheriv('aes-256-gcm', aesKeyRef.current, iv);
+    let encrypted = cipher.update(plaintext, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
+    const authTag = cipher.getAuthTag().toString('base64'); // Get 16-byte auth tag
+    return `${encrypted}?iv=${iv.toString('base64')}&tag=${authTag}`;
   }, []);
 
   const decryptMessage = useCallback((privkey, pubkey, encryptedText) => {
-    try {
-      if (!aesKeyRef.current) throw new Error('AES key not initialized');
-      if (!encryptedText.includes('?iv=') || !encryptedText.includes('&tag=')) {
-        throw new Error('Missing IV or auth tag');
-      }
-
-      const [ciphertext, params] = encryptedText.split('?iv=');
-      const [ivBase64, authTagBase64] = params.split('&tag=');
-      const iv = Buffer.from(ivBase64, 'base64');
-      const authTag = Buffer.from(authTagBase64, 'base64');
-
-      const decipher = createDecipheriv('aes-256-gcm', aesKeyRef.current, iv);
-      decipher.setAuthTag(authTag); // Set auth tag for verification
-      let decrypted = decipher.update(ciphertext, 'base64', 'utf8');
-      decrypted += decipher.final('utf8');
-      return decrypted;
-    } catch (err) {
-      console.log('error decrypting message', err);
+    if (!aesKeyRef.current) throw new Error('AES key not initialized');
+    if (!encryptedText.includes('?iv=') || !encryptedText.includes('&tag=')) {
+      throw new Error('Missing IV or auth tag');
     }
+    const [ciphertext, params] = encryptedText.split('?iv=');
+    const [ivBase64, authTagBase64] = params.split('&tag=');
+    const iv = Buffer.from(ivBase64, 'base64');
+    const authTag = Buffer.from(authTagBase64, 'base64');
+
+    const decipher = createDecipheriv('aes-256-gcm', aesKeyRef.current, iv);
+    decipher.setAuthTag(authTag); // Set auth tag for verification
+    let decrypted = decipher.update(ciphertext, 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
   }, []);
 
   const handleWebViewResponse = useCallback(event => {
@@ -172,30 +163,37 @@ export const WebViewProvider = ({ children }) => {
   const sendWebViewRequestInternal = useCallback(
     async (action, args = {}, encrypt = true) => {
       return new Promise(async (resolve, reject) => {
-        if (!webViewRef.current || !isWebViewReady)
-          return reject(new Error('WebView not ready'));
+        try {
+          if (!webViewRef.current || !isWebViewReady)
+            return reject(new Error('WebView not ready'));
 
-        const id = customUUID();
-        pendingRequests.current[id] = resolve;
+          const id = customUUID();
+          pendingRequests.current[id] = resolve;
 
-        if (args.mnemonic && action !== 'initializeSparkWallet') {
-          args.mnemonic = sha256Hash(args.mnemonic);
-        }
+          if (args.mnemonic && action !== 'initializeSparkWallet') {
+            args.mnemonic = sha256Hash(args.mnemonic);
+          }
 
-        let payload = { id, action, args };
-        console.log('sending message to webview', action, payload);
-        if (encrypt && sessionKeyRef.current && backendPubkey.current) {
-          const encrypted = encryptMessage(
-            sessionKeyRef.current.privateKey,
-            backendPubkey.current,
-            JSON.stringify(payload),
+          let payload = { id, action, args };
+          console.log('sending message to webview', action, payload);
+          if (encrypt && sessionKeyRef.current && backendPubkey.current) {
+            const encrypted = encryptMessage(
+              sessionKeyRef.current.privateKey,
+              backendPubkey.current,
+              JSON.stringify(payload),
+            );
+            payload = { type: 'secure:msg', encrypted };
+          }
+          webViewRef.current.postMessage(JSON.stringify(payload));
+        } catch (err) {
+          console.log(
+            'Error sending webview requset from internal function',
+            err,
           );
-          payload = { type: 'secure:msg', encrypted };
         }
-        webViewRef.current.postMessage(JSON.stringify(payload));
       });
     },
-    [isWebViewReady],
+    [isWebViewReady, webViewRef, sessionKeyRef, backendPubkey],
   );
 
   const initHandshake = useCallback(() => {
@@ -273,6 +271,7 @@ export const WebViewProvider = ({ children }) => {
           console.warn('WebView content process terminated — reloading...');
           setIsWebViewReady(false);
           setHandshakeComplete(false);
+          pendingRequests.current = {};
           sessionKeyRef.current = null;
           backendPubkey.current = null;
           aesKeyRef.current = null;

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -68,10 +68,6 @@
 		FA8C84887DC04CFFAA19BEFD /* Poppins-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Bold.ttf"; path = "../app/assets/fonts/Poppins-Bold.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		931D7DB32E9599660050E567 /* web */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = web; path = BlitzWallet/web; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
-
 /* Begin PBXFrameworksBuildPhase section */
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -124,7 +120,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				931D7DB32E9599660050E567 /* web */,
 				937D9ADD2E8EE42A00FEDAE2 /* GoogleService-Info.plist */,
 				13B07FAE1A68108700A75B9A /* BlitzWallet */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -210,9 +205,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				931D7DB32E9599660050E567 /* web */,
 			);
 			name = BlitzWallet;
 			productName = BlitzWallet;
