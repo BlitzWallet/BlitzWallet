@@ -635,7 +635,7 @@ export const sendSparkLightningPayment = async ({
           mnemonic,
           invoice,
           maxFeeSats,
-          amountSats,
+          amountSat: amountSats,
         },
       );
       if (!response.didWork) throw new Error(response.error);
