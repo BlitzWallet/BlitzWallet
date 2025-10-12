@@ -277,16 +277,16 @@ export const getSparkStaticBitcoinL1AddressQuote = async (txid, mnemonic) => {
         'getSparkStaticBitcoinL1AddressQuote',
         { mnemonic, txid },
       );
-      if (!response.didwork) throw new Error(response.error);
+      if (!response.didWork) throw new Error(response.error);
       return response;
     } else {
       const wallet = await getWallet(mnemonic);
       const quote = await wallet.getClaimStaticDepositQuote(txid);
-      return { didwork: true, quote };
+      return { didWork: true, quote };
     }
   } catch (err) {
     console.log('Get reusable Bitcoin mainchain address quote error', err);
-    return { didwork: false, error: err.message };
+    return { didWork: false, error: err.message };
   }
 };
 

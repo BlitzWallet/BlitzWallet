@@ -626,13 +626,16 @@ const SparkWalletProvider = ({ children }) => {
             }
 
             if (!txid.isConfirmed) continue;
-            const { didwork, quote, error } =
-              await getSparkStaticBitcoinL1AddressQuote(
-                txid.txid,
-                currentWalletMnemoinc,
-              );
+            const {
+              didWork: quoteDidWorkResponse,
+              quote,
+              error,
+            } = await getSparkStaticBitcoinL1AddressQuote(
+              txid.txid,
+              currentWalletMnemoinc,
+            );
 
-            if (!didwork || !quote) {
+            if (!quoteDidWorkResponse || !quote) {
               console.log(error, 'Error getting deposit address quote');
               if (
                 error.includes('UTXO is already claimed by the current user.')
