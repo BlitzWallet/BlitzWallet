@@ -1,4 +1,4 @@
-import {getFunctions, httpsCallable} from '@react-native-firebase/functions';
+import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 import {
   decryptMessage,
   encriptMessage,
@@ -13,22 +13,28 @@ export default async function fetchBackend(
 ) {
   try {
     const message = encodeRequest(privateKey, data);
-
     if (!message) throw new Error('Unable to encode request');
-    const responseData = {
-      em: message,
-      publicKey,
-    };
+    const responseData = { em: message, publicKey };
     console.log('function call data', responseData);
-    const response = await httpsCallable(
-      firebaseFunction,
-      method,
-    )(responseData);
 
-    const dm = decodeRequest(privateKey, response.data);
-    console.log('decoded response', dm);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error('Request timed out after 60 seconds')),
+        60000,
+      ),
+    );
 
-    return dm;
+    const fetchPromise = (async () => {
+      const response = await httpsCallable(
+        firebaseFunction,
+        method,
+      )(responseData);
+      const dm = decodeRequest(privateKey, response.data);
+      console.log('decoded response', dm);
+      return dm;
+    })();
+    const result = await Promise.race([fetchPromise, timeoutPromise]);
+    return result;
   } catch (err) {
     console.log('backend fetch wrapper error', err);
     return false;
