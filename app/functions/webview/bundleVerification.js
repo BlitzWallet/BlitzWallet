@@ -48,6 +48,14 @@ export async function verifyAndPrepareWebView(bundleSource) {
     const nonceHex = Buffer.from(nonceBytes).toString('hex');
     const nonceRegex =
       /(window\.__STARTUP_NONCE__\s*=\s*["'])__INJECT_NONCE__(["'])/g;
+
+    // Count occurrences first
+    const matches = html.match(nonceRegex);
+    if (!matches || matches.length !== 1) {
+      throw new Error(
+        `Expected exactly 1 nonce placeholder, found ${matches?.length || 0}`,
+      );
+    }
     const injectedHtml = html.replace(nonceRegex, `$1${nonceHex}$2`);
 
     const verifiedPath = `${FileSystem.cacheDirectory}verified_webview.html`;

@@ -68,6 +68,7 @@ export const WebViewProvider = ({ children }) => {
   const expectedNonceRef = useRef(null);
   const [verifiedPath, setVerifiedPath] = useState('');
   const [fileHash, setFileHash] = useState('');
+  const expectedSequenceRef = useRef(0);
 
   const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
@@ -101,6 +102,20 @@ export const WebViewProvider = ({ children }) => {
       const message = JSON.parse(event.nativeEvent.data);
 
       if (message.type === 'handshake:reply' && message.pubW) {
+        if (handshakeComplete) {
+          console.error(
+            'SECURITY: Unexpected handshake reply, already complete',
+          );
+          return;
+        }
+
+        if (!sessionKeyRef.current) {
+          console.error(
+            'SECURITY: Received handshake reply without active session key',
+          );
+          return;
+        }
+
         const shared = getSharedSecret(
           Buffer.from(sessionKeyRef.current.privateKey).toString('hex'),
           Buffer.from(message.pubW, 'hex'),
@@ -108,7 +123,6 @@ export const WebViewProvider = ({ children }) => {
         );
         const sharedX = shared.slice(1, 33);
         aesKeyRef.current = deriveAesKeyFromSharedX(sharedX);
-        sessionKeyRef.current = null;
 
         shared.fill(0);
         sharedX.fill(0);
@@ -169,13 +183,15 @@ export const WebViewProvider = ({ children }) => {
             return reject(new Error('WebView not ready'));
 
           const id = customUUID();
+          const sequence = expectedSequenceRef.current++;
+          const timestamp = Date.now();
           pendingRequests.current[id] = resolve;
 
           if (args.mnemonic && action !== 'initializeSparkWallet') {
             args.mnemonic = sha256Hash(args.mnemonic);
           }
 
-          let payload = { id, action, args };
+          let payload = { id, action, args, sequence, timestamp };
           console.log('sending message to webview', action, payload);
           if (encrypt && aesKeyRef.current) {
             const encrypted = encryptMessage(JSON.stringify(payload));
