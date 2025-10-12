@@ -613,19 +613,19 @@ const SparkWalletProvider = ({ children }) => {
 
           for (const txid of unpaidTxids) {
             const hasAlreadySaved = savedTxMap.has(txid.txid);
-            if (!txid.isConfirmed) {
-              if (!hasAlreadySaved) {
-                await addPendingTransaction(
-                  {
-                    transactionId: txid.txid,
-                    creditAmountSats: txid.amount - txid.fee,
-                  },
-                  address,
-                  sparkInformation,
-                );
-              }
-              continue;
+
+            if (!hasAlreadySaved) {
+              await addPendingTransaction(
+                {
+                  transactionId: txid.txid,
+                  creditAmountSats: txid.amount - txid.fee,
+                },
+                address,
+                sparkInformation,
+              );
             }
+
+            if (!txid.isConfirmed) continue;
             const { didwork, quote, error } =
               await getSparkStaticBitcoinL1AddressQuote(
                 txid.txid,
