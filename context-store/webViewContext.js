@@ -155,6 +155,8 @@ export const WebViewProvider = ({ children }) => {
       }
       console.log('receiving message from webview', content);
 
+      if (content.error) throw new Error(content.error);
+
       if (content.incomingPayment) {
         const data = JSON.parse(content.result);
         incomingSparkTransaction.emit(
@@ -297,6 +299,7 @@ export const WebViewProvider = ({ children }) => {
           setHandshakeComplete(false);
           pendingRequests.current = {};
           sessionKeyRef.current = null;
+          expectedSequenceRef.current = 0;
           aesKeyRef.current = null;
           webViewRef.current?.reload();
         }}
