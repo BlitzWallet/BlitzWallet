@@ -6,24 +6,37 @@ import {
   useMemo,
   useCallback,
 } from 'react';
-import {useTranslation} from 'react-i18next';
-import {sendDataToDB} from '../db/interactionManager';
-import {useKeysContext} from './keys';
-import {addDataToCollection} from '../db';
-import {splitAndStoreNWCData} from '../app/functions/nwc';
+import { useTranslation } from 'react-i18next';
+import { sendDataToDB } from '../db/interactionManager';
+import { useKeysContext } from './keys';
+import { addDataToCollection } from '../db';
+import { splitAndStoreNWCData } from '../app/functions/nwc';
 
 // Initiate context
 const GlobalContextManger = createContext(null);
 
-const GlobalContextProvider = ({children}) => {
-  const {publicKey} = useKeysContext();
+const GlobalContextProvider = ({ children }) => {
+  const { publicKey } = useKeysContext();
 
   const [masterInfoObject, setMasterInfoObject] = useState({});
 
-  const {i18n} = useTranslation();
+  const { i18n } = useTranslation();
 
   const toggleNWCInformation = useCallback(
     async newData => {
+      // Allways add push notification data if it doesn't exist in new Data
+      if (
+        masterInfoObject?.NWC?.pushNotifications &&
+        !newData.pushNotifications
+      ) {
+        newData.pushNotifications = {
+          hash: masterInfoObject.pushNotifications.hash,
+          platform: masterInfoObject.pushNotifications.platform,
+          key: masterInfoObject.pushNotifications.key,
+          isEnabled: masterInfoObject.pushNotifications.enabledServices?.NWC,
+        };
+      }
+
       setMasterInfoObject(prev => ({
         ...prev,
         NWC: {
@@ -32,11 +45,12 @@ const GlobalContextProvider = ({children}) => {
         },
       }));
 
-      splitAndStoreNWCData({...masterInfoObject?.NWC, ...newData});
+      splitAndStoreNWCData({ ...masterInfoObject?.NWC, ...newData });
 
       let formattedNewData = newData;
       if (newData.accounts) {
         formattedNewData = {
+          ...newData,
           accounts: Object.entries(newData.accounts).map(([key, value]) => ({
             [key]: {
               permissions: value.permissions,
@@ -56,7 +70,7 @@ const GlobalContextProvider = ({children}) => {
         i18n.changeLanguage(newData.userSelectedLanguage);
       }
 
-      setMasterInfoObject(prev => ({...prev, ...newData}));
+      setMasterInfoObject(prev => ({ ...prev, ...newData }));
       if (!shouldSendToDb) return;
       await sendDataToDB(newData, publicKey);
     },
@@ -95,4 +109,4 @@ function useGlobalContextProvider() {
   return context;
 }
 
-export {GlobalContextManger, GlobalContextProvider, useGlobalContextProvider};
+export { GlobalContextManger, GlobalContextProvider, useGlobalContextProvider };
