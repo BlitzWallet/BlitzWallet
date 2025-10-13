@@ -614,18 +614,22 @@ const SparkWalletProvider = ({ children }) => {
           for (const txid of unpaidTxids) {
             const hasAlreadySaved = savedTxMap.has(txid.txid);
 
-            if (!hasAlreadySaved) {
-              await addPendingTransaction(
-                {
-                  transactionId: txid.txid,
-                  creditAmountSats: txid.amount - txid.fee,
-                },
-                address,
-                sparkInformation,
-              );
+            // Case 1: Unconfirmed transaction - add as pending if not saved
+            if (!txid.isConfirmed) {
+              if (!hasAlreadySaved) {
+                await addPendingTransaction(
+                  {
+                    transactionId: txid.txid,
+                    creditAmountSats: txid.amount - txid.fee,
+                  },
+                  address,
+                  sparkInformation,
+                );
+              }
+              continue;
             }
 
-            if (!txid.isConfirmed) continue;
+            // Case 2: Confirmed transaction - attempt to get quote
             const {
               didWork: quoteDidWorkResponse,
               quote,
@@ -641,6 +645,15 @@ const SparkWalletProvider = ({ children }) => {
                 error.includes('UTXO is already claimed by the current user.')
               ) {
                 await handleTxIdState(txid, true, address);
+              } else if (!hasAlreadySaved) {
+                await addPendingTransaction(
+                  {
+                    transactionId: txid.txid,
+                    creditAmountSats: txid.amount - txid.fee,
+                  },
+                  address,
+                  sparkInformation,
+                );
               }
               continue;
             }
