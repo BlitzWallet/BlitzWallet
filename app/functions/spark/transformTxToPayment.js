@@ -42,7 +42,7 @@ export async function transformTxToPaymentObject(
           (userRequest.fee.originalUnit === 'MILLISATOSHI' ? 1000 : 1)
         : 0
       : 0;
-
+    const preimage = userRequest ? userRequest?.paymentPreimage || '' : '';
     const supportFee = await calculateProgressiveBracketFee(
       paymentAmount,
       'lightning',
@@ -60,7 +60,7 @@ export async function transformTxToPaymentObject(
 
     return {
       id: tx.transfer ? tx.transfer.sparkId : tx.id,
-      paymentStatus: status,
+      paymentStatus: status === 'completed' || preimage ? 'completed' : status,
       paymentType: 'lightning',
       accountId: identityPubKey,
       details: {
@@ -78,7 +78,7 @@ export async function transformTxToPaymentObject(
           : new Date().getTime(),
         direction: tx.transferDirection,
         description: description,
-        preimage: userRequest ? userRequest?.paymentPreimage || '' : '',
+        preimage: preimage,
         isRestore,
         isBlitzContactPayment: foundInvoice
           ? JSON.parse(foundInvoice.details)?.isBlitzContactPayment
