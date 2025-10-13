@@ -25,7 +25,7 @@ let globalSendWebViewRequest = null;
 const WebViewContext = createContext(null);
 
 // Derive AES-256 key via HKDF-SHA256 from sharedX (32 bytes)
-function deriveAesKeyFromSharedX(sharedX) {
+function deriveAesKeyFromSharedX(sharedX, randomNonce) {
   // sharedX should be Uint8Array or Buffer
   const ikm =
     sharedX instanceof Uint8Array ? sharedX : Uint8Array.from(sharedX);
@@ -34,7 +34,7 @@ function deriveAesKeyFromSharedX(sharedX) {
     sha256,
     ikm,
     new Uint8Array(0),
-    new TextEncoder().encode('ecdh-aes-key'),
+    new TextEncoder().encode('ecdh-aes-key:' + randomNonce),
     32,
   );
   return Buffer.from(keyBytes); // Buffer of length 32
@@ -69,6 +69,7 @@ export const WebViewProvider = ({ children }) => {
   const [verifiedPath, setVerifiedPath] = useState('');
   const [fileHash, setFileHash] = useState('');
   const expectedSequenceRef = useRef(0);
+  const nonceVerified = useRef(false);
 
   const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
@@ -122,7 +123,10 @@ export const WebViewProvider = ({ children }) => {
           true,
         );
         const sharedX = shared.slice(1, 33);
-        aesKeyRef.current = deriveAesKeyFromSharedX(sharedX);
+        aesKeyRef.current = deriveAesKeyFromSharedX(
+          sharedX,
+          expectedNonceRef.current,
+        );
 
         shared.fill(0);
         sharedX.fill(0);
@@ -137,6 +141,7 @@ export const WebViewProvider = ({ children }) => {
           console.log('Invalid runtime nonce, something went wrong');
           return;
         }
+        nonceVerified.current = true;
         console.log('Handshake complete. Got backend public key.');
         setHandshakeComplete(true);
         return;
@@ -191,6 +196,15 @@ export const WebViewProvider = ({ children }) => {
 
           if (args.mnemonic && action !== 'initializeSparkWallet') {
             args.mnemonic = sha256Hash(args.mnemonic);
+          }
+
+          if (action === 'initializeSparkWallet') {
+            if (!getHandshakeComplete()) {
+              throw new Error('Cannot send seed - handshake not verified');
+            }
+            if (!nonceVerified.current) {
+              throw new Error('Cannot send seed - nonce not verified');
+            }
           }
 
           let payload = { id, action, args, sequence, timestamp };
