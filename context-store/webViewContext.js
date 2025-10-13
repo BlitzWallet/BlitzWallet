@@ -20,6 +20,7 @@ import { verifyAndPrepareWebView } from '../app/functions/webview/bundleVerifica
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
 let handshakeComplete = false;
+let forceReactNativeUse = null;
 let globalSendWebViewRequest = null;
 
 const WebViewContext = createContext(null);
@@ -57,7 +58,12 @@ export const sendWebViewRequestGlobal = async (
   return globalSendWebViewRequest(action, args, encrypt);
 };
 
-export const getHandshakeComplete = () => handshakeComplete;
+export const getHandshakeComplete = () => {
+  if (forceReactNativeUse !== null) {
+    return false;
+  }
+  return handshakeComplete;
+};
 
 export const WebViewProvider = ({ children }) => {
   const webViewRef = useRef(null);
@@ -70,6 +76,11 @@ export const WebViewProvider = ({ children }) => {
   const [fileHash, setFileHash] = useState('');
   const expectedSequenceRef = useRef(0);
   const nonceVerified = useRef(false);
+  const messageRateLimiter = useRef({
+    count: 0,
+    windowStart: Date.now(),
+    maxPerSecond: 10, // Adjust based on your needs
+  });
 
   const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
@@ -100,6 +111,32 @@ export const WebViewProvider = ({ children }) => {
 
   const handleWebViewResponse = useCallback(event => {
     try {
+      const now = Date.now();
+      const windowDuration = now - messageRateLimiter.current.windowStart;
+      if (windowDuration > 1000) {
+        // Reset window
+        messageRateLimiter.current.count = 0;
+        messageRateLimiter.current.windowStart = now;
+      }
+      messageRateLimiter.current.count++;
+
+      if (
+        messageRateLimiter.current.count >
+        messageRateLimiter.current.maxPerSecond
+      ) {
+        console.error(
+          `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
+        );
+
+        setIsWebViewReady(false);
+        setHandshakeComplete(false);
+        aesKeyRef.current = null;
+        sessionKeyRef.current = null;
+        nonceVerified.current = false;
+        forceReactNativeUse = true; //set to false so that it uses react-native
+        return;
+      }
+
       const message = JSON.parse(event.nativeEvent.data);
 
       if (message.type === 'handshake:reply' && message.pubW) {
@@ -169,6 +206,7 @@ export const WebViewProvider = ({ children }) => {
         aesKeyRef.current = null;
         sessionKeyRef.current = null;
         nonceVerified.current = false;
+        forceReactNativeUse = true; //set to false so that it uses react-native
         return;
       }
 
