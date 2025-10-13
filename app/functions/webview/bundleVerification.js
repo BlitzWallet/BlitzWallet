@@ -2,7 +2,6 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { Asset } from 'expo-asset';
 import { Platform } from 'react-native';
 import { randomBytes } from '@noble/hashes/utils';
-import * as Crypto from 'expo-crypto';
 
 /**
  * Verifies the bundled HTML, injects a nonce, and writes a verified version to cache.
@@ -14,7 +13,7 @@ export async function verifyAndPrepareWebView(bundleSource) {
 
     const expectedHash = process.env.WEBVIEW_BUNDLE_HASH;
 
-    // Load HTML
+    // Load the HTML asset
     if (Platform.OS === 'ios') {
       const htmlAsset = Asset.fromModule(bundleSource);
       await htmlAsset.downloadAsync();
@@ -39,25 +38,34 @@ export async function verifyAndPrepareWebView(bundleSource) {
      */
     const info = await FileSystem.getInfoAsync(fileUri, { md5: true });
     const hashHex = info.md5;
-
     if (hashHex !== expectedHash)
-      throw new Error('Bundle has been tampered with, Stop,.');
+      throw new Error('Bundle has been tampered with — aborting.');
 
-    // Generate nonce and inject
+    // Generate fresh nonce per load
     const nonceBytes = randomBytes(16);
     const nonceHex = Buffer.from(nonceBytes).toString('hex');
-    const nonceRegex =
-      /(window\.__STARTUP_NONCE__\s*=\s*["'])__INJECT_NONCE__(["'])/g;
 
-    // Count occurrences first
-    const matches = html.match(nonceRegex);
-    if (!matches || matches.length !== 1) {
+    if (!html.includes('__INJECT_NONCE__')) {
+      throw new Error('No __INJECT_NONCE__ placeholder found in HTML.');
+    }
+
+    // Replace only CSP and attribute placeholders
+    let injectedHtml = html
+      .replace(/'nonce-__INJECT_NONCE__'/g, `'nonce-${nonceHex}'`)
+      .replace(/"nonce-__INJECT_NONCE__"/g, `"nonce-${nonceHex}"`)
+      .replace(/nonce="__INJECT_NONCE__"/g, `nonce="${nonceHex}"`);
+
+    // Ensure placeholders were replaced
+    if (
+      !injectedHtml.includes(`nonce="${nonceHex}"`) ||
+      !injectedHtml.includes(`'nonce-${nonceHex}'`)
+    ) {
       throw new Error(
-        `Expected exactly 1 nonce placeholder, found ${matches?.length || 0}`,
+        'Nonce injection failed (meta or script attribute missing).',
       );
     }
-    const injectedHtml = html.replace(nonceRegex, `$1${nonceHex}$2`);
 
+    // Write verified + nonce-injected HTML to cache
     const verifiedPath = `${FileSystem.cacheDirectory}verified_webview.html`;
     await FileSystem.writeAsStringAsync(verifiedPath, injectedHtml, {
       encoding: FileSystem.EncodingType.UTF8,

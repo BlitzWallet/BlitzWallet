@@ -290,9 +290,9 @@ export const WebViewProvider = ({ children }) => {
         onLoadEnd={() => setIsWebViewReady(true)}
         onContentProcessDidTerminate={() => {
           console.warn('WebView content process terminated — reloading...');
-          Object.values(pendingRequests.current).forEach(reject => {
-            if (typeof reject === 'function') {
-              reject(new Error('WebView terminated unexpectedly'));
+          Object.values(pendingRequests.current).forEach(resolve => {
+            if (typeof resolve === 'function') {
+              resolve(new Error('WebView terminated unexpectedly'));
             }
           });
           setIsWebViewReady(false);
