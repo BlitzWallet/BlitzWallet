@@ -1,31 +1,34 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useNavigation} from '@react-navigation/native';
-import {COLORS, SIZES} from '../../../../../constants/theme';
-import {CENTER} from '../../../../../constants/styles';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useNavigation } from '@react-navigation/native';
+import { COLORS, SIZES } from '../../../../../constants/theme';
+import { CENTER } from '../../../../../constants/styles';
 import QRCode from 'react-native-qrcode-svg';
-import {copyToClipboard} from '../../../../../functions';
-import {useToast} from '../../../../../../context-store/toastManager';
-import {useTranslation} from 'react-i18next';
+import { copyToClipboard } from '../../../../../functions';
+import { useToast } from '../../../../../../context-store/toastManager';
+import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
+import { ICONS } from '../../../../../constants';
 
 export default function POSInstructionsPath() {
-  const {masterInfoObject} = useGlobalContextProvider();
+  const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
-  const {showToast} = useToast();
-  const {t} = useTranslation();
+  const { showToast } = useToast();
+  const { t } = useTranslation();
   const posURL = `https://pay.blitzwalletapp.com/${masterInfoObject.posSettings.storeName}`;
 
   return (
     <GlobalThemeView
       useStandardWidth={true}
-      globalContainerStyles={{backgroundColor: COLORS.white}}>
+      globalContainerStyles={{ backgroundColor: COLORS.white }}
+    >
       <CustomSettingsTopBar
         label={t('settings.posPath.posInstructionsPath.title')}
+        customBackColor={ICONS.arrow_small_left_black}
       />
       <ThemeText
         styles={styles.headingText}
@@ -41,7 +44,8 @@ export default function POSInstructionsPath() {
         onPress={() => {
           copyToClipboard(posURL, showToast);
         }}
-        style={styles.qrCodeContainer}>
+        style={styles.qrCodeContainer}
+      >
         <View style={styles.qrCodeBorder}>
           <QRCode
             size={250}
@@ -56,7 +60,8 @@ export default function POSInstructionsPath() {
         activeOpacity={0.9}
         onPress={() => {
           copyToClipboard(posURL, showToast);
-        }}>
+        }}
+      >
         <ThemeText
           styles={{
             textAlign: 'center',
@@ -67,7 +72,8 @@ export default function POSInstructionsPath() {
         />
       </TouchableOpacity>
       <ScrollView
-        style={{marginTop: 'auto', marginBottom: 'auto', maxHeight: 200}}>
+        style={{ marginTop: 'auto', marginBottom: 'auto', maxHeight: 200 }}
+      >
         <ThemeText
           styles={styles.lineItem}
           content={t('settings.posPath.posInstructionsPath.step1')}

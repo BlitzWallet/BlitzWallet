@@ -17,6 +17,7 @@ export default function CustomSettingsTopBar({
   LeftImageDarkMode,
   leftImageStyles = {},
   customBackFunction,
+  customBackColor,
 }) {
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
@@ -37,9 +38,9 @@ export default function CustomSettingsTopBar({
         }}
       >
         <ThemeImage
-          lightsOutIcon={ICONS.arrow_small_left_white}
-          darkModeIcon={ICONS.smallArrowLeft}
-          lightModeIcon={ICONS.smallArrowLeft}
+          lightsOutIcon={customBackColor || ICONS.arrow_small_left_white}
+          darkModeIcon={customBackColor || ICONS.smallArrowLeft}
+          lightModeIcon={customBackColor || ICONS.smallArrowLeft}
         />
       </TouchableOpacity>
       <ThemeText

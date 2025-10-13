@@ -73,6 +73,7 @@ import adminHomeWallet_white from '../assets/icons/adminHomeWallet_white.png';
 import appStore_white from '../assets/icons/appStore_white.png';
 import appStoreFilled_white from '../assets/icons/appStoreFilled_white.png';
 import arrow_small_left_white from '../assets/icons/arrow-small-left-white.png';
+import arrow_small_left_black from '../assets/icons/arrow-small-left-black.png';
 import colorIconWhite from '../assets/icons/colorIconWhite.png';
 import contactsIconSelectedWhite from '../assets/icons/contactsIconSelectedWhite.png';
 import contactsIconWhite from '../assets/icons/contactsIconWhite.png';
@@ -265,4 +266,5 @@ export default {
   arrowToRightLight,
   group,
   groupWhite,
+  arrow_small_left_black,
 };

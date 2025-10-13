@@ -4,10 +4,10 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import {COLORS, FONT, ICONS, SIZES} from '../../constants';
+import { COLORS, FONT, ICONS, SIZES } from '../../constants';
 import FullLoadingScreen from './loadingScreen';
 import ThemeText from './textTheme';
-import {useGlobalThemeContext} from '../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../context-store/theme';
 import ThemeImage from './themeImage';
 
 export default function CustomButton({
@@ -19,7 +19,7 @@ export default function CustomButton({
   loadingColor = COLORS.lightModeText,
   useArrow = false,
 }) {
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   return (
     <TouchableOpacity
       style={{
@@ -31,7 +31,8 @@ export default function CustomButton({
       onPress={() => {
         if (useLoading) return;
         actionFunction();
-      }}>
+      }}
+    >
       {useLoading ? (
         <FullLoadingScreen
           showText={false}
@@ -43,7 +44,11 @@ export default function CustomButton({
           styles={styles.arrowStyles}
           lightModeIcon={ICONS.leftCheveronIcon}
           darkModeIcon={ICONS.leftCheveronIcon}
-          lightsOutIcon={ICONS.leftCheveronLight}
+          lightsOutIcon={
+            buttonStyles?.backgroundColor
+              ? ICONS.leftCheveronLight
+              : ICONS.leftCheveronDark
+          }
         />
       ) : (
         <ThemeText
@@ -78,6 +83,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   arrowStyles: {
-    transform: [{rotate: '180deg'}],
+    transform: [{ rotate: '180deg' }],
   },
 });
