@@ -160,6 +160,18 @@ export const WebViewProvider = ({ children }) => {
       }
       console.log('receiving message from webview', content);
 
+      if (content.type === 'security:csp-violation') {
+        console.error('CSP VIOLATION DETECTED:', content);
+
+        // Shut down WebView immediately
+        setIsWebViewReady(false);
+        setHandshakeComplete(false);
+        aesKeyRef.current = null;
+        sessionKeyRef.current = null;
+        nonceVerified.current = false;
+        return;
+      }
+
       if (content.error) throw new Error(content.error);
 
       if (content.incomingPayment) {
