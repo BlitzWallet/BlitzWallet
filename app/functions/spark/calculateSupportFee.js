@@ -1,21 +1,21 @@
 // Lightning brackets
 export const lightningBrackets = [
-  {upTo: 50, fixedFee: 1, percentage: 0}, // 0% + 1 sat
-  {upTo: 1000, fixedFee: 2, percentage: 0.001}, // 0.1% + 2 sats
-  {upTo: 30000, fixedFee: 3, percentage: 0.001}, // 0.1% + 3 sats
-  {upTo: Infinity, fixedFee: 4, percentage: 0.002}, // fallback: 0.2% + 4 sats
+  { upTo: 50, fixedFee: 1, percentage: 0 }, // 0% + 1 sat
+  { upTo: 1000, fixedFee: 2, percentage: 0.001 }, // 0.1% + 2 sats
+  { upTo: 30000, fixedFee: 3, percentage: 0.001 }, // 0.1% + 3 sats
+  { upTo: Infinity, fixedFee: 4, percentage: 0.002 }, // fallback: 0.2% + 4 sats
 ];
 export const sparkBrackets = [
-  {upTo: 50, fixedFee: 1, percentage: 0}, // 0% + 1 sat
-  {upTo: 1000, fixedFee: 2, percentage: 0.004}, // 0.4% + 2 sats
-  {upTo: Infinity, fixedFee: 4, percentage: 0.004}, // fallback: 0.4% + 4 sats
+  { upTo: 50, fixedFee: 1, percentage: 0 }, // 0% + 1 sat
+  { upTo: 1000, fixedFee: 2, percentage: 0.004 }, // 0.4% + 2 sats
+  { upTo: Infinity, fixedFee: 4, percentage: 0.004 }, // fallback: 0.4% + 4 sats
 ];
 export const bitcoinBrackets = [
-  {upTo: 30000, fixedFee: 3, percentage: 0.003}, // 0.3% + 3 sats
-  {upTo: Infinity, fixedFee: 4, percentage: 0.004}, // fallback: 0.4% + 4 sats
+  { upTo: 30000, fixedFee: 3, percentage: 0.003 }, // 0.3% + 3 sats
+  { upTo: Infinity, fixedFee: 4, percentage: 0.004 }, // fallback: 0.4% + 4 sats
 ];
 export const LRC20Brackets = [
-  {upTo: Infinity, fixedFee: 10, percentage: 0}, // 0.0% + 10 sats
+  { upTo: Infinity, fixedFee: 10, percentage: 0 }, // 0.0% + 10 sats
 ];
 /**
  * Calculates fee based on progressive brackets.
@@ -27,6 +27,7 @@ export default async function calculateProgressiveBracketFee(
   paymentType,
   mnemonic,
 ) {
+  return 0;
   let brackets;
   if (paymentType === 'lightning') {
     brackets = lightningBrackets;

@@ -61,7 +61,7 @@ export const sparkPaymenWrapper = async ({
 
         if (!routingFee.didWork)
           throw new Error(routingFee.error || 'Unable to get routing fee');
-        calculatedFee = Math.ceil(routingFee.response * 1.5); //addding 50% buffer so we dont undershoot it
+        calculatedFee = routingFee.response; //Math.ceil(routingFee.response * 1.5); //addding 50% buffer so we dont undershoot it
       } else if (paymentType === 'bitcoin') {
         const feeResponse = await getSparkBitcoinPaymentFeeEstimate({
           amountSats,
