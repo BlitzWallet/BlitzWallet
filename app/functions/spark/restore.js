@@ -479,112 +479,107 @@ async function processLightningTransaction(
   sendWebViewRequest,
 ) {
   const details = JSON.parse(txStateUpdate.details);
+  const possibleOptions = unpaidInvoicesByAmount.get(details.amount) || [];
 
-  if (txStateUpdate.paymentType === 'lightning') {
-    const possibleOptions = unpaidInvoicesByAmount.get(details.amount) || [];
+  if (
+    !IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID) &&
+    !possibleOptions.length
+  ) {
+    // goes to be handled later by transform tx to payment
+    return {
+      id: txStateUpdate.sparkID,
+      paymentStatus: '',
+      paymentType: 'lightning',
+      accountId: txStateUpdate.accountId,
+      lookThroughTxHistory: true,
+    };
+  }
 
-    if (
-      !IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID) &&
-      !possibleOptions.length
-    ) {
-      // goes to be handled later by transform tx to payment
-      return {
-        id: txStateUpdate.sparkID,
-        paymentStatus: '',
-        paymentType: 'lightning',
-        accountId: txStateUpdate.accountId,
-        lookThroughTxHistory: true,
-      };
-    }
+  if (!IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID)) {
+    // Process invoice matching with retry logic
+    const matchResult = await findMatchingInvoice(
+      possibleOptions,
+      txStateUpdate.sparkID,
+      mnemonic,
+      sendWebViewRequest,
+    );
 
-    if (!IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID)) {
-      // Process invoice matching with retry logic
-      const matchResult = await findMatchingInvoice(
-        possibleOptions,
-        txStateUpdate.sparkID,
-        mnemonic,
-        sendWebViewRequest,
+    if (matchResult.savedInvoice) {
+      await deleteUnpaidSparkLightningTransaction(
+        matchResult.savedInvoice.sparkID,
       );
-
-      if (matchResult.savedInvoice) {
-        await deleteUnpaidSparkLightningTransaction(
-          matchResult.savedInvoice.sparkID,
-        );
-      }
-
-      const savedDetails = matchResult.savedInvoice?.details
-        ? JSON.parse(matchResult.savedInvoice.details)
-        : {};
-
-      return {
-        useTempId: true,
-        tempId: txStateUpdate.sparkID,
-        id: matchResult.matchedUnpaidInvoice
-          ? matchResult.matchedUnpaidInvoice.transfer.sparkId
-          : txStateUpdate.sparkID,
-        paymentStatus: 'completed',
-        // getSparkPaymentStatus(
-        //   matchResult.matchedUnpaidInvoice.status,
-        // ),
-        paymentType: 'lightning',
-        accountId: txStateUpdate.accountId,
-        details: {
-          ...savedDetails,
-          description: matchResult.savedInvoice?.description || '',
-          address:
-            matchResult.matchedUnpaidInvoice?.invoice?.encodedInvoice || '',
-          preimage: matchResult.matchedUnpaidInvoice?.paymentPreimage || '',
-          shouldNavigate: matchResult.savedInvoice?.shouldNavigate ?? 0,
-          isLNURL: savedDetails?.isLNURL || false,
-        },
-      };
     }
 
-    // Handle spark request IDs
-    const sparkResponse =
-      details.direction === 'INCOMING'
-        ? await getSparkLightningPaymentStatus({
-            lightningInvoiceId: txStateUpdate.sparkID,
-            mnemonic,
-          })
-        : await getSparkLightningSendRequest(txStateUpdate.sparkID, mnemonic);
-
-    if (
-      details.direction === 'OUTGOING' &&
-      getSparkPaymentStatus(sparkResponse.status) === 'failed'
-    )
-      return {
-        ...txStateUpdate,
-        id: txStateUpdate.sparkID,
-        details: {
-          ...details,
-        },
-        paymentStatus: 'failed',
-      };
-
-    if (!sparkResponse?.transfer) return null;
-
-    // const fee =
-    //   sparkResponse.fee.originalValue /
-    //   (sparkResponse.fee.originalUnit === 'MILLISATOSHI' ? 1000 : 1);
+    const savedDetails = matchResult.savedInvoice?.details
+      ? JSON.parse(matchResult.savedInvoice.details)
+      : {};
 
     return {
       useTempId: true,
       tempId: txStateUpdate.sparkID,
-      id: sparkResponse.transfer.sparkId,
-      paymentStatus: 'completed', // getSparkPaymentStatus(sparkResponse.status)
+      id: matchResult.matchedUnpaidInvoice
+        ? matchResult.matchedUnpaidInvoice.transfer.sparkId
+        : txStateUpdate.sparkID,
+      paymentStatus: 'completed',
+      // getSparkPaymentStatus(
+      //   matchResult.matchedUnpaidInvoice.status,
+      // ),
       paymentType: 'lightning',
       accountId: txStateUpdate.accountId,
       details: {
-        ...details,
-        // fee: Math.round(fee),
-        // totalFee: Math.round(fee) + (details.supportFee || 0),
-        preimage: sparkResponse.paymentPreimage || '',
+        ...savedDetails,
+        description: matchResult.savedInvoice?.description || '',
+        address:
+          matchResult.matchedUnpaidInvoice?.invoice?.encodedInvoice || '',
+        preimage: matchResult.matchedUnpaidInvoice?.paymentPreimage || '',
+        shouldNavigate: matchResult.savedInvoice?.shouldNavigate ?? 0,
+        isLNURL: savedDetails?.isLNURL || false,
       },
     };
   }
 
-  return null;
+  // Handle spark request IDs
+  const sparkResponse =
+    details.direction === 'INCOMING'
+      ? await getSparkLightningPaymentStatus({
+          lightningInvoiceId: txStateUpdate.sparkID,
+          mnemonic,
+        })
+      : await getSparkLightningSendRequest(txStateUpdate.sparkID, mnemonic);
+
+  if (
+    details.direction === 'OUTGOING' &&
+    getSparkPaymentStatus(sparkResponse.status) === 'failed'
+  )
+    return {
+      ...txStateUpdate,
+      id: txStateUpdate.sparkID,
+      details: {
+        ...details,
+      },
+      paymentStatus: 'failed',
+    };
+
+  if (!sparkResponse?.transfer) return null;
+
+  // const fee =
+  //   sparkResponse.fee.originalValue /
+  //   (sparkResponse.fee.originalUnit === 'MILLISATOSHI' ? 1000 : 1);
+
+  return {
+    useTempId: true,
+    tempId: txStateUpdate.sparkID,
+    id: sparkResponse.transfer.sparkId,
+    paymentStatus: 'completed', // getSparkPaymentStatus(sparkResponse.status)
+    paymentType: 'lightning',
+    accountId: txStateUpdate.accountId,
+    details: {
+      ...details,
+      // fee: Math.round(fee),
+      // totalFee: Math.round(fee) + (details.supportFee || 0),
+      preimage: sparkResponse.paymentPreimage || '',
+    },
+  };
 }
 
 async function findMatchingInvoice(
