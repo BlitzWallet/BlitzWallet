@@ -829,10 +829,10 @@
 
   "wallet": {
     "halfModal": {
-      "images": "De uma imagem",
-      "clipboard": "Da área de transferência",
-      "manual": "Inserir manualmente",
-      "contacts": "De contatos"
+      "images": "Imagem",
+      "clipboard": "Área de transferência",
+      "manual": "Digitar",
+      "contacts": "Contatos"
     },
     "manualInputPage": {
       "inputPlaceholder": "Insira ou cole um endereço/fatura Liquid ou Lightning"
@@ -1445,7 +1445,7 @@
         "soonMessage": "Adoramos que você queira mais apps. Sugira-os abaixo!",
         "title": "Loja",
         "shopTitle": "Compre com Bitcoin",
-        "shopDescription": "Compre vales-presente de milhares de várias lojas ao redor do mundo",
+        "shopDescription": "Compre vales-presente de milhares de lojas ao redor do mundo",
         "callToAction": "Gostaria de ver algo aqui?",
         "featuredApps": "Gostaria de ver algo aqui?"
       },
@@ -1536,8 +1536,8 @@
       },
       "lrc20TokenDataHalfModal": {
         "balance": "Saldo",
-        "maxSupply": "Fornecimento máximo",
-        "tokenTicker": "Ticker de token",
+        "maxSupply": "Limite de emissão",
+        "tokenTicker": "Ticker do token",
         "tokenPubKey": "Chave pública do token"
       }
     }
