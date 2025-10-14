@@ -17,9 +17,14 @@ import { createCipheriv, createDecipheriv } from 'react-native-quick-crypto';
 import sha256Hash from '../app/functions/hash';
 import { verifyAndPrepareWebView } from '../app/functions/webview/bundleVerification';
 import DeviceInfo from 'react-native-device-info';
+import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
+const WASM_ERRORS = [
+  'WebAssembly.Compile is disallowed on the main thread',
+  "Cannot read properties of undefined (reading '__wbindgen_malloc')",
+];
 let handshakeComplete = false;
 let forceReactNativeUse = null;
 let globalSendWebViewRequest = null;
@@ -224,7 +229,26 @@ export const WebViewProvider = ({ children }) => {
       if (content.isResponse && content.id) {
         const resolve = pendingRequests.current[content.id];
         if (resolve) {
-          resolve(JSON.parse(content.result || null));
+          const result = JSON.parse(content.result || null);
+          if (
+            result?.error &&
+            WASM_ERRORS.some(errMsg => result.error.includes(errMsg))
+          ) {
+            console.warn(
+              'WASM failed, switching to React Native implementation:',
+              result.error,
+            );
+
+            setIsWebViewReady(false);
+            setHandshakeComplete(false);
+            aesKeyRef.current = null;
+            sessionKeyRef.current = null;
+            nonceVerified.current = false;
+            forceReactNativeUse = true;
+            setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
+          }
+          resolve(result);
+
           delete pendingRequests.current[content.id];
         }
       }
@@ -291,16 +315,25 @@ export const WebViewProvider = ({ children }) => {
   }, [sendWebViewRequestInternal]);
 
   useEffect(() => {
-    if (!webViewRef.current) return;
-    if (!isWebViewReady) return;
-    if (!verifiedPath) return;
-    const androidAPI = DeviceInfo.getApiLevelSync();
+    async function startHandshake() {
+      if (!webViewRef.current) return;
+      if (!isWebViewReady) return;
+      if (!verifiedPath) return;
+      const androidAPI = DeviceInfo.getApiLevelSync();
+      if (androidAPI == 33 || androidAPI == 34) {
+        console.warn(`Skipping handshake on Android API ${androidAPI}`);
+        return;
+      }
 
-    if (androidAPI == 33 || androidAPI == 34) {
-      console.warn(`Skipping handshake on Android API ${androidAPI}`);
-      return;
+      const savedVariable = await getLocalStorageItem('FORCE_REACT_NATIVE');
+
+      if (savedVariable === 'true') {
+        console.log('FORCE_REACT_NATIVE is set, skipping handshake');
+        return;
+      }
+      initHandshake();
     }
-    initHandshake();
+    startHandshake();
   }, [isWebViewReady, verifiedPath]);
 
   useEffect(() => {
