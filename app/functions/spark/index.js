@@ -359,7 +359,7 @@ export const getSparkAddress = async mnemonic => {
       return response;
     } else {
       const wallet = await getWallet(mnemonic);
-      const response = wallet.getSparkAddress();
+      const response = await wallet.getSparkAddress();
       return { didWork: true, response };
     }
   } catch (err) {
