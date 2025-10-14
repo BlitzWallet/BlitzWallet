@@ -23,6 +23,7 @@ import sha256Hash from '../hash';
 import {
   getHandshakeComplete,
   sendWebViewRequestGlobal,
+  setForceReactNative,
 } from '../../../context-store/webViewContext';
 
 export let sparkWallet = {};
@@ -103,30 +104,29 @@ export const initializeSparkWallet = async (mnemonic, isInitialLoad = true) => {
       const response = await sendWebViewRequestGlobal('initializeSparkWallet', {
         mnemonic,
       });
-      if (!response.isConnected)
-        throw new Error(response.error || 'WebView init failed');
-      return response;
-    } else {
-      const hash = getMnemonicHash(mnemonic);
+      if (response.isConnected) return response;
+    }
 
-      // Early return if already initialized
-      if (sparkWallet[hash]) {
-        return { isConnected: true };
-      }
-      if (initializingWallets[hash]) {
-        await initializingWallets[hash];
-        return { isConnected: true };
-      }
-      initializingWallets[hash] = (async () => {
-        const wallet = await initializeWallet(mnemonic);
-        sparkWallet[hash] = wallet;
-        delete initializingWallets[hash]; // cleanup after done
-      })();
+    const hash = getMnemonicHash(mnemonic);
 
-      await initializingWallets[hash];
-
+    // Early return if already initialized
+    if (sparkWallet[hash]) {
       return { isConnected: true };
     }
+    if (initializingWallets[hash]) {
+      await initializingWallets[hash];
+      return { isConnected: true };
+    }
+    initializingWallets[hash] = (async () => {
+      const wallet = await initializeWallet(mnemonic);
+      sparkWallet[hash] = wallet;
+      delete initializingWallets[hash]; // cleanup after done
+    })();
+
+    await initializingWallets[hash];
+    setForceReactNative(true);
+
+    return { isConnected: true };
   } catch (err) {
     console.log('Initialize spark wallet error:', err);
     return { isConnected: false, error: err.message };

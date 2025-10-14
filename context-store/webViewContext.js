@@ -51,6 +51,10 @@ const setHandshakeComplete = value => {
   handshakeComplete = value;
 };
 
+export const setForceReactNative = value => {
+  forceReactNativeUse = value;
+};
+
 export const sendWebViewRequestGlobal = async (
   action,
   args = {},
