@@ -279,10 +279,10 @@ export const WebViewProvider = ({ children }) => {
 
           if (action === 'initializeSparkWallet') {
             if (!getHandshakeComplete()) {
-              throw new Error('Cannot send seed - handshake not verified');
+              return resolve({ isConnected: false });
             }
             if (!nonceVerified.current) {
-              throw new Error('Cannot send seed - nonce not verified');
+              return resolve({ isConnected: false });
             }
           }
 
