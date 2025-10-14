@@ -19,6 +19,7 @@ import { useSparkWallet } from '../../../context-store/sparkContext';
 import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../context-store/appStatus';
+import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
@@ -195,24 +196,46 @@ export default function ConfirmTxPage(props) {
         </View>
       )}
       {!didSucceed && !isLNURLAuth && (
-        <TouchableOpacity
-          onPress={async () => {
-            try {
-              await openComposer({
-                to: 'blake@blitzwalletapp.com',
-                subject: 'Payment Failed',
-                body: errorMessage,
-              });
-            } catch (err) {
-              copyToClipboard(String(errorMessage), showToast);
-            }
-          }}
-        >
-          <ThemeText
-            styles={{ marginTop: 10, marginBottom: 20 }}
-            content={t('screens.inAccount.confirmTxPage.sendReport')}
+        <View style={{ marginTop: 10, marginBottom: 20 }}>
+          <DropdownMenu
+            options={[
+              {
+                label: t('screens.inAccount.confirmTxPage.emailReport'),
+                value: 'email',
+              },
+              {
+                label: t('screens.inAccount.confirmTxPage.copyReport'),
+                value: 'clipboard',
+              },
+            ]}
+            selectedValue=""
+            placeholder={t('screens.inAccount.confirmTxPage.sendReport')}
+            onSelect={async item => {
+              if (item.value === 'email') {
+                try {
+                  await openComposer({
+                    to: 'blake@blitzwalletapp.com',
+                    subject: 'Payment Failed',
+                    body: String(errorMessage),
+                  });
+                } catch (err) {
+                  console.log('Email composer error:', err);
+                }
+              } else if (item.value === 'clipboard') {
+                copyToClipboard(String(errorMessage), showToast);
+              }
+            }}
+            showClearIcon={false}
+            showVerticalArrows={false}
+            translateLabelText={false}
+            customButtonStyles={{
+              backgroundColor: 'transparent',
+            }}
+            textStyles={{
+              ...CENTER,
+            }}
           />
-        </TouchableOpacity>
+        </View>
       )}
 
       <CustomButton

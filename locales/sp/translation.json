@@ -1286,7 +1286,9 @@
         "confirmMessage": "{{direction}} exitosamente",
         "paymentErrorMessage": "Hubo un problema al enviar este pago, por favor intenta de nuevo.",
         "sendReport": "Enviar informe al desarrollador",
-        "Lnurlauthsuccess": "¡Autenticación de billetera exitosa! Ahora estás iniciado sesión."
+        "Lnurlauthsuccess": "¡Autenticación de billetera exitosa! Ahora estás iniciado sesión.",
+        "emailReport": "Enviar por correo electrónico",
+        "copyReport": "Copiar al portapapeles"
       },
       "expandedTxPage": {
         "confirmMessage": "Monto {{direction}}",

@@ -1455,7 +1455,9 @@
         "confirmMessage": "{{direction}} succesfully",
         "paymentErrorMessage": "There was an issue sending this payment, please try again.",
         "sendReport": "Send report to developer",
-        "lnurlAuthSuccess": "Wallet authentication successful! You’re now logged in."
+        "lnurlAuthSuccess": "Wallet authentication successful! You’re now logged in.",
+        "emailReport": "Send via Email",
+        "copyReport": "Copy to Clipboard"
       },
       "expandedTxPage": {
         "confirmMessage": "{{direction}} amount",

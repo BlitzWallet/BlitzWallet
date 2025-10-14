@@ -1454,7 +1454,9 @@
         "confirmMessage": "{{direction}} con successo",
         "paymentErrorMessage": "C'è stato un problema nell'inviare questo pagamento, riprova.",
         "sendReport": "Invia report allo sviluppatore",
-        "Lnurlauthsuccess": "Autenticazione del portafoglio successo! Ora hai effettuato l'accesso."
+        "Lnurlauthsuccess": "Autenticazione del portafoglio successo! Ora hai effettuato l'accesso.",
+        "emailReport": "Invia via email",
+        "copyReport": "Copia negli appunti"
       },
       "expandedTxPage": {
         "confirmMessage": "Importo {{direction}}",

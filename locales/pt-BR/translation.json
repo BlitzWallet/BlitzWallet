@@ -1455,7 +1455,9 @@
         "confirmMessage": "{{direction}} sucesso",
         "paymentErrorMessage": "Ocorreu um problema ao enviar este pagamento. Tente novamente.",
         "sendReport": "Enviar relatório ao desenvolvedor",
-        "lnurlAuthSuccess": "Autenticação da carteira realizada com sucesso! Você está conectado."
+        "lnurlAuthSuccess": "Autenticação da carteira realizada com sucesso! Você está conectado.",
+        "emailReport": "Enviar por e-mail",
+        "copyReport": "Copiar para a área de transferência"
       },
       "expandedTxPage": {
         "confirmMessage": "Quantia {{direction}}",
