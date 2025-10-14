@@ -337,7 +337,7 @@ export const WebViewProvider = ({ children }) => {
       }
       initHandshake();
     }
-    startHandshake();
+    // startHandshake();
   }, [isWebViewReady, verifiedPath]);
 
   useEffect(() => {
