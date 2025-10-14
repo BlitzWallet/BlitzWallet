@@ -104,7 +104,8 @@ export const initializeSparkWallet = async (mnemonic, isInitialLoad = true) => {
       const response = await sendWebViewRequestGlobal('initializeSparkWallet', {
         mnemonic,
       });
-      if (response.isConnected) return response;
+
+      if (response?.isConnected) return response;
     }
 
     const hash = getMnemonicHash(mnemonic);
@@ -738,7 +739,6 @@ export const getSparkTokenTransactions = async ({
   tokenIdentifiers,
   outputIds,
   mnemonic,
-
   lastSavedTransactionId,
 }) => {
   try {
@@ -760,13 +760,33 @@ export const getSparkTokenTransactions = async ({
       return response;
     } else {
       const wallet = await getWallet(mnemonic);
-      return await wallet.queryTokenTransactions({
+      const response = await wallet.queryTokenTransactions({
         ownerPublicKeys,
         issuerPublicKeys,
         tokenTransactionHashes,
         tokenIdentifiers,
         outputIds,
       });
+      let filteredTransactions = response.tokenTransactionsWithStatus;
+      if (lastSavedTransactionId) {
+        const lastIndex = response.tokenTransactionsWithStatus.findIndex(
+          tx =>
+            Buffer.from(Object.values(tx.tokenTransactionHash)).toString(
+              'hex',
+            ) === lastSavedTransactionId,
+        );
+
+        if (lastIndex !== -1) {
+          filteredTransactions = response.tokenTransactionsWithStatus.slice(
+            0,
+            lastIndex,
+          );
+        }
+      }
+      return {
+        tokenTransactionsWithStatus: filteredTransactions,
+        offset: response.offset,
+      };
     }
   } catch (err) {
     console.log('get spark Tokens transactions error', err);
