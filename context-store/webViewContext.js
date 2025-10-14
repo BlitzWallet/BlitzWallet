@@ -16,6 +16,7 @@ import { getSharedSecret, getPublicKey } from '@noble/secp256k1';
 import { createCipheriv, createDecipheriv } from 'react-native-quick-crypto';
 import sha256Hash from '../app/functions/hash';
 import { verifyAndPrepareWebView } from '../app/functions/webview/bundleVerification';
+import DeviceInfo from 'react-native-device-info';
 
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
@@ -293,7 +294,12 @@ export const WebViewProvider = ({ children }) => {
     if (!webViewRef.current) return;
     if (!isWebViewReady) return;
     if (!verifiedPath) return;
+    const androidAPI = DeviceInfo.getApiLevelSync();
 
+    if (androidAPI == 33 || androidAPI == 34) {
+      console.warn(`Skipping handshake on Android API ${androidAPI}`);
+      return;
+    }
     initHandshake();
   }, [isWebViewReady, verifiedPath]);
 

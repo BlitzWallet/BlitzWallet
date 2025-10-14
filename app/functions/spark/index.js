@@ -26,6 +26,7 @@ import {
 } from '../../../context-store/webViewContext';
 
 export let sparkWallet = {};
+let initializingWallets = {};
 
 // Hash cache to avoid recalculating hashes
 const mnemonicHashCache = new Map();
@@ -112,9 +113,17 @@ export const initializeSparkWallet = async (mnemonic, isInitialLoad = true) => {
       if (sparkWallet[hash]) {
         return { isConnected: true };
       }
+      if (initializingWallets[hash]) {
+        await initializingWallets[hash];
+        return { isConnected: true };
+      }
+      initializingWallets[hash] = (async () => {
+        const wallet = await initializeWallet(mnemonic);
+        sparkWallet[hash] = wallet;
+        delete initializingWallets[hash]; // cleanup after done
+      })();
 
-      const wallet = await initializeWallet(mnemonic);
-      sparkWallet[hash] = wallet;
+      await initializingWallets[hash];
 
       return { isConnected: true };
     }
