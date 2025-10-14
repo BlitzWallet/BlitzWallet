@@ -341,6 +341,7 @@ export const WebViewProvider = ({ children }) => {
   }, [isWebViewReady, verifiedPath]);
 
   useEffect(() => {
+    return;
     (async () => {
       try {
         const { htmlPath, nonceHex, hashHex } = await verifyAndPrepareWebView(
@@ -374,7 +375,7 @@ export const WebViewProvider = ({ children }) => {
       }}
     >
       {children}
-      <WebView
+      {/* <WebView
         domStorageEnabled={false}
         allowFileAccess={true}
         allowFileAccessFromFileURLs={false}
@@ -410,7 +411,7 @@ export const WebViewProvider = ({ children }) => {
           aesKeyRef.current = null;
           webViewRef.current?.reload();
         }}
-      />
+      /> */}
     </WebViewContext.Provider>
   );
 };
