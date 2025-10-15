@@ -879,7 +879,7 @@
         "title": "Escolher rede",
         "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Receber diretamente via Spark exporá seu saldo à pessoa que está pagando e não é considerado privado.",
-        "swapWarning": "{{swapType}} os pagamentos serão trocados para Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após o {{swapType}} pagamento ser confirmado.",
+        "swapWarning": "Os pagamentos {{swapType}} serão trocados para Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após o pagamento {{swapType}} ser confirmado.",
         "unalignedSeeds": "Aviso: Você não está usando sua conta da carteira principal. Todos os swaps da Liquid serão enviados para sua carteira principal.",
         "rootstockWarningText": "Os pagamentos Rootstock serão trocados por Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após a confirmação do pagamento Rootstock.",
         "oneMinute": "~ {{numMins}} minuto",
