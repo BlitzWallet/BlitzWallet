@@ -164,6 +164,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
     // numberOfCachedTxs,
     didGetToHomepage,
     enabledLRC20,
+    shouldUseAltLoading,
   } = props;
 
   // Remove unnecessary console.logs for performance
@@ -177,11 +178,14 @@ export default function getFormattedHomepageTxsForSpark(props) {
   const sparkTransactionsLength = sparkTransactions?.length || 0;
 
   // Early return with loading skeleton
-  if (!sparkInformation.didConnect) {
+  if (!sparkInformation.didConnect && !shouldUseAltLoading?.current) {
+    if (shouldUseAltLoading) {
+      shouldUseAltLoading.current = true;
+    }
     return [createLoadingSkeleton(20, frompage, theme, darkModeType)];
   }
 
-  const formattedTxs = [];
+  let formattedTxs = [];
   let currentGroupedDate = '';
   const transactionLimit =
     frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
@@ -293,6 +297,13 @@ export default function getFormattedHomepageTxsForSpark(props) {
           styles={styles.noTransactionsText}
         />
       </View>,
+    ];
+  }
+
+  if (!sparkInformation.didConnect && shouldUseAltLoading?.current) {
+    formattedTxs = [
+      createLoadingSkeleton(2, frompage, theme, darkModeType),
+      ...formattedTxs,
     ];
   }
 

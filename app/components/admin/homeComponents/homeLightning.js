@@ -5,7 +5,7 @@ import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import { NavBar } from './navBar';
 import { useNavigation } from '@react-navigation/native';
 import { useUpdateHomepageTransactions } from '../../../hooks/updateHomepageTransactions';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../context-store/appStatus';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
@@ -47,6 +47,7 @@ export default function HomeLightning() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet, didGetToHomepage, toggleDidGetToHomepage } =
     useAppStatus();
+  const shouldUseAltLoading = useRef(false);
   const { topPadding, bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
@@ -148,6 +149,7 @@ export default function HomeLightning() {
         // numberOfCachedTxs,
         didGetToHomepage,
         enabledLRC20,
+        shouldUseAltLoading,
       }) || []
     );
   }, [
