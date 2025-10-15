@@ -44,9 +44,15 @@ const getWallet = async mnemonic => {
   let wallet = sparkWallet[hash];
 
   if (!wallet) {
+    if (initializingWallets[hash]) {
+      await initializingWallets[hash];
+      return sparkWallet[hash];
+    }
     console.log('Creating native wallet because none exists');
-    wallet = await initializeWallet(mnemonic);
+    initializingWallets[hash] = initializeWallet(mnemonic);
+    wallet = await initializingWallets[hash];
     sparkWallet[hash] = wallet;
+    delete initializingWallets[hash]; // cleanup after done
   }
 
   return wallet;
@@ -138,7 +144,12 @@ const initializeWallet = async mnemonic => {
   const { wallet } = await SparkWallet.initialize({
     signer: new ReactNativeSparkSigner(),
     mnemonicOrSeed: mnemonic,
-    options: { network: 'MAINNET' },
+    options: {
+      network: 'MAINNET',
+      optimizationOptions: {
+        multiplicity: 2,
+      },
+    },
   });
 
   console.log('did initialize wallet');
@@ -221,7 +232,7 @@ export const getSparkBalance = async mnemonic => {
       }
 
       const allTokens = mergeTokensWithCache(
-        balance.tokenBalances,
+        currentTokensObj,
         cachedTokens,
         mnemonic,
       );
@@ -804,6 +815,39 @@ export const getCachedSparkTransactions = async (limit, identifyPubKey) => {
     return txResponse;
   } catch (err) {
     console.log('get cached spark transaction error', err);
+  }
+};
+
+export const addSparkListener = async (mnemonic, transferHandler) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'native') {
+      const wallet = await getWallet(mnemonic);
+      wallet?.on('transfer:claimed', transferHandler);
+    } else {
+      await sendWebViewRequestGlobal('addWalletEventListener', {
+        mnemonic: mnemonic,
+      });
+    }
+  } catch (err) {
+    console.log('error adding spark listeners', err);
+  }
+};
+export const removeSparkListeners = async mnemonic => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'native') {
+      const wallet = await getWallet(mnemonic);
+      if (mnemonic && wallet?.listenerCount('transfer:claimed')) {
+        wallet?.removeAllListeners('transfer:claimed');
+      }
+    } else {
+      sendWebViewRequestGlobal('removeWalletEventListener', {
+        mnemonic: prevAccountMnemoincRef.current,
+      });
+    }
+  } catch (err) {
+    console.log('error removing spark listenres', err);
   }
 };
 

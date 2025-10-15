@@ -8,11 +8,13 @@ import {
   useCallback,
 } from 'react';
 import {
+  addSparkListener,
   claimnSparkStaticDepositAddress,
   findTransactionTxFromTxHistory,
   getSparkBalance,
   getSparkStaticBitcoinL1AddressQuote,
   queryAllStaticDepositAddresses,
+  removeSparkListeners,
   selectSparkRuntime,
   sparkWallet,
 } from '../app/functions/spark';
@@ -31,7 +33,10 @@ import {
   updateSparkTxStatus,
 } from '../app/functions/spark/restore';
 import { useGlobalContacts } from './globalContacts';
-import { initWallet } from '../app/functions/initiateWalletConnection';
+import {
+  initializeSparkSession,
+  initWallet,
+} from '../app/functions/initiateWalletConnection';
 import { useNodeContext } from './nodeContext';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import { AppState } from 'react-native';
@@ -61,7 +66,7 @@ export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
 const SparkWalletManager = createContext(null);
 
 const SparkWalletProvider = ({ children }) => {
-  const { sendWebViewRequest } = useWebView();
+  const { changeSparkConnectionState, sendWebViewRequest } = useWebView();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { didGetToHomepage, minMaxLiquidSwapAmounts, appState } =
@@ -93,6 +98,28 @@ const SparkWalletProvider = ({ children }) => {
   const sessionTimeRef = useRef(sessionTime);
   const [numberOfCachedTxs, setNumberOfCachedTxs] = useState(0);
   const handledTransfers = useRef(new Set());
+  const prevListenerType = useRef(null);
+  const prevAppState = useRef(appState);
+
+  useEffect(() => {
+    if (!didGetToHomepage) return;
+    if (changeSparkConnectionState == null) return;
+    if (!changeSparkConnectionState) {
+      setSparkInformation(prev => ({ ...prev, didConnect: false }));
+    } else {
+      if (!sparkInformation.identityPubKey) {
+        initializeSparkSession({
+          setSparkInformation,
+          mnemonic: currentWalletMnemoinc,
+        });
+      } else {
+        setSparkInformation(prev => ({
+          ...prev,
+          didConnect: !!prev.identityPubKey,
+        }));
+      }
+    }
+  }, [changeSparkConnectionState, didGetToHomepage]);
 
   const sessionTime = useMemo(() => {
     return Date.now();
@@ -558,16 +585,32 @@ const SparkWalletProvider = ({ children }) => {
     if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
 
-    const shouldHaveListeners = appState === 'active' && !isSendingPayment;
-    const shouldHaveSparkEventEmitter = appState === 'active';
+    const getListenerType = () => {
+      if (appState === 'active' && !isSendingPayment) return 'full';
+      if (appState === 'active' && isSendingPayment) return 'sparkOnly';
+      return null; // No listeners in background
+    };
 
-    removeListeners();
+    const newType = getListenerType();
+    const prevType = prevListenerType.current;
 
-    if (shouldHaveListeners) {
-      addListeners('full');
-    } else if (shouldHaveSparkEventEmitter && isSendingPayment) {
-      addListeners('sparkOnly');
+    console.log(prevAppState.current, appState, 'APP STATE CHANGE');
+
+    // Handle appState transitions
+    if (prevAppState.current !== appState && appState === 'background') {
+      // App fully backgrounded → remove everything
+      removeListeners();
+      prevListenerType.current = null;
     }
+
+    // Only reconfigure listeners if the type actually changed
+    if (newType !== prevType && appState === 'active') {
+      removeListeners();
+      if (newType) addListeners(newType);
+      prevListenerType.current = newType;
+    }
+
+    prevAppState.current = appState;
   }, [
     appState,
     sparkInformation.didConnect,
