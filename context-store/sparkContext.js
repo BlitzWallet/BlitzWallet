@@ -8,13 +8,11 @@ import {
   useCallback,
 } from 'react';
 import {
-  addSparkListener,
   claimnSparkStaticDepositAddress,
   findTransactionTxFromTxHistory,
   getSparkBalance,
   getSparkStaticBitcoinL1AddressQuote,
   queryAllStaticDepositAddresses,
-  removeSparkListeners,
   selectSparkRuntime,
   sparkWallet,
 } from '../app/functions/spark';

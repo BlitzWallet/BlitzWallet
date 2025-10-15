@@ -818,39 +818,6 @@ export const getCachedSparkTransactions = async (limit, identifyPubKey) => {
   }
 };
 
-export const addSparkListener = async (mnemonic, transferHandler) => {
-  try {
-    const runtime = await selectSparkRuntime(mnemonic);
-    if (runtime === 'native') {
-      const wallet = await getWallet(mnemonic);
-      wallet?.on('transfer:claimed', transferHandler);
-    } else {
-      await sendWebViewRequestGlobal('addWalletEventListener', {
-        mnemonic: mnemonic,
-      });
-    }
-  } catch (err) {
-    console.log('error adding spark listeners', err);
-  }
-};
-export const removeSparkListeners = async mnemonic => {
-  try {
-    const runtime = await selectSparkRuntime(mnemonic);
-    if (runtime === 'native') {
-      const wallet = await getWallet(mnemonic);
-      if (mnemonic && wallet?.listenerCount('transfer:claimed')) {
-        wallet?.removeAllListeners('transfer:claimed');
-      }
-    } else {
-      sendWebViewRequestGlobal('removeWalletEventListener', {
-        mnemonic: prevAccountMnemoincRef.current,
-      });
-    }
-  } catch (err) {
-    console.log('error removing spark listenres', err);
-  }
-};
-
 export const sparkPaymentType = tx => {
   try {
     const isLightningPayment = tx.type === 'PREIMAGE_SWAP';
