@@ -30,6 +30,7 @@ const WASM_ERRORS = [
 let handshakeComplete = false;
 let forceReactNativeUse = null;
 let globalSendWebViewRequest = null;
+const BACKGROUND_THRESHOLD_MS = 3 * 60 * 1000;
 
 const WebViewContext = createContext(null);
 
@@ -95,6 +96,7 @@ export const WebViewProvider = ({ children }) => {
   const nonceVerified = useRef(false);
   const previousAppState = useRef(appState);
   const walletInitialized = useRef(false);
+  const backgroundTimeRef = useRef(null);
   const [changeSparkConnectionState, setChangeSparkConnectionState] = useState({
     state: null,
     count: 0,
@@ -137,12 +139,23 @@ export const WebViewProvider = ({ children }) => {
   // Handle app state changes
   useEffect(() => {
     if (previousAppState.current !== appState) {
-      if (previousAppState.current === 'background' && appState === 'active') {
-        console.log('App returned to foreground - reloading WebView');
+      if (appState === 'background') {
+        backgroundTimeRef.current = Date.now();
+      }
 
-        // Reset state but DON'T clear handshakeComplete flag
-        resetWebViewState(false);
-        setReloadKey(prev => prev + 1);
+      if (previousAppState.current === 'background' && appState === 'active') {
+        const timeInBackground = backgroundTimeRef.current
+          ? Date.now() - backgroundTimeRef.current
+          : 0;
+
+        if (timeInBackground > BACKGROUND_THRESHOLD_MS) {
+          console.log('Background time exceeded threshold - reloading WebView');
+          // Reset state but DON'T clear handshakeComplete flag
+          resetWebViewState(false);
+          setReloadKey(prev => prev + 1);
+        }
+
+        backgroundTimeRef.current = null;
       }
       previousAppState.current = appState;
     }
