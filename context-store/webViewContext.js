@@ -113,6 +113,7 @@ export const WebViewProvider = ({ children }) => {
     console.log('Resetting WebView state', { clearHandshake });
     isResetting.current = true;
     setIsWebViewReady(false);
+    setVerifiedPath('');
 
     // Only clear handshake if explicitly told to (actual failures)
     // Don't clear it for normal app lifecycle resets
