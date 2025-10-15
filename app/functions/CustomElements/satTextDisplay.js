@@ -110,7 +110,9 @@ export default function FormattedSatText({
     children = [
       frontText && renderText(frontText),
       renderText(
-        `${showSymbol ? BITCOIN_SATS_ICON : ''}${formattedBalance}${
+        `${
+          showSymbol ? BITCOIN_SATS_ICON : ''
+        }${`\u200A${formattedBalance}\u200A`}${
           !showSymbol ? ' ' + BITCOIN_SAT_TEXT : ''
         }`,
       ),
