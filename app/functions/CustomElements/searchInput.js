@@ -1,8 +1,8 @@
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 import { CENTER, COLORS, FONT, SIZES } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import ThemeText from './textTheme';
 
 export default function CustomSearchInput({
@@ -27,6 +27,9 @@ export default function CustomSearchInput({
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textInputColor, textInputBackground } = GetThemeColors();
+  const isFocusedRef = useRef(false);
+  const internalRef = useRef(null);
+  const inputRef = textInputRef || internalRef;
   const memorizedStyles = useMemo(
     () => ({
       ...styles.searchInput,
@@ -86,19 +89,50 @@ export default function CustomSearchInput({
       onSubmitEditingFunction();
     }
   }, [onSubmitEditingFunction]);
+
   const focusFunction = useCallback(() => {
+    isFocusedRef.current = true;
     if (onFocusFunction) {
       onFocusFunction();
     }
   }, [onFocusFunction]);
 
   const blurFunction = useCallback(() => {
+    isFocusedRef.current = false;
     if (!onBlurFunction) return;
     if (shouldDelayBlur) {
       setTimeout(() => {
         onBlurFunction();
       }, 150);
     } else onBlurFunction();
+  }, [onBlurFunction, shouldDelayBlur]);
+
+  useEffect(() => {
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        // Only trigger blur if input was focused
+        if (isFocusedRef.current && onBlurFunction) {
+          isFocusedRef.current = false;
+          console.log(inputRef);
+          if (inputRef?.current) {
+            inputRef.current.blur();
+          }
+
+          if (shouldDelayBlur) {
+            setTimeout(() => {
+              onBlurFunction();
+            }, 150);
+          } else {
+            onBlurFunction();
+          }
+        }
+      },
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+    };
   }, [onBlurFunction, shouldDelayBlur]);
   const showPlaceholder = !inputText && placeholderText;
 
@@ -123,7 +157,7 @@ export default function CustomSearchInput({
         placeholder={''}
         placeholderTextColor={placeholderTextColorStyles}
         value={inputText}
-        ref={textInputRef}
+        ref={inputRef}
         onChangeText={setInputText}
         submitBehavior={blurOnSubmitValue ? 'blurAndSubmit' : undefined}
         keyboardType={keyboardType}
