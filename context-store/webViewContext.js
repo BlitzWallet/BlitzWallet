@@ -136,6 +136,52 @@ export const WebViewProvider = ({ children }) => {
     nonceVerified.current = false;
   }, []);
 
+  const reloadWebViewSecurely = useCallback(async () => {
+    try {
+      console.log('Re-verifying WebView before reload...');
+
+      // Re-verify the file
+      const { htmlPath, nonceHex, hashHex } = await verifyAndPrepareWebView(
+        Platform.OS === 'ios'
+          ? require('spark-web-context')
+          : 'file:///android_asset/sparkContext.html',
+      );
+
+      if (hashHex !== fileHash) {
+        console.error(
+          'SECURITY VIOLATION: File integrity check failed - content was modified!',
+        );
+        console.error(`Expected hash: ${fileHash}`);
+        console.error(`Current hash: ${hashHex}`);
+
+        // Force React Native mode due to security violation
+        forceReactNativeUse = true;
+        setHandshakeComplete(false);
+        setChangeSparkConnectionState(prev => ({
+          state: true,
+          count: (prev.count += 1),
+        }));
+        return;
+      }
+
+      // File is verified, safe to reload
+      console.log('File integrity verified, reloading WebView');
+      expectedNonceRef.current = nonceHex;
+      setVerifiedPath(htmlPath);
+      setReloadKey(prev => prev + 1);
+    } catch (err) {
+      console.error('WebView re-verification failed:', err);
+
+      // On verification failure, force React Native mode
+      forceReactNativeUse = true;
+      setHandshakeComplete(false);
+      setChangeSparkConnectionState(prev => ({
+        state: true,
+        count: (prev.count += 1),
+      }));
+    }
+  }, [fileHash]);
+
   // Handle app state changes
   useEffect(() => {
     if (previousAppState.current !== appState) {
@@ -152,14 +198,14 @@ export const WebViewProvider = ({ children }) => {
           console.log('Background time exceeded threshold - reloading WebView');
           // Reset state but DON'T clear handshakeComplete flag
           resetWebViewState(false);
-          setReloadKey(prev => prev + 1);
+          reloadWebViewSecurely();
         }
 
         backgroundTimeRef.current = null;
       }
       previousAppState.current = appState;
     }
-  }, [appState, resetWebViewState]);
+  }, [appState, resetWebViewState, reloadWebViewSecurely]);
 
   const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
@@ -388,7 +434,7 @@ export const WebViewProvider = ({ children }) => {
         .then(resolve)
         .catch(reject);
     });
-  }, [currentWalletMnemoinc, sendWebViewRequestInternal]);
+  }, [currentWalletMnemoinc]);
 
   const sendWebViewRequestInternal = useCallback(
     async (action, args = {}, encrypt = true) => {
@@ -673,7 +719,7 @@ export const WebViewProvider = ({ children }) => {
             }
           });
           resetWebViewState(false);
-          setReloadKey(prev => prev + 1);
+          reloadWebViewSecurely();
         }}
       />
     </WebViewContext.Provider>
