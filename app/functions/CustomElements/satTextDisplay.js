@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import {
   BITCOIN_SAT_TEXT,
@@ -110,10 +110,14 @@ export default function FormattedSatText({
     children = [
       frontText && renderText(frontText),
       renderText(
-        `${
-          showSymbol ? BITCOIN_SATS_ICON : ''
-        }${`\u200A${formattedBalance}\u200A`}${
-          !showSymbol ? ' ' + BITCOIN_SAT_TEXT : ''
+        `${showSymbol ? BITCOIN_SATS_ICON : ''}${
+          Platform.OS === 'android'
+            ? `\u200A\u200A\u200A${formattedBalance}\u200A\u200A\u200A`
+            : formattedBalance
+        }${
+          !showSymbol
+            ? `${Platform.OS == 'android' ? '' : ' '}` + BITCOIN_SAT_TEXT
+            : ''
         }`,
       ),
       backText && renderText(backText),
