@@ -1,22 +1,25 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {navigateToSendUsingClipboard, getQRImage} from '../../../../functions';
-import {ThemeText} from '../../../../functions/CustomElements';
-import {useGlobalContacts} from '../../../../../context-store/globalContacts';
-import {useTranslation} from 'react-i18next';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import {
+  navigateToSendUsingClipboard,
+  getQRImage,
+} from '../../../../functions';
+import { ThemeText } from '../../../../functions/CustomElements';
+import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { useTranslation } from 'react-i18next';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import Icon from '../../../../functions/CustomElements/Icon';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function HalfModalSendOptions(props) {
   const navigate = useNavigation();
-  const {theme} = useGlobalThemeContext();
-  const {bottomPadding} = useGlobalInsets();
-  const {decodedAddedContacts} = useGlobalContacts();
-  const {t} = useTranslation();
+  const { theme } = useGlobalThemeContext();
+  const { bottomPadding } = useGlobalInsets();
+  const { decodedAddedContacts } = useGlobalContacts();
+  const { t } = useTranslation();
 
   const sendOptionElements = ['img', 'clipboard', 'manual'].map((item, key) => {
     const lightIcon =
@@ -66,7 +69,8 @@ export default function HalfModalSendOptions(props) {
               sliderHight: 0.5,
             });
           }
-        }}>
+        }}
+      >
         <View style={styles.optionRow}>
           {item === 'manual' ? (
             <View
@@ -74,7 +78,8 @@ export default function HalfModalSendOptions(props) {
                 ...styles.icon,
                 alignItems: 'center',
                 justifyContent: 'center',
-              }}>
+              }}
+            >
               <Icon
                 color={theme ? COLORS.darkModeText : COLORS.lightModeText}
                 height={30}
@@ -100,13 +105,15 @@ export default function HalfModalSendOptions(props) {
     <View style={styles.containerStyles}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}>
+        showsHorizontalScrollIndicator={false}
+      >
         {sendOptionElements}
         {decodedAddedContacts.length != 0 && (
           <TouchableOpacity
             onPress={() => {
               navigate.replace('ChooseContactHalfModal');
-            }}>
+            }}
+          >
             <View style={styles.optionRow}>
               <ThemeImage
                 styles={styles.icon}
@@ -115,7 +122,7 @@ export default function HalfModalSendOptions(props) {
                 lightsOutIcon={ICONS.contactsIconLight}
               />
               <ThemeText
-                styles={{...styles.optionText}}
+                styles={{ ...styles.optionText }}
                 content={t('wallet.halfModal.contacts')}
               />
             </View>
@@ -140,7 +147,7 @@ const styles = StyleSheet.create({
     width: '90%',
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
+    paddingVertical: 10,
     ...CENTER,
   },
   optionText: {
