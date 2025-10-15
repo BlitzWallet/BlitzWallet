@@ -871,7 +871,7 @@
         "descriptionInputPlaceholder": "Descrição..."
       },
       "buttonContainer": {
-        "format": "Escolher rede",
+        "format": "Escolher outra rede",
         "infoMessage": "Quantias personalizadas não são suportadas em pagamentos Spark ou Rootstock."
       },
 
