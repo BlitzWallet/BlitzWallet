@@ -1,5 +1,10 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, SIZES, SKELETON_ANIMATION_SPEED } from '../../../../constants';
+import {
+  COLORS,
+  FONT,
+  SIZES,
+  SKELETON_ANIMATION_SPEED,
+} from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
@@ -27,6 +32,7 @@ export const UserSatAmount = memo(function UserSatAmount({
   const userBalance = sparkInformation.balance;
   const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
   const { t } = useTranslation();
+  const [layout, setlayout] = useState({ height: 45, width: 87 });
 
   // useEffect(() => {
   //   didMount.current = true;
@@ -84,9 +90,16 @@ export const UserSatAmount = memo(function UserSatAmount({
         backgroundColor={COLORS.opaicityGray}
         speed={SKELETON_ANIMATION_SPEED}
         enabled={!sparkInformation.didConnect}
+        layout={layout}
       >
-        <View style={styles.valueContainer}>
-          <FormattedSatText styles={styles.valueText} balance={userBalance} />
+        <View
+          onLayout={event => setlayout(event.nativeEvent.layout)}
+          style={styles.valueContainer}
+        >
+          <FormattedSatText
+            styles={styles.valueText}
+            balance={userBalance || 0}
+          />
         </View>
       </SkeletonTextPlaceholder>
     </TouchableOpacity>
@@ -115,5 +128,6 @@ const styles = StyleSheet.create({
   valueText: {
     fontSize: SIZES.xxLarge,
     textAlign: 'center',
+    fontFamily: FONT.Title_Regular,
   },
 });

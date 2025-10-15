@@ -223,7 +223,7 @@ export default function SendPaymentScreen(props) {
   )
     return (
       <GlobalThemeView useStandardWidth={true}>
-        {!sparkInformation.didConnect && <CustomSettingsTopBar />}
+        <CustomSettingsTopBar />
         <FullLoadingScreen text={loadingMessage} />
       </GlobalThemeView>
     );

@@ -9,8 +9,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import {Dimensions, StyleSheet, View, Text} from 'react-native';
-import {LinearGradient} from 'expo-linear-gradient';
+import { Dimensions, StyleSheet, View, Text } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -18,7 +18,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
-import {COLORS, SKELETON_ANIMATION_SPEED} from '../../constants';
+import { COLORS, FONT, SKELETON_ANIMATION_SPEED } from '../../constants';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 
@@ -30,8 +30,9 @@ const SkeletonTextPlaceholder = ({
   speed = SKELETON_ANIMATION_SPEED,
   direction = 'right',
   shimmerWidth,
+  layout,
 }) => {
-  const [layout, setLayout] = useState();
+  // const [layout, setLayout] = useState();
   const progress = useSharedValue(0);
   const isAnimationReady = Boolean(speed && layout?.width && layout?.height);
 
@@ -57,7 +58,7 @@ const SkeletonTextPlaceholder = ({
     return {
       ...StyleSheet.absoluteFillObject,
       flexDirection: 'row',
-      transform: [{translateX}],
+      transform: [{ translateX }],
     };
   });
 
@@ -74,19 +75,20 @@ const SkeletonTextPlaceholder = ({
     </View>
   );
 
-  if (!layout?.width || !layout.height) {
-    return (
-      <View onLayout={event => setLayout(event.nativeEvent.layout)}>
-        {maskElement}
-      </View>
-    );
-  }
+  // if (!layout?.width || !layout.height) {
+  //   return (
+  //     <View onLayout={event => setLayout(event.nativeEvent.layout)}>
+  //       {maskElement}
+  //     </View>
+  //   );
+  // }
 
   return (
     <MaskedView
-      style={{height: layout.height, width: layout.width}}
-      maskElement={maskElement}>
-      <View style={[StyleSheet.absoluteFill, {backgroundColor}]} />
+      style={{ height: layout.height, width: layout.width }}
+      maskElement={maskElement}
+    >
+      <View style={[StyleSheet.absoluteFill, { backgroundColor }]} />
       {isAnimationReady && highlightColor && transparentColor && (
         <Animated.View style={animatedGradientStyle}>
           <LinearGradient
@@ -102,7 +104,7 @@ const SkeletonTextPlaceholder = ({
 // Context to override text colors
 const TextColorContext = createContext();
 
-const TextColorProvider = ({children, color}) => {
+const TextColorProvider = ({ children, color }) => {
   return (
     <TextColorContext.Provider value={color}>
       {transformElementsForMask(children, color)}
@@ -117,22 +119,22 @@ const transformElementsForMask = (children, textColor) => {
 
     if (typeof child === 'string') {
       return (
-        <Text key={index} style={{color: textColor}}>
+        <Text key={index} style={{ color: textColor }}>
           {child}
         </Text>
       );
     }
 
     if (isValidElement(child)) {
-      const props = {key: index};
+      const props = { key: index };
 
       if (child.type === Text) {
         props.style = [
           child.props?.style,
-          {color: textColor, backgroundColor: 'transparent'},
+          { color: textColor, backgroundColor: 'transparent' },
         ];
       } else {
-        props.style = [child.props?.style, {backgroundColor: 'transparent'}];
+        props.style = [child.props?.style, { backgroundColor: 'transparent' }];
       }
 
       if (child.props?.children) {
@@ -148,8 +150,12 @@ const transformElementsForMask = (children, textColor) => {
             key={index}
             style={[
               child.props?.style,
-              {color: textColor, backgroundColor: 'transparent'},
-            ]}>
+              {
+                color: textColor,
+                backgroundColor: 'transparent',
+              },
+            ]}
+          >
             {child.props.content}
           </Text>
         );
@@ -163,9 +169,9 @@ const transformElementsForMask = (children, textColor) => {
 };
 
 const getGradientProps = width => ({
-  start: {x: 0, y: 0},
-  end: {x: 1, y: 0},
-  style: {...StyleSheet.absoluteFillObject, width},
+  start: { x: 0, y: 0 },
+  end: { x: 1, y: 0 },
+  style: { ...StyleSheet.absoluteFillObject, width },
 });
 
 const styles = StyleSheet.create({

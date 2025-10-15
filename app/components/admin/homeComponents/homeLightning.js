@@ -153,6 +153,7 @@ export default function HomeLightning() {
   }, [
     currentTime,
     sparkInformation.transactions,
+    sparkInformation.didConnect,
     homepageTxPreferance,
     userBalanceDenomination,
     // numberOfCachedTxs,
