@@ -164,7 +164,6 @@ export default function getFormattedHomepageTxsForSpark(props) {
     // numberOfCachedTxs,
     didGetToHomepage,
     enabledLRC20,
-    shouldUseAltLoading,
   } = props;
 
   // Remove unnecessary console.logs for performance
@@ -178,10 +177,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
   const sparkTransactionsLength = sparkTransactions?.length || 0;
 
   // Early return with loading skeleton
-  if (!sparkInformation.didConnect && !shouldUseAltLoading?.current) {
-    if (shouldUseAltLoading) {
-      shouldUseAltLoading.current = true;
-    }
+  if (!sparkInformation.didConnect) {
     return [createLoadingSkeleton(20, frompage, theme, darkModeType)];
   }
 
@@ -297,13 +293,6 @@ export default function getFormattedHomepageTxsForSpark(props) {
           styles={styles.noTransactionsText}
         />
       </View>,
-    ];
-  }
-
-  if (!sparkInformation.didConnect && shouldUseAltLoading?.current) {
-    formattedTxs = [
-      createLoadingSkeleton(2, frompage, theme, darkModeType),
-      ...formattedTxs,
     ];
   }
 

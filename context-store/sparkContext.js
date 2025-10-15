@@ -100,14 +100,15 @@ const SparkWalletProvider = ({ children }) => {
   const handledTransfers = useRef(new Set());
   const prevListenerType = useRef(null);
   const prevAppState = useRef(appState);
+  const didRunNormalConnection = useRef(false);
 
   useEffect(() => {
     if (!didGetToHomepage) return;
-    if (changeSparkConnectionState == null) return;
-    if (!changeSparkConnectionState) {
+    if (changeSparkConnectionState.state == null) return;
+    if (!changeSparkConnectionState.state) {
       setSparkInformation(prev => ({ ...prev, didConnect: false }));
     } else {
-      if (!sparkInformation.identityPubKey) {
+      if (!sparkInformation.identityPubKey && didRunNormalConnection.current) {
         initializeSparkSession({
           setSparkInformation,
           mnemonic: currentWalletMnemoinc,
@@ -850,6 +851,7 @@ const SparkWalletProvider = ({ children }) => {
 
   const connectToSparkWallet = useCallback(() => {
     requestAnimationFrame(async () => {
+      didRunNormalConnection.current = true;
       const { didWork, error } = await initWallet({
         setSparkInformation,
         // toggleGlobalContactsInformation,

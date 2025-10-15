@@ -18,6 +18,8 @@ import sha256Hash from '../app/functions/hash';
 import { verifyAndPrepareWebView } from '../app/functions/webview/bundleVerification';
 import DeviceInfo from 'react-native-device-info';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
+import { useAppStatus } from './appStatus';
+import { useActiveCustodyAccount } from './activeAccount';
 
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
@@ -76,8 +78,13 @@ export const getHandshakeComplete = () => {
 };
 
 export const WebViewProvider = ({ children }) => {
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { appState } = useAppStatus();
   const webViewRef = useRef(null);
   const [isWebViewReady, setIsWebViewReady] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const isResetting = useRef(false);
+  const queuedRequests = useRef([]);
   const pendingRequests = useRef({});
   const sessionKeyRef = useRef(null);
   const aesKeyRef = useRef(null);
@@ -86,11 +93,60 @@ export const WebViewProvider = ({ children }) => {
   const [fileHash, setFileHash] = useState('');
   const expectedSequenceRef = useRef(0);
   const nonceVerified = useRef(false);
+  const previousAppState = useRef(appState);
+  const walletInitialized = useRef(false);
+  const [changeSparkConnectionState, setChangeSparkConnectionState] = useState({
+    state: null,
+    count: 0,
+  });
+
   const messageRateLimiter = useRef({
     count: 0,
     windowStart: Date.now(),
-    maxPerSecond: 10, // Adjust based on your needs
+    maxPerSecond: 10,
   });
+
+  const resetWebViewState = useCallback((clearHandshake = false) => {
+    if (forceReactNativeUse) return;
+    console.log('Resetting WebView state', { clearHandshake });
+    isResetting.current = true;
+    setIsWebViewReady(false);
+
+    // Only clear handshake if explicitly told to (actual failures)
+    // Don't clear it for normal app lifecycle resets
+    // Our app uses this to choose wheater to make calls to the webview or react native
+    if (clearHandshake) {
+      setHandshakeComplete(false);
+    }
+
+    // Always reset walletInitialized because WebView reload clears its internal state
+    // We'll need to reinitialize the wallet after handshake completes
+    walletInitialized.current = false;
+    setChangeSparkConnectionState(prev => ({
+      state: false,
+      count: (prev.count += 1),
+    }));
+
+    pendingRequests.current = {};
+    sessionKeyRef.current = null;
+    expectedSequenceRef.current = 0;
+    aesKeyRef.current = null;
+    nonceVerified.current = false;
+  }, []);
+
+  // Handle app state changes
+  useEffect(() => {
+    if (previousAppState.current !== appState) {
+      if (previousAppState.current === 'background' && appState === 'active') {
+        console.log('App returned to foreground - reloading WebView');
+
+        // Reset state but DON'T clear handshakeComplete flag
+        resetWebViewState(false);
+        setReloadKey(prev => prev + 1);
+      }
+      previousAppState.current = appState;
+    }
+  }, [appState, resetWebViewState]);
 
   const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
@@ -119,154 +175,243 @@ export const WebViewProvider = ({ children }) => {
     return decrypted;
   }, []);
 
-  const handleWebViewResponse = useCallback(event => {
-    try {
-      const now = Date.now();
-      const windowDuration = now - messageRateLimiter.current.windowStart;
-      if (windowDuration > 1000) {
-        // Reset window
-        messageRateLimiter.current.count = 0;
-        messageRateLimiter.current.windowStart = now;
-      }
-      messageRateLimiter.current.count++;
+  const handleWebViewResponse = useCallback(
+    event => {
+      try {
+        const now = Date.now();
+        const windowDuration = now - messageRateLimiter.current.windowStart;
+        if (windowDuration > 1000) {
+          // Reset window
+          messageRateLimiter.current.count = 0;
+          messageRateLimiter.current.windowStart = now;
+        }
+        messageRateLimiter.current.count++;
 
-      if (
-        messageRateLimiter.current.count >
-        messageRateLimiter.current.maxPerSecond
-      ) {
-        console.error(
-          `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
-        );
-
-        setIsWebViewReady(false);
-        setHandshakeComplete(false);
-        aesKeyRef.current = null;
-        sessionKeyRef.current = null;
-        nonceVerified.current = false;
-        forceReactNativeUse = true; //set to false so that it uses react-native
-        return;
-      }
-
-      const message = JSON.parse(event.nativeEvent.data);
-
-      if (message.type === 'handshake:reply' && message.pubW) {
-        if (handshakeComplete) {
+        if (
+          messageRateLimiter.current.count >
+          messageRateLimiter.current.maxPerSecond
+        ) {
           console.error(
-            'SECURITY: Unexpected handshake reply, already complete',
+            `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
           );
+
+          setIsWebViewReady(false);
+          setHandshakeComplete(false);
+          aesKeyRef.current = null;
+          sessionKeyRef.current = null;
+          nonceVerified.current = false;
+          forceReactNativeUse = true;
           return;
         }
 
-        if (!sessionKeyRef.current) {
-          console.error(
-            'SECURITY: Received handshake reply without active session key',
-          );
-          return;
-        }
+        const message = JSON.parse(event.nativeEvent.data);
 
-        const shared = getSharedSecret(
-          Buffer.from(sessionKeyRef.current.privateKey).toString('hex'),
-          Buffer.from(message.pubW, 'hex'),
-          true,
-        );
-        const sharedX = shared.slice(1, 33);
-        aesKeyRef.current = deriveAesKeyFromSharedX(
-          sharedX,
-          expectedNonceRef.current,
-        );
-
-        shared.fill(0);
-        sharedX.fill(0);
-
-        if (sessionKeyRef.current?.privateKey) {
-          sessionKeyRef.current.privateKey.fill(0);
-        }
-        sessionKeyRef.current = null;
-
-        const decodedNonce = decryptMessage(message.runtimeNonce);
-        if (expectedNonceRef.current !== decodedNonce) {
-          console.log('Invalid runtime nonce, something went wrong');
-          return;
-        }
-        nonceVerified.current = true;
-        console.log('Handshake complete. Got backend public key.');
-        setHandshakeComplete(true);
-        return;
-      }
-
-      let content = message;
-
-      if (message.encrypted && aesKeyRef.current) {
-        const decrypted = decryptMessage(message.encrypted);
-
-        try {
-          content = JSON.parse(decrypted);
-        } catch (err) {
-          content = decrypted;
-        }
-      }
-      console.log('receiving message from webview', content);
-
-      if (content.type === 'security:csp-violation') {
-        console.error('CSP VIOLATION DETECTED:', content);
-
-        // Shut down WebView immediately
-        setIsWebViewReady(false);
-        setHandshakeComplete(false);
-        aesKeyRef.current = null;
-        sessionKeyRef.current = null;
-        nonceVerified.current = false;
-        forceReactNativeUse = true; //set to false so that it uses react-native
-        return;
-      }
-
-      if (content.error) throw new Error(content.error);
-
-      if (content.incomingPayment) {
-        const data = JSON.parse(content.result);
-        incomingSparkTransaction.emit(
-          INCOMING_SPARK_TX_NAME,
-          data.transferId,
-          data.balance,
-        );
-      }
-      if (content.isResponse && content.id) {
-        const resolve = pendingRequests.current[content.id];
-        if (resolve) {
-          const result = JSON.parse(content.result || null);
-          if (
-            result?.error &&
-            WASM_ERRORS.some(errMsg => result.error.includes(errMsg))
-          ) {
-            console.warn(
-              'WASM failed, switching to React Native implementation:',
-              result.error,
-            );
-
-            setIsWebViewReady(false);
-            setHandshakeComplete(false);
-            aesKeyRef.current = null;
-            sessionKeyRef.current = null;
-            nonceVerified.current = false;
+        if (message.type === 'handshake:reply' && message.pubW) {
+          if (!sessionKeyRef.current) {
             forceReactNativeUse = true;
-            setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
+            console.error(
+              'SECURITY: Received handshake reply without active session key',
+            );
+            return;
           }
-          resolve(result);
 
-          delete pendingRequests.current[content.id];
+          const shared = getSharedSecret(
+            Buffer.from(sessionKeyRef.current.privateKey).toString('hex'),
+            Buffer.from(message.pubW, 'hex'),
+            true,
+          );
+          const sharedX = shared.slice(1, 33);
+          aesKeyRef.current = deriveAesKeyFromSharedX(
+            sharedX,
+            expectedNonceRef.current,
+          );
+
+          shared.fill(0);
+          sharedX.fill(0);
+
+          if (sessionKeyRef.current?.privateKey) {
+            sessionKeyRef.current.privateKey.fill(0);
+          }
+          sessionKeyRef.current = null;
+
+          const decodedNonce = decryptMessage(message.runtimeNonce);
+          if (expectedNonceRef.current !== decodedNonce) {
+            console.log('Invalid runtime nonce, something went wrong');
+            return;
+          }
+          nonceVerified.current = true;
+          console.log('Handshake complete. Got backend public key.');
+          setHandshakeComplete(true);
+          // resolve requset to avoid timeout
+          const resolve = pendingRequests.current[message.id];
+          resolve({ didComplete: true });
+          delete pendingRequests.current[message.id];
+          // Process any queued requests after handshake completes
+          setTimeout(() => {
+            processQueuedRequests();
+          }, 100);
+          return;
         }
+
+        let content = message;
+
+        if (message.encrypted && aesKeyRef.current) {
+          const decrypted = decryptMessage(message.encrypted);
+
+          try {
+            content = JSON.parse(decrypted);
+          } catch (err) {
+            content = decrypted;
+          }
+        }
+        console.log('receiving message from webview', content);
+
+        if (content.type === 'security:csp-violation') {
+          console.error('CSP VIOLATION DETECTED:', content);
+
+          // Shut down WebView immediately
+          setIsWebViewReady(false);
+          setHandshakeComplete(false);
+          aesKeyRef.current = null;
+          sessionKeyRef.current = null;
+          nonceVerified.current = false;
+          forceReactNativeUse = true;
+          return;
+        }
+
+        if (content.error) throw new Error(content.error);
+
+        if (content.incomingPayment) {
+          const data = JSON.parse(content.result);
+          incomingSparkTransaction.emit(
+            INCOMING_SPARK_TX_NAME,
+            data.transferId,
+            data.balance,
+          );
+        }
+        if (content.isResponse && content.id) {
+          const resolve = pendingRequests.current[content.id];
+          if (resolve) {
+            const result = JSON.parse(content.result || null);
+            // Check for WASM errors
+            if (
+              result?.error &&
+              WASM_ERRORS.some(errMsg => result.error.includes(errMsg))
+            ) {
+              console.warn(
+                'WASM failed, switching to React Native implementation:',
+                result.error,
+              );
+
+              setIsWebViewReady(false);
+              setHandshakeComplete(false);
+              aesKeyRef.current = null;
+              sessionKeyRef.current = null;
+              nonceVerified.current = false;
+              forceReactNativeUse = true;
+              setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
+            }
+            resolve(result);
+
+            delete pendingRequests.current[content.id];
+          }
+        }
+      } catch (err) {
+        console.error('Error handling WebView message:', err);
       }
-    } catch (err) {
-      console.error('Error handling WebView message:', err);
+    },
+    [decryptMessage, resetWebViewState, currentWalletMnemoinc],
+  );
+
+  const processQueuedRequests = useCallback(async () => {
+    // After a soft reset, the WebView's internal state is cleared
+    // We must reinitialize the wallet before processing any queued requests
+    if (
+      handshakeComplete &&
+      !walletInitialized.current &&
+      currentWalletMnemoinc
+    ) {
+      console.log('Re-initializing wallet before processing queue');
+      try {
+        const response = await sendWebViewRequestGlobal(
+          'initializeSparkWallet',
+          { mnemonic: currentWalletMnemoinc },
+        );
+        if (!response?.isConnected) throw new Error('Wallet init failed');
+      } catch (err) {
+        console.log('Error re-initializing wallet:', err);
+        forceReactNativeUse = true;
+        // Reject all queued requests since WebView is now unusable
+        queuedRequests.current.forEach(({ reject }) => {
+          reject({
+            error: 'Wallet initialization failed, using React Native',
+          });
+        });
+        queuedRequests.current = [];
+        return;
+      }
     }
-  }, []);
+    isResetting.current = false;
+    if (queuedRequests.current.length === 0) return;
+
+    console.log(`Processing ${queuedRequests.current.length} queued requests`);
+    const requests = [...queuedRequests.current];
+    queuedRequests.current = [];
+    requests.forEach(({ action, args, encrypt, resolve, reject }) => {
+      sendWebViewRequestInternal(action, args, encrypt)
+        .then(resolve)
+        .catch(reject);
+    });
+  }, [currentWalletMnemoinc, sendWebViewRequestInternal]);
 
   const sendWebViewRequestInternal = useCallback(
     async (action, args = {}, encrypt = true) => {
       return new Promise(async (resolve, reject) => {
         try {
-          if (!webViewRef.current || !isWebViewReady)
-            return reject(new Error('WebView not ready'));
+          // If forceReactNativeUse is set, reject immediately
+          if (forceReactNativeUse === true) {
+            console.log(
+              'Forced React Native mode, rejecting WebView request:',
+              action,
+            );
+            return resolve({
+              error: 'Wallet initialization failed, using React Native(1)',
+            });
+          }
+
+          // Queue messages during reset
+          if (
+            isResetting.current &&
+            action !== 'handshake:init' &&
+            action !== 'initializeSparkWallet'
+          ) {
+            console.log('WebView is resetting, queueing message:', action);
+            queuedRequests.current.push({
+              action,
+              args,
+              encrypt,
+              resolve,
+              reject,
+            });
+            return;
+          }
+
+          if (!webViewRef.current || !isWebViewReady) {
+            console.log(
+              'WebView not ready, queueing message:',
+              action,
+              webViewRef.current,
+              isWebViewReady,
+            );
+            queuedRequests.current.push({
+              action,
+              args,
+              encrypt,
+              resolve,
+              reject,
+            });
+            return;
+          }
 
           const id = customUUID();
           const sequence = expectedSequenceRef.current++;
@@ -277,12 +422,82 @@ export const WebViewProvider = ({ children }) => {
             args.mnemonic = sha256Hash(args.mnemonic);
           }
 
+          // Handle initializeSparkWallet specially
           if (action === 'initializeSparkWallet') {
             if (!getHandshakeComplete()) {
+              console.log('Handshake not complete, cannot initialize wallet');
+              forceReactNativeUse = true;
+              setChangeSparkConnectionState(prev => ({
+                state: true,
+                count: (prev.count += 1),
+              }));
               return resolve({ isConnected: false });
             }
             if (!nonceVerified.current) {
+              console.log('Nonce not verified, cannot initialize wallet');
+              forceReactNativeUse = true;
+              setChangeSparkConnectionState(prev => ({
+                state: true,
+                count: (prev.count += 1),
+              }));
               return resolve({ isConnected: false });
+            }
+
+            // Wrap the resolve to check initialization result
+            const originalResolve = resolve;
+            pendingRequests.current[id] = result => {
+              if (result?.error || result?.isConnected === false) {
+                console.warn(
+                  'Wallet initialization failed, forcing React Native mode:',
+                  result,
+                );
+
+                forceReactNativeUse = true;
+                setChangeSparkConnectionState(prev => ({
+                  state: true,
+                  count: (prev.count += 1),
+                }));
+                walletInitialized.current = false;
+
+                // Reject all pending requests since WebView is now unusable
+                Object.entries(pendingRequests.current).forEach(
+                  ([reqId, reqResolve]) => {
+                    if (reqId !== id && typeof reqResolve === 'function') {
+                      reqResolve({
+                        error:
+                          'Wallet initialization failed, using React Native(2)',
+                      });
+                    }
+                  },
+                );
+                pendingRequests.current = {};
+              } else {
+                walletInitialized.current = true;
+                setChangeSparkConnectionState(prev => ({
+                  state: true,
+                  count: (prev.count += 1),
+                }));
+                console.log('Wallet initialized successfully');
+              }
+              originalResolve(result);
+            };
+          } else if (action === 'handshake:init') {
+            pendingRequests.current[id] = resolve;
+          } else {
+            // For non-init actions, check if wallet was initialized
+            if (handshakeComplete && !walletInitialized.current) {
+              console.warn(
+                'Wallet not initialized, forcing React Native for action:',
+                action,
+              );
+              forceReactNativeUse = true;
+              setChangeSparkConnectionState(prev => ({
+                state: true,
+                count: (prev.count += 1),
+              }));
+              return resolve({
+                error: 'Wallet initialization failed, using React Native(3)',
+              });
             }
           }
 
@@ -302,20 +517,43 @@ export const WebViewProvider = ({ children }) => {
         }
       });
     },
-    [isWebViewReady, webViewRef, aesKeyRef],
+    [isWebViewReady, encryptMessage],
   );
 
-  const initHandshake = useCallback(() => {
-    const privN = randomBytes(32);
-    const pubN = getPublicKey(privN, true); // compressed
-    const pubNHex = Buffer.from(pubN).toString('hex');
+  const initHandshake = useCallback(async () => {
+    try {
+      const privN = randomBytes(32);
+      const pubN = getPublicKey(privN, true); // compressed
+      const pubNHex = Buffer.from(pubN).toString('hex');
 
-    sessionKeyRef.current = {
-      privateKey: privN,
-      publicKey: Buffer.from(pubN).toString('hex'),
-    };
+      sessionKeyRef.current = {
+        privateKey: privN,
+        publicKey: pubNHex,
+      };
 
-    sendWebViewRequestInternal('handshake:init', { pubN: pubNHex });
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Handshake timeout')), 2000),
+      );
+
+      // Race handshake vs timeout
+      await Promise.race([
+        sendWebViewRequestInternal('handshake:init', { pubN: pubNHex }),
+        timeoutPromise,
+      ]);
+    } catch (error) {
+      console.warn('Handshake failed or timed out:', error.message);
+      setChangeSparkConnectionState(prev => ({
+        state: true,
+        count: (prev.count += 1),
+      }));
+      forceReactNativeUse = true;
+      queuedRequests.current.forEach(({ reject }) => {
+        reject({
+          error: 'Failed to process method, try again',
+        });
+      });
+    }
   }, [sendWebViewRequestInternal]);
 
   useEffect(() => {
@@ -326,6 +564,7 @@ export const WebViewProvider = ({ children }) => {
       const androidAPI = DeviceInfo.getApiLevelSync();
       if (androidAPI == 33 || androidAPI == 34) {
         console.warn(`Skipping handshake on Android API ${androidAPI}`);
+        forceReactNativeUse = true;
         return;
       }
 
@@ -333,15 +572,15 @@ export const WebViewProvider = ({ children }) => {
 
       if (savedVariable === 'true') {
         console.log('FORCE_REACT_NATIVE is set, skipping handshake');
+        forceReactNativeUse = true;
         return;
       }
       initHandshake();
     }
-    // startHandshake();
-  }, [isWebViewReady, verifiedPath]);
+    startHandshake();
+  }, [isWebViewReady, verifiedPath, initHandshake]);
 
   useEffect(() => {
-    return;
     (async () => {
       try {
         const { htmlPath, nonceHex, hashHex } = await verifyAndPrepareWebView(
@@ -372,10 +611,12 @@ export const WebViewProvider = ({ children }) => {
         webViewRef,
         sendWebViewRequest: sendWebViewRequestInternal,
         fileHash,
+        changeSparkConnectionState,
       }}
     >
       {children}
-      {/* <WebView
+      <WebView
+        key={reloadKey}
         domStorageEnabled={false}
         allowFileAccess={true}
         allowFileAccessFromFileURLs={false}
@@ -391,11 +632,13 @@ export const WebViewProvider = ({ children }) => {
         source={{ uri: verifiedPath }}
         originWhitelist={['file://']}
         onShouldStartLoadWithRequest={request => {
-          // Only allow your verified local file
           return request.url === verifiedPath;
         }}
         onMessage={handleWebViewResponse}
-        onLoadEnd={() => setIsWebViewReady(true)}
+        onLoadEnd={() => {
+          setIsWebViewReady(true);
+          console.log('WebView loaded and ready');
+        }}
         onContentProcessDidTerminate={() => {
           console.warn('WebView content process terminated — reloading...');
           Object.values(pendingRequests.current).forEach(resolve => {
@@ -403,15 +646,10 @@ export const WebViewProvider = ({ children }) => {
               resolve(new Error('WebView terminated unexpectedly'));
             }
           });
-          setIsWebViewReady(false);
-          setHandshakeComplete(false);
-          pendingRequests.current = {};
-          sessionKeyRef.current = null;
-          expectedSequenceRef.current = 0;
-          aesKeyRef.current = null;
-          webViewRef.current?.reload();
+          resetWebViewState(false);
+          setReloadKey(prev => prev + 1);
         }}
-      /> */}
+      />
     </WebViewContext.Provider>
   );
 };

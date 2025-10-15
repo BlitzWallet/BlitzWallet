@@ -113,15 +113,15 @@ function App(): JSX.Element {
         <InsetsProvider>
           <KeyboardProvider>
             <ToastProvider>
-              <WebViewProvider>
+              <AppStatusProvider>
                 <KeysContextProvider>
                   <GlobalContactsList>
                     <GlobalContextProvider>
                       <ActiveCustodyAccountProvider>
-                        <AppStatusProvider>
-                          <GlobalThemeProvider>
-                            {/* <GlobaleCashVariables> */}
-                            <GLobalNodeContextProider>
+                        <GlobalThemeProvider>
+                          {/* <GlobaleCashVariables> */}
+                          <GLobalNodeContextProider>
+                            <WebViewProvider>
                               <SparkWalletProvider>
                                 {/* <GlobalConbinedTxContextProvider> */}
                                 <GlobalAppDataProvider>
@@ -151,15 +151,15 @@ function App(): JSX.Element {
                                 {/* <BreezTest /> */}
                                 {/* </GlobalConbinedTxContextProvider> */}
                               </SparkWalletProvider>
-                            </GLobalNodeContextProider>
-                            {/* </GlobaleCashVariables> */}
-                          </GlobalThemeProvider>
-                        </AppStatusProvider>
+                            </WebViewProvider>
+                          </GLobalNodeContextProider>
+                          {/* </GlobaleCashVariables> */}
+                        </GlobalThemeProvider>
                       </ActiveCustodyAccountProvider>
                     </GlobalContextProvider>
                   </GlobalContactsList>
                 </KeysContextProvider>
-              </WebViewProvider>
+              </AppStatusProvider>
             </ToastProvider>
           </KeyboardProvider>
         </InsetsProvider>

@@ -49,7 +49,7 @@ export async function initWallet({
   }
 }
 
-async function initializeSparkSession({
+export async function initializeSparkSession({
   setSparkInformation,
   // globalContactsInformation,
   // toggleGlobalContactsInformation,

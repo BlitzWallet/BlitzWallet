@@ -47,7 +47,6 @@ export default function HomeLightning() {
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet, didGetToHomepage, toggleDidGetToHomepage } =
     useAppStatus();
-  const shouldUseAltLoading = useRef(false);
   const { topPadding, bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
   const currentTime = useUpdateHomepageTransactions();
@@ -149,7 +148,6 @@ export default function HomeLightning() {
         // numberOfCachedTxs,
         didGetToHomepage,
         enabledLRC20,
-        shouldUseAltLoading,
       }) || []
     );
   }, [
