@@ -214,6 +214,10 @@ export const WebViewProvider = ({ children }) => {
           sessionKeyRef.current = null;
           nonceVerified.current = false;
           forceReactNativeUse = true;
+          setChangeSparkConnectionState(prev => ({
+            state: true,
+            count: (prev.count += 1),
+          }));
           return;
         }
 
@@ -221,7 +225,7 @@ export const WebViewProvider = ({ children }) => {
 
         if (message.type === 'handshake:reply' && message.pubW) {
           if (!sessionKeyRef.current) {
-            forceReactNativeUse = true;
+            // no need to handle anything here, will be handled with timeout
             console.error(
               'SECURITY: Received handshake reply without active session key',
             );
@@ -249,6 +253,7 @@ export const WebViewProvider = ({ children }) => {
 
           const decodedNonce = decryptMessage(message.runtimeNonce);
           if (expectedNonceRef.current !== decodedNonce) {
+            // no need to handle anything here, will be handled with timeout
             console.log('Invalid runtime nonce, something went wrong');
             return;
           }
@@ -289,6 +294,10 @@ export const WebViewProvider = ({ children }) => {
           sessionKeyRef.current = null;
           nonceVerified.current = false;
           forceReactNativeUse = true;
+          setChangeSparkConnectionState(prev => ({
+            state: true,
+            count: (prev.count += 1),
+          }));
           return;
         }
 
@@ -322,6 +331,10 @@ export const WebViewProvider = ({ children }) => {
               sessionKeyRef.current = null;
               nonceVerified.current = false;
               forceReactNativeUse = true;
+              setChangeSparkConnectionState(prev => ({
+                state: true,
+                count: (prev.count += 1),
+              }));
               setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
             }
             resolve(result);
@@ -556,11 +569,11 @@ export const WebViewProvider = ({ children }) => {
       ]);
     } catch (error) {
       console.warn('Handshake failed or timed out:', error.message);
+      forceReactNativeUse = true;
       setChangeSparkConnectionState(prev => ({
         state: true,
         count: (prev.count += 1),
       }));
-      forceReactNativeUse = true;
       queuedRequests.current.forEach(({ reject }) => {
         reject({
           error: 'Failed to process method, try again',
