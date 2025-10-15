@@ -1140,7 +1140,7 @@
     "fastPay": {
       "text1": "Erro ao inserir o valor, tente novamente.",
       "text2": "A quantia não pode ser 0",
-      "text3": "Habilitar pagamentos rápidos",
+      "text3": "Pagamentos rápidos",
       "text4": "Limite máximo (SAT)",
       "text5": "A função pagamento rápido permite que você pague instantaneamente faturas abaixo de um limite especificado, sem precisar confirmar o pagamento."
     },
