@@ -89,8 +89,8 @@
     "active": "Ativar",
     "create": "Criar",
     "experimentalLower": "experimental",
-    "enabled": "Habilitado",
-    "disabled": "Desabilitado",
+    "enabled": "Habilitadas",
+    "disabled": "Desabilitadas",
     "unlimited": "Ilimitado",
     "custom...": "Personalizado...",
     "enable": "Habilitar",
@@ -171,8 +171,8 @@
     "requestSent": "Você solicitou",
     "requestPaid": "Solicitação paga",
     "paidRequest": "Solicitação paga",
-    "sent": "Enviada",
-    "received": "Recebida",
+    "sent": "Você enviou",
+    "received": "Você recebeu",
     "paidLower": "pago",
     "declinedLower": "recusada",
     "receivedRequest": "Solicitação recebida",
@@ -1032,7 +1032,7 @@
 
     "sendAndRequestPage": {
       "descriptionPlaceholder": "Descrição do pagamento",
-      "profileMessage": "Pagando {{name}}",
+      "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
       "giftCardappVersionError": "Você não pode enviar um vale-presente para este contato. Eles não atualizaram para a versão mais recente da carteira Blitz.",
       "giftCardDescription": "Você enviou {{name}} um {{giftCardName}} Cartão Presente",
@@ -1145,7 +1145,7 @@
       "text5": "A função pagamento rápido permite que você pague instantaneamente faturas abaixo de um limite especificado, sem precisar confirmar o pagamento."
     },
     "loginSecurity": {
-      "text1": "Habilitar segurança de acesso",
+      "text1": "Segurança de acesso",
       "text2": "Tipo de segurança",
       "text3": "Pin",
       "text4": "Biometria",
@@ -1239,7 +1239,7 @@
       "swap": "Trocar"
     },
     "notifications": {
-      "mainToggle": "{{state}} notificações",
+      "mainToggle": "Notificações {{state}}",
       "mainToggleDesc": "As notificações permitem que você fique informado sobre eventos e atualizações importantes que acontecem no aplicativo.",
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
