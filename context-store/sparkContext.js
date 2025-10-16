@@ -75,6 +75,7 @@ const SparkWalletProvider = ({ children }) => {
     useGlobalContacts();
   const prevAccountMnemoincRef = useRef(null);
   const [sparkConnectionError, setSparkConnectionError] = useState(null);
+  const isRunningAddListeners = useRef(false);
   const [sparkInformation, setSparkInformation] = useState({
     balance: 0,
     tokens: {},
@@ -98,35 +99,60 @@ const SparkWalletProvider = ({ children }) => {
   const handledTransfers = useRef(new Set());
   const prevListenerType = useRef(null);
   const prevAppState = useRef(appState);
-  const didRunNormalConnection = useRef(false);
+
+  const [didRunNormalConnection, setDidRunNormalConnection] = useState(false);
+  const [normalConnectionTimeout, setNormalConnectionTimeout] = useState(false);
+  const shouldRunNormalConnection =
+    didRunNormalConnection || normalConnectionTimeout;
+  const currentMnemonicRef = useRef(currentWalletMnemoinc);
+
+  useEffect(() => {
+    sparkInfoRef.current = sparkInformation;
+  }, [sparkInformation]);
 
   useEffect(() => {
     if (!didGetToHomepage) return;
-    if (changeSparkConnectionState.state == null) return;
-    if (!changeSparkConnectionState.state) {
-      setSparkInformation(prev => ({ ...prev, didConnect: false }));
-    } else {
-      if (!sparkInformation.identityPubKey && didRunNormalConnection.current) {
-        initializeSparkSession({
-          setSparkInformation,
-          mnemonic: currentWalletMnemoinc,
-        });
+    const timer = setTimeout(() => {
+      setNormalConnectionTimeout(true);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [didGetToHomepage]);
+
+  useEffect(() => {
+    async function handleWalletStateChange() {
+      if (!didGetToHomepage) return;
+      if (changeSparkConnectionState.state == null) return;
+      if (!changeSparkConnectionState.state) {
+        setSparkInformation(prev => ({ ...prev, didConnect: false }));
       } else {
-        setSparkInformation(prev => ({
-          ...prev,
-          didConnect: !!prev.identityPubKey,
-        }));
+        if (!sparkInfoRef.current.identityPubKey && shouldRunNormalConnection) {
+          initializeSparkSession({
+            setSparkInformation,
+            mnemonic: currentMnemonicRef.current,
+          });
+        } else {
+          setSparkInformation(prev => ({
+            ...prev,
+            didConnect: !!prev.identityPubKey,
+          }));
+        }
+        const runtime = await selectSparkRuntime(currentMnemonicRef.current);
+        if (runtime === 'native') {
+          await addListeners('full');
+        }
       }
     }
-  }, [changeSparkConnectionState, didGetToHomepage]);
+    handleWalletStateChange();
+  }, [changeSparkConnectionState, didGetToHomepage, shouldRunNormalConnection]);
 
   const sessionTime = useMemo(() => {
     return Date.now();
   }, [currentWalletMnemoinc]);
 
   useEffect(() => {
-    sparkInfoRef.current = sparkInformation;
-  }, [sparkInformation]);
+    currentMnemonicRef.current = currentWalletMnemoinc;
+  }, [currentWalletMnemoinc]);
 
   useEffect(() => {
     sessionTimeRef.current = sessionTime;
@@ -447,23 +473,20 @@ const SparkWalletProvider = ({ children }) => {
   useEffect(() => {
     // setup listener for webview once
     console.log('adding web view listeners');
-    console.log(
-      'number of current listeners',
-      incomingSparkTransaction.listenerCount(INCOMING_SPARK_TX_NAME),
-    );
     if (incomingSparkTransaction.listenerCount(INCOMING_SPARK_TX_NAME)) {
       incomingSparkTransaction.removeAllListeners(INCOMING_SPARK_TX_NAME);
     }
-    console.log(
-      'number of current listeners after clearnig',
-      incomingSparkTransaction.listenerCount(INCOMING_SPARK_TX_NAME),
-    );
+
     incomingSparkTransaction.on(INCOMING_SPARK_TX_NAME, transferHandler);
-  }, [sendWebViewRequest, currentWalletMnemoinc]);
+  }, []);
 
   const addListeners = async mode => {
     console.log('Adding Spark listeners...');
     if (AppState.currentState !== 'active') return;
+    if (isRunningAddListeners.current) return;
+
+    const walletHash = sha256Hash(currentWalletMnemoinc);
+    isRunningAddListeners.current = true;
     const runtime = await selectSparkRuntime(currentWalletMnemoinc);
 
     sparkTransactionsEventEmitter.removeAllListeners(
@@ -473,10 +496,9 @@ const SparkWalletProvider = ({ children }) => {
 
     if (mode === 'full') {
       if (runtime === 'native') {
-        sparkWallet[sha256Hash(currentWalletMnemoinc)]?.on(
-          'transfer:claimed',
-          transferHandler,
-        );
+        if (!sparkWallet[walletHash]?.listenerCount('transfer:claimed')) {
+          sparkWallet[walletHash]?.on('transfer:claimed', transferHandler);
+        }
       } else {
         sendWebViewRequest('addWalletEventListener', {
           mnemonic: currentWalletMnemoinc,
@@ -528,6 +550,7 @@ const SparkWalletProvider = ({ children }) => {
         }
       }, 10 * 1000);
     }
+    isRunningAddListeners.current = false;
   };
 
   const removeListeners = async () => {
@@ -849,7 +872,6 @@ const SparkWalletProvider = ({ children }) => {
 
   const connectToSparkWallet = useCallback(() => {
     requestAnimationFrame(async () => {
-      didRunNormalConnection.current = true;
       const { didWork, error } = await initWallet({
         setSparkInformation,
         // toggleGlobalContactsInformation,
@@ -857,6 +879,7 @@ const SparkWalletProvider = ({ children }) => {
         mnemonic: accountMnemoinc,
         sendWebViewRequest,
       });
+      setDidRunNormalConnection(true);
       if (!didWork) {
         setSparkInformation(prev => ({ ...prev, didConnect: false }));
         setSparkConnectionError(error);
