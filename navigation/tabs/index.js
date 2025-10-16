@@ -61,8 +61,8 @@ function MyTabBar({ state, descriptors, navigation }) {
           {
             backgroundColor:
               masterInfoObject.lrc20Settings.isEnabled && state.index === 1
-                ? backgroundColor + 'F7'
-                : backgroundOffset + 'F7',
+                ? backgroundColor
+                : backgroundOffset,
             // opacity: 0.9,
           },
         ]}

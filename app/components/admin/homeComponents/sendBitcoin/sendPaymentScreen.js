@@ -187,7 +187,7 @@ export default function SendPaymentScreen(props) {
   }, [sparkInformation.didConnect]);
 
   useEffect(() => {
-    if (!!sparkInformation.didConnect) return;
+    if (!sparkInformation.didConnect) return;
     if (!Object.keys(paymentInfo).length) return;
     if (!masterInfoObject[QUICK_PAY_STORAGE_KEY].isFastPayEnabled) return;
     if (!canSendPayment) return;

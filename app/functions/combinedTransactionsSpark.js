@@ -17,6 +17,7 @@ import { crashlyticsLogReport } from './crashlyticsLogs';
 import SkeletonPlaceholder from './CustomElements/skeletonView';
 import formatTokensNumber from './lrc20/formatTokensBalance';
 import { Image } from 'expo-image';
+import { getTimeDisplay } from './contacts';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -443,30 +444,6 @@ export const UserTransaction = memo(function UserTransaction({
     t,
   ]);
 
-  // Pre-calculate time display
-  const timeDisplayContent = useMemo(() => {
-    const { minutes, hours, days, years } = timeDifference;
-
-    if (minutes <= 1) return 'Just now';
-
-    let value, unit;
-    if (minutes <= 60) {
-      value = Math.round(minutes);
-      unit = t('constants.minute') + (value === 1 ? '' : 's');
-    } else if (hours <= 24) {
-      value = Math.round(hours);
-      unit = t('constants.hour') + (value === 1 ? '' : 's');
-    } else if (days <= 365) {
-      value = Math.round(days);
-      unit = t('constants.day') + (value === 1 ? '' : 's');
-    } else {
-      value = Math.round(years);
-      unit = value === 1 ? 'year' : 'years';
-    }
-
-    return `${value} ${unit} ${t('transactionLabelText.ago')}`;
-  }, [timeDifference, t]);
-
   return (
     <TouchableOpacity
       style={{
@@ -502,7 +479,12 @@ export const UserTransaction = memo(function UserTransaction({
         <ThemeText
           CustomNumberOfLines={1}
           styles={dateTextStyle}
-          content={timeDisplayContent}
+          content={getTimeDisplay(
+            timeDifference.minutes,
+            timeDifference.hours,
+            timeDifference.days,
+            timeDifference.years,
+          )}
         />
       </View>
       {!isFailedPayment && (
