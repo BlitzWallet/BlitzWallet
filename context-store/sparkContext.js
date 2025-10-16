@@ -106,9 +106,21 @@ const SparkWalletProvider = ({ children }) => {
     didRunNormalConnection || normalConnectionTimeout;
   const currentMnemonicRef = useRef(currentWalletMnemoinc);
 
+  const sessionTime = useMemo(() => {
+    return Date.now();
+  }, [currentWalletMnemoinc]);
+
   useEffect(() => {
     sparkInfoRef.current = sparkInformation;
   }, [sparkInformation]);
+
+  useEffect(() => {
+    currentMnemonicRef.current = currentWalletMnemoinc;
+  }, [currentWalletMnemoinc]);
+
+  useEffect(() => {
+    sessionTimeRef.current = sessionTime;
+  }, [sessionTime]);
 
   useEffect(() => {
     if (!didGetToHomepage) return;
@@ -145,18 +157,6 @@ const SparkWalletProvider = ({ children }) => {
     }
     handleWalletStateChange();
   }, [changeSparkConnectionState, didGetToHomepage, shouldRunNormalConnection]);
-
-  const sessionTime = useMemo(() => {
-    return Date.now();
-  }, [currentWalletMnemoinc]);
-
-  useEffect(() => {
-    currentMnemonicRef.current = currentWalletMnemoinc;
-  }, [currentWalletMnemoinc]);
-
-  useEffect(() => {
-    sessionTimeRef.current = sessionTime;
-  }, [sessionTime]);
 
   // Debounce refs
   const debounceTimeoutRef = useRef(null);
