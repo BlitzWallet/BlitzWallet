@@ -264,7 +264,7 @@
       "SMSDescription": "Envie e receba mensagens SMS para todo o mundo usando Bitcoin",
       "VPN": "VPN",
       "VPNDescription": "Navegue com segurança e proteja a sua privacidade",
-      "onlineListings": "Lojas",
+      "onlineListings": "Lojas virtuais",
       "onlineListingsDescription": "Diretório de empresas on-line que aceitam pagamentos em Bitcoin",
       "Soon": "Em breve",
       "SoonDescription": "Mais aplicativos em breve"
@@ -818,7 +818,7 @@
       "charity": "Caridade",
       "sustainability": "Sustentabilidade",
       "selectCategoryPlaceholder": "Selecionar categoria",
-      "topBarLabel": "Lojas",
+      "topBarLabel": "Lojas virtuais",
       "loadingShopMessage": "Carregando",
       "inputPlaceHolder": "Procurar lojas...",
       "noBuisMessage": "Não conseguimos encontrar nada que corresponda à sua pesquisa.",
