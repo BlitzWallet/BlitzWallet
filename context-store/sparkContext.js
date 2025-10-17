@@ -54,6 +54,8 @@ import i18n from 'i18next';
 import {
   INCOMING_SPARK_TX_NAME,
   incomingSparkTransaction,
+  OPERATION_TYPES,
+  sendWebViewRequestGlobal,
   useWebView,
 } from './webViewContext';
 
@@ -504,7 +506,7 @@ const SparkWalletProvider = ({ children }) => {
           sparkWallet[walletHash]?.on('transfer:claimed', transferHandler);
         }
       } else {
-        sendWebViewRequest('addWalletEventListener', {
+        sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, {
           mnemonic: currentMnemonicRef.current,
         });
       }
@@ -574,7 +576,7 @@ const SparkWalletProvider = ({ children }) => {
         sparkWallet[hashedMnemoinc]?.removeAllListeners('transfer:claimed');
       }
     } else {
-      sendWebViewRequest('removeWalletEventListener', {
+      sendWebViewRequestGlobal(OPERATION_TYPES.removeListeners, {
         mnemonic: prevAccountMnemoincRef.current,
       });
     }
