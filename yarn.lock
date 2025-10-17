@@ -1654,6 +1654,60 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@buildonspark/spark-sdk@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@buildonspark/spark-sdk@npm:0.4.1"
+  dependencies:
+    "@bitcoinerlab/secp256k1": ^1.1.1
+    "@bufbuild/protobuf": ^2.2.5
+    "@lightsparkdev/core": ^1.4.4
+    "@noble/curves": ^1.8.0
+    "@noble/hashes": ^1.7.0
+    "@opentelemetry/api": ^1.9.0
+    "@opentelemetry/context-async-hooks": ^2.0.0
+    "@opentelemetry/core": ^2.0.0
+    "@opentelemetry/instrumentation": ^0.203.0
+    "@opentelemetry/instrumentation-fetch": ^0.203.0
+    "@opentelemetry/instrumentation-undici": ^0.14.0
+    "@opentelemetry/sdk-trace-base": ^2.0.0
+    "@opentelemetry/sdk-trace-node": ^2.0.1
+    "@opentelemetry/sdk-trace-web": ^2.0.1
+    "@scure/base": ^1.2.4
+    "@scure/bip32": ^1.6.2
+    "@scure/bip39": ^1.5.4
+    "@scure/btc-signer": ^1.5.0
+    abort-controller-x: ^0.4.3
+    abortcontroller-polyfill: ^1.7.8
+    async-mutex: ^0.5.0
+    bare-crypto: ^1.9.2
+    bare-fetch: ^2.4.1
+    buffer: ^6.0.3
+    eciesjs: ^0.4.13
+    eventemitter3: ^5.0.1
+    js-base64: ^3.7.7
+    light-bolt11-decoder: ^3.2.0
+    nice-grpc: ^2.1.10
+    nice-grpc-client-middleware-retry: ^3.1.10
+    nice-grpc-common: ^2.0.2
+    nice-grpc-opentelemetry: ^0.1.18
+    nice-grpc-web: ^3.3.7
+    ts-proto: ^2.6.1
+    uuidv7: ^1.0.2
+  peerDependencies:
+    react: ">=18.2.0"
+    react-native: ">=0.71.0"
+    react-native-get-random-values: ">=1.11.0"
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-native:
+      optional: true
+    react-native-get-random-values:
+      optional: true
+  checksum: 584ddb8894744840e137a4544d91dd3bf0d029b21be072b12f818d4be3a01d1f009add479a0f7a631b485139ac59901a2da046511cd6f703b17e8e7eae97e22d
+  languageName: node
+  linkType: hard
+
 "@callstack/react-theme-provider@npm:3.0.3":
   version: 3.0.3
   resolution: "@callstack/react-theme-provider@npm:3.0.3"
@@ -4812,7 +4866,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.2
-    "@buildonspark/spark-sdk": ^0.4.0
+    "@buildonspark/spark-sdk": ^0.4.1
     "@craftzdog/react-native-buffer": ^6.1.0
     "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
