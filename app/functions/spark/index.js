@@ -22,6 +22,7 @@ import {
 import sha256Hash from '../hash';
 import {
   getHandshakeComplete,
+  OPERATION_TYPES,
   sendWebViewRequestGlobal,
   setForceReactNative,
 } from '../../../context-store/webViewContext';
@@ -107,9 +108,12 @@ export const initializeSparkWallet = async (mnemonic, isInitialLoad = true) => {
 
     if (runtime === 'webview') {
       // Use WebView to initialize wallet
-      const response = await sendWebViewRequestGlobal('initializeSparkWallet', {
-        mnemonic,
-      });
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.initWallet,
+        {
+          mnemonic,
+        },
+      );
 
       if (response?.isConnected) return response;
     }
@@ -161,7 +165,7 @@ export const getSparkIdentityPubKey = async (mnemonic, sendWebViewRequest) => {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'getSparkIdentityPubKey',
+        OPERATION_TYPES.getIdentityKey,
         {
           mnemonic,
         },
@@ -182,9 +186,12 @@ export const getSparkBalance = async mnemonic => {
     const runtime = await selectSparkRuntime(mnemonic);
     const hash = getMnemonicHash(mnemonic);
     if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal('getSparkBalance', {
-        mnemonic,
-      });
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.getBalance,
+        {
+          mnemonic,
+        },
+      );
       if (!response.didWork) throw new Error('unable to get balance');
       const balanceString = response.balance;
       const tokensObject = response.tokensObject;
@@ -256,7 +263,7 @@ export const getSparkStaticBitcoinL1Address = async mnemonic => {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'getSparkStaticBitcoinL1Address',
+        OPERATION_TYPES.getL1Address,
         { mnemonic },
       );
       if (!response)
@@ -276,7 +283,7 @@ export const queryAllStaticDepositAddresses = async mnemonic => {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'queryAllStaticDepositAddresses',
+        OPERATION_TYPES.queryStaticL1Address,
         { mnemonic },
       );
       if (!response) throw new Error(response.error);
@@ -295,7 +302,7 @@ export const getSparkStaticBitcoinL1AddressQuote = async (txid, mnemonic) => {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'getSparkStaticBitcoinL1AddressQuote',
+        OPERATION_TYPES.getL1AddressQuote,
         { mnemonic, txid },
       );
       if (!response.didWork) throw new Error(response.error);
@@ -349,7 +356,7 @@ export const claimnSparkStaticDepositAddress = async ({
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'claimnSparkStaticDepositAddress',
+        OPERATION_TYPES.claimStaticDepositAddress,
         { mnemonic, creditAmountSats, sspSignature, transactionId },
       );
       if (!response.didWork) throw new Error(response.error);
@@ -373,9 +380,12 @@ export const getSparkAddress = async mnemonic => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal('getSparkAddress', {
-        mnemonic,
-      });
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.getSparkAddress,
+        {
+          mnemonic,
+        },
+      );
       if (!response.didWork) throw new Error(response.error);
       return response;
     } else {
@@ -397,11 +407,14 @@ export const sendSparkPayment = async ({
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal('sendSparkPayment', {
-        mnemonic,
-        receiverSparkAddress,
-        amountSats,
-      });
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.sendSparkPayment,
+        {
+          mnemonic,
+          receiverSparkAddress,
+          amountSats,
+        },
+      );
       if (!response.didWork) throw new Error(response.error);
       return response;
     } else {
@@ -427,12 +440,15 @@ export const sendSparkTokens = async ({
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal('sendSparkTokens', {
-        mnemonic,
-        tokenIdentifier,
-        tokenAmount,
-        receiverSparkAddress,
-      });
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.sendTokenPayment,
+        {
+          mnemonic,
+          tokenIdentifier,
+          tokenAmount,
+          receiverSparkAddress,
+        },
+      );
       if (!response.didWork) throw new Error(response.error);
       return response;
     } else {
@@ -459,7 +475,7 @@ export const getSparkLightningPaymentFeeEstimate = async (
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'getSparkLightningPaymentFeeEstimate',
+        OPERATION_TYPES.getLightningFee,
         {
           mnemonic,
           amountSat,
@@ -487,7 +503,7 @@ export const getSparkBitcoinPaymentRequest = async (paymentId, mnemonic) => {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'getSparkBitcoinPaymentRequest',
+        OPERATION_TYPES.getBitcoinPaymentRequest,
         {
           mnemonic,
           paymentId,
@@ -513,7 +529,7 @@ export const getSparkBitcoinPaymentFeeEstimate = async ({
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'getSparkBitcoinPaymentFeeEstimate',
+        OPERATION_TYPES.getBitcoinPaymentFee,
         {
           mnemonic,
           amountSats,
@@ -541,7 +557,7 @@ export const getSparkPaymentFeeEstimate = async (amountSats, mnemonic) => {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'getSparkPaymentFeeEstimate',
+        OPERATION_TYPES.getSparkPaymentFee,
         {
           mnemonic,
           amountSats,
@@ -570,7 +586,7 @@ export const receiveSparkLightningPayment = async ({
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'receiveSparkLightningPayment',
+        OPERATION_TYPES.receiveLightningPayment,
         {
           mnemonic,
           amountSats,
@@ -600,7 +616,7 @@ export const getSparkLightningSendRequest = async (id, mnemonic) => {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'getSparkLightningSendRequest',
+        OPERATION_TYPES.getLightningSendRequest,
         {
           mnemonic,
           id,
@@ -625,7 +641,7 @@ export const getSparkLightningPaymentStatus = async ({
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'getSparkLightningPaymentStatus',
+        OPERATION_TYPES.getLightningPaymentStatus,
         {
           mnemonic,
           lightningInvoiceId,
@@ -652,7 +668,7 @@ export const sendSparkLightningPayment = async ({
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'sendSparkLightningPayment',
+        OPERATION_TYPES.sendLightningPayment,
         {
           mnemonic,
           invoice,
@@ -689,7 +705,7 @@ export const sendSparkBitcoinPayment = async ({
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'sendSparkBitcoinPayment',
+        OPERATION_TYPES.sendBitcoinPayment,
         {
           mnemonic,
           onchainAddress,
@@ -726,11 +742,14 @@ export const getSparkTransactions = async (
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
-      const response = await sendWebViewRequestGlobal('getSparkTransactions', {
-        mnemonic,
-        transferCount,
-        offsetIndex,
-      });
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.getTransactions,
+        {
+          mnemonic,
+          transferCount,
+          offsetIndex,
+        },
+      );
       if (!response) throw new Error('unable to get trasnactions');
       return response;
     } else {
@@ -756,7 +775,7 @@ export const getSparkTokenTransactions = async ({
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
       const response = await sendWebViewRequestGlobal(
-        'getSparkTokenTransactions',
+        OPERATION_TYPES.getTokenTransactions,
         {
           mnemonic,
           ownerPublicKeys,
@@ -933,11 +952,14 @@ export const findTransactionTxFromTxHistory = async (
     while (offset < maxAttempts) {
       let transfers;
       if (runtime === 'webview') {
-        transfers = await sendWebViewRequestGlobal('getSparkTransactions', {
-          mnemonic,
-          transferCount: transferCount,
-          offsetIndex: transferCount * offset,
-        });
+        transfers = await sendWebViewRequestGlobal(
+          OPERATION_TYPES.getTransactions,
+          {
+            mnemonic,
+            transferCount: transferCount,
+            offsetIndex: transferCount * offset,
+          },
+        );
       } else {
         transfers = await wallet.getTransfers(
           transferCount,

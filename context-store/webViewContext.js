@@ -21,6 +21,32 @@ import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import { useAppStatus } from './appStatus';
 import { useActiveCustodyAccount } from './activeAccount';
 
+export const OPERATION_TYPES = {
+  initWallet: 'initializeSparkWallet',
+  getIdentityKey: 'getSparkIdentityPubKey',
+  getBalance: 'getSparkBalance',
+  getL1Address: 'getSparkStaticBitcoinL1Address',
+  queryStaticL1Address: 'queryAllStaticDepositAddresses',
+  getL1AddressQuote: 'getSparkStaticBitcoinL1AddressQuote',
+  claimStaticDepositAddress: 'claimnSparkStaticDepositAddress',
+  getSparkAddress: 'getSparkAddress',
+  sendSparkPayment: 'sendSparkPayment',
+  sendTokenPayment: 'sendSparkTokens',
+  getLightningFee: 'getSparkLightningPaymentFeeEstimate',
+  getBitcoinPaymentRequest: 'getSparkBitcoinPaymentRequest',
+  getBitcoinPaymentFee: 'getSparkBitcoinPaymentFeeEstimate',
+  getSparkPaymentFee: 'getSparkPaymentFeeEstimate',
+  receiveLightningPayment: 'receiveSparkLightningPayment',
+  getLightningSendRequest: 'getSparkLightningSendRequest',
+  getLightningPaymentStatus: 'getSparkLightningPaymentStatus',
+  sendLightningPayment: 'sendSparkLightningPayment',
+  sendBitcoinPayment: 'sendSparkBitcoinPayment',
+  getTransactions: 'getSparkTransactions',
+  getTokenTransactions: 'getSparkTokenTransactions',
+  addListeners: 'addWalletEventListener',
+  removeListeners: 'removeWalletEventListener',
+};
+
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
 const WASM_ERRORS = [
@@ -271,6 +297,11 @@ export const WebViewProvider = ({ children }) => {
         const message = JSON.parse(event.nativeEvent.data);
 
         if (message.type === 'handshake:reply' && message.pubW) {
+          const resolve = pendingRequests.current[message.id];
+          if (!resolve) {
+            console.error('Timeout: backend is unresponsive');
+            return;
+          }
           if (!sessionKeyRef.current) {
             // no need to handle anything here, will be handled with timeout
             console.error(
@@ -308,7 +339,6 @@ export const WebViewProvider = ({ children }) => {
           console.log('Handshake complete. Got backend public key.');
           setHandshakeComplete(true);
           // resolve requset to avoid timeout
-          const resolve = pendingRequests.current[message.id];
           resolve({ didComplete: true });
           delete pendingRequests.current[message.id];
           // Process any queued requests after handshake completes
@@ -407,7 +437,7 @@ export const WebViewProvider = ({ children }) => {
       console.log('Re-initializing wallet before processing queue');
       try {
         const response = await sendWebViewRequestGlobal(
-          'initializeSparkWallet',
+          OPERATION_TYPES.initWallet,
           { mnemonic: currentWalletMnemoinc },
         );
         if (!response?.isConnected) throw new Error('Wallet init failed');
@@ -440,6 +470,7 @@ export const WebViewProvider = ({ children }) => {
   const sendWebViewRequestInternal = useCallback(
     async (action, args = {}, encrypt = true) => {
       return new Promise(async (resolve, reject) => {
+        let timeoutId = null;
         try {
           // If forceReactNativeUse is set, reject immediately
           if (forceReactNativeUse === true) {
@@ -489,7 +520,82 @@ export const WebViewProvider = ({ children }) => {
           const id = customUUID();
           const sequence = expectedSequenceRef.current++;
           const timestamp = Date.now();
-          pendingRequests.current[id] = resolve;
+
+          const getTimeoutDuration = action => {
+            if (action === 'handshake:init') return 2000;
+
+            const longOperations = [
+              OPERATION_TYPES.claimStaticDepositAddress,
+              OPERATION_TYPES.sendSparkPayment,
+              OPERATION_TYPES.sendTokenPayment,
+              OPERATION_TYPES.getBitcoinPaymentRequest,
+              OPERATION_TYPES.getBitcoinPaymentFee,
+              OPERATION_TYPES.sendLightningPayment,
+              OPERATION_TYPES.sendBitcoinPayment,
+              OPERATION_TYPES.initWallet,
+            ];
+
+            if (
+              longOperations.some(op =>
+                action.toLowerCase().includes(op.toLowerCase()),
+              )
+            ) {
+              return 90000; // 90 seconds for payment operations
+            }
+
+            const mediumOperations = [
+              OPERATION_TYPES.getBalance,
+              OPERATION_TYPES.queryStaticL1Address,
+              OPERATION_TYPES.getL1AddressQuote,
+              OPERATION_TYPES.receiveLightningPayment,
+              OPERATION_TYPES.getLightningSendRequest,
+              OPERATION_TYPES.getLightningPaymentStatus,
+              OPERATION_TYPES.getTransactions,
+              OPERATION_TYPES.getTokenTransactions,
+            ];
+
+            if (
+              mediumOperations.some(op =>
+                action.toLowerCase().includes(op.toLowerCase()),
+              )
+            ) {
+              return 30000; // 30 seconds
+            }
+
+            return 10000; // 10 seconds
+          };
+
+          const timeoutDuration = getTimeoutDuration(action);
+
+          timeoutId = setTimeout(() => {
+            console.error(`WebView request timeout for action: ${action}`);
+
+            delete pendingRequests.current[id];
+
+            forceReactNativeUse = true;
+            setHandshakeComplete(false);
+            setChangeSparkConnectionState(prev => ({
+              state: true,
+              count: (prev.count += 1),
+            }));
+
+            resetWebViewState(true);
+
+            reject(
+              new Error(
+                `Call unresponsive (timeout after ${timeoutDuration}ms)`,
+              ),
+            );
+          }, timeoutDuration);
+
+          const originalResolve = resolve;
+          pendingRequests.current[id] = result => {
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+              timeoutId = null;
+            }
+            originalResolve(result);
+          };
 
           if (args.mnemonic && action !== 'initializeSparkWallet') {
             args.mnemonic = sha256Hash(args.mnemonic);
@@ -499,6 +605,7 @@ export const WebViewProvider = ({ children }) => {
           if (action === 'initializeSparkWallet') {
             if (!getHandshakeComplete()) {
               console.log('Handshake not complete, cannot initialize wallet');
+              if (timeoutId) clearTimeout(timeoutId);
               forceReactNativeUse = true;
               setChangeSparkConnectionState(prev => ({
                 state: true,
@@ -508,6 +615,7 @@ export const WebViewProvider = ({ children }) => {
             }
             if (!nonceVerified.current) {
               console.log('Nonce not verified, cannot initialize wallet');
+              if (timeoutId) clearTimeout(timeoutId);
               forceReactNativeUse = true;
               setChangeSparkConnectionState(prev => ({
                 state: true,
@@ -517,7 +625,7 @@ export const WebViewProvider = ({ children }) => {
             }
 
             // Wrap the resolve to check initialization result
-            const originalResolve = resolve;
+            const wrappedResolve = pendingRequests.current[id];
             pendingRequests.current[id] = result => {
               if (result?.error || result?.isConnected === false) {
                 console.warn(
@@ -552,17 +660,16 @@ export const WebViewProvider = ({ children }) => {
                 }));
                 console.log('Wallet initialized successfully');
               }
-              originalResolve(result);
+              wrappedResolve(result);
             };
-          } else if (action === 'handshake:init') {
-            pendingRequests.current[id] = resolve;
-          } else {
+          } else if (action !== 'handshake:init') {
             // For non-init actions, check if wallet was initialized
             if (handshakeComplete && !walletInitialized.current) {
               console.warn(
                 'Wallet not initialized, forcing React Native for action:',
                 action,
               );
+              if (timeoutId) clearTimeout(timeoutId);
               forceReactNativeUse = true;
               setChangeSparkConnectionState(prev => ({
                 state: true,
@@ -582,6 +689,10 @@ export const WebViewProvider = ({ children }) => {
           }
           webViewRef.current.postMessage(JSON.stringify(payload));
         } catch (err) {
+          // Clean up timeout on error
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
           console.log(
             'Error sending webview request from internal function',
             err,
@@ -590,7 +701,7 @@ export const WebViewProvider = ({ children }) => {
         }
       });
     },
-    [isWebViewReady, encryptMessage],
+    [isWebViewReady, encryptMessage, resetWebViewState],
   );
 
   const initHandshake = useCallback(async () => {
@@ -604,16 +715,7 @@ export const WebViewProvider = ({ children }) => {
         publicKey: pubNHex,
       };
 
-      // Create a timeout promise
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Handshake timeout')), 2000),
-      );
-
-      // Race handshake vs timeout
-      await Promise.race([
-        sendWebViewRequestInternal('handshake:init', { pubN: pubNHex }),
-        timeoutPromise,
-      ]);
+      await sendWebViewRequestInternal('handshake:init', { pubN: pubNHex });
     } catch (error) {
       console.warn('Handshake failed or timed out:', error.message);
       forceReactNativeUse = true;
