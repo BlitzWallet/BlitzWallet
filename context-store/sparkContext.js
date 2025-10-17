@@ -558,12 +558,12 @@ const SparkWalletProvider = ({ children }) => {
   };
 
   const removeListeners = async () => {
+    console.log('Removing spark listeners');
     const runtime = await selectSparkRuntime(currentMnemonicRef.current);
     if (!prevAccountMnemoincRef.current) {
       prevAccountMnemoincRef.current = currentMnemonicRef.current;
       return;
     }
-    console.log('Removing spark listeners');
     const hashedMnemoinc = sha256Hash(prevAccountMnemoincRef.current);
 
     if (runtime === 'native') {
