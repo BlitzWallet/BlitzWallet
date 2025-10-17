@@ -307,7 +307,7 @@
         "country": "País:",
         "createdAt": "Criado em:",
         "duration": "Duração:",
-        "paymentHash": "Hash de pagamento:",
+        "paymentHash": "Hash do pagamento:",
         "title": "Compras",
         "retryClaim": "Tentando criar arquivo",
         "noPurchases": "Você não tem configurações de VPN",
@@ -758,7 +758,7 @@
         "invalidCountryError": "Não é um país válido",
         "payingMessage": "Pagando...",
         "runningTries": "Executando {{runCount}} para {{maxTries}} tentativas",
-        "notAbleToSettleInvoice": "Não fi possível liquidar a fatura.",
+        "notAbleToSettleInvoice": "Não foi possível liquidar a fatura.",
         "paymentMemo": "Loja - Envio de SMS"
       },
       "sentPayments": {
@@ -1022,7 +1022,7 @@
       "uniqueNameInputDesc": "Nome de usuário",
       "uniqueNameInputPlaceholder": "Digite seu nome de usuário",
       "bioInputDesc": "Bio",
-      "bioInputPlaceholder": "Digite uma introdução curta",
+      "bioInputPlaceholder": "Escreva uma introdução curta",
       "addContactBTN": " Adicionar contato",
       "unqiueNameRegexError": "O nome de usuário só pode ter letras, números ou sublinhados e deve conter pelo menos 1 letra.",
       "usernameAlreadyExistsError": "Este nome de usuário já existe, escolha outro.",
@@ -1142,7 +1142,7 @@
       "text2": "A quantia não pode ser 0",
       "text3": "Pagamentos rápidos",
       "text4": "Limite máximo (SAT)",
-      "text5": "A função pagamento rápido permite que você pague instantaneamente faturas abaixo de um limite especificado, sem precisar confirmar o pagamento."
+      "text5": "A função pagamento rápido permite que você pague instantaneamente faturas com valor abaixo de um limite especificado, sem precisar confirmar o pagamento."
     },
     "loginSecurity": {
       "text1": "Segurança de acesso",
