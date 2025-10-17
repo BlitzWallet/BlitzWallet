@@ -317,7 +317,7 @@
         "contact": "Contato"
       },
       "home": {
-        "title": "Para usar esta VPN, baixe o aplicativo cliente Wireguard VPN",
+        "title": "Para usar esta VPN, baixe o aplicativo Wireguard",
         "downloadApp": "Baixe aqui",
         "status": "",
         "apiConnectionError": "A LNVPN está temporariamente indisponível. Tente novamente em breve.",
