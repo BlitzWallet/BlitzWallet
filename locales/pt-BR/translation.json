@@ -17,7 +17,7 @@
     "amount": "Quantia",
     "sent": "Você enviou",
     "received": "Você recebeu",
-    "store": "Loja",
+    "store": "Apps",
     "faucet": "Torneira",
     "today": "Hoje",
     "yesterday": "Ontem",
@@ -1443,7 +1443,7 @@
     "inAccount": {
       "appStore": {
         "soonMessage": "Adoramos que você queira mais apps. Sugira-os abaixo!",
-        "title": "Loja",
+        "title": "Apps",
         "shopTitle": "Compre com Bitcoin",
         "shopDescription": "Compre vales-presente de milhares de lojas ao redor do mundo",
         "callToAction": "Gostaria de ver algo aqui?",
