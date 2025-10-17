@@ -764,7 +764,8 @@
         "lnurlWithdrawlInvoiceError": "No se pudo generar la factura para retiro LNURL",
         "waitingForLnurlWithdrawl": "Esperando pago...",
         "lnurlwithdrawlsuccess": "¡Retiro exitoso! Su pago está en camino.",
-        "invoiceDetails": "Detalles de carga"
+        "invoiceDetails": "Detalles de carga",
+        "timeoutError": "El proceso tardó demasiado en completarse. Inténtalo de nuevo."
       },
       "errorScreen": {
         "ok": "OK",

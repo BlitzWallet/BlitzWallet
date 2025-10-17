@@ -916,7 +916,8 @@
         "lnurlWithdrawlInvoiceError": "Unable to generate invoice for lnurl withdrawl",
         "waitingForLnurlWithdrawl": "Waiting for payment...",
         "lnurlWithdrawlSuccess": "Withdrawal successful! Your payment is on its way.",
-        "invoiceDetails": "Loading details"
+        "invoiceDetails": "Loading details",
+        "timeoutError": "The process took too long to complete. Please try again."
       },
 
       "errorScreen": {

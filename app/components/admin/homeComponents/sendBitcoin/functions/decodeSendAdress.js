@@ -223,13 +223,13 @@ async function processInputType(input, context) {
       return await processBitcoinAddress(input, context);
 
     case InputTypes.BOLT11:
-      return await processBolt11Invoice(input, context);
+      return await withTimeout(processBolt11Invoice(input, context), t);
 
     case InputTypes.LNURL_AUTH:
       return await processLNUrlAuth(input, context);
 
     case InputTypes.LNURL_PAY:
-      return await processLNUrlPay(input, context);
+      return await withTimeout(processLNUrlPay(input, context), t);
 
     case InputTypes.LNURL_WITHDRAWL:
       return await processLNUrlWithdraw(input, context);
@@ -241,10 +241,26 @@ async function processInputType(input, context) {
       throw new Error(input.data.reason);
 
     case 'Spark':
-      return await processSparkAddress(input, context);
+      return await withTimeout(processSparkAddress(input, context), t);
+
     default:
       throw new Error(
         t('wallet.sendPages.handlingAddressErrors.invalidInputType'),
       );
   }
+}
+
+function withTimeout(promise, t) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(
+        () =>
+          reject(
+            new Error(t('wallet.sendPages.handlingAddressErrors.timeoutError')),
+          ),
+        15000,
+      ),
+    ),
+  ]);
 }

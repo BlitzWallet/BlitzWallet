@@ -915,7 +915,8 @@
         "lnurlWithdrawlInvoiceError": "Impossibile generare fattura per prelievo LNURL",
         "waitingForLnurlWithdrawl": "In attesa di pagamento...",
         "LnurlwithDrawlSuccess": "Prelievo di successo! Il tuo pagamento è in arrivo.",
-        "invoiceDetails": "Caricamento dei dettagli"
+        "invoiceDetails": "Caricamento dei dettagli",
+        "timeoutError": "Il processo ha richiesto troppo tempo. Riprova."
       },
 
       "errorScreen": {

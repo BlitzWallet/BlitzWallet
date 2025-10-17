@@ -916,7 +916,8 @@
         "lnurlWithdrawlInvoiceError": "Não foi possível gerar a fatura para retirada a partir do lnurl",
         "waitingForLnurlWithdrawl": "Aguardando pagamento...",
         "lnurlWithdrawlSuccess": "Saque realizado com sucesso! Seu pagamento está a caminho.",
-        "invoiceDetails": "Carregando detalhes"
+        "invoiceDetails": "Carregando detalhes",
+        "timeoutError": "O processo demorou muito para ser concluído. Tente novamente."
       },
 
       "errorScreen": {
