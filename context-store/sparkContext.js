@@ -477,6 +477,15 @@ const SparkWalletProvider = ({ children }) => {
       incomingSparkTransaction.removeAllListeners(INCOMING_SPARK_TX_NAME);
     }
 
+    if (
+      sparkTransactionsEventEmitter.listenerCount(SPARK_TX_UPDATE_ENVENT_NAME)
+    ) {
+      sparkTransactionsEventEmitter.removeAllListeners(
+        SPARK_TX_UPDATE_ENVENT_NAME,
+      );
+    }
+
+    sparkTransactionsEventEmitter.on(SPARK_TX_UPDATE_ENVENT_NAME, handleUpdate);
     incomingSparkTransaction.on(INCOMING_SPARK_TX_NAME, transferHandler);
   }, []);
 
@@ -488,11 +497,6 @@ const SparkWalletProvider = ({ children }) => {
     const walletHash = sha256Hash(currentMnemonicRef.current);
     isRunningAddListeners.current = true;
     const runtime = await selectSparkRuntime(currentMnemonicRef.current);
-
-    sparkTransactionsEventEmitter.removeAllListeners(
-      SPARK_TX_UPDATE_ENVENT_NAME,
-    );
-    sparkTransactionsEventEmitter.on(SPARK_TX_UPDATE_ENVENT_NAME, handleUpdate);
 
     if (mode === 'full') {
       if (runtime === 'native') {
@@ -561,18 +565,7 @@ const SparkWalletProvider = ({ children }) => {
     }
     console.log('Removing spark listeners');
     const hashedMnemoinc = sha256Hash(prevAccountMnemoincRef.current);
-    console.log(
-      sparkTransactionsEventEmitter.listenerCount(SPARK_TX_UPDATE_ENVENT_NAME),
-      'Nymber of event emiitter litsenrs',
-    );
 
-    if (
-      sparkTransactionsEventEmitter.listenerCount(SPARK_TX_UPDATE_ENVENT_NAME)
-    ) {
-      sparkTransactionsEventEmitter.removeAllListeners(
-        SPARK_TX_UPDATE_ENVENT_NAME,
-      );
-    }
     if (runtime === 'native') {
       if (
         prevAccountMnemoincRef.current &&
