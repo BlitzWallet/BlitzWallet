@@ -1056,7 +1056,7 @@
       "helpHeader": "Precisa de ajuda?",
       "helpDesc": "Se precisar de ajuda com este cartão-presente, copie o UUID do cartão acima e envie para o e-mail da nossa equipe de suporte.",
       "unpaidMessage": "Este cartão não está pago. Se o pagamento foi efetuado, mas não foi reconhecido, use o e-mail abaixo para obter ajuda.",
-      "messageLabel": "Mesangem:",
+      "messageLabel": "Mensagem:",
       "claimed": "Usado",
       "markAsClaimed": "Marcar como usado"
     },
