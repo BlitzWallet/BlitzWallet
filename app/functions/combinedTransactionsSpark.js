@@ -120,22 +120,26 @@ const createLoadingSkeleton = (
     </View>
   ));
 
-  return (
-    <SkeletonPlaceholder
-      highlightColor={
-        theme
-          ? darkModeType
-            ? COLORS.lightsOutBackground
-            : COLORS.darkModeBackground
-          : COLORS.lightModeBackground
-      }
-      backgroundColor={COLORS.opaicityGray}
-      enabled={true}
-      speed={SKELETON_ANIMATION_SPEED}
-    >
-      {loadingTxElements}
-    </SkeletonPlaceholder>
-  );
+  return {
+    type: 'tx',
+    item: (
+      <SkeletonPlaceholder
+        highlightColor={
+          theme
+            ? darkModeType
+              ? COLORS.lightsOutBackground
+              : COLORS.darkModeBackground
+            : COLORS.lightModeBackground
+        }
+        backgroundColor={COLORS.opaicityGray}
+        enabled={true}
+        speed={SKELETON_ANIMATION_SPEED}
+      >
+        {loadingTxElements}
+      </SkeletonPlaceholder>
+    ),
+    key: 'placeholderTxs',
+  };
 };
 
 const createDateBanner = bannerText => (
@@ -277,7 +281,11 @@ export default function getFormattedHomepageTxsForSpark(props) {
         />
       );
 
-      formattedTxs.push(styledTx);
+      formattedTxs.push({
+        type: 'tx',
+        item: styledTx,
+        key: uniuqeIDFromTx,
+      });
     } catch (err) {
       // Only log in development
       if (__DEV__) {
@@ -288,12 +296,18 @@ export default function getFormattedHomepageTxsForSpark(props) {
 
   if (!formattedTxs?.length) {
     return [
-      <View style={styles.noTransactionsContainer} key="noTx">
-        <ThemeText
-          content={noTransactionHistoryText}
-          styles={styles.noTransactionsText}
-        />
-      </View>,
+      {
+        type: 'tx',
+        item: (
+          <View style={styles.noTransactionsContainer} key="noTx">
+            <ThemeText
+              content={noTransactionHistoryText}
+              styles={styles.noTransactionsText}
+            />
+          </View>
+        ),
+        key: 'noTx',
+      },
     ];
   }
 
@@ -303,15 +317,19 @@ export default function getFormattedHomepageTxsForSpark(props) {
     frompage !== TRANSACTION_CONSTANTS.SPARK_WALLET &&
     formattedTxs.length === homepageTxPreferance
   ) {
-    formattedTxs.push(
-      <TouchableOpacity
-        key="view_all_tx_btn"
-        style={[styles.viewAllButton, CENTER]}
-        onPress={() => navigate.navigate('ViewAllTxPage')}
-      >
-        <ThemeText content={viewAllTxText} styles={styles.headerText} />
-      </TouchableOpacity>,
-    );
+    formattedTxs.push({
+      type: 'tx',
+      item: (
+        <TouchableOpacity
+          key="view_all_tx_btn"
+          style={[styles.viewAllButton, CENTER]}
+          onPress={() => navigate.navigate('ViewAllTxPage')}
+        >
+          <ThemeText content={viewAllTxText} styles={styles.headerText} />
+        </TouchableOpacity>
+      ),
+      key: 'view_all_tx_btn',
+    });
   }
 
   return formattedTxs;

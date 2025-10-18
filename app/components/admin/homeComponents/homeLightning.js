@@ -170,11 +170,7 @@ export default function HomeLightning() {
       { type: 'navbar', key: 'navbar' },
       { type: 'balance', key: 'balance' },
       { type: 'buttons', key: 'buttons' },
-      ...flatListDataForSpark?.map((tx, i) => ({
-        type: 'tx',
-        item: tx,
-        key: i.toString(),
-      })),
+      ...(flatListDataForSpark || []),
     ];
   }, [flatListDataForSpark]);
 

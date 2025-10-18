@@ -1,7 +1,7 @@
-import {StyleSheet, View} from 'react-native';
-import {CENTER, SATSPERBITCOIN} from '../../constants';
+import { StyleSheet, View } from 'react-native';
+import { CENTER, SATSPERBITCOIN } from '../../constants';
 import KeyForKeyboard from './key';
-import {useCallback, useMemo} from 'react';
+import { useCallback, useMemo } from 'react';
 
 export default function CustomNumberKeyboard({
   setInputValue,
@@ -77,21 +77,29 @@ export default function CustomNumberKeyboard({
     [frompage],
   );
 
-  const numbers = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9],
-  ];
+  const numbers = useMemo(
+    () => [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+    ],
+    [],
+  );
 
   return (
     <View style={keyboardContainerStyles}>
-      {numbers.map((row, rowIndex) => (
-        <View key={rowIndex} style={styles.keyboard_row}>
-          {row.map(num => (
-            <KeyForKeyboard key={num} num={num} addPin={addPin} />
-          ))}
-        </View>
-      ))}
+      {numbers?.map((row, rowIndex) => {
+        if (!row || !Array.isArray(row)) return null;
+        return (
+          <View key={rowIndex} style={styles.keyboard_row}>
+            {row.map(num => {
+              if (num === undefined || num === null) return null;
+
+              return <KeyForKeyboard key={num} num={num} addPin={addPin} />;
+            })}
+          </View>
+        );
+      })}
       <View style={styles.keyboard_row}>
         {(showDot || showDot === undefined) && (
           <KeyForKeyboard frompage={frompage} isDot num="." addPin={addPin} />
@@ -105,7 +113,7 @@ export default function CustomNumberKeyboard({
 }
 
 const styles = StyleSheet.create({
-  keyboardContainer: {width: '100%', maxWidth: 400, ...CENTER},
+  keyboardContainer: { width: '100%', maxWidth: 400, ...CENTER },
   keyboard_row: {
     width: '100%',
     flexDirection: 'row',
