@@ -1515,7 +1515,7 @@
       },
       "technicalTransactionDetails": {
         "txHash": "Hash da Transação",
-        "paymentId": "Identificação",
+        "paymentId": "ID",
         "preimage": "Pré-imagem",
         "address": "Endereço",
         "bitcoinTxId": "Bitcoin Txid",
