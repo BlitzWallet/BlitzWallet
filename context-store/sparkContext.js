@@ -128,7 +128,7 @@ const SparkWalletProvider = ({ children }) => {
     if (!didGetToHomepage) return;
     const timer = setTimeout(() => {
       setNormalConnectionTimeout(true);
-    }, 10000);
+    }, 20000);
 
     return () => clearTimeout(timer);
   }, [didGetToHomepage]);
@@ -506,7 +506,7 @@ const SparkWalletProvider = ({ children }) => {
           sparkWallet[walletHash]?.on('transfer:claimed', transferHandler);
         }
       } else {
-        sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, {
+        await sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, {
           mnemonic: currentMnemonicRef.current,
         });
       }
@@ -576,7 +576,7 @@ const SparkWalletProvider = ({ children }) => {
         sparkWallet[hashedMnemoinc]?.removeAllListeners('transfer:claimed');
       }
     } else {
-      sendWebViewRequestGlobal(OPERATION_TYPES.removeListeners, {
+      await sendWebViewRequestGlobal(OPERATION_TYPES.removeListeners, {
         mnemonic: prevAccountMnemoincRef.current,
       });
     }
@@ -599,35 +599,39 @@ const SparkWalletProvider = ({ children }) => {
 
   // Add event listeners to listen for bitcoin and lightning or spark transfers when receiving only when screen is active
   useEffect(() => {
-    if (!didGetToHomepage) return;
-    if (!sparkInformation.didConnect) return;
+    const timeoutId = setTimeout(async () => {
+      if (!didGetToHomepage) return;
+      if (!sparkInformation.didConnect) return;
 
-    const getListenerType = () => {
-      if (appState === 'active' && !isSendingPayment) return 'full';
-      if (appState === 'active' && isSendingPayment) return 'sparkOnly';
-      return null; // No listeners in background
-    };
+      const getListenerType = () => {
+        if (appState === 'active' && !isSendingPayment) return 'full';
+        if (appState === 'active' && isSendingPayment) return 'sparkOnly';
+        return null; // No listeners in background
+      };
 
-    const newType = getListenerType();
-    const prevType = prevListenerType.current;
+      const newType = getListenerType();
+      const prevType = prevListenerType.current;
 
-    console.log(prevAppState.current, appState, 'APP STATE CHANGE');
+      console.log(prevAppState.current, appState, 'APP STATE CHANGE');
 
-    // Handle appState transitions
-    if (prevAppState.current !== appState && appState === 'background') {
-      // App fully backgrounded → remove everything
-      removeListeners();
-      prevListenerType.current = null;
-    }
+      // Handle appState transitions
+      if (prevAppState.current !== appState && appState === 'background') {
+        // App fully backgrounded → remove everything
+        await removeListeners();
+        prevListenerType.current = null;
+      }
 
-    // Only reconfigure listeners if the type actually changed
-    if (newType !== prevType && appState === 'active') {
-      removeListeners();
-      if (newType) addListeners(newType);
-      prevListenerType.current = newType;
-    }
+      // Only reconfigure listeners if the type actually changed
+      if (newType !== prevType && appState === 'active') {
+        await removeListeners();
+        if (newType) await addListeners(newType);
+        prevListenerType.current = newType;
+      }
 
-    prevAppState.current = appState;
+      prevAppState.current = appState;
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
   }, [
     appState,
     sparkInformation.didConnect,
