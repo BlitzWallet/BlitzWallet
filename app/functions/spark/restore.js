@@ -547,10 +547,9 @@ async function processLightningTransaction(
         })
       : await getSparkLightningSendRequest(txStateUpdate.sparkID, mnemonic);
 
-  if (
-    details.direction === 'OUTGOING' &&
-    getSparkPaymentStatus(sparkResponse.status) === 'failed'
-  )
+  const paymentStatus = getSparkPaymentStatus(sparkResponse.status);
+
+  if (details.direction === 'OUTGOING' && paymentStatus === 'failed')
     return {
       ...txStateUpdate,
       id: txStateUpdate.sparkID,
@@ -566,18 +565,21 @@ async function processLightningTransaction(
   //   sparkResponse.fee.originalValue /
   //   (sparkResponse.fee.originalUnit === 'MILLISATOSHI' ? 1000 : 1);
 
+  const preimage = sparkResponse.paymentPreimage || '';
+
   return {
     useTempId: true,
     tempId: txStateUpdate.sparkID,
     id: sparkResponse.transfer.sparkId,
-    paymentStatus: 'completed', // getSparkPaymentStatus(sparkResponse.status)
+    paymentStatus:
+      paymentStatus === 'completed' || preimage ? 'completed' : paymentStatus,
     paymentType: 'lightning',
     accountId: txStateUpdate.accountId,
     details: {
       ...details,
       // fee: Math.round(fee),
       // totalFee: Math.round(fee) + (details.supportFee || 0),
-      preimage: sparkResponse.paymentPreimage || '',
+      preimage: preimage,
     },
   };
 }
