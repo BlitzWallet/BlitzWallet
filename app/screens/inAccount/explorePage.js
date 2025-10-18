@@ -38,6 +38,7 @@ import {
   useServerTime,
   useServerTimeOnly,
 } from '../../../context-store/serverTime';
+import { formatLocalTimeNumericMonthDay } from '../../functions/timeFormatter';
 
 export default function ExploreUsers() {
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -142,9 +143,7 @@ export default function ExploreUsers() {
         const dateIndex = new Date(
           endOfWeek - WEEK_IN_MILLS * Math.abs(6 - index),
         );
-        const day = dateIndex.getDate();
-        const month = dateIndex.getMonth() + 1;
-        return `${month}/${day}`;
+        return formatLocalTimeNumericMonthDay(dateIndex);
       }
     });
   }, [timeFrame, t, currentTime]);

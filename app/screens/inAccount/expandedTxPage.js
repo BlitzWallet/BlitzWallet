@@ -26,6 +26,7 @@ import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
+import { formatLocalTimeShort } from '../../functions/timeFormatter';
 
 export default function ExpandedTx(props) {
   const { screenDimensions } = useAppStatus();
@@ -157,6 +158,7 @@ export default function ExpandedTx(props) {
 
       <ThemeText
         content={value}
+        CustomNumberOfLines={1}
         styles={{
           ...styles.infoValue,
           ...(isLarge ? styles.infoValueLarge : {}),
@@ -315,7 +317,7 @@ export default function ExpandedTx(props) {
             <View style={styles.detailsSection}>
               {renderInfoRow(
                 t('transactionLabelText.date'),
-                `${month} ${day} ${year}`,
+                formatLocalTimeShort(paymentDate),
                 true,
               )}
 
@@ -523,6 +525,8 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: SIZES.medium,
+    marginLeft: 10,
+    flexShrink: 1,
   },
   infoValueLarge: {
     fontSize: SIZES.large,

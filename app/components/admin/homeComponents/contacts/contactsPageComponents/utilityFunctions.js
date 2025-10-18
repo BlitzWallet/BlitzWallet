@@ -1,3 +1,5 @@
+import { formatLocalTimeNumeric } from '../../../../../functions/timeFormatter';
+
 // Utility functions
 function isSameDay(date1, date2) {
   return (
@@ -53,10 +55,7 @@ export function createFormattedDate(time, currentTime, t) {
     } else if (daysDiff <= 7) {
       formattedTime = daysOfWeek[date.getDay()];
     } else {
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
-      const year = date.getFullYear() % 100;
-      formattedTime = `${month}/${day}/${year}`;
+      formattedTime = formatLocalTimeNumeric(date);
     }
   }
 
