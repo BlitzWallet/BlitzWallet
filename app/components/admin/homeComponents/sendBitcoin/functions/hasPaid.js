@@ -2,9 +2,9 @@ import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../../../../../functions/crashlyticsLogs';
-import {getAllSparkTransactions} from '../../../../../functions/spark/transactions';
+import { getAllSparkTransactions } from '../../../../../functions/spark/transactions';
 
-export default async function hasAlredyPaidInvoice({scannedAddress}) {
+export default async function hasAlredyPaidInvoice({ scannedAddress }) {
   try {
     crashlyticsLogReport('Begining already paid invoice function');
 

@@ -83,6 +83,8 @@ export default function SendPaymentScreen(props) {
       ? t('wallet.sendPages.sendPaymentScreen.initialLoadingMessage')
       : t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage'),
   );
+  const [masterTokenInfo, setMasterTokenInfo] = useState({});
+  const [refreshDecode, setRefreshDecode] = useState(0);
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
   const isBTCdenominated =
@@ -90,10 +92,40 @@ export default function SendPaymentScreen(props) {
     masterInfoObject.userBalanceDenomination === 'sats';
   const canEditPaymentAmount = paymentInfo?.canEditPayment;
   const enabledLRC20 = masterInfoObject.lrc20Settings.isEnabled;
-  const [masterTokenInfo, setMasterTokenInfo] = useState({});
   const selectedLRC20Asset = masterTokenInfo?.tokenName || 'Bitcoin';
   const seletctedToken = masterTokenInfo?.details || {};
   const isUsingLRC20 = selectedLRC20Asset !== 'Bitcoin';
+
+  const paramsRef = useRef({
+    btcAdress,
+  });
+
+  useEffect(() => {
+    const currentParams = {
+      btcAdress,
+    };
+    const prevParams = paramsRef.current;
+
+    const hasParamsChanged =
+      currentParams.btcAdress &&
+      currentParams.btcAdress !== prevParams.btcAdress;
+
+    if (hasParamsChanged) {
+      setIsAmountFocused(true);
+      setPaymentInfo({});
+      isSendingPayment.current = null;
+      setPaymentDescription('');
+      setLoadingMessage(
+        sparkInformation.didConnect
+          ? t('wallet.sendPages.sendPaymentScreen.initialLoadingMessage')
+          : t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage'),
+      );
+      setShowProgressAnimation(false);
+      setMasterTokenInfo({});
+      setRefreshDecode(x => x + 1);
+      paramsRef.current = currentParams;
+    }
+  }, [btcAdress, sparkInformation.didConnect, t]);
 
   const convertedSendAmount = !isUsingLRC20
     ? isBTCdenominated
@@ -139,18 +171,6 @@ export default function SendPaymentScreen(props) {
 
   useEffect(() => {
     async function decodePayment() {
-      crashlyticsLogReport('Begining decode payment process');
-      const didPay = await hasAlredyPaidInvoice({
-        scannedAddress: btcAdress,
-      });
-      console.log(didPay, 'DID PAY');
-      if (didPay) {
-        errorMessageNavigation(
-          t('wallet.sendPages.sendPaymentScreen.alreadyPaidInvoiceError'),
-        );
-        return;
-      }
-
       crashlyticsLogReport('Starting decode address');
       await decodeSendAddress({
         fiatStats,
@@ -184,7 +204,7 @@ export default function SendPaymentScreen(props) {
         decodePayment();
       });
     });
-  }, [sparkInformation.didConnect]);
+  }, [sparkInformation.didConnect, refreshDecode]);
 
   useEffect(() => {
     if (!sparkInformation.didConnect) return;

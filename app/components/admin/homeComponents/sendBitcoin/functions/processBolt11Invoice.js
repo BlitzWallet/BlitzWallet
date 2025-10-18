@@ -3,6 +3,7 @@ import { SATSPERBITCOIN } from '../../../../../constants';
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { InputTypes } from 'bitcoin-address-parser';
+import hasAlredyPaidInvoice from './hasPaid';
 
 export default async function processBolt11Invoice(input, context) {
   const {
@@ -24,6 +25,17 @@ export default async function processBolt11Invoice(input, context) {
     throw new Error(
       t('wallet.sendPages.handlingAddressErrors.expiredLightningInvoice'),
     );
+
+  if (!paymentInfo.paymentFee && !paymentInfo.supportFee) {
+    const didPay = await hasAlredyPaidInvoice({
+      scannedAddress: input.data.address,
+    });
+
+    if (didPay)
+      throw new Error(
+        t('wallet.sendPages.sendPaymentScreen.alreadyPaidInvoiceError'),
+      );
+  }
 
   const amountMsat = comingFromAccept
     ? enteredPaymentInfo.amount * 1000
