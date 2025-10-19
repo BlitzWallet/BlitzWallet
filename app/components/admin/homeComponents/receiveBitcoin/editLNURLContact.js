@@ -6,10 +6,10 @@ import {
   View,
 } from 'react-native';
 import * as ImageManipulator from 'expo-image-manipulator';
-import {ThemeText} from '../../../../functions/CustomElements';
+import { ThemeText } from '../../../../functions/CustomElements';
 import ContactProfileImage from '../contacts/internalComponents/profileImage';
-import {useImageCache} from '../../../../../context-store/imageCache';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
+import { useImageCache } from '../../../../../context-store/imageCache';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
   CENTER,
   COLORS,
@@ -17,18 +17,18 @@ import {
   VALID_USERNAME_REGEX,
 } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {useCallback, useRef, useState} from 'react';
-import {useGlobalContacts} from '../../../../../context-store/globalContacts';
+import { useCallback, useRef, useState } from 'react';
+import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import {SIZES} from '../../../../constants/theme';
-import {useNavigation} from '@react-navigation/native';
+import { SIZES } from '../../../../constants/theme';
+import { useNavigation } from '@react-navigation/native';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import {getImageFromLibrary} from '../../../../functions/imagePickerWrapper';
-import {setDatabaseIMG} from '../../../../../db/photoStorage';
+import { getImageFromLibrary } from '../../../../functions/imagePickerWrapper';
+import { setDatabaseIMG } from '../../../../../db/photoStorage';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {isValidUniqueName} from '../../../../../db';
+import { isValidUniqueName } from '../../../../../db';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 export default function EditLNURLContactOnReceivePage({
   theme,
@@ -40,29 +40,29 @@ export default function EditLNURLContactOnReceivePage({
   handleBackPressFunction,
 }) {
   const navigate = useNavigation();
-  const {cache, refreshCache} = useImageCache();
-  const {globalContactsInformation, toggleGlobalContactsInformation} =
+  const { cache, refreshCache } = useImageCache();
+  const { globalContactsInformation, toggleGlobalContactsInformation } =
     useGlobalContacts();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {backgroundOffset, textInputColor, textColor, backgroundColor} =
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { backgroundOffset, textInputColor, textColor, backgroundColor } =
     GetThemeColors();
   const [username, setUsername] = useState('');
   const [isAddingImage, setIsAddingImage] = useState(false);
   const initialValue = useRef(0);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const imageData = cache[masterInfoObject.uuid];
   const image = cache[masterInfoObject.uuid]?.localUri;
 
   const addProfilePicture = useCallback(async () => {
-    const imagePickerResponse = await getImageFromLibrary({quality: 1});
-    const {didRun, error, imgURL} = imagePickerResponse;
+    const imagePickerResponse = await getImageFromLibrary({ quality: 1 });
+    const { didRun, error, imgURL } = imagePickerResponse;
     if (!didRun) return;
     if (error) {
-      navigate.navigate('ErrorScreen', {errorMessage: t(error)});
+      navigate.navigate('ErrorScreen', { errorMessage: t(error) });
       return;
     }
 
-    const response = await uploadProfileImage({imgURL: imgURL});
+    const response = await uploadProfileImage({ imgURL: imgURL });
     if (!response) return;
     toggleGlobalContactsInformation(
       {
@@ -77,12 +77,12 @@ export default function EditLNURLContactOnReceivePage({
   }, [globalContactsInformation]);
 
   const uploadProfileImage = useCallback(
-    async ({imgURL}) => {
+    async ({ imgURL }) => {
       try {
         setIsAddingImage(true);
         const resized = ImageManipulator.ImageManipulator.manipulate(
           imgURL.uri,
-        ).resize({width: 350});
+        ).resize({ width: 350 });
         const image = await resized.renderAsync();
         const savedImage = await image.saveAsync({
           compress: 0.4,
@@ -91,7 +91,7 @@ export default function EditLNURLContactOnReceivePage({
 
         const response = await setDatabaseIMG(
           globalContactsInformation.myProfile.uuid,
-          {uri: savedImage.uri},
+          { uri: savedImage.uri },
         );
 
         if (response) {
@@ -105,7 +105,7 @@ export default function EditLNURLContactOnReceivePage({
           throw new Error(t('contacts.editMyProfilePage.unableToSaveError'));
       } catch (err) {
         console.log(err);
-        navigate.navigate('ErrorScreen', {errorMessage: err.message});
+        navigate.navigate('ErrorScreen', { errorMessage: err.message });
         return false;
       } finally {
         setIsAddingImage(false);
@@ -156,29 +156,32 @@ export default function EditLNURLContactOnReceivePage({
       });
     } catch (err) {
       console.log('Saving to database error', err);
-      navigate.navigate('ErrorScreen', {errorMessage: err.message});
+      navigate.navigate('ErrorScreen', { errorMessage: err.message });
     }
   }, [globalContactsInformation, username]);
 
   return (
     <ScrollView
       keyboardShouldPersistTaps={'always'}
-      showsVerticalScrollIndicator={false}>
+      showsVerticalScrollIndicator={false}
+    >
       <View
         onLayout={e => {
-          const {height} = e.nativeEvent.layout;
+          const { height } = e.nativeEvent.layout;
           if (!initialValue.current) {
             initialValue.current = height;
             console.log(height, 'height');
             setContentHeight(height + 90);
           }
         }}
-        style={styles.popupContainer}>
+        style={styles.popupContainer}
+      >
         <TouchableOpacity
           onPress={() => {
             if (isAddingImage) return;
             addProfilePicture();
-          }}>
+          }}
+        >
           <View
             style={[
               styles.profileImage,
@@ -186,7 +189,8 @@ export default function EditLNURLContactOnReceivePage({
                 backgroundColor:
                   theme && darkModeType ? backgroundColor : backgroundOffset,
               },
-            ]}>
+            ]}
+          >
             {isAddingImage ? (
               <FullLoadingScreen showText={false} />
             ) : (
@@ -201,7 +205,7 @@ export default function EditLNURLContactOnReceivePage({
           <View style={styles.scanProfileImage}>
             <Image
               source={ICONS.ImagesIconDark}
-              style={{width: 20, height: 20}}
+              style={{ width: 20, height: 20 }}
             />
           </View>
         </TouchableOpacity>
@@ -221,7 +225,8 @@ export default function EditLNURLContactOnReceivePage({
             marginTop: 10,
             flexDirection: 'row',
             alignItems: 'center',
-          }}>
+          }}
+        >
           <ThemeText
             styles={{
               includeFontPadding: false,
@@ -233,13 +238,13 @@ export default function EditLNURLContactOnReceivePage({
           />
 
           <ThemeImage
-            styles={{width: 20, height: 20}}
+            styles={{ width: 20, height: 20 }}
             lightModeIcon={ICONS.aboutIcon}
             darkModeIcon={ICONS.aboutIcon}
             lightsOutIcon={ICONS.aboutIconWhite}
           />
         </TouchableOpacity>
-        <View style={{width: '100%'}}>
+        <View style={{ width: '100%' }}>
           <CustomSearchInput
             textInputStyles={{
               color:
@@ -252,7 +257,7 @@ export default function EditLNURLContactOnReceivePage({
             inputText={username}
             setInputText={setUsername}
             placeholderText={globalContactsInformation.myProfile.uniqueName}
-            containerStyles={{width: '100%'}}
+            containerStyles={{ width: '100%' }}
             onBlurFunction={() => setIsKeyboardActive(false)}
             onFocusFunction={() => setIsKeyboardActive(true)}
           />

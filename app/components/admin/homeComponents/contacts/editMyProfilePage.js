@@ -15,25 +15,25 @@ import {
   SIZES,
   VALID_USERNAME_REGEX,
 } from '../../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {useEffect, useState, useRef} from 'react';
-import {encriptMessage} from '../../../../functions/messaging/encodingAndDecodingMessages';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect, useState, useRef } from 'react';
+import { encriptMessage } from '../../../../functions/messaging/encodingAndDecodingMessages';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../functions/CustomElements';
-import {isValidUniqueName} from '../../../../../db';
+import { isValidUniqueName } from '../../../../../db';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {useGlobalContacts} from '../../../../../context-store/globalContacts';
+import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {getImageFromLibrary} from '../../../../functions/imagePickerWrapper';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useKeysContext} from '../../../../../context-store/keys';
+import { getImageFromLibrary } from '../../../../functions/imagePickerWrapper';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useKeysContext } from '../../../../../context-store/keys';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import {keyboardGoBack} from '../../../../functions/customNavigation';
-import {useTranslation} from 'react-i18next';
+import { keyboardGoBack } from '../../../../functions/customNavigation';
+import { useTranslation } from 'react-i18next';
 import * as ImageManipulator from 'expo-image-manipulator';
 import ContactProfileImage from './internalComponents/profileImage';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
@@ -41,8 +41,8 @@ import {
   deleteDatabaseImage,
   setDatabaseIMG,
 } from '../../../../../db/photoStorage';
-import {useImageCache} from '../../../../../context-store/imageCache';
-import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
+import { useImageCache } from '../../../../../context-store/imageCache';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -52,7 +52,7 @@ export default function EditMyProfilePage(props) {
     globalContactsInformation,
   } = useGlobalContacts();
 
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const pageType = props?.pageType || props.route?.params?.pageType;
   const fromSettings = props.fromSettings || props.route?.params?.fromSettings;
@@ -75,7 +75,8 @@ export default function EditMyProfilePage(props) {
   return (
     <CustomKeyboardAvoidingView
       useTouchableWithoutFeedback={true}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
         label={fromSettings ? t('contacts.editMyProfilePage.navTitle') : ''}
@@ -111,18 +112,22 @@ function InnerContent({
   fromInitialAdd,
   fromSettings,
 }) {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {cache, refreshCache, removeProfileImageFromCache, refreshCacheObject} =
-    useImageCache();
-  const {backgroundOffset, textInputColor, textInputBackground, textColor} =
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const {
+    cache,
+    refreshCache,
+    removeProfileImageFromCache,
+    refreshCacheObject,
+  } = useImageCache();
+  const { backgroundOffset, textInputColor, textInputBackground, textColor } =
     GetThemeColors();
   const {
     decodedAddedContacts,
     globalContactsInformation,
     toggleGlobalContactsInformation,
   } = useGlobalContacts();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [isAddingImage, setIsAddingImage] = useState(false);
 
   const nameRef = useRef(null);
@@ -150,13 +155,13 @@ function InnerContent({
   });
 
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const {bottomPadding} = useGlobalInsets();
+  const { bottomPadding } = useGlobalInsets();
 
   const navigate = useNavigation();
 
   function changeInputText(text, type) {
     setInputs(prev => {
-      return {...prev, [type]: text};
+      return { ...prev, [type]: text };
     });
   }
 
@@ -218,7 +223,8 @@ function InnerContent({
           alignItems: 'center',
           width: fromSettings ? INSET_WINDOW_WIDTH : '100%',
           ...CENTER,
-        }}>
+        }}
+      >
         <TouchableOpacity
           activeOpacity={
             (isEditingMyProfile || selectedAddedContact.isLNURL) &&
@@ -238,14 +244,16 @@ function InnerContent({
               deletePhoto: deleteProfilePicture,
               hasImage: hasImage,
             });
-          }}>
+          }}
+        >
           <View
             style={[
               styles.profileImage,
               {
                 backgroundColor: backgroundOffset,
               },
-            ]}>
+            ]}
+          >
             {isAddingImage ? (
               <FullLoadingScreen showText={false} />
             ) : (
@@ -269,7 +277,7 @@ function InnerContent({
             <View style={styles.selectFromPhotos}>
               <Image
                 source={hasImage ? ICONS.xSmallIconBlack : ICONS.ImagesIconDark}
-                style={{width: 20, height: 20}}
+                style={{ width: 20, height: 20 }}
               />
             </View>
           )}
@@ -280,7 +288,8 @@ function InnerContent({
           activeOpacity={1}
           onPress={() => {
             nameRef.current.focus();
-          }}>
+          }}
+        >
           <ThemeText
             styles={styles.textInputContainerDescriptionText}
             content={t('contacts.editMyProfilePage.nameInputDesc')}
@@ -330,7 +339,8 @@ function InnerContent({
             activeOpacity={1}
             onPress={() => {
               receiveAddressRef.current.focus();
-            }}>
+            }}
+          >
             <ThemeText
               styles={styles.textInputContainerDescriptionText}
               content={t('contacts.editMyProfilePage.lnurlInputDesc')}
@@ -384,7 +394,8 @@ function InnerContent({
             activeOpacity={1}
             onPress={() => {
               uniquenameRef.current.focus();
-            }}>
+            }}
+          >
             <ThemeText
               styles={styles.textInputContainerDescriptionText}
               content={t('contacts.editMyProfilePage.uniqueNameInputDesc')}
@@ -435,7 +446,8 @@ function InnerContent({
           activeOpacity={1}
           onPress={() => {
             bioRef.current.focus();
-          }}>
+          }}
+        >
           <ThemeText
             styles={styles.textInputContainerDescriptionText}
             content={t('contacts.editMyProfilePage.bioInputDesc')}
@@ -542,7 +554,7 @@ function InnerContent({
           if (!isFreeUniqueName) {
             navigate.navigate('ErrorScreen', {
               errorMessage: t(
-                'contacts.editMyProfilePage.uniqueNameTakenError',
+                'contacts.editMyProfilePage.usernameAlreadyExistsError',
               ),
             });
             return;
@@ -662,16 +674,16 @@ function InnerContent({
   }
 
   async function addProfilePicture() {
-    const imagePickerResponse = await getImageFromLibrary({quality: 1});
-    const {didRun, error, imgURL} = imagePickerResponse;
+    const imagePickerResponse = await getImageFromLibrary({ quality: 1 });
+    const { didRun, error, imgURL } = imagePickerResponse;
     if (!didRun) return;
     if (error) {
-      navigate.navigate('ErrorScreen', {errorMessage: t(error)});
+      navigate.navigate('ErrorScreen', { errorMessage: t(error) });
       return;
     }
 
     if (isEditingMyProfile) {
-      const response = await uploadProfileImage({imgURL: imgURL});
+      const response = await uploadProfileImage({ imgURL: imgURL });
       if (!response) return;
       toggleGlobalContactsInformation(
         {
@@ -689,13 +701,13 @@ function InnerContent({
 
     await refreshCache(selectedAddedContact.uuid, imgURL.uri, false);
   }
-  async function uploadProfileImage({imgURL, removeImage}) {
+  async function uploadProfileImage({ imgURL, removeImage }) {
     try {
       setIsAddingImage(true);
       if (!removeImage) {
         const resized = ImageManipulator.ImageManipulator.manipulate(
           imgURL.uri,
-        ).resize({width: 350});
+        ).resize({ width: 350 });
         const image = await resized.renderAsync();
         const savedImage = await image.saveAsync({
           compress: 0.4,
@@ -704,7 +716,7 @@ function InnerContent({
 
         const response = await setDatabaseIMG(
           globalContactsInformation.myProfile.uuid,
-          {uri: savedImage.uri},
+          { uri: savedImage.uri },
         );
 
         if (response) {
@@ -725,7 +737,7 @@ function InnerContent({
       }
     } catch (err) {
       console.log(err);
-      navigate.navigate('ErrorScreen', {errorMessage: err.message});
+      navigate.navigate('ErrorScreen', { errorMessage: err.message });
       return false;
     } finally {
       setIsAddingImage(false);
@@ -734,7 +746,7 @@ function InnerContent({
   async function deleteProfilePicture() {
     try {
       if (isEditingMyProfile) {
-        const response = await uploadProfileImage({removeImage: true});
+        const response = await uploadProfileImage({ removeImage: true });
         console.log(response);
         if (!response) return;
         toggleGlobalContactsInformation(
@@ -799,7 +811,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
   },
-  textInputContainer: {width: '100%'},
+  textInputContainer: { width: '100%' },
   textInputContainerDescriptionText: {
     marginBottom: 5,
   },
