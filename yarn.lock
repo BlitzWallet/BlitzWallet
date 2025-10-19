@@ -1600,60 +1600,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@buildonspark/spark-sdk@npm:0.4.0"
-  dependencies:
-    "@bitcoinerlab/secp256k1": ^1.1.1
-    "@bufbuild/protobuf": ^2.2.5
-    "@lightsparkdev/core": ^1.4.4
-    "@noble/curves": ^1.8.0
-    "@noble/hashes": ^1.7.0
-    "@opentelemetry/api": ^1.9.0
-    "@opentelemetry/context-async-hooks": ^2.0.0
-    "@opentelemetry/core": ^2.0.0
-    "@opentelemetry/instrumentation": ^0.203.0
-    "@opentelemetry/instrumentation-fetch": ^0.203.0
-    "@opentelemetry/instrumentation-undici": ^0.14.0
-    "@opentelemetry/sdk-trace-base": ^2.0.0
-    "@opentelemetry/sdk-trace-node": ^2.0.1
-    "@opentelemetry/sdk-trace-web": ^2.0.1
-    "@scure/base": ^1.2.4
-    "@scure/bip32": ^1.6.2
-    "@scure/bip39": ^1.5.4
-    "@scure/btc-signer": ^1.5.0
-    abort-controller-x: ^0.4.3
-    abortcontroller-polyfill: ^1.7.8
-    async-mutex: ^0.5.0
-    bare-crypto: ^1.9.2
-    bare-fetch: ^2.4.1
-    buffer: ^6.0.3
-    eciesjs: ^0.4.13
-    eventemitter3: ^5.0.1
-    js-base64: ^3.7.7
-    light-bolt11-decoder: ^3.2.0
-    nice-grpc: ^2.1.10
-    nice-grpc-client-middleware-retry: ^3.1.10
-    nice-grpc-common: ^2.0.2
-    nice-grpc-opentelemetry: ^0.1.18
-    nice-grpc-web: ^3.3.7
-    ts-proto: ^2.6.1
-    uuidv7: ^1.0.2
-  peerDependencies:
-    react: ">=18.2.0"
-    react-native: ">=0.71.0"
-    react-native-get-random-values: ">=1.11.0"
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-native:
-      optional: true
-    react-native-get-random-values:
-      optional: true
-  checksum: a1f2c06f7607485730507403172a465ffebdf6057b765dbecf446df687bbfd929d0b48bfdea902a3e74706bc108bcfcb6f2246d10e0a3bc5be6cc6552266d52e
-  languageName: node
-  linkType: hard
-
 "@buildonspark/spark-sdk@npm:^0.4.1":
   version: 0.4.1
   resolution: "@buildonspark/spark-sdk@npm:0.4.1"
@@ -13904,13 +13850,13 @@ __metadata:
 
 "spark-web-context@https://github.com/blitzwallet/spark-web-context.git":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=c3c96ebbcd03fb4beb6fac0b0e42f7a274d6aa32"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=1de8027bee7b041ab491abbc96b744a74b832566"
   dependencies:
-    "@buildonspark/spark-sdk": ^0.4.0
+    "@buildonspark/spark-sdk": ^0.4.1
     "@ecies/ciphers": ^0.2.4
     "@noble/hashes": ^2.0.1
     "@noble/secp256k1": ^3.0.0
-  checksum: 49feada97fbabe5a5cda38e9cba2d8701c1b4ebcd9af466893e569b62d3fecfb45f8f960b09b6de016cc7128f75023606e8a99fd6bb4a87ca9ac4d28d22bdcdc
+  checksum: 55f0fa16ce06b233b9ba16afe0f8be0497541d38286215e349fee335c82e6169e1266bc1c958371bdb783981f88b9bb9193f0c77205c5c67dbcab15397f3b3d0
   languageName: node
   linkType: hard
 
