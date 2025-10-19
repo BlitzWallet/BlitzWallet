@@ -280,6 +280,7 @@ export const WebViewProvider = ({ children }) => {
           console.error(
             `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
           );
+          if (sessionKeyRef.current == null) return;
 
           setIsWebViewReady(false);
           setHandshakeComplete(false);
