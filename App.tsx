@@ -252,7 +252,7 @@ function ResetStack(): JSX.Element | null {
 
       if (didGetToHomepage && navigationRef.current && publicKey) {
         try {
-          if (url.startsWith('lightning')) {
+          if (url.toLowerCase().startsWith('lightning')) {
             navigationRef.current.navigate('ConfirmPaymentScreen', {
               btcAdress: url,
             });
