@@ -27,4 +27,11 @@ export const supportedLanguagesList = [
     id: 'pt-BR',
     flagCode: 'br',
   },
+  {
+    languageName: 'German',
+    fullySupported: true,
+    translatedName: 'languages.german',
+    id: 'de-DE',
+    flagCode: 'de',
+  },
 ];
