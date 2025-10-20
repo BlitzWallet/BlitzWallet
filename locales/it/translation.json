@@ -1175,7 +1175,7 @@
     },
 
     "accounts": {
-      "inputPlaceholder": "Nome account",
+      "inputPlaceholder": "Cerca account esistente",
       "buttonCTA": "Scambia Fondi"
     },
     "resetWallet": {

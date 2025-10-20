@@ -1178,7 +1178,7 @@
     },
 
     "accounts": {
-      "inputPlaceholder": "Account name",
+      "inputPlaceholder": "Search existing account",
       "buttonCTA": "Swap Funds"
     },
     "resetWallet": {

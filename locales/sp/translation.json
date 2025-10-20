@@ -1013,7 +1013,7 @@
       "descriptionText": "Los datos de fallos nos ayudan a mejorar la estabilidad y el rendimiento de nuestra aplicación.\n\nCuando ocurre un fallo, la información del dispositivo registrada automáticamente incluye:\n\n• Sistema operativo: versión del SO, orientación del dispositivo y estado de jailbreak\n• Detalles del dispositivo: modelo, orientación y RAM disponible\n• Información del fallo: fecha del fallo y versión de la aplicación"
     },
     "accounts": {
-      "inputPlaceholder": "Nombre de la cuenta",
+      "inputPlaceholder": "Buscar cuenta existente",
       "buttonCTA": "Intercambiar fondos"
     },
     "resetWallet": {

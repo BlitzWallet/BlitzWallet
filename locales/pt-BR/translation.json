@@ -1178,7 +1178,7 @@
     },
 
     "accounts": {
-      "inputPlaceholder": "Nome da conta",
+      "inputPlaceholder": "Buscar conta existente",
       "buttonCTA": "Trocar fundos"
     },
     "resetWallet": {
