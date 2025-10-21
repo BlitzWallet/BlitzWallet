@@ -134,34 +134,52 @@ export const WebViewProvider = ({ children }) => {
     maxPerSecond: 10,
   });
 
-  const resetWebViewState = useCallback((clearHandshake = false) => {
-    if (forceReactNativeUse) return;
-    console.log('Resetting WebView state', { clearHandshake });
-    isResetting.current = true;
-    setIsWebViewReady(false);
-    // setVerifiedPath('');
-
-    // Only clear handshake if explicitly told to (actual failures)
-    // Don't clear it for normal app lifecycle resets
-    // Our app uses this to choose wheater to make calls to the webview or react native
-    if (clearHandshake) {
-      setHandshakeComplete(false);
-    }
-
-    // Always reset walletInitialized because WebView reload clears its internal state
-    // We'll need to reinitialize the wallet after handshake completes
-    walletInitialized.current = false;
-    setChangeSparkConnectionState(prev => ({
-      state: false,
-      count: (prev.count += 1),
-    }));
-
-    pendingRequests.current = {};
-    sessionKeyRef.current = null;
-    expectedSequenceRef.current = 0;
-    aesKeyRef.current = null;
-    nonceVerified.current = false;
+  const getNextSequence = useCallback(() => {
+    const current = expectedSequenceRef.current;
+    expectedSequenceRef.current = current + 1;
+    return current;
   }, []);
+
+  const resetWebViewState = useCallback(
+    (clearHandshake = false, sparkConnectionState) => {
+      if (forceReactNativeUse) return;
+      console.log('Resetting WebView state', { clearHandshake });
+      isResetting.current = true;
+      setIsWebViewReady(false);
+      // setVerifiedPath('');
+
+      // Only clear handshake if explicitly told to (actual failures)
+      // Don't clear it for normal app lifecycle resets
+      // Our app uses this to choose wheater to make calls to the webview or react native
+      if (clearHandshake) {
+        setHandshakeComplete(false);
+      }
+
+      // Always reset walletInitialized because WebView reload clears its internal state
+      // We'll need to reinitialize the wallet after handshake completes
+      walletInitialized.current = false;
+      setChangeSparkConnectionState(prev => ({
+        state: sparkConnectionState,
+        count: (prev.count += 1),
+      }));
+
+      Object.entries(pendingRequests.current).forEach(([id, resolve]) => {
+        // Call the resolve to trigger timeout cleanup
+        if (typeof resolve === 'function') {
+          resolve({
+            error: 'Unable to finish action, request got cleaned up.',
+          });
+        }
+      });
+
+      pendingRequests.current = {};
+      sessionKeyRef.current = null;
+      expectedSequenceRef.current = 0;
+      aesKeyRef.current = null;
+      nonceVerified.current = false;
+    },
+    [],
+  );
 
   const reloadWebViewSecurely = useCallback(async () => {
     try {
@@ -219,12 +237,12 @@ export const WebViewProvider = ({ children }) => {
       if (previousAppState.current === 'background' && appState === 'active') {
         const timeInBackground = backgroundTimeRef.current
           ? Date.now() - backgroundTimeRef.current
-          : 0;
+          : Infinity; //force reset if background timeout is not set
 
         if (timeInBackground > BACKGROUND_THRESHOLD_MS) {
           console.log('Background time exceeded threshold - reloading WebView');
           // Reset state but DON'T clear handshakeComplete flag
-          resetWebViewState(false);
+          resetWebViewState(false, false);
           reloadWebViewSecurely();
         }
 
@@ -280,18 +298,9 @@ export const WebViewProvider = ({ children }) => {
           console.error(
             `SECURITY: Rate limit exceeded (${messageRateLimiter.current.count} msgs/sec)`,
           );
-          if (sessionKeyRef.current == null) return;
 
-          setIsWebViewReady(false);
-          setHandshakeComplete(false);
-          aesKeyRef.current = null;
-          sessionKeyRef.current = null;
-          nonceVerified.current = false;
+          resetWebViewState(true, true);
           forceReactNativeUse = true;
-          setChangeSparkConnectionState(prev => ({
-            state: true,
-            count: (prev.count += 1),
-          }));
           return;
         }
 
@@ -365,17 +374,8 @@ export const WebViewProvider = ({ children }) => {
         if (content.type === 'security:csp-violation') {
           console.error('CSP VIOLATION DETECTED:', content);
 
-          // Shut down WebView immediately
-          setIsWebViewReady(false);
-          setHandshakeComplete(false);
-          aesKeyRef.current = null;
-          sessionKeyRef.current = null;
-          nonceVerified.current = false;
+          resetWebViewState(true, true);
           forceReactNativeUse = true;
-          setChangeSparkConnectionState(prev => ({
-            state: true,
-            count: (prev.count += 1),
-          }));
           return;
         }
 
@@ -403,17 +403,10 @@ export const WebViewProvider = ({ children }) => {
                 result.error,
               );
 
-              setIsWebViewReady(false);
-              setHandshakeComplete(false);
-              aesKeyRef.current = null;
-              sessionKeyRef.current = null;
-              nonceVerified.current = false;
+              resetWebViewState(true, true);
               forceReactNativeUse = true;
-              setChangeSparkConnectionState(prev => ({
-                state: true,
-                count: (prev.count += 1),
-              }));
-              setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
+
+              // setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
             }
             resolve(result);
 
@@ -437,9 +430,11 @@ export const WebViewProvider = ({ children }) => {
     ) {
       console.log('Re-initializing wallet before processing queue');
       try {
-        const response = await sendWebViewRequestGlobal(
+        // No need to handle any state changes here, handled inside of the promise. But this might be where the stale connection state comes from. if a request is sent to the webview but not responded to the change to react-native woudnt have happpened before leaving everything in "not connected to spark".
+        const response = await sendWebViewRequestInternal(
           OPERATION_TYPES.initWallet,
           { mnemonic: currentWalletMnemoinc },
+          true,
         );
         if (!response?.isConnected) throw new Error('Wallet init failed');
       } catch (err) {
@@ -466,7 +461,7 @@ export const WebViewProvider = ({ children }) => {
         .then(resolve)
         .catch(reject);
     });
-  }, [currentWalletMnemoinc]);
+  }, [currentWalletMnemoinc, sendWebViewRequestInternal]);
 
   const sendWebViewRequestInternal = useCallback(
     async (action, args = {}, encrypt = true) => {
@@ -519,7 +514,7 @@ export const WebViewProvider = ({ children }) => {
           }
 
           const id = customUUID();
-          const sequence = expectedSequenceRef.current++;
+          const sequence = getNextSequence();
           const timestamp = Date.now();
 
           const getTimeoutDuration = action => {
@@ -573,14 +568,8 @@ export const WebViewProvider = ({ children }) => {
 
             delete pendingRequests.current[id];
 
+            resetWebViewState(true, true);
             forceReactNativeUse = true;
-            setHandshakeComplete(false);
-            setChangeSparkConnectionState(prev => ({
-              state: true,
-              count: (prev.count += 1),
-            }));
-
-            resetWebViewState(true);
 
             reject(
               new Error(
@@ -639,20 +628,6 @@ export const WebViewProvider = ({ children }) => {
                   state: true,
                   count: (prev.count += 1),
                 }));
-                walletInitialized.current = false;
-
-                // Reject all pending requests since WebView is now unusable
-                Object.entries(pendingRequests.current).forEach(
-                  ([reqId, reqResolve]) => {
-                    if (reqId !== id && typeof reqResolve === 'function') {
-                      reqResolve({
-                        error:
-                          'Wallet initialization failed, using React Native(2)',
-                      });
-                    }
-                  },
-                );
-                pendingRequests.current = {};
               } else {
                 walletInitialized.current = true;
                 setChangeSparkConnectionState(prev => ({
@@ -684,11 +659,18 @@ export const WebViewProvider = ({ children }) => {
 
           let payload = { id, action, args, sequence, timestamp };
           console.log('sending message to webview', action, payload);
-          if (encrypt && aesKeyRef.current) {
-            const encrypted = encryptMessage(JSON.stringify(payload));
-            payload = { type: 'secure:msg', encrypted };
+
+          try {
+            if (encrypt && aesKeyRef.current) {
+              const encrypted = encryptMessage(JSON.stringify(payload));
+              payload = { type: 'secure:msg', encrypted };
+            }
+            webViewRef.current.postMessage(JSON.stringify(payload));
+          } catch (err) {
+            if (timeoutId) clearTimeout(timeoutId);
+            delete pendingRequests.current[id];
+            reject(err);
           }
-          webViewRef.current.postMessage(JSON.stringify(payload));
         } catch (err) {
           // Clean up timeout on error
           if (timeoutId) {
@@ -702,7 +684,7 @@ export const WebViewProvider = ({ children }) => {
         }
       });
     },
-    [isWebViewReady, encryptMessage, resetWebViewState],
+    [isWebViewReady, encryptMessage, resetWebViewState, getNextSequence],
   );
 
   const initHandshake = useCallback(async () => {
@@ -817,12 +799,7 @@ export const WebViewProvider = ({ children }) => {
         }}
         onContentProcessDidTerminate={() => {
           console.warn('WebView content process terminated — reloading...');
-          Object.values(pendingRequests.current).forEach(resolve => {
-            if (typeof resolve === 'function') {
-              resolve(new Error('WebView terminated unexpectedly'));
-            }
-          });
-          resetWebViewState(false);
+          resetWebViewState(false, false);
           reloadWebViewSecurely();
         }}
       />
