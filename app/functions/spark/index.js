@@ -170,8 +170,11 @@ export const getSparkIdentityPubKey = async (mnemonic, sendWebViewRequest) => {
           mnemonic,
         },
       );
-      if (!response) throw new Error('unable to generate spak identity pubkey');
-      return response;
+
+      return validateWebViewResponse(
+        response,
+        'unable to generate spark identity pubkey',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       return await wallet.getIdentityPublicKey();
@@ -192,7 +195,9 @@ export const getSparkBalance = async mnemonic => {
           mnemonic,
         },
       );
-      if (!response.didWork) throw new Error('unable to get balance');
+
+      validateWebViewResponse(response, 'unable to get spark balance');
+
       const balanceString = response.balance;
       const tokensObject = response.tokensObject;
 
@@ -266,9 +271,11 @@ export const getSparkStaticBitcoinL1Address = async mnemonic => {
         OPERATION_TYPES.getL1Address,
         { mnemonic },
       );
-      if (!response)
-        throw new Error('Not abler to generate bitcoin l1 daddress');
-      return response;
+
+      return validateWebViewResponse(
+        response,
+        'Not abler to generate bitcoin l1 daddress',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       return await wallet.getStaticDepositAddress();
@@ -286,8 +293,10 @@ export const queryAllStaticDepositAddresses = async mnemonic => {
         OPERATION_TYPES.queryStaticL1Address,
         { mnemonic },
       );
-      if (!response) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to query all bitcoin l1 daddress',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       return wallet.queryStaticDepositAddresses();
@@ -305,8 +314,10 @@ export const getSparkStaticBitcoinL1AddressQuote = async (txid, mnemonic) => {
         OPERATION_TYPES.getL1AddressQuote,
         { mnemonic, txid },
       );
-      if (!response.didWork) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to get bitcoin l1 quote',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       const quote = await wallet.getClaimStaticDepositQuote(txid);
@@ -359,8 +370,11 @@ export const claimnSparkStaticDepositAddress = async ({
         OPERATION_TYPES.claimStaticDepositAddress,
         { mnemonic, creditAmountSats, sspSignature, transactionId },
       );
-      if (!response.didWork) throw new Error(response.error);
-      return response;
+
+      return validateWebViewResponse(
+        response,
+        'Not able to clain bitcoin l1 deposit',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       const response = await wallet.claimStaticDeposit({
@@ -386,8 +400,7 @@ export const getSparkAddress = async mnemonic => {
           mnemonic,
         },
       );
-      if (!response.didWork) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(response, 'Not able to get spark address');
     } else {
       const wallet = await getWallet(mnemonic);
       const response = await wallet.getSparkAddress();
@@ -415,8 +428,10 @@ export const sendSparkPayment = async ({
           amountSats,
         },
       );
-      if (!response.didWork) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to send spark payment',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       const response = await wallet.transfer({
@@ -449,8 +464,10 @@ export const sendSparkTokens = async ({
           receiverSparkAddress,
         },
       );
-      if (!response.didWork) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to send spark token payment',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       const response = await wallet.transferTokens({
@@ -482,8 +499,10 @@ export const getSparkLightningPaymentFeeEstimate = async (
           invoice,
         },
       );
-      if (!response.didWork) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to get spark lightning fee estimate',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       const response = await wallet.getLightningSendFeeEstimate({
@@ -509,8 +528,10 @@ export const getSparkBitcoinPaymentRequest = async (paymentId, mnemonic) => {
           paymentId,
         },
       );
-      if (!response) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to get spark bitcoin payment request',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       return await wallet.getCoopExitRequest(paymentId);
@@ -536,8 +557,10 @@ export const getSparkBitcoinPaymentFeeEstimate = async ({
           withdrawalAddress,
         },
       );
-      if (!response.didWork) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to get spark bitcoin payment fee',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       const response = await wallet.getWithdrawalFeeQuote({
@@ -563,7 +586,10 @@ export const getSparkPaymentFeeEstimate = async (amountSats, mnemonic) => {
           amountSats,
         },
       );
-      if (!response) throw new Error(response.error);
+      validateWebViewResponse(
+        response,
+        'Not able to get spark bitcoin payment fee',
+      );
       const amount = response.feeEstimate.originalValue;
       return amount;
     } else {
@@ -594,8 +620,10 @@ export const receiveSparkLightningPayment = async ({
           expirySeconds: 60 * 60 * 12,
         },
       );
-      if (!response.didWork) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to get spark bitcoin lightning request',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       const response = await wallet.createLightningInvoice({
@@ -622,8 +650,10 @@ export const getSparkLightningSendRequest = async (id, mnemonic) => {
           id,
         },
       );
-      if (!response) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to get spark bitcoin lightning send request',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       return await wallet.getLightningSendRequest(id);
@@ -647,8 +677,10 @@ export const getSparkLightningPaymentStatus = async ({
           lightningInvoiceId,
         },
       );
-      if (!response) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to get spark bitcoin lightning payment status',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       return await wallet.getLightningReceiveRequest(lightningInvoiceId);
@@ -676,8 +708,10 @@ export const sendSparkLightningPayment = async ({
           amountSat: amountSats,
         },
       );
-      if (!response.didWork) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to send spark bitcoin lightning payment',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       const paymentResponse = await wallet.payLightningInvoice({
@@ -715,8 +749,10 @@ export const sendSparkBitcoinPayment = async ({
           deductFeeFromWithdrawalAmount,
         },
       );
-      if (!response.didWork) throw new Error(response.error);
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to send spark bitcoin payment',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       const response = await wallet.withdraw({
@@ -750,8 +786,10 @@ export const getSparkTransactions = async (
           offsetIndex,
         },
       );
-      if (!response) throw new Error('unable to get trasnactions');
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to send spark transactions',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       return await wallet.getTransfers(transferCount, offsetIndex);
@@ -786,8 +824,10 @@ export const getSparkTokenTransactions = async ({
           lastSavedTransactionId,
         },
       );
-      if (!response) throw new Error('unable to get trasnactions');
-      return response;
+      return validateWebViewResponse(
+        response,
+        'Not able to send spark token transactions',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
       const response = await wallet.queryTokenTransactions({
@@ -960,6 +1000,10 @@ export const findTransactionTxFromTxHistory = async (
             offsetIndex: transferCount * offset,
           },
         );
+        validateWebViewResponse(
+          transfers,
+          'Not able to send spark token transactions',
+        );
       } else {
         transfers = await wallet.getTransfers(
           transferCount,
@@ -992,4 +1036,23 @@ export const findTransactionTxFromTxHistory = async (
     console.log('Error finding bitcoin tx from history', err);
     return { didWork: false, error: err.message };
   }
+};
+
+/**
+ * Validates WebView response and throws if error present
+ */
+const validateWebViewResponse = (response, errorMessage) => {
+  if (!response) {
+    throw new Error(errorMessage || 'No response from WebView');
+  }
+
+  if (response.error) {
+    throw new Error(response.error);
+  }
+
+  if (response.hasOwnProperty('didWork') && !response.didWork) {
+    throw new Error(response.error || errorMessage || 'Operation failed');
+  }
+
+  return response;
 };
