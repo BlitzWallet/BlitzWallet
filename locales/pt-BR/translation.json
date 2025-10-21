@@ -940,9 +940,9 @@
       },
       "acceptButton": {
         "noSendAmountError": "Por favor, insira uma quantia para envio",
-        "liquidError": "{{overFlowType}} enviar quantia {{amount}}",
+        "liquidError": " A quantia {{overFlowType}} para envio é {{amount}}",
         "onchainError": "A quantia mínima de envio na cadeia on-chain é {{amount}}",
-        "lnurlPayError": "{{overFlowType}} enviar quantia {{amount}}",
+        "lnurlPayError": "A quantia {{overFlowType}} para envio é {{amount}}",
         "lrc20FeeError": "Você precisa {{amount}} para enviar tokens. Seu saldo é {{balance}}. Por favor, deposite alguns Bitcoins primeiro.",
         "balanceError": "Fundos insuficientes para cobrir o valor de envio e as taxas"
       }
