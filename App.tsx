@@ -191,18 +191,15 @@ function ResetStack(): JSX.Element | null {
   const { backgroundColor } = GetThemeColors();
   const { i18n } = useTranslation();
 
-  const handleDeepLink = useCallback(
-    (event: { url: string }) => {
-      const { url } = event;
-      console.log('Deep link URL:', url);
+  const handleDeepLink = useCallback((event: { url: string }) => {
+    const { url } = event;
+    console.log('Deep link URL:', url);
 
-      setPendingLinkData({
-        url: event.url,
-        timestamp: Date.now(),
-      });
-    },
-    [didGetToHomepage],
-  );
+    setPendingLinkData({
+      url: event.url,
+      timestamp: Date.now(),
+    });
+  }, []);
 
   const clearDeepLink = useCallback(() => {
     setPendingLinkData({
@@ -292,6 +289,14 @@ function ResetStack(): JSX.Element | null {
   }, [pendingLinkData, didGetToHomepage, publicKey]);
 
   useEffect(() => {
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [handleDeepLink]);
+
+  useEffect(() => {
     async function initWallet() {
       await runPinAndMnemoicMigration();
       await runSecureStoreMigrationV2();
@@ -345,12 +350,8 @@ function ResetStack(): JSX.Element | null {
 
       i18n.changeLanguage(userSelectedLanguage);
     }
-    const subscription = Linking.addEventListener('url', handleDeepLink);
-    initWallet();
 
-    return () => {
-      subscription.remove();
-    };
+    initWallet();
   }, []);
 
   const handleAnimationFinish = () => {
