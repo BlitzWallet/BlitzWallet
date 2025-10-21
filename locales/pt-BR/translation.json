@@ -249,7 +249,7 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Como as configurações biométricas estão ativadas, você não pode usar o método de login com PIN padrão. Deseja encerrar sua conta?",
+      "isBiometricEnabledConfirmAction": "Você não pode usar seu PIN enquanto a biometria estiver ativada.\n\nDeseja excluir todos os dados da carteira? Certifique-se de que você tem o backup da sua frase-semente.\n",
       "wrongPinError": "PIN incorreto, tente novamente",
       "enterPinMessage": "Inserir PIN",
       "attemptsText": "{{attempts}} tentativas restantes"
