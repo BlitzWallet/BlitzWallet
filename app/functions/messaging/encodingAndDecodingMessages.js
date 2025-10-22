@@ -1,6 +1,10 @@
-import {Buffer} from 'buffer';
-import {getSharedSecret} from '@noble/secp256k1';
-import {createCipheriv, createDecipheriv} from 'react-native-quick-crypto';
+import { Buffer } from 'buffer';
+import { getSharedSecret } from '@noble/secp256k1';
+import {
+  createCipheriv,
+  createDecipheriv,
+  randomBytes,
+} from 'react-native-quick-crypto';
 
 function encriptMessage(privkey, pubkey, text) {
   //   const encripted = await nostr.nip04.encrypt(privkey, pubkey, text);
@@ -15,9 +19,7 @@ function encriptMessage(privkey, pubkey, text) {
     const shardPoint = getSharedSecret(privkey, '02' + pubkey);
     const sharedX = shardPoint.slice(1, 33);
 
-    const iv = Buffer.from(
-      Array.from({length: 16}, () => Math.floor(Math.random() * 256)),
-    );
+    const iv = randomBytes(16);
 
     const cipher = createCipheriv('aes-256-cbc', Buffer.from(sharedX), iv);
 
@@ -53,4 +55,4 @@ function decryptMessage(privkey, pubkey, encryptedText) {
   }
 }
 
-export {encriptMessage, decryptMessage};
+export { encriptMessage, decryptMessage };
