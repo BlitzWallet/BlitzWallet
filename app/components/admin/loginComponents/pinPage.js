@@ -238,14 +238,22 @@ export default function PinPage() {
         styles={styles.header}
         content={t('adminLogin.pinPage.enterPinMessage')}
       />
-      <ThemeText
-        styles={styles.enterText}
-        content={t('adminLogin.pinPage.attemptsText', {
-          attempts: 8 - loginSettings.enteredPinCount,
-        })}
-      />
 
-      <View style={styles.dotContainer}>
+      {!!loginSettings.enteredPinCount && (
+        <ThemeText
+          styles={styles.enterText}
+          content={t('adminLogin.pinPage.attemptsText', {
+            attempts: 8 - loginSettings.enteredPinCount,
+          })}
+        />
+      )}
+
+      <View
+        style={[
+          styles.dotContainer,
+          { marginTop: loginSettings.enteredPinCount ? 0 : 30 },
+        ]}
+      >
         <PinDot pin={loginSettings.enteredPin} dotNum={0} />
         <PinDot pin={loginSettings.enteredPin} dotNum={1} />
         <PinDot pin={loginSettings.enteredPin} dotNum={2} />
