@@ -132,7 +132,9 @@ export default function AcceptButtonSendPage({
 
     navigate.navigate('ErrorScreen', {
       errorMessage: t('wallet.sendPages.acceptButton.lnurlPayError', {
-        overFlowType: isMinError ? 'Minimum' : 'Maximum',
+        overFlowType: isMinError
+          ? t('constants.minimum')
+          : t('constants.maximum'),
         amount: displayCorrectDenomination({
           amount: errorAmount,
           fiatStats,
