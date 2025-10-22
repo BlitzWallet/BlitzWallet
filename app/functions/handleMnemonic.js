@@ -1,5 +1,5 @@
-import {generateMnemonic} from '@scure/bip39';
-import {wordlist} from '@scure/bip39/wordlists/english';
+import { generateMnemonic } from '@scure/bip39';
+import { wordlist } from '@scure/bip39/wordlists/english';
 import * as CryptoES from 'crypto-es';
 import {
   BIOMETRIC_KEY,
@@ -15,7 +15,7 @@ import {
 } from './secureStore';
 import sha256Hash from './hash';
 import * as SecureStorage from 'expo-secure-store';
-import {removeLocalStorageItem, setLocalStorageItem} from './localStorage';
+import { removeLocalStorageItem, setLocalStorageItem } from './localStorage';
 
 export async function generateAndStoreEncryptionKeyForMnemoinc() {
   try {
@@ -176,16 +176,6 @@ export function encryptMnemonic(mnemonic, pin) {
 }
 
 export async function resetTest() {
-  // SecureStore.setItem('pin', JSON.stringify([1, 2, 3, 4]));
-  // SecureStore.setItem(
-  //   'mnemonic',
-  //   'quantum scout spoon rapid confirm sing bicycle dose quarter claim fuel urban',
-  // );
-  // storeData('pin', JSON.stringify([1, 2, 3, 4]));
-  // storeData(
-  //   'mnemonic',
-  //   'quantum scout spoon rapid confirm sing bicycle dose quarter claim fuel urban',
-  // );
   deleteItem('pinHash');
   deleteItem('encryptedMnemonic');
   SecureStorage.deleteItemAsync('pin');
