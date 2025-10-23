@@ -65,7 +65,7 @@ export default function NWCWalletSetup(props) {
             return;
           }
 
-          const response = deriveKeyFromMnemonic(accountMnemoinc, 2);
+          const response = await deriveKeyFromMnemonic(accountMnemoinc, 2);
           if (response.error) {
             navigate.navigate('ErrorScreen', { errorMessage: response.error });
             return;

@@ -1,13 +1,13 @@
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {useEffect, useState} from 'react';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {COLORS, INSET_WINDOW_WIDTH} from '../../../../../constants/theme';
+import { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
@@ -16,37 +16,37 @@ import {
 import SettingsItemWithSlider from '../../../../../functions/CustomElements/settings/settingsItemWithSlider';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
-import {createAccountMnemonic} from '../../../../../functions';
+import { createAccountMnemonic } from '../../../../../functions';
 
-import {randomBytes} from 'react-native-quick-crypto';
+import { randomBytes } from 'react-native-quick-crypto';
 import sha256Hash from '../../../../../functions/hash';
-import {getSupportedMethods} from '../../../../../functions/nwc';
-import {privateKeyFromSeedWords} from '../../../../../functions/nostrCompatability';
-import {publishToSingleRelay} from '../../../../../functions/nwc/publishResponse';
-import {useTranslation} from 'react-i18next';
-import {finalizeEvent, getPublicKey} from 'nostr-tools';
+import { getSupportedMethods } from '../../../../../functions/nwc';
+import { privateKeyFromSeedWords } from '../../../../../functions/nostrCompatability';
+import { publishToSingleRelay } from '../../../../../functions/nwc/publishResponse';
+import { useTranslation } from 'react-i18next';
+import { finalizeEvent, getPublicKey } from 'nostr-tools';
 
 const BUDGET_RENEWAL_OPTIONS = [
-  {label: 'timeLabels.daily', value: 'Daily'},
-  {label: 'timeLabels.weekly', value: 'Weekly'},
-  {label: 'timeLabels.monthly', value: 'Monthly'},
-  {label: 'timeLabels.yearly', value: 'Yearly'},
+  { label: 'timeLabels.daily', value: 'Daily' },
+  { label: 'timeLabels.weekly', value: 'Weekly' },
+  { label: 'timeLabels.monthly', value: 'Monthly' },
+  { label: 'timeLabels.yearly', value: 'Yearly' },
 ];
 const BUDGET_AMOUNT_OPTIONS = [50_000, 100_000, 'Unlimited', 'Custom...'];
 
 export default function CreateNostrConnectAccount(props) {
   const navigate = useNavigation();
-  const {masterInfoObject, toggleNWCInformation} = useGlobalContextProvider();
+  const { masterInfoObject, toggleNWCInformation } = useGlobalContextProvider();
   const passedParams = props.route?.params;
   const isEditing = passedParams?.accountID;
   const savedData = passedParams?.data;
-  const {fiatStats} = useNodeContext();
+  const { fiatStats } = useNodeContext();
   const [accountName, setAccountName] = useState(
     isEditing ? savedData.accountName : '',
   );
@@ -67,10 +67,10 @@ export default function CreateNostrConnectAccount(props) {
   });
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
-  const {textColor, backgroundOffset} = GetThemeColors();
-  const {t} = useTranslation();
+  const { textColor, backgroundOffset } = GetThemeColors();
+  const { t } = useTranslation();
 
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
 
   const handleDropdownScrollStart = () => {
     setOuterScrollEnabled(false);
@@ -137,7 +137,7 @@ export default function CreateNostrConnectAccount(props) {
       if (!isEditing) {
         await new Promise(res => setTimeout(res, 10)); // add a delay for UI
         const mnemonic = await createAccountMnemonic();
-        privateKey = privateKeyFromSeedWords(mnemonic);
+        privateKey = await privateKeyFromSeedWords(mnemonic);
         publicKey = getPublicKey(privateKey);
         secret = sha256Hash(randomBytes(32));
       } else {
@@ -230,10 +230,11 @@ export default function CreateNostrConnectAccount(props) {
           justifyContent: 'center',
           borderRadius: 8,
         }}
-        key={option.toString()}>
+        key={option.toString()}
+      >
         {typeof option === 'number' ? (
           <ThemeText
-            styles={{includeFontPadding: false}}
+            styles={{ includeFontPadding: false }}
             content={displayCorrectDenomination({
               amount: option,
               masterInfoObject,
@@ -242,7 +243,7 @@ export default function CreateNostrConnectAccount(props) {
           />
         ) : (
           <ThemeText
-            styles={{includeFontPadding: false}}
+            styles={{ includeFontPadding: false }}
             content={
               option === 'Custom...' && props?.route?.params?.amount
                 ? displayCorrectDenomination({
@@ -263,7 +264,8 @@ export default function CreateNostrConnectAccount(props) {
       useLocalPadding={true}
       useStandardWidth={true}
       useTouchableWithoutFeedback={true}
-      isKeyboardActive={isKeyboardActive}>
+      isKeyboardActive={isKeyboardActive}
+    >
       <CustomSettingsTopBar
         label={t('settings.nwc.createNWCAccount.title')}
         shouldDismissKeyboard={true}
@@ -283,7 +285,8 @@ export default function CreateNostrConnectAccount(props) {
               paddingBottom: 20,
               width: INSET_WINDOW_WIDTH,
               ...CENTER,
-            }}>
+            }}
+          >
             <CustomSearchInput
               inputText={accountName}
               setInputText={setAccountName}
@@ -294,7 +297,7 @@ export default function CreateNostrConnectAccount(props) {
               onFocusFunction={() => setIsKeyboardActive(true)}
             />
             <ThemeText
-              styles={{marginTop: 30, marginBottom: 10}}
+              styles={{ marginTop: 30, marginBottom: 10 }}
               content={t('settings.nwc.createNWCAccount.permissionsHeader')}
             />
 
@@ -334,7 +337,7 @@ export default function CreateNostrConnectAccount(props) {
                 }))
               }
               toggleSwitchStateValue={accountPermissions.getBalance}
-              containerStyles={{marginTop: 0}}
+              containerStyles={{ marginTop: 0 }}
               switchPageName="nwcAccount"
             />
             <SettingsItemWithSlider
@@ -347,7 +350,7 @@ export default function CreateNostrConnectAccount(props) {
                 }))
               }
               toggleSwitchStateValue={accountPermissions.transactionHistory}
-              containerStyles={{marginTop: 0}}
+              containerStyles={{ marginTop: 0 }}
               switchPageName="nwcAccount"
             />
             <SettingsItemWithSlider
@@ -360,11 +363,11 @@ export default function CreateNostrConnectAccount(props) {
                 }))
               }
               toggleSwitchStateValue={accountPermissions.lookupInvoice}
-              containerStyles={{marginTop: 0, marginBottom: 0}}
+              containerStyles={{ marginTop: 0, marginBottom: 0 }}
               switchPageName="nwcAccount"
             />
             <ThemeText
-              styles={{marginTop: 30, marginBottom: 10}}
+              styles={{ marginTop: 30, marginBottom: 10 }}
               content={t('settings.nwc.createNWCAccount.budgetRenewalHeader')}
             />
             <DropdownMenu
@@ -388,7 +391,8 @@ export default function CreateNostrConnectAccount(props) {
                 columnGap: 10,
                 flexDirection: 'row',
                 marginTop: 20,
-              }}>
+              }}
+            >
               {budgetElements}
             </View>
           </ScrollView>

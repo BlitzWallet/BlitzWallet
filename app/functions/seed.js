@@ -3,10 +3,11 @@ import {
   generateMnemonic,
   mnemonicToSeedSync,
 } from '@scure/bip39';
-import {wordlist} from '@scure/bip39/wordlists/english';
-import {crashlyticsLogReport} from './crashlyticsLogs';
-import {IS_LETTER_REGEX} from '../constants';
-import {HDKey} from '@scure/bip32';
+import { wordlist } from '@scure/bip39/wordlists/english';
+import { crashlyticsLogReport } from './crashlyticsLogs';
+import { IS_LETTER_REGEX } from '../constants';
+import { HDKey } from '@scure/bip32';
+import { mnemonicToSeedAsync } from './nostrCompatability';
 
 export async function createAccountMnemonic() {
   try {
@@ -103,17 +104,17 @@ export function handleRestoreFromText(seedString) {
       currentIndex += 1;
     }
 
-    return {didWork: true, seed: wordArray};
+    return { didWork: true, seed: wordArray };
   } catch (err) {
     console.log('handle restore from text error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 }
-export function deriveKeyFromMnemonic(mnemonic, index = 0) {
+export async function deriveKeyFromMnemonic(mnemonic, index = 0) {
   try {
     const derivationPath = `m/44'/0'/0'/0/${index}`;
 
-    const seed = mnemonicToSeedSync(mnemonic);
+    const seed = await mnemonicToSeedAsync(mnemonic);
 
     const masterKey = HDKey.fromMasterSeed(seed);
 
@@ -135,6 +136,6 @@ export function deriveKeyFromMnemonic(mnemonic, index = 0) {
     };
   } catch (err) {
     console.log('derive key error:', err);
-    return {success: false, error: err.message};
+    return { success: false, error: err.message };
   }
 }
