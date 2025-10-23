@@ -125,7 +125,7 @@ export const RootstockSwapProvider = ({ children }) => {
     );
   }, []);
 
-  const createSigner = useCallback(async () => {
+  const createSigner = useCallback(() => {
     try {
       console.log('PROCESSS WALLET', new Date().getTime());
       const wallet = Wallet.fromPhrase(accountMnemoinc);
