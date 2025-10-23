@@ -215,10 +215,12 @@ const styles = StyleSheet.create({
   checkboxText: {
     fontSize: SIZES.small,
     textAlign: 'left',
+    includeFontPadding: false,
   },
   termsLinkText: {
     fontSize: SIZES.small,
     color: COLORS.primary,
     textDecorationLine: 'underline',
+    includeFontPadding: false,
   },
 });
