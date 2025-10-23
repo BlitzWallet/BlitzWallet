@@ -1,10 +1,14 @@
 import * as WebBrowser from 'expo-web-browser';
 
-export default async function openWebBrowser({navigate, link}) {
+export default async function openWebBrowser({ navigate, link }) {
   try {
     await WebBrowser.openBrowserAsync(link);
   } catch (err) {
-    navigate.navigate('ErrorScreen', {errorMessage: 'Cannot open web broswer'});
+    if (navigate) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'Cannot open web broswer',
+      });
+    }
     console.log(err, 'OPENING LINK ERROR');
   }
 }
