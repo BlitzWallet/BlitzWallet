@@ -107,7 +107,8 @@
     "instant": "Sofort",
     "andLower": "und",
     "onLower": "ein",
-    "offLower": "aus"
+    "offLower": "aus",
+    "recover": "Genesen"
   },
 
   "languages": {
@@ -1461,7 +1462,9 @@
         "dbInitError": "Datenbank konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
         "userSettingsError": "Benutzereinstellungen konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
         "liquidWalletError": "Wallet-Informationen wurden nicht korrekt eingerichtet, bitte versuchen Sie es erneut.",
-        "liquidWalletError2": "Wir konnten Ihre Wallet nicht einrichten. Bitte versuchen Sie es erneut."
+        "liquidWalletError2": "Wir konnten Ihre Wallet nicht einrichten. Bitte versuchen Sie es erneut.",
+        "dbInitError1": "Wir konnten Ihre App nicht einrichten.",
+        "dbInitError2": "Bitte versuchen Sie es erneut. Wenn dieses Problem weiterhin besteht, können Sie Ihr Geld mithilfe Ihrer Seed-Phrase sicher zurückerhalten."
       },
 
       "receiveBtcPage": {

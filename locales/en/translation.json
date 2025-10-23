@@ -107,7 +107,8 @@
     "instant": "Instant",
     "andLower": "and",
     "onLower": "on",
-    "offLower": "off"
+    "offLower": "off",
+    "recover": "Recover"
   },
 
   "languages": {
@@ -1479,7 +1480,9 @@
         "dbInitError": "Unable to open the database. Please try again.",
         "userSettingsError": "Unable to load user settings. Please try again.",
         "liquidWalletError": "Wallet information was not set properly, please try again.",
-        "liquidWalletError2": "We were unable to set up your wallet. Please try again."
+        "liquidWalletError2": "We were unable to set up your wallet. Please try again.",
+        "dbInitError1": "We’re unable to set up your app.",
+        "dbInitError2": "Please try again. If this issue continues, you can safely recover your funds using your seed phrase."
       },
 
       "receiveBtcPage": {

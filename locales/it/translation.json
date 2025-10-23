@@ -107,7 +107,8 @@
     "instant": "Istantaneo",
     "andLower": "e",
     "onLower": "attivo",
-    "offLower": "disattivo"
+    "offLower": "disattivo",
+    "recover": "Recuperare"
   },
 
   "languages": {
@@ -1478,7 +1479,9 @@
         "dbInitError": "Impossibile aprire il database. Riprova.",
         "userSettingsError": "Impossibile caricare le impostazioni utente. Riprova.",
         "liquidWalletError": "Le informazioni del wallet non sono state impostate correttamente, riprova.",
-        "liquidWalletError2": "Non siamo riusciti a configurare il tuo wallet. Riprova."
+        "liquidWalletError2": "Non siamo riusciti a configurare il tuo wallet. Riprova.",
+        "dbInitError1": "Non siamo in grado di configurare la tua app.",
+        "dbInitError2": "Per favore riprova. Se il problema persiste, puoi recuperare i tuoi fondi in tutta sicurezza utilizzando la frase seed."
       },
 
       "receiveBtcPage": {

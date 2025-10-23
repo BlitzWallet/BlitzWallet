@@ -107,7 +107,8 @@
     "instant": "Instantáneo",
     "andLower": "y",
     "onLower": "en",
-    "offLower": "de"
+    "offLower": "de",
+    "recover": "Recuperare"
   },
 
   "languages": {
@@ -1309,7 +1310,9 @@
         "dbInitError": "No se pudo abrir la base de datos. Intenta de nuevo.",
         "userSettingsError": "No se pudieron cargar los ajustes de usuario. Intenta de nuevo.",
         "liquidWalletError": "La información de la billetera no se configuró correctamente, intenta de nuevo.",
-        "liquidWalletError2": "No pudimos configurar tu billetera. Intenta de nuevo."
+        "liquidWalletError2": "No pudimos configurar tu billetera. Intenta de nuevo.",
+        "dbInitError1": "No podemos configurar su aplicación.",
+        "dbInitError2": "Por favor inténtalo de nuevo. Si este problema continúa, puede recuperar sus fondos de forma segura utilizando su frase inicial."
       },
       "receiveBtcPage": {
         "onchainFeeMessage": "Los pagos en cadena tienen una tarifa de red y una tarifa de Spark del 0,1%.\n\nSi te envías dinero a ti mismo, pagarás la tarifa de red dos veces — una para enviar y otra para reclamar.\n\nSi otra persona te envía dinero, solo pagarás la tarifa de red una vez al reclamar.",
