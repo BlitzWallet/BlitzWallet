@@ -97,6 +97,7 @@ export const UserSatAmount = memo(function UserSatAmount({
           style={styles.valueContainer}
         >
           <FormattedSatText
+            useSpaces={sparkInformation.didConnect || userBalance}
             styles={styles.valueText}
             balance={userBalance || 0}
           />

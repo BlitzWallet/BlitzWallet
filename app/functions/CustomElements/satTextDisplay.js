@@ -26,6 +26,7 @@ export default function FormattedSatText({
   useCustomLabel = false,
   customLabel = '',
   useMillionDenomination = false,
+  useSpaces = true,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
@@ -112,7 +113,9 @@ export default function FormattedSatText({
       renderText(
         `${showSymbol ? BITCOIN_SATS_ICON : ''}${
           Platform.OS === 'android'
-            ? `\u200A\u200A\u200A${formattedBalance}\u200A\u200A\u200A`
+            ? `${useSpaces ? '\u200A\u200A\u200A' : ''}${formattedBalance}${
+                useSpaces ? '\u200A\u200A\u200A' : '\u200A'
+              }`
             : formattedBalance
         }${
           !showSymbol
