@@ -1521,9 +1521,9 @@
         "bitcoinTxId": "Bitcoin Txid",
         "paymentExp": "Vencimento do pagamento",
         "noInformationLabel": "{{item}} não é mostrado porque este pagamento foi restaurado do histórico ou usou uma fatura de valor zero.",
-        "privacyMessage": "Para preservar a {{type}} privacidade, todas as outras informações ficam ocultas.",
-        "receivers": "do receptor",
-        "senders": "do remetente"
+        "privacyMessage": "Para preservar a privacidade {{type}} ,todas as outras informações ficam ocultas.",
+        "receivers": "do recebedor",
+        "senders": "do pagador"
       },
       "viewAllTxPage": {
         "title": "Transações"
