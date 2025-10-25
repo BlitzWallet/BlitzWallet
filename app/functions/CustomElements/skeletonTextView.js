@@ -149,7 +149,7 @@ const transformElementsForMask = (children, textColor) => {
           <Text
             key={index}
             style={[
-              child.props?.style,
+              child.props?.styles,
               {
                 color: textColor,
                 backgroundColor: 'transparent',

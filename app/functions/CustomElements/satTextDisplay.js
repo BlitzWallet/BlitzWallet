@@ -113,7 +113,9 @@ export default function FormattedSatText({
       renderText(
         `${showSymbol ? BITCOIN_SATS_ICON : ''}${
           Platform.OS === 'android'
-            ? `${useSpaces ? '\u200A\u200A\u200A' : ''}${formattedBalance}${
+            ? `${
+                useSpaces ? '\u200A\u200A\u200A' : '\u200A'
+              }${formattedBalance}${
                 useSpaces ? '\u200A\u200A\u200A' : '\u200A'
               }`
             : formattedBalance

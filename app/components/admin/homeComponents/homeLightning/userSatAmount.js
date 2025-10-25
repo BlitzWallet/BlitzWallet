@@ -48,42 +48,54 @@ export const UserSatAmount = memo(function UserSatAmount({
   //   [didMount],
   // );
 
+  const handleBalanceChange = useCallback(() => {
+    if (!isConnectedToTheInternet) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('errormessages.nointernet'),
+      });
+      return;
+    }
+    if (
+      masterInfoObject.userBalanceDenomination === 'hidden' &&
+      !sparkInformation.didConnect
+    )
+      return;
+
+    if (masterInfoObject.userBalanceDenomination === 'sats')
+      handleDBStateChange(
+        { userBalanceDenomination: 'fiat' },
+        setMasterInfoObject,
+        toggleMasterInfoObject,
+        saveTimeoutRef,
+        initialValueRef,
+      );
+    else if (masterInfoObject.userBalanceDenomination === 'fiat')
+      handleDBStateChange(
+        { userBalanceDenomination: 'hidden' },
+        setMasterInfoObject,
+        toggleMasterInfoObject,
+        saveTimeoutRef,
+        initialValueRef,
+      );
+    else
+      handleDBStateChange(
+        { userBalanceDenomination: 'sats' },
+        setMasterInfoObject,
+        toggleMasterInfoObject,
+        saveTimeoutRef,
+        initialValueRef,
+      );
+  }, [
+    isConnectedToTheInternet,
+    masterInfoObject.userBalanceDenomination,
+    sparkInformation.didConnect,
+  ]);
+
   return (
     <TouchableOpacity
       // onLayout={handleLayout}
       style={styles.balanceContainer}
-      onPress={() => {
-        if (!isConnectedToTheInternet) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t('errormessages.nointernet'),
-          });
-          return;
-        }
-        if (masterInfoObject.userBalanceDenomination === 'sats')
-          handleDBStateChange(
-            { userBalanceDenomination: 'fiat' },
-            setMasterInfoObject,
-            toggleMasterInfoObject,
-            saveTimeoutRef,
-            initialValueRef,
-          );
-        else if (masterInfoObject.userBalanceDenomination === 'fiat')
-          handleDBStateChange(
-            { userBalanceDenomination: 'hidden' },
-            setMasterInfoObject,
-            toggleMasterInfoObject,
-            saveTimeoutRef,
-            initialValueRef,
-          );
-        else
-          handleDBStateChange(
-            { userBalanceDenomination: 'sats' },
-            setMasterInfoObject,
-            toggleMasterInfoObject,
-            saveTimeoutRef,
-            initialValueRef,
-          );
-      }}
+      onPress={handleBalanceChange}
     >
       <SkeletonTextPlaceholder
         highlightColor={backgroundColor}
@@ -92,10 +104,7 @@ export const UserSatAmount = memo(function UserSatAmount({
         enabled={!sparkInformation.didConnect}
         layout={layout}
       >
-        <View
-          onLayout={event => setlayout(event.nativeEvent.layout)}
-          style={styles.valueContainer}
-        >
+        <View onLayout={event => setlayout(event.nativeEvent.layout)}>
           <FormattedSatText
             useSpaces={sparkInformation.didConnect || userBalance}
             styles={styles.valueText}
@@ -112,9 +121,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 20,
     position: 'relative',
-  },
-  valueContainer: {
-    flexDirection: 'row',
   },
 
   informationPopupContainer: {
