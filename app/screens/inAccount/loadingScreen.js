@@ -99,6 +99,8 @@ export default function ConnectingToNodeLoadingScreen({
 
   useEffect(() => {
     async function startConnectProcess() {
+      const startTime = Date.now();
+
       try {
         crashlyticsLogReport(
           'Begining app connnection procress in loading screen',
@@ -132,61 +134,28 @@ export default function ConnectingToNodeLoadingScreen({
           }),
         ]);
         createSigner();
-        // console.log(
-        //   didOpen,
-        //   giftCardTable,
-        //   posTransactions,
-        //   sparkTxs,
-        //   rootstockSwaps,
-        //   didLoadUserSettings,
-        // );
-        // DO tables need to open before these other processes???/
-        // if (
-        //   !didOpen ||
-        //   !giftCardTable ||
-        //   !posTransactions ||
-        //   !sparkTxs ||
-        //   !rootstockSwaps
-        // )
-        //   throw new Error(t('screens.inAccount.loadingScreen.dbInitError'));
-        // requestAnimationFrame(() => {
-        //   requestAnimationFrame(() => {
-        //     createSigner();
-        //   });
-        // });
+
         console.log('Process 2', new Date().getTime());
         crashlyticsLogReport('Opened all SQL lite tables');
-        // const [
-        //   // didConnectToLiquidNode,
-        //   txs,
-        //   // didLoadUserSettings,
-        //   // signerResponse,
-        // ] = await Promise.all([
-        //   // connectToLiquidNode(accountMnemoinc),
-        //   getCachedSparkTransactions(),
-        //   // initializeUserSettingsFromHistory({
-        //   //   accountMnemoinc,
-        //   //   setContactsPrivateKey: toggleContactsPrivateKey,
-        //   //   setMasterInfoObject,
-        //   //   toggleGlobalContactsInformation,
-        //   //   // toggleGLobalEcashInformation,
-        //   //   toggleGlobalAppDataInformation,
-        //   //   toggleMasterInfoObject,
-        //   // }),
-        //   // createSigner(),
-        // ]);
-
-        // liquidNodeConnectionRef.current = didConnectToLiquidNode;
-        // numberOfCachedTransactionsRef.current = txs;
 
         if (!didLoadUserSettings)
           throw new Error(
             t('screens.inAccount.loadingScreen.userSettingsError'),
           );
         crashlyticsLogReport('Loaded users settings from firebase');
-        // claimUnclaimedBoltzSwaps();
-        // setDidOpenDatabases(true);
+
         console.log('Process 3', new Date().getTime());
+
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, 2000 - elapsedTime);
+
+        if (remainingTime > 0) {
+          console.log(
+            `Waiting ${remainingTime}ms to reach minimum 2s duration`,
+          );
+          await new Promise(resolve => setTimeout(resolve, remainingTime));
+        }
+
         replace('HomeAdmin', { screen: 'Home' });
       } catch (err) {
         console.log('intializatiion error', err);
@@ -195,11 +164,8 @@ export default function ConnectingToNodeLoadingScreen({
     }
     if (preloadedUserData.isLoading && !preloadedUserData.data) return;
 
-    // setTimeout(() => {
     startConnectProcess();
-    // }, 150);
   }, [preloadedUserData]);
-
   // useEffect(() => {
   //   if (
   //     Object.keys(masterInfoObject).length === 0 ||
