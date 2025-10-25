@@ -35,7 +35,7 @@ import {
   initializeSparkSession,
   initWallet,
 } from '../app/functions/initiateWalletConnection';
-import { useNodeContext } from './nodeContext';
+// import { useNodeContext } from './nodeContext';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import { AppState } from 'react-native';
 import getDepositAddressTxIds, {
@@ -69,9 +69,8 @@ const SparkWalletProvider = ({ children }) => {
   const { changeSparkConnectionState, sendWebViewRequest } = useWebView();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { didGetToHomepage, minMaxLiquidSwapAmounts, appState } =
-    useAppStatus();
-  const { liquidNodeInformation } = useNodeContext();
+  const { didGetToHomepage, appState } = useAppStatus();
+  // const { liquidNodeInformation } = useNodeContext();
   const [isSendingPayment, setIsSendingPayment] = useState(false);
   const { toggleGlobalContactsInformation, globalContactsInformation } =
     useGlobalContacts();
@@ -906,31 +905,6 @@ const SparkWalletProvider = ({ children }) => {
       );
     }
   }, [globalContactsInformation.myProfile, sparkInformation]);
-
-  // This function checks to see if there are any liquid funds that need to be sent to spark
-  useEffect(() => {
-    async function swapLiquidToSpark() {
-      try {
-        if (liquidNodeInformation.userBalance > minMaxLiquidSwapAmounts.min) {
-          setPendingLiquidPayment(true);
-          await liquidToSparkSwap(
-            globalContactsInformation.myProfile.uniqueName,
-          );
-        }
-      } catch (err) {
-        console.log('transfering liquid to spark error', err);
-      }
-    }
-    if (!didGetToHomepage) return;
-    if (!sparkInformation.didConnect) return;
-    swapLiquidToSpark();
-  }, [
-    didGetToHomepage,
-    liquidNodeInformation.userBalance,
-    minMaxLiquidSwapAmounts,
-    sparkInformation.didConnect,
-    globalContactsInformation?.myProfile?.uniqueName,
-  ]);
 
   // Cleanup on unmount
   useEffect(() => {

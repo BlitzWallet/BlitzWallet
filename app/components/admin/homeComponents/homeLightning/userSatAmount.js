@@ -55,11 +55,7 @@ export const UserSatAmount = memo(function UserSatAmount({
       });
       return;
     }
-    if (
-      masterInfoObject.userBalanceDenomination === 'hidden' &&
-      !sparkInformation.didConnect
-    )
-      return;
+    if (!sparkInformation.didConnect) return;
 
     if (masterInfoObject.userBalanceDenomination === 'sats')
       handleDBStateChange(

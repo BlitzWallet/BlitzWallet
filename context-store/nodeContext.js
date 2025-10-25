@@ -12,13 +12,18 @@ import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
 import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
 import connectToLiquidNode from '../app/functions/connectToLiquid';
+import { useSparkWallet } from './sparkContext';
+import { useGlobalContacts } from './globalContacts';
+import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
 
 // Initiate context
 const NodeContextManager = createContext(null);
 
 const GLobalNodeContextProider = ({ children }) => {
+  const { globalContactsInformation } = useGlobalContacts();
+  const { sparkInformation, setPendingLiquidPayment } = useSparkWallet();
   const { contactsPrivateKey, publicKey, accountMnemoinc } = useKeysContext();
-  const { didGetToHomepage } = useAppStatus();
+  const { didGetToHomepage, minMaxLiquidSwapAmounts } = useAppStatus();
   const { masterInfoObject } = useGlobalContextProvider();
   const [liquidNodeInformation, setLiquidNodeInformation] = useState({
     didConnectToNode: null,
@@ -68,7 +73,7 @@ const GLobalNodeContextProider = ({ children }) => {
       !contactsPrivateKey ||
       !publicKey ||
       didRunLiquidConnection.current ||
-      !didGetToHomepage
+      !sparkInformation.didConnect
     )
       return;
     didRunLiquidConnection.current = true;
@@ -83,7 +88,37 @@ const GLobalNodeContextProider = ({ children }) => {
       }
     }
     connectToLiquid();
-  }, [contactsPrivateKey, publicKey, didGetToHomepage, accountMnemoinc]);
+  }, [
+    contactsPrivateKey,
+    publicKey,
+    accountMnemoinc,
+    sparkInformation.didConnect,
+  ]);
+
+  // This function checks to see if there are any liquid funds that need to be sent to spark
+  useEffect(() => {
+    async function swapLiquidToSpark() {
+      try {
+        if (liquidNodeInformation.userBalance > minMaxLiquidSwapAmounts.min) {
+          setPendingLiquidPayment(true);
+          await liquidToSparkSwap(
+            globalContactsInformation.myProfile.uniqueName,
+          );
+        }
+      } catch (err) {
+        console.log('transfering liquid to spark error', err);
+      }
+    }
+    if (!didGetToHomepage) return;
+    if (!sparkInformation.didConnect) return;
+    swapLiquidToSpark();
+  }, [
+    didGetToHomepage,
+    liquidNodeInformation.userBalance,
+    minMaxLiquidSwapAmounts,
+    sparkInformation.didConnect,
+    globalContactsInformation?.myProfile?.uniqueName,
+  ]);
 
   const contextValue = useMemo(
     () => ({

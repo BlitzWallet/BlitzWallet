@@ -113,16 +113,16 @@ function App(): JSX.Element {
         <InsetsProvider>
           <KeyboardProvider>
             <ToastProvider>
-              <AppStatusProvider>
-                <KeysContextProvider>
-                  <GlobalContactsList>
-                    <GlobalContextProvider>
-                      <ActiveCustodyAccountProvider>
-                        <GlobalThemeProvider>
-                          {/* <GlobaleCashVariables> */}
-                          <GLobalNodeContextProider>
-                            <WebViewProvider>
-                              <SparkWalletProvider>
+              <GlobalThemeProvider>
+                <AppStatusProvider>
+                  <KeysContextProvider>
+                    <GlobalContactsList>
+                      <GlobalContextProvider>
+                        <ActiveCustodyAccountProvider>
+                          <WebViewProvider>
+                            {/* <GlobaleCashVariables> */}
+                            <SparkWalletProvider>
+                              <GLobalNodeContextProider>
                                 {/* <GlobalConbinedTxContextProvider> */}
                                 <GlobalAppDataProvider>
                                   <POSTransactionsProvider>
@@ -150,16 +150,16 @@ function App(): JSX.Element {
                                 </GlobalAppDataProvider>
                                 {/* <BreezTest /> */}
                                 {/* </GlobalConbinedTxContextProvider> */}
-                              </SparkWalletProvider>
-                            </WebViewProvider>
-                          </GLobalNodeContextProider>
-                          {/* </GlobaleCashVariables> */}
-                        </GlobalThemeProvider>
-                      </ActiveCustodyAccountProvider>
-                    </GlobalContextProvider>
-                  </GlobalContactsList>
-                </KeysContextProvider>
-              </AppStatusProvider>
+                              </GLobalNodeContextProider>
+                            </SparkWalletProvider>
+                            {/* </GlobaleCashVariables> */}
+                          </WebViewProvider>
+                        </ActiveCustodyAccountProvider>
+                      </GlobalContextProvider>
+                    </GlobalContactsList>
+                  </KeysContextProvider>
+                </AppStatusProvider>
+              </GlobalThemeProvider>
             </ToastProvider>
           </KeyboardProvider>
         </InsetsProvider>

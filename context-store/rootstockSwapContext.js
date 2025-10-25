@@ -251,82 +251,86 @@ export const RootstockSwapProvider = ({ children }) => {
         }
       });
 
-      // Open websocket
-      const ws = new WebSocket(`${getBoltzWsUrl(rootstockEnvironment)}/v2/ws`);
-      wsRef.current = ws;
+      if (swaps.length) {
+        // Open websocket
+        const ws = new WebSocket(
+          `${getBoltzWsUrl(rootstockEnvironment)}/v2/ws`,
+        );
+        wsRef.current = ws;
 
-      ws.onopen = event => {
-        console.log('WebSocket opened');
-        loadAndSubscribeSwaps(true, swaps);
-      };
+        ws.onopen = event => {
+          console.log('WebSocket opened');
+          loadAndSubscribeSwaps(true, swaps);
+        };
 
-      ws.onmessage = async event => {
-        try {
-          const msg = JSON.parse(event.data);
-          if (msg.event !== 'update') return;
+        ws.onmessage = async event => {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.event !== 'update') return;
 
-          const swapId = msg.args[0].id;
-          const status = msg.args[0].status;
+            const swapId = msg.args[0].id;
+            const status = msg.args[0].status;
 
-          console.log(`Swap ${swapId} updated: ${status}`);
+            console.log(`Swap ${swapId} updated: ${status}`);
 
-          // Find swap type from state
-          const swapResponse = await getSwapById(swapId);
-          console.log(swapResponse, 'saved swap in history');
-          if (!swapResponse) return;
-          const [swap] = swapResponse;
-          console.log(swap, 'DESTRUCTED SWAP');
+            // Find swap type from state
+            const swapResponse = await getSwapById(swapId);
+            console.log(swapResponse, 'saved swap in history');
+            if (!swapResponse) return;
+            const [swap] = swapResponse;
+            console.log(swap, 'DESTRUCTED SWAP');
 
-          // Perform actions based on type + status
-          if (swap.type === 'reverse' && status === 'transaction.confirmed') {
-            await claimRootstockReverseSwap(swap, signer);
+            // Perform actions based on type + status
+            if (swap.type === 'reverse' && status === 'transaction.confirmed') {
+              await claimRootstockReverseSwap(swap, signer);
+            }
+
+            if (swap.type === 'submarine') {
+              if (status == 'invoice.set') {
+                await lockSubmarineSwap(swap, signer);
+                setPendingNavigation(true);
+              }
+              if (
+                [
+                  'invoice.failedToPay',
+                  'swap.expired',
+                  'transaction.lockupFailed',
+                ].includes(status)
+              ) {
+                await updateSwap(swapId, { didSwapFail: true });
+                await refundRootstockSubmarineSwap(swap, signer);
+                // Remove from active swaps when it fails/expires
+                activeSwapIdsRef.current.delete(swapId);
+              }
+              if (
+                status == 'transaction.claimed' ||
+                status === 'transaction.claim.pending'
+              ) {
+                await deleteSwapById(swapId);
+                // Remove from active swaps when completed
+                activeSwapIdsRef.current.delete(swapId);
+              }
+            }
+
+            debouncedCleanup();
+          } catch (error) {
+            console.error('Error processing WebSocket message:', error);
           }
+        };
 
-          if (swap.type === 'submarine') {
-            if (status == 'invoice.set') {
-              await lockSubmarineSwap(swap, signer);
-              setPendingNavigation(true);
-            }
-            if (
-              [
-                'invoice.failedToPay',
-                'swap.expired',
-                'transaction.lockupFailed',
-              ].includes(status)
-            ) {
-              await updateSwap(swapId, { didSwapFail: true });
-              await refundRootstockSubmarineSwap(swap, signer);
-              // Remove from active swaps when it fails/expires
-              activeSwapIdsRef.current.delete(swapId);
-            }
-            if (
-              status == 'transaction.claimed' ||
-              status === 'transaction.claim.pending'
-            ) {
-              await deleteSwapById(swapId);
-              // Remove from active swaps when completed
-              activeSwapIdsRef.current.delete(swapId);
-            }
-          }
+        ws.onerror = event => {
+          console.error('WebSocket error:', event);
+          // Don't try to access 'this' or other properties that might cause issues
+        };
 
-          debouncedCleanup();
-        } catch (error) {
-          console.error('Error processing WebSocket message:', error);
-        }
-      };
-
-      ws.onerror = event => {
-        console.error('WebSocket error:', event);
-        // Don't try to access 'this' or other properties that might cause issues
-      };
-
-      ws.onclose = event => {
-        console.log('WebSocket closed:', event.code, event.reason);
-        // Clean up subscribed IDs when connection closes
-        subscribedIdsRef.current.clear();
-        // Clear active swaps since we can't monitor them without WebSocket
-        activeSwapIdsRef.current.clear();
-      };
+        ws.onclose = event => {
+          console.log('WebSocket closed:', event.code, event.reason);
+          // Clean up subscribed IDs when connection closes
+          subscribedIdsRef.current.clear();
+          // Clear active swaps since we can't monitor them without WebSocket
+          activeSwapIdsRef.current.clear();
+        };
+      }
 
       intervalRef.current = setInterval(async () => {
         const freshSwaps = await loadRootstockSwaps();
