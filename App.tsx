@@ -395,8 +395,8 @@ function ResetStack(): JSX.Element | null {
     return ChooseLangugaePage;
   }, [initSettings.isLoggedIn, initSettings.hasSecurityEnabled]);
 
-  if (!initSettings.isLoaded || theme === null || darkModeType === null) {
-    return <SplashScreen onAnimationFinish={handleAnimationFinish} />;
+  if (theme === null || darkModeType === null) {
+    return null;
   }
 
   return (
@@ -413,6 +413,12 @@ function ResetStack(): JSX.Element | null {
       {/* <LiquidNavigationListener /> */}
       {/* <LightningNavigationListener /> */}
       <Stack.Navigator screenOptions={screenOptions}>
+        <Stack.Screen
+          name="Splash"
+          component={SplashScreen}
+          options={{ animation: 'fade', gestureEnabled: false }}
+          // initialParams={{ onAnimationFinish: handleAnimationFinish }}
+        />
         <Stack.Screen
           name="Home"
           component={HomeComponent}
