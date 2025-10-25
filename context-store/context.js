@@ -9,8 +9,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import { sendDataToDB } from '../db/interactionManager';
 import { useKeysContext } from './keys';
-import { addDataToCollection } from '../db';
+import { addDataToCollection, getDataFromCollection } from '../db';
 import { splitAndStoreNWCData } from '../app/functions/nwc';
+import { firebaseAuth } from '../db/initializeFirebase';
 
 // Initiate context
 const GlobalContextManger = createContext(null);
@@ -19,6 +20,11 @@ const GlobalContextProvider = ({ children }) => {
   const { publicKey } = useKeysContext();
 
   const [masterInfoObject, setMasterInfoObject] = useState({});
+
+  const [preloadedUserData, setPreLoadedUserData] = useState({
+    isLoading: true,
+    data: null,
+  });
 
   const { i18n } = useTranslation();
 
@@ -77,18 +83,41 @@ const GlobalContextProvider = ({ children }) => {
     [i18n, publicKey],
   );
 
+  useEffect(() => {
+    async function preloadUserData() {
+      try {
+        if (firebaseAuth.currentUser) {
+          const collectionData = await getDataFromCollection(
+            'blitzWalletUsers',
+            firebaseAuth.currentUser.uid,
+          );
+          if (!collectionData) throw new Error('No data returened');
+          setPreLoadedUserData({ isLoading: true, data: collectionData });
+        }
+      } catch (err) {
+        console.log('Error preloading user data');
+        setPreLoadedUserData({ isLoading: false, data: null });
+      }
+    }
+    preloadUserData();
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       toggleMasterInfoObject,
       setMasterInfoObject,
       masterInfoObject,
       toggleNWCInformation,
+      preloadedUserData,
+      setPreLoadedUserData,
     }),
     [
       toggleMasterInfoObject,
       masterInfoObject,
       setMasterInfoObject,
       toggleNWCInformation,
+      preloadedUserData,
+      setPreLoadedUserData,
     ],
   );
 

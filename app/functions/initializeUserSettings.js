@@ -12,7 +12,7 @@ import {
   QUICK_PAY_STORAGE_KEY,
 } from '../constants';
 import { sendDataToDB } from '../../db/interactionManager';
-import { db, initializeFirebase } from '../../db/initializeFirebase';
+import { firebaseAuth, initializeFirebase } from '../../db/initializeFirebase';
 import {
   fetchLocalStorageItems,
   shouldLoadExploreData,
@@ -30,6 +30,8 @@ export default async function initializeUserSettingsFromHistory({
   toggleGlobalContactsInformation,
   toggleGlobalAppDataInformation,
   toggleMasterInfoObject,
+  preloadedData,
+  setPreLoadedUserData,
 }) {
   try {
     crashlyticsLogReport('Begining process of getting user settings');
@@ -37,7 +39,9 @@ export default async function initializeUserSettingsFromHistory({
     let tempObject = {};
     const mnemonic = accountMnemoinc;
 
-    const privateKey = mnemonic ? privateKeyFromSeedWords(mnemonic) : null;
+    if (!mnemonic) throw new Error('Unable to load user settings, no mnemonic');
+
+    const privateKey = await privateKeyFromSeedWords(mnemonic);
 
     const publicKey = privateKey ? getPublicKey(privateKey) : null;
 
@@ -61,7 +65,9 @@ export default async function initializeUserSettingsFromHistory({
       localStoredData,
       //  freshExploreData
     ] = await Promise.all([
-      getDataFromCollection('blitzWalletUsers', publicKey),
+      preloadedData && firebaseAuth.currentUser.uid === publicKey
+        ? Promise.resolve(preloadedData)
+        : getDataFromCollection('blitzWalletUsers', publicKey),
       fetchLocalStorageItems(),
       // shouldLoadExporeDataResp
       //   ? fetchBackend(
@@ -72,6 +78,11 @@ export default async function initializeUserSettingsFromHistory({
       //     )
       //   : Promise.resolve(null),
     ]);
+
+    if (preloadedData) {
+      // clear refrenace to remove uneeded object
+      setPreLoadedUserData({});
+    }
 
     let {
       storedUserTxPereferance,

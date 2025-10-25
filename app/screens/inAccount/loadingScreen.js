@@ -12,43 +12,48 @@ import LottieView from 'lottie-react-native';
 import { useNavigation } from '@react-navigation/native';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 // import connectToLiquidNode from '../../functions/connectToLiquid';
-import { initializeDatabase } from '../../functions/messaging/cachedMessages';
+// import { initializeDatabase } from '../../functions/messaging/cachedMessages';
 import { useGlobalThemeContext } from '../../../context-store/theme';
-import { useNodeContext } from '../../../context-store/nodeContext';
+// import { useNodeContext } from '../../../context-store/nodeContext';
 import { useKeysContext } from '../../../context-store/keys';
-import { initializePOSTransactionsDatabase } from '../../functions/pos';
+// import { initializePOSTransactionsDatabase } from '../../functions/pos';
 import { updateMascatWalkingAnimation } from '../../functions/lottieViewColorTransformer';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useSparkWallet } from '../../../context-store/sparkContext';
-import { initializeSparkDatabase } from '../../functions/spark/transactions';
-import { getCachedSparkTransactions } from '../../functions/spark';
-import { getLocalStorageItem, setLocalStorageItem } from '../../functions';
-import { useLiquidEvent } from '../../../context-store/liquidEventContext';
-import { initRootstockSwapDB } from '../../functions/boltz/rootstock/swapDb';
+// import { initializeSparkDatabase } from '../../functions/spark/transactions';
+// import { getCachedSparkTransactions } from '../../functions/spark';
+// import { getLocalStorageItem, setLocalStorageItem } from '../../functions';
+// import { useLiquidEvent } from '../../../context-store/liquidEventContext';
+// import { initRootstockSwapDB } from '../../functions/boltz/rootstock/swapDb';
 import { useRootstockProvider } from '../../../context-store/rootstockSwapContext';
-import loadNewFiatData from '../../functions/saveAndUpdateFiatData';
-import { initializeGiftCardDatabase } from '../../functions/contacts/giftCardStorage';
-import { useWebView } from '../../../context-store/webViewContext';
+// import loadNewFiatData from '../../functions/saveAndUpdateFiatData';
+// import { initializeGiftCardDatabase } from '../../functions/contacts/giftCardStorage';
+// import { useWebView } from '../../../context-store/webViewContext';
 const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
 export default function ConnectingToNodeLoadingScreen({
   navigation: { replace },
   route,
 }) {
-  const { sendWebViewRequest } = useWebView();
+  // const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();
-  const { toggleMasterInfoObject, masterInfoObject, setMasterInfoObject } =
-    useGlobalContextProvider();
-  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const {
+    toggleMasterInfoObject,
+    // masterInfoObject,
+    setMasterInfoObject,
+    preloadedUserData,
+    setPreLoadedUserData,
+  } = useGlobalContextProvider();
+  // const { contactsPrivateKey, publicKey } = useKeysContext();
   const {
     // setNumberOfCachedTxs,
     connectToSparkWallet,
   } = useSparkWallet();
   const { toggleContactsPrivateKey, accountMnemoinc } = useKeysContext();
-  const {
-    // toggleLiquidNodeInformation,
-    toggleFiatStats,
-  } = useNodeContext();
+  // const {
+  //   // toggleLiquidNodeInformation,
+  //   toggleFiatStats,
+  // } = useNodeContext();
   const { createSigner } = useRootstockProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { toggleGlobalContactsInformation, globalContactsInformation } =
@@ -60,13 +65,13 @@ export default function ConnectingToNodeLoadingScreen({
   const [message, setMessage] = useState(
     t('screens.inAccount.loadingScreen.loadingMessage1'),
   );
-  const [didOpenDatabases, setDidOpenDatabases] = useState(false);
+  // const [didOpenDatabases, setDidOpenDatabases] = useState(false);
 
-  const didLoadInformation = useRef(false);
+  // const didLoadInformation = useRef(false);
 
   // const liquidNodeConnectionRef = useRef(null);
   // const numberOfCachedTransactionsRef = useRef(null);
-  const didStartConnectionRef = useRef(null);
+  // const didStartConnectionRef = useRef(null);
 
   const transformedAnimation = useMemo(() => {
     return updateMascatWalkingAnimation(
@@ -89,28 +94,31 @@ export default function ConnectingToNodeLoadingScreen({
   }, []);
 
   useEffect(() => {
+    setTimeout(() => connectToSparkWallet(), 500);
+  }, []);
+
+  useEffect(() => {
     async function startConnectProcess() {
       try {
         crashlyticsLogReport(
           'Begining app connnection procress in loading screen',
         );
         console.log('Process 1', new Date().getTime());
-        connectToSparkWallet();
+
         // connectToLiquidNode(accountMnemoinc);
         const [
-          didOpen,
-          giftCardTable,
-          posTransactions,
-          sparkTxs,
-          rootstockSwaps,
+          // didOpen,
+          // giftCardTable,
+          // posTransactions,
+          // sparkTxs,
+          // rootstockSwaps,
           didLoadUserSettings,
-          signerResponse,
         ] = await Promise.all([
-          initializeDatabase(),
-          initializeGiftCardDatabase(),
-          initializePOSTransactionsDatabase(),
-          initializeSparkDatabase(),
-          initRootstockSwapDB(),
+          // initializeDatabase(),
+          // initializeGiftCardDatabase(),
+          // initializePOSTransactionsDatabase(),
+          // initializeSparkDatabase(),
+          // initRootstockSwapDB(),
           initializeUserSettingsFromHistory({
             accountMnemoinc,
             setContactsPrivateKey: toggleContactsPrivateKey,
@@ -119,27 +127,33 @@ export default function ConnectingToNodeLoadingScreen({
             // toggleGLobalEcashInformation,
             toggleGlobalAppDataInformation,
             toggleMasterInfoObject,
+            preloadedData: preloadedUserData.data,
+            setPreLoadedUserData,
           }),
-          createSigner(),
         ]);
-        console.log(
-          didOpen,
-          giftCardTable,
-          posTransactions,
-          sparkTxs,
-          rootstockSwaps,
-          didLoadUserSettings,
-        );
+        createSigner();
+        // console.log(
+        //   didOpen,
+        //   giftCardTable,
+        //   posTransactions,
+        //   sparkTxs,
+        //   rootstockSwaps,
+        //   didLoadUserSettings,
+        // );
         // DO tables need to open before these other processes???/
-        if (
-          !didOpen ||
-          !giftCardTable ||
-          !posTransactions ||
-          !sparkTxs ||
-          !rootstockSwaps
-        )
-          throw new Error(t('screens.inAccount.loadingScreen.dbInitError'));
-
+        // if (
+        //   !didOpen ||
+        //   !giftCardTable ||
+        //   !posTransactions ||
+        //   !sparkTxs ||
+        //   !rootstockSwaps
+        // )
+        //   throw new Error(t('screens.inAccount.loadingScreen.dbInitError'));
+        // requestAnimationFrame(() => {
+        //   requestAnimationFrame(() => {
+        //     createSigner();
+        //   });
+        // });
         console.log('Process 2', new Date().getTime());
         crashlyticsLogReport('Opened all SQL lite tables');
         // const [
@@ -171,35 +185,37 @@ export default function ConnectingToNodeLoadingScreen({
           );
         crashlyticsLogReport('Loaded users settings from firebase');
         // claimUnclaimedBoltzSwaps();
-        setDidOpenDatabases(true);
+        // setDidOpenDatabases(true);
         console.log('Process 3', new Date().getTime());
+        replace('HomeAdmin', { screen: 'Home' });
       } catch (err) {
         console.log('intializatiion error', err);
         setHasError(err.message);
       }
     }
-    if (didStartConnectionRef.current) return;
-    didStartConnectionRef.current = true;
+    if (preloadedUserData.isLoading && !preloadedUserData.data) return;
 
-    setTimeout(startConnectProcess, 500);
-  }, []);
+    // setTimeout(() => {
+    startConnectProcess();
+    // }, 150);
+  }, [preloadedUserData]);
 
-  useEffect(() => {
-    if (
-      Object.keys(masterInfoObject).length === 0 ||
-      didLoadInformation.current ||
-      Object.keys(globalContactsInformation).length === 0 ||
-      !didOpenDatabases
-    )
-      return;
-    didLoadInformation.current = true;
-    crashlyticsLogReport('Initializing wallet settings');
+  // useEffect(() => {
+  //   if (
+  //     Object.keys(masterInfoObject).length === 0 ||
+  //     didLoadInformation.current ||
+  //     Object.keys(globalContactsInformation).length === 0 ||
+  //     !didOpenDatabases
+  //   )
+  //     return;
+  //   didLoadInformation.current = true;
+  //   crashlyticsLogReport('Initializing wallet settings');
 
-    console.log('Process 4', new Date().getTime());
-    initWallet();
-    // liquidNodeConnectionRef.current,
-    // numberOfCachedTransactionsRef.current,
-  }, [masterInfoObject, globalContactsInformation, didOpenDatabases]);
+  //   console.log('Process 4', new Date().getTime());
+  //   initWallet();
+  //   // liquidNodeConnectionRef.current,
+  //   // numberOfCachedTransactionsRef.current,
+  // }, [masterInfoObject, globalContactsInformation, didOpenDatabases]);
 
   return (
     <GlobalThemeView useStandardWidth={true}>
@@ -239,129 +255,138 @@ export default function ConnectingToNodeLoadingScreen({
     </GlobalThemeView>
   );
 
-  async function initWallet(didConnectToLiquidNode, txs) {
-    console.log('HOME RENDER BREEZ EVENT FIRST LOAD');
+  // async function initWallet(didConnectToLiquidNode, txs) {
+  //   console.log('HOME RENDER BREEZ EVENT FIRST LOAD');
 
-    try {
-      console.log('Process 5', new Date().getTime());
-      crashlyticsLogReport('Trying to connect to nodes');
-      // setNumberOfCachedTxs(txs?.length || 0);
-      // if (didConnectToLiquidNode.isConnected) {
-      crashlyticsLogReport('Loading node balances for session');
-      console.log('Process 6', new Date().getTime());
-      const didSetLiquid = await setLiquidNodeInformationForSession();
+  //   try {
+  //     console.log('Process 5', new Date().getTime());
+  //     crashlyticsLogReport('Trying to connect to nodes');
+  //     // setNumberOfCachedTxs(txs?.length || 0);
+  //     // if (didConnectToLiquidNode.isConnected) {
+  //     crashlyticsLogReport('Loading node balances for session');
+  //     console.log('Process 6', new Date().getTime());
 
-      console.log('Process 19', new Date().getTime());
-      if (didSetLiquid) {
-        console.log('Process 20', new Date().getTime());
-        // navigate.preload('HomeAdmin');
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            console.log('Process 21', new Date().getTime());
-            replace('HomeAdmin', { screen: 'Home' });
-          });
-        });
-      } else
-        throw new Error(t('screens.inAccount.loadingScreen.liquidWalletError'));
-      // } else {
-      //   throw new Error(
-      //     t('screens.inAccount.loadingScreen.liquidWalletError2'),
-      //   );
-      // }
-    } catch (err) {
-      setHasError(String(err.message));
-      crashlyticsLogReport(err.message);
-      console.log(err, 'homepage connection to node err');
-    }
-  }
+  //     // requestAnimationFrame(() => {
+  //     // requestAnimationFrame(() => {
+  //     console.log('Process 21', new Date().getTime());
+  //     replace('HomeAdmin', { screen: 'Home' });
+  //     // });
+  //     // });
 
-  async function setupFiatCurrencies() {
-    console.log('Process 8', new Date().getTime());
+  //     return;
+  //     // const didSetLiquid = await setLiquidNodeInformationForSession();
 
-    const currency = masterInfoObject.fiatCurrency;
+  //     // console.log('Process 19', new Date().getTime());
+  //     // if (didSetLiquid) {
+  //     //   console.log('Process 20', new Date().getTime());
+  //     //   // navigate.preload('HomeAdmin');
+  //     //   requestAnimationFrame(() => {
+  //     //     requestAnimationFrame(() => {
+  //     //       console.log('Process 21', new Date().getTime());
+  //     //       replace('HomeAdmin', { screen: 'Home' });
+  //     //     });
+  //     //   });
+  //     // } else
+  //     //   throw new Error(t('screens.inAccount.loadingScreen.liquidWalletError'));
+  //     // // } else {
+  //     // //   throw new Error(
+  //     // //     t('screens.inAccount.loadingScreen.liquidWalletError2'),
+  //     // //   );
+  //     // // }
+  //   } catch (err) {
+  //     setHasError(String(err.message));
+  //     crashlyticsLogReport(err.message);
+  //     console.log(err, 'homepage connection to node err');
+  //   }
+  // }
 
-    let fiatRate;
-    try {
-      fiatRate = await loadNewFiatData(
-        currency,
-        contactsPrivateKey,
-        publicKey,
-        masterInfoObject,
-      );
+  // async function setupFiatCurrencies() {
+  //   console.log('Process 8', new Date().getTime());
 
-      if (!fiatRate.didWork) {
-        // fallback API
-        const response = await fetch(process.env.FALLBACK_FIAT_PRICE_DATA);
-        const data = await response.json();
-        if (data[currency]?.['15m']) {
-          // ✅ 4. Store in new format
-          setLocalStorageItem(
-            'didFetchFiatRateToday',
-            JSON.stringify({
-              lastFetched: new Date().getTime(),
-              fiatRate: {
-                coin: currency,
-                value: data[currency]?.['15m'],
-              },
-            }),
-          );
-          setLocalStorageItem(
-            'cachedBitcoinPrice',
-            JSON.stringify({
-              coin: currency,
-              value: data[currency]?.['15m'],
-            }),
-          );
-          fiatRate = {
-            coin: currency,
-            value: data[currency]?.['15m'],
-          };
-        } else {
-          fiatRate = {
-            coin: currency,
-            value: 100_000, // random number to make sure nothing else down the line errors out
-          };
-        }
-      } else fiatRate = fiatRate.fiatRateResponse;
-    } catch (error) {
-      console.error('Failed to fetch fiat data:', error);
-      return { coin: 'USD', value: 100_000 };
-    }
+  //   const currency = masterInfoObject.fiatCurrency;
 
-    console.log('Process 11', new Date().getTime());
+  //   let fiatRate;
+  //   try {
+  //     fiatRate = await loadNewFiatData(
+  //       currency,
+  //       contactsPrivateKey,
+  //       publicKey,
+  //       masterInfoObject,
+  //     );
 
-    console.log('Process 12', new Date().getTime());
+  //     if (!fiatRate.didWork) {
+  //       // fallback API
+  //       const response = await fetch(process.env.FALLBACK_FIAT_PRICE_DATA);
+  //       const data = await response.json();
+  //       if (data[currency]?.['15m']) {
+  //         // ✅ 4. Store in new format
+  //         setLocalStorageItem(
+  //           'didFetchFiatRateToday',
+  //           JSON.stringify({
+  //             lastFetched: new Date().getTime(),
+  //             fiatRate: {
+  //               coin: currency,
+  //               value: data[currency]?.['15m'],
+  //             },
+  //           }),
+  //         );
+  //         setLocalStorageItem(
+  //           'cachedBitcoinPrice',
+  //           JSON.stringify({
+  //             coin: currency,
+  //             value: data[currency]?.['15m'],
+  //           }),
+  //         );
+  //         fiatRate = {
+  //           coin: currency,
+  //           value: data[currency]?.['15m'],
+  //         };
+  //       } else {
+  //         fiatRate = {
+  //           coin: currency,
+  //           value: 100_000, // random number to make sure nothing else down the line errors out
+  //         };
+  //       }
+  //     } else fiatRate = fiatRate.fiatRateResponse;
+  //   } catch (error) {
+  //     console.error('Failed to fetch fiat data:', error);
+  //     return { coin: 'USD', value: 100_000 };
+  //   }
 
-    return fiatRate;
-  }
+  //   console.log('Process 11', new Date().getTime());
 
-  async function setLiquidNodeInformationForSession() {
-    try {
-      crashlyticsLogReport('Starting liquid node lookup process');
-      console.log('Process 7', new Date().getTime());
-      const [fiat_rate] = await Promise.all([setupFiatCurrencies()]);
+  //   console.log('Process 12', new Date().getTime());
 
-      console.log('Process 16', new Date().getTime());
-      // startLiquidEventListener(3);
+  //   return fiatRate;
+  // }
 
-      console.log('Process 17', new Date().getTime());
-      console.log(fiat_rate, 'hty');
+  // async function setLiquidNodeInformationForSession() {
+  //   try {
+  //     // crashlyticsLogReport('Starting liquid node lookup process');
+  //     // console.log('Process 7', new Date().getTime());
+  //     // const [fiat_rate] = await Promise.all([setupFiatCurrencies()]);
 
-      console.log('Process 18', new Date().getTime());
-      toggleFiatStats(fiat_rate);
+  //     // console.log('Process 16', new Date().getTime());
+  //     // // startLiquidEventListener(3);
 
-      // toggleLiquidNodeInformation({
-      //   didConnectToNode: true,
-      // });
+  //     // console.log('Process 17', new Date().getTime());
+  //     // console.log(fiat_rate, 'hty');
 
-      return true;
-    } catch (err) {
-      console.log(err, 'LIQUID INFORMATION ERROR');
-      return new Promise(resolve => {
-        resolve(false);
-      });
-    }
-  }
+  //     // console.log('Process 18', new Date().getTime());
+  //     // toggleFiatStats(fiat_rate);
+
+  //     // toggleLiquidNodeInformation({
+  //     //   didConnectToNode: true,
+  //     // });
+
+  //     return true;
+  //   } catch (err) {
+  //     console.log(err, 'LIQUID INFORMATION ERROR');
+  //     return new Promise(resolve => {
+  //       resolve(false);
+  //     });
+  //   }
+  // }
 }
 
 const styles = StyleSheet.create({

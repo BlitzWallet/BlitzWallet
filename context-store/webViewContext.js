@@ -160,7 +160,7 @@ export const WebViewProvider = ({ children }) => {
       walletInitialized.current = false;
       setChangeSparkConnectionState(prev => ({
         state: sparkConnectionState,
-        count: (prev.count += 1),
+        count: prev.count + 1,
       }));
 
       Object.entries(pendingRequests.current).forEach(([id, resolve]) => {
@@ -204,7 +204,7 @@ export const WebViewProvider = ({ children }) => {
         setHandshakeComplete(false);
         setChangeSparkConnectionState(prev => ({
           state: true,
-          count: (prev.count += 1),
+          count: prev.count + 1,
         }));
         return;
       }
@@ -222,7 +222,7 @@ export const WebViewProvider = ({ children }) => {
       setHandshakeComplete(false);
       setChangeSparkConnectionState(prev => ({
         state: true,
-        count: (prev.count += 1),
+        count: prev.count + 1,
       }));
     }
   }, [fileHash]);
@@ -420,49 +420,6 @@ export const WebViewProvider = ({ children }) => {
     [decryptMessage, resetWebViewState, currentWalletMnemoinc],
   );
 
-  const processQueuedRequests = useCallback(async () => {
-    // After a soft reset, the WebView's internal state is cleared
-    // We must reinitialize the wallet before processing any queued requests
-    if (
-      handshakeComplete &&
-      !walletInitialized.current &&
-      currentWalletMnemoinc
-    ) {
-      console.log('Re-initializing wallet before processing queue');
-      try {
-        // No need to handle any state changes here, handled inside of the promise. But this might be where the stale connection state comes from. if a request is sent to the webview but not responded to the change to react-native woudnt have happpened before leaving everything in "not connected to spark".
-        const response = await sendWebViewRequestInternal(
-          OPERATION_TYPES.initWallet,
-          { mnemonic: currentWalletMnemoinc },
-          true,
-        );
-        if (!response?.isConnected) throw new Error('Wallet init failed');
-      } catch (err) {
-        console.log('Error re-initializing wallet:', err);
-        forceReactNativeUse = true;
-        // Reject all queued requests since WebView is now unusable
-        queuedRequests.current.forEach(({ reject }) => {
-          reject({
-            error: 'Wallet initialization failed, using React Native',
-          });
-        });
-        queuedRequests.current = [];
-        return;
-      }
-    }
-    isResetting.current = false;
-    if (queuedRequests.current.length === 0) return;
-
-    console.log(`Processing ${queuedRequests.current.length} queued requests`);
-    const requests = [...queuedRequests.current];
-    queuedRequests.current = [];
-    requests.forEach(({ action, args, encrypt, resolve, reject }) => {
-      sendWebViewRequestInternal(action, args, encrypt)
-        .then(resolve)
-        .catch(reject);
-    });
-  }, [currentWalletMnemoinc, sendWebViewRequestInternal]);
-
   const sendWebViewRequestInternal = useCallback(
     async (action, args = {}, encrypt = true) => {
       return new Promise(async (resolve, reject) => {
@@ -599,7 +556,7 @@ export const WebViewProvider = ({ children }) => {
               forceReactNativeUse = true;
               setChangeSparkConnectionState(prev => ({
                 state: true,
-                count: (prev.count += 1),
+                count: prev.count + 1,
               }));
               return resolve({ isConnected: false });
             }
@@ -609,7 +566,7 @@ export const WebViewProvider = ({ children }) => {
               forceReactNativeUse = true;
               setChangeSparkConnectionState(prev => ({
                 state: true,
-                count: (prev.count += 1),
+                count: prev.count + 1,
               }));
               return resolve({ isConnected: false });
             }
@@ -626,13 +583,13 @@ export const WebViewProvider = ({ children }) => {
                 forceReactNativeUse = true;
                 setChangeSparkConnectionState(prev => ({
                   state: true,
-                  count: (prev.count += 1),
+                  count: prev.count + 1,
                 }));
               } else {
                 walletInitialized.current = true;
                 setChangeSparkConnectionState(prev => ({
                   state: true,
-                  count: (prev.count += 1),
+                  count: prev.count + 1,
                 }));
                 console.log('Wallet initialized successfully');
               }
@@ -649,7 +606,7 @@ export const WebViewProvider = ({ children }) => {
               forceReactNativeUse = true;
               setChangeSparkConnectionState(prev => ({
                 state: true,
-                count: (prev.count += 1),
+                count: prev.count + 1,
               }));
               return resolve({
                 error: 'Wallet initialization failed, using React Native(3)',
@@ -675,6 +632,7 @@ export const WebViewProvider = ({ children }) => {
           // Clean up timeout on error
           if (timeoutId) {
             clearTimeout(timeoutId);
+            timeoutId = null;
           }
           console.log(
             'Error sending webview request from internal function',
@@ -704,7 +662,7 @@ export const WebViewProvider = ({ children }) => {
       forceReactNativeUse = true;
       setChangeSparkConnectionState(prev => ({
         state: true,
-        count: (prev.count += 1),
+        count: prev.count + 1,
       }));
       queuedRequests.current.forEach(({ reject }) => {
         reject({
@@ -762,6 +720,55 @@ export const WebViewProvider = ({ children }) => {
   useEffect(() => {
     globalSendWebViewRequest = sendWebViewRequestInternal;
   }, [sendWebViewRequestInternal]);
+
+  const processQueuedRequests = useCallback(async () => {
+    // After a soft reset, the WebView's internal state is cleared
+    // We must reinitialize the wallet before processing any queued requests
+    if (
+      handshakeComplete &&
+      !walletInitialized.current &&
+      currentWalletMnemoinc
+    ) {
+      console.log('Re-initializing wallet before processing queue');
+      try {
+        // No need to handle any state changes here, handled inside of the promise. But this might be where the stale connection state comes from. if a request is sent to the webview but not responded to the change to react-native woudnt have happpened before leaving everything in "not connected to spark".
+        const response = await sendWebViewRequestInternal(
+          OPERATION_TYPES.initWallet,
+          { mnemonic: currentWalletMnemoinc },
+          true,
+        );
+        if (!response?.isConnected) throw new Error('Wallet init failed');
+      } catch (err) {
+        console.log('Error re-initializing wallet:', err);
+        forceReactNativeUse = true;
+        // Reject all queued requests since WebView is now unusable
+        queuedRequests.current.forEach(({ reject }) => {
+          reject({
+            error: 'Wallet initialization failed, using React Native',
+          });
+        });
+        queuedRequests.current = [];
+        return;
+      }
+    }
+    isResetting.current = false;
+    if (queuedRequests.current.length === 0) {
+      isResetting.current = false;
+      return;
+    }
+
+    console.log(`Processing ${queuedRequests.current.length} queued requests`);
+    const requests = [...queuedRequests.current];
+    await Promise.allSettled(
+      requests.map(({ action, args, encrypt, resolve, reject }) =>
+        sendWebViewRequestInternal(action, args, encrypt)
+          .then(resolve)
+          .catch(reject),
+      ),
+    );
+
+    isResetting.current = false;
+  }, [currentWalletMnemoinc, sendWebViewRequestInternal]);
 
   return (
     <WebViewContext.Provider

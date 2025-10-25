@@ -7,36 +7,36 @@ import {
   useEffect,
   useRef,
 } from 'react';
-import {useGlobalContextProvider} from './context';
+import { useGlobalContextProvider } from './context';
 import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
-import {useKeysContext} from './keys';
-import {useAppStatus} from './appStatus';
+import { useKeysContext } from './keys';
+import { useAppStatus } from './appStatus';
 import connectToLiquidNode from '../app/functions/connectToLiquid';
 
 // Initiate context
 const NodeContextManager = createContext(null);
 
-const GLobalNodeContextProider = ({children}) => {
-  const {contactsPrivateKey, publicKey, accountMnemoinc} = useKeysContext();
-  const {didGetToHomepage} = useAppStatus();
-  const {masterInfoObject} = useGlobalContextProvider();
+const GLobalNodeContextProider = ({ children }) => {
+  const { contactsPrivateKey, publicKey, accountMnemoinc } = useKeysContext();
+  const { didGetToHomepage } = useAppStatus();
+  const { masterInfoObject } = useGlobalContextProvider();
   const [liquidNodeInformation, setLiquidNodeInformation] = useState({
     didConnectToNode: null,
     transactions: [],
     userBalance: 0,
   });
   const selectedCurrency = masterInfoObject.fiatCurrency;
-  const [fiatStats, setFiatStats] = useState({});
+  const [fiatStats, setFiatStats] = useState({ coin: 'USD', value: 100_000 });
 
   const toggleFiatStats = useCallback(newInfo => {
-    setFiatStats({...newInfo, coin: newInfo.coin?.toUpperCase()});
+    setFiatStats({ ...newInfo, coin: newInfo.coin?.toUpperCase() });
   }, []);
 
   const didRunCurrencyUpdate = useRef(null);
   const didRunLiquidConnection = useRef(null);
 
   const toggleLiquidNodeInformation = useCallback(newInfo => {
-    setLiquidNodeInformation(prev => ({...prev, ...newInfo}));
+    setLiquidNodeInformation(prev => ({ ...prev, ...newInfo }));
   }, []);
 
   useEffect(() => {
@@ -44,8 +44,7 @@ const GLobalNodeContextProider = ({children}) => {
       !contactsPrivateKey ||
       !publicKey ||
       didRunCurrencyUpdate.current ||
-      !selectedCurrency ||
-      !didGetToHomepage
+      !selectedCurrency
     )
       return;
     didRunCurrencyUpdate.current = true;
@@ -57,12 +56,12 @@ const GLobalNodeContextProider = ({children}) => {
         publicKey,
         masterInfoObject,
       );
-      if (response.didWork && !response.usingCache) {
+      if (response.didWork) {
         toggleFiatStats(response.fiatRateResponse);
       }
     }
     initFiatData();
-  }, [contactsPrivateKey, selectedCurrency, publicKey, didGetToHomepage]);
+  }, [contactsPrivateKey, selectedCurrency, publicKey]);
 
   useEffect(() => {
     if (
@@ -118,4 +117,4 @@ function useNodeContext() {
   return context;
 }
 
-export {NodeContextManager, GLobalNodeContextProider, useNodeContext};
+export { NodeContextManager, GLobalNodeContextProider, useNodeContext };
