@@ -1035,13 +1035,13 @@
       "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
       "giftCardappVersionError": "Você não pode enviar um vale-presente para este contato. Eles não atualizaram para a versão mais recente da carteira Blitz.",
-      "giftCardDescription": "Você enviou {{name}} um {{giftCardName}} Cartão Presente",
+      "giftCardDescription": "Você enviou para {{name}} um Cartão Presente {{giftCardName}}",
       "cardDetailsError": "Não foi possível carregar seu vale-presente neste momento. Tente novamente.",
       "giftCardRange": "Enviar {{amount}} - {{amount2}}",
       "giftCardAmountError": "Insira um valor de pelo menos {{amount}} e até {{amount2}}",
       "sendGiftText": "Enviar presente",
       "notVariableCard": "Este vale-presente tem um valor fixo. Você só pode enviar o valor mostrado acima.",
-      "giftCardText": "{{giftName}} Cartão Presente",
+      "giftCardText": "Cartão Presente {{giftName}}",
       "giftMessage": "Mensagem de presente"
     },
     "viewGiftCardCode": {
