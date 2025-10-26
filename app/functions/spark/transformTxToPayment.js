@@ -17,6 +17,11 @@ export async function transformTxToPaymentObject(
     : sparkPaymentType(tx);
   const paymentAmount = tx.totalValue;
 
+  const accountId =
+    tx.transferDirection === 'OUTGOING'
+      ? tx.senderIdentityPublicKey
+      : tx.receiverIdentityPublicKey;
+
   if (paymentType === 'lightning') {
     const foundInvoice = unpaidLNInvoices.find(item => {
       const details = JSON.parse(item.details);
@@ -62,7 +67,7 @@ export async function transformTxToPaymentObject(
       id: tx.transfer ? tx.transfer.sparkId : tx.id,
       paymentStatus: status === 'completed' || preimage ? 'completed' : status,
       paymentType: 'lightning',
-      accountId: identityPubKey,
+      accountId: accountId,
       details: {
         fee: paymentFee,
         totalFee: paymentFee + supportFee,
@@ -99,7 +104,7 @@ export async function transformTxToPaymentObject(
       id: tx.id,
       paymentStatus: 'completed',
       paymentType: 'spark',
-      accountId: identityPubKey,
+      accountId: accountId,
       details: {
         fee: paymentFee,
         totalFee: paymentFee + supportFee,
@@ -140,7 +145,7 @@ export async function transformTxToPaymentObject(
       id: tx.id,
       paymentStatus: status,
       paymentType: 'bitcoin',
-      accountId: identityPubKey,
+      accountId: accountId,
       details: {
         fee,
         totalFee: blitzFee + fee,

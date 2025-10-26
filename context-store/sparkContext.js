@@ -100,6 +100,7 @@ const SparkWalletProvider = ({ children }) => {
   const handledTransfers = useRef(new Set());
   const prevListenerType = useRef(null);
   const prevAppState = useRef(appState);
+  const prevAccountId = useRef(null);
 
   const [didRunNormalConnection, setDidRunNormalConnection] = useState(false);
   const [normalConnectionTimeout, setNormalConnectionTimeout] = useState(false);
@@ -601,6 +602,7 @@ const SparkWalletProvider = ({ children }) => {
     const timeoutId = setTimeout(async () => {
       if (!didGetToHomepage) return;
       if (!sparkInformation.didConnect) return;
+      if (!sparkInformation.identityPubKey) return;
 
       const getListenerType = () => {
         if (appState === 'active' && !isSendingPayment) return 'full';
@@ -610,6 +612,7 @@ const SparkWalletProvider = ({ children }) => {
 
       const newType = getListenerType();
       const prevType = prevListenerType.current;
+      const prevId = prevAccountId.current;
 
       console.log(prevAppState.current, appState, 'APP STATE CHANGE');
 
@@ -620,11 +623,16 @@ const SparkWalletProvider = ({ children }) => {
         prevListenerType.current = null;
       }
 
-      // Only reconfigure listeners if the type actually changed
-      if (newType !== prevType && appState === 'active') {
+      // Only reconfigure listeners if the type actually changed or spark wallet changed
+      if (
+        (newType !== prevType ||
+          prevId !== sparkInfoRef.current.identityPubKey) &&
+        appState === 'active'
+      ) {
         await removeListeners();
         if (newType) await addListeners(newType);
         prevListenerType.current = newType;
+        prevAccountId.current = sparkInfoRef.current.identityPubKey;
       }
 
       prevAppState.current = appState;
@@ -634,6 +642,7 @@ const SparkWalletProvider = ({ children }) => {
   }, [
     appState,
     sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
     didGetToHomepage,
     isSendingPayment,
     sendWebViewRequest,
