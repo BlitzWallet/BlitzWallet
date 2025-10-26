@@ -387,7 +387,7 @@ export default function ContactsPage({ navigation }) {
                     }),
                   )
                 }
-                textContent={t('contacts.contactsPage.addContactButton')}
+                textContent={t('constants.search')}
               />
             </View>
           ) : null}

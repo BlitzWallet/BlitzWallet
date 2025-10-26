@@ -108,7 +108,8 @@
     "andLower": "y",
     "onLower": "en",
     "offLower": "de",
-    "recover": "Recuperare"
+    "recover": "Recuperare",
+    "search": "Buscar"
   },
 
   "languages": {
