@@ -1,26 +1,26 @@
-import {useEffect, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {storeData} from '../../../functions';
-import {SIZES} from '../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
-import {GlobalThemeView, ThemeText} from '../../../functions/CustomElements';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { storeData } from '../../../functions';
+import { SIZES } from '../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
 import KeyForKeyboard from '../../../functions/CustomElements/key';
 import PinDot from '../../../functions/CustomElements/pinDot';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import RNRestart from 'react-native-restart';
-import {useKeysContext} from '../../../../context-store/keys';
-import {storeMnemonicWithPinSecurity} from '../../../functions/handleMnemonic';
+import { useKeysContext } from '../../../../context-store/keys';
+import { storeMnemonicWithPinSecurity } from '../../../functions/handleMnemonic';
 
 export default function PinPage(props) {
-  const {accountMnemoinc} = useKeysContext();
+  const { accountMnemoinc } = useKeysContext();
   const [pin, setPin] = useState([null, null, null, null]);
   const [confirmPin, setConfirmPin] = useState([]);
   const [pinNotMatched, setPinNotMatched] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [pinEnterCount, setPinEnterCount] = useState(0);
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   // const fromGiftPath = props.route.params?.from === 'giftPath';
   const isInitialLoad = props.route.params?.isInitialLoad;
   const didRestoreWallet = props.route.params?.didRestoreWallet;
@@ -92,7 +92,7 @@ export default function PinPage(props) {
   return (
     <GlobalThemeView styles={styles.contentContainer} useStandardWidth={true}>
       <ThemeText
-        styles={{...styles.header}}
+        styles={styles.header}
         content={
           isConfirming
             ? pinNotMatched
@@ -101,14 +101,18 @@ export default function PinPage(props) {
             : t('createAccount.keySetup.pin.enterPinMessage')
         }
       />
-      <ThemeText
-        styles={styles.enterText}
-        content={t('createAccount.keySetup.pin.attemptsText', {
-          number: 8 - pinEnterCount,
-        })}
-      />
+      {!!pinEnterCount && (
+        <ThemeText
+          styles={styles.enterText}
+          content={t('createAccount.keySetup.pin.attemptsText', {
+            number: 8 - pinEnterCount,
+          })}
+        />
+      )}
 
-      <View style={styles.dotContainer}>
+      <View
+        style={[styles.dotContainer, { marginTop: pinEnterCount ? 0 : 30 }]}
+      >
         <PinDot pin={pin} dotNum={0} />
         <PinDot pin={pin} dotNum={1} />
         <PinDot pin={pin} dotNum={2} />
