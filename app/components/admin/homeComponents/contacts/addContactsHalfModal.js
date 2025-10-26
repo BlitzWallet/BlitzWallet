@@ -104,7 +104,7 @@ export default function AddContactsHalfModal({
     refreshCacheObject();
     setIsSearching(false);
     setUsers(newUsers);
-  }, 800);
+  }, 500);
 
   const handleSearch = term => {
     setSearchInput(term);
