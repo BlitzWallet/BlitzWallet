@@ -24,6 +24,7 @@ export default function ViewAllTxPage() {
   const { t } = useTranslation();
   useHandleBackPressNew();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
+  const enabledLRC20 = masterInfoObject.lrc20Settings?.isEnabled;
   const { bottomPadding } = useGlobalInsets();
   console.log(sparkInformation);
   useEffect(() => {
@@ -46,6 +47,7 @@ export default function ViewAllTxPage() {
       darkModeType,
       userBalanceDenomination,
       didGetToHomepage: true,
+      enabledLRC20,
     });
 
     setTxs(txs);
@@ -57,6 +59,7 @@ export default function ViewAllTxPage() {
     theme,
     darkModeType,
     userBalanceDenomination,
+    enabledLRC20,
   ]);
 
   return (
