@@ -46,9 +46,9 @@ export default function ExpandedTx(props) {
   const amount = transaction?.details?.amount;
   const description = transaction.details.description;
 
-  const month = paymentDate.toLocaleString('default', { month: 'short' });
-  const day = paymentDate.getDate();
-  const year = paymentDate.getFullYear();
+  // const month = paymentDate.toLocaleString('default', { month: 'short' });
+  // const day = paymentDate.getDate();
+  // const year = paymentDate.getFullYear();
 
   useHandleBackPressNew();
 
@@ -273,7 +273,7 @@ export default function ExpandedTx(props) {
               neverHideBalance={true}
               styles={styles.primaryAmount}
               balance={
-                isLRC20Payment && formattedTokensBalance > 1
+                isLRC20Payment && formattedTokensBalance >= 1
                   ? formattedTokensBalance
                   : amount
               }
