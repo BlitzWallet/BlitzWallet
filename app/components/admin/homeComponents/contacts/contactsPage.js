@@ -77,7 +77,7 @@ export default function ContactsPage({ navigation }) {
   );
   const filteredContacts = useFilteredContacts(
     contactInfoList,
-    inputText,
+    inputText.trim(),
     hideUnknownContacts,
   );
 
@@ -340,6 +340,9 @@ export default function ContactsPage({ navigation }) {
           contentContainerStyle={scrollContentStyle}
           style={memoizedStyles.contactsPageWithContactsScrollview}
           stickyHeaderIndices={stickyHeaderIndicesValue}
+          keyboardShouldPersistTaps={
+            contactElements.length ? 'never' : 'always'
+          }
         >
           {pinnedContacts.length !== 0 && (
             <View style={memoizedStyles.pinnedContactsScrollviewContainer}>
@@ -360,7 +363,34 @@ export default function ContactsPage({ navigation }) {
             setInputText={setInputText}
             containerStyles={searchInputStyle}
           />
-          {contactElements}
+          {contactElements.length ? (
+            contactElements
+          ) : inputText.trim() ? (
+            <View style={memoizedStyles.noResultsContainer}>
+              <ThemeText
+                content={
+                  `"${inputText}" ` + t('contacts.contactsPage.notFound')
+                }
+                styles={memoizedStyles.noResultsTitle}
+              />
+              <ThemeText
+                content={t('contacts.contactsPage.noContactSearch')}
+                styles={memoizedStyles.noResultsSubtitle}
+              />
+              <CustomButton
+                actionFunction={() =>
+                  keyboardNavigate(() =>
+                    navigate.navigate('CustomHalfModal', {
+                      wantedContent: 'addContacts',
+                      sliderHight: 0.4,
+                      startingSearchValue: inputText.trim(),
+                    }),
+                  )
+                }
+                textContent={t('contacts.contactsPage.addContactButton')}
+              />
+            </View>
+          ) : null}
         </ScrollView>
       ) : (
         <View style={memoizedStyles.noContactsContainer}>
@@ -632,7 +662,10 @@ const memoizedStyles = StyleSheet.create({
   globalContainer: {
     flex: 1,
   },
-  contactsPageWithContactsScrollview: { flex: 1, overflow: 'hidden' },
+  contactsPageWithContactsScrollview: {
+    flex: 1,
+    overflow: 'hidden',
+  },
   profileImageContainer: {
     position: 'relative',
     width: 35,
@@ -728,5 +761,23 @@ const memoizedStyles = StyleSheet.create({
   giftText: {
     marginRight: 5,
     includeFontPadding: false,
+  },
+  noResultsContainer: {
+    // flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 30,
+  },
+  noResultsTitle: {
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  noResultsSubtitle: {
+    fontSize: SIZES.small,
+    textAlign: 'center',
+    opacity: 0.6,
+    marginBottom: 24,
+    // Add your theme color
   },
 });

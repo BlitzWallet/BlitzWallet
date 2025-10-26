@@ -986,7 +986,9 @@
       "editContactProfileMessage": "Bearbeiten Sie Ihr Profil, um Kontakte zu nutzen.",
       "addContactButton": "Kontakt hinzufügen",
       "editContactButton": "Profil bearbeiten",
-      "unknownSender": "Unbekannter Absender"
+      "unknownSender": "Unbekannter Absender",
+      "noContactSearch": "Dieser Kontakt ist noch nicht in Ihrer Liste.",
+      "notFound": "Nicht gefunden."
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Kontakt konnte nicht gefunden werden.",

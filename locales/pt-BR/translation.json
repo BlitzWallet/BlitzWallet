@@ -996,7 +996,9 @@
       "editContactProfileMessage": "Edite seu perfil para começar a usar contatos.",
       "addContactButton": "Adicionar contato",
       "editContactButton": "Editar perfil",
-      "unknownSender": "Remetente desconhecido"
+      "unknownSender": "Remetente desconhecido",
+      "noContactSearch": "Este contato ainda não está na sua lista.",
+      "notFound": "não encontrado."
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Não foi possível encontrar o contato.",

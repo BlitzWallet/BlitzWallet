@@ -996,7 +996,9 @@
       "editContactProfileMessage": "Edit your profile to begin using contacts.",
       "addContactButton": "Add Contact",
       "editContactButton": "Edit Profile",
-      "unknownSender": "Unknown sender"
+      "unknownSender": "Unknown sender",
+      "noContactSearch": "This contact isn't in your list yet.",
+      "notFound": "not found."
     },
     "addContactsHalfModal": {
       "noContactsMessage": "Not able to find contact.",
