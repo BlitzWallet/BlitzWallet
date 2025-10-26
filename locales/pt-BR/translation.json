@@ -1199,7 +1199,7 @@
       "balanceError": "O saldo atual da sua carteira é {{balance}}. A Blitz adiciona uma {{fee}} taxa em todos os pagamentos BTKN. Certifique-se de ter Bitcoin na sua carteira antes de enviar tokens.",
       "title": "Configurações Spark",
       "sliderTitle": "BTKN {{switchType}}",
-      "sliderDesc": "BTKN é o padrão de tokens da Spark. Habilitar BTKN permite que você envie e receba tokens na rede Spark.\n\nBlitz é uma carteira focada em Bitcoin. Não promovemos nem endossamos o uso de tokens. Este recurso existe porque acreditamos que os usuários devem ter a liberdade de usar a tecnologia que desejarem..\n\nA Blitz cobra uma {{fee}} taxa em todas as transações de tokens, com 20% dessa taxa doada para apoiar o desenvolvimento do Bitcoin de código aberto."
+      "sliderDesc": "BTKN é o padrão de tokens da Spark. Habilitar BTKN permite que você envie e receba tokens na rede Spark.\n\nBlitz é uma carteira focada em Bitcoin. Não promovemos nem endossamos o uso de tokens. Este recurso existe porque acreditamos que os usuários devem ter a liberdade de usar a tecnologia que desejarem..\n\nA Blitz cobra uma taxa de {{fee}} em todas as transações de tokens, com 20% dessa taxa doada para apoiar o desenvolvimento do Bitcoin de código aberto."
     },
     "viewSwapsHome": {
       "swaps": "Trocas",
