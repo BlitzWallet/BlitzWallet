@@ -185,6 +185,7 @@ export default function CustomHalfModal(props) {
             darkModeType={darkModeType}
             slideHeight={slideHeight}
             setIsKeyboardActive={setIsKeyboardActive}
+            startingSearchValue={props.route.params?.startingSearchValue}
           />
         );
 

@@ -18,7 +18,7 @@ import {
 } from '../../../../constants';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { searchUsers } from '../../../../../db';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
@@ -36,11 +36,12 @@ import { useTranslation } from 'react-i18next';
 export default function AddContactsHalfModal({
   slideHeight,
   setIsKeyboardActive,
+  startingSearchValue,
 }) {
   const { contactsPrivateKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { globalContactsInformation } = useGlobalContacts();
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState(startingSearchValue || '');
   const [users, setUsers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const sliderHight = slideHeight;
@@ -49,6 +50,12 @@ export default function AddContactsHalfModal({
   const { refreshCacheObject } = useImageCache();
   const searchTrackerRef = useRef(null);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (startingSearchValue) {
+      handleSearch(startingSearchValue);
+    }
+  }, []);
 
   const handleSearchTrackerRef = () => {
     const requestUUID = customUUID();
