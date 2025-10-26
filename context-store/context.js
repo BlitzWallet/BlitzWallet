@@ -93,7 +93,7 @@ const GlobalContextProvider = ({ children }) => {
           );
           if (!collectionData) throw new Error('No data returened');
           setPreLoadedUserData({ isLoading: true, data: collectionData });
-        }
+        } else throw new Error('No user logged in');
       } catch (err) {
         console.log('Error preloading user data');
         setPreLoadedUserData({ isLoading: false, data: null });
