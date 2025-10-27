@@ -1,23 +1,23 @@
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {CENTER} from '../../../../../constants';
+import { CENTER } from '../../../../../constants';
 import {
   COLORS,
   INSET_WINDOW_WIDTH,
   SIZES,
   WINDOWWIDTH,
 } from '../../../../../constants/theme';
-import {useCallback, useRef, useState} from 'react';
+import { useCallback, useRef, useState } from 'react';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import formatTokensNumber from '../../../../../functions/lrc20/formatTokensBalance';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 export default function SelectLRC20Token({
   navigate,
@@ -29,9 +29,9 @@ export default function SelectLRC20Token({
   const keyboardRef = useRef(null);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const assetsAvailable = Object.entries(sparkInformation.tokens);
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
 
   const handleSearch = term => {
     setSearchInput(term);
@@ -65,7 +65,7 @@ export default function SelectLRC20Token({
   });
 
   const AssetItem = useCallback(
-    ({item, selectToken}) => {
+    ({ item, selectToken }) => {
       const [tokenIdentifier, details] = item;
       return (
         <TouchableOpacity
@@ -83,7 +83,8 @@ export default function SelectLRC20Token({
                 ? backgroundColor
                 : backgroundOffset
               : COLORS.darkModeText,
-          }}>
+          }}
+        >
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.tickerText}
@@ -105,6 +106,7 @@ export default function SelectLRC20Token({
             useCustomLabel={details?.tokenMetadata?.tokenTicker !== 'Bitcoin'}
             customLabel={''}
             useMillionDenomination={true}
+            neverHideBalance={true}
           />
         </TouchableOpacity>
       );
@@ -116,7 +118,8 @@ export default function SelectLRC20Token({
     <CustomKeyboardAvoidingView
       useStandardWidth={true}
       useLocalPadding={true}
-      isKeyboardActive={isKeyboardActive}>
+      isKeyboardActive={isKeyboardActive}
+    >
       <CustomSettingsTopBar
         customBackFunction={goBackFunction}
         label={t('wallet.sendPages.selectLRC20Token.title')}
@@ -138,7 +141,7 @@ export default function SelectLRC20Token({
           <FlatList
             showsVerticalScrollIndicator={false}
             data={filteredData}
-            renderItem={({item}) => (
+            renderItem={({ item }) => (
               <AssetItem
                 theme={theme}
                 darkModeType={darkModeType}
@@ -149,11 +152,11 @@ export default function SelectLRC20Token({
             )}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="none"
-            contentContainerStyle={{paddingTop: 10}}
+            contentContainerStyle={{ paddingTop: 10 }}
           />
         ) : (
           <ThemeText
-            styles={{textAlign: 'center', marginTop: 10}}
+            styles={{ textAlign: 'center', marginTop: 10 }}
             content={t('wallet.sendPages.selectLRC20Token.noTokensFoundText')}
           />
         )}
@@ -200,6 +203,6 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
 
-  tickerText: {marginRight: 'auto', includeFontPadding: false},
-  balanceText: {includeFontPadding: false},
+  tickerText: { marginRight: 'auto', includeFontPadding: false },
+  balanceText: { includeFontPadding: false },
 });
