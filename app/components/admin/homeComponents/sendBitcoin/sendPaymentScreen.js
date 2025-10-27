@@ -16,8 +16,6 @@ import decodeSendAddress from './functions/decodeSendAdress';
 import { useNavigation } from '@react-navigation/native';
 // import {useWebView} from '../../../../../context-store/webViewContext';
 import GetThemeColors from '../../../../hooks/themeColors';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import NavbarBalance from './components/navBarBalance';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
@@ -47,6 +45,7 @@ import { SliderProgressAnimation } from '../../../../functions/CustomElements/se
 import { InputTypes } from 'bitcoin-address-parser';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { useWebView } from '../../../../../context-store/webViewContext';
+import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalance';
 
 export default function SendPaymentScreen(props) {
   const { sendWebViewRequest } = useWebView();
@@ -272,35 +271,25 @@ export default function SendPaymentScreen(props) {
     setMasterTokenInfo({});
   };
 
+  const handleBackpress = () => {
+    enabledLRC20 &&
+    Object.keys(seletctedToken).length &&
+    paymentInfo.type === 'spark'
+      ? clearSettings()
+      : goBackFunction();
+  };
+
   return (
     <CustomKeyboardAvoidingView
       useLocalPadding={true}
       isKeyboardActive={!isAmountFocused}
       useStandardWidth={true}
     >
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          style={styles.backArrow}
-          onPress={
-            enabledLRC20 &&
-            Object.keys(seletctedToken).length &&
-            paymentInfo.type === 'spark'
-              ? clearSettings
-              : goBackFunction
-          }
-        >
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
-        </TouchableOpacity>
-
-        <NavbarBalance
-          seletctedToken={seletctedToken}
-          selectedLRC20Asset={selectedLRC20Asset}
-        />
-      </View>
+      <NavBarWithBalance
+        seletctedToken={seletctedToken}
+        selectedLRC20Asset={selectedLRC20Asset}
+        backFunction={handleBackpress}
+      />
 
       <ScrollView
         contentContainerStyle={{
