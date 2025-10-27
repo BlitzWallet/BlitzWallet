@@ -1486,7 +1486,7 @@
         "liquidWalletError": "As informações da carteira não foram definidas corretamente. Tente novamente.",
         "liquidWalletError2": "Não foi possível configurar sua carteira. Tente novamente.",
         "dbInitError1": "Não foi possível configurar seu aplicativo.",
-        "dbInitError2": "Por favor, tente novamente. Se o problema persistir, você poderá recuperar seus fundos com segurança usando sua frase inicial."
+        "dbInitError2": "Por favor, tente novamente. Se o problema persistir, você poderá recuperar seus fundos com segurança usando sua frase-semente."
       },
 
       "receiveBtcPage": {
