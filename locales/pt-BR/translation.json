@@ -12,12 +12,12 @@
     "decline": "Recusar",
     "receive": "Receber",
     "accept": "Aceitar",
-    "total_balance": "Saldo Total",
-    "sat_balance": "Saldo total",
+    "total_balance": "Sats",
+    "sat_balance": "Sats",
     "amount": "Quantia",
     "sent": "Você enviou",
     "received": "Você recebeu",
-    "store": "Loja",
+    "store": "Marketplace",
     "faucet": "Torneira",
     "today": "Hoje",
     "yesterday": "Ontem",
@@ -32,7 +32,7 @@
     "minimum": "Mínimo",
     "request": "Solicitar",
     "fee": "Taxa",
-    "type": "Tipo",
+    "type": "Rede",
     "edit": "Editar",
     "iunderstand": "Eu compreendo",
     "save": "Salvar",
@@ -89,8 +89,8 @@
     "active": "Ativar",
     "create": "Criar",
     "experimentalLower": "experimental",
-    "enabled": "Habilitado",
-    "disabled": "Desabilitado",
+    "enabled": "Habilitadas",
+    "disabled": "Desabilitadas",
     "unlimited": "Ilimitado",
     "custom...": "Personalizado...",
     "enable": "Habilitar",
@@ -175,8 +175,8 @@
     "requestSent": "Você solicitou",
     "requestPaid": "Solicitação paga",
     "paidRequest": "Solicitação paga",
-    "sent": "Enviada",
-    "received": "Recebida",
+    "sent": "Você enviou",
+    "received": "Você recebeu",
     "paidLower": "pago",
     "declinedLower": "recusada",
     "receivedRequest": "Solicitação recebida",
@@ -253,7 +253,7 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Como as configurações biométricas estão ativadas, você não pode usar o método de login com PIN padrão. Deseja encerrar sua conta?",
+      "isBiometricEnabledConfirmAction": "Você não pode usar seu PIN enquanto a biometria estiver ativada.\n\nDeseja excluir todos os dados da carteira? Certifique-se de que você tem o backup da sua frase-semente.\n",
       "wrongPinError": "PIN incorreto, tente novamente",
       "enterPinMessage": "Inserir PIN",
       "attemptsText": "{{attempts}} tentativas restantes"
@@ -268,7 +268,7 @@
       "SMSDescription": "Envie e receba mensagens SMS para todo o mundo usando Bitcoin",
       "VPN": "VPN",
       "VPNDescription": "Navegue com segurança e proteja a sua privacidade",
-      "onlineListings": "Lojas",
+      "onlineListings": "Lojas virtuais",
       "onlineListingsDescription": "Diretório de empresas on-line que aceitam pagamentos em Bitcoin",
       "Soon": "Em breve",
       "SoonDescription": "Mais aplicativos em breve"
@@ -311,7 +311,7 @@
         "country": "País:",
         "createdAt": "Criado em:",
         "duration": "Duração:",
-        "paymentHash": "Hash de pagamento:",
+        "paymentHash": "Hash do pagamento:",
         "title": "Compras",
         "retryClaim": "Tentando criar arquivo",
         "noPurchases": "Você não tem configurações de VPN",
@@ -321,7 +321,7 @@
         "contact": "Contato"
       },
       "home": {
-        "title": "Para usar esta VPN, baixe o aplicativo cliente Wireguard VPN",
+        "title": "Para usar esta VPN, baixe o aplicativo Wireguard",
         "downloadApp": "Baixe aqui",
         "status": "",
         "apiConnectionError": "A LNVPN está temporariamente indisponível. Tente novamente em breve.",
@@ -762,7 +762,7 @@
         "invalidCountryError": "Não é um país válido",
         "payingMessage": "Pagando...",
         "runningTries": "Executando {{runCount}} para {{maxTries}} tentativas",
-        "notAbleToSettleInvoice": "Não fi possível liquidar a fatura.",
+        "notAbleToSettleInvoice": "Não foi possível liquidar a fatura.",
         "paymentMemo": "Loja - Envio de SMS"
       },
       "sentPayments": {
@@ -822,7 +822,7 @@
       "charity": "Caridade",
       "sustainability": "Sustentabilidade",
       "selectCategoryPlaceholder": "Selecionar categoria",
-      "topBarLabel": "Lojas",
+      "topBarLabel": "Lojas virtuais",
       "loadingShopMessage": "Carregando",
       "inputPlaceHolder": "Procurar lojas...",
       "noBuisMessage": "Não conseguimos encontrar nada que corresponda à sua pesquisa.",
@@ -945,9 +945,9 @@
       },
       "acceptButton": {
         "noSendAmountError": "Por favor, insira uma quantia para envio",
-        "liquidError": "{{overFlowType}} enviar quantia {{amount}}",
+        "liquidError": " A quantia {{overFlowType}} para envio é {{amount}}",
         "onchainError": "A quantia mínima de envio na cadeia on-chain é {{amount}}",
-        "lnurlPayError": "{{overFlowType}} enviar quantia {{amount}}",
+        "lnurlPayError": "A quantia {{overFlowType}} para envio é {{amount}}",
         "lrc20FeeError": "Você precisa {{amount}} para enviar tokens. Seu saldo é {{balance}}. Por favor, deposite alguns Bitcoins primeiro.",
         "balanceError": "Fundos insuficientes para cobrir o valor de envio e as taxas"
       }
@@ -1029,7 +1029,7 @@
       "uniqueNameInputDesc": "Nome de usuário",
       "uniqueNameInputPlaceholder": "Digite seu nome de usuário",
       "bioInputDesc": "Bio",
-      "bioInputPlaceholder": "Digite uma introdução curta",
+      "bioInputPlaceholder": "Escreva uma introdução curta",
       "addContactBTN": " Adicionar contato",
       "unqiueNameRegexError": "O nome de usuário só pode ter letras, números ou sublinhados e deve conter pelo menos 1 letra.",
       "usernameAlreadyExistsError": "Este nome de usuário já existe, escolha outro.",
@@ -1039,16 +1039,16 @@
 
     "sendAndRequestPage": {
       "descriptionPlaceholder": "Descrição do pagamento",
-      "profileMessage": "Pagando {{name}}",
+      "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
       "giftCardappVersionError": "Você não pode enviar um vale-presente para este contato. Eles não atualizaram para a versão mais recente da carteira Blitz.",
-      "giftCardDescription": "Você enviou {{name}} um {{giftCardName}} Cartão Presente",
+      "giftCardDescription": "Você enviou para {{name}} um Cartão Presente {{giftCardName}}",
       "cardDetailsError": "Não foi possível carregar seu vale-presente neste momento. Tente novamente.",
       "giftCardRange": "Enviar {{amount}} - {{amount2}}",
       "giftCardAmountError": "Insira um valor de pelo menos {{amount}} e até {{amount2}}",
       "sendGiftText": "Enviar presente",
       "notVariableCard": "Este vale-presente tem um valor fixo. Você só pode enviar o valor mostrado acima.",
-      "giftCardText": "{{giftName}} Cartão Presente",
+      "giftCardText": "Cartão Presente {{giftName}}",
       "giftMessage": "Mensagem de presente"
     },
     "viewGiftCardCode": {
@@ -1063,7 +1063,7 @@
       "helpHeader": "Precisa de ajuda?",
       "helpDesc": "Se precisar de ajuda com este cartão-presente, copie o UUID do cartão acima e envie para o e-mail da nossa equipe de suporte.",
       "unpaidMessage": "Este cartão não está pago. Se o pagamento foi efetuado, mas não foi reconhecido, use o e-mail abaixo para obter ajuda.",
-      "messageLabel": "Mesangem:",
+      "messageLabel": "Mensagem:",
       "claimed": "Usado",
       "markAsClaimed": "Marcar como usado"
     },
@@ -1149,10 +1149,10 @@
       "text2": "A quantia não pode ser 0",
       "text3": "Pagamentos rápidos",
       "text4": "Limite máximo (SAT)",
-      "text5": "A função pagamento rápido permite que você pague instantaneamente faturas abaixo de um limite especificado, sem precisar confirmar o pagamento."
+      "text5": "A função pagamento rápido permite que você pague instantaneamente faturas com valor abaixo de um limite especificado, sem precisar confirmar o pagamento."
     },
     "loginSecurity": {
-      "text1": "Habilitar segurança de acesso",
+      "text1": "Segurança de acesso",
       "text2": "Tipo de segurança",
       "text3": "Pin",
       "text4": "Biometria",
@@ -1205,8 +1205,8 @@
     "sparkLrc20": {
       "balanceError": "O saldo atual da sua carteira é {{balance}}. A Blitz adiciona uma {{fee}} taxa em todos os pagamentos BTKN. Certifique-se de ter Bitcoin na sua carteira antes de enviar tokens.",
       "title": "Configurações Spark",
-      "sliderTitle": "{{switchType}} BTKN",
-      "sliderDesc": "BTKN é o padrão de tokens da Spark. Habilitar BTKN permite que você envie e receba tokens na rede Spark.\n\nBlitz é uma carteira focada em Bitcoin. Não promovemos nem endossamos o uso de tokens. Este recurso existe porque acreditamos que os usuários devem ter a liberdade de usar a tecnologia que desejarem..\n\nA Blitz cobra uma {{fee}} taxa em todas as transações de tokens, com 20% dessa taxa doada para apoiar o desenvolvimento do Bitcoin de código aberto."
+      "sliderTitle": "BTKN {{switchType}}",
+      "sliderDesc": "BTKN é o padrão de tokens da Spark. Habilitar BTKN permite que você envie e receba tokens na rede Spark.\n\nBlitz é uma carteira focada em Bitcoin. Não promovemos nem endossamos o uso de tokens. Este recurso existe porque acreditamos que os usuários devem ter a liberdade de usar a tecnologia que desejarem..\n\nA Blitz cobra uma taxa de {{fee}} em todas as transações de tokens, com 20% dessa taxa doada para apoiar o desenvolvimento do Bitcoin de código aberto."
     },
     "viewSwapsHome": {
       "swaps": "Trocas",
@@ -1246,7 +1246,7 @@
       "swap": "Trocar"
     },
     "notifications": {
-      "mainToggle": "{{state}} notificações",
+      "mainToggle": "Notificações {{state}}",
       "mainToggleDesc": "As notificações permitem que você fique informado sobre eventos e atualizações importantes que acontecem no aplicativo.",
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
@@ -1450,7 +1450,7 @@
     "inAccount": {
       "appStore": {
         "soonMessage": "Adoramos que você queira mais apps. Sugira-os abaixo!",
-        "title": "Loja",
+        "title": "Marketplace",
         "shopTitle": "Compre com Bitcoin",
         "shopDescription": "Compre vales-presente de milhares de lojas ao redor do mundo",
         "callToAction": "Gostaria de ver algo aqui?",
@@ -1524,15 +1524,15 @@
       },
       "technicalTransactionDetails": {
         "txHash": "Hash da Transação",
-        "paymentId": "Id do pagamento",
-        "preimage": "Pré-imagem do pagamento",
-        "address": "Endereço de pagamento",
+        "paymentId": "ID",
+        "preimage": "Pré-imagem",
+        "address": "Endereço",
         "bitcoinTxId": "Bitcoin Txid",
         "paymentExp": "Vencimento do pagamento",
         "noInformationLabel": "{{item}} não é mostrado porque este pagamento foi restaurado do histórico ou usou uma fatura de valor zero.",
-        "privacyMessage": "Para preservar a {{type}} privacidade, todas as outras informações ficam ocultas.",
-        "receivers": "do receptor",
-        "senders": "do remetente"
+        "privacyMessage": "Para preservar a privacidade {{type}} ,todas as outras informações ficam ocultas.",
+        "receivers": "do recebedor",
+        "senders": "do pagador"
       },
       "viewAllTxPage": {
         "title": "Transações"
