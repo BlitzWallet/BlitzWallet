@@ -43,6 +43,7 @@ import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import getReceiveAddressAndContactForContactsPayment from './internalComponents/getReceiveAddressAndKindForPayment';
 import calculateProgressiveBracketFee from '../../../../functions/spark/calculateSupportFee';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
+import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalance';
 
 const MAX_SEND_OPTIONS = [
   { label: '25%', value: '25' },
@@ -424,7 +425,7 @@ export default function SendAndRequestPage(props) {
       useLocalPadding={true}
       useStandardWidth={true}
     >
-      <CustomSettingsTopBar containerStyles={styles.topBar} />
+      <NavBarWithBalance />
       <>
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -678,7 +679,7 @@ export default function SendAndRequestPage(props) {
             actionFunction={handleSubmit}
             textContent={
               paymentType === 'send'
-                ? t('constants.confirm')
+                ? t('constants.review')
                 : t('constants.request')
             }
           />
