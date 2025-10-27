@@ -147,11 +147,11 @@ export default function ConnectingToNodeLoadingScreen({
         console.log('Process 3', new Date().getTime());
 
         const elapsedTime = Date.now() - startTime;
-        const remainingTime = Math.max(0, 2000 - elapsedTime);
+        const remainingTime = Math.max(0, 1000 - elapsedTime);
 
         if (remainingTime > 0) {
           console.log(
-            `Waiting ${remainingTime}ms to reach minimum 2s duration`,
+            `Waiting ${remainingTime}ms to reach minimum 1s duration`,
           );
           await new Promise(resolve => setTimeout(resolve, remainingTime));
         }
