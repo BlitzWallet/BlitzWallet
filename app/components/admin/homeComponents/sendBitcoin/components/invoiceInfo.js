@@ -4,12 +4,12 @@ import { CENTER } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import formatSparkPaymentAddress from '../functions/formatSparkPaymentAddress';
 import { useNavigation } from '@react-navigation/native';
+import { InputTypes } from 'bitcoin-address-parser';
 
 export default function InvoiceInfo({ paymentInfo }) {
   const formmateedSparkPaymentInfo = formatSparkPaymentAddress(paymentInfo);
   const { backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
-  console.log(paymentInfo);
   return (
     <TouchableOpacity
       onPress={() => {
@@ -27,7 +27,7 @@ export default function InvoiceInfo({ paymentInfo }) {
       <ThemeText
         CustomNumberOfLines={2}
         content={
-          paymentInfo?.type === 'payRequest'
+          paymentInfo?.type === InputTypes.LNURL_PAY
             ? paymentInfo.data.address
             : formmateedSparkPaymentInfo.address
         }
