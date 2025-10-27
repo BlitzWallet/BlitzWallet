@@ -1,15 +1,15 @@
-import {StyleSheet, TouchableOpacity} from 'react-native';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {CENTER} from '../../../../../constants';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { CENTER } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import formatSparkPaymentAddress from '../functions/formatSparkPaymentAddress';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
-export default function InvoiceInfo({paymentInfo}) {
+export default function InvoiceInfo({ paymentInfo }) {
   const formmateedSparkPaymentInfo = formatSparkPaymentAddress(paymentInfo);
-  const {backgroundOffset} = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
-
+  console.log(paymentInfo);
   return (
     <TouchableOpacity
       onPress={() => {
@@ -22,10 +22,15 @@ export default function InvoiceInfo({paymentInfo}) {
         {
           backgroundColor: backgroundOffset,
         },
-      ]}>
+      ]}
+    >
       <ThemeText
         CustomNumberOfLines={2}
-        content={formmateedSparkPaymentInfo.address}
+        content={
+          paymentInfo?.type === 'payRequest'
+            ? paymentInfo.data.address
+            : formmateedSparkPaymentInfo.address
+        }
       />
     </TouchableOpacity>
   );
