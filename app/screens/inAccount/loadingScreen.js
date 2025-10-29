@@ -25,7 +25,7 @@ import { useSparkWallet } from '../../../context-store/sparkContext';
 // import { getLocalStorageItem, setLocalStorageItem } from '../../functions';
 // import { useLiquidEvent } from '../../../context-store/liquidEventContext';
 // import { initRootstockSwapDB } from '../../functions/boltz/rootstock/swapDb';
-import { useRootstockProvider } from '../../../context-store/rootstockSwapContext';
+// import { useRootstockProvider } from '../../../context-store/rootstockSwapContext';
 // import loadNewFiatData from '../../functions/saveAndUpdateFiatData';
 // import { initializeGiftCardDatabase } from '../../functions/contacts/giftCardStorage';
 // import { useWebView } from '../../../context-store/webViewContext';
@@ -54,7 +54,7 @@ export default function ConnectingToNodeLoadingScreen({
   //   // toggleLiquidNodeInformation,
   //   toggleFiatStats,
   // } = useNodeContext();
-  const { createSigner } = useRootstockProvider();
+  // const { createSigner } = useRootstockProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { toggleGlobalContactsInformation, globalContactsInformation } =
     useGlobalContacts();
@@ -65,6 +65,7 @@ export default function ConnectingToNodeLoadingScreen({
   const [message, setMessage] = useState(
     t('screens.inAccount.loadingScreen.loadingMessage1'),
   );
+  const didRunConnectionRef = useRef(null);
   // const [didOpenDatabases, setDidOpenDatabases] = useState(false);
 
   // const didLoadInformation = useRef(false);
@@ -94,10 +95,6 @@ export default function ConnectingToNodeLoadingScreen({
   }, []);
 
   useEffect(() => {
-    setTimeout(() => connectToSparkWallet(), 500);
-  }, []);
-
-  useEffect(() => {
     async function startConnectProcess() {
       const startTime = Date.now();
 
@@ -106,6 +103,7 @@ export default function ConnectingToNodeLoadingScreen({
           'Begining app connnection procress in loading screen',
         );
         console.log('Process 1', new Date().getTime());
+        connectToSparkWallet();
 
         // connectToLiquidNode(accountMnemoinc);
         const [
@@ -133,7 +131,6 @@ export default function ConnectingToNodeLoadingScreen({
             setPreLoadedUserData,
           }),
         ]);
-        createSigner();
 
         console.log('Process 2', new Date().getTime());
         crashlyticsLogReport('Opened all SQL lite tables');
@@ -163,8 +160,10 @@ export default function ConnectingToNodeLoadingScreen({
       }
     }
     if (preloadedUserData.isLoading && !preloadedUserData.data) return;
+    if (didRunConnectionRef.current) return;
+    didRunConnectionRef.current = true;
 
-    startConnectProcess();
+    requestAnimationFrame(startConnectProcess);
   }, [preloadedUserData]);
   // useEffect(() => {
   //   if (

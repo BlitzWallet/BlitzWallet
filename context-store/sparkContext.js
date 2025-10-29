@@ -982,23 +982,21 @@ const SparkWalletProvider = ({ children }) => {
 
   // This function connects to the spark node and sets the session up
 
-  const connectToSparkWallet = useCallback(() => {
-    requestAnimationFrame(async () => {
-      const { didWork, error } = await initWallet({
-        setSparkInformation,
-        // toggleGlobalContactsInformation,
-        // globalContactsInformation,
-        mnemonic: accountMnemoinc,
-        sendWebViewRequest,
-      });
-      setDidRunNormalConnection(true);
-      if (!didWork) {
-        setSparkInformation(prev => ({ ...prev, didConnect: false }));
-        setSparkConnectionError(error);
-        console.log('Error connecting to spark wallet:', error);
-        return;
-      }
+  const connectToSparkWallet = useCallback(async () => {
+    const { didWork, error } = await initWallet({
+      setSparkInformation,
+      // toggleGlobalContactsInformation,
+      // globalContactsInformation,
+      mnemonic: accountMnemoinc,
+      sendWebViewRequest,
     });
+    setDidRunNormalConnection(true);
+    if (!didWork) {
+      setSparkInformation(prev => ({ ...prev, didConnect: false }));
+      setSparkConnectionError(error);
+      console.log('Error connecting to spark wallet:', error);
+      return;
+    }
   }, [accountMnemoinc, sendWebViewRequest]);
 
   // Function to update db when all reqiured information is loaded
