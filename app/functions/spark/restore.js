@@ -188,6 +188,7 @@ export async function fullRestoreSparkState({
   mnemonic,
   identityPubKey,
   sendWebViewRequest,
+  isInitialRestore,
 }) {
   try {
     console.log('running');
@@ -255,7 +256,10 @@ export async function fullRestoreSparkState({
     );
 
     if (allPaymentObjects.length) {
-      bulkUpdateSparkTransactions(allPaymentObjects, 'fullUpdate');
+      bulkUpdateSparkTransactions(
+        allPaymentObjects,
+        `fullUpdate${!isInitialRestore ? '-waitBalance' : ''}`,
+      );
     }
 
     return allPaymentObjects.length;
