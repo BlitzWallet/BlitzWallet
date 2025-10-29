@@ -27,6 +27,11 @@ import { useLRC20EventContext } from '../../../context-store/lrc20Listener';
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../context-store/webViewContext';
+import Animated, {
+  runOnJS,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -267,105 +272,140 @@ function QrCode(props) {
   const { showToast } = useToast();
   const { theme } = useGlobalThemeContext();
   const { backgroundOffset, textColor } = GetThemeColors();
-  if (addressState.isGeneratingInvoice) {
-    return (
-      <View style={styles.qrCodeContainer}>
-        <View
-          style={{
-            ...styles.qrCodeContainer,
-            backgroundColor: backgroundOffset,
-          }}
-        >
-          <FullLoadingScreen
-            text={t('screens.inAccount.receiveBtcPage.generatingInvoice')}
-          />
-        </View>
-        {!isUsingAltAccount && (
-          <LNURLContainer
-            theme={theme}
-            textColor={textColor}
-            selectedRecieveOption={selectedRecieveOption}
-            initialSendAmount={initialSendAmount}
-            globalContactsInformation={globalContactsInformation}
-            navigate={navigate}
-            masterInfoObject={masterInfoObject}
-            fiatStats={fiatStats}
-          />
-        )}
-      </View>
-    );
-  }
-  if (!addressState.generatedAddress) {
-    return (
-      <View style={styles.qrCodeContainer}>
-        <View
-          style={{
-            ...styles.qrCodeContainer,
-            backgroundColor: backgroundOffset,
-          }}
-        >
-          <ThemeText
-            styles={styles.errorText}
-            content={
-              t(addressState.errorMessageText.text) ||
-              t('errormessages.invoiceRetrivalError')
-            }
-          />
-        </View>
-        {!isUsingAltAccount && (
-          <LNURLContainer
-            theme={theme}
-            textColor={textColor}
-            selectedRecieveOption={selectedRecieveOption}
-            initialSendAmount={initialSendAmount}
-            globalContactsInformation={globalContactsInformation}
-            navigate={navigate}
-            masterInfoObject={masterInfoObject}
-            fiatStats={fiatStats}
-          />
-        )}
-      </View>
-    );
-  }
+
+  const qrOpacity = useSharedValue(addressState.generatedAddress ? 1 : 0);
+  const loadingOpacity = useSharedValue(0);
+  const errorOpacity = useSharedValue(0);
+  const previousAddress = useRef(addressState.generatedAddress);
+  const fadeOutDuration = 200;
+  const fadeInDuration = 200;
+
+  useEffect(() => {
+    const newAddress = addressState.generatedAddress;
+    const hasChanged = newAddress !== previousAddress.current;
+
+    if (hasChanged && previousAddress.current) {
+      qrOpacity.value = withTiming(
+        0,
+        { duration: fadeOutDuration },
+        finished => {
+          if (finished) {
+            runOnJS(handleFadeOutComplete)(newAddress);
+          }
+        },
+      );
+    } else if (newAddress && !previousAddress.current) {
+      previousAddress.current = newAddress;
+      errorOpacity.value = 0;
+      loadingOpacity.value = 0;
+      qrOpacity.value = withTiming(1, { duration: fadeInDuration });
+    } else if (
+      !newAddress &&
+      !addressState.isGeneratingInvoice &&
+      previousAddress.current
+    ) {
+      qrOpacity.value = withTiming(0, { duration: fadeOutDuration });
+      loadingOpacity.value = 0;
+      errorOpacity.value = withTiming(1, { duration: fadeInDuration });
+      previousAddress.current = '';
+    }
+  }, [addressState.generatedAddress, addressState.isGeneratingInvoice]);
+
+  const handleFadeOutComplete = newAddress => {
+    if (newAddress) {
+      previousAddress.current = newAddress;
+      loadingOpacity.value = 0;
+      errorOpacity.value = 0;
+      qrOpacity.value = withTiming(1, { duration: fadeInDuration });
+    } else if (addressState.isGeneratingInvoice) {
+      previousAddress.current = '';
+      errorOpacity.value = 0;
+      loadingOpacity.value = withTiming(1, { duration: fadeInDuration });
+    } else {
+      previousAddress.current = '';
+      loadingOpacity.value = 0;
+      errorOpacity.value = withTiming(1, { duration: fadeInDuration });
+    }
+  };
+
+  const handlePress = () => {
+    if (
+      selectedRecieveOption?.toLowerCase() === 'lightning' &&
+      !initialSendAmount &&
+      !isUsingAltAccount
+    ) {
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'chooseLNURLCopyFormat',
+      });
+      return;
+    }
+    copyToClipboard(addressState.generatedAddress, showToast);
+  };
 
   return (
     <View style={styles.qrCodeContainer}>
       <TouchableOpacity
-        onPress={() => {
-          if (
-            selectedRecieveOption?.toLowerCase() === 'lightning' &&
-            !initialSendAmount &&
-            !isUsingAltAccount
-          ) {
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'chooseLNURLCopyFormat',
-            });
-            return;
-          }
-          copyToClipboard(addressState.generatedAddress, showToast);
-        }}
-        style={[
-          styles.qrCodeContainer,
-          {
-            backgroundColor: backgroundOffset,
-            paddingBottom: !!addressState.errorMessageText.text ? 10 : 0,
-          },
-        ]}
+        onPress={handlePress}
+        activeOpacity={0.8}
+        style={[styles.qrCodeContainer, { backgroundColor: backgroundOffset }]}
       >
-        <QrCodeWrapper
-          outerContainerStyle={{ backgroundColor: 'transparent' }}
-          QRData={addressState.generatedAddress}
-        />
+        <View
+          style={{
+            position: 'relative',
+            alignItems: 'center',
+            width: 300,
+            height: 300,
+          }}
+        >
+          <Animated.View
+            style={{
+              position: 'absolute',
+              opacity: qrOpacity,
+            }}
+          >
+            <QrCodeWrapper
+              outerContainerStyle={{ backgroundColor: 'transparent' }}
+              QRData={
+                addressState.generatedAddress || previousAddress.current || ' '
+              }
+            />
+          </Animated.View>
 
-        {addressState.errorMessageText.text && (
-          <ThemeText
-            styles={{ textAlign: 'center', width: 275, marginTop: 10 }}
-            content={
-              t(addressState.errorMessageText.text) ||
-              t('errormessages.invoiceRetrivalError')
-            }
-          />
-        )}
+          <Animated.View
+            style={{
+              position: 'absolute',
+              width: 300,
+              height: 300,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: loadingOpacity,
+            }}
+          >
+            <FullLoadingScreen
+              text={t('screens.inAccount.receiveBtcPage.generatingInvoice')}
+            />
+          </Animated.View>
+
+          <Animated.View
+            style={{
+              position: 'absolute',
+              width: 300,
+              height: 300,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 10,
+              opacity: errorOpacity,
+            }}
+          >
+            <ThemeText
+              styles={styles.errorText}
+              content={
+                t(addressState.errorMessageText.text) ||
+                t('errormessages.invoiceRetrivalError')
+              }
+            />
+          </Animated.View>
+        </View>
       </TouchableOpacity>
 
       {!isUsingAltAccount && (
@@ -486,6 +526,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
 
   errorText: {
