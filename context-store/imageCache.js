@@ -6,28 +6,37 @@ import React, {
   useRef,
   useMemo,
 } from 'react';
-import {getDownloadURL, getMetadata, ref} from '@react-native-firebase/storage';
-import {useGlobalContacts} from './globalContacts';
-import {useAppStatus} from './appStatus';
-import {BLITZ_PROFILE_IMG_STORAGE_REF} from '../app/constants';
-import {useGlobalContextProvider} from './context';
-import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
-import {storage} from '../db/initializeFirebase';
+import {
+  getDownloadURL,
+  getMetadata,
+  ref,
+} from '@react-native-firebase/storage';
+import { useGlobalContacts } from './globalContacts';
+import { useAppStatus } from './appStatus';
+import { BLITZ_PROFILE_IMG_STORAGE_REF } from '../app/constants';
+import { useGlobalContextProvider } from './context';
+import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
+import { storage } from '../db/initializeFirebase';
 import {
   cacheDirectory,
   downloadAsync,
   getInfoAsync,
   makeDirectoryAsync,
 } from 'expo-file-system/legacy';
-import {getAllLocalKeys, getMultipleItems} from '../app/functions/localStorage';
+import {
+  getAllLocalKeys,
+  getMultipleItems,
+} from '../app/functions/localStorage';
+import { useSparkWallet } from './sparkContext';
 const FILE_DIR = cacheDirectory + 'profile_images/';
 const ImageCacheContext = createContext();
 
-export function ImageCacheProvider({children}) {
+export function ImageCacheProvider({ children }) {
+  const { sparkInformation } = useSparkWallet();
   const [cache, setCache] = useState({});
-  const {didGetToHomepage} = useAppStatus();
-  const {decodedAddedContacts} = useGlobalContacts();
-  const {masterInfoObject} = useGlobalContextProvider();
+  const { didGetToHomepage } = useAppStatus();
+  const { decodedAddedContacts } = useGlobalContacts();
+  const { masterInfoObject } = useGlobalContextProvider();
   const didRunContextCacheCheck = useRef(null);
 
   const refreshCacheObject = async () => {
@@ -59,6 +68,7 @@ export function ImageCacheProvider({children}) {
     if (!didGetToHomepage) return;
     if (didRunContextCacheCheck.current) return;
     if (!masterInfoObject.uuid) return;
+    if (!sparkInformation.identityPubKey) return;
     didRunContextCacheCheck.current = true;
 
     async function refreshContactsImages() {
@@ -68,7 +78,7 @@ export function ImageCacheProvider({children}) {
 
       let refreshArray = [...decodedAddedContacts];
       if (didCheckForProfileImage !== 'true') {
-        refreshArray.push({uuid: masterInfoObject.uuid});
+        refreshArray.push({ uuid: masterInfoObject.uuid });
         setLocalStorageItem('didCheckForProfileImage', 'true');
       }
       const cacheUpdates = {};
@@ -82,11 +92,16 @@ export function ImageCacheProvider({children}) {
       }
 
       if (Object.keys(cacheUpdates).length > 0) {
-        setCache(prev => ({...prev, ...cacheUpdates}));
+        setCache(prev => ({ ...prev, ...cacheUpdates }));
       }
     }
     refreshContactsImages();
-  }, [decodedAddedContacts, didGetToHomepage, masterInfoObject?.uuid]);
+  }, [
+    decodedAddedContacts,
+    didGetToHomepage,
+    masterInfoObject?.uuid,
+    sparkInformation.identityPubKey,
+  ]);
 
   async function refreshCache(uuid, hasdownloadURL, skipCacheUpdate = false) {
     try {
@@ -119,7 +134,7 @@ export function ImageCacheProvider({children}) {
 
       const localUri = `${FILE_DIR}${uuid}.jpg`;
 
-      await makeDirectoryAsync(FILE_DIR, {intermediates: true});
+      await makeDirectoryAsync(FILE_DIR, { intermediates: true });
       await downloadAsync(url, localUri);
 
       const newCacheEntry = {
@@ -131,7 +146,7 @@ export function ImageCacheProvider({children}) {
       await setLocalStorageItem(key, JSON.stringify(newCacheEntry));
 
       if (!skipCacheUpdate) {
-        setCache(prev => ({...prev, [uuid]: newCacheEntry}));
+        setCache(prev => ({ ...prev, [uuid]: newCacheEntry }));
       }
 
       return newCacheEntry;
@@ -152,7 +167,7 @@ export function ImageCacheProvider({children}) {
       };
 
       await setLocalStorageItem(key, JSON.stringify(newCacheEntry));
-      setCache(prev => ({...prev, [uuid]: newCacheEntry}));
+      setCache(prev => ({ ...prev, [uuid]: newCacheEntry }));
       return newCacheEntry;
     } catch (err) {
       console.log('Error refreshing image cache', err);
