@@ -113,6 +113,7 @@ export const WebViewProvider = ({ children }) => {
   const isResetting = useRef(false);
   const queuedRequests = useRef([]);
   const pendingRequests = useRef({});
+  const activeTimeoutsRef = useRef({});
   const sessionKeyRef = useRef(null);
   const aesKeyRef = useRef(null);
   const expectedNonceRef = useRef(null);
@@ -147,6 +148,11 @@ export const WebViewProvider = ({ children }) => {
       isResetting.current = true;
       setIsWebViewReady(false);
       // setVerifiedPath('');
+
+      Object.values(activeTimeoutsRef.current).forEach(t =>
+        clearTimeout(t.timeoutId),
+      );
+      activeTimeoutsRef.current = {};
 
       // Only clear handshake if explicitly told to (actual failures)
       // Don't clear it for normal app lifecycle resets
@@ -231,10 +237,48 @@ export const WebViewProvider = ({ children }) => {
   useEffect(() => {
     if (previousAppState.current !== appState) {
       if (appState === 'background') {
+        console.log(
+          'App moving to background — pausing WebView timeouts',
+          Object.entries(activeTimeoutsRef.current).length,
+        );
         backgroundTimeRef.current = Date.now();
+
+        const now = Date.now();
+        Object.entries(activeTimeoutsRef.current).forEach(([id, entry]) => {
+          const elapsed = now - entry.startedAt;
+          const remaining = Math.max(entry.duration - elapsed, 0);
+          clearTimeout(entry.timeoutId);
+          activeTimeoutsRef.current[id] = {
+            ...entry,
+            remaining,
+          };
+        });
       }
 
       if (previousAppState.current === 'background' && appState === 'active') {
+        console.log(
+          'App returned to foreground — resuming WebView timeouts',
+          Object.entries(activeTimeoutsRef.current).length,
+        );
+        const now = Date.now();
+
+        Object.entries(activeTimeoutsRef.current).forEach(([id, entry]) => {
+          if (!pendingRequests.current[id]) {
+            console.log(
+              `Skipping timeout resume for ${id} - request already resolved`,
+            );
+            delete activeTimeoutsRef.current[id];
+            return;
+          }
+
+          const newTimeoutId = setTimeout(entry.handler, entry.remaining);
+          activeTimeoutsRef.current[id] = {
+            ...entry,
+            timeoutId: newTimeoutId,
+            startedAt: now,
+          };
+        });
+
         const timeInBackground = backgroundTimeRef.current
           ? Date.now() - backgroundTimeRef.current
           : Infinity; //force reset if background timeout is not set
@@ -519,11 +563,26 @@ export const WebViewProvider = ({ children }) => {
           };
 
           const timeoutDuration = getTimeoutDuration(action);
+          const startedAt = Date.now();
 
-          timeoutId = setTimeout(() => {
+          const handleTimeout = () => {
+            if (appState !== 'active') {
+              console.log(
+                `Skipping timeout for ${action} because app is not active (${appState})`,
+              );
+              return;
+            }
+
+            if (!pendingRequests.current[id]) {
+              console.log(`Request ${id} already resolved, skipping timeout`);
+              delete activeTimeoutsRef.current[id];
+              return;
+            }
+
             console.error(`WebView request timeout for action: ${action}`);
 
             delete pendingRequests.current[id];
+            delete activeTimeoutsRef.current[id];
 
             resetWebViewState(true, true);
             forceReactNativeUse = true;
@@ -533,14 +592,23 @@ export const WebViewProvider = ({ children }) => {
                 `Call unresponsive (timeout after ${timeoutDuration}ms)`,
               ),
             );
-          }, timeoutDuration);
+          };
+
+          timeoutId = setTimeout(handleTimeout, timeoutDuration);
+
+          activeTimeoutsRef.current[id] = {
+            timeoutId,
+            startedAt,
+            duration: timeoutDuration,
+            handler: handleTimeout,
+            remaining: timeoutDuration,
+          };
 
           const originalResolve = resolve;
           pendingRequests.current[id] = result => {
-            if (timeoutId) {
-              clearTimeout(timeoutId);
-              timeoutId = null;
-            }
+            const t = activeTimeoutsRef.current[id];
+            if (t?.timeoutId) clearTimeout(t.timeoutId);
+            delete activeTimeoutsRef.current[id];
             originalResolve(result);
           };
 
