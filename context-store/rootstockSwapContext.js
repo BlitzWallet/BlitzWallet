@@ -48,6 +48,7 @@ export const RootstockSwapProvider = ({ children }) => {
   const intervalRef = useRef(null);
   const timeoutRef = useRef(null);
   const cleanupDebounceRef = useRef(null);
+  const didRunSignerCreation = useRef(null);
 
   // Helper function to check if a swap is in a terminal state
   const isSwapCompleted = status => {
@@ -218,12 +219,17 @@ export const RootstockSwapProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (!accountMnemoinc) return;
-    if (!didGetToHomepage) return;
-    if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.identityPubKey) return;
+    if (didRunSignerCreation.current) return;
+    didRunSignerCreation.current = true;
+    createSigner();
+  }, [sparkInformation.identityPubKey]);
+
+  useEffect(() => {
+    if (!signer) return;
     // Open websocket once
     startRootstockEventListener({ durationMs: 30000, intervalMs: 15000 });
-  }, [accountMnemoinc, didGetToHomepage, sparkInformation.didConnect]);
+  }, [signer]);
 
   const startRootstockEventListener = useCallback(
     async ({ durationMs = 60000, intervalMs = 20000 } = {}) => {
