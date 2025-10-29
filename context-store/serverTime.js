@@ -7,18 +7,16 @@ import {
   useEffect,
   useRef,
 } from 'react';
-import {useAppStatus} from './appStatus';
 import fetchBackend from '../db/handleBackend';
-import {useKeysContext} from './keys';
-import {getLocalStorageItem, setLocalStorageItem} from '../app/functions';
-import {isMoreThanADayOld} from '../app/functions/rotateAddressDateChecker';
+import { useKeysContext } from './keys';
+import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
+import { isMoreThanADayOld } from '../app/functions/rotateAddressDateChecker';
 
 // Initiate context
 const ServerTimeManager = createContext(null);
 
-const GlobalServerTimeProvider = ({children}) => {
-  const {didGetToHomepage} = useAppStatus();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+const GlobalServerTimeProvider = ({ children }) => {
+  const { contactsPrivateKey, publicKey } = useKeysContext();
 
   const [serverTimeOffset, setServerTimeOffset] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -81,7 +79,7 @@ const GlobalServerTimeProvider = ({children}) => {
         setServerTimeOffset(offset);
         await setLocalStorageItem(
           'savedServerTimeOffset',
-          JSON.stringify({offset, lastRotated: new Date().getTime()}),
+          JSON.stringify({ offset, lastRotated: new Date().getTime() }),
         );
 
         setIsInitialized(true);
@@ -116,7 +114,7 @@ const GlobalServerTimeProvider = ({children}) => {
   }, [serverTimeOffset, isInitialized]);
 
   useEffect(() => {
-    if (!didGetToHomepage || isInitialized || isSyncing) return;
+    if (!contactsPrivateKey || !publicKey || isInitialized || isSyncing) return;
 
     console.log('Initializing server time sync...');
     syncServerTime();
@@ -126,16 +124,14 @@ const GlobalServerTimeProvider = ({children}) => {
         clearTimeout(retryTimeoutRef.current);
       }
     };
-  }, [didGetToHomepage, isInitialized, isSyncing, syncServerTime]);
+  }, [contactsPrivateKey, publicKey, isInitialized, isSyncing, syncServerTime]);
 
   const contextValue = useMemo(() => {
     return {
       getServerTime,
-
       isInitialized,
       isSyncing,
       serverTimeOffset,
-
       isUsingServerTime: isInitialized && serverTimeOffset !== 0,
     };
   }, [getServerTime, isInitialized, isSyncing, serverTimeOffset]);
@@ -158,7 +154,7 @@ function useServerTime() {
 }
 
 function useServerTimeOnly() {
-  const {getServerTime} = useServerTime();
+  const { getServerTime } = useServerTime();
   return getServerTime;
 }
 
