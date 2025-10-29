@@ -182,7 +182,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
   const sparkTransactionsLength = sparkTransactions?.length || 0;
 
   // Early return with loading skeleton
-  if (!sparkInformation.didConnect) {
+  if (!sparkInformation.didConnect || !sparkInformation.identityPubKey) {
     return [createLoadingSkeleton(20, frompage, theme, darkModeType)];
   }
 

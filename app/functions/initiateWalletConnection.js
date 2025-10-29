@@ -7,7 +7,6 @@ import {
   initializeSparkWallet,
 } from './spark';
 import handleBalanceCache from './spark/handleBalanceCache';
-
 import { cleanStalePendingSparkLightningTransactions } from './spark/transactions';
 
 export async function initWallet({
@@ -19,7 +18,22 @@ export async function initWallet({
 }) {
   try {
     crashlyticsLogReport('Trying to connect to nodes');
-    const didConnectToSpark = await initializeSparkWallet(mnemonic);
+    const [didConnectToSpark, balance] = await Promise.all([
+      initializeSparkWallet(mnemonic),
+      handleBalanceCache({
+        isCheck: false,
+        mnemonic: mnemonic,
+        returnBalanceOnly: true,
+      }),
+    ]);
+
+    if (balance) {
+      setSparkInformation(prev => ({
+        ...prev,
+        didConnect: true,
+        balance: balance,
+      }));
+    }
 
     if (didConnectToSpark.isConnected) {
       crashlyticsLogReport('Loading node balances for session');
@@ -150,6 +164,7 @@ export async function initializeSparkSession({
       didConnect: true,
     };
     console.log('Spark storage object', storageObject);
+    await new Promise(res => setTimeout(res, 500));
     setSparkInformation(storageObject);
     return storageObject;
   } catch (err) {

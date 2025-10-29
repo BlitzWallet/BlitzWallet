@@ -139,6 +139,7 @@ const SparkWalletProvider = ({ children }) => {
   useEffect(() => {
     async function handleWalletStateChange() {
       if (!didGetToHomepage) return;
+      if (!sparkInfoRef.current.identityPubKey) return;
       if (changeSparkConnectionState.state == null) return;
       if (!changeSparkConnectionState.state) {
         setSparkInformation(prev => ({ ...prev, didConnect: false }));

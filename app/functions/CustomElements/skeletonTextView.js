@@ -85,7 +85,7 @@ const SkeletonTextPlaceholder = ({
 
   return (
     <MaskedView
-      style={{ height: layout.height, width: layout.width }}
+      style={{ height: layout.height, width: '100%' }}
       maskElement={maskElement}
     >
       <View style={[StyleSheet.absoluteFill, { backgroundColor }]} />

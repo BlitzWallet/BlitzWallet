@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import SkeletonTextPlaceholder from '../../../../functions/CustomElements/skeletonTextView';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 
 export const UserSatAmount = memo(function UserSatAmount({
   isConnectedToTheInternet,
@@ -117,6 +118,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 20,
     position: 'relative',
+    width: INSET_WINDOW_WIDTH,
   },
 
   informationPopupContainer: {
