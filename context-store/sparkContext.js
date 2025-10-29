@@ -431,7 +431,7 @@ const SparkWalletProvider = ({ children }) => {
           };
         });
 
-        const delays = [1000, 2000, 4000, 8000, 16000];
+        const delays = [2000, 5000, 15000];
         let previousBalance = startBalance;
 
         const pollBalance = async delayIndex => {

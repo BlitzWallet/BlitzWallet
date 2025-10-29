@@ -256,10 +256,7 @@ export async function fullRestoreSparkState({
     );
 
     if (allPaymentObjects.length) {
-      bulkUpdateSparkTransactions(
-        allPaymentObjects,
-        `fullUpdate${!isInitialRestore ? '-waitBalance' : ''}`,
-      );
+      bulkUpdateSparkTransactions(allPaymentObjects, `fullUpdate-waitBalance`);
     }
 
     return allPaymentObjects.length;
