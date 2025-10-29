@@ -183,7 +183,11 @@ export function MyTabs(props) {
       screenOptions={{ headerShown: false }}
       tabBar={renderTabBar}
     >
-      <Tab.Screen name="ContactsPageInit" component={props.ContactsPage} />
+      <Tab.Screen
+        name="ContactsPageInit"
+        component={props.ContactsPage}
+        options={{ lazy: false }}
+      />
       <Tab.Screen name="Home" component={props.adminHome} />
       <Tab.Screen name="App Store" component={props.appStore} />
     </Tab.Navigator>
