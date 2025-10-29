@@ -1,4 +1,4 @@
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import {
   Image,
   Keyboard,
@@ -7,21 +7,21 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {CENTER, FONT, ICONS, SIZES} from '../../../../constants';
-import {ThemeText} from '../../../../functions/CustomElements';
+import { CENTER, FONT, ICONS, SIZES } from '../../../../constants';
+import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import {useEffect, useState} from 'react';
-import {KEYBOARDTIMEOUT} from '../../../../constants/styles';
-import {COLORS, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {useAppStatus} from '../../../../../context-store/appStatus';
+import { useEffect, useState } from 'react';
+import { KEYBOARDTIMEOUT } from '../../../../constants/styles';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { useAppStatus } from '../../../../../context-store/appStatus';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
-import {useActiveCustodyAccount} from '../../../../../context-store/activeAccount';
-import {useKeysContext} from '../../../../../context-store/keys';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
+import { useKeysContext } from '../../../../../context-store/keys';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -44,15 +44,15 @@ export default function SwitchReceiveOptionPage({
   didWarnLiquid,
   didWarnRootstock,
 }) {
-  const {accountMnemoinc} = useKeysContext();
-  const {currentWalletMnemoinc} = useActiveCustodyAccount();
-  const {fiatStats} = useNodeContext();
+  const { accountMnemoinc } = useKeysContext();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {minMaxLiquidSwapAmounts} = useAppStatus();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { minMaxLiquidSwapAmounts } = useAppStatus();
   const [isExpanded, setIsExpanded] = useState(false);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   useHandleBackPressNew();
   const [contentHeight, setContentHeight] = useState(0);
   const isLRC20Enabled = masterInfoObject.lrc20Settings.isEnabled;
@@ -65,8 +65,8 @@ export default function SwitchReceiveOptionPage({
     const toValue = isExpanded ? 0 : 1;
     const heightValue = isExpanded ? 0 : contentHeight;
 
-    rotateAnim.value = withTiming(toValue, {duration: 300});
-    heightAnim.value = withTiming(heightValue, {duration: 300});
+    rotateAnim.value = withTiming(toValue, { duration: 300 });
+    heightAnim.value = withTiming(heightValue, { duration: 300 });
 
     setIsExpanded(!isExpanded);
   };
@@ -127,89 +127,80 @@ export default function SwitchReceiveOptionPage({
         onPress={() => {
           handleClick(name);
         }}
-        style={{width: '100%'}}>
+        style={[
+          styles.optionItemContainer,
+          {
+            marginBottom: index !== 4 ? 20 : 0,
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
+          },
+        ]}
+      >
         <View
-          style={[
-            styles.optionItemContainer,
-            {
-              marginBottom: index !== 4 ? 20 : 0,
-              backgroundColor:
-                theme && darkModeType ? backgroundColor : backgroundOffset,
-            },
-          ]}>
-          <View
+          style={{
+            backgroundColor: theme
+              ? darkModeType
+                ? backgroundOffset
+                : backgroundColor
+              : COLORS.primary,
+            width: 50,
+            height: 50,
+            borderRadius: 25,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 10,
+          }}
+        >
+          <Image
             style={{
-              backgroundColor: theme
-                ? darkModeType
-                  ? backgroundOffset
-                  : backgroundColor
-                : COLORS.primary,
-              width: 50,
-              height: 50,
-              borderRadius: 25,
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: 10,
-            }}>
-            <Image
-              style={{
-                width: 30,
-                height: 30,
-              }}
-              resizeMode="contain"
-              source={
-                ICONS[
-                  name === 'Lightning'
-                    ? 'lightningReceiveIcon'
-                    : name === 'Bitcoin'
-                    ? 'bitcoinReceiveIcon'
-                    : name === 'Spark'
-                    ? 'sparkAsteriskWhite'
-                    : name === 'Liquid'
-                    ? 'blockstreamLiquid'
-                    : 'rootstockLogo'
-                ]
-              }
-            />
-          </View>
-          <View style={{width: '100%'}}>
-            <ThemeText
-              styles={{...styles.optionItemText}}
-              content={
+              width: 30,
+              height: 30,
+            }}
+            resizeMode="contain"
+            source={
+              ICONS[
                 name === 'Lightning'
-                  ? 'Lightning Network'
+                  ? 'lightningReceiveIcon'
                   : name === 'Bitcoin'
-                  ? 'On-Chain'
-                  : name === 'Liquid'
-                  ? 'Liquid Network'
+                  ? 'bitcoinReceiveIcon'
                   : name === 'Spark'
-                  ? 'Spark'
-                  : 'Rootstock'
-              }
-            />
-            <ThemeText
-              styles={{...styles.optionItemText}}
-              content={
-                name === 'Lightning'
-                  ? t('constants.instant')
-                  : name === 'Bitcoin'
-                  ? t(
-                      'wallet.receivePages.switchReceiveOptionPage.tenMinutes',
-                      {numMins: 10},
-                    )
+                  ? 'sparkAsteriskWhite'
                   : name === 'Liquid'
-                  ? t('wallet.receivePages.switchReceiveOptionPage.oneMinute', {
-                      numMins: 1,
-                    })
-                  : name === 'Spark'
-                  ? t('constants.instant')
-                  : t(
-                      'wallet.receivePages.switchReceiveOptionPage.tenMinutes',
-                      {numMins: 3},
-                    )
-              }
-            />
-          </View>
+                  ? 'blockstreamLiquid'
+                  : 'rootstockLogo'
+              ]
+            }
+          />
+        </View>
+        <View style={{ width: '100%', flexShrink: 1 }}>
+          <ThemeText
+            styles={styles.optionTitleText}
+            content={t(
+              `wallet.receivePages.switchReceiveOptionPage.${name.toLowerCase()}Title`,
+            )}
+            CustomNumberOfLines={1}
+          />
+          <ThemeText
+            styles={styles.optionItemText}
+            content={
+              name === 'Lightning'
+                ? t('constants.instant')
+                : name === 'Bitcoin'
+                ? t('wallet.receivePages.switchReceiveOptionPage.tenMinutes', {
+                    numMins: 10,
+                  })
+                : name === 'Liquid'
+                ? t('wallet.receivePages.switchReceiveOptionPage.oneMinute', {
+                    numMins: 1,
+                  })
+                : name === 'Spark'
+                ? t('wallet.receivePages.switchReceiveOptionPage.sparkDesc')
+                : t('wallet.receivePages.switchReceiveOptionPage.tenMinutes', {
+                    numMins: 3,
+                  })
+            }
+            CustomNumberOfLines={1}
+          />
         </View>
       </TouchableOpacity>
     );
@@ -217,11 +208,12 @@ export default function SwitchReceiveOptionPage({
 
   return (
     <ScrollView
-      contentContainerStyle={{alignItems: 'center'}}
+      contentContainerStyle={{ alignItems: 'center' }}
       showsVerticalScrollIndicator={false}
-      style={{flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
+      style={{ flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER }}
+    >
       <ThemeText
-        styles={{marginTop: 10, marginBottom: 20}}
+        styles={{ marginTop: 10, marginBottom: 20 }}
         content={t('wallet.receivePages.switchReceiveOptionPage.title')}
       />
 
@@ -234,7 +226,8 @@ export default function SwitchReceiveOptionPage({
           paddingVertical: 20,
           marginBottom: 20,
         }}
-        onPress={toggleExpanded}>
+        onPress={toggleExpanded}
+      >
         <ThemeText
           content={t('wallet.receivePages.switchReceiveOptionPage.actionBTN', {
             action: isExpanded
@@ -242,7 +235,7 @@ export default function SwitchReceiveOptionPage({
               : t('constants.moreLower'),
           })}
         />
-        <Animated.View style={[arrowStyle, {marginLeft: 5}]}>
+        <Animated.View style={[arrowStyle, { marginLeft: 5 }]}>
           <ThemeImage
             styles={{
               width: 15,
@@ -255,7 +248,7 @@ export default function SwitchReceiveOptionPage({
         </Animated.View>
       </TouchableOpacity>
 
-      <Animated.View style={[{width: '100%'}, animatedContainerStyle]}>
+      <Animated.View style={[{ width: '100%' }, animatedContainerStyle]}>
         <View
           onLayout={e => {
             const height = e.nativeEvent.layout.height;
@@ -267,7 +260,8 @@ export default function SwitchReceiveOptionPage({
             width: '100%',
             position: 'absolute',
             top: 0,
-          }}>
+          }}
+        >
           {paymentTypes.slice(isLRC20Enabled ? 3 : 2)}
         </View>
       </Animated.View>
@@ -365,7 +359,7 @@ const styles = StyleSheet.create({
     ...CENTER,
     marginTop: 20,
   },
-  icon: {width: 40, height: 40},
+  icon: { width: 40, height: 40 },
   optionItemContainer: {
     padding: 10,
     borderRadius: 8,
@@ -373,9 +367,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: 90,
   },
+  optionTitleText: {
+    width: '80%',
+    flexShrink: 1,
+  },
   optionItemText: {
     width: '80%',
+    flexShrink: 1,
     fontFamily: FONT.Title_Regular,
-    fontSize: SIZES.medium,
+    fontSize: SIZES.small,
   },
 });
