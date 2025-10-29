@@ -735,7 +735,13 @@
         "unalignedSeeds": "Advertencia: No estás usando tu cuenta principal de billetera. Todos los cambios de Liquid se enviarán a tu cuenta principal.",
         "oneMinute": "~ {{numMins}} minuto",
         "tenMinutes": "~ {{numMins}} minutos",
-        "notUsingMainAccountWarning": "Advertencia: No estás utilizando tu cuenta de billetera principal. Todos los intercambios de {{swapType}} se enviarán a tu billetera principal."
+        "notUsingMainAccountWarning": "Advertencia: No estás utilizando tu cuenta de billetera principal. Todos los intercambios de {{swapType}} se enviarán a tu billetera principal.",
+        "sparkDesc": "Instantáneo, admite tokens",
+        "sparkTitle": "Dirección Spark",
+        "bitcoinTitle": "Dirección Bitcoin",
+        "lightningTitle": "Factura Lightning",
+        "liquidTitle": "Dirección Liquid",
+        "rootstockTitle": "Dirección Rootstock"
       },
       "editLNURLContact": {
         "informationMessage": "Cambiar tu nombre de usuario actualiza cómo otros te encuentran en Blitz Contacts y tu dirección Lightning (usuario@blitzwalletapp.com).\n\nUna dirección Lightning permite que otros te envíen Bitcoin fácilmente. Solo comparte tu dirección (usuario@blitzwalletapp.com) para recibir pagos.",

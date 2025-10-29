@@ -888,7 +888,13 @@
         "rootstockWarningText": "Os pagamentos Rootstock serão trocados por Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após a confirmação do pagamento Rootstock.",
         "oneMinute": "~ {{numMins}} minuto",
         "tenMinutes": "~ {{numMins}} minutos",
-        "notUsingMainAccountWarning": "Aviso: Você não está usando sua conta da carteira principal. Todos {{swapType}} fundos trocados serão enviadas para sua carteira principal."
+        "notUsingMainAccountWarning": "Aviso: Você não está usando sua conta da carteira principal. Todos {{swapType}} fundos trocados serão enviadas para sua carteira principal.",
+        "sparkDesc": "Instantâneo, Suporta Tokens",
+        "sparkTitle": "Endereço Spark",
+        "bitcoinTitle": "Endereço Bitcoin",
+        "lightningTitle": "Fatura Lightning",
+        "liquidTitle": "Endereço Liquid",
+        "rootstockTitle": "Endereço Rootstock"
       },
       "editLNURLContact": {
         "informationMessage": "Alterar seu nome de usuário atualiza a forma como outras pessoas o encontram nos contatos Blitz e seu endereço Lightning (usuário @blitzwalletapp.com).\n\nUm endereço Lightning permite que outras pessoas lhe enviem Bitcoin facilmente. Basta compartilhar seu endereço (usuário@blitzwalletapp.com) para receber um pagamento.",
