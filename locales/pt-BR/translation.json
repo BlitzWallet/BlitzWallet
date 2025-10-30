@@ -911,7 +911,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
-        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira uma endereço Spark, endereço Bitcoin ou endereço ou fatura Lightning válidos.",
+        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira uma endereço Spark, endereço Bitcoin ou um endereço/fatura Lightning válidos.",
         "paymentProcessingError": "Erro ao processar informações de pagamento",
         "tooLowSendingAmount": "O valor do envio é muito alto para cobrir o pagamento e as taxas. O valor máximo de envio é {{amount}}",
         "processInputError": "Não é possível processar a entrada",
@@ -976,7 +976,7 @@
       },
       "manualEnterSendAddress": {
         "title": "Digite o destino",
-        "paymentTypesDesc": "A carteira Blitz pode enviar para endereços Spark, endereços Bitcoin e endereços ou faturas Lightning"
+        "paymentTypesDesc": "A carteira Blitz pode enviar para endereços Spark, endereços Bitcoin e endereços/faturas Lightning"
       },
       "sparkErrorScreen": {
         "connectionError": "Estamos com problemas para conectar à sua carteira. Por favor, informe-nos sobre este problema.\n\nLembre-se de que sua frase-semente mantém seus fundos seguros.",
