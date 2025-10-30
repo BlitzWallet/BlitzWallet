@@ -1496,9 +1496,9 @@
       },
 
       "receiveBtcPage": {
-        "onchainFeeMessage": "Payments received from bitcoin address have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.",
-        "liquidFeeMessage": "Payments received from Liquid address need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
-        "rootstockFeeMessage": "Payments received from Rootstock address need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
+        "onchainFeeMessage": "Payments received to Bitcoin addresses have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.",
+        "liquidFeeMessage": "Payments received to Liquid addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
+        "rootstockFeeMessage": "Payments received to Rootstock addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
         "generatingInvoice": "Generating Invoice"
       },
 
