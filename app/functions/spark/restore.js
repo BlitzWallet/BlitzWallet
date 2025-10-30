@@ -176,7 +176,7 @@ async function processTransactionChunk(
 
   return chunkPaymentObjects;
 }
-
+let isRestoringState = false;
 export async function fullRestoreSparkState({
   sparkAddress,
   batchSize = 50,
@@ -191,6 +191,11 @@ export async function fullRestoreSparkState({
   isInitialRestore,
 }) {
   try {
+    if (isRestoringState) {
+      console.log('already restoring state');
+      return;
+    }
+    isRestoringState = true;
     console.log('running');
     const restored = await restoreSparkTxState(
       batchSize,
@@ -263,6 +268,8 @@ export async function fullRestoreSparkState({
   } catch (err) {
     console.log('full restore spark state error', err);
     return false;
+  } finally {
+    isRestoringState = false;
   }
 }
 

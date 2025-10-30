@@ -17,10 +17,6 @@ import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 import LRC20Assets from './homeLightning/lrc20Assets';
 import { useLiquidEvent } from '../../../../context-store/liquidEventContext';
 import { useRootstockProvider } from '../../../../context-store/rootstockSwapContext';
-import {
-  SPARK_TX_UPDATE_ENVENT_NAME,
-  sparkTransactionsEventEmitter,
-} from '../../../functions/spark/transactions';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
 import { COLORS, SIZES } from '../../../constants';
 import FormattedSatText from '../../../functions/CustomElements/satTextDisplay';
@@ -32,6 +28,8 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
+import { useActiveCustodyAccount } from '../../../../context-store/activeAccount';
+import { fullRestoreSparkState } from '../../../functions/spark/restore';
 
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
@@ -43,6 +41,7 @@ export default function HomeLightning() {
     sparkInformation,
     // numberOfCachedTxs
   } = useSparkWallet();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { theme, darkModeType, toggleTheme } = useGlobalThemeContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet, didGetToHomepage, toggleDidGetToHomepage } =
@@ -179,16 +178,25 @@ export default function HomeLightning() {
     try {
       startLiquidEventListener(2);
       startRootstockEventListener({ intervalMs: 30000 });
-      sparkTransactionsEventEmitter.emit(
-        SPARK_TX_UPDATE_ENVENT_NAME,
-        'fullUpdate',
-      );
+      await fullRestoreSparkState({
+        sparkAddress: sparkInformation.sparkAddress,
+        batchSize: 2,
+        isSendingPayment: false,
+        mnemonic: currentWalletMnemoinc,
+        identityPubKey: sparkInformation.identityPubKey,
+        isInitialRestore: false,
+      });
     } catch (err) {
       console.log('error refreshing on homepage', err);
     } finally {
       setRefreshing(false);
     }
-  }, [startLiquidEventListener, startRootstockEventListener]);
+  }, [
+    startLiquidEventListener,
+    startRootstockEventListener,
+    sparkInformation,
+    currentWalletMnemoinc,
+  ]);
 
   const handleNavbarLayout = useCallback(event => {
     const { height } = event.nativeEvent.layout;
