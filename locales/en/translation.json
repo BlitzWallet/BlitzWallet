@@ -911,7 +911,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Addresses should be text only. Please check and try again.",
-        "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark addresss, Bitcoin address or Lightning.",
+        "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark addresss, Bitcoin address or Lightning invoices.",
         "paymentProcessingError": "Error processing payment info",
         "tooLowSendingAmount": "The sending amount is too high to cover the payment and fees. Maximum send amount is {{amount}}",
         "processInputError": "Unable to process input",
