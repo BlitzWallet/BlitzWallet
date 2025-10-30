@@ -952,7 +952,7 @@
       "acceptButton": {
         "noSendAmountError": "Please enter a send amount",
         "liquidError": "{{overFlowType}} send amount {{amount}}",
-        "onchainError": "Minimum payment to bitcoin address is {{amount}}",
+        "onchainError": "Minimum payment to a bitcoin address is {{amount}}",
         "lnurlPayError": "{{overFlowType}} send amount {{amount}}",
         "lrc20FeeError": "You need {{amount}} to send tokens. Your balance is {{balance}}. Please receive some Bitcoin first.",
         "balanceError": "Not enough funds to cover sending amount and fees"
