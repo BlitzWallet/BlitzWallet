@@ -575,6 +575,8 @@ async function processLightningTransaction(
 
   const preimage = sparkResponse.paymentPreimage || '';
 
+  if (!preimage) return null;
+
   return {
     useTempId: true,
     tempId: txStateUpdate.sparkID,
