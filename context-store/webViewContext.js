@@ -11,7 +11,7 @@ import EventEmitter from 'events';
 import { sha256 } from '@noble/hashes/sha2';
 import { hkdf } from '@noble/hashes/hkdf';
 import { randomBytes } from '@noble/hashes/utils';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { getSharedSecret, getPublicKey } from '@noble/secp256k1';
 import { createCipheriv, createDecipheriv } from 'react-native-quick-crypto';
 import sha256Hash from '../app/functions/hash';
@@ -296,6 +296,14 @@ export const WebViewProvider = ({ children }) => {
     }
   }, [appState, resetWebViewState, reloadWebViewSecurely]);
 
+  const isDuplicate = (queue, action, args) => {
+    return queue.some(
+      req =>
+        req.action === action &&
+        JSON.stringify(req.args) === JSON.stringify(args),
+    );
+  };
+
   const encryptMessage = useCallback(plaintext => {
     if (!aesKeyRef.current) throw new Error('AES key not initialized');
     const iv = Buffer.from(randomBytes(12));
@@ -480,20 +488,27 @@ export const WebViewProvider = ({ children }) => {
             });
           }
 
-          // Queue messages during reset
+          // Queue messages during reset/background
           if (
-            isResetting.current &&
+            (isResetting.current || AppState.currentState !== 'active') &&
             action !== 'handshake:init' &&
             action !== 'initializeSparkWallet'
           ) {
-            console.log('WebView is resetting, queueing message:', action);
-            queuedRequests.current.push({
+            console.log(
+              'WebView is resetting or in the background, queueing message:',
               action,
-              args,
-              encrypt,
-              resolve,
-              reject,
-            });
+            );
+            if (!isDuplicate(queuedRequests.current, action, args)) {
+              queuedRequests.current.push({
+                action,
+                args,
+                encrypt,
+                resolve,
+                reject,
+              });
+            } else {
+              console.log('Duplicate request ignored:', action, args);
+            }
             return;
           }
 
@@ -504,13 +519,17 @@ export const WebViewProvider = ({ children }) => {
               webViewRef.current,
               isWebViewReady,
             );
-            queuedRequests.current.push({
-              action,
-              args,
-              encrypt,
-              resolve,
-              reject,
-            });
+            if (!isDuplicate(queuedRequests.current, action, args)) {
+              queuedRequests.current.push({
+                action,
+                args,
+                encrypt,
+                resolve,
+                reject,
+              });
+            } else {
+              console.log('Duplicate request ignored:', action, args);
+            }
             return;
           }
 
