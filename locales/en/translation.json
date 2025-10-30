@@ -911,7 +911,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Addresses should be text only. Please check and try again.",
-        "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark, on-chain, LNURL, or BOLT11 invoice.",
+        "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark address, Bitcoin address or a Lightning invoice.",
         "paymentProcessingError": "Error processing payment info",
         "tooLowSendingAmount": "The sending amount is too high to cover the payment and fees. Maximum send amount is {{amount}}",
         "processInputError": "Unable to process input",
@@ -952,7 +952,7 @@
       "acceptButton": {
         "noSendAmountError": "Please enter a send amount",
         "liquidError": "{{overFlowType}} send amount {{amount}}",
-        "onchainError": "Minimum on-chain send amount is {{amount}}",
+        "onchainError": "Minimum payment to a bitcoin address is {{amount}}",
         "lnurlPayError": "{{overFlowType}} send amount {{amount}}",
         "lrc20FeeError": "You need {{amount}} to send tokens. Your balance is {{balance}}. Please receive some Bitcoin first.",
         "balanceError": "Not enough funds to cover sending amount and fees"
@@ -976,7 +976,7 @@
       },
       "manualEnterSendAddress": {
         "title": "Enter in destination",
-        "paymentTypesDesc": "Blitz wallet can send to spark, on-chain, LNURL and BOLT 11 addresses"
+        "paymentTypesDesc": "Blitz wallet can send to spark addresses, bitcoin addresses and lightning invoices"
       },
       "sparkErrorScreen": {
         "connectionError": "We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your seed phrase keeps your funds safe.",
@@ -1109,7 +1109,7 @@
       "text2": "Blitz is a free and open source app under the ",
       "text3": "Apache License",
       "text4": " Version 2.0",
-      "text5": "This is a self-custodial Bitcoin Lightning wallet. Blitz does not have access to your funds, if you lose your seed phrase it may result in a loss of funds.",
+      "text5": "This is a self-custodial Bitcoin Spark wallet compatible with the Lightning network. Blitz does not have access to your funds, if you lose your seed phrase it may result in a loss of funds.",
       "text6": "Blitz uses ",
       "text7": "Breez Liquid SDK, ",
       "text8": "Spark, ",
@@ -1496,9 +1496,9 @@
       },
 
       "receiveBtcPage": {
-        "onchainFeeMessage": "On-chain payments have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.",
-        "liquidFeeMessage": "Liquid payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
-        "rootstockFeeMessage": "Rootstock payments need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
+        "onchainFeeMessage": "Payments received to Bitcoin addresses have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.",
+        "liquidFeeMessage": "Payments received to Liquid addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
+        "rootstockFeeMessage": "Payments received to Rootstock addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
         "generatingInvoice": "Generating Invoice"
       },
 
