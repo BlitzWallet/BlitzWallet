@@ -7,42 +7,50 @@ import {
   Share,
   FlatList,
 } from 'react-native';
-import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
-import {useGlobalContacts} from '../../../../../context-store/globalContacts';
+import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect, useState } from 'react';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
+import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import ProfilePageTransactions from './internalComponents/profilePageTransactions';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useAppStatus} from '../../../../../context-store/appStatus';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useAppStatus } from '../../../../../context-store/appStatus';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import MaxHeap from '../../../../functions/minHeap';
 import ContactProfileImage from './internalComponents/profileImage';
-import {useImageCache} from '../../../../../context-store/imageCache';
-import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
-import {useTranslation} from 'react-i18next';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import { useImageCache } from '../../../../../context-store/imageCache';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import { useTranslation } from 'react-i18next';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import CustomButton from '../../../../functions/CustomElements/button';
 
-export default function MyContactProfilePage({navigation}) {
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {cache} = useImageCache();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {globalContactsInformation, decodedAddedContacts, contactsMessags} =
+export default function MyContactProfilePage({ navigation }) {
+  const { isConnectedToTheInternet } = useAppStatus();
+  const { cache } = useImageCache();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { globalContactsInformation, decodedAddedContacts, contactsMessags } =
     useGlobalContacts();
-  const {backgroundOffset, textInputBackground, textInputColor} =
+  const { backgroundOffset, textInputBackground, textInputColor } =
     GetThemeColors();
   const navigate = useNavigation();
   const currentTime = new Date();
-  const [createdPayments, setCreatedPayments] = useState([]);
-  const {t} = useTranslation();
+  const [allPayments, setAllPayments] = useState([]);
+  const [displayedPayments, setDisplayedPayments] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const { t } = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
+
+  const ITEMS_PER_PAGE = 10;
 
   const myContact = globalContactsInformation.myProfile;
 
   useEffect(() => {
     const messageHeap = new MaxHeap();
-    const MAX_MESSAGES = 50;
 
     for (let contact of Object.keys(contactsMessags)) {
       if (contact === 'lastMessageTimestamp') continue;
@@ -63,6 +71,8 @@ export default function MyContactProfilePage({navigation}) {
             'Unknown',
           contactUUID: selectedAddedContact?.uuid || contact,
           time: timestamp,
+          key: message.message.uuid || timestamp.toString(),
+          timeDiff: currentTime - timestamp,
         };
 
         messageHeap.add(messageObj);
@@ -70,19 +80,27 @@ export default function MyContactProfilePage({navigation}) {
     }
 
     const result = [];
-    while (!messageHeap.isEmpty() && result.length < MAX_MESSAGES) {
+    while (!messageHeap.isEmpty()) {
       result.push(messageHeap.poll());
     }
 
-    console.log(result.length, 'LENGTH OF RESULT ARRAY');
-
-    setCreatedPayments(result);
+    setAllPayments(result);
+    setDisplayedPayments(result.slice(0, ITEMS_PER_PAGE));
+    setCurrentPage(1);
   }, [decodedAddedContacts, contactsMessags]);
 
-  const {bottomPadding} = useGlobalInsets();
-  useHandleBackPressNew();
+  const handleLoadMore = () => {
+    const nextPage = currentPage + 1;
+    const startIndex = currentPage * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const newItems = allPayments.slice(startIndex, endIndex);
 
-  // Header component for the FlatList
+    setDisplayedPayments([...displayedPayments, ...newItems]);
+    setCurrentPage(nextPage);
+  };
+
+  const hasMoreItems = displayedPayments.length < allPayments.length;
+
   const ListHeaderComponent = () => (
     <View style={styles.innerContainer}>
       <TouchableOpacity
@@ -91,7 +109,8 @@ export default function MyContactProfilePage({navigation}) {
             wantedContent: 'myProfileQRcode',
             sliderHight: 0.6,
           });
-        }}>
+        }}
+      >
         <View>
           <View
             style={[
@@ -99,7 +118,8 @@ export default function MyContactProfilePage({navigation}) {
               {
                 backgroundColor: backgroundOffset,
               },
-            ]}>
+            ]}
+          >
             <ContactProfileImage
               updated={cache[myContact.uuid]?.updated}
               uri={cache[myContact.uuid]?.localUri}
@@ -110,7 +130,7 @@ export default function MyContactProfilePage({navigation}) {
           <View style={styles.scanProfileImage}>
             <Image
               source={ICONS.scanQrCodeDark}
-              style={{width: 18, height: 18}}
+              style={{ width: 18, height: 18 }}
             />
           </View>
         </View>
@@ -125,28 +145,30 @@ export default function MyContactProfilePage({navigation}) {
       />
 
       {myContact?.name && (
-        <ThemeText styles={{...styles.nameText}} content={myContact?.name} />
+        <ThemeText styles={{ ...styles.nameText }} content={myContact?.name} />
       )}
 
       <View
         style={[
           styles.bioContainer,
-          {marginTop: 10, backgroundColor: textInputBackground},
-        ]}>
+          { marginTop: 10, backgroundColor: textInputBackground },
+        ]}
+      >
         <ScrollView
           contentContainerStyle={{
             alignItems: myContact.bio ? null : 'center',
             flexGrow: myContact.bio ? null : 1,
           }}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+        >
           <ThemeText
-            styles={{...styles.bioText, color: textInputColor}}
+            styles={{ ...styles.bioText, color: textInputColor }}
             content={myContact?.bio || t('constants.noBioSet')}
           />
         </ScrollView>
       </View>
 
-      {createdPayments?.length === 0 && (
+      {allPayments?.length === 0 && (
         <ThemeText
           styles={styles.txPlaceholder}
           content={t('constants.noTransactions')}
@@ -155,8 +177,20 @@ export default function MyContactProfilePage({navigation}) {
     </View>
   );
 
+  const ListFooterComponent = () => {
+    if (!hasMoreItems || allPayments.length === 0) return null;
+
+    return (
+      <CustomButton
+        buttonStyles={styles.loadMoreButton}
+        actionFunction={handleLoadMore}
+        textContent={t('constants.loadMore')}
+      />
+    );
+  };
+
   return (
-    <GlobalThemeView styles={{paddingBottom: 0}} useStandardWidth={true}>
+    <GlobalThemeView styles={{ paddingBottom: 0 }} useStandardWidth={true}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={navigate.goBack}>
           <ThemeImage
@@ -166,13 +200,14 @@ export default function MyContactProfilePage({navigation}) {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          style={{marginLeft: 'auto', marginRight: 5}}
+          style={{ marginLeft: 'auto', marginRight: 5 }}
           onPress={() => {
             Share.share({
               title: 'Blitz Contact',
               message: `https://blitzwalletapp.com/u/${myContact.uniqueName}`,
             });
-          }}>
+          }}
+        >
           <ThemeImage
             darkModeIcon={ICONS.share}
             lightModeIcon={ICONS.share}
@@ -191,7 +226,8 @@ export default function MyContactProfilePage({navigation}) {
               pageType: 'myProfile',
               fromSettings: false,
             });
-          }}>
+          }}
+        >
           <ThemeImage
             darkModeIcon={ICONS.settingsIcon}
             lightModeIcon={ICONS.settingsIcon}
@@ -200,30 +236,31 @@ export default function MyContactProfilePage({navigation}) {
         </TouchableOpacity>
       </View>
 
-      {createdPayments?.length != 0 ? (
+      {allPayments?.length != 0 ? (
         <FlatList
           showsVerticalScrollIndicator={false}
-          style={{flex: 1}}
           contentContainerStyle={{
             paddingBottom: bottomPadding,
           }}
           ListHeaderComponent={ListHeaderComponent}
-          data={createdPayments}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({item, index}) => (
+          ListFooterComponent={ListFooterComponent}
+          data={displayedPayments}
+          keyExtractor={item => item.key}
+          renderItem={({ item }) => (
             <ProfilePageTransactions
-              key={index}
               transaction={item}
-              id={index}
               currentTime={currentTime}
+              theme={theme}
+              darkModeType={darkModeType}
+              cache={cache}
             />
           )}
-          initialNumToRender={10}
-          windowSize={5}
           maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          initialNumToRender={10}
         />
       ) : (
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <ListHeaderComponent />
         </View>
       )}
@@ -290,5 +327,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
     textAlign: 'center',
     width: INSET_WINDOW_WIDTH,
+  },
+  loadMoreButton: {
+    alignSelf: 'center',
+    marginTop: 15,
   },
 });
