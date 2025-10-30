@@ -233,6 +233,7 @@ export default function ConfirmTxPage(props) {
             }}
             textStyles={{
               ...CENTER,
+              textDecorationLine: 'underline',
             }}
           />
         </View>
