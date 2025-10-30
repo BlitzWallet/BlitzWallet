@@ -1109,7 +1109,7 @@
       "text2": "Blitz is a free and open source app under the ",
       "text3": "Apache License",
       "text4": " Version 2.0",
-      "text5": "This is a self-custodial Bitcoin Lightning wallet. Blitz does not have access to your funds, if you lose your seed phrase it may result in a loss of funds.",
+      "text5": "This is a self-custodial Bitcoin Spark wallet compatible with Bitcoin and Lightning network. Blitz does not have access to your funds, if you lose your seed phrase it may result in a loss of funds.",
       "text6": "Blitz uses ",
       "text7": "Breez Liquid SDK, ",
       "text8": "Spark, ",
