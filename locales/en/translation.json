@@ -976,7 +976,7 @@
       },
       "manualEnterSendAddress": {
         "title": "Enter in destination",
-        "paymentTypesDesc": "Blitz wallet can send to spark address, bitcoin address and lightning invoices"
+        "paymentTypesDesc": "Blitz wallet can send to spark addresses, bitcoin addresses and lightning invoices"
       },
       "sparkErrorScreen": {
         "connectionError": "We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your seed phrase keeps your funds safe.",
