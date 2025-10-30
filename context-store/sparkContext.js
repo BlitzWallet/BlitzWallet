@@ -709,7 +709,14 @@ const SparkWalletProvider = ({ children }) => {
   };
 
   // Add event listeners to listen for bitcoin and lightning or spark transfers when receiving only when screen is active
+
   useEffect(() => {
+    // Handle immediate background transitions synchronously(background events on android were not running)
+    if (prevAppState.current !== appState && appState === 'background') {
+      console.log('App moved to background — clearing listener type');
+      prevListenerType.current = null;
+    }
+
     const timeoutId = setTimeout(async () => {
       if (!didGetToHomepage) return;
       if (!sparkInformation.didConnect) return;
@@ -718,23 +725,14 @@ const SparkWalletProvider = ({ children }) => {
       const getListenerType = () => {
         if (appState === 'active' && !isSendingPayment) return 'full';
         if (appState === 'active' && isSendingPayment) return 'sparkOnly';
-        return null; // No listeners in background
+        return null;
       };
 
       const newType = getListenerType();
       const prevType = prevListenerType.current;
       const prevId = prevAccountId.current;
 
-      console.log(prevAppState.current, appState, 'APP STATE CHANGE');
-
-      // Handle appState transitions
-      if (prevAppState.current !== appState && appState === 'background') {
-        // App fully backgrounded → remove everything
-        await removeListeners();
-        prevListenerType.current = null;
-      }
-
-      // Only reconfigure listeners if the type actually changed or spark wallet changed
+      // Only reconfigure listeners when becoming active
       if (
         (newType !== prevType ||
           prevId !== sparkInfoRef.current.identityPubKey) &&
@@ -747,7 +745,7 @@ const SparkWalletProvider = ({ children }) => {
       }
 
       prevAppState.current = appState;
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [
