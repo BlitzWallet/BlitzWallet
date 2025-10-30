@@ -875,12 +875,12 @@
         "descriptionInputPlaceholder": "Descrizione..."
       },
       "buttonContainer": {
-        "format": "Scegli Rete",
+        "format": "Altri metodi di ricezione",
         "infoMessage": "Gli importi personalizzati non sono supportati nei pagamenti Spark o Rootstock."
       },
 
       "switchReceiveOptionPage": {
-        "title": "Scegli Rete",
+        "title": "Metodi di ricezione",
         "actionBTN": "Mostra {{action}}",
         "sparkWarningMessage": "Ricevere direttamente tramite Spark esporrà il tuo saldo alla persona che paga e non è considerato privato.",
         "swapWarning": "I pagamenti {{swapType}} verranno convertiti in Spark. I pagamenti inferiori a {{amount}} non verranno convertiti. I fondi verranno convertiti solo dopo la conferma del pagamento {{swapType}}.",

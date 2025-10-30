@@ -724,11 +724,11 @@
         "descriptionInputPlaceholder": "Descripción..."
       },
       "buttonContainer": {
-        "format": "Elegir red",
+        "format": "Otros métodos de recepción",
         "infoMessage": "No se admiten montos personalizados en los pagos de Spark o Rootstock."
       },
       "switchReceiveOptionPage": {
-        "title": "Elegir red",
+        "title": "Métodos de recepción",
         "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Recibir directamente por Spark mostrará tu saldo a la persona que paga y no se considera privado.",
         "swapWarning": "Los pagos en {{swapType}} se cambiarán a Spark. Los pagos inferiores a {{amount}} no se cambiarán. Los fondos solo se cambiarán después de que se confirme el pago en {{swapType}}.",

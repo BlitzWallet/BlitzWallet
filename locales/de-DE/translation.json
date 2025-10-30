@@ -869,11 +869,11 @@
         "descriptionInputPlaceholder": "Beschreibung..."
       },
       "buttonContainer": {
-        "format": "Netzwerk wählen",
+        "format": "Andere Empfangsmethoden",
         "infoMessage": "Benutzerdefinierte Beträge werden bei Spark- oder Rootstock-Zahlungen nicht unterstützt."
       },
       "switchReceiveOptionPage": {
-        "title": "Netzwerk wählen",
+        "title": "Empfangsmethoden",
         "actionBTN": "{{action}} anzeigen",
         "sparkWarningMessage": "Der direkte Empfang über Spark macht Ihr Guthaben für die zahlende Person sichtbar und gilt nicht als privat.",
         "swapWarning": "{{swapType}}-Zahlungen werden in Spark umgetauscht. Zahlungen unter {{amount}} werden nicht umgetauscht. Gelder werden erst nach Bestätigung der {{swapType}}-Zahlung umgetauscht.",

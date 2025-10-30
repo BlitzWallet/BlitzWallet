@@ -1,19 +1,17 @@
-import {Platform, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {CENTER, COLORS, SIZES} from '../../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {copyToClipboard} from '../../../../functions';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { CENTER, SIZES } from '../../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { copyToClipboard } from '../../../../functions';
 import CustomButton from '../../../../functions/CustomElements/button';
-import {ThemeText} from '../../../../functions/CustomElements';
-import {useTranslation} from 'react-i18next';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useToast} from '../../../../../context-store/toastManager';
-import {useCallback} from 'react';
+import { ThemeText } from '../../../../functions/CustomElements';
+import { useTranslation } from 'react-i18next';
+import { useToast } from '../../../../../context-store/toastManager';
+import { useCallback } from 'react';
 
 export default function ButtonsContainer(props) {
-  const {showToast} = useToast();
+  const { showToast } = useToast();
   const navigate = useNavigation();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const editAmount = useCallback(() => {
     if (
@@ -45,16 +43,6 @@ export default function ButtonsContainer(props) {
             opacity: props.generatingInvoiceQRCode ? 0.5 : 1,
           }}
           actionFunction={() => {
-            if (
-              props.selectedRecieveOption?.toLowerCase() === 'lightning' &&
-              !props.initialSendAmount &&
-              !props.isUsingAltAccount
-            ) {
-              navigate.navigate('CustomHalfModal', {
-                wantedContent: 'chooseLNURLCopyFormat',
-              });
-              return;
-            }
             if (props.generatingInvoiceQRCode) return;
             copyToClipboard(props.generatedAddress, showToast);
           }}
@@ -62,18 +50,16 @@ export default function ButtonsContainer(props) {
         />
       </View>
       <TouchableOpacity
+        style={styles.switchButton}
         onPress={() => {
           navigate.navigate('CustomHalfModal', {
             wantedContent: 'switchReceiveOption',
             sliderHight: 0.8,
           });
         }}
-        style={[
-          styles.secondaryButton,
-          {borderColor: theme ? COLORS.darkModeText : COLORS.lightModeText},
-        ]}>
+      >
         <ThemeText
-          styles={styles.secondaryButtonText}
+          styles={styles.switchButtonText}
           content={t('wallet.receivePages.buttonContainer.format')}
         />
       </TouchableOpacity>
@@ -83,6 +69,7 @@ export default function ButtonsContainer(props) {
 
 const styles = StyleSheet.create({
   buttonContainer: {
+    maxWidth: 300,
     width: '100%',
     marginTop: 10,
     marginBottom: 30,
@@ -92,25 +79,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
     columnGap: 10,
   },
   mainButtons: {
-    width: 125,
-    maxWidth: '45%',
+    flexShrink: 1,
+    width: '100%',
   },
 
   secondaryButton: {
-    width: 'auto',
-    minHeight: 40,
     borderRadius: 8,
-    borderWidth: 1,
+    borderBottomWidth: 1,
     ...CENTER,
     justifyContent: 'center',
   },
   secondaryButtonText: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     includeFontPadding: false,
-    paddingVertical: 5,
+  },
+  switchButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    marginBottom: 20,
+  },
+  switchButtonText: {
+    fontSize: SIZES.medium,
+    textDecorationLine: 'underline',
   },
 });

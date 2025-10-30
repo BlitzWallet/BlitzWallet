@@ -329,16 +329,6 @@ function QrCode(props) {
   };
 
   const handlePress = () => {
-    if (
-      selectedRecieveOption?.toLowerCase() === 'lightning' &&
-      !initialSendAmount &&
-      !isUsingAltAccount
-    ) {
-      navigate.navigate('CustomHalfModal', {
-        wantedContent: 'chooseLNURLCopyFormat',
-      });
-      return;
-    }
     copyToClipboard(addressState.generatedAddress, showToast);
   };
 

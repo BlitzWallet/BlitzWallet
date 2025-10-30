@@ -875,12 +875,12 @@
         "descriptionInputPlaceholder": "Description..."
       },
       "buttonContainer": {
-        "format": "Choose Network",
+        "format": "Other receiving methods",
         "infoMessage": "Custom amounts aren’t supported on Spark or Rootstock payments."
       },
 
       "switchReceiveOptionPage": {
-        "title": "Choose Network",
+        "title": "Receiving methods",
         "actionBTN": "Show {{action}}",
         "sparkWarningMessage": "Receiving directly via Spark will expose your balance to the person paying and is not considered private.",
         "swapWarning": "{{swapType}} payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the {{swapType}} payment is confirmed.",
