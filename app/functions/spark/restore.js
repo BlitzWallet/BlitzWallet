@@ -376,6 +376,7 @@ export const updateSparkTxStatus = async (
         txsByType.bitcoin,
         mnemoninc,
         sendWebViewRequest,
+        accountId,
       ),
       processSparkTransactions(txsByType.spark),
     ]);
@@ -665,6 +666,7 @@ async function processBitcoinTransactions(
   bitcoinTxs,
   mnemonic,
   sendWebViewRequest,
+  accountId,
 ) {
   const lastRun = await getLocalStorageItem('lastRunBitcoinTxUpdate');
 
@@ -692,7 +694,33 @@ async function processBitcoinTransactions(
       details.direction === 'INCOMING' ||
       !IS_BITCOIN_REQUEST_ID.test(txStateUpdate.sparkID)
     ) {
-      if (!IS_SPARK_ID.test(txStateUpdate.sparkID)) continue;
+      if (!IS_SPARK_ID.test(txStateUpdate.sparkID)) {
+        const allPayments = await getAllSparkTransactions({ accountId });
+        const foundPayment = allPayments.find(payment => {
+          if (payment.paymentType === 'bitcoin') {
+            const details = JSON.parse(payment.details);
+            if (details.onChainTxid === txStateUpdate.sparkID) return true;
+          }
+        });
+        if (foundPayment) {
+          const newDetails = JSON.parse(foundPayment.details);
+          const oldDetails = JSON.parse(txStateUpdate.details);
+          updatedTxs.push({
+            useTempId: true,
+            tempId: txStateUpdate.sparkID,
+            id: foundPayment.sparkID,
+            paymentStatus: foundPayment.paymentStatus,
+            paymentType: 'bitcoin',
+            accountId: foundPayment.accountId,
+            details: {
+              ...newDetails,
+              address: oldDetails.address || '',
+              description: oldDetails.description || '',
+            },
+          });
+        }
+        continue;
+      }
 
       const findTxResponse = await findTransactionTxFromTxHistory(
         txStateUpdate.sparkID,
