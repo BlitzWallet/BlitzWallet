@@ -73,7 +73,8 @@ const GLobalNodeContextProider = ({ children }) => {
       !contactsPrivateKey ||
       !publicKey ||
       didRunLiquidConnection.current ||
-      !sparkInformation.didConnect
+      !sparkInformation.didConnect ||
+      !sparkInformation.identityPubKey
     )
       return;
     didRunLiquidConnection.current = true;
@@ -93,6 +94,7 @@ const GLobalNodeContextProider = ({ children }) => {
     publicKey,
     accountMnemoinc,
     sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
   ]);
 
   // This function checks to see if there are any liquid funds that need to be sent to spark
@@ -111,12 +113,14 @@ const GLobalNodeContextProider = ({ children }) => {
     }
     if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.identityPubKey) return;
     swapLiquidToSpark();
   }, [
     didGetToHomepage,
     liquidNodeInformation.userBalance,
     minMaxLiquidSwapAmounts,
     sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
     globalContactsInformation?.myProfile?.uniqueName,
   ]);
 

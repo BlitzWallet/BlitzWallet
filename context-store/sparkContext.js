@@ -760,6 +760,7 @@ const SparkWalletProvider = ({ children }) => {
   useEffect(() => {
     if (!didGetToHomepage) return;
     if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.identityPubKey) return;
 
     // Interval to check deposit addresses to see if they were paid
     const handleDepositAddressCheck = async () => {
@@ -767,7 +768,7 @@ const SparkWalletProvider = ({ children }) => {
         console.log('l1Deposit check running....');
         if (AppState.currentState !== 'active') return;
         const allTxs = await getAllSparkTransactions({
-          accountId: sparkInformation.identityPubKey,
+          accountId: sparkInfoRef.current.identityPubKey,
         });
         const savedTxMap = new Map(allTxs.map(tx => [tx.sparkID, tx]));
         const depoistAddress = await queryAllStaticDepositAddresses(
@@ -803,7 +804,7 @@ const SparkWalletProvider = ({ children }) => {
                     creditAmountSats: txid.amount - txid.fee,
                   },
                   address,
-                  sparkInformation,
+                  sparkInfoRef.current,
                 );
               }
               continue;
@@ -832,7 +833,7 @@ const SparkWalletProvider = ({ children }) => {
                     creditAmountSats: txid.amount - txid.fee,
                   },
                   address,
-                  sparkInformation,
+                  sparkInfoRef.current,
                 );
               }
               continue;
@@ -853,6 +854,11 @@ const SparkWalletProvider = ({ children }) => {
               mnemonic: currentMnemonicRef.current,
             });
 
+            // Add pending transaction if not already saved (after successful claim)
+            if (!hasAlreadySaved) {
+              await addPendingTransaction(quote, address, sparkInfoRef.current);
+            }
+
             if (!claimTx || !didWork) {
               console.log('Claim static deposit address error', claimError);
               if (
@@ -862,11 +868,6 @@ const SparkWalletProvider = ({ children }) => {
               }
               // For any other claim errors (like utxo not found), don't add to DB
               continue;
-            }
-
-            // Add pending transaction if not already saved (after successful claim)
-            if (!hasAlreadySaved) {
-              await addPendingTransaction(quote, address, sparkInformation);
             }
 
             console.log('Claimed deposit address transaction:', claimTx);
@@ -897,7 +898,7 @@ const SparkWalletProvider = ({ children }) => {
                 tempId: quote.transactionId,
                 paymentStatus: 'pending',
                 paymentType: 'bitcoin',
-                accountId: sparkInformation.identityPubKey,
+                accountId: sparkInfoRef.current.identityPubKey,
               };
             } else {
               const { tx: bitcoinTransfer } = findBitcoinTxResponse;
@@ -908,7 +909,7 @@ const SparkWalletProvider = ({ children }) => {
                   tempId: quote.transactionId,
                   paymentStatus: 'pending',
                   paymentType: 'bitcoin',
-                  accountId: sparkInformation.identityPubKey,
+                  accountId: sparkInfoRef.current.identityPubKey,
                 };
               } else {
                 updatedTx = {
@@ -917,7 +918,7 @@ const SparkWalletProvider = ({ children }) => {
                   id: bitcoinTransfer.id,
                   paymentStatus: 'completed',
                   paymentType: 'bitcoin',
-                  accountId: sparkInformation.identityPubKey,
+                  accountId: sparkInfoRef.current.identityPubKey,
                   details: {
                     amount: bitcoinTransfer.totalValue,
                     fee: Math.abs(
@@ -976,7 +977,12 @@ const SparkWalletProvider = ({ children }) => {
       handleDepositAddressCheck,
       1_000 * 60,
     );
-  }, [sparkInformation.didConnect, didGetToHomepage, isSendingPayment]);
+  }, [
+    sparkInformation.didConnect,
+    didGetToHomepage,
+    isSendingPayment,
+    sparkInformation.identityPubKey,
+  ]);
 
   // This function connects to the spark node and sets the session up
 
@@ -1001,6 +1007,8 @@ const SparkWalletProvider = ({ children }) => {
   useEffect(() => {
     if (!sparkInformation.didConnect) return;
     if (!globalContactsInformation?.myProfile) return;
+    if (!sparkInformation.identityPubKey) return;
+    if (!sparkInformation.sparkAddress) return;
 
     if (sparkDBaddress.current) return;
     sparkDBaddress.current = true;
@@ -1020,7 +1028,12 @@ const SparkWalletProvider = ({ children }) => {
         true,
       );
     }
-  }, [globalContactsInformation.myProfile, sparkInformation]);
+  }, [
+    globalContactsInformation.myProfile,
+    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
+    sparkInformation.sparkAddress,
+  ]);
 
   // Cleanup on unmount
   useEffect(() => {
