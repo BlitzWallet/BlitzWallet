@@ -79,13 +79,23 @@ export async function initializeSparkSession({
       getSparkIdentityPubKey(mnemonic),
     ]);
 
-    if (!balance.didWork)
-      throw new Error('Unable to initialize spark from history');
-
     const transactions = await getCachedSparkTransactions(null, identityPubKey);
 
     if (transactions === undefined)
       throw new Error('Unable to initialize spark from history');
+
+    if (!balance.didWork) {
+      const storageObject = {
+        transactions: transactions,
+        identityPubKey,
+        sparkAddress: sparkAddress.response,
+        didConnect: true,
+      };
+      await new Promise(res => setTimeout(res, 500));
+      setSparkInformation(prev => ({ ...prev, ...storageObject }));
+      return storageObject;
+    }
+
     // if (
     //   !globalContactsInformation.myProfile.sparkAddress ||
     //   !globalContactsInformation.myProfile.sparkIdentityPubKey
