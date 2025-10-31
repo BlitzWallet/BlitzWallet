@@ -45,6 +45,7 @@ export const OPERATION_TYPES = {
   getTokenTransactions: 'getSparkTokenTransactions',
   addListeners: 'addWalletEventListener',
   removeListeners: 'removeWalletEventListener',
+  refundStaticDeposit: 'refundSparkStaticBitcoinL1AddressQuote',
 };
 
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
@@ -568,6 +569,7 @@ export const WebViewProvider = ({ children }) => {
               OPERATION_TYPES.getLightningPaymentStatus,
               OPERATION_TYPES.getTransactions,
               OPERATION_TYPES.getTokenTransactions,
+              OPERATION_TYPES.refundStaticDeposit,
             ];
 
             if (
@@ -780,7 +782,7 @@ export const WebViewProvider = ({ children }) => {
       }
       initHandshake();
     }
-    startHandshake();
+    // startHandshake();
   }, [isWebViewReady, verifiedPath, initHandshake]);
 
   useEffect(() => {
