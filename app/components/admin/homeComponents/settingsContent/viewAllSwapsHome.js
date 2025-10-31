@@ -1,21 +1,25 @@
-import {useState} from 'react';
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
-import {ICONS, SIZES} from '../../../../constants';
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
-import {COLORS, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {useTranslation} from 'react-i18next';
+import { useState } from 'react';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { ICONS, SIZES } from '../../../../constants';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import LiquidSwapsPage from './swapsComponents/liquidSwapsPage';
 import RoostockSwapsPage from './swapsComponents/rootstockSwaps';
+import BitcoinSwapsPage from './swapsComponents/onchainSwapsPage';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 export default function ViewSwapsHome() {
   const [selectedPage, setSelectedPage] = useState(null);
-  const {t} = useTranslation();
-  const {theme} = useGlobalThemeContext();
-  const {backgroundOffset} = GetThemeColors();
+  const { t } = useTranslation();
+  const { theme } = useGlobalThemeContext();
+  const { backgroundOffset } = GetThemeColors();
 
   if (!selectedPage) {
     return (
@@ -31,6 +35,35 @@ export default function ViewSwapsHome() {
           </View>
 
           <View style={styles.optionsContainer1}>
+            {/* Bitcoin Option */}
+            <TouchableOpacity
+              onPress={() => setSelectedPage('bitcoin')}
+              style={[
+                styles.optionCard1,
+                {
+                  borderColor: backgroundOffset,
+                  backgroundColor: theme
+                    ? backgroundOffset
+                    : COLORS.darkModeText,
+                },
+              ]}
+              activeOpacity={0.7}
+            >
+              <View style={styles.cardContent1}>
+                <ThemeText
+                  content={t('settings.viewSwapsHome.bitcoin')}
+                  styles={styles.optionTitle1}
+                />
+              </View>
+              <View style={styles.arrow1}>
+                <ThemeImage
+                  styles={{ transform: [{ rotate: '180deg' }] }}
+                  lightModeIcon={ICONS.leftCheveronIcon}
+                  darkModeIcon={ICONS.leftCheveronIcon}
+                  lightsOutIcon={ICONS.leftCheveronLight}
+                />
+              </View>
+            </TouchableOpacity>
             {/* Liquid Option */}
             <TouchableOpacity
               onPress={() => setSelectedPage('liquid')}
@@ -43,7 +76,8 @@ export default function ViewSwapsHome() {
                     : COLORS.darkModeText,
                 },
               ]}
-              activeOpacity={0.7}>
+              activeOpacity={0.7}
+            >
               <View style={styles.cardContent1}>
                 <ThemeText
                   content={t('settings.viewSwapsHome.liquid')}
@@ -52,7 +86,7 @@ export default function ViewSwapsHome() {
               </View>
               <View style={styles.arrow1}>
                 <ThemeImage
-                  styles={{transform: [{rotate: '180deg'}]}}
+                  styles={{ transform: [{ rotate: '180deg' }] }}
                   lightModeIcon={ICONS.leftCheveronIcon}
                   darkModeIcon={ICONS.leftCheveronIcon}
                   lightsOutIcon={ICONS.leftCheveronLight}
@@ -72,7 +106,8 @@ export default function ViewSwapsHome() {
                     : COLORS.darkModeText,
                 },
               ]}
-              activeOpacity={0.7}>
+              activeOpacity={0.7}
+            >
               <View style={styles.cardContent1}>
                 <ThemeText
                   content={t('settings.viewSwapsHome.rootstock')}
@@ -81,7 +116,7 @@ export default function ViewSwapsHome() {
               </View>
               <View style={styles.arrow1}>
                 <ThemeImage
-                  styles={{transform: [{rotate: '180deg'}]}}
+                  styles={{ transform: [{ rotate: '180deg' }] }}
                   lightModeIcon={ICONS.leftCheveronIcon}
                   darkModeIcon={ICONS.leftCheveronIcon}
                   lightsOutIcon={ICONS.leftCheveronLight}
@@ -100,11 +135,19 @@ export default function ViewSwapsHome() {
         label={
           selectedPage === 'liquid'
             ? t('settings.viewSwapsHome.liquid')
-            : t('settings.viewSwapsHome.rootstock')
+            : selectedPage === 'roostock'
+            ? t('settings.viewSwapsHome.rootstock')
+            : t('settings.viewSwapsHome.bitcoin')
         }
         customBackFunction={() => setSelectedPage(null)}
       />
-      {selectedPage === 'liquid' ? <LiquidSwapsPage /> : <RoostockSwapsPage />}
+      {selectedPage === 'liquid' ? (
+        <LiquidSwapsPage />
+      ) : selectedPage === 'rootstock' ? (
+        <RoostockSwapsPage />
+      ) : (
+        <BitcoinSwapsPage />
+      )}
     </GlobalThemeView>
   );
 }
