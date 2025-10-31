@@ -1,7 +1,10 @@
-import {getSingleContact} from '../../../../../../db';
-import {getCachedProfileImage} from '../../../../../functions/cachedImage';
+import { getSingleContact } from '../../../../../../db';
+import { getCachedProfileImage } from '../../../../../functions/cachedImage';
 
-export default async function getDeepLinkUser({deepLinkContent, userProfile}) {
+export default async function getDeepLinkUser({
+  deepLinkContent,
+  userProfile,
+}) {
   try {
     const deepLinkUser = deepLinkContent.split('u/')[1];
 
@@ -18,34 +21,30 @@ export default async function getDeepLinkUser({deepLinkContent, userProfile}) {
     const user = rawUser[0];
 
     const newContact = {
-      name: user.contacts.myProfile.name,
-      uuid: user.contacts.myProfile.uuid,
+      name: user.contacts.myProfile.name || '',
+      bio: user.contacts.myProfile.bio || '',
       uniqueName: user.contacts.myProfile.uniqueName,
-      // receiveAddress: user.contacts.myProfile.receiveAddress,
       isFavorite: false,
-      transactions: [],
       unlookedTransactions: 0,
+      uuid: user.contacts.myProfile.uuid,
+      // receiveAddress: user.contacts.myProfile.receiveAddress,
+
+      // transactions: [],
+
       isAdded: false,
     };
 
     if (userProfile.uuid === newContact.uuid) {
-      return new Promise(resolve =>
-        resolve({
-          didWork: false,
-          reason: 'errormessages.cannotAddSelfError',
-        }),
-      );
+      return {
+        didWork: false,
+        reason: 'errormessages.cannotAddSelfError',
+      };
     }
     // look to see if new added user has a profile iamge saved
     await getCachedProfileImage(newContact.uuid);
-
-    return new Promise(resolve =>
-      resolve(resolve({didWork: true, reason: '', data: newContact})),
-    );
+    return { didWork: true, reason: '', data: newContact };
   } catch (err) {
     console.log(err);
-    return new Promise(resolve =>
-      resolve({didWork: false, reason: 'errormessages.fullDeeplinkError'}),
-    );
+    return { didWork: false, reason: 'errormessages.fullDeeplinkError' };
   }
 }

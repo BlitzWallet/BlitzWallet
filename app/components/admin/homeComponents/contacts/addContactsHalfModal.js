@@ -15,6 +15,7 @@ import {
   EMAIL_REGEX,
   ICONS,
   SIZES,
+  VALID_URL_REGEX,
 } from '../../../../constants';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
@@ -32,6 +33,7 @@ import ContactProfileImage from './internalComponents/profileImage';
 import { getCachedProfileImage } from '../../../../functions/cachedImage';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useTranslation } from 'react-i18next';
+import getDeepLinkUser from './internalComponents/getDeepLinkUser';
 
 export default function AddContactsHalfModal({
   slideHeight,
@@ -132,23 +134,43 @@ export default function AddContactsHalfModal({
   const parseContact = async data => {
     try {
       setIsSearching(true);
-      const decoded = atob(data);
-      const parsedData = JSON.parse(decoded);
+      let newContact;
+      if (VALID_URL_REGEX.test(data)) {
+        const {
+          didWork,
+          reason,
+          data: userProfile,
+        } = await getDeepLinkUser({
+          deepLinkContent: data,
+          userProfile: globalContactsInformation.myProfile,
+        });
 
-      await getCachedProfileImage(parsedData.uuid);
+        if (!didWork) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t(reason),
+          });
+          return;
+        }
+        newContact = userProfile;
+      } else {
+        const decoded = atob(data);
+        const parsedData = JSON.parse(decoded);
+        newContact = {
+          name: parsedData.name || '',
+          bio: parsedData.bio || '',
+          uniqueName: parsedData.uniqueName,
+          isFavorite: false,
+          // transactions: [],
+          unlookedTransactions: 0,
+          uuid: parsedData.uuid,
+          // receiveAddress: parsedData.receiveAddress,
+          isAdded: true,
+          // profileImage: '',
+        };
+      }
 
-      const newContact = {
-        name: parsedData.name || '',
-        bio: parsedData.bio || '',
-        uniqueName: parsedData.uniqueName,
-        isFavorite: false,
-        // transactions: [],
-        unlookedTransactions: 0,
-        uuid: parsedData.uuid,
-        // receiveAddress: parsedData.receiveAddress,
-        isAdded: true,
-        // profileImage: '',
-      };
+      await getCachedProfileImage(newContact.uuid);
+
       navigate.replace('ExpandedAddContactsPage', { newContact: newContact });
     } catch (err) {
       setIsSearching(false);
@@ -156,6 +178,8 @@ export default function AddContactsHalfModal({
       navigate.navigate('ErrorScreen', {
         errorMessage: t('contacts.addContactsHalfModal.noContactsMessage'),
       });
+    } finally {
+      setIsSearching(false);
     }
   };
 
