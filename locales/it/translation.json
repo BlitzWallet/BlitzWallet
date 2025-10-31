@@ -1218,7 +1218,8 @@
       "selectionTitle": "Scegli rete",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
-      "pageTitle": "Scambi {{type}}"
+      "pageTitle": "Scambi {{type}}",
+      "bitcoin": "Bitcoin"
     },
 
     "viewRoostockSwaps": {

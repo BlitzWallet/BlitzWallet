@@ -1205,7 +1205,8 @@
       "selectionTitle": "Netzwerk wählen",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
-      "pageTitle": "{{type}} Swaps"
+      "pageTitle": "{{type}} Swaps",
+      "bitcoin": "Bitcoin"
     },
     "viewRoostockSwaps": {
       "loadingMessage": "Gespeicherte Rootstock-Swaps werden geladen",

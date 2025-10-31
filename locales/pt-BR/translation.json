@@ -1220,7 +1220,8 @@
       "selectionTitle": "Escolher rede",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
-      "pageTitle": "{{type}} Trocas"
+      "pageTitle": "{{type}} Trocas",
+      "bitcoin": "Bitcoin"
     },
 
     "viewRoostockSwaps": {

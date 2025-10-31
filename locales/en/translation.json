@@ -1220,7 +1220,8 @@
       "selectionTitle": "Choose Network",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
-      "pageTitle": "{{type}} Swaps"
+      "pageTitle": "{{type}} Swaps",
+      "bitcoin": "Bitcoin"
     },
 
     "viewRoostockSwaps": {

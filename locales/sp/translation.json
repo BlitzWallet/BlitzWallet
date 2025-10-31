@@ -1055,7 +1055,8 @@
       "selectionTitle": "Elegir red",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
-      "pageTitle": "Intercambios de {{type}}"
+      "pageTitle": "Intercambios de {{type}}",
+      "bitcoin": "Bitcoin"
     },
 
     "viewRoostockSwaps": {
