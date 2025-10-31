@@ -13,6 +13,7 @@ import {
   getSparkBalance,
   getSparkStaticBitcoinL1AddressQuote,
   queryAllStaticDepositAddresses,
+  refundSparkStaticBitcoinL1AddressQuote,
   selectSparkRuntime,
   sparkWallet,
 } from '../app/functions/spark';
@@ -40,6 +41,7 @@ import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import { AppState } from 'react-native';
 import getDepositAddressTxIds, {
   handleTxIdState,
+  storeNeedsToBeRefundedBitcoinTxs,
 } from '../app/functions/spark/getDepositAdressTxIds';
 import { useKeysContext } from './keys';
 import { navigationRef } from '../navigation/navigationService';
@@ -767,7 +769,7 @@ const SparkWalletProvider = ({ children }) => {
         console.log('l1Deposit check running....');
         if (AppState.currentState !== 'active') return;
         const allTxs = await getAllSparkTransactions({
-          accountId: sparkInformation.identityPubKey,
+          accountId: sparkInfoRef.current.identityPubKey,
         });
         const savedTxMap = new Map(allTxs.map(tx => [tx.sparkID, tx]));
         const depoistAddress = await queryAllStaticDepositAddresses(
@@ -803,7 +805,7 @@ const SparkWalletProvider = ({ children }) => {
                     creditAmountSats: txid.amount - txid.fee,
                   },
                   address,
-                  sparkInformation,
+                  sparkInfoRef.current,
                 );
               }
               continue;
@@ -819,22 +821,26 @@ const SparkWalletProvider = ({ children }) => {
               currentMnemonicRef.current,
             );
 
+            console.log(
+              quoteDidWorkResponse,
+              'quote response',
+              !quoteDidWorkResponse,
+              quote,
+            );
+
+            // Add pending transaction if not already saved (after successful claim)
+            if (!hasAlreadySaved) {
+              await addPendingTransaction(quote, address, sparkInfoRef.current);
+            }
+
             if (!quoteDidWorkResponse || !quote) {
               console.log(error, 'Error getting deposit address quote');
               if (
                 error.includes('UTXO is already claimed by the current user.')
               ) {
                 await handleTxIdState(txid, true, address);
-              } else if (!hasAlreadySaved) {
-                await addPendingTransaction(
-                  {
-                    transactionId: txid.txid,
-                    creditAmountSats: txid.amount - txid.fee,
-                  },
-                  address,
-                  sparkInformation,
-                );
               }
+
               continue;
             }
 
@@ -853,20 +859,20 @@ const SparkWalletProvider = ({ children }) => {
               mnemonic: currentMnemonicRef.current,
             });
 
+            console.log(claimTx, 'claim tx response');
+
             if (!claimTx || !didWork) {
               console.log('Claim static deposit address error', claimError);
               if (
                 claimError.includes('Static deposit has already been claimed')
               ) {
                 await handleTxIdState(txid, true, address);
+              } else {
+                await handleTxIdState(txid, true, address);
+                await storeNeedsToBeRefundedBitcoinTxs(quote, address);
               }
               // For any other claim errors (like utxo not found), don't add to DB
               continue;
-            }
-
-            // Add pending transaction if not already saved (after successful claim)
-            if (!hasAlreadySaved) {
-              await addPendingTransaction(quote, address, sparkInformation);
             }
 
             console.log('Claimed deposit address transaction:', claimTx);
@@ -897,7 +903,7 @@ const SparkWalletProvider = ({ children }) => {
                 tempId: quote.transactionId,
                 paymentStatus: 'pending',
                 paymentType: 'bitcoin',
-                accountId: sparkInformation.identityPubKey,
+                accountId: sparkInfoRef.current.identityPubKey,
               };
             } else {
               const { tx: bitcoinTransfer } = findBitcoinTxResponse;
@@ -908,7 +914,7 @@ const SparkWalletProvider = ({ children }) => {
                   tempId: quote.transactionId,
                   paymentStatus: 'pending',
                   paymentType: 'bitcoin',
-                  accountId: sparkInformation.identityPubKey,
+                  accountId: sparkInfoRef.current.identityPubKey,
                 };
               } else {
                 updatedTx = {
@@ -917,7 +923,7 @@ const SparkWalletProvider = ({ children }) => {
                   id: bitcoinTransfer.id,
                   paymentStatus: 'completed',
                   paymentType: 'bitcoin',
-                  accountId: sparkInformation.identityPubKey,
+                  accountId: sparkInfoRef.current.identityPubKey,
                   details: {
                     amount: bitcoinTransfer.totalValue,
                     fee: Math.abs(
