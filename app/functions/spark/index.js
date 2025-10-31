@@ -338,17 +338,20 @@ export const refundSparkStaticBitcoinL1AddressQuote = async ({
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
-      return await getWallet(mnemonic).refundStaticDeposit({
-        depositTransactionId,
-        destinationAddress,
-        fee,
-      });
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.refundStaticDeposit,
+        { mnemonic, depositTransactionId, destinationAddress, fee },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to get bitcoin l1 quote',
+      );
     } else {
       const wallet = await getWallet(mnemonic);
-      return await wallet.refundStaticDeposit({
+      return await wallet.refundAndBroadcastStaticDeposit({
         depositTransactionId,
         destinationAddress,
-        fee,
+        satsPerVbyteFee: fee,
       });
     }
   } catch (err) {
