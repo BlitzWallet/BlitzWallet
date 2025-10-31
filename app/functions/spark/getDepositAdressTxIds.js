@@ -1,5 +1,5 @@
 import fetchBackend from '../../../db/handleBackend';
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 
 export default async function getDepositAddressTxIds(
   address,
@@ -48,7 +48,7 @@ async function fetchTxidsFromBlockstream(
       if (api.name === 'fbBLockstream') {
         const response = await fetchBackend(
           'enterpriseBlockstreamEsploraData',
-          {address},
+          { address },
           contactsPrivateKey,
           publicKey,
         );
@@ -117,6 +117,18 @@ async function fetchTxidsFromBlockstream(
 
           const fee = totalInputValue - totalOutputValue;
 
+          // Extract sender addresses (from inputs)
+          const fromAddresses = tx.vin
+            .map(input => input.prevout?.scriptpubkey_address)
+            .filter(Boolean);
+          const uniqueFromAddresses = [...new Set(fromAddresses)];
+
+          // Extract receiver addresses (from outputs)
+          const toAddresses = tx.vout
+            .map(output => output.scriptpubkey_address)
+            .filter(Boolean);
+          const uniqueToAddresses = [...new Set(toAddresses)];
+
           return hasUnspentOutputs
             ? {
                 txid: tx.txid,
@@ -124,6 +136,8 @@ async function fetchTxidsFromBlockstream(
                 isConfirmed,
                 fee,
                 amount,
+                fromAddresses: uniqueFromAddresses,
+                toAddresses: uniqueToAddresses,
               }
             : null;
         })
@@ -175,4 +189,50 @@ export async function handleTxIdState(txId, didClaim, address) {
     'alreadyClaimedTxs',
     JSON.stringify(savedDepositTxids),
   );
+}
+
+export async function storeNeedsToBeRefundedBitcoinTxs(quote, address) {
+  let savedDepositTxids =
+    JSON.parse(await getLocalStorageItem('refundableOnchainTxs')) || {};
+  let savedTxIds = savedDepositTxids[address] || [];
+
+  if (!quote) {
+    console.warn('No txId provided to handleTxIdState');
+    return;
+  }
+
+  if (typeof didClaim !== 'boolean') {
+    console.warn('didClaim must be a boolean value');
+    return;
+  }
+
+  if (savedTxIds.find(item => item.transactionId === quote.transactionId))
+    return;
+
+  savedTxIds.push(quote);
+  savedDepositTxids[address] = savedTxIds;
+  await setLocalStorageItem(
+    'alreadyClaimedTxs',
+    JSON.stringify(savedDepositTxids),
+  );
+}
+
+export async function getAllRefundableQuotes() {
+  try {
+    const savedDepositTxids =
+      JSON.parse(await getLocalStorageItem('refundableOnchainTxs')) || {};
+
+    // Otherwise, return all quotes from all addresses
+    const allQuotes = [];
+    for (const addr in savedDepositTxids) {
+      if (savedDepositTxids.hasOwnProperty(addr)) {
+        allQuotes.push(...savedDepositTxids[addr]);
+      }
+    }
+
+    return allQuotes;
+  } catch (err) {
+    console.error('Error retrieving refundable quotes:', err);
+    return [];
+  }
 }
