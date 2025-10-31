@@ -261,7 +261,10 @@ export async function fullRestoreSparkState({
     );
 
     if (allPaymentObjects.length) {
-      bulkUpdateSparkTransactions(allPaymentObjects, `fullUpdate-waitBalance`);
+      await bulkUpdateSparkTransactions(
+        allPaymentObjects,
+        `fullUpdate-waitBalance`,
+      );
     }
 
     return allPaymentObjects.length;
