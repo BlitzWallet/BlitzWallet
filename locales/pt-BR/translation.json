@@ -876,12 +876,12 @@
         "descriptionInputPlaceholder": "Descrição..."
       },
       "buttonContainer": {
-        "format": "Outros métodos de recebimento",
+        "format": "Outros meios de pagamento",
         "infoMessage": "Quantias personalizadas não são suportadas em pagamentos Spark ou Rootstock."
       },
 
       "switchReceiveOptionPage": {
-        "title": "Métodos de recebimento",
+        "title": "Meios de pagamento",
         "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Receber diretamente via Spark exporá seu saldo à pessoa que está pagando e não é considerado privado.",
         "swapWarning": "Os pagamentos {{swapType}} serão trocados para Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após o pagamento {{swapType}} ser confirmado.",
@@ -912,7 +912,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Os endereços devem ser somente texto. Por favor, verifique e tente novamente.",
-        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira uma fatura Spark, endereço on-chain, LNURL ou BOLT11 válidos.",
+        "parseError": "Não conseguimos reconhecer o tipo de pagamento. Insira uma endereço Spark, endereço Bitcoin ou um endereço/fatura Lightning válidos.",
         "paymentProcessingError": "Erro ao processar informações de pagamento",
         "tooLowSendingAmount": "O valor do envio é muito alto para cobrir o pagamento e as taxas. O valor máximo de envio é {{amount}}",
         "processInputError": "Não é possível processar a entrada",
@@ -953,7 +953,7 @@
       "acceptButton": {
         "noSendAmountError": "Por favor, insira uma quantia para envio",
         "liquidError": " A quantia {{overFlowType}} para envio é {{amount}}",
-        "onchainError": "A quantia mínima de envio na cadeia on-chain é {{amount}}",
+        "onchainError": "A quantia mínima de envio para um endereço bitcoin é {{amount}}",
         "lnurlPayError": "A quantia {{overFlowType}} para envio é {{amount}}",
         "lrc20FeeError": "Você precisa {{amount}} para enviar tokens. Seu saldo é {{balance}}. Por favor, deposite alguns Bitcoins primeiro.",
         "balanceError": "Fundos insuficientes para cobrir o valor de envio e as taxas"
@@ -977,7 +977,7 @@
       },
       "manualEnterSendAddress": {
         "title": "Digite o destino",
-        "paymentTypesDesc": "A carteira Blitz pode enviar para endereços Spark, on-chain, LNURL e BOLT 11"
+        "paymentTypesDesc": "A carteira Blitz pode enviar para endereços Spark, endereços Bitcoin e endereços/faturas Lightning"
       },
       "sparkErrorScreen": {
         "connectionError": "Estamos com problemas para conectar à sua carteira. Por favor, informe-nos sobre este problema.\n\nLembre-se de que sua frase-semente mantém seus fundos seguros.",
@@ -1110,7 +1110,7 @@
       "text2": "Blitz é um aplicativo gratuito e de código aberto sob a ",
       "text3": "Licença Apache",
       "text4": " Versão 2.0",
-      "text5": "Esta é uma carteira Bitcoin Lightning autocustodial. A Blitz não tem acesso aos seus fundos. Se você perder sua frase-semente, poderá perder seus fundos.",
+      "text5": "Esta é uma carteira Bitcoin Spark compatível com a rede Lightning. A Blitz não tem acesso aos seus fundos. Se você perder sua frase-semente, poderá perder seus fundos.",
       "text6": "A Blitz usa ",
       "text7": "o SDK da Breez Liquid, ",
       "text8": "Spark, ",
@@ -1497,9 +1497,9 @@
       },
 
       "receiveBtcPage": {
-        "onchainFeeMessage": "Os pagamentos na rede on-chain têm uma taxa de rede e uma taxa Spark de 0,1%.\n\nSe você enviar dinheiro para si mesmo, pagará a taxa de rede duas vezes: uma para enviar e outra para reivindicar.\n\nSe outra pessoa lhe enviar dinheiro, você pagará a taxa de rede apenas uma vez para reivindicá-lo.",
-        "liquidFeeMessage": "Os pagamentos Liquid precisam ser trocados para Spark.\n\nEste processo inclui uma taxa de bloqueio de cerca de {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}}, e uma taxa de serviço de 0,1% da Boltz com base no valor que você está enviando.",
-        "rootstockFeeMessage": "Os pagamentos Rootstock precisam ser trocados para Spark.\n\nEste processo inclui uma taxa de bloqueio de cerca de {{fee}}, e uma taxa de serviço de 0,1% da Boltz com base no valor que você está enviando.",
+        "onchainFeeMessage": "Os pagamentos recebidos em endereços Bitcoin têm uma taxa de rede e uma taxa Spark de 0,1%.\n\nSe você enviar dinheiro para si mesmo, pagará a taxa de rede duas vezes: uma para enviar e outra para reivindicar.\n\nSe outra pessoa lhe enviar dinheiro, você pagará a taxa de rede apenas uma vez para reivindicá-lo.",
+        "liquidFeeMessage": "Os pagamentos recebidos em endereços Liquid precisam ser trocados para Spark.\n\nEste processo inclui uma taxa de bloqueio de cerca de {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}}, e uma taxa de serviço de 0,1% da Boltz com base no valor que você está enviando.",
+        "rootstockFeeMessage": "Os pagamentos recebidos em endereços Rootstock precisam ser trocados para Spark.\n\nEste processo inclui uma taxa de bloqueio de cerca de {{fee}}, e uma taxa de serviço de 0,1% da Boltz com base no valor que você está enviando.",
         "generatingInvoice": "Gerando fatura"
       },
 
