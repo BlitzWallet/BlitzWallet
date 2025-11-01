@@ -124,6 +124,7 @@ export const WebViewProvider = ({ children }) => {
   const previousAppState = useRef(appState);
   const walletInitialized = useRef(false);
   const backgroundTimeRef = useRef(null);
+  const didRunInit = useRef(null);
   const [changeSparkConnectionState, setChangeSparkConnectionState] = useState({
     state: null,
     count: 0,
@@ -134,6 +135,13 @@ export const WebViewProvider = ({ children }) => {
     windowStart: Date.now(),
     maxPerSecond: 10,
   });
+
+  const blockAndResetWebview = () => {
+    didRunInit.current = true; // Block handshakes during reload
+
+    resetWebViewState(false, false);
+    reloadWebViewSecurely(); // Will allow handshake to complete after state variables change. We are preventing a race condition here with the app state.
+  };
 
   const getNextSequence = useCallback(() => {
     const current = expectedSequenceRef.current;
@@ -217,6 +225,7 @@ export const WebViewProvider = ({ children }) => {
 
       // File is verified, safe to reload
       console.log('File integrity verified, reloading WebView');
+      didRunInit.current = false;
       expectedNonceRef.current = nonceHex;
       setVerifiedPath(htmlPath);
       setReloadKey(prev => prev + 1);
@@ -283,18 +292,23 @@ export const WebViewProvider = ({ children }) => {
           ? Date.now() - backgroundTimeRef.current
           : Infinity; //force reset if background timeout is not set
 
-        if (timeInBackground > BACKGROUND_THRESHOLD_MS) {
+        if (timeInBackground < BACKGROUND_THRESHOLD_MS) {
           console.log('Background time exceeded threshold - reloading WebView');
           // Reset state but DON'T clear handshakeComplete flag
-          resetWebViewState(false, false);
-          reloadWebViewSecurely();
+
+          blockAndResetWebview();
         }
 
         backgroundTimeRef.current = null;
       }
       previousAppState.current = appState;
     }
-  }, [appState, resetWebViewState, reloadWebViewSecurely]);
+  }, [
+    appState,
+    resetWebViewState,
+    reloadWebViewSecurely,
+    blockAndResetWebview,
+  ]);
 
   const isDuplicate = (queue, action, args) => {
     return queue.some(
@@ -764,6 +778,11 @@ export const WebViewProvider = ({ children }) => {
       if (!webViewRef.current) return;
       if (!isWebViewReady) return;
       if (!verifiedPath) return;
+      // blocking background init event from firing
+      if (appState !== 'active') return;
+      if (didRunInit.current) return;
+      didRunInit.current = true;
+
       const androidAPI = DeviceInfo.getApiLevelSync();
       if (androidAPI == 33 || androidAPI == 34) {
         console.warn(`Skipping handshake on Android API ${androidAPI}`);
@@ -781,7 +800,7 @@ export const WebViewProvider = ({ children }) => {
       initHandshake();
     }
     startHandshake();
-  }, [isWebViewReady, verifiedPath, initHandshake]);
+  }, [isWebViewReady, verifiedPath, initHandshake, appState]);
 
   useEffect(() => {
     (async () => {
@@ -893,8 +912,7 @@ export const WebViewProvider = ({ children }) => {
         }}
         onContentProcessDidTerminate={() => {
           console.warn('WebView content process terminated — reloading...');
-          resetWebViewState(false, false);
-          reloadWebViewSecurely();
+          blockAndResetWebview();
         }}
       />
     </WebViewContext.Provider>
