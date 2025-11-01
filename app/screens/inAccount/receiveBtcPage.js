@@ -73,7 +73,7 @@ export default function ReceivePaymentHome(props) {
     isReceivingSwap: false,
     generatedAddress: isUsingAltAccount
       ? ''
-      : `${globalContactsInformation.myProfile.uniqueName}blitzwalletapp.com`,
+      : `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`,
     isGeneratingInvoice: false,
     minMaxSwapAmount: {
       min: 0,
@@ -98,7 +98,7 @@ export default function ReceivePaymentHome(props) {
       ) {
         setAddressState(prev => ({
           ...prev,
-          generatedAddress: `${globalContactsInformation.myProfile.uniqueName}blitzwalletapp.com`,
+          generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`,
         }));
         return;
       }
