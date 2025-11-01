@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 30,
   },
   backArrow: { position: 'absolute', zIndex: 99, left: 0 },
   maxAndAcceptContainer: {

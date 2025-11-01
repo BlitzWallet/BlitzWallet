@@ -267,16 +267,73 @@ export default function ExpandedContactsPage(props) {
       imageData?.updated,
       imageData?.localUri,
       isConnectedToTheInternet,
-      contactTransactions,
-      imageData,
+      contactTransactions.length,
     ],
   );
+
+  const handleFavortie = useCallback(async () => {
+    if (!isConnectedToTheInternet) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('errormessages.nointernet'),
+      });
+      return;
+    }
+    if (!selectedContact) return;
+    toggleGlobalContactsInformation(
+      {
+        myProfile: { ...globalContactsInformation.myProfile },
+        addedContacts: encriptMessage(
+          contactsPrivateKey,
+          publicKey,
+          JSON.stringify(
+            [
+              ...JSON.parse(
+                decryptMessage(
+                  contactsPrivateKey,
+                  publicKey,
+                  globalContactsInformation.addedContacts,
+                ),
+              ),
+            ].map(savedContact => {
+              if (savedContact.uuid === selectedContact.uuid) {
+                return {
+                  ...savedContact,
+                  isFavorite: !savedContact.isFavorite,
+                };
+              } else return savedContact;
+            }),
+          ),
+        ),
+      },
+      true,
+    );
+  }, [
+    isConnectedToTheInternet,
+    globalContactsInformation,
+    contactsPrivateKey,
+    publicKey,
+    selectedContact,
+  ]);
+
+  const handleSettings = useCallback(() => {
+    if (!isConnectedToTheInternet) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('errormessages.nointernet'),
+      });
+      return;
+    }
+    if (!selectedContact) return;
+    navigate.navigate('EditMyProfilePage', {
+      pageType: 'addedContact',
+      selectedAddedContact: selectedContact,
+    });
+  }, [isConnectedToTheInternet, selectedContact]);
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={styles.topBar}>
         <TouchableOpacity
-          style={{ marginRight: 'auto' }}
+          style={styles.backButtonContainer}
           onPress={navigate.goBack}
         >
           <ThemeImage
@@ -287,46 +344,8 @@ export default function ExpandedContactsPage(props) {
         </TouchableOpacity>
         {selectedContact && (
           <TouchableOpacity
-            style={{ marginRight: 5 }}
-            onPress={() => {
-              (async () => {
-                if (!isConnectedToTheInternet) {
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage: t('errormessages.nointernet'),
-                  });
-                  return;
-                }
-                if (!selectedContact) return;
-                toggleGlobalContactsInformation(
-                  {
-                    myProfile: { ...globalContactsInformation.myProfile },
-                    addedContacts: encriptMessage(
-                      contactsPrivateKey,
-                      publicKey,
-                      JSON.stringify(
-                        [
-                          ...JSON.parse(
-                            decryptMessage(
-                              contactsPrivateKey,
-                              publicKey,
-                              globalContactsInformation.addedContacts,
-                            ),
-                          ),
-                        ].map(savedContact => {
-                          if (savedContact.uuid === selectedContact.uuid) {
-                            return {
-                              ...savedContact,
-                              isFavorite: !savedContact.isFavorite,
-                            };
-                          } else return savedContact;
-                        }),
-                      ),
-                    ),
-                  },
-                  true,
-                );
-              })();
-            }}
+            style={styles.starContianer}
+            onPress={handleFavortie}
           >
             <Icon
               width={25}
@@ -346,21 +365,7 @@ export default function ExpandedContactsPage(props) {
           </TouchableOpacity>
         )}
         {selectedContact && (
-          <TouchableOpacity
-            onPress={() => {
-              if (!isConnectedToTheInternet) {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: t('errormessages.nointernet'),
-                });
-                return;
-              }
-              if (!selectedContact) return;
-              navigate.navigate('EditMyProfilePage', {
-                pageType: 'addedContact',
-                selectedAddedContact: selectedContact,
-              });
-            }}
-          >
+          <TouchableOpacity onPress={handleSettings}>
             <ThemeImage
               darkModeIcon={ICONS.settingsIcon}
               lightModeIcon={ICONS.settingsIcon}
@@ -416,7 +421,8 @@ const styles = StyleSheet.create({
   profileImageContainer: {
     ...CENTER,
   },
-
+  backButtonContainer: { marginRight: 'auto' },
+  starContianer: { marginRight: 5 },
   profileImage: {
     width: 150,
     height: 150,
