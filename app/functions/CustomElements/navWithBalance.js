@@ -15,6 +15,7 @@ export default function NavBarWithBalance({
   backFunction,
   seletctedToken,
   selectedLRC20Asset = 'Bitcoin',
+  showBalance = true,
 }) {
   const naivigate = useNavigation();
   const { sparkInformation } = useSparkWallet();
@@ -41,32 +42,34 @@ export default function NavBarWithBalance({
         />
       </TouchableOpacity>
 
-      <View style={styles.container}>
-        <ThemeImage
-          styles={styles.walletIcon}
-          lightModeIcon={ICONS.adminHomeWalletDark}
-          darkModeIcon={ICONS.adminHomeWallet}
-          lightsOutIcon={ICONS.adminHomeWallet_white}
-        />
+      {showBalance && (
+        <View style={styles.container}>
+          <ThemeImage
+            styles={styles.walletIcon}
+            lightModeIcon={ICONS.adminHomeWalletDark}
+            darkModeIcon={ICONS.adminHomeWallet}
+            lightsOutIcon={ICONS.adminHomeWallet_white}
+          />
 
-        <FormattedSatText
-          neverHideBalance={true}
-          styles={styles.headerText}
-          balance={
-            selectedLRC20Asset !== 'Bitcoin'
-              ? Number(formattedTokensBalance).toFixed(
-                  formattedTokensBalance < 1 ? 4 : 2,
-                )
-              : balance
-          }
-          useCustomLabel={
-            seletctedToken?.tokenMetadata?.tokenTicker !== 'Bitcoin' &&
-            seletctedToken?.tokenMetadata?.tokenTicker !== undefined
-          }
-          customLabel={seletctedToken?.tokenMetadata?.tokenTicker}
-          useMillionDenomination={true}
-        />
-      </View>
+          <FormattedSatText
+            neverHideBalance={true}
+            styles={styles.headerText}
+            balance={
+              selectedLRC20Asset !== 'Bitcoin'
+                ? Number(formattedTokensBalance).toFixed(
+                    formattedTokensBalance < 1 ? 4 : 2,
+                  )
+                : balance
+            }
+            useCustomLabel={
+              seletctedToken?.tokenMetadata?.tokenTicker !== 'Bitcoin' &&
+              seletctedToken?.tokenMetadata?.tokenTicker !== undefined
+            }
+            customLabel={seletctedToken?.tokenMetadata?.tokenTicker}
+            useMillionDenomination={true}
+          />
+        </View>
+      )}
     </View>
   );
 }
