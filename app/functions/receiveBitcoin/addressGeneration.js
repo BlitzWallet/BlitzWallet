@@ -140,7 +140,7 @@ async function generateLiquidAddress(wolletInfo) {
   const addressResponse = await breezLiquidReceivePaymentWrapper({
     sendAmount: receivingAmount,
     paymentType: 'liquid',
-    description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
+    description: description || BLITZ_DEFAULT_PAYMENT_DESCRIPTION || undefined,
   });
   if (!addressResponse) {
     return {

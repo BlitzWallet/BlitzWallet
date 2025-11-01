@@ -71,7 +71,6 @@
     "hide": "Hide",
     "show": "Show",
     "understandText": "I understand",
-    "retyr": "Retry",
     "reportError": "Report Error",
     "address": "Address",
     "string": "String",
@@ -111,7 +110,8 @@
     "recover": "Recover",
     "search": "Search",
     "review": "Review",
-    "loadMore": "Load More"
+    "loadMore": "Load More",
+    "invoice": "Invoice"
   },
 
   "languages": {

@@ -71,7 +71,6 @@
     "hide": "Ocultar",
     "show": "Mostrar",
     "understandText": "Entiendo",
-    "retyr": "Reintentar",
     "reportError": "Reportar error",
     "address": "Dirección",
     "string": "Cadena",
@@ -111,7 +110,8 @@
     "recover": "Recuperare",
     "search": "Buscar",
     "review": "Revisar",
-    "cargarMás": "Cargar más"
+    "loadMore": "Cargar más",
+    "invoice": "Factura"
   },
 
   "languages": {

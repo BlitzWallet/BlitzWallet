@@ -71,7 +71,6 @@
     "hide": "Nascondi",
     "show": "Mostra",
     "understandText": "Ho capito",
-    "retyr": "Riprova",
     "reportError": "Segnala errore",
     "address": "Indirizzo",
     "string": "Stringa",
@@ -111,7 +110,8 @@
     "recover": "Recuperare",
     "search": "Ricerca",
     "review": "Revisione",
-    "loadMore": "Carica altro"
+    "loadMore": "Carica altro",
+    "invoice": "Fattura"
   },
 
   "languages": {

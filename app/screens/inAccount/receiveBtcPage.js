@@ -1,5 +1,17 @@
-import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
-import { CENTER, SIZES, ICONS, COLORS } from '../../constants';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Share,
+} from 'react-native';
+import {
+  CENTER,
+  SIZES,
+  ICONS,
+  COLORS,
+  SKELETON_ANIMATION_SPEED,
+} from '../../constants';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { copyToClipboard } from '../../functions';
@@ -32,6 +44,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import SkeletonPlaceholder from '../../functions/CustomElements/skeletonView';
+import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -59,7 +73,7 @@ export default function ReceivePaymentHome(props) {
     isReceivingSwap: false,
     generatedAddress: isUsingAltAccount
       ? ''
-      : encodeLNURL(globalContactsInformation.myProfile.uniqueName),
+      : `${globalContactsInformation.myProfile.uniqueName}blitzwalletapp.com`,
     isGeneratingInvoice: false,
     minMaxSwapAmount: {
       min: 0,
@@ -84,9 +98,7 @@ export default function ReceivePaymentHome(props) {
       ) {
         setAddressState(prev => ({
           ...prev,
-          generatedAddress: encodeLNURL(
-            globalContactsInformation.myProfile.uniqueName,
-          ),
+          generatedAddress: `${globalContactsInformation.myProfile.uniqueName}blitzwalletapp.com`,
         }));
         return;
       }
@@ -120,7 +132,13 @@ export default function ReceivePaymentHome(props) {
     runAddressInit();
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
 
-  console.log(minMaxLiquidSwapAmounts);
+  const handleShare = () => {
+    if (addressState.isGeneratingInvoice) return;
+    Share.share({
+      message: addressState.generatedAddress,
+    });
+  };
+
   return (
     <GlobalThemeView useStandardWidth={true}>
       <ScrollView
@@ -140,7 +158,12 @@ export default function ReceivePaymentHome(props) {
             flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
           }}
         >
-          <TopBar navigate={navigate} />
+          <CustomSettingsTopBar
+            showLeftImage={true}
+            leftImageBlue={ICONS.share}
+            LeftImageDarkMode={ICONS.shareWhite}
+            leftImageFunction={handleShare}
+          />
 
           <ThemeText styles={styles.title} content={selectedRecieveOption} />
           <QrCode
@@ -332,21 +355,48 @@ function QrCode(props) {
     copyToClipboard(addressState.generatedAddress, showToast);
   };
 
+  const address =
+    selectedRecieveOption.toLowerCase() === 'lightning' && !initialSendAmount
+      ? `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`
+      : addressState.generatedAddress;
+
+  const canUseAmount =
+    selectedRecieveOption?.toLowerCase() !== 'spark' &&
+    selectedRecieveOption?.toLowerCase() !== 'rootstock';
+
+  const showLongerAddress =
+    (selectedRecieveOption?.toLowerCase() === 'bitcoin' ||
+      selectedRecieveOption?.toLowerCase() === 'liquid') &&
+    initialSendAmount;
+
+  const editAmount = () => {
+    navigate.navigate('EditReceivePaymentInformation', {
+      from: 'receivePage',
+      receiveType: selectedRecieveOption,
+    });
+  };
+
+  const editLNURL = () => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'editLNURLOnReceive',
+    });
+  };
+
+  const qrData =
+    selectedRecieveOption.toLowerCase() === 'lightning' && !initialSendAmount
+      ? encodeLNURL(globalContactsInformation?.myProfile?.uniqueName)
+      : addressState.generatedAddress || previousAddress.current || ' ';
+
   return (
-    <View style={styles.qrCodeContainer}>
+    <View
+      style={[styles.qrCodeContainer, { backgroundColor: backgroundOffset }]}
+    >
       <TouchableOpacity
         onPress={handlePress}
         activeOpacity={0.8}
-        style={[styles.qrCodeContainer, { backgroundColor: backgroundOffset }]}
+        style={styles.qrCodeContainer}
       >
-        <View
-          style={{
-            position: 'relative',
-            alignItems: 'center',
-            width: 300,
-            height: 300,
-          }}
-        >
+        <View style={styles.animatedQRContainer}>
           <Animated.View
             style={{
               position: 'absolute',
@@ -355,9 +405,7 @@ function QrCode(props) {
           >
             <QrCodeWrapper
               outerContainerStyle={{ backgroundColor: 'transparent' }}
-              QRData={
-                addressState.generatedAddress || previousAddress.current || ' '
-              }
+              QRData={qrData}
             />
           </Animated.View>
 
@@ -398,108 +446,144 @@ function QrCode(props) {
         </View>
       </TouchableOpacity>
 
-      {!isUsingAltAccount && (
-        <LNURLContainer
-          theme={theme}
-          textColor={textColor}
-          selectedRecieveOption={selectedRecieveOption}
-          initialSendAmount={initialSendAmount}
-          globalContactsInformation={globalContactsInformation}
-          navigate={navigate}
-          masterInfoObject={masterInfoObject}
-          fiatStats={fiatStats}
+      {canUseAmount && (
+        <QRInformationRow
+          title={t('constants.amount')}
+          info={displayCorrectDenomination({
+            masterInfoObject: masterInfoObject,
+            fiatStats: fiatStats,
+            amount: initialSendAmount,
+          })}
+          lightModeIcon={ICONS.editIcon}
+          darkModeIcon={ICONS.editIconLight}
+          lightsOutIcon={ICONS.editIconLight}
+          showBoder={true}
+          actionFunction={editAmount}
         />
       )}
+      <QRInformationRow
+        title={`${selectedRecieveOption} ${
+          selectedRecieveOption.toLowerCase() === 'lightning' &&
+          initialSendAmount
+            ? t('constants.invoice')?.toLowerCase()
+            : t('constants.address')?.toLowerCase()
+        }`}
+        info={
+          selectedRecieveOption.toLowerCase() === 'lightning' &&
+          !initialSendAmount
+            ? address
+            : address.slice(0, showLongerAddress ? 14 : 7) +
+              '...' +
+              address.slice(address.length - 7)
+        }
+        lightModeIcon={
+          selectedRecieveOption.toLowerCase() === 'lightning' &&
+          !initialSendAmount
+            ? ICONS.editIcon
+            : ICONS.clipboardDark
+        }
+        darkModeIcon={
+          selectedRecieveOption.toLowerCase() === 'lightning' &&
+          !initialSendAmount
+            ? ICONS.editIconLight
+            : ICONS.clipboardLight
+        }
+        lightsOutIcon={
+          selectedRecieveOption.toLowerCase() === 'lightning' &&
+          !initialSendAmount
+            ? ICONS.editIconLight
+            : ICONS.clipboardLight
+        }
+        actionFunction={() => {
+          if (addressState.isGeneratingInvoice) return;
+          if (
+            selectedRecieveOption.toLowerCase() === 'lightning' &&
+            !initialSendAmount
+          )
+            editLNURL();
+          else copyToClipboard(address, showToast);
+        }}
+        showSkeleton={addressState.isGeneratingInvoice}
+      />
     </View>
   );
 }
 
-function LNURLContainer({
-  theme,
-  textColor,
-  selectedRecieveOption,
-  initialSendAmount,
-  globalContactsInformation,
-  navigate,
-  masterInfoObject,
-  fiatStats,
+function QRInformationRow({
+  title = '',
+  info = '',
+  lightModeIcon,
+  darkModeIcon,
+  lightsOutIcon,
+  showBoder,
+  actionFunction,
+  showSkeleton = false,
 }) {
+  const { backgroundColor } = GetThemeColors();
   return (
     <TouchableOpacity
-      activeOpacity={
-        selectedRecieveOption.toLowerCase() === 'lightning' &&
-        !initialSendAmount
-          ? 0.2
-          : 1
-      }
+      style={[
+        styles.qrInfoContainer,
+        {
+          borderBottomWidth: showBoder ? 2 : 0,
+          borderBottomColor: backgroundColor,
+        },
+      ]}
       onPress={() => {
-        if (
-          !(
-            selectedRecieveOption.toLowerCase() === 'lightning' &&
-            !initialSendAmount
-          )
-        )
-          return;
-        navigate.navigate('CustomHalfModal', {
-          wantedContent: 'editLNURLOnReceive',
-        });
-      }}
-      style={{
-        width: '80%',
-        paddingTop: 10,
-        paddingBottom: 20,
-        alignItems: 'center',
-        flexDirection: 'row',
-        justifyContent: 'center',
+        if (actionFunction) actionFunction();
       }}
     >
-      <ThemeText
-        styles={{
-          includeFontPadding: false,
-          marginRight: 5,
-          color: theme || initialSendAmount ? textColor : COLORS.primary,
-        }}
-        CustomNumberOfLines={1}
-        content={
-          selectedRecieveOption.toLowerCase() === 'lightning' &&
-          !initialSendAmount
-            ? `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`
-            : !initialSendAmount ||
-              selectedRecieveOption.toLowerCase() === 'spark' ||
-              selectedRecieveOption.toLowerCase() === 'rootstock'
-            ? ' '
-            : displayCorrectDenomination({
-                amount: initialSendAmount,
-                masterInfoObject,
-                fiatStats,
-              })
-        }
-      />
-      {selectedRecieveOption.toLowerCase() === 'lightning' &&
-        !initialSendAmount && (
-          <ThemeImage
-            styles={{ height: 20, width: 20 }}
-            lightModeIcon={ICONS.editIcon}
-            darkModeIcon={ICONS.editIconLight}
-            lightsOutIcon={ICONS.editIconLight}
+      <View style={styles.infoTextContiner}>
+        <ThemeText
+          styles={{ includeFontPadding: false, fontSize: SIZES.small }}
+          content={title}
+        />
+        {showSkeleton ? (
+          <SkeletonPlaceholder
+            highlightColor={backgroundColor}
+            backgroundColor={COLORS.opaicityGray}
+            enabled={true}
+            speed={SKELETON_ANIMATION_SPEED}
+          >
+            <View
+              style={{
+                width: '100%',
+                height: SIZES.small,
+                marginVertical: 3,
+                borderRadius: 8,
+              }}
+            ></View>
+          </SkeletonPlaceholder>
+        ) : (
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={{
+              includeFontPadding: false,
+              fontSize: SIZES.small,
+              opacity: 0.6,
+              flexShrink: 1,
+            }}
+            content={info}
           />
         )}
-    </TouchableOpacity>
-  );
-}
-
-function TopBar(props) {
-  return (
-    <TouchableOpacity
-      style={{ marginRight: 'auto' }}
-      activeOpacity={0.6}
-      onPress={props.navigate.goBack}
-    >
-      <ThemeImage
-        darkModeIcon={ICONS.smallArrowLeft}
-        lightModeIcon={ICONS.smallArrowLeft}
-        lightsOutIcon={ICONS.arrow_small_left_white}
-      />
+      </View>
+      <View
+        style={{
+          width: 30,
+          height: 30,
+          backgroundColor,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: 8,
+        }}
+      >
+        <ThemeImage
+          styles={{ width: 15, height: 15 }}
+          lightModeIcon={lightModeIcon}
+          darkModeIcon={darkModeIcon}
+          lightsOutIcon={lightsOutIcon}
+        />
+      </View>
     </TouchableOpacity>
   );
 }
@@ -508,6 +592,12 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 10,
     marginTop: 'auto',
+  },
+  animatedQRContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    width: 300,
+    height: 300,
   },
   qrCodeContainer: {
     width: 300,
@@ -547,4 +637,13 @@ const styles = StyleSheet.create({
     height: 15,
     marginLeft: 5,
   },
+
+  qrInfoContainer: {
+    width: 275,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 15,
+  },
+  infoTextContiner: { width: '100%', flexShrink: 1, marginRight: 10 },
 });

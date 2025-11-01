@@ -71,7 +71,6 @@
     "hide": "Esconder",
     "show": "Mostrar",
     "understandText": "Eu compreendo",
-    "retyr": "Tentar novamente",
     "reportError": "Reportar problema",
     "address": "Endereço",
     "string": "String",
@@ -111,7 +110,8 @@
     "recover": "Recuperar",
     "search": "Procurar",
     "review": "Revisar",
-    "loadMore": "Carregar mais"
+    "loadMore": "Carregar mais",
+    "invoice": "Fatura"
   },
 
   "languages": {

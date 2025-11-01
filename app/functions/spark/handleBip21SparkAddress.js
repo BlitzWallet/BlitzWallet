@@ -1,5 +1,5 @@
-import {decode, encode} from 'bip21';
-import {crashlyticsLogReport} from '../crashlyticsLogs';
+import { decode, encode } from 'bip21';
+import { crashlyticsLogReport } from '../crashlyticsLogs';
 /**
  * Formats a Liquid 'spark' BIP21 payment URI from an address, amount, and optional message.
  *
@@ -23,15 +23,26 @@ export function formatBip21Address({
   try {
     const formattedAmount = amountSat;
     crashlyticsLogReport('Formatting bip21 liquid address');
-    const liquidBip21 = encode(
-      address,
-      {
-        amount: formattedAmount,
-        message: message,
-        label: message,
-      },
-      prefix,
-    );
+    let liquidBip21;
+    if (message) {
+      liquidBip21 = encode(
+        address,
+        {
+          amount: formattedAmount,
+          message: message,
+          label: message,
+        },
+        prefix,
+      );
+    } else {
+      liquidBip21 = encode(
+        address,
+        {
+          amount: formattedAmount,
+        },
+        prefix,
+      );
+    }
 
     return liquidBip21;
   } catch (err) {

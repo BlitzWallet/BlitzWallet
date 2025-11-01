@@ -71,7 +71,6 @@
     "hide": "Verbergen",
     "show": "Anzeigen",
     "understandText": "Ich verstehe",
-    "retyr": "Erneut versuchen",
     "reportError": "Fehler melden",
     "address": "Adresse",
     "string": "Zeichenkette",
@@ -111,7 +110,8 @@
     "recover": "Genesen",
     "search": "Suchen",
     "review": "Rezension",
-    "loadMore": "Mehr laden"
+    "loadMore": "Mehr laden",
+    "invoice": "Rechnung"
   },
 
   "languages": {

@@ -71,7 +71,6 @@
     "hide": "Hide",
     "show": "Show",
     "understandText": "I understand",
-    "retyr": "Retry",
     "reportError": "Report Error",
     "address": "Address",
     "string": "String",
@@ -107,7 +106,8 @@
     "instant": "Instant",
     "andLower": "and",
     "onLower": "on",
-    "offLower": "off"
+    "offLower": "off",
+    "invoice": "Invoice"
   },
 
   "languages": {
