@@ -1,25 +1,26 @@
-import {View, TouchableOpacity, Image, Text, StyleSheet} from 'react-native';
-import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../../../constants';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useNavigation} from '@react-navigation/native';
+import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
+import { CENTER, COLORS, FONT, ICONS, SIZES } from '../../../../../constants';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useNavigation } from '@react-navigation/native';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import ContactProfileImage from './profileImage';
-import {useImageCache} from '../../../../../../context-store/imageCache';
-import {useTranslation} from 'react-i18next';
+import { useImageCache } from '../../../../../../context-store/imageCache';
+import { useTranslation } from 'react-i18next';
 import GiftCardTxItem from './giftCardTxItem';
-import {getTimeDisplay} from '../../../../../functions/contacts';
+import { getTimeDisplay } from '../../../../../functions/contacts';
+import { getTransactionContent } from '../contactsPageComponents/transactionText';
 
-export default function ProfilePageTransactions({transaction, currentTime}) {
+export default function ProfilePageTransactions({ transaction, currentTime }) {
   const profileInfo = transaction;
   const transactionData = transaction.transaction;
-  const {cache} = useImageCache();
+  const { cache } = useImageCache();
 
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor, backgroundOffset} = GetThemeColors();
-  const {t} = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor, backgroundOffset } = GetThemeColors();
+  const { t } = useTranslation();
   const navigate = useNavigation();
 
   const endDate = currentTime;
@@ -41,7 +42,8 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
           uuid: profileInfo.contactUUID,
         });
       }}
-      key={transactionData.message.uuid}>
+      key={transactionData.message.uuid}
+    >
       {transactionData.message.didSend ||
       !transactionData.message.isRequest ||
       (transactionData.message.isRequest &&
@@ -62,7 +64,8 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
             style={{
               ...styles.selectImage,
               backgroundColor: backgroundOffset,
-            }}>
+            }}
+          >
             <ContactProfileImage
               updated={cache[profileInfo.contactUUID]?.updated}
               uri={cache[profileInfo.contactUUID]?.localUri}
@@ -71,7 +74,7 @@ export default function ProfilePageTransactions({transaction, currentTime}) {
             />
           </View>
 
-          <View style={{width: '100%', flex: 1}}>
+          <View style={{ width: '100%', flex: 1 }}>
             <View style={styles.requestTextContianer}>
               <ThemeText
                 CustomNumberOfLines={1}
@@ -115,10 +118,10 @@ function ConfirmedOrSentTransaction({
   profileInfo,
   cache,
 }) {
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor, backgroundOffset} = GetThemeColors();
-  const {t} = useTranslation();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor, backgroundOffset } = GetThemeColors();
+  const { t } = useTranslation();
   const didDeclinePayment = txParsed.isRedeemed != null && !txParsed.isRedeemed;
 
   const isOutgoingPayment =
@@ -165,7 +168,8 @@ function ConfirmedOrSentTransaction({
             marginRight: 5,
             alignItems: isOutgoingPayment ? null : 'center',
             justifyContent: isOutgoingPayment ? null : 'center',
-          }}>
+          }}
+        >
           {isOutgoingPayment ? (
             <>
               <View
@@ -174,7 +178,8 @@ function ConfirmedOrSentTransaction({
                   backgroundColor: backgroundOffset,
                   bottom: 0,
                   left: 0,
-                }}>
+                }}
+              >
                 <ContactProfileImage
                   updated={cache[masterInfoObject.uuid]?.updated}
                   uri={cache[masterInfoObject.uuid]?.localUri}
@@ -189,7 +194,8 @@ function ConfirmedOrSentTransaction({
                   zIndex: 1,
                   top: 0,
                   right: 0,
-                }}>
+                }}
+              >
                 <ContactProfileImage
                   updated={cache[profileInfo.contactUUID]?.updated}
                   uri={cache[profileInfo.contactUUID]?.localUri}
@@ -209,7 +215,8 @@ function ConfirmedOrSentTransaction({
                 overflow: 'hidden',
 
                 backgroundColor: backgroundOffset,
-              }}>
+              }}
+            >
               <ContactProfileImage
                 updated={cache[profileInfo.contactUUID]?.updated}
                 uri={cache[profileInfo.contactUUID]?.localUri}
@@ -221,7 +228,7 @@ function ConfirmedOrSentTransaction({
         </View>
       )}
 
-      <View style={{width: '100%', flex: 1}}>
+      <View style={{ width: '100%', flex: 1 }}>
         <ThemeText
           CustomEllipsizeMode={'tail'}
           CustomNumberOfLines={1}
@@ -234,23 +241,12 @@ function ConfirmedOrSentTransaction({
               : textColor,
             marginRight: 15,
           }}
-          content={
-            didDeclinePayment
-              ? txParsed.didSend
-                ? t('transactionLabelText.requestDeclined')
-                : t('transactionLabelText.declinedRequest')
-              : txParsed.isRequest
-              ? txParsed.didSend
-                ? txParsed.isRedeemed === null
-                  ? t('transactionLabelText.requestSent')
-                  : t('transactionLabelText.requestPaid')
-                : paymentDescription || t('transactionLabelText.paidRequest')
-              : !!paymentDescription
-              ? paymentDescription
-              : txParsed.didSend
-              ? t('transactionLabelText.sent')
-              : t('transactionLabelText.received')
-          }
+          content={getTransactionContent({
+            paymentDescription,
+            didDeclinePayment,
+            txParsed,
+            t,
+          })}
         />
         <ThemeText
           styles={{
@@ -279,7 +275,7 @@ function ConfirmedOrSentTransaction({
             ? '-'
             : '+'
         }
-        containerStyles={{marginBottom: 'auto'}}
+        containerStyles={{ marginBottom: 'auto' }}
         styles={{
           ...styles.amountText,
           color: didDeclinePayment

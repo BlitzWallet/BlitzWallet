@@ -18,6 +18,7 @@ import GiftCardTxItem from './giftCardTxItem';
 import { getTimeDisplay } from '../../../../../functions/contacts';
 import getReceiveAddressAndContactForContactsPayment from './getReceiveAddressAndKindForPayment';
 import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
+import { getTransactionContent } from '../contactsPageComponents/transactionText';
 
 function ConfirmedOrSentTransaction({
   txParsed,
@@ -106,23 +107,12 @@ function ConfirmedOrSentTransaction({
               : textColor,
             marginRight: 15,
           }}
-          content={
-            didDeclinePayment
-              ? txParsed.didSend
-                ? t('transactionLabelText.requestDeclined')
-                : t('transactionLabelText.declinedRequest')
-              : txParsed.isRequest
-              ? txParsed.didSend
-                ? txParsed.isRedeemed === null
-                  ? t('transactionLabelText.requestSent')
-                  : t('transactionLabelText.requestPaid')
-                : paymentDescription || t('transactionLabelText.paidRequest')
-              : !!paymentDescription
-              ? paymentDescription
-              : txParsed.didSend
-              ? t('transactionLabelText.sent')
-              : t('transactionLabelText.received')
-          }
+          content={getTransactionContent({
+            paymentDescription,
+            didDeclinePayment,
+            txParsed,
+            t,
+          })}
         />
         <ThemeText
           styles={{
