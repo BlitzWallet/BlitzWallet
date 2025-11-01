@@ -66,6 +66,7 @@ export default function SendPaymentScreen(props) {
     comingFromAccept,
     enteredPaymentInfo = {},
     errorMessage,
+    contactInfo,
   } = props.route.params;
   const useAltLayout = screenDimensions.height < 720;
   const { t } = useTranslation();
@@ -198,6 +199,7 @@ export default function SendPaymentScreen(props) {
         currentWalletMnemoinc,
         t,
         sendWebViewRequest,
+        contactInfo,
       });
     }
     if (!sparkInformation.didConnect) return;
@@ -350,7 +352,15 @@ export default function SendPaymentScreen(props) {
             isSparkPayment={isSparkPayment}
           />
         )}
-        {!canEditPaymentAmount && <InvoiceInfo paymentInfo={paymentInfo} />}
+        {!canEditPaymentAmount && (
+          <InvoiceInfo
+            paymentInfo={paymentInfo}
+            contactInfo={contactInfo}
+            fromPage={fromPage}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        )}
       </ScrollView>
       {canEditPaymentAmount && (
         <>

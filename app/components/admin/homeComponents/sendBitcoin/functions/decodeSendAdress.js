@@ -36,6 +36,7 @@ export default async function decodeSendAddress(props) {
     currentWalletMnemoinc,
     t,
     sendWebViewRequest,
+    contactInfo,
   } = props;
 
   try {
@@ -147,6 +148,7 @@ export default async function decodeSendAddress(props) {
         currentWalletMnemoinc,
         t,
         sendWebViewRequest,
+        contactInfo,
       });
     } catch (err) {
       return goBackFunction(

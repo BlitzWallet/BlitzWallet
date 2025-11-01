@@ -83,6 +83,7 @@ export default function SendAndRequestPage(props) {
   const selectedContact = props.route.params.selectedContact;
   const paymentType = props.route.params.paymentType;
   const fromPage = props.route.params.fromPage;
+  const imageData = props.route.params.imageData;
   const giftOption = props.route.params.cardInfo;
   const useAltLayout = screenDimensions.height < 720;
 
@@ -288,6 +289,11 @@ export default function SendAndRequestPage(props) {
                   giftCardName: giftOption.name,
                 }),
             },
+            contactInfo: {
+              imageData,
+              name: selectedContact.name || selectedContact.uniqueName,
+              uniqueName: selectedContact.uniqueName,
+            },
             fromPage: 'contacts',
             publishMessageFunc: () => {
               giftCardPurchaseAmountTracker({
@@ -316,14 +322,19 @@ export default function SendAndRequestPage(props) {
         return;
       }
 
-      const { receiveAddress, retrivedContact, didWork, error } =
-        await getReceiveAddressAndContactForContactsPayment({
-          sendingAmountSat: convertedSendAmount,
-          selectedContact,
-          myProfileMessage,
-          payingContactMessage,
-          onlyGetContact: paymentType !== 'send',
-        });
+      const {
+        receiveAddress,
+        retrivedContact,
+        didWork,
+        error,
+        formattedPayingContactMessage,
+      } = await getReceiveAddressAndContactForContactsPayment({
+        sendingAmountSat: convertedSendAmount,
+        selectedContact,
+        myProfileMessage,
+        payingContactMessage,
+        onlyGetContact: paymentType !== 'send',
+      });
 
       if (!didWork) {
         navigate.navigate('ErrorScreen', {
@@ -347,7 +358,14 @@ export default function SendAndRequestPage(props) {
           comingFromAccept: true,
           enteredPaymentInfo: {
             amount: sendingAmountMsat / 1000,
-            description: myProfileMessage,
+            description: myProfileMessage, //hanldes local tx description
+          },
+          contactInfo: {
+            imageData,
+            name: selectedContact.name || selectedContact.uniqueName,
+            isLNURLPayment: selectedContact?.isLNURL,
+            payingContactMessage: formattedPayingContactMessage, //handles remote tx description
+            uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
           },
           fromPage: 'contacts',
           publishMessageFunc: () =>
@@ -412,6 +430,7 @@ export default function SendAndRequestPage(props) {
     giftOption,
     masterInfoObject,
     fiatStats,
+    imageData,
   ]);
 
   const memorizedContainerStyles = useMemo(() => {

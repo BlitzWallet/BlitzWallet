@@ -633,6 +633,7 @@ const SparkWalletProvider = ({ children }) => {
       }
       updatePendingPaymentsIntervalRef.current = setInterval(async () => {
         try {
+          if (AppState.currentState !== 'active') return;
           await updateSparkTxStatus(
             currentMnemonicRef.current,
             sparkInfoRef.current.identityPubKey,

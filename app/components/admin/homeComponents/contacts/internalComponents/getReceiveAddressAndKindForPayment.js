@@ -1,6 +1,6 @@
-import {getDataFromCollection} from '../../../../../../db';
-import {getBolt11InvoiceForContact} from '../../../../../functions/contacts';
-import {formatBip21Address} from '../../../../../functions/spark/handleBip21SparkAddress';
+import { getDataFromCollection } from '../../../../../../db';
+import { getBolt11InvoiceForContact } from '../../../../../functions/contacts';
+import { formatBip21Address } from '../../../../../functions/spark/handleBip21SparkAddress';
 
 export default async function getReceiveAddressAndContactForContactsPayment({
   sendingAmountSat,
@@ -12,6 +12,7 @@ export default async function getReceiveAddressAndContactForContactsPayment({
   try {
     let receiveAddress;
     let retrivedContact;
+    let message = '';
 
     if (selectedContact.isLNURL) {
       receiveAddress = selectedContact.receiveAddress;
@@ -25,10 +26,9 @@ export default async function getReceiveAddressAndContactForContactsPayment({
       if (!retrivedContact) throw new Error('errormessages.fullDeeplinkError');
 
       if (onlyGetContact)
-        return {didWork: true, receiveAddress: '', retrivedContact};
+        return { didWork: true, receiveAddress: '', retrivedContact };
 
       if (retrivedContact?.contacts?.myProfile?.sparkAddress) {
-        let message = '';
         if (payingContactMessage?.usingTranslation) {
           message = retrivedContact.isUsingNewNotifications
             ? JSON.stringify({
@@ -40,27 +40,34 @@ export default async function getReceiveAddressAndContactForContactsPayment({
           message = payingContactMessage;
         }
 
-        const lnurlInvoice = await getBolt11InvoiceForContact(
-          retrivedContact?.contacts?.myProfile?.uniqueName,
-          sendingAmountSat,
-          message,
-        );
-        if (lnurlInvoice) {
-          receiveAddress = lnurlInvoice;
-        } else {
-          receiveAddress = formatBip21Address({
-            address: retrivedContact?.contacts?.myProfile?.sparkAddress,
-            amountSat: sendingAmountSat,
-            message: myProfileMessage,
-            prefix: 'spark',
-          });
-        }
+        receiveAddress = `${retrivedContact?.contacts?.myProfile?.uniqueName}@blitzwalletapp.com`;
+
+        // const lnurlInvoice = await getBolt11InvoiceForContact(
+        //   retrivedContact?.contacts?.myProfile?.uniqueName,
+        //   sendingAmountSat,
+        //   message,
+        // );
+        // if (lnurlInvoice) {
+        //   receiveAddress = lnurlInvoice;
+        // } else {
+        //   receiveAddress = formatBip21Address({
+        //     address: retrivedContact?.contacts?.myProfile?.sparkAddress,
+        //     amountSat: sendingAmountSat,
+        //     message: myProfileMessage,
+        //     prefix: 'spark',
+        //   });
+        // }
       } else throw new Error('errormessages.legacyContactError');
     }
 
-    return {didWork: true, receiveAddress, retrivedContact};
+    return {
+      didWork: true,
+      receiveAddress,
+      retrivedContact,
+      formattedPayingContactMessage: message,
+    };
   } catch (err) {
     console.log('error getting receive address for contact payment');
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 }

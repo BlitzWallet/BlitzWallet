@@ -1,23 +1,23 @@
-import React, {useCallback, useState, useMemo} from 'react';
-import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
-import {CENTER, COLORS, FONT, ICONS, SIZES} from '../../../../../constants';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useNavigation} from '@react-navigation/native';
+import React, { useCallback, useState, useMemo } from 'react';
+import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { CENTER, COLORS, FONT, ICONS, SIZES } from '../../../../../constants';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useNavigation } from '@react-navigation/native';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {getDataFromCollection, updateMessage} from '../../../../../../db';
-import {sendPushNotification} from '../../../../../functions/messaging/publishMessage';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useKeysContext} from '../../../../../../context-store/keys';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { getDataFromCollection, updateMessage } from '../../../../../../db';
+import { sendPushNotification } from '../../../../../functions/messaging/publishMessage';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useKeysContext } from '../../../../../../context-store/keys';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {useServerTimeOnly} from '../../../../../../context-store/serverTime';
-import {useTranslation} from 'react-i18next';
+import { useServerTimeOnly } from '../../../../../../context-store/serverTime';
+import { useTranslation } from 'react-i18next';
 import GiftCardTxItem from './giftCardTxItem';
-import {getTimeDisplay} from '../../../../../functions/contacts';
+import { getTimeDisplay } from '../../../../../functions/contacts';
 import getReceiveAddressAndContactForContactsPayment from './getReceiveAddressAndKindForPayment';
-import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
+import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
 
 function ConfirmedOrSentTransaction({
   txParsed,
@@ -29,10 +29,10 @@ function ConfirmedOrSentTransaction({
   props,
   navigate,
 }) {
-  const {t} = useTranslation();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {textColor, backgroundOffset} = GetThemeColors();
+  const { t } = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { textColor, backgroundOffset } = GetThemeColors();
 
   const didDeclinePayment = txParsed.isRedeemed != null && !txParsed.isRedeemed;
 
@@ -63,7 +63,7 @@ function ConfirmedOrSentTransaction({
   }
 
   return (
-    <View style={[styles.transactionContainer, {alignItems: 'center'}]}>
+    <View style={[styles.transactionContainer, { alignItems: 'center' }]}>
       {didDeclinePayment ? (
         <Image
           style={styles.icons}
@@ -93,7 +93,7 @@ function ConfirmedOrSentTransaction({
         />
       )}
 
-      <View style={{width: '100%', flex: 1}}>
+      <View style={{ width: '100%', flex: 1 }}>
         <ThemeText
           CustomEllipsizeMode={'tail'}
           CustomNumberOfLines={1}
@@ -171,15 +171,16 @@ function ConfirmedOrSentTransaction({
 }
 
 export default function ContactsTransactionItem(props) {
-  const {selectedContact, transaction, myProfile, currentTime} = props;
-  const {t} = useTranslation();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor, backgroundColor} = GetThemeColors();
+  const { selectedContact, transaction, myProfile, currentTime, imageData } =
+    props;
+  const { t } = useTranslation();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor, backgroundColor } = GetThemeColors();
   const navigate = useNavigation();
   const getServerTime = useServerTimeOnly();
-  const {globalContactsInformation} = useGlobalContacts();
+  const { globalContactsInformation } = useGlobalContacts();
   const [isLoading, setIsLoading] = useState({
     sendBTN: false,
     declineBTN: false,
@@ -330,13 +331,18 @@ export default function ContactsTransactionItem(props) {
         },
       );
 
-      const {receiveAddress, didWork, error} =
-        await getReceiveAddressAndContactForContactsPayment({
-          sendingAmountSat: sendingAmount,
-          selectedContact,
-          myProfileMessage,
-          payingContactMessage,
-        });
+      const {
+        receiveAddress,
+        didWork,
+        error,
+        formattedPayingContactMessage,
+        retrivedContact,
+      } = await getReceiveAddressAndContactForContactsPayment({
+        sendingAmountSat: sendingAmount,
+        selectedContact,
+        myProfileMessage,
+        payingContactMessage,
+      });
 
       if (!didWork) {
         navigate.navigate('ErrorScreen', {
@@ -355,14 +361,27 @@ export default function ContactsTransactionItem(props) {
         comingFromAccept: true,
         enteredPaymentInfo: {
           amount: sendingAmount,
-          description: myProfileMessage,
+          description: myProfileMessage, // handles local tx description
+        },
+        contactInfo: {
+          imageData,
+          name: selectedContact.name || selectedContact.uniqueName,
+          payingContactMessage: formattedPayingContactMessage, //handles remote tx description
+          uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
         },
         fromPage: 'contacts',
         publishMessageFunc: () => updatePaymentStatus(transaction, false, true),
       });
       return;
     },
-    [myProfile, navigate, updatePaymentStatus, globalContactsInformation],
+    [
+      myProfile,
+      navigate,
+      updatePaymentStatus,
+      globalContactsInformation,
+      imageData,
+      selectedContact,
+    ],
   );
 
   if (txParsed === undefined) return;
@@ -383,7 +402,8 @@ export default function ContactsTransactionItem(props) {
         });
       }}
       key={props.id}
-      activeOpacity={1}>
+      activeOpacity={1}
+    >
       {isCompletedTransaction ? (
         <ConfirmedOrSentTransaction
           txParsed={txParsed}
@@ -411,7 +431,7 @@ export default function ContactsTransactionItem(props) {
             lightsOutIcon={ICONS.arrow_small_left_white}
           />
 
-          <View style={{width: '100%', flex: 1}}>
+          <View style={{ width: '100%', flex: 1 }}>
             <FormattedSatText
               frontText={t(
                 'contacts.internalComponents.contactsTransactions.requestTitle',

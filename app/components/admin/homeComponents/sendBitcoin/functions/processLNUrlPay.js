@@ -4,6 +4,7 @@ import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import { getLNAddressForLiquidPayment } from './payments';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { InputTypes } from 'bitcoin-address-parser';
+import { getBolt11InvoiceForContact } from '../../../../../functions/contacts';
 
 export default async function processLNUrlPay(input, context) {
   const {
@@ -15,6 +16,8 @@ export default async function processLNUrlPay(input, context) {
     currentWalletMnemoinc,
     t,
     sendWebViewRequest,
+    fromPage,
+    contactInfo,
   } = context;
 
   crashlyticsLogReport('Beiging decode LNURL pay');
@@ -26,6 +29,10 @@ export default async function processLNUrlPay(input, context) {
   let paymentFee = 0;
   let supportFee = 0;
   let invoice = '';
+  const description =
+    (fromPage === 'contacts'
+      ? contactInfo?.payingContactMessage
+      : enteredPaymentInfo.description) || '';
 
   const defaultLNURLDescription =
     JSON.parse(input.data.metadata)?.find(item => {
@@ -38,12 +45,21 @@ export default async function processLNUrlPay(input, context) {
     while (!invoice && numberOfTries < maxRetries) {
       try {
         numberOfTries += 1;
+        let invoiceResponse;
 
-        const invoiceResponse = await getLNAddressForLiquidPayment(
-          input,
-          Number(enteredPaymentInfo.amount),
-          enteredPaymentInfo.description || '',
-        );
+        if (fromPage === 'contacts' && !contactInfo.isLNURLPayment) {
+          invoiceResponse = await getBolt11InvoiceForContact(
+            contactInfo.uniqueName,
+            Number(enteredPaymentInfo.amount),
+            description,
+          );
+        } else {
+          invoiceResponse = await getLNAddressForLiquidPayment(
+            input,
+            Number(enteredPaymentInfo.amount),
+            description,
+          );
+        }
 
         if (invoiceResponse) {
           invoice = invoiceResponse;

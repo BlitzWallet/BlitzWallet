@@ -267,7 +267,7 @@ export default function AcceptButtonSendPage({
       buttonStyles={memorizedStyles}
       useLoading={isGeneratingInvoice}
       actionFunction={handleEnterSendAmount}
-      textContent={t('constants.accept')}
+      textContent={t('constants.review')}
     />
   );
 }

@@ -292,7 +292,7 @@ export const WebViewProvider = ({ children }) => {
           ? Date.now() - backgroundTimeRef.current
           : Infinity; //force reset if background timeout is not set
 
-        if (timeInBackground < BACKGROUND_THRESHOLD_MS) {
+        if (timeInBackground > BACKGROUND_THRESHOLD_MS) {
           console.log('Background time exceeded threshold - reloading WebView');
           // Reset state but DON'T clear handshakeComplete flag
 

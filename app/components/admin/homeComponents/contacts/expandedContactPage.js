@@ -173,6 +173,7 @@ export default function ExpandedContactsPage(props) {
               navigate.navigate('SendAndRequestPage', {
                 selectedContact: selectedContact,
                 paymentType: 'send',
+                imageData,
               });
             }}
             arrowColor={
@@ -207,6 +208,7 @@ export default function ExpandedContactsPage(props) {
               navigate.navigate('SendAndRequestPage', {
                 selectedContact: selectedContact,
                 paymentType: 'request',
+                imageData,
               });
             }}
             arrowColor={
@@ -266,6 +268,7 @@ export default function ExpandedContactsPage(props) {
       imageData?.localUri,
       isConnectedToTheInternet,
       contactTransactions,
+      imageData,
     ],
   );
 
@@ -390,6 +393,7 @@ export default function ExpandedContactsPage(props) {
               selectedContact={selectedContact}
               myProfile={myProfile}
               currentTime={currentTime}
+              imageData={imageData}
             />
           )}
           initialNumToRender={10}

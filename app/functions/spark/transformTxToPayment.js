@@ -23,17 +23,19 @@ export async function transformTxToPaymentObject(
       : tx.receiverIdentityPublicKey;
 
   if (paymentType === 'lightning') {
+    const userRequest = tx.userRequest;
+    const userRequestId = userRequest?.id;
     const foundInvoice = unpaidLNInvoices.find(item => {
       const details = JSON.parse(item.details);
       return (
         item.amount === tx.totalValue &&
-        Math.abs(details?.createdTime - new Date(tx.createdTime).getTime()) <
-          1000 * 30
+        (Math.abs(details?.createdTime - new Date(tx.createdTime).getTime()) <
+          1000 * 30 ||
+          item.id === userRequestId)
       );
     });
 
     const status = getSparkPaymentStatus(tx.status);
-    const userRequest = tx.userRequest;
     const isSendRequest = userRequest?.typename === 'LightningSendRequest';
     const invoice = userRequest
       ? isSendRequest
