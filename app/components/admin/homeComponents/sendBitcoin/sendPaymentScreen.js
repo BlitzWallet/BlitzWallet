@@ -479,7 +479,7 @@ export default function SendPaymentScreen(props) {
           ) : (
             <SwipeButtonNew
               onSwipeSuccess={sendPayment}
-              width={0.95}
+              width={0.85}
               resetAfterSuccessAnimDuration={true}
               // shouldAnimateViewOnSuccess={true}
               shouldResetAfterSuccess={!canSendPayment}

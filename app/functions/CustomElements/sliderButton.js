@@ -33,7 +33,7 @@ const containerStyles = StyleSheet.create({
     position: 'absolute',
     fontFamily: FONT.Title_Regular,
     includeFontPadding: false,
-    fontSize: SIZES.large,
+    fontSize: 17,
   },
 });
 
