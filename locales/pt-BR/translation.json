@@ -875,12 +875,12 @@
         "descriptionInputPlaceholder": "Descrição..."
       },
       "buttonContainer": {
-        "format": "Outros meios de pagamento",
+        "format": "Outros meios de recebimento",
         "infoMessage": "Quantias personalizadas não são suportadas em pagamentos Spark ou Rootstock."
       },
 
       "switchReceiveOptionPage": {
-        "title": "Meios de pagamento",
+        "title": "Meios de recebimento",
         "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Receber diretamente via Spark exporá seu saldo à pessoa que está pagando e não é considerado privado.",
         "swapWarning": "Os pagamentos {{swapType}} serão trocados para Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após o pagamento {{swapType}} ser confirmado.",
