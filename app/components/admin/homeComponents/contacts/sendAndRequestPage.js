@@ -30,7 +30,12 @@ import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import Icon from '../../../../functions/CustomElements/Icon';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import fetchBackend from '../../../../../db/handleBackend';
@@ -425,7 +430,7 @@ export default function SendAndRequestPage(props) {
       useLocalPadding={true}
       useStandardWidth={true}
     >
-      <NavBarWithBalance />
+      <NavBarWithBalance showBalance={paymentType === 'send'} />
       <>
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -453,7 +458,7 @@ export default function SendAndRequestPage(props) {
           <FormattedSatText
             containerStyles={{
               ...styles.convertedAmount,
-              opacity: !amountValue ? 0.5 : 1,
+              opacity: !amountValue ? HIDDEN_OPACITY : 1,
             }}
             neverHideBalance={true}
             globalBalanceDenomination={
@@ -673,7 +678,7 @@ export default function SendAndRequestPage(props) {
           <CustomButton
             buttonStyles={{
               ...styles.button,
-              opacity: canSendPayment ? 1 : 0.5,
+              opacity: canSendPayment ? 1 : HIDDEN_OPACITY,
             }}
             useLoading={isLoading}
             actionFunction={handleSubmit}

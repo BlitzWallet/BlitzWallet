@@ -1,15 +1,16 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
-import {ThemeText} from '../../../../../../functions/CustomElements';
-import {useGlobalContextProvider} from '../../../../../../../context-store/context';
-import {CENTER, COLORS, SIZES} from '../../../../../../constants';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { ThemeText } from '../../../../../../functions/CustomElements';
+import { useGlobalContextProvider } from '../../../../../../../context-store/context';
+import { CENTER, COLORS, SIZES } from '../../../../../../constants';
 import CustomSearchInput from '../../../../../../functions/CustomElements/searchInput';
-import {useRef, useState} from 'react';
+import { useRef, useState } from 'react';
 import CustomButton from '../../../../../../functions/CustomElements/button';
 import customUUID from '../../../../../../functions/customUUID';
-import {useGlobalThemeContext} from '../../../../../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../../hooks/themeColors';
-import {useNavigation} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { HIDDEN_OPACITY } from '../../../../../../constants/theme';
 
 export default function AddPOSItemHalfModal({
   setIsKeyboardActive,
@@ -17,15 +18,16 @@ export default function AddPOSItemHalfModal({
   initialSettings,
   handleBackPressFunction,
 }) {
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {t} = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { masterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
+  const { t } = useTranslation();
   const [itemInformation, setItemInformation] = useState({
     name: initialSettings?.name || '',
     price: initialSettings?.price || '',
   });
   const navigate = useNavigation();
-  const {textColor} = GetThemeColors();
+  const { textColor } = GetThemeColors();
 
   const nameInputRef = useRef(null);
   const priceInputRef = useRef(null);
@@ -33,7 +35,7 @@ export default function AddPOSItemHalfModal({
   const handleInput = (event, inputType) => {
     console.log(event, inputType);
     setItemInformation(prev => {
-      return {...prev, [inputType]: event};
+      return { ...prev, [inputType]: event };
     });
   };
 
@@ -96,7 +98,7 @@ export default function AddPOSItemHalfModal({
           initialCurrency: masterInfoObject?.posSettings?.storeCurrency,
         });
 
-      toggleMasterInfoObject({posSettings: posObject});
+      toggleMasterInfoObject({ posSettings: posObject });
       handleBackPressFunction();
     } catch (err) {
       console.log('error adding item to pos');
@@ -109,11 +111,12 @@ export default function AddPOSItemHalfModal({
   return (
     <View style={styles.halfModalContainer}>
       <ScrollView
-        contentContainerStyle={{paddingBottom: 10}}
+        contentContainerStyle={{ paddingBottom: 10 }}
         showsVerticalScrollIndicator={false}
-        keyboardDismissMode="none">
+        keyboardDismissMode="none"
+      >
         <ThemeText
-          styles={{fontSize: SIZES.large}}
+          styles={{ fontSize: SIZES.large }}
           content={
             initialSettings
               ? t('settings.posPath.items.addItemHalfModal.editItem')
@@ -121,13 +124,13 @@ export default function AddPOSItemHalfModal({
           }
         />
         <ThemeText
-          styles={{marginBottom: 10}}
+          styles={{ marginBottom: 10 }}
           content={t('settings.posPath.items.addItemHalfModal.pricesLabel', {
             currency: masterInfoObject?.posSettings?.storeCurrency,
           })}
         />
         <ThemeText
-          styles={{fontSize: SIZES.small}}
+          styles={{ fontSize: SIZES.small }}
           content={t('settings.posPath.items.addItemHalfModal.editMessage')}
         />
         <View style={styles.textInputContainer}>
@@ -170,7 +173,7 @@ export default function AddPOSItemHalfModal({
             keyboardType={'number-pad'}
             placeholderText={t(
               'settings.posPath.items.addItemHalfModal.pricePlaceholder',
-              {number: masterInfoObject?.posSettings?.storeCurrency},
+              { number: masterInfoObject?.posSettings?.storeCurrency },
             )}
             onFocusFunction={checkIfKeyboardShouldBeShown}
             onBlurFunction={checkIfKeyboardShouldBeShown}
@@ -179,7 +182,10 @@ export default function AddPOSItemHalfModal({
       </ScrollView>
       <CustomButton
         buttonStyles={{
-          opacity: !itemInformation.name || !itemInformation.price ? 0.5 : 1,
+          opacity:
+            !itemInformation.name || !itemInformation.price
+              ? HIDDEN_OPACITY
+              : 1,
           ...CENTER,
         }}
         actionFunction={addNewItem}

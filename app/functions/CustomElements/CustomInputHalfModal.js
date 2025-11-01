@@ -1,26 +1,27 @@
-import {useRef, useState} from 'react';
-import {useGlobalContextProvider} from '../../../context-store/context';
-import {useNavigation} from '@react-navigation/native';
-import {useNodeContext} from '../../../context-store/nodeContext';
-import {CENTER, SATSPERBITCOIN} from '../../constants';
+import { useRef, useState } from 'react';
+import { useGlobalContextProvider } from '../../../context-store/context';
+import { useNavigation } from '@react-navigation/native';
+import { useNodeContext } from '../../../context-store/nodeContext';
+import { CENTER, SATSPERBITCOIN } from '../../constants';
 import FormattedBalanceInput from './formattedBalanceInput';
 import FormattedSatText from './satTextDisplay';
 import CustomNumberKeyboard from './customNumberKeyboard';
 import CustomButton from './button';
-import {ScrollView, StyleSheet} from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import ThemeText from './textTheme';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import { HIDDEN_OPACITY } from '../../constants/theme';
 
 export default function CustomInputHalfModal(props) {
   const navigate = useNavigation();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {fiatStats} = useNodeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
   const initialValue = useRef(0);
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination != 'fiat' ? 'sats' : 'fiat',
   );
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const localSatAmount =
     inputDenomination === 'sats'
       ? Number(amountValue)
@@ -72,10 +73,11 @@ export default function CustomInputHalfModal(props) {
           initialValue.current = contentHeight;
           props.setContentHeight(contentHeight + 90);
         }
-      }}>
+      }}
+    >
       {props.message && (
         <ThemeText
-          styles={{textAlign: 'center', width: '80%', ...CENTER}}
+          styles={{ textAlign: 'center', width: '80%', ...CENTER }}
           content={props.message}
         />
       )}
@@ -97,9 +99,9 @@ export default function CustomInputHalfModal(props) {
       />
 
       <FormattedSatText
-        containerStyles={{opacity: !amountValue ? 0.5 : 1}}
+        containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
         neverHideBalance={true}
-        styles={{includeFontPadding: false, ...styles.satValue}}
+        styles={{ includeFontPadding: false, ...styles.satValue }}
         globalBalanceDenomination={
           inputDenomination === 'sats' ? 'fiat' : 'sats'
         }

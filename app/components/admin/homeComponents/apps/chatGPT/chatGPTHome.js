@@ -24,7 +24,11 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import { SHADOWS, WINDOWWIDTH } from '../../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  SHADOWS,
+  WINDOWWIDTH,
+} from '../../../../../constants/theme';
 import ExampleGPTSearchCard from './exampleSearchCards';
 import saveChatGPTChat from './functions/saveChat';
 import Icon from '../../../../../functions/CustomElements/Icon';
@@ -345,7 +349,7 @@ export default function ChatGPTHome(props) {
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: 40,
-            opacity: !userChatText.length ? 0.5 : 1,
+            opacity: !userChatText.length ? HIDDEN_OPACITY : 1,
             backgroundColor: theme
               ? COLORS.lightModeBackground
               : COLORS.lightModeText,

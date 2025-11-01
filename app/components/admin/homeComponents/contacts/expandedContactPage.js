@@ -6,38 +6,44 @@ import {
   ScrollView,
   Share,
 } from 'react-native';
-import {CENTER, COLORS, ICONS, SIZES} from '../../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {useCallback, useEffect, useMemo} from 'react';
+import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   decryptMessage,
   encriptMessage,
 } from '../../../../functions/messaging/encodingAndDecodingMessages';
 import ContactsTransactionItem from './internalComponents/contactsTransactions';
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
-import {useGlobalContacts} from '../../../../../context-store/globalContacts';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
+import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../functions/CustomElements/Icon';
-import {queueSetCashedMessages} from '../../../../functions/messaging/cachedMessages';
+import { queueSetCashedMessages } from '../../../../functions/messaging/cachedMessages';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useAppStatus} from '../../../../../context-store/appStatus';
-import {useKeysContext} from '../../../../../context-store/keys';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useAppStatus } from '../../../../../context-store/appStatus';
+import { useKeysContext } from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import ContactProfileImage from './internalComponents/profileImage';
-import {useImageCache} from '../../../../../context-store/imageCache';
-import {useGlobalInsets} from '../../../../../context-store/insetsProvider';
-import {useServerTimeOnly} from '../../../../../context-store/serverTime';
-import {useTranslation} from 'react-i18next';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import { useImageCache } from '../../../../../context-store/imageCache';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import { useServerTimeOnly } from '../../../../../context-store/serverTime';
+import { useTranslation } from 'react-i18next';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { isConnectedToTheInternet } = useAppStatus();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const {
     backgroundOffset,
     backgroundColor,
@@ -50,11 +56,11 @@ export default function ExpandedContactsPage(props) {
     toggleGlobalContactsInformation,
     contactsMessags,
   } = useGlobalContacts();
-  const {bottomPadding} = useGlobalInsets();
-  const {cache} = useImageCache();
+  const { bottomPadding } = useGlobalInsets();
+  const { cache } = useImageCache();
   const getServerTime = useServerTimeOnly();
   const currentTime = getServerTime();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const selectedUUID = props?.route?.params?.uuid || props?.uuid;
   const myProfile = globalContactsInformation?.myProfile;
 
@@ -84,7 +90,7 @@ export default function ExpandedContactsPage(props) {
       for (const savedMessage of hasUnlookedTransaction) {
         newMessagesList.push({
           ...savedMessage,
-          message: {...savedMessage.message, wasSeen: true},
+          message: { ...savedMessage.message, wasSeen: true },
         });
       }
       queueSetCashedMessages({
@@ -115,14 +121,16 @@ export default function ExpandedContactsPage(props) {
               message: `https://blitzwalletapp.com/u/${selectedContact?.uniqueName}`,
             });
           }}
-          style={styles.profileImageContainer}>
+          style={styles.profileImageContainer}
+        >
           <View
             style={[
               styles.profileImage,
               {
                 backgroundColor: backgroundOffset,
               },
-            ]}>
+            ]}
+          >
             <ContactProfileImage
               updated={imageData?.updated}
               uri={imageData?.localUri}
@@ -133,7 +141,7 @@ export default function ExpandedContactsPage(props) {
           {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
             <View style={styles.selectFromPhotos}>
               <ThemeImage
-                styles={{width: 20, height: 20}}
+                styles={{ width: 20, height: 20 }}
                 darkModeIcon={ICONS.shareBlack}
                 lightModeIcon={ICONS.shareBlack}
                 lightsOutIcon={ICONS.shareBlack}
@@ -151,7 +159,8 @@ export default function ExpandedContactsPage(props) {
           style={{
             ...styles.buttonGlobalContainer,
             marginBottom: selectedContact?.bio ? 10 : 0,
-          }}>
+          }}
+        >
           <CustomSendAndRequsetBTN
             btnType={'send'}
             btnFunction={() => {
@@ -174,7 +183,7 @@ export default function ExpandedContactsPage(props) {
                 : COLORS.primary
             }
             containerBackgroundColor={COLORS.darkModeText}
-            containerStyles={{marginRight: 30}}
+            containerStyles={{ marginRight: 30 }}
           />
 
           <CustomSendAndRequsetBTN
@@ -208,7 +217,9 @@ export default function ExpandedContactsPage(props) {
                 : COLORS.primary
             }
             containerBackgroundColor={COLORS.darkModeText}
-            containerStyles={{opacity: selectedContact.isLNURL ? 0.5 : 1}}
+            containerStyles={{
+              opacity: selectedContact.isLNURL ? HIDDEN_OPACITY : 1,
+            }}
           />
         </View>
 
@@ -216,16 +227,18 @@ export default function ExpandedContactsPage(props) {
           <View
             style={[
               styles.bioContainer,
-              {marginTop: 10, backgroundColor: textInputBackground},
-            ]}>
+              { marginTop: 10, backgroundColor: textInputBackground },
+            ]}
+          >
             <ScrollView
               contentContainerStyle={{
                 alignItems: selectedContact.bio ? null : 'center',
                 flexGrow: selectedContact.bio ? null : 1,
               }}
-              showsVerticalScrollIndicator={false}>
+              showsVerticalScrollIndicator={false}
+            >
               <ThemeText
-                styles={{...styles.bioText, color: textInputColor}}
+                styles={{ ...styles.bioText, color: textInputColor }}
                 content={selectedContact?.bio}
               />
             </ScrollView>
@@ -233,9 +246,9 @@ export default function ExpandedContactsPage(props) {
         )}
 
         {contactTransactions.length === 0 && (
-          <View style={{alignItems: 'center', marginTop: 30}}>
+          <View style={{ alignItems: 'center', marginTop: 30 }}>
             <ThemeText
-              styles={{textAlign: 'center', width: INSET_WINDOW_WIDTH}}
+              styles={{ textAlign: 'center', width: INSET_WINDOW_WIDTH }}
               content={t('contacts.expandedContactPage.noTransactions')}
             />
           </View>
@@ -260,8 +273,9 @@ export default function ExpandedContactsPage(props) {
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={styles.topBar}>
         <TouchableOpacity
-          style={{marginRight: 'auto'}}
-          onPress={navigate.goBack}>
+          style={{ marginRight: 'auto' }}
+          onPress={navigate.goBack}
+        >
           <ThemeImage
             darkModeIcon={ICONS.smallArrowLeft}
             lightModeIcon={ICONS.smallArrowLeft}
@@ -270,7 +284,7 @@ export default function ExpandedContactsPage(props) {
         </TouchableOpacity>
         {selectedContact && (
           <TouchableOpacity
-            style={{marginRight: 5}}
+            style={{ marginRight: 5 }}
             onPress={() => {
               (async () => {
                 if (!isConnectedToTheInternet) {
@@ -282,7 +296,7 @@ export default function ExpandedContactsPage(props) {
                 if (!selectedContact) return;
                 toggleGlobalContactsInformation(
                   {
-                    myProfile: {...globalContactsInformation.myProfile},
+                    myProfile: { ...globalContactsInformation.myProfile },
                     addedContacts: encriptMessage(
                       contactsPrivateKey,
                       publicKey,
@@ -309,7 +323,8 @@ export default function ExpandedContactsPage(props) {
                   true,
                 );
               })();
-            }}>
+            }}
+          >
             <Icon
               width={25}
               height={25}
@@ -341,7 +356,8 @@ export default function ExpandedContactsPage(props) {
                 pageType: 'addedContact',
                 selectedAddedContact: selectedContact,
               });
-            }}>
+            }}
+          >
             <ThemeImage
               darkModeIcon={ICONS.settingsIcon}
               lightModeIcon={ICONS.settingsIcon}
@@ -354,19 +370,19 @@ export default function ExpandedContactsPage(props) {
       {!selectedContact ? (
         <FullLoadingScreen
           text={t('contacts.expandedContactPage.loadingContactError')}
-          textStyles={{testAlign: 'center'}}
+          textStyles={{ testAlign: 'center' }}
         />
       ) : (
         <FlatList
           showsVerticalScrollIndicator={false}
-          style={{flex: 1}}
+          style={{ flex: 1 }}
           contentContainerStyle={{
             paddingBottom: bottomPadding,
           }}
           ListHeaderComponent={ListHeaderComponent}
           data={contactTransactions.slice(0, 50)}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({item, index}) => (
+          renderItem={({ item, index }) => (
             <ContactsTransactionItem
               key={index}
               transaction={item}
@@ -386,7 +402,7 @@ export default function ExpandedContactsPage(props) {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {paddingBottom: 0},
+  globalContainer: { paddingBottom: 0 },
   topBar: {
     width: '100%',
     flexDirection: 'row',

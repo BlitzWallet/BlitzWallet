@@ -7,6 +7,7 @@ import { ThemeText } from '../../../../functions/CustomElements';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../../../../context-store/toastManager';
 import { useCallback } from 'react';
+import { HIDDEN_OPACITY } from '../../../../constants/theme';
 
 export default function ButtonsContainer(props) {
   const { showToast } = useToast();
@@ -40,7 +41,7 @@ export default function ButtonsContainer(props) {
         <CustomButton
           buttonStyles={{
             ...styles.mainButtons,
-            opacity: props.generatingInvoiceQRCode ? 0.5 : 1,
+            opacity: props.generatingInvoiceQRCode ? HIDDEN_OPACITY : 1,
           }}
           actionFunction={() => {
             if (props.generatingInvoiceQRCode) return;

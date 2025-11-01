@@ -5,23 +5,23 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {ThemeText} from '../../../../functions/CustomElements';
-import {ICONS} from '../../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {useRef, useState} from 'react';
-import {CENTER, KEYBOARDTIMEOUT} from '../../../../constants/styles';
-import {SIZES} from '../../../../constants/theme';
+import { ThemeText } from '../../../../functions/CustomElements';
+import { ICONS } from '../../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { useRef, useState } from 'react';
+import { CENTER, KEYBOARDTIMEOUT } from '../../../../constants/styles';
+import { HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import handlePreSendPageParsing from '../../../../functions/sendBitcoin/handlePreSendPageParsing';
 
 export default function ManualEnterSendAddress(props) {
   const navigate = useNavigation();
-  const {t} = useTranslation();
-  const {setIsKeyboardActive, setContentHeight, theme, darkModeType} = props;
+  const { t } = useTranslation();
+  const { setIsKeyboardActive, setContentHeight, theme, darkModeType } = props;
   const initialValue = useRef(0);
 
   const [inputValue, setInputValue] = useState('');
@@ -29,12 +29,13 @@ export default function ManualEnterSendAddress(props) {
   return (
     <TouchableWithoutFeedback
       onLayout={e => {
-        const {height} = e.nativeEvent.layout;
+        const { height } = e.nativeEvent.layout;
         if (!initialValue.current) {
           initialValue.current = height;
           setContentHeight(height);
         }
-      }}>
+      }}
+    >
       <View style={styles.popupContainer}>
         <View style={styles.informationContainer}>
           <ThemeText
@@ -49,9 +50,10 @@ export default function ManualEnterSendAddress(props) {
                 ),
                 buttonText: t('constants.understandText'),
               });
-            }}>
+            }}
+          >
             <ThemeImage
-              styles={{width: 20, height: 20}}
+              styles={{ width: 20, height: 20 }}
               lightsOutIcon={ICONS.aboutIconWhite}
               lightModeIcon={ICONS.aboutIcon}
               darkModeIcon={ICONS.aboutIcon}
@@ -72,7 +74,7 @@ export default function ManualEnterSendAddress(props) {
         <CustomButton
           buttonStyles={{
             ...styles.buttonContainer,
-            opacity: !inputValue ? 0.5 : 1,
+            opacity: !inputValue ? HIDDEN_OPACITY : 1,
           }}
           actionFunction={hanldeSubmit}
           textContent={t('constants.continue')}
@@ -91,7 +93,7 @@ export default function ManualEnterSendAddress(props) {
         const response = handlePreSendPageParsing(formattedInput);
 
         if (response.error) {
-          navigate.navigate('ErrorScreen', {errorMessage: response.error});
+          navigate.navigate('ErrorScreen', { errorMessage: response.error });
           return;
         }
 

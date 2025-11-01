@@ -1,5 +1,5 @@
-import {useNavigation} from '@react-navigation/native';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CENTER,
   FONT,
@@ -7,29 +7,30 @@ import {
   SATSPERBITCOIN,
   SIZES,
 } from '../../../../constants';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useState} from 'react';
-import {CustomKeyboardAvoidingView} from '../../../../functions/CustomElements';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useState } from 'react';
+import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import {keyboardGoBack} from '../../../../functions/customNavigation';
-import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
+import { keyboardGoBack } from '../../../../functions/customNavigation';
+import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
+import { HIDDEN_OPACITY } from '../../../../constants/theme';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {fiatStats} = useNodeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
   const [paymentDescription, setPaymentDescription] = useState('');
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const fromPage = props.route.params.from;
   const receiveType = props.route.params.receiveType;
   const [inputDenomination, setInputDenomination] = useState(
@@ -64,7 +65,8 @@ export default function EditReceivePaymentInformation(props) {
     <CustomKeyboardAvoidingView
       useLocalPadding={true}
       isKeyboardActive={isKeyboardFocused}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       <TouchableOpacity onPress={() => keyboardGoBack(navigate)}>
         <ThemeImage
           darkModeIcon={ICONS.smallArrowLeft}
@@ -75,7 +77,8 @@ export default function EditReceivePaymentInformation(props) {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.amountScrollContainer}>
+        contentContainerStyle={styles.amountScrollContainer}
+      >
         <FormattedBalanceInput
           maxWidth={0.9}
           amountValue={amountValue}
@@ -91,9 +94,9 @@ export default function EditReceivePaymentInformation(props) {
         />
 
         <FormattedSatText
-          containerStyles={{opacity: !amountValue ? 0.5 : 1}}
+          containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
           neverHideBalance={true}
-          styles={{includeFontPadding: false, ...styles.satValue}}
+          styles={{ includeFontPadding: false, ...styles.satValue }}
           globalBalanceDenomination={
             inputDenomination === 'sats' ? 'fiat' : 'sats'
           }
@@ -127,6 +130,7 @@ export default function EditReceivePaymentInformation(props) {
           <CustomButton
             buttonStyles={{
               ...CENTER,
+              opacity: localSatAmount ? 1 : HIDDEN_OPACITY,
             }}
             actionFunction={handleSubmit}
             textContent={t('constants.request')}
@@ -152,7 +156,7 @@ export default function EditReceivePaymentInformation(props) {
           receiveAmount: sendAmount,
           description: paymentDescription,
         },
-        {merge: true},
+        { merge: true },
       );
     }
 

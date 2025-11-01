@@ -20,6 +20,7 @@ import { formatCurrency } from '../formatCurrency';
 import { useMemo, useState } from 'react';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useAppStatus } from '../../../context-store/appStatus';
+import { HIDDEN_OPACITY } from '../../constants/theme';
 
 export default function FormattedBalanceInput({
   amountValue = 0,
@@ -74,7 +75,7 @@ export default function FormattedBalanceInput({
         style={[
           styles.textInputContainer,
           {
-            opacity: !amountValue ? 0.5 : 1,
+            opacity: !amountValue ? HIDDEN_OPACITY : 1,
             maxWidth: maxContainerWidth,
             ...customTextInputContainerStyles,
           },
@@ -142,7 +143,7 @@ export default function FormattedBalanceInput({
       style={[
         styles.textInputContainer,
         {
-          opacity: !amountValue ? 0.5 : 1,
+          opacity: !amountValue ? HIDDEN_OPACITY : 1,
           maxWidth: maxContainerWidth,
           ...customTextInputContainerStyles,
         },

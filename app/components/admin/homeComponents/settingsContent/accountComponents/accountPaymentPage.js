@@ -35,6 +35,7 @@ import { bulkUpdateSparkTransactions } from '../../../../../functions/spark/tran
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import { useWebView } from '../../../../../../context-store/webViewContext';
+import { HIDDEN_OPACITY } from '../../../../../constants/theme';
 
 export default function AccountPaymentPage(props) {
   const { sendWebViewRequest } = useWebView();
@@ -280,7 +281,7 @@ export default function AccountPaymentPage(props) {
 
           <FormattedSatText
             containerStyles={{
-              opacity: !sendingAmount ? 0.5 : 1,
+              opacity: !sendingAmount ? HIDDEN_OPACITY : 1,
               marginBottom: 50,
             }}
             neverHideBalance={true}

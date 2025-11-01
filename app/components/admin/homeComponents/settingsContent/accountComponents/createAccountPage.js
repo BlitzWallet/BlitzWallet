@@ -26,6 +26,7 @@ import { createAccountMnemonic } from '../../../../../functions';
 import {
   COLORS,
   FONT,
+  HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   WINDOWWIDTH,
 } from '../../../../../constants/theme';
@@ -527,7 +528,7 @@ export default function CreateCustodyAccountPage(props) {
               enteredAllSeeds.length !== 12 ||
               selectedAccount?.name?.toLowerCase() ===
                 accountInformation?.name?.toLowerCase()
-                ? 0.5
+                ? HIDDEN_OPACITY
                 : 1,
           }}
           textContent={

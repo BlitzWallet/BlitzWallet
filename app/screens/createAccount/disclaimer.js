@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CENTER, COLORS } from '../../constants';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import { SIZES } from '../../constants/theme';
+import { HIDDEN_OPACITY, SIZES } from '../../constants/theme';
 import CustomButton from '../../functions/CustomElements/button';
 import { G, Path, Svg } from 'react-native-svg';
 import LoginNavbar from '../../components/login/navBar';
@@ -143,7 +143,7 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
       <CustomButton
         buttonStyles={{
           ...styles.buttonStyles,
-          opacity: termsAccepted ? 1 : 0.5,
+          opacity: termsAccepted ? 1 : HIDDEN_OPACITY,
         }}
         textStyles={styles.buttonText}
         textContent={t('constants.next')}

@@ -40,7 +40,11 @@ import SelectLRC20Token from './components/selectLRC20Token';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
-import { COLORS, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
 import { InputTypes } from 'bitcoin-address-parser';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
@@ -324,7 +328,7 @@ export default function SendPaymentScreen(props) {
         )} */}
         {!isUsingLRC20 && (
           <FormattedSatText
-            containerStyles={{ opacity: !sendingAmount ? 0.5 : 1 }}
+            containerStyles={{ opacity: !sendingAmount ? HIDDEN_OPACITY : 1 }}
             neverHideBalance={true}
             styles={{ includeFontPadding: false, ...styles.satValue }}
             globalBalanceDenomination={
@@ -485,7 +489,7 @@ export default function SendPaymentScreen(props) {
               shouldResetAfterSuccess={!canSendPayment}
               // shouldDisplaySuccessState={isSendingPayment}
               containerStyles={{
-                opacity: canSendPayment ? 1 : 0.2,
+                opacity: canSendPayment ? 1 : HIDDEN_OPACITY,
               }}
               thumbIconStyles={{
                 backgroundColor:

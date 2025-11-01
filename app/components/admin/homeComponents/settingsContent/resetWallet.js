@@ -15,7 +15,10 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 // import {deleteEcashDBTables} from '../../../../functions/eCash/db';
 import { deletePOSTransactionsTable } from '../../../../functions/pos';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../constants/theme';
 import { removeAllLocalData } from '../../../../functions/localStorage';
 import {
   deleteSparkTransactionTable,
@@ -207,7 +210,7 @@ export default function ResetPage(props) {
             opacity:
               selectedOptions.securedItems || selectedOptions.localStoredItems
                 ? 1
-                : 0.5,
+                : HIDDEN_OPACITY,
             width: 'auto',
             marginTop: 'auto',
           }}

@@ -33,7 +33,10 @@ import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { useSparkWallet } from '../../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../../context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
-import { INSET_WINDOW_WIDTH } from '../../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../../constants/theme';
 import CountryFlag from 'react-native-country-flag';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { decode } from 'bolt11';
@@ -193,7 +196,7 @@ export default function SMSMessagingSendPage() {
               <ThemeText
                 styles={{
                   ...styles.inputStyles,
-                  opacity: phoneNumber.length === 0 ? 0.5 : 1,
+                  opacity: phoneNumber.length === 0 ? HIDDEN_OPACITY : 1,
                 }}
                 content={
                   phoneNumber.length > 15
@@ -222,7 +225,7 @@ export default function SMSMessagingSendPage() {
               <ThemeText
                 styles={{
                   ...styles.inputStyles,
-                  opacity: areaCode.length === 0 ? 0.5 : 1,
+                  opacity: areaCode.length === 0 ? HIDDEN_OPACITY : 1,
                 }}
                 content={areaCode.length === 0 ? 'United States' : areaCode}
               />
@@ -276,7 +279,7 @@ export default function SMSMessagingSendPage() {
                         phoneNumber.length === 0 ||
                         message.length === 0 ||
                         areaCode.length === 0
-                          ? 0.5
+                          ? HIDDEN_OPACITY
                           : 1,
                       ...CENTER,
                     }}

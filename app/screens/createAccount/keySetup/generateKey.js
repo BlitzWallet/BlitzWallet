@@ -14,6 +14,7 @@ import { useKeysContext } from '../../../../context-store/keys';
 import { useToast } from '../../../../context-store/toastManager';
 import { useState } from 'react';
 import GetThemeColors from '../../../hooks/themeColors';
+import { HIDDEN_OPACITY } from '../../../constants/theme';
 
 export default function GenerateKey() {
   const { showToast } = useToast();
@@ -159,7 +160,7 @@ export default function GenerateKey() {
           <CustomButton
             buttonStyles={{
               ...styles.actionButton,
-              opacity: isValidMnemonic ? 1 : 0.5,
+              opacity: isValidMnemonic ? 1 : HIDDEN_OPACITY,
             }}
             textContent={t('constants.copy')}
             actionFunction={handleCopyPress}
@@ -168,7 +169,7 @@ export default function GenerateKey() {
             buttonStyles={{
               ...styles.actionButton,
               ...styles.nextButton,
-              opacity: isValidMnemonic ? 1 : 0.2,
+              opacity: isValidMnemonic ? 1 : HIDDEN_OPACITY,
             }}
             textStyles={styles.nextButtonText}
             textContent={t('constants.next')}

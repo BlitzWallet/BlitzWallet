@@ -119,6 +119,7 @@ const SHADOWS = {
 const WINDOWWIDTH = '95%';
 const INSET_WINDOW_WIDTH = '90%';
 const MAX_CONTENT_WIDTH = 600;
+const HIDDEN_OPACITY = 0.5;
 
 export {
   COLORS,
@@ -128,4 +129,5 @@ export {
   WINDOWWIDTH,
   INSET_WINDOW_WIDTH,
   MAX_CONTENT_WIDTH,
+  HIDDEN_OPACITY,
 };
