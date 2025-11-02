@@ -254,14 +254,12 @@ export const WebViewProvider = ({ children }) => {
           clearTimeout(t.timeoutId),
         );
         activeTimeoutsRef.current = {};
-      }
-
-      if (previousAppState.current === 'background' && appState === 'active') {
+      } else if (appState === 'active') {
         console.log('App returned to foreground');
 
         const timeInBackground = backgroundTimeRef.current
           ? Date.now() - backgroundTimeRef.current
-          : Infinity;
+          : 0;
 
         if (timeInBackground > BACKGROUND_THRESHOLD_MS) {
           console.log('Background time exceeded threshold - reloading WebView');
@@ -478,6 +476,7 @@ export const WebViewProvider = ({ children }) => {
               error: 'Wallet initialization failed, using React Native(1)',
             });
           }
+          const id = customUUID();
 
           // Queue messages during reset/background
           if (
@@ -491,6 +490,7 @@ export const WebViewProvider = ({ children }) => {
             );
             if (!isDuplicate(queuedRequests.current, action, args)) {
               queuedRequests.current.push({
+                id,
                 action,
                 args,
                 encrypt,
@@ -512,6 +512,7 @@ export const WebViewProvider = ({ children }) => {
             );
             if (!isDuplicate(queuedRequests.current, action, args)) {
               queuedRequests.current.push({
+                id,
                 action,
                 args,
                 encrypt,
@@ -524,7 +525,6 @@ export const WebViewProvider = ({ children }) => {
             return;
           }
 
-          const id = customUUID();
           const sequence = getNextSequence();
           const timestamp = Date.now();
 
@@ -720,7 +720,13 @@ export const WebViewProvider = ({ children }) => {
         }
       });
     },
-    [isWebViewReady, encryptMessage, resetWebViewState, getNextSequence],
+    [
+      isWebViewReady,
+      encryptMessage,
+      resetWebViewState,
+      getNextSequence,
+      appState,
+    ],
   );
 
   const initHandshake = useCallback(async () => {
@@ -843,10 +849,15 @@ export const WebViewProvider = ({ children }) => {
     console.log(`Processing ${queuedRequests.current.length} queued requests`);
     const requests = [...queuedRequests.current];
     await Promise.allSettled(
-      requests.map(({ action, args, encrypt, resolve, reject }) =>
+      requests.map(({ id, action, args, encrypt, resolve, reject }) =>
         sendWebViewRequestInternal(action, args, encrypt)
           .then(resolve)
-          .catch(reject),
+          .catch(reject)
+          .finally(() => {
+            queuedRequests.current = queuedRequests.current.filter(
+              req => req.id !== id,
+            );
+          }),
       ),
     );
 
