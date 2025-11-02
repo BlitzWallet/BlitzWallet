@@ -427,7 +427,7 @@ const SparkWalletProvider = ({ children }) => {
             ...prev,
             transactions: txs || prev.transactions,
             balance: startBalance,
-            tokens: initialBalance.tokensObj,
+            tokens: initialBalance.tokensObj || prev.tokens,
           };
         });
 
@@ -491,7 +491,7 @@ const SparkWalletProvider = ({ children }) => {
                     return {
                       ...prev,
                       balance: newBalance,
-                      tokens: balance.tokensObj,
+                      tokens: balance.tokensObj || prev.tokens,
                     };
                   });
                   return;
@@ -528,7 +528,7 @@ const SparkWalletProvider = ({ children }) => {
             balance: Math.round(
               (balance.didWork ? Number(balance.balance) : prev.balance) - fee,
             ),
-            tokens: balance.tokensObj,
+            tokens: balance.didWork ? balance.tokensObj : prev.tokens,
           };
         });
       } else if (updateType === 'fullUpdate') {
@@ -544,7 +544,7 @@ const SparkWalletProvider = ({ children }) => {
             ...prev,
             balance: balance.didWork ? Number(balance.balance) : prev.balance,
             transactions: txs || prev.transactions,
-            tokens: balance.tokensObj,
+            tokens: balance.didWork ? balance.tokensObj : prev.tokens,
           };
         });
       }

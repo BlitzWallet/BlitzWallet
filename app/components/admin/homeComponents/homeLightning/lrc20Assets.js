@@ -1,34 +1,34 @@
-import {useNavigation} from '@react-navigation/native';
-import {useMemo, useState} from 'react';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, {
   Easing,
   useSharedValue,
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
-import {ThemeText} from '../../../../functions/CustomElements';
+import { ThemeText } from '../../../../functions/CustomElements';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {CENTER, ICONS} from '../../../../constants';
-import {COLORS, INSET_WINDOW_WIDTH, SIZES} from '../../../../constants/theme';
-import {useSparkWallet} from '../../../../../context-store/sparkContext';
+import { CENTER, ICONS } from '../../../../constants';
+import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import {
   getContrastingTextColor,
   stringToColorCrypto,
 } from '../../../../functions/randomColorFromHash';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import {formatBalanceAmount} from '../../../../functions';
+import { formatBalanceAmount } from '../../../../functions';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 export default function LRC20Assets() {
-  const {darkModeType, theme} = useGlobalThemeContext();
-  const {sparkInformation} = useSparkWallet();
+  const { darkModeType, theme } = useGlobalThemeContext();
+  const { sparkInformation } = useSparkWallet();
   const navigate = useNavigation();
-  const {textColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { textColor } = GetThemeColors();
+  const { t } = useTranslation();
 
   const homepageBackgroundOffsetColor = useMemo(() => {
     return theme
@@ -43,8 +43,11 @@ export default function LRC20Assets() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const contentHeight = useMemo(() => {
-    return Object.entries(sparkInformation.tokens).length > 3 ? 220 : 150;
-  }, [sparkInformation.tokens]);
+    const tokensLength = sparkInformation?.tokens
+      ? Object.entries(sparkInformation.tokens).length
+      : 0;
+    return tokensLength > 3 ? 220 : 150;
+  }, [sparkInformation?.tokens]);
 
   const height = useSharedValue(0);
   const rotate = useSharedValue(0);
@@ -82,8 +85,10 @@ export default function LRC20Assets() {
   });
 
   const availableTokens = useMemo(() => {
-    return Object.entries(sparkInformation.tokens);
-  }, [sparkInformation.tokens]);
+    return sparkInformation?.tokens
+      ? Object.entries(sparkInformation.tokens)
+      : [];
+  }, [sparkInformation?.tokens]);
 
   const filteredTokens = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -92,7 +97,7 @@ export default function LRC20Assets() {
 
     return availableTokens.filter(([tokenIdentifier, details]) => {
       const ticker = details?.tokenMetadata?.tokenTicker?.toLowerCase() || '';
-      const identifier = tokenIdentifier.toLowerCase();
+      const identifier = tokenIdentifier?.toLowerCase() || '';
       const query = searchQuery.toLowerCase();
 
       return ticker.startsWith(query) || identifier.startsWith(query);
@@ -105,11 +110,15 @@ export default function LRC20Assets() {
         const [tokenIdentifier, details] = item;
         if (!tokenIdentifier || !details) return null;
 
+        const tokenTicker = details?.tokenMetadata?.tokenTicker;
+        if (!tokenTicker) return null;
+
         const backgroundColor = stringToColorCrypto(
           tokenIdentifier,
           theme && darkModeType ? 'lightsout' : 'light',
         );
         const textColor = getContrastingTextColor(backgroundColor);
+
         return (
           <TouchableOpacity
             onPress={() =>
@@ -122,25 +131,27 @@ export default function LRC20Assets() {
             style={{
               backgroundColor: homepageBackgroundOffsetColor,
               ...styles.tokenRowContainer,
-            }}>
+            }}
+          >
             <View
               style={{
                 ...styles.tokenInitialContainer,
                 backgroundColor: backgroundColor,
-              }}>
+              }}
+            >
               <ThemeText
                 styles={{
                   color: textColor,
                   includeFontPadding: false,
                 }}
-                content={details?.tokenMetadata?.tokenTicker[0]?.toUpperCase()}
+                content={tokenTicker[0]?.toUpperCase() || '?'}
               />
             </View>
             <View style={styles.tokenDescriptionContainer}>
               <ThemeText
                 CustomNumberOfLines={1}
                 styles={styles.tokenNameText}
-                content={details?.tokenMetadata?.tokenName}
+                content={details?.tokenMetadata?.tokenName || 'Unknown'}
               />
               <ThemeText
                 CustomNumberOfLines={1}
@@ -158,8 +169,8 @@ export default function LRC20Assets() {
               styles={styles.tokenNameText}
               content={formatBalanceAmount(
                 formatTokensNumber(
-                  details?.balance,
-                  details?.tokenMetadata?.decimals,
+                  details?.balance || 0,
+                  details?.tokenMetadata?.decimals || 0,
                 ),
                 true,
               )}
@@ -185,14 +196,15 @@ export default function LRC20Assets() {
           marginBottom: 10,
           ...CENTER,
         }}
-        onPress={toggleExpanded}>
+        onPress={toggleExpanded}
+      >
         <ThemeText
           content={t('wallet.homeLightning.lrc20Assets.actionText', {
             action: isExpanded ? t('constants.hide') : t('constants.show'),
           })}
         />
 
-        <Animated.View style={[{marginLeft: 5}, arrowStyle]}>
+        <Animated.View style={[{ marginLeft: 5 }, arrowStyle]}>
           <ThemeImage
             styles={{
               width: 15,
@@ -205,16 +217,17 @@ export default function LRC20Assets() {
         </Animated.View>
       </TouchableOpacity>
 
-      <Animated.View style={[{width: '100%'}, containerStyle]}>
+      <Animated.View style={[{ width: '100%' }, containerStyle]}>
         <ScrollView
           showsVerticalScrollIndicator={true}
           nestedScrollEnabled={true}
-          style={styles.scrollView}>
+          style={styles.scrollView}
+        >
           {availableTokens.length > 3 && (
             <CustomSearchInput
               inputText={searchQuery}
               setInputText={setSearchQuery}
-              containerStyles={{marginBottom: 10}}
+              containerStyles={{ marginBottom: 10 }}
               placeholderText={t(
                 'wallet.homeLightning.lrc20Assets.tokensSearchPlaceholder',
               )}
@@ -222,7 +235,7 @@ export default function LRC20Assets() {
           )}
           {!tokens.length ? (
             <ThemeText
-              styles={{textAlign: 'center'}}
+              styles={{ textAlign: 'center' }}
               key={'no-tokens'}
               content={
                 searchQuery

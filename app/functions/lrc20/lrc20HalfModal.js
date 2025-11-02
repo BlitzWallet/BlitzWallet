@@ -1,24 +1,26 @@
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useSparkWallet} from '../../../context-store/sparkContext';
-import {ThemeText} from '../CustomElements';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSparkWallet } from '../../../context-store/sparkContext';
+import { ThemeText } from '../CustomElements';
 import CustomSearchInput from '../CustomElements/searchInput';
-import {CENTER, SIZES} from '../../constants';
-import {useRef, useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
-import {COLORS, INSET_WINDOW_WIDTH} from '../../constants/theme';
+import { CENTER, SIZES } from '../../constants';
+import { useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { COLORS, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import GetThemeColors from '../../hooks/themeColors';
 import FormattedSatText from '../CustomElements/satTextDisplay';
 import formatTokensNumber from './formatTokensBalance';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 export default function LRC20AssetSelectorHalfModal({
   theme,
   darkModeType,
   slideHeight,
 }) {
-  const {t} = useTranslation();
-  const {sparkInformation} = useSparkWallet();
-  const assetsAvailable = Object.entries(sparkInformation.tokens);
+  const { t } = useTranslation();
+  const { sparkInformation } = useSparkWallet();
+  const assetsAvailable = sparkInformation?.tokens
+    ? Object.entries(sparkInformation.tokens)
+    : [];
 
   const [searchInput, setSearchInput] = useState('');
 
@@ -32,7 +34,7 @@ export default function LRC20AssetSelectorHalfModal({
   const selectToken = token => {
     navigate.popTo(
       'ConfirmPaymentScreen',
-      {selectedLRC20Asset: token},
+      { selectedLRC20Asset: token },
       {
         merge: true,
       },
@@ -83,7 +85,7 @@ export default function LRC20AssetSelectorHalfModal({
           <FlatList
             showsVerticalScrollIndicator={false}
             data={filteredData}
-            renderItem={({item}) => (
+            renderItem={({ item }) => (
               <AssetItem
                 theme={theme}
                 darkModeType={darkModeType}
@@ -94,11 +96,11 @@ export default function LRC20AssetSelectorHalfModal({
             )}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="none"
-            contentContainerStyle={{paddingTop: 10}}
+            contentContainerStyle={{ paddingTop: 10 }}
           />
         ) : (
           <ThemeText
-            styles={{textAlign: 'center', marginTop: 10}}
+            styles={{ textAlign: 'center', marginTop: 10 }}
             content={t('screens.inAccount.lrc20HalfModal.noTokens')}
           />
         )}
@@ -106,8 +108,8 @@ export default function LRC20AssetSelectorHalfModal({
     </View>
   );
 
-  function AssetItem({item, theme, selectToken, darkModeType}) {
-    const {backgroundOffset, backgroundColor} = GetThemeColors();
+  function AssetItem({ item, theme, selectToken, darkModeType }) {
+    const { backgroundOffset, backgroundColor } = GetThemeColors();
     const [tokenIdentifier, details] = item;
 
     return (
@@ -121,7 +123,8 @@ export default function LRC20AssetSelectorHalfModal({
               ? backgroundColor
               : backgroundOffset
             : COLORS.darkModeText,
-        }}>
+        }}
+      >
         <ThemeText
           CustomNumberOfLines={1}
           styles={styles.tickerText}
@@ -154,7 +157,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  innerContainer: {flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER},
+  innerContainer: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
 
   titleText: {
     fontSize: SIZES.large,
@@ -180,6 +183,6 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
 
-  tickerText: {marginRight: 'auto', includeFontPadding: false},
-  balanceText: {includeFontPadding: false},
+  tickerText: { marginRight: 'auto', includeFontPadding: false },
+  balanceText: { includeFontPadding: false },
 });

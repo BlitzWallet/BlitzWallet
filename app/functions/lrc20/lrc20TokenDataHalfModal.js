@@ -26,7 +26,9 @@ export default function LRC20TokenInformation({
 }) {
   const { showToast } = useToast();
   const { sparkInformation } = useSparkWallet();
-  const selectedToken = sparkInformation.tokens?.[tokenIdentifier];
+  const selectedToken = sparkInformation?.tokens
+    ? sparkInformation.tokens?.[tokenIdentifier]
+    : {};
   const { balance, tokenMetadata } = selectedToken;
   console.log(selectedToken);
   const { backgroundOffset, backgroundColor } = GetThemeColors();
@@ -47,7 +49,7 @@ export default function LRC20TokenInformation({
       <ThemeText
         CustomNumberOfLines={1}
         styles={styles.titleText}
-        content={tokenMetadata.tokenName?.toUpperCase()}
+        content={tokenMetadata?.tokenName?.toUpperCase()}
       />
 
       <View
@@ -103,11 +105,11 @@ export default function LRC20TokenInformation({
             CustomNumberOfLines={1}
             styles={styles.textItem}
             content={
-              !tokenMetadata.maxSupply
+              !tokenMetadata?.maxSupply
                 ? INFINITY_SYMBOL
                 : formatBalanceAmount(
                     formatTokensNumber(
-                      tokenMetadata.maxSupply,
+                      tokenMetadata?.maxSupply,
                       tokenMetadata?.decimals,
                     ),
                     true,
@@ -133,9 +135,9 @@ export default function LRC20TokenInformation({
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.textItem}
-            content={tokenMetadata.tokenTicker
+            content={tokenMetadata?.tokenTicker
               ?.toUpperCase()
-              .slice(0, TOKEN_TICKER_MAX_LENGTH)}
+              ?.slice(0, TOKEN_TICKER_MAX_LENGTH)}
           />
         </View>
         <View
@@ -151,13 +153,13 @@ export default function LRC20TokenInformation({
           />
           <TouchableOpacity
             onPress={() => {
-              copyToClipboard(tokenMetadata.tokenPublicKey, showToast);
+              copyToClipboard(tokenMetadata?.tokenPublicKey, showToast);
             }}
             style={styles.textItem}
           >
             <ThemeText
               CustomNumberOfLines={1}
-              content={tokenMetadata.tokenPublicKey}
+              content={tokenMetadata?.tokenPublicKey}
             />
           </TouchableOpacity>
         </View>

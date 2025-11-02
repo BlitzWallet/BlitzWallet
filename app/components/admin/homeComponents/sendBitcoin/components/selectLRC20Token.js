@@ -28,7 +28,9 @@ export default function SelectLRC20Token({
   const [searchInput, setSearchInput] = useState('');
   const keyboardRef = useRef(null);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
-  const assetsAvailable = Object.entries(sparkInformation.tokens);
+  const assetsAvailable = sparkInformation?.tokens
+    ? Object.entries(sparkInformation.tokens)
+    : [];
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
