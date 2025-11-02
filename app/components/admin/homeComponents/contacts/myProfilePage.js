@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   GlobalThemeView,
   ThemeText,
@@ -101,80 +101,87 @@ export default function MyContactProfilePage({ navigation }) {
 
   const hasMoreItems = displayedPayments.length < allPayments.length;
 
-  const ListHeaderComponent = () => (
-    <View style={styles.innerContainer}>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('CustomHalfModal', {
-            wantedContent: 'myProfileQRcode',
-            sliderHight: 0.6,
-          });
-        }}
-      >
-        <View>
-          <View
-            style={[
-              styles.profileImage,
-              {
-                backgroundColor: backgroundOffset,
-              },
-            ]}
-          >
-            <ContactProfileImage
-              updated={cache[myContact.uuid]?.updated}
-              uri={cache[myContact.uuid]?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          </View>
-          <View style={styles.scanProfileImage}>
-            <Image
-              source={ICONS.scanQrCodeDark}
-              style={{ width: 18, height: 18 }}
-            />
-          </View>
-        </View>
-      </TouchableOpacity>
-
-      <ThemeText
-        styles={{
-          ...styles.uniqueNameText,
-          marginBottom: myContact?.name ? 0 : 10,
-        }}
-        content={myContact.uniqueName}
-      />
-
-      {myContact?.name && (
-        <ThemeText styles={{ ...styles.nameText }} content={myContact?.name} />
-      )}
-
-      <View
-        style={[
-          styles.bioContainer,
-          { marginTop: 10, backgroundColor: textInputBackground },
-        ]}
-      >
-        <ScrollView
-          contentContainerStyle={{
-            alignItems: myContact.bio ? null : 'center',
-            flexGrow: myContact.bio ? null : 1,
+  const ListHeaderComponent = useCallback(
+    () => (
+      <View style={styles.innerContainer}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('CustomHalfModal', {
+              wantedContent: 'myProfileQRcode',
+              sliderHight: 0.6,
+            });
           }}
-          showsVerticalScrollIndicator={false}
         >
-          <ThemeText
-            styles={{ ...styles.bioText, color: textInputColor }}
-            content={myContact?.bio || t('constants.noBioSet')}
-          />
-        </ScrollView>
-      </View>
+          <View>
+            <View
+              style={[
+                styles.profileImage,
+                {
+                  backgroundColor: backgroundOffset,
+                },
+              ]}
+            >
+              <ContactProfileImage
+                updated={cache[myContact.uuid]?.updated}
+                uri={cache[myContact.uuid]?.localUri}
+                darkModeType={darkModeType}
+                theme={theme}
+              />
+            </View>
+            <View style={styles.scanProfileImage}>
+              <Image
+                source={ICONS.scanQrCodeDark}
+                style={{ width: 18, height: 18 }}
+              />
+            </View>
+          </View>
+        </TouchableOpacity>
 
-      {allPayments?.length === 0 && (
         <ThemeText
-          styles={styles.txPlaceholder}
-          content={t('constants.noTransactions')}
+          styles={{
+            ...styles.uniqueNameText,
+            marginBottom: myContact?.name ? 0 : 10,
+          }}
+          content={myContact.uniqueName}
         />
-      )}
-    </View>
+
+        {myContact?.name && (
+          <ThemeText
+            styles={{ ...styles.nameText }}
+            content={myContact?.name}
+          />
+        )}
+
+        <View
+          style={[
+            styles.bioContainer,
+            { marginTop: 10, backgroundColor: textInputBackground },
+          ]}
+        >
+          <ScrollView
+            contentContainerStyle={{
+              alignItems: myContact.bio ? null : 'center',
+              flexGrow: myContact.bio ? null : 1,
+            }}
+            showsVerticalScrollIndicator={false}
+          >
+            <ThemeText
+              styles={{ ...styles.bioText, color: textInputColor }}
+              content={myContact?.bio || t('constants.noBioSet')}
+            />
+          </ScrollView>
+        </View>
+      </View>
+    ),
+    [
+      cache[myContact.uuid]?.updated,
+      cache[myContact.uuid]?.localUri,
+      theme,
+      darkModeType,
+      myContact?.uniqueName,
+      myContact?.name,
+      myContact?.bio,
+    ],
   );
 
   const ListFooterComponent = () => {
@@ -262,6 +269,10 @@ export default function MyContactProfilePage({ navigation }) {
       ) : (
         <View style={{ flex: 1 }}>
           <ListHeaderComponent />
+          <ThemeText
+            styles={styles.txPlaceholder}
+            content={t('constants.noTransactions')}
+          />
         </View>
       )}
     </GlobalThemeView>
@@ -327,6 +338,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     textAlign: 'center',
     width: INSET_WINDOW_WIDTH,
+    ...CENTER,
   },
   loadMoreButton: {
     alignSelf: 'center',

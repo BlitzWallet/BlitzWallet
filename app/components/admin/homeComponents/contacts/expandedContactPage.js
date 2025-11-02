@@ -246,15 +246,6 @@ export default function ExpandedContactsPage(props) {
             </ScrollView>
           </View>
         )}
-
-        {contactTransactions.length === 0 && (
-          <View style={{ alignItems: 'center', marginTop: 30 }}>
-            <ThemeText
-              styles={{ textAlign: 'center', width: INSET_WINDOW_WIDTH }}
-              content={t('contacts.expandedContactPage.noTransactions')}
-            />
-          </View>
-        )}
       </>
     ),
     [
@@ -267,7 +258,6 @@ export default function ExpandedContactsPage(props) {
       imageData?.updated,
       imageData?.localUri,
       isConnectedToTheInternet,
-      contactTransactions.length,
     ],
   );
 
@@ -380,7 +370,7 @@ export default function ExpandedContactsPage(props) {
           text={t('contacts.expandedContactPage.loadingContactError')}
           textStyles={{ testAlign: 'center' }}
         />
-      ) : (
+      ) : contactTransactions.length !== 0 ? (
         <FlatList
           showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
@@ -405,6 +395,14 @@ export default function ExpandedContactsPage(props) {
           windowSize={5}
           maxToRenderPerBatch={10}
         />
+      ) : (
+        <View style={{ flex: 1 }}>
+          <ListHeaderComponent />
+          <ThemeText
+            styles={styles.txPlaceholder}
+            content={t('contacts.expandedContactPage.noTransactions')}
+          />
+        </View>
       )}
     </GlobalThemeView>
   );
@@ -470,5 +468,11 @@ const styles = StyleSheet.create({
     right: 12.5,
     bottom: 12.5,
     zIndex: 2,
+  },
+  txPlaceholder: {
+    marginTop: 20,
+    textAlign: 'center',
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
   },
 });
