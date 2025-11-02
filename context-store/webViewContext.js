@@ -455,6 +455,9 @@ export const WebViewProvider = ({ children }) => {
         }
       } catch (err) {
         console.error('Error handling WebView message:', err);
+        if (err.message?.includes('Rejected stale message')) return;
+        resetWebViewState(true, true);
+        forceReactNativeUse = true;
       }
     },
     [decryptMessage, resetWebViewState, currentWalletMnemoinc],
