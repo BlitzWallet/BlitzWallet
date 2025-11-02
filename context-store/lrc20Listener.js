@@ -1,137 +1,137 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useMemo,
-} from 'react';
-import { getSparkBalance } from '../app/functions/spark';
-import sha256Hash from '../app/functions/hash';
-import { useSparkWallet } from './sparkContext';
-import { useActiveCustodyAccount } from './activeAccount';
-import { useWebView } from './webViewContext';
+// import {
+//   createContext,
+//   useCallback,
+//   useContext,
+//   useEffect,
+//   useRef,
+//   useMemo,
+// } from 'react';
+// import { getSparkBalance } from '../app/functions/spark';
+// import sha256Hash from '../app/functions/hash';
+// import { useSparkWallet } from './sparkContext';
+// import { useActiveCustodyAccount } from './activeAccount';
+// import { useWebView } from './webViewContext';
 
-const LRC20EventContext = createContext(null);
-const DEFAULT_EVENT_LIMIT = 15;
-const POLLING_INTERVAL_MS = 12000;
+// const LRC20EventContext = createContext(null);
+// const DEFAULT_EVENT_LIMIT = 15;
+// const POLLING_INTERVAL_MS = 12000;
 
-export function LRC20EventProvider({ children }) {
-  const { sendWebViewRequest } = useWebView();
-  const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { sparkInformation } = useSparkWallet();
-  const maxAttempts = useRef(DEFAULT_EVENT_LIMIT);
-  const currentAttempts = useRef(0);
-  const intervalId = useRef(null);
-  const prevData = useRef(null);
+// export function LRC20EventProvider({ children }) {
+//   const { sendWebViewRequest } = useWebView();
+//   const { currentWalletMnemoinc } = useActiveCustodyAccount();
+//   const { sparkInformation } = useSparkWallet();
+//   const maxAttempts = useRef(DEFAULT_EVENT_LIMIT);
+//   const currentAttempts = useRef(0);
+//   const intervalId = useRef(null);
+//   const prevData = useRef(null);
 
-  const cleanup = useCallback(() => {
-    if (intervalId.current) {
-      clearInterval(intervalId.current);
-      intervalId.current = null;
-    }
+//   const cleanup = useCallback(() => {
+//     if (intervalId.current) {
+//       clearInterval(intervalId.current);
+//       intervalId.current = null;
+//     }
 
-    // Reset counters
-    currentAttempts.current = 0;
-  }, []);
+//     // Reset counters
+//     currentAttempts.current = 0;
+//   }, []);
 
-  const startLrc20EventListener = useCallback(
-    async (maxPollingAttempts = DEFAULT_EVENT_LIMIT) => {
-      try {
-        // If already running and new limit isn't higher, don't restart
-        if (intervalId.current && maxPollingAttempts <= maxAttempts.current) {
-          return;
-        }
+//   const startLrc20EventListener = useCallback(
+//     async (maxPollingAttempts = DEFAULT_EVENT_LIMIT) => {
+//       try {
+//         // If already running and new limit isn't higher, don't restart
+//         if (intervalId.current && maxPollingAttempts <= maxAttempts.current) {
+//           return;
+//         }
 
-        // Clean up existing listeners/intervals
-        cleanup();
+//         // Clean up existing listeners/intervals
+//         cleanup();
 
-        // Set new limits
-        maxAttempts.current = maxPollingAttempts;
-        currentAttempts.current = 0;
+//         // Set new limits
+//         maxAttempts.current = maxPollingAttempts;
+//         currentAttempts.current = 0;
 
-        // Start polling interval
-        intervalId.current = setInterval(async () => {
-          currentAttempts.current += 1;
+//         // Start polling interval
+//         intervalId.current = setInterval(async () => {
+//           currentAttempts.current += 1;
 
-          try {
-            const data = await getSparkBalance(currentWalletMnemoinc);
-            if (data.didWork) {
-              const hashedData = sha256Hash(JSON.stringify(data.tokensObj));
-              const compareHash = prevData.current
-                ? prevData.current
-                : sha256Hash(JSON.stringify(sparkInformation.tokens));
+//           try {
+//             const data = await getSparkBalance(currentWalletMnemoinc);
+//             if (data.didWork) {
+//               const hashedData = sha256Hash(JSON.stringify(data.tokensObj));
+//               const compareHash = prevData.current
+//                 ? prevData.current
+//                 : sha256Hash(JSON.stringify(sparkInformation.tokens));
 
-              if (compareHash !== hashedData) {
-                cleanup();
-              } else {
-                prevData.current = hashedData;
-              }
-            }
-          } catch (error) {
-            console.error('Error getting spark balance:', error);
-          }
+//               if (compareHash !== hashedData) {
+//                 cleanup();
+//               } else {
+//                 prevData.current = hashedData;
+//               }
+//             }
+//           } catch (error) {
+//             console.error('Error getting spark balance:', error);
+//           }
 
-          // Stop polling when max attempts reached
-          if (currentAttempts.current >= maxAttempts.current) {
-            clearInterval(intervalId.current);
-            intervalId.current = null;
-            console.log(
-              `LRC20 polling completed after ${currentAttempts.current} attempts`,
-            );
-          }
-        }, POLLING_INTERVAL_MS);
+//           // Stop polling when max attempts reached
+//           if (currentAttempts.current >= maxAttempts.current) {
+//             clearInterval(intervalId.current);
+//             intervalId.current = null;
+//             console.log(
+//               `LRC20 polling completed after ${currentAttempts.current} attempts`,
+//             );
+//           }
+//         }, POLLING_INTERVAL_MS);
 
-        console.log(
-          `Started LRC20 polling with ${maxPollingAttempts} max attempts`,
-        );
-      } catch (error) {
-        console.error('Failed to start LRC20 event listener:', error);
-        cleanup();
-      }
-    },
-    [cleanup, sparkInformation, currentWalletMnemoinc],
-  );
+//         console.log(
+//           `Started LRC20 polling with ${maxPollingAttempts} max attempts`,
+//         );
+//       } catch (error) {
+//         console.error('Failed to start LRC20 event listener:', error);
+//         cleanup();
+//       }
+//     },
+//     [cleanup, sparkInformation, currentWalletMnemoinc],
+//   );
 
-  const stopLrc20EventListener = useCallback(() => {
-    cleanup();
-    console.log('LRC20 event listener stopped manually');
-  }, [cleanup]);
+//   const stopLrc20EventListener = useCallback(() => {
+//     cleanup();
+//     console.log('LRC20 event listener stopped manually');
+//   }, [cleanup]);
 
-  const getListenerStatus = useCallback(() => {
-    return {
-      isRunning: !!intervalId.current,
-      currentAttempts: currentAttempts.current,
-      maxAttempts: maxAttempts.current,
-    };
-  }, []);
+//   const getListenerStatus = useCallback(() => {
+//     return {
+//       isRunning: !!intervalId.current,
+//       currentAttempts: currentAttempts.current,
+//       maxAttempts: maxAttempts.current,
+//     };
+//   }, []);
 
-  useEffect(() => {
-    return cleanup;
-  }, [cleanup]);
+//   useEffect(() => {
+//     return cleanup;
+//   }, [cleanup]);
 
-  const contextValue = useMemo(
-    () => ({
-      startLrc20EventListener,
-      stopLrc20EventListener,
-      getListenerStatus,
-    }),
-    [startLrc20EventListener, stopLrc20EventListener, getListenerStatus],
-  );
+//   const contextValue = useMemo(
+//     () => ({
+//       startLrc20EventListener,
+//       stopLrc20EventListener,
+//       getListenerStatus,
+//     }),
+//     [startLrc20EventListener, stopLrc20EventListener, getListenerStatus],
+//   );
 
-  return (
-    <LRC20EventContext.Provider value={contextValue}>
-      {children}
-    </LRC20EventContext.Provider>
-  );
-}
+//   return (
+//     <LRC20EventContext.Provider value={contextValue}>
+//       {children}
+//     </LRC20EventContext.Provider>
+//   );
+// }
 
-export const useLRC20EventContext = () => {
-  const context = useContext(LRC20EventContext);
-  if (!context) {
-    throw new Error(
-      'useLRC20EventContext must be used within LRC20EventProvider',
-    );
-  }
-  return context;
-};
+// export const useLRC20EventContext = () => {
+//   const context = useContext(LRC20EventContext);
+//   if (!context) {
+//     throw new Error(
+//       'useLRC20EventContext must be used within LRC20EventProvider',
+//     );
+//   }
+//   return context;
+// };

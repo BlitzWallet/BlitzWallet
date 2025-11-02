@@ -56,7 +56,7 @@ export default function ReceivePaymentHome(props) {
   const { globalContactsInformation } = useGlobalContacts();
   const { minMaxLiquidSwapAmounts, screenDimensions } = useAppStatus();
   const { signer, startRootstockEventListener } = useRootstockProvider();
-  const { startLrc20EventListener } = useLRC20EventContext();
+  // const { startLrc20EventListener } = useLRC20EventContext();
   const { t } = useTranslation();
   const { isUsingAltAccount, currentWalletMnemoinc } =
     useActiveCustodyAccount();
@@ -122,12 +122,13 @@ export default function ReceivePaymentHome(props) {
         startLiquidEventListener();
       } else if (selectedRecieveOption === 'Rootstock') {
         startRootstockEventListener({ durationMs: 1200000 });
-      } else if (
-        selectedRecieveOption === 'Spark' &&
-        masterInfoObject.lrc20Settings?.isEnabled
-      ) {
-        startLrc20EventListener(12);
       }
+      // else if (
+      //   selectedRecieveOption === 'Spark' &&
+      //   masterInfoObject.lrc20Settings?.isEnabled
+      // ) {
+      //   startLrc20EventListener(12);
+      // }
     }
     runAddressInit();
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);

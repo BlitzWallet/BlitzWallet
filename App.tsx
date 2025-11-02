@@ -102,7 +102,7 @@ import { SparkConnectionManager } from './context-store/sparkConnection';
 import { GlobalNostrWalletConnectProvider } from './context-store/NWC';
 import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
-import { LRC20EventProvider } from './context-store/lrc20Listener';
+// import { LRC20EventProvider } from './context-store/lrc20Listener';
 import { useTranslation } from 'react-i18next';
 const Stack = createNativeStackNavigator();
 
@@ -129,20 +129,20 @@ function App(): JSX.Element {
                                     <PushNotificationProvider>
                                       <LiquidEventProvider>
                                         <RootstockSwapProvider>
-                                          <LRC20EventProvider>
-                                            <GlobalNostrWalletConnectProvider>
-                                              {/* <LightningEventProvider> */}
-                                              <ImageCacheProvider>
-                                                <GlobalServerTimeProvider>
-                                                  {/* <Suspense
+                                          {/* <LRC20EventProvider> */}
+                                          <GlobalNostrWalletConnectProvider>
+                                            {/* <LightningEventProvider> */}
+                                            <ImageCacheProvider>
+                                              <GlobalServerTimeProvider>
+                                                {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                  <ResetStack />
-                                                  {/* </Suspense> */}
-                                                </GlobalServerTimeProvider>
-                                              </ImageCacheProvider>
-                                              {/* </LightningEventProvider> */}
-                                            </GlobalNostrWalletConnectProvider>
-                                          </LRC20EventProvider>
+                                                <ResetStack />
+                                                {/* </Suspense> */}
+                                              </GlobalServerTimeProvider>
+                                            </ImageCacheProvider>
+                                            {/* </LightningEventProvider> */}
+                                          </GlobalNostrWalletConnectProvider>
+                                          {/* </LRC20EventProvider> */}
                                         </RootstockSwapProvider>
                                       </LiquidEventProvider>
                                     </PushNotificationProvider>
