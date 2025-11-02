@@ -87,11 +87,11 @@ export default function PinPage() {
         );
         setAccountMnemonic(mnemonicPlain);
 
-        setTimeout(() => {
+        requestAnimationFrame(() => {
           navigate.replace('ConnectingToNodeLoadingScreen', {
             isInitialLoad: false,
           });
-        }, 250);
+        });
       }
     } else {
       if (loginSettings.enteredPinCount >= 7) {
