@@ -246,57 +246,31 @@ export const WebViewProvider = ({ children }) => {
   useEffect(() => {
     if (previousAppState.current !== appState) {
       if (appState === 'background') {
-        console.log(
-          'App moving to background — pausing WebView timeouts',
-          Object.entries(activeTimeoutsRef.current).length,
-        );
+        console.log('App going to background - clearing all timeouts');
         backgroundTimeRef.current = Date.now();
 
-        const now = Date.now();
-        Object.entries(activeTimeoutsRef.current).forEach(([id, entry]) => {
-          const elapsed = now - entry.startedAt;
-          const remaining = Math.max(entry.duration - elapsed, 0);
-          clearTimeout(entry.timeoutId);
-          activeTimeoutsRef.current[id] = {
-            ...entry,
-            remaining,
-          };
-        });
+        // Clear everything to prevent timeout issues on background
+        Object.values(activeTimeoutsRef.current).forEach(t =>
+          clearTimeout(t.timeoutId),
+        );
+        activeTimeoutsRef.current = {};
       }
 
       if (previousAppState.current === 'background' && appState === 'active') {
-        console.log(
-          'App returned to foreground — resuming WebView timeouts',
-          Object.entries(activeTimeoutsRef.current).length,
-        );
-        const now = Date.now();
-
-        Object.entries(activeTimeoutsRef.current).forEach(([id, entry]) => {
-          if (!pendingRequests.current[id]) {
-            console.log(
-              `Skipping timeout resume for ${id} - request already resolved`,
-            );
-            delete activeTimeoutsRef.current[id];
-            return;
-          }
-
-          const newTimeoutId = setTimeout(entry.handler, entry.remaining);
-          activeTimeoutsRef.current[id] = {
-            ...entry,
-            timeoutId: newTimeoutId,
-            startedAt: now,
-          };
-        });
+        console.log('App returned to foreground');
 
         const timeInBackground = backgroundTimeRef.current
           ? Date.now() - backgroundTimeRef.current
-          : Infinity; //force reset if background timeout is not set
+          : Infinity;
 
         if (timeInBackground > BACKGROUND_THRESHOLD_MS) {
           console.log('Background time exceeded threshold - reloading WebView');
-          // Reset state but DON'T clear handshakeComplete flag
-
           blockAndResetWebview();
+        } else {
+          // Make sure to handle any events that happen during background and are within the three minute refresh timeout
+          setTimeout(() => {
+            processQueuedRequests();
+          }, 100);
         }
 
         backgroundTimeRef.current = null;

@@ -176,7 +176,7 @@ export default function HomeLightning() {
   const handleRefresh = useCallback(async () => {
     crashlyticsLogReport(`Running in handle refresh function on homepage`);
     try {
-      if (!sparkInformation.identityPubKey || sparkInformation.didConnect)
+      if (!sparkInformation.identityPubKey || !sparkInformation.didConnect)
         return;
       startLiquidEventListener(2);
       startRootstockEventListener({ intervalMs: 30000 });
