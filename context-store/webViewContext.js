@@ -106,7 +106,7 @@ export const getHandshakeComplete = () => {
 
 export const WebViewProvider = ({ children }) => {
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { appState } = useAppStatus();
+  const { appState, isConnectedToTheInternet } = useAppStatus();
   const webViewRef = useRef(null);
   const [isWebViewReady, setIsWebViewReady] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -122,6 +122,8 @@ export const WebViewProvider = ({ children }) => {
   const expectedSequenceRef = useRef(0);
   const nonceVerified = useRef(false);
   const previousAppState = useRef(appState);
+  const prevConnectionStatus = useRef(isConnectedToTheInternet);
+  const internetConnectionRef = useRef(isConnectedToTheInternet);
   const walletInitialized = useRef(false);
   const backgroundTimeRef = useRef(null);
   const didRunInit = useRef(null);
@@ -129,6 +131,10 @@ export const WebViewProvider = ({ children }) => {
     state: null,
     count: 0,
   });
+
+  useEffect(() => {
+    internetConnectionRef.current = isConnectedToTheInternet;
+  }, [isConnectedToTheInternet]);
 
   const messageRateLimiter = useRef({
     count: 0,
@@ -244,24 +250,59 @@ export const WebViewProvider = ({ children }) => {
 
   // Handle app state changes
   useEffect(() => {
-    if (previousAppState.current !== appState) {
-      if (appState === 'background') {
-        console.log('App going to background - clearing all timeouts');
-        backgroundTimeRef.current = Date.now();
+    const appStateChanged = previousAppState.current !== appState;
+    const connectionChanged =
+      prevConnectionStatus.current !== isConnectedToTheInternet;
 
-        // Clear everything to prevent timeout issues on background
+    if (!appStateChanged && !connectionChanged) {
+      return; // Nothing changed
+    }
+
+    if (appState === 'background') {
+      console.log('App going to background - clearing all timeouts');
+      backgroundTimeRef.current = Date.now();
+      // Clear everything to prevent timeout issues on background
+      Object.values(activeTimeoutsRef.current).forEach(t =>
+        clearTimeout(t.timeoutId),
+      );
+      activeTimeoutsRef.current = {};
+
+      previousAppState.current = appState;
+      prevConnectionStatus.current = isConnectedToTheInternet;
+    } else if (appState === 'active') {
+      console.log('App returned to foreground');
+
+      const timeInBackground = backgroundTimeRef.current
+        ? Date.now() - backgroundTimeRef.current
+        : 0;
+
+      // Wait for internet connection before proceeding
+      if (!isConnectedToTheInternet) {
+        console.log('Waiting for internet connection before processing...');
+        // Update refs so we can detect when connection comes back
+        previousAppState.current = appState;
+        prevConnectionStatus.current = isConnectedToTheInternet;
+
+        // clear any active timeouts to prevent timeout from switching to rn
         Object.values(activeTimeoutsRef.current).forEach(t =>
           clearTimeout(t.timeoutId),
         );
-        activeTimeoutsRef.current = {};
-      } else if (appState === 'active') {
-        console.log('App returned to foreground');
+        return;
+      }
 
-        const timeInBackground = backgroundTimeRef.current
-          ? Date.now() - backgroundTimeRef.current
-          : 0;
+      // Only execute if we actually transitioned to active OR connection just came back
+      const justBecameActive =
+        appStateChanged &&
+        (previousAppState.current === 'background' ||
+          previousAppState.current === 'inactive');
+      const connectionJustRestored =
+        connectionChanged && isConnectedToTheInternet;
 
-        if (timeInBackground > BACKGROUND_THRESHOLD_MS) {
+      if (justBecameActive || connectionJustRestored) {
+        if (
+          timeInBackground > BACKGROUND_THRESHOLD_MS ||
+          !nonceVerified.current
+        ) {
           console.log('Background time exceeded threshold - reloading WebView');
           blockAndResetWebview();
         } else {
@@ -273,13 +314,18 @@ export const WebViewProvider = ({ children }) => {
 
         backgroundTimeRef.current = null;
       }
+
       previousAppState.current = appState;
+      prevConnectionStatus.current = isConnectedToTheInternet;
+    } else {
+      previousAppState.current = appState;
+      prevConnectionStatus.current = isConnectedToTheInternet;
     }
   }, [
     appState,
-    resetWebViewState,
-    reloadWebViewSecurely,
+    isConnectedToTheInternet,
     blockAndResetWebview,
+    processQueuedRequests,
   ]);
 
   const isDuplicate = (queue, action, args) => {
@@ -458,7 +504,12 @@ export const WebViewProvider = ({ children }) => {
         forceReactNativeUse = true;
       }
     },
-    [decryptMessage, resetWebViewState, currentWalletMnemoinc],
+    [
+      decryptMessage,
+      resetWebViewState,
+      currentWalletMnemoinc,
+      processQueuedRequests,
+    ],
   );
 
   const sendWebViewRequestInternal = useCallback(
@@ -503,9 +554,13 @@ export const WebViewProvider = ({ children }) => {
             return;
           }
 
-          if (!webViewRef.current || !isWebViewReady) {
+          if (
+            !webViewRef.current ||
+            !isWebViewReady ||
+            (!internetConnectionRef.current && action !== 'handshake:init') // handshake messages should always go through
+          ) {
             console.log(
-              'WebView not ready, queueing message:',
+              'WebView not ready or internet is not connected, queueing message:',
               action,
               webViewRef.current,
               isWebViewReady,
@@ -726,6 +781,7 @@ export const WebViewProvider = ({ children }) => {
       resetWebViewState,
       getNextSequence,
       appState,
+      isConnectedToTheInternet,
     ],
   );
 
