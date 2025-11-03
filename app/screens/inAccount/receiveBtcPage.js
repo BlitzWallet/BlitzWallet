@@ -466,11 +466,15 @@ function QrCode(props) {
       {canUseAmount && (
         <QRInformationRow
           title={t('constants.amount')}
-          info={displayCorrectDenomination({
-            masterInfoObject: masterInfoObject,
-            fiatStats: fiatStats,
-            amount: initialSendAmount,
-          })}
+          info={
+            !initialSendAmount
+              ? t('screens.inAccount.receiveBtcPage.amountPlaceholder')
+              : displayCorrectDenomination({
+                  masterInfoObject: masterInfoObject,
+                  fiatStats: fiatStats,
+                  amount: initialSendAmount,
+                })
+          }
           lightModeIcon={ICONS.editIcon}
           darkModeIcon={ICONS.editIconLight}
           lightsOutIcon={ICONS.editIconLight}

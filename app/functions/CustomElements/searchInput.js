@@ -4,6 +4,7 @@ import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import ThemeText from './textTheme';
+import { HIDDEN_OPACITY } from '../../constants/theme';
 
 export default function CustomSearchInput({
   inputText,
@@ -24,20 +25,23 @@ export default function CustomSearchInput({
   placeholderTextColor,
   shouldDelayBlur = true,
   autoCapitalize = 'none',
+  editable = true,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textInputColor, textInputBackground } = GetThemeColors();
   const isFocusedRef = useRef(false);
   const internalRef = useRef(null);
   const inputRef = textInputRef || internalRef;
+
   const memorizedStyles = useMemo(
     () => ({
       ...styles.searchInput,
       color: textInputColor,
       backgroundColor: textInputBackground,
+      opacity: editable ? 1 : HIDDEN_OPACITY,
       ...textInputStyles,
     }),
-    [theme, darkModeType, textInputStyles],
+    [theme, darkModeType, textInputStyles, editable],
   );
 
   const viewContainerStyles = useMemo(() => {
@@ -47,6 +51,7 @@ export default function CustomSearchInput({
   const keyboardAppearance = useMemo(() => {
     return theme ? 'dark' : 'light';
   }, [theme]);
+
   const placeholderTextColorStyles = useMemo(() => {
     return placeholderTextColor != undefined
       ? placeholderTextColor
@@ -78,12 +83,15 @@ export default function CustomSearchInput({
   const mutlilineValue = useMemo(() => {
     return textInputMultiline != undefined ? textInputMultiline : false;
   }, [textInputMultiline]);
+
   const textAlignVerticalValue = useMemo(() => {
     return textAlignVertical != undefined ? textAlignVertical : 'center';
   }, [textAlignVertical]);
+
   const maxLenValue = useMemo(() => {
     return maxLength != undefined ? maxLength : undefined;
   }, [maxLength]);
+
   const submitEditingFunction = useCallback(() => {
     if (onSubmitEditingFunction) {
       onSubmitEditingFunction();
@@ -118,7 +126,6 @@ export default function CustomSearchInput({
           if (inputRef?.current) {
             inputRef.current.blur();
           }
-
           if (shouldDelayBlur) {
             setTimeout(() => {
               onBlurFunction();
@@ -134,6 +141,7 @@ export default function CustomSearchInput({
       keyboardDidHideListener.remove();
     };
   }, [onBlurFunction, shouldDelayBlur]);
+
   const showPlaceholder = !inputText && placeholderText;
 
   return (
@@ -170,6 +178,7 @@ export default function CustomSearchInput({
         style={memorizedStyles}
         autoCapitalize={autoCapitalize}
         autoCorrect={false}
+        editable={editable}
       />
       {buttonComponent && buttonComponent}
     </View>
@@ -182,7 +191,6 @@ const styles = StyleSheet.create({
     ...CENTER,
     alignItems: 'center',
   },
-
   searchInput: {
     width: '100%',
     padding: 10,

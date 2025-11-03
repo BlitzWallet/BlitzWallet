@@ -1482,7 +1482,8 @@
         "onchainFeeMessage": "On-Chain-Zahlungen haben eine Netzwerkgebühr und eine Spark-Gebühr von 0,1%.\n\nWenn Sie Geld an sich selbst senden, zahlen Sie die Netzwerkgebühr zweimal – einmal zum Senden und einmal zum Einlösen.\n\nWenn Ihnen jemand anderes Geld sendet, zahlen Sie die Netzwerkgebühr nur einmal zum Einlösen.",
         "liquidFeeMessage": "Liquid-Zahlungen müssen in Spark umgetauscht werden.\n\nDieser Prozess umfasst eine Sperrgebühr von etwa {{fee}}, eine Einlösungsgebühr von etwa {{claimFee}} und eine Servicegebühr von 0,1% von Boltz basierend auf dem gesendeten Betrag.",
         "rootstockFeeMessage": "Rootstock-Zahlungen müssen in Spark umgetauscht werden.\n\nDieser Prozess umfasst eine Sperrgebühr von etwa {{fee}} und eine Servicegebühr von 0,1% von Boltz basierend auf dem gesendeten Betrag.",
-        "generatingInvoice": "Rechnung wird generiert"
+        "generatingInvoice": "Rechnung wird generiert",
+        "amountPlaceholder": "Beliebiger Betrag"
       },
 
       "settingsContent": {

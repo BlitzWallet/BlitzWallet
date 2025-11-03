@@ -22,10 +22,12 @@ import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
+import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
   const { masterInfoObject } = useGlobalContextProvider();
+  const { isUsingAltAccount } = useActiveCustodyAccount();
   const { fiatStats } = useNodeContext();
   const [amountValue, setAmountValue] = useState('');
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
@@ -42,6 +44,12 @@ export default function EditReceivePaymentInformation(props) {
       ? Number(amountValue)
       : Math.round(SATSPERBITCOIN / (fiatStats?.value || 65000)) * amountValue;
 
+  const disableDescription =
+    receiveType.toLowerCase() === 'lightning' &&
+    !isUsingAltAccount &&
+    !localSatAmount;
+
+  console.log(disableDescription, 't');
   const convertedValue = () =>
     !amountValue
       ? ''
@@ -116,6 +124,7 @@ export default function EditReceivePaymentInformation(props) {
           textInputStyles={styles.textInputStyles}
           onFocusFunction={() => setIsKeyboardFocused(true)}
           onBlurFunction={() => setIsKeyboardFocused(false)}
+          editable={!disableDescription}
         />
       )}
 
@@ -131,7 +140,6 @@ export default function EditReceivePaymentInformation(props) {
           <CustomButton
             buttonStyles={{
               ...CENTER,
-              opacity: localSatAmount ? 1 : HIDDEN_OPACITY,
             }}
             actionFunction={handleSubmit}
             textContent={t('constants.request')}

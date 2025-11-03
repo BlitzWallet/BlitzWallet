@@ -1329,7 +1329,8 @@
         "onchainFeeMessage": "Los pagos en cadena tienen una tarifa de red y una tarifa de Spark del 0,1%.\n\nSi te envías dinero a ti mismo, pagarás la tarifa de red dos veces — una para enviar y otra para reclamar.\n\nSi otra persona te envía dinero, solo pagarás la tarifa de red una vez al reclamar.",
         "liquidFeeMessage": "Los pagos en Liquid deben convertirse a Spark.\n\nEste proceso incluye una tarifa de bloqueo de aproximadamente {{fee}}, una tarifa de reclamo de alrededor de {{claimFee}}, y una tarifa de servicio del 0,1% de Boltz basada en la cantidad enviada.",
         "rootstockFeeMessage": "Los pagos en Rootstock deben convertirse a Spark.Este proceso incluye una comisión de bloqueo de aproximadamente {{fee}}, y una comisión de servicio del 0,1% de Boltz basada en el monto que envíes.",
-        "generatingInvoice": "Generando factura"
+        "generatingInvoice": "Generando factura",
+        "amountPlaceholder": "Cualquier cantidad"
       },
       "settingsContent": {
         "about": "Acerca de",

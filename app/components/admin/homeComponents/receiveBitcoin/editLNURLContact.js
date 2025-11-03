@@ -279,10 +279,6 @@ export default function EditLNURLContactOnReceivePage({
           actionFunction={saveProfileName}
           buttonStyles={{
             marginTop: 10,
-            backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
-          }}
-          textStyles={{
-            color: theme ? COLORS.lightModeText : COLORS.darkModeText,
           }}
           textContent={t('constants.save')}
         />
