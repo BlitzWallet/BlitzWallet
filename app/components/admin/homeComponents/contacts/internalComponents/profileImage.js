@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+} from 'react';
 import { Image as ExpoImage } from 'expo-image';
 import { ICONS } from '../../../../../constants';
 import customUUID from '../../../../../functions/customUUID';
@@ -16,33 +22,47 @@ export default function ContactProfileImage({
   const [loadError, setLoadError] = useState(false);
   const [isCached, setIsCached] = useState(false);
 
+  const uuidRef = useRef(customUUID());
+
   const fallbackIcon = fromCustomQR
     ? ICONS.logoWithPadding
     : darkModeType && theme
     ? ICONS.userWhite
     : ICONS.userIcon;
 
-  const customURI = `${uri}?v=${
-    updated ? new Date(updated).getTime() : customUUID()
-  }`;
+  const customURI = useMemo(() => {
+    if (!uri) return null;
+    return `${uri}?v=${
+      updated ? new Date(updated).getTime() : uuidRef.current
+    }`;
+  }, [uri, updated]);
 
   useEffect(() => {
     let isMounted = true;
-    if (!uri) {
+
+    setLoadError(false);
+
+    if (!customURI) {
       setIsCached(false);
       return;
     }
 
-    ExpoImage.getCachePathAsync(customURI).then(info => {
-      if (isMounted) {
-        console.log(info, 'cahe');
-
-        if (info) {
-          setIsCached(true);
+    ExpoImage.getCachePathAsync(customURI)
+      .then(info => {
+        if (isMounted) {
+          setIsCached(!!info);
         }
-      }
-    });
-    return () => (isMounted = false);
+      })
+      .catch(err => {
+        console.warn('Cache check failed:', err);
+        if (isMounted) {
+          setIsCached(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [customURI]);
 
   const onError = useCallback(() => {
@@ -50,8 +70,8 @@ export default function ContactProfileImage({
   }, []);
 
   const imageSource = useMemo(() => {
-    return !loadError && !!uri ? customURI : fallbackIcon;
-  }, [loadError, uri, customURI, fallbackIcon]);
+    return !loadError && customURI ? customURI : fallbackIcon;
+  }, [loadError, customURI, fallbackIcon]);
 
   return (
     <ExpoImage
