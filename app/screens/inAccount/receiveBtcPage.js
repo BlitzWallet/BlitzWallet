@@ -300,7 +300,6 @@ function QrCode(props) {
 
   const qrOpacity = useSharedValue(addressState.generatedAddress ? 1 : 0);
   const loadingOpacity = useSharedValue(0);
-  const errorOpacity = useSharedValue(0);
   const previousAddress = useRef(addressState.generatedAddress);
   const fadeOutDuration = 200;
   const fadeInDuration = 200;
@@ -321,7 +320,6 @@ function QrCode(props) {
       );
     } else if (newAddress && !previousAddress.current) {
       previousAddress.current = newAddress;
-      errorOpacity.value = 0;
       loadingOpacity.value = 0;
       qrOpacity.value = withTiming(1, { duration: fadeInDuration });
     } else if (
@@ -331,7 +329,6 @@ function QrCode(props) {
     ) {
       qrOpacity.value = withTiming(0, { duration: fadeOutDuration });
       loadingOpacity.value = 0;
-      errorOpacity.value = withTiming(1, { duration: fadeInDuration });
       previousAddress.current = '';
     }
   }, [addressState.generatedAddress, addressState.isGeneratingInvoice]);
@@ -340,16 +337,13 @@ function QrCode(props) {
     if (newAddress) {
       previousAddress.current = newAddress;
       loadingOpacity.value = 0;
-      errorOpacity.value = 0;
       qrOpacity.value = withTiming(1, { duration: fadeInDuration });
     } else if (addressState.isGeneratingInvoice) {
       previousAddress.current = '';
-      errorOpacity.value = 0;
       loadingOpacity.value = withTiming(1, { duration: fadeInDuration });
     } else {
       previousAddress.current = '';
       loadingOpacity.value = 0;
-      errorOpacity.value = withTiming(1, { duration: fadeInDuration });
     }
   };
 
@@ -441,7 +435,6 @@ function QrCode(props) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 10,
-                opacity: errorOpacity,
               }}
             >
               <ThemeText
