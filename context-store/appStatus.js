@@ -134,40 +134,31 @@ const AppStatusProvider = ({ children }) => {
   }, [appState, toggleMinMaxLiquidSwapAmounts]);
 
   useEffect(() => {
-    if (appState !== 'active' || hasInitializedNetworkMonitoring.current) {
-      if (appState !== 'active') {
-        console.log('Skipping network monitoring setup - app not active');
-      }
+    if (appState !== 'active') {
+      console.log('Skipping network monitoring setup - app not active');
       return;
     }
 
-    console.log('Setting up network monitoring - first time app is active');
-    hasInitializedNetworkMonitoring.current = true;
-
-    if (Platform.OS == 'ios') {
-      Network.addNetworkStateListener(
-        ({ type, isConnected, isInternetReachable }) => {
-          console.log(
-            `Network type: ${type}, Connected: ${isConnected}, Internet Reachable: ${isInternetReachable}`,
-          );
-          setIsConnectedToTheInternet(isInternetReachable);
-        },
-      );
-    }
+    console.log('Setting up network monitoring');
 
     const checkNetworkState = async () => {
       try {
         const networkState = await Network.getNetworkStateAsync();
         console.log(networkState, 'network state in startup function');
-        setIsConnectedToTheInternet(
-          Platform.OS === 'ios' ? networkState.isConnected : true,
-        );
+        setIsConnectedToTheInternet(networkState.isInternetReachable);
       } catch (error) {
         console.error('Error checking network state:', error);
       }
     };
 
     checkNetworkState();
+
+    const interval = setInterval(checkNetworkState, 5000);
+
+    return () => {
+      console.log('Cleaning up network monitoring');
+      clearInterval(interval);
+    };
   }, [appState]);
 
   console.log(minMaxLiquidSwapAmounts, 'min max liquid swap amounts');
