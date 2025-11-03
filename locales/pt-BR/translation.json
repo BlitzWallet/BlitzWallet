@@ -1184,9 +1184,9 @@
       "showSeedWarning": "Tem certeza de que deseja mostrar sua frase-semente?"
     },
     "crashReporting": {
-      "crashreporting_enabled": "Relatórios de falhas ativados",
-      "crashreporting_disabled": "Relatórios de falhas desativados",
-      "descriptionText": "Os dados de falhas nos ajudam a melhorar a estabilidade e o desempenho do aplicativo.\n\nQuando ocorre uma falha, as informações do dispositivo que são registradas automaticamente incluem:\n\n• Sistema operacional: versão do sistema operacional, orientação do dispositivo e status do jailbreak\n• Detalhes do dispositivo: modelo, orientação e RAM disponível\n• Informações sobre o travamento: data do travamento e versão do aplicativo"
+      "crashreporting_enabled": "Relatórios de falhas habilitado",
+      "crashreporting_disabled": "Relatórios de falhas desabilitado",
+      "descriptionText": "Os dados de falhas nos ajudam a melhorar a estabilidade e o desempenho do aplicativo.\n\nQuando ocorre uma falha, as informações do dispositivo que são registradas automaticamente incluem:\n\n• Sistema operacional: versão do sistema operacional, orientação do dispositivo e status do jailbreak\n• Detalhes do dispositivo: modelo, orientação e RAM disponível\n• Informações sobre a falha: data da falha e versão do aplicativo"
     },
 
     "accounts": {
@@ -1211,8 +1211,8 @@
     "sparkLrc20": {
       "balanceError": "O saldo atual da sua carteira é {{balance}}. A Blitz adiciona uma {{fee}} taxa em todos os pagamentos BTKN. Certifique-se de ter Bitcoin na sua carteira antes de enviar tokens.",
       "title": "Configurações Spark",
-      "sliderTitle_enabled": "BTKN ativado",
-      "sliderTitle_disabled": "BTKN desativado",
+      "sliderTitle_enabled": "BTKN habilitado",
+      "sliderTitle_disabled": "BTKN desabilitado",
       "sliderDesc": "BTKN é o padrão de tokens da Spark. Habilitar BTKN permite que você envie e receba tokens na rede Spark.\n\nBlitz é uma carteira focada em Bitcoin. Não promovemos nem endossamos o uso de tokens. Este recurso existe porque acreditamos que os usuários devem ter a liberdade de usar a tecnologia que desejarem..\n\nA Blitz cobra uma taxa de {{fee}} em todas as transações de tokens, com 20% dessa taxa doada para apoiar o desenvolvimento do Bitcoin de código aberto."
     },
     "viewSwapsHome": {
@@ -1253,8 +1253,8 @@
       "swap": "Trocar"
     },
     "notifications": {
-      "mainToggle_enabled": "Notificações ativadas",
-      "mainToggle_disabled": "Notificações desativadas",
+      "mainToggle_enabled": "Notificações habilitadas",
+      "mainToggle_disabled": "Notificações desabilitadas",
       "mainToggleDesc": "As notificações permitem que você fique informado sobre eventos e atualizações importantes que acontecem no aplicativo.",
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
@@ -1521,7 +1521,7 @@
         "view all swaps": "Trocas",
         "fast pay": "Pagamento rápido",
         "blitz fee details": "Taxas da carteira Blitz",
-        "crash reports": "Relatórios de travamentos",
+        "crash reports": "Relatórios de falhas",
         "notifications": "Notificações",
         "blitz stats": "Estatísticas Blitz",
         "accounts": "Contas",
