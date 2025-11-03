@@ -313,6 +313,12 @@ function QrCode(props) {
     const newAddress = addressState.generatedAddress;
     const hasChanged = newAddress !== previousAddress.current;
 
+    if (addressState.errorMessageText?.text) {
+      loadingOpacity.value = 0;
+      qrOpacity.value = 0;
+      return;
+    }
+
     if (hasChanged && previousAddress.current) {
       qrOpacity.value = withTiming(
         0,
@@ -336,7 +342,11 @@ function QrCode(props) {
       loadingOpacity.value = 0;
       previousAddress.current = '';
     }
-  }, [addressState.generatedAddress, addressState.isGeneratingInvoice]);
+  }, [
+    addressState.generatedAddress,
+    addressState.isGeneratingInvoice,
+    addressState.errorMessageText?.text,
+  ]);
 
   const handleFadeOutComplete = newAddress => {
     if (newAddress) {
@@ -399,35 +409,37 @@ function QrCode(props) {
         style={styles.qrCodeContainer}
       >
         <View style={styles.animatedQRContainer}>
-          <Animated.View
-            style={{
-              position: 'absolute',
-              opacity: qrOpacity,
-            }}
-          >
-            <QrCodeWrapper
-              outerContainerStyle={{ backgroundColor: 'transparent' }}
-              QRData={qrData}
-            />
-          </Animated.View>
-
           {!addressState.errorMessageText?.text ? (
-            <Animated.View
-              style={{
-                position: 'absolute',
-                width: 300,
-                height: 300,
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: loadingOpacity,
-              }}
-            >
-              <FullLoadingScreen
-                text={t('screens.inAccount.receiveBtcPage.generatingInvoice')}
-              />
-            </Animated.View>
+            <>
+              <Animated.View
+                style={{
+                  position: 'absolute',
+                  opacity: qrOpacity,
+                }}
+              >
+                <QrCodeWrapper
+                  outerContainerStyle={{ backgroundColor: 'transparent' }}
+                  QRData={qrData}
+                />
+              </Animated.View>
+
+              <Animated.View
+                style={{
+                  position: 'absolute',
+                  width: 300,
+                  height: 300,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: loadingOpacity,
+                }}
+              >
+                <FullLoadingScreen
+                  text={t('screens.inAccount.receiveBtcPage.generatingInvoice')}
+                />
+              </Animated.View>
+            </>
           ) : (
-            <Animated.View
+            <View
               style={{
                 position: 'absolute',
                 width: 300,
@@ -435,6 +447,8 @@ function QrCode(props) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: 10,
+                zIndex: 99,
+                backgroundColor: backgroundOffset,
               }}
             >
               <ThemeText
@@ -444,7 +458,7 @@ function QrCode(props) {
                   t('errormessages.invoiceRetrivalError')
                 }
               />
-            </Animated.View>
+            </View>
           )}
         </View>
       </TouchableOpacity>

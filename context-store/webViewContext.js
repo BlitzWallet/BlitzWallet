@@ -47,6 +47,37 @@ export const OPERATION_TYPES = {
   removeListeners: 'removeWalletEventListener',
 };
 
+const longOperations = [
+  OPERATION_TYPES.claimStaticDepositAddress,
+  OPERATION_TYPES.sendSparkPayment,
+  OPERATION_TYPES.sendTokenPayment,
+  OPERATION_TYPES.getBitcoinPaymentRequest,
+  OPERATION_TYPES.getBitcoinPaymentFee,
+  OPERATION_TYPES.sendLightningPayment,
+  OPERATION_TYPES.sendBitcoinPayment,
+  OPERATION_TYPES.initWallet,
+];
+
+const mediumOperations = [
+  OPERATION_TYPES.getBalance,
+  OPERATION_TYPES.queryStaticL1Address,
+  OPERATION_TYPES.getL1AddressQuote,
+  OPERATION_TYPES.getSparkAddress,
+  OPERATION_TYPES.getL1Address,
+  OPERATION_TYPES.receiveLightningPayment,
+  OPERATION_TYPES.getLightningSendRequest,
+  OPERATION_TYPES.getLightningPaymentStatus,
+  OPERATION_TYPES.getTransactions,
+  OPERATION_TYPES.getTokenTransactions,
+];
+
+const rejectIfNotConnectedToInternet = [
+  ...longOperations,
+  OPERATION_TYPES.receiveLightningPayment,
+  OPERATION_TYPES.getL1Address,
+  OPERATION_TYPES.getSparkAddress,
+];
+
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
 const WASM_ERRORS = [
@@ -308,7 +339,7 @@ export const WebViewProvider = ({ children }) => {
         } else {
           // Make sure to handle any events that happen during background and are within the three minute refresh timeout
           setTimeout(() => {
-            processQueuedRequests();
+            processQueuedRequests(connectionJustRestored);
           }, 100);
         }
 
@@ -554,11 +585,36 @@ export const WebViewProvider = ({ children }) => {
             return;
           }
 
-          if (
-            !webViewRef.current ||
-            !isWebViewReady ||
-            (!internetConnectionRef.current && action !== 'handshake:init') // handshake messages should always go through
-          ) {
+          // Reject importent messages if app is not connected to the internet
+          if (!internetConnectionRef.current && action !== 'handshake:init') {
+            console.log(
+              'App is not connected to the internet, queueing message:',
+              action,
+            );
+            if (
+              rejectIfNotConnectedToInternet.some(op =>
+                action.toLowerCase().includes(op.toLowerCase()),
+              )
+            ) {
+              reject(new Error(`App is not connected to the internet`));
+            } else {
+              if (!isDuplicate(queuedRequests.current, action, args)) {
+                queuedRequests.current.push({
+                  id,
+                  action,
+                  args,
+                  encrypt,
+                  resolve,
+                  reject,
+                });
+              } else {
+                console.log('Duplicate request ignored:', action, args);
+              }
+            }
+            return;
+          }
+
+          if (!webViewRef.current || !isWebViewReady) {
             console.log(
               'WebView not ready or internet is not connected, queueing message:',
               action,
@@ -586,17 +642,6 @@ export const WebViewProvider = ({ children }) => {
           const getTimeoutDuration = action => {
             if (action === 'handshake:init') return 2000;
 
-            const longOperations = [
-              OPERATION_TYPES.claimStaticDepositAddress,
-              OPERATION_TYPES.sendSparkPayment,
-              OPERATION_TYPES.sendTokenPayment,
-              OPERATION_TYPES.getBitcoinPaymentRequest,
-              OPERATION_TYPES.getBitcoinPaymentFee,
-              OPERATION_TYPES.sendLightningPayment,
-              OPERATION_TYPES.sendBitcoinPayment,
-              OPERATION_TYPES.initWallet,
-            ];
-
             if (
               longOperations.some(op =>
                 action.toLowerCase().includes(op.toLowerCase()),
@@ -604,17 +649,6 @@ export const WebViewProvider = ({ children }) => {
             ) {
               return 90000; // 90 seconds for payment operations
             }
-
-            const mediumOperations = [
-              OPERATION_TYPES.getBalance,
-              OPERATION_TYPES.queryStaticL1Address,
-              OPERATION_TYPES.getL1AddressQuote,
-              OPERATION_TYPES.receiveLightningPayment,
-              OPERATION_TYPES.getLightningSendRequest,
-              OPERATION_TYPES.getLightningPaymentStatus,
-              OPERATION_TYPES.getTransactions,
-              OPERATION_TYPES.getTokenTransactions,
-            ];
 
             if (
               mediumOperations.some(op =>
@@ -866,59 +900,65 @@ export const WebViewProvider = ({ children }) => {
     globalSendWebViewRequest = sendWebViewRequestInternal;
   }, [sendWebViewRequestInternal]);
 
-  const processQueuedRequests = useCallback(async () => {
-    // After a soft reset, the WebView's internal state is cleared
-    // We must reinitialize the wallet before processing any queued requests
-    if (
-      handshakeComplete &&
-      !walletInitialized.current &&
-      currentWalletMnemoinc
-    ) {
-      console.log('Re-initializing wallet before processing queue');
-      try {
-        // No need to handle any state changes here, handled inside of the promise. But this might be where the stale connection state comes from. if a request is sent to the webview but not responded to the change to react-native woudnt have happpened before leaving everything in "not connected to spark".
-        const response = await sendWebViewRequestInternal(
-          OPERATION_TYPES.initWallet,
-          { mnemonic: currentWalletMnemoinc },
-          true,
-        );
-        if (!response?.isConnected) throw new Error('Wallet init failed');
-      } catch (err) {
-        console.log('Error re-initializing wallet:', err);
-        forceReactNativeUse = true;
-        // Reject all queued requests since WebView is now unusable
-        queuedRequests.current.forEach(({ reject }) => {
-          reject({
-            error: 'Wallet initialization failed, using React Native',
+  const processQueuedRequests = useCallback(
+    async connectionJustRestored => {
+      // After a soft reset, the WebView's internal state is cleared
+      // We must reinitialize the wallet before processing any queued requests
+      if (
+        (handshakeComplete &&
+          !walletInitialized.current &&
+          currentWalletMnemoinc) ||
+        (currentWalletMnemoinc && connectionJustRestored)
+      ) {
+        console.log('Re-initializing wallet before processing queue');
+        try {
+          // No need to handle any state changes here, handled inside of the promise. But this might be where the stale connection state comes from. if a request is sent to the webview but not responded to the change to react-native woudnt have happpened before leaving everything in "not connected to spark".
+          const response = await sendWebViewRequestInternal(
+            OPERATION_TYPES.initWallet,
+            { mnemonic: currentWalletMnemoinc },
+            true,
+          );
+          if (!response?.isConnected) throw new Error('Wallet init failed');
+        } catch (err) {
+          console.log('Error re-initializing wallet:', err);
+          forceReactNativeUse = true;
+          // Reject all queued requests since WebView is now unusable
+          queuedRequests.current.forEach(({ reject }) => {
+            reject({
+              error: 'Wallet initialization failed, using React Native',
+            });
           });
-        });
-        queuedRequests.current = [];
+          queuedRequests.current = [];
+          return;
+        }
+      }
+      isResetting.current = false;
+      if (queuedRequests.current.length === 0) {
+        isResetting.current = false;
         return;
       }
-    }
-    isResetting.current = false;
-    if (queuedRequests.current.length === 0) {
+
+      console.log(
+        `Processing ${queuedRequests.current.length} queued requests`,
+      );
+      const requests = [...queuedRequests.current];
+      await Promise.allSettled(
+        requests.map(({ id, action, args, encrypt, resolve, reject }) =>
+          sendWebViewRequestInternal(action, args, encrypt)
+            .then(resolve)
+            .catch(reject)
+            .finally(() => {
+              queuedRequests.current = queuedRequests.current.filter(
+                req => req.id !== id,
+              );
+            }),
+        ),
+      );
+
       isResetting.current = false;
-      return;
-    }
-
-    console.log(`Processing ${queuedRequests.current.length} queued requests`);
-    const requests = [...queuedRequests.current];
-    await Promise.allSettled(
-      requests.map(({ id, action, args, encrypt, resolve, reject }) =>
-        sendWebViewRequestInternal(action, args, encrypt)
-          .then(resolve)
-          .catch(reject)
-          .finally(() => {
-            queuedRequests.current = queuedRequests.current.filter(
-              req => req.id !== id,
-            );
-          }),
-      ),
-    );
-
-    isResetting.current = false;
-  }, [currentWalletMnemoinc, sendWebViewRequestInternal]);
+    },
+    [currentWalletMnemoinc, sendWebViewRequestInternal],
+  );
 
   return (
     <WebViewContext.Provider
