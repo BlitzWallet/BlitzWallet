@@ -912,7 +912,7 @@
       },
       "handlingAddressErrors": {
         "invlidFormat": "Addresses should be text only. Please check and try again.",
-        "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark address, Bitcoin address or a Lightning invoice.",
+        "parseError": "We couldn’t recognize the payment type. Please enter a valid Spark address, Bitcoin address or a Lightning address/invoice.",
         "paymentProcessingError": "Error processing payment info",
         "tooLowSendingAmount": "The sending amount is too high to cover the payment and fees. Maximum send amount is {{amount}}",
         "processInputError": "Unable to process input",
@@ -977,7 +977,7 @@
       },
       "manualEnterSendAddress": {
         "title": "Enter in destination",
-        "paymentTypesDesc": "Blitz wallet can send to spark addresses, bitcoin addresses and lightning invoices"
+        "paymentTypesDesc": "Blitz wallet can send to spark addresses, bitcoin addresses and lightning addresses/invoices"
       },
       "sparkErrorScreen": {
         "connectionError": "We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your seed phrase keeps your funds safe.",
