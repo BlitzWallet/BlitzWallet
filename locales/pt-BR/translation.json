@@ -1184,8 +1184,8 @@
       "showSeedWarning": "Tem certeza de que deseja mostrar sua frase-semente?"
     },
     "crashReporting": {
-      "crashreporting_enabled": "Relatórios de falhas habilitado",
-      "crashreporting_disabled": "Relatórios de falhas desabilitado",
+      "crashreporting_enabled": "Relatório de falhas habilitado",
+      "crashreporting_disabled": "Relatório de falhas desabilitado",
       "descriptionText": "Os dados de falhas nos ajudam a melhorar a estabilidade e o desempenho do aplicativo.\n\nQuando ocorre uma falha, as informações do dispositivo que são registradas automaticamente incluem:\n\n• Sistema operacional: versão do sistema operacional, orientação do dispositivo e status do jailbreak\n• Detalhes do dispositivo: modelo, orientação e RAM disponível\n• Informações sobre a falha: data da falha e versão do aplicativo"
     },
 
