@@ -21,9 +21,7 @@ export async function initializeAddressProcess(wolletInfo) {
   let hasGlobalError = false;
   try {
     crashlyticsLogReport(
-      `Running address geneartion functinon for: ${selectedRecieveOption} with ${JSON.stringify(
-        wolletInfo,
-      )}`,
+      `Running address geneartion functinon for: ${selectedRecieveOption}`,
     );
     setAddressState(prev => {
       return {

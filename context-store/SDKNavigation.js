@@ -1,15 +1,15 @@
-import {useNavigation} from '@react-navigation/native';
-import {useEffect, useRef} from 'react';
-import {useAppStatus} from './appStatus';
-import {crashlyticsLogReport} from '../app/functions/crashlyticsLogs';
-import {useSparkWallet} from './sparkContext';
-import {useRootstockProvider} from './rootstockSwapContext';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect, useRef } from 'react';
+import { useAppStatus } from './appStatus';
+import { crashlyticsLogReport } from '../app/functions/crashlyticsLogs';
+import { useSparkWallet } from './sparkContext';
+import { useRootstockProvider } from './rootstockSwapContext';
 import i18next from 'i18next';
 
 export function RootstockNavigationListener() {
   const navigation = useNavigation();
-  const {didGetToHomepage} = useAppStatus();
-  const {pendingNavigation, setPendingNavigation} = useRootstockProvider();
+  const { didGetToHomepage } = useAppStatus();
+  const { pendingNavigation, setPendingNavigation } = useRootstockProvider();
   const isNavigating = useRef(false); // Use a ref for local state
 
   useEffect(() => {
@@ -19,11 +19,7 @@ export function RootstockNavigationListener() {
       return;
     }
     if (isNavigating.current) return;
-    crashlyticsLogReport(
-      `Navigating to confirm tx page in spark listener with: ${JSON.stringify(
-        pendingNavigation,
-      )}`,
-    );
+    crashlyticsLogReport(`Navigating to confirm tx page in roostock listener`);
     isNavigating.current = true;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -43,8 +39,8 @@ export function RootstockNavigationListener() {
 
 export function LiquidNavigationListener() {
   const navigation = useNavigation();
-  const {didGetToHomepage} = useAppStatus();
-  const {pendingLiquidPayment, setPendingLiquidPayment} = useSparkWallet();
+  const { didGetToHomepage } = useAppStatus();
+  const { pendingLiquidPayment, setPendingLiquidPayment } = useSparkWallet();
   const isNavigating = useRef(false); // Use a ref for local state
 
   useEffect(() => {
@@ -54,11 +50,7 @@ export function LiquidNavigationListener() {
       return;
     }
     if (isNavigating.current) return;
-    crashlyticsLogReport(
-      `Navigating to confirm tx page in spark listener with: ${JSON.stringify(
-        pendingLiquidPayment,
-      )}`,
-    );
+    crashlyticsLogReport(`Navigating to confirm tx page in liquid listener `);
     isNavigating.current = true;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -78,8 +70,8 @@ export function LiquidNavigationListener() {
 
 export function SparkNavigationListener() {
   const navigation = useNavigation();
-  const {didGetToHomepage} = useAppStatus();
-  const {pendingNavigation, setPendingNavigation} = useSparkWallet();
+  const { didGetToHomepage } = useAppStatus();
+  const { pendingNavigation, setPendingNavigation } = useSparkWallet();
   const isNavigating = useRef(false); // Use a ref for local state
 
   useEffect(() => {
@@ -89,11 +81,7 @@ export function SparkNavigationListener() {
       return;
     }
     if (isNavigating.current) return;
-    crashlyticsLogReport(
-      `Navigating to confirm tx page in spark listener with: ${JSON.stringify(
-        pendingNavigation,
-      )}`,
-    );
+    crashlyticsLogReport(`Navigating to confirm tx page in spark listener`);
     isNavigating.current = true;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
