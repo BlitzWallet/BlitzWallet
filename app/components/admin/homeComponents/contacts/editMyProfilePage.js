@@ -43,6 +43,7 @@ import {
 } from '../../../../../db/photoStorage';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import ThemeImage from '../../../../functions/CustomElements/themeImage';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -396,10 +397,29 @@ function InnerContent({
               uniquenameRef.current.focus();
             }}
           >
-            <ThemeText
-              styles={styles.textInputContainerDescriptionText}
-              content={t('contacts.editMyProfilePage.uniqueNameInputDesc')}
-            />
+            <View style={styles.usernameRow}>
+              <ThemeText
+                styles={styles.textInputContainerDescriptionText}
+                content={t('contacts.editMyProfilePage.uniqueNameInputDesc')}
+              />
+              <TouchableOpacity
+                onPress={() =>
+                  navigate.navigate('InformationPopup', {
+                    textContent: t(
+                      'wallet.receivePages.editLNURLContact.informationMessage',
+                    ),
+                    buttonText: t('constants.understandText'),
+                  })
+                }
+              >
+                <ThemeImage
+                  styles={styles.infoIcon}
+                  lightModeIcon={ICONS.aboutIcon}
+                  darkModeIcon={ICONS.aboutIcon}
+                  lightsOutIcon={ICONS.aboutIcon}
+                />
+              </TouchableOpacity>
+            </View>
             <TextInput
               keyboardAppearance={theme ? 'dark' : 'light'}
               placeholderTextColor={COLORS.opaicityGray}
@@ -810,9 +830,19 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     borderRadius: 8,
     marginBottom: 10,
+    marginTop: 8,
   },
   textInputContainer: { width: '100%' },
   textInputContainerDescriptionText: {
-    marginBottom: 5,
+    includeFontPadding: false,
+  },
+  usernameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  infoIcon: {
+    width: 20,
+    height: 20,
+    marginLeft: 5,
   },
 });
