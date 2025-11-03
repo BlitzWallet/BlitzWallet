@@ -417,40 +417,42 @@ function QrCode(props) {
             />
           </Animated.View>
 
-          <Animated.View
-            style={{
-              position: 'absolute',
-              width: 300,
-              height: 300,
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: loadingOpacity,
-            }}
-          >
-            <FullLoadingScreen
-              text={t('screens.inAccount.receiveBtcPage.generatingInvoice')}
-            />
-          </Animated.View>
-
-          <Animated.View
-            style={{
-              position: 'absolute',
-              width: 300,
-              height: 300,
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: 10,
-              opacity: errorOpacity,
-            }}
-          >
-            <ThemeText
-              styles={styles.errorText}
-              content={
-                t(addressState.errorMessageText.text) ||
-                t('errormessages.invoiceRetrivalError')
-              }
-            />
-          </Animated.View>
+          {!addressState.errorMessageText?.text ? (
+            <Animated.View
+              style={{
+                position: 'absolute',
+                width: 300,
+                height: 300,
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: loadingOpacity,
+              }}
+            >
+              <FullLoadingScreen
+                text={t('screens.inAccount.receiveBtcPage.generatingInvoice')}
+              />
+            </Animated.View>
+          ) : (
+            <Animated.View
+              style={{
+                position: 'absolute',
+                width: 300,
+                height: 300,
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 10,
+                opacity: errorOpacity,
+              }}
+            >
+              <ThemeText
+                styles={styles.errorText}
+                content={
+                  t(addressState.errorMessageText.text) ||
+                  t('errormessages.invoiceRetrivalError')
+                }
+              />
+            </Animated.View>
+          )}
         </View>
       </TouchableOpacity>
 

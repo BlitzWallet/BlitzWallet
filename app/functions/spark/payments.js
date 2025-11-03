@@ -297,6 +297,8 @@ export const sparkReceivePaymentWrapper = async ({
     } else if (paymentType === 'bitcoin') {
       // Handle storage of tx when claiming in spark context
       const depositAddress = await getSparkStaticBitcoinL1Address(mnemoinc);
+      if (!depositAddress)
+        throw new Error('Not able to generate bitcoin address');
       return {
         didWork: true,
         invoice: depositAddress,

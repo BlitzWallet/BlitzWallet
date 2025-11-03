@@ -1431,7 +1431,7 @@
     "noNotificationPermission": "Blitz no tiene permisos de notificación. Actívalos en configuración para usar notificaciones.",
     "rootstockInvoiceError": "Hubo un problema al generar tu dirección Rootstock. Intenta de nuevo.",
     "liquidInvoiceError": "Hubo un problema al generar tu dirección Liquid. Intenta de nuevo.",
-    "bitcoinInvioceError": "Hubo un problema al generar tu dirección Bitcoin. Intenta de nuevo.",
+    "bitcoinInvoiceError": "Hubo un problema al generar tu dirección Bitcoin. Intenta de nuevo.",
     "sparkInvioceError": "Hubo un problema al generar tu dirección Spark. Intenta de nuevo.",
     "lightningInvioceError": "Hubo un problema al generar tu dirección Lightning. Intenta de nuevo.",
     "sparkConnectionError": "Error en la conexión con Spark. Intenta de nuevo.",
