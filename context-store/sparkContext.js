@@ -236,12 +236,7 @@ const SparkWalletProvider = ({ children }) => {
         );
       }
 
-      const savedTxs = await getAllSparkTransactions({
-        limit: 5,
-        accountId: sparkInfoRef.current.identityPubKey,
-      });
       return {
-        txs: savedTxs,
         paymentObject: paymentObject || {},
         paymentCreatedTime: new Date(
           selectedSparkTransaction.createdTime,
@@ -273,13 +268,10 @@ const SparkWalletProvider = ({ children }) => {
 
       return;
     }
-    const selectedStoredPayment = storedTransaction.txs.find(
-      tx => tx.sparkID === transferId,
-    );
 
-    if (!selectedStoredPayment) return;
+    if (!storedTransaction.paymentObject) return;
 
-    const details = JSON.parse(selectedStoredPayment.details);
+    const details = storedTransaction.paymentObject?.details;
     if (details?.shouldNavigate && !details.isLNURL) return;
     if (
       details.isLNURL &&
@@ -302,7 +294,7 @@ const SparkWalletProvider = ({ children }) => {
           name: 'ConfirmTxPage',
           params: {
             for: 'invoicePaid',
-            transaction: { ...selectedStoredPayment, details },
+            transaction: storedTransaction.paymentObject,
           },
         },
       ],
