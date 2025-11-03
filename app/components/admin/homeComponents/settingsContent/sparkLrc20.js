@@ -1,25 +1,26 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import {GlobalThemeView} from '../../../../functions/CustomElements';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
+import { GlobalThemeView } from '../../../../functions/CustomElements';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {CENTER} from '../../../../constants';
-import {useEffect, useRef} from 'react';
-import {useNavigation} from '@react-navigation/native';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { CENTER } from '../../../../constants';
+import { useEffect, useRef } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
-import {useSparkWallet} from '../../../../../context-store/sparkContext';
-import {useTranslation} from 'react-i18next';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import { useTranslation } from 'react-i18next';
 
 export default function SparkSettingsPage() {
   const navigate = useNavigation();
-  const {sparkInformation} = useSparkWallet();
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {fiatStats} = useNodeContext();
+  const { sparkInformation } = useSparkWallet();
+  const { masterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
   const isInitialRender = useRef(true);
   const lrc20Settings = masterInfoObject.lrc20Settings || {};
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     console.log(isInitialRender.current, lrc20Settings.isEnabled);
@@ -53,9 +54,7 @@ export default function SparkSettingsPage() {
         <View style={styles.container}>
           <SettingsItemWithSlider
             settingsTitle={t('settings.sparkLrc20.sliderTitle', {
-              switchType: lrc20Settings.isEnabled
-                ? t('constants.enabled')
-                : t('constants.disabled'),
+              context: lrc20Settings.isEnabled ? 'enabled' : 'disabled',
             })}
             switchPageName={'lrc20Settings'}
             showDescription={true}

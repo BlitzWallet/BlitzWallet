@@ -259,11 +259,11 @@ export default function ExpandedTx(props) {
             <ThemeText
               styles={styles.confirmMessage}
               content={t('screens.inAccount.expandedTxPage.confirmMessage', {
-                direction:
+                context:
                   transaction.details.direction === 'OUTGOING' ||
                   isFailedPayment
-                    ? t('constants.sent')
-                    : t('constants.received'),
+                    ? 'sent'
+                    : 'received',
               })}
             />
 

@@ -1184,9 +1184,8 @@
       "showSeedWarning": "Are you sure you want to show your seed phrase?"
     },
     "crashReporting": {
-      "enabled": "Enabled",
-      "disabled": "Disabled",
-      "crashreporting": "crash reporting",
+      "crashreporting_enabled": "Enabled crash reporting",
+      "crashreporting_disabled": "Disabled crash reporting",
       "descriptionText": "Crash data helps us improve the stability and performance of our application.\n\nWhen a crash occurs, the device information that is automatically recorded includes:\n\n• Operating System: OS version, device orientation, and jailbreak status\n• Device Details: Model, orientation, and available RAM\n• Crash Information: Date of the crash and the app version"
     },
 
@@ -1212,7 +1211,8 @@
     "sparkLrc20": {
       "balanceError": "Your current wallet balance is {{balance}}. Blitz adds a {{fee}} fee to all BTKN payments. Make sure you have some Bitcoin in your wallet to send tokens.",
       "title": "Spark Settings",
-      "sliderTitle": "{{switchType}} BTKN",
+      "sliderTitle_enabled": "Enabled BTKN",
+      "sliderTitle_disabled": "Disabled BTKN",
       "sliderDesc": "BTKN is Spark’s native token. Enabling BTKN allows you send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.\n\nBlitz also applies a {{fee}} fee to all token transactions, with 20% of that fee donated to support open-source Bitcoin development."
     },
     "viewSwapsHome": {
@@ -1253,7 +1253,8 @@
       "swap": "Swap"
     },
     "notifications": {
-      "mainToggle": "{{state}} notifications",
+      "mainToggle_enabled": "Enabled notifications",
+      "mainToggle_disabled": "Disabled notifications",
       "mainToggleDesc": "Notifications let you stay informed about important events and updates happening in the app.",
       "optionsTitle": "Notification options",
       "contact": "Contact",
@@ -1471,10 +1472,13 @@
         "sendReport": "Send report to developer",
         "lnurlAuthSuccess": "Wallet authentication successful! You’re now logged in.",
         "emailReport": "Send via Email",
-        "copyReport": "Copy to Clipboard"
+        "copyReport": "Copy to Clipboard",
+        "confirmMessage_sent": "Sent succesfully",
+        "confirmMessage_received": "Received succesfully"
       },
       "expandedTxPage": {
-        "confirmMessage": "{{direction}} amount",
+        "confirmMessage_sent": "Sent amount",
+        "confirmMessage_received": "Received amount",
         "paymentStatus": "Payment status",
         "confReqired": "Confs required",
         "detailsBTN": "Technical details"
@@ -1497,11 +1501,16 @@
       },
 
       "receiveBtcPage": {
-        "onchainFeeMessage": "Payments received to Bitcoin addresses have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you’ll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you’ll only pay the network fee once to claim it.",
-        "liquidFeeMessage": "Payments received to Liquid addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
-        "rootstockFeeMessage": "Payments received to Rootstock addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you’re sending.",
+        "onchainFeeMessage": "Payments received to Bitcoin addresses have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you'll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you'll only pay the network fee once to claim it.",
+        "liquidFeeMessage": "Payments received to Liquid addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
+        "rootstockFeeMessage": "Payments received to Rootstock addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
         "generatingInvoice": "Generating Invoice",
-        "amountPlaceholder": "Any amount"
+        "invoiceDescription_lightningInvoice": "Lightning invoice",
+        "invoiceDescription_lightningAddress": "Lightning address",
+        "invoiceDescription_bitcoinAddress": "Bitcoin address",
+        "invoiceDescription_liquidAddress": "Liquid address",
+        "invoiceDescription_sparkAddress": "Spark address",
+        "invoiceDescription_rootstockAddress": "Rootstock address"
       },
 
       "settingsContent": {

@@ -97,10 +97,10 @@ export default function ConfirmTxPage(props) {
             !didSucceed
               ? t('screens.inAccount.confirmTxPage.failedToSend')
               : t('screens.inAccount.confirmTxPage.confirmMessage', {
-                  direction:
+                  context:
                     paymentInformation.direction?.toLowerCase() === 'outgoing'
-                      ? t('constants.sent')
-                      : t('constants.received'),
+                      ? 'sent'
+                      : 'received',
                 })
           }
         />

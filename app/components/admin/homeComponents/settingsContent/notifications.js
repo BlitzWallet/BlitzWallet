@@ -1,17 +1,17 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
-import {ThemeText} from '../../../../functions/CustomElements';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { ThemeText } from '../../../../functions/CustomElements';
 import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useCallback, useEffect, useState} from 'react';
-import {INSET_WINDOW_WIDTH, SIZES} from '../../../../constants/theme';
-import {CENTER} from '../../../../constants';
-import {usePushNotification} from '../../../../../context-store/notificationManager';
-import {useNavigation} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useCallback, useEffect, useState } from 'react';
+import { INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import { CENTER } from '../../../../constants';
+import { usePushNotification } from '../../../../../context-store/notificationManager';
+import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 export default function NotificationPreferances() {
   const navigate = useNavigation();
-  const {masterInfoObject, toggleMasterInfoObject, toggleNWCInformation} =
+  const { masterInfoObject, toggleMasterInfoObject, toggleNWCInformation } =
     useGlobalContextProvider();
   const [isUpdating, setIsUpdating] = useState(false);
   const {
@@ -20,7 +20,7 @@ export default function NotificationPreferances() {
     getCurrentPushNotifiicationPermissions,
   } = usePushNotification();
   const [currnetPushState, setCurrentPushState] = useState(null);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const notificationData = masterInfoObject.pushNotifications;
 
   const userWantsNotifications = notificationData.isEnabled;
@@ -39,7 +39,7 @@ export default function NotificationPreferances() {
     async toggleType => {
       setIsUpdating(true);
       try {
-        let newObject = {...masterInfoObject.pushNotifications};
+        let newObject = { ...masterInfoObject.pushNotifications };
 
         if (toggleType === 'isEnabled') {
           const wantsToEnable = !effectivePushStatus;
@@ -56,8 +56,8 @@ export default function NotificationPreferances() {
               if (!checkResponse.didWork) throw new Error(checkResponse.error);
 
               if (checkResponse.shouldUpdate) {
-                const {hash, key, platform} = checkResponse.data;
-                Object.assign(newObject, {hash, key, platform});
+                const { hash, key, platform } = checkResponse.data;
+                Object.assign(newObject, { hash, key, platform });
               }
 
               await loadCurrentNotificationPermission(); // refresh system state
@@ -70,13 +70,13 @@ export default function NotificationPreferances() {
           }
         } else {
           // Toggle a specific service
-          newObject.enabledServices = {...newObject.enabledServices};
+          newObject.enabledServices = { ...newObject.enabledServices };
           newObject.enabledServices[toggleType] =
             !newObject.enabledServices?.[toggleType];
         }
 
         // Save updated preferences globally
-        toggleMasterInfoObject({pushNotifications: newObject});
+        toggleMasterInfoObject({ pushNotifications: newObject });
 
         if (
           newObject.hash !== masterInfoObject.NWC?.pushNotifications?.hash ||
@@ -96,7 +96,7 @@ export default function NotificationPreferances() {
         console.log('RUNNING', toggleType);
       } catch (err) {
         console.log('Error updating notification state', err);
-        navigate.navigate('ErrorScreen', {errorMessage: err.message});
+        navigate.navigate('ErrorScreen', { errorMessage: err.message });
       } finally {
         setIsUpdating(false);
       }
@@ -115,9 +115,7 @@ export default function NotificationPreferances() {
       <SettingsItemWithSlider
         showLoadingIcon={isUpdating}
         settingsTitle={t('settings.notifications.mainToggle', {
-          state: !effectivePushStatus
-            ? t('constants.disabled')
-            : t('constants.enabled'),
+          context: !effectivePushStatus ? 'disabled' : 'enabled',
         })}
         showDescription={false}
         handleSubmit={() => toggleNotificationPreferance('isEnabled')}
@@ -131,7 +129,8 @@ export default function NotificationPreferances() {
           <ThemeText content={t('settings.notifications.optionsTitle')} />
           <ScrollView
             style={styles.notificaionChoicesContainer}
-            showsVerticalScrollIndicator={false}>
+            showsVerticalScrollIndicator={false}
+          >
             <SettingsItemWithSlider
               settingsTitle={t('settings.notifications.contact')}
               showDescription={false}
@@ -185,7 +184,7 @@ export default function NotificationPreferances() {
 }
 
 const styles = StyleSheet.create({
-  container: {flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER},
+  container: { flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER },
   notificaionChoicesContainer: {
     width: '100%',
     marginLeft: 'auto',
