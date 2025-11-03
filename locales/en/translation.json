@@ -1505,6 +1505,7 @@
         "liquidFeeMessage": "Payments received to Liquid addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
         "rootstockFeeMessage": "Payments received to Rootstock addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
         "generatingInvoice": "Generating Invoice",
+        "amountPlaceholder": "Any amount",
         "invoiceDescription_lightningInvoice": "Lightning invoice",
         "invoiceDescription_lightningAddress": "Lightning address",
         "invoiceDescription_bitcoinAddress": "Bitcoin address",

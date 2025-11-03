@@ -1333,6 +1333,7 @@
         "liquidFeeMessage": "Los pagos en Liquid deben convertirse a Spark.\n\nEste proceso incluye una tarifa de bloqueo de aproximadamente {{fee}}, una tarifa de reclamo de alrededor de {{claimFee}}, y una tarifa de servicio del 0,1% de Boltz basada en la cantidad enviada.",
         "rootstockFeeMessage": "Los pagos en Rootstock deben convertirse a Spark.Este proceso incluye una comisión de bloqueo de aproximadamente {{fee}}, y una comisión de servicio del 0,1% de Boltz basada en el monto que envíes.",
         "generatingInvoice": "Generando factura",
+        "amountPlaceholder": "Cualquier cantidad",
         "invoiceDescription_lightningInvoice": "Factura Lightning",
         "invoiceDescription_lightningAddress": "Dirección Lightning",
         "invoiceDescription_bitcoinAddress": "Dirección Bitcoin",

@@ -1504,6 +1504,7 @@
         "liquidFeeMessage": "Os pagamentos recebidos em endereços Liquid precisam ser trocados para Spark.\n\nEste processo inclui uma taxa de bloqueio de cerca de {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}}, e uma taxa de serviço de 0,1% da Boltz com base no valor que você está enviando.",
         "rootstockFeeMessage": "Os pagamentos recebidos em endereços Rootstock precisam ser trocados para Spark.\n\nEste processo inclui uma taxa de bloqueio de cerca de {{fee}}, e uma taxa de serviço de 0,1% da Boltz com base no valor que você está enviando.",
         "generatingInvoice": "Gerando fatura",
+        "amountPlaceholder": "Qualquer valor",
         "invoiceDescription_lightningInvoice": "Fatura Lightning",
         "invoiceDescription_lightningAddress": "Endereço Lightning",
         "invoiceDescription_bitcoinAddress": "Endereço Bitcoin",
