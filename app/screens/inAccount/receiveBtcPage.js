@@ -134,6 +134,7 @@ export default function ReceivePaymentHome(props) {
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
 
   const handleShare = () => {
+    if (!addressState.generatedAddress) return;
     if (addressState.isGeneratingInvoice) return;
     Share.share({
       message: addressState.generatedAddress,
@@ -353,13 +354,17 @@ function QrCode(props) {
   };
 
   const handlePress = () => {
+    if (!addressState.generatedAddress) return;
+    if (addressState.isGeneratingInvoice) return;
     copyToClipboard(addressState.generatedAddress, showToast);
   };
 
   const address =
-    selectedRecieveOption.toLowerCase() === 'lightning' && !initialSendAmount
+    (selectedRecieveOption.toLowerCase() === 'lightning' &&
+    !initialSendAmount &&
+    !isUsingAltAccount
       ? `${globalContactsInformation?.myProfile?.uniqueName}@blitzwalletapp.com`
-      : addressState.generatedAddress;
+      : addressState.generatedAddress) || '';
 
   const canUseAmount =
     selectedRecieveOption?.toLowerCase() !== 'spark' &&
@@ -384,7 +389,9 @@ function QrCode(props) {
   };
 
   const qrData =
-    selectedRecieveOption.toLowerCase() === 'lightning' && !initialSendAmount
+    selectedRecieveOption.toLowerCase() === 'lightning' &&
+    !initialSendAmount &&
+    !isUsingAltAccount
       ? encodeLNURL(globalContactsInformation?.myProfile?.uniqueName)
       : addressState.generatedAddress || previousAddress.current || ' ';
 
@@ -465,13 +472,14 @@ function QrCode(props) {
       <QRInformationRow
         title={`${selectedRecieveOption} ${
           selectedRecieveOption.toLowerCase() === 'lightning' &&
-          initialSendAmount
+          (initialSendAmount || isUsingAltAccount)
             ? t('constants.invoice')?.toLowerCase()
             : t('constants.address')?.toLowerCase()
         }`}
         info={
           selectedRecieveOption.toLowerCase() === 'lightning' &&
-          !initialSendAmount
+          !initialSendAmount &&
+          !isUsingAltAccount
             ? address
             : address.slice(0, showLongerAddress ? 14 : 7) +
               '...' +
@@ -479,19 +487,22 @@ function QrCode(props) {
         }
         lightModeIcon={
           selectedRecieveOption.toLowerCase() === 'lightning' &&
-          !initialSendAmount
+          !initialSendAmount &&
+          !isUsingAltAccount
             ? ICONS.editIcon
             : ICONS.clipboardDark
         }
         darkModeIcon={
           selectedRecieveOption.toLowerCase() === 'lightning' &&
-          !initialSendAmount
+          !initialSendAmount &&
+          !isUsingAltAccount
             ? ICONS.editIconLight
             : ICONS.clipboardLight
         }
         lightsOutIcon={
           selectedRecieveOption.toLowerCase() === 'lightning' &&
-          !initialSendAmount
+          !initialSendAmount &&
+          !isUsingAltAccount
             ? ICONS.editIconLight
             : ICONS.clipboardLight
         }
@@ -499,10 +510,12 @@ function QrCode(props) {
           if (addressState.isGeneratingInvoice) return;
           if (
             selectedRecieveOption.toLowerCase() === 'lightning' &&
-            !initialSendAmount
+            !initialSendAmount &&
+            !isUsingAltAccount
           )
             editLNURL();
-          else copyToClipboard(address, showToast);
+          else if (addressState.generatedAddress)
+            copyToClipboard(address, showToast);
         }}
         showSkeleton={addressState.isGeneratingInvoice}
       />
