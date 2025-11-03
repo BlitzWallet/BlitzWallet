@@ -1170,9 +1170,8 @@
       "showSeedWarning": "Sind Sie sicher, dass Sie Ihre Seed-Phrase anzeigen möchten?"
     },
     "crashReporting": {
-      "enabled": "Aktiviert",
-      "disabled": "Deaktiviert",
-      "crashreporting": "Absturzberichte",
+      "crashreporting_enabled": "Absturzberichte aktiviert",
+      "crashreporting_disabled": "Absturzberichte deaktiviert",
       "descriptionText": "Absturzdaten helfen uns, die Stabilität und Leistung unserer Anwendung zu verbessern.\n\nWenn ein Absturz auftritt, werden automatisch folgende Geräteinformationen aufgezeichnet:\n\n• Betriebssystem: OS-Version, Geräteausrichtung und Jailbreak-Status\n• Gerätedetails: Modell, Ausrichtung und verfügbarer RAM\n• Absturzinformationen: Datum des Absturzes und App-Version"
     },
     "accounts": {
@@ -1197,7 +1196,8 @@
     "sparkLrc20": {
       "balanceError": "Ihr aktuelles Wallet-Guthaben beträgt {{balance}}. Blitz fügt allen BTKN-Zahlungen eine {{fee}}-Gebühr hinzu. Stellen Sie sicher, dass Sie etwas Bitcoin in Ihrer Wallet haben, um Token zu senden.",
       "title": "Spark-Einstellungen",
-      "sliderTitle": "{{switchType}} BTKN",
+      "sliderTitle_enabled": "BTKN aktiviert",
+      "sliderTitle_disabled": "BTKN deaktiviert",
       "sliderDesc": "BTKN ist der native Token von Spark. Das Aktivieren von BTKN ermöglicht das Senden und Empfangen von Token im Spark-Netzwerk.\n\nBlitz ist eine auf Bitcoin fokussierte Wallet. Wir fördern oder unterstützen die Nutzung von Token nicht. Diese Funktion existiert, weil wir glauben, dass Nutzer die Freiheit haben sollten, die Technologie zu nutzen, die sie wollen.\n\nBlitz erhebt auch eine {{fee}}-Gebühr auf alle Token-Transaktionen, wobei 20% dieser Gebühr zur Unterstützung der Open-Source-Bitcoin-Entwicklung gespendet werden."
     },
     "viewSwapsHome": {
@@ -1236,7 +1236,8 @@
       "swap": "Swap"
     },
     "notifications": {
-      "mainToggle": "{{state}} Benachrichtigungen",
+      "mainToggle_enabled": "Benachrichtigungen aktiviert",
+      "mainToggle_disabled": "Benachrichtigungen deaktiviert",
       "mainToggleDesc": "Benachrichtigungen informieren Sie über wichtige Ereignisse und Updates in der App.",
       "optionsTitle": "Benachrichtigungsoptionen",
       "contact": "Kontakt",
@@ -1448,15 +1449,17 @@
 
       "confirmTxPage": {
         "failedToSend": "Senden fehlgeschlagen",
-        "confirmMessage": "{{direction}} erfolgreich",
         "paymentErrorMessage": "Es gab ein Problem beim Senden dieser Zahlung, bitte versuchen Sie es erneut.",
         "sendReport": "Bericht an Entwickler senden",
         "lnurlAuthSuccess": "Wallet-Authentifizierung erfolgreich! Sie sind jetzt eingeloggt.",
         "emailReport": "Per E-Mail senden",
-        "copyReport": "In die Zwischenablage kopieren"
+        "copyReport": "In die Zwischenablage kopieren",
+        "confirmMessage_sent": "Erfolgreich gesendet",
+        "confirmMessage_received": "Erfolgreich empfangen"
       },
       "expandedTxPage": {
-        "confirmMessage": "{{direction}} Betrag",
+        "confirmMessage_sent": "Gesendeter Betrag",
+        "confirmMessage_received": "Erhaltener Betrag",
         "paymentStatus": "Zahlungsstatus",
         "confReqired": "Benötigte Bestätigungen",
         "detailsBTN": "Technische Details"
@@ -1483,7 +1486,12 @@
         "liquidFeeMessage": "Liquid-Zahlungen müssen in Spark umgetauscht werden.\n\nDieser Prozess umfasst eine Sperrgebühr von etwa {{fee}}, eine Einlösungsgebühr von etwa {{claimFee}} und eine Servicegebühr von 0,1% von Boltz basierend auf dem gesendeten Betrag.",
         "rootstockFeeMessage": "Rootstock-Zahlungen müssen in Spark umgetauscht werden.\n\nDieser Prozess umfasst eine Sperrgebühr von etwa {{fee}} und eine Servicegebühr von 0,1% von Boltz basierend auf dem gesendeten Betrag.",
         "generatingInvoice": "Rechnung wird generiert",
-        "amountPlaceholder": "Beliebiger Betrag"
+        "invoiceDescription_lightningInvoice": "Lightning-Rechnung",
+        "invoiceDescription_lightningAddress": "Lightning-Adresse",
+        "invoiceDescription_bitcoinAddress": "Bitcoin-Adresse",
+        "invoiceDescription_liquidAddress": "Liquid-Adresse",
+        "invoiceDescription_sparkAddress": "Spark-Adresse",
+        "invoiceDescription_rootstockAddress": "Rootstock-Adresse"
       },
 
       "settingsContent": {

@@ -1020,9 +1020,8 @@
       "showSeedWarning": "¿Estás seguro de que quieres mostrar tu frase inicial?"
     },
     "crashReporting": {
-      "enabled": "Habilitado",
-      "disabled": "Deshabilitado",
-      "crashreporting": "reporte de fallos",
+      "crashreporting_enabled": "Informes de fallos activados",
+      "crashreporting_disabled": "Informes de fallos desactivados",
       "descriptionText": "Los datos de fallos nos ayudan a mejorar la estabilidad y el rendimiento de nuestra aplicación.\n\nCuando ocurre un fallo, la información del dispositivo registrada automáticamente incluye:\n\n• Sistema operativo: versión del SO, orientación del dispositivo y estado de jailbreak\n• Detalles del dispositivo: modelo, orientación y RAM disponible\n• Información del fallo: fecha del fallo y versión de la aplicación"
     },
     "accounts": {
@@ -1047,7 +1046,8 @@
     "sparkLrc20": {
       "balanceError": "El saldo actual de tu billetera es {{balance}}. Blitz añade una tarifa de {{fee}} a todos los pagos BTKN. Asegúrate de tener algo de Bitcoin en tu billetera para enviar tokens.",
       "title": "Configuración Spark",
-      "sliderTitle": "{{switchType}} BTKN",
+      "sliderTitle_enabled": "BTKN activado",
+      "sliderTitle_disabled": "BTKN desactivado",
       "sliderDesc": "BTKN es el token nativo de Spark. Al habilitar BTKN, puedes enviar y recibir tokens en la red Spark.\n\nBlitz es una billetera enfocada en Bitcoin. No promovemos ni respaldamos el uso de tokens. Esta función existe porque creemos que los usuarios deben tener la libertad de usar la tecnología que deseen.\n\nBlitz también aplica una tarifa de {{fee}} a todas las transacciones con tokens, con el 20% de esa tarifa donado para apoyar el desarrollo de Bitcoin de código abierto."
     },
     "viewSwapsHome": {
@@ -1088,7 +1088,8 @@
       "swap": "Intercambiar"
     },
     "notifications": {
-      "mainToggle": "{{state}} notificaciones",
+      "mainToggle_enabled": "Notificaciones activadas",
+      "mainToggle_disabled": "Notificaciones desactivadas",
       "mainToggleDesc": "Las notificaciones te mantienen informado sobre eventos importantes y actualizaciones en la aplicación.",
       "optionsTitle": "Opciones de notificación",
       "contact": "Contacto",
@@ -1297,15 +1298,17 @@
       },
       "confirmTxPage": {
         "failedToSend": "Error al enviar",
-        "confirmMessage": "{{direction}} exitosamente",
         "paymentErrorMessage": "Hubo un problema al enviar este pago, por favor intenta de nuevo.",
         "sendReport": "Enviar informe al desarrollador",
         "Lnurlauthsuccess": "¡Autenticación de billetera exitosa! Ahora estás iniciado sesión.",
         "emailReport": "Enviar por correo electrónico",
-        "copyReport": "Copiar al portapapeles"
+        "copyReport": "Copiar al portapapeles",
+        "confirmMessage_sent": "Enviado correctamente",
+        "confirmMessage_received": "Recibido correctamente"
       },
       "expandedTxPage": {
-        "confirmMessage": "Monto {{direction}}",
+        "confirmMessage_sent": "Cantidad enviada",
+        "confirmMessage_received": "Cantidad recibida",
         "paymentStatus": "Estado del pago",
         "confReqired": "Confirmaciones requeridas",
         "detailsBTN": "Detalles técnicos"
@@ -1330,7 +1333,12 @@
         "liquidFeeMessage": "Los pagos en Liquid deben convertirse a Spark.\n\nEste proceso incluye una tarifa de bloqueo de aproximadamente {{fee}}, una tarifa de reclamo de alrededor de {{claimFee}}, y una tarifa de servicio del 0,1% de Boltz basada en la cantidad enviada.",
         "rootstockFeeMessage": "Los pagos en Rootstock deben convertirse a Spark.Este proceso incluye una comisión de bloqueo de aproximadamente {{fee}}, y una comisión de servicio del 0,1% de Boltz basada en el monto que envíes.",
         "generatingInvoice": "Generando factura",
-        "amountPlaceholder": "Cualquier cantidad"
+        "invoiceDescription_lightningInvoice": "Factura Lightning",
+        "invoiceDescription_lightningAddress": "Dirección Lightning",
+        "invoiceDescription_bitcoinAddress": "Dirección Bitcoin",
+        "invoiceDescription_liquidAddress": "Dirección Liquid",
+        "invoiceDescription_sparkAddress": "Dirección Spark",
+        "invoiceDescription_rootstockAddress": "Dirección Rootstock"
       },
       "settingsContent": {
         "about": "Acerca de",

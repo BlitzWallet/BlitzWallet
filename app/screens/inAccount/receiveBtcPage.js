@@ -399,6 +399,13 @@ function QrCode(props) {
     ? encodeLNURL(globalContactsInformation?.myProfile?.uniqueName)
     : addressState.generatedAddress || previousAddress.current || ' ';
 
+  const invoiceContext =
+    selectedRecieveOption === 'Lightning'
+      ? !isUsingLnurl
+        ? 'lightningInvoice'
+        : 'lightningAddress'
+      : `${selectedRecieveOption.toLowerCase()}Address`;
+
   return (
     <View
       style={[styles.qrCodeContainer, { backgroundColor: backgroundOffset }]}
@@ -483,11 +490,9 @@ function QrCode(props) {
         />
       )}
       <QRInformationRow
-        title={`${selectedRecieveOption} ${
-          !isUsingLnurl
-            ? t('constants.invoice')?.toLowerCase()
-            : t('constants.address')?.toLowerCase()
-        }`}
+        title={t('screens.inAccount.receiveBtcPage.invoiceDescription', {
+          context: invoiceContext,
+        })}
         info={
           isUsingLnurl
             ? address

@@ -1,16 +1,17 @@
-import {ScrollView, StyleSheet} from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {CENTER} from '../../../../constants';
-import {useEffect, useRef} from 'react';
-import {toggleCrashCollection} from '../../../../functions/crashlyticsLogs';
-import {useTranslation} from 'react-i18next';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { CENTER } from '../../../../constants';
+import { useEffect, useRef } from 'react';
+import { toggleCrashCollection } from '../../../../functions/crashlyticsLogs';
+import { useTranslation } from 'react-i18next';
 
 export default function CrashReportingSettingsPage() {
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
+  const { masterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
   const isInitialLoad = useRef(true);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const isCrashReportingEnabled =
     masterInfoObject.crashReportingSettings.isCrashReportingEnabled;
@@ -26,11 +27,9 @@ export default function CrashReportingSettingsPage() {
   return (
     <ScrollView style={styles.container}>
       <SettingsItemWithSlider
-        settingsTitle={`${
-          isCrashReportingEnabled
-            ? t('settings.crashReporting.enabled')
-            : t('settings.crashReporting.disabled')
-        } ${t('settings.crashReporting.crashreporting')}`}
+        settingsTitle={t('settings.crashReporting.crashreporting', {
+          context: isCrashReportingEnabled ? 'enabled' : 'disabled',
+        })}
         settingDescription={t('settings.crashReporting.descriptionText')}
         handleSubmit={() => {
           toggleMasterInfoObject({
