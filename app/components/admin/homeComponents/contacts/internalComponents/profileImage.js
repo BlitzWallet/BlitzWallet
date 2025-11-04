@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-  useCallback,
-  useRef,
-} from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Image as ExpoImage } from 'expo-image';
 import { ICONS } from '../../../../../constants';
 import customUUID from '../../../../../functions/customUUID';
@@ -21,8 +15,13 @@ export default function ContactProfileImage({
 }) {
   const [loadError, setLoadError] = useState(false);
   const [isCached, setIsCached] = useState(false);
+  const [reloadKey, setReloadKey] = useState(customUUID());
 
-  const uuidRef = useRef(customUUID());
+  // Reset loadError and trigger reload when uri or updated timestamp changes
+  useEffect(() => {
+    setLoadError(false);
+    setReloadKey(customUUID());
+  }, [uri, updated]);
 
   const fallbackIcon = fromCustomQR
     ? ICONS.logoWithPadding
@@ -32,16 +31,12 @@ export default function ContactProfileImage({
 
   const customURI = useMemo(() => {
     if (!uri) return null;
-    return `${uri}?v=${
-      updated ? new Date(updated).getTime() : uuidRef.current
-    }`;
-  }, [uri, updated]);
+    return `${uri}?v=${updated ? new Date(updated).getTime() : reloadKey}`;
+  }, [uri, updated, reloadKey]);
 
+  // Check if image is cached for smoother transitions
   useEffect(() => {
     let isMounted = true;
-
-    setLoadError(false);
-
     if (!customURI) {
       setIsCached(false);
       return;
@@ -69,6 +64,10 @@ export default function ContactProfileImage({
     setLoadError(true);
   }, []);
 
+  const onLoad = useCallback(() => {
+    setLoadError(false);
+  }, []);
+
   const imageSource = useMemo(() => {
     return !loadError && customURI ? customURI : fallbackIcon;
   }, [loadError, customURI, fallbackIcon]);
@@ -77,6 +76,7 @@ export default function ContactProfileImage({
     <ExpoImage
       source={imageSource}
       onError={onError}
+      onLoad={onLoad}
       style={styles.img}
       contentFit={contentFit}
       priority={priority}
@@ -86,5 +86,9 @@ export default function ContactProfileImage({
 }
 
 const styles = StyleSheet.create({
-  img: { width: '100%', aspectRatio: 1, borderRadius: 9999 },
+  img: {
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 9999,
+  },
 });
