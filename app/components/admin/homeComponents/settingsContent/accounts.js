@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { CENTER, ICONS } from '../../../../constants';
+import { CENTER, CONTENT_KEYBOARD_OFFSET, ICONS } from '../../../../constants';
 import {
   GlobalThemeView,
   ThemeText,
@@ -8,7 +8,6 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
-import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
@@ -19,21 +18,25 @@ import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import useCustodyAccountList from '../../../../hooks/useCustodyAccountsList';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../../../context-store/webViewContext';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 
-// Memoized account row component to prevent unnecessary re-renders
 const AccountRow = React.memo(
   ({
     account,
-    index,
     theme,
-    backgroundOffset,
-    backgroundColor,
+    darkModeType,
     textColor,
     currentWalletMnemoinc,
-    darkModeType,
     isLoading,
-    onNavigateCreate,
+    expandedAccount,
+    onToggleExpand,
     onNavigateView,
+    onNavigateEdit,
     onSelectAccount,
     t,
   }) => {
@@ -43,79 +46,157 @@ const AccountRow = React.memo(
     const isActive = currentWalletMnemoinc === account.mnemoinc;
     const isAccountLoading =
       isLoading.accountBeingLoaded === account.mnemoinc && isLoading.isLoading;
+    const isExpanded = expandedAccount === account.mnemoinc;
 
-    console.log(
-      isMainWallet,
-      isNWC,
-      isSpecialAccount,
-      isActive,
-      isAccountLoading,
-      backgroundColor,
-      backgroundOffset,
-      theme,
-      darkModeType,
-    );
+    const expandHeight = useSharedValue(0);
+    const chevronRotation = useSharedValue(0);
+
+    React.useEffect(() => {
+      expandHeight.value = withTiming(isExpanded ? 1 : 0, {
+        stiffness: 300,
+      });
+      chevronRotation.value = withTiming(isExpanded ? 1 : 0, {
+        duration: 200,
+      });
+    }, [isExpanded]);
+
+    const expandedStyle = useAnimatedStyle(() => ({
+      height: expandHeight.value * 90,
+      opacity: expandHeight.value,
+      marginTop: expandHeight.value * 12,
+    }));
+
+    const chevronStyle = useAnimatedStyle(() => ({
+      transform: [{ rotate: `${chevronRotation.value * 180}deg` }],
+    }));
+
     return (
-      <TouchableOpacity
-        activeOpacity={isSpecialAccount ? 1 : 0.2}
-        key={index}
-        style={[
-          styles.accountRow,
-          { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
-        ]}
-        onPress={() => {
-          if (!isSpecialAccount) {
-            onNavigateCreate(account);
-          }
-        }}
-      >
-        <ThemeText
-          styles={styles.accountName}
-          CustomNumberOfLines={1}
-          content={account.name}
-        />
-
-        {!isMainWallet && (
+      <View style={styles.row}>
+        <View style={styles.fullRow}>
           <TouchableOpacity
-            style={[styles.viewAccountArrowContainer, { backgroundColor }]}
-            onPress={() => onNavigateView(account)}
+            activeOpacity={0.7}
+            style={styles.rowTouchable}
+            onPress={() => {
+              if (isActive && !isSpecialAccount) {
+                onToggleExpand(account.mnemoinc);
+              } else if (!isActive) {
+                onSelectAccount(account);
+              }
+            }}
           >
-            <ThemeImage
-              styles={styles.arrowIcon}
-              lightModeIcon={ICONS.keyIcon}
-              darkModeIcon={ICONS.keyIcon}
-              lightsOutIcon={ICONS.keyIconWhite}
-            />
+            <View style={styles.rowContent}>
+              <View style={styles.leftSection}>
+                {isActive && (
+                  <View
+                    style={[
+                      styles.activeDot,
+                      {
+                        backgroundColor:
+                          theme && darkModeType ? COLORS.white : COLORS.primary,
+                      },
+                    ]}
+                  />
+                )}
+                <View>
+                  <ThemeText
+                    styles={[styles.accountText, isActive && styles.activeText]}
+                    content={account.name}
+                  />
+                  {isActive && (
+                    <ThemeText
+                      styles={[styles.activeTextFlag]}
+                      content={t('constants.active')}
+                    />
+                  )}
+                </View>
+              </View>
+
+              <View style={styles.rightSection}>
+                {isActive && !isSpecialAccount && (
+                  <Animated.View style={chevronStyle}>
+                    <ThemeImage
+                      styles={styles.chevron}
+                      lightModeIcon={ICONS.leftCheveronIcon}
+                      darkModeIcon={ICONS.leftCheveronIcon}
+                      lightsOutIcon={ICONS.left_cheveron_white}
+                    />
+                  </Animated.View>
+                )}
+
+                {!isActive && !isAccountLoading && (
+                  <ThemeText
+                    styles={[styles.selectText, { color: textColor }]}
+                    content={t('constants.select')}
+                  />
+                )}
+
+                {isAccountLoading && (
+                  <FullLoadingScreen
+                    showText={false}
+                    size="small"
+                    containerStyles={{ flex: 0 }}
+                  />
+                )}
+              </View>
+            </View>
           </TouchableOpacity>
+          {!isActive && !isSpecialAccount && (
+            <TouchableOpacity
+              style={styles.expandIcon}
+              onPress={() => {
+                console.log(isSpecialAccount);
+                if (!isSpecialAccount) {
+                  onToggleExpand(account.mnemoinc);
+                }
+              }}
+            >
+              <ThemeImage
+                lightModeIcon={ICONS.dotsBlue}
+                darkModeIcon={ICONS.dotsBlue}
+                lightsOutIcon={ICONS.dotsWhite}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {!isSpecialAccount && (
+          <Animated.View style={[styles.expanded, expandedStyle]}>
+            <TouchableOpacity
+              style={styles.expandedAction}
+              onPress={() => onNavigateView(account)}
+            >
+              <ThemeImage
+                styles={styles.actionIcon}
+                lightModeIcon={ICONS.keyIcon}
+                darkModeIcon={ICONS.keyIcon}
+                lightsOutIcon={ICONS.keyIconWhite}
+              />
+              <ThemeText
+                styles={styles.actionText}
+                content={t('settings.accountComponents.homepage.viewSeed')}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.expandedAction}
+              onPress={() => onNavigateEdit(account)}
+            >
+              <ThemeImage
+                styles={styles.actionIcon}
+                lightModeIcon={ICONS.settingsIcon}
+                darkModeIcon={ICONS.settingsIcon}
+                lightsOutIcon={ICONS.settingsWhite}
+              />
+              <ThemeText
+                styles={styles.actionText}
+                content={t('settings.accountComponents.homepage.editAccount')}
+              />
+            </TouchableOpacity>
+          </Animated.View>
         )}
 
-        <CustomButton
-          actionFunction={() => onSelectAccount(account)}
-          buttonStyles={{
-            maxWidth: 120,
-            minWidth: 'unset',
-            paddingHorizontal: 10,
-            width: 'auto',
-            backgroundColor: isActive
-              ? theme && darkModeType
-                ? COLORS.darkModeText
-                : COLORS.primary
-              : backgroundColor,
-          }}
-          textStyles={{
-            flexShrink: 1,
-            color: isActive
-              ? theme && darkModeType
-                ? COLORS.lightModeText
-                : COLORS.darkModeText
-              : textColor,
-            paddingHorizontal: 0,
-          }}
-          loadingColor={textColor}
-          textContent={isActive ? t('constants.active') : t('constants.select')}
-          useLoading={isAccountLoading}
-        />
-      </TouchableOpacity>
+        <View style={[styles.divider, { backgroundColor: textColor }]} />
+      </View>
     );
   },
 );
@@ -130,8 +211,9 @@ export default function CreateCustodyAccounts() {
     toggleIsUsingNostr,
   } = useActiveCustodyAccount();
   const { setSparkInformation } = useSparkWallet();
-  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
+  const { textColor, backgroundColor, backgroundOffset } = GetThemeColors();
   const [searchInput, setSearchInput] = useState('');
+  const [expandedAccount, setExpandedAccount] = useState(null);
   const [isLoading, setIsLoading] = useState({
     accountBeingLoaded: '',
     isLoading: false,
@@ -140,26 +222,28 @@ export default function CreateCustodyAccounts() {
   const accounts = useCustodyAccountList();
   const { sendWebViewRequest } = useWebView();
 
-  // Memoized filtered accounts to prevent recalculation on every render
   const filteredAccounts = useMemo(() => {
     if (!searchInput.trim()) return accounts;
     const searchTerm = searchInput.toLowerCase();
     return accounts.filter(account =>
-      account.name?.toLowerCase()?.startsWith(searchTerm),
+      account.name?.toLowerCase()?.includes(searchTerm),
     );
   }, [accounts, searchInput]);
 
-  // Memoized navigation handlers
-  const handleNavigateCreate = useCallback(
-    account => {
-      navigate.navigate('CreateCustodyAccount', { account });
-    },
-    [navigate],
-  );
+  const handleToggleExpand = useCallback(mnemonic => {
+    setExpandedAccount(prev => (prev === mnemonic ? null : mnemonic));
+  }, []);
 
   const handleNavigateView = useCallback(
     account => {
       navigate.navigate('ViewCustodyAccount', { account });
+    },
+    [navigate],
+  );
+
+  const handleNavigateEdit = useCallback(
+    account => {
+      navigate.navigate('CreateCustodyAccount', { account });
     },
     [navigate],
   );
@@ -171,15 +255,22 @@ export default function CreateCustodyAccounts() {
     [navigate],
   );
 
-  const handleNavigatePayment = useCallback(() => {
-    navigate.navigate('CustodyAccountPaymentPage');
-  }, [navigate]);
-
   const handleNavigateAddAccount = useCallback(() => {
     navigate.navigate('CreateCustodyAccount', {});
   }, [navigate]);
 
-  // Optimized account selection handler
+  const handleNavigateSwap = useCallback(() => {
+    console.log(accounts);
+    if (accounts.length < 2) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('settings.accountComponents.homepage.swapAccountError'),
+      });
+      return;
+    }
+
+    navigate.navigate('CustodyAccountPaymentPage');
+  }, [navigate, accounts]);
+
   const handleSelectAccount = useCallback(
     async account => {
       if (currentWalletMnemoinc === account.mnemoinc) return;
@@ -190,7 +281,6 @@ export default function CreateCustodyAccounts() {
       });
 
       try {
-        // Small delay for UX
         await new Promise(resolve => setTimeout(resolve, 250));
 
         const initResponse = await initWallet({
@@ -204,7 +294,6 @@ export default function CreateCustodyAccounts() {
           return;
         }
 
-        // Handle different account types
         const isMainWallet = account.name === 'Main Wallet';
         const isNWC = account.name === 'NWC';
 
@@ -238,22 +327,20 @@ export default function CreateCustodyAccounts() {
     ],
   );
 
-  // Memoized account elements
   const accountElements = useMemo(() => {
     return filteredAccounts.map((account, index) => (
       <AccountRow
         key={`${account.mnemoinc}-${index}`}
         account={account}
-        index={index}
         theme={theme}
-        backgroundOffset={backgroundOffset}
-        backgroundColor={backgroundColor}
+        darkModeType={darkModeType}
         textColor={textColor}
         currentWalletMnemoinc={currentWalletMnemoinc}
-        darkModeType={darkModeType}
         isLoading={isLoading}
-        onNavigateCreate={handleNavigateCreate}
+        expandedAccount={expandedAccount}
+        onToggleExpand={handleToggleExpand}
         onNavigateView={handleNavigateView}
+        onNavigateEdit={handleNavigateEdit}
         onSelectAccount={handleSelectAccount}
         t={t}
       />
@@ -261,115 +348,240 @@ export default function CreateCustodyAccounts() {
   }, [
     filteredAccounts,
     theme,
-    backgroundOffset,
-    backgroundColor,
     textColor,
     currentWalletMnemoinc,
-    darkModeType,
     isLoading,
-    handleNavigateCreate,
+    expandedAccount,
+    handleToggleExpand,
     handleNavigateView,
+    handleNavigateEdit,
     handleSelectAccount,
     t,
   ]);
-
-  // Memoized styles to prevent recreation
-  const scrollViewContentStyle = useMemo(
-    () => ({
-      width: INSET_WINDOW_WIDTH,
-      ...CENTER,
-    }),
-    [],
-  );
-
-  const searchContainerStyles = useMemo(
-    () => ({
-      paddingBottom: 10,
-      backgroundColor,
-    }),
-    [backgroundColor],
-  );
-
-  const buttonStyles = useMemo(
-    () => ({
-      ...CENTER,
-    }),
-    [],
-  );
-
-  const topBarIconStyles = useMemo(
-    () => ({
-      transform: [{ rotate: '45deg' }],
-    }),
-    [],
-  );
 
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         label={t('constants.accounts')}
-        showLeftImage={true}
-        leftImageBlue={ICONS.xSmallIcon}
-        LeftImageDarkMode={ICONS.xSmallIconWhite}
-        leftImageStyles={topBarIconStyles}
-        leftImageFunction={handleNavigateAddAccount}
+        // showLeftImage={true}
+        // leftImageBlue={ICONS.plusIcon}
+        // LeftImageDarkMode={ICONS.plusIconWhite}
+        // lightsOutIcon={ICONS.plusIconWhite}
+        // leftImageFunction={handleNavigateAddAccount}
       />
 
       <ScrollView
         stickyHeaderIndices={[0]}
-        contentContainerStyle={scrollViewContentStyle}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <CustomSearchInput
-          containerStyles={searchContainerStyles}
-          inputText={searchInput}
-          setInputText={setSearchInput}
-          placeholderText={t('settings.accounts.inputPlaceholder')}
-        />
-        {accountElements}
-      </ScrollView>
+        <View style={{ backgroundColor }}>
+          <CustomSearchInput
+            containerStyles={{
+              backgroundColor,
+              marginBottom: 20,
+            }}
+            inputText={searchInput}
+            setInputText={setSearchInput}
+            placeholderText={t('settings.accounts.inputPlaceholder')}
+          />
 
-      <CustomButton
-        actionFunction={handleNavigatePayment}
-        buttonStyles={buttonStyles}
-        textContent={t('settings.accounts.buttonCTA')}
-      />
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundOffset : COLORS.primary,
+                },
+              ]}
+              onPress={handleNavigateSwap}
+            >
+              <ThemeImage
+                styles={[
+                  styles.actionButtonIcon,
+                  { transform: [{ rotate: '-90deg' }] },
+                ]}
+                lightModeIcon={ICONS.swapFillwhite}
+                darkModeIcon={ICONS.swapFillwhite}
+                lightsOutIcon={ICONS.swapFillwhite}
+              />
+              <ThemeText
+                styles={styles.actionButtonText}
+                content={t('settings.accountComponents.homepage.swap')}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                {
+                  backgroundColor:
+                    theme && darkModeType ? backgroundOffset : COLORS.primary,
+                },
+              ]}
+              onPress={handleNavigateAddAccount}
+            >
+              <ThemeImage
+                styles={[
+                  styles.actionButtonIcon,
+                  { transform: [{ rotate: '-45deg' }] },
+                ]}
+                lightModeIcon={ICONS.xSmallIconWhite}
+                darkModeIcon={ICONS.xSmallIconWhite}
+                lightsOutIcon={ICONS.xSmallIconWhite}
+              />
+              <ThemeText
+                styles={styles.actionButtonText}
+                content={t('settings.accountComponents.homepage.addNewAccount')}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.listContainer}>
+          {accountElements.length > 0 ? (
+            accountElements
+          ) : (
+            <View style={styles.empty}>
+              <ThemeText
+                styles={styles.emptyText}
+                content={t(
+                  'settings.accountComponents.homepage.noAccountsFound',
+                )}
+              />
+            </View>
+          )}
+        </View>
+      </ScrollView>
     </GlobalThemeView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionHeader: {
-    fontSize: SIZES.large,
-    textAlign: 'center',
-    marginBottom: 10,
-    marginTop: 30,
+  scrollContent: {
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+    paddingTop: 20,
   },
-  accountRow: {
+  listContainer: {
     width: '100%',
-    padding: 10,
-    borderRadius: 8,
+    paddingTop: 8,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    ...CENTER,
+    paddingBottom: CONTENT_KEYBOARD_OFFSET,
+  },
+  actionButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 5,
+    justifyContent: 'center',
+    paddingVertical: 10,
+    gap: 8,
+    borderRadius: 8,
   },
-  accountName: {
-    width: '100%',
+  actionButtonIcon: {
+    width: 20,
+    height: 20,
+  },
+  actionButtonText: {
+    fontWeight: '500',
+    color: COLORS.darkModeText,
     includeFontPadding: false,
+  },
+  row: {
+    width: '100%',
+    paddingVertical: 4,
+  },
+  fullRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rowTouchable: {
+    width: '100%',
     flexShrink: 1,
     marginRight: 10,
+    paddingVertical: 18,
   },
-  viewAccountArrowContainer: {
-    backgroundColor: 'red',
-    width: 45,
-    height: 45,
-    borderRadius: 8,
+  rowContent: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
+    justifyContent: 'space-between',
   },
-  arrowIcon: {
+  leftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 12,
+  },
+  activeDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  accountText: {
+    fontSize: 16,
+    includeFontPadding: false,
+    letterSpacing: 0.2,
+  },
+  activeText: {
+    fontWeight: '500',
+  },
+  activeTextFlag: {
+    fontSize: SIZES.small,
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 16,
+  },
+  // expandIcon: { paddingHorizontal: 5 },
+  chevron: {
     width: 25,
     height: 25,
+    transform: [{ rotate: '-90deg' }],
+  },
+  selectText: {
+    fontSize: 14,
+    opacity: 0.7,
+    includeFontPadding: false,
+  },
+  expanded: {
+    overflow: 'hidden',
+    paddingLeft: 18,
+  },
+  expandedAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    gap: 14,
+  },
+  actionIcon: {
+    width: 16,
+    height: 16,
+    opacity: 0.7,
+  },
+  actionText: {
+    includeFontPadding: false,
+    opacity: 0.8,
+  },
+  divider: {
+    height: 2,
+    width: '100%',
+    opacity: 0.1,
+    borderRadius: 100,
+    marginTop: 4,
+  },
+  empty: {
+    paddingVertical: 60,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 15,
+    opacity: 0.3,
   },
 });

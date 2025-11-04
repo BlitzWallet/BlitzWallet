@@ -1,7 +1,7 @@
-import {StyleSheet, Text, View} from 'react-native';
-import {COLORS, FONT, SIZES} from '../../constants';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useCallback, useMemo} from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { COLORS, FONT, SIZES } from '../../constants';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useCallback, useMemo } from 'react';
 
 export default function ThemeText({
   content,
@@ -11,10 +11,11 @@ export default function ThemeText({
   CustomNumberOfLines = null,
   onLayout = null,
 }) {
-  const {theme} = useGlobalThemeContext();
+  const { theme } = useGlobalThemeContext();
 
-  const memorizedStyles = useMemo(
-    () => ({
+  const memorizedStyles = useMemo(() => {
+    // Base styles with theme color
+    const baseStyles = {
       ...textStyles.localTextStyles,
       color: theme
         ? reversed
@@ -23,10 +24,27 @@ export default function ThemeText({
         : reversed
         ? COLORS.darkModeText
         : COLORS.lightModeText,
+    };
+
+    if (!styles) {
+      return baseStyles;
+    }
+
+    if (Array.isArray(styles)) {
+      return styles.reduce(
+        (acc, style) => ({
+          ...acc,
+          ...(style || {}),
+        }),
+        baseStyles,
+      );
+    }
+
+    return {
+      ...baseStyles,
       ...styles,
-    }),
-    [theme, styles],
-  );
+    };
+  }, [theme, reversed, styles]);
 
   const layoutCallback = useCallback(
     e => {
@@ -41,7 +59,8 @@ export default function ThemeText({
       onLayout={layoutCallback}
       ellipsizeMode={CustomEllipsizeMode}
       numberOfLines={CustomNumberOfLines}
-      style={memorizedStyles}>
+      style={memorizedStyles}
+    >
       {content}
     </Text>
   );
