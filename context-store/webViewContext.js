@@ -542,7 +542,7 @@ export const WebViewProvider = ({ children }) => {
               resetWebViewState(true, true);
               forceReactNativeUse = true;
 
-              // setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
+              setLocalStorageItem('FORCE_REACT_NATIVE', 'true');
             }
             resolve(result);
 
