@@ -1340,6 +1340,14 @@
       }
     },
     "accountComponents": {
+      "homepage": {
+        "addNewAccount": "Aggiungi",
+        "swap": "Scambia",
+        "viewSeed": "Visualizza frase seed",
+        "editAccount": "Modifica account",
+        "swapAccountError": "Hai bisogno di almeno due account per effettuare uno scambio.",
+        "noAccountsFound": "Nessun account corrisponde alla tua ricerca."
+      },
       "accountPaymentPage": {
         "noAmountError": "Inserisci un importo da scambiare",
         "noAccountError": "Seleziona un account da cui scambiare i fondi",
