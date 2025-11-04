@@ -170,11 +170,19 @@ export default function ConfirmTxPage(props) {
       {didSucceed && !isLNURLAuth && (
         <View style={styles.paymentTable}>
           <View style={styles.paymentTableRow}>
-            <ThemeText content={t('constants.fee')} />
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.labelText}
+              content={t('constants.fee')}
+            />
             <FormattedSatText neverHideBalance={true} balance={paymentFee} />
           </View>
           <View style={styles.paymentTableRow}>
-            <ThemeText content={t('constants.type')} />
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.labelText}
+              content={t('constants.type')}
+            />
             <ThemeText content={paymentNetwork} />
           </View>
         </View>
@@ -290,8 +298,13 @@ const styles = StyleSheet.create({
     rowGap: 20,
   },
   paymentTableRow: {
-    width: 200,
+    width: '100%',
+    minWidth: 200,
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  labelText: {
+    flexShrink: 1,
+    marginRight: 5,
   },
 });
