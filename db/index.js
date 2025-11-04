@@ -33,7 +33,9 @@ export const LOCAL_STORED_USER_DATA_KEY = 'LOCAL_USER_OBJECT';
 export async function addDataToCollection(dataObject, collectionName, uuid) {
   try {
     if (!uuid) throw Error('Not authenticated');
-    crashlyticsLogReport('Starting to add data to collection');
+    crashlyticsLogReport(
+      `Starting add data to collection for ${collectionName}`,
+    );
 
     const db = getFirestore();
     const docRef = doc(db, collectionName, uuid);
@@ -458,7 +460,7 @@ export async function addNip5toCollection(dataObject, uuid) {
 export async function deleteNip5FromCollection(uuid) {
   try {
     if (!uuid) throw Error('Not authenticated');
-    crashlyticsLogReport('Starting to add data to collection');
+    crashlyticsLogReport('Starting to remove data from nip5');
 
     const db = getFirestore();
     const docRef = doc(db, 'nip5Verification', uuid);
