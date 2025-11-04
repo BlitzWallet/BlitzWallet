@@ -72,7 +72,13 @@ const mediumOperations = [
 ];
 
 const rejectIfNotConnectedToInternet = [
-  ...longOperations,
+  OPERATION_TYPES.claimStaticDepositAddress,
+  OPERATION_TYPES.sendSparkPayment,
+  OPERATION_TYPES.sendTokenPayment,
+  OPERATION_TYPES.getBitcoinPaymentRequest,
+  OPERATION_TYPES.getBitcoinPaymentFee,
+  OPERATION_TYPES.sendLightningPayment,
+  OPERATION_TYPES.sendBitcoinPayment,
   OPERATION_TYPES.receiveLightningPayment,
   OPERATION_TYPES.getL1Address,
   OPERATION_TYPES.getSparkAddress,
@@ -173,10 +179,10 @@ export const WebViewProvider = ({ children }) => {
     maxPerSecond: 10,
   });
 
-  const blockAndResetWebview = () => {
+  const blockAndResetWebview = shouldClearPending => {
     didRunInit.current = true; // Block handshakes during reload
 
-    resetWebViewState(false, false);
+    resetWebViewState(false, false, shouldClearPending);
     reloadWebViewSecurely(); // Will allow handshake to complete after state variables change. We are preventing a race condition here with the app state.
   };
 
@@ -187,9 +193,17 @@ export const WebViewProvider = ({ children }) => {
   }, []);
 
   const resetWebViewState = useCallback(
-    (clearHandshake = false, sparkConnectionState) => {
+    (
+      clearHandshake = false,
+      sparkConnectionState,
+      shouldClearPending = true,
+    ) => {
       if (forceReactNativeUse) return;
-      console.log('Resetting WebView state', { clearHandshake });
+      console.log('Resetting WebView state', {
+        clearHandshake,
+        sparkConnectionState,
+        shouldClearPending,
+      });
       isResetting.current = true;
       setIsWebViewReady(false);
       // setVerifiedPath('');
@@ -214,16 +228,18 @@ export const WebViewProvider = ({ children }) => {
         count: prev.count + 1,
       }));
 
-      Object.entries(pendingRequests.current).forEach(([id, resolve]) => {
-        // Call the resolve to trigger timeout cleanup
-        if (typeof resolve === 'function') {
-          resolve({
-            error: 'Unable to finish action, request got cleaned up.',
-          });
-        }
-      });
+      if (shouldClearPending) {
+        Object.entries(pendingRequests.current).forEach(([id, resolve]) => {
+          // Call the resolve to trigger timeout cleanup
+          if (typeof resolve === 'function') {
+            resolve({
+              error: 'Unable to finish action, request got cleaned up.',
+            });
+          }
+        });
+        pendingRequests.current = {};
+      }
 
-      pendingRequests.current = {};
       sessionKeyRef.current = null;
       expectedSequenceRef.current = 0;
       aesKeyRef.current = null;
@@ -332,15 +348,20 @@ export const WebViewProvider = ({ children }) => {
       if (justBecameActive || connectionJustRestored) {
         if (
           timeInBackground > BACKGROUND_THRESHOLD_MS ||
-          !nonceVerified.current
+          (!nonceVerified.current && !isResetting.current)
         ) {
           console.log('Background time exceeded threshold - reloading WebView');
           blockAndResetWebview();
         } else {
-          // Make sure to handle any events that happen during background and are within the three minute refresh timeout
-          setTimeout(() => {
-            processQueuedRequests(connectionJustRestored);
-          }, 100);
+          // sometimes the webview becomes stale, if internet connection goes away make sure to reset webview but dont clear pending events so they are handled once webview is active again
+          if (connectionJustRestored) {
+            blockAndResetWebview(false);
+          } else {
+            // Make sure to handle any events that happen during background and are within the three minute refresh timeout
+            setTimeout(() => {
+              processQueuedRequests(connectionJustRestored);
+            }, 100);
+          }
         }
 
         backgroundTimeRef.current = null;
@@ -581,6 +602,7 @@ export const WebViewProvider = ({ children }) => {
               });
             } else {
               console.log('Duplicate request ignored:', action, args);
+              reject('Duplicate request ignored');
             }
             return;
           }
@@ -597,7 +619,8 @@ export const WebViewProvider = ({ children }) => {
               )
             ) {
               reject(new Error(`App is not connected to the internet`));
-            } else {
+            } else if (action !== OPERATION_TYPES.initWallet) {
+              //don't add init wallet, this will be added during webview reset
               if (!isDuplicate(queuedRequests.current, action, args)) {
                 queuedRequests.current.push({
                   id,
@@ -609,6 +632,7 @@ export const WebViewProvider = ({ children }) => {
                 });
               } else {
                 console.log('Duplicate request ignored:', action, args);
+                reject('Duplicate request ignored');
               }
             }
             return;
@@ -632,6 +656,7 @@ export const WebViewProvider = ({ children }) => {
               });
             } else {
               console.log('Duplicate request ignored:', action, args);
+              reject('Duplicate request ignored');
             }
             return;
           }
@@ -872,7 +897,7 @@ export const WebViewProvider = ({ children }) => {
       }
       initHandshake();
     }
-    startHandshake();
+    startHandshake(); //remove this and app fully uses RN
   }, [isWebViewReady, verifiedPath, initHandshake, appState]);
 
   useEffect(() => {
