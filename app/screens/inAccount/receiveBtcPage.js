@@ -400,7 +400,7 @@ function QrCode(props) {
     : addressState.generatedAddress || previousAddress.current || ' ';
 
   const invoiceContext =
-    selectedRecieveOption === 'Lightning'
+    selectedRecieveOption.toLowerCase() === 'lightning'
       ? !isUsingLnurl
         ? 'lightningInvoice'
         : 'lightningAddress'
