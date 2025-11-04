@@ -407,6 +407,7 @@ export default function CreateCustodyAccounts() {
                 lightsOutIcon={ICONS.swapFillwhite}
               />
               <ThemeText
+                CustomNumberOfLines={1}
                 styles={styles.actionButtonText}
                 content={t('settings.accountComponents.homepage.swap')}
               />
@@ -433,6 +434,7 @@ export default function CreateCustodyAccounts() {
               />
               <ThemeText
                 styles={styles.actionButtonText}
+                CustomNumberOfLines={1}
                 content={t('settings.accountComponents.homepage.addNewAccount')}
               />
             </TouchableOpacity>
@@ -491,6 +493,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: COLORS.darkModeText,
     includeFontPadding: false,
+    flexShrink: 1,
   },
   row: {
     width: '100%',
