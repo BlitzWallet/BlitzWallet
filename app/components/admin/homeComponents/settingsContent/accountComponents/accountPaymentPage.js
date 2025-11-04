@@ -302,7 +302,7 @@ export default function AccountPaymentPage(props) {
             borderBottomColor: backgroundOffset,
           }}
         >
-          <View>
+          <View style={{ flexShrink: 1 }}>
             <View style={styles.transferTextContainer}>
               <ThemeImage
                 styles={{
@@ -316,7 +316,11 @@ export default function AccountPaymentPage(props) {
               <ThemeText content={t('constants.from')} />
             </View>
             {fromAccount && (
-              <ThemeText styles={{ opacity: 0.7 }} content={fromAccount} />
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={{ opacity: 0.7, flexShrink: 1 }}
+                content={fromAccount}
+              />
             )}
           </View>
           <TouchableOpacity
@@ -333,7 +337,6 @@ export default function AccountPaymentPage(props) {
               flexDirection: 'row',
               alignItems: 'center',
               marginLeft: 10,
-              flexShrink: 1,
             }}
           >
             {fromAccount ? (

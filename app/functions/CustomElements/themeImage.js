@@ -1,6 +1,6 @@
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useMemo} from 'react';
-import {Image} from 'expo-image';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useMemo } from 'react';
+import { Image } from 'expo-image';
 
 export default function ThemeImage({
   imgName,
@@ -10,11 +10,28 @@ export default function ThemeImage({
   lightsOutIcon,
   darkModeIcon,
 }) {
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const imageStyles = useMemo(() => {
-    return {
+    const baseStyles = {
       width: 30,
       height: 30,
+      ...styles,
+    };
+
+    if (!styles) return baseStyles;
+
+    if (Array.isArray(styles)) {
+      return styles.reduce(
+        (acc, style) => ({
+          ...acc,
+          ...(style || {}),
+        }),
+        baseStyles,
+      );
+    }
+
+    return {
+      ...baseStyles,
       ...styles,
     };
   }, [styles]);

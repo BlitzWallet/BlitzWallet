@@ -132,6 +132,12 @@ import arrowToRightLight from '../assets/icons/arrow-to-shape-right-light.png';
 import arrowToRight from '../assets/icons/arrow-to-shape-right.png';
 import group from '../assets/icons/group.png';
 import groupWhite from '../assets/icons/groupWhite.png';
+import swapFillBlue from '../assets/icons/swapFillBlue.png';
+import swapFillwhite from '../assets/icons/swapFillwhite.png';
+import swapFill from '../assets/icons/swapFill.png';
+import dotsBlue from '../assets/icons/dotsBlue.png';
+import dotsWhite from '../assets/icons/dotsWhite.png';
+
 export default {
   editIcon,
   editIconLight,
@@ -267,4 +273,9 @@ export default {
   group,
   groupWhite,
   arrow_small_left_black,
+  swapFillBlue,
+  swapFillwhite,
+  swapFill,
+  dotsBlue,
+  dotsWhite,
 };

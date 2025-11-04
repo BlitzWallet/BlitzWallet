@@ -1323,6 +1323,14 @@
       }
     },
     "accountComponents": {
+      "homepage": {
+        "addNewAccount": "Hinzufügen",
+        "swap": "Tauschen",
+        "viewSeed": "Seed-Phrase anzeigen",
+        "editAccount": "Konto bearbeiten",
+        "swapAccountError": "Du benötigst mindestens zwei Konten, um einen Tausch durchzuführen.",
+        "noAccountsFound": "Keine Konten entsprechen deiner Suche."
+      },
       "accountPaymentPage": {
         "noAmountError": "Bitte geben Sie einen Betrag ein, der getauscht werden soll",
         "noAccountError": "Bitte wählen Sie ein Konto aus, von dem die Gelder getauscht werden sollen",

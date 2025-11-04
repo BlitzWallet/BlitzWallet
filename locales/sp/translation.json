@@ -1175,6 +1175,14 @@
       }
     },
     "accountComponents": {
+      "homepage": {
+        "addNewAccount": "Agregar",
+        "swap": "Intercambiar",
+        "viewSeed": "Ver frase semilla",
+        "editAccount": "Editar cuenta",
+        "swapAccountError": "Necesitas al menos dos cuentas para hacer un intercambio.",
+        "noAccountsFound": "No se encontraron cuentas que coincidan con tu búsqueda."
+      },
       "accountPaymentPage": {
         "noAmountError": "Por favor ingresa una cantidad a intercambiar",
         "noAccountError": "Por favor selecciona una cuenta de la cual intercambiar fondos",

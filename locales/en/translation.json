@@ -1342,6 +1342,14 @@
       }
     },
     "accountComponents": {
+      "homepage": {
+        "addNewAccount": "Add",
+        "swap": "Swap",
+        "viewSeed": "View seed phrase",
+        "editAccount": "Edit account",
+        "swapAccountError": "You need at least two accounts to make a swap.",
+        "noAccountsFound": "No accounts match your search."
+      },
       "accountPaymentPage": {
         "noAmountError": "Please enter an amount to be swapped",
         "noAccountError": "Please select an account for funds to be swapped from",
