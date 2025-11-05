@@ -981,6 +981,12 @@
       "sparkErrorScreen": {
         "connectionError": "Abbiamo problemi a connetterci al tuo wallet. Faccelo sapere.\n\nRicorda, la tua frase seed mantiene i tuoi fondi al sicuro.",
         "retry": "Non siamo riusciti a caricare il tuo wallet al momento. Riprova.\n\nI tuoi fondi sono al sicuro fintanto che hai la tua frase seed."
+      },
+      "backupSeedWarning": {
+        "header": "Fai il backup della tua frase seed",
+        "description": "Hai denaro nel tuo portafoglio, ma non hai salvato la tua frase seed. La tua frase seed è un elenco di parole che sbloccano il tuo portafoglio. Se perdi questo dispositivo e non l’hai salvata, potresti perdere il tuo denaro per sempre.",
+        "backupBTN": "Fai il backup ora",
+        "laterBTN": "Lo farò più tardi"
       }
     },
     "exportTransactions": {

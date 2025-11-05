@@ -982,6 +982,12 @@
       "sparkErrorScreen": {
         "connectionError": "We’re having trouble connecting to your wallet. Please let us know about this issue.\n\nRemember, your seed phrase keeps your funds safe.",
         "retry": "We couldn’t load your wallet right now. Please try again. \n\nYour funds are safe as long as you have your seed phrase."
+      },
+      "backupSeedWarning": {
+        "header": "Backup Your Seed Phrase",
+        "description": "You have money in your wallet, but you haven’t saved your seed phrase. Your seed phrase is a list of words that unlock your wallet. If you lose this device and don’t have it saved, your money could be gone forever.",
+        "backupBTN": "Backup Now",
+        "laterBTN": "I'll do it later"
       }
     },
     "exportTransactions": {
