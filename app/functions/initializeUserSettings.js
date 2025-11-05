@@ -317,9 +317,10 @@ export default async function initializeUserSettingsFromHistory({
       needsToUpdate = true;
     }
 
-    if (!lrc20Settings) {
+    if (!lrc20Settings || !lrc20Settings?.isEnabled) {
+      //force enable for legacy users
       lrc20Settings = {
-        isEnabled: false,
+        isEnabled: true, //enabled by default, but only shows token UI if a token is receivd
       };
     }
 

@@ -70,7 +70,7 @@ export default function SendPaymentScreen(props) {
   } = props.route.params;
   const useAltLayout = screenDimensions.height < 720;
   const { t } = useTranslation();
-  const { sparkInformation } = useSparkWallet();
+  const { sparkInformation, tokensImageCache } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { liquidNodeInformation, fiatStats } = useNodeContext();
   // const {minMaxLiquidSwapAmounts} = useAppStatus();
@@ -268,6 +268,7 @@ export default function SendPaymentScreen(props) {
         seletctedToken={seletctedToken}
         goBackFunction={goBackFunction}
         setSelectedToken={setMasterTokenInfo}
+        tokensImageCache={tokensImageCache}
       />
     );
   }
