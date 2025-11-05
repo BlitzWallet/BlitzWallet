@@ -137,6 +137,8 @@ import swapFillwhite from '../assets/icons/swapFillwhite.png';
 import swapFill from '../assets/icons/swapFill.png';
 import dotsBlue from '../assets/icons/dotsBlue.png';
 import dotsWhite from '../assets/icons/dotsWhite.png';
+import warningBlue from '../assets/icons/warningBlue.png';
+import warningWhite from '../assets/icons/warningWhite.png';
 
 export default {
   editIcon,
@@ -278,4 +280,6 @@ export default {
   swapFill,
   dotsBlue,
   dotsWhite,
+  warningBlue,
+  warningWhite,
 };
