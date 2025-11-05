@@ -112,7 +112,7 @@ export default function FormattedBalanceInput({
             styles={styles.satText}
             content={
               customCurrencyCode.length > 4
-                ? customCurrencyCode.toUpperCase()?.slice(0, 2) + '..'
+                ? customCurrencyCode.toUpperCase()?.slice(0, 3) + '..'
                 : customCurrencyCode.toUpperCase()
             }
           />
