@@ -174,15 +174,19 @@ export default function getFormattedHomepageTxsForSpark(props) {
   // Remove unnecessary console.logs for performance
   // crashlyticsLogReport('Starting re-rendering of formatted transactions');
 
-  if (!didGetToHomepage) {
-    return null;
-  }
+  // if (!didGetToHomepage) {
+  //   return null;
+  // }
 
   const sparkTransactions = sparkInformation?.transactions;
   const sparkTransactionsLength = sparkTransactions?.length || 0;
 
   // Early return with loading skeleton
-  if (!sparkInformation.didConnect || !sparkInformation.identityPubKey) {
+  if (
+    !sparkInformation.didConnect ||
+    !sparkInformation.identityPubKey ||
+    !didGetToHomepage
+  ) {
     return [createLoadingSkeleton(20, frompage, theme, darkModeType)];
   }
 

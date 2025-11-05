@@ -75,7 +75,9 @@ export default function HomeLightning() {
   const BALANCE_FADE_END = 100;
 
   useEffect(() => {
-    toggleDidGetToHomepage(true);
+    setTimeout(() => {
+      toggleDidGetToHomepage(true);
+    }, 800);
   }, []);
 
   const handleStateUpdate = newObj => {
