@@ -25,6 +25,7 @@ const DropdownMenu = ({
   placeholder,
   showClearIcon = true,
   showVerticalArrows = true,
+  showVerticalArrowsAbsolute = false,
   textStyles = {},
   customButtonStyles = {},
   dropdownItemCustomStyles = {},
@@ -141,7 +142,15 @@ const DropdownMenu = ({
             />
           )}
           {showVerticalArrows && (
-            <View style={styles.verticalArrowsContainer}>
+            <View
+              style={[
+                styles.verticalArrowsContainer,
+                showVerticalArrowsAbsolute && {
+                  position: 'absolute',
+                  right: 10,
+                },
+              ]}
+            >
               <ThemeImage
                 styles={styles.verticalTopArrow}
                 lightModeIcon={ICONS.leftCheveronDark}
