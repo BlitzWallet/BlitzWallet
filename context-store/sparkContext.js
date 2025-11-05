@@ -85,6 +85,7 @@ const SparkWalletProvider = ({ children }) => {
     sparkAddress: '',
     didConnect: null,
   });
+  const [tokensImageCache, setTokensImageCache] = useState({});
   const [pendingNavigation, setPendingNavigation] = useState(null);
   const [pendingLiquidPayment, setPendingLiquidPayment] = useState(null);
   const depositAddressIntervalRef = useRef(null);
@@ -163,6 +164,38 @@ const SparkWalletProvider = ({ children }) => {
     }
     handleWalletStateChange();
   }, [changeSparkConnectionState, didGetToHomepage, shouldRunNormalConnection]);
+
+  useEffect(() => {
+    if (!sparkInfoRef.current?.tokens) return;
+
+    async function updateTokensImageCache() {
+      const availableAssets = Object.entries(sparkInfoRef.current.tokens);
+      const extensions = ['jpg', 'png'];
+      const newCache = {};
+
+      for (const [tokenId] of availableAssets) {
+        console.log(tokenId);
+        newCache[tokenId] = null;
+
+        for (const ext of extensions) {
+          const url = `https://tokens.sparkscan.io/${tokenId}.${ext}`;
+          try {
+            const response = await fetch(url, { method: 'HEAD' });
+            if (response.ok) {
+              newCache[tokenId] = url;
+              break;
+            }
+          } catch (err) {
+            console.log('Image fetch error:', tokenId, err);
+          }
+        }
+      }
+
+      setTokensImageCache(newCache);
+    }
+
+    updateTokensImageCache();
+  }, [Object.keys(sparkInformation.tokens || {}).length]);
 
   // Debounce refs
   const debounceTimeoutRef = useRef(null);
@@ -1051,6 +1084,7 @@ const SparkWalletProvider = ({ children }) => {
       setSparkConnectionError,
       pendingLiquidPayment,
       setPendingLiquidPayment,
+      tokensImageCache,
     }),
     [
       sparkInformation,
@@ -1064,6 +1098,7 @@ const SparkWalletProvider = ({ children }) => {
       setSparkConnectionError,
       pendingLiquidPayment,
       setPendingLiquidPayment,
+      tokensImageCache,
     ],
   );
 
