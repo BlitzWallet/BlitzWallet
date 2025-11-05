@@ -12,20 +12,103 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { CENTER, ICONS } from '../../../../constants';
 import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
-import {
-  getContrastingTextColor,
-  stringToColorCrypto,
-} from '../../../../functions/randomColorFromHash';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import { formatBalanceAmount } from '../../../../functions';
 import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
+import { Image as ExpoImage } from 'expo-image';
+import Icon from '../../../../functions/CustomElements/Icon';
+
+// Token item component with image fetching
+function TokenItem({
+  tokenIdentifier,
+  details,
+  homepageBackgroundOffsetColor,
+  navigate,
+  theme,
+  darkModeType,
+  tokensImageCache,
+}) {
+  const imageUri = tokensImageCache[tokenIdentifier];
+
+  return (
+    <TouchableOpacity
+      onPress={() =>
+        navigate.navigate('CustomHalfModal', {
+          wantedContent: 'LRC20TokenInformation',
+          tokenIdentifier,
+        })
+      }
+      style={{
+        backgroundColor: homepageBackgroundOffsetColor,
+        ...styles.tokenRowContainer,
+      }}
+    >
+      <View
+        style={{
+          ...styles.tokenInitialContainer,
+          backgroundColor: imageUri
+            ? 'transparent'
+            : theme && darkModeType
+            ? COLORS.darkModeText
+            : COLORS.primary,
+        }}
+      >
+        {imageUri ? (
+          <ExpoImage
+            source={{ uri: imageUri }}
+            style={styles.tokenImage}
+            contentFit="contain"
+            priority="normal"
+            transition={100}
+          />
+        ) : (
+          <Icon
+            name={'coins'}
+            width={15}
+            height={15}
+            color={
+              theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText
+            }
+          />
+        )}
+      </View>
+      <View style={styles.tokenDescriptionContainer}>
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.tokenNameText}
+          content={details?.tokenMetadata?.tokenName || 'Unknown'}
+        />
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.tokenIdentifierText}
+          content={
+            tokenIdentifier.slice(0, 6) +
+            '...' +
+            tokenIdentifier.slice(tokenIdentifier.length - 4)
+          }
+        />
+      </View>
+
+      <ThemeText
+        CustomNumberOfLines={1}
+        styles={styles.tokenNameText}
+        content={formatBalanceAmount(
+          formatTokensNumber(
+            details?.balance || 0,
+            details?.tokenMetadata?.decimals || 0,
+          ),
+          true,
+        )}
+      />
+    </TouchableOpacity>
+  );
+}
 
 export default function LRC20Assets() {
   const { darkModeType, theme } = useGlobalThemeContext();
-  const { sparkInformation } = useSparkWallet();
+  const { sparkInformation, tokensImageCache } = useSparkWallet();
   const navigate = useNavigation();
   const { textColor } = GetThemeColors();
   const { t } = useTranslation();
@@ -90,22 +173,8 @@ export default function LRC20Assets() {
       : [];
   }, [sparkInformation?.tokens]);
 
-  const filteredTokens = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return availableTokens;
-    }
-
-    return availableTokens.filter(([tokenIdentifier, details]) => {
-      const ticker = details?.tokenMetadata?.tokenTicker?.toLowerCase() || '';
-      const identifier = tokenIdentifier?.toLowerCase() || '';
-      const query = searchQuery.toLowerCase();
-
-      return ticker.startsWith(query) || identifier.startsWith(query);
-    });
-  }, [availableTokens, searchQuery]);
-
   const tokens = useMemo(() => {
-    return filteredTokens
+    return availableTokens
       .map(item => {
         const [tokenIdentifier, details] = item;
         if (!tokenIdentifier || !details) return null;
@@ -113,78 +182,27 @@ export default function LRC20Assets() {
         const tokenTicker = details?.tokenMetadata?.tokenTicker;
         if (!tokenTicker) return null;
 
-        const backgroundColor = stringToColorCrypto(
-          tokenIdentifier,
-          theme && darkModeType ? 'lightsout' : 'light',
-        );
-        const textColor = getContrastingTextColor(backgroundColor);
-
         return (
-          <TouchableOpacity
-            onPress={() =>
-              navigate.navigate('CustomHalfModal', {
-                wantedContent: 'LRC20TokenInformation',
-                tokenIdentifier,
-              })
-            }
+          <TokenItem
             key={tokenIdentifier}
-            style={{
-              backgroundColor: homepageBackgroundOffsetColor,
-              ...styles.tokenRowContainer,
-            }}
-          >
-            <View
-              style={{
-                ...styles.tokenInitialContainer,
-                backgroundColor: backgroundColor,
-              }}
-            >
-              <ThemeText
-                styles={{
-                  color: textColor,
-                  includeFontPadding: false,
-                }}
-                content={tokenTicker[0]?.toUpperCase() || '?'}
-              />
-            </View>
-            <View style={styles.tokenDescriptionContainer}>
-              <ThemeText
-                CustomNumberOfLines={1}
-                styles={styles.tokenNameText}
-                content={details?.tokenMetadata?.tokenName || 'Unknown'}
-              />
-              <ThemeText
-                CustomNumberOfLines={1}
-                styles={styles.tokenIdentifierText}
-                content={
-                  tokenIdentifier.slice(0, 6) +
-                  '...' +
-                  tokenIdentifier.slice(tokenIdentifier.length - 4)
-                }
-              />
-            </View>
-
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.tokenNameText}
-              content={formatBalanceAmount(
-                formatTokensNumber(
-                  details?.balance || 0,
-                  details?.tokenMetadata?.decimals || 0,
-                ),
-                true,
-              )}
-            />
-          </TouchableOpacity>
+            tokenIdentifier={tokenIdentifier}
+            details={details}
+            homepageBackgroundOffsetColor={homepageBackgroundOffsetColor}
+            navigate={navigate}
+            theme={theme}
+            darkModeType={darkModeType}
+            tokensImageCache={tokensImageCache}
+          />
         );
       })
       .filter(Boolean);
   }, [
     theme,
     darkModeType,
-    filteredTokens,
+    availableTokens,
     homepageBackgroundOffsetColor,
     navigate,
+    tokensImageCache,
   ]);
 
   return (
@@ -223,16 +241,6 @@ export default function LRC20Assets() {
           nestedScrollEnabled={true}
           style={styles.scrollView}
         >
-          {availableTokens.length > 3 && (
-            <CustomSearchInput
-              inputText={searchQuery}
-              setInputText={setSearchQuery}
-              containerStyles={{ marginBottom: 10 }}
-              placeholderText={t(
-                'wallet.homeLightning.lrc20Assets.tokensSearchPlaceholder',
-              )}
-            />
-          )}
           {!tokens.length ? (
             <ThemeText
               styles={{ textAlign: 'center' }}
@@ -271,6 +279,11 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  tokenImage: {
+    width: '100%',
+    height: '100%',
   },
   tokenDescriptionContainer: {
     flex: 1,
