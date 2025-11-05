@@ -17,7 +17,7 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
 import { Slider } from '@miblanchard/react-native-slider';
@@ -32,6 +32,7 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { FONT, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 
 export default function DisplayOptions() {
   const { toggleMasterInfoObject, setMasterInfoObject, masterInfoObject } =
@@ -54,8 +55,19 @@ export default function DisplayOptions() {
     code: currencyText,
   });
   const currencySymbol = formattedCurrency[2];
-  console.log(currencySymbol);
+
   const steps = [15, 20, 25, 30, 35, 40];
+
+  const bktnTokens = useCallback(
+    () =>
+      toggleMasterInfoObject({
+        lrc20Settings: {
+          ...(masterInfoObject?.lrc20Settings || {}),
+          isEnabled: !masterInfoObject.lrc20Settings.isEnabled,
+        },
+      }),
+    [masterInfoObject],
+  );
 
   return (
     <ScrollView
@@ -386,6 +398,53 @@ export default function DisplayOptions() {
           content={t('settings.displayOptions.text15')}
         />
         <CustomToggleSwitch page={'hideUnknownContacts'} />
+      </View>
+
+      <ThemeText
+        styles={styles.infoHeaders}
+        content={t('settings.displayOptions.sparkTitle')}
+      />
+      <View
+        style={[
+          styles.contentContainer,
+          {
+            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+          },
+        ]}
+      >
+        <View style={styles.swipeForCameraContainer}>
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={{ ...styles.removeFontPadding, marginRight: 5 }}
+            content={t('settings.displayOptions.sliderTitle_enabled')}
+          />
+          <TouchableOpacity
+            onPress={() => {
+              navigate.navigate('InformationPopup', {
+                textContent: t('settings.displayOptions.sparkInfoPopup', {
+                  fee: displayCorrectDenomination({
+                    amount: 10,
+                    masterInfoObject,
+                    fiatStats,
+                  }),
+                }),
+                buttonText: t('constants.understandText'),
+              });
+            }}
+          >
+            <ThemeImage
+              styles={{ width: 20, height: 20 }}
+              lightModeIcon={ICONS.aboutIcon}
+              darkModeIcon={ICONS.aboutIcon}
+              lightsOutIcon={ICONS.aboutIconWhite}
+            />
+          </TouchableOpacity>
+        </View>
+        <CustomToggleSwitch
+          stateValue={masterInfoObject?.lrc20Settings?.isEnabled}
+          toggleSwitchFunction={bktnTokens}
+          page={'lrc20Settings'}
+        />
       </View>
     </ScrollView>
   );

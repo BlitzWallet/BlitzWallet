@@ -1,5 +1,5 @@
-import {StyleSheet, View} from 'react-native';
-import {ICONS} from '../../constants';
+import { StyleSheet, View } from 'react-native';
+import { ICONS } from '../../constants';
 import {
   AboutPage,
   LoginSecurity,
@@ -16,25 +16,25 @@ import {
   BlitzFeeInformation,
   ViewSwapsHome,
 } from '../../components/admin/homeComponents/settingsContent';
-import {useNavigation} from '@react-navigation/native';
-import {GlobalThemeView} from '../../functions/CustomElements';
-import {WINDOWWIDTH} from '../../constants/theme';
-import {EditMyProfilePage} from '../../components/admin';
+import { useNavigation } from '@react-navigation/native';
+import { GlobalThemeView } from '../../functions/CustomElements';
+import { WINDOWWIDTH } from '../../constants/theme';
+import { EditMyProfilePage } from '../../components/admin';
 
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
-import {useGlobalThemeContext} from '../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {useCallback} from 'react';
+import { useCallback } from 'react';
 import ExploreUsers from './explorePage';
 import NostrHome from '../../components/admin/homeComponents/settingsContent/nostrHome';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import ChooseLangugae from '../../components/admin/homeComponents/settingsContent/langugae';
 
 export default function SettingsContentIndex(props) {
   const navigate = useNavigation();
 
-  const {t} = useTranslation();
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { t } = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const selectedPage = props?.route?.params?.for;
   const isDoomsday = props?.route?.params?.isDoomsday;
 
@@ -72,25 +72,25 @@ export default function SettingsContentIndex(props) {
         <GlobalThemeView styles={styles.globalContainer}>
           <View style={styles.innerContainer}>
             <CustomSettingsTopBar
-              showLeftImage={selectedPage?.toLowerCase() === 'spark info'}
-              leftImageBlue={
-                selectedPage?.toLowerCase() === 'spark info'
-                  ? ICONS.settingsIcon
-                  : ''
-              }
-              LeftImageDarkMode={
-                selectedPage?.toLowerCase() === 'spark info'
-                  ? ICONS.settingsWhite
-                  : ''
-              }
-              leftImageFunction={() => {
-                if (selectedPage?.toLowerCase() === 'spark info') {
-                  navigate.navigate('SparkSettingsPage');
-                }
-              }}
-              shouldDismissKeyboard={
-                selectedPage?.toLowerCase() === 'spark info'
-              }
+              // showLeftImage={selectedPage?.toLowerCase() === 'spark info'}
+              // leftImageBlue={
+              //   selectedPage?.toLowerCase() === 'spark info'
+              //     ? ICONS.settingsIcon
+              //     : ''
+              // }
+              // LeftImageDarkMode={
+              //   selectedPage?.toLowerCase() === 'spark info'
+              //     ? ICONS.settingsWhite
+              //     : ''
+              // }
+              // leftImageFunction={() => {
+              //   if (selectedPage?.toLowerCase() === 'spark info') {
+              //     navigate.navigate('SparkSettingsPage');
+              //   }
+              // }}
+              // shouldDismissKeyboard={
+              //   selectedPage?.toLowerCase() === 'spark info'
+              // }
               label={t(
                 `screens.inAccount.settingsContent.${selectedPage.toLowerCase()}`,
               )}
@@ -157,7 +157,7 @@ export default function SettingsContentIndex(props) {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {alignItems: 'center'},
+  globalContainer: { alignItems: 'center' },
   innerContainer: {
     flex: 1,
     width: WINDOWWIDTH,
