@@ -22,6 +22,7 @@ const keys = [
   'userBalanceDenomination',
   'didViewSeedPhrase',
   'enabledBTKNTokens',
+  'defaultSpendToken',
 ];
 
 const defaultValues = {
@@ -54,6 +55,7 @@ const defaultValues = {
   userBalanceDenomination: '',
   didViewSeedPhrase: null,
   enabledBTKNTokens: null,
+  defaultSpendToken: 'Bitcoin',
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -94,6 +96,7 @@ export const fetchLocalStorageItems = async () => {
       parsedResults[15] ?? defaultValues.userBalanceDenomination,
     didViewSeedPhrase: parsedResults[16] ?? defaultValues.didViewSeedPhrase,
     enabledBTKNTokens: parsedResults[17] ?? defaultValues.enabledBTKNTokens,
+    defaultSpendToken: parsedResults[18] ?? defaultValues.defaultSpendToken,
   };
 };
 

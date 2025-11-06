@@ -103,6 +103,7 @@ export default async function initializeUserSettingsFromHistory({
       userBalanceDenomination,
       didViewSeedPhrase,
       enabledBTKNTokens,
+      defaultSpendToken,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -396,6 +397,7 @@ export default async function initializeUserSettingsFromHistory({
     // tempObject['lrc20Settings'] = lrc20Settings;
     tempObject['didViewSeedPhrase'] = didViewSeedPhrase;
     tempObject['enabledBTKNTokens'] = enabledBTKNTokens;
+    tempObject['defaultSpendToken'] = defaultSpendToken;
 
     // store in contacts context
     tempObject['contacts'] = contacts;

@@ -35,6 +35,7 @@ const PRESET_LOCAL_DATA = {
   userBalanceDenomination: 'sats',
   didViewSeedPhrase: false,
   enabledBTKNTokens: null,
+  defaultSpendToken: 'bitcoin',
 };
 
 async function sendDataToDB(newObject, uuid) {
