@@ -1,4 +1,4 @@
-import {ICONS} from '../../../../constants';
+import { ICONS } from '../../../../constants';
 
 const APPLIST = [
   {
@@ -26,6 +26,12 @@ const APPLIST = [
     description: 'apps.appList.onlineListingsDescription',
     pageName: 'onlineListings',
   },
+  {
+    name: 'apps.appList.Soon',
+    svgName: 'clock',
+    description: 'apps.appList.SoonDescription',
+    pageName: 'soon',
+  },
 ];
 
-export {APPLIST};
+export { APPLIST };

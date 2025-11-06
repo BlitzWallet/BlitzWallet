@@ -82,3 +82,4 @@ web-build/
 android/app/google-services.json
 ios/NotificationService/Info.plist
 android/gradle.properties
+app/functions/spark/appStorePreviews.js

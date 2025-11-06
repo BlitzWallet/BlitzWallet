@@ -972,6 +972,12 @@
       "sparkErrorScreen": {
         "connectionError": "Wir haben Probleme, eine Verbindung zu Ihrer Wallet herzustellen. Bitte informieren Sie uns über dieses Problem.\n\nDenken Sie daran, Ihre Seed-Phrase hält Ihre Gelder sicher.",
         "retry": "Wir konnten Ihre Wallet derzeit nicht laden. Bitte versuchen Sie es erneut. \n\nIhre Gelder sind sicher, solange Sie Ihre Seed-Phrase haben."
+      },
+      "backupSeedWarning": {
+        "header": "Sichere deine Seed-Phrase",
+        "description": "Du hast Geld in deiner Wallet, aber deine Seed-Phrase noch nicht gespeichert. Deine Seed-Phrase ist eine Liste von Wörtern, die deine Wallet entsperren. Wenn du dieses Gerät verlierst und sie nicht gespeichert hast, könnte dein Geld für immer verloren sein.",
+        "backupBTN": "Jetzt sichern",
+        "laterBTN": "Später erledigen"
       }
     },
     "exportTransactions": {
@@ -1452,7 +1458,8 @@
         "shopTitle": "Mit Bitcoin einkaufen",
         "shopDescription": "Kaufen Sie Geschenkkarten von Tausenden verschiedener Händler weltweit",
         "callToAction": "Möchten Sie hier etwas Bestimmtes?",
-        "featuredApps": "Möchten Sie hier etwas Bestimmtes?"
+        "featuredApps": "Möchten Sie hier etwas Bestimmtes?",
+        "comingSoon": "Diese Funktion ist vorübergehend nicht verfügbar. Wir arbeiten daran, sie so schnell wie möglich wiederherzustellen."
       },
 
       "confirmTxPage": {

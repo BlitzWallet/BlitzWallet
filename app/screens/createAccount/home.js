@@ -1,20 +1,20 @@
-import React, {useEffect} from 'react';
-import {StyleSheet} from 'react-native';
-import {COLORS, SIZES} from '../../constants';
-import {useTranslation} from 'react-i18next';
-import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
+import React, { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
+import { COLORS, SIZES } from '../../constants';
+import { useTranslation } from 'react-i18next';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomButton from '../../functions/CustomElements/button';
-import {createAccountMnemonic} from '../../functions';
+import { createAccountMnemonic } from '../../functions';
 import {
   crashlyticsLogReport,
   crashlyticsRecordErrorReport,
 } from '../../functions/crashlyticsLogs';
-import {useKeysContext} from '../../../context-store/keys';
-import {MAX_CONTENT_WIDTH} from '../../constants/theme';
+import { useKeysContext } from '../../../context-store/keys';
+import { MAX_CONTENT_WIDTH } from '../../constants/theme';
 
-export default function CreateAccountHome({navigation: {navigate}}) {
-  const {t} = useTranslation();
-  const {setAccountMnemonic} = useKeysContext();
+export default function CreateAccountHome({ navigation: { navigate } }) {
+  const { t } = useTranslation();
+  const { setAccountMnemonic } = useKeysContext();
 
   useEffect(() => {
     async function initializeWallet() {
@@ -33,7 +33,7 @@ export default function CreateAccountHome({navigation: {navigate}}) {
 
   const navigateFunction = (page, nextPage) => {
     crashlyticsLogReport(`Navigating to ${page} from create account home`);
-    navigate(page, {nextPage});
+    navigate(page, { nextPage });
   };
 
   return (
@@ -45,13 +45,13 @@ export default function CreateAccountHome({navigation: {navigate}}) {
           ...styles.buttonStyle,
           backgroundColor: COLORS.primary,
         }}
-        textStyles={{color: COLORS.darkModeText}}
+        textStyles={{ color: COLORS.darkModeText }}
         textContent={t('createAccount.homePage.buttons.button2')}
-        actionFunction={() => navigateFunction('DisclaimerPage', 'GenerateKey')}
+        actionFunction={() => navigateFunction('DisclaimerPage', 'PinSetup')}
       />
       <CustomButton
         buttonStyles={styles.buttonStyle}
-        textStyles={{color: COLORS.lightModeText}}
+        textStyles={{ color: COLORS.lightModeText }}
         textContent={t('createAccount.homePage.buttons.button1')}
         actionFunction={() =>
           navigateFunction('DisclaimerPage', 'RestoreWallet')

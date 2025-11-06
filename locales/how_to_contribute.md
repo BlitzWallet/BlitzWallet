@@ -11,7 +11,7 @@ Please follow the steps below to add a new language:
 - The folder name must use the correct **language code** (ISO-style).
   - Examples:
     - English → `en`
-    - Spanish → `sp`
+    - Spanish → `es`
     - French → `fr`
 
 ---
@@ -25,7 +25,7 @@ Please follow the steps below to add a new language:
 - Copy the file into your new language folder.  
   Example for Spanish:
   ```
-  locals/sp/translation.json
+  locals/es/translation.json
   ```
 
 ---
@@ -58,7 +58,7 @@ Open `localeslist.js` and add your language entry:
   languageName: 'Español',
   fullySupported: true,
   translatedName: 'languages.spanish',
-  id: 'sp',
+  id: 'es',
   flagCode: 'es',
 },
 ```
@@ -72,20 +72,20 @@ Open `i18n.js` and do the following:
 1. **Import your translation file** at the top:
 
    ```js
-   import spTranslation from './locals/sp/translation.json';
+   import esTranslation from './locals/es/translation.json';
    ```
 
 2. **Add your language code** to `supportedLngs`:
 
    ```js
-   supportedLngs: ['en', 'sp'],
+   supportedLngs: ['en', 'es'],
    ```
 
 3. **Add your translation to the `resources` object**:
    ```js
    resources: {
      en: { translation: enTranslation },
-     sp: { translation: spTranslation },
+     es: { translation: esTranslation },
    },
    ```
 

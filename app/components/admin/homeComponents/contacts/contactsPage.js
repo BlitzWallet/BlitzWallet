@@ -59,7 +59,6 @@ export default function ContactsPage({ navigation }) {
   } = useGlobalContacts();
   const { serverTimeOffset } = useServerTime();
   const getServerTime = useServerTimeOnly();
-  const currentTime = getServerTime();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
@@ -73,7 +72,6 @@ export default function ContactsPage({ navigation }) {
   const contactInfoList = useProcessedContacts(
     decodedAddedContacts,
     contactsMessags,
-    cache,
   );
   const filteredContacts = useFilteredContacts(
     contactInfoList,
@@ -175,6 +173,9 @@ export default function ContactsPage({ navigation }) {
   ]);
 
   const contactElements = useMemo(() => {
+    console.log('RERENDERING CONTACTS ELEMENTS');
+    console.log('_------------------------------');
+    const currentTime = getServerTime();
     return filteredContacts.map(item => (
       <ContactElement
         key={item.contact.uuid}
@@ -203,7 +204,7 @@ export default function ContactsPage({ navigation }) {
     navigateToExpandedContact,
     isConnectedToTheInternet,
     navigate,
-    currentTime,
+    getServerTime,
     serverTimeOffset,
     t,
   ]);

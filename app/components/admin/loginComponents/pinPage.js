@@ -73,9 +73,7 @@ export default function PinPage() {
         );
         if (migrationResponse) {
           setAccountMnemonic(savedMnemonic.value);
-          navigate.replace('ConnectingToNodeLoadingScreen', {
-            isInitialLoad: false,
-          });
+          navigate.replace('ConnectingToNodeLoadingScreen');
         } else
           navigate.navigate('ErrorScreen', {
             errorMessage: t('errormessages.failedToDecryptPin'),
@@ -88,9 +86,7 @@ export default function PinPage() {
         setAccountMnemonic(mnemonicPlain);
 
         requestAnimationFrame(() => {
-          navigate.replace('ConnectingToNodeLoadingScreen', {
-            isInitialLoad: false,
-          });
+          navigate.replace('ConnectingToNodeLoadingScreen');
         });
       }
     } else {
@@ -163,9 +159,7 @@ export default function PinPage() {
           if (migrationResponse) {
             storeData('pinHash', sha256Hash(storedPin.value));
             setAccountMnemonic(savedMnemonic.value);
-            navigate.replace('ConnectingToNodeLoadingScreen', {
-              isInitialLoad: false,
-            });
+            navigate.replace('ConnectingToNodeLoadingScreen');
           } else {
             navigate.navigate('ConfirmActionPage', {
               confirmMessage: t(
@@ -195,9 +189,7 @@ export default function PinPage() {
         const decryptResponse = await decryptMnemonicWithBiometrics();
         if (decryptResponse) {
           setAccountMnemonic(decryptResponse);
-          navigate.replace('ConnectingToNodeLoadingScreen', {
-            isInitialLoad: false,
-          });
+          navigate.replace('ConnectingToNodeLoadingScreen');
         } else {
           if (numRetriesBiometric.current++ < 3) {
             loadPageInformation();

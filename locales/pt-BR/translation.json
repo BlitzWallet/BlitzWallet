@@ -982,6 +982,12 @@
       "sparkErrorScreen": {
         "connectionError": "Estamos com problemas para conectar à sua carteira. Por favor, informe-nos sobre este problema.\n\nLembre-se de que sua frase-semente mantém seus fundos seguros.",
         "retry": "Não foi possível carregar sua carteira. Por favor, tente novamente. \n\nSeus fundos estarão seguros enquanto você tiver sua frase-semente."
+      },
+      "backupSeedWarning": {
+        "header": "Faça backup da sua frase-semente",
+        "description": "Você tem dinheiro na sua carteira, mas ainda não salvou sua frase-semente. Sua frase-semente é uma lista de palavras que desbloqueiam sua carteira. Se você perder este dispositivo e não tiver a frase salva, seu dinheiro poderá ser perdido para sempre.",
+        "backupBTN": "Fazer backup agora",
+        "laterBTN": "Farei isso mais tarde"
       }
     },
     "exportTransactions": {
@@ -1470,7 +1476,8 @@
         "shopTitle": "Compre com Bitcoin",
         "shopDescription": "Compre vales-presente de milhares de lojas ao redor do mundo",
         "callToAction": "Gostaria de ver algo aqui?",
-        "featuredApps": "Gostaria de ver algo aqui?"
+        "featuredApps": "Gostaria de ver algo aqui?",
+        "comingSoon": "Este recurso está temporariamente indisponível. Estamos trabalhando para restaurá-lo o mais rápido possível."
       },
 
       "confirmTxPage": {

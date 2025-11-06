@@ -11,8 +11,11 @@ import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useState } from 'react';
 import Icon from '../../functions/CustomElements/Icon';
 import { useAppStatus } from '../../../context-store/appStatus';
+import { useKeysContext } from '../../../context-store/keys';
+import { createAccountMnemonic } from '../../functions';
 
 export default function DislaimerPage({ navigation: { navigate }, route }) {
+  const { accountMnemoinc, setAccountMnemonic } = useKeysContext();
   const [contentHeight, setContentHeight] = useState(0);
   const [termsAccepted, setTermsAccepted] = useState(false); // Add acceptance state
   const { screenDimensions } = useAppStatus();
@@ -25,13 +28,29 @@ export default function DislaimerPage({ navigation: { navigate }, route }) {
     setContentHeight(e.nativeEvent.layout.height);
   };
 
-  const nextPage = () => {
+  const nextPage = async () => {
     if (!termsAccepted) {
       navigate('ErrorScreen', {
         errorMessage: t('createAccount.disclaimerPage.acceptError'),
       });
       return;
     } // Prevent navigation without acceptance
+
+    // Fully validate that a correctly formmated seed has been created
+    if (
+      nextPageName === 'PinSetup' &&
+      accountMnemoinc.split(' ').length !== 12
+    ) {
+      const mnemoinc = await createAccountMnemonic();
+      if (mnemoinc) {
+        setAccountMnemonic(mnemoinc);
+      } else {
+        navigate('ErrorScreen', {
+          errorMessage: t('errormessages.genericError'),
+        });
+        return;
+      }
+    }
     navigate(nextPageName);
   };
 
