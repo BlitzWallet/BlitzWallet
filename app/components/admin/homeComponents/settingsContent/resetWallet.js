@@ -13,7 +13,6 @@ import FormattedSatText from '../../../../functions/CustomElements/satTextDispla
 import { signOut } from '@react-native-firebase/auth';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-// import {deleteEcashDBTables} from '../../../../functions/eCash/db';
 import { deletePOSTransactionsTable } from '../../../../functions/pos';
 import {
   HIDDEN_OPACITY,
@@ -39,12 +38,18 @@ export default function ResetPage(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { liquidNodeInformation } = useNodeContext();
   const [contentHeight, setContentHeight] = useState(0);
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, textColor } = GetThemeColors();
   const navigate = useNavigation();
   const { t } = useTranslation();
 
   const backgroundColor = useMemo(() => {
     return theme ? backgroundOffset : COLORS.darkModeText;
+  }, [theme, backgroundOffset]);
+  const checkBackground = useMemo(() => {
+    return theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  }, [theme, backgroundOffset]);
+  const checkColor = useMemo(() => {
+    return theme && darkModeType ? COLORS.lightModeText : COLORS.darkModeText;
   }, [theme, backgroundOffset]);
 
   const isDoomsday = props.isDoomsday;
@@ -56,6 +61,7 @@ export default function ResetPage(props) {
         flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
         width: INSET_WINDOW_WIDTH,
         ...CENTER,
+        paddingTop: 24,
       }}
     >
       <View
@@ -63,139 +69,123 @@ export default function ResetPage(props) {
           width: '100%',
           alignItems: 'center',
           flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
+          gap: 16,
         }}
         onLayout={e => {
           if (!e.nativeEvent.layout.height) return;
           setContentHeight(e.nativeEvent.layout.height);
         }}
       >
+        <ThemeText
+          styles={{
+            ...styles.warningHeader,
+            color: theme ? COLORS.darkModeText : COLORS.cancelRed,
+          }}
+          content={t('settings.resetWallet.header')}
+        />
+
         <View
           style={[
-            styles.infoContainer,
-            {
-              marginTop: 30,
-              backgroundColor: backgroundColor,
-            },
-          ]}
-        >
-          <ThemeText
-            styles={{
-              ...styles.warningHeader,
-              color:
-                theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed,
-            }}
-            content={t('settings.resetWallet.header')}
-          />
-        </View>
-        <View
-          style={[
-            styles.infoContainer,
+            styles.contentCard,
             {
               backgroundColor: backgroundColor,
             },
           ]}
         >
           <ThemeText
-            styles={styles.infoTitle}
+            styles={styles.sectionTitle}
             content={t('settings.resetWallet.dataDeleteHeader')}
           />
           <ThemeText
-            styles={{ marginBottom: 15 }}
+            styles={styles.descriptionText}
             content={t('settings.resetWallet.dataDeleteDesc')}
           />
 
-          <View
-            style={[
-              styles.borderView,
-              {
-                backgroundColor: theme
-                  ? COLORS.darkModeText
-                  : COLORS.lightModeText,
-              },
-            ]}
-          ></View>
-          <View style={{ marginTop: 15 }}>
-            <View style={styles.selectorContainer}>
-              <TouchableOpacity
-                onPress={() => handleSelectedItems('securedItems')}
+          {/* Options */}
+          <View style={styles.optionsContainer}>
+            <TouchableOpacity
+              onPress={() => handleSelectedItems('securedItems')}
+              style={styles.optionRow}
+              activeOpacity={0.7}
+            >
+              <View
                 style={[
-                  styles.selectorDot,
+                  styles.checkbox,
                   {
                     backgroundColor: selectedOptions.securedItems
-                      ? theme
-                        ? COLORS.darkModeText
-                        : COLORS.lightModeText
+                      ? checkBackground
                       : 'transparent',
-                    borderWidth: selectedOptions.securedItems ? 0 : 2,
-                    borderColor: theme
-                      ? COLORS.darkModeText
-                      : COLORS.lightModeText,
+                    borderColor: selectedOptions.securedItems
+                      ? checkBackground
+                      : textColor,
                   },
                 ]}
               >
                 {selectedOptions.securedItems && (
                   <Icon
-                    width={15}
-                    height={15}
-                    color={theme ? COLORS.lightModeText : COLORS.darkModeText}
+                    width={14}
+                    height={14}
+                    color={checkColor}
                     name={'expandedTxCheck'}
                   />
                 )}
-              </TouchableOpacity>
+              </View>
               <ThemeText
-                styles={styles.selectorText}
+                styles={styles.optionLabel}
                 content={t('settings.resetWallet.seedAndPinOpt')}
               />
-            </View>
-            <View style={{ ...styles.selectorContainer, marginBottom: 0 }}>
-              <TouchableOpacity
-                onPress={() => handleSelectedItems('localStoredItems')}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => handleSelectedItems('localStoredItems')}
+              style={styles.optionRow}
+              activeOpacity={0.7}
+            >
+              <View
                 style={[
-                  styles.selectorDot,
+                  styles.checkbox,
                   {
                     backgroundColor: selectedOptions.localStoredItems
-                      ? theme
-                        ? COLORS.darkModeText
-                        : COLORS.lightModeText
+                      ? checkBackground
                       : 'transparent',
-                    borderWidth: selectedOptions.localStoredItems ? 0 : 2,
-                    borderColor: theme
-                      ? COLORS.darkModeText
-                      : COLORS.lightModeText,
+                    borderColor: selectedOptions.localStoredItems
+                      ? checkBackground
+                      : textColor,
                   },
                 ]}
               >
                 {selectedOptions.localStoredItems && (
                   <Icon
-                    width={15}
-                    height={15}
-                    color={theme ? COLORS.lightModeText : COLORS.darkModeText}
+                    width={14}
+                    height={14}
+                    color={checkColor}
                     name={'expandedTxCheck'}
                   />
                 )}
-              </TouchableOpacity>
+              </View>
               <ThemeText
-                styles={{ ...styles.selectorText }}
+                styles={styles.optionLabel}
                 content={t('settings.resetWallet.localData')}
               />
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
+
         {!isDoomsday && (
           <View
             style={[
-              styles.infoContainer,
+              styles.balanceCard,
               {
                 backgroundColor: backgroundColor,
               },
             ]}
           >
             <ThemeText
-              styles={{ ...styles.infoTitle, textAlign: 'center' }}
+              styles={styles.balanceLabel}
               content={t('settings.resetWallet.balanceText')}
             />
             <FormattedSatText
-              styles={{ fontSize: SIZES.large }}
+              styles={styles.balanceAmount}
               neverHideBalance={true}
               balance={
                 Number(sparkInformation.balance) +
@@ -211,8 +201,8 @@ export default function ResetPage(props) {
               selectedOptions.securedItems || selectedOptions.localStoredItems
                 ? 1
                 : HIDDEN_OPACITY,
-            width: 'auto',
             marginTop: 'auto',
+            alignSelf: 'center',
           }}
           actionFunction={resetWallet}
           textContent={t('constants.reset')}
@@ -238,14 +228,12 @@ export default function ResetPage(props) {
         const [
           didClearLocalStoreage,
           didClearMessages,
-          // didClearEcash,
           didClearPos,
           didClearTxTable,
           didClearPendingTxTable,
         ] = await Promise.all([
           removeAllLocalData(),
           deleteTable(),
-          // deleteEcashDBTables(),
           deletePOSTransactionsTable(),
           deleteSparkTransactionTable(),
           deleteUnpaidSparkLightningTransactionTable(),
@@ -275,45 +263,61 @@ export default function ResetPage(props) {
 }
 
 const styles = StyleSheet.create({
-  infoContainer: {
-    width: '100%',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
   warningHeader: {
     fontSize: SIZES.large,
-    color: COLORS.cancelRed,
-    fontWeight: '500',
+    fontWeight: '600',
     textAlign: 'center',
+    letterSpacing: 0.3,
   },
-
-  infoTitle: {
-    fontWeight: '500',
-    marginBottom: 10,
-  },
-  borderView: {
+  contentCard: {
     width: '100%',
-    height: 1,
+    padding: 20,
+    borderRadius: 8,
   },
-  selectorContainer: {
+  sectionTitle: {
+    fontSize: SIZES.medium,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  descriptionText: {
+    fontSize: SIZES.small,
+    opacity: 0.7,
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  optionsContainer: {
+    gap: 16,
+  },
+  optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
   },
-
-  selectorDot: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginRight: 10,
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  isSelectedDot: {
-    backgroundColor: COLORS.primary,
+  optionLabel: {
+    flex: 1,
+    fontSize: SIZES.medium,
   },
-  selectorText: {
-    width: '80%',
+  balanceCard: {
+    width: '100%',
+    padding: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  balanceLabel: {
+    fontSize: SIZES.small,
+    opacity: 0.7,
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  balanceAmount: {
+    fontSize: SIZES.xLarge,
   },
 });
