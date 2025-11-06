@@ -386,7 +386,6 @@ export default function SendPaymentScreen(props) {
             textAlignVertical={'baseline'}
             textInputStyles={{
               borderRadius: useAltLayout ? 15 : 8,
-              height: useAltLayout ? 50 : 'unset',
             }}
             maxLength={paymentInfo?.data?.commentAllowed || 150}
             containerStyles={{
