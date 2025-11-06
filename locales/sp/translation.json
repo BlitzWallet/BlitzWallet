@@ -827,6 +827,12 @@
       "sparkErrorScreen": {
         "connectionError": "Estamos teniendo problemas para conectar tu billetera. Por favor infórmanos sobre este problema.\n\nRecuerda, tu frase semilla mantiene tus fondos seguros.",
         "retry": "No pudimos cargar tu billetera en este momento. Intenta de nuevo.\n\nTus fondos están seguros mientras tengas tu frase semilla."
+      },
+      "backupSeedWarning": {
+        "header": "Haz una copia de seguridad de tu frase semilla",
+        "description": "Tienes dinero en tu billetera, pero no has guardado tu frase semilla. Tu frase semilla es una lista de palabras que desbloquean tu billetera. Si pierdes este dispositivo y no la tienes guardada, tu dinero podría perderse para siempre.",
+        "backupBTN": "Hacer copia de seguridad ahora",
+        "laterBTN": "Lo haré más tarde"
       }
     },
     "exportTransactions": {

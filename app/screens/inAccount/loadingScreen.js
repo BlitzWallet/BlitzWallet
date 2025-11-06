@@ -33,7 +33,6 @@ const mascotAnimation = require('../../assets/MOSCATWALKING.json');
 
 export default function ConnectingToNodeLoadingScreen({
   navigation: { replace },
-  route,
 }) {
   // const { sendWebViewRequest } = useWebView();
   const navigate = useNavigation();

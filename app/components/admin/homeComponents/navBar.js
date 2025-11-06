@@ -1,13 +1,24 @@
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
-import {CENTER, ICONS} from '../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {COLORS, WINDOWWIDTH} from '../../../constants/theme';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { CENTER, ICONS } from '../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { COLORS, WINDOWWIDTH } from '../../../constants/theme';
 import ThemeImage from '../../../functions/CustomElements/themeImage';
-import {memo} from 'react';
-import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
+import { memo } from 'react';
+import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
 
-export const NavBar = memo(function NavBar({theme, darkModeType, toggleTheme}) {
+export const NavBar = memo(function NavBar({
+  theme,
+  darkModeType,
+  toggleTheme,
+  sparkBalance,
+  sparkTokens,
+  didViewSeedPhrase,
+}) {
   const navigate = useNavigation();
+
+  const shouldShowWarning =
+    !didViewSeedPhrase &&
+    (!!sparkBalance || !!Object.keys(sparkTokens || {}).length);
 
   return (
     <View style={[styles.topBar]}>
@@ -16,7 +27,8 @@ export const NavBar = memo(function NavBar({theme, darkModeType, toggleTheme}) {
           toggleTheme(!theme);
         }}
         activeOpacity={0.5}
-        style={styles.iconButton}>
+        style={styles.iconButton}
+      >
         <ThemeImage
           darkModeIcon={ICONS.lightMode}
           lightsOutIcon={ICONS.lightModeWhite}
@@ -27,6 +39,26 @@ export const NavBar = memo(function NavBar({theme, darkModeType, toggleTheme}) {
       {/* Center space for animated balance - invisible but takes up space */}
       <View style={styles.centerSpace} />
 
+      {!!shouldShowWarning && (
+        <TouchableOpacity
+          onPress={() => {
+            crashlyticsLogReport(
+              'Navigating to settings home from homepage navbar',
+            );
+            navigate.navigate('BackupSeedWarning');
+          }}
+          activeOpacity={0.5}
+          style={styles.iconButton}
+        >
+          <ThemeImage
+            styles={{ marginBottom: -3, width: 25, height: 25 }}
+            darkModeIcon={ICONS.warningBlue}
+            lightsOutIcon={ICONS.warningWhite}
+            lightModeIcon={ICONS.warningBlue}
+          />
+        </TouchableOpacity>
+      )}
+
       <TouchableOpacity
         onPress={() => {
           crashlyticsLogReport(
@@ -35,9 +67,10 @@ export const NavBar = memo(function NavBar({theme, darkModeType, toggleTheme}) {
           navigate.navigate('SettingsHome');
         }}
         activeOpacity={0.5}
-        style={styles.iconButton}>
+        style={styles.iconButton}
+      >
         <ThemeImage
-          styles={{marginLeft: 10}}
+          styles={{ marginLeft: 5 }}
           darkModeIcon={ICONS.settingsIcon}
           lightsOutIcon={ICONS.settingsWhite}
           lightModeIcon={ICONS.settingsIcon}

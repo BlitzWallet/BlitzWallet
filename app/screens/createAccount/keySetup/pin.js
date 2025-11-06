@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { storeData } from '../../../functions';
+import { setLocalStorageItem } from '../../../functions';
 import { SIZES } from '../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +22,6 @@ export default function PinPage(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
   // const fromGiftPath = props.route.params?.from === 'giftPath';
-  const isInitialLoad = props.route.params?.isInitialLoad;
   const didRestoreWallet = props.route.params?.didRestoreWallet;
 
   useEffect(() => {
@@ -55,16 +54,17 @@ export default function PinPage(props) {
           return;
         }
 
+        await setLocalStorageItem(
+          'didViewSeedPhrase',
+          JSON.stringify(!!didRestoreWallet),
+        );
+
         clearSettings();
         navigate.reset({
           index: 0,
           routes: [
             {
               name: 'ConnectingToNodeLoadingScreen',
-              params: {
-                isInitialLoad: true,
-                didRestoreWallet: didRestoreWallet,
-              },
             },
           ],
         });

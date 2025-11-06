@@ -66,7 +66,8 @@ export default function ChooseLangugaePage() {
             onSelect={handleSelect}
             options={data}
             showClearIcon={false}
-            showVerticalArrows={false}
+            showVerticalArrows={true}
+            showVerticalArrowsAbsolute={true}
             textStyles={styles.dropdownText}
             customButtonStyles={styles.dropdownButtonStyles}
             dropdownItemCustomStyles={styles.dropdownItemCustomStyles}

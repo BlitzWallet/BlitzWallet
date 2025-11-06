@@ -1,7 +1,7 @@
-import {NWC_IDENTITY_PUB_KEY, QUICK_PAY_STORAGE_KEY} from '../../constants';
-import {BLITZ_FEE_PERCET, BLITZ_FEE_SATS} from '../../constants/math';
-import {getLocalStorageItem} from '../localStorage';
-import {isNewDaySince} from '../rotateAddressDateChecker';
+import { NWC_IDENTITY_PUB_KEY, QUICK_PAY_STORAGE_KEY } from '../../constants';
+import { BLITZ_FEE_PERCET, BLITZ_FEE_SATS } from '../../constants/math';
+import { getLocalStorageItem } from '../localStorage';
+import { isNewDaySince } from '../rotateAddressDateChecker';
 
 const keys = [
   'homepageTxPreferance',
@@ -20,6 +20,7 @@ const keys = [
   'userSelectedLanguage',
   NWC_IDENTITY_PUB_KEY,
   'userBalanceDenomination',
+  'didViewSeedPhrase',
 ];
 
 const defaultValues = {
@@ -50,6 +51,7 @@ const defaultValues = {
   userSelectedLanguage: 'en',
   [NWC_IDENTITY_PUB_KEY]: '',
   userBalanceDenomination: '',
+  didViewSeedPhrase: null,
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -88,6 +90,7 @@ export const fetchLocalStorageItems = async () => {
       parsedResults[14] ?? defaultValues[NWC_IDENTITY_PUB_KEY],
     userBalanceDenomination:
       parsedResults[15] ?? defaultValues.userBalanceDenomination,
+    didViewSeedPhrase: parsedResults[16] ?? defaultValues.didViewSeedPhrase,
   };
 };
 

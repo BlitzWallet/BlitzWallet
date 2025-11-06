@@ -21,8 +21,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useAppStatus } from '../../../../../context-store/appStatus';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 export default function SeedPhrasePage({ extraData }) {
+  const { toggleMasterInfoObject, masterInfoObject } =
+    useGlobalContextProvider();
   const { showToast } = useToast();
   const fadeAnim = useSharedValue(0);
   const { screenDimensions } = useAppStatus();
@@ -137,7 +140,11 @@ export default function SeedPhrasePage({ extraData }) {
               }}
               textStyles={{ color: COLORS.darkModeText }}
               textContent={t('constants.yes')}
-              actionFunction={() => setShowSeed(true)}
+              actionFunction={() => {
+                if (!masterInfoObject.didViewSeedPhrase)
+                  toggleMasterInfoObject({ didViewSeedPhrase: true });
+                setShowSeed(true);
+              }}
             />
             <CustomButton
               textContent={t('constants.no')}

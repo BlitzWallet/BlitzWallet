@@ -67,6 +67,7 @@ export default function HomeLightning() {
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
   const enabledLRC20 = masterInfoObject.lrc20Settings?.isEnabled;
+  const didViewSeedPhrase = masterInfoObject?.didViewSeedPhrase;
   const lrc20Settings = useMemo(
     () => masterInfoObject.lrc20Settings || {},
     [masterInfoObject.lrc20Settings],
@@ -252,6 +253,9 @@ export default function HomeLightning() {
                 darkModeType={darkModeType}
                 theme={theme}
                 toggleTheme={toggleTheme}
+                sparkBalance={sparkInformation?.balance}
+                sparkTokens={sparkInformation?.tokens}
+                didViewSeedPhrase={didViewSeedPhrase}
               />
 
               <Animated.View
@@ -332,6 +336,7 @@ export default function HomeLightning() {
       t,
       isConnectedToTheInternet,
       sparkInformation,
+      didViewSeedPhrase,
     ],
   );
 

@@ -1,6 +1,6 @@
-import {addDataToCollection} from '.';
-import {NWC_IDENTITY_PUB_KEY, QUICK_PAY_STORAGE_KEY} from '../app/constants';
-import {setLocalStorageItem} from '../app/functions';
+import { addDataToCollection } from '.';
+import { NWC_IDENTITY_PUB_KEY, QUICK_PAY_STORAGE_KEY } from '../app/constants';
+import { setLocalStorageItem } from '../app/functions';
 
 const PRESET_LOCAL_DATA = {
   homepageTxPreferance: 25,
@@ -33,12 +33,13 @@ const PRESET_LOCAL_DATA = {
   userSelectedLanguage: 'en',
   [NWC_IDENTITY_PUB_KEY]: '',
   userBalanceDenomination: 'sats',
+  didViewSeedPhrase: false,
 };
 
 async function sendDataToDB(newObject, uuid) {
   try {
     const localStorageData = {};
-    const dbStorageData = {...newObject};
+    const dbStorageData = { ...newObject };
 
     Object.keys(newObject).forEach(key => {
       if (Object.keys(PRESET_LOCAL_DATA).includes(key)) {
@@ -66,4 +67,4 @@ async function sendDataToDB(newObject, uuid) {
   }
 }
 
-export {sendDataToDB};
+export { sendDataToDB };
