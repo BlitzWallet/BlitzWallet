@@ -6,11 +6,11 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import {Back_BTN} from '../../../components/login';
-import {CENTER, COLORS, FONT, SIZES} from '../../../constants';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import { Back_BTN } from '../../../components/login';
+import { CENTER, COLORS, FONT, SIZES } from '../../../constants';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import isValidMnemonic from '../../../functions/isValidMnemonic';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -18,30 +18,33 @@ import {
 import SuggestedWordContainer from '../../../components/login/suggestedWords';
 import CustomButton from '../../../functions/CustomElements/button';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
-import {WINDOWWIDTH} from '../../../constants/theme';
-import {useGlobalThemeContext} from '../../../../context-store/theme';
+import { WINDOWWIDTH } from '../../../constants/theme';
+import { useGlobalThemeContext } from '../../../../context-store/theme';
 import useHandleBackPressNew from '../../../hooks/useHandleBackPressNew';
 import getClipboardText from '../../../functions/getClipboardText';
-import {useNavigation} from '@react-navigation/native';
-import {crashlyticsLogReport} from '../../../functions/crashlyticsLogs';
-import {useKeysContext} from '../../../../context-store/keys';
-import {wordlist} from '@scure/bip39/wordlists/english';
-import {handleRestoreFromText} from '../../../functions/seed';
-import {useGlobalInsets} from '../../../../context-store/insetsProvider';
+import { useNavigation } from '@react-navigation/native';
+import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
+import { useKeysContext } from '../../../../context-store/keys';
+import { wordlist } from '@scure/bip39/wordlists/english';
+import { handleRestoreFromText } from '../../../functions/seed';
+import { useGlobalInsets } from '../../../../context-store/insetsProvider';
 
-const NUMARRAY = Array.from({length: 12}, (_, i) => i + 1);
+const NUMARRAY = Array.from({ length: 12 }, (_, i) => i + 1);
 const INITIAL_KEY_STATE = NUMARRAY.reduce((acc, num) => {
   acc[`key${num}`] = '';
   return acc;
 }, {});
 
-export default function RestoreWallet({navigation: {reset}, route: {params}}) {
+export default function RestoreWallet({
+  navigation: { reset },
+  route: { params },
+}) {
   useHandleBackPressNew();
   const navigate = useNavigation();
-  const {t} = useTranslation();
-  const {accountMnemoinc, setAccountMnemonic} = useKeysContext();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {bottomPadding} = useGlobalInsets();
+  const { t } = useTranslation();
+  const { accountMnemoinc, setAccountMnemonic } = useKeysContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { bottomPadding } = useGlobalInsets();
   const [isValidating, setIsValidating] = useState(false);
   const [currentFocused, setCurrentFocused] = useState(null);
   const keyRefs = useRef({});
@@ -50,7 +53,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
   // Helper functions
   const navigateToError = useCallback(
     errorMessage => {
-      navigate.navigate('ErrorScreen', {errorMessage});
+      navigate.navigate('ErrorScreen', { errorMessage });
     },
     [navigate],
   );
@@ -74,7 +77,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       return;
     }
 
-    setInputedKey(prev => ({...prev, [`key${keyNumber}`]: text}));
+    setInputedKey(prev => ({ ...prev, [`key${keyNumber}`]: text }));
   }, []);
 
   const handleFocus = useCallback(keyNumber => {
@@ -146,7 +149,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       const savedMnemonic = keys.split(' ').filter(item => item);
 
       if (JSON.stringify(savedMnemonic) === JSON.stringify(enteredMnemonic)) {
-        navigate.navigate('PinSetup', {didRestoreWallet: true});
+        navigate.navigate('PinSetup', { didRestoreWallet: true });
       } else throw new Error(t('createAccount.restoreWallet.home.error3'));
     } catch (err) {
       console.log('did enter correct seed error', err);
@@ -175,7 +178,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
         throw new Error(t('createAccount.restoreWallet.home.error2'));
       else {
         setAccountMnemonic(mnemonic.join(' '));
-        navigate.navigate('PinSetup', {didRestoreWallet: true});
+        navigate.navigate('PinSetup', { didRestoreWallet: true });
       }
     } catch (err) {
       console.log('key validation error', err);
@@ -236,13 +239,15 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
       rows.push(
         <View
           key={`row${item1}`}
-          style={[styles.seedRow, {marginBottom: item2 !== 12 ? 10 : 0}]}>
+          style={[styles.seedRow, { marginBottom: item2 !== 12 ? 10 : 0 }]}
+        >
           {/* First item in row */}
           <View
             style={[
               styles.seedItem,
-              {backgroundColor: seedItemBackgroundColor},
-            ]}>
+              { backgroundColor: seedItemBackgroundColor },
+            ]}
+          >
             <ThemeText styles={styles.numberText} content={`${item1}.`} />
             <TextInput
               autoCorrect={false}
@@ -264,8 +269,9 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
           <View
             style={[
               styles.seedItem,
-              {backgroundColor: seedItemBackgroundColor},
-            ]}>
+              { backgroundColor: seedItemBackgroundColor },
+            ]}
+          >
             <ThemeText styles={styles.numberText} content={`${item2}.`} />
             <TextInput
               keyboardAppearance={theme ? 'dark' : 'light'}
@@ -314,7 +320,8 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
     <CustomKeyboardAvoidingView
       touchableWithoutFeedbackFunction={Keyboard.dismiss}
       useLocalPadding={false}
-      useTouchableWithoutFeedback={true}>
+      useTouchableWithoutFeedback={true}
+    >
       <View style={styles.keyContainer}>
         <View style={styles.navContainer}>
           <Back_BTN />
@@ -334,7 +341,8 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
           contentContainerStyle={{
             paddingBottom: 10,
             paddingTop: 20,
-          }}>
+          }}
+        >
           {inputKeys}
         </ScrollView>
         {!currentFocused && (
@@ -361,7 +369,8 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
             style={{
               ...styles.mainBTCContainer,
               paddingBottom: bottomPadding,
-            }}>
+            }}
+          >
             <CustomButton
               buttonStyles={{
                 width: 145,
@@ -373,7 +382,7 @@ export default function RestoreWallet({navigation: {reset}, route: {params}}) {
               textContent={params ? t('constants.skip') : t('constants.paste')}
               actionFunction={() =>
                 params
-                  ? navigate.navigate('PinSetup', {isInitialLoad: true})
+                  ? navigate.navigate('PinSetup', { didRestoreWallet: false })
                   : handleSeedFromClipboard()
               }
             />

@@ -101,6 +101,7 @@ export default async function initializeUserSettingsFromHistory({
       userSelectedLanguage,
       nwc_identity_pub_key,
       userBalanceDenomination,
+      didViewSeedPhrase,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -341,6 +342,11 @@ export default async function initializeUserSettingsFromHistory({
       );
     }
 
+    if (didViewSeedPhrase === null) {
+      didViewSeedPhrase = true;
+      setLocalStorageItem('didViewSeedPhrase', JSON.stringify(true));
+    }
+
     // if (!lnurlPubKey) {
     //   lnurlPubKey = getBitcoinKeyPair(mnemonic).publicKey;
     //   needsToUpdate = true;
@@ -386,6 +392,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['isUsingEncriptedMessaging'] = isUsingEncriptedMessaging;
     tempObject['isUsingNewNotifications'] = isUsingNewNotifications;
     tempObject['lrc20Settings'] = lrc20Settings;
+    tempObject['didViewSeedPhrase'] = didViewSeedPhrase;
 
     // store in contacts context
     tempObject['contacts'] = contacts;
