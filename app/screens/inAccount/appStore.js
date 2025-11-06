@@ -61,16 +61,13 @@ export default function AppStore({ navigation }) {
       (appElementWidth / localScreenWidth) * 100
     }%`;
 
+    if (hideGenerativeAI && app.pageName.toLowerCase() === 'ai') return;
+    else if (!hideGenerativeAI && app.pageName.toLowerCase() === 'soon') return;
+
     return (
       <TouchableOpacity
         key={id}
         onPress={() => {
-          if (hideGenerativeAI && app.pageName.toLowerCase() === 'ai') {
-            navigate.navigate('ErrorScreen', {
-              errorMessage: t('screens.inAccount.appStore.comingSoon'),
-            });
-            return;
-          }
           if (
             !isConnectedToTheInternet &&
             (app.pageName.toLowerCase() === 'ai' ||
@@ -100,10 +97,6 @@ export default function AppStore({ navigation }) {
           flexGrow: 1,
           overflow: 'scroll',
           backgroundColor: backgroundOffset,
-          opacity:
-            hideGenerativeAI && app.pageName.toLowerCase() === 'ai'
-              ? HIDDEN_OPACITY
-              : 1,
         }}
       >
         <View
