@@ -16,7 +16,7 @@ import { useGlobalInsets } from '../../../context-store/insetsProvider';
 
 export default function ViewAllTxPage() {
   const navigate = useNavigation();
-  const { sparkInformation } = useSparkWallet();
+  const { sparkInformation, showTokensInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
   const [txs, setTxs] = useState([]);
@@ -24,9 +24,9 @@ export default function ViewAllTxPage() {
   const { t } = useTranslation();
   useHandleBackPressNew();
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
-  const enabledLRC20 = masterInfoObject.lrc20Settings?.isEnabled;
+  const enabledLRC20 = showTokensInformation;
   const { bottomPadding } = useGlobalInsets();
-  console.log(sparkInformation);
+
   useEffect(() => {
     if (!sparkInformation.transactions) return;
 

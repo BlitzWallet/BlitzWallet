@@ -58,6 +58,7 @@ import {
   sendWebViewRequestGlobal,
   useWebView,
 } from './webViewContext';
+import { useGlobalContextProvider } from './context';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -66,6 +67,7 @@ export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
 const SparkWalletManager = createContext(null);
 
 const SparkWalletProvider = ({ children }) => {
+  const { masterInfoObject } = useGlobalContextProvider();
   const { changeSparkConnectionState, sendWebViewRequest } = useWebView();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -105,6 +107,10 @@ const SparkWalletProvider = ({ children }) => {
   const balancePollingTimeoutRef = useRef(null);
   const balancePollingAbortControllerRef = useRef(null);
   const currentPollingMnemonicRef = useRef(null);
+  const showTokensInformation =
+    masterInfoObject.enabledBTKNTokens === null
+      ? !!Object.keys(sparkInformation.tokens || {}).length
+      : masterInfoObject.enabledBTKNTokens;
 
   const [didRunNormalConnection, setDidRunNormalConnection] = useState(false);
   const [normalConnectionTimeout, setNormalConnectionTimeout] = useState(false);
@@ -1085,6 +1091,7 @@ const SparkWalletProvider = ({ children }) => {
       pendingLiquidPayment,
       setPendingLiquidPayment,
       tokensImageCache,
+      showTokensInformation,
     }),
     [
       sparkInformation,
@@ -1099,6 +1106,7 @@ const SparkWalletProvider = ({ children }) => {
       pendingLiquidPayment,
       setPendingLiquidPayment,
       tokensImageCache,
+      showTokensInformation,
     ],
   );
 

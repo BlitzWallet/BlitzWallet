@@ -39,6 +39,7 @@ const MemoizedLRC20Assets = memo(LRC20Assets);
 export default function HomeLightning() {
   const {
     sparkInformation,
+    showTokensInformation,
     // numberOfCachedTxs
   } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -66,12 +67,9 @@ export default function HomeLightning() {
 
   const homepageTxPreferance = masterInfoObject.homepageTxPreferance;
   const userBalanceDenomination = masterInfoObject.userBalanceDenomination;
-  const enabledLRC20 = masterInfoObject.lrc20Settings?.isEnabled;
+  const enabledLRC20 = showTokensInformation;
   const didViewSeedPhrase = masterInfoObject?.didViewSeedPhrase;
-  const lrc20Settings = useMemo(
-    () => masterInfoObject.lrc20Settings || {},
-    [masterInfoObject.lrc20Settings],
-  );
+
   const BALANCE_FADE_START = navbarHeight;
   const BALANCE_FADE_END = 100;
 
@@ -282,7 +280,7 @@ export default function HomeLightning() {
             >
               <ThemeText
                 content={
-                  lrc20Settings.isEnabled
+                  showTokensInformation
                     ? t('constants.sat_balance')
                     : t('constants.total_balance')
                 }
@@ -309,7 +307,7 @@ export default function HomeLightning() {
                 darkModeType={darkModeType}
                 isConnectedToTheInternet={isConnectedToTheInternet}
               />
-              {lrc20Settings.isEnabled && (
+              {showTokensInformation && (
                 <MemoizedLRC20Assets
                   theme={theme}
                   darkModeType={darkModeType}
@@ -332,7 +330,7 @@ export default function HomeLightning() {
       balanceOpacityStyle,
       darkModeType,
       sparkInformation.balance,
-      lrc20Settings.isEnabled,
+      showTokensInformation,
       t,
       isConnectedToTheInternet,
       sparkInformation,

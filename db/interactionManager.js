@@ -34,6 +34,7 @@ const PRESET_LOCAL_DATA = {
   [NWC_IDENTITY_PUB_KEY]: '',
   userBalanceDenomination: 'sats',
   didViewSeedPhrase: false,
+  enabledBTKNTokens: null,
 };
 
 async function sendDataToDB(newObject, uuid) {

@@ -70,7 +70,8 @@ export default function SendPaymentScreen(props) {
   } = props.route.params;
   const useAltLayout = screenDimensions.height < 720;
   const { t } = useTranslation();
-  const { sparkInformation, tokensImageCache } = useSparkWallet();
+  const { sparkInformation, tokensImageCache, showTokensInformation } =
+    useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { liquidNodeInformation, fiatStats } = useNodeContext();
   // const {minMaxLiquidSwapAmounts} = useAppStatus();
@@ -95,7 +96,7 @@ export default function SendPaymentScreen(props) {
     masterInfoObject.userBalanceDenomination === 'hidden' ||
     masterInfoObject.userBalanceDenomination === 'sats';
   const canEditPaymentAmount = paymentInfo?.canEditPayment;
-  const enabledLRC20 = masterInfoObject.lrc20Settings.isEnabled;
+  const enabledLRC20 = showTokensInformation;
   const selectedLRC20Asset = masterTokenInfo?.tokenName || 'Bitcoin';
   const seletctedToken = masterTokenInfo?.details || {};
   const isUsingLRC20 = selectedLRC20Asset !== 'Bitcoin';

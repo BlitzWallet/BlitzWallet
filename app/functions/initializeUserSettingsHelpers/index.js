@@ -21,6 +21,7 @@ const keys = [
   NWC_IDENTITY_PUB_KEY,
   'userBalanceDenomination',
   'didViewSeedPhrase',
+  'enabledBTKNTokens',
 ];
 
 const defaultValues = {
@@ -52,6 +53,7 @@ const defaultValues = {
   [NWC_IDENTITY_PUB_KEY]: '',
   userBalanceDenomination: '',
   didViewSeedPhrase: null,
+  enabledBTKNTokens: null,
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -91,6 +93,7 @@ export const fetchLocalStorageItems = async () => {
     userBalanceDenomination:
       parsedResults[15] ?? defaultValues.userBalanceDenomination,
     didViewSeedPhrase: parsedResults[16] ?? defaultValues.didViewSeedPhrase,
+    enabledBTKNTokens: parsedResults[17] ?? defaultValues.enabledBTKNTokens,
   };
 };
 

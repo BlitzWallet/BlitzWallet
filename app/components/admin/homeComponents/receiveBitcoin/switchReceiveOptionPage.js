@@ -27,6 +27,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
 
 const MAIN_PAYMENTS = [
   ['Lightning', 'Instant'],
@@ -45,6 +46,7 @@ export default function SwitchReceiveOptionPage({
   didWarnLiquid,
   didWarnRootstock,
 }) {
+  const { showTokensInformation } = useSparkWallet();
   const { accountMnemoinc } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { fiatStats } = useNodeContext();
@@ -56,7 +58,7 @@ export default function SwitchReceiveOptionPage({
   const { t } = useTranslation();
   useHandleBackPressNew();
   const [contentHeight, setContentHeight] = useState(0);
-  const isLRC20Enabled = masterInfoObject.lrc20Settings.isEnabled;
+  const isLRC20Enabled = showTokensInformation;
 
   // Reanimated shared values
   const rotateAnim = useSharedValue(0);
