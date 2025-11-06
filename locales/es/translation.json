@@ -1308,7 +1308,8 @@
         "shopTitle": "Compra con Bitcoin",
         "shopDescription": "Compra tarjetas de regalo de miles de comerciantes en todo el mundo",
         "callToAction": "¿Quieres algo aquí?",
-        "featuredApps": "¿Quieres algo aquí?"
+        "featuredApps": "¿Quieres algo aquí?",
+        "comingSoon": "Esta función no está disponible temporalmente. Estamos trabajando para restaurarla lo antes posible."
       },
       "confirmTxPage": {
         "failedToSend": "Error al enviar",

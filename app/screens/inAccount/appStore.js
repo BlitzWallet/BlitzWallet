@@ -21,7 +21,7 @@ import { useAppStatus } from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { useToast } from '../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
-import { MAX_CONTENT_WIDTH } from '../../constants/theme';
+import { HIDDEN_OPACITY, MAX_CONTENT_WIDTH } from '../../constants/theme';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
 
@@ -30,10 +30,13 @@ export default function AppStore({ navigation }) {
   const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset } = GetThemeColors();
-  const { decodedGiftCards } = useGlobalAppData();
+  const { decodedGiftCards, decodedChatGPT } = useGlobalAppData();
   const { bottomPadding } = useGlobalInsets();
   const navigate = useNavigation();
   const { t } = useTranslation();
+
+  const chatGPTCredits = decodedChatGPT?.credits;
+  const hideGenerativeAI = chatGPTCredits < 30 && Platform.OS === 'ios';
 
   function handleBackPressFunction() {
     navigation.navigate('Home');
@@ -62,6 +65,12 @@ export default function AppStore({ navigation }) {
       <TouchableOpacity
         key={id}
         onPress={() => {
+          if (hideGenerativeAI && app.pageName.toLowerCase() === 'ai') {
+            navigate.navigate('ErrorScreen', {
+              errorMessage: t('screens.inAccount.appStore.comingSoon'),
+            });
+            return;
+          }
           if (
             !isConnectedToTheInternet &&
             (app.pageName.toLowerCase() === 'ai' ||
@@ -91,6 +100,10 @@ export default function AppStore({ navigation }) {
           flexGrow: 1,
           overflow: 'scroll',
           backgroundColor: backgroundOffset,
+          opacity:
+            hideGenerativeAI && app.pageName.toLowerCase() === 'ai'
+              ? HIDDEN_OPACITY
+              : 1,
         }}
       >
         <View

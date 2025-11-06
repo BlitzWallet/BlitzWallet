@@ -10,7 +10,7 @@ export const supportedLanguagesList = [
     languageName: 'Español',
     fullySupported: true,
     translatedName: 'languages.spanish',
-    id: 'sp',
+    id: 'es',
     flagCode: 'es',
   },
   {
