@@ -907,7 +907,8 @@
         "alreadyPaidInvoiceError": "Hai già pagato questa fattura",
         "descriptionPlaceholder": "Descrizione pagamento...",
         "fallbackErrorMessage": "Errore nel decodificare la fattura",
-        "connectToSparkMessage": "Connessione a Spark"
+        "connectToSparkMessage": "Connessione a Spark",
+        "switchTokenText": "Usa un token diverso"
       },
       "handlingAddressErrors": {
         "invlidFormat": "Gli indirizzi devono essere solo testo. Controlla e riprova.",

@@ -1,8 +1,5 @@
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../../functions/CustomElements';
+import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { CENTER, ICONS } from '../../../../../constants';
@@ -10,28 +7,23 @@ import {
   COLORS,
   INSET_WINDOW_WIDTH,
   SIZES,
-  WINDOWWIDTH,
 } from '../../../../../constants/theme';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import formatTokensNumber from '../../../../../functions/lrc20/formatTokensBalance';
-import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import { useTranslation } from 'react-i18next';
 import { Image as ExpoImage } from 'expo-image';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import { useSparkWallet } from '../../../../../../context-store/sparkContext';
+import { useNavigation } from '@react-navigation/native';
 
-export default function SelectLRC20Token({
-  navigate,
-  sparkInformation,
-  goBackFunction,
-  setSelectedToken,
-  tokensImageCache,
-}) {
+export default function SelectLRC20Token({ setIsKeyboardActive }) {
+  const navigate = useNavigation();
+  const { sparkInformation, tokensImageCache } = useSparkWallet();
   const [searchInput, setSearchInput] = useState('');
   const keyboardRef = useRef(null);
-  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const assetsAvailable = sparkInformation?.tokens
     ? Object.entries(sparkInformation.tokens)
     : [];
@@ -44,10 +36,18 @@ export default function SelectLRC20Token({
   };
 
   const selectToken = token => {
-    setSelectedToken(token);
+    navigate.popTo(
+      'ConfirmPaymentScreen',
+      {
+        masterTokenInfo: token,
+      },
+      { merge: true },
+    );
+    return;
   };
 
   const filteredData = useMemo(() => {
+    // usdb token identifier
     const priorityToken =
       'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87';
 
@@ -186,67 +186,52 @@ export default function SelectLRC20Token({
   );
 
   return (
-    <CustomKeyboardAvoidingView
-      useStandardWidth={true}
-      useLocalPadding={true}
-      isKeyboardActive={isKeyboardActive}
-    >
-      <CustomSettingsTopBar
-        customBackFunction={goBackFunction}
-        label={t('wallet.sendPages.selectLRC20Token.title')}
-      />
-      <View style={styles.innerContainer}>
-        <CustomSearchInput
-          placeholderText={t(
-            'wallet.sendPages.selectLRC20Token.searchPlaceholder',
-          )}
-          setInputText={handleSearch}
-          inputText={searchInput}
-          textInputRef={keyboardRef}
-          blurOnSubmit={false}
-          onFocusFunction={() => setIsKeyboardActive(true)}
-          onBlurFunction={() => setIsKeyboardActive(false)}
-        />
-
-        {filteredData.length ? (
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            data={filteredData}
-            renderItem={({ item }) => (
-              <AssetItem
-                theme={theme}
-                darkModeType={darkModeType}
-                item={item}
-                selectToken={selectToken}
-                navigate={navigate}
-              />
-            )}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="none"
-            contentContainerStyle={{ paddingTop: 10 }}
-          />
-        ) : (
-          <ThemeText
-            styles={{ textAlign: 'center', marginTop: 10 }}
-            content={t('wallet.sendPages.selectLRC20Token.noTokensFoundText')}
-          />
+    <View style={styles.innerContainer}>
+      <CustomSearchInput
+        placeholderText={t(
+          'wallet.sendPages.selectLRC20Token.searchPlaceholder',
         )}
-      </View>
-    </CustomKeyboardAvoidingView>
+        setInputText={handleSearch}
+        inputText={searchInput}
+        textInputRef={keyboardRef}
+        blurOnSubmit={false}
+        onFocusFunction={() => setIsKeyboardActive(true)}
+        onBlurFunction={() => setIsKeyboardActive(false)}
+      />
+
+      {filteredData.length ? (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={filteredData}
+          renderItem={({ item }) => (
+            <AssetItem
+              theme={theme}
+              darkModeType={darkModeType}
+              item={item}
+              selectToken={selectToken}
+              navigate={navigate}
+            />
+          )}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="none"
+          contentContainerStyle={{ paddingTop: 10 }}
+        />
+      ) : (
+        <ThemeText
+          styles={{ textAlign: 'center', marginTop: 10 }}
+          content={t('wallet.sendPages.selectLRC20Token.noTokensFoundText')}
+        />
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: WINDOWWIDTH,
-    flex: 1,
-    alignItems: 'center',
-    ...CENTER,
-  },
   innerContainer: {
     flex: 1,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
+
     marginTop: 10,
   },
 

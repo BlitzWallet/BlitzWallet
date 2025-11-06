@@ -908,7 +908,8 @@
         "alreadyPaidInvoiceError": "You have already paid this invoice",
         "descriptionPlaceholder": "Payment description...",
         "fallbackErrorMessage": "Error decoding invoice",
-        "connectToSparkMessage": "Connecting to Spark"
+        "connectToSparkMessage": "Connecting to Spark",
+        "switchTokenText": "Use Different Token"
       },
       "handlingAddressErrors": {
         "invlidFormat": "Addresses should be text only. Please check and try again.",
