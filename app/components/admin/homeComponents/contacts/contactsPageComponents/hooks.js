@@ -1,14 +1,8 @@
-import {useEffect, useMemo, useState} from 'react';
+import { useMemo } from 'react';
 
-export const useProcessedContacts = (
-  decodedAddedContacts,
-  contactsMessags,
-  cache,
-) => {
-  const [contactInfoList, setContactInfoList] = useState([]);
-
-  useEffect(() => {
-    const processedContacts = decodedAddedContacts.map(contact => {
+export const useProcessedContacts = (decodedAddedContacts, contactsMessags) => {
+  return useMemo(() => {
+    return decodedAddedContacts.map(contact => {
       const info = contactsMessags[contact.uuid] || {};
       return {
         contact,
@@ -17,10 +11,7 @@ export const useProcessedContacts = (
         firstMessage: info.messages?.[0],
       };
     });
-    setContactInfoList(processedContacts);
-  }, [decodedAddedContacts, contactsMessags, cache]);
-
-  return contactInfoList;
+  }, [decodedAddedContacts, contactsMessags]);
 };
 
 export const useFilteredContacts = (
