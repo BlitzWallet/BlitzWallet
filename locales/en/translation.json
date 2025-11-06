@@ -1476,7 +1476,8 @@
         "shopTitle": "Shop with Bitcoin",
         "shopDescription": "Buy gift cards from thousands of different merchants around the world",
         "callToAction": "Anything you want here?",
-        "featuredApps": "Anything you want here?"
+        "featuredApps": "Anything you want here?",
+        "comingSoon": "This feature is temporarily unavailable. We're working to restore it as soon as possible."
       },
 
       "confirmTxPage": {
