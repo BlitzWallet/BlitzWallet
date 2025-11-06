@@ -58,17 +58,6 @@ export default function DisplayOptions() {
 
   const steps = [15, 20, 25, 30, 35, 40];
 
-  const bktnTokens = useCallback(
-    () =>
-      toggleMasterInfoObject({
-        lrc20Settings: {
-          ...(masterInfoObject?.lrc20Settings || {}),
-          isEnabled: !masterInfoObject.lrc20Settings.isEnabled,
-        },
-      }),
-    [masterInfoObject],
-  );
-
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -398,53 +387,6 @@ export default function DisplayOptions() {
           content={t('settings.displayOptions.text15')}
         />
         <CustomToggleSwitch page={'hideUnknownContacts'} />
-      </View>
-
-      <ThemeText
-        styles={styles.infoHeaders}
-        content={t('settings.displayOptions.sparkTitle')}
-      />
-      <View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-          },
-        ]}
-      >
-        <View style={styles.swipeForCameraContainer}>
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={{ ...styles.removeFontPadding, marginRight: 5 }}
-            content={t('settings.displayOptions.sliderTitle_enabled')}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              navigate.navigate('InformationPopup', {
-                textContent: t('settings.displayOptions.sparkInfoPopup', {
-                  fee: displayCorrectDenomination({
-                    amount: 10,
-                    masterInfoObject,
-                    fiatStats,
-                  }),
-                }),
-                buttonText: t('constants.understandText'),
-              });
-            }}
-          >
-            <ThemeImage
-              styles={{ width: 20, height: 20 }}
-              lightModeIcon={ICONS.aboutIcon}
-              darkModeIcon={ICONS.aboutIcon}
-              lightsOutIcon={ICONS.aboutIconWhite}
-            />
-          </TouchableOpacity>
-        </View>
-        <CustomToggleSwitch
-          stateValue={masterInfoObject?.lrc20Settings?.isEnabled}
-          toggleSwitchFunction={bktnTokens}
-          page={'lrc20Settings'}
-        />
       </View>
     </ScrollView>
   );

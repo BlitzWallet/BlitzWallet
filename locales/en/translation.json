@@ -1222,7 +1222,9 @@
       "title": "Spark Settings",
       "sliderTitle_enabled": "Enabled BTKN",
       "sliderTitle_disabled": "Disabled BTKN",
-      "sliderDesc": "BTKN is Spark’s native token. Enabling BTKN allows you send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.\n\nBlitz also applies a {{fee}} fee to all token transactions, with 20% of that fee donated to support open-source Bitcoin development."
+      "sliderDesc": "BTKN is Spark’s native token. Enabling BTKN allows you send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.",
+      "selectTokenHeader": "Default Token",
+      "selectTokenInformationPopup": "Choose which token you’d like to use first when sending payments. Don’t worry—you can still change it on the payment page anytime."
     },
     "viewSwapsHome": {
       "swaps": "Swaps",
