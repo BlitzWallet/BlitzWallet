@@ -74,9 +74,9 @@ export default function AcceptButtonSendPage({
   const isLRC20Valid = useMemo(() => {
     if (!isLRC20Payment) return true;
     return (
-      sparkInformation.balance >= 10 &&
+      // sparkInformation.balance >= 10 &&
       seletctedToken?.balance >=
-        paymentInfo?.sendAmount * 10 ** seletctedToken?.tokenMetadata?.decimals
+      paymentInfo?.sendAmount * 10 ** seletctedToken?.tokenMetadata?.decimals
     );
   }, [isLRC20Payment, sparkInformation?.balance, seletctedToken, paymentInfo]);
 

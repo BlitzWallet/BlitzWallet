@@ -5,11 +5,12 @@ import {
   QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
 } from '../../../../constants';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import {
   CustomKeyboardAvoidingView,
   GlobalThemeView,
+  ThemeText,
 } from '../../../../functions/CustomElements';
 import SendTransactionFeeInfo from './components/feeInfo';
 import decodeSendAddress from './functions/decodeSendAdress';
@@ -67,10 +68,11 @@ export default function SendPaymentScreen(props) {
     enteredPaymentInfo = {},
     errorMessage,
     contactInfo,
+    masterTokenInfo = {},
   } = props.route.params;
   const useAltLayout = screenDimensions.height < 720;
   const { t } = useTranslation();
-  const { sparkInformation } = useSparkWallet();
+  const { sparkInformation, showTokensInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { liquidNodeInformation, fiatStats } = useNodeContext();
   // const {minMaxLiquidSwapAmounts} = useAppStatus();
@@ -87,7 +89,6 @@ export default function SendPaymentScreen(props) {
       ? t('wallet.sendPages.sendPaymentScreen.initialLoadingMessage')
       : t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage'),
   );
-  const [masterTokenInfo, setMasterTokenInfo] = useState({});
   const [refreshDecode, setRefreshDecode] = useState(0);
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
@@ -95,10 +96,16 @@ export default function SendPaymentScreen(props) {
     masterInfoObject.userBalanceDenomination === 'hidden' ||
     masterInfoObject.userBalanceDenomination === 'sats';
   const canEditPaymentAmount = paymentInfo?.canEditPayment;
-  const enabledLRC20 = masterInfoObject.lrc20Settings.isEnabled;
-  const selectedLRC20Asset = masterTokenInfo?.tokenName || 'Bitcoin';
-  const seletctedToken = masterTokenInfo?.details || {};
-  const isUsingLRC20 = selectedLRC20Asset !== 'Bitcoin';
+  const enabledLRC20 = showTokensInformation;
+  const defaultToken = enabledLRC20
+    ? masterInfoObject?.defaultSpendToken || 'Bitcoin'
+    : 'Bitcoin';
+  const selectedLRC20Asset = masterTokenInfo?.tokenName || defaultToken;
+  const seletctedToken =
+    masterTokenInfo?.details ||
+    sparkInformation?.tokens?.[selectedLRC20Asset] ||
+    {};
+  const isUsingLRC20 = selectedLRC20Asset?.toLowerCase() !== 'bitcoin';
 
   const paramsRef = useRef({
     btcAdress,
@@ -125,7 +132,6 @@ export default function SendPaymentScreen(props) {
           : t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage'),
       );
       setShowProgressAnimation(false);
-      setMasterTokenInfo({});
       setRefreshDecode(x => x + 1);
       paramsRef.current = currentParams;
     }
@@ -242,6 +248,12 @@ export default function SendPaymentScreen(props) {
   //   return unsubscribe;
   // }, [navigate, paymentInfo]);
 
+  const handleSelectTokenPress = useCallback(() => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'SelectLRC20Token',
+    });
+  }, [navigate]);
+
   if (
     (!Object.keys(paymentInfo).length && !errorMessage) ||
     !sparkInformation.didConnect
@@ -257,32 +269,8 @@ export default function SendPaymentScreen(props) {
     return <ErrorWithPayment reason={errorMessage} />;
   }
 
-  if (
-    enabledLRC20 &&
-    !Object.keys(seletctedToken).length &&
-    paymentInfo.type === 'spark'
-  ) {
-    return (
-      <SelectLRC20Token
-        sparkInformation={sparkInformation}
-        seletctedToken={seletctedToken}
-        goBackFunction={goBackFunction}
-        setSelectedToken={setMasterTokenInfo}
-      />
-    );
-  }
-
-  const clearSettings = () => {
-    setPaymentInfo(prev => ({ ...prev, canEditPayment: true, sendAmount: '' }));
-    setMasterTokenInfo({});
-  };
-
   const handleBackpress = () => {
-    enabledLRC20 &&
-    Object.keys(seletctedToken).length &&
-    paymentInfo.type === 'spark'
-      ? clearSettings()
-      : goBackFunction();
+    goBackFunction();
   };
 
   return (
@@ -296,6 +284,15 @@ export default function SendPaymentScreen(props) {
         selectedLRC20Asset={selectedLRC20Asset}
         backFunction={handleBackpress}
       />
+
+      {enabledLRC20 && paymentInfo.type === 'spark' && (
+        <TouchableOpacity onPress={handleSelectTokenPress}>
+          <ThemeText
+            styles={styles.selectTokenText}
+            content={t('wallet.sendPages.sendPaymentScreen.switchTokenText')}
+          />
+        </TouchableOpacity>
+      )}
 
       <ScrollView
         contentContainerStyle={{
@@ -391,7 +388,6 @@ export default function SendPaymentScreen(props) {
             textAlignVertical={'baseline'}
             textInputStyles={{
               borderRadius: useAltLayout ? 15 : 8,
-              height: useAltLayout ? 50 : 'unset',
             }}
             maxLength={paymentInfo?.data?.commentAllowed || 150}
             containerStyles={{
@@ -536,7 +532,7 @@ export default function SendPaymentScreen(props) {
 
     const formmateedSparkPaymentInfo = formatSparkPaymentAddress(
       paymentInfo,
-      selectedLRC20Asset !== 'Bitcoin',
+      selectedLRC20Asset?.toLowerCase() !== 'bitcoin',
     );
 
     console.log(formmateedSparkPaymentInfo, 'manual spark information');
@@ -665,5 +661,10 @@ const styles = StyleSheet.create({
   buttonContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  selectTokenText: {
+    textDecorationLine: 'underline',
+    paddingVertical: 10,
+    textAlign: 'center',
   },
 });

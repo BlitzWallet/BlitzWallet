@@ -102,6 +102,8 @@ export default async function initializeUserSettingsFromHistory({
       nwc_identity_pub_key,
       userBalanceDenomination,
       didViewSeedPhrase,
+      enabledBTKNTokens,
+      defaultSpendToken,
     } = localStoredData;
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
@@ -170,7 +172,7 @@ export default async function initializeUserSettingsFromHistory({
       minAutoSwapAmount: 10000, //sats
     };
     let ecashWalletSettings = blitzStoredData.ecashWalletSettings;
-    let lrc20Settings = blitzStoredData.lrc20Settings;
+    // let lrc20Settings = blitzStoredData.lrc20Settings;
 
     // const eCashInformation =
     //   blitzStoredData.eCashInformation ||
@@ -318,11 +320,12 @@ export default async function initializeUserSettingsFromHistory({
       needsToUpdate = true;
     }
 
-    if (!lrc20Settings) {
-      lrc20Settings = {
-        isEnabled: false,
-      };
-    }
+    // if (!lrc20Settings || !lrc20Settings?.isEnabled) {
+    //   //force enable for legacy users
+    //   lrc20Settings = {
+    //     isEnabled: true, //enabled by default, but only shows token UI if a token is receivd
+    //   };
+    // }
 
     if (!nwc_identity_pub_key) {
       const didInit = await initializeNWCWallet();
@@ -391,8 +394,10 @@ export default async function initializeUserSettingsFromHistory({
     // tempObject['lnurlPubKey'] = lnurlPubKey;
     tempObject['isUsingEncriptedMessaging'] = isUsingEncriptedMessaging;
     tempObject['isUsingNewNotifications'] = isUsingNewNotifications;
-    tempObject['lrc20Settings'] = lrc20Settings;
+    // tempObject['lrc20Settings'] = lrc20Settings;
     tempObject['didViewSeedPhrase'] = didViewSeedPhrase;
+    tempObject['enabledBTKNTokens'] = enabledBTKNTokens;
+    tempObject['defaultSpendToken'] = defaultSpendToken;
 
     // store in contacts context
     tempObject['contacts'] = contacts;

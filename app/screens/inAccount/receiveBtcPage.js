@@ -123,12 +123,6 @@ export default function ReceivePaymentHome(props) {
       } else if (selectedRecieveOption === 'Rootstock') {
         startRootstockEventListener({ durationMs: 1200000 });
       }
-      // else if (
-      //   selectedRecieveOption === 'Spark' &&
-      //   masterInfoObject.lrc20Settings?.isEnabled
-      // ) {
-      //   startLrc20EventListener(12);
-      // }
     }
     runAddressInit();
   }, [initialSendAmount, paymentDescription, selectedRecieveOption]);

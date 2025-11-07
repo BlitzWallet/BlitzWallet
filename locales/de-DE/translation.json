@@ -901,7 +901,8 @@
         "alreadyPaidInvoiceError": "Sie haben diese Rechnung bereits bezahlt",
         "descriptionPlaceholder": "Zahlungsbeschreibung...",
         "fallbackErrorMessage": "Fehler beim Dekodieren der Rechnung",
-        "connectToSparkMessage": "Verbindung zu Spark wird hergestellt"
+        "connectToSparkMessage": "Verbindung zu Spark wird hergestellt",
+        "switchTokenText": "Anderen Token verwenden"
       },
       "handlingAddressErrors": {
         "invlidFormat": "Adressen sollten nur Text enthalten. Bitte überprüfen Sie und versuchen Sie es erneut.",
@@ -1204,7 +1205,9 @@
       "title": "Spark-Einstellungen",
       "sliderTitle_enabled": "BTKN aktiviert",
       "sliderTitle_disabled": "BTKN deaktiviert",
-      "sliderDesc": "BTKN ist der native Token von Spark. Das Aktivieren von BTKN ermöglicht das Senden und Empfangen von Token im Spark-Netzwerk.\n\nBlitz ist eine auf Bitcoin fokussierte Wallet. Wir fördern oder unterstützen die Nutzung von Token nicht. Diese Funktion existiert, weil wir glauben, dass Nutzer die Freiheit haben sollten, die Technologie zu nutzen, die sie wollen.\n\nBlitz erhebt auch eine {{fee}}-Gebühr auf alle Token-Transaktionen, wobei 20% dieser Gebühr zur Unterstützung der Open-Source-Bitcoin-Entwicklung gespendet werden."
+      "sliderDesc": "BTKN ist der native Token von Spark. Das Aktivieren von BTKN ermöglicht das Senden und Empfangen von Token im Spark-Netzwerk.\n\nBlitz ist eine auf Bitcoin fokussierte Wallet. Wir fördern oder unterstützen die Nutzung von Token nicht. Diese Funktion existiert, weil wir glauben, dass Nutzer die Freiheit haben sollten, die Technologie zu nutzen, die sie wollen.",
+      "selectTokenHeader": "Standard-Token",
+      "selectTokenInformationPopup": "Wähle aus, welchen Token du zuerst für Zahlungen verwenden möchtest. Keine Sorge – du kannst dies jederzeit auf der Zahlungsseite ändern."
     },
     "viewSwapsHome": {
       "swaps": "Swaps",

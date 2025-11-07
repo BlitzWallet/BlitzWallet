@@ -17,7 +17,7 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
 
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
 import { Slider } from '@miblanchard/react-native-slider';
@@ -32,6 +32,7 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { FONT, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
+import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 
 export default function DisplayOptions() {
   const { toggleMasterInfoObject, setMasterInfoObject, masterInfoObject } =
@@ -54,7 +55,7 @@ export default function DisplayOptions() {
     code: currencyText,
   });
   const currencySymbol = formattedCurrency[2];
-  console.log(currencySymbol);
+
   const steps = [15, 20, 25, 30, 35, 40];
 
   return (

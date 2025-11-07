@@ -42,10 +42,13 @@ export default function SendMaxComponent({
       try {
         if (isGettingMax) return;
         await new Promise(res => setTimeout(res, 250));
-        const balance = seletctedToken?.balance || sparkInformation.balance;
+        const balance =
+          selectedLRC20Asset?.toLowerCase() === 'bitcoin'
+            ? sparkInformation.balance
+            : seletctedToken?.balance;
         const selectedPercent = !item ? 100 : item.value;
         const sendingBalance = Math.round(balance * (selectedPercent / 100));
-        console.log(selectedPercent, balance, sendingBalance);
+
         crashlyticsLogReport('Starting send max process');
         setIsGettingMax(true);
 

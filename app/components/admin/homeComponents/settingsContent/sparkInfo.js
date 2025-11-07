@@ -1,45 +1,89 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {ThemeText} from '../../../../functions/CustomElements';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {CENTER, COLORS, ICONS} from '../../../../constants';
-import {copyToClipboard} from '../../../../functions';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {useSparkWallet} from '../../../../../context-store/sparkContext';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { CENTER, COLORS, ICONS } from '../../../../constants';
+import { copyToClipboard } from '../../../../functions';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {useToast} from '../../../../../context-store/toastManager';
-import {useTranslation} from 'react-i18next';
+import { useToast } from '../../../../../context-store/toastManager';
+import { useTranslation } from 'react-i18next';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useCallback, useMemo } from 'react';
+import SettingsItemWithSlider from '../../../../functions/CustomElements/settings/settingsItemWithSlider';
+import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
+import { useNavigation } from '@react-navigation/native';
 
 export default function SparkInfo() {
-  const {showToast} = useToast();
-  const {sparkInformation} = useSparkWallet();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset} = GetThemeColors();
-  const {sparkAddress = '', identityPubKey = ''} = sparkInformation;
-  const {t} = useTranslation();
+  const { showToast } = useToast();
+  const navigate = useNavigation();
+  const { toggleMasterInfoObject, masterInfoObject } =
+    useGlobalContextProvider();
+  const { sparkInformation, showTokensInformation } = useSparkWallet();
+  const { theme } = useGlobalThemeContext();
+  const { backgroundOffset } = GetThemeColors();
+  const { sparkAddress = '', identityPubKey = '', tokens } = sparkInformation;
+  const { t } = useTranslation();
+  const selectedToken = masterInfoObject.defaultSpendToken;
+  const selectedTokenName =
+    selectedToken?.toLowerCase() === 'bitcoin'
+      ? 'Bitcoin'
+      : tokens[selectedToken]?.tokenMetadata?.tokenName || '';
+
+  const bktnTokens = useCallback(
+    () =>
+      toggleMasterInfoObject({
+        enabledBTKNTokens: !showTokensInformation,
+      }),
+    [showTokensInformation],
+  );
+
+  const handleDefaultTokenSelection = useCallback(item => {
+    toggleMasterInfoObject({
+      defaultSpendToken: item.value,
+    });
+  }, []);
+
+  const dropdownOptions = useMemo(() => {
+    if (!Object.entries(tokens || {}).length) return [];
+    const fommattedTokens = Object.entries(tokens || {}).map(item => {
+      const [tokenIdentifier, tokenDetails] = item;
+      return {
+        label: tokenDetails?.tokenMetadata?.tokenName,
+        value: tokenIdentifier,
+      };
+    });
+
+    return [{ label: 'Bitcoin', value: 'Bitcoin' }, ...fommattedTokens].filter(
+      item => item?.value?.toLowerCase() !== selectedToken?.toLowerCase(),
+    );
+  }, [Object.keys(tokens || {}).length, selectedToken]);
 
   return (
-    <View style={{flex: 1, width: INSET_WINDOW_WIDTH, ...CENTER}}>
+    <ScrollView contentContainerStyle={styles.scrollContianer}>
       <View
         style={{
           ...styles.container,
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-        }}>
+        }}
+      >
         <ThemeText
           styles={styles.title}
           content={t('settings.sparkInfo.title')}
         />
-        <View style={{...styles.infoContainer, marginBottom: 20}}>
+        <View style={{ ...styles.infoContainer, marginBottom: 20 }}>
           <ThemeText
             CustomNumberOfLines={1}
-            styles={{flex: 1}}
+            styles={{ flex: 1 }}
             content={t('settings.sparkInfo.sparkAddress')}
           />
           <TouchableOpacity
             style={styles.buttonContainer}
             onPress={() => {
               copyToClipboard(sparkAddress, showToast);
-            }}>
+            }}
+          >
             <ThemeText
               content={
                 sparkAddress.slice(0, 6) +
@@ -48,7 +92,7 @@ export default function SparkInfo() {
               }
             />
             <ThemeImage
-              styles={{width: 20, height: 20, marginLeft: 5}}
+              styles={{ width: 20, height: 20, marginLeft: 5 }}
               lightModeIcon={ICONS.clipboardBlue}
               darkModeIcon={ICONS.clipboardBlue}
               lightsOutIcon={ICONS.clipboardLight}
@@ -58,14 +102,15 @@ export default function SparkInfo() {
         <View style={styles.infoContainer}>
           <ThemeText
             CustomNumberOfLines={1}
-            styles={{flex: 1}}
+            styles={{ flex: 1 }}
             content={t('settings.sparkInfo.pubKey')}
           />
           <TouchableOpacity
             style={styles.buttonContainer}
             onPress={() => {
               copyToClipboard(identityPubKey, showToast);
-            }}>
+            }}
+          >
             <ThemeText
               content={
                 identityPubKey.slice(0, 6) +
@@ -75,7 +120,7 @@ export default function SparkInfo() {
             />
 
             <ThemeImage
-              styles={{width: 20, height: 20, marginLeft: 5}}
+              styles={{ width: 20, height: 20, marginLeft: 5 }}
               lightModeIcon={ICONS.clipboardBlue}
               darkModeIcon={ICONS.clipboardBlue}
               lightsOutIcon={ICONS.clipboardLight}
@@ -83,10 +128,61 @@ export default function SparkInfo() {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+      <SettingsItemWithSlider
+        settingsTitle={t('settings.sparkLrc20.sliderTitle', {
+          context: showTokensInformation ? 'enabled' : 'disabled',
+        })}
+        switchPageName={'lrc20Settings'}
+        showDescription={true}
+        settingDescription={t('settings.sparkLrc20.sliderDesc')}
+        handleSubmit={bktnTokens}
+        toggleSwitchStateValue={showTokensInformation}
+      />
+      <TouchableOpacity
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginBottom: 10,
+          justifyContent: 'center',
+        }}
+        onPress={() =>
+          navigate.navigate('InformationPopup', {
+            textContent: t('settings.sparkLrc20.selectTokenInformationPopup'),
+            buttonText: t('constants.understandText'),
+          })
+        }
+      >
+        <ThemeText
+          styles={styles.headerText}
+          content={t('settings.sparkLrc20.selectTokenHeader')}
+        />
+        <ThemeImage
+          styles={{ width: 20, height: 20 }}
+          lightModeIcon={ICONS.aboutIcon}
+          darkModeIcon={ICONS.aboutIcon}
+          lightsOutIcon={ICONS.aboutIconWhite}
+        />
+      </TouchableOpacity>
+      <DropdownMenu
+        selectedValue={selectedTokenName}
+        onSelect={handleDefaultTokenSelection}
+        showVerticalArrowsAbsolute={true}
+        showVerticalArrows={!!dropdownOptions.length}
+        textStyles={{
+          textAlign: 'center',
+          textTransform:
+            selectedToken?.toLowerCase() === 'bitcoin' ? 'capitalize' : 'unset',
+          paddingRight: 20,
+        }}
+        options={dropdownOptions}
+        disableDropdownPress={!dropdownOptions.length}
+        showClearIcon={false}
+      />
+    </ScrollView>
   );
 }
 const styles = StyleSheet.create({
+  scrollContianer: { width: INSET_WINDOW_WIDTH, ...CENTER },
   container: {
     width: '100%',
     marginTop: 10,
@@ -105,4 +201,5 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
   },
+  headerText: { marginRight: 5, includeFontPadding: false },
 });

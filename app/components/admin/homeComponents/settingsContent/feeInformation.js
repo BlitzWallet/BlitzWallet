@@ -1,31 +1,33 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {ThemeText} from '../../../../functions/CustomElements';
-import {useNodeContext} from '../../../../../context-store/nodeContext';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemeText } from '../../../../functions/CustomElements';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {useMemo, useState} from 'react';
-import {CENTER, COLORS, SIZES} from '../../../../constants';
+import { useMemo, useState } from 'react';
+import { CENTER, COLORS, SIZES } from '../../../../constants';
 import {
   lightningBrackets,
   sparkBrackets,
   bitcoinBrackets,
   LRC20Brackets,
 } from '../../../../functions/spark/calculateSupportFee';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {useTranslation} from 'react-i18next';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { useTranslation } from 'react-i18next';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
 
 export default function BlitzFeeInformation() {
-  const {fiatStats} = useNodeContext();
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor} = GetThemeColors();
+  const { fiatStats } = useNodeContext();
+  const { showTokensInformation } = useSparkWallet();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor } = GetThemeColors();
   const [paymentType, setPaymentType] = useState('lightning');
   const [minHeight, setMinHeight] = useState(0);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
-  const feeOptions = masterInfoObject?.lrc20Settings?.isEnabled
+  const feeOptions = showTokensInformation
     ? ['lightning', 'spark', 'bitcoin', 'tokens']
     : ['lightning', 'spark', 'bitcoin'];
 
@@ -45,7 +47,8 @@ export default function BlitzFeeInformation() {
             borderColor:
               theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
             ...styles.timeFrameElement,
-          }}>
+          }}
+        >
           <ThemeText
             styles={{
               color:
@@ -72,9 +75,10 @@ export default function BlitzFeeInformation() {
         alignItems: 'center',
         width: INSET_WINDOW_WIDTH,
         ...CENTER,
-      }}>
+      }}
+    >
       <ThemeText
-        styles={{textAlign: 'center', marginBottom: 30}}
+        styles={{ textAlign: 'center', marginBottom: 30 }}
         content={t('settings.feeInformation.description')}
       />
       <GridSection
@@ -109,17 +113,20 @@ function GridSection({
   masterInfoObject,
   fiatStats,
 }) {
-  const {backgroundOffset} = GetThemeColors();
-  const {t} = useTranslation();
+  const { backgroundOffset } = GetThemeColors();
+  const { t } = useTranslation();
   return (
     <View
       onLayout={e => {
         if (!e.nativeEvent.layout.height) return;
         setMinHeight(e.nativeEvent.layout.height);
       }}
-      style={[styles.section, {minHeight: minHeight}]}>
+      style={[styles.section, { minHeight: minHeight }]}
+    >
       <View>
-        <View style={{...styles.headerRow, backgroundColor: backgroundOffset}}>
+        <View
+          style={{ ...styles.headerRow, backgroundColor: backgroundOffset }}
+        >
           <ThemeText
             CustomNumberOfLines={1}
             styles={styles.headerCell}

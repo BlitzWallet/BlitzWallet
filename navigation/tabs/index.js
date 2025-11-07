@@ -12,7 +12,7 @@ import GetThemeColors from '../../app/hooks/themeColors';
 import { useGlobalThemeContext } from '../../context-store/theme';
 import { useGlobalContacts } from '../../context-store/globalContacts';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
-import { useGlobalContextProvider } from '../../context-store/context';
+import { useSparkWallet } from '../../context-store/sparkContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,7 +23,7 @@ const OVERLAY_WIDTH = 70;
 function MyTabBar({ state, descriptors, navigation }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { hasUnlookedTransactions } = useGlobalContacts();
-  const { masterInfoObject } = useGlobalContextProvider();
+  const { showTokensInformation } = useSparkWallet();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const firstRender = useRef(true);
@@ -60,7 +60,7 @@ function MyTabBar({ state, descriptors, navigation }) {
           styles.tabsInnerContainer,
           {
             backgroundColor:
-              masterInfoObject.lrc20Settings.isEnabled && state.index === 1
+              showTokensInformation && state.index === 1
                 ? backgroundColor
                 : backgroundOffset,
             // opacity: 0.9,

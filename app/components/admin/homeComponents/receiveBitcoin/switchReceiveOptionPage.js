@@ -27,10 +27,12 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
 
 const MAIN_PAYMENTS = [
   ['Lightning', 'Instant'],
   ['Bitcoin', '~ 10 minutes'],
+  // ['USD', '~ Instant'],
   ['Spark', 'Instant'],
   ['Liquid', '~ 1 minute'],
   ['Rootstock', '~ 1 minute'],
@@ -44,6 +46,7 @@ export default function SwitchReceiveOptionPage({
   didWarnLiquid,
   didWarnRootstock,
 }) {
+  const { showTokensInformation } = useSparkWallet();
   const { accountMnemoinc } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { fiatStats } = useNodeContext();
@@ -55,7 +58,7 @@ export default function SwitchReceiveOptionPage({
   const { t } = useTranslation();
   useHandleBackPressNew();
   const [contentHeight, setContentHeight] = useState(0);
-  const isLRC20Enabled = masterInfoObject.lrc20Settings.isEnabled;
+  const isLRC20Enabled = showTokensInformation;
 
   // Reanimated shared values
   const rotateAnim = useSharedValue(0);
@@ -167,6 +170,8 @@ export default function SwitchReceiveOptionPage({
                   ? 'sparkAsteriskWhite'
                   : name === 'Liquid'
                   ? 'blockstreamLiquid'
+                  : name === 'USD'
+                  ? 'dollar'
                   : 'rootstockLogo'
               ]
             }
@@ -183,7 +188,7 @@ export default function SwitchReceiveOptionPage({
           <ThemeText
             styles={styles.optionItemText}
             content={
-              name === 'Lightning'
+              name === 'Lightning' || name === 'USD'
                 ? t('constants.instant')
                 : name === 'Bitcoin'
                 ? t('wallet.receivePages.switchReceiveOptionPage.tenMinutes', {
@@ -270,19 +275,19 @@ export default function SwitchReceiveOptionPage({
 
   function handleClick(selectedOption) {
     if (selectedOption === 'Spark' && !isLRC20Enabled) {
-      navigate.navigate('InformationPopup', {
-        textContent: t(
-          'wallet.receivePages.switchReceiveOptionPage.sparkWarningMessage',
-        ),
-        buttonText: t('constants.understandText'),
-        customNavigation: () =>
-          navigate.popTo('CustomHalfModal', {
-            wantedContent: 'switchReceiveOption',
-            sliderHeight: 0.8,
-            didWarnSpark: true,
-          }),
-      });
-      return;
+      // navigate.navigate('InformationPopup', {
+      //   textContent: t(
+      //     'wallet.receivePages.switchReceiveOptionPage.sparkWarningMessage',
+      //   ),
+      //   buttonText: t('constants.understandText'),
+      //   customNavigation: () =>
+      //     navigate.popTo('CustomHalfModal', {
+      //       wantedContent: 'switchReceiveOption',
+      //       sliderHeight: 0.8,
+      //       didWarnSpark: true,
+      //     }),
+      // });
+      // return;
     } else if (selectedOption === 'Liquid') {
       navigate.navigate('InformationPopup', {
         textContent:

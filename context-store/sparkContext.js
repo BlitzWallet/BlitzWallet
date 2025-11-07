@@ -58,6 +58,7 @@ import {
   sendWebViewRequestGlobal,
   useWebView,
 } from './webViewContext';
+import { useGlobalContextProvider } from './context';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -66,6 +67,7 @@ export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
 const SparkWalletManager = createContext(null);
 
 const SparkWalletProvider = ({ children }) => {
+  const { masterInfoObject } = useGlobalContextProvider();
   const { changeSparkConnectionState, sendWebViewRequest } = useWebView();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -85,6 +87,7 @@ const SparkWalletProvider = ({ children }) => {
     sparkAddress: '',
     didConnect: null,
   });
+  const [tokensImageCache, setTokensImageCache] = useState({});
   const [pendingNavigation, setPendingNavigation] = useState(null);
   const [pendingLiquidPayment, setPendingLiquidPayment] = useState(null);
   const depositAddressIntervalRef = useRef(null);
@@ -104,6 +107,10 @@ const SparkWalletProvider = ({ children }) => {
   const balancePollingTimeoutRef = useRef(null);
   const balancePollingAbortControllerRef = useRef(null);
   const currentPollingMnemonicRef = useRef(null);
+  const showTokensInformation =
+    masterInfoObject.enabledBTKNTokens === null
+      ? !!Object.keys(sparkInformation.tokens || {}).length
+      : masterInfoObject.enabledBTKNTokens;
 
   const [didRunNormalConnection, setDidRunNormalConnection] = useState(false);
   const [normalConnectionTimeout, setNormalConnectionTimeout] = useState(false);
@@ -163,6 +170,38 @@ const SparkWalletProvider = ({ children }) => {
     }
     handleWalletStateChange();
   }, [changeSparkConnectionState, didGetToHomepage, shouldRunNormalConnection]);
+
+  useEffect(() => {
+    if (!sparkInfoRef.current?.tokens) return;
+
+    async function updateTokensImageCache() {
+      const availableAssets = Object.entries(sparkInfoRef.current.tokens);
+      const extensions = ['jpg', 'png'];
+      const newCache = {};
+
+      for (const [tokenId] of availableAssets) {
+        console.log(tokenId);
+        newCache[tokenId] = null;
+
+        for (const ext of extensions) {
+          const url = `https://tokens.sparkscan.io/${tokenId}.${ext}`;
+          try {
+            const response = await fetch(url, { method: 'HEAD' });
+            if (response.ok) {
+              newCache[tokenId] = url;
+              break;
+            }
+          } catch (err) {
+            console.log('Image fetch error:', tokenId, err);
+          }
+        }
+      }
+
+      setTokensImageCache(newCache);
+    }
+
+    updateTokensImageCache();
+  }, [Object.keys(sparkInformation.tokens || {}).length]);
 
   // Debounce refs
   const debounceTimeoutRef = useRef(null);
@@ -1051,6 +1090,8 @@ const SparkWalletProvider = ({ children }) => {
       setSparkConnectionError,
       pendingLiquidPayment,
       setPendingLiquidPayment,
+      tokensImageCache,
+      showTokensInformation,
     }),
     [
       sparkInformation,
@@ -1064,6 +1105,8 @@ const SparkWalletProvider = ({ children }) => {
       setSparkConnectionError,
       pendingLiquidPayment,
       setPendingLiquidPayment,
+      tokensImageCache,
+      showTokensInformation,
     ],
   );
 

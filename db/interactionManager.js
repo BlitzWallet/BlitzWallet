@@ -34,6 +34,8 @@ const PRESET_LOCAL_DATA = {
   [NWC_IDENTITY_PUB_KEY]: '',
   userBalanceDenomination: 'sats',
   didViewSeedPhrase: false,
+  enabledBTKNTokens: null,
+  defaultSpendToken: 'bitcoin',
 };
 
 async function sendDataToDB(newObject, uuid) {

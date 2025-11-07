@@ -75,6 +75,7 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import HandleLNURLPayments from './context-store/lnurl';
 // import {SparkConnectionListener} from './context-store/connectToNode';
 import { SparkWalletProvider } from './context-store/sparkContext';
+import { DropdownProvider } from './context-store/dropdownContext';
 
 // let setStatusBarBackgroundColor: ((color: string) => void) | undefined;
 // let setStatusBarStyle: ((style: 'light' | 'dark') => void) | undefined;
@@ -114,51 +115,53 @@ function App(): JSX.Element {
           <KeyboardProvider>
             <ToastProvider>
               <GlobalThemeProvider>
-                <AppStatusProvider>
-                  <KeysContextProvider>
-                    <GlobalContactsList>
-                      <GlobalContextProvider>
-                        <ActiveCustodyAccountProvider>
-                          <WebViewProvider>
-                            {/* <GlobaleCashVariables> */}
-                            <SparkWalletProvider>
-                              <GLobalNodeContextProider>
-                                {/* <GlobalConbinedTxContextProvider> */}
-                                <GlobalAppDataProvider>
-                                  <POSTransactionsProvider>
-                                    <PushNotificationProvider>
-                                      <LiquidEventProvider>
-                                        <RootstockSwapProvider>
-                                          {/* <LRC20EventProvider> */}
-                                          <GlobalNostrWalletConnectProvider>
-                                            {/* <LightningEventProvider> */}
-                                            <ImageCacheProvider>
-                                              <GlobalServerTimeProvider>
-                                                {/* <Suspense
+                <DropdownProvider>
+                  <AppStatusProvider>
+                    <KeysContextProvider>
+                      <GlobalContactsList>
+                        <GlobalContextProvider>
+                          <ActiveCustodyAccountProvider>
+                            <WebViewProvider>
+                              {/* <GlobaleCashVariables> */}
+                              <SparkWalletProvider>
+                                <GLobalNodeContextProider>
+                                  {/* <GlobalConbinedTxContextProvider> */}
+                                  <GlobalAppDataProvider>
+                                    <POSTransactionsProvider>
+                                      <PushNotificationProvider>
+                                        <LiquidEventProvider>
+                                          <RootstockSwapProvider>
+                                            {/* <LRC20EventProvider> */}
+                                            <GlobalNostrWalletConnectProvider>
+                                              {/* <LightningEventProvider> */}
+                                              <ImageCacheProvider>
+                                                <GlobalServerTimeProvider>
+                                                  {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                <ResetStack />
-                                                {/* </Suspense> */}
-                                              </GlobalServerTimeProvider>
-                                            </ImageCacheProvider>
-                                            {/* </LightningEventProvider> */}
-                                          </GlobalNostrWalletConnectProvider>
-                                          {/* </LRC20EventProvider> */}
-                                        </RootstockSwapProvider>
-                                      </LiquidEventProvider>
-                                    </PushNotificationProvider>
-                                  </POSTransactionsProvider>
-                                </GlobalAppDataProvider>
-                                {/* <BreezTest /> */}
-                                {/* </GlobalConbinedTxContextProvider> */}
-                              </GLobalNodeContextProider>
-                            </SparkWalletProvider>
-                            {/* </GlobaleCashVariables> */}
-                          </WebViewProvider>
-                        </ActiveCustodyAccountProvider>
-                      </GlobalContextProvider>
-                    </GlobalContactsList>
-                  </KeysContextProvider>
-                </AppStatusProvider>
+                                                  <ResetStack />
+                                                  {/* </Suspense> */}
+                                                </GlobalServerTimeProvider>
+                                              </ImageCacheProvider>
+                                              {/* </LightningEventProvider> */}
+                                            </GlobalNostrWalletConnectProvider>
+                                            {/* </LRC20EventProvider> */}
+                                          </RootstockSwapProvider>
+                                        </LiquidEventProvider>
+                                      </PushNotificationProvider>
+                                    </POSTransactionsProvider>
+                                  </GlobalAppDataProvider>
+                                  {/* <BreezTest /> */}
+                                  {/* </GlobalConbinedTxContextProvider> */}
+                                </GLobalNodeContextProider>
+                              </SparkWalletProvider>
+                              {/* </GlobaleCashVariables> */}
+                            </WebViewProvider>
+                          </ActiveCustodyAccountProvider>
+                        </GlobalContextProvider>
+                      </GlobalContactsList>
+                    </KeysContextProvider>
+                  </AppStatusProvider>
+                </DropdownProvider>
               </GlobalThemeProvider>
             </ToastProvider>
           </KeyboardProvider>

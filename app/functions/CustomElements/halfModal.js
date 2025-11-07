@@ -49,6 +49,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useAppStatus } from '../../../context-store/appStatus';
+import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -311,7 +312,15 @@ export default function CustomHalfModal(props) {
             slideHeight={slideHeight}
           />
         );
-
+      case 'SelectLRC20Token':
+        return (
+          <SelectLRC20Token
+            isKeyboardActive={isKeyboardActive}
+            setIsKeyboardActive={setIsKeyboardActive}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        );
       default:
         return <ThemeText content={'TST'} />;
     }
@@ -368,7 +377,8 @@ export default function CustomHalfModal(props) {
               contentType === 'switchGenerativeAiModel' ||
               contentType === 'addPOSItemsHalfModal' ||
               contentType === 'editLNURLOnReceive' ||
-              contentType === 'addContacts'
+              contentType === 'addContacts' ||
+              contentType === 'SelectLRC20Token'
                 ? isKeyboardActive
                   ? CONTENT_KEYBOARD_OFFSET
                   : contentType === 'switchGenerativeAiModel' ||
