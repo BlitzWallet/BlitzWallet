@@ -74,6 +74,7 @@ export default function ContactProfileImage({
 
   return (
     <ExpoImage
+      key={reloadKey}
       source={imageSource}
       onError={onError}
       onLoad={onLoad}
