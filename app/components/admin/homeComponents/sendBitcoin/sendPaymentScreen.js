@@ -97,7 +97,9 @@ export default function SendPaymentScreen(props) {
     masterInfoObject.userBalanceDenomination === 'sats';
   const canEditPaymentAmount = paymentInfo?.canEditPayment;
   const enabledLRC20 = showTokensInformation;
-  const defaultToken = masterInfoObject?.defaultSpendToken || 'Bitcoin';
+  const defaultToken = enabledLRC20
+    ? masterInfoObject?.defaultSpendToken || 'Bitcoin'
+    : 'Bitcoin';
   const selectedLRC20Asset = masterTokenInfo?.tokenName || defaultToken;
   const seletctedToken =
     masterTokenInfo?.details ||
