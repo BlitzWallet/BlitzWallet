@@ -5,6 +5,7 @@ import { crashlyticsLogReport } from '../app/functions/crashlyticsLogs';
 import { useSparkWallet } from './sparkContext';
 import { useRootstockProvider } from './rootstockSwapContext';
 import i18next from 'i18next';
+import { InteractionManager } from 'react-native';
 
 export function RootstockNavigationListener() {
   const navigation = useNavigation();
@@ -21,15 +22,16 @@ export function RootstockNavigationListener() {
     if (isNavigating.current) return;
     crashlyticsLogReport(`Navigating to confirm tx page in roostock listener`);
     isNavigating.current = true;
-    requestAnimationFrame(() => {
+
+    setTimeout(() => {
       requestAnimationFrame(() => {
         navigation.navigate('ErrorScreen', {
           errorMessage: i18next.t('errormessages.receivedRootstock'),
         });
         isNavigating.current = false;
-        console.log('cleaning up navigation');
+        console.log('cleaning up navigation for rootstock');
       });
-    });
+    }, 100);
 
     setPendingNavigation(null);
   }, [pendingNavigation, didGetToHomepage]);
@@ -52,15 +54,16 @@ export function LiquidNavigationListener() {
     if (isNavigating.current) return;
     crashlyticsLogReport(`Navigating to confirm tx page in liquid listener `);
     isNavigating.current = true;
-    requestAnimationFrame(() => {
+
+    setTimeout(() => {
       requestAnimationFrame(() => {
         navigation.navigate('ErrorScreen', {
           errorMessage: i18next.t('errormessages.receivedLiquid'),
         });
         isNavigating.current = false;
-        console.log('cleaning up navigation');
+        console.log('cleaning up navigation for liquid');
       });
-    });
+    }, 100);
 
     setPendingLiquidPayment(null);
   }, [pendingLiquidPayment, didGetToHomepage]);
@@ -83,13 +86,14 @@ export function SparkNavigationListener() {
     if (isNavigating.current) return;
     crashlyticsLogReport(`Navigating to confirm tx page in spark listener`);
     isNavigating.current = true;
-    requestAnimationFrame(() => {
+
+    setTimeout(() => {
       requestAnimationFrame(() => {
         navigation.reset(pendingNavigation);
         isNavigating.current = false;
-        console.log('cleaning up navigation');
+        console.log('cleaning up navigation for spark');
       });
-    });
+    }, 100);
 
     setPendingNavigation(null);
   }, [pendingNavigation, didGetToHomepage]);
