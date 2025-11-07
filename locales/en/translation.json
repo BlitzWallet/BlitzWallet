@@ -873,7 +873,8 @@
     "receivePages": {
       "editPaymentInfo": {
         "receive_amount": "receive amount",
-        "descriptionInputPlaceholder": "Description..."
+        "descriptionInputPlaceholder": "Description...",
+        "header": "Edit amount"
       },
       "buttonContainer": {
         "format": "Other receiving methods",

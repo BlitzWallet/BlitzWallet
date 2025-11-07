@@ -873,7 +873,8 @@
     "receivePages": {
       "editPaymentInfo": {
         "receive_amount": "receber quantia",
-        "descriptionInputPlaceholder": "Descrição..."
+        "descriptionInputPlaceholder": "Descrição...",
+        "editAmount": "Editar valor"
       },
       "buttonContainer": {
         "format": "Outros meios de pagamento",

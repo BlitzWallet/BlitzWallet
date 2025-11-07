@@ -1,28 +1,21 @@
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import {
-  CENTER,
-  FONT,
-  ICONS,
-  SATSPERBITCOIN,
-  SIZES,
-} from '../../../../constants';
+import { ScrollView, StyleSheet } from 'react-native';
+import { CENTER, FONT, SATSPERBITCOIN, SIZES } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useState } from 'react';
 import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import CustomNumberKeyboard from '../../../../functions/CustomElements/customNumberKeyboard';
 import CustomButton from '../../../../functions/CustomElements/button';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useTranslation } from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import FormattedBalanceInput from '../../../../functions/CustomElements/formattedBalanceInput';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
-import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import { HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
+import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -75,13 +68,10 @@ export default function EditReceivePaymentInformation(props) {
       isKeyboardActive={isKeyboardFocused}
       useStandardWidth={true}
     >
-      <TouchableOpacity onPress={() => keyboardGoBack(navigate)}>
-        <ThemeImage
-          darkModeIcon={ICONS.smallArrowLeft}
-          lightModeIcon={ICONS.smallArrowLeft}
-          lightsOutIcon={ICONS.arrow_small_left_white}
-        />
-      </TouchableOpacity>
+      <CustomSettingsTopBar
+        shouldDismissKeyboard={true}
+        label={t('wallet.receivePages.editPaymentInfo.header')}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
