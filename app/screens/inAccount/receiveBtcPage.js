@@ -159,9 +159,15 @@ export default function ReceivePaymentHome(props) {
             leftImageBlue={ICONS.share}
             LeftImageDarkMode={ICONS.shareWhite}
             leftImageFunction={handleShare}
+            label={t('constants.receive')}
           />
 
-          <ThemeText styles={styles.title} content={selectedRecieveOption} />
+          <ThemeText
+            styles={styles.title}
+            content={t('screens.inAccount.receiveBtcPage.header', {
+              context: selectedRecieveOption?.toLowerCase(),
+            })}
+          />
           <QrCode
             globalContactsInformation={globalContactsInformation}
             selectedRecieveOption={selectedRecieveOption}
@@ -594,6 +600,7 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 10,
     marginTop: 'auto',
+    opacity: 0.7,
   },
   animatedQRContainer: {
     position: 'relative',

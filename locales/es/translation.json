@@ -1357,7 +1357,12 @@
         "invoiceDescription_bitcoinAddress": "Dirección Bitcoin",
         "invoiceDescription_liquidAddress": "Dirección Liquid",
         "invoiceDescription_sparkAddress": "Dirección Spark",
-        "invoiceDescription_rootstockAddress": "Dirección Rootstock"
+        "invoiceDescription_rootstockAddress": "Dirección Rootstock",
+        "header_lightning": "Bitcoin mediante Lightning",
+        "header_bitcoin": "Bitcoin",
+        "header_spark": "Bitcoin/Tokens mediante Spark",
+        "header_liquid": "Bitcoin mediante Liquid",
+        "header_rootstock": "Bitcoin mediante Rootstock"
       },
       "settingsContent": {
         "about": "Acerca de",
