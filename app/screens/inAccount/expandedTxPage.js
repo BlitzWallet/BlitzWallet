@@ -152,7 +152,7 @@ export default function ExpandedTx(props) {
     </View>
   );
 
-  const renderInfoRow = (label, value, isLarge = false) => (
+  const renderInfoRow = (label, value, isLarge = false, customStyles = {}) => (
     <View style={styles.infoRow}>
       <ThemeText content={label} />
 
@@ -162,6 +162,7 @@ export default function ExpandedTx(props) {
         styles={{
           ...styles.infoValue,
           ...(isLarge ? styles.infoValueLarge : {}),
+          ...customStyles,
         }}
       />
     </View>
@@ -336,7 +337,12 @@ export default function ExpandedTx(props) {
                 />
               </View>
 
-              {renderInfoRow(t('constants.type'), transactionPaymentType, true)}
+              {renderInfoRow(
+                t('constants.type'),
+                transactionPaymentType,
+                true,
+                { textTransform: 'capitalize' },
+              )}
 
               {renderLRC20TokenRow()}
 
@@ -527,6 +533,8 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     marginLeft: 10,
     flexShrink: 1,
+    width: '100%',
+    textAlign: 'right',
   },
   infoValueLarge: {
     fontSize: SIZES.large,
