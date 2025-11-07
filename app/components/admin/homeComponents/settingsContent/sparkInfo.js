@@ -153,7 +153,7 @@ export default function SparkInfo() {
         }
       >
         <ThemeText
-          styles={{ marginRight: 5 }}
+          styles={styles.headerText}
           content={t('settings.sparkLrc20.selectTokenHeader')}
         />
         <ThemeImage
@@ -201,4 +201,5 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
   },
+  headerText: { marginRight: 5, includeFontPadding: false },
 });
