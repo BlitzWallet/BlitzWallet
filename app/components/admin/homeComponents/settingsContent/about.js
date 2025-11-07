@@ -200,7 +200,12 @@ export default function AboutPage() {
         </TouchableOpacity>
 
         {showDetails && (
-          <View style={styles.technicalDetails}>
+          <View
+            style={[
+              styles.technicalDetails,
+              { backgroundColor: backgroundOffset },
+            ]}
+          >
             <ThemeText
               styles={styles.detailLabel}
               content={t('settings.about.backendHash')}
@@ -259,25 +264,12 @@ const styles = StyleSheet.create({
   },
   verificationBadge: {
     borderRadius: 12,
-    padding: 20,
+    padding: 24,
     width: '90%',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 0,
   },
-  verificationIcon: {
-    fontSize: 48,
-    marginBottom: 10,
-  },
-  verificationTitle: {
-    fontSize: SIZES.large,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  verificationDesc: {
-    fontSize: SIZES.medium,
-    textAlign: 'center',
-    opacity: 0.8,
-  },
+
   detailsToggle: {
     padding: 10,
   },
@@ -286,17 +278,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
     padding: 15,
     borderRadius: 8,
-    backgroundColor: 'rgba(128, 128, 128, 0.1)',
   },
   detailLabel: {
     fontSize: SIZES.small,
-    opacity: 0.7,
     marginTop: 10,
     marginBottom: 5,
   },
   detailHash: {
     fontSize: SIZES.xSmall,
-    fontFamily: 'monospace',
-    opacity: 0.6,
+    opacity: 0.7,
   },
 });
