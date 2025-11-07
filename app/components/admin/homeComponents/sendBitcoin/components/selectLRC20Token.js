@@ -2,7 +2,11 @@ import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import { CENTER, ICONS } from '../../../../../constants';
+import {
+  CENTER,
+  CONTENT_KEYBOARD_OFFSET,
+  ICONS,
+} from '../../../../../constants';
 import {
   COLORS,
   INSET_WINDOW_WIDTH,
@@ -194,6 +198,7 @@ export default function SelectLRC20Token({ setIsKeyboardActive }) {
         setInputText={handleSearch}
         inputText={searchInput}
         textInputRef={keyboardRef}
+        containerStyles={styles.textInputContainer}
         blurOnSubmit={false}
         onFocusFunction={() => setIsKeyboardActive(true)}
         onBlurFunction={() => setIsKeyboardActive(false)}
@@ -214,7 +219,6 @@ export default function SelectLRC20Token({ setIsKeyboardActive }) {
           )}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="none"
-          contentContainerStyle={{ paddingTop: 10 }}
         />
       ) : (
         <ThemeText
@@ -231,15 +235,8 @@ const styles = StyleSheet.create({
     flex: 1,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
-
-    marginTop: 10,
   },
-
-  titleText: {
-    fontSize: SIZES.large,
-    textAlign: 'center',
-    marginBottom: 10,
-  },
+  textInputContainer: { marginBottom: CONTENT_KEYBOARD_OFFSET },
 
   assetContainer: {
     width: '100%',
