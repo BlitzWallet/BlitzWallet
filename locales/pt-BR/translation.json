@@ -874,7 +874,7 @@
       "editPaymentInfo": {
         "receive_amount": "receber quantia",
         "descriptionInputPlaceholder": "Descrição...",
-        "editAmount": "Quantia a receber"
+        "editAmount": "Quantia a receber (opcional)"
       },
       "buttonContainer": {
         "format": "Outros meios de recebimento",
