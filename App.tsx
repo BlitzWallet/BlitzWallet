@@ -89,6 +89,7 @@ import { DropdownProvider } from './context-store/dropdownContext';
 //   SystemUI = require('expo-system-ui');
 //   NavigationBar = require('expo-navigation-bar');
 // }
+import * as ExpoSplashScreen from 'expo-splash-screen';
 import * as NavigationBar from 'expo-navigation-bar';
 import {
   setStatusBarBackgroundColor,
@@ -107,6 +108,12 @@ import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { useTranslation } from 'react-i18next';
 import { isMoreThan40MinOld } from './app/functions/rotateAddressDateChecker';
 const Stack = createNativeStackNavigator();
+// will unhide splashscreen when showing dynamic loading in splashscreen component
+ExpoSplashScreen.preventAutoHideAsync()
+  .then(result =>
+    console.log(`SplashScreen.preventAutoHideAsync() succeeded: ${result}`),
+  )
+  .catch(console.warn);
 
 function App(): JSX.Element {
   return (
