@@ -873,7 +873,7 @@
     "receivePages": {
       "editPaymentInfo": {
         "receive_amount": "receber quantia",
-        "descriptionInputPlaceholder": "Descrição...",
+        "descriptionInputPlaceholder": "Descrição (opcional)",
         "editAmount": "Definir quantia (opcional)"
       },
       "buttonContainer": {
