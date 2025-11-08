@@ -386,7 +386,7 @@ export default function HomeLightning() {
       {enabledLRC20 && <View style={topPaddingForLRC20PageMemeStyles} />}
       <Animated.FlatList
         refreshControl={refreshControl}
-        initialNumToRender={10}
+        initialNumToRender={homepageTxPreferance || 25}
         maxToRenderPerBatch={10}
         windowSize={5}
         removeClippedSubviews={true}
