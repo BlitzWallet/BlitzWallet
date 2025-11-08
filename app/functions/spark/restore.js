@@ -456,7 +456,16 @@ async function processLightningTransactions(
       cachedTransfers = findTxResponse.foundTransfers;
     }
 
-    if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer) continue;
+    if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer) {
+      // If no transaction is found just call it completed
+      const details = JSON.parse(result.txStateUpdate.details);
+      newTxs.push({
+        ...result.txStateUpdate,
+        details,
+        paymentStatus: 'completed',
+      });
+      continue;
+    }
 
     const { bitcoinTransfer } = findTxResponse;
 
@@ -497,6 +506,7 @@ async function processLightningTransaction(
     !IS_SPARK_REQUEST_ID.test(txStateUpdate.sparkID) &&
     !possibleOptions.length
   ) {
+    console.log(txStateUpdate);
     // goes to be handled later by transform tx to payment
     return {
       id: txStateUpdate.sparkID,
@@ -504,6 +514,7 @@ async function processLightningTransaction(
       paymentType: 'lightning',
       accountId: txStateUpdate.accountId,
       lookThroughTxHistory: true,
+      txStateUpdate,
     };
   }
 
