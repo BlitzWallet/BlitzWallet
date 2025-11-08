@@ -851,8 +851,8 @@
       "qrDecodeError": "Erro ao decodificar o código QR"
     },
     "confirmClipboard": {
-      "clipboardContent": "Texto copiado para a área de transferência",
-      "errorWithCopy": "Erro ao copiar para a área de transferência",
+      "clipboardContent": "Texto copiado com sucesso",
+      "errorWithCopy": "Erro ao copiar",
       "ok": "OK"
     },
     "see_all_txs": "Ver tudo",
@@ -1594,7 +1594,7 @@
   },
 
   "toastmessages": {
-    "confirmCopy": "Copiado para a área de transferência",
+    "confirmCopy": "Copiado com sucesso",
     "failedCopy": "Falha ao copiar"
   },
 
