@@ -24,6 +24,7 @@ import { INSET_WINDOW_WIDTH } from '../constants/theme';
 import openWebBrowser from '../functions/openWebBrowser';
 import { useNavigation } from '@react-navigation/native';
 
+import * as ExpoSplashScreen from 'expo-splash-screen';
 const BlitzAnimation = require('../assets/BlitzAnimation.json');
 const errorTxAnimation = require('../assets/errorTxAnimation.json');
 
@@ -64,10 +65,15 @@ const SplashScreen = () => {
 
   useEffect(() => {
     async function loadAnimation() {
+      ExpoSplashScreen.setOptions({
+        duration: 250,
+        fade: true,
+      });
+      ExpoSplashScreen.hideAsync();
       try {
         setTimeout(() => {
           animationRef.current?.play();
-        }, 250);
+        }, 500);
 
         const [
           didOpen,

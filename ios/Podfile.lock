@@ -1304,6 +1304,8 @@ PODS:
     - ExpoModulesCore
   - ExpoSecureStore (15.0.7):
     - ExpoModulesCore
+  - ExpoSplashScreen (31.0.10):
+    - ExpoModulesCore
   - ExpoSQLite (16.0.8):
     - ExpoModulesCore
   - ExpoSystemUI (6.0.7):
@@ -4546,7 +4548,7 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
-  - spark-sdk (0.4.2):
+  - spark-sdk (0.4.3):
     - React
     - React-Core
   - UMAppLoader (6.0.7)
@@ -4584,6 +4586,7 @@ DEPENDENCIES:
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoNetwork (from `../node_modules/expo-network/ios`)
   - ExpoSecureStore (from `../node_modules/expo-secure-store/ios`)
+  - ExpoSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - ExpoSQLite (from `../node_modules/expo-sqlite/ios`)
   - ExpoSystemUI (from `../node_modules/expo-system-ui/ios`)
   - ExpoWebBrowser (from `../node_modules/expo-web-browser/ios`)
@@ -4781,6 +4784,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-network/ios"
   ExpoSecureStore:
     :path: "../node_modules/expo-secure-store/ios"
+  ExpoSplashScreen:
+    :path: "../node_modules/expo-splash-screen/ios"
   ExpoSQLite:
     :path: "../node_modules/expo-sqlite/ios"
   ExpoSystemUI:
@@ -5016,6 +5021,7 @@ SPEC CHECKSUMS:
   ExpoModulesCore: 110490095f5bf1c110673078832c6792c08ca8cd
   ExpoNetwork: b87392dcc24d49a595f186ca25cdcf7293d30275
   ExpoSecureStore: 9c6571fe3fcb045a671c4011c451546eaaab98fd
+  ExpoSplashScreen: cbb839de72110dea1851dd3e85080b7923af2540
   ExpoSQLite: 7fa091ba5562474093fef09be644161a65e11b3f
   ExpoSystemUI: 6cd74248a2282adf6dec488a75fa532d69dee314
   ExpoWebBrowser: d04a0d6247a0bea4519fbc2ea816610019ad83e0
@@ -5153,7 +5159,7 @@ SPEC CHECKSUMS:
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  spark-sdk: fd9d523135b3ab1111810d2fd42f1fc8094a90e9
+  spark-sdk: 3470a19e6fa9e09c7d6d127a80501b83ec8f8b63
   UMAppLoader: e1234c45d2b7da239e9e90fc4bbeacee12afd5b6
   VisionCamera: 30b358b807324c692064f78385e9a732ce1bebfe
   Yoga: 9b30b783a17681321b52ac507a37219d7d795ace
