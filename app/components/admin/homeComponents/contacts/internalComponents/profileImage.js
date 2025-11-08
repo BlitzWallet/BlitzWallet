@@ -1,7 +1,12 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+} from 'react';
 import { Image as ExpoImage } from 'expo-image';
 import { ICONS } from '../../../../../constants';
-import customUUID from '../../../../../functions/customUUID';
 import { StyleSheet } from 'react-native';
 
 export default function ContactProfileImage({
@@ -14,13 +19,13 @@ export default function ContactProfileImage({
   fromCustomQR = false,
 }) {
   const [loadError, setLoadError] = useState(false);
-  const [isCached, setIsCached] = useState(false);
-  const [reloadKey, setReloadKey] = useState(customUUID());
+  const [imageKey, setImageKey] = useState(0);
+  const failedImageLoadURI = useRef('');
 
-  // Reset loadError and trigger reload when uri or updated timestamp changes
   useEffect(() => {
     setLoadError(false);
-    setReloadKey(customUUID());
+    failedImageLoadURI.current = '';
+    setImageKey(prev => prev + 1);
   }, [uri, updated]);
 
   const fallbackIcon = fromCustomQR
@@ -31,42 +36,27 @@ export default function ContactProfileImage({
 
   const customURI = useMemo(() => {
     if (!uri) return null;
-    return `${uri}?v=${updated ? new Date(updated).getTime() : reloadKey}`;
-  }, [uri, updated, reloadKey]);
+    let version = updated ? new Date(updated).getTime() : imageKey;
+    if (isNaN(version)) version = imageKey;
 
-  // Check if image is cached for smoother transitions
-  useEffect(() => {
-    let isMounted = true;
-    if (!customURI) {
-      setIsCached(false);
-      return;
-    }
+    return `${uri}?v=${version}`;
+  }, [uri, updated, imageKey]);
 
-    ExpoImage.getCachePathAsync(customURI)
-      .then(info => {
-        if (isMounted) {
-          setIsCached(!!info);
-        }
-      })
-      .catch(err => {
-        console.warn('Cache check failed:', err);
-        if (isMounted) {
-          setIsCached(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [customURI]);
-
-  const onError = useCallback(() => {
-    setLoadError(true);
-  }, []);
+  const onError = useCallback(
+    error => {
+      console.log('Image load error:', error);
+      setLoadError(true);
+      // start tracking for failed image
+      failedImageLoadURI.current = customURI;
+    },
+    [customURI],
+  );
 
   const onLoad = useCallback(() => {
+    // if image already failed make sure to not process load
+    if (failedImageLoadURI.current === customURI) return;
     setLoadError(false);
-  }, []);
+  }, [customURI]);
 
   const imageSource = useMemo(() => {
     return !loadError && customURI ? customURI : fallbackIcon;
@@ -74,14 +64,14 @@ export default function ContactProfileImage({
 
   return (
     <ExpoImage
-      key={reloadKey}
       source={imageSource}
       onError={onError}
       onLoad={onLoad}
-      style={styles.img}
+      style={[loadError || !customURI ? styles.loadErrorStyles : styles.img]}
       contentFit={contentFit}
       priority={priority}
-      transition={isCached ? 0 : 100}
+      transition={100}
+      recyclingKey={customURI || 'fallback'}
     />
   );
 }
@@ -91,5 +81,9 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
     borderRadius: 9999,
+  },
+  loadErrorStyles: {
+    width: '50%',
+    height: '50%',
   },
 });

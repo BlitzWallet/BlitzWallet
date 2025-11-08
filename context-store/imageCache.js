@@ -72,15 +72,12 @@ export function ImageCacheProvider({ children }) {
     didRunContextCacheCheck.current = true;
 
     async function refreshContactsImages() {
-      const didCheckForProfileImage = await getLocalStorageItem(
-        'didCheckForProfileImage',
-      );
+      // allways check all images, will return cahced image if its already cached. But this prevents against stale images
+      let refreshArray = [
+        ...decodedAddedContacts,
+        { uuid: masterInfoObject.uuid },
+      ];
 
-      let refreshArray = [...decodedAddedContacts];
-      if (didCheckForProfileImage !== 'true') {
-        refreshArray.push({ uuid: masterInfoObject.uuid });
-        setLocalStorageItem('didCheckForProfileImage', 'true');
-      }
       const cacheUpdates = {};
       for (let index = 0; index < refreshArray.length; index++) {
         const element = refreshArray[index];

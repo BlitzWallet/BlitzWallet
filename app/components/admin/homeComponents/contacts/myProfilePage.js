@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   GlobalThemeView,
   ThemeText,
@@ -20,7 +20,6 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import ProfilePageTransactions from './internalComponents/profilePageTransactions';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import MaxHeap from '../../../../functions/minHeap';
 import ContactProfileImage from './internalComponents/profileImage';
 import { useImageCache } from '../../../../../context-store/imageCache';
@@ -84,6 +83,8 @@ export default function MyContactProfilePage({ navigation }) {
       result.push(messageHeap.poll());
     }
 
+    if (!result.length) return;
+
     setAllPayments(result);
     setDisplayedPayments(result.slice(0, ITEMS_PER_PAGE));
     setCurrentPage(1);
@@ -98,6 +99,11 @@ export default function MyContactProfilePage({ navigation }) {
     setDisplayedPayments([...displayedPayments, ...newItems]);
     setCurrentPage(nextPage);
   };
+
+  const hasTransactions = useMemo(() => {
+    const keys = Object.keys(contactsMessags || {});
+    return keys.length > 1;
+  }, [contactsMessags]);
 
   const hasMoreItems = displayedPayments.length < allPayments.length;
 
@@ -243,7 +249,7 @@ export default function MyContactProfilePage({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {allPayments?.length != 0 ? (
+      {hasTransactions ? (
         <FlatList
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
