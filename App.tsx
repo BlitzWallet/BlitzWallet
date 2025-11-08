@@ -105,6 +105,7 @@ import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 // import { LRC20EventProvider } from './context-store/lrc20Listener';
 import { useTranslation } from 'react-i18next';
+import { isMoreThan40MinOld } from './app/functions/rotateAddressDateChecker';
 const Stack = createNativeStackNavigator();
 
 function App(): JSX.Element {
@@ -194,15 +195,44 @@ function ResetStack(): JSX.Element | null {
   const { backgroundColor } = GetThemeColors();
   const { i18n } = useTranslation();
 
-  const handleDeepLink = useCallback((event: { url: string }) => {
-    const { url } = event;
-    console.log('Deep link URL:', url);
+  const handleDeepLink = useCallback(
+    async (event: { url: string }, isInitialLoad = false) => {
+      const { url } = event;
+      try {
+        if (isInitialLoad) {
+          const savedDeepLink = await getLocalStorageItem(
+            'lastHandledDeepLink',
+          );
+          const parsedSavedDeeplink = JSON.parse(savedDeepLink) || {
+            url: '',
+            dateAdded: null,
+          };
 
-    setPendingLinkData({
-      url: event.url,
-      timestamp: Date.now(),
-    });
-  }, []);
+          if (
+            parsedSavedDeeplink.url === url &&
+            !isMoreThan40MinOld(parsedSavedDeeplink.dateAdded)
+          ) {
+            console.log('Deep link already handled:', url);
+            return;
+          }
+
+          await setLocalStorageItem(
+            'lastHandledDeepLink',
+            JSON.stringify({ url: url, dateAdded: Date.now() }),
+          );
+        }
+
+        console.log('Deep link URL:', url);
+        setPendingLinkData({
+          url: event.url,
+          timestamp: Date.now(),
+        });
+      } catch (error) {
+        console.error('Error handling deep link:', error);
+      }
+    },
+    [],
+  );
 
   const clearDeepLink = useCallback(() => {
     setPendingLinkData({
@@ -214,7 +244,7 @@ function ResetStack(): JSX.Element | null {
   const getInitialURL = useCallback(async () => {
     const url = await Linking.getInitialURL();
     if (url) {
-      handleDeepLink({ url });
+      handleDeepLink({ url }, true);
       console.log('Initial deep link stored:', url);
     }
   }, []);
