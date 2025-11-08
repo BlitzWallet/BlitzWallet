@@ -851,8 +851,8 @@
       "qrDecodeError": "Erro ao decodificar o código QR"
     },
     "confirmClipboard": {
-      "clipboardContent": "Texto copiado para a área de transferência",
-      "errorWithCopy": "Erro ao copiar para a área de transferência",
+      "clipboardContent": "Texto copiado com sucesso",
+      "errorWithCopy": "Erro ao copiar",
       "ok": "OK"
     },
     "see_all_txs": "Ver tudo",
@@ -873,18 +873,18 @@
     "receivePages": {
       "editPaymentInfo": {
         "receive_amount": "receber quantia",
-        "descriptionInputPlaceholder": "Descrição...",
-        "editAmount": "Personalizar quantia"
+        "descriptionInputPlaceholder": "Descrição (opcional)",
+        "editAmount": "Definir quantia (opcional)"
       },
       "buttonContainer": {
-        "format": "Outros meios de pagamento",
+        "format": "Outros meios de recebimento",
         "infoMessage": "Quantias personalizadas não são suportadas em pagamentos Spark ou Rootstock."
       },
 
       "switchReceiveOptionPage": {
-        "title": "Meios de pagamento",
+        "title": "Meios de recebimento",
         "actionBTN": "Mostrar {{action}}",
-        "sparkWarningMessage": "Receber diretamente via Spark exporá seu saldo à pessoa que está pagando e não é considerado privado.",
+        "sparkWarningMessage": "Receber diretamente via Spark irá expor seu saldo para a pessoa que está pagando e não é considerado privado.",
         "swapWarning": "Os pagamentos {{swapType}} serão trocados para Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após o pagamento {{swapType}} ser confirmado.",
         "unalignedSeeds": "Aviso: Você não está usando sua conta da carteira principal. Todos os swaps da Liquid serão enviados para sua carteira principal.",
         "rootstockWarningText": "Os pagamentos Rootstock serão trocados por Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após a confirmação do pagamento Rootstock.",
@@ -1594,7 +1594,7 @@
   },
 
   "toastmessages": {
-    "confirmCopy": "Copiado para a área de transferência",
+    "confirmCopy": "Copiado com sucesso",
     "failedCopy": "Falha ao copiar"
   },
 
