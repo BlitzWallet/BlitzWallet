@@ -498,15 +498,22 @@ function QrCode(props) {
               '...' +
               address.slice(address.length - 7)
         }
-        lightModeIcon={isUsingLnurl ? ICONS.editIcon : ICONS.clipboardDark}
-        darkModeIcon={isUsingLnurl ? ICONS.editIconLight : ICONS.clipboardLight}
+        lightModeIcon={
+          // isUsingLnurl ? ICONS.editIcon :
+          ICONS.clipboardDark
+        }
+        darkModeIcon={
+          // isUsingLnurl ? ICONS.editIconLight :
+          ICONS.clipboardLight
+        }
         lightsOutIcon={
-          isUsingLnurl ? ICONS.editIconLight : ICONS.clipboardLight
+          // isUsingLnurl ? ICONS.editIconLight :
+          ICONS.clipboardLight
         }
         actionFunction={() => {
           if (addressState.isGeneratingInvoice) return;
-          if (isUsingLnurl) editLNURL();
-          else if (addressState.generatedAddress)
+          // if (isUsingLnurl) editLNURL();
+          if (addressState.generatedAddress)
             copyToClipboard(address, showToast);
         }}
         showSkeleton={addressState.isGeneratingInvoice}
