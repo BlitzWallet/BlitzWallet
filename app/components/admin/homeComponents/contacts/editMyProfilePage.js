@@ -397,12 +397,22 @@ function InnerContent({
               uniquenameRef.current.focus();
             }}
           >
-            <View style={styles.usernameRow}>
+            <TouchableOpacity
+              onPress={() =>
+                navigate.navigate('InformationPopup', {
+                  textContent: t(
+                    'wallet.receivePages.editLNURLContact.informationMessage',
+                  ),
+                  buttonText: t('constants.understandText'),
+                })
+              }
+              style={styles.usernameRow}
+            >
               <ThemeText
                 styles={styles.textInputContainerDescriptionText}
                 content={t('contacts.editMyProfilePage.uniqueNameInputDesc')}
               />
-              <TouchableOpacity
+              <View
                 onPress={() =>
                   navigate.navigate('InformationPopup', {
                     textContent: t(
@@ -418,8 +428,8 @@ function InnerContent({
                   darkModeIcon={ICONS.aboutIcon}
                   lightsOutIcon={ICONS.aboutIcon}
                 />
-              </TouchableOpacity>
-            </View>
+              </View>
+            </TouchableOpacity>
             <TextInput
               keyboardAppearance={theme ? 'dark' : 'light'}
               placeholderTextColor={COLORS.opaicityGray}
@@ -427,6 +437,7 @@ function InnerContent({
               style={[
                 styles.textInput,
                 {
+                  marginTop: 0,
                   backgroundColor: textInputBackground,
                   color:
                     inputs.uniquename.length < 30
@@ -839,6 +850,10 @@ const styles = StyleSheet.create({
   usernameRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-start',
+
+    paddingRight: 10,
+    paddingVertical: 8,
   },
   infoIcon: {
     width: 20,
