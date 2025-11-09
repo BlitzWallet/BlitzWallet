@@ -440,9 +440,7 @@ function QrCode(props) {
                   opacity: loadingOpacity,
                 }}
               >
-                <FullLoadingScreen
-                  text={t('screens.inAccount.receiveBtcPage.generatingInvoice')}
-                />
+                <FullLoadingScreen showText={false} />
               </Animated.View>
             </>
           ) : (
