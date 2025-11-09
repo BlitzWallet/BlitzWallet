@@ -930,7 +930,8 @@
         "waitingForLnurlWithdrawl": "Aguardando pagamento...",
         "lnurlWithdrawlSuccess": "Saque realizado com sucesso! Seu pagamento está a caminho.",
         "invoiceDetails": "Carregando detalhes",
-        "timeoutError": "O processo demorou muito para ser concluído. Tente novamente."
+        "timeoutError": "O processo demorou muito para ser concluído. Tente novamente.",
+        "payingToSameSparkAddress": "Não é permitido enviar para o seu próprio endereço Spark."
       },
 
       "errorScreen": {

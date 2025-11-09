@@ -149,6 +149,7 @@ export default async function decodeSendAddress(props) {
         t,
         sendWebViewRequest,
         contactInfo,
+        sparkInformation,
       });
     } catch (err) {
       return goBackFunction(

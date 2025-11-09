@@ -929,7 +929,8 @@
         "waitingForLnurlWithdrawl": "In attesa di pagamento...",
         "LnurlwithDrawlSuccess": "Prelievo di successo! Il tuo pagamento è in arrivo.",
         "invoiceDetails": "Caricamento dei dettagli",
-        "timeoutError": "Il processo ha richiesto troppo tempo. Riprova."
+        "timeoutError": "Il processo ha richiesto troppo tempo. Riprova.",
+        "payingToSameSparkAddress": "Non è consentito inviare al proprio indirizzo Spark."
       },
 
       "errorScreen": {

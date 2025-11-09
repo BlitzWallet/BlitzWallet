@@ -13,8 +13,18 @@ export default async function processSparkAddress(input, context) {
     seletctedToken,
     currentWalletMnemoinc,
     sendWebViewRequest,
+    sparkInformation,
+    t,
   } = context;
   crashlyticsLogReport('Handling decode spark payment');
+  if (
+    input.address?.address?.toLowerCase() ===
+    sparkInformation.sparkAddress?.toLowerCase()
+  ) {
+    throw new Error(
+      t('wallet.sendPages.handlingAddressErrors.payingToSameSparkAddress'),
+    );
+  }
 
   const isLRC20 =
     seletctedToken?.tokenMetadata?.tokenTicker !== undefined &&
