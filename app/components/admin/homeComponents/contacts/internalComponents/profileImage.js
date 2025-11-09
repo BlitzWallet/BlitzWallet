@@ -19,13 +19,12 @@ export default function ContactProfileImage({
   fromCustomQR = false,
 }) {
   const [loadError, setLoadError] = useState(false);
-  const [imageKey, setImageKey] = useState(0);
   const failedImageLoadURI = useRef('');
 
+  // Reset error state when URI or updated changes
   useEffect(() => {
-    setLoadError(false);
+    // setLoadError(false);
     failedImageLoadURI.current = '';
-    setImageKey(prev => prev + 1);
   }, [uri, updated]);
 
   const fallbackIcon = fromCustomQR
@@ -36,27 +35,48 @@ export default function ContactProfileImage({
 
   const customURI = useMemo(() => {
     if (!uri) return null;
-    let version = updated ? new Date(updated).getTime() : imageKey;
-    if (isNaN(version)) version = imageKey;
 
-    return `${uri}?v=${version}`;
-  }, [uri, updated, imageKey]);
+    // If we have an updated timestamp, use it for cache busting
+    if (updated) {
+      const version = new Date(updated).getTime();
+      // Only add version if it's valid
+      if (!isNaN(version)) {
+        return `${uri}?v=${version}`;
+      }
+    }
+
+    return uri;
+  }, [uri, updated]);
 
   const onError = useCallback(
     error => {
-      console.log('Image load error:', error);
+      console.log('Image load error:', error, 'for URI:', customURI);
+
+      if (failedImageLoadURI.current === customURI) {
+        console.log('Already handled error for this URI');
+        return;
+      }
+
       setLoadError(true);
-      // start tracking for failed image
       failedImageLoadURI.current = customURI;
     },
     [customURI],
   );
 
   const onLoad = useCallback(() => {
-    // if image already failed make sure to not process load
-    if (failedImageLoadURI.current === customURI) return;
-    setLoadError(false);
-  }, [customURI]);
+    console.log('Image loaded successfully:', customURI);
+
+    // Ignore load callback if this image already failed, need to have this since the fallback icon will suceed casuing an infinate loop.
+    if (failedImageLoadURI.current === customURI) {
+      console.log('Ignoring load for previously failed URI');
+      return;
+    }
+
+    if (loadError) {
+      console.log('Changing load error state to false');
+      setLoadError(false);
+    }
+  }, [customURI, loadError]);
 
   const imageSource = useMemo(() => {
     return !loadError && customURI ? customURI : fallbackIcon;
