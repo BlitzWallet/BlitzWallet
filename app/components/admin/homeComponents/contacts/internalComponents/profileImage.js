@@ -87,7 +87,11 @@ export default function ContactProfileImage({
       source={imageSource}
       onError={onError}
       onLoad={onLoad}
-      style={[loadError || !customURI ? styles.loadErrorStyles : styles.img]}
+      style={[
+        (loadError || !customURI) && !fromCustomQR
+          ? styles.loadErrorStyles
+          : styles.img,
+      ]}
       contentFit={contentFit}
       priority={priority}
       transition={100}

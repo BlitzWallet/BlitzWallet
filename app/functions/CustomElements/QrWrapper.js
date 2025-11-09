@@ -55,23 +55,14 @@ export default function QrCodeWrapper({
           value={content}
           color={COLORS.lightModeText}
           backgroundColor={COLORS.darkModeText}
-          logo={!!image ? createTransparentLogo(70) : ICONS.logoWithPadding} //placeholder
-          logoSize={!!image ? 70 : 50}
+          logo={createTransparentLogo(65)} //placeholder
+          logoSize={65}
           logoMargin={logoMargin}
           logoBorderRadius={logoBorderRadius}
           logoBackgroundColor={COLORS.darkModeText}
         />
       </View>
-      <View
-        style={{
-          width: !!image ? 65 : 50,
-          height: !!image ? 65 : 50,
-          position: 'absolute',
-          overflow: 'hidden',
-          borderRadius: 50,
-          zIndex: 10,
-        }}
-      >
+      <View style={styles.qrImageContainer}>
         <ContactProfileImage
           updated={imageData?.updated}
           uri={imageData?.uri}
@@ -99,5 +90,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 5,
+  },
+  qrImageContainer: {
+    width: 60,
+    height: 60,
+    position: 'absolute',
+    overflow: 'hidden',
+    borderRadius: 50,
+    zIndex: 10,
   },
 });
