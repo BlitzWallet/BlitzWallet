@@ -285,7 +285,7 @@ export default function SendPaymentScreen(props) {
         backFunction={handleBackpress}
       />
 
-      {enabledLRC20 && paymentInfo.type === 'spark' && (
+      {enabledLRC20 && paymentInfo.type === 'spark' && canEditPaymentAmount && (
         <TouchableOpacity onPress={handleSelectTokenPress}>
           <ThemeText
             styles={styles.selectTokenText}
