@@ -449,6 +449,7 @@ async function processLightningTransactions(
       mnemonic,
       sendWebViewRequest,
       25,
+      3,
     );
 
     if (findTxResponse.offset && findTxResponse.foundTransfers) {
@@ -460,6 +461,8 @@ async function processLightningTransactions(
       // If no transaction is found just call it completed
       const details = JSON.parse(result.txStateUpdate.details);
       newTxs.push({
+        tempId: result.txStateUpdate.sparkID,
+        useTempId: true,
         ...result.txStateUpdate,
         details,
         paymentStatus: 'completed',

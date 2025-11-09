@@ -965,6 +965,7 @@ export const findTransactionTxFromTxHistory = async (
   mnemonic,
   sendWebViewRequest,
   transferCount = 100,
+  maxAttempts = 10,
 ) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
@@ -983,7 +984,7 @@ export const findTransactionTxFromTxHistory = async (
     let offset = previousOffset;
     let foundTransfers = [];
     let bitcoinTransfer;
-    const maxAttempts = 20;
+
     let wallet;
     if (runtime === 'native') {
       wallet = await getWallet(mnemonic);
