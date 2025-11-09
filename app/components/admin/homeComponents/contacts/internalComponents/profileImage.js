@@ -91,7 +91,7 @@ export default function ContactProfileImage({
       contentFit={contentFit}
       priority={priority}
       transition={100}
-      recyclingKey={customURI || 'fallback'}
+      recyclingKey={customURI || String(fallbackIcon)}
     />
   );
 }
