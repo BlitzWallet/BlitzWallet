@@ -1,21 +1,21 @@
-import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
-import {COLORS, ICONS, SIZES} from '../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {BlitzSocialOptions} from '../../components/admin/homeComponents/settingsContent';
-import {CENTER} from '../../constants/styles';
-import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
-import {INSET_WINDOW_WIDTH} from '../../constants/theme';
-import {useMemo} from 'react';
+import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import { COLORS, ICONS, SIZES } from '../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { BlitzSocialOptions } from '../../components/admin/homeComponents/settingsContent';
+import { CENTER } from '../../constants/styles';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
+import { INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { useMemo } from 'react';
 import Icon from '../../functions/CustomElements/Icon';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useNodeContext} from '../../../context-store/nodeContext';
-import {useAppStatus} from '../../../context-store/appStatus';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useNodeContext } from '../../../context-store/nodeContext';
+import { useAppStatus } from '../../../context-store/appStatus';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {useGlobalContextProvider} from '../../../context-store/context';
+import { useGlobalContextProvider } from '../../../context-store/context';
 import openWebBrowser from '../../functions/openWebBrowser';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../hooks/themeColors';
 
 const GENERALOPTIONS = [
@@ -25,6 +25,22 @@ const GENERALOPTIONS = [
     displayName: 'screens.inAccount.settingsContent.about',
     icon: ICONS.aboutIcon,
     iconWhite: ICONS.aboutIconWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  {
+    for: 'general',
+    name: 'Edit Contact Profile',
+    displayName: 'screens.inAccount.settingsContent.edit contact profile',
+    icon: ICONS.contactsIconBlue,
+    iconWhite: ICONS.contactsIconWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  {
+    for: 'general',
+    name: 'Display Options',
+    displayName: 'screens.inAccount.settingsContent.display options',
+    icon: ICONS.colorIcon,
+    iconWhite: ICONS.colorIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
   {
@@ -43,23 +59,6 @@ const GENERALOPTIONS = [
     iconWhite: ICONS.currencyIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
-
-  {
-    for: 'general',
-    name: 'Display Options',
-    displayName: 'screens.inAccount.settingsContent.display options',
-    icon: ICONS.colorIcon,
-    iconWhite: ICONS.colorIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'general',
-    name: 'Edit Contact Profile',
-    displayName: 'screens.inAccount.settingsContent.edit contact profile',
-    icon: ICONS.contactsIconBlue,
-    iconWhite: ICONS.contactsIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
   {
     for: 'general',
     name: 'Fast Pay',
@@ -68,15 +67,7 @@ const GENERALOPTIONS = [
     svgName: 'quickPayIcon',
     arrowIcon: ICONS.leftCheveronIcon,
   },
-  {
-    for: 'general',
-    name: 'Blitz Stats',
-    displayName: 'screens.inAccount.settingsContent.blitz stats',
-    svgName: 'crashDebugIcon',
-    icon: ICONS.navigationIcon,
-    iconWhite: ICONS.navigationIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
+
   {
     for: 'general',
     name: 'Notifications',
@@ -138,6 +129,14 @@ const SECURITYOPTIONS = [
 //   },
 // ];
 const ADVANCEDOPTIONS = [
+  {
+    for: 'Closing Account',
+    name: 'Spark Info',
+    displayName: 'screens.inAccount.settingsContent.spark info',
+    icon: ICONS.nodeIcon,
+    iconWhite: ICONS.nodeIconWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
   {
     for: 'general',
     name: 'Accounts',
@@ -223,14 +222,7 @@ const ADVANCEDOPTIONS = [
     iconWhite: ICONS.trashIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
-  {
-    for: 'Closing Account',
-    name: 'Spark Info',
-    displayName: 'screens.inAccount.settingsContent.spark info',
-    icon: ICONS.nodeIcon,
-    iconWhite: ICONS.nodeIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
+
   // {
   //   for: 'Closing Account',
   //   name: 'Restore channels',
@@ -292,11 +284,11 @@ const DOOMSDAYSETTINGS = [
 ];
 
 export default function SettingsIndex(props) {
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {isConnectedToTheInternet} = useAppStatus();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {t} = useTranslation();
-  const {backgroundOffset} = GetThemeColors();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { isConnectedToTheInternet } = useAppStatus();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { t } = useTranslation();
+  const { backgroundOffset } = GetThemeColors();
   const isDoomsday = props?.route?.params?.isDoomsday;
   const navigate = useNavigation();
   useHandleBackPressNew();
@@ -339,7 +331,8 @@ export default function SettingsIndex(props) {
                 for: element.name,
                 isDoomsday: isDoomsday,
               });
-            }}>
+            }}
+          >
             {element.svgIcon ? (
               <Icon
                 color={theme && darkModeType ? COLORS.white : COLORS.primary}
@@ -349,7 +342,7 @@ export default function SettingsIndex(props) {
               />
             ) : (
               <ThemeImage
-                styles={{width: 20, height: 20}}
+                styles={{ width: 20, height: 20 }}
                 lightsOutIcon={element.iconWhite}
                 darkModeIcon={element.icon}
                 lightModeIcon={element.icon}
@@ -365,7 +358,11 @@ export default function SettingsIndex(props) {
               content={t(element.displayName)}
             />
             <ThemeImage
-              styles={{width: 20, height: 20, transform: [{rotate: '180deg'}]}}
+              styles={{
+                width: 20,
+                height: 20,
+                transform: [{ rotate: '180deg' }],
+              }}
               lightsOutIcon={ICONS.left_cheveron_white}
               darkModeIcon={ICONS.leftCheveronIcon}
               lightModeIcon={ICONS.leftCheveronIcon}
@@ -386,7 +383,7 @@ export default function SettingsIndex(props) {
                 ? t('screens.inAccount.settingsContent.technical settings')
                 : t('screens.inAccount.settingsContent.experimental features')
             }
-            styles={{...styles.optionsTitle, marginTop: id === 0 ? 10 : 20}}
+            styles={{ ...styles.optionsTitle, marginTop: id === 0 ? 10 : 20 }}
           />
           <View style={[styles.optionsListContainer]}>{internalElements}</View>
         </View>
@@ -408,8 +405,9 @@ export default function SettingsIndex(props) {
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{alignItems: 'center'}}
-        style={styles.settingsContainer}>
+        contentContainerStyle={{ alignItems: 'center' }}
+        style={styles.settingsContainer}
+      >
         {settingsElements}
 
         {isDoomsday && (
@@ -425,7 +423,8 @@ export default function SettingsIndex(props) {
               borderColor:
                 theme && darkModeType ? COLORS.white : COLORS.primary,
               marginTop: 30,
-            }}>
+            }}
+          >
             <ThemeText
               styles={{
                 color: theme && darkModeType ? COLORS.white : COLORS.primary,
@@ -456,7 +455,8 @@ export default function SettingsIndex(props) {
                 ...styles.posContainer,
                 borderColor:
                   theme && darkModeType ? COLORS.white : COLORS.primary,
-              }}>
+              }}
+            >
               <Icon
                 color={theme && darkModeType ? COLORS.white : COLORS.primary}
                 width={30}
@@ -482,7 +482,7 @@ export default function SettingsIndex(props) {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {alignItems: 'center', paddingBottom: 0},
+  globalContainer: { alignItems: 'center', paddingBottom: 0 },
   settingsContainer: {
     flex: 1,
     width: INSET_WINDOW_WIDTH,
