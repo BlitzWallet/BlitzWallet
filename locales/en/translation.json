@@ -874,7 +874,7 @@
       "editPaymentInfo": {
         "receive_amount": "receive amount",
         "descriptionInputPlaceholder": "Description...",
-        "header": "Edit amount"
+        "editAmount": "Edit amount"
       },
       "buttonContainer": {
         "format": "Other receiving methods",

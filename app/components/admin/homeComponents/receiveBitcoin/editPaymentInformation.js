@@ -70,7 +70,7 @@ export default function EditReceivePaymentInformation(props) {
     >
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
-        label={t('wallet.receivePages.editPaymentInfo.header')}
+        label={t('wallet.receivePages.editPaymentInfo.editAmount')}
       />
 
       <ScrollView
