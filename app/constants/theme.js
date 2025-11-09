@@ -21,6 +21,8 @@ const COLORS = {
   lightModeText: '#262626',
   darkModeText: 'white',
 
+  lightsOutModeOpacityInput: '#3C3C3C',
+
   offsetBackground: '#cbcbcb',
   lightModeBackgroundOffset: '#E3E3E3',
   darkModeBackgroundOffset: '#013167',

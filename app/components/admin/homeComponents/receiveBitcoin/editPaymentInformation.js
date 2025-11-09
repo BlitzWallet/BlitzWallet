@@ -13,9 +13,10 @@ import FormattedBalanceInput from '../../../../functions/CustomElements/formatte
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
-import { HIDDEN_OPACITY } from '../../../../constants/theme';
+import { COLORS, HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -26,6 +27,7 @@ export default function EditReceivePaymentInformation(props) {
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
   const [paymentDescription, setPaymentDescription] = useState('');
   const { t } = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const fromPage = props.route.params.from;
   const receiveType = props.route.params.receiveType;
   const [inputDenomination, setInputDenomination] = useState(
@@ -115,6 +117,13 @@ export default function EditReceivePaymentInformation(props) {
           onFocusFunction={() => setIsKeyboardFocused(true)}
           onBlurFunction={() => setIsKeyboardFocused(false)}
           editable={!disableDescription}
+          placeholderTextColor={
+            theme && !darkModeType
+              ? undefined
+              : theme
+              ? COLORS.lightsOutModeOpacityInput
+              : COLORS.opaicityGray
+          }
         />
       )}
 
