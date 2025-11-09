@@ -111,17 +111,9 @@ export default function FormattedSatText({
     children = [
       frontText && renderText(frontText),
       renderText(
-        `${showSymbol ? BITCOIN_SATS_ICON : ''}${
-          Platform.OS === 'android'
-            ? `${
-                useSpaces ? '\u200A\u200A\u200A' : '\u200A'
-              }${formattedBalance}${
-                useSpaces ? '\u200A\u200A\u200A' : '\u200A'
-              }`
-            : formattedBalance
-        }${
+        `${showSymbol ? BITCOIN_SATS_ICON : ''}${formattedBalance}${
           !showSymbol
-            ? `${Platform.OS == 'android' ? '' : ' '}` + BITCOIN_SAT_TEXT
+            ? `${Platform.OS == 'android' ? ' ' : ' '}` + BITCOIN_SAT_TEXT
             : ''
         }`,
       ),
@@ -155,5 +147,6 @@ const localStyles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     flexShrink: 1,
+    paddingHorizontal: 5,
   },
 });
