@@ -117,8 +117,9 @@ export default function ExpandedContactsPage(props) {
             if (selectedContact?.isLNURL || !selectedContact?.uniqueName)
               return;
             Share.share({
-              title: 'Blitz Contact',
-              message: `https://blitzwalletapp.com/u/${selectedContact?.uniqueName}`,
+              message: `${t('share.contact')}\nhttps://blitzwalletapp.com/u/${
+                selectedContact?.uniqueName
+              }`,
             });
           }}
           style={styles.profileImageContainer}

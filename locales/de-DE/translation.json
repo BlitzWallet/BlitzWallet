@@ -1644,6 +1644,10 @@
     }
   },
 
+  "share": {
+    "contact": "Hi, füge mich auf Blitz hinzu!"
+  },
+
   "swapMessages": {
     "liquid": "Liquid zu Spark Swap"
   },

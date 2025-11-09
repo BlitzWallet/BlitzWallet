@@ -1665,6 +1665,9 @@
       "depositLabel": "Deposit address payment"
     }
   },
+  "share": {
+    "contact": "Hi, add me on Blitz!"
+  },
 
   "swapMessages": {
     "liquid": "Liquid to Spark Swap"

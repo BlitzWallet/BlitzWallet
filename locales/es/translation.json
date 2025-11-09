@@ -1495,6 +1495,9 @@
       "depositLabel": "Dirección de pago de depósito"
     }
   },
+  "share": {
+    "contact": "¡Hola, agrégame en Blitz!"
+  },
   "pushNotifications": {
     "LNURL": {
       "zapped": "Fuiste electrocutado {{totalAmount}}",

@@ -216,8 +216,9 @@ export default function MyContactProfilePage({ navigation }) {
           style={{ marginLeft: 'auto', marginRight: 5 }}
           onPress={() => {
             Share.share({
-              title: 'Blitz Contact',
-              message: `https://blitzwalletapp.com/u/${myContact.uniqueName}`,
+              message: `${t('share.contact')}\nhttps://blitzwalletapp.com/u/${
+                myContact.uniqueName
+              }`,
             });
           }}
         >

@@ -1661,6 +1661,10 @@
     }
   },
 
+  "share": {
+    "contact": "Ciao, aggiungimi su Blitz!"
+  },
+
   "swapMessages": {
     "liquid": "Scambio da Liquid a Spark"
   },
