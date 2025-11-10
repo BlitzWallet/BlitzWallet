@@ -19,7 +19,6 @@ import { ThemeText, GlobalThemeView } from '../../../functions/CustomElements';
 import FullLoadingScreen from '../../../functions/CustomElements/loadingScreen';
 import { backArrow } from '../../../constants/styles';
 import { getImageFromLibrary } from '../../../functions/imagePickerWrapper';
-import RNQRGenerator from 'rn-qr-generator';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import getClipboardText from '../../../functions/getClipboardText';
 import { CameraPageNavBar } from '../../../functions/CustomElements/camera/cameraPageNavbar';
@@ -29,6 +28,7 @@ import {
 } from '../../../functions/crashlyticsLogs';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../context-store/appStatus';
+import { detectQRCode } from '../../../functions/detectQrCode';
 
 export default function CameraModal(props) {
   console.log('SCREEN OPTIONS PAGE');
@@ -214,11 +214,8 @@ export default function CameraModal(props) {
     }
 
     try {
-      const response = await RNQRGenerator.detect({
-        uri: imgURL.uri,
-      });
-
-      console.log(response);
+      const response = await detectQRCode(imgURL.uri);
+      if (!response) throw new Error('Error detecting invoice');
 
       if (response.type != 'QRCode') {
         navigate.goBack();

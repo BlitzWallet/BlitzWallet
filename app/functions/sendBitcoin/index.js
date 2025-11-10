@@ -1,13 +1,13 @@
-import {getImageFromLibrary} from '../imagePickerWrapper';
-import RNQRGenerator from 'rn-qr-generator';
+import { getImageFromLibrary } from '../imagePickerWrapper';
 import getClipboardText from '../getClipboardText';
 import handlePreSendPageParsing from './handlePreSendPageParsing';
+import { detectQRCode } from '../detectQrCode';
 
 async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
   const response = await getClipboardText();
 
   if (!response.didWork) {
-    navigate.navigate('ErrorScreen', {errorMessage: t(response.reason)});
+    navigate.navigate('ErrorScreen', { errorMessage: t(response.reason) });
     return;
   }
   const clipboardData = response.data?.trim();
@@ -15,7 +15,9 @@ async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
   const preParsingResponse = handlePreSendPageParsing(clipboardData);
 
   if (preParsingResponse.error) {
-    navigate.navigate('ErrorScreen', {errorMessage: preParsingResponse.error});
+    navigate.navigate('ErrorScreen', {
+      errorMessage: preParsingResponse.error,
+    });
     return;
   }
 
@@ -41,17 +43,16 @@ async function navigateToSendUsingClipboard(navigate, callLocation, from, t) {
 
 async function getQRImage() {
   const imagePickerResponse = await getImageFromLibrary();
-  const {didRun, error, imgURL} = imagePickerResponse;
-  if (!didRun) return {btcAdress: '', didWork: true, error: ''};
+  const { didRun, error, imgURL } = imagePickerResponse;
+  if (!didRun) return { btcAdress: '', didWork: true, error: '' };
   if (error) {
-    return {btcAdress: '', didWork: false, error: error};
+    return { btcAdress: '', didWork: false, error: error };
   }
   let address;
 
   try {
-    const response = await RNQRGenerator.detect({
-      uri: imgURL.uri,
-    });
+    const response = await detectQRCode(imgURL.uri);
+    if (!response) throw new Error('Error detecting invoice');
 
     if (response.type != 'QRCode')
       return {
@@ -94,7 +95,7 @@ async function getQRImage() {
     };
   }
 
-  return {btcAdress: preParsingResponse.btcAdress, didWork: true, error: ''};
+  return { btcAdress: preParsingResponse.btcAdress, didWork: true, error: '' };
 }
 
-export {navigateToSendUsingClipboard, getQRImage};
+export { navigateToSendUsingClipboard, getQRImage };
