@@ -301,7 +301,7 @@ export const WebViewProvider = ({ children }) => {
     const connectionChanged =
       prevConnectionStatus.current !== isConnectedToTheInternet;
 
-    if (!appStateChanged && !connectionChanged) {
+    if ((!appStateChanged && !connectionChanged) || forceReactNativeUse) {
       return; // Nothing changed
     }
 

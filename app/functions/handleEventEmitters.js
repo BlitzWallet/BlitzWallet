@@ -1,4 +1,4 @@
-import {AppState} from 'react-native';
+import { AppState } from 'react-native';
 
 const eventQueue = [];
 let appStateSubscription = null;
@@ -6,7 +6,7 @@ let appStateSubscription = null;
 const handleEventEmitterPost = (eventEmitter, eventName, ...eventParams) => {
   try {
     const listenerCount = eventEmitter.listenerCount?.(eventName);
-    if (AppState.currentState === 'active' || listenerCount) {
+    if (AppState.currentState === 'active' && listenerCount) {
       eventEmitter.emit(eventName, ...eventParams);
     } else {
       eventQueue.push({
@@ -21,7 +21,8 @@ const handleEventEmitterPost = (eventEmitter, eventName, ...eventParams) => {
             console.log(`Processing ${eventQueue.length} queued events`);
 
             while (eventQueue.length > 0) {
-              const {eventEmitter, eventName, eventParams} = eventQueue.shift();
+              const { eventEmitter, eventName, eventParams } =
+                eventQueue.shift();
 
               const listenerCount = eventEmitter.listenerCount?.(eventName);
 
@@ -82,4 +83,4 @@ const cleanupEventHandler = () => {
 };
 
 // Export functions
-export {handleEventEmitterPost, cleanupEventHandler};
+export { handleEventEmitterPost, cleanupEventHandler };
