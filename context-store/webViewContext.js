@@ -726,6 +726,7 @@ export const WebViewProvider = ({ children }) => {
             duration: timeoutDuration,
             handler: handleTimeout,
             remaining: timeoutDuration,
+            action,
           };
 
           const originalResolve = resolve;
@@ -784,6 +785,16 @@ export const WebViewProvider = ({ children }) => {
                   count: prev.count + 1,
                 }));
                 console.log('Wallet initialized successfully');
+                setTimeout(() => {
+                  try {
+                    processQueuedRequests(false);
+                  } catch (e) {
+                    console.warn(
+                      'Error calling processQueuedRequests after init:',
+                      e,
+                    );
+                  }
+                }, 100);
               }
               wrappedResolve(result);
             };
@@ -897,6 +908,7 @@ export const WebViewProvider = ({ children }) => {
       }
       initHandshake();
     }
+    // forceReactNativeUse = true;
     startHandshake(); //remove this and app fully uses RN
   }, [isWebViewReady, verifiedPath, initHandshake, appState]);
 
@@ -929,6 +941,26 @@ export const WebViewProvider = ({ children }) => {
     async connectionJustRestored => {
       // After a soft reset, the WebView's internal state is cleared
       // We must reinitialize the wallet before processing any queued requests
+      // Make sure we do not already have any ongoing requests
+      const now = Date.now();
+      Object.entries(activeTimeoutsRef.current).forEach(([id, item]) => {
+        if (
+          item.action === OPERATION_TYPES.initWallet &&
+          now - item.startedAt > item.duration * 1.2 // add small grace buffer
+        ) {
+          console.warn(
+            `Detected stale initWallet request (${id}), cleaning up manually`,
+          );
+          clearTimeout(item.timeoutId);
+          delete activeTimeoutsRef.current[id];
+        }
+      });
+
+      const hasActiveConnectionOngoing = Object.values(
+        activeTimeoutsRef.current,
+      ).some(item => item.action === OPERATION_TYPES.initWallet);
+
+      if (hasActiveConnectionOngoing) return;
       if (
         (handshakeComplete &&
           !walletInitialized.current &&
@@ -958,14 +990,16 @@ export const WebViewProvider = ({ children }) => {
         }
       }
       isResetting.current = false;
+
+      console.log(
+        `Processing ${queuedRequests.current.length} queued requests`,
+      );
+
       if (queuedRequests.current.length === 0) {
         isResetting.current = false;
         return;
       }
 
-      console.log(
-        `Processing ${queuedRequests.current.length} queued requests`,
-      );
       const requests = [...queuedRequests.current];
       await Promise.allSettled(
         requests.map(({ id, action, args, encrypt, resolve, reject }) =>
