@@ -81,7 +81,7 @@
     "to": "Para",
     "from": "De",
     "description": "Descrição",
-    "regenerate": "Regenerada",
+    "regenerate": "Gerar",
     "restore": "Restaurar",
     "words": "Palavras",
     "qrCode": "Código QR",
@@ -1054,7 +1054,7 @@
     },
 
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Descrição do pagamento",
+      "descriptionPlaceholder": "Descrição (opcional)",
       "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
       "giftCardappVersionError": "Você não pode enviar um vale-presente para este contato. Eles não atualizaram para a versão mais recente da carteira Blitz.",
