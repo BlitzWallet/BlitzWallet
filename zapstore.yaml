@@ -1,6 +1,6 @@
 identifier: com.blitzwallet
 name: Blitz Wallet
-summary: The simplest self-custodial bitcoin wallet. Send, spend, and accept BTC.
+summary: The simplest self-custodial bitcoin wallet. Send, spend, and receive BTC.
 repository: https://github.com/BlitzWallet/BlitzWallet
 license: Apache 2.0
 assets:
