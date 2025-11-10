@@ -4945,6 +4945,7 @@ __metadata:
     expo-file-system: ~19.0.16
     expo-image: ~3.0.8
     expo-image-manipulator: ~14.0.7
+    expo-image-picker: ~17.0.8
     expo-linear-gradient: ~15.0.7
     expo-local-authentication: ~17.0.7
     expo-navigation-bar: ~5.0.8
@@ -4976,7 +4977,6 @@ __metadata:
     react-native-email-link: ^1.16.1
     react-native-gesture-handler: ~2.28.0
     react-native-get-random-values: ~1.11.0
-    react-native-image-picker: ^8.2.1
     react-native-keyboard-controller: 1.18.5
     react-native-pager-view: 6.9.1
     react-native-qrcode-svg: ^6.3.15
@@ -8046,6 +8046,17 @@ __metadata:
   peerDependencies:
     expo: "*"
   checksum: 136352e5f17f2ba50c3f0ce942ecb126a96daa7cfb76761270e350ee60bed9eb4971034d85be27cd637dfc9094e0a1a266339f01fdfc3f0284e3612ffef4ac7c
+  languageName: node
+  linkType: hard
+
+"expo-image-picker@npm:~17.0.8":
+  version: 17.0.8
+  resolution: "expo-image-picker@npm:17.0.8"
+  dependencies:
+    expo-image-loader: ~6.0.0
+  peerDependencies:
+    expo: "*"
+  checksum: aaf93bb3e52f1bc183258379e65c215e82be0bdd271bcea192dc4639fa1955db11e43667f49887d4c22ea0b53b1136f2bcb35aec957b5994341a56b21f2c47fb
   languageName: node
   linkType: hard
 
@@ -12814,16 +12825,6 @@ __metadata:
   peerDependencies:
     react-native: ">=0.56"
   checksum: 07729f70a007f7a3b8f98ebf687c1298ba288b87dd71d8ba385be6b5a377718b27b97547bbe1db6b225b83ee109dfce0b01721e6ed535d53892f3ac81e6bf975
-  languageName: node
-  linkType: hard
-
-"react-native-image-picker@npm:^8.2.1":
-  version: 8.2.1
-  resolution: "react-native-image-picker@npm:8.2.1"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: fc85bc278c0ba5ccef8cbacfce3001e994b34b0895be34e0c884021d2215802c2e553c5e97ff7f21a30e502be60000f90cf9555e9c2a19c71fdc76120d30e158
   languageName: node
   linkType: hard
 
