@@ -1,17 +1,19 @@
-import {launchImageLibrary} from 'react-native-image-picker';
-const options = {
-  mediaType: 'photo',
-  quality: 0.8,
-  selectionLimit: 1,
-};
+import * as ImagePicker from 'expo-image-picker';
+
 export async function getImageFromLibrary() {
   try {
-    const result = await launchImageLibrary(options);
-    if (result.didCancel) return {didRun: false, error: ''};
-    const imgURL = result.assets[0];
-    console.log(imgURL);
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+      allowsEditing: false,
+      selectionLimit: 1,
+    });
 
-    return {didRun: true, imgURL: imgURL};
+    if (result.canceled) return { didRun: false, error: '' };
+
+    const imgURL = result.assets?.[0];
+
+    return { didRun: true, imgURL };
   } catch (err) {
     console.log('error getting image from library', err);
     return {
