@@ -339,7 +339,7 @@ export default function SendPaymentScreen(props) {
             balance={convertedSendAmount}
           />
         )}
-        {!useAltLayout && (
+        {!useAltLayout && canEditPaymentAmount && (
           <SendMaxComponent
             fiatStats={fiatStats}
             sparkInformation={sparkInformation}
