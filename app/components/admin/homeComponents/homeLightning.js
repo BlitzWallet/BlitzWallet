@@ -76,7 +76,7 @@ export default function HomeLightning() {
   useEffect(() => {
     setTimeout(() => {
       toggleDidGetToHomepage(true);
-    }, 800);
+    }, 250);
   }, []);
 
   const handleStateUpdate = newObj => {

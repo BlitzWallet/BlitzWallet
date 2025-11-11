@@ -143,7 +143,8 @@ export const getHandshakeComplete = () => {
 
 export const WebViewProvider = ({ children }) => {
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { appState, isConnectedToTheInternet } = useAppStatus();
+  const { appState, isConnectedToTheInternet, didGetToHomepage } =
+    useAppStatus();
   const webViewRef = useRef(null);
   const [isWebViewReady, setIsWebViewReady] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -164,10 +165,15 @@ export const WebViewProvider = ({ children }) => {
   const walletInitialized = useRef(false);
   const backgroundTimeRef = useRef(null);
   const didRunInit = useRef(null);
+  const didGetToHomepageRef = useRef(didGetToHomepage);
   const [changeSparkConnectionState, setChangeSparkConnectionState] = useState({
     state: null,
     count: 0,
   });
+
+  useEffect(() => {
+    didGetToHomepageRef.current = didGetToHomepage;
+  }, [didGetToHomepage]);
 
   useEffect(() => {
     internetConnectionRef.current = isConnectedToTheInternet;
@@ -358,9 +364,16 @@ export const WebViewProvider = ({ children }) => {
             blockAndResetWebview(false);
           } else {
             // Make sure to handle any events that happen during background and are within the three minute refresh timeout
-            setTimeout(() => {
-              processQueuedRequests(connectionJustRestored);
-            }, 100);
+            if (!didGetToHomepageRef.current) {
+              // we need to make sure this doesn't double run before getting to the hompage otherwise we will send multiple init requests
+              console.log(
+                'Did not get to homepage yet, blocking duplicate request created by biometric login popup',
+              );
+            } else {
+              setTimeout(() => {
+                processQueuedRequests(connectionJustRestored);
+              }, 100);
+            }
           }
         }
 
@@ -785,16 +798,6 @@ export const WebViewProvider = ({ children }) => {
                   count: prev.count + 1,
                 }));
                 console.log('Wallet initialized successfully');
-                setTimeout(() => {
-                  try {
-                    processQueuedRequests(false);
-                  } catch (e) {
-                    console.warn(
-                      'Error calling processQueuedRequests after init:',
-                      e,
-                    );
-                  }
-                }, 100);
               }
               wrappedResolve(result);
             };
@@ -941,26 +944,6 @@ export const WebViewProvider = ({ children }) => {
     async connectionJustRestored => {
       // After a soft reset, the WebView's internal state is cleared
       // We must reinitialize the wallet before processing any queued requests
-      // Make sure we do not already have any ongoing requests
-      const now = Date.now();
-      Object.entries(activeTimeoutsRef.current).forEach(([id, item]) => {
-        if (
-          item.action === OPERATION_TYPES.initWallet &&
-          now - item.startedAt > item.duration * 1.2 // add small grace buffer
-        ) {
-          console.warn(
-            `Detected stale initWallet request (${id}), cleaning up manually`,
-          );
-          clearTimeout(item.timeoutId);
-          delete activeTimeoutsRef.current[id];
-        }
-      });
-
-      const hasActiveConnectionOngoing = Object.values(
-        activeTimeoutsRef.current,
-      ).some(item => item.action === OPERATION_TYPES.initWallet);
-
-      if (hasActiveConnectionOngoing) return;
       if (
         (handshakeComplete &&
           !walletInitialized.current &&
