@@ -1144,9 +1144,9 @@
       "inputPlaceHolder": ""
     },
     "displayOptions": {
-      "text1": "Estilo do modo escuro",
-      "text2": "Luzes apagadas",
-      "text3": "Escuro",
+      "text1": "Cor do modo escuro",
+      "text2": "Preto",
+      "text3": "Azul",
       "text4": "Denominação do saldo",
       "text5": "Denominação atual",
       "text6": "Por favor, reconecte-se à internet para mudar a denominação",
