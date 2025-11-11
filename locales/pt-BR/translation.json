@@ -34,7 +34,7 @@
     "fee": "Taxa",
     "type": "Meio",
     "edit": "Editar",
-    "iunderstand": "Eu compreendo",
+    "iunderstand": "Entendi",
     "save": "Salvar",
     "yes": "Sim",
     "no": "Não",
@@ -70,7 +70,7 @@
     "slideToExport": "Deslize para exportar",
     "hide": "Esconder",
     "show": "Mostrar",
-    "understandText": "Eu compreendo",
+    "understandText": "Entendi",
     "reportError": "Reportar problema",
     "address": "Endereço",
     "string": "String",
@@ -248,7 +248,7 @@
     "skipMessage": {
       "header": "Recomendamos que você anote sua frase-semente",
       "subHeader": "Se você não anotar e guardar sua frase-semente, você corre o risco de perder seus fundos",
-      "btn": "Eu compreendo"
+      "btn": "Entendi"
     }
   },
 
