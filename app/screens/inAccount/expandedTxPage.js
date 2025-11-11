@@ -706,14 +706,6 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     marginLeft: 10,
   },
-  descriptionContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  descriptionHeader: {
-    marginBottom: 12,
-  },
   descriptionContent: {
     width: '100%',
     maxHeight: 120,
