@@ -1,4 +1,4 @@
-import {uniqueNamesGenerator, animals, names} from 'unique-names-generator';
+import { uniqueNamesGenerator, animals, names } from 'unique-names-generator';
 import i18next from 'i18next';
 
 export function generateRandomContact() {
@@ -7,7 +7,7 @@ export function generateRandomContact() {
     separator: '',
   }); // big_red_donkey
 
-  return {uniqueName: randomName + Math.ceil(Math.random() * 99)};
+  return { uniqueName: randomName + Math.ceil(Math.random() * 99) };
 }
 
 export async function getBolt11InvoiceForContact(
@@ -15,6 +15,7 @@ export async function getBolt11InvoiceForContact(
   sendingValue,
   description,
   useBlitzContact = true,
+  domain = 'blitzwalletapp.com',
 ) {
   try {
     let runCount = 0;
@@ -23,7 +24,7 @@ export async function getBolt11InvoiceForContact(
 
     while (runCount < maxRunCount) {
       try {
-        const url = `https://blitzwalletapp.com/.well-known/lnurlp/${contactUniqueName}?amount=${
+        const url = `https://${domain}/.well-known/lnurlp/${contactUniqueName}?amount=${
           sendingValue * 1000
         }&isBlitzContact=${useBlitzContact ? true : false}${
           !!description
@@ -33,7 +34,8 @@ export async function getBolt11InvoiceForContact(
         console.log(url);
         const response = await fetch(url);
         const data = await response.json();
-        if (data.status !== 'OK') throw new Error('Not able to get invoice');
+        if (data.status !== 'OK' && !data?.pr)
+          throw new Error('Not able to get invoice');
         invoice = data.pr;
         break;
       } catch (err) {

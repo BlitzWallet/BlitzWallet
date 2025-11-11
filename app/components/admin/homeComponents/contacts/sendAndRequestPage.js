@@ -49,6 +49,9 @@ import getReceiveAddressAndContactForContactsPayment from './internalComponents/
 import calculateProgressiveBracketFee from '../../../../functions/spark/calculateSupportFee';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalance';
+import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
+import { receiveSparkLightningPayment } from '../../../../functions/spark';
+import { getBolt11InvoiceForContact } from '../../../../functions/contacts';
 
 const MAX_SEND_OPTIONS = [
   { label: '25%', value: '25' },
@@ -79,6 +82,7 @@ export default function SendAndRequestPage(props) {
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
   const descriptionRef = useRef(null);
+  const [isGettingMax, setIsGettingMax] = useState(false);
 
   const selectedContact = props.route.params.selectedContact;
   const paymentType = props.route.params.paymentType;
@@ -113,19 +117,53 @@ export default function SendAndRequestPage(props) {
         const balance = sparkInformation.balance;
         const selectedPercent = !item ? 100 : Number(item.value);
 
-        const sendingBalance = Math.floor(
-          balance *
-            (selectedPercent === 100 ? 0.98 : 1) *
-            (selectedPercent / 100),
-        );
+        const sendingBalance = Math.floor(balance * (selectedPercent / 100));
 
-        const fee = await calculateProgressiveBracketFee(
-          balance,
-          'lightning',
-          currentWalletMnemoinc,
-        );
+        setIsGettingMax(true);
+        // small pause for UI
+        await new Promise(res => setTimeout(res, 250));
 
-        const maxAmountSats = Math.max(Number(sendingBalance) - fee * 2.1, 0);
+        let invoice = '';
+
+        // get fake invoice to get payment fee
+        if (selectedContact.isLNURL) {
+          const [username, domain] = selectedContact.receiveAddress.split('@');
+          const lnurlResposne = await getBolt11InvoiceForContact(
+            username,
+            sendingBalance,
+            undefined,
+            false,
+            domain,
+          );
+          if (!lnurlResposne) throw new Error('Unable to get invoice');
+          invoice = lnurlResposne;
+        } else {
+          const invoiceResponse = await receiveSparkLightningPayment({
+            amountSats: sendingBalance,
+            mnemonic: currentWalletMnemoinc,
+          });
+          if (!invoiceResponse.didWork)
+            throw new Error('Unable to get invoice');
+
+          invoice = invoiceResponse.response.invoice.encodedInvoice;
+        }
+
+        // get routing fee for balance amount
+        const fee = await sparkPaymenWrapper({
+          getFee: true,
+          address: invoice,
+          masterInfoObject,
+          paymentType: 'lightning',
+          mnemonic: currentWalletMnemoinc,
+        });
+
+        if (!fee.didWork) throw new Error(fee.error);
+
+        // subtract routing fee from balance to get max sending amount
+        const maxAmountSats = Math.max(
+          Number(sendingBalance) - fee.fee + fee.supportFee,
+          0,
+        );
 
         const convertedMax =
           inputDenomination != 'fiat'
@@ -137,10 +175,19 @@ export default function SendAndRequestPage(props) {
 
         setAmountValue(convertedMax);
       } catch (err) {
-        console.log(err, 'ERROR');
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('errormessages.genericError'),
+        });
+      } finally {
+        setIsGettingMax(false);
       }
     },
-    [sparkInformation, inputDenomination, currentWalletMnemoinc],
+    [
+      sparkInformation,
+      inputDenomination,
+      currentWalletMnemoinc,
+      selectedContact,
+    ],
   );
 
   useEffect(() => {
@@ -499,6 +546,7 @@ export default function SendAndRequestPage(props) {
                 textStyles={styles.sendMaxText}
                 showVerticalArrows={false}
                 customButtonStyles={memorizedContainerStyles}
+                useIsLoading={isGettingMax}
               />
             </View>
           )}

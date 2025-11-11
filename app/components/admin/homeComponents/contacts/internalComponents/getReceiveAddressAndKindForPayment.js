@@ -1,6 +1,4 @@
 import { getDataFromCollection } from '../../../../../../db';
-import { getBolt11InvoiceForContact } from '../../../../../functions/contacts';
-import { formatBip21Address } from '../../../../../functions/spark/handleBip21SparkAddress';
 
 export default async function getReceiveAddressAndContactForContactsPayment({
   sendingAmountSat,
@@ -41,22 +39,6 @@ export default async function getReceiveAddressAndContactForContactsPayment({
         }
 
         receiveAddress = `${retrivedContact?.contacts?.myProfile?.uniqueName}@blitzwalletapp.com`;
-
-        // const lnurlInvoice = await getBolt11InvoiceForContact(
-        //   retrivedContact?.contacts?.myProfile?.uniqueName,
-        //   sendingAmountSat,
-        //   message,
-        // );
-        // if (lnurlInvoice) {
-        //   receiveAddress = lnurlInvoice;
-        // } else {
-        //   receiveAddress = formatBip21Address({
-        //     address: retrivedContact?.contacts?.myProfile?.sparkAddress,
-        //     amountSat: sendingAmountSat,
-        //     message: myProfileMessage,
-        //     prefix: 'spark',
-        //   });
-        // }
       } else throw new Error('errormessages.legacyContactError');
     }
 
