@@ -1185,7 +1185,9 @@
       "biometricSignInError": "Error logging in with Biometrics",
       "migratingStorageMessgae": "Migrating storage to new security.",
       "createPinPageHeader": "{{type}} your Blitz PIN",
-      "invalidPinconfirmation": "PIN's do not match. Try again!"
+      "invalidPinconfirmation": "PIN's do not match. Try again!",
+      "randomPinKeyboardToggle": "Shuffle Keypad",
+      "randomPinKeyboardInfo": "Enable this feature to shuffle the keypad numbers every time you log in. It adds an extra layer of security by making it harder for anyone nearby to learn your PIN pattern."
     },
     "seedPhrase": {
       "header": "Keep this seed phrase in a secure and safe place",

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { signOut } from '@react-native-firebase/auth';
 import {
@@ -7,7 +7,11 @@ import {
   retrieveData,
   terminateAccount,
 } from '../../../functions';
-import { LOGIN_SECUITY_MODE_KEY, SIZES } from '../../../constants';
+import {
+  LOGIN_SECUITY_MODE_KEY,
+  RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY,
+  SIZES,
+} from '../../../constants';
 import { useTranslation } from 'react-i18next';
 import { ThemeText } from '../../../functions/CustomElements';
 import KeyForKeyboard from '../../../functions/CustomElements/key';
@@ -35,11 +39,37 @@ export default function PinPage() {
     enteredPinCount: 0,
     needsToBeMigrated: null,
   });
+  const [useRanomPinLayout, setUseRandomPinLayout] = useState(false);
   const numRetriesBiometric = useRef(0);
   const { setAccountMnemonic } = useKeysContext();
   const { t } = useTranslation();
 
   const navigate = useNavigation();
+
+  // Generate randomized keyboard layout
+  const keyboardLayout = useMemo(() => {
+    if (!useRanomPinLayout) {
+      return [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+        ['C', 0, 'back'],
+      ];
+    }
+
+    const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    for (let i = numbers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+    }
+
+    return [
+      [numbers[0], numbers[1], numbers[2]],
+      [numbers[3], numbers[4], numbers[5]],
+      [numbers[6], numbers[7], numbers[8]],
+      ['C', numbers[9], 'back'],
+    ];
+  }, [useRanomPinLayout, loginSettings.enteredPinCount]);
 
   const handlePinCheck = useCallback(async () => {
     const filteredPin = loginSettings.enteredPin.filter(pin => {
@@ -124,12 +154,17 @@ export default function PinPage() {
   useEffect(() => {
     async function loadPageInformation() {
       try {
-        const [storedSettings, storedPin] = await Promise.all([
-          getLocalStorageItem(LOGIN_SECUITY_MODE_KEY).then(data =>
-            JSON.parse(data),
-          ),
-          retrieveData('pinHash'),
-        ]);
+        const [storedSettings, storedPin, ranomkeyboardLayout] =
+          await Promise.all([
+            getLocalStorageItem(LOGIN_SECUITY_MODE_KEY).then(data =>
+              JSON.parse(data),
+            ),
+            retrieveData('pinHash'),
+            getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY).then(
+              JSON.parse,
+            ),
+          ]);
+        setUseRandomPinLayout(ranomkeyboardLayout);
 
         let needsToBeMigrated;
         try {
@@ -252,26 +287,17 @@ export default function PinPage() {
         <PinDot pin={loginSettings.enteredPin} dotNum={3} />
       </View>
       <View style={styles.keyboardContainer}>
-        <View style={styles.keyboard_row}>
-          <KeyForKeyboard num={1} addPin={addPin} />
-          <KeyForKeyboard num={2} addPin={addPin} />
-          <KeyForKeyboard num={3} addPin={addPin} />
-        </View>
-        <View style={styles.keyboard_row}>
-          <KeyForKeyboard num={4} addPin={addPin} />
-          <KeyForKeyboard num={5} addPin={addPin} />
-          <KeyForKeyboard num={6} addPin={addPin} />
-        </View>
-        <View style={styles.keyboard_row}>
-          <KeyForKeyboard num={7} addPin={addPin} />
-          <KeyForKeyboard num={8} addPin={addPin} />
-          <KeyForKeyboard num={9} addPin={addPin} />
-        </View>
-        <View style={styles.keyboard_row}>
-          <KeyForKeyboard num={'C'} addPin={addPin} />
-          <KeyForKeyboard num={0} addPin={addPin} />
-          <KeyForKeyboard num={'back'} addPin={addPin} />
-        </View>
+        {keyboardLayout.map((row, rowIndex) => (
+          <View key={rowIndex} style={styles.keyboard_row}>
+            {row.map((num, colIndex) => (
+              <KeyForKeyboard
+                key={`${rowIndex}-${colIndex}`}
+                num={num}
+                addPin={addPin}
+              />
+            ))}
+          </View>
+        ))}
       </View>
     </View>
   );

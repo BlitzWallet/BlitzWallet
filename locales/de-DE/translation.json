@@ -1168,7 +1168,9 @@
       "biometricSignInError": "Fehler beim Anmelden mit Biometrie",
       "migratingStorageMessgae": "Speicher wird auf neue Sicherheit migriert.",
       "createPinPageHeader": "{{type}} Ihren Blitz-PIN",
-      "invalidPinconfirmation": "PINs stimmen nicht überein. Versuchen Sie es erneut!"
+      "invalidPinconfirmation": "PINs stimmen nicht überein. Versuchen Sie es erneut!",
+      "randomPinKeyboardToggle": "Tastatur zufällig anordnen",
+      "randomPinKeyboardInfo": "Aktiviere diese Funktion, um die Zahlen auf der Tastatur bei jeder Anmeldung neu zu mischen. Dies erhöht die Sicherheit, da es für Personen in deiner Nähe schwieriger wird, dein PIN-Muster zu erkennen."
     },
     "seedPhrase": {
       "header": "Bewahren Sie diese Seed-Phrase an einem sicheren Ort auf",

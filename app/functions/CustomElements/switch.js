@@ -1,10 +1,16 @@
-import React, {useState, useRef, useEffect} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Animated} from 'react-native';
-import {COLORS, SIZES} from '../../constants';
-import {useGlobalContextProvider} from '../../../context-store/context';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+} from 'react-native';
+import { COLORS, SIZES } from '../../constants';
+import { useGlobalContextProvider } from '../../../context-store/context';
 import GetThemeColors from '../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../context-store/theme';
-import {useTranslation} from 'react-i18next';
+import { useGlobalThemeContext } from '../../../context-store/theme';
+import { useTranslation } from 'react-i18next';
 
 const CustomToggleSwitch = ({
   page,
@@ -12,10 +18,11 @@ const CustomToggleSwitch = ({
   stateValue,
   containerStyles,
 }) => {
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {t} = useTranslation();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor, backgroundOffset, backgroundColor} = GetThemeColors();
+  const { masterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
+  const { t } = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const [textWidth, setTextWidth] = useState(0);
   const isOn =
     page === 'cameraSlider'
@@ -93,7 +100,8 @@ const CustomToggleSwitch = ({
       page === 'LoginSecurityMode' ||
       page === 'fastPay' ||
       page === 'nwcAccount' ||
-      page === 'lrc20Settings'
+      page === 'lrc20Settings' ||
+      page === 'useRanomPinLayout'
         ? backgroundColor
         : backgroundOffset,
       darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
@@ -128,14 +136,15 @@ const CustomToggleSwitch = ({
           toggleSwitch();
         }
       }}
-      style={{...containerStyles}}
-      activeOpacity={0.7}>
-      <Animated.View style={[styles.switch, {backgroundColor: switchColor}]}>
+      style={{ ...containerStyles }}
+      activeOpacity={0.7}
+    >
+      <Animated.View style={[styles.switch, { backgroundColor: switchColor }]}>
         <Animated.View
           style={[
             styles.circle,
             {
-              transform: [{translateX: circlePosition}],
+              transform: [{ translateX: circlePosition }],
               backgroundColor: circleColor,
             },
           ]}
@@ -163,7 +172,8 @@ const CustomToggleSwitch = ({
                 },
               ],
             },
-          ]}>
+          ]}
+        >
           {`${t(`constants.${sliderText.toLowerCase()}Lower`)
             .slice(0, 3)
             .toUpperCase()}${sliderTextLength > 3 ? '.' : ''}`}

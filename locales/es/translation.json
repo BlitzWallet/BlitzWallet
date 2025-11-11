@@ -1018,7 +1018,9 @@
       "biometricSignInError": "Error al iniciar sesión con biometría",
       "migratingStorageMessgae": "Migrando almacenamiento a la nueva seguridad.",
       "createPinPageHeader": "{{type}} tu PIN de Blitz",
-      "invalidPinconfirmation": "Los PIN no coinciden. ¡Intenta de nuevo!"
+      "invalidPinconfirmation": "Los PIN no coinciden. ¡Intenta de nuevo!",
+      "randomPinKeyboardToggle": "Mezclar teclado numérico",
+      "randomPinKeyboardInfo": "Activa esta función para mezclar los números del teclado cada vez que inicies sesión. Agrega una capa extra de seguridad al dificultar que alguien cercano aprenda tu patrón de PIN."
     },
     "seedPhrase": {
       "header": "Guarde esta frase semilla en un lugar seguro y protegido",

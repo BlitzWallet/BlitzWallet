@@ -1179,7 +1179,9 @@
       "biometricSignInError": "Errore nel login con Biometrici",
       "migratingStorageMessgae": "Migrazione dello storage alla nuova sicurezza.",
       "createPinPageHeader": "{{type}} il tuo PIN Blitz",
-      "invalidPinconfirmation": "I PIN non corrispondono. Riprova!"
+      "invalidPinconfirmation": "I PIN non corrispondono. Riprova!",
+      "randomPinKeyboardToggle": "Mescola tastierino numerico",
+      "randomPinKeyboardInfo": "Abilita questa funzione per mescolare i numeri del tastierino ogni volta che accedi. Aggiunge un ulteriore livello di sicurezza rendendo più difficile per chi ti sta vicino scoprire il tuo schema PIN."
     },
     "seedPhrase": {
       "header": "Conserva questa frase seme in un luogo sicuro e protetto",
