@@ -13,7 +13,10 @@ import {
   TOKEN_TICKER_MAX_LENGTH,
 } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
-import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  ThemeText,
+} from '../../functions/CustomElements';
 import Icon from '../../functions/CustomElements/Icon';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../functions/CustomElements/button';
@@ -27,6 +30,10 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { formatLocalTimeShort } from '../../functions/timeFormatter';
+import { useRef, useState } from 'react';
+import CustomSearchInput from '../../functions/CustomElements/searchInput';
+import { bulkUpdateSparkTransactions } from '../../functions/spark/transactions';
+import { keyboardGoBack } from '../../functions/customNavigation';
 
 export default function ExpandedTx(props) {
   const { screenDimensions } = useAppStatus();
@@ -37,18 +44,45 @@ export default function ExpandedTx(props) {
   const { t } = useTranslation();
   const { bottomPadding } = useGlobalInsets();
 
-  const transaction = props.route.params.transaction;
+  const [transaction, setTransaction] = useState(
+    props.route.params.transaction,
+  );
+
   const transactionPaymentType = transaction.paymentType;
   const isFailedPayment = transaction.paymentStatus === 'failed';
   const isPending = transaction.paymentStatus === 'pending';
   const isSuccessful = !isFailedPayment && !isPending;
   const paymentDate = new Date(transaction.details.time);
   const amount = transaction?.details?.amount;
-  const description = transaction.details.description;
+  const description = transaction.details.description || '';
 
   // const month = paymentDate.toLocaleString('default', { month: 'short' });
   // const day = paymentDate.getDate();
   // const year = paymentDate.getFullYear();
+
+  const handleSave = async memoText => {
+    try {
+      if (memoText === transaction.details.description) return;
+      // deep copy
+      let newTx = JSON.parse(JSON.stringify(transaction));
+      newTx.details.description = memoText;
+      newTx.useTempId = true;
+      newTx.id = transaction.sparkID;
+      newTx.tempID = transaction.sparkID;
+
+      await bulkUpdateSparkTransactions(
+        [newTx],
+        undefined,
+        undefined,
+        undefined,
+        true,
+      );
+
+      setTransaction(newTx);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useHandleBackPressNew();
 
@@ -186,23 +220,8 @@ export default function ExpandedTx(props) {
   };
 
   const renderDescription = () => {
-    if (!description) return null;
-
     return (
-      <View style={styles.descriptionContainer}>
-        <ThemeText
-          content={t('transactionLabelText.memo')}
-          styles={styles.descriptionHeader}
-        />
-        <View style={[styles.descriptionContent, { backgroundColor }]}>
-          <ScrollView
-            nestedScrollEnabled={true}
-            showsVerticalScrollIndicator={false}
-          >
-            <ThemeText content={description} />
-          </ScrollView>
-        </View>
-      </View>
+      <MemoSection initialDescription={description} onSave={handleSave} t={t} />
     );
   };
 
@@ -213,10 +232,16 @@ export default function ExpandedTx(props) {
   };
 
   return (
-    <GlobalThemeView styles={styles.container} useStandardWidth={true}>
+    <CustomKeyboardAvoidingView
+      styles={styles.container}
+      useStandardWidth={true}
+    >
       <View style={styles.content}>
         {/* Header */}
-        <TouchableOpacity style={styles.backButton} onPress={navigate.goBack}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => keyboardGoBack(navigate)}
+        >
           <ThemeImage
             darkModeIcon={ICONS.smallArrowLeft}
             lightModeIcon={ICONS.smallArrowLeft}
@@ -230,6 +255,7 @@ export default function ExpandedTx(props) {
             styles.scrollContent,
             { paddingBottom: bottomPadding },
           ]}
+          keyboardShouldPersistTaps="always"
         >
           <View
             style={[
@@ -380,7 +406,7 @@ export default function ExpandedTx(props) {
           </View>
         </ScrollView>
       </View>
-    </GlobalThemeView>
+    </CustomKeyboardAvoidingView>
   );
 }
 
@@ -417,6 +443,140 @@ function ReceiptDots({ screenDimensions }) {
 
   return <View style={styles.receiptDotsContainer}>{dotElements}</View>;
 }
+
+const MemoSection = ({ initialDescription, onSave, t }) => {
+  const { theme } = useGlobalThemeContext();
+  const { backgroundColor, textColor } = GetThemeColors();
+  const [isEditing, setIsEditing] = useState(false);
+  const [memoText, setMemoText] = useState(initialDescription || '');
+  const textInputRef = useRef(null);
+  const didCancelRef = useRef(null);
+  const didRunSubmit = useRef(null);
+
+  const runSaveFunction = async () => {
+    if (didRunSubmit.current) return;
+    didRunSubmit.current = true;
+    if (!didCancelRef.current) {
+      await onSave(memoText);
+    }
+    requestAnimationFrame(() => {
+      if (isEditing) {
+        setIsEditing(false);
+      }
+      if (textInputRef.current?.isFocused()) {
+        textInputRef.current?.blur();
+      }
+    });
+  };
+
+  const handleEdit = () => {
+    if (isEditing) return;
+    didCancelRef.current = false;
+    didRunSubmit.current = false;
+    setIsEditing(true);
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        textInputRef.current?.focus();
+      }, 0);
+    });
+  };
+
+  const handleCancel = () => {
+    didCancelRef.current = true;
+    setMemoText(initialDescription || '');
+    setIsEditing(false);
+    textInputRef.current?.blur();
+  };
+
+  return (
+    <View style={styles.descriptionContainer}>
+      {/* Header with Edit Button */}
+      <View style={styles.memoHeader}>
+        <ThemeText
+          content={t('transactionLabelText.memo')}
+          styles={styles.descriptionHeader}
+        />
+
+        <TouchableOpacity
+          activeOpacity={isEditing ? 1 : 0.2}
+          onPress={handleEdit}
+          style={styles.editButton}
+        >
+          <Icon
+            name="editIcon" // Replace with your actual edit icon name
+            width={18}
+            height={18}
+            color={theme ? COLORS.darkModeText : COLORS.primary}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Memo Input/Display */}
+      {(initialDescription || isEditing) && (
+        <View style={[styles.descriptionContent, { backgroundColor }]}>
+          {isEditing ? (
+            <CustomSearchInput
+              inputText={memoText}
+              setInputText={setMemoText}
+              textInputRef={textInputRef}
+              containerStyles={{ width: '100%', margin: 0 }}
+              textAlignVertical={'top'}
+              maxLength={200}
+              textInputStyles={{
+                minHeight: '100%',
+                padding: 0,
+                margin: 0,
+                backgroundColor: 'transparent',
+                color: textColor,
+              }}
+              textInputMultiline={true}
+              onFocusFunction={() => setIsEditing(true)}
+              onBlurFunction={runSaveFunction}
+            />
+          ) : (
+            <ScrollView
+              nestedScrollEnabled={true}
+              showsVerticalScrollIndicator={false}
+            >
+              <ThemeText content={memoText} />
+            </ScrollView>
+          )}
+        </View>
+      )}
+
+      {/* Action Buttons (only show when editing) */}
+      {isEditing && (
+        <View style={styles.actionButtons}>
+          <CustomButton
+            buttonStyles={{
+              ...styles.actionButton,
+              backgroundColor: backgroundColor,
+            }}
+            textStyles={{
+              ...styles.actionButtonText,
+              color: textColor,
+            }}
+            actionFunction={handleCancel}
+            textContent={t('constants.cancel')}
+          />
+
+          <CustomButton
+            buttonStyles={{
+              ...styles.actionButton,
+              backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+            }}
+            textStyles={{
+              ...styles.actionButtonText,
+              color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+            }}
+            actionFunction={runSaveFunction}
+            textContent={t('constants.save')}
+          />
+        </View>
+      )}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -579,5 +739,44 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
+  },
+  // memo
+  descriptionContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  memoHeader: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  descriptionHeader: {
+    marginBottom: 0,
+  },
+  editButton: {
+    padding: 4,
+  },
+
+  memoInput: {
+    fontSize: SIZES.medium,
+    minHeight: 76,
+    textAlignVertical: 'top',
+  },
+  actionButtons: {
+    width: '100%',
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 12,
+  },
+  actionButton: {
+    flex: 1,
+  },
+
+  actionButtonText: {
+    fontSize: SIZES.medium,
+    includeFontPadding: false,
   },
 });

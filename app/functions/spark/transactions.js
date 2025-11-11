@@ -188,7 +188,12 @@ export const addSingleUnpaidSparkLightningTransaction = async tx => {
 // };
 
 export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
-  const [updateType = 'transactions', fee = 0, passedBalance = 0] = data;
+  const [
+    updateType = 'transactions',
+    fee = 0,
+    passedBalance = 0,
+    shouldUpdateDescription = false,
+  ] = data;
   console.log(transactions, 'transactions list in bulk updates');
   if (!Array.isArray(transactions) || transactions.length === 0) return;
 
@@ -311,10 +316,11 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
         for (const key in newDetails) {
           const value = newDetails[key];
           if (
-            value !== '' &&
-            value !== null &&
-            value !== undefined &&
-            value !== 0
+            (value !== '' &&
+              value !== null &&
+              value !== undefined &&
+              value !== 0) ||
+            (key === 'description' && shouldUpdateDescription)
           ) {
             merged[key] = value;
           }
