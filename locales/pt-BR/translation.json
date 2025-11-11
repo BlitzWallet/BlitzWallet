@@ -858,7 +858,7 @@
     "see_all_txs": "Ver tudo",
     "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui",
     "contactsPage": {
-      "header": "Selecione o destinatário",
+      "header": "Selecione o contato",
       "inputTextPlaceholder": "Procurar nome de usuário...",
       "subHeader": "Todos contatos",
       "giftsText": "Meus presentes"
