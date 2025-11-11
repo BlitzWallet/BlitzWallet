@@ -1362,7 +1362,7 @@
         "noAccountsFound": "Nenhuma conta corresponde à sua pesquisa."
       },
       "accountPaymentPage": {
-        "noAmountError": "Por favor, insira um valor a ser movido",
+        "noAmountError": "Por favor, insira um valor a ser enviado",
         "noAccountError": "Selecione uma conta para a qual os fundos serão enviados",
         "noAccountToError": "Selecione uma conta para a qual os fundos serão recebidos",
         "loadingFeeError": "Não foi possível iniciar a troca quando a taxa está sendo calculada",
