@@ -11,13 +11,14 @@
             "solid" : "extended-srgb:0.00000,0.47843,1.00000,1.00000"
           },
           "glass" : true,
+          "hidden" : false,
           "image-name" : "logo 2.png",
           "name" : "logo 2",
           "opacity" : 1,
           "position" : {
             "scale" : 0.25,
             "translation-in-points" : [
-              10,
+              20,
               0
             ]
           }
