@@ -5,10 +5,12 @@ import {
   getLocalStorageItem,
   handleLogin,
   retrieveData,
+  setLocalStorageItem,
   terminateAccount,
 } from '../../../functions';
 import {
   LOGIN_SECUITY_MODE_KEY,
+  PERSISTED_LOGIN_COUNT_KEY,
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY,
   SIZES,
 } from '../../../constants';
@@ -131,10 +133,14 @@ export default function PinPage() {
           });
         }
       } else {
+        setLocalStorageItem(
+          PERSISTED_LOGIN_COUNT_KEY,
+          JSON.stringify(loginSettings.enteredPinCount + 1),
+        );
         setLoginSettings(prev => {
           return {
             ...prev,
-            enteredPinCount: (prev.enteredPinCount += 1),
+            enteredPinCount: prev.enteredPinCount + 1,
             enteredPin: [null, null, null, null],
           };
         });
@@ -154,16 +160,21 @@ export default function PinPage() {
   useEffect(() => {
     async function loadPageInformation() {
       try {
-        const [storedSettings, storedPin, ranomkeyboardLayout] =
-          await Promise.all([
-            getLocalStorageItem(LOGIN_SECUITY_MODE_KEY).then(data =>
-              JSON.parse(data),
-            ),
-            retrieveData('pinHash'),
-            getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY).then(
-              JSON.parse,
-            ),
-          ]);
+        const [
+          storedSettings,
+          storedPin,
+          ranomkeyboardLayout,
+          persistedPinEnterCount,
+        ] = await Promise.all([
+          getLocalStorageItem(LOGIN_SECUITY_MODE_KEY).then(data =>
+            JSON.parse(data),
+          ),
+          retrieveData('pinHash'),
+          getLocalStorageItem(RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY).then(
+            JSON.parse,
+          ),
+          getLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY).then(JSON.parse),
+        ]);
         setUseRandomPinLayout(ranomkeyboardLayout);
 
         let needsToBeMigrated;
@@ -179,6 +190,7 @@ export default function PinPage() {
           ...storedSettings,
           savedPin: storedPin.value,
           needsToBeMigrated,
+          enteredPinCount: persistedPinEnterCount || 0,
         }));
         if (!storedSettings.isBiometricEnabled) return;
 

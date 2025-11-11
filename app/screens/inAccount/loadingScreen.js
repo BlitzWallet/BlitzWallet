@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, ICONS } from '../../constants';
+import { COLORS, ICONS, PERSISTED_LOGIN_COUNT_KEY } from '../../constants';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,7 @@ import { useKeysContext } from '../../../context-store/keys';
 import { updateMascatWalkingAnimation } from '../../functions/lottieViewColorTransformer';
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useSparkWallet } from '../../../context-store/sparkContext';
+import { removeLocalStorageItem } from '../../functions/localStorage';
 // import { initializeSparkDatabase } from '../../functions/spark/transactions';
 // import { getCachedSparkTransactions } from '../../functions/spark';
 // import { getLocalStorageItem, setLocalStorageItem } from '../../functions';
@@ -101,6 +102,7 @@ export default function ConnectingToNodeLoadingScreen({
         crashlyticsLogReport(
           'Begining app connnection procress in loading screen',
         );
+        removeLocalStorageItem(PERSISTED_LOGIN_COUNT_KEY);
         console.log('Process 1', new Date().getTime());
         connectToSparkWallet();
 
