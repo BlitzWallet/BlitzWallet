@@ -150,6 +150,7 @@ export default function SendMaxComponent({
       marginRight: useAltLayout ? 10 : 0,
       marginBottom: useAltLayout ? 0 : 20,
       alignSelf: useAltLayout ? 'auto' : 'center',
+      marginTop: useAltLayout ? 0 : 16,
     };
   }, [useAltLayout]);
 

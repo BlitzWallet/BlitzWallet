@@ -339,6 +339,21 @@ export default function SendPaymentScreen(props) {
             balance={convertedSendAmount}
           />
         )}
+        {!useAltLayout && (
+          <SendMaxComponent
+            fiatStats={fiatStats}
+            sparkInformation={sparkInformation}
+            paymentInfo={paymentInfo}
+            setPaymentInfo={setPaymentInfo}
+            masterInfoObject={masterInfoObject}
+            paymentFee={paymentFee}
+            paymentType={paymentInfo?.paymentNetwork}
+            // minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+            selectedLRC20Asset={selectedLRC20Asset}
+            seletctedToken={seletctedToken}
+            useAltLayout={useAltLayout}
+          />
+        )}
 
         {!canEditPaymentAmount && (
           <SendTransactionFeeInfo
@@ -361,21 +376,6 @@ export default function SendPaymentScreen(props) {
       </ScrollView>
       {canEditPaymentAmount && (
         <>
-          {!useAltLayout && (
-            <SendMaxComponent
-              fiatStats={fiatStats}
-              sparkInformation={sparkInformation}
-              paymentInfo={paymentInfo}
-              setPaymentInfo={setPaymentInfo}
-              masterInfoObject={masterInfoObject}
-              paymentFee={paymentFee}
-              paymentType={paymentInfo?.paymentNetwork}
-              // minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
-              selectedLRC20Asset={selectedLRC20Asset}
-              seletctedToken={seletctedToken}
-              useAltLayout={useAltLayout}
-            />
-          )}
           <CustomSearchInput
             onFocusFunction={() => setIsAmountFocused(false)}
             onBlurFunction={() => setIsAmountFocused(true)}
@@ -392,6 +392,7 @@ export default function SendPaymentScreen(props) {
             maxLength={paymentInfo?.data?.commentAllowed || 150}
             containerStyles={{
               width: INSET_WINDOW_WIDTH,
+              marginTop: useAltLayout ? 0 : 10,
             }}
           />
 
