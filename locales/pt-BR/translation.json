@@ -85,7 +85,7 @@
     "restore": "Restaurar",
     "words": "Palavras",
     "qrCode": "Código QR",
-    "active": "Ativar",
+    "active": "Ativa",
     "create": "Criar",
     "experimentalLower": "experimental",
     "enabled": "Habilitadas",
@@ -1372,7 +1372,7 @@
         "noAccountInformation": "Não foi possível obter informações da conta",
         "title": "Trocar",
         "selectAccount": "Selecione a conta",
-        "inputPlaceHolderText": "Conta de troca"
+        "inputPlaceHolderText": "Movendo fundos"
       },
       "createAccountPage": {
         "alreadyUsingSeedError": "Esta frase-semente já existe para outra conta",
