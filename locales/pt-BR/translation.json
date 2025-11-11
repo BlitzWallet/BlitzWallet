@@ -1358,19 +1358,19 @@
         "swap": "Trocar",
         "viewSeed": "Ver frase-semente",
         "editAccount": "Editar conta",
-        "swapAccountError": "Você precisa de pelo menos duas contas para fazer uma troca.",
+        "swapAccountError": "Você precisa de pelo menos duas contas para mover fundos entre elas.",
         "noAccountsFound": "Nenhuma conta corresponde à sua pesquisa."
       },
       "accountPaymentPage": {
-        "noAmountError": "Por favor, insira um valor a ser trocado",
-        "noAccountError": "Selecione uma conta para a qual os fundos serão trocados",
+        "noAmountError": "Por favor, insira um valor a ser movido",
+        "noAccountError": "Selecione uma conta para a qual os fundos serão enviados",
         "noAccountToError": "Selecione uma conta para a qual os fundos serão recebidos",
         "loadingFeeError": "Não foi possível iniciar a troca quando a taxa está sendo calculada",
         "alreadyStartedTransferError": "Uma transferência já foi iniciada",
         "balanceError": "O valor enviado é maior que seu saldo e taxas",
         "noSendAddressError": "Não foi possível obter o endereço de transferência",
         "noAccountInformation": "Não foi possível obter informações da conta",
-        "title": "Trocar",
+        "title": "Mover fundos",
         "selectAccount": "Selecione a conta",
         "inputPlaceHolderText": "Opcional"
       },
