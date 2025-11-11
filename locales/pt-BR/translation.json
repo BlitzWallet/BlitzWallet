@@ -34,7 +34,7 @@
     "fee": "Taxa",
     "type": "Meio",
     "edit": "Editar",
-    "iunderstand": "Eu compreendo",
+    "iunderstand": "Entendi",
     "save": "Salvar",
     "yes": "Sim",
     "no": "Não",
@@ -70,7 +70,7 @@
     "slideToExport": "Deslize para exportar",
     "hide": "Esconder",
     "show": "Mostrar",
-    "understandText": "Eu compreendo",
+    "understandText": "Entendi",
     "reportError": "Reportar problema",
     "address": "Endereço",
     "string": "String",
@@ -81,11 +81,11 @@
     "to": "Para",
     "from": "De",
     "description": "Descrição",
-    "regenerate": "Regenerada",
+    "regenerate": "Gerar",
     "restore": "Restaurar",
     "words": "Palavras",
     "qrCode": "Código QR",
-    "active": "Ativar",
+    "active": "Selecionada",
     "create": "Criar",
     "experimentalLower": "experimental",
     "enabled": "Habilitadas",
@@ -248,7 +248,7 @@
     "skipMessage": {
       "header": "Recomendamos que você anote sua frase-semente",
       "subHeader": "Se você não anotar e guardar sua frase-semente, você corre o risco de perder seus fundos",
-      "btn": "Eu compreendo"
+      "btn": "Entendi"
     }
   },
 
@@ -270,7 +270,7 @@
       "VPN": "VPN",
       "VPNDescription": "Navegue com segurança e proteja a sua privacidade",
       "onlineListings": "Lojas virtuais",
-      "onlineListingsDescription": "Diretório de empresas on-line que aceitam pagamentos em Bitcoin",
+      "onlineListingsDescription": "Lista de empresas que aceitam pagamentos em Bitcoin pela internet.",
       "Soon": "Em breve",
       "SoonDescription": "Mais aplicativos em breve"
     },
@@ -858,7 +858,7 @@
     "see_all_txs": "Ver tudo",
     "no_transaction_history": "Envie ou receba transações para que elas apareçam aqui",
     "contactsPage": {
-      "header": "Selecione o destinatário",
+      "header": "Selecione o contato",
       "inputTextPlaceholder": "Procurar nome de usuário...",
       "subHeader": "Todos contatos",
       "giftsText": "Meus presentes"
@@ -1054,7 +1054,7 @@
     },
 
     "sendAndRequestPage": {
-      "descriptionPlaceholder": "Descrição do pagamento",
+      "descriptionPlaceholder": "Descrição (opcional)",
       "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
       "giftCardappVersionError": "Você não pode enviar um vale-presente para este contato. Eles não atualizaram para a versão mais recente da carteira Blitz.",
@@ -1144,9 +1144,9 @@
       "inputPlaceHolder": ""
     },
     "displayOptions": {
-      "text1": "Estilo do modo escuro",
-      "text2": "Luzes apagadas",
-      "text3": "Escuro",
+      "text1": "Cor do modo escuro",
+      "text2": "Preto",
+      "text3": "Azul",
       "text4": "Denominação do saldo",
       "text5": "Denominação atual",
       "text6": "Por favor, reconecte-se à internet para mudar a denominação",
@@ -1358,21 +1358,21 @@
         "swap": "Trocar",
         "viewSeed": "Ver frase-semente",
         "editAccount": "Editar conta",
-        "swapAccountError": "Você precisa de pelo menos duas contas para fazer uma troca.",
+        "swapAccountError": "Você precisa de pelo menos duas contas para mover fundos entre elas.",
         "noAccountsFound": "Nenhuma conta corresponde à sua pesquisa."
       },
       "accountPaymentPage": {
-        "noAmountError": "Por favor, insira um valor a ser trocado",
-        "noAccountError": "Selecione uma conta para a qual os fundos serão trocados",
+        "noAmountError": "Por favor, insira um valor a ser enviado",
+        "noAccountError": "Selecione uma conta para a qual os fundos serão enviados",
         "noAccountToError": "Selecione uma conta para a qual os fundos serão recebidos",
         "loadingFeeError": "Não foi possível iniciar a troca quando a taxa está sendo calculada",
         "alreadyStartedTransferError": "Uma transferência já foi iniciada",
         "balanceError": "O valor enviado é maior que seu saldo e taxas",
         "noSendAddressError": "Não foi possível obter o endereço de transferência",
         "noAccountInformation": "Não foi possível obter informações da conta",
-        "title": "Trocar",
+        "title": "Mover fundos",
         "selectAccount": "Selecione a conta",
-        "inputPlaceHolderText": "Conta de troca"
+        "inputPlaceHolderText": "Opcional"
       },
       "createAccountPage": {
         "alreadyUsingSeedError": "Esta frase-semente já existe para outra conta",
