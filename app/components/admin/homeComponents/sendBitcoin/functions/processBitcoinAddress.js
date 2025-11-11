@@ -1,10 +1,13 @@
 import { InputTypes } from 'bitcoin-address-parser';
 import {
+  GENERATED_BITCOIN_ADDRESSES,
   SATSPERBITCOIN,
   SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT,
 } from '../../../../../constants';
 import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
+import { getLocalStorageItem } from '../../../../../functions';
+import sha256Hash from '../../../../../functions/hash';
 
 export default async function processBitcoinAddress(input, context) {
   const {
@@ -15,8 +18,22 @@ export default async function processBitcoinAddress(input, context) {
     paymentInfo,
     currentWalletMnemoinc,
     sendWebViewRequest,
+    t,
   } = context;
+  const storedBitcoinAddress = JSON.parse(
+    await getLocalStorageItem(GENERATED_BITCOIN_ADDRESSES),
+  );
 
+  if (
+    storedBitcoinAddress &&
+    storedBitcoinAddress[sha256Hash(currentWalletMnemoinc)] ===
+      input.data.address
+  )
+    throw new Error(
+      t('wallet.sendPages.handlingAddressErrors.payingToSameAddress', {
+        addressType: 'Bitcoin',
+      }),
+    );
   crashlyticsLogReport('Begining decode Bitcoin address');
   const bip21AmountSat = input.data.amount * SATSPERBITCOIN;
 

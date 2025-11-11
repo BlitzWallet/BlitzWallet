@@ -931,7 +931,7 @@
         "lnurlWithdrawlSuccess": "Withdrawal successful! Your payment is on its way.",
         "invoiceDetails": "Loading details",
         "timeoutError": "The process took too long to complete. Please try again.",
-        "payingToSameSparkAddress": "Sending to your own Spark address is not allowed."
+        "payingToSameAddress": "Sending to your own {{addressType}} address is not allowed."
       },
 
       "errorScreen": {

@@ -930,7 +930,7 @@
         "LnurlwithDrawlSuccess": "Prelievo di successo! Il tuo pagamento è in arrivo.",
         "invoiceDetails": "Caricamento dei dettagli",
         "timeoutError": "Il processo ha richiesto troppo tempo. Riprova.",
-        "payingToSameSparkAddress": "Non è consentito inviare al proprio indirizzo Spark."
+        "payingToSameAddress": "Non è consentito inviare al proprio indirizzo {{addressType}}."
       },
 
       "errorScreen": {

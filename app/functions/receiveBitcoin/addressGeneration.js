@@ -1,5 +1,6 @@
 import {
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
+  GENERATED_BITCOIN_ADDRESSES,
   SATSPERBITCOIN,
 } from '../../constants';
 import { breezLiquidReceivePaymentWrapper } from '../breezLiquid';
@@ -9,6 +10,8 @@ import { crashlyticsLogReport } from '../crashlyticsLogs';
 import { sparkReceivePaymentWrapper } from '../spark/payments';
 import { getRootstockAddress } from '../boltz/rootstock/submarineSwap';
 import { formatBip21Address } from '../spark/handleBip21SparkAddress';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
+import sha256Hash from '../hash';
 // import * as bip21 from 'bip21';
 
 let invoiceTracker = [];
@@ -54,41 +57,67 @@ export async function initializeAddressProcess(wolletInfo) {
       };
       // stateTracker = response
     } else if (selectedRecieveOption.toLowerCase() === 'bitcoin') {
-      const response = await sparkReceivePaymentWrapper({
-        paymentType: 'bitcoin',
-        amountSats: wolletInfo.receivingAmount,
-        memo: wolletInfo.description,
-        mnemoinc: wolletInfo.currentWalletMnemoinc,
-        sendWebViewRequest,
-      });
-      if (!response.didWork)
-        throw new Error('errormessages.bitcoinInvoiceError');
+      let address = '';
+      const walletHash = sha256Hash(wolletInfo.currentWalletMnemoinc);
+      let storedBitcoinAddress = JSON.parse(
+        await getLocalStorageItem(GENERATED_BITCOIN_ADDRESSES),
+      );
+      if (!storedBitcoinAddress) {
+        storedBitcoinAddress = {};
+      }
+
+      if (storedBitcoinAddress[walletHash]) {
+        address = storedBitcoinAddress[walletHash];
+      } else {
+        const response = await sparkReceivePaymentWrapper({
+          paymentType: 'bitcoin',
+          amountSats: wolletInfo.receivingAmount,
+          memo: wolletInfo.description,
+          mnemoinc: wolletInfo.currentWalletMnemoinc,
+          sendWebViewRequest,
+        });
+        if (!response.didWork)
+          throw new Error('errormessages.bitcoinInvoiceError');
+        storedBitcoinAddress[walletHash] = response.invoice;
+        address = response.invoice;
+        setLocalStorageItem(
+          GENERATED_BITCOIN_ADDRESSES,
+          JSON.stringify(storedBitcoinAddress),
+        );
+      }
       stateTracker = {
         generatedAddress: wolletInfo.receivingAmount
           ? formatBip21Address({
-              address: response.invoice,
+              address: address,
               amountSat: (wolletInfo.receivingAmount / SATSPERBITCOIN).toFixed(
                 8,
               ),
               message: wolletInfo.description,
               prefix: 'bitcoin',
             })
-          : response.invoice,
+          : address,
         fee: 0,
       };
       // stateTracker = response;
     } else if (selectedRecieveOption.toLowerCase() === 'spark') {
-      const response = await sparkReceivePaymentWrapper({
-        paymentType: 'spark',
-        amountSats: wolletInfo.receivingAmount,
-        memo: wolletInfo.description,
-        mnemoinc: wolletInfo.currentWalletMnemoinc,
-        sendWebViewRequest,
-      });
+      let sparkAddress = '';
+      if (wolletInfo.sparkInformation.sparkAddress) {
+        sparkAddress = wolletInfo.sparkInformation.sparkAddress;
+      } else {
+        const response = await sparkReceivePaymentWrapper({
+          paymentType: 'spark',
+          amountSats: wolletInfo.receivingAmount,
+          memo: wolletInfo.description,
+          mnemoinc: wolletInfo.currentWalletMnemoinc,
+          sendWebViewRequest,
+        });
+        if (!response.didWork)
+          throw new Error('errormessages.sparkInvioceError');
+        sparkAddress = response.invoice;
+      }
       // const response = await generateBitcoinAddress(wolletInfo);
-      if (!response.didWork) throw new Error('errormessages.sparkInvioceError');
       stateTracker = {
-        generatedAddress: response.invoice,
+        generatedAddress: sparkAddress,
         fee: 0,
       };
     } else if (selectedRecieveOption.toLowerCase() === 'liquid') {

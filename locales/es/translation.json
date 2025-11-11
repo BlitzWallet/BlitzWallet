@@ -779,7 +779,7 @@
         "lnurlwithdrawlsuccess": "¡Retiro exitoso! Su pago está en camino.",
         "invoiceDetails": "Detalles de carga",
         "timeoutError": "El proceso tardó demasiado en completarse. Inténtalo de nuevo.",
-        "payingToSameSparkAddress": "No se permite enviar a tu propia dirección Spark."
+        "payingToSameAddress": "No se permite enviar a tu propia dirección {{addressType}}."
       },
       "errorScreen": {
         "ok": "OK",

@@ -46,12 +46,13 @@ import Animated, {
 } from 'react-native-reanimated';
 import SkeletonPlaceholder from '../../functions/CustomElements/skeletonView';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
+import { useSparkWallet } from '../../../context-store/sparkContext';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
-
+  const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContacts();
   const { minMaxLiquidSwapAmounts, screenDimensions } = useAppStatus();
@@ -117,6 +118,7 @@ export default function ReceivePaymentHome(props) {
         // eCashBalance,
         currentWalletMnemoinc,
         sendWebViewRequest,
+        sparkInformation,
       });
       if (selectedRecieveOption === 'Liquid') {
         startLiquidEventListener();

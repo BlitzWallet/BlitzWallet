@@ -22,7 +22,9 @@ export default async function processSparkAddress(input, context) {
     sparkInformation.sparkAddress?.toLowerCase()
   ) {
     throw new Error(
-      t('wallet.sendPages.handlingAddressErrors.payingToSameSparkAddress'),
+      t('wallet.sendPages.handlingAddressErrors.payingToSameAddress', {
+        addressType: 'Spark',
+      }),
     );
   }
 

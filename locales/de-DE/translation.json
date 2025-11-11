@@ -924,7 +924,7 @@
         "lnurlWithdrawlSuccess": "Auszahlung erfolgreich! Ihre Zahlung ist unterwegs.",
         "invoiceDetails": "Details werden geladen",
         "timeoutError": "Der Vorgang hat zu lange gedauert. Bitte versuchen Sie es erneut.",
-        "payingToSameSparkAddress": "Das Senden an deine eigene Spark-Adresse ist nicht erlaubt."
+        "payingToSameAddress": "Das Senden an deine eigene {{addressType}}-Adresse ist nicht erlaubt."
       },
       "errorScreen": {
         "ok": "OK",
