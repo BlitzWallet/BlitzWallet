@@ -1040,9 +1040,9 @@
     "resetWallet": {
       "header": "¿Estás seguro?",
       "dataDeleteHeader": "Selecciona los datos a eliminar de este dispositivo.",
-      "dataDeleteDesc": "Cualquier opción seleccionada se eliminará permanentemente. Si olvida su frase inicial, PERDERÁ sus fondos.",
-      "seedAndPinOpt": "Eliminar frase semilla y PIN de mi dispositivo",
-      "localData": "Eliminar datos almacenados localmente en mi dispositivo",
+      "dataDeleteDesc": "Esto eliminará todos los datos de la billetera de tu dispositivo. Si no tienes una copia de tu frase semilla guardada, PERDERÁS el acceso a tus fondos.",
+      "boxNotChecked": "Por favor, marca la casilla para confirmar que deseas restablecer tu billetera antes de continuar.",
+      "seedAndPinOpt": "Eliminar todos los datos de mi dispositivo",
       "balanceText": "Tu saldo es",
       "localStorageError": "No se pudo eliminar la información local",
       "secureStorageError": "No se pudo eliminar la información segura"

@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { terminateAccount } from '../../../../functions/secureStore';
 import RNRestart from 'react-native-restart';
 import { ThemeText } from '../../../../functions/CustomElements';
@@ -29,10 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../../context-store/appStatus';
 
 export default function ResetPage(props) {
-  const [selectedOptions, setSelectedOptions] = useState({
-    securedItems: false,
-    localStoredItems: false,
-  });
+  const [wantsToReset, setWantsToReset] = useState(false);
   const { screenDimensions } = useAppStatus();
   const { sparkInformation } = useSparkWallet();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -53,6 +50,54 @@ export default function ResetPage(props) {
   }, [theme, backgroundOffset]);
 
   const isDoomsday = props.isDoomsday;
+
+  const handleSelectedItems = useCallback(() => {
+    setWantsToReset(prev => !prev);
+  }, []);
+
+  const resetWallet = useCallback(async () => {
+    if (!wantsToReset) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('settings.resetWallet.boxNotChecked'),
+      });
+      return;
+    }
+
+    try {
+      const [
+        didClearLocalStoreage,
+        didClearMessages,
+        didClearPos,
+        didClearTxTable,
+        didClearPendingTxTable,
+        didClearSecureItems,
+      ] = await Promise.all([
+        removeAllLocalData(),
+        deleteTable(),
+        deletePOSTransactionsTable(),
+        deleteSparkTransactionTable(),
+        deleteUnpaidSparkLightningTransactionTable(),
+        terminateAccount(),
+      ]);
+
+      if (!didClearLocalStoreage)
+        throw Error(t('settings.resetWallet.localStorageError'));
+
+      if (!didClearSecureItems)
+        throw Error(t('settings.resetWallet.secureStorageError'));
+
+      try {
+        await signOut(firebaseAuth);
+      } catch (err) {
+        console.log('reset wallet sign out error', err);
+      }
+
+      RNRestart.restart();
+    } catch (err) {
+      const errorMessage = err.message;
+      navigate.navigate('ErrorScreen', { errorMessage: errorMessage });
+    }
+  }, [wantsToReset]);
 
   return (
     <ScrollView
@@ -104,7 +149,7 @@ export default function ResetPage(props) {
           {/* Options */}
           <View style={styles.optionsContainer}>
             <TouchableOpacity
-              onPress={() => handleSelectedItems('securedItems')}
+              onPress={handleSelectedItems}
               style={styles.optionRow}
               activeOpacity={0.7}
             >
@@ -112,16 +157,14 @@ export default function ResetPage(props) {
                 style={[
                   styles.checkbox,
                   {
-                    backgroundColor: selectedOptions.securedItems
+                    backgroundColor: wantsToReset
                       ? checkBackground
                       : 'transparent',
-                    borderColor: selectedOptions.securedItems
-                      ? checkBackground
-                      : textColor,
+                    borderColor: wantsToReset ? checkBackground : textColor,
                   },
                 ]}
               >
-                {selectedOptions.securedItems && (
+                {wantsToReset && (
                   <Icon
                     width={14}
                     height={14}
@@ -136,7 +179,7 @@ export default function ResetPage(props) {
               />
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => handleSelectedItems('localStoredItems')}
               style={styles.optionRow}
               activeOpacity={0.7}
@@ -167,7 +210,7 @@ export default function ResetPage(props) {
                 styles={styles.optionLabel}
                 content={t('settings.resetWallet.localData')}
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
 
@@ -197,10 +240,7 @@ export default function ResetPage(props) {
 
         <CustomButton
           buttonStyles={{
-            opacity:
-              selectedOptions.securedItems || selectedOptions.localStoredItems
-                ? 1
-                : HIDDEN_OPACITY,
+            opacity: wantsToReset ? 1 : HIDDEN_OPACITY,
             marginTop: 'auto',
             alignSelf: 'center',
           }}
@@ -210,56 +250,6 @@ export default function ResetPage(props) {
       </View>
     </ScrollView>
   );
-
-  function handleSelectedItems(item) {
-    setSelectedOptions(prev => {
-      if (item === 'securedItems')
-        return { ...prev, securedItems: !prev.securedItems };
-      else return { ...prev, localStoredItems: !prev.localStoredItems };
-    });
-  }
-
-  async function resetWallet() {
-    if (!selectedOptions.localStoredItems && !selectedOptions.securedItems)
-      return;
-
-    try {
-      if (selectedOptions.localStoredItems) {
-        const [
-          didClearLocalStoreage,
-          didClearMessages,
-          didClearPos,
-          didClearTxTable,
-          didClearPendingTxTable,
-        ] = await Promise.all([
-          removeAllLocalData(),
-          deleteTable(),
-          deletePOSTransactionsTable(),
-          deleteSparkTransactionTable(),
-          deleteUnpaidSparkLightningTransactionTable(),
-        ]);
-
-        if (!didClearLocalStoreage)
-          throw Error(t('settings.resetWallet.localStorageError'));
-      }
-      if (selectedOptions.securedItems) {
-        const didClearSecureItems = await terminateAccount();
-        if (!didClearSecureItems)
-          throw Error(t('settings.resetWallet.secureStorageError'));
-      }
-      try {
-        await signOut(firebaseAuth);
-      } catch (err) {
-        console.log('reset wallet sign out error', err);
-      }
-
-      RNRestart.restart();
-    } catch (err) {
-      const errorMessage = err.message;
-      console.log(errorMessage);
-      navigate.navigate('ErrorScreen', { errorMessage: errorMessage });
-    }
-  }
 }
 
 const styles = StyleSheet.create({

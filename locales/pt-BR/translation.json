@@ -1205,9 +1205,9 @@
     "resetWallet": {
       "header": "Tem certeza?",
       "dataDeleteHeader": "Selecione os dados a serem excluídos deste dispositivo.",
-      "dataDeleteDesc": "Qualquer opção selecionada será removida para sempre. Se sua frase-semente for perdida, você PERDERÁ seus fundos.",
-      "seedAndPinOpt": "Excluir frase-semente e o PIN do meu dispositivo",
-      "localData": "Excluir dados armazenados localmente do meu dispositivo",
+      "dataDeleteDesc": "Isso excluirá todos os dados da carteira do seu dispositivo. Se você não tiver uma cópia da sua frase-semente salva, PERDERÁ o acesso aos seus fundos.",
+      "boxNotChecked": "Marque a caixa para confirmar que deseja redefinir sua carteira antes de continuar.",
+      "seedAndPinOpt": "Excluir todos os dados do meu dispositivo",
       "balanceText": "Seu saldo é",
       "localStorageError": "Não foi possível excluir as informações armazenadas localmente",
       "secureStorageError": "Não foi possível excluir as informações armazenadas com segurança"

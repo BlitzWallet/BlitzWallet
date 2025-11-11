@@ -1202,9 +1202,9 @@
     "resetWallet": {
       "header": "Sei sicuro?",
       "dataDeleteHeader": "Seleziona i dati da eliminare da questo dispositivo.",
-      "dataDeleteDesc": "Qualsiasi opzione selezionata verrà rimossa per sempre. Se dimentichi la tua frase seed, PERDERAI i tuoi fondi.",
-      "seedAndPinOpt": "Elimina frase seed e PIN dal mio dispositivo",
-      "localData": "Elimina i dati memorizzati localmente dal mio dispositivo",
+      "dataDeleteDesc": "Questo eliminerà tutti i dati del portafoglio dal tuo dispositivo. Se non hai una copia della tua frase seed salvata, PERDERAI l’accesso ai tuoi fondi.",
+      "boxNotChecked": "Seleziona la casella per confermare che desideri reimpostare il tuo portafoglio prima di continuare.",
+      "seedAndPinOpt": "Elimina tutti i dati dal mio dispositivo",
       "balanceText": "Il tuo saldo è",
       "localStorageError": "Impossibile eliminare le informazioni memorizzate localmente",
       "secureStorageError": "Impossibile eliminare le informazioni memorizzate in modo sicuro"

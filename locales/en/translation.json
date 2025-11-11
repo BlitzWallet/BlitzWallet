@@ -1208,9 +1208,9 @@
     "resetWallet": {
       "header": "Are you sure?",
       "dataDeleteHeader": "Select data to delete from this device.",
-      "dataDeleteDesc": "Any option that is selected will be removed forever. If your seed phrase is forgotten, you WILL lose your funds.",
-      "seedAndPinOpt": "Delete seed phrase and pin from my device",
-      "localData": "Delete locally stored data from my device",
+      "dataDeleteDesc": "This will delete all wallet data from your device. If you don’t have a copy of your seed phrase saved, you WILL lose access to your funds.",
+      "boxNotChecked": "Please check the box to confirm you want to reset your wallet before resetting.",
+      "seedAndPinOpt": "Delete all data from my device",
       "balanceText": "Your balance is",
       "localStorageError": "Not able to delete local stored information",
       "secureStorageError": "Not able to delete secure stored information"

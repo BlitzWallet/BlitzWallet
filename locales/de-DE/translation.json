@@ -1190,9 +1190,9 @@
     "resetWallet": {
       "header": "Sind Sie sicher?",
       "dataDeleteHeader": "Wählen Sie die Daten aus, die von diesem Gerät gelöscht werden sollen.",
-      "dataDeleteDesc": "Jede ausgewählte Option wird dauerhaft entfernt. Wenn Ihre Seed-Phrase vergessen wird, VERLIEREN Sie Ihre Gelder.",
-      "seedAndPinOpt": "Seed-Phrase und PIN von meinem Gerät löschen",
-      "localData": "Lokal gespeicherte Daten von meinem Gerät löschen",
+      "dataDeleteDesc": "Dies wird alle Wallet-Daten von deinem Gerät löschen. Wenn du keine Kopie deiner Seed-Phrase gespeichert hast, VERLIERST du den Zugriff auf deine Gelder.",
+      "boxNotChecked": "Bitte markiere das Kästchen, um zu bestätigen, dass du deine Wallet zurücksetzen möchtest, bevor du fortfährst.",
+      "seedAndPinOpt": "Alle Daten von meinem Gerät löschen",
       "balanceText": "Ihr Guthaben beträgt",
       "localStorageError": "Lokal gespeicherte Informationen konnten nicht gelöscht werden",
       "secureStorageError": "Sicher gespeicherte Informationen konnten nicht gelöscht werden"
