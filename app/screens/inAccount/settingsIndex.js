@@ -61,6 +61,15 @@ const GENERALOPTIONS = [
   },
   {
     for: 'general',
+    name: 'Blitz Stats',
+    displayName: 'screens.inAccount.settingsContent.blitz stats',
+    svgName: 'crashDebugIcon',
+    icon: ICONS.navigationIcon,
+    iconWhite: ICONS.navigationIconWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  {
+    for: 'general',
     name: 'Fast Pay',
     displayName: 'screens.inAccount.settingsContent.fast pay',
     svgIcon: true,
@@ -161,6 +170,7 @@ const ADVANCEDOPTIONS = [
     iconWhite: ICONS.receiptWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
+
   {
     for: 'general',
     name: 'Crash Reports',
