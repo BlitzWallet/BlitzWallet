@@ -17,6 +17,7 @@ import { COLORS, HIDDEN_OPACITY } from '../../../../constants/theme';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import customUUID from '../../../../functions/customUUID';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -164,6 +165,7 @@ export default function EditReceivePaymentInformation(props) {
         {
           receiveAmount: sendAmount,
           description: paymentDescription,
+          uuid: customUUID(),
         },
         { merge: true },
       );

@@ -65,9 +65,13 @@ export default function ReceivePaymentHome(props) {
   const { startLiquidEventListener } = useLiquidEvent();
   const initialSendAmount = props.route.params?.receiveAmount || 0;
   const paymentDescription = props.route.params?.description;
+  const requestUUID = props.route.params?.uuid;
   useHandleBackPressNew();
   const selectedRecieveOption =
     props.route.params?.selectedRecieveOption || 'Lightning';
+
+  const prevRequstInfo = useRef(null);
+  const addressStateRef = useRef(null);
 
   const [addressState, setAddressState] = useState({
     selectedRecieveOption: selectedRecieveOption,
@@ -90,8 +94,33 @@ export default function ReceivePaymentHome(props) {
   });
 
   useEffect(() => {
+    addressStateRef.current = addressState;
+  }, [addressState]);
+
+  useEffect(() => {
     async function runAddressInit() {
       crashlyticsLogReport('Begining adddress initialization');
+
+      if (
+        prevRequstInfo.current &&
+        initialSendAmount === prevRequstInfo.current.initialSendAmount &&
+        selectedRecieveOption.toLowerCase() ===
+          prevRequstInfo.current.selectedRecieveOption.toLowerCase() &&
+        paymentDescription === prevRequstInfo.current.paymentDescription &&
+        !addressStateRef.current.errorMessageText.text
+      ) {
+        // This checks if we had a previous requst
+        // And all other formation is the same
+        // if the requst did not fail we block but if it did fail we rety since it failed
+        return;
+      }
+
+      // Update prev request info to the new data
+      prevRequstInfo.current = {
+        initialSendAmount,
+        selectedRecieveOption,
+        paymentDescription,
+      };
       if (
         !initialSendAmount &&
         selectedRecieveOption.toLowerCase() === 'lightning' &&
@@ -127,7 +156,12 @@ export default function ReceivePaymentHome(props) {
       }
     }
     runAddressInit();
-  }, [initialSendAmount, paymentDescription, selectedRecieveOption]);
+  }, [
+    initialSendAmount,
+    paymentDescription,
+    selectedRecieveOption,
+    requestUUID,
+  ]);
 
   const handleShare = () => {
     if (!addressState.generatedAddress) return;
