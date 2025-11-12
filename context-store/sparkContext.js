@@ -251,10 +251,14 @@ const SparkWalletProvider = ({ children }) => {
 
       console.log(
         selectedSparkTransaction,
+        selectedSparkTransaction.type,
         'received transaction from spark tx list',
       );
       if (!selectedSparkTransaction)
         throw new Error('Not able to get recent transfer');
+
+      if (selectedSparkTransaction.type === 'UTXO_SWAP')
+        throw new Error('Being handled by bitcoin functionality bellow');
 
       const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
       const paymentObject = await transformTxToPaymentObject(
@@ -944,6 +948,7 @@ const SparkWalletProvider = ({ children }) => {
                   accountId: sparkInfoRef.current.identityPubKey,
                 };
               } else {
+                // the fee should actually be the txid.amount(orignial sending amount) -  bitcoinTransfer.totalValue
                 updatedTx = {
                   useTempId: true,
                   tempId: quote.transactionId,
@@ -965,8 +970,26 @@ const SparkWalletProvider = ({ children }) => {
               }
             }
 
-            await bulkUpdateSparkTransactions([updatedTx]);
             console.log('Updated bitcoin transaction:', updatedTx);
+            await bulkUpdateSparkTransactions([updatedTx]);
+            // If no details are provided do not show confirm screen
+            if (updatedTx.details) {
+              setPendingNavigation({
+                routes: [
+                  {
+                    name: 'HomeAdmin',
+                    params: { screen: 'Home' },
+                  },
+                  {
+                    name: 'ConfirmTxPage',
+                    params: {
+                      for: 'invoicePaid',
+                      transaction: updatedTx,
+                    },
+                  },
+                ],
+              });
+            }
           }
         }
       } catch (err) {

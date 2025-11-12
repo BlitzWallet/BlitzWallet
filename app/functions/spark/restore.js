@@ -27,6 +27,7 @@ import {
   getAllUnpaidSparkLightningInvoices,
 } from './transactions';
 import { transformTxToPaymentObject } from './transformTxToPayment';
+import sha256Hash from '../hash';
 
 export const restoreSparkTxState = async (
   BATCH_SIZE,
@@ -719,6 +720,13 @@ async function processBitcoinTransactions(
         if (foundPayment) {
           const newDetails = JSON.parse(foundPayment.details);
           const oldDetails = JSON.parse(txStateUpdate.details);
+
+          if (
+            sha256Hash(JSON.stringify(foundPayment)) ===
+            sha256Hash(JSON.stringify(txStateUpdate))
+          )
+            continue;
+
           updatedTxs.push({
             useTempId: true,
             tempId: txStateUpdate.sparkID,
