@@ -30,6 +30,10 @@ import Animated, {
 import { TAB_ITEM_HEIGHT } from '../../../../navigation/tabs';
 import { useActiveCustodyAccount } from '../../../../context-store/activeAccount';
 import { fullRestoreSparkState } from '../../../functions/spark/restore';
+import {
+  SPARK_TX_UPDATE_ENVENT_NAME,
+  sparkTransactionsEventEmitter,
+} from '../../../functions/spark/transactions';
 
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
@@ -181,7 +185,8 @@ export default function HomeLightning() {
         return;
       startLiquidEventListener(2);
       startRootstockEventListener({ intervalMs: 30000 });
-      await fullRestoreSparkState({
+
+      const response = await fullRestoreSparkState({
         sparkAddress: sparkInformation.sparkAddress,
         batchSize: 2,
         isSendingPayment: false,
@@ -189,6 +194,12 @@ export default function HomeLightning() {
         identityPubKey: sparkInformation.identityPubKey,
         isInitialRestore: false,
       });
+      if (!response) {
+        sparkTransactionsEventEmitter.emit(
+          SPARK_TX_UPDATE_ENVENT_NAME,
+          'fullUpdate',
+        );
+      }
     } catch (err) {
       console.log('error refreshing on homepage', err);
     } finally {
