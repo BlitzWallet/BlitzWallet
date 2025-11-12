@@ -15,31 +15,59 @@ import sha256Hash from '../hash';
 // import * as bip21 from 'bip21';
 
 let invoiceTracker = [];
+
+function isCurrentRequest(currentID) {
+  return invoiceTracker[invoiceTracker.length - 1]?.id === currentID;
+}
+
+function updateRetryCount(requestID, retryCount) {
+  const request = invoiceTracker.find(item => item.id === requestID);
+  if (request) {
+    request.retryCount = retryCount;
+  }
+}
+
 export async function initializeAddressProcess(wolletInfo) {
   const { setAddressState, selectedRecieveOption, sendWebViewRequest } =
     wolletInfo;
-  const requestUUID = customUUID();
-  invoiceTracker.push(requestUUID);
+
+  const requestUUID = wolletInfo.requestUUID || customUUID();
+  const retryCount = wolletInfo.retryCount || 0;
+  const startTime = wolletInfo.requestTimeStart || Date.now();
+
+  if (!wolletInfo.requestUUID) {
+    invoiceTracker.push({
+      id: requestUUID,
+      startTime: startTime,
+      retryCount: 0,
+    });
+  }
+
   let stateTracker = {};
   let hasGlobalError = false;
+  let shouldRetry = false;
+
   try {
     crashlyticsLogReport(
-      `Running address geneartion functinon for: ${selectedRecieveOption}`,
+      `Running address generation function for: ${selectedRecieveOption} (attempt ${
+        retryCount + 1
+      })`,
     );
-    setAddressState(prev => {
-      return {
-        ...prev,
-        isGeneratingInvoice: true,
-        generatedAddress: '',
-        errorMessageText: {
-          type: null,
-          text: '',
-        },
-        swapPegInfo: {},
-        isReceivingSwap: false,
-        hasGlobalError: false,
-      };
-    });
+
+    setAddressState(prev => ({
+      ...prev,
+      isGeneratingInvoice: true,
+      generatedAddress: '',
+      errorMessageText: {
+        type: null,
+        text: '',
+      },
+      swapPegInfo: {},
+      isReceivingSwap: false,
+      hasGlobalError: false,
+    }));
+
+    // Lightning
     if (selectedRecieveOption.toLowerCase() === 'lightning') {
       const response = await sparkReceivePaymentWrapper({
         paymentType: 'lightning',
@@ -48,20 +76,24 @@ export async function initializeAddressProcess(wolletInfo) {
         mnemoinc: wolletInfo.currentWalletMnemoinc,
         sendWebViewRequest,
       });
-      // const response = await generateLightningAddress(wolletInfo);
-      if (!response.didWork)
-        throw new Error('errormessages.lightningInvioceError');
+
+      if (!response.didWork) {
+        throw new Error('errormessages.lightningInvoiceError');
+      }
+
       stateTracker = {
         generatedAddress: response.invoice,
         fee: 0,
       };
-      // stateTracker = response
-    } else if (selectedRecieveOption.toLowerCase() === 'bitcoin') {
+    }
+    // Bitcoin
+    else if (selectedRecieveOption.toLowerCase() === 'bitcoin') {
       let address = '';
       const walletHash = sha256Hash(wolletInfo.currentWalletMnemoinc);
       let storedBitcoinAddress = JSON.parse(
         await getLocalStorageItem(GENERATED_BITCOIN_ADDRESSES),
       );
+
       if (!storedBitcoinAddress) {
         storedBitcoinAddress = {};
       }
@@ -76,8 +108,11 @@ export async function initializeAddressProcess(wolletInfo) {
           mnemoinc: wolletInfo.currentWalletMnemoinc,
           sendWebViewRequest,
         });
-        if (!response.didWork)
+
+        if (!response.didWork) {
           throw new Error('errormessages.bitcoinInvoiceError');
+        }
+
         storedBitcoinAddress[walletHash] = response.invoice;
         address = response.invoice;
         setLocalStorageItem(
@@ -85,6 +120,7 @@ export async function initializeAddressProcess(wolletInfo) {
           JSON.stringify(storedBitcoinAddress),
         );
       }
+
       stateTracker = {
         generatedAddress: wolletInfo.receivingAmount
           ? formatBip21Address({
@@ -98,9 +134,11 @@ export async function initializeAddressProcess(wolletInfo) {
           : address,
         fee: 0,
       };
-      // stateTracker = response;
-    } else if (selectedRecieveOption.toLowerCase() === 'spark') {
+    }
+    // Spark
+    else if (selectedRecieveOption.toLowerCase() === 'spark') {
       let sparkAddress = '';
+
       if (wolletInfo.sparkInformation.sparkAddress) {
         sparkAddress = wolletInfo.sparkInformation.sparkAddress;
       } else {
@@ -111,26 +149,57 @@ export async function initializeAddressProcess(wolletInfo) {
           mnemoinc: wolletInfo.currentWalletMnemoinc,
           sendWebViewRequest,
         });
-        if (!response.didWork)
-          throw new Error('errormessages.sparkInvioceError');
+
+        if (!response.didWork) {
+          throw new Error('errormessages.sparkInvoiceError');
+        }
+
         sparkAddress = response.invoice;
       }
-      // const response = await generateBitcoinAddress(wolletInfo);
+
       stateTracker = {
         generatedAddress: sparkAddress,
         fee: 0,
       };
-    } else if (selectedRecieveOption.toLowerCase() === 'liquid') {
+    }
+    // Liquid
+    else if (selectedRecieveOption.toLowerCase() === 'liquid') {
       const response = await generateLiquidAddress(wolletInfo);
       if (!response) throw new Error('errormessages.liquidInvoiceError');
       stateTracker = response;
-    } else if (selectedRecieveOption.toLowerCase() === 'rootstock') {
+    }
+    // Rootstock
+    else if (selectedRecieveOption.toLowerCase() === 'rootstock') {
       const response = await generateRootstockAddress(wolletInfo);
       if (!response) throw new Error('errormessages.rootstockInvoiceError');
       stateTracker = response;
     }
   } catch (error) {
     console.log(error, 'HANDLING ERROR');
+
+    const elapsedTime = Date.now() - startTime;
+
+    if (
+      isCurrentRequest(requestUUID) &&
+      retryCount < 1 &&
+      elapsedTime < 10000
+    ) {
+      console.log(`Retrying request ${requestUUID} after ${elapsedTime}ms`);
+
+      updateRetryCount(requestUUID, retryCount + 1);
+
+      shouldRetry = true;
+
+      initializeAddressProcess({
+        ...wolletInfo,
+        retryCount: retryCount + 1,
+        requestUUID: requestUUID,
+        requestTimeStart: startTime,
+      });
+
+      return;
+    }
+
     stateTracker = {
       generatedAddress: null,
       errorMessageText: {
@@ -139,24 +208,26 @@ export async function initializeAddressProcess(wolletInfo) {
       },
     };
   } finally {
-    if (invoiceTracker.length > 3) invoiceTracker = [invoiceTracker.pop()];
-    if (invoiceTracker[invoiceTracker.length - 1] != requestUUID) return;
+    if (invoiceTracker.length > 3) {
+      invoiceTracker = [invoiceTracker.pop()];
+    }
+
+    if (!isCurrentRequest(requestUUID) || shouldRetry) {
+      return;
+    }
+
     if (hasGlobalError) {
-      setAddressState(prev => {
-        return {
-          ...prev,
-          hasGlobalError: true,
-          isGeneratingInvoice: false,
-        };
-      });
+      setAddressState(prev => ({
+        ...prev,
+        hasGlobalError: true,
+        isGeneratingInvoice: false,
+      }));
     } else {
-      setAddressState(prev => {
-        return {
-          ...prev,
-          ...stateTracker,
-          isGeneratingInvoice: false,
-        };
-      });
+      setAddressState(prev => ({
+        ...prev,
+        ...stateTracker,
+        isGeneratingInvoice: false,
+      }));
     }
   }
 }
