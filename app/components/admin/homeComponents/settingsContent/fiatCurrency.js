@@ -13,7 +13,10 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import {
+  INSET_WINDOW_WIDTH,
+  MAX_CONTENT_WIDTH,
+} from '../../../../constants/theme';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
@@ -117,7 +120,11 @@ export default function FiatCurrencyPage() {
       />
 
       <FlatList
-        style={{ width: '100%' }}
+        style={{
+          width: '100%',
+          maxWidth: MAX_CONTENT_WIDTH,
+          alignSelf: 'center',
+        }}
         contentContainerStyle={{
           flexGrow: 1,
           paddingTop: 20,

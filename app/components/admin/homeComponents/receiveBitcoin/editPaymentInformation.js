@@ -117,6 +117,7 @@ export default function EditReceivePaymentInformation(props) {
           onFocusFunction={() => setIsKeyboardFocused(true)}
           onBlurFunction={() => setIsKeyboardFocused(false)}
           editable={!disableDescription}
+          containerStyles={{ maxWidth: 350 }}
           placeholderTextColor={
             theme && !darkModeType
               ? undefined

@@ -1,21 +1,28 @@
-import {useState} from 'react';
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
-import {ICONS, SIZES} from '../../../../constants';
-import {GlobalThemeView, ThemeText} from '../../../../functions/CustomElements';
-import {COLORS, INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {useTranslation} from 'react-i18next';
+import { useState } from 'react';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { ICONS, SIZES } from '../../../../constants';
+import {
+  GlobalThemeView,
+  ThemeText,
+} from '../../../../functions/CustomElements';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  MAX_CONTENT_WIDTH,
+} from '../../../../constants/theme';
+import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import LiquidSwapsPage from './swapsComponents/liquidSwapsPage';
 import RoostockSwapsPage from './swapsComponents/rootstockSwaps';
 import GetThemeColors from '../../../../hooks/themeColors';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 
 export default function ViewSwapsHome() {
   const [selectedPage, setSelectedPage] = useState(null);
-  const {t} = useTranslation();
-  const {theme} = useGlobalThemeContext();
-  const {backgroundOffset} = GetThemeColors();
+  const { t } = useTranslation();
+  const { theme } = useGlobalThemeContext();
+  const { backgroundOffset } = GetThemeColors();
 
   if (!selectedPage) {
     return (
@@ -43,7 +50,8 @@ export default function ViewSwapsHome() {
                     : COLORS.darkModeText,
                 },
               ]}
-              activeOpacity={0.7}>
+              activeOpacity={0.7}
+            >
               <View style={styles.cardContent1}>
                 <ThemeText
                   content={t('settings.viewSwapsHome.liquid')}
@@ -52,7 +60,7 @@ export default function ViewSwapsHome() {
               </View>
               <View style={styles.arrow1}>
                 <ThemeImage
-                  styles={{transform: [{rotate: '180deg'}]}}
+                  styles={{ transform: [{ rotate: '180deg' }] }}
                   lightModeIcon={ICONS.leftCheveronIcon}
                   darkModeIcon={ICONS.leftCheveronIcon}
                   lightsOutIcon={ICONS.leftCheveronLight}
@@ -72,7 +80,8 @@ export default function ViewSwapsHome() {
                     : COLORS.darkModeText,
                 },
               ]}
-              activeOpacity={0.7}>
+              activeOpacity={0.7}
+            >
               <View style={styles.cardContent1}>
                 <ThemeText
                   content={t('settings.viewSwapsHome.rootstock')}
@@ -81,7 +90,7 @@ export default function ViewSwapsHome() {
               </View>
               <View style={styles.arrow1}>
                 <ThemeImage
-                  styles={{transform: [{rotate: '180deg'}]}}
+                  styles={{ transform: [{ rotate: '180deg' }] }}
                   lightModeIcon={ICONS.leftCheveronIcon}
                   darkModeIcon={ICONS.leftCheveronIcon}
                   lightsOutIcon={ICONS.leftCheveronLight}
@@ -128,6 +137,7 @@ const styles = StyleSheet.create({
   container1: {
     flex: 1,
     width: INSET_WINDOW_WIDTH,
+    maxWidth: MAX_CONTENT_WIDTH,
     alignSelf: 'center',
     justifyContent: 'center',
     paddingHorizontal: SIZES.medium,

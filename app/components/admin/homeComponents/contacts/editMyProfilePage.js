@@ -30,7 +30,10 @@ import { getImageFromLibrary } from '../../../../functions/imagePickerWrapper';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../context-store/keys';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
-import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import {
+  INSET_WINDOW_WIDTH,
+  MAX_CONTENT_WIDTH,
+} from '../../../../constants/theme';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
@@ -216,7 +219,12 @@ function InnerContent({
   }, []);
 
   return (
-    <View style={styles.innerContainer}>
+    <View
+      style={[
+        styles.innerContainer,
+        fromSettings && { maxWidth: MAX_CONTENT_WIDTH },
+      ]}
+    >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{

@@ -441,8 +441,16 @@ const PinnedContactElement = memo(
 
     // Memoize calculated dimensions
     const containerSize = useMemo(
-      () => (screenDimensions.width * 0.95) / 4.5,
+      () => (screenDimensions.width * 0.95) / 4 - 15,
       [screenDimensions.width],
+    );
+
+    const blockItemView = useMemo(
+      () => ({
+        ...memoizedStyles.pinnedContact,
+        width: containerSize,
+      }),
+      [backgroundOffset],
     );
 
     const imageContainerStyle = useMemo(
@@ -455,8 +463,8 @@ const PinnedContactElement = memo(
 
     const pinnedContactStyle = useMemo(
       () => ({
-        ...memoizedStyles.pinnedContact,
-        width: containerSize,
+        width: '100%',
+        marginBottom: 5,
         height: containerSize,
       }),
       [containerSize],
@@ -497,19 +505,20 @@ const PinnedContactElement = memo(
 
     return (
       <TouchableOpacity
-        style={pinnedContactStyle}
         onLongPress={handleLongPress}
         onPress={handlePress}
+        style={blockItemView}
       >
-        <View style={imageContainerStyle}>
-          <ContactProfileImage
-            updated={cache[contact.uuid]?.updated}
-            uri={cache[contact.uuid]?.localUri}
-            darkModeType={darkModeType}
-            theme={theme}
-          />
+        <View style={pinnedContactStyle}>
+          <View style={imageContainerStyle}>
+            <ContactProfileImage
+              updated={cache[contact.uuid]?.updated}
+              uri={cache[contact.uuid]?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
         </View>
-
         <View style={memoizedStyles.pinnedContactNotificationContainer}>
           {hasUnlookedTransaction && <View style={notificationStyle} />}
           <View style={pinnedContactTextContinaer} onLayout={handleTextLayout}>
@@ -702,13 +711,16 @@ const memoizedStyles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
   },
-  pinnedContactsScrollviewContainer: { height: 120 },
+  pinnedContactsScrollviewContainer: {
+    marginBottom: 10,
+  },
   pinnedContact: {
-    marginHorizontal: 5,
     alignItems: 'center',
   },
   pinnedContactsContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 20,
   },
   pinnedContactNotificationContainer: {
     width: '100%',
@@ -720,10 +732,9 @@ const memoizedStyles = StyleSheet.create({
   pinnedContactImageContainer: {
     width: '100%',
     height: '100%',
-    borderRadius: 50,
+    borderRadius: 9999,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 5,
     overflow: 'hidden',
   },
 

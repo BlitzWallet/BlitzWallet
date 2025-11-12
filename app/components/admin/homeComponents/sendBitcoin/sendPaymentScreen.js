@@ -393,6 +393,7 @@ export default function SendPaymentScreen(props) {
             containerStyles={{
               width: INSET_WINDOW_WIDTH,
               marginTop: useAltLayout ? 0 : 10,
+              maxWidth: 350,
             }}
           />
 

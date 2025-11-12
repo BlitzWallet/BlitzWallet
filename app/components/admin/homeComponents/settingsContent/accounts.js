@@ -7,7 +7,12 @@ import {
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { useNavigation } from '@react-navigation/native';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import {
+  COLORS,
+  INSET_WINDOW_WIDTH,
+  MAX_CONTENT_WIDTH,
+  SIZES,
+} from '../../../../constants/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
@@ -463,6 +468,7 @@ export default function CreateCustodyAccounts() {
 const styles = StyleSheet.create({
   scrollContent: {
     width: INSET_WINDOW_WIDTH,
+    maxWidth: MAX_CONTENT_WIDTH,
     ...CENTER,
     paddingTop: 20,
   },

@@ -31,7 +31,7 @@ export default function POSInstructionsPath() {
         customBackColor={ICONS.arrow_small_left_black}
       />
       <ThemeText
-        styles={styles.headingText}
+        styles={[styles.headingText, { marginTop: 'auto' }]}
         content={t('settings.posPath.posInstructionsPath.head1')}
       />
       <ThemeText

@@ -18,7 +18,7 @@ import {
 } from '../../components/admin/homeComponents/settingsContent';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView } from '../../functions/CustomElements';
-import { WINDOWWIDTH } from '../../constants/theme';
+import { MAX_CONTENT_WIDTH, WINDOWWIDTH } from '../../constants/theme';
 import { EditMyProfilePage } from '../../components/admin';
 
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
@@ -95,60 +95,63 @@ export default function SettingsContentIndex(props) {
                 `screens.inAccount.settingsContent.${selectedPage.toLowerCase()}`,
               )}
             />
+            <View style={styles.largeDeviceWrapper}>
+              {selectedPage?.toLowerCase() === 'about' && (
+                <AboutPage theme={theme} />
+              )}
+              {selectedPage?.toLowerCase() === 'language' && <ChooseLangugae />}
 
-            {selectedPage?.toLowerCase() === 'about' && (
-              <AboutPage theme={theme} />
-            )}
-            {selectedPage?.toLowerCase() === 'language' && <ChooseLangugae />}
-
-            {/* {selectedPage?.toLowerCase() === 'node info' && (
+              {/* {selectedPage?.toLowerCase() === 'node info' && (
               <NodeInfo theme={theme} />
             )} */}
-            {selectedPage?.toLowerCase() === 'display options' && (
-              <DisplayOptions theme={theme} />
-            )}
-            {/* {selectedPage?.toLowerCase() === 'support our work' && (
+              {selectedPage?.toLowerCase() === 'display options' && (
+                <DisplayOptions theme={theme} />
+              )}
+              {/* {selectedPage?.toLowerCase() === 'support our work' && (
               <SupportWorkPage />
             )} */}
 
-            {/* {selectedPage?.toLowerCase() === 'balance info' && (
+              {/* {selectedPage?.toLowerCase() === 'balance info' && (
               <WalletInformation theme={theme} />
             )} */}
 
-            {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
-            {selectedPage?.toLowerCase() === 'blitz fee details' && (
-              <BlitzFeeInformation />
-            )}
-            {selectedPage?.toLowerCase() === 'crash reports' && (
-              <CrashReportingSettingsPage />
-            )}
-            {selectedPage?.toLowerCase() === 'notifications' && (
-              <NotificationPreferances />
-            )}
-            {selectedPage?.toLowerCase() === 'blitz stats' && <ExploreUsers />}
+              {selectedPage?.toLowerCase() === 'fast pay' && <FastPay />}
+              {selectedPage?.toLowerCase() === 'blitz fee details' && (
+                <BlitzFeeInformation />
+              )}
+              {selectedPage?.toLowerCase() === 'crash reports' && (
+                <CrashReportingSettingsPage />
+              )}
+              {selectedPage?.toLowerCase() === 'notifications' && (
+                <NotificationPreferances />
+              )}
+              {selectedPage?.toLowerCase() === 'blitz stats' && (
+                <ExploreUsers />
+              )}
 
-            {selectedPage?.toLowerCase() === 'nostr' && (
-              <NostrHome theme={theme} />
-            )}
-            {selectedPage?.toLowerCase() === 'login mode' && (
-              <LoginSecurity extraData={extraData} theme={theme} />
-            )}
+              {selectedPage?.toLowerCase() === 'nostr' && (
+                <NostrHome theme={theme} />
+              )}
+              {selectedPage?.toLowerCase() === 'login mode' && (
+                <LoginSecurity extraData={extraData} theme={theme} />
+              )}
 
-            {selectedPage?.toLowerCase() === 'backup wallet' && (
-              <SeedPhrasePage extraData={extraData} theme={theme} />
-            )}
-            {selectedPage?.toLowerCase() === 'spark info' && (
-              <SparkInfo theme={theme} />
-            )}
+              {selectedPage?.toLowerCase() === 'backup wallet' && (
+                <SeedPhrasePage extraData={extraData} theme={theme} />
+              )}
+              {selectedPage?.toLowerCase() === 'spark info' && (
+                <SparkInfo theme={theme} />
+              )}
 
-            {/* {selectedPage?.toLowerCase() === 'lsp' && <LSPPage theme={theme} />} */}
+              {/* {selectedPage?.toLowerCase() === 'lsp' && <LSPPage theme={theme} />} */}
 
-            {selectedPage?.toLowerCase() === 'delete wallet' && (
-              <ResetPage isDoomsday={isDoomsday} />
-            )}
-            {/* {selectedPage?.toLowerCase() === 'restore channels' && (
+              {selectedPage?.toLowerCase() === 'delete wallet' && (
+                <ResetPage isDoomsday={isDoomsday} />
+              )}
+              {/* {selectedPage?.toLowerCase() === 'restore channels' && (
               <RestoreChannel isDoomsday={isDoomsday} />
             )} */}
+            </View>
           </View>
         </GlobalThemeView>
       )}
@@ -161,5 +164,11 @@ const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
     width: WINDOWWIDTH,
+  },
+  largeDeviceWrapper: {
+    flex: 1,
+    width: '100%',
+    maxWidth: MAX_CONTENT_WIDTH,
+    alignSelf: 'center',
   },
 });
