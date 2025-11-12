@@ -527,9 +527,7 @@ export default function SendAndRequestPage(props) {
               opacity: !amountValue ? HIDDEN_OPACITY : 1,
             }}
             neverHideBalance={true}
-            globalBalanceDenomination={
-              inputDenomination === 'sats' ? 'fiat' : 'sats'
-            }
+            globalBalanceDenomination={isBTCdenominated ? 'fiat' : 'sats'}
             balance={convertedSendAmount}
           />
 

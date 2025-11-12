@@ -1,5 +1,5 @@
-import {BITCOIN_SAT_TEXT, BITCOIN_SATS_ICON} from '../constants';
-import {formatCurrency} from './formatCurrency';
+import { BITCOIN_SAT_TEXT, BITCOIN_SATS_ICON } from '../constants';
+import { formatCurrency } from './formatCurrency';
 import formatBalanceAmount from './formatNumber';
 import numberConverter from './numberConverter';
 
@@ -9,38 +9,48 @@ export default function displayCorrectDenomination({
   fiatStats,
 }) {
   try {
+    const localBalanceDenomination = masterInfoObject.userBalanceDenomination;
+    const currencyText = fiatStats?.coin || 'USD';
+
     const convertedAmount = numberConverter(
       amount,
-      masterInfoObject.userBalanceDenomination,
-      masterInfoObject.userBalanceDenomination === 'fiat' ? 2 : 0,
+      localBalanceDenomination,
+      localBalanceDenomination === 'fiat' ? 2 : 0,
       fiatStats,
     );
-    const currencyText = fiatStats?.coin || 'USD';
-    const showSymbol = masterInfoObject.satDisplay === 'symbol';
-    const showSats =
-      masterInfoObject.userBalanceDenomination === 'sats' ||
-      masterInfoObject.userBalanceDenomination === 'hidden';
 
     const formattedCurrency = formatCurrency({
       amount: convertedAmount,
       code: currencyText,
     });
+
     const isSymbolInFront = formattedCurrency[3];
     const currencySymbol = formattedCurrency[2];
-    const formatedSat = `${formatBalanceAmount(convertedAmount)}`;
+    const showSymbol = masterInfoObject.satDisplay === 'symbol';
+    const showSats =
+      localBalanceDenomination === 'sats' ||
+      localBalanceDenomination === 'hidden';
+
+    const formattedSat = formatBalanceAmount(convertedAmount);
 
     if (showSats) {
-      if (showSymbol) return BITCOIN_SATS_ICON + formatedSat;
-      else return formatedSat + ` ${BITCOIN_SAT_TEXT}`;
-    } else {
-      if (showSymbol && isSymbolInFront)
-        return currencySymbol + formattedCurrency[1];
-      else if (showSymbol && !isSymbolInFront)
-        return formattedCurrency[1] + currencySymbol;
-      else return formattedCurrency[1] + ` ${currencyText}`;
+      return showSymbol
+        ? `${BITCOIN_SATS_ICON}${formattedSat}`
+        : `${formattedSat} ${BITCOIN_SAT_TEXT}`;
     }
+
+    // Fiat display
+    if (showSymbol && isSymbolInFront) {
+      return `${currencySymbol}${formattedCurrency[1]}`;
+    }
+
+    if (showSymbol && !isSymbolInFront) {
+      return `${formattedCurrency[1]}${currencySymbol}`;
+    }
+
+    return `${formattedCurrency[1]} ${currencyText}`;
   } catch (err) {
-    console.log('display correct denomincation error', err);
+    console.log('display correct denomination error', err);
     return '';
   }
 }

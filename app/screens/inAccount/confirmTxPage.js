@@ -20,12 +20,17 @@ import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../context-store/appStatus';
 import DropdownMenu from '../../functions/CustomElements/dropdownMenu';
+import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
+import { useGlobalContextProvider } from '../../../context-store/context';
+import { useNodeContext } from '../../../context-store/nodeContext';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 const errorTxAnimation = require('../../assets/errorTxAnimation.json');
 export default function ConfirmTxPage(props) {
   const { sparkInformation } = useSparkWallet();
   const { screenDimensions } = useAppStatus();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
   const { showToast } = useToast();
   const { backgroundOffset } = GetThemeColors();
@@ -175,7 +180,13 @@ export default function ConfirmTxPage(props) {
               styles={styles.labelText}
               content={t('constants.fee')}
             />
-            <FormattedSatText neverHideBalance={true} balance={paymentFee} />
+            <ThemeText
+              content={displayCorrectDenomination({
+                amount: paymentFee,
+                masterInfoObject,
+                fiatStats,
+              })}
+            />
           </View>
           <View style={styles.paymentTableRow}>
             <ThemeText

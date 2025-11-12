@@ -34,6 +34,9 @@ import { useRef, useState } from 'react';
 import CustomSearchInput from '../../functions/CustomElements/searchInput';
 import { bulkUpdateSparkTransactions } from '../../functions/spark/transactions';
 import { keyboardGoBack } from '../../functions/customNavigation';
+import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
+import { useNodeContext } from '../../../context-store/nodeContext';
+import { useGlobalContextProvider } from '../../../context-store/context';
 
 export default function ExpandedTx(props) {
   const { screenDimensions } = useAppStatus();
@@ -43,6 +46,8 @@ export default function ExpandedTx(props) {
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
   const { bottomPadding } = useGlobalInsets();
+  const { fiatStats } = useNodeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
 
   const [transaction, setTransaction] = useState(
     props.route.params.transaction,
@@ -354,14 +359,15 @@ export default function ExpandedTx(props) {
                 true,
               )}
 
-              <View style={styles.infoRow}>
-                <ThemeText content={t('constants.fee')} />
-                <FormattedSatText
-                  neverHideBalance={true}
-                  styles={styles.infoValueLarge}
-                  balance={isFailedPayment ? 0 : transaction.details.fee}
-                />
-              </View>
+              {renderInfoRow(
+                t('constants.fee'),
+                displayCorrectDenomination({
+                  amount: 5,
+                  fiatStats,
+                  masterInfoObject,
+                }),
+                true,
+              )}
 
               {renderInfoRow(
                 t('constants.type'),
