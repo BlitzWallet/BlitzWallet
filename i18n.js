@@ -11,26 +11,16 @@ import germanTranslation from './locales/de-DE/translation.json';
 i18n.use(initReactI18next).init({
   debug: true,
   fallbackLng: 'en',
-  supportedLngs: ['en', 'es', 'it', 'pt-BR', 'de-DE'],
+  supportedLngs: ['en', 'es', 'it', 'pt', 'pt-BR', 'de', 'de-DE'],
   load: 'currentOnly',
-  interpolation: {
-    escapeValue: false,
-  },
+  interpolation: { escapeValue: false },
   resources: {
-    en: {
-      translation: enTranslation,
-    },
-    es: {
-      translation: esTranslation,
-    },
-    it: {
-      translation: itTranslation,
-    },
-    'pt-BR': {
-      translation: ptBrTranslation,
-    },
-    'de-DE': {
-      translation: germanTranslation,
-    },
+    en: { translation: enTranslation },
+    es: { translation: esTranslation },
+    it: { translation: itTranslation },
+    'pt-BR': { translation: ptBrTranslation },
+    pt: { translation: ptBrTranslation },
+    'de-DE': { translation: germanTranslation },
+    de: { translation: germanTranslation },
   },
 });

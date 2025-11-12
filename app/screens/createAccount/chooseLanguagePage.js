@@ -14,6 +14,7 @@ import {
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { getLocalStorageItem } from '../../functions';
 import { useNavigation } from '@react-navigation/native';
+import { getLocales } from 'react-native-localize';
 
 export default function ChooseLangugaePage() {
   const { toggleMasterInfoObject } = useGlobalContextProvider();
@@ -23,12 +24,21 @@ export default function ChooseLangugaePage() {
 
   useEffect(() => {
     async function getSavedLanguage() {
-      const language = JSON.parse(
-        await getLocalStorageItem('userSelectedLanguage'),
-      );
-      const selectedLanguage = supportedLanguagesList.find(
-        item => item.id === language,
-      );
+      let selectedLanguage = { languageName: 'English' };
+      try {
+        const [language, [{ languageTag }]] = await Promise.all([
+          getLocalStorageItem('userSelectedLanguage').then(JSON.parse),
+          Promise.resolve(getLocales()),
+        ]);
+        const foundLanguage = supportedLanguagesList.find(
+          item => item.shortId === (language || languageTag.split('-')[0]),
+        );
+        if (foundLanguage) {
+          selectedLanguage = foundLanguage;
+        }
+      } catch (err) {
+        console.log('Error getting saved langugae, defaulting to english', err);
+      }
       setSelectedValue(selectedLanguage?.languageName || 'English');
     }
     getSavedLanguage();

@@ -4978,6 +4978,7 @@ __metadata:
     react-native-gesture-handler: ~2.28.0
     react-native-get-random-values: ~1.11.0
     react-native-keyboard-controller: 1.18.5
+    react-native-localize: ^3.6.0
     react-native-pager-view: 6.9.1
     react-native-qrcode-svg: ^6.3.15
     react-native-quick-base64: ^2.2.2
@@ -12848,6 +12849,23 @@ __metadata:
     react-native: "*"
     react-native-reanimated: ">=3.0.0"
   checksum: e9a27ef54b505e9296186bb359e87a1eff09336a77f78d4e766cfb3817b22598f0429fd1e0c1bd6a01f3dba6d61efb76fdc9a65d70d3c3a9314ac7988b5b90b5
+  languageName: node
+  linkType: hard
+
+"react-native-localize@npm:^3.6.0":
+  version: 3.6.0
+  resolution: "react-native-localize@npm:3.6.0"
+  peerDependencies:
+    "@expo/config-plugins": "*"
+    react: "*"
+    react-native: "*"
+    react-native-macos: "*"
+  peerDependenciesMeta:
+    "@expo/config-plugins":
+      optional: true
+    react-native-macos:
+      optional: true
+  checksum: 4d3da51c8ed69d067c1dc512597fa622d4d59c33d3f5627ab228693ec49e8536a57e634357fe0d26e1658d447bc91d854fcc4eeb69fd69b3aad7f8d9aa1b5e67
   languageName: node
   linkType: hard
 
