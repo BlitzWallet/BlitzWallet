@@ -36,6 +36,10 @@ export default function ChooseLangugaePage() {
         if (foundLanguage) {
           selectedLanguage = foundLanguage;
         }
+        if (foundLanguage && !language) {
+          handleSelect(foundLanguage);
+          return;
+        }
       } catch (err) {
         console.log('Error getting saved langugae, defaulting to english', err);
       }
@@ -48,13 +52,14 @@ export default function ChooseLangugaePage() {
     return supportedLanguagesList.map(item => ({
       label: t(item.translatedName),
       value: t(item.translatedName),
+      translatedName: item.translatedName,
       id: item.id,
       flagCode: item.flagCode,
     }));
   }, [supportedLanguagesList, t]);
 
   const handleSelect = useCallback(item => {
-    setSelectedValue(item.value);
+    setSelectedValue(t(item.translatedName));
     toggleMasterInfoObject({ userSelectedLanguage: item.id });
   }, []);
 
