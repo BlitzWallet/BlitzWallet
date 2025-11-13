@@ -58,6 +58,18 @@ export default function ExploreUsers() {
   const data = dataObject ? dataObject[timeFrame].reverse() : [];
   const getServerTime = useServerTimeOnly();
   const currentTime = getServerTime();
+  const currentTimeZoneOffsetInHours = -6;
+
+  const formattedCurrentTime = useMemo(() => {
+    // Convert to target timezone (UTC-6) by adding offset in milliseconds
+    const targetTimezoneMs =
+      currentTime + currentTimeZoneOffsetInHours * 60 * 60 * 1000;
+    const targetDate = new Date(targetTimezoneMs);
+    // Get midnight of the same day
+    targetDate.setUTCHours(24, 0, 0, 0); // Set to midnight (start of next day)
+
+    return targetDate.getTime();
+  }, [currentTime]);
 
   const min = data.reduce((prev, current) => {
     if (current?.value < prev) return current.value;
@@ -119,24 +131,24 @@ export default function ExploreUsers() {
   const xLabels = useMemo(() => {
     return [0, 1, 2, 3, 4, 5, 6].map((_, index) => {
       if (timeFrame === 'year') {
-        const now = currentTime;
+        const now = formattedCurrentTime;
         return `${new Date(
           now - YEAR_IN_MILLS * Math.abs(6 - index),
         ).getFullYear()}`;
       } else if (timeFrame === 'month') {
-        const now = currentTime;
+        const now = formattedCurrentTime;
         const dateIndex = new Date(
           now - MONTH_IN_MILLS * Math.abs(6 - index),
         ).getMonth();
         return t(`months.${MONTH_GROUPING[dateIndex]}`).slice(0, 3);
       } else if (timeFrame === 'day') {
-        const now = currentTime - DAY_IN_MILLS;
+        const now = formattedCurrentTime - DAY_IN_MILLS;
         const dateIndex = new Date(
           now - DAY_IN_MILLS * Math.abs(7 - index),
         ).getDay();
         return t(`weekdays.${WEEK_OPTIONS[dateIndex]}`).slice(0, 3);
       } else {
-        const now = new Date(currentTime);
+        const now = new Date(formattedCurrentTime);
         const todayDay = now.getDay();
         const daysToSunday = 7 - (todayDay === 0 ? 7 : todayDay);
         const endOfWeek = new Date(now.getTime() + daysToSunday * DAY_IN_MILLS);
@@ -146,7 +158,7 @@ export default function ExploreUsers() {
         return formatLocalTimeNumericMonthDay(dateIndex);
       }
     });
-  }, [timeFrame, t, currentTime]);
+  }, [timeFrame, t, formattedCurrentTime]);
 
   useEffect(() => {
     async function loadExploreData() {
@@ -224,7 +236,10 @@ export default function ExploreUsers() {
           content={t('constants.today')}
         />
         <View style={styles.statsCardHorizontal}>
-          <DateCountdown getServerTime={getServerTime} />
+          <DateCountdown
+            currentTimeZoneOffsetInHours={currentTimeZoneOffsetInHours}
+            getServerTime={getServerTime}
+          />
           <ThemeText
             styles={styles.statsCardNumberText}
             content={`${formatBalanceAmount(max)} of ${formatBalanceAmount(

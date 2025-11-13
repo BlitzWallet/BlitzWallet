@@ -26,7 +26,7 @@ export default function ChooseLangugaePage() {
     async function getSavedLanguage() {
       let selectedLanguage = { languageName: 'English' };
       try {
-        const [language, [{ languageTag }]] = await Promise.all([
+        const [language, [{ languageTag = 'en' }]] = await Promise.all([
           getLocalStorageItem('userSelectedLanguage').then(JSON.parse),
           Promise.resolve(getLocales()),
         ]);

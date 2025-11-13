@@ -1,25 +1,32 @@
-import {ThemeText} from '../../../../functions/CustomElements';
-import {useFocusEffect} from '@react-navigation/native';
-import {useState, useRef, useCallback, useMemo} from 'react';
-import {InteractionManager, StyleSheet} from 'react-native';
-import {SIZES} from '../../../../constants';
-import {useTranslation} from 'react-i18next';
+import { ThemeText } from '../../../../functions/CustomElements';
+import { useFocusEffect } from '@react-navigation/native';
+import { useState, useRef, useCallback, useMemo } from 'react';
+import { InteractionManager, StyleSheet } from 'react-native';
+import { SIZES } from '../../../../constants';
+import { useTranslation } from 'react-i18next';
 
-export default function DateCountdown({getServerTime}) {
+export default function DateCountdown({
+  getServerTime,
+  currentTimeZoneOffsetInHours,
+}) {
   const [minuteTick, setMinuteTick] = useState();
   const intervalRef = useRef(null);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   useFocusEffect(
     useCallback(() => {
       console.log('Starting stable time interval');
-      setMinuteTick(getFommattedTime(getServerTime));
+      setMinuteTick(
+        getFommattedTime(getServerTime, currentTimeZoneOffsetInHours),
+      );
 
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
 
       intervalRef.current = setInterval(() => {
-        setMinuteTick(getFommattedTime(getServerTime));
+        setMinuteTick(
+          getFommattedTime(getServerTime, currentTimeZoneOffsetInHours),
+        );
       }, 1000);
 
       return () => {
@@ -38,20 +45,26 @@ export default function DateCountdown({getServerTime}) {
     <ThemeText
       CustomNumberOfLines={1}
       styles={styles.dateText}
-      content={t('screens.inAccount.explorePage.timeLeft', {time: minuteTick})}
+      content={t('screens.inAccount.explorePage.timeLeft', {
+        time: minuteTick,
+      })}
     />
   );
 }
 
-function getFommattedTime(getServerTime) {
-  const date = new Date(getServerTime());
+function getFommattedTime(getServerTime, currentTimeZoneOffsetInHours) {
+  const date = getServerTime();
+
+  // Convert to target timezone (UTC-6) by adding offset in milliseconds
+  const targetTimezoneMs = date + currentTimeZoneOffsetInHours * 60 * 60 * 1000;
+  const targetDate = new Date(targetTimezoneMs);
 
   // Get midnight of the same day
   const midnight = new Date(date);
   midnight.setUTCHours(24, 0, 0, 0); // Set to midnight (start of next day)
 
   // Calculate time difference in milliseconds
-  const diffMs = midnight - date;
+  const diffMs = midnight - targetDate;
 
   // Convert to hours, minutes, and seconds
   const totalSeconds = Math.floor(diffMs / 1000);
