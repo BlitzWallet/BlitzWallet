@@ -4,6 +4,7 @@ import {
   BITCOIN_SAT_TEXT,
   BITCOIN_SATS_ICON,
   HIDDEN_BALANCE_TEXT,
+  SIZES,
   TOKEN_TICKER_MAX_LENGTH,
 } from '../../constants';
 import ThemeText from './textTheme';
@@ -27,6 +28,7 @@ export default function FormattedSatText({
   customLabel = '',
   useMillionDenomination = false,
   useSpaces = true,
+  useSizing = false,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
@@ -86,13 +88,47 @@ export default function FormattedSatText({
       content={content}
     />
   );
+  const hiddenText = (content, key, extra = {}) => (
+    <ThemeText
+      key={key}
+      reversed={reversed}
+      styles={{ includeFontPadding: false, ...styles, ...extra }}
+      content={content}
+    />
+  );
 
   let children = [];
 
   if (!shouldShowAmount) {
     children = [
       frontText && renderText(frontText),
-      renderText(HIDDEN_BALANCE_TEXT),
+      hiddenText(HIDDEN_BALANCE_TEXT, 1, {
+        fontSize: styles?.fontSize
+          ? styles.fontSize * (useSizing ? 0.8 : 1)
+          : SIZES.medium * (useSizing ? 0.8 : 1),
+        marginHorizontal: 2,
+      }),
+      hiddenText(HIDDEN_BALANCE_TEXT, 2, {
+        fontSize: styles?.fontSize
+          ? styles.fontSize * (useSizing ? 0.9 : 1)
+          : SIZES.medium * (useSizing ? 0.9 : 1),
+        marginHorizontal: 2,
+      }),
+      hiddenText(HIDDEN_BALANCE_TEXT, 3, {
+        marginHorizontal: 2,
+      }),
+      hiddenText(HIDDEN_BALANCE_TEXT, 4, {
+        fontSize: styles?.fontSize
+          ? styles.fontSize * (useSizing ? 0.9 : 1)
+          : SIZES.medium * (useSizing ? 0.9 : 1),
+        marginHorizontal: 2,
+      }),
+      hiddenText(HIDDEN_BALANCE_TEXT, 5, {
+        fontSize: styles?.fontSize
+          ? styles.fontSize * (useSizing ? 0.8 : 1)
+          : SIZES.medium * (useSizing ? 0.8 : 1),
+        marginHorizontal: 2,
+      }),
       backText && renderText(backText),
     ];
   } else if (useCustomLabel) {

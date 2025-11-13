@@ -514,6 +514,7 @@ export const UserTransaction = memo(function UserTransaction({
       </View>
       {!isFailedPayment && (
         <FormattedSatText
+          neverHideBalance={frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE}
           containerStyles={styles.amountContainer}
           frontText={
             userBalanceDenomination !== 'hidden'

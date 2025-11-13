@@ -106,6 +106,7 @@ export const UserSatAmount = memo(function UserSatAmount({
             useSpaces={sparkInformation.didConnect || userBalance}
             styles={styles.valueText}
             balance={userBalance || 0}
+            useSizing={true}
           />
         </View>
       </SkeletonTextPlaceholder>
@@ -119,6 +120,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     position: 'relative',
     width: INSET_WINDOW_WIDTH,
+    minHeight: 45,
   },
 
   informationPopupContainer: {

@@ -275,6 +275,7 @@ export default function HomeLightning() {
                   useMillionDenomination={true}
                   styles={styles.navbarBalanceText}
                   balance={sparkInformation.balance}
+                  useSizing={true}
                 />
               </Animated.View>
             </View>

@@ -67,6 +67,7 @@ export default function NavBarWithBalance({
             }
             customLabel={seletctedToken?.tokenMetadata?.tokenTicker}
             useMillionDenomination={true}
+            useSizing={true}
           />
         </View>
       )}
