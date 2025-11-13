@@ -52,7 +52,7 @@ export default function NavBarWithBalance({
           />
 
           <FormattedSatText
-            neverHideBalance={true}
+            // neverHideBalance={true}
             styles={styles.headerText}
             balance={
               selectedLRC20Asset !== 'Bitcoin'
