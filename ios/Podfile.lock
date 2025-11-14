@@ -1195,12 +1195,12 @@ PODS:
   - BoringSSL-GRPC/Implementation (0.0.37):
     - BoringSSL-GRPC/Interface (= 0.0.37)
   - BoringSSL-GRPC/Interface (0.0.37)
-  - breez_sdk_liquid (0.11.5):
-    - BreezSDKLiquid (= 0.11.5)
+  - breez_sdk_liquid (0.11.9):
+    - BreezSDKLiquid (= 0.11.9)
     - React-Core
-  - breez_sdk_liquidFFI (0.11.5)
-  - BreezSDKLiquid (0.11.5):
-    - breez_sdk_liquidFFI (= 0.11.5)
+  - breez_sdk_liquidFFI (0.11.9)
+  - BreezSDKLiquid (0.11.9):
+    - breez_sdk_liquidFFI (= 0.11.9)
   - DoubleConversion (1.1.6)
   - EXApplication (7.0.7):
     - ExpoModulesCore
@@ -4550,7 +4550,7 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - SocketRocket (0.7.1)
-  - spark-sdk (0.4.3):
+  - spark-sdk (0.4.5):
     - React
     - React-Core
   - UMAppLoader (6.0.7)
@@ -5003,9 +5003,9 @@ SPEC CHECKSUMS:
   abseil: a05cc83bf02079535e17169a73c5be5ba47f714b
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
-  breez_sdk_liquid: dba524a818276cf91e50f410f31965820ddf3a87
-  breez_sdk_liquidFFI: f51dbd4f419dd9286868f02602e90c4bf4abc78c
-  BreezSDKLiquid: fc4e0dfc2deb2f1e01ed19d6892033a175a9a668
+  breez_sdk_liquid: 9c382c355ae97f1b801d04ca09e56cece7337183
+  breez_sdk_liquidFFI: d7ffd1b509eb220a6a479ff188572382d0aa5c2a
+  BreezSDKLiquid: 609bb38df7f8e92825a022c86d37bedbe7e8d795
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   EXApplication: 296622817d459f46b6c5fe8691f4aac44d2b79e7
   EXConstants: a95804601ee4a6aa7800645f9b070d753b1142b3
@@ -5165,7 +5165,7 @@ SPEC CHECKSUMS:
   SDWebImageSVGCoder: 15a300a97ec1c8ac958f009c02220ac0402e936c
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  spark-sdk: 3470a19e6fa9e09c7d6d127a80501b83ec8f8b63
+  spark-sdk: a13d661a88771d38765290e0fc53bc0c17c0f5a4
   UMAppLoader: e1234c45d2b7da239e9e90fc4bbeacee12afd5b6
   VisionCamera: 30b358b807324c692064f78385e9a732ce1bebfe
   Yoga: 9b30b783a17681321b52ac507a37219d7d795ace

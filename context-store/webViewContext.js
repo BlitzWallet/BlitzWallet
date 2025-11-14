@@ -16,7 +16,10 @@ import { getSharedSecret, getPublicKey } from '@noble/secp256k1';
 import { createCipheriv, createDecipheriv } from 'react-native-quick-crypto';
 import sha256Hash from '../app/functions/hash';
 import { verifyAndPrepareWebView } from '../app/functions/webview/bundleVerification';
-import DeviceInfo from 'react-native-device-info';
+import DeviceInfo, {
+  getModel,
+  getSystemVersion,
+} from 'react-native-device-info';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import { useAppStatus } from './appStatus';
 import { useActiveCustodyAccount } from './activeAccount';
@@ -1002,6 +1005,22 @@ export const WebViewProvider = ({ children }) => {
     [currentWalletMnemoinc, sendWebViewRequestInternal],
   );
 
+  const getCustomUserAgent = useCallback(() => {
+    const deviceModel = getModel();
+    const systemVersion = getSystemVersion();
+
+    // For Android
+    if (Platform.OS === 'android') {
+      return `Mozilla/5.0 (Linux; Android ${systemVersion}; ${deviceModel}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36`;
+    }
+
+    // For iOS
+    return `Mozilla/5.0 (iPhone; CPU iPhone OS ${systemVersion.replace(
+      /\./g,
+      '_',
+    )} like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1`;
+  }, []);
+
   return (
     <WebViewContext.Provider
       value={{
@@ -1014,12 +1033,14 @@ export const WebViewProvider = ({ children }) => {
       {children}
       <WebView
         key={reloadKey}
-        domStorageEnabled={false}
+        domStorageEnabled={true}
         allowFileAccess={true}
         allowFileAccessFromFileURLs={false}
         allowUniversalAccessFromFileURLs={false}
-        thirdPartyCookiesEnabled={false}
-        incognito={true}
+        thirdPartyCookiesEnabled={true}
+        sharedCookiesEnabled={true}
+        incognito={false}
+        userAgent={getCustomUserAgent()}
         webviewDebuggingEnabled={false}
         cacheEnabled={false}
         mixedContentMode="never"

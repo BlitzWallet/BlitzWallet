@@ -19,8 +19,8 @@
   "dependencies": {
     "@azure/core-asynciterator-polyfill": "^1.0.2",
     "@bitcoinerlab/secp256k1": "^1.2.0",
-    "@breeztech/react-native-breez-sdk-liquid": "^0.11.2",
-    "@buildonspark/spark-sdk": "^0.4.3",
+    "@breeztech/react-native-breez-sdk-liquid": "^0.11.9",
+    "@buildonspark/spark-sdk": "^0.4.4",
     "@craftzdog/react-native-buffer": "^6.1.0",
     "@miblanchard/react-native-slider": "^2.6.0",
     "@noble/hashes": "^1.8.0",
