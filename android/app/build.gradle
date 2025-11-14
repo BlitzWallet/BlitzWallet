@@ -113,6 +113,14 @@ android {
             keyPassword System.getenv("MY_KEY_PASSWORD")
         }
     }
+    splits {
+        abi {
+            reset()
+            enable true
+            universalApk true
+            include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+    }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -125,13 +133,19 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
-
-    splits {
-        abi {
-            enable true
-            reset()
-            include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-            universalApk true
+    applicationVariants.configureEach { variant ->
+        variant.outputs.each { output ->
+            def abi = output.getFilter(com.android.build.OutputFile.ABI)
+            if (abi != null) {
+                def versionCodes = [
+                    "armeabi-v7a": 1,
+                    "x86"        : 2,
+                    "arm64-v8a"  : 3,
+                    "x86_64"     : 4
+                ]
+                def abiCode = versionCodes[abi] ?: 0
+                output.versionCodeOverride = defaultConfig.versionCode * 1000 + abiCode
+            }
         }
     }
 
