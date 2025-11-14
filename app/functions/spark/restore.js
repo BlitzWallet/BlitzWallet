@@ -476,7 +476,12 @@ async function processLightningTransactions(
     const paymentStatus = getSparkPaymentStatus(bitcoinTransfer.status);
     const expiryDate = new Date(bitcoinTransfer.expiryTime);
 
-    if (paymentStatus === 'pending' && expiryDate < Date.now()) {
+    // remove any stale invoices or failed payments
+    if (
+      (paymentStatus === 'pending' && expiryDate < Date.now()) ||
+      (bitcoinTransfer.transferDirection === 'OUTGOING' &&
+        bitcoinTransfer.status === 'TRANSFER_STATUS_SENDER_KEY_TWEAK_PENDING')
+    ) {
       await deleteSparkTransaction(result.id);
       continue;
     }
