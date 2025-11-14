@@ -7,7 +7,9 @@ export function generateRandomContact() {
     separator: '',
   }); // big_red_donkey
 
-  return { uniqueName: randomName + Math.ceil(Math.random() * 99) };
+  return {
+    uniqueName: (randomName + Math.ceil(Math.random() * 99)).slice(0, 30),
+  };
 }
 
 export async function getBolt11InvoiceForContact(
