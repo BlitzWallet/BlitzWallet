@@ -276,9 +276,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 15,
   },
-  profileImageContainer: {
-    ...CENTER,
-  },
   backButtonContainer: { marginRight: 'auto' },
   starContianer: { marginRight: 5 },
 });
