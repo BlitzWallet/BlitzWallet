@@ -362,7 +362,7 @@ export default function ExpandedTx(props) {
               {renderInfoRow(
                 t('constants.fee'),
                 displayCorrectDenomination({
-                  amount: 5,
+                  amount: transaction.details.fee || 0,
                   fiatStats,
                   masterInfoObject,
                 }),
