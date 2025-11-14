@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  TextInput,
 } from 'react-native';
 import {
   CENTER,
@@ -18,15 +17,11 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState, useRef } from 'react';
 import { encriptMessage } from '../../../../functions/messaging/encodingAndDecodingMessages';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../../../functions/CustomElements';
+import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
 import { isValidUniqueName } from '../../../../../db';
 import CustomButton from '../../../../functions/CustomElements/button';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { getImageFromLibrary } from '../../../../functions/imagePickerWrapper';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useKeysContext } from '../../../../../context-store/keys';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
@@ -37,16 +32,12 @@ import {
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
-import * as ImageManipulator from 'expo-image-manipulator';
 import ContactProfileImage from './internalComponents/profileImage';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import {
-  deleteDatabaseImage,
-  setDatabaseIMG,
-} from '../../../../../db/photoStorage';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
+import { useProfileImage } from './hooks/useProfileImage';
+import EditProfileTextInput from './internalComponents/editProfileTextItems';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -60,7 +51,7 @@ export default function EditMyProfilePage(props) {
 
   const pageType = props?.pageType || props.route?.params?.pageType;
   const fromSettings = props.fromSettings || props.route?.params?.fromSettings;
-
+  const hideProfileImage = props?.hideProfileImage;
   const isEditingMyProfile = pageType.toLowerCase() === 'myprofile';
   const providedContact =
     !isEditingMyProfile &&
@@ -75,6 +66,18 @@ export default function EditMyProfilePage(props) {
       );
 
   useHandleBackPressNew();
+
+  if (hideProfileImage) {
+    return (
+      <InnerContent
+        isEditingMyProfile={isEditingMyProfile}
+        selectedAddedContact={selectedAddedContact}
+        fromInitialAdd={props.fromInitialAdd}
+        fromSettings={fromSettings}
+        hideProfileImage={true}
+      />
+    );
+  }
 
   return (
     <CustomKeyboardAvoidingView
@@ -105,8 +108,117 @@ export default function EditMyProfilePage(props) {
         selectedAddedContact={selectedAddedContact}
         fromInitialAdd={props.fromInitialAdd}
         fromSettings={fromSettings}
+        hideProfileImage={false}
       />
     </CustomKeyboardAvoidingView>
+  );
+}
+
+// Extracted shared input fields component
+function ProfileInputFields({
+  inputs,
+  changeInputText,
+  setIsKeyboardActive,
+  nameRef,
+  uniquenameRef,
+  bioRef,
+  receiveAddressRef,
+  isEditingMyProfile,
+  selectedAddedContact,
+  myContact,
+  theme,
+  darkModeType,
+  textInputColor,
+  textInputBackground,
+  textColor,
+  navigate,
+  t,
+}) {
+  return (
+    <>
+      <EditProfileTextInput
+        label={t('contacts.editMyProfilePage.nameInputDesc')}
+        placeholder={t('contacts.editMyProfilePage.nameInputPlaceholder')}
+        value={inputs.name}
+        onChangeText={text => changeInputText(text, 'name')}
+        onFocus={() => setIsKeyboardActive(true)}
+        onBlur={() => setIsKeyboardActive(false)}
+        inputRef={nameRef}
+        maxLength={30}
+        theme={theme}
+        darkModeType={darkModeType}
+        textInputColor={textInputColor}
+        textInputBackground={textInputBackground}
+        textColor={textColor}
+      />
+
+      {selectedAddedContact?.isLNURL && (
+        <EditProfileTextInput
+          label={t('contacts.editMyProfilePage.lnurlInputDesc')}
+          placeholder={t('contacts.editMyProfilePage.lnurlInputPlaceholder')}
+          value={inputs.receiveAddress}
+          onChangeText={text => changeInputText(text, 'receiveAddress')}
+          onFocus={() => setIsKeyboardActive(true)}
+          onBlur={() => setIsKeyboardActive(false)}
+          inputRef={receiveAddressRef}
+          maxLength={200}
+          multiline={false}
+          minHeight={60}
+          theme={theme}
+          darkModeType={darkModeType}
+          textInputColor={textInputColor}
+          textInputBackground={textInputBackground}
+          textColor={textColor}
+        />
+      )}
+
+      {isEditingMyProfile && (
+        <EditProfileTextInput
+          label={t('contacts.editMyProfilePage.uniqueNameInputDesc')}
+          placeholder={myContact.uniqueName}
+          value={inputs.uniquename}
+          onChangeText={text => changeInputText(text, 'uniquename')}
+          onFocus={() => setIsKeyboardActive(true)}
+          onBlur={() => setIsKeyboardActive(false)}
+          inputRef={uniquenameRef}
+          maxLength={30}
+          theme={theme}
+          darkModeType={darkModeType}
+          textInputColor={textInputColor}
+          textInputBackground={textInputBackground}
+          textColor={textColor}
+          showInfoIcon={true}
+          onInfoPress={() =>
+            navigate.navigate('InformationPopup', {
+              textContent: t(
+                'wallet.receivePages.editLNURLContact.informationMessage',
+              ),
+              buttonText: t('constants.understandText'),
+            })
+          }
+        />
+      )}
+
+      <EditProfileTextInput
+        label={t('contacts.editMyProfilePage.bioInputDesc')}
+        placeholder={t('contacts.editMyProfilePage.bioInputPlaceholder')}
+        value={inputs.bio}
+        onChangeText={text => changeInputText(text, 'bio')}
+        onFocus={() => setIsKeyboardActive(true)}
+        onBlur={() => setIsKeyboardActive(false)}
+        inputRef={bioRef}
+        maxLength={150}
+        multiline={true}
+        minHeight={60}
+        maxHeight={100}
+        theme={theme}
+        darkModeType={darkModeType}
+        textInputColor={textInputColor}
+        textInputBackground={textInputBackground}
+        textColor={textColor}
+        containerStyle={{ marginBottom: 10 }}
+      />
+    </>
   );
 }
 
@@ -115,15 +227,11 @@ function InnerContent({
   selectedAddedContact,
   fromInitialAdd,
   fromSettings,
+  hideProfileImage = false,
 }) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
-  const {
-    cache,
-    refreshCache,
-    removeProfileImageFromCache,
-    refreshCacheObject,
-  } = useImageCache();
+  const { cache, refreshCacheObject } = useImageCache();
   const { backgroundOffset, textInputColor, textInputBackground, textColor } =
     GetThemeColors();
   const {
@@ -132,7 +240,8 @@ function InnerContent({
     toggleGlobalContactsInformation,
   } = useGlobalContacts();
   const { t } = useTranslation();
-  const [isAddingImage, setIsAddingImage] = useState(false);
+  const { isAddingImage, addProfilePicture, deleteProfilePicture } =
+    useProfileImage();
 
   const nameRef = useRef(null);
   const uniquenameRef = useRef(null);
@@ -218,11 +327,58 @@ function InnerContent({
     refreshCacheObject();
   }, []);
 
+  // Shared props for ProfileInputFields
+  const inputFieldsProps = {
+    inputs,
+    changeInputText,
+    setIsKeyboardActive,
+    nameRef,
+    uniquenameRef,
+    bioRef,
+    receiveAddressRef,
+    isEditingMyProfile,
+    selectedAddedContact,
+    myContact,
+    theme,
+    darkModeType,
+    textInputColor,
+    textInputBackground,
+    textColor,
+    navigate,
+    t,
+  };
+
+  if (hideProfileImage) {
+    return (
+      <>
+        <View style={styles.hideProfileContainer}>
+          <ProfileInputFields {...inputFieldsProps} />
+        </View>
+        <CustomButton
+          buttonStyles={{
+            width: 'auto',
+            ...CENTER,
+            marginTop: 10,
+            marginBottom: isKeyboardActive
+              ? CONTENT_KEYBOARD_OFFSET
+              : bottomPadding,
+          }}
+          actionFunction={saveChanges}
+          textContent={
+            fromInitialAdd
+              ? t('contacts.editMyProfilePage.addContactBTN')
+              : t('constants.save')
+          }
+        />
+      </>
+    );
+  }
+
   return (
     <View
       style={[
         styles.innerContainer,
-        fromSettings && { maxWidth: MAX_CONTENT_WIDTH },
+        fromSettings && { maxWidth: MAX_CONTENT_WIDTH, width: '100%' },
       ]}
     >
       <ScrollView
@@ -245,12 +401,14 @@ function InnerContent({
             if (!isEditingMyProfile && !selectedAddedContact.isLNURL) return;
             if (isAddingImage) return;
             if (!hasImage) {
-              addProfilePicture();
+              addProfilePicture(isEditingMyProfile, selectedAddedContact);
               return;
             }
             navigate.navigate('AddOrDeleteContactImage', {
-              addPhoto: addProfilePicture,
-              deletePhoto: deleteProfilePicture,
+              addPhoto: () =>
+                addProfilePicture(isEditingMyProfile, selectedAddedContact),
+              deletePhoto: () =>
+                deleteProfilePicture(isEditingMyProfile, selectedAddedContact),
               hasImage: hasImage,
             });
           }}
@@ -292,276 +450,34 @@ function InnerContent({
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.textInputContainer}
-          activeOpacity={1}
-          onPress={() => {
-            nameRef.current.focus();
+        <ProfileInputFields {...inputFieldsProps} />
+
+        <CustomButton
+          buttonStyles={{
+            width: 'auto',
+            ...CENTER,
+            marginTop: 'auto',
+            marginBottom: isKeyboardActive
+              ? CONTENT_KEYBOARD_OFFSET
+              : bottomPadding,
           }}
-        >
-          <ThemeText
-            styles={styles.textInputContainerDescriptionText}
-            content={t('contacts.editMyProfilePage.nameInputDesc')}
-          />
-          <TextInput
-            keyboardAppearance={theme ? 'dark' : 'light'}
-            placeholder={t('contacts.editMyProfilePage.nameInputPlaceholder')}
-            placeholderTextColor={COLORS.opaicityGray}
-            ref={nameRef}
-            style={[
-              styles.textInput,
-              {
-                backgroundColor: textInputBackground,
-                color:
-                  inputs.name.length < 30
-                    ? textInputColor
-                    : theme && darkModeType
-                    ? textInputColor
-                    : COLORS.cancelRed,
-              },
-            ]}
-            value={inputs.name || ''}
-            onChangeText={text => changeInputText(text, 'name')}
-            onBlur={() => {
-              setIsKeyboardActive(false);
-            }}
-            onFocus={() => {
-              setIsKeyboardActive(true);
-            }}
-          />
-          <ThemeText
-            styles={{
-              textAlign: 'right',
-              color:
-                inputs.name.length < 30
-                  ? textColor
-                  : theme && darkModeType
-                  ? textColor
-                  : COLORS.cancelRed,
-            }}
-            content={`${inputs.name.length} / ${30}`}
-          />
-        </TouchableOpacity>
-        {selectedAddedContact?.isLNURL && (
-          <TouchableOpacity
-            style={styles.textInputContainer}
-            activeOpacity={1}
-            onPress={() => {
-              receiveAddressRef.current.focus();
-            }}
-          >
-            <ThemeText
-              styles={styles.textInputContainerDescriptionText}
-              content={t('contacts.editMyProfilePage.lnurlInputDesc')}
-            />
-            <TextInput
-              keyboardAppearance={theme ? 'dark' : 'light'}
-              placeholderTextColor={COLORS.opaicityGray}
-              ref={receiveAddressRef}
-              style={[
-                styles.textInput,
-                {
-                  backgroundColor: textInputBackground,
-                  color:
-                    inputs.receiveAddress.length < 30
-                      ? textInputColor
-                      : theme && darkModeType
-                      ? textInputColor
-                      : COLORS.cancelRed,
-                },
-              ]}
-              value={inputs.receiveAddress || ''}
-              placeholder={t(
-                'contacts.editMyProfilePage.lnurlInputPlaceholder',
-              )}
-              onChangeText={text => changeInputText(text, 'receiveAddress')}
-              onBlur={() => {
-                setIsKeyboardActive(false);
-              }}
-              onFocus={() => {
-                setIsKeyboardActive(true);
-              }}
-            />
-
-            <ThemeText
-              styles={{
-                textAlign: 'right',
-                color:
-                  inputs.receiveAddress.length < 60
-                    ? textColor
-                    : theme && darkModeType
-                    ? textColor
-                    : COLORS.cancelRed,
-              }}
-              content={`${inputs.receiveAddress.length} / ${60}`}
-            />
-          </TouchableOpacity>
-        )}
-        {isEditingMyProfile && (
-          <TouchableOpacity
-            style={styles.textInputContainer}
-            activeOpacity={1}
-            onPress={() => {
-              uniquenameRef.current.focus();
-            }}
-          >
-            <TouchableOpacity
-              onPress={() =>
-                navigate.navigate('InformationPopup', {
-                  textContent: t(
-                    'wallet.receivePages.editLNURLContact.informationMessage',
-                  ),
-                  buttonText: t('constants.understandText'),
-                })
-              }
-              style={styles.usernameRow}
-            >
-              <ThemeText
-                styles={styles.textInputContainerDescriptionText}
-                content={t('contacts.editMyProfilePage.uniqueNameInputDesc')}
-              />
-              <View
-                onPress={() =>
-                  navigate.navigate('InformationPopup', {
-                    textContent: t(
-                      'wallet.receivePages.editLNURLContact.informationMessage',
-                    ),
-                    buttonText: t('constants.understandText'),
-                  })
-                }
-              >
-                <ThemeImage
-                  styles={styles.infoIcon}
-                  lightModeIcon={ICONS.aboutIcon}
-                  darkModeIcon={ICONS.aboutIcon}
-                  lightsOutIcon={ICONS.aboutIcon}
-                />
-              </View>
-            </TouchableOpacity>
-            <TextInput
-              keyboardAppearance={theme ? 'dark' : 'light'}
-              placeholderTextColor={COLORS.opaicityGray}
-              ref={uniquenameRef}
-              style={[
-                styles.textInput,
-                {
-                  marginTop: 0,
-                  backgroundColor: textInputBackground,
-                  color:
-                    inputs.uniquename.length < 30
-                      ? textInputColor
-                      : theme && darkModeType
-                      ? textInputColor
-                      : COLORS.cancelRed,
-                },
-              ]}
-              value={inputs.uniquename || ''}
-              placeholder={myContact.uniqueName}
-              onChangeText={text => changeInputText(text, 'uniquename')}
-              onBlur={() => {
-                setIsKeyboardActive(false);
-              }}
-              onFocus={() => {
-                setIsKeyboardActive(true);
-              }}
-            />
-
-            <ThemeText
-              styles={{
-                textAlign: 'right',
-                color:
-                  inputs.uniquename.length < 30
-                    ? textColor
-                    : theme && darkModeType
-                    ? textColor
-                    : COLORS.cancelRed,
-              }}
-              content={`${inputs.uniquename.length} / ${30}`}
-            />
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={styles.textInputContainer}
-          activeOpacity={1}
-          onPress={() => {
-            bioRef.current.focus();
-          }}
-        >
-          <ThemeText
-            styles={styles.textInputContainerDescriptionText}
-            content={t('contacts.editMyProfilePage.bioInputDesc')}
-          />
-          <TextInput
-            keyboardAppearance={theme ? 'dark' : 'light'}
-            placeholder={t('contacts.editMyProfilePage.bioInputPlaceholder')}
-            placeholderTextColor={COLORS.opaicityGray}
-            ref={bioRef}
-            editable
-            multiline
-            textAlignVertical="top"
-            style={[
-              styles.textInput,
-              {
-                minHeight: 60,
-                maxHeight: 100,
-                backgroundColor: textInputBackground,
-                color:
-                  inputs.bio.length < 150
-                    ? textInputColor
-                    : theme && darkModeType
-                    ? textInputColor
-                    : COLORS.cancelRed,
-              },
-            ]}
-            value={inputs.bio || ''}
-            onChangeText={text => changeInputText(text, 'bio')}
-            onBlur={() => {
-              setIsKeyboardActive(false);
-            }}
-            onFocus={() => {
-              setIsKeyboardActive(true);
-            }}
-          />
-
-          <ThemeText
-            styles={{
-              textAlign: 'right',
-              color:
-                inputs.bio.length < 150
-                  ? textColor
-                  : theme && darkModeType
-                  ? textColor
-                  : COLORS.cancelRed,
-            }}
-            content={`${inputs.bio.length} / ${150}`}
-          />
-        </TouchableOpacity>
+          actionFunction={saveChanges}
+          textContent={
+            fromInitialAdd
+              ? t('contacts.editMyProfilePage.addContactBTN')
+              : t('constants.save')
+          }
+        />
       </ScrollView>
-
-      <CustomButton
-        buttonStyles={{
-          width: 'auto',
-          ...CENTER,
-          marginTop: 10,
-          marginBottom: isKeyboardActive
-            ? CONTENT_KEYBOARD_OFFSET
-            : bottomPadding,
-        }}
-        actionFunction={saveChanges}
-        textContent={
-          fromInitialAdd
-            ? t('contacts.editMyProfilePage.addContactBTN')
-            : t('constants.save')
-        }
-      />
     </View>
   );
+
   async function saveChanges() {
     if (
-      inputs.name.length > 30 ||
-      inputs.bio.length > 150 ||
-      inputs.uniquename.length > 30 ||
-      (selectedAddedContact?.isLNURL && inputs.receiveAddress.length > 100)
+      inputs.name.length >= 30 ||
+      inputs.bio.length >= 150 ||
+      inputs.uniquename.length >= 30 ||
+      (selectedAddedContact?.isLNURL && inputs.receiveAddress.length >= 200)
     )
       return;
 
@@ -611,8 +527,6 @@ function InnerContent({
               didEditProfile: true,
             },
             addedContacts: globalContactsInformation.addedContacts,
-            // unaddedContacts:
-            //   globalContactsInformation.unaddedContacts,
           },
           true,
         );
@@ -660,8 +574,6 @@ function InnerContent({
               publicKey,
               JSON.stringify(newAddedContacts),
             ),
-            // unaddedContacts:
-            //   globalContactsInformation.unaddedContacts,
           },
           true,
         );
@@ -702,8 +614,6 @@ function InnerContent({
               publicKey,
               JSON.stringify(newAddedContacts),
             ),
-            // unaddedContacts:
-            //   globalContactsInformation.unaddedContacts,
           },
           true,
         );
@@ -711,108 +621,15 @@ function InnerContent({
       }
     }
   }
-
-  async function addProfilePicture() {
-    const imagePickerResponse = await getImageFromLibrary({ quality: 1 });
-    const { didRun, error, imgURL } = imagePickerResponse;
-    if (!didRun) return;
-    if (error) {
-      navigate.navigate('ErrorScreen', { errorMessage: t(error) });
-      return;
-    }
-
-    if (isEditingMyProfile) {
-      const response = await uploadProfileImage({ imgURL: imgURL });
-      if (!response) return;
-      toggleGlobalContactsInformation(
-        {
-          myProfile: {
-            ...globalContactsInformation.myProfile,
-            hasProfileImage: true,
-          },
-
-          addedContacts: globalContactsInformation.addedContacts,
-        },
-        true,
-      );
-      return;
-    }
-
-    await refreshCache(selectedAddedContact.uuid, imgURL.uri, false);
-  }
-  async function uploadProfileImage({ imgURL, removeImage }) {
-    try {
-      setIsAddingImage(true);
-      if (!removeImage) {
-        const resized = ImageManipulator.ImageManipulator.manipulate(
-          imgURL.uri,
-        ).resize({ width: 350 });
-        const image = await resized.renderAsync();
-        const savedImage = await image.saveAsync({
-          compress: 0.4,
-          format: ImageManipulator.SaveFormat.WEBP,
-        });
-
-        const response = await setDatabaseIMG(
-          globalContactsInformation.myProfile.uuid,
-          { uri: savedImage.uri },
-        );
-
-        if (response) {
-          await refreshCache(
-            globalContactsInformation.myProfile.uuid,
-            response,
-            false,
-          );
-          return true;
-        } else
-          throw new Error(t('contacts.editMyProfilePage.unableToSaveError'));
-      } else {
-        await deleteDatabaseImage(globalContactsInformation.myProfile.uuid);
-        await removeProfileImageFromCache(
-          globalContactsInformation.myProfile.uuid,
-        );
-        return true;
-      }
-    } catch (err) {
-      console.log(err);
-      navigate.navigate('ErrorScreen', { errorMessage: err.message });
-      return false;
-    } finally {
-      setIsAddingImage(false);
-    }
-  }
-  async function deleteProfilePicture() {
-    try {
-      if (isEditingMyProfile) {
-        const response = await uploadProfileImage({ removeImage: true });
-        console.log(response);
-        if (!response) return;
-        toggleGlobalContactsInformation(
-          {
-            myProfile: {
-              ...globalContactsInformation.myProfile,
-              hasProfileImage: false,
-            },
-
-            addedContacts: globalContactsInformation.addedContacts,
-          },
-          true,
-        );
-        return;
-      }
-
-      await removeProfileImageFromCache(selectedAddedContact.uuid);
-    } catch (err) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('contacts.editMyProfilePage.deleteProfileImageError'),
-      });
-      console.log(err);
-    }
-  }
 }
 
 const styles = StyleSheet.create({
+  hideProfileContainer: {
+    flex: 1,
+    alignItems: 'center',
+    width: '95%',
+    ...CENTER,
+  },
   innerContainer: {
     flex: 1,
     width: '95%',

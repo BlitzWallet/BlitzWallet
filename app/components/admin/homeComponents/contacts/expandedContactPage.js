@@ -9,10 +9,6 @@ import {
 import { CENTER, COLORS, ICONS, SIZES } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo } from 'react';
-import {
-  decryptMessage,
-  encriptMessage,
-} from '../../../../functions/messaging/encodingAndDecodingMessages';
 import ContactsTransactionItem from './internalComponents/contactsTransactions';
 import {
   GlobalThemeView,
@@ -27,7 +23,6 @@ import FullLoadingScreen from '../../../../functions/CustomElements/loadingScree
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-import { useKeysContext } from '../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import ContactProfileImage from './internalComponents/profileImage';
 import { useImageCache } from '../../../../../context-store/imageCache';
@@ -38,10 +33,10 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
+import { useExpandedNavbar } from './hooks/useExpandedNavbar';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
-  const { contactsPrivateKey, publicKey } = useKeysContext();
   const { isConnectedToTheInternet } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
   const {
@@ -50,19 +45,17 @@ export default function ExpandedContactsPage(props) {
     textInputColor,
     textInputBackground,
   } = GetThemeColors();
-  const {
-    decodedAddedContacts,
-    globalContactsInformation,
-    toggleGlobalContactsInformation,
-    contactsMessags,
-  } = useGlobalContacts();
+  const { decodedAddedContacts, globalContactsInformation, contactsMessags } =
+    useGlobalContacts();
   const { bottomPadding } = useGlobalInsets();
   const { cache } = useImageCache();
   const getServerTime = useServerTimeOnly();
   const currentTime = getServerTime();
   const { t } = useTranslation();
+  const { handleFavortie, handleSettings } = useExpandedNavbar();
   const selectedUUID = props?.route?.params?.uuid || props?.uuid;
   const myProfile = globalContactsInformation?.myProfile;
+  const hideProfileImage = props?.hideProfileImage;
 
   const [selectedContact] = useMemo(
     () =>
@@ -109,47 +102,49 @@ export default function ExpandedContactsPage(props) {
   const ListHeaderComponent = useCallback(
     () => (
       <>
-        <TouchableOpacity
-          activeOpacity={
-            !selectedContact?.isLNURL && selectedContact?.uniqueName ? 0.2 : 1
-          }
-          onPress={() => {
-            if (selectedContact?.isLNURL || !selectedContact?.uniqueName)
-              return;
-            Share.share({
-              message: `${t('share.contact')}\nhttps://blitzwalletapp.com/u/${
-                selectedContact?.uniqueName
-              }`,
-            });
-          }}
-          style={styles.profileImageContainer}
-        >
-          <View
-            style={[
-              styles.profileImage,
-              {
-                backgroundColor: backgroundOffset,
-              },
-            ]}
+        {!hideProfileImage && (
+          <TouchableOpacity
+            activeOpacity={
+              !selectedContact?.isLNURL && selectedContact?.uniqueName ? 0.2 : 1
+            }
+            onPress={() => {
+              if (selectedContact?.isLNURL || !selectedContact?.uniqueName)
+                return;
+              Share.share({
+                message: `${t('share.contact')}\nhttps://blitzwalletapp.com/u/${
+                  selectedContact?.uniqueName
+                }`,
+              });
+            }}
+            style={styles.profileImageContainer}
           >
-            <ContactProfileImage
-              updated={imageData?.updated}
-              uri={imageData?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          </View>
-          {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
-            <View style={styles.selectFromPhotos}>
-              <ThemeImage
-                styles={{ width: 20, height: 20 }}
-                darkModeIcon={ICONS.shareBlack}
-                lightModeIcon={ICONS.shareBlack}
-                lightsOutIcon={ICONS.shareBlack}
+            <View
+              style={[
+                styles.profileImage,
+                {
+                  backgroundColor: backgroundOffset,
+                },
+              ]}
+            >
+              <ContactProfileImage
+                updated={imageData?.updated}
+                uri={imageData?.localUri}
+                darkModeType={darkModeType}
+                theme={theme}
               />
             </View>
-          )}
-        </TouchableOpacity>
+            {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
+              <View style={styles.selectFromPhotos}>
+                <ThemeImage
+                  styles={{ width: 20, height: 20 }}
+                  darkModeIcon={ICONS.shareBlack}
+                  lightModeIcon={ICONS.shareBlack}
+                  lightsOutIcon={ICONS.shareBlack}
+                />
+              </View>
+            )}
+          </TouchableOpacity>
+        )}
 
         <ThemeText
           styles={styles.profileName}
@@ -259,66 +254,45 @@ export default function ExpandedContactsPage(props) {
       imageData?.updated,
       imageData?.localUri,
       isConnectedToTheInternet,
+      hideProfileImage,
     ],
   );
 
-  const handleFavortie = useCallback(async () => {
-    if (!isConnectedToTheInternet) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('errormessages.nointernet'),
-      });
-      return;
-    }
-    if (!selectedContact) return;
-    toggleGlobalContactsInformation(
-      {
-        myProfile: { ...globalContactsInformation.myProfile },
-        addedContacts: encriptMessage(
-          contactsPrivateKey,
-          publicKey,
-          JSON.stringify(
-            [
-              ...JSON.parse(
-                decryptMessage(
-                  contactsPrivateKey,
-                  publicKey,
-                  globalContactsInformation.addedContacts,
-                ),
-              ),
-            ].map(savedContact => {
-              if (savedContact.uuid === selectedContact.uuid) {
-                return {
-                  ...savedContact,
-                  isFavorite: !savedContact.isFavorite,
-                };
-              } else return savedContact;
-            }),
-          ),
-        ),
-      },
-      true,
+  if (hideProfileImage) {
+    return (
+      <View style={styles.flex}>
+        {!selectedContact ? (
+          <FullLoadingScreen
+            text={t('contacts.expandedContactPage.loadingContactError')}
+            textStyles={{ testAlign: 'center' }}
+          />
+        ) : contactTransactions.length !== 0 ? (
+          <>
+            <ListHeaderComponent />
+            {contactTransactions.slice(0, 50).map((item, index) => (
+              <ContactsTransactionItem
+                key={index}
+                transaction={item}
+                id={index}
+                selectedContact={selectedContact}
+                myProfile={myProfile}
+                currentTime={currentTime}
+                imageData={imageData}
+              />
+            ))}
+          </>
+        ) : (
+          <View style={styles.flex}>
+            <ListHeaderComponent />
+            <ThemeText
+              styles={styles.txPlaceholder}
+              content={t('contacts.expandedContactPage.noTransactions')}
+            />
+          </View>
+        )}
+      </View>
     );
-  }, [
-    isConnectedToTheInternet,
-    globalContactsInformation,
-    contactsPrivateKey,
-    publicKey,
-    selectedContact,
-  ]);
-
-  const handleSettings = useCallback(() => {
-    if (!isConnectedToTheInternet) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('errormessages.nointernet'),
-      });
-      return;
-    }
-    if (!selectedContact) return;
-    navigate.navigate('EditMyProfilePage', {
-      pageType: 'addedContact',
-      selectedAddedContact: selectedContact,
-    });
-  }, [isConnectedToTheInternet, selectedContact]);
+  }
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
@@ -336,7 +310,7 @@ export default function ExpandedContactsPage(props) {
         {selectedContact && (
           <TouchableOpacity
             style={styles.starContianer}
-            onPress={handleFavortie}
+            onPress={() => handleFavortie({ selectedContact })}
           >
             <Icon
               width={25}
@@ -356,7 +330,7 @@ export default function ExpandedContactsPage(props) {
           </TouchableOpacity>
         )}
         {selectedContact && (
-          <TouchableOpacity onPress={handleSettings}>
+          <TouchableOpacity onPress={() => handleSettings({ selectedContact })}>
             <ThemeImage
               darkModeIcon={ICONS.settingsIcon}
               lightModeIcon={ICONS.settingsIcon}
@@ -374,7 +348,7 @@ export default function ExpandedContactsPage(props) {
       ) : contactTransactions.length !== 0 ? (
         <FlatList
           showsVerticalScrollIndicator={false}
-          style={{ flex: 1 }}
+          style={styles.flex}
           contentContainerStyle={{
             paddingBottom: bottomPadding,
           }}
@@ -397,7 +371,7 @@ export default function ExpandedContactsPage(props) {
           maxToRenderPerBatch={10}
         />
       ) : (
-        <View style={{ flex: 1 }}>
+        <View style={styles.flex}>
           <ListHeaderComponent />
           <ThemeText
             styles={styles.txPlaceholder}
@@ -410,6 +384,7 @@ export default function ExpandedContactsPage(props) {
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   globalContainer: { paddingBottom: 0 },
   topBar: {
     width: '100%',
