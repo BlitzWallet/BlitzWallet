@@ -13,12 +13,16 @@ import {
 } from '@react-native-firebase/storage';
 import { useGlobalContacts } from './globalContacts';
 import { useAppStatus } from './appStatus';
-import { BLITZ_PROFILE_IMG_STORAGE_REF } from '../app/constants';
+import {
+  BLITZ_PROFILE_IMG_STORAGE_REF,
+  VALID_URL_REGEX,
+} from '../app/constants';
 import { useGlobalContextProvider } from './context';
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import { storage } from '../db/initializeFirebase';
 import {
   cacheDirectory,
+  copyAsync,
   downloadAsync,
   getInfoAsync,
   makeDirectoryAsync,
@@ -132,7 +136,14 @@ export function ImageCacheProvider({ children }) {
       const localUri = `${FILE_DIR}${uuid}.jpg`;
 
       await makeDirectoryAsync(FILE_DIR, { intermediates: true });
-      await downloadAsync(url, localUri);
+
+      if (VALID_URL_REGEX.test(url)) {
+        console.log('Downloading image from', url, 'to', localUri);
+        await downloadAsync(url, localUri);
+      } else {
+        console.log('Copying image from', url, 'to', localUri);
+        await copyAsync({ from: url, to: localUri });
+      }
 
       const newCacheEntry = {
         uri: localUri,
