@@ -1,8 +1,4 @@
-import {
-  SparkWallet,
-  ReactNativeSparkSigner,
-  getLatestDepositTxId,
-} from '@buildonspark/spark-sdk/native';
+import { SparkWallet, getLatestDepositTxId } from '@buildonspark/spark-sdk';
 import {
   LightningSendRequestStatus,
   SparkCoopExitRequestStatus,
@@ -146,7 +142,6 @@ export const initializeSparkWallet = async (mnemonic, isInitialLoad = true) => {
 
 const initializeWallet = async mnemonic => {
   const { wallet } = await SparkWallet.initialize({
-    signer: new ReactNativeSparkSigner(),
     mnemonicOrSeed: mnemonic,
     options: {
       network: 'MAINNET',
