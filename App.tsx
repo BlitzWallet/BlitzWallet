@@ -23,7 +23,7 @@ import {
 import { GlobalContextProvider } from './context-store/context';
 
 import { WebViewProvider } from './context-store/webViewContext';
-import { Linking, Platform } from 'react-native';
+import { Linking, NativeModules, Platform } from 'react-native';
 
 import SplashScreen from './app/screens/splashScreen';
 import { GlobalContactsList } from './context-store/globalContacts';
@@ -115,6 +115,8 @@ ExpoSplashScreen.preventAutoHideAsync()
   )
   .catch(console.warn);
 
+const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
+
 function App(): JSX.Element {
   return (
     <GestureHandlerRootView>
@@ -202,44 +204,18 @@ function ResetStack(): JSX.Element | null {
   const { backgroundColor } = GetThemeColors();
   const { i18n } = useTranslation();
 
-  const handleDeepLink = useCallback(
-    async (event: { url: string }, isInitialLoad = false) => {
-      const { url } = event;
-      try {
-        if (isInitialLoad) {
-          const savedDeepLink = await getLocalStorageItem(
-            'lastHandledDeepLink',
-          );
-          const parsedSavedDeeplink = JSON.parse(savedDeepLink) || {
-            url: '',
-            dateAdded: null,
-          };
-
-          if (
-            parsedSavedDeeplink.url === url &&
-            !isMoreThan40MinOld(parsedSavedDeeplink.dateAdded)
-          ) {
-            console.log('Deep link already handled:', url);
-            return;
-          }
-
-          await setLocalStorageItem(
-            'lastHandledDeepLink',
-            JSON.stringify({ url: url, dateAdded: Date.now() }),
-          );
-        }
-
-        console.log('Deep link URL:', url);
-        setPendingLinkData({
-          url: event.url,
-          timestamp: Date.now(),
-        });
-      } catch (error) {
-        console.error('Error handling deep link:', error);
-      }
-    },
-    [],
-  );
+  const handleDeepLink = useCallback(async (event: { url: string }) => {
+    const { url } = event;
+    try {
+      console.log('Deep link URL:', url);
+      setPendingLinkData({
+        url: event.url,
+        timestamp: Date.now(),
+      });
+    } catch (error) {
+      console.error('Error handling deep link:', error);
+    }
+  }, []);
 
   const clearDeepLink = useCallback(() => {
     setPendingLinkData({
@@ -251,7 +227,7 @@ function ResetStack(): JSX.Element | null {
   const getInitialURL = useCallback(async () => {
     const url = await Linking.getInitialURL();
     if (url) {
-      handleDeepLink({ url }, true);
+      handleDeepLink({ url });
       console.log('Initial deep link stored:', url);
     }
   }, []);
@@ -311,6 +287,13 @@ function ResetStack(): JSX.Element | null {
             }
           }
 
+          if (
+            Platform.OS === 'android' &&
+            DeepLinkIntentModule &&
+            DeepLinkIntentModule.clearIntent
+          ) {
+            DeepLinkIntentModule.clearIntent();
+          }
           // Clear the pending link after processing
           clearDeepLink();
         } catch (error: any) {
