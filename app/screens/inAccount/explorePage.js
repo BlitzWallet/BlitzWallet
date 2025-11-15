@@ -65,8 +65,7 @@ export default function ExploreUsers() {
     const targetTimezoneMs =
       currentTime + currentTimeZoneOffsetInHours * 60 * 60 * 1000;
     const targetDate = new Date(targetTimezoneMs);
-    // Get midnight of the same day
-    targetDate.setUTCHours(24, 0, 0, 0); // Set to midnight (start of next day)
+    targetDate.setUTCHours(12, 0, 0, 0); // Set to 12pm of the current day
 
     return targetDate.getTime();
   }, [currentTime]);
@@ -163,12 +162,15 @@ export default function ExploreUsers() {
   useEffect(() => {
     async function loadExploreData() {
       try {
-        if (masterInfoObject.exploreData) return;
         const pastExploreData = await getLocalStorageItem(
           'savedExploreData',
         ).then(data => JSON.parse(data));
+        const shouldLoadExporeDataResp = shouldLoadExploreData(
+          pastExploreData,
+          currentTime,
+        );
 
-        const shouldLoadExporeDataResp = shouldLoadExploreData(pastExploreData);
+        if (masterInfoObject.exploreData && !shouldLoadExporeDataResp) return;
 
         if (!shouldLoadExporeDataResp) {
           toggleMasterInfoObject({ exploreData: pastExploreData.data });
@@ -187,7 +189,7 @@ export default function ExploreUsers() {
           await setLocalStorageItem(
             'savedExploreData',
             JSON.stringify({
-              lastUpdated: new Date().getTime(),
+              lastUpdated: currentTime,
               data: freshExploreData,
             }),
           );
