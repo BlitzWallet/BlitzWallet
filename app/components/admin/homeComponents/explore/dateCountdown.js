@@ -59,9 +59,8 @@ function getFommattedTime(getServerTime, currentTimeZoneOffsetInHours) {
   const targetTimezoneMs = date + currentTimeZoneOffsetInHours * 60 * 60 * 1000;
   const targetDate = new Date(targetTimezoneMs);
 
-  // Get midnight of the same day
   const midnight = new Date(date);
-  midnight.setUTCHours(24, 0, 0, 0); // Set to midnight (start of next day)
+  midnight.setUTCHours(36, 0, 0, 0); // Set to 12pm of the next day
 
   // Calculate time difference in milliseconds
   const diffMs = midnight - targetDate;

@@ -100,17 +100,36 @@ export const fetchLocalStorageItems = async () => {
   };
 };
 
-export function shouldLoadExploreData(savedExploreRawData) {
+export function shouldLoadExploreData(savedExploreRawData, currentServerTime) {
   let shouldFetchUserCount = false;
+
   try {
+    if (!savedExploreRawData?.lastUpdated) {
+      return true;
+    }
+
+    const UTC_MINUS_6_OFFSET = -6;
+
+    const targetTimezoneMs =
+      currentServerTime + UTC_MINUS_6_OFFSET * 60 * 60 * 1000;
+    const targetDate = new Date(targetTimezoneMs);
+    targetDate.setUTCHours(12, 0, 0, 0);
+
+    const current12PMUtcMinus6 = targetDate.getTime();
+
+    // Check if we've passed 12 PM UTC-6 since last update
+    console.log(currentServerTime, current12PMUtcMinus6);
+    console.log(savedExploreRawData.lastUpdated, current12PMUtcMinus6);
     if (
-      !savedExploreRawData?.lastUpdated ||
-      isNewDaySince(savedExploreRawData?.lastUpdated)
+      currentServerTime >= current12PMUtcMinus6 &&
+      savedExploreRawData.lastUpdated < current12PMUtcMinus6
     ) {
       shouldFetchUserCount = true;
     }
   } catch (err) {
     console.log('error in should load explore data', err);
+    // Default to fetching on error to be safe
+    shouldFetchUserCount = true;
   }
 
   return shouldFetchUserCount;
