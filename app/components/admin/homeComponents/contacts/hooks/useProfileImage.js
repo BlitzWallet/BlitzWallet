@@ -61,7 +61,31 @@ export function useProfileImage() {
 
     // For other contacts, just refresh cache
     if (selectedContact) {
-      await refreshCache(selectedContact.uuid, imgURL.uri, false);
+      const savedImage = await resizeImage({ imgURL });
+      if (!savedImage.uri) return;
+      await refreshCache(selectedContact.uuid, savedImage.uri, false);
+    }
+  };
+
+  /**
+   * Resizes an image for consistancy
+   * @param {object} params - Upload parameters
+   * @param {object} params.imgURL - Image URL object
+   */
+
+  const resizeImage = async ({ imgURL }) => {
+    try {
+      const resized = ImageManipulator.ImageManipulator.manipulate(
+        imgURL.uri,
+      ).resize({ width: 350 });
+      const image = await resized.renderAsync();
+      const savedImage = await image.saveAsync({
+        compress: 0.4,
+        format: ImageManipulator.SaveFormat.WEBP,
+      });
+      return savedImage;
+    } catch (err) {
+      console.log('Error resizing image', err);
     }
   };
 
@@ -77,14 +101,10 @@ export function useProfileImage() {
       setIsAddingImage(true);
 
       if (!removeImage) {
-        const resized = ImageManipulator.ImageManipulator.manipulate(
-          imgURL.uri,
-        ).resize({ width: 350 });
-        const image = await resized.renderAsync();
-        const savedImage = await image.saveAsync({
-          compress: 0.4,
-          format: ImageManipulator.SaveFormat.WEBP,
-        });
+        const savedImage = await resizeImage({ imgURL });
+
+        if (!savedImage.uri)
+          throw new Error(t('contacts.editMyProfilePage.unableToSaveError'));
 
         const response = await setDatabaseIMG(uuid, { uri: savedImage.uri });
 
