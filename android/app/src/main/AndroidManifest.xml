@@ -1,22 +1,23 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permissions (unchanged) -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Camera -->
     <uses-permission android:name="android.permission.CAMERA"/>
-    <!-- Push notifications -->
+     <!-- Push notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-    <!-- Expo network -->
+      <!-- Expo network -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <!-- Expo local authentication -->
+      <!-- Expo local authentication -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
-    <!-- Expo file system -->
+       <!-- Expo file system -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <!-- Background fetch using expo-task manager -->
+     <!-- Background fetch using expo-task manager -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -45,13 +46,13 @@
         android:name="com.google.firebase.messaging.default_notification_color"
         android:resource="@color/colorAccent" />
 
-      <!-- Expo notification settings -->
-        <meta-data
-          android:name="expo.modules.notifications.default_notification_icon"
-          android:resource="@mipmap/ic_stat_transparenticon" />
-        <meta-data
-          android:name="expo.modules.notifications.default_notification_color"
-          android:resource="@color/colorAccent" />
+          <!-- Expo notification settings -->
+      <meta-data
+        android:name="expo.modules.notifications.default_notification_icon"
+        android:resource="@mipmap/ic_stat_transparenticon" />
+      <meta-data
+        android:name="expo.modules.notifications.default_notification_color"
+        android:resource="@color/colorAccent" />
 
 
       <activity
@@ -62,48 +63,55 @@
         android:screenOrientation="portrait"
         android:windowSoftInputMode="adjustResize"
         android:exported="true">
-
+    
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
 
+        <!-- 2. NFC - Specific MIME Type Handling (for standard LN invoices over NFC) -->
         <intent-filter>
           <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
           <category android:name="android.intent.category.DEFAULT"/>
           <data android:mimeType="application/lightning-invoice"/>
         </intent-filter>
 
-        <intent-filter>
+        <!-- 3. Custom URI/NFC Scheme Filters -->
+        <intent-filter android:label="Blitz Wallet URI Handlers">
           <action android:name="android.intent.action.VIEW"/>
+          <!-- Include NFC actions for deep links that might come from NFC tags -->
           <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
           <action android:name="android.nfc.action.TECH_DISCOVERED"/>
           <action android:name="android.nfc.action.TAG_DISCOVERED"/>
           <category android:name="android.intent.category.BROWSABLE"/>
           <category android:name="android.intent.category.DEFAULT"/>
+
+          <!-- Custom App Scheme to handle: biltz:lightning:... -->
+          <data android:scheme="blitz"/>
+          <data android:scheme="BLITZ"/>
+
+          <!-- Custom App Scheme (for React Native Linking/internal deep links) -->
+          <data android:scheme="blitz-wallet"/>
+
+          <!-- Bitcoin Schemes -->
+          <data android:scheme="bitcoin"/>
+          <data android:scheme="BITCOIN"/>
+
+          <!-- Lightning Schemes -->
           <data android:scheme="lightning"/>
-        </intent-filter>
+          <data android:scheme="LIGHTNING"/>
 
-        <intent-filter>
-          <action android:name="android.intent.action.VIEW"/>
-          <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-          <action android:name="android.nfc.action.TECH_DISCOVERED"/>
-          <action android:name="android.nfc.action.TAG_DISCOVERED"/>
-          <category android:name="android.intent.category.BROWSABLE"/>
-          <category android:name="android.intent.category.DEFAULT"/>
+          <!-- LNURL Schemes -->
+          <data android:scheme="lnurl"/>
           <data android:scheme="lnurlw"/>
-        </intent-filter>
-
-        <intent-filter>
-          <action android:name="android.intent.action.VIEW"/>
-          <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-          <action android:name="android.nfc.action.TECH_DISCOVERED"/>
-          <action android:name="android.nfc.action.TAG_DISCOVERED"/>
-          <category android:name="android.intent.category.BROWSABLE"/>
-          <category android:name="android.intent.category.DEFAULT"/>
+          <data android:scheme="lnurlp"/>
+          
+          <!-- KeyAuth Schemes -->
           <data android:scheme="keyauth"/>
         </intent-filter>
 
+
+        <!-- 4. App Links (HTTP/HTTPS Deep Links) -->
         <intent-filter android:autoVerify="true">
           <action android:name="android.intent.action.VIEW"/>
           <category android:name="android.intent.category.DEFAULT"/>
@@ -111,74 +119,20 @@
           <data android:scheme="https" android:host="blitz-wallet.com" android:pathPrefix="/u"/>
         </intent-filter>
 
-         <intent-filter android:autoVerify="true">
+        <intent-filter android:autoVerify="true">
           <action android:name="android.intent.action.VIEW"/>
           <category android:name="android.intent.category.DEFAULT"/>
           <category android:name="android.intent.category.BROWSABLE"/>
           <data android:scheme="https" android:host="blitzwalletapp.com" android:pathPrefix="/u"/>
         </intent-filter>
 
-         <intent-filter android:autoVerify="true">
+        <intent-filter android:autoVerify="true">
           <action android:name="android.intent.action.VIEW"/>
           <category android:name="android.intent.category.DEFAULT"/>
           <category android:name="android.intent.category.BROWSABLE"/>
           <data android:scheme="https" android:host="blitzwallet.app" android:pathPrefix="/u"/>
         </intent-filter>
 
-        <intent-filter android:label="filter_react_native">
-          <action android:name="android.intent.action.VIEW"/>
-          <category android:name="android.intent.category.DEFAULT"/>
-          <category android:name="android.intent.category.BROWSABLE"/>
-          <data android:scheme="blitz-wallet"/>
-        </intent-filter>
-
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-            <category android:name="android.intent.category.DEFAULT" />
-        </intent-filter>
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="bitcoin" />
-        </intent-filter>
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="BITCOIN" />
-        </intent-filter>
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="lightning" />
-        </intent-filter>
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="LIGHTNING" />
-        </intent-filter>
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="lnurl" />
-        </intent-filter>
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="lnurlw" />
-        </intent-filter>
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="lnurlp" />
-        </intent-filter>
       </activity>
     </application>
 </manifest>
