@@ -2,7 +2,7 @@ import { COLORS, FONT, SIZES, SHADOWS } from './theme';
 import ICONS from './icons';
 import { CENTER, BTN, Background } from './styles';
 import { SATSPERBITCOIN } from './math';
-import { Dimensions } from 'react-native';
+import { Dimensions, Platform } from 'react-native';
 
 const WEBSITE_REGEX =
   /^(https?:\/\/|www\.)[a-z\d]([a-z\d-]*[a-z\d])*(\.[a-z]{2,})+/i;
@@ -53,6 +53,7 @@ const GENERATED_BITCOIN_ADDRESSES = 'GENERATED_BITCOIN_ADDRESSES';
 const SHOPS_DIRECTORY_KEY = 'SHOPS_CURRENCY_LOCATION';
 const RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY = 'RANDOM_KEYBOARD_LAYOUT_KEY';
 const PERSISTED_LOGIN_COUNT_KEY = 'PERSISTED_LOGIN_COUNT_KEY';
+const HIDE_IN_APP_PURCHASE_ITEMS = Platform.OS === 'ios';
 
 const BLITZ_SUPPORT_DEFAULT_PAYMENT_DESCRIPTION = 'Blitz support';
 const CUSTODY_ACCOUNTS_STORAGE_KEY = 'CUSTODY_ACCOUNTS';
@@ -160,4 +161,5 @@ export {
   RANDOM_LOGIN_KEYBOARD_LAYOUT_KEY,
   PERSISTED_LOGIN_COUNT_KEY,
   BLITZ_PAYMENT_DEEP_LINK_SCHEMES,
+  HIDE_IN_APP_PURCHASE_ITEMS,
 };

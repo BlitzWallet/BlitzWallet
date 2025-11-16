@@ -13,6 +13,7 @@ import { useGlobalThemeContext } from '../../context-store/theme';
 import { useGlobalContacts } from '../../context-store/globalContacts';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
 import { useSparkWallet } from '../../context-store/sparkContext';
+import useShowShopPage from '../../app/hooks/showShopPage';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,16 +21,17 @@ export const TAB_ITEM_HEIGHT = 60;
 const OVERLAY_HEIGHT = 50;
 const OVERLAY_WIDTH = 70;
 
-function MyTabBar({ state, descriptors, navigation }) {
+function MyTabBar({ state, descriptors, navigation, showShop }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { hasUnlookedTransactions } = useGlobalContacts();
   const { showTokensInformation } = useSparkWallet();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const firstRender = useRef(true);
+  const containerWidth = showShop ? 250 : 180;
 
-  const overlayTranslateX = useSharedValue(83.333); //position 1
-  const tabWidth = 250 / 3;
+  const overlayTranslateX = useSharedValue(showShop ? 83.333 : 90); //position 1
+  const tabWidth = containerWidth / (showShop ? 3 : 2);
 
   useEffect(() => {
     if (firstRender.current) {
@@ -63,6 +65,7 @@ function MyTabBar({ state, descriptors, navigation }) {
               showTokensInformation && state.index === 1
                 ? backgroundColor
                 : backgroundOffset,
+            width: containerWidth,
             // opacity: 0.9,
           },
         ]}
@@ -175,7 +178,12 @@ function MyTabBar({ state, descriptors, navigation }) {
 }
 
 export function MyTabs(props) {
-  const renderTabBar = useCallback(tabProps => <MyTabBar {...tabProps} />, []);
+  const showShop = useShowShopPage();
+
+  const renderTabBar = useCallback(
+    tabProps => <MyTabBar {...tabProps} showShop={showShop} />,
+    [showShop],
+  );
 
   return (
     <Tab.Navigator
@@ -189,7 +197,7 @@ export function MyTabs(props) {
         options={{ lazy: false }}
       />
       <Tab.Screen name="Home" component={props.adminHome} />
-      <Tab.Screen name="App Store" component={props.appStore} />
+      {showShop && <Tab.Screen name="App Store" component={props.appStore} />}
     </Tab.Navigator>
   );
 }
