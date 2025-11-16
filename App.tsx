@@ -35,6 +35,7 @@ import { PushNotificationProvider } from './context-store/notificationManager';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import GetThemeColors from './app/hooks/themeColors';
 import {
+  BLITZ_PAYMENT_DEEP_LINK_SCHEMES,
   LOGIN_SECUITY_MODE_KEY,
   LOGIN_SECURITY_MODE_TYPE_KEY,
 } from './app/constants';
@@ -280,6 +281,11 @@ function ResetStack(): JSX.Element | null {
     async function handleDeeplink() {
       const { url, timestamp } = pendingLinkData;
       if (!url) return;
+
+      // Convert URL to lowercase for case-insensitive checks
+      const lowerUrl = url.toLowerCase();
+      const contactSchemePrefix = 'blitz-wallet:';
+
       console.log(
         'Processing link:',
         url,
@@ -292,14 +298,36 @@ function ResetStack(): JSX.Element | null {
           hasPublicKey: !!publicKey,
         },
       );
+      const blockSoftReset =
+        navigationRef.getRootState().routes[0]?.name === 'Home' &&
+        navigationRef.getRootState().routes.length === 1;
 
-      if (didGetToHomepage && navigationRef.current && publicKey) {
+      if (
+        didGetToHomepage &&
+        navigationRef.current &&
+        publicKey &&
+        !blockSoftReset
+      ) {
         try {
-          if (url.toLowerCase().startsWith('lightning')) {
-            navigationRef.current.navigate('ConfirmPaymentScreen', {
-              btcAdress: url,
-            });
-          } else if (url.includes('blitz')) {
+          let isContactLink = false;
+
+          if (lowerUrl.startsWith(contactSchemePrefix)) {
+            // If the URL starts with the contact scheme, check if it contains a wrapped payment scheme.
+            const contentAfterScheme = lowerUrl.substring(
+              contactSchemePrefix.length,
+            );
+
+            const isWrappedPaymentLink = BLITZ_PAYMENT_DEEP_LINK_SCHEMES.some(
+              scheme =>
+                // Check if the content starts with "scheme:" (e.g., "lightning:")
+                contentAfterScheme.startsWith(scheme + ':'),
+            );
+
+            isContactLink = !isWrappedPaymentLink;
+          }
+
+          if (isContactLink) {
+            // Logic for handling contact deep links
             const deepLinkContact = await getDeepLinkUser({
               deepLinkContent: url,
               userProfile: { uuid: publicKey },
@@ -315,9 +343,19 @@ function ResetStack(): JSX.Element | null {
                 useTranslationString: true,
               });
             }
+          } else {
+            let paymentUrl = url;
+
+            // Regex to strip 'blitz-wallet:' OR 'blitz:' prefix if it exists.
+            // This ensures only the core payment URI is passed to the ConfirmPaymentScreen.
+            paymentUrl = paymentUrl.replace(/^(blitz-wallet|blitz):/i, '');
+
+            navigationRef.current.navigate('ConfirmPaymentScreen', {
+              btcAdress: paymentUrl,
+            });
           }
 
-          // Clear the pending link after processing
+          // Clear the pending link after successful processing
           clearDeepLink();
         } catch (error: any) {
           console.error('Error processing deep link:', error);
