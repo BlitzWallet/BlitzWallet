@@ -243,12 +243,12 @@ export default function ExpandedTx(props) {
   const renderContactRow = () => {
     if (!sendingContactUUID) return null;
     return (
-      <View style={[styles.contactRow]}>
+      <View style={styles.contactRow}>
         <View
           style={[
             styles.profileImage,
             {
-              backgroundColor: backgroundOffset,
+              backgroundColor: backgroundColor,
             },
           ]}
         >
