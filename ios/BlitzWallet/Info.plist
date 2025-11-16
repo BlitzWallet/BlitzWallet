@@ -34,10 +34,14 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>lightning</string>
+				<string>bitcoin</string>
 				<string>lnurlw</string>
+				<string>lnurp</string>
 				<string>keyauth</string>
 				<string>LIGHTNING</string>
+				<string>BITCOIN</string>
 				<string>LNURLW</string>
+				<string>LNURLP</string>
 				<string>KEYAUTH</string>
 			</array>
 		</dict>
@@ -47,6 +51,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>blitz</string>
+				<string>BLITZ</string>
 			</array>
 		</dict>
 		<dict>
