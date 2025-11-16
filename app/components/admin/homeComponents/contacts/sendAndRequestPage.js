@@ -2,6 +2,7 @@ import { StyleSheet, ScrollView, TouchableOpacity, View } from 'react-native';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
+  HIDE_IN_APP_PURCHASE_ITEMS,
   ICONS,
   SATSPERBITCOIN,
 } from '../../../../constants';
@@ -635,7 +636,8 @@ export default function SendAndRequestPage(props) {
             <View style={styles.inputAndGiftContainer}>
               {paymentType === 'send' &&
                 !giftOption &&
-                !selectedContact?.isLNURL && (
+                !selectedContact?.isLNURL &&
+                !HIDE_IN_APP_PURCHASE_ITEMS && (
                   <TouchableOpacity
                     onPress={() =>
                       navigate.navigate('SelectGiftCardForContacts')
