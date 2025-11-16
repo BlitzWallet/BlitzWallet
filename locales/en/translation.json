@@ -1506,7 +1506,8 @@
         "confirmMessage_received": "Received amount",
         "paymentStatus": "Payment status",
         "confReqired": "Confs required",
-        "detailsBTN": "Technical details"
+        "detailsBTN": "Technical details",
+        "contactPaymentType": "Contact"
       },
       "explorePage": {
         "timeLeft": "({{time}} left)",

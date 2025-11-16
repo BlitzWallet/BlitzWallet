@@ -1502,7 +1502,8 @@
         "confirmMessage_received": "Valor recebido",
         "paymentStatus": "Status do pagamento",
         "confReqired": "Confirmações necessárias",
-        "detailsBTN": "Detalhes técnicos"
+        "detailsBTN": "Detalhes técnicos",
+        "contactPaymentType": "Contato"
       },
       "explorePage": {
         "timeLeft": "({{time}} restante)",
