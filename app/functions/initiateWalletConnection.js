@@ -5,6 +5,7 @@ import {
   getSparkBalance,
   getSparkIdentityPubKey,
   initializeSparkWallet,
+  setPrivacyEnabled,
 } from './spark';
 import handleBalanceCache from './spark/handleBalanceCache';
 import { cleanStalePendingSparkLightningTransactions } from './spark/transactions';
@@ -78,6 +79,7 @@ export async function initializeSparkSession({
       getSparkIdentityPubKey(mnemonic),
     ]);
 
+    setPrivacyEnabled(mnemonic);
     const transactions = await getCachedSparkTransactions(null, identityPubKey);
 
     if (transactions === undefined)

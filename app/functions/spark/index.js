@@ -22,6 +22,7 @@ import {
   sendWebViewRequestGlobal,
   setForceReactNative,
 } from '../../../context-store/webViewContext';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 
 export let sparkWallet = {};
 let initializingWallets = {};
@@ -153,6 +154,47 @@ const initializeWallet = async mnemonic => {
 
   console.log('did initialize wallet');
   return wallet;
+};
+
+export const setPrivacyEnabled = async mnemonic => {
+  try {
+    const didSetPrivacySetting = await getLocalStorageItem(
+      'didSetPrivacySetting',
+    ).then(JSON.parse);
+
+    if (didSetPrivacySetting) return;
+
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.setPrivacyEnabled,
+        {
+          mnemonic,
+        },
+      );
+      const validatedResponse = validateWebViewResponse(
+        response,
+        'unable to generate spark identity pubkey',
+      );
+
+      if (validatedResponse.didWork) {
+        setLocalStorageItem('didSetPrivacySetting', JSON.stringify(true));
+      }
+
+      return;
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const walletSetings = await wallet.getWalletSettings();
+      if (!walletSetings?.privateEnabled) {
+        wallet.setPrivacyEnabled(true);
+      } else {
+        setLocalStorageItem('didSetPrivacySetting', JSON.stringify(true));
+      }
+      return true;
+    }
+  } catch (err) {
+    console.log('Get spark balance error', err);
+  }
 };
 
 export const getSparkIdentityPubKey = async (mnemonic, sendWebViewRequest) => {

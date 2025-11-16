@@ -48,6 +48,7 @@ export const OPERATION_TYPES = {
   getTokenTransactions: 'getSparkTokenTransactions',
   addListeners: 'addWalletEventListener',
   removeListeners: 'removeWalletEventListener',
+  setPrivacyEnabled: 'setPrivacyEnabled',
 };
 
 const longOperations = [
@@ -72,6 +73,7 @@ const mediumOperations = [
   OPERATION_TYPES.getLightningPaymentStatus,
   OPERATION_TYPES.getTransactions,
   OPERATION_TYPES.getTokenTransactions,
+  OPERATION_TYPES.setPrivacyEnabled,
 ];
 
 const rejectIfNotConnectedToInternet = [
