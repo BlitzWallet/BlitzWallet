@@ -492,6 +492,8 @@ export const UserTransaction = memo(function UserTransaction({
           style={[styles.icons, imageTransformStyle]}
           source={paymentImage}
           contentFit="contain"
+          recyclingKey={String(paymentImage)}
+          transition={null}
         />
       )}
       <View style={styles.transactionContent}>
