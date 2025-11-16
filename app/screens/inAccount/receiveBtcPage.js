@@ -150,7 +150,7 @@ export default function ReceivePaymentHome(props) {
         sparkInformation,
       });
       if (selectedRecieveOption === 'Liquid') {
-        startLiquidEventListener();
+        startLiquidEventListener(60);
       } else if (selectedRecieveOption === 'Rootstock') {
         startRootstockEventListener({ durationMs: 1200000 });
       }

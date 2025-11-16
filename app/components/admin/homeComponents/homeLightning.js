@@ -183,8 +183,8 @@ export default function HomeLightning() {
     try {
       if (!sparkInformation.identityPubKey || !sparkInformation.didConnect)
         return;
-      startLiquidEventListener(2);
-      startRootstockEventListener({ intervalMs: 30000 });
+      startLiquidEventListener(6);
+      startRootstockEventListener({ intervalMs: 60000 });
 
       const response = await fullRestoreSparkState({
         sparkAddress: sparkInformation.sparkAddress,

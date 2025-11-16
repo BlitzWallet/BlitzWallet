@@ -12,7 +12,7 @@ import {
   SdkEventVariant,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import startLiquidUpdateInterval from '../app/functions/liquidBackupUpdate';
-import {useNodeContext} from './nodeContext';
+import { useNodeContext } from './nodeContext';
 
 const LiquidEventContext = createContext(null);
 
@@ -21,8 +21,9 @@ const DEBOUNCE_DELAY = 2000;
 const REQUIRED_SYNC_COUNT = 2;
 
 // Create a context for the WebView ref
-export function LiquidEventProvider({children}) {
-  const {toggleLiquidNodeInformation, liquidNodeInformation} = useNodeContext();
+export function LiquidEventProvider({ children }) {
+  const { toggleLiquidNodeInformation, liquidNodeInformation } =
+    useNodeContext();
   const initialLiquidRun = useRef(null);
   const liquidEventRunCounter = useRef(0);
   const numberOfLiquidEvents = useRef(DEFAULT_EVENT_LIMIT);
@@ -35,7 +36,7 @@ export function LiquidEventProvider({children}) {
     if (!liquidNodeInformation.didConnectToNode) return;
     if (initialLiquidRun.current) return;
     initialLiquidRun.current = true;
-    startLiquidEventListener(3);
+    startLiquidEventListener(6);
   }, [liquidNodeInformation.didConnectToNode]);
 
   const cleanup = useCallback(() => {
