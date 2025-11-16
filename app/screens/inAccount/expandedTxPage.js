@@ -13,10 +13,7 @@ import {
   TOKEN_TICKER_MAX_LENGTH,
 } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
-import {
-  CustomKeyboardAvoidingView,
-  ThemeText,
-} from '../../functions/CustomElements';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import Icon from '../../functions/CustomElements/Icon';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../functions/CustomElements/button';
@@ -33,13 +30,17 @@ import { formatLocalTimeShort } from '../../functions/timeFormatter';
 import { useMemo, useRef, useState } from 'react';
 import CustomSearchInput from '../../functions/CustomElements/searchInput';
 import { bulkUpdateSparkTransactions } from '../../functions/spark/transactions';
-import { keyboardGoBack } from '../../functions/customNavigation';
+import {
+  keyboardGoBack,
+  keyboardNavigate,
+} from '../../functions/customNavigation';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
 import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { useImageCache } from '../../../context-store/imageCache';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContacts();
@@ -281,10 +282,7 @@ export default function ExpandedTx(props) {
   };
 
   return (
-    <CustomKeyboardAvoidingView
-      styles={styles.container}
-      useStandardWidth={true}
-    >
+    <GlobalThemeView useStandardWidth={true} styles={styles.container}>
       <View style={styles.content}>
         {/* Header */}
         <TouchableOpacity
@@ -298,13 +296,14 @@ export default function ExpandedTx(props) {
           />
         </TouchableOpacity>
 
-        <ScrollView
+        <KeyboardAwareScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
             { paddingBottom: bottomPadding },
           ]}
           keyboardShouldPersistTaps="always"
+          bottomOffset={150}
         >
           <View
             style={[
@@ -419,7 +418,9 @@ export default function ExpandedTx(props) {
                 t('constants.type'),
                 transactionPaymentType,
                 true,
-                { textTransform: 'capitalize' },
+                {
+                  textTransform: 'capitalize',
+                },
               )}
 
               {renderLRC20TokenRow()}
@@ -447,8 +448,10 @@ export default function ExpandedTx(props) {
               }}
               textContent={t('screens.inAccount.expandedTxPage.detailsBTN')}
               actionFunction={() => {
-                navigate.navigate('TechnicalTransactionDetails', {
-                  transaction: transaction,
+                keyboardNavigate(() => {
+                  navigate.navigate('TechnicalTransactionDetails', {
+                    transaction: transaction,
+                  });
                 });
               }}
             />
@@ -456,9 +459,9 @@ export default function ExpandedTx(props) {
             {/* Receipt Dots */}
             <ReceiptDots screenDimensions={screenDimensions} />
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </View>
-    </CustomKeyboardAvoidingView>
+    </GlobalThemeView>
   );
 }
 
