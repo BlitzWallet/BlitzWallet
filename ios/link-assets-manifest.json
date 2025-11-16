@@ -2,6 +2,10 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "app/assets/fonts/Blitzicons1.ttf",
+      "sha1": "9eeada341808b3afe4c69a133674482bdebf1ca7"
+    },
+    {
       "path": "app/assets/fonts/Poppins-Black.ttf",
       "sha1": "645e04c53c6b5b35bce654a811ebce16af8aa721"
     },
