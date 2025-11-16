@@ -42,5 +42,11 @@ export default function ThemeImage({
         : darkModeIcon
       : lightModeIcon;
   }, [theme, darkModeType, lightsOutIcon, darkModeIcon, lightModeIcon]);
-  return <Image style={imageStyles} source={imageSource} />;
+  return (
+    <Image
+      style={imageStyles}
+      source={imageSource}
+      recyclingKey={String(imageSource)}
+    />
+  );
 }

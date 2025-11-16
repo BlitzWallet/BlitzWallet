@@ -1654,7 +1654,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.4.4":
+"@buildonspark/spark-sdk@npm:^0.4.5":
   version: 0.4.5
   resolution: "@buildonspark/spark-sdk@npm:0.4.5"
   dependencies:
@@ -4893,7 +4893,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.9
-    "@buildonspark/spark-sdk": ^0.4.4
+    "@buildonspark/spark-sdk": ^0.4.5
     "@craftzdog/react-native-buffer": ^6.1.0
     "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
