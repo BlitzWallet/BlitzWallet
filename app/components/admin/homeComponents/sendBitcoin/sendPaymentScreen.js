@@ -566,6 +566,7 @@ export default function SendPaymentScreen(props) {
       seletctedToken: selectedLRC20Asset,
       mnemonic: currentWalletMnemoinc,
       sendWebViewRequest,
+      contactInfo,
     };
 
     // Shouuld be same for all paymetns

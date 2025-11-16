@@ -346,6 +346,7 @@ export default function ContactsTransactionItem(props) {
         ...prev,
         sendBTN: false,
       }));
+
       navigate.navigate('ConfirmPaymentScreen', {
         btcAdress: receiveAddress,
         comingFromAccept: true,
@@ -358,6 +359,7 @@ export default function ContactsTransactionItem(props) {
           name: selectedContact.name || selectedContact.uniqueName,
           payingContactMessage: formattedPayingContactMessage, //handles remote tx description
           uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
+          uuid: retrivedContact?.uuid,
         },
         fromPage: 'contacts',
         publishMessageFunc: () => updatePaymentStatus(transaction, false, true),

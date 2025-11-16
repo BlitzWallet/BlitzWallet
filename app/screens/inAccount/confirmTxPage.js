@@ -44,7 +44,9 @@ export default function ConfirmTxPage(props) {
 
   const didSucceed = !hasError || isLNURLAuth;
 
-  const paymentNetwork = transaction?.paymentType;
+  const paymentNetwork = paymentInformation?.sendingUUID
+    ? t('screens.inAccount.expandedTxPage.contactPaymentType')
+    : transaction?.paymentType;
 
   const showPendingMessage = transaction?.paymentStatus === 'pending';
 

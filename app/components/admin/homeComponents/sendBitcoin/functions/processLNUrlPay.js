@@ -47,11 +47,14 @@ export default async function processLNUrlPay(input, context) {
         numberOfTries += 1;
         let invoiceResponse;
 
-        if (fromPage === 'contacts' && !contactInfo.isLNURLPayment) {
+        if (fromPage === 'contacts' && !contactInfo?.isLNURLPayment) {
           invoiceResponse = await getBolt11InvoiceForContact(
             contactInfo.uniqueName,
             Number(enteredPaymentInfo.amount),
             description,
+            true,
+            undefined,
+            masterInfoObject.uuid,
           );
         } else {
           invoiceResponse = await getLNAddressForLiquidPayment(

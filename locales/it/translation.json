@@ -1501,7 +1501,8 @@
         "confirmMessage_received": "Importo ricevuto",
         "paymentStatus": "Stato pagamento",
         "confReqired": "Confs richiesti",
-        "detailsBTN": "Dettagli tecnici"
+        "detailsBTN": "Dettagli tecnici",
+        "contactPaymentType": "Contatto"
       },
       "explorePage": {
         "timeLeft": "({{time}} rimasto)",

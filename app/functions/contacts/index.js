@@ -18,6 +18,7 @@ export async function getBolt11InvoiceForContact(
   description,
   useBlitzContact = true,
   domain = 'blitzwalletapp.com',
+  sendingUUID,
 ) {
   try {
     let runCount = 0;
@@ -32,7 +33,7 @@ export async function getBolt11InvoiceForContact(
           !!description
             ? `&comment=${encodeURIComponent(description || '')}`
             : ''
-        }`;
+        }&sendingUUID=${sendingUUID}`;
         console.log(url);
         const response = await fetch(url);
         const data = await response.json();

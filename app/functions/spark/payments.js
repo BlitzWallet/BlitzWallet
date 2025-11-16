@@ -38,6 +38,7 @@ export const sparkPaymenWrapper = async ({
   seletctedToken = 'Bitcoin',
   mnemonic,
   sendWebViewRequest,
+  contactInfo,
 }) => {
   try {
     console.log('Begining spark payment');
@@ -134,6 +135,7 @@ export const sparkPaymenWrapper = async ({
         paymentType: 'lightning',
         accountId: sparkInformation.identityPubKey,
         details: {
+          sendingUUID: contactInfo?.uuid,
           fee: realPaymentFee,
           totalFee: supportFee + realPaymentFee,
           supportFee: supportFee,

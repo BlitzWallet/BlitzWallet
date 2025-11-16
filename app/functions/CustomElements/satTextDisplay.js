@@ -3,6 +3,7 @@ import { useGlobalContextProvider } from '../../../context-store/context';
 import {
   BITCOIN_SAT_TEXT,
   BITCOIN_SATS_ICON,
+  FONT,
   HIDDEN_BALANCE_TEXT,
   SIZES,
   TOKEN_TICKER_MAX_LENGTH,
@@ -104,29 +105,37 @@ export default function FormattedSatText({
       frontText && renderText(frontText),
       hiddenText(HIDDEN_BALANCE_TEXT, 1, {
         fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.8 : 1)
-          : SIZES.medium * (useSizing ? 0.8 : 1),
+          ? styles.fontSize * (useSizing ? 0.65 : 1)
+          : SIZES.xSmall * (useSizing ? 0.65 : 1),
+        fontFamily: FONT.Asterisk,
         marginHorizontal: 2,
       }),
       hiddenText(HIDDEN_BALANCE_TEXT, 2, {
         fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.9 : 1)
-          : SIZES.medium * (useSizing ? 0.9 : 1),
+          ? styles.fontSize * (useSizing ? 0.75 : 1)
+          : SIZES.xSmall * (useSizing ? 0.75 : 1),
+        fontFamily: FONT.Asterisk,
         marginHorizontal: 2,
       }),
       hiddenText(HIDDEN_BALANCE_TEXT, 3, {
+        fontSize: styles?.fontSize
+          ? styles.fontSize * (useSizing ? 0.85 : 1)
+          : SIZES.xSmall * (useSizing ? 0.85 : 1),
+        fontFamily: FONT.Asterisk,
         marginHorizontal: 2,
       }),
       hiddenText(HIDDEN_BALANCE_TEXT, 4, {
         fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.9 : 1)
-          : SIZES.medium * (useSizing ? 0.9 : 1),
+          ? styles.fontSize * (useSizing ? 0.75 : 1)
+          : SIZES.xSmall * (useSizing ? 0.75 : 1),
+        fontFamily: FONT.Asterisk,
         marginHorizontal: 2,
       }),
       hiddenText(HIDDEN_BALANCE_TEXT, 5, {
         fontSize: styles?.fontSize
-          ? styles.fontSize * (useSizing ? 0.8 : 1)
-          : SIZES.medium * (useSizing ? 0.8 : 1),
+          ? styles.fontSize * (useSizing ? 0.65 : 1)
+          : SIZES.xSmall * (useSizing ? 0.65 : 1),
+        fontFamily: FONT.Asterisk,
         marginHorizontal: 2,
       }),
       backText && renderText(backText),

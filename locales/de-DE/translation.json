@@ -1484,7 +1484,8 @@
         "confirmMessage_received": "Erhaltener Betrag",
         "paymentStatus": "Zahlungsstatus",
         "confReqired": "Benötigte Bestätigungen",
-        "detailsBTN": "Technische Details"
+        "detailsBTN": "Technische Details",
+        "contactPaymentType": "Kontakt"
       },
       "explorePage": {
         "timeLeft": "({{time}} verbleibend)",
