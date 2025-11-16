@@ -55,6 +55,10 @@ export async function transformTxToPaymentObject(
       'lightning',
     );
 
+    const foundInvoiceDetails = foundInvoice
+      ? JSON.parse(foundInvoice.details)
+      : undefined;
+
     const description =
       numTxsBeingRestored < 20
         ? invoice
@@ -87,12 +91,13 @@ export async function transformTxToPaymentObject(
         description: description,
         preimage: preimage,
         isRestore,
-        isBlitzContactPayment: foundInvoice
-          ? JSON.parse(foundInvoice.details)?.isBlitzContactPayment
+        isBlitzContactPayment: foundInvoiceDetails
+          ? foundInvoiceDetails?.isBlitzContactPayment
           : undefined,
         shouldNavigate: foundInvoice ? foundInvoice?.shouldNavigate : undefined,
-        isLNURL: foundInvoice
-          ? JSON.parse(foundInvoice.details)?.isLNURL
+        isLNURL: foundInvoiceDetails ? foundInvoiceDetails?.isLNURL : undefined,
+        sendingUUID: foundInvoiceDetails
+          ? foundInvoiceDetails?.sendingUUID
           : undefined,
       },
     };

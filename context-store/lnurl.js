@@ -1,18 +1,22 @@
-import {useEffect, useRef, useCallback} from 'react';
-import {useGlobalContextProvider} from './context';
-import {collection, onSnapshot, query} from '@react-native-firebase/firestore';
-import {db} from '../db/initializeFirebase';
-import {batchDeleteLnurlPayments} from '../db';
+import { useEffect, useRef, useCallback } from 'react';
+import { useGlobalContextProvider } from './context';
+import {
+  collection,
+  onSnapshot,
+  query,
+} from '@react-native-firebase/firestore';
+import { db } from '../db/initializeFirebase';
+import { batchDeleteLnurlPayments } from '../db';
 // import {initializeTempSparkWallet} from '../app/functions/spark';
 // import {getBitcoinKeyPair, getSharedKey} from '../app/functions/lnurl';
-import {useSparkWallet} from './sparkContext';
+import { useSparkWallet } from './sparkContext';
 // import {retrieveData} from '../app/functions';
-import {addSingleUnpaidSparkLightningTransaction} from '../app/functions/spark/transactions';
+import { addSingleUnpaidSparkLightningTransaction } from '../app/functions/spark/transactions';
 import i18next from 'i18next';
 
 export default function HandleLNURLPayments() {
-  const {sparkInformation} = useSparkWallet();
-  const {masterInfoObject} = useGlobalContextProvider();
+  const { sparkInformation } = useSparkWallet();
+  const { masterInfoObject } = useGlobalContextProvider();
   const sparkAddress = sparkInformation?.sparkAddress;
 
   // Initialize refs
@@ -27,7 +31,7 @@ export default function HandleLNURLPayments() {
   const parseDescription = message => {
     try {
       const parsed = JSON.parse(message);
-      return i18next.t(parsed.translation, {name: parsed.name});
+      return i18next.t(parsed.translation, { name: parsed.name });
     } catch (err) {
       console.log(err);
       return message;
@@ -135,6 +139,7 @@ export default function HandleLNURLPayments() {
             description: parseDescription(payment.description) || '',
             shouldNavigate: payment.shouldNavigate,
             details: {
+              sendingUUID: payment.senderUUID,
               isBlitzContactPayment: payment.isBlitzContactPayment,
               createdTime: payment.createdAt,
               sharedPublicKey: payment.sharedPublicKey || '',

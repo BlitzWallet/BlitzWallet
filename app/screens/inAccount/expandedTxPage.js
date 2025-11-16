@@ -30,15 +30,20 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../context-store/appStatus';
 import { formatLocalTimeShort } from '../../functions/timeFormatter';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import CustomSearchInput from '../../functions/CustomElements/searchInput';
 import { bulkUpdateSparkTransactions } from '../../functions/spark/transactions';
 import { keyboardGoBack } from '../../functions/customNavigation';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useGlobalContextProvider } from '../../../context-store/context';
+import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
+import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { useImageCache } from '../../../context-store/imageCache';
 
 export default function ExpandedTx(props) {
+  const { decodedAddedContacts } = useGlobalContacts();
+  const { cache } = useImageCache();
   const { screenDimensions } = useAppStatus();
   const { sparkInformation } = useSparkWallet();
   const navigate = useNavigation();
@@ -52,8 +57,19 @@ export default function ExpandedTx(props) {
   const [transaction, setTransaction] = useState(
     props.route.params.transaction,
   );
+  const sendingContactUUID = transaction.details?.sendingUUID;
 
-  const transactionPaymentType = transaction.paymentType;
+  const selectedContact = useMemo(() => {
+    if (!decodedAddedContacts) return undefined;
+    return decodedAddedContacts?.find(
+      contact => contact.uuid === sendingContactUUID,
+    );
+  }, [decodedAddedContacts, sendingContactUUID]);
+
+  const transactionPaymentType = sendingContactUUID
+    ? t('screens.inAccount.expandedTxPage.contactPaymentType')
+    : transaction.paymentType;
+
   const isFailedPayment = transaction.paymentStatus === 'failed';
   const isPending = transaction.paymentStatus === 'pending';
   const isSuccessful = !isFailedPayment && !isPending;
@@ -224,6 +240,34 @@ export default function ExpandedTx(props) {
     );
   };
 
+  const renderContactRow = () => {
+    if (!sendingContactUUID) return null;
+    return (
+      <View style={[styles.contactRow]}>
+        <View
+          style={[
+            styles.profileImage,
+            {
+              backgroundColor: backgroundOffset,
+            },
+          ]}
+        >
+          <ContactProfileImage
+            updated={cache[sendingContactUUID]?.updated}
+            uri={cache[sendingContactUUID]?.localUri}
+            darkModeType={darkModeType}
+            theme={theme}
+          />
+        </View>
+        <ThemeText
+          styles={styles.addressText}
+          CustomNumberOfLines={1}
+          content={selectedContact?.name || selectedContact?.uniqueName}
+        />
+      </View>
+    );
+  };
+
   const renderDescription = () => {
     return (
       <MemoSection initialDescription={description} onSave={handleSave} t={t} />
@@ -344,6 +388,8 @@ export default function ExpandedTx(props) {
 
             {/* Divider */}
             <Border screenDimensions={screenDimensions} />
+
+            {renderContactRow()}
 
             {/* Transaction Details */}
             <View style={styles.detailsSection}>
@@ -636,6 +682,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  contactRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 8,
+  },
+
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    marginRight: 10,
+  },
+  addressText: {
+    includeFontPadding: false,
+    flexShrink: 1,
+    fontSize: SIZES.large,
+  },
   confirmMessage: {
     marginTop: 20,
     includeFontPadding: false,
@@ -678,7 +748,8 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-between',
     flexDirection: 'row',
-    marginVertical: 20,
+    marginTop: 20,
+    marginBottom: 10,
   },
   borderDot: {
     width: 20,

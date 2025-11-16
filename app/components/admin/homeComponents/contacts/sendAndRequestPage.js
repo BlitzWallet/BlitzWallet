@@ -341,6 +341,7 @@ export default function SendAndRequestPage(props) {
               imageData,
               name: selectedContact.name || selectedContact.uniqueName,
               uniqueName: selectedContact.uniqueName,
+              uuid: selectedContact.uuid,
             },
             fromPage: 'contacts',
             publishMessageFunc: () => {
@@ -414,6 +415,7 @@ export default function SendAndRequestPage(props) {
             isLNURLPayment: selectedContact?.isLNURL,
             payingContactMessage: formattedPayingContactMessage, //handles remote tx description
             uniqueName: retrivedContact?.contacts?.myProfile?.uniqueName,
+            uuid: selectedContact.uuid,
           },
           fromPage: 'contacts',
           publishMessageFunc: () =>
