@@ -82,7 +82,7 @@ export default function EditProfileTextInput({
               styles={styles.infoIcon}
               lightModeIcon={ICONS.aboutIcon}
               darkModeIcon={ICONS.aboutIcon}
-              lightsOutIcon={ICONS.aboutIcon}
+              lightsOutIcon={ICONS.aboutIconWhite}
             />
           </View>
         </TouchableOpacity>
