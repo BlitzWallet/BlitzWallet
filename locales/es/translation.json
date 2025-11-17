@@ -1511,7 +1511,8 @@
     "sparkConnectionError": "Error en la conexión con Spark. Intenta de nuevo.",
     "giftCardExpiration": "Las tarjetas de regalo solo se pueden recuperar durante 7 días después de su envío. Si eliminas esta aplicación o borras el almacenamiento local después de ese tiempo, perderás tus tarjetas de regalo. Asegúrate de guardar los enlaces de solicitud o los códigos de las tarjetas de regalo en un lugar seguro.",
     "receivedRootstock": "Pago de Roostock recibido: su intercambio está comenzando. Puede tardar hasta un minuto, así que mantenga la aplicación abierta.",
-    "receivedLiquid": "Pago de Liquid recibido: su intercambio está comenzando. Puede tardar hasta un minuto, así que mantenga la aplicación abierta."
+    "receivedLiquid": "Pago de Liquid recibido: su intercambio está comenzando. Puede tardar hasta un minuto, así que mantenga la aplicación abierta.",
+    "invalidData": "Los datos proporcionados no son válidos"
   },
   "loadingScreen": {
     "message1": "Por favor no cierres la aplicación",

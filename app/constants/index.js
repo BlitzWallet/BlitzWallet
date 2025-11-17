@@ -11,6 +11,9 @@ const hasSpace = /\s/;
 const VALID_URL_REGEX =
   /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/;
 
+const IS_BLITZ_URL_REGEX =
+  /^(https?:\/\/)?(www\.)?(blitz-wallet\.com|blitzwalletapp\.com|blitzwallet\.app)(\/[^\s]*)?$/;
+
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const VALID_USERNAME_REGEX = /^(?=.*\p{L})[\p{L}\p{N}_]+$/u;
@@ -162,4 +165,5 @@ export {
   PERSISTED_LOGIN_COUNT_KEY,
   BLITZ_PAYMENT_DEEP_LINK_SCHEMES,
   HIDE_IN_APP_PURCHASE_ITEMS,
+  IS_BLITZ_URL_REGEX,
 };

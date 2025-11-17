@@ -1685,7 +1685,8 @@
     "sparkConnectionError": "Connessione Spark fallita. Riprova.",
     "giftCardExpiration": "Le carte regalo possono essere recuperate solo entro 7 giorni dall'invio. Se questa app viene eliminata o l'archiviazione locale viene cancellata dopo tale periodo, le tue carte regalo andranno perse. Assicurati di salvare i link di richiesta o i codici delle carte regalo in un luogo sicuro.",
     "receivedRootstock": "Pagamento Rootstock ricevuto: il tuo scambio sta iniziando. Potrebbe volerci fino a un minuto, quindi tieni l'app aperta.",
-    "receivedLiquid": "Pagamento Liquid ricevuto: il tuo scambio sta iniziando. Potrebbe volerci fino a un minuto, quindi tieni l'app aperta."
+    "receivedLiquid": "Pagamento Liquid ricevuto: il tuo scambio sta iniziando. Potrebbe volerci fino a un minuto, quindi tieni l'app aperta.",
+    "invalidData": "I dati forniti non sono validi"
   },
 
   "loadingScreen": {
