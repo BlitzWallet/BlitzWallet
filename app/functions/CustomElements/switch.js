@@ -101,7 +101,9 @@ const CustomToggleSwitch = ({
       page === 'fastPay' ||
       page === 'nwcAccount' ||
       page === 'lrc20Settings' ||
-      page === 'useRanomPinLayout'
+      page === 'useRanomPinLayout' ||
+      page === 'settingsNotifications' ||
+      page === 'settingsCrashReporting'
         ? backgroundColor
         : backgroundOffset,
       darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
