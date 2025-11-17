@@ -2,7 +2,6 @@ import i18next from 'i18next';
 import { IS_BLITZ_URL_REGEX, WEBSITE_REGEX } from '../../constants';
 import testURLForInvoice from '../testURLForInvoice';
 import { convertMerchantQRToLightningAddress } from './getMerchantAddress';
-i18next.t();
 
 export default function handlePreSendPageParsing(data) {
   try {
