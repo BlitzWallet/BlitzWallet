@@ -1301,7 +1301,7 @@
       "nwcDesc": "Verbinden Sie Ihre Blitz Wallet mit Apps, die Nostr verwenden."
     },
     "fiatCurrency": {
-      "title": "Anzeigewährung",
+      "title": "Währung",
       "placeholderText": "Währung suchen",
       "saveCurrencyError": "Wir konnten die ausgewählte Währung nicht speichern, bitte versuchen Sie es erneut."
     },

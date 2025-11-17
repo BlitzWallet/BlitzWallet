@@ -1153,7 +1153,7 @@
       "nwcDesc": "Conecta tu Blitz Wallet a apps usando Nostr."
     },
     "fiatCurrency": {
-      "title": "Moneda de visualización",
+      "title": "Moneda",
       "placeholderText": "Buscar moneda",
       "saveCurrencyError": "No pudimos guardar la moneda seleccionada, por favor intenta de nuevo."
     },

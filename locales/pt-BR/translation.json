@@ -1320,7 +1320,7 @@
       "nwcDesc": "Conecte sua carteira Blitz aos aplicativos que usam o Nostr."
     },
     "fiatCurrency": {
-      "title": "Moeda de exibição",
+      "title": "Moeda",
       "placeholderText": "Procurar moeda",
       "saveCurrencyError": "Não foi possível salvar a moeda selecionada, tente novamente."
     },

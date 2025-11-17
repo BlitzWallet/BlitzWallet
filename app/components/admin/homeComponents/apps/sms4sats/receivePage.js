@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
   topbarText: {
     flexShrink: 1,
     textAlign: 'center',
-    fontSize: SIZES.xLarge,
+    fontSize: SIZES.large,
     position: 'absolute',
   },
   countrySelectionContainer: {

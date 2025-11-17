@@ -1321,7 +1321,7 @@
       "nwcDesc": "Connect your Blitz Wallet to apps using Nostr."
     },
     "fiatCurrency": {
-      "title": "Display Currency",
+      "title": "Currency",
       "placeholderText": "Search currency",
       "saveCurrencyError": "We were unable to save the selected currency, please try again."
     },

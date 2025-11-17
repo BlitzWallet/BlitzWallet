@@ -696,7 +696,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     includeFontPadding: false,
     flexShrink: 1,
-    fontSize: SIZES.small,
   },
 
   posContainer: {
