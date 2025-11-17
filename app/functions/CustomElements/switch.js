@@ -149,7 +149,7 @@ const CustomToggleSwitch = ({
             },
           ]}
         />
-        <Animated.Text
+        {/* <Animated.Text
           onLayout={event => {
             console.log(event.nativeEvent.layout.width);
             setTextWidth(event.nativeEvent.layout.width);
@@ -177,7 +177,7 @@ const CustomToggleSwitch = ({
           {`${t(`constants.${sliderText.toLowerCase()}Lower`)
             .slice(0, 3)
             .toUpperCase()}${sliderTextLength > 3 ? '.' : ''}`}
-        </Animated.Text>
+        </Animated.Text> */}
       </Animated.View>
     </TouchableOpacity>
   );
