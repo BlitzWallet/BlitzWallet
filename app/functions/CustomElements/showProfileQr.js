@@ -199,10 +199,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   avatar: {
+    position: 'relative',
     width: 70,
     height: 70,
     borderRadius: 35,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 10,
+    overflow: 'hidden',
   },
 
   toggleContainer: {
