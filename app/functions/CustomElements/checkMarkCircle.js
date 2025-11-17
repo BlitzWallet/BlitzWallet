@@ -1,12 +1,16 @@
-import {View} from 'react-native';
-import {useGlobalThemeContext} from '../../../context-store/theme';
+import { View } from 'react-native';
+import { useGlobalThemeContext } from '../../../context-store/theme';
 import GetThemeColors from '../../hooks/themeColors';
-import {COLORS} from '../../constants';
+import { COLORS } from '../../constants';
 import Icon from './Icon';
 
-export default function CheckMarkCircle({isActive, containerSize = 30}) {
-  const {theme} = useGlobalThemeContext();
-  const {backgroundOffset} = GetThemeColors();
+export default function CheckMarkCircle({
+  isActive,
+  containerSize = 30,
+  switchDarkMode = false,
+}) {
+  const { theme } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   return (
     <View
       style={{
@@ -14,13 +18,17 @@ export default function CheckMarkCircle({isActive, containerSize = 30}) {
         width: containerSize,
         backgroundColor: isActive
           ? theme
-            ? backgroundOffset
+            ? switchDarkMode
+              ? backgroundColor
+              : backgroundOffset
             : COLORS.primary
           : 'transparent',
         borderWidth: 2,
         borderColor: theme
           ? isActive
-            ? backgroundOffset
+            ? switchDarkMode
+              ? backgroundColor
+              : backgroundOffset
             : COLORS.darkModeText
           : isActive
           ? COLORS.primary
@@ -28,7 +36,8 @@ export default function CheckMarkCircle({isActive, containerSize = 30}) {
         borderRadius: containerSize,
         alignItems: 'center',
         justifyContent: 'center',
-      }}>
+      }}
+    >
       {isActive && (
         <Icon
           width={containerSize / 2}

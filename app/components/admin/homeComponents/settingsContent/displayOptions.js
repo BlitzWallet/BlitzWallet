@@ -1,464 +1,392 @@
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {
-  BITCOIN_SAT_TEXT,
-  BITCOIN_SATS_ICON,
   CENTER,
   COLORS,
-  ICONS,
+  HIDDEN_BALANCE_TEXT,
   SIZES,
 } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNavigation } from '@react-navigation/native';
 import { ThemeText } from '../../../../functions/CustomElements';
-
-import { useCallback, useRef, useState } from 'react';
-
+import { useRef } from 'react';
 import CustomToggleSwitch from '../../../../functions/CustomElements/switch';
-import { Slider } from '@miblanchard/react-native-slider';
-import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../../../hooks/themeColors';
 import handleDBStateChange from '../../../../functions/handleDBStateChange';
-import { formatCurrency } from '../../../../functions/formatCurrency';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { FONT, INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
+import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
+
+// Settings Section Component
+const SettingsSection = ({ title, children, style }) => {
+  return (
+    <View style={[styles.section, style]}>
+      <ThemeText styles={styles.sectionTitle} content={title} />
+      {children}
+    </View>
+  );
+};
+
+// Radio Option Component
+const RadioOption = ({ selected, onPress, label, disabled }) => {
+  return (
+    <TouchableOpacity
+      activeOpacity={disabled ? 1 : 0.2}
+      onPress={disabled ? null : onPress}
+      style={styles.radioOption}
+    >
+      <CheckMarkCircle
+        switchDarkMode={true}
+        isActive={selected}
+        containerSize={20}
+      />
+      <ThemeText styles={styles.radioLabel} content={label} />
+    </TouchableOpacity>
+  );
+};
+
+// Settings Item Component (for toggle switches)
+const SettingsItem = ({
+  label,
+  description,
+  children,
+  isLast,
+  backgroundColor,
+}) => {
+  return (
+    <>
+      <View style={styles.settingsItem}>
+        <View style={styles.settingsItemText}>
+          <ThemeText styles={styles.settingsItemLabel} content={label} />
+          {description && (
+            <ThemeText
+              styles={styles.settingsItemDescription}
+              content={description}
+            />
+          )}
+        </View>
+        {children}
+      </View>
+      {!isLast && <View style={[styles.divider, { backgroundColor }]} />}
+    </>
+  );
+};
 
 export default function DisplayOptions() {
   const { toggleMasterInfoObject, setMasterInfoObject, masterInfoObject } =
     useGlobalContextProvider();
-  const { isConnectedToTheInternet, screenDimensions } = useAppStatus();
-  const { fiatStats, toggleFiat } = useNodeContext();
-  const { theme, darkModeType, toggleDarkModeType } = useGlobalThemeContext();
-  const [labelSize, setLabelSize] = useState(0);
+  const { isConnectedToTheInternet } = useAppStatus();
+  const { fiatStats } = useNodeContext();
+  const { theme, darkModeType, toggleDarkModeType, toggleTheme } =
+    useGlobalThemeContext();
   const { t } = useTranslation();
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundColor, backgroundOffset } = GetThemeColors();
   const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
-
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
 
-  const sliderValue = masterInfoObject.homepageTxPreferance;
-  const currencyText = fiatStats?.coin || 'USD';
-  const formattedCurrency = formatCurrency({
-    amount: 0,
-    code: currencyText,
-  });
-  const currencySymbol = formattedCurrency[2];
+  const dropdownOptions = [15, 20, 25, 30, 35, 40].map(value => ({
+    label: t('settings.displayOptions.transactionsLabel', { context: value }),
+    value,
+  }));
 
-  const steps = [15, 20, 25, 30, 35, 40];
+  const handleDenominationChange = denomination => {
+    if (!isConnectedToTheInternet && denomination !== 'sats') {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('settings.displayOptions.text6'),
+      });
+      return;
+    }
+    handleDBStateChange(
+      { userBalanceDenomination: denomination },
+      setMasterInfoObject,
+      toggleMasterInfoObject,
+      saveTimeoutRef,
+      initialValueRef,
+    );
+  };
+
+  const handleThemeChange = (newTheme, newDarkModeType) => {
+    if (theme !== newTheme) {
+      toggleTheme(newTheme);
+    }
+    if (newTheme && darkModeType !== newDarkModeType) {
+      toggleDarkModeType(newDarkModeType);
+    }
+  };
+
+  const containerBackground = theme ? backgroundOffset : COLORS.darkModeText;
 
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ alignItems: 'center' }}
+      contentContainerStyle={styles.scrollContent}
       style={styles.innerContainer}
     >
-      <ThemeText
-        styles={styles.infoHeaders}
-        content={t('settings.displayOptions.text1')}
-      />
-      <TouchableOpacity
-        onPress={() => {
-          if (darkModeType) return;
-          toggleDarkModeType(!darkModeType);
-        }}
-        style={styles.darkModeStyleContainer}
-      >
-        <ThemeText
-          styles={styles.removeFontPadding}
-          content={t('settings.displayOptions.text2')}
-        />
-        <CheckMarkCircle isActive={darkModeType} />
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => {
-          if (!darkModeType) return;
-          toggleDarkModeType(!darkModeType);
-        }}
-        style={styles.darkModeStyleContainer}
-      >
-        <ThemeText
-          styles={styles.removeFontPadding}
-          content={t('settings.displayOptions.text3')}
-        />
-        <CheckMarkCircle isActive={!darkModeType} />
-      </TouchableOpacity>
-      <ThemeText
-        styles={styles.infoHeaders}
-        content={t('settings.displayOptions.text4')}
-      />
-      <View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-          },
-        ]}
-      >
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={styles.removeFontPadding}
-          content={t('settings.displayOptions.text5')}
-        />
-        <TouchableOpacity
-          onPress={() => {
-            if (!isConnectedToTheInternet) {
-              navigate.navigate('ErrorScreen', {
-                errorMessage: t('settings.displayOptions.text6'),
-              });
-              return;
-            }
-            if (masterInfoObject.userBalanceDenomination === 'sats')
-              handleDBStateChange(
-                { userBalanceDenomination: 'fiat' },
-                setMasterInfoObject,
-                toggleMasterInfoObject,
-                saveTimeoutRef,
-                initialValueRef,
-              );
-            else if (masterInfoObject.userBalanceDenomination === 'fiat')
-              handleDBStateChange(
-                { userBalanceDenomination: 'hidden' },
-                setMasterInfoObject,
-                toggleMasterInfoObject,
-                saveTimeoutRef,
-                initialValueRef,
-              );
-            else
-              handleDBStateChange(
-                { userBalanceDenomination: 'sats' },
-                setMasterInfoObject,
-                toggleMasterInfoObject,
-                saveTimeoutRef,
-                initialValueRef,
-              );
-          }}
-          style={{
-            ...styles.denominationContainer,
-            backgroundColor: theme
-              ? COLORS.darkModeText
-              : COLORS.lightModeBackground,
-          }}
+      {/* Appearance Section */}
+      <SettingsSection title={t('settings.displayOptions.appearance')}>
+        <View
+          style={[
+            styles.sectionContent,
+            { backgroundColor: containerBackground },
+          ]}
         >
           <ThemeText
-            styles={{
-              color:
-                theme && darkModeType
-                  ? COLORS.lightsOutBackground
-                  : COLORS.primary,
-              fontSize: SIZES.large,
-              ...styles.removeFontPadding,
-            }}
-            content={
-              masterInfoObject.userBalanceDenomination === 'sats'
-                ? BITCOIN_SATS_ICON
-                : masterInfoObject.userBalanceDenomination === 'fiat'
-                ? formattedCurrency[2]
-                : '*'
-            }
+            styles={styles.subsectionTitle}
+            content={t('settings.displayOptions.theme')}
           />
-        </TouchableOpacity>
-      </View>
+          <RadioOption
+            selected={!theme}
+            onPress={() => handleThemeChange(false, false)}
+            label={t('settings.displayOptions.light')}
+          />
+          <RadioOption
+            selected={theme && !darkModeType}
+            onPress={() => handleThemeChange(true, false)}
+            label={t('settings.displayOptions.dim')}
+            disabled={theme && !darkModeType}
+          />
+          <RadioOption
+            selected={theme && darkModeType}
+            onPress={() => handleThemeChange(true, true)}
+            label={t('settings.displayOptions.lightsOut')}
+            disabled={theme && darkModeType}
+          />
+        </View>
+      </SettingsSection>
 
-      <View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-          },
-        ]}
-      >
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={{
-            ...styles.removeFontPadding,
-            flex: 1,
-            marginRight: 10,
-          }}
-          content={`${t('settings.displayOptions.text7')} ${
-            masterInfoObject.userBalanceDenomination !== 'fiat'
-              ? 'sats'
-              : `${t('settings.displayOptions.text8')}`
-          } `}
-        />
-        <TouchableOpacity
-          onPress={() => {
-            if (masterInfoObject.satDisplay === 'symbol') return;
-            toggleMasterInfoObject({ satDisplay: 'symbol' });
-          }}
-          style={{
-            ...styles.denominationContainer,
-            backgroundColor:
-              masterInfoObject.satDisplay === 'symbol'
-                ? theme && darkModeType
-                  ? COLORS.lightsOutBackground
-                  : COLORS.primary
-                : theme
-                ? COLORS.darkModeText
-                : COLORS.lightModeBackground,
-            marginRight: 10,
-          }}
-        >
+      {/* Balance Display Section */}
+      <SettingsSection title={t('settings.displayOptions.balDisplay')}>
+        {/* Preview */}
+        <View style={styles.previewContainer}>
           <ThemeText
-            styles={{
-              fontSize: SIZES.large,
-              color:
-                masterInfoObject.satDisplay === 'symbol'
-                  ? COLORS.darkModeText
-                  : theme && darkModeType
-                  ? COLORS.lightsOutBackground
-                  : COLORS.primary,
-              ...styles.removeFontPadding,
-            }}
-            content={
-              masterInfoObject.userBalanceDenomination !== 'fiat'
-                ? BITCOIN_SATS_ICON
-                : currencySymbol
-            }
+            styles={styles.previewLabel}
+            content={t('settings.displayOptions.prev')}
           />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            if (masterInfoObject.satDisplay === 'word') return;
-            toggleMasterInfoObject({ satDisplay: 'word' });
-          }}
-          style={{
-            ...styles.denominationContainerWord,
-            backgroundColor:
-              masterInfoObject.satDisplay === 'word'
-                ? theme && darkModeType
-                  ? COLORS.lightsOutBackground
-                  : COLORS.primary
-                : theme
-                ? COLORS.darkModeText
-                : COLORS.lightModeBackground,
-          }}
-        >
-          <ThemeText
-            styles={{
-              color:
-                masterInfoObject.satDisplay === 'word'
-                  ? COLORS.darkModeText
-                  : theme && darkModeType
-                  ? COLORS.lightsOutBackground
-                  : COLORS.primary,
-              includeFontPadding: false,
-              fontSize: SIZES.medium,
-              paddingHorizontal: 10,
-            }}
-            content={
-              masterInfoObject.userBalanceDenomination !== 'fiat'
-                ? BITCOIN_SAT_TEXT
-                : currencyText
-            }
-          />
-        </TouchableOpacity>
-      </View>
-      <ThemeText content={t('settings.displayOptions.text9')} />
-      <FormattedSatText
-        containerStyles={styles.balancePrev}
-        neverHideBalance={true}
-        balance={50}
-      />
-
-      <ThemeText
-        styles={styles.infoHeaders}
-        content={t('settings.displayOptions.text10')}
-      />
-      <View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-          },
-        ]}
-      >
-        <View style={styles.swipeForCameraContainer}>
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={{ ...styles.removeFontPadding, marginRight: 5 }}
-            content={t('settings.displayOptions.text11')}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              navigate.navigate('InformationPopup', {
-                textContent: t('settings.displayOptions.text12'),
-                buttonText: t('constants.understandText'),
-              });
-            }}
-          >
-            <ThemeImage
-              styles={{ width: 20, height: 20 }}
-              lightModeIcon={ICONS.aboutIcon}
-              darkModeIcon={ICONS.aboutIcon}
-              lightsOutIcon={ICONS.aboutIconWhite}
+          {masterInfoObject.userBalanceDenomination === 'hidden' ? (
+            <ThemeText
+              styles={styles.hiddenBalanceText}
+              content={`${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT} ${HIDDEN_BALANCE_TEXT}`}
             />
-          </TouchableOpacity>
+          ) : (
+            <ThemeText
+              styles={styles.previewBalance}
+              content={displayCorrectDenomination({
+                amount: 50,
+                masterInfoObject,
+                fiatStats,
+              })}
+            />
+          )}
         </View>
-        <CustomToggleSwitch page={'cameraSlider'} />
-      </View>
-      <ThemeText
-        styles={{
-          ...styles.infoHeaders,
-          width: screenDimensions.width * 0.95 * 0.9 * 0.9,
-        }}
-        content={t('settings.displayOptions.text13')}
-      />
-      <View style={styles.container}>
-        <View style={styles.labelsContainer}>
-          {steps.map((value, index) => (
-            <Text
-              onLayout={e => {
-                setLabelSize(Math.round(e.nativeEvent.layout.width));
-              }}
-              style={{
-                fontSize: SIZES.medium,
-                fontFamily: FONT.Title_Regular,
-                color: textColor,
-                position: 'absolute',
-                top: -20,
-                left:
-                  (index / (steps.length - 1)) *
-                    (screenDimensions.width * 0.95 * 0.9 * 0.9 - 25) +
-                  25 / 2 -
-                  labelSize / 2,
-              }}
-              key={value}
-            >
-              {value}
-            </Text>
-          ))}
+
+        {/* Denomination */}
+        <View
+          style={[
+            styles.sectionContent,
+            { backgroundColor: containerBackground },
+          ]}
+        >
+          <ThemeText
+            styles={styles.subsectionTitle}
+            content={t('settings.displayOptions.denomination')}
+          />
+          <RadioOption
+            selected={masterInfoObject.userBalanceDenomination === 'sats'}
+            onPress={() => handleDenominationChange('sats')}
+            label="Bitcoin"
+          />
+          <RadioOption
+            selected={masterInfoObject.userBalanceDenomination === 'fiat'}
+            onPress={() => handleDenominationChange('fiat')}
+            label="Fiat"
+          />
+          <RadioOption
+            selected={masterInfoObject.userBalanceDenomination === 'hidden'}
+            onPress={() => handleDenominationChange('hidden')}
+            label="Hidden"
+          />
+
+          <View style={[styles.divider, { backgroundColor }]} />
+
+          {/* Display Format */}
+          <ThemeText
+            styles={[styles.subsectionTitle, styles.subsectionTitleSpacing]}
+            content={t('settings.displayOptions.displayForm')}
+          />
+          <RadioOption
+            selected={masterInfoObject.satDisplay === 'symbol'}
+            onPress={() => toggleMasterInfoObject({ satDisplay: 'symbol' })}
+            label="Symbol"
+          />
+          <RadioOption
+            selected={masterInfoObject.satDisplay === 'word'}
+            onPress={() => toggleMasterInfoObject({ satDisplay: 'word' })}
+            label="Word"
+          />
         </View>
-        <Slider
-          trackStyle={{
-            width: screenDimensions.width * 0.95 * 0.9 * 0.9,
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            height: 10,
-            borderRadius: 20,
-          }}
-          onSlidingComplete={e => {
-            const [num] = e;
-            toggleMasterInfoObject({ homepageTxPreferance: num });
-          }}
-          value={sliderValue}
-          minimumValue={15}
-          maximumValue={40}
-          step={5}
-          thumbStyle={{
-            backgroundColor: COLORS.darkModeText,
-            width: 25,
-            height: 25,
-            borderRadius: 15,
-            borderWidth: 1,
-            borderColor: theme
-              ? COLORS.darkModeBackgroundOffset
-              : COLORS.lightModeBackgroundOffset,
-          }}
-          maximumTrackTintColor={theme ? backgroundOffset : COLORS.darkModeText}
-          minimumTrackTintColor={theme ? backgroundOffset : COLORS.darkModeText}
-        />
-      </View>
-      <ThemeText
-        styles={styles.infoHeaders}
-        content={t('settings.displayOptions.text14')}
-      />
-      <View
-        style={[
-          styles.contentContainer,
-          {
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-          },
-        ]}
+      </SettingsSection>
+
+      {/* Homepage Section */}
+      <SettingsSection title={t('settings.displayOptions.homepage')}>
+        <View
+          style={[
+            styles.sectionContent,
+            { backgroundColor: containerBackground },
+          ]}
+        >
+          <ThemeText
+            styles={styles.subsectionTitle}
+            content={t('settings.displayOptions.txToDisplay')}
+          />
+          <DropdownMenu
+            selectedValue={t('settings.displayOptions.transactionsLabel', {
+              context: masterInfoObject.homepageTxPreferance,
+            })}
+            onSelect={item =>
+              toggleMasterInfoObject({ homepageTxPreferance: item.value })
+            }
+            customButtonStyles={{ backgroundColor }}
+            options={dropdownOptions}
+            showClearIcon={false}
+            showVerticalArrows={true}
+            showVerticalArrowsAbsolute={true}
+            dropdownItemCustomStyles={{ justifyContent: 'start' }}
+            textStyles={{ paddingRight: 20 }}
+          />
+        </View>
+      </SettingsSection>
+
+      {/* Privacy & Features Section */}
+      <SettingsSection
+        title={t('settings.displayOptions.privFeat')}
+        style={styles.lastSection}
       >
-        <ThemeText
-          CustomNumberOfLines={1}
-          styles={styles.removeFontPadding}
-          content={t('settings.displayOptions.text15')}
-        />
-        <CustomToggleSwitch page={'hideUnknownContacts'} />
-      </View>
+        <View
+          style={[
+            styles.sectionContent,
+            { backgroundColor: containerBackground },
+          ]}
+        >
+          <SettingsItem
+            label={t('settings.displayOptions.cameraSwipe')}
+            description={t('settings.displayOptions.cameraSwipeDesc')}
+            backgroundColor={backgroundColor}
+          >
+            <CustomToggleSwitch page={'cameraSlider'} />
+          </SettingsItem>
+          <SettingsItem
+            label={t('settings.displayOptions.unkownSenders')}
+            description={t('settings.displayOptions.unknownSenderDesc')}
+            isLast
+            backgroundColor={backgroundColor}
+          >
+            <CustomToggleSwitch page={'hideUnknownContacts'} />
+          </SettingsItem>
+        </View>
+      </SettingsSection>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   innerContainer: {
-    paddingTop: 25,
     width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
-  infoHeaders: {
-    width: '100%',
-    marginBottom: 10,
-  },
-  darkModeStyleContainer: {
-    width: '100%',
-    borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    paddingHorizontal: 0,
+  scrollContent: {
+    paddingTop: 25,
+    paddingBottom: 40,
   },
 
-  contentContainer: {
-    minHeight: 60,
+  // Section Styles
+  section: {
+    marginBottom: 30,
     width: '100%',
-    paddingHorizontal: 10,
+  },
+  lastSection: {
+    marginBottom: 0,
+  },
+  sectionTitle: {
+    width: '100%',
+    marginBottom: 15,
+    textTransform: 'uppercase',
+    opacity: 0.7,
+    fontSize: SIZES.small,
+  },
+  sectionContent: {
+    width: '100%',
+    backgroundColor: COLORS.darkModeText,
     borderRadius: 8,
+    padding: 20,
+  },
+  subsectionTitle: {
+    marginBottom: 10,
+    fontWeight: '500',
+  },
+  subsectionTitleSpacing: {
+    marginTop: 10,
+  },
+
+  // Preview Styles
+  previewContainer: {
+    marginBottom: 25,
+  },
+  previewLabel: {
+    opacity: 0.7,
+    marginTop: 10,
+    textTransform: 'uppercase',
+    fontSize: SIZES.small,
+  },
+  previewBalance: {
+    marginTop: 5,
+    minHeight: 30,
+  },
+  hiddenBalanceText: {
+    marginTop: 5,
+    fontFamily: FONT.Asterisk,
+    fontSize: SIZES.small,
+    minHeight: 30,
+    paddingTop: 5,
+  },
+
+  // Radio Option Styles
+  radioOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
     paddingVertical: 10,
   },
-  denominationContainer: {
-    height: 40,
-    width: 40,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 5,
-  },
-  denominationContainerWord: {
-    height: 40,
-    width: 'auto',
-    minWidth: 60,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  swipeForCameraContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    marginRight: 25,
-  },
-  container: {
-    width: '90%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  labelsContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  balancePrev: { marginBottom: 20 },
-  removeFontPadding: {
+  radioLabel: {
+    marginLeft: 10,
     includeFontPadding: false,
+  },
+
+  // Settings Item Styles (for toggles)
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  settingsItemText: {
+    flex: 1,
     flexShrink: 1,
+  },
+  settingsItemLabel: {
+    marginBottom: 5,
+  },
+  settingsItemDescription: {
+    opacity: 0.7,
+    fontSize: SIZES.small,
+  },
+
+  // Divider
+  divider: {
+    width: '100%',
+    height: 1,
+    marginVertical: 10,
   },
 });
