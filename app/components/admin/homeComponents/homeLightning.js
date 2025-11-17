@@ -418,17 +418,17 @@ export default function HomeLightning() {
 const styles = StyleSheet.create({
   navbarContainer: {
     zIndex: 0,
-    paddingBottom: 10,
     position: 'relative',
+    justifyContent: 'center',
   },
   navbarBalance: {
     position: 'absolute',
-    top: 0,
+    // top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
+    // bottom: 0,
+    // justifyContent: 'center',
+    // alignItems: 'center',
     zIndex: 1,
   },
   navbarBalanceText: {
