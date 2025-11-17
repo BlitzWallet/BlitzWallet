@@ -5,7 +5,13 @@ import {
 } from '../../../../functions/CustomElements';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useGlobalAppData } from '../../../../../context-store/appData';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { formatBalanceAmount } from '../../../../functions';
 import GetThemeColors from '../../../../hooks/themeColors';
 import getGiftCardsList from '../apps/giftCards/giftCardAPI';
@@ -43,6 +49,7 @@ export default function SelectGiftCardForContacts() {
   const [isLoading, setIsLoading] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const windowDimensions = useWindowDimensions();
 
   useFocusEffect(
     useCallback(() => {
@@ -125,7 +132,10 @@ export default function SelectGiftCardForContacts() {
             }
           }}
           activeOpacity={isLoading ? 1 : 0.2}
-          style={styles.giftCardGridItem}
+          style={[
+            styles.giftCardGridItem,
+            { width: (windowDimensions.width * 0.95 - 15 * 2) / 3 },
+          ]}
         >
           {isLoading === item.id ? (
             <FullLoadingScreen />
@@ -307,7 +317,6 @@ const styles = StyleSheet.create({
     gap: 15,
   },
   giftCardGridItem: {
-    flex: 1,
     alignItems: 'center',
   },
   logoContainer: {
