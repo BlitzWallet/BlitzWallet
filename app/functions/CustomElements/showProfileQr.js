@@ -124,6 +124,7 @@ export default function ShowProfileQr() {
             onPress={() => setActiveType('lnurl')}
           >
             <ThemeText
+              CustomNumberOfLines={1}
               styles={
                 activeType === 'lnurl'
                   ? styles.toggleActiveText
@@ -144,6 +145,7 @@ export default function ShowProfileQr() {
             onPress={() => setActiveType('blitz')}
           >
             <ThemeText
+              CustomNumberOfLines={1}
               styles={
                 activeType === 'blitz'
                   ? styles.toggleActiveText
@@ -218,6 +220,7 @@ const styles = StyleSheet.create({
   toggleButton: {
     flex: 1,
     paddingVertical: 10,
+    paddingHorizontal: 8,
     alignItems: 'center',
     borderRadius: 8,
   },

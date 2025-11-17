@@ -111,7 +111,8 @@
     "search": "Ricerca",
     "review": "Revisione",
     "loadMore": "Carica altro",
-    "invoice": "Fattura"
+    "invoice": "Fattura",
+    "annonName": "Utente anonimo"
   },
 
   "languages": {
@@ -1036,7 +1037,7 @@
       "noDescription": "Nessuna descrizione"
     },
     "editMyProfilePage": {
-      "navTitle": "Modifica Profilo Contatto",
+      "navTitle": "Modifica Profilo",
       "nameInputDesc": "Nome",
       "nameInputPlaceholder": "Inserisci il tuo nome",
       "lnurlInputDesc": "Indirizzo LNURL",
@@ -1107,10 +1108,22 @@
       "editGiftCard": {
         "header": "Cosa desideri fare con il tuo regalo?"
       }
+    },
+    "showProfileQr": {
+      "header": "Condividi profilo",
+      "lnAddress": "Indirizzo Lightning",
+      "blitzContact": "Contatto Blitz",
+      "copyMessage": "Copiato!",
+      "lnurlCopy": "Copia indirizzo",
+      "blitzCopy": "Copia link"
     }
   },
 
   "settings": {
+    "index": {
+      "editProfile": "Modifica profilo",
+      "showQR": "Mostra QR"
+    },
     "about": {
       "header1": "Software",
       "text2": "Blitz è un'app gratuita e open source sotto la ",
@@ -1141,6 +1154,28 @@
       "inputPlaceHolder": ""
     },
     "displayOptions": {
+      "appearance": "Aspetto",
+      "theme": "Tema",
+      "light": "Chiaro",
+      "lightsOut": "Buio totale",
+      "dim": "Attenuato",
+      "balDisplay": "Visualizzazione saldo",
+      "prev": "Anteprima",
+      "denomination": "Denominazione",
+      "displayForm": "Formato di visualizzazione",
+      "homepage": "Pagina iniziale",
+      "txToDisplay": "Transazioni da mostrare",
+      "transactionsLabel_15": "15 transazioni",
+      "transactionsLabel_20": "20 transazioni",
+      "transactionsLabel_25": "25 transazioni",
+      "transactionsLabel_30": "30 transazioni",
+      "transactionsLabel_35": "35 transazioni",
+      "transactionsLabel_40": "40 transazioni",
+      "privFeat": "Privacy e funzioni",
+      "cameraSwipe": "Scorri per fotocamera",
+      "cameraSwipeDesc": "Scorri a destra in qualsiasi schermata principale per aprire la fotocamera.",
+      "unkownSenders": "Nascondi mittenti sconosciuti",
+      "unknownSenderDesc": "Nascondi transazioni da contatti sconosciuti",
       "text1": "Stile Modalità Scura",
       "text2": "Tutto spento",
       "text3": "Soffuso",
@@ -1543,7 +1578,7 @@
       "settingsContent": {
         "about": "Informazioni",
         "language": "Lingua",
-        "display currency": "Valuta di Visualizzazione",
+        "display currency": "Valuta",
         "display options": "Opzioni di Visualizzazione",
         "edit contact profile": "Modifica Profilo Contatto",
         "view all swaps": "Scambi",
@@ -1559,6 +1594,7 @@
         "spark info": "Info Spark",
         "delete wallet": "Elimina Wallet",
         "general": "Generale",
+        "preferences": "Preferenze",
         "security": "Sicurezza",
         "technical settings": "Impostazioni Tecniche",
         "experimental features": "Funzionalità Sperimentali",
