@@ -225,7 +225,7 @@ export default function ContactsPage({ navigation }) {
   }, [isConnectedToTheInternet, navigate]);
 
   const goToMyProfile = useCallback(() => {
-    keyboardNavigate(() => navigate.navigate('MyContactProfilePage', {}));
+    keyboardNavigate(() => navigate.navigate('SettingsHome', {}));
   }, [navigate]);
 
   const handleBackPressFunction = useCallback(() => {
@@ -692,6 +692,7 @@ const memoizedStyles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     marginBottom: 10,
+    minHeight: 40,
     ...CENTER,
   },
   hasNotification: {

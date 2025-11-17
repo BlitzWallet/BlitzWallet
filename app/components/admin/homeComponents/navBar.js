@@ -5,7 +5,7 @@ import { COLORS, WINDOWWIDTH } from '../../../constants/theme';
 import ThemeImage from '../../../functions/CustomElements/themeImage';
 import { memo } from 'react';
 import { crashlyticsLogReport } from '../../../functions/crashlyticsLogs';
-
+import ProfileImageSettingsNavigator from '../../../functions/CustomElements/profileSettingsNavigator';
 export const NavBar = memo(function NavBar({
   theme,
   darkModeType,
@@ -51,7 +51,7 @@ export const NavBar = memo(function NavBar({
           style={styles.iconButton}
         >
           <ThemeImage
-            styles={{ marginBottom: -3, width: 25, height: 25 }}
+            styles={{ marginBottom: -3, width: 30, height: 30 }}
             darkModeIcon={ICONS.warningBlue}
             lightsOutIcon={ICONS.warningWhite}
             lightModeIcon={ICONS.warningBlue}
@@ -59,23 +59,7 @@ export const NavBar = memo(function NavBar({
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity
-        onPress={() => {
-          crashlyticsLogReport(
-            'Navigating to settings home from homepage navbar',
-          );
-          navigate.navigate('SettingsHome');
-        }}
-        activeOpacity={0.5}
-        style={styles.iconButton}
-      >
-        <ThemeImage
-          styles={{ marginLeft: 5 }}
-          darkModeIcon={ICONS.settingsIcon}
-          lightsOutIcon={ICONS.settingsWhite}
-          lightModeIcon={ICONS.settingsIcon}
-        />
-      </TouchableOpacity>
+      <ProfileImageSettingsNavigator />
     </View>
   );
 });
@@ -88,6 +72,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     ...CENTER,
+    marginBottom: 10,
+    minHeight: 40,
   },
   iconButton: {
     zIndex: 2,
