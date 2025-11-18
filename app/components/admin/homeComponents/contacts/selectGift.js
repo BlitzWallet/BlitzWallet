@@ -203,8 +203,6 @@ export default function SelectGiftCardForContacts() {
     ],
   );
 
-  console.log(giftCardsList.length);
-
   return (
     <CustomKeyboardAvoidingView
       globalThemeViewStyles={{

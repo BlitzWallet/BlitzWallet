@@ -268,10 +268,9 @@ const styles = StyleSheet.create({
   },
   flatListContainer: {
     width: '100%',
-    paddingBottom: 20,
     gap: 15,
     alignSelf: 'center',
-    marginTop: 20,
+    paddingTop: 20,
   },
   row: {
     gap: 15,
