@@ -19,7 +19,7 @@ const Tab = createBottomTabNavigator();
 
 export const TAB_ITEM_HEIGHT = 60;
 const OVERLAY_HEIGHT = 50;
-const OVERLAY_WIDTH = 70;
+const OVERLAY_WIDTH = 60;
 
 function MyTabBar({ state, descriptors, navigation, showShop }) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -28,10 +28,10 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
   const firstRender = useRef(true);
-  const containerWidth = showShop ? 250 : 180;
+  const containerWidth = showShop ? 280 : 210;
 
-  const overlayTranslateX = useSharedValue(showShop ? 83.333 : 90); //position 1
-  const tabWidth = containerWidth / (showShop ? 3 : 2);
+  const overlayTranslateX = useSharedValue(70); //position 1
+  const tabWidth = containerWidth / (showShop ? 4 : 3);
 
   useEffect(() => {
     if (firstRender.current) {
@@ -140,11 +140,11 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
                 : ICONS.appstore
               : theme && darkModeType
               ? isFocused
-                ? ICONS.navigationIconFillWhite
-                : ICONS.navigationIconWhite
+                ? ICONS.giftFilledWhite
+                : ICONS.giftWhite
               : isFocused
-              ? ICONS.navigationIconFill
-              : ICONS.navigationIcon;
+              ? ICONS.giftFilledBlue
+              : ICONS.giftBlue;
 
           return (
             <TouchableOpacity
@@ -197,6 +197,7 @@ export function MyTabs(props) {
         options={{ lazy: false }}
       />
       <Tab.Screen name="Home" component={props.adminHome} />
+      <Tab.Screen name="Gifts" component={props.giftsPageHome} />
       {showShop && <Tab.Screen name="App Store" component={props.appStore} />}
     </Tab.Navigator>
   );
