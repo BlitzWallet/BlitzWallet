@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   backArrow: { position: 'absolute', top: 0, left: 0, zIndex: 1 },
 
   topBarText: {
-    fontSize: SIZES.xLarge,
+    fontSize: SIZES.large,
     fontFamily: FONT.Title_Regular,
     textAlign: 'center',
     ...CENTER,

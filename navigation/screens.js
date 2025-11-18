@@ -56,6 +56,7 @@ import RoostockSwapInfo from '../app/components/admin/homeComponents/settingsCon
 import { CustomWebView } from '../app/functions/CustomElements';
 import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';
+import ShowProfileQr from '../app/functions/CustomElements/showProfileQr';
 import {
   CreateAccountHome,
   DislaimerPage,
@@ -95,6 +96,7 @@ const SLIDE_FROM_BOTTOM_SCREENS = [
   { name: 'ViewAllTxPage', component: ViewAllTxPage },
   { name: 'CameraModal', component: CameraModal },
   { name: 'SwitchGenerativeAIModel', component: SwitchGenerativeAIModel },
+  { name: 'ShowProfileQr', component: ShowProfileQr },
 ];
 const SLIDE_FROM_RIGHT_SCREENS = [
   {
@@ -173,6 +175,7 @@ const FADE_SCREENS = [
     component: SkipCreateAccountPathMessage,
   },
   { name: 'InformationPopup', component: InformationPopup },
+
   { name: 'ConfirmTxPage', component: ConfirmTxPage },
   {
     name: 'HomeAdmin',

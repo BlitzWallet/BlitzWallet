@@ -123,6 +123,7 @@ export default function NotificationPreferances() {
         showInformationPopup={true}
         informationPopupText={t('settings.notifications.mainToggleDesc')}
         informationPopupBTNText={t('constants.continue')}
+        switchPageName={'settingsNotifications'}
       />
       {effectivePushStatus && (
         <>
@@ -141,6 +142,7 @@ export default function NotificationPreferances() {
                 notificationData.enabledServices.contactPayments
               }
               containerStyles={styles.toggleContainers}
+              switchPageName={'settingsNotifications'}
             />
             <SettingsItemWithSlider
               settingsTitle={t('settings.notifications.lnurl')}
@@ -150,6 +152,7 @@ export default function NotificationPreferances() {
                 notificationData.enabledServices.lnurlPayments
               }
               containerStyles={styles.toggleContainers}
+              switchPageName={'settingsNotifications'}
             />
             <SettingsItemWithSlider
               settingsTitle={t('settings.notifications.nostrZaps')}
@@ -159,6 +162,7 @@ export default function NotificationPreferances() {
                 notificationData.enabledServices.nostrPayments
               }
               containerStyles={styles.toggleContainers}
+              switchPageName={'settingsNotifications'}
             />
             <SettingsItemWithSlider
               settingsTitle={t('settings.notifications.nwc')}
@@ -166,6 +170,7 @@ export default function NotificationPreferances() {
               handleSubmit={() => toggleNotificationPreferance('NWC')}
               toggleSwitchStateValue={notificationData.enabledServices.NWC}
               containerStyles={styles.toggleContainers}
+              switchPageName={'settingsNotifications'}
             />
             <SettingsItemWithSlider
               settingsTitle={t('settings.notifications.pos')}
@@ -175,6 +180,7 @@ export default function NotificationPreferances() {
                 notificationData.enabledServices.pointOfSale
               }
               containerStyles={styles.toggleContainers}
+              switchPageName={'settingsNotifications'}
             />
           </ScrollView>
         </>

@@ -105,6 +105,6 @@ const styles = StyleSheet.create({
   walletIcon: { marginRight: 5, width: 23, height: 23 },
   headerText: {
     includeFontPadding: false,
-    fontSize: SIZES.xLarge,
+    fontSize: SIZES.large,
   },
 });

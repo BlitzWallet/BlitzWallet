@@ -111,7 +111,8 @@
     "search": "Search",
     "review": "Review",
     "loadMore": "Load More",
-    "invoice": "Invoice"
+    "invoice": "Invoice",
+    "annonName": "Anonymous User"
   },
 
   "languages": {
@@ -1037,7 +1038,7 @@
       "noDescription": "No description"
     },
     "editMyProfilePage": {
-      "navTitle": "Edit Contact Profile",
+      "navTitle": "Edit Profile",
       "nameInputDesc": "Name",
       "nameInputPlaceholder": "Enter your name",
       "lnurlInputDesc": "LNURL Address",
@@ -1110,10 +1111,22 @@
       "editGiftCard": {
         "header": "What would you like to do with your gift?"
       }
+    },
+    "showProfileQr": {
+      "header": "Share Profile",
+      "lnAddress": "Lightning Address",
+      "blitzContact": "Blitz Contact",
+      "copyMessage": "Copied!",
+      "lnurlCopy": "Copy Address",
+      "blitzCopy": "Copy Link"
     }
   },
 
   "settings": {
+    "index": {
+      "editProfile": "Edit Profile",
+      "showQR": "Show QR"
+    },
     "about": {
       "header1": "Software",
       "text2": "Blitz is a free and open source app under the ",
@@ -1144,6 +1157,28 @@
       "inputPlaceHolder": ""
     },
     "displayOptions": {
+      "appearance": "Appearance",
+      "theme": "Theme",
+      "light": "Light",
+      "lightsOut": "Lights out",
+      "dim": "Dim",
+      "balDisplay": "Balance Display",
+      "prev": "Preview",
+      "denomination": "Denomination",
+      "displayForm": "Display Format",
+      "homepage": "Homepage",
+      "txToDisplay": "Transactions to Display",
+      "transactionsLabel_15": "15 Transactions",
+      "transactionsLabel_20": "20 Transactions",
+      "transactionsLabel_25": "25 Transactions",
+      "transactionsLabel_30": "30 Transactions",
+      "transactionsLabel_35": "35 Transactions",
+      "transactionsLabel_40": "40 Transactions",
+      "privFeat": "Privacy & Features",
+      "cameraSwipe": "Swipe for camera",
+      "cameraSwipeDesc": "Swipe right on any main screen to open the camera.",
+      "unkownSenders": "Hide Unknown Senders",
+      "unknownSenderDesc": "Hide transactions from unknown contacts",
       "text1": "Dark Mode Style",
       "text2": "Lights out",
       "text3": "Dim",
@@ -1286,7 +1321,7 @@
       "nwcDesc": "Connect your Blitz Wallet to apps using Nostr."
     },
     "fiatCurrency": {
-      "title": "Display Currency",
+      "title": "Currency",
       "placeholderText": "Search currency",
       "saveCurrencyError": "We were unable to save the selected currency, please try again."
     },
@@ -1548,7 +1583,7 @@
       "settingsContent": {
         "about": "About",
         "language": "Language",
-        "display currency": "Display Currency",
+        "display currency": "Currency",
         "display options": "Display Options",
         "edit contact profile": "Edit Contact Profile",
         "view all swaps": "Swaps",
@@ -1564,6 +1599,7 @@
         "spark info": "Spark Info",
         "delete wallet": "Delete Wallet",
         "general": "General",
+        "preferences": "Preferences",
         "security": "Security",
         "technical settings": "Technical Settings",
         "experimental features": "Experimental Features",
@@ -1654,7 +1690,8 @@
     "sparkConnectionError": "Spark connection failed. Please try again.",
     "giftCardExpiration": "Gift cards can only be recovered for 7 days after they are sent. If this app is deleted or local storage is cleared after that time, your gift cards will be lost. Be sure to save the claim links or gift card codes somewhere safe.",
     "receivedRootstock": "Rootstock payment received — your swap is starting. It may take up to a minute, so please keep the app open.",
-    "receivedLiquid": "Liquid payment received — your swap is starting. It may take up to a minute, so please keep the app open."
+    "receivedLiquid": "Liquid payment received — your swap is starting. It may take up to a minute, so please keep the app open.",
+    "invalidData": "The data you entered isn’t valid"
   },
 
   "loadingScreen": {

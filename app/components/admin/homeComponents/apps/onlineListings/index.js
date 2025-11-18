@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     textAlign: 'center',
     marginHorizontal: 5,
-    fontSize: SIZES.xLarge,
+    fontSize: SIZES.large,
     includeFontPadding: false,
   },
   stickySearchHeader: {

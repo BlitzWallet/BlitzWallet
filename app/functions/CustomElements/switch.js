@@ -101,7 +101,9 @@ const CustomToggleSwitch = ({
       page === 'fastPay' ||
       page === 'nwcAccount' ||
       page === 'lrc20Settings' ||
-      page === 'useRanomPinLayout'
+      page === 'useRanomPinLayout' ||
+      page === 'settingsNotifications' ||
+      page === 'settingsCrashReporting'
         ? backgroundColor
         : backgroundOffset,
       darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
@@ -149,7 +151,7 @@ const CustomToggleSwitch = ({
             },
           ]}
         />
-        <Animated.Text
+        {/* <Animated.Text
           onLayout={event => {
             console.log(event.nativeEvent.layout.width);
             setTextWidth(event.nativeEvent.layout.width);
@@ -177,7 +179,7 @@ const CustomToggleSwitch = ({
           {`${t(`constants.${sliderText.toLowerCase()}Lower`)
             .slice(0, 3)
             .toUpperCase()}${sliderTextLength > 3 ? '.' : ''}`}
-        </Animated.Text>
+        </Animated.Text> */}
       </Animated.View>
     </TouchableOpacity>
   );

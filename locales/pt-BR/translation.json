@@ -111,7 +111,8 @@
     "search": "Procurar",
     "review": "Revisar",
     "loadMore": "Carregar mais",
-    "invoice": "Fatura"
+    "invoice": "Fatura",
+    "annonName": "Usuário anônimo"
   },
 
   "languages": {
@@ -1037,7 +1038,7 @@
       "noDescription": "Sem descrição"
     },
     "editMyProfilePage": {
-      "navTitle": "Editar perfil de contato",
+      "navTitle": "Editar perfil",
       "nameInputDesc": "Nome",
       "nameInputPlaceholder": "Digite seu nome",
       "lnurlInputDesc": "Endereço LNURL",
@@ -1110,10 +1111,24 @@
       "editGiftCard": {
         "header": "O que você gostaria de fazer com seu presente?"
       }
+    },
+    "showProfileQr": {
+      "header": "Compartilhar perfil",
+      "lnAddress": "Endereço Lightning",
+      "blitzContact": "Contato Blitz",
+      "copyMessage": "Copiado!",
+      "lnurlCopy": "Copiar endereço",
+      "blitzCopy": "Copiar link"
     }
   },
 
   "settings": {
+    "pt-BR": {
+      "index": {
+        "editProfile": "Editar perfil",
+        "showQR": "Mostrar QR"
+      }
+    },
     "about": {
       "header1": "Software",
       "text2": "Blitz é um aplicativo gratuito e de código aberto sob a ",
@@ -1144,6 +1159,28 @@
       "inputPlaceHolder": ""
     },
     "displayOptions": {
+      "appearance": "Aparência",
+      "theme": "Tema",
+      "light": "Claro",
+      "lightsOut": "Escuro total",
+      "dim": "Escurecido",
+      "balDisplay": "Exibição do saldo",
+      "prev": "Prévia",
+      "denomination": "Denominação",
+      "displayForm": "Formato de exibição",
+      "homepage": "Página inicial",
+      "txToDisplay": "Transações para exibir",
+      "transactionsLabel_15": "15 transações",
+      "transactionsLabel_20": "20 transações",
+      "transactionsLabel_25": "25 transações",
+      "transactionsLabel_30": "30 transações",
+      "transactionsLabel_35": "35 transações",
+      "transactionsLabel_40": "40 transações",
+      "privFeat": "Privacidade e recursos",
+      "cameraSwipe": "Deslizar para câmera",
+      "cameraSwipeDesc": "Deslize para a direita em qualquer tela principal para abrir a câmera.",
+      "unkownSenders": "Ocultar remetentes desconhecidos",
+      "unknownSenderDesc": "Ocultar transações de contatos desconhecidos",
       "text1": "Cor do modo escuro",
       "text2": "Preto",
       "text3": "Azul",
@@ -1283,7 +1320,7 @@
       "nwcDesc": "Conecte sua carteira Blitz aos aplicativos que usam o Nostr."
     },
     "fiatCurrency": {
-      "title": "Moeda de exibição",
+      "title": "Moeda",
       "placeholderText": "Procurar moeda",
       "saveCurrencyError": "Não foi possível salvar a moeda selecionada, tente novamente."
     },
@@ -1544,7 +1581,7 @@
       "settingsContent": {
         "about": "Sobre",
         "language": "Idioma",
-        "display currency": "Moeda de exibição",
+        "display currency": "Moeda",
         "display options": "Opções de tela",
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Trocas",
@@ -1560,6 +1597,7 @@
         "spark info": "Informações Spark",
         "delete wallet": "Remover carteira",
         "general": "Geral",
+        "preferences": "Preferências",
         "security": "Segurança",
         "technical settings": "Configurações técnicas",
         "experimental features": "Funções experimentais",
@@ -1650,7 +1688,8 @@
     "sparkConnectionError": "Falha na conexão com a Spark. Tente novamente..",
     "giftCardExpiration": "Os vales-presente só podem ser recuperados em até 7 dias após o envio. Se este aplicativo for excluído ou o armazenamento local for limpo após esse período, seus vales-presente serão perdidos. Guarde os links de resgate ou os códigos dos vales-presente em um local seguro.",
     "receivedRootstock": "Pagamento Rootstock recebido — sua troca está começando. Pode levar até um minuto, então mantenha o aplicativo aberto.",
-    "receivedLiquid": "Pagamento Liquid recebido — sua troca está sendo iniciada. Pode levar até um minuto, então mantenha o aplicativo aberto."
+    "receivedLiquid": "Pagamento Liquid recebido — sua troca está sendo iniciada. Pode levar até um minuto, então mantenha o aplicativo aberto.",
+    "invalidData": "Os dados fornecidos não são válidos"
   },
 
   "loadingScreen": {

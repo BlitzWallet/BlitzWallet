@@ -111,7 +111,8 @@
     "search": "Suchen",
     "review": "Rezension",
     "loadMore": "Mehr laden",
-    "invoice": "Rechnung"
+    "invoice": "Rechnung",
+    "annonName": "Anonymer Benutzer"
   },
 
   "languages": {
@@ -1026,7 +1027,7 @@
       "noDescription": "Keine Beschreibung"
     },
     "editMyProfilePage": {
-      "navTitle": "Kontaktprofil bearbeiten",
+      "navTitle": "Profil bearbeiten",
       "nameInputDesc": "Name",
       "nameInputPlaceholder": "Geben Sie Ihren Namen ein",
       "lnurlInputDesc": "LNURL-Adresse",
@@ -1096,10 +1097,22 @@
       "editGiftCard": {
         "header": "Was möchten Sie mit Ihrem Geschenk tun?"
       }
+    },
+    "showProfileQr": {
+      "header": "Profil teilen",
+      "lnAddress": "Lightning-Adresse",
+      "blitzContact": "Blitz-Kontakt",
+      "copyMessage": "Kopiert!",
+      "lnurlCopy": "Adresse kopieren",
+      "blitzCopy": "Link kopieren"
     }
   },
 
   "settings": {
+    "index": {
+      "editProfile": "Profil bearbeiten",
+      "showQR": "QR anzeigen"
+    },
     "about": {
       "header1": "Software",
       "text2": "Blitz ist eine kostenlose und Open-Source-App unter der ",
@@ -1130,6 +1143,28 @@
       "inputPlaceHolder": ""
     },
     "displayOptions": {
+      "appearance": "Darstellung",
+      "theme": "Thema",
+      "light": "Hell",
+      "lightsOut": "Dunkel",
+      "dim": "Gedimmt",
+      "balDisplay": "Saldoanzeige",
+      "prev": "Vorschau",
+      "denomination": "Einheit",
+      "displayForm": "Anzeigeformat",
+      "homepage": "Startseite",
+      "txToDisplay": "Anzuzeigende Transaktionen",
+      "transactionsLabel_15": "15 Transaktionen",
+      "transactionsLabel_20": "20 Transaktionen",
+      "transactionsLabel_25": "25 Transaktionen",
+      "transactionsLabel_30": "30 Transaktionen",
+      "transactionsLabel_35": "35 Transaktionen",
+      "transactionsLabel_40": "40 Transaktionen",
+      "privFeat": "Privatsphäre & Funktionen",
+      "cameraSwipe": "Wischen für Kamera",
+      "cameraSwipeDesc": "Wische auf einer Hauptseite nach rechts, um die Kamera zu öffnen.",
+      "unkownSenders": "Unbekannte Absender ausblenden",
+      "unknownSenderDesc": "Transaktionen von unbekannten Kontakten ausblenden",
       "text1": "Dunkler Modus Stil",
       "text2": "Lichter aus",
       "text3": "Gedimmt",
@@ -1266,7 +1301,7 @@
       "nwcDesc": "Verbinden Sie Ihre Blitz Wallet mit Apps, die Nostr verwenden."
     },
     "fiatCurrency": {
-      "title": "Anzeigewährung",
+      "title": "Währung",
       "placeholderText": "Währung suchen",
       "saveCurrencyError": "Wir konnten die ausgewählte Währung nicht speichern, bitte versuchen Sie es erneut."
     },
@@ -1526,7 +1561,7 @@
       "settingsContent": {
         "about": "Über",
         "language": "Sprache",
-        "display currency": "Anzeigewährung",
+        "display currency": "Währung",
         "display options": "Anzeigeoptionen",
         "edit contact profile": "Kontaktprofil bearbeiten",
         "view all swaps": "Swaps",
@@ -1542,6 +1577,7 @@
         "spark info": "Spark-Informationen",
         "delete wallet": "Wallet löschen",
         "general": "Allgemein",
+        "preferences": "Einstellungen",
         "security": "Sicherheit",
         "technical settings": "Technische Einstellungen",
         "experimental features": "Experimentelle Funktionen",
@@ -1632,7 +1668,8 @@
     "sparkConnectionError": "Spark-Verbindung fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "giftCardExpiration": "Geschenkkarten können nur innerhalb von 7 Tagen nach dem Versand wiederhergestellt werden. Wenn die App gelöscht wird oder der lokale Speicher nach dieser Zeit gelöscht wird, gehen Ihre Geschenkkarten verloren. Stellen Sie sicher, dass Sie die Einlösungslinks oder Geschenkkartencodes an einem sicheren Ort speichern.",
     "receivedRootstock": "Rootstock-Zahlung erhalten – Ihr Swap beginnt. Dies kann bis zu einer Minute dauern, bitte lassen Sie die App geöffnet.",
-    "receivedLiquid": "Liquid-Zahlung erhalten – Ihr Swap beginnt. Dies kann bis zu einer Minute dauern, bitte lassen Sie die App geöffnet."
+    "receivedLiquid": "Liquid-Zahlung erhalten – Ihr Swap beginnt. Dies kann bis zu einer Minute dauern, bitte lassen Sie die App geöffnet.",
+    "invalidData": "Die eingegebenen Daten sind ungültig"
   },
 
   "loadingScreen": {

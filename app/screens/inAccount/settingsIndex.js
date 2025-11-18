@@ -1,10 +1,16 @@
-import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Share,
+} from 'react-native';
 import { COLORS, ICONS, SIZES } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { BlitzSocialOptions } from '../../components/admin/homeComponents/settingsContent';
 import { CENTER } from '../../constants/styles';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
-import { INSET_WINDOW_WIDTH } from '../../constants/theme';
+import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import { useMemo } from 'react';
 import Icon from '../../functions/CustomElements/Icon';
 import ThemeImage from '../../functions/CustomElements/themeImage';
@@ -17,30 +23,21 @@ import { useGlobalContextProvider } from '../../../context-store/context';
 import openWebBrowser from '../../functions/openWebBrowser';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../../hooks/themeColors';
+import { useProfileImage } from '../../components/admin/homeComponents/contacts/hooks/useProfileImage';
+import { useImageCache } from '../../../context-store/imageCache';
+import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
+import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
+import { Image } from 'expo-image';
+import { useGlobalContacts } from '../../../context-store/globalContacts';
+import { supportedLanguagesList } from '../../../locales/localeslist';
 
-const GENERALOPTIONS = [
+const PREFERENCES = [
   {
     for: 'general',
-    name: 'About',
-    displayName: 'screens.inAccount.settingsContent.about',
-    icon: ICONS.aboutIcon,
-    iconWhite: ICONS.aboutIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'general',
-    name: 'Edit Contact Profile',
-    displayName: 'screens.inAccount.settingsContent.edit contact profile',
-    icon: ICONS.contactsIconBlue,
-    iconWhite: ICONS.contactsIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'general',
-    name: 'Display Options',
-    displayName: 'screens.inAccount.settingsContent.display options',
-    icon: ICONS.colorIcon,
-    iconWhite: ICONS.colorIconWhite,
+    name: 'Display Currency',
+    displayName: 'screens.inAccount.settingsContent.display currency',
+    icon: ICONS.currencyIcon,
+    iconWhite: ICONS.currencyIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
   {
@@ -53,19 +50,10 @@ const GENERALOPTIONS = [
   },
   {
     for: 'general',
-    name: 'Display Currency',
-    displayName: 'screens.inAccount.settingsContent.display currency',
-    icon: ICONS.currencyIcon,
-    iconWhite: ICONS.currencyIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
-  {
-    for: 'general',
-    name: 'Blitz Stats',
-    displayName: 'screens.inAccount.settingsContent.blitz stats',
-    svgName: 'crashDebugIcon',
-    icon: ICONS.navigationIcon,
-    iconWhite: ICONS.navigationIconWhite,
+    name: 'Display Options',
+    displayName: 'screens.inAccount.settingsContent.display options',
+    icon: ICONS.colorIcon,
+    iconWhite: ICONS.colorIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
   {
@@ -85,6 +73,44 @@ const GENERALOPTIONS = [
     iconWhite: ICONS.notificationWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
+];
+
+const OTHEROPTIONS = [
+  {
+    for: 'general',
+    name: 'About',
+    displayName: 'screens.inAccount.settingsContent.about',
+    icon: ICONS.aboutIcon,
+    iconWhite: ICONS.aboutIconWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  // {
+  //   for: 'general',
+  //   name: 'Edit Contact Profile',
+  //   displayName: 'screens.inAccount.settingsContent.edit contact profile',
+  //   icon: ICONS.contactsIconBlue,
+  //   iconWhite: ICONS.contactsIconWhite,
+  //   arrowIcon: ICONS.leftCheveronIcon,
+  // },
+
+  {
+    for: 'general',
+    name: 'Blitz Stats',
+    displayName: 'screens.inAccount.settingsContent.blitz stats',
+    svgName: 'crashDebugIcon',
+    icon: ICONS.navigationIcon,
+    iconWhite: ICONS.navigationIconWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+  {
+    for: 'Closing Account',
+    name: 'Delete Wallet',
+    displayName: 'screens.inAccount.settingsContent.delete wallet',
+    icon: ICONS.trashIcon,
+    iconWhite: ICONS.trashIconWhite,
+    arrowIcon: ICONS.leftCheveronIcon,
+  },
+
   // {
   //   for: 'general',
   //   name: 'Support Our Work',
@@ -224,14 +250,6 @@ const ADVANCEDOPTIONS = [
     iconWhite: ICONS.liquidIconWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
-  {
-    for: 'Closing Account',
-    name: 'Delete Wallet',
-    displayName: 'screens.inAccount.settingsContent.delete wallet',
-    icon: ICONS.trashIcon,
-    iconWhite: ICONS.trashIconWhite,
-    arrowIcon: ICONS.leftCheveronIcon,
-  },
 
   // {
   //   for: 'Closing Account',
@@ -242,9 +260,10 @@ const ADVANCEDOPTIONS = [
   // },
 ];
 const SETTINGSOPTIONS = [
-  [...GENERALOPTIONS],
+  [...PREFERENCES],
   [...SECURITYOPTIONS],
   [...ADVANCEDOPTIONS],
+  [...OTHEROPTIONS],
   // [...EXPIRIMENTALFEATURES],
 ];
 const DOOMSDAYSETTINGS = [
@@ -297,13 +316,20 @@ export default function SettingsIndex(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { globalContactsInformation } = useGlobalContacts();
+  const { cache } = useImageCache();
   const { t } = useTranslation();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const isDoomsday = props?.route?.params?.isDoomsday;
   const navigate = useNavigation();
   useHandleBackPressNew();
 
   const settignsList = isDoomsday ? DOOMSDAYSETTINGS : SETTINGSOPTIONS;
+  const myProfileImage = cache[masterInfoObject?.uuid];
+  const myContact = globalContactsInformation.myProfile;
+  const currentLangugage = supportedLanguagesList.find(
+    item => item.id === masterInfoObject.userSelectedLanguage,
+  )?.languageName;
 
   const settingsElements = useMemo(() => {
     return settignsList.map((element, id) => {
@@ -314,7 +340,7 @@ export default function SettingsIndex(props) {
             style={[
               styles.listContainer,
               {
-                borderBottomColor: backgroundOffset,
+                borderBottomColor: backgroundColor,
               },
             ]}
             key={id}
@@ -367,6 +393,24 @@ export default function SettingsIndex(props) {
               }}
               content={t(element.displayName)}
             />
+            {element.name === 'Display Currency' && (
+              <ThemeText
+                styles={[
+                  styles.inlineSettingsDescription,
+                  { textTransform: 'uppercase' },
+                ]}
+                content={masterInfoObject.fiatCurrency}
+              />
+            )}
+            {element.name === 'Language' && (
+              <ThemeText
+                styles={[
+                  styles.inlineSettingsDescription,
+                  { textTransform: 'capitalize' },
+                ]}
+                content={currentLangugage}
+              />
+            )}
             <ThemeImage
               styles={{
                 width: 20,
@@ -386,16 +430,27 @@ export default function SettingsIndex(props) {
           <ThemeText
             content={
               id === 0
-                ? t('screens.inAccount.settingsContent.general')
+                ? t('screens.inAccount.settingsContent.preferences')
                 : id === 1
                 ? t('screens.inAccount.settingsContent.security')
                 : id === 2
                 ? t('screens.inAccount.settingsContent.technical settings')
-                : t('screens.inAccount.settingsContent.experimental features')
+                : ''
             }
-            styles={{ ...styles.optionsTitle, marginTop: id === 0 ? 10 : 20 }}
+            styles={{
+              ...styles.optionsTitle,
+              marginTop: id > 2 ? 0 : 20,
+            }}
           />
-          <View style={[styles.optionsListContainer]}>{internalElements}</View>
+
+          <View
+            style={[
+              styles.optionsListContainer,
+              { backgroundColor: backgroundOffset },
+            ]}
+          >
+            {internalElements}
+          </View>
         </View>
       );
     });
@@ -405,19 +460,114 @@ export default function SettingsIndex(props) {
     isConnectedToTheInternet,
     theme,
     darkModeType,
-    masterInfoObject.userSelectedLanguage,
+    masterInfoObject.fiatCurrency,
+    currentLangugage,
   ]);
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <CustomSettingsTopBar
-        label={t('screens.inAccount.settingsContent.settings')}
+        // label={t('screens.inAccount.settingsContent.settings')}
+        showLeftImage={true}
+        leftImageBlue={ICONS.share}
+        LeftImageDarkMode={ICONS.shareWhite}
+        leftImageFunction={() => {
+          Share.share({
+            message: `${t('share.contact')}\nhttps://blitzwalletapp.com/u/${
+              myContact.uniqueName
+            }`,
+          });
+        }}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ alignItems: 'center' }}
+        contentContainerStyle={styles.scrollAign}
         style={styles.settingsContainer}
       >
+        <View
+          style={[
+            styles.profileContainer,
+            { borderBottomColor: backgroundOffset },
+          ]}
+        >
+          <View
+            style={[
+              styles.profileImage,
+              {
+                backgroundColor: backgroundOffset,
+              },
+            ]}
+          >
+            <ContactProfileImage
+              updated={myProfileImage?.updated}
+              uri={myProfileImage?.localUri}
+              darkModeType={darkModeType}
+              theme={theme}
+            />
+          </View>
+
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={{ opacity: myContact.name ? 0.5 : 0.8 }}
+            content={myContact.name || t('constants.annonName')}
+          />
+
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={styles.profileUniqueName}
+            content={`@${myContact.uniqueName}`}
+          />
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              onPress={() =>
+                navigate.navigate('SettingsContentHome', {
+                  for: 'edit contact profile',
+                  isDoomsday: isDoomsday,
+                })
+              }
+              style={[
+                styles.button,
+                {
+                  borderColor: backgroundOffset,
+                },
+              ]}
+            >
+              <ThemeImage
+                styles={styles.buttonImage}
+                lightModeIcon={ICONS.editIcon}
+                darkModeIcon={ICONS.editIconLight}
+                lightsOutIcon={ICONS.editIconLight}
+              />
+              <ThemeText
+                styles={{ includeFontPadding: false }}
+                content={t('settings.index.editProfile')}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                navigate.navigate('ShowProfileQr');
+              }}
+              style={[
+                styles.button,
+                {
+                  borderColor: backgroundOffset,
+                },
+              ]}
+            >
+              <ThemeImage
+                styles={styles.buttonImage}
+                lightModeIcon={ICONS.scanQrCodeDark}
+                darkModeIcon={ICONS.scanQrCodeLight}
+                lightsOutIcon={ICONS.scanQrCodeLight}
+              />
+              <ThemeText
+                styles={{ includeFontPadding: false }}
+                content={t('settings.index.showQR')}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
         {settingsElements}
 
         {isDoomsday && (
@@ -495,29 +645,55 @@ const styles = StyleSheet.create({
   globalContainer: { alignItems: 'center', paddingBottom: 0 },
   settingsContainer: {
     flex: 1,
-    width: INSET_WINDOW_WIDTH,
+    width: '100%',
     ...CENTER,
   },
 
+  profileImage: {
+    width: 125,
+    height: 125,
+    borderRadius: 125,
+    backgroundColor: 'red',
+    ...CENTER,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+    marginTop: 20,
+    overflow: 'hidden',
+  },
+  selectFromPhotos: {
+    width: 30,
+    height: 30,
+    borderRadius: 20,
+    backgroundColor: COLORS.darkModeText,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 8,
+    bottom: 8,
+    zIndex: 2,
+  },
+
   optionsContainer: {
-    width: '100%',
+    width: INSET_WINDOW_WIDTH,
     marginTop: 10,
   },
   optionsTitle: {
     textTransform: 'capitalize',
     marginTop: 20,
     opacity: 0.8,
+    marginBottom: 10,
   },
   optionsListContainer: {
     width: '100%',
-    padding: 5,
+    paddingHorizontal: 15,
     borderRadius: 8,
     ...CENTER,
   },
   listContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: 20,
     borderBottomWidth: 1,
   },
   listText: {
@@ -539,4 +715,33 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
   },
+  inlineSettingsDescription: {
+    opacity: 0.7,
+    fontSize: SIZES.small,
+    includeFontPadding: false,
+  },
+  scrollAign: { alignItems: 'center' },
+  profileContainer: {
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'center',
+    paddingBottom: 30,
+    borderBottomWidth: 2,
+  },
+  profileUniqueName: { marginBottom: 35 },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 10,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+  },
+  buttonImage: { width: 20, height: 20, marginRight: 15 },
 });

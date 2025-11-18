@@ -603,11 +603,6 @@ const styles = StyleSheet.create({
   navContainer: {
     marginRight: 'auto',
   },
-  headerText: {
-    fontSize: SIZES.xLarge,
-    textAlign: 'center',
-    marginBottom: 10,
-  },
   contentContainer: {
     flex: 1,
     width: '90%',

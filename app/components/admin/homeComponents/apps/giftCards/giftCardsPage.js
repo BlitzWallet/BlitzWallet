@@ -1,4 +1,10 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -35,6 +41,7 @@ export default function GiftCardPage() {
   const [giftCardSearch, setGiftCardSearch] = useState('');
   const navigate = useNavigation();
   const [showList, setShowList] = useState(false);
+  const windowDimensions = useWindowDimensions();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
   useFocusEffect(
@@ -99,7 +106,12 @@ export default function GiftCardPage() {
           onPress={() => {
             navigate.navigate('ExpandedGiftCardPage', { selectedItem: item });
           }}
-          style={styles.giftCardGridItem}
+          style={[
+            styles.giftCardGridItem,
+            {
+              width: (windowDimensions.width * 0.95 - 15 * 2) / 3,
+            },
+          ]}
         >
           <View style={styles.logoContainer}>
             <Image
@@ -265,7 +277,6 @@ const styles = StyleSheet.create({
     gap: 15,
   },
   giftCardGridItem: {
-    flex: 1,
     alignItems: 'center',
   },
   logoContainer: {

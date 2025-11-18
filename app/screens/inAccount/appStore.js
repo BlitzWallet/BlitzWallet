@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next';
 import { HIDDEN_OPACITY, MAX_CONTENT_WIDTH } from '../../constants/theme';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
+import ProfileImageSettingsNavigator from '../../functions/CustomElements/profileSettingsNavigator';
 
 export default function AppStore({ navigation }) {
   const { showToast } = useToast();
@@ -156,10 +157,17 @@ export default function AppStore({ navigation }) {
 
   return (
     <GlobalThemeView styles={styles.globalConatiner} useStandardWidth={true}>
-      <ThemeText
-        content={t('screens.inAccount.appStore.title')}
-        styles={{ ...styles.headerText }}
-      />
+      <View style={styles.topBar}>
+        <ThemeText
+          CustomNumberOfLines={1}
+          content={t('screens.inAccount.appStore.title')}
+          styles={styles.headerText}
+        />
+        <View style={{ marginLeft: 'auto' }}>
+          <ProfileImageSettingsNavigator />
+        </View>
+      </View>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
@@ -308,7 +316,14 @@ export default function AppStore({ navigation }) {
 
 const styles = StyleSheet.create({
   globalConatiner: { paddingBottom: 0 },
-  headerText: { fontSize: SIZES.large, ...CENTER },
+  headerText: {
+    flexShrink: 1,
+    width: '100%',
+    textAlign: 'center',
+    fontSize: SIZES.large,
+    paddingHorizontal: 45,
+    position: 'absolute',
+  },
 
   giftCardContainer: {
     minHeight: 120,
@@ -385,6 +400,17 @@ const styles = StyleSheet.create({
     maxWidth: MAX_CONTENT_WIDTH,
     paddingTop: 20,
     // paddingBottom: 20,
+    ...CENTER,
+  },
+
+  // topboar
+  topBar: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+    minHeight: 40,
     ...CENTER,
   },
 });

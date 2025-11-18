@@ -42,6 +42,7 @@ export default function CrashReportingSettingsPage() {
         }}
         toggleSwitchStateValue={isCrashReportingEnabled}
         showDescription={true}
+        switchPageName={'settingsCrashReporting'}
       />
     </ScrollView>
   );
