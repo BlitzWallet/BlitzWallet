@@ -467,7 +467,7 @@ export default function SettingsIndex(props) {
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <CustomSettingsTopBar
-        label={t('screens.inAccount.settingsContent.settings')}
+        // label={t('screens.inAccount.settingsContent.settings')}
         showLeftImage={true}
         leftImageBlue={ICONS.share}
         LeftImageDarkMode={ICONS.shareWhite}
@@ -713,6 +713,7 @@ const styles = StyleSheet.create({
   inlineSettingsDescription: {
     opacity: 0.7,
     fontSize: SIZES.small,
+    includeFontPadding: false,
   },
   scrollAign: { alignItems: 'center' },
   profileContainer: {
