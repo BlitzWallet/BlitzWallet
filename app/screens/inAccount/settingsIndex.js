@@ -484,7 +484,12 @@ export default function SettingsIndex(props) {
         contentContainerStyle={styles.scrollAign}
         style={styles.settingsContainer}
       >
-        <View style={styles.profileContainer}>
+        <View
+          style={[
+            styles.profileContainer,
+            { borderBottomColor: backgroundOffset },
+          ]}
+        >
           <View
             style={[
               styles.profileImage,
@@ -721,6 +726,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     paddingBottom: 30,
+    borderBottomWidth: 2,
   },
   profileUniqueName: { marginBottom: 35 },
   buttonContainer: {
