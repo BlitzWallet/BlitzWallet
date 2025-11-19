@@ -492,6 +492,22 @@ export async function addGiftToDatabase(dataObject) {
   }
 }
 
+export async function updateGiftInDatabase(dataObject) {
+  try {
+    const db = getFirestore();
+    const docRef = doc(db, 'blitzGifts', dataObject.uuid);
+
+    await setDoc(docRef, dataObject, { merge: true });
+
+    console.log('Document merged with ID: ', dataObject.uuid);
+    return true;
+  } catch (e) {
+    console.error('Error adding gift to database: ', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
 export async function getGiftCard(cardUUID) {
   try {
     const db = getFirestore();
@@ -539,5 +555,28 @@ export async function handleGiftCheck(cardUUID) {
     console.error('Error adding gift to database: ', e);
     crashlyticsRecordErrorReport(e.message);
     return { didWork: false };
+  }
+}
+
+export async function reloadGiftsOnDomesday(uuid) {
+  try {
+    const db = getFirestore();
+
+    const q = query(
+      collection(db, 'blitzGifts'),
+      where('createdBy', '==', uuid),
+    );
+
+    const snapshot = await getDocs(q);
+
+    const results = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return results;
+  } catch (e) {
+    console.error('Error fetching gifts by creator:', e);
+    return [];
   }
 }
