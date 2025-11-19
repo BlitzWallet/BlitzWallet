@@ -119,23 +119,25 @@ export default function GiftsOverview({ theme, darkModeType }) {
                 content={uuid.slice(0, 4) + '...' + uuid.slice(uuid.length - 4)}
               />
             </View>
-            <TouchableOpacity
-              onPress={async () => {
-                if (useState) {
-                  await copyToClipboard(claimURL, showToast);
-                } else {
-                  await handleGiftCardShare({ amount, giftLink: claimURL });
-                }
-              }}
-            >
-              <ThemeImage
-                lightModeIcon={useState ? ICONS.clipboardBlue : ICONS.share}
-                darkModeIcon={useState ? ICONS.clipboardBlue : ICONS.share}
-                lightsOutIcon={
-                  useState ? ICONS.clipboardLight : ICONS.shareWhite
-                }
-              />
-            </TouchableOpacity>
+            {state !== 'Claimed' && (
+              <TouchableOpacity
+                onPress={async () => {
+                  if (useState) {
+                    await copyToClipboard(claimURL, showToast);
+                  } else {
+                    await handleGiftCardShare({ amount, giftLink: claimURL });
+                  }
+                }}
+              >
+                <ThemeImage
+                  lightModeIcon={useState ? ICONS.clipboardBlue : ICONS.share}
+                  darkModeIcon={useState ? ICONS.clipboardBlue : ICONS.share}
+                  lightsOutIcon={
+                    useState ? ICONS.clipboardLight : ICONS.shareWhite
+                  }
+                />
+              </TouchableOpacity>
+            )}
           </View>
 
           <ThemeText styles={styles.description} content={description || ''} />
@@ -212,6 +214,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
             lightsOutIcon={ICONS.xSmallIconWhite}
           />
           <ThemeText
+            styles={{ includeFontPadding: false }}
             content={t('screens.inAccount.giftPages.giftsOverview.createGift')}
           />
         </TouchableOpacity>

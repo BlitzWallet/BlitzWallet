@@ -549,8 +549,8 @@ export async function handleGiftCheck(cardUUID) {
 
     const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists) return { didWork: true, wasClaimed: false };
-    else return { didWork: true, wasClaimed: false };
+    if (docSnap.exists()) return { didWork: true, wasClaimed: false };
+    else return { didWork: true, wasClaimed: true };
   } catch (e) {
     console.error('Error adding gift to database: ', e);
     crashlyticsRecordErrorReport(e.message);
