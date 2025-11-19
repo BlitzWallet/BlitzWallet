@@ -144,6 +144,8 @@ import giftFilledWhite from '../assets/icons/giftFilledWhite.png';
 import giftWhite from '../assets/icons/giftWhite.png';
 import giftBlue from '../assets/icons/giftBlue.png';
 import gift from '../assets/icons/gift.png';
+import rotateLeft from '../assets/icons/rotate-left.png';
+import rotateLeftBlue from '../assets/icons/rotate-left-blue.png';
 
 export default {
   editIcon,
@@ -292,4 +294,6 @@ export default {
   giftBlue,
   giftWhite,
   gift,
+  rotateLeft,
+  rotateLeftBlue,
 };
