@@ -94,7 +94,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
 
       const useState = timeRemaining.time <= 0;
       // Only show outstanding and claimed gifts here, put expired gifts on reclaim page to make it easier for user
-      if (timeRemaining.time <= 0 && state === 'Expired') return null;
+      // if (timeRemaining.time <= 0 && state === 'Expired') return null;
       return (
         <View
           style={[
@@ -123,7 +123,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
               <TouchableOpacity
                 onPress={async () => {
                   if (useState) {
-                    await copyToClipboard(claimURL, showToast);
+                    await copyToClipboard(uuid, showToast);
                   } else {
                     await handleGiftCardShare({ amount, giftLink: claimURL });
                   }
