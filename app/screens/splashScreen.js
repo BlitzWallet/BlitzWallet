@@ -23,6 +23,7 @@ import CustomButton from '../functions/CustomElements/button';
 import { INSET_WINDOW_WIDTH } from '../constants/theme';
 import openWebBrowser from '../functions/openWebBrowser';
 import { useNavigation } from '@react-navigation/native';
+import { initGiftDb } from '../functions/gift/giftsStorage';
 
 import * as ExpoSplashScreen from 'expo-splash-screen';
 const BlitzAnimation = require('../assets/BlitzAnimation.json');
@@ -81,12 +82,14 @@ const SplashScreen = () => {
           posTransactions,
           sparkTxs,
           rootstockSwaps,
+          giftsDb,
         ] = await Promise.all([
           initializeDatabase(),
           initializeGiftCardDatabase(),
           initializePOSTransactionsDatabase(),
           initializeSparkDatabase(),
           initRootstockSwapDB(),
+          initGiftDb(),
         ]);
 
         if (
@@ -94,7 +97,8 @@ const SplashScreen = () => {
           !giftCardTable ||
           !posTransactions ||
           !sparkTxs ||
-          !rootstockSwaps
+          !rootstockSwaps ||
+          !giftsDb
         )
           throw new Error(t('screens.inAccount.loadingScreen.dbInitError'));
 

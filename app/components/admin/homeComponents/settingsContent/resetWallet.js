@@ -27,6 +27,7 @@ import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { firebaseAuth } from '../../../../../db/initializeFirebase';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../../context-store/appStatus';
+import { deleteGiftsTable } from '../../../../functions/gift/giftsStorage';
 
 export default function ResetPage(props) {
   const [wantsToReset, setWantsToReset] = useState(false);
@@ -70,6 +71,7 @@ export default function ResetPage(props) {
         didClearPos,
         didClearTxTable,
         didClearPendingTxTable,
+        didClearGiftsTable,
         didClearSecureItems,
       ] = await Promise.all([
         removeAllLocalData(),
@@ -77,6 +79,7 @@ export default function ResetPage(props) {
         deletePOSTransactionsTable(),
         deleteSparkTransactionTable(),
         deleteUnpaidSparkLightningTransactionTable(),
+        deleteGiftsTable(),
         terminateAccount(),
       ]);
 

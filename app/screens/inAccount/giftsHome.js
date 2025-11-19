@@ -166,13 +166,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  backButton: {
-    marginRight: 12,
-  },
-  backText: {
-    fontSize: 16,
-    color: '#555',
-  },
   headerTitle: {
     width: '100%',
     flexShrink: 1,
