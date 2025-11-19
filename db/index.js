@@ -475,3 +475,69 @@ export async function deleteNip5FromCollection(uuid) {
     return false;
   }
 }
+
+export async function addGiftToDatabase(dataObject) {
+  try {
+    const db = getFirestore();
+    const docRef = doc(db, 'blitzGifts', dataObject.uuid);
+
+    await setDoc(docRef, dataObject, { merge: false });
+
+    console.log('Document merged with ID: ', dataObject.uuid);
+    return true;
+  } catch (e) {
+    console.error('Error adding gift to database: ', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+export async function getGiftCard(cardUUID) {
+  try {
+    const db = getFirestore();
+    const docRef = doc(db, 'blitzGifts', cardUUID);
+
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists) {
+      const userData = docSnap.data();
+      return userData;
+    }
+  } catch (e) {
+    console.error('Error adding gift to database: ', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+export async function deleteGift(uuid) {
+  try {
+    const db = getFirestore();
+    const docRef = doc(db, 'blitzGifts', uuid);
+
+    await deleteDoc(docRef);
+
+    console.log('Gift deleted:', uuid);
+    return true;
+  } catch (e) {
+    console.error('Error deleting gift:', e);
+    crashlyticsRecordErrorReport(e.message);
+    return false;
+  }
+}
+
+export async function handleGiftCheck(cardUUID) {
+  try {
+    const db = getFirestore();
+    const docRef = doc(db, 'blitzGifts', cardUUID);
+
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists) return { didWork: true, wasClaimed: false };
+    else return { didWork: true, wasClaimed: false };
+  } catch (e) {
+    console.error('Error adding gift to database: ', e);
+    crashlyticsRecordErrorReport(e.message);
+    return { didWork: false };
+  }
+}
