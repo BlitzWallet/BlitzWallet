@@ -25,6 +25,9 @@ const IS_SPARK_REQUEST_ID =
   /^SparkLightning(?:Receive|Send)Request:[0-9a-fA-F\-]+$/;
 const IS_BITCOIN_REQUEST_ID = /^SparkCoopExitRequest:[0-9a-fA-F\-]+$/;
 
+const GIFT_DEEPLINK_REGEX =
+  /^blitz-wallet:\/\/gift\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(#[A-Za-z0-9_-]+)?$/;
+
 const NOSTR_NAME_REGEX = /^[a-zA-Z0-9]+$/;
 const NOSTR_RELAY_URL = 'wss://relay.getalbypro.com/blitz';
 
@@ -76,6 +79,7 @@ const BLITZ_PAYMENT_DEEP_LINK_SCHEMES = [
 
 const CHATGPT_INPUT_COST = 10 / 1000000;
 const CHATGPT_OUTPUT_COST = 30 / 1000000;
+const STARTING_INDEX_FOR_GIFTS_DERIVE = 1000;
 
 const MIN_CHANNEL_OPEN_FEE = 500_000;
 const MAX_CHANNEL_OPEN_FEE = 1_000_000;
@@ -166,4 +170,6 @@ export {
   BLITZ_PAYMENT_DEEP_LINK_SCHEMES,
   HIDE_IN_APP_PURCHASE_ITEMS,
   IS_BLITZ_URL_REGEX,
+  STARTING_INDEX_FOR_GIFTS_DERIVE,
+  GIFT_DEEPLINK_REGEX,
 };

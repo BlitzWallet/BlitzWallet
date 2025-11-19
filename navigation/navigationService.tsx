@@ -1,11 +1,12 @@
-import {createNavigationContainerRef} from '@react-navigation/native';
+import { createNavigationContainerRef } from '@react-navigation/native';
 
 type RootStackParamList = {
-  Home: {someParam?: string};
-  Details: {someParam?: string};
-  ExpandedAddContactsPage: {newContact: object};
-  ConfirmPaymentScreen: {btcAdress: string};
-  ErrorScreen: {errorMessage: string; useTranslationString?: boolean};
+  Home: { someParam?: string };
+  Details: { someParam?: string };
+  ExpandedAddContactsPage: { newContact: object };
+  ConfirmPaymentScreen: { btcAdress: string };
+  ErrorScreen: { errorMessage: string; useTranslationString?: boolean };
+  CustomHalfModal: { wantedContent: string; url: string; sliderHight: number };
 };
 
 // Correct way to define the navigationRef
