@@ -223,7 +223,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
       } else {
         await deleteGift(giftDetails.uuid);
       }
-      await new Promise(res => setTimeout(res, 5000));
+      await new Promise(res => setTimeout(res, 10000));
     } catch (err) {
       console.log('Error claiming gift:', err);
       navigate.goBack();

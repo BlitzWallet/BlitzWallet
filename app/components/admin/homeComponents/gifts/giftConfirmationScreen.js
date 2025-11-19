@@ -254,6 +254,7 @@ export default function GiftConfirmation({
           >
             <ThemeText
               CustomNumberOfLines={1}
+              styles={{ includeFontPadding: false }}
               content={t(
                 'screens.inAccount.giftPages.giftConfirmation.createAnother',
               )}
@@ -265,6 +266,7 @@ export default function GiftConfirmation({
             activeOpacity={0.7}
           >
             <ThemeText
+              styles={{ includeFontPadding: false }}
               CustomNumberOfLines={1}
               content={t('screens.inAccount.giftPages.giftConfirmation.done')}
             />
@@ -358,6 +360,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: SIZES.small,
+    includeFontPadding: false,
   },
   copyButton: {
     width: 44,
@@ -386,6 +389,7 @@ const styles = StyleSheet.create({
   },
   shareButtonText: {
     color: COLORS.lightModeText,
+    includeFontPadding: false,
   },
   buttonRow: {
     flexDirection: 'row',

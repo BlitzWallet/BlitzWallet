@@ -91,7 +91,10 @@ export default function ClaimGiftHome({ theme }) {
               <TextInput
                 value={enteredLink}
                 onChangeText={setEnteredLink}
-                style={[styles.input, { color: textColor }]}
+                style={[
+                  styles.input,
+                  { color: textColor, includeFontPadding: false },
+                ]}
                 placeholder={t(
                   'screens.inAccount.giftPages.claimHome.inputPlaceholder',
                 )}
@@ -129,7 +132,10 @@ export default function ClaimGiftHome({ theme }) {
           },
         ]}
       >
-        <ThemeText content={t('screens.inAccount.giftPages.claimHome.claim')} />
+        <ThemeText
+          styles={{ includeFontPadding: false }}
+          content={t('screens.inAccount.giftPages.claimHome.claim')}
+        />
       </TouchableOpacity>
     </View>
   );

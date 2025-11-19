@@ -248,6 +248,7 @@ export default function CreateGift(props) {
                   style={styles.amountInputWrapper}
                 >
                   <ThemeText
+                    styles={{ includeFontPadding: false }}
                     content={displayCorrectDenomination({
                       amount,
                       masterInfoObject,
@@ -348,6 +349,7 @@ const styles = StyleSheet.create({
   },
   optional: {
     fontSize: SIZES.small,
+    opacity: 0.5,
   },
   amountInputWrapper: {
     flexDirection: 'row',

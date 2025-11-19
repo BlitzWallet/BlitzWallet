@@ -95,7 +95,10 @@ export default function ReclaimGift({ theme }) {
               <TextInput
                 value={enteredLink}
                 onChangeText={setEnteredLink}
-                style={[styles.input, { color: textColor }]}
+                style={[
+                  styles.input,
+                  { color: textColor, includeFontPadding: false },
+                ]}
                 placeholder={t(
                   'screens.inAccount.giftPages.reclaimPage.inputPlaceholder',
                 )}
@@ -137,6 +140,7 @@ export default function ReclaimGift({ theme }) {
         ]}
       >
         <ThemeText
+          styles={{ includeFontPadding: false }}
           content={t('screens.inAccount.giftPages.reclaimPage.button')}
         />
       </TouchableOpacity>
