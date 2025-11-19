@@ -111,6 +111,7 @@ export const DropdownProvider = ({ children }) => {
     showFlag = true,
     translateLabelText = true,
     dropdownItemCustomStyles = {},
+    dropdownTextCustomStyles = {},
   } = dropdownState.config;
 
   // Animated style for dropdown height & fade
@@ -192,7 +193,10 @@ export const DropdownProvider = ({ children }) => {
                             />
                           )}
                           <ThemeText
-                            styles={styles.defTextStyle}
+                            styles={[
+                              styles.defTextStyle,
+                              dropdownTextCustomStyles,
+                            ]}
                             content={
                               translateLabelText ? t(item.label) : item.label
                             }
