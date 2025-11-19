@@ -28,7 +28,6 @@ export default function ReclaimGift({ theme }) {
 
   const handleClaimGift = () => {
     if (!enteredLink) return;
-    if (!WEBSITE_REGEX.test(enteredLink)) return;
     setEnteredLink('');
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'ClaimGiftScreen',
@@ -49,7 +48,7 @@ export default function ReclaimGift({ theme }) {
   }, [expiredGiftsArray]);
 
   const handleDropdownSelection = item => {
-    setEnteredLink(item.data.claimURL);
+    setEnteredLink(item.data.uuid);
   };
 
   return (

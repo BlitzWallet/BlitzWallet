@@ -10,7 +10,7 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { CENTER, SIZES } from '../../../../constants';
+import { CENTER, SIZES, WEBSITE_REGEX } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
@@ -23,8 +23,12 @@ import {
 } from '../../../../functions/spark';
 import { useGifts } from '../../../../../context-store/giftContext';
 import { useTranslation } from 'react-i18next';
+import { deriveKeyFromMnemonic } from '../../../../functions/seed';
+import { useKeysContext } from '../../../../../context-store/keys';
+import { getGiftByUuid } from '../../../../functions/gift/giftsStorage';
 
 export default function ClaimGiftScreen({ url, claimType }) {
+  const { accountMnemoinc } = useKeysContext();
   const { deleteGiftFromCloudAndLocal } = useGifts();
   const navigate = useNavigation();
   const { sparkInformation } = useSparkWallet();
@@ -42,6 +46,43 @@ export default function ClaimGiftScreen({ url, claimType }) {
   useEffect(() => {
     async function loadGiftDetails() {
       try {
+        if (claimType === 'reclaim') {
+          let uuid;
+          if (WEBSITE_REGEX.test(url)) {
+            const parsedURL = parseGiftUrl(url);
+            uuid = parsedURL.giftId;
+          } else {
+            uuid = url;
+          }
+
+          const savedGift = await getGiftByUuid(uuid);
+
+          const giftWalletMnemonic = await deriveKeyFromMnemonic(
+            accountMnemoinc,
+            savedGift.giftNum,
+          );
+
+          setGiftDetails({
+            ...savedGift,
+            giftSeed: giftWalletMnemonic.derivedMnemonic,
+          });
+
+          // Pre-initialize the wallet in the background
+          walletInitPromise.current = initializeSparkWallet(giftSeed)
+            .then(result => {
+              walletInitResult.current = result;
+              console.log('Wallet pre-initialized successfully:', result);
+              return result;
+            })
+            .catch(err => {
+              console.log('Pre-initialization failed:', err);
+              walletInitResult.current = null;
+              return null;
+            });
+
+          return;
+        }
+
         const parsedURL = parseGiftUrl(url);
         if (!parsedURL)
           throw new Error(
@@ -49,16 +90,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
           );
         const retrivedGift = await getGiftCard(parsedURL.giftId);
 
-        if (claimType === 'reclaim' && !retrivedGift) {
-          await deleteGiftFromCloudAndLocal(parsedURL.giftId);
-          throw new Error(
-            t('screens.inAccount.giftPages.claimPage.noGiftForReclaim'),
-          );
-        }
-        if (
-          !retrivedGift ||
-          (retrivedGift?.expireTime < Date.now() && claimType !== 'reclaim')
-        )
+        if (!retrivedGift || retrivedGift?.expireTime < Date.now())
           throw new Error(
             t('screens.inAccount.giftPages.claimPage.expiredOrClaimed'),
           );
@@ -76,7 +108,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
             t('screens.inAccount.giftPages.claimPage.noGiftSeed'),
           );
 
-        setGiftDetails({ ...retrivedGift, parsedURL, giftSeed });
+        setGiftDetails({ ...retrivedGift, giftSeed });
 
         // Pre-initialize the wallet in the background
         walletInitPromise.current = initializeSparkWallet(giftSeed)
@@ -141,7 +173,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
 
       if (sendingAmount <= 0) {
         if (claimType === 'reclaim') {
-          await deleteGiftFromCloudAndLocal(giftDetails.parsedURL.giftId);
+          await deleteGiftFromCloudAndLocal(giftDetails.uuid);
           throw new Error(
             t('screens.inAccount.giftPages.claimPage.noBalanceErrorReclaim'),
           );
@@ -163,9 +195,9 @@ export default function ClaimGiftScreen({ url, claimType }) {
           t('screens.inAccount.giftPages.claimPage.paymentError'),
         );
       if (claimType === 'reclaim') {
-        await deleteGiftFromCloudAndLocal(giftDetails.parsedURL.giftId);
+        await deleteGiftFromCloudAndLocal(giftDetails.uuid);
       } else {
-        await deleteGift(giftDetails.parsedURL.giftId);
+        await deleteGift(giftDetails.uuid);
       }
       await new Promise(res => setTimeout(res, 5000));
     } catch (err) {
