@@ -645,7 +645,7 @@ const ContactElement = memo(
           <View style={memoizedStyles.contactsRowInlineStyle}>
             <ThemeText
               CustomNumberOfLines={2}
-              styles={{ fontSize: SIZES.small }}
+              styles={{ fontSize: SIZES.small, flexShrink: 1, marginRight: 10 }}
               content={lastUpdated ? formatMessage(firstMessage) || ' ' : ' '}
             />
             {!contact.isAdded && (
@@ -747,6 +747,7 @@ const memoizedStyles = StyleSheet.create({
     marginTop: 10,
   },
   contactsRowInlineStyle: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
   },
