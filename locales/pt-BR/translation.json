@@ -112,7 +112,11 @@
     "review": "Revisar",
     "loadMore": "Carregar mais",
     "invoice": "Fatura",
-    "annonName": "Usuário anônimo"
+    "annonName": "Usuário anônimo",
+    "claim": "Resgatar",
+    "reclaim": "Resgatar novamente",
+    "optionalFlag": "(Opcional)",
+    "gift": "Presente"
   },
 
   "languages": {
@@ -1123,11 +1127,9 @@
   },
 
   "settings": {
-    "pt-BR": {
-      "index": {
-        "editProfile": "Editar perfil",
-        "showQR": "Mostrar QR"
-      }
+    "index": {
+      "editProfile": "Editar perfil",
+      "showQR": "Mostrar QR"
     },
     "about": {
       "header1": "Software",
@@ -1631,6 +1633,93 @@
         "maxSupply": "Limite de emissão",
         "tokenTicker": "Ticker do token",
         "tokenPubKey": "Chave pública do token"
+      },
+      "giftPages": {
+        "expired": "Expirado",
+        "lessThanMin": "Menos de um minuto restante",
+        "timeLeft": {
+          "days_one": "{{count}} dia restante",
+          "days_other": "{{count}} dias restantes",
+          "hours_one": "{{count}} hora restante",
+          "hours_other": "{{count}} horas restantes",
+          "minutes_one": "{{count}} minuto restante",
+          "minutes_other": "{{count}} minutos restantes"
+        },
+        "shareMessage": "Você recebeu um presente de {{icon}}{{amount}}! Resgate aqui:\n{{link}}",
+        "fundGiftMessage": "Criando presente",
+        "reclaimGiftMessage": "Reclamando presente",
+
+        "giftsHome": {
+          "title": "Presentes",
+          "myGifts": "Meus presentes"
+        },
+
+        "giftsOverview": {
+          "noGiftsHead": "Nenhum presente ainda",
+          "noGiftsDesc": "Crie seu primeiro presente para compartilhar Bitcoin com amigos e família",
+          "createGift": "Criar presente"
+        },
+
+        "createGift": {
+          "noAmountError": "Digite um valor para criar seu presente.",
+          "connectError": "Não foi possível configurar a carteira do presente.",
+          "addressError": "Não foi possível obter o endereço do presente.",
+          "saveError": "Não foi possível salvar seu presente.",
+          "fundError": "Não foi possível adicionar fundos ao presente.",
+          "startProcess1": "Preparando seu presente…",
+          "startProcess2": "Configurando…",
+          "startProcess3": "Adicionando fundos ao presente…",
+          "header": "Criar presente",
+          "inputPlaceholder": "Adicione uma mensagem ou nota...",
+          "button": "Criar presente"
+        },
+
+        "giftConfirmation": {
+          "header": "Presente criado!",
+          "whatToDo": "Compartilhe usando o QR code ou o link abaixo",
+          "details": "Detalhes do presente",
+          "expire": "Expira",
+          "giftLink": "Link do presente",
+          "shareGift": "Compartilhar presente",
+          "createAnother": "Criar outro",
+          "done": "Concluído"
+        },
+
+        "claimHome": {
+          "header": "Insira o link do presente",
+          "desc": "Cole o link recebido ou escaneie o QR para resgatar seu presente",
+          "inputPlaceholder": "Insira o link do presente",
+          "claim": "Resgatar"
+        },
+
+        "reclaimPage": {
+          "header": "Reclamar seu presente",
+          "desc": "Digite ou escolha o ID do presente para recuperar um presente expirado ou não resgatado.",
+          "inputPlaceholder": "Digite o ID do presente",
+          "dropdownPlaceHolder": "Selecionar presente expirado",
+          "button": "Reclamar presente"
+        },
+
+        "claimPage": {
+          "parseError": "Não foi possível ler os detalhes do presente.",
+          "noGiftForReclaim": "Não encontramos este presente. Talvez já tenha sido resgatado.",
+          "expiredOrClaimed": "Este presente já foi resgatado ou expirou.",
+          "noGiftSeed": "Não conseguimos acessar o presente. Tente novamente mais tarde.",
+          "giftWalletInitError": "Não conseguimos acessar o presente. Tente novamente mais tarde.",
+          "noBalanceErrorReclaim": "Não há fundos restantes para resgatar.",
+          "nobalanceError": "O valor restante após taxas é muito baixo.",
+          "paymentError": "Não foi possível resgatar o presente.",
+          "claimHead": "Aceitar presente",
+          "reclaimHead": "Reembolsar presente",
+          "claimLoading": "Resgatando… permaneça no app.",
+          "reclaimLoading": "Devolvendo fundos… permaneça no app.",
+          "claimAmountHead": "Valor recebido",
+          "reclaimAmountHead": "Valor devolvido",
+          "networkFeeWarning": "Este valor, menos taxas, será adicionado ao seu saldo",
+          "buttonTextClaiming": "Resgatando",
+          "reclaimButton": "Reclamar presente",
+          "claimButton": "Aceitar presente"
+        }
       }
     }
   },

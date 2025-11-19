@@ -57,7 +57,7 @@ export default function ReclaimGift({ theme }) {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        bottomOffset={0}
+        bottomOffset={20}
       >
         <View style={styles.content}>
           <View style={styles.centerContent}>

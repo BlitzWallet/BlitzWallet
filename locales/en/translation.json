@@ -112,7 +112,11 @@
     "review": "Review",
     "loadMore": "Load More",
     "invoice": "Invoice",
-    "annonName": "Anonymous User"
+    "annonName": "Anonymous User",
+    "claim": "Claim",
+    "reclaim": "Reclaim",
+    "optionalFlag": "(Optional)",
+    "gift": "Gift"
   },
 
   "languages": {
@@ -1633,6 +1637,90 @@
         "maxSupply": "Max Supply",
         "tokenTicker": "Token Ticker",
         "tokenPubKey": "Token Public Key"
+      },
+      "giftPages": {
+        "expired": "Expired",
+        "lessThanMin": "Less than a minute left",
+        "timeLeft": {
+          "days_one": "{{count}} day left",
+          "days_other": "{{count}} days left",
+          "hours_one": "{{count}} hour left",
+          "hours_other": "{{count}} hours left",
+          "minutes_one": "{{count}} minute left",
+          "minutes_other": "{{count}} minutes left"
+        },
+        "shareMessage": "You've received a {{icon}}{{amount}} gift! Claim it here:\n{{link}}",
+        "fundGiftMessage": "Creating Gift",
+        "reclaimGiftMessage": "Reclaiming Gift",
+
+        "giftsHome": {
+          "title": "Gifts",
+          "myGifts": "My Gifts"
+        },
+
+        "giftsOverview": {
+          "noGiftsHead": "No gifts yet",
+          "noGiftsDesc": "Create your first gift to share Bitcoin with friends and family",
+          "createGift": "Create Gift"
+        },
+
+        "createGift": {
+          "noAmountError": "Please enter an amount to create your gift.",
+          "connectError": "We couldn’t set up your gift wallet. Please try again.",
+          "addressError": "We couldn’t get the address for your gift wallet.",
+          "saveError": "We couldn’t save your gift. Please try again.",
+          "fundError": "We couldn’t add funds to your gift.",
+          "startProcess1": "Preparing your gift…",
+          "startProcess2": "Setting things up…",
+          "startProcess3": "Adding funds to your gift…",
+          "header": "Create Gift",
+          "inputPlaceholder": "Add a message or note...",
+          "button": "Create Gift"
+        },
+
+        "giftConfirmation": {
+          "header": "Gift Created!",
+          "whatToDo": "Share this gift with anyone using the QR code or link below",
+          "details": "Gift Details",
+          "expire": "Expires",
+          "giftLink": "Gift Link",
+          "shareGift": "Share Gift",
+          "createAnother": "Create Another",
+          "done": "Done"
+        },
+        "claimHome": {
+          "header": "Enter gift link",
+          "desc": "'Paste the gift link you received or scan the QR code to claim your gift",
+          "inputPlaceholder": "Enter gift link",
+          "claim": "Claim"
+        },
+        "reclaimPage": {
+          "header": "Reclaim your gift",
+          "desc": "Enter or choose the gift ID to return an unclaimed, expired gift to your wallet.",
+          "inputPlaceholder": "Enter gift ID",
+          "dropdownPlaceHolder": "Select Expired Gift",
+          "button": "Reclaim Gift"
+        },
+        "claimPage": {
+          "parseError": "We couldn’t read the gift details from this link.",
+          "noGiftForReclaim": "We couldn’t find this gift. It may have already been claimed.",
+          "expiredOrClaimed": "This gift has already been claimed or has expired.",
+          "noGiftSeed": "We couldn’t reach the gift right now. Please try again later.",
+          "giftWalletInitError": "We were unable to reach the gift, please try again later.",
+          "noBalanceErrorReclaim": "There are no funds left to reclaim from this gift.",
+          "nobalanceError": "The amount left after fees is too small to claim.",
+          "paymentError": "We couldn’t claim the gift. Please try again.",
+          "claimHead": "Accept Gift",
+          "reclaimHead": "Refund Gift",
+          "claimLoading": "Claiming your gift… please stay in the app.",
+          "reclaimLoading": "Returning your funds… please stay in the app.",
+          "claimAmountHead": "Receving amount",
+          "reclaimAmountHead": "Amount Restored",
+          "networkFeeWarning": "This amount minus network fees will be added to your balance",
+          "buttonTextClaiming": "Claiming",
+          "reclaimButton": "Reclaim Gift",
+          "claimButton": "Accept Gift"
+        }
       }
     }
   },

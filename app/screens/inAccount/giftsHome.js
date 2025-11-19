@@ -198,6 +198,8 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     paddingVertical: 12,
+    paddingHorizontal: 5,
+
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -206,7 +208,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: '#000',
   },
-
+  tabText: {
+    fontSize: SIZES.small,
+    textAlign: 'center',
+    padding: 5,
+  },
   activeTabText: {
     fontWeight: '500',
   },
