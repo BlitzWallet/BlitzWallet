@@ -36,8 +36,14 @@ export default function ClaimGiftHome({ theme }) {
 
   const handleCameraScan = data => {
     if (data && typeof data === 'string' && WEBSITE_REGEX.test(data)) {
-      console.log(data, 'data');
-      setEnteredLink(data);
+      setTimeout(() => {
+        navigate.navigate('CustomHalfModal', {
+          wantedContent: 'ClaimGiftScreen',
+          url: data,
+          sliderHight: 0.6,
+          claimType: 'claim',
+        });
+      }, 300);
     }
   };
 
