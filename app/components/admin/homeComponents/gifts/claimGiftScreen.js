@@ -131,9 +131,11 @@ export default function ClaimGiftScreen({ url, claimType }) {
       }
     }
     if (!url) return;
+    if (!sparkInformation.identityPubKey || !sparkInformation.didConnect)
+      return;
     loadGiftDetails();
-  }, [url]);
-  console.log(giftDetails);
+  }, [url, sparkInformation.identityPubKey, sparkInformation.didConnect]);
+
   const handleClaim = async () => {
     if (isClaiming) return; // Prevent double-clicks
     setIsClaiming(true);
@@ -234,6 +236,10 @@ export default function ClaimGiftScreen({ url, claimType }) {
       setIsClaiming(false);
     }
   };
+
+  if (!sparkInformation.identityPubKey || !sparkInformation.didConnect) {
+    return <FullLoadingScreen showText={false} />;
+  }
 
   if (!Object.keys(giftDetails).length) {
     return <FullLoadingScreen showText={false} />;
