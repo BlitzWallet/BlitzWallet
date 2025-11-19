@@ -254,7 +254,10 @@ export default function GiftConfirmation({
           >
             <ThemeText
               CustomNumberOfLines={1}
-              styles={{ includeFontPadding: false }}
+              styles={{
+                includeFontPadding: false,
+                color: COLORS.lightModeText,
+              }}
               content={t(
                 'screens.inAccount.giftPages.giftConfirmation.createAnother',
               )}
@@ -266,7 +269,10 @@ export default function GiftConfirmation({
             activeOpacity={0.7}
           >
             <ThemeText
-              styles={{ includeFontPadding: false }}
+              styles={{
+                includeFontPadding: false,
+                color: COLORS.lightModeText,
+              }}
               CustomNumberOfLines={1}
               content={t('screens.inAccount.giftPages.giftConfirmation.done')}
             />

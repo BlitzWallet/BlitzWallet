@@ -12,8 +12,6 @@ import { WINDOWWIDTH } from '../../constants/theme';
 import GiftsOverview from '../../components/admin/homeComponents/gifts/giftsOverview';
 import ClaimGiftHome from '../../components/admin/homeComponents/gifts/claimGiftHome';
 import ReclaimGift from '../../components/admin/homeComponents/gifts/reclaimGift';
-import { useFocusEffect } from '@react-navigation/native';
-import { setStatusBarBackgroundColor } from 'expo-status-bar';
 
 export default function GiftsPageHome() {
   const [currentView, setCurrentView] = useState('overview');
@@ -30,32 +28,10 @@ export default function GiftsPageHome() {
     if (value === 'reclaim') setCurrentView('reclaim');
   };
 
-  const headerBackground = theme ? backgroundOffset : COLORS.darkModeText;
-  useFocusEffect(
-    useCallback(() => {
-      if (Platform.OS === 'android') {
-        // Set status bar when Gifts page is focused
-        setStatusBarBackgroundColor(headerBackground);
-      }
-
-      // Reset status bar when navigating away
-      return () => {
-        if (Platform.OS === 'android') {
-          setStatusBarBackgroundColor(backgroundColor);
-        }
-      };
-    }, [headerBackground, backgroundColor]),
-  );
-
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <View style={[styles.container]}>
       {/* Header */}
-      <View
-        style={[
-          styles.topBarContainer,
-          { paddingTop: topPadding, backgroundColor: headerBackground },
-        ]}
-      >
+      <View style={[styles.topBarContainer, { paddingTop: topPadding }]}>
         <View style={styles.topBar}>
           <ThemeText
             CustomNumberOfLines={1}
@@ -73,7 +49,6 @@ export default function GiftsPageHome() {
         style={[
           styles.tabContainer,
           {
-            backgroundColor: headerBackground,
             borderBottomColor: backgroundOffset,
           },
         ]}
@@ -138,11 +113,7 @@ export default function GiftsPageHome() {
 
       {/* Content */}
       {currentView === 'overview' && (
-        <GiftsOverview
-          headerBackground={headerBackground}
-          theme={theme}
-          darkModeType={darkModeType}
-        />
+        <GiftsOverview theme={theme} darkModeType={darkModeType} />
       )}
       {currentView === 'claim' && (
         <ClaimGiftHome theme={theme} darkModeType={darkModeType} />
