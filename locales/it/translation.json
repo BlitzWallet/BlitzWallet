@@ -1707,6 +1707,7 @@
           "giftWalletInitError": "Impossibile raggiungere il regalo. Riprova più tardi.",
           "noBalanceErrorReclaim": "Nessun fondo rimasto da recuperare.",
           "nobalanceError": "L'importo rimanente dopo le commissioni è troppo basso.",
+          "notExpired": "Non puoi ancora recuperare questo regalo.",
           "paymentError": "Impossibile riscattare il regalo.",
           "claimHead": "Accetta regalo",
           "reclaimHead": "Rimborso regalo",

@@ -1535,6 +1535,7 @@
           "giftWalletInitError": "No pudimos acceder al regalo. Inténtalo más tarde.",
           "noBalanceErrorReclaim": "No quedan fondos para recuperar de este regalo.",
           "nobalanceError": "El monto restante después de las tarifas es demasiado pequeño para reclamar.",
+          "notExpired": "Aún no puedes recuperar este regalo.",
           "paymentError": "No pudimos reclamar el regalo. Inténtalo de nuevo.",
           "claimHead": "Aceptar regalo",
           "reclaimHead": "Reembolsar regalo",

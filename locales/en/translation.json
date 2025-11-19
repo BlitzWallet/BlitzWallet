@@ -1690,7 +1690,7 @@
         },
         "claimHome": {
           "header": "Enter gift link",
-          "desc": "'Paste the gift link you received or scan the QR code to claim your gift",
+          "desc": "Paste the gift link you received or scan the QR code to claim your gift",
           "inputPlaceholder": "Enter gift link",
           "claim": "Claim"
         },
@@ -1708,6 +1708,7 @@
           "noGiftSeed": "We couldn’t reach the gift right now. Please try again later.",
           "giftWalletInitError": "We were unable to reach the gift, please try again later.",
           "noBalanceErrorReclaim": "There are no funds left to reclaim from this gift.",
+          "notExpired": "You cannot reclaim this gift yet.",
           "nobalanceError": "The amount left after fees is too small to claim.",
           "paymentError": "We couldn’t claim the gift. Please try again.",
           "claimHead": "Accept Gift",

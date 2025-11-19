@@ -1707,6 +1707,7 @@
           "noGiftSeed": "Não conseguimos acessar o presente. Tente novamente mais tarde.",
           "giftWalletInitError": "Não conseguimos acessar o presente. Tente novamente mais tarde.",
           "noBalanceErrorReclaim": "Não há fundos restantes para resgatar.",
+          "notExpired": "Você ainda não pode recuperar este presente.",
           "nobalanceError": "O valor restante após taxas é muito baixo.",
           "paymentError": "Não foi possível resgatar o presente.",
           "claimHead": "Aceitar presente",

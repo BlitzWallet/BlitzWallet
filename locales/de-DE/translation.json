@@ -1689,6 +1689,7 @@
           "noGiftSeed": "Gift nicht erreichbar. Bitte später erneut versuchen.",
           "giftWalletInitError": "Gift nicht erreichbar. Bitte später erneut versuchen.",
           "noBalanceErrorReclaim": "Es sind keine Mittel mehr vorhanden.",
+          "notExpired": "Du kannst dieses Geschenk noch nicht zurückholen.",
           "nobalanceError": "Der Restbetrag nach Gebühren ist zu gering.",
           "paymentError": "Geschenk konnte nicht eingelöst werden.",
           "claimHead": "Geschenk annehmen",
