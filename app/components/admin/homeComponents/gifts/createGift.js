@@ -104,7 +104,7 @@ export default function CreateGift(props) {
         uuid: giftId,
         createdTime: Date.now(),
         lastUpdated: Date.now(),
-        expireTime: Date.now() + 1000,
+        expireTime: Date.now() + 1000 * 60 * 60 * 24 * 7,
         encryptedText: encryptedMnemonic,
         amount: convertedSatAmount,
         description: description || '',
