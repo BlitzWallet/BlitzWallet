@@ -5,7 +5,10 @@ export function formatTimeRemaining(expireTime) {
   const diff = expireTime - now;
 
   if (diff <= 0) {
-    return { string: i18n.t('giftPages.expired'), time: diff };
+    return {
+      string: i18n.t('screens.inAccount.giftPages.expired'),
+      time: diff,
+    };
   }
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -14,27 +17,33 @@ export function formatTimeRemaining(expireTime) {
 
   if (days > 0) {
     return {
-      string: i18n.t('giftPages.timeLeft.days', { count: days }),
+      string: i18n.t('screens.inAccount.giftPages.timeLeft.days', {
+        count: days,
+      }),
       time: diff,
     };
   }
 
   if (hours > 0) {
     return {
-      string: i18n.t('giftPages.timeLeft.hours', { count: hours }),
+      string: i18n.t('screens.inAccount.giftPages.timeLeft.hours', {
+        count: hours,
+      }),
       time: diff,
     };
   }
 
   if (minutes > 0) {
     return {
-      string: i18n.t('giftPages.timeLeft.minutes', { count: minutes }),
+      string: i18n.t('screens.inAccount.giftPages.timeLeft.minutes', {
+        count: minutes,
+      }),
       time: diff,
     };
   }
 
   return {
-    string: i18n.t('giftPages.lessThanMin'),
+    string: i18n.t('screens.inAccount.giftPages.lessThanMin'),
     time: diff,
   };
 }
