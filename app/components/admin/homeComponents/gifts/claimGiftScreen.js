@@ -253,6 +253,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
 
       {isClaiming ? (
         <FullLoadingScreen
+          textStyles={{ textAlign: 'center' }}
           text={
             claimType === 'reclaim'
               ? t('screens.inAccount.giftPages.claimPage.reclaimLoading')

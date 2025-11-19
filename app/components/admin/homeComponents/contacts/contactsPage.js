@@ -691,8 +691,7 @@ const memoizedStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginBottom: 10,
-    minHeight: 40,
+    minHeight: 50,
     ...CENTER,
   },
   hasNotification: {

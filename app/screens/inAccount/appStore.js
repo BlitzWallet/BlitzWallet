@@ -409,8 +409,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
-    minHeight: 40,
+
+    minHeight: 50,
     ...CENTER,
   },
 });
