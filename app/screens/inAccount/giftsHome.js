@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { ThemeText } from '../../functions/CustomElements';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import GetThemeColors from '../../hooks/themeColors';
@@ -12,6 +12,8 @@ import { WINDOWWIDTH } from '../../constants/theme';
 import GiftsOverview from '../../components/admin/homeComponents/gifts/giftsOverview';
 import ClaimGiftHome from '../../components/admin/homeComponents/gifts/claimGiftHome';
 import ReclaimGift from '../../components/admin/homeComponents/gifts/reclaimGift';
+import { useFocusEffect } from '@react-navigation/native';
+import { setStatusBarBackgroundColor } from 'expo-status-bar';
 
 export default function GiftsPageHome() {
   const [currentView, setCurrentView] = useState('overview');
@@ -29,6 +31,21 @@ export default function GiftsPageHome() {
   };
 
   const headerBackground = theme ? backgroundOffset : COLORS.darkModeText;
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS === 'android') {
+        // Set status bar when Gifts page is focused
+        setStatusBarBackgroundColor(headerBackground);
+      }
+
+      // Reset status bar when navigating away
+      return () => {
+        if (Platform.OS === 'android') {
+          setStatusBarBackgroundColor(backgroundColor);
+        }
+      };
+    }, [headerBackground, backgroundColor]),
+  );
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
