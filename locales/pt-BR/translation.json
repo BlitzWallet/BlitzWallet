@@ -1697,7 +1697,8 @@
           "desc": "Digite ou escolha o ID do presente para recuperar um presente expirado ou não resgatado.",
           "inputPlaceholder": "Digite o ID do presente",
           "dropdownPlaceHolder": "Selecionar presente expirado",
-          "button": "Reclamar presente"
+          "button": "Reclamar presente",
+          "noReclaimsMessage": "Você não tem presentes expirados no momento. Volte quando algum presente expirar para recuperá-lo."
         },
 
         "claimPage": {

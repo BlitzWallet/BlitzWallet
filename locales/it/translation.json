@@ -1696,7 +1696,8 @@
           "desc": "Inserisci o scegli l'ID per recuperare un regalo scaduto o non riscattato.",
           "inputPlaceholder": "Inserisci ID regalo",
           "dropdownPlaceHolder": "Seleziona regalo scaduto",
-          "button": "Recupera regalo"
+          "button": "Recupera regalo",
+          "noReclaimsMessage": "Non hai regali scaduti al momento. Torna quando un regalo sarà scaduto per recuperarlo."
         },
 
         "claimPage": {

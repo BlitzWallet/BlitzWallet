@@ -260,8 +260,9 @@ export default function ClaimGiftScreen({ url, claimType }) {
   };
 
   useEffect(() => {
+    if (!didClaim) return;
     animationRef.current?.play();
-  }, []);
+  }, [didClaim]);
 
   const confirmAnimation = useMemo(() => {
     return updateConfirmAnimation(
@@ -320,7 +321,10 @@ export default function ClaimGiftScreen({ url, claimType }) {
 
       {isClaiming ? (
         <FullLoadingScreen
-          textStyles={{ textAlign: 'center' }}
+          textStyles={{
+            textAlign: 'center',
+            width: INSET_WINDOW_WIDTH,
+          }}
           text={
             claimType === 'reclaim'
               ? t('screens.inAccount.giftPages.claimPage.reclaimLoading')

@@ -1679,7 +1679,8 @@
           "desc": "Gib die Geschenk-ID ein oder wähle sie aus, um ein abgelaufenes oder nicht eingelöstes Geschenk zurückzubekommen.",
           "inputPlaceholder": "Geschenk-ID eingeben",
           "dropdownPlaceHolder": "Abgelaufenes Geschenk auswählen",
-          "button": "Geschenk zurückholen"
+          "button": "Geschenk zurückholen",
+          "noReclaimsMessage": "Du hast derzeit keine abgelaufenen Geschenke. Komm zurück, sobald ein Geschenk abgelaufen ist, um es zurückzuholen."
         },
 
         "claimPage": {

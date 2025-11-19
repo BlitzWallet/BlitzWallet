@@ -47,6 +47,8 @@ export default function ReclaimGift({ theme }) {
     }));
   }, [expiredGiftsArray]);
 
+  const hasExpiredGift = !!dropdownData.length;
+
   const handleDropdownSelection = item => {
     setEnteredLink(item.data.uuid);
   };
@@ -76,10 +78,12 @@ export default function ReclaimGift({ theme }) {
               content={t('screens.inAccount.giftPages.reclaimPage.header')}
             />
 
-            <ThemeText
-              styles={styles.description}
-              content={t('screens.inAccount.giftPages.reclaimPage.desc')}
-            />
+            {hasExpiredGift && (
+              <ThemeText
+                styles={styles.description}
+                content={t('screens.inAccount.giftPages.reclaimPage.desc')}
+              />
+            )}
 
             {/* Input Container */}
             <View
@@ -92,20 +96,30 @@ export default function ReclaimGift({ theme }) {
                 },
               ]}
             >
-              <TextInput
-                value={enteredLink}
-                onChangeText={setEnteredLink}
-                style={[
-                  styles.input,
-                  { color: textColor, includeFontPadding: false },
-                ]}
-                placeholder={t(
-                  'screens.inAccount.giftPages.reclaimPage.inputPlaceholder',
-                )}
-                placeholderTextColor="#a3a3a3"
-              />
+              {!hasExpiredGift && (
+                <ThemeText
+                  styles={{ textAlign: 'center', fontSize: SIZES.small }}
+                  content={t(
+                    'screens.inAccount.giftPages.reclaimPage.noReclaimsMessage',
+                  )}
+                />
+              )}
+              {hasExpiredGift && (
+                <TextInput
+                  value={enteredLink}
+                  onChangeText={setEnteredLink}
+                  style={[
+                    styles.input,
+                    { color: textColor, includeFontPadding: false },
+                  ]}
+                  placeholder={t(
+                    'screens.inAccount.giftPages.reclaimPage.inputPlaceholder',
+                  )}
+                  placeholderTextColor="#a3a3a3"
+                />
+              )}
 
-              {!!dropdownData.length && (
+              {hasExpiredGift && (
                 <View style={{ marginTop: 10 }}>
                   <DropdownMenu
                     disableDropdownPress={!dropdownData.length}
@@ -129,21 +143,23 @@ export default function ReclaimGift({ theme }) {
         </View>
       </KeyboardAwareScrollView>
       {/* Claim Button */}
-      <TouchableOpacity
-        onPress={handleClaimGift}
-        style={[
-          styles.reclaimButton,
-          {
-            backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-            marginBottom: bottomPadding + 80,
-          },
-        ]}
-      >
-        <ThemeText
-          styles={{ includeFontPadding: false }}
-          content={t('screens.inAccount.giftPages.reclaimPage.button')}
-        />
-      </TouchableOpacity>
+      {hasExpiredGift && (
+        <TouchableOpacity
+          onPress={handleClaimGift}
+          style={[
+            styles.reclaimButton,
+            {
+              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+              marginBottom: bottomPadding + 80,
+            },
+          ]}
+        >
+          <ThemeText
+            styles={{ includeFontPadding: false }}
+            content={t('screens.inAccount.giftPages.reclaimPage.button')}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

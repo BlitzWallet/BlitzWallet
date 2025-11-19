@@ -1699,7 +1699,8 @@
           "desc": "Enter or choose the gift ID to return an unclaimed, expired gift to your wallet.",
           "inputPlaceholder": "Enter gift ID",
           "dropdownPlaceHolder": "Select Expired Gift",
-          "button": "Reclaim Gift"
+          "button": "Reclaim Gift",
+          "noReclaimsMessage": "You have no expired gifts right now. Come back after a gift has expired to reclaim it."
         },
         "claimPage": {
           "parseError": "We couldn’t read the gift details from this link.",

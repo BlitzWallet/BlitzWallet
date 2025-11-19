@@ -1524,7 +1524,8 @@
           "desc": "Ingresa o selecciona el ID del regalo para devolver un regalo expirado o no reclamado.",
           "inputPlaceholder": "Ingresa el ID del regalo",
           "dropdownPlaceHolder": "Seleccionar regalo expirado",
-          "button": "Recuperar regalo"
+          "button": "Recuperar regalo",
+          "noReclaimsMessage": "No tienes regalos vencidos en este momento. Vuelve cuando algún regalo haya vencido para recuperarlo."
         },
 
         "claimPage": {

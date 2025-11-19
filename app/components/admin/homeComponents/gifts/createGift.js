@@ -142,21 +142,21 @@ export default function CreateGift(props) {
       if (!didSave)
         throw new Error(t('screens.inAccount.giftPages.createGift.saveError'));
 
-      const paymentResponse = await sparkPaymenWrapper({
-        address: sparkAddress.response,
-        paymentType: 'spark',
-        amountSats: convertedSatAmount,
-        masterInfoObject,
-        memo: t('screens.inAccount.giftPages.fundGiftMessage'),
-        userBalance: sparkInformation.userBalance,
-        sparkInformation,
-        mnemonic: currentWalletMnemoinc,
-      });
+      // const paymentResponse = await sparkPaymenWrapper({
+      //   address: sparkAddress.response,
+      //   paymentType: 'spark',
+      //   amountSats: convertedSatAmount,
+      //   masterInfoObject,
+      //   memo: t('screens.inAccount.giftPages.fundGiftMessage'),
+      //   userBalance: sparkInformation.userBalance,
+      //   sparkInformation,
+      //   mnemonic: currentWalletMnemoinc,
+      // });
 
-      if (!paymentResponse.didWork) {
-        await deleteGiftFromCloudAndLocal(storageObject.uuid);
-        throw new Error(t('screens.inAccount.giftPages.createGift.fundError'));
-      }
+      // if (!paymentResponse.didWork) {
+      //   await deleteGiftFromCloudAndLocal(storageObject.uuid);
+      //   throw new Error(t('screens.inAccount.giftPages.createGift.fundError'));
+      // }
 
       // need to add gift tracking to local database to keep track of items
       toggleMasterInfoObject({
