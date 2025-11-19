@@ -244,7 +244,11 @@ export default function ClaimGiftScreen({ url, claimType }) {
   };
 
   if (!sparkInformation.identityPubKey || !sparkInformation.didConnect) {
-    return <FullLoadingScreen showText={false} />;
+    return (
+      <FullLoadingScreen
+        text={t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage')}
+      />
+    );
   }
 
   if (!Object.keys(giftDetails).length) {

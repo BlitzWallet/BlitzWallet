@@ -762,7 +762,7 @@
         "alreadyPaidInvoiceError": "Ya has pagado esta factura",
         "descriptionPlaceholder": "Descripción del pago...",
         "fallbackErrorMessage": "Error al decodificar la factura",
-        "connectToSparkMessage": "Conectándose a Spark",
+        "connectToSparkMessage": "Conectando a tu billetera.",
         "switchTokenText": "Usar un token diferente"
       },
       "handlingAddressErrors": {

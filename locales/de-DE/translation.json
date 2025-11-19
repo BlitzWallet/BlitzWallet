@@ -907,7 +907,7 @@
         "alreadyPaidInvoiceError": "Sie haben diese Rechnung bereits bezahlt",
         "descriptionPlaceholder": "Zahlungsbeschreibung...",
         "fallbackErrorMessage": "Fehler beim Dekodieren der Rechnung",
-        "connectToSparkMessage": "Verbindung zu Spark wird hergestellt",
+        "connectToSparkMessage": "Verbindung zu deiner Wallet wird hergestellt.",
         "switchTokenText": "Anderen Token verwenden"
       },
       "handlingAddressErrors": {

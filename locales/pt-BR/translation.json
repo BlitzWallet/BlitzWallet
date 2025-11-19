@@ -914,7 +914,7 @@
         "alreadyPaidInvoiceError": "Você já pagou esta fatura",
         "descriptionPlaceholder": "Descrição do pagamento...",
         "fallbackErrorMessage": "Erro ao decodificar a fatura",
-        "connectToSparkMessage": "Conectando à Spark",
+        "connectToSparkMessage": "Conectando à sua carteira.",
         "switchTokenText": "Usar um token diferente"
       },
       "handlingAddressErrors": {
