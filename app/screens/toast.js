@@ -1,5 +1,5 @@
-import React, {useEffect, useCallback, useRef} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, { useEffect, useCallback, useRef } from 'react';
+import { View, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   withTiming,
@@ -7,17 +7,19 @@ import Animated, {
   withSpring,
   runOnJS,
 } from 'react-native-reanimated';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
-import {ThemeText} from '../functions/CustomElements';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { ThemeText } from '../functions/CustomElements';
 import ThemeImage from '../functions/CustomElements/themeImage';
-import {COLORS, ICONS} from '../constants';
-import {useGlobalInsets} from '../../context-store/insetsProvider';
-import {WINDOWWIDTH} from '../constants/theme';
-import {useTranslation} from 'react-i18next';
+import { COLORS, ICONS } from '../constants';
+import { useGlobalInsets } from '../../context-store/insetsProvider';
+import { WINDOWWIDTH } from '../constants/theme';
+import { useTranslation } from 'react-i18next';
+import GetThemeColors from '../hooks/themeColors';
 
-export function Toast({toast, onHide}) {
-  const {topPadding} = useGlobalInsets();
-  const {t} = useTranslation();
+export function Toast({ toast, onHide }) {
+  const { topPadding } = useGlobalInsets();
+  const { t } = useTranslation();
+  const { backgroundColor } = GetThemeColors();
 
   // shared values
   const slideY = useSharedValue(50);
@@ -31,8 +33,8 @@ export function Toast({toast, onHide}) {
       if (isAnimatingOut.current) return;
       isAnimatingOut.current = true;
 
-      slideY.value = withTiming(-100, {duration: 300});
-      opacity.value = withTiming(0, {duration: 200}, finished => {
+      slideY.value = withTiming(-100, { duration: 300 });
+      opacity.value = withTiming(0, { duration: 200 }, finished => {
         if (finished && callback) {
           runOnJS(callback)();
         }
@@ -43,8 +45,8 @@ export function Toast({toast, onHide}) {
 
   // Animate in
   useEffect(() => {
-    slideY.value = withTiming(0, {duration: 200});
-    opacity.value = withTiming(1, {duration: 300});
+    slideY.value = withTiming(0, { duration: 200 });
+    opacity.value = withTiming(1, { duration: 300 });
   }, [slideY, opacity]);
 
   // Gesture for swipe up
@@ -64,13 +66,16 @@ export function Toast({toast, onHide}) {
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{translateY: slideY.value + translateY.value}],
+      transform: [{ translateY: slideY.value + translateY.value }],
       opacity: opacity.value,
     };
   });
 
   const getToastStyle = () => {
-    const baseStyle = [styles.toast];
+    const baseStyle = [
+      styles.toast,
+      { borderWidth: 1, borderColor: backgroundColor },
+    ];
     switch (toast.type) {
       case 'clipboard':
         return [...baseStyle, styles.clipboardToast];
@@ -105,12 +110,13 @@ export function Toast({toast, onHide}) {
   return (
     <GestureDetector gesture={panGesture}>
       <Animated.View
-        style={[styles.toastContainer, {top: topPadding}, animatedStyle]}>
+        style={[styles.toastContainer, { top: topPadding }, animatedStyle]}
+      >
         <View style={getToastStyle()}>
           <View style={styles.toastContent}>
             {toast.type === 'clipboard' ? (
               <ThemeImage
-                styles={{width: 25, height: 25, marginRight: 15}}
+                styles={{ width: 25, height: 25, marginRight: 15 }}
                 lightModeIcon={ICONS.clipboardDark}
                 darkModeIcon={ICONS.clipboardDark}
                 lightsOutIcon={ICONS.clipboardDark}
