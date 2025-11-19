@@ -79,7 +79,7 @@ export async function getDataFromCollection(collectionName, uuid) {
       const docRef = doc(db, collectionName, uuid);
       const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists) {
+      if (docSnap.exists()) {
         const userData = docSnap.data();
         return userData;
       }
@@ -515,7 +515,7 @@ export async function getGiftCard(cardUUID) {
 
     const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists) {
+    if (docSnap.exists()) {
       const userData = docSnap.data();
       return userData;
     }
