@@ -26,6 +26,8 @@ import { useTranslation } from 'react-i18next';
 import { deriveKeyFromMnemonic } from '../../../../functions/seed';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { getGiftByUuid } from '../../../../functions/gift/giftsStorage';
+import { transformTxToPaymentObject } from '../../../../functions/spark/transformTxToPayment';
+import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 
 export default function ClaimGiftScreen({ url, claimType }) {
   const { accountMnemoinc } = useKeysContext();
@@ -131,7 +133,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
     if (!url) return;
     loadGiftDetails();
   }, [url]);
-
+  console.log(giftDetails);
   const handleClaim = async () => {
     if (isClaiming) return; // Prevent double-clicks
     setIsClaiming(true);
@@ -189,6 +191,28 @@ export default function ClaimGiftScreen({ url, claimType }) {
         amountSats: sendingAmount,
         mnemonic: giftDetails.giftSeed,
       });
+
+      const tx = {
+        ...paymentResponse.response,
+        description:
+          claimType === 'reclaim'
+            ? t('screens.inAccount.giftPages.reclaimGiftMessage')
+            : giftDetails.description,
+        isGift: true,
+      };
+
+      const transaction = await transformTxToPaymentObject(
+        tx,
+        sparkInformation.sparkAddress,
+        undefined,
+        false,
+        [],
+        undefined,
+        1,
+        true,
+      );
+
+      await bulkUpdateSparkTransactions([transaction]);
 
       if (!paymentResponse.didWork)
         throw new Error(

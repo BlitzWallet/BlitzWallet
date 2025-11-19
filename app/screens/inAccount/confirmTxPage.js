@@ -46,6 +46,8 @@ export default function ConfirmTxPage(props) {
 
   const paymentNetwork = paymentInformation?.sendingUUID
     ? t('screens.inAccount.expandedTxPage.contactPaymentType')
+    : transaction.details.isGift
+    ? t('constants.isGift')
     : transaction?.paymentType;
 
   const showPendingMessage = transaction?.paymentStatus === 'pending';
@@ -196,7 +198,10 @@ export default function ConfirmTxPage(props) {
               styles={styles.labelText}
               content={t('constants.type')}
             />
-            <ThemeText content={paymentNetwork} />
+            <ThemeText
+              styles={{ textTransform: 'capitalize' }}
+              content={paymentNetwork}
+            />
           </View>
         </View>
       )}

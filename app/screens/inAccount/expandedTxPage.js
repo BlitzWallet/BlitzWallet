@@ -69,6 +69,8 @@ export default function ExpandedTx(props) {
 
   const transactionPaymentType = sendingContactUUID
     ? t('screens.inAccount.expandedTxPage.contactPaymentType')
+    : transaction.details.isGift
+    ? t('constants.gift')
     : transaction.paymentType;
 
   const isFailedPayment = transaction.paymentStatus === 'failed';

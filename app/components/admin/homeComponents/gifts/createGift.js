@@ -147,7 +147,7 @@ export default function CreateGift(props) {
         paymentType: 'spark',
         amountSats: convertedSatAmount,
         masterInfoObject,
-        memo: 'Funding Gift',
+        memo: t('screens.inAccount.giftPages.fundGiftMessage'),
         userBalance: sparkInformation.userBalance,
         sparkInformation,
         mnemonic: currentWalletMnemoinc,

@@ -10,6 +10,7 @@ export async function transformTxToPaymentObject(
   unpaidLNInvoices,
   identityPubKey,
   numTxsBeingRestored = 1,
+  forceOutgoing = false,
 ) {
   // Defer all payments to the 10 second interval to be updated
   const paymentType = forcePaymentType
@@ -17,10 +18,11 @@ export async function transformTxToPaymentObject(
     : sparkPaymentType(tx);
   const paymentAmount = tx.totalValue;
 
-  const accountId =
-    tx.transferDirection === 'OUTGOING'
-      ? tx.senderIdentityPublicKey
-      : tx.receiverIdentityPublicKey;
+  const accountId = forceOutgoing
+    ? tx.receiverIdentityPublicKey
+    : tx.transferDirection === 'OUTGOING'
+    ? tx.senderIdentityPublicKey
+    : tx.receiverIdentityPublicKey;
 
   if (paymentType === 'lightning') {
     const userRequest = tx.userRequest;
@@ -123,7 +125,8 @@ export async function transformTxToPaymentObject(
           : new Date().getTime(),
         direction: tx.transferDirection,
         senderIdentityPublicKey: tx.senderIdentityPublicKey,
-        description: '',
+        description: tx.description || '',
+        isGift: tx.isGift,
         isRestore,
       },
     };
