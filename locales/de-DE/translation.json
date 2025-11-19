@@ -1701,7 +1701,9 @@
           "networkFeeWarning": "Dieser Betrag abzüglich Netzwerkgebühren wird deinem Guthaben hinzugefügt",
           "buttonTextClaiming": "Wird eingelöst",
           "reclaimButton": "Geschenk zurückholen",
-          "claimButton": "Geschenk annehmen"
+          "claimButton": "Geschenk annehmen",
+          "confirmMessage": "Dein Geschenk wurde eingelöst; du erhältst deine Gelder in Kürze",
+          "defaultDesc": "Blitz-Geschenk"
         }
       }
     }

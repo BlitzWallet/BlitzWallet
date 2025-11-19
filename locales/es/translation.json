@@ -1546,7 +1546,9 @@
           "networkFeeWarning": "Este monto menos las tarifas de red se añadirá a tu saldo",
           "buttonTextClaiming": "Reclamando",
           "reclaimButton": "Recuperar regalo",
-          "claimButton": "Aceptar regalo"
+          "claimButton": "Aceptar regalo",
+          "confirmMessage": "Tu regalo ha sido reclamado; recibirás tus fondos en breve",
+          "defaultDesc": "Regalo Blitz"
         }
       }
     }

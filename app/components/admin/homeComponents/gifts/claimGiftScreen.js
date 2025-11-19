@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { deleteGift, getGiftCard } from '../../../../../db';
 import { parseGiftUrl } from '../../../../functions/gift/encodeDecodeSecret';
@@ -28,6 +28,11 @@ import { useKeysContext } from '../../../../../context-store/keys';
 import { getGiftByUuid } from '../../../../functions/gift/giftsStorage';
 import { transformTxToPaymentObject } from '../../../../functions/spark/transformTxToPayment';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
+import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import LottieView from 'lottie-react-native';
+
+const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
 export default function ClaimGiftScreen({ url, claimType }) {
   const { accountMnemoinc } = useKeysContext();
@@ -40,6 +45,9 @@ export default function ClaimGiftScreen({ url, claimType }) {
   const [giftDetails, setGiftDetails] = useState({});
   const [isClaiming, setIsClaiming] = useState(false);
   const { t } = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const [didClaim, setDidClaim] = useState(false);
+  const animationRef = useRef(null);
 
   // Store the initialization promise and result
   const walletInitPromise = useRef(null);
@@ -219,6 +227,14 @@ export default function ClaimGiftScreen({ url, claimType }) {
         1,
         true,
       );
+      transaction.details.direction = 'INCOMING';
+      transaction.paymentStatus = 'pending';
+
+      if (!giftDetails.description) {
+        transaction.details.description = t(
+          'screens.inAccount.giftPages.claimPage.defaultDesc',
+        );
+      }
 
       await bulkUpdateSparkTransactions([transaction]);
 
@@ -231,7 +247,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
       } else {
         await deleteGift(giftDetails.uuid);
       }
-      await new Promise(res => setTimeout(res, 10000));
+      setDidClaim(true);
     } catch (err) {
       console.log('Error claiming gift:', err);
       navigate.goBack();
@@ -243,6 +259,17 @@ export default function ClaimGiftScreen({ url, claimType }) {
     }
   };
 
+  useEffect(() => {
+    animationRef.current?.play();
+  }, []);
+
+  const confirmAnimation = useMemo(() => {
+    return updateConfirmAnimation(
+      confirmTxAnimation,
+      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
+    );
+  }, [theme, darkModeType]);
+
   if (!sparkInformation.identityPubKey || !sparkInformation.didConnect) {
     return (
       <FullLoadingScreen
@@ -253,6 +280,30 @@ export default function ClaimGiftScreen({ url, claimType }) {
 
   if (!Object.keys(giftDetails).length) {
     return <FullLoadingScreen showText={false} />;
+  }
+
+  if (didClaim) {
+    return (
+      <View style={styles.tempClaimMessageContainer}>
+        <LottieView
+          ref={animationRef}
+          source={confirmAnimation}
+          loop={false}
+          style={{
+            width: 150,
+            height: 150,
+          }}
+        />
+        <ThemeText
+          styles={styles.confirmMessage}
+          content={t('screens.inAccount.giftPages.claimPage.confirmMessage')}
+        />
+        <CustomButton
+          actionFunction={navigate.goBack}
+          textContent={t('constants.done')}
+        />
+      </View>
+    );
   }
 
   return (
@@ -357,4 +408,11 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 'auto',
   },
+  tempClaimMessageContainer: {
+    flex: 1,
+    alignItems: 'center',
+    width: INSET_WINDOW_WIDTH,
+    ...CENTER,
+  },
+  confirmMessage: { textAlign: 'center', marginBottom: 'auto' },
 });

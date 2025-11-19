@@ -838,10 +838,20 @@ async function processBitcoinTransactions(
 }
 
 async function processSparkTransactions(sparkTxs) {
-  return sparkTxs.map(txStateUpdate => ({
-    id: txStateUpdate.sparkID,
-    paymentStatus: 'completed',
-    paymentType: 'spark',
-    accountId: txStateUpdate.accountId,
-  }));
+  return sparkTxs.map(txStateUpdate => {
+    const details = JSON.parse(txStateUpdate.details);
+    if (details.isGift)
+      return {
+        id: txStateUpdate,
+        paymentStatus: txStateUpdate.paymentStatus,
+        paymentType: 'spark',
+        accountId: txStateUpdate.accountId,
+      };
+    return {
+      id: txStateUpdate.sparkID,
+      paymentStatus: 'completed',
+      paymentType: 'spark',
+      accountId: txStateUpdate.accountId,
+    };
+  });
 }

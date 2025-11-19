@@ -1720,7 +1720,9 @@
           "networkFeeWarning": "This amount minus network fees will be added to your balance",
           "buttonTextClaiming": "Claiming",
           "reclaimButton": "Reclaim Gift",
-          "claimButton": "Accept Gift"
+          "claimButton": "Accept Gift",
+          "confirmMessage": "Your gift has been claimed, you will receive your funds shortly",
+          "defaultDesc": "Blitz Gift"
         }
       }
     }

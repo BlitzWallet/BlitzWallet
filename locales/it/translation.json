@@ -1718,7 +1718,9 @@
           "networkFeeWarning": "Questo importo meno le commissioni verrà aggiunto al saldo",
           "buttonTextClaiming": "Riscattando",
           "reclaimButton": "Recupera regalo",
-          "claimButton": "Accetta regalo"
+          "claimButton": "Accetta regalo",
+          "confirmMessage": "Il tuo regalo è stato riscattato; riceverai i tuoi fondi a breve",
+          "defaultDesc": "Regalo Blitz"
         }
       }
     }
