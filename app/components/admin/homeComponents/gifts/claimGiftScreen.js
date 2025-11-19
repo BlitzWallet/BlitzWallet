@@ -59,6 +59,12 @@ export default function ClaimGiftScreen({ url, claimType }) {
 
           const savedGift = await getGiftByUuid(uuid);
 
+          if (Date.now() < savedGift.expireTime) {
+            throw new Error(
+              t('screens.inAccount.giftPages.claimPage.notExpired'),
+            );
+          }
+
           const giftWalletMnemonic = await deriveKeyFromMnemonic(
             accountMnemoinc,
             savedGift.giftNum,
