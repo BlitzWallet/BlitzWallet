@@ -1719,7 +1719,7 @@
           "reclaimAmountHead": "Valor devolvido",
           "networkFeeWarning": "Este valor, menos taxas, será adicionado ao seu saldo",
           "buttonTextClaiming": "Resgatando",
-          "reclaimButton": "Reclamar presente",
+          "reclaimButton": "Reivindicar presente",
           "claimButton": "Aceitar presente",
           "confirmMessage": "Seu presente foi resgatado; você receberá seus fundos em breve",
           "defaultDesc": "Presente Blitz"
