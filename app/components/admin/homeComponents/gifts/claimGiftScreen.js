@@ -54,6 +54,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const [didClaim, setDidClaim] = useState(false);
   const animationRef = useRef(null);
+  const [claimStatus, setClaimStatus] = useState('');
 
   // Store the initialization promise and result
   const walletInitPromise = useRef(null);
@@ -149,11 +150,46 @@ export default function ClaimGiftScreen({ url, claimType }) {
     }
   };
 
+  const getBalanceWithStatusRetry = async seed => {
+    const delays = [1000, 3000, 6000];
+    let attempt = 0;
+
+    setClaimStatus(
+      t('screens.inAccount.giftPages.claimPage.claimingGiftMessage2'),
+    );
+
+    let result = await getSparkBalance(seed);
+    if (result?.didWork && Number(result.balance) > 0) {
+      return result;
+    }
+
+    for (const delay of delays) {
+      attempt++;
+      setClaimStatus(
+        t('screens.inAccount.giftPages.claimPage.claimingGiftMessage3', {
+          attempt,
+          attemps: delays.length,
+        }),
+      );
+      await new Promise(res => setTimeout(res, delay));
+
+      result = await getSparkBalance(seed);
+      if (result?.didWork && Number(result.balance) > 0) {
+        return result;
+      }
+    }
+
+    return result;
+  };
+
   const handleClaim = async () => {
     if (isClaiming) return; // Prevent double-clicks
     setIsClaiming(true);
 
     try {
+      setClaimStatus(
+        t('screens.inAccount.giftPages.claimPage.claimingGiftMessage1'),
+      );
       // Wait for the pre-initialization to complete
       let initResult = walletInitResult.current;
 
@@ -177,10 +213,14 @@ export default function ClaimGiftScreen({ url, claimType }) {
 
       const receivingAddress = sparkInformation.sparkAddress;
 
-      const [walletBalance, fees] = await Promise.all([
-        getSparkBalance(giftDetails.giftSeed),
-        getSparkPaymentFeeEstimate(giftDetails.amount, giftDetails.giftSeed),
-      ]);
+      const walletBalance = await getBalanceWithStatusRetry(
+        giftDetails.giftSeed,
+      );
+
+      const fees = await getSparkPaymentFeeEstimate(
+        giftDetails.amount,
+        giftDetails.giftSeed,
+      );
 
       const formattedWalletBalance = walletBalance?.didWork
         ? Number(walletBalance?.balance)
@@ -201,6 +241,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
         );
       }
 
+      t('screens.inAccount.giftPages.claimPage.claimingGiftMessage4');
       const paymentResponse = await sendSparkPayment({
         receiverSparkAddress: receivingAddress,
         amountSats: sendingAmount,
@@ -261,42 +302,17 @@ export default function ClaimGiftScreen({ url, claimType }) {
   useEffect(() => {
     if (!url) return;
 
-    let delayTimer;
-
     async function run() {
       const isConnected =
         sparkInformation.identityPubKey && sparkInformation.didConnect;
 
       if (isConnected) {
-        // Spark already connected → run immediately
         loadGiftDetails();
         return;
       }
-
-      // Spark NOT connected → wait until it connects
-      await new Promise(resolve => {
-        const interval = setInterval(() => {
-          const connectedNow =
-            sparkInformation.identityPubKey && sparkInformation.didConnect;
-
-          if (connectedNow) {
-            clearInterval(interval);
-            resolve();
-          }
-        }, 200);
-      });
-
-      // Spark just connected → wait 5s THEN run
-      await new Promise(resolve => {
-        delayTimer = setTimeout(resolve, 5000);
-      });
-
-      loadGiftDetails();
     }
 
     run();
-
-    return () => clearTimeout(delayTimer);
   }, [url, sparkInformation.identityPubKey, sparkInformation.didConnect]);
 
   useEffect(() => {
@@ -366,9 +382,10 @@ export default function ClaimGiftScreen({ url, claimType }) {
             width: INSET_WINDOW_WIDTH,
           }}
           text={
-            claimType === 'reclaim'
+            claimStatus ||
+            (claimType === 'reclaim'
               ? t('screens.inAccount.giftPages.claimPage.reclaimLoading')
-              : t('screens.inAccount.giftPages.claimPage.claimLoading')
+              : t('screens.inAccount.giftPages.claimPage.claimLoading'))
           }
         />
       ) : (
