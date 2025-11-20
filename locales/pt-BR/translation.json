@@ -1693,7 +1693,7 @@
         },
 
         "reclaimPage": {
-          "header": "Reclamar seu presente",
+          "header": "Reivindicar seu presente",
           "desc": "Digite ou escolha o ID do presente para recuperar um presente expirado ou não resgatado.",
           "inputPlaceholder": "Digite o ID do presente",
           "dropdownPlaceHolder": "Selecionar presente expirado",
