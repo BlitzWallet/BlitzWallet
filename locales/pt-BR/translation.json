@@ -693,7 +693,7 @@
     },
     "giftCards": {
       "giftCardsPage": {
-        "searchPlaceholder": "Procure um vale-presente",
+        "searchPlaceholder": "Procure um cartão-presente",
         "leftPageMessage": "Aonde você foi?",
         "loadingCardsMessage": "Obtendo cartões-presente",
         "noCardsAvailable": "Nenhum cartão-presente disponível"
@@ -714,12 +714,12 @@
         "termsAndConditions4": "Política de privacidade"
       },
       "expandedGiftCardPage": {
-        "purchasingCardMessage": "Adquirindo vale-presente, não saia da página.",
+        "purchasingCardMessage": "Adquirindo cartão-presente, não saia da página.",
         "selectamount": "Selecione um valor",
         "sendingto": "Enviando para: ",
         "minMaxPurchaseAmount": "Você pode comprar um {{min}} quantidade de {{max}} {{currency}}",
         "emailPlaceholder": "Digite o endereço de e-mail",
-        "purchaseBTN": "Comprar vale-presente",
+        "purchaseBTN": "Comprar cartão-presente",
         "differentEmailMessage": "O e-mail atual é diferente do salvo. Deseja tornar este e-mail o seu e-mail principal?",
         "terms": "Termos",
         "cardDescription": "Descrição do cartão",
@@ -727,8 +727,8 @@
         "dailyPurchaseAmountError": "Você atingiu seu limite de compra diária",
         "giftMessage": "Adicione uma nota ao seu presente",
         "giftMessagePlaceholder": "Digite sua mensagem aqui",
-        "selectForContactBTN": "Selecione Cartão Presente",
-        "noAmountError": "Por favor, escolha o valor do vale-presente"
+        "selectForContactBTN": "Selecione cartão-presente",
+        "noAmountError": "Por favor, escolha o valor do cartão-presente"
       },
       "giftCardOrderDetails": {
         "title": "Detalhes do pedido",
@@ -738,9 +738,9 @@
         "openInbox": "Abrir caixa de entrada"
       },
       "historicalPurchasesPage": {
-        "confirmRemoval": "Tem certeza de que deseja remover este vale-presente?",
+        "confirmRemoval": "Tem certeza de que deseja remover este cartão-presente?",
         "purchased": "Comprado:",
-        "noPurchases": "Você não tem compras de vale-presente",
+        "noPurchases": "Você não tem compras de cartão-presente",
         "customCopyMessage": "E-mail de suporte copiado"
       }
     },
@@ -866,7 +866,7 @@
       "header": "Selecione o contato",
       "inputTextPlaceholder": "Procurar nome de usuário...",
       "subHeader": "Todos contatos",
-      "giftsText": "Presentes de contatos"
+      "giftsText": "Meus cartões-presente"
     },
     "cameraPage": {
       "noCameraAccess": "Sem acesso à câmera",
@@ -1062,22 +1062,22 @@
       "descriptionPlaceholder": "Descrição (opcional)",
       "profileMessage": "Você pagou {{name}}",
       "contactMessage": "{{name}} pagou você",
-      "giftCardappVersionError": "Você não pode enviar um vale-presente para este contato. Eles não atualizaram para a versão mais recente da carteira Blitz.",
-      "giftCardDescription": "Você enviou para {{name}} um Cartão Presente {{giftCardName}}",
-      "cardDetailsError": "Não foi possível carregar seu vale-presente neste momento. Tente novamente.",
+      "giftCardappVersionError": "Você não pode enviar um cartão-presente para este contato. Eles não atualizaram para a versão mais recente da carteira Blitz.",
+      "giftCardDescription": "Você enviou para {{name}} um cartão-presente {{giftCardName}}",
+      "cardDetailsError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",
       "giftCardRange": "Enviar {{amount}} - {{amount2}}",
       "giftCardAmountError": "Insira um valor de pelo menos {{amount}} e até {{amount2}}",
-      "sendGiftText": "Enviar presente",
-      "notVariableCard": "Este vale-presente tem um valor fixo. Você só pode enviar o valor mostrado acima.",
-      "giftCardText": "Cartão Presente {{giftName}}",
-      "giftMessage": "Mensagem de presente"
+      "sendGiftText": "Enviar cartão-presente",
+      "notVariableCard": "Este cartão-presente tem um valor fixo. Você só pode enviar o valor mostrado acima.",
+      "giftCardText": "Cartão-presente {{giftName}}",
+      "giftMessage": "Mensagem"
     },
     "viewGiftCardCode": {
-      "noCardInfoError": "Não foi possível carregar seu vale-presente neste momento. Tente novamente.",
-      "loadingMessage": "Carregando informações do vale-presente...",
-      "valueHeader": "Valor do vale-presente",
+      "noCardInfoError": "Não foi possível carregar seu cartão-presente neste momento. Tente novamente.",
+      "loadingMessage": "Carregando informações do cartão-presente...",
+      "valueHeader": "Valor do cartão-presente",
       "redeemHeader": "Como resgatar",
-      "openClaimText": "Abrir Cartão Presente",
+      "openClaimText": "Abrir cartão-presente",
       "instructionsHeader": "Instruções para resgate",
       "terms&conditions": "Termos & Condições",
       "cardUUID": "Cartão UUID",
@@ -1091,8 +1091,8 @@
 
     "selectGiftPage": {
       "noCards": "Nenhum cartão disponível",
-      "header": "Selecione o vale-presente que deseja enviar",
-      "inputPlaceholder": "Procure um vale-presente"
+      "header": "Selecione o cartão-presente que deseja enviar",
+      "inputPlaceholder": "Procure um cartão-presente"
     },
 
     "internalComponents": {
@@ -1106,14 +1106,14 @@
         "requestTitle": "Peddo recebido para "
       },
       "viewAllGiftCards": {
-        "cardNamePlaceH": "Cartão Presente",
-        "noCardsText": "Seus cartões-presente aparecerão aqui quando um contato enviar um para você.",
+        "cardNamePlaceH": "Cartão-presente",
+        "noCardsText": "Seus cartões-presente aparecerão aqui assim que você os receber",
         "header": "Seus cartões-presente",
         "cardsLenghSingular": "{{num}} cartão",
         "cardsLenghPlurl": "{{num}} cartões"
       },
       "editGiftCard": {
-        "header": "O que você gostaria de fazer com seu presente?"
+        "header": "O que você gostaria de fazer com seu cartão-presente?"
       }
     },
     "showProfileQr": {
@@ -1525,7 +1525,7 @@
         "soonMessage": "Adoramos que você queira mais apps. Sugira-os abaixo!",
         "title": "Marketplace",
         "shopTitle": "Compre com Bitcoin",
-        "shopDescription": "Compre vales-presente de milhares de lojas ao redor do mundo",
+        "shopDescription": "Compre cartões-presente de milhares de lojas ao redor do mundo",
         "callToAction": "Gostaria de ver algo aqui?",
         "featuredApps": "Gostaria de ver algo aqui?",
         "comingSoon": "Este recurso está temporariamente indisponível. Estamos trabalhando para restaurá-lo o mais rápido possível."
@@ -1650,88 +1650,88 @@
           "minutes_one": "{{count}} minuto restante",
           "minutes_other": "{{count}} minutos restantes"
         },
-        "shareMessage": "Você recebeu um presente de {{icon}}{{amount}}! Resgate aqui:\n{{link}}",
-        "fundGiftMessage": "Criando presente",
-        "reclaimGiftMessage": "Reclamando presente",
+        "shareMessage": "Você recebeu um vale-bitcoin de {{icon}}{{amount}}! Resgate aqui:\n{{link}}",
+        "fundGiftMessage": "Criando vale-bitcoin",
+        "reclaimGiftMessage": "Reivindicando vale-bitcoin",
 
         "giftsHome": {
-          "title": "Presentes",
-          "myGifts": "Meus presentes"
+          "title": "Vales-bitcoin",
+          "myGifts": "Meus vales-bitcoin"
         },
 
         "giftsOverview": {
-          "noGiftsHead": "Nenhum presente ainda",
-          "noGiftsDesc": "Crie seu primeiro presente para compartilhar Bitcoin com amigos e família",
-          "createGift": "Criar presente"
+          "noGiftsHead": "Nenhum vale-bitcoin ainda",
+          "noGiftsDesc": "Crie seu primeiro vale-bitcoin para compartilhar Bitcoin com amigos e família",
+          "createGift": "Criar vale-bitcoin"
         },
 
         "createGift": {
-          "noAmountError": "Digite um valor para criar seu presente.",
-          "connectError": "Não foi possível configurar a carteira do presente.",
-          "addressError": "Não foi possível obter o endereço do presente.",
-          "saveError": "Não foi possível salvar seu presente.",
-          "fundError": "Não foi possível adicionar fundos ao presente.",
-          "startProcess1": "Preparando seu presente…",
+          "noAmountError": "Digite um valor para criar seu vale-bitcoin.",
+          "connectError": "Não foi possível configurar a carteira do vale-bitcoin.",
+          "addressError": "Não foi possível obter o endereço do vale-bitcoin.",
+          "saveError": "Não foi possível salvar seu vale-bitcoin.",
+          "fundError": "Não foi possível adicionar fundos ao vale-bitcoin.",
+          "startProcess1": "Preparando seu vale-bitcoin…",
           "startProcess2": "Configurando…",
-          "startProcess3": "Adicionando fundos ao presente…",
-          "header": "Criar presente",
+          "startProcess3": "Adicionando fundos ao vale-bitcoin…",
+          "header": "Criar vale-bitcoin",
           "inputPlaceholder": "Adicione uma mensagem ou nota...",
-          "button": "Criar presente"
+          "button": "Criar vale-bitcoin"
         },
 
         "giftConfirmation": {
-          "header": "Presente criado!",
+          "header": "Vale-bitcoin criado!",
           "whatToDo": "Compartilhe usando o código QR ou o link abaixo",
-          "details": "Detalhes do presente",
+          "details": "Detalhes do vale-bitcoin",
           "expire": "Expira",
-          "giftLink": "Link do presente",
-          "shareGift": "Compartilhar presente",
+          "giftLink": "Link do vale-bitcoin",
+          "shareGift": "Compartilhar vale-bitcoin",
           "createAnother": "Criar outro",
           "done": "Concluído"
         },
 
         "claimHome": {
-          "header": "Insira o link do presente",
-          "desc": "Cole o link recebido ou escaneie o QR para resgatar seu presente",
-          "inputPlaceholder": "Insira o link do presente",
+          "header": "Insira o link do vale-bitcoin",
+          "desc": "Cole o link recebido ou leia o código QR para resgatar seu vale-bitcoin",
+          "inputPlaceholder": "Insira o link do vale-bitcoin",
           "claim": "Resgatar"
         },
 
         "reclaimPage": {
-          "header": "Reivindicar seu presente",
-          "desc": "Digite ou escolha o ID do presente para recuperar um presente expirado ou não resgatado.",
-          "inputPlaceholder": "Digite o ID do presente",
-          "dropdownPlaceHolder": "Selecionar presente expirado",
-          "button": "Reivindicar presente",
-          "noReclaimsMessage": "Você não tem presentes expirados no momento. Volte quando algum presente expirar para recuperá-lo."
+          "header": "Reivindicar seu vale-bitcoin",
+          "desc": "Digite ou escolha o ID do vale-bitcoin para recuperar um vale-bitcoin expirado ou não resgatado.",
+          "inputPlaceholder": "Digite o ID do vale-bitcoin",
+          "dropdownPlaceHolder": "Selecionar vale-bitcoin expirado",
+          "button": "Reivindicar vale-bitcoin",
+          "noReclaimsMessage": "Você não tem vales-bitcoin expirados no momento. Volte quando algum vale-bitcoin expirar para recuperá-lo."
         },
 
         "claimPage": {
-          "parseError": "Não foi possível ler os detalhes do presente.",
-          "noGiftForReclaim": "Não encontramos este presente. Talvez já tenha sido resgatado.",
-          "expiredOrClaimed": "Este presente já foi resgatado ou expirou.",
-          "noGiftSeed": "Não conseguimos acessar o presente. Tente novamente mais tarde.",
-          "giftWalletInitError": "Não conseguimos acessar o presente. Tente novamente mais tarde.",
+          "parseError": "Não foi possível ler os detalhes do vale-bitcoin.",
+          "noGiftForReclaim": "Não encontramos este vale-bitcoin. Talvez já tenha sido resgatado.",
+          "expiredOrClaimed": "Este vale-bitcoin já foi resgatado ou expirou.",
+          "noGiftSeed": "Não conseguimos acessar o vale-bitcoin. Tente novamente mais tarde.",
+          "giftWalletInitError": "Não conseguimos acessar o vale-bitcoin. Tente novamente mais tarde.",
           "noBalanceErrorReclaim": "Não há fundos restantes para resgatar.",
-          "notExpired": "Você ainda não pode recuperar este presente.",
+          "notExpired": "Você ainda não pode recuperar este vale-bitcoin.",
           "nobalanceError": "O valor restante após taxas é muito baixo.",
-          "paymentError": "Não foi possível resgatar o presente.",
-          "claimHead": "Aceitar presente",
-          "reclaimHead": "Reembolsar presente",
+          "paymentError": "Não foi possível resgatar o vale-bitcoin.",
+          "claimHead": "Aceitar vale-bitcoin",
+          "reclaimHead": "Reembolsar vale-bitcoin",
           "claimLoading": "Resgatando… permaneça no app.",
           "reclaimLoading": "Devolvendo fundos… permaneça no app.",
           "claimAmountHead": "Valor recebido",
           "reclaimAmountHead": "Valor devolvido",
           "networkFeeWarning": "Este valor, menos taxas, será adicionado ao seu saldo",
           "buttonTextClaiming": "Resgatando",
-          "reclaimButton": "Reivindicar presente",
-          "claimButton": "Aceitar presente",
-          "confirmMessage": "Seu presente foi resgatado; você receberá seus fundos em breve",
-          "defaultDesc": "Presente Blitz",
-          "claimingGiftMessage1": "Preparando o presente...",
-          "claimingGiftMessage2": "Obtendo o saldo do presente...",
+          "reclaimButton": "Reivindicar vale-bitcoin",
+          "claimButton": "Aceitar vale-bitcoin",
+          "confirmMessage": "Seu vale-bitcoin foi resgatado; você receberá seus fundos em breve",
+          "defaultDesc": "Vale-bitcoin Blitz",
+          "claimingGiftMessage1": "Preparando o vale-bitcoin...",
+          "claimingGiftMessage2": "Obtendo o saldo do vale-bitcoin...",
           "claimingGiftMessage3": "O saldo era zero, tentando novamente ({{attempt}} de {{attemps}})...",
-          "claimingGiftMessage4": "Resgatando o presente..."
+          "claimingGiftMessage4": "Resgatando o vale-bitcoin..."
         }
       }
     }
@@ -1828,7 +1828,7 @@
       "updateMessage": "{{name}} {{option}} sua solicitção",
       "request": "{{name}} solicitou você {{amount}}",
       "payment": "{{name}} pagou você {{amount}}",
-      "giftCard": "{{name}} enviou para você um {{giftCardName}} cartão presente"
+      "giftCard": "{{name}} enviou para você um {{giftCardName}} cartão-presente"
     }
   }
 }
