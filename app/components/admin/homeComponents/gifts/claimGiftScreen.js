@@ -151,7 +151,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
   };
 
   const getBalanceWithStatusRetry = async seed => {
-    const delays = [1000, 3000, 6000];
+    const delays = [5000, 5000, 5000];
     let attempt = 0;
 
     setClaimStatus(
@@ -171,6 +171,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
           attemps: delays.length,
         }),
       );
+
       await new Promise(res => setTimeout(res, delay));
 
       result = await getSparkBalance(seed);
@@ -241,7 +242,10 @@ export default function ClaimGiftScreen({ url, claimType }) {
         );
       }
 
-      t('screens.inAccount.giftPages.claimPage.claimingGiftMessage4');
+      setClaimStatus(
+        t('screens.inAccount.giftPages.claimPage.claimingGiftMessage4'),
+      );
+
       const paymentResponse = await sendSparkPayment({
         receiverSparkAddress: receivingAddress,
         amountSats: sendingAmount,
