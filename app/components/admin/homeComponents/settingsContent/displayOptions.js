@@ -203,12 +203,12 @@ export default function DisplayOptions() {
           <RadioOption
             selected={masterInfoObject.userBalanceDenomination === 'fiat'}
             onPress={() => handleDenominationChange('fiat')}
-            label="Fiat"
+            label={t('settings.displayOptions.fiat')}
           />
           <RadioOption
             selected={masterInfoObject.userBalanceDenomination === 'hidden'}
             onPress={() => handleDenominationChange('hidden')}
-            label="Hidden"
+            label={t('settings.displayOptions.hidden')}
           />
 
           <View style={[styles.divider, { backgroundColor }]} />
@@ -221,12 +221,12 @@ export default function DisplayOptions() {
           <RadioOption
             selected={masterInfoObject.satDisplay === 'symbol'}
             onPress={() => toggleMasterInfoObject({ satDisplay: 'symbol' })}
-            label="Symbol"
+            label={t('settings.displayOptions.symbol')}
           />
           <RadioOption
             selected={masterInfoObject.satDisplay === 'word'}
             onPress={() => toggleMasterInfoObject({ satDisplay: 'word' })}
-            label="Word"
+            label={t('settings.displayOptions.word')}
           />
         </View>
       </SettingsSection>
@@ -374,6 +374,7 @@ const styles = StyleSheet.create({
   settingsItemText: {
     flex: 1,
     flexShrink: 1,
+    marginRight: 10,
   },
   settingsItemLabel: {
     marginBottom: 5,
