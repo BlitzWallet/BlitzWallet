@@ -79,7 +79,7 @@ export default function SendAndRequestPage(props) {
     masterInfoObject.userBalanceDenomination,
   );
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { theme } = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
   const descriptionRef = useRef(null);
@@ -676,6 +676,14 @@ export default function SendAndRequestPage(props) {
                   borderRadius: useAltLayout ? 15 : 8,
                   height: useAltLayout ? 50 : 'unset',
                 }}
+                placeholderTextColor={
+                  theme && !darkModeType
+                    ? undefined
+                    : theme
+                    ? COLORS.lightsOutModeOpacityInput
+                    : COLORS.opaicityGray
+                }
+                editable={paymentType === 'send' ? true : !!convertedSendAmount}
                 containerStyles={styles.descriptionInput}
                 setInputText={setDescriptionValue}
                 inputText={descriptionValue}
