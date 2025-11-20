@@ -28,6 +28,8 @@ import { randomBytes } from 'react-native-quick-crypto';
 import { getPublicKey } from 'nostr-tools';
 import { encriptMessage } from '../app/functions/messaging/encodingAndDecodingMessages';
 import { createGiftUrl } from '../app/functions/gift/encodeDecodeSecret';
+import { deriveSparkGiftMnemonic } from '../app/functions/gift/deriveGiftWallet';
+import { GIFT_DERIVE_PATH_CUTOFF } from '../app/constants';
 
 const initialState = {
   gifts: {},
@@ -207,10 +209,19 @@ export function GiftProvider({ children }) {
     // Process all gifts in parallel and wait for completion
     const reconstructedGifts = await Promise.all(
       outstandingGifts.map(async item => {
-        const giftWalletMnemonic = await deriveKeyFromMnemonic(
-          accountMnemoinc,
-          item.giftNum,
-        );
+        let giftWalletMnemonic;
+
+        if (item.createdTime > GIFT_DERIVE_PATH_CUTOFF) {
+          giftWalletMnemonic = await deriveSparkGiftMnemonic(
+            accountMnemoinc,
+            item.giftNum,
+          );
+        } else {
+          giftWalletMnemonic = await deriveKeyFromMnemonic(
+            accountMnemoinc,
+            item.giftNum,
+          );
+        }
 
         // Gift is expired - just add restore key
         if (item.expireTime < now) {

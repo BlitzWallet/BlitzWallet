@@ -21,18 +21,17 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useNavigation } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { v4 as uuidv4 } from 'uuid';
-import { deriveKeyFromMnemonic } from '../../../../functions/seed';
+import {
+  deriveSparkAddress,
+  deriveSparkGiftMnemonic,
+  deriveSparkIdentityKey,
+} from '../../../../functions/gift/deriveGiftWallet';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { randomBytes } from 'react-native-quick-crypto';
 import { getPublicKey } from 'nostr-tools';
 import { encriptMessage } from '../../../../functions/messaging/encodingAndDecodingMessages';
 import { createGiftUrl } from '../../../../functions/gift/encodeDecodeSecret';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import {
-  getSparkAddress,
-  getSparkIdentityPubKey,
-  initializeSparkWallet,
-} from '../../../../functions/spark';
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
@@ -80,8 +79,7 @@ export default function CreateGift(props) {
 
       const currentDeriveIndex =
         STARTING_INDEX_FOR_GIFTS_DERIVE + currentDerivedGiftIndex;
-
-      const giftWalletMnemoinc = await deriveKeyFromMnemonic(
+      const giftWalletMnemoinc = await deriveSparkGiftMnemonic(
         accountMnemoinc,
         currentDeriveIndex,
       );
@@ -118,22 +116,17 @@ export default function CreateGift(props) {
         t('screens.inAccount.giftPages.createGift.startProcess3'),
       );
 
-      const createdWallet = await initializeSparkWallet(
+      const derivedIdentityPubKey = await deriveSparkIdentityKey(
         giftWalletMnemoinc.derivedMnemonic,
+        1,
       );
-      if (!createdWallet.isConnected)
-        throw new Error(
-          t('screens.inAccount.giftPages.createGift.connectError'),
-        );
+      const derivedSparkAddress = deriveSparkAddress(
+        derivedIdentityPubKey.publicKey,
+      );
 
-      const [identityPubKey, sparkAddress] = await Promise.all([
-        getSparkIdentityPubKey(giftWalletMnemoinc.derivedMnemonic),
-        getSparkAddress(giftWalletMnemoinc.derivedMnemonic),
-      ]);
+      storageObject.identityPubKey = derivedIdentityPubKey.publicKeyHex;
 
-      storageObject.identityPubKey = identityPubKey;
-
-      if (!sparkAddress.didWork)
+      if (!derivedSparkAddress.success)
         throw new Error(
           t('screens.inAccount.giftPages.createGift.addressError'),
         );
@@ -143,7 +136,7 @@ export default function CreateGift(props) {
         throw new Error(t('screens.inAccount.giftPages.createGift.saveError'));
 
       const paymentResponse = await sparkPaymenWrapper({
-        address: sparkAddress.response,
+        address: derivedSparkAddress.address,
         paymentType: 'spark',
         amountSats: convertedSatAmount,
         masterInfoObject,

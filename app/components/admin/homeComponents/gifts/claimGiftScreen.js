@@ -10,7 +10,12 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import CustomButton from '../../../../functions/CustomElements/button';
-import { CENTER, SIZES, WEBSITE_REGEX } from '../../../../constants';
+import {
+  CENTER,
+  GIFT_DERIVE_PATH_CUTOFF,
+  SIZES,
+  WEBSITE_REGEX,
+} from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
@@ -23,7 +28,6 @@ import {
 } from '../../../../functions/spark';
 import { useGifts } from '../../../../../context-store/giftContext';
 import { useTranslation } from 'react-i18next';
-import { deriveKeyFromMnemonic } from '../../../../functions/seed';
 import { useKeysContext } from '../../../../../context-store/keys';
 import { getGiftByUuid } from '../../../../functions/gift/giftsStorage';
 import { transformTxToPaymentObject } from '../../../../functions/spark/transformTxToPayment';
@@ -31,6 +35,8 @@ import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transac
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import LottieView from 'lottie-react-native';
+import { deriveSparkGiftMnemonic } from '../../../../functions/gift/deriveGiftWallet';
+import { deriveKeyFromMnemonic } from '../../../../functions/seed';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -53,57 +59,53 @@ export default function ClaimGiftScreen({ url, claimType }) {
   const walletInitPromise = useRef(null);
   const walletInitResult = useRef(null);
 
-  useEffect(() => {
-    async function loadGiftDetails() {
-      try {
-        if (claimType === 'reclaim') {
-          let uuid;
-          if (WEBSITE_REGEX.test(url)) {
-            const parsedURL = parseGiftUrl(url);
-            uuid = parsedURL.giftId;
-          } else {
-            uuid = url;
-          }
+  const loadGiftDetails = async () => {
+    try {
+      let giftSeed;
 
-          const savedGift = await getGiftByUuid(uuid);
+      if (claimType === 'reclaim') {
+        let uuid;
+        if (WEBSITE_REGEX.test(url)) {
+          const parsedURL = parseGiftUrl(url);
+          uuid = parsedURL.giftId;
+        } else {
+          uuid = url;
+        }
 
-          if (Date.now() < savedGift.expireTime) {
-            throw new Error(
-              t('screens.inAccount.giftPages.claimPage.notExpired'),
-            );
-          }
+        const savedGift = await getGiftByUuid(uuid);
 
-          const giftWalletMnemonic = await deriveKeyFromMnemonic(
+        if (Date.now() < savedGift.expireTime) {
+          throw new Error(
+            t('screens.inAccount.giftPages.claimPage.notExpired'),
+          );
+        }
+
+        let giftWalletMnemonic;
+
+        if (savedGift.createdTime > GIFT_DERIVE_PATH_CUTOFF) {
+          giftWalletMnemonic = await deriveSparkGiftMnemonic(
             accountMnemoinc,
             savedGift.giftNum,
           );
-
-          setGiftDetails({
-            ...savedGift,
-            giftSeed: giftWalletMnemonic.derivedMnemonic,
-          });
-
-          // Pre-initialize the wallet in the background
-          walletInitPromise.current = initializeSparkWallet(giftSeed)
-            .then(result => {
-              walletInitResult.current = result;
-              console.log('Wallet pre-initialized successfully:', result);
-              return result;
-            })
-            .catch(err => {
-              console.log('Pre-initialization failed:', err);
-              walletInitResult.current = null;
-              return null;
-            });
-
-          return;
+        } else {
+          giftWalletMnemonic = await deriveKeyFromMnemonic(
+            accountMnemoinc,
+            savedGift.giftNum,
+          );
         }
+        giftSeed = giftWalletMnemonic.derivedMnemonic;
 
+        setGiftDetails({
+          ...savedGift,
+          giftSeed: giftSeed,
+        });
+      } else {
         const parsedURL = parseGiftUrl(url);
         if (!parsedURL)
           throw new Error(
             t('screens.inAccount.giftPages.claimPage.parseError'),
           );
+
         const retrivedGift = await getGiftCard(parsedURL.giftId);
 
         if (!retrivedGift || retrivedGift?.expireTime < Date.now())
@@ -112,43 +114,40 @@ export default function ClaimGiftScreen({ url, claimType }) {
           );
 
         const publicKey = getPublicKey(parsedURL.secret);
-        const giftSeed = decryptMessage(
+        const decodedSeed = decryptMessage(
           parsedURL.secret,
           publicKey,
           retrivedGift.encryptedText,
         );
 
         // very basic check to see if decryption failed
-        if (giftSeed.split(' ').length < 5)
+        if (decodedSeed.split(' ').length < 5)
           throw new Error(
             t('screens.inAccount.giftPages.claimPage.noGiftSeed'),
           );
 
+        giftSeed = decodedSeed;
         setGiftDetails({ ...retrivedGift, giftSeed });
-
-        // Pre-initialize the wallet in the background
-        walletInitPromise.current = initializeSparkWallet(giftSeed)
-          .then(result => {
-            walletInitResult.current = result;
-            console.log('Wallet pre-initialized successfully:', result);
-            return result;
-          })
-          .catch(err => {
-            console.log('Pre-initialization failed:', err);
-            walletInitResult.current = null;
-            return null;
-          });
-      } catch (err) {
-        console.log(err);
-        navigate.goBack();
-        navigate.navigate('ErrorScreen', { errorMessage: err.message });
       }
+
+      // Pre-initialize the wallet in the background
+      walletInitPromise.current = initializeSparkWallet(giftSeed)
+        .then(result => {
+          walletInitResult.current = result;
+          console.log('Wallet pre-initialized successfully:', result);
+          return result;
+        })
+        .catch(err => {
+          console.log('Pre-initialization failed:', err);
+          walletInitResult.current = null;
+          return null;
+        });
+    } catch (err) {
+      console.log(err);
+      navigate.goBack();
+      navigate.navigate('ErrorScreen', { errorMessage: err.message });
     }
-    if (!url) return;
-    if (!sparkInformation.identityPubKey || !sparkInformation.didConnect)
-      return;
-    loadGiftDetails();
-  }, [url, sparkInformation.identityPubKey, sparkInformation.didConnect]);
+  };
 
   const handleClaim = async () => {
     if (isClaiming) return; // Prevent double-clicks
@@ -230,7 +229,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
       transaction.details.direction = 'INCOMING';
       transaction.paymentStatus = 'pending';
 
-      if (!giftDetails.description) {
+      if (!transaction.details.description) {
         transaction.details.description = t(
           'screens.inAccount.giftPages.claimPage.defaultDesc',
         );
@@ -258,6 +257,47 @@ export default function ClaimGiftScreen({ url, claimType }) {
       setIsClaiming(false);
     }
   };
+
+  useEffect(() => {
+    if (!url) return;
+
+    let delayTimer;
+
+    async function run() {
+      const isConnected =
+        sparkInformation.identityPubKey && sparkInformation.didConnect;
+
+      if (isConnected) {
+        // Spark already connected → run immediately
+        loadGiftDetails();
+        return;
+      }
+
+      // Spark NOT connected → wait until it connects
+      await new Promise(resolve => {
+        const interval = setInterval(() => {
+          const connectedNow =
+            sparkInformation.identityPubKey && sparkInformation.didConnect;
+
+          if (connectedNow) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 200);
+      });
+
+      // Spark just connected → wait 5s THEN run
+      await new Promise(resolve => {
+        delayTimer = setTimeout(resolve, 5000);
+      });
+
+      loadGiftDetails();
+    }
+
+    run();
+
+    return () => clearTimeout(delayTimer);
+  }, [url, sparkInformation.identityPubKey, sparkInformation.didConnect]);
 
   useEffect(() => {
     if (!didClaim) return;
