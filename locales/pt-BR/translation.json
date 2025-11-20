@@ -114,7 +114,7 @@
     "invoice": "Fatura",
     "annonName": "Usuário anônimo",
     "claim": "Resgatar",
-    "reclaim": "Resgatar novamente",
+    "reclaim": "Recuperar",
     "optionalFlag": "(Opcional)",
     "gift": "Presente"
   },
@@ -1656,7 +1656,7 @@
 
         "giftsHome": {
           "title": "Vales-bitcoin",
-          "myGifts": "Meus vales-bitcoin"
+          "myGifts": "Emitidos"
         },
 
         "giftsOverview": {
@@ -1692,7 +1692,7 @@
 
         "claimHome": {
           "header": "Insira o link do vale-bitcoin",
-          "desc": "Cole o link recebido ou leia o código QR para resgatar seu vale-bitcoin",
+          "desc": "Cole o link recebido ou leia o código QR para resgatar o vale-bitcoin",
           "inputPlaceholder": "Insira o link do vale-bitcoin",
           "claim": "Resgatar"
         },
