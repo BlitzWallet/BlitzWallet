@@ -1676,7 +1676,7 @@
 
         "giftConfirmation": {
           "header": "Presente criado!",
-          "whatToDo": "Compartilhe usando o QR code ou o link abaixo",
+          "whatToDo": "Compartilhe usando o código QR ou o link abaixo",
           "details": "Detalhes do presente",
           "expire": "Expira",
           "giftLink": "Link do presente",
