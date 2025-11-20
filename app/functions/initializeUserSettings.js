@@ -141,6 +141,8 @@ export default async function initializeUserSettingsFromHistory({
       blitzStoredData.userBalanceDenomination || 'sats';
 
     const selectedLanguage = userSelectedLanguage;
+    const currentDerivedGiftIndex =
+      blitzStoredData.currentDerivedGiftIndex || 1;
 
     let pushNotifications = blitzStoredData.pushNotifications || {
       isEnabled: false,
@@ -398,6 +400,7 @@ export default async function initializeUserSettingsFromHistory({
     tempObject['didViewSeedPhrase'] = didViewSeedPhrase;
     tempObject['enabledBTKNTokens'] = enabledBTKNTokens;
     tempObject['defaultSpendToken'] = defaultSpendToken;
+    tempObject['currentDerivedGiftIndex'] = currentDerivedGiftIndex;
 
     // store in contacts context
     tempObject['contacts'] = contacts;

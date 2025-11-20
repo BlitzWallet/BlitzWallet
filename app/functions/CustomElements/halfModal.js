@@ -50,6 +50,7 @@ import Animated, {
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useAppStatus } from '../../../context-store/appStatus';
 import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
+import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
 
 export default function CustomHalfModal(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -317,6 +318,15 @@ export default function CustomHalfModal(props) {
           <SelectLRC20Token
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        );
+      case 'ClaimGiftScreen':
+        return (
+          <ClaimGiftScreen
+            url={props?.route?.params?.url}
+            claimType={props?.route?.params?.claimType}
             theme={theme}
             darkModeType={darkModeType}
           />

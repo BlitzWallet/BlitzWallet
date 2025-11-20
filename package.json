@@ -106,7 +106,8 @@
     "stream-browserify": "^3.0.0",
     "text-encoding": "^0.7.0",
     "text-encoding-polyfill": "^0.6.7",
-    "unique-names-generator": "^4.7.1"
+    "unique-names-generator": "^4.7.1",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",

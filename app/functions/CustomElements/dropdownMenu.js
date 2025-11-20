@@ -22,6 +22,7 @@ const DropdownMenu = ({
   textStyles = {},
   customButtonStyles = {},
   dropdownItemCustomStyles = {},
+  dropdownTextCustomStyles = {},
   showFlag = false,
   useIsLoading = false,
   disableDropdownPress = false,
@@ -43,6 +44,7 @@ const DropdownMenu = ({
           showFlag,
           translateLabelText,
           dropdownItemCustomStyles,
+          dropdownTextCustomStyles,
         });
       });
     }

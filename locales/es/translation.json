@@ -112,7 +112,11 @@
     "review": "Revisar",
     "loadMore": "Cargar más",
     "invoice": "Factura",
-    "annonName": "Usuario anónimo"
+    "annonName": "Usuario anónimo",
+    "claim": "Reclamar",
+    "reclaim": "Recuperar",
+    "optionalFlag": "(Opcional)",
+    "gift": "Regalo"
   },
 
   "languages": {
@@ -758,7 +762,7 @@
         "alreadyPaidInvoiceError": "Ya has pagado esta factura",
         "descriptionPlaceholder": "Descripción del pago...",
         "fallbackErrorMessage": "Error al decodificar la factura",
-        "connectToSparkMessage": "Conectándose a Spark",
+        "connectToSparkMessage": "Conectando a tu billetera.",
         "switchTokenText": "Usar un token diferente"
       },
       "handlingAddressErrors": {
@@ -1456,6 +1460,97 @@
         "maxSupply": "Suministro máximo",
         "tokenTicker": "Símbolo del token",
         "tokenPubKey": "Clave pública del token"
+      },
+      "giftPages": {
+        "expired": "Expirado",
+        "lessThanMin": "Queda menos de un minuto",
+        "timeLeft": {
+          "days_one": "Queda {{count}} día",
+          "days_other": "Quedan {{count}} días",
+          "hours_one": "Queda {{count}} hora",
+          "hours_other": "Quedan {{count}} horas",
+          "minutes_one": "Queda {{count}} minuto",
+          "minutes_other": "Quedan {{count}} minutos"
+        },
+        "shareMessage": "¡Has recibido un regalo de {{icon}}{{amount}}! Reclámalo aquí:\n{{link}}",
+        "fundGiftMessage": "Creando regalo",
+        "reclaimGiftMessage": "Recuperando regalo",
+
+        "giftsHome": {
+          "title": "Regalos",
+          "myGifts": "Mis regalos"
+        },
+
+        "giftsOverview": {
+          "noGiftsHead": "Aún no hay regalos",
+          "noGiftsDesc": "Crea tu primer regalo para compartir Bitcoin con amigos y familia",
+          "createGift": "Crear regalo"
+        },
+
+        "createGift": {
+          "noAmountError": "Ingresa un monto para crear tu regalo.",
+          "connectError": "No pudimos configurar tu billetera del regalo. Inténtalo de nuevo.",
+          "addressError": "No pudimos obtener la dirección del regalo.",
+          "saveError": "No pudimos guardar tu regalo. Inténtalo de nuevo.",
+          "fundError": "No pudimos agregar fondos a tu regalo.",
+          "startProcess1": "Preparando tu regalo…",
+          "startProcess2": "Configurando…",
+          "startProcess3": "Agregando fondos a tu regalo…",
+          "header": "Crear regalo",
+          "inputPlaceholder": "Añade un mensaje o nota...",
+          "button": "Crear regalo"
+        },
+
+        "giftConfirmation": {
+          "header": "¡Regalo creado!",
+          "whatToDo": "Comparte este regalo con cualquiera usando el código QR o el enlace",
+          "details": "Detalles del regalo",
+          "expire": "Expira",
+          "giftLink": "Enlace del regalo",
+          "shareGift": "Compartir regalo",
+          "createAnother": "Crear otro",
+          "done": "Listo"
+        },
+
+        "claimHome": {
+          "header": "Ingresa el enlace del regalo",
+          "desc": "Pega el enlace que recibiste o escanea el código QR para reclamar tu regalo",
+          "inputPlaceholder": "Ingresa el enlace del regalo",
+          "claim": "Reclamar"
+        },
+
+        "reclaimPage": {
+          "header": "Recupera tu regalo",
+          "desc": "Ingresa o selecciona el ID del regalo para devolver un regalo expirado o no reclamado.",
+          "inputPlaceholder": "Ingresa el ID del regalo",
+          "dropdownPlaceHolder": "Seleccionar regalo expirado",
+          "button": "Recuperar regalo",
+          "noReclaimsMessage": "No tienes regalos vencidos en este momento. Vuelve cuando algún regalo haya vencido para recuperarlo."
+        },
+
+        "claimPage": {
+          "parseError": "No pudimos leer los detalles del regalo desde este enlace.",
+          "noGiftForReclaim": "No encontramos este regalo. Puede que ya haya sido reclamado.",
+          "expiredOrClaimed": "Este regalo ya fue reclamado o ha expirado.",
+          "noGiftSeed": "No pudimos acceder al regalo. Inténtalo más tarde.",
+          "giftWalletInitError": "No pudimos acceder al regalo. Inténtalo más tarde.",
+          "noBalanceErrorReclaim": "No quedan fondos para recuperar de este regalo.",
+          "nobalanceError": "El monto restante después de las tarifas es demasiado pequeño para reclamar.",
+          "notExpired": "Aún no puedes recuperar este regalo.",
+          "paymentError": "No pudimos reclamar el regalo. Inténtalo de nuevo.",
+          "claimHead": "Aceptar regalo",
+          "reclaimHead": "Reembolsar regalo",
+          "claimLoading": "Reclamando tu regalo… permanece en la app.",
+          "reclaimLoading": "Devolviendo tus fondos… permanece en la app.",
+          "claimAmountHead": "Monto recibido",
+          "reclaimAmountHead": "Monto devuelto",
+          "networkFeeWarning": "Este monto menos las tarifas de red se añadirá a tu saldo",
+          "buttonTextClaiming": "Reclamando",
+          "reclaimButton": "Recuperar regalo",
+          "claimButton": "Aceptar regalo",
+          "confirmMessage": "Tu regalo ha sido reclamado; recibirás tus fondos en breve",
+          "defaultDesc": "Regalo Blitz"
+        }
       }
     }
   },

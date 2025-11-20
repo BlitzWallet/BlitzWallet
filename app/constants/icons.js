@@ -139,6 +139,13 @@ import dotsBlue from '../assets/icons/dotsBlue.png';
 import dotsWhite from '../assets/icons/dotsWhite.png';
 import warningBlue from '../assets/icons/warningBlue.png';
 import warningWhite from '../assets/icons/warningWhite.png';
+import giftFilledBlue from '../assets/icons/giftFilledBlue.png';
+import giftFilledWhite from '../assets/icons/giftFilledWhite.png';
+import giftWhite from '../assets/icons/giftWhite.png';
+import giftBlue from '../assets/icons/giftBlue.png';
+import gift from '../assets/icons/gift.png';
+import rotateLeft from '../assets/icons/rotate-left.png';
+import rotateLeftBlue from '../assets/icons/rotate-left-blue.png';
 
 export default {
   editIcon,
@@ -282,4 +289,11 @@ export default {
   dotsWhite,
   warningBlue,
   warningWhite,
+  giftFilledBlue,
+  giftFilledWhite,
+  giftBlue,
+  giftWhite,
+  gift,
+  rotateLeft,
+  rotateLeftBlue,
 };

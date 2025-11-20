@@ -112,7 +112,11 @@
     "review": "Revisione",
     "loadMore": "Carica altro",
     "invoice": "Fattura",
-    "annonName": "Utente anonimo"
+    "annonName": "Utente anonimo",
+    "claim": "Riscatta",
+    "reclaim": "Riscatta di nuovo",
+    "optionalFlag": "(Opzionale)",
+    "gift": "Regalo"
   },
 
   "languages": {
@@ -909,7 +913,7 @@
         "alreadyPaidInvoiceError": "Hai già pagato questa fattura",
         "descriptionPlaceholder": "Descrizione pagamento...",
         "fallbackErrorMessage": "Errore nel decodificare la fattura",
-        "connectToSparkMessage": "Connessione a Spark",
+        "connectToSparkMessage": "Connessione al tuo portafoglio.",
         "switchTokenText": "Usa un token diverso"
       },
       "handlingAddressErrors": {
@@ -1628,6 +1632,97 @@
         "maxSupply": "Offerta Massima",
         "tokenTicker": "Token Ticker",
         "tokenPubKey": "Token Chiave Pubblica"
+      },
+      "giftPages": {
+        "expired": "Scaduto",
+        "lessThanMin": "Meno di un minuto rimasto",
+        "timeLeft": {
+          "days_one": "Rimane {{count}} giorno",
+          "days_other": "Rimangono {{count}} giorni",
+          "hours_one": "Rimane {{count}} ora",
+          "hours_other": "Rimangono {{count}} ore",
+          "minutes_one": "Rimane {{count}} minuto",
+          "minutes_other": "Rimangono {{count}} minuti"
+        },
+        "shareMessage": "Hai ricevuto un regalo di {{icon}}{{amount}}! Riscattalo qui:\n{{link}}",
+        "fundGiftMessage": "Creazione del regalo",
+        "reclaimGiftMessage": "Recupero del regalo",
+
+        "giftsHome": {
+          "title": "Regali",
+          "myGifts": "I miei regali"
+        },
+
+        "giftsOverview": {
+          "noGiftsHead": "Nessun regalo ancora",
+          "noGiftsDesc": "Crea il tuo primo regalo per condividere Bitcoin con amici e famiglia",
+          "createGift": "Crea regalo"
+        },
+
+        "createGift": {
+          "noAmountError": "Inserisci un importo per creare il tuo regalo.",
+          "connectError": "Non siamo riusciti a configurare il portafoglio del regalo.",
+          "addressError": "Non siamo riusciti a ottenere l'indirizzo del regalo.",
+          "saveError": "Non siamo riusciti a salvare il tuo regalo.",
+          "fundError": "Non siamo riusciti ad aggiungere fondi al tuo regalo.",
+          "startProcess1": "Preparando il tuo regalo…",
+          "startProcess2": "Configurazione in corso…",
+          "startProcess3": "Aggiunta dei fondi…",
+          "header": "Crea regalo",
+          "inputPlaceholder": "Aggiungi un messaggio o una nota...",
+          "button": "Crea regalo"
+        },
+
+        "giftConfirmation": {
+          "header": "Regalo creato!",
+          "whatToDo": "Condividi questo regalo tramite QR o link",
+          "details": "Dettagli del regalo",
+          "expire": "Scade",
+          "giftLink": "Link del regalo",
+          "shareGift": "Condividi regalo",
+          "createAnother": "Crea un altro",
+          "done": "Fatto"
+        },
+
+        "claimHome": {
+          "header": "Inserisci il link del regalo",
+          "desc": "Incolla il link ricevuto o scansiona il QR per riscattare il regalo",
+          "inputPlaceholder": "Inserisci il link del regalo",
+          "claim": "Riscatta"
+        },
+
+        "reclaimPage": {
+          "header": "Recupera il tuo regalo",
+          "desc": "Inserisci o scegli l'ID per recuperare un regalo scaduto o non riscattato.",
+          "inputPlaceholder": "Inserisci ID regalo",
+          "dropdownPlaceHolder": "Seleziona regalo scaduto",
+          "button": "Recupera regalo",
+          "noReclaimsMessage": "Non hai regali scaduti al momento. Torna quando un regalo sarà scaduto per recuperarlo."
+        },
+
+        "claimPage": {
+          "parseError": "Non siamo riusciti a leggere i dettagli del regalo.",
+          "noGiftForReclaim": "Regalo non trovato. Forse è già stato riscattato.",
+          "expiredOrClaimed": "Il regalo è stato riscattato o è scaduto.",
+          "noGiftSeed": "Impossibile raggiungere il regalo. Riprova più tardi.",
+          "giftWalletInitError": "Impossibile raggiungere il regalo. Riprova più tardi.",
+          "noBalanceErrorReclaim": "Nessun fondo rimasto da recuperare.",
+          "nobalanceError": "L'importo rimanente dopo le commissioni è troppo basso.",
+          "notExpired": "Non puoi ancora recuperare questo regalo.",
+          "paymentError": "Impossibile riscattare il regalo.",
+          "claimHead": "Accetta regalo",
+          "reclaimHead": "Rimborso regalo",
+          "claimLoading": "Riscatto in corso… rimani nell'app.",
+          "reclaimLoading": "Restituzione fondi… rimani nell'app.",
+          "claimAmountHead": "Importo ricevuto",
+          "reclaimAmountHead": "Importo restituito",
+          "networkFeeWarning": "Questo importo meno le commissioni verrà aggiunto al saldo",
+          "buttonTextClaiming": "Riscattando",
+          "reclaimButton": "Recupera regalo",
+          "claimButton": "Accetta regalo",
+          "confirmMessage": "Il tuo regalo è stato riscattato; riceverai i tuoi fondi a breve",
+          "defaultDesc": "Regalo Blitz"
+        }
       }
     }
   },

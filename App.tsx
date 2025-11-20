@@ -36,6 +36,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import GetThemeColors from './app/hooks/themeColors';
 import {
   BLITZ_PAYMENT_DEEP_LINK_SCHEMES,
+  GIFT_DEEPLINK_REGEX,
   LOGIN_SECUITY_MODE_KEY,
   LOGIN_SECURITY_MODE_TYPE_KEY,
 } from './app/constants';
@@ -105,6 +106,7 @@ import { SparkConnectionManager } from './context-store/sparkConnection';
 import { GlobalNostrWalletConnectProvider } from './context-store/NWC';
 import { GlobalServerTimeProvider } from './context-store/serverTime';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
+import { GiftProvider } from './context-store/giftContext';
 // import { LRC20EventProvider } from './context-store/lrc20Listener';
 import { useTranslation } from 'react-i18next';
 import { isMoreThan40MinOld } from './app/functions/rotateAddressDateChecker';
@@ -146,9 +148,11 @@ function App(): JSX.Element {
                                               {/* <LightningEventProvider> */}
                                               <ImageCacheProvider>
                                                 <GlobalServerTimeProvider>
-                                                  {/* <Suspense
+                                                  <GiftProvider>
+                                                    {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                  <ResetStack />
+                                                    <ResetStack />
+                                                  </GiftProvider>
                                                   {/* </Suspense> */}
                                                 </GlobalServerTimeProvider>
                                               </ImageCacheProvider>
@@ -312,6 +316,14 @@ function ResetStack(): JSX.Element | null {
           let isContactLink = false;
 
           if (lowerUrl.startsWith(contactSchemePrefix)) {
+            if (GIFT_DEEPLINK_REGEX.test(url)) {
+              navigationRef.current.navigate('CustomHalfModal', {
+                wantedContent: 'ClaimGiftScreen',
+                url,
+                sliderHight: 0.6,
+              });
+              return;
+            }
             // If the URL starts with the contact scheme, check if it contains a wrapped payment scheme.
             const contentAfterScheme = lowerUrl.substring(
               contactSchemePrefix.length,

@@ -112,7 +112,11 @@
     "review": "Rezension",
     "loadMore": "Mehr laden",
     "invoice": "Rechnung",
-    "annonName": "Anonymer Benutzer"
+    "annonName": "Anonymer Benutzer",
+    "claim": "Einlösen",
+    "reclaim": "Erneut einlösen",
+    "optionalFlag": "(Optional)",
+    "gift": "Geschenk"
   },
 
   "languages": {
@@ -903,7 +907,7 @@
         "alreadyPaidInvoiceError": "Sie haben diese Rechnung bereits bezahlt",
         "descriptionPlaceholder": "Zahlungsbeschreibung...",
         "fallbackErrorMessage": "Fehler beim Dekodieren der Rechnung",
-        "connectToSparkMessage": "Verbindung zu Spark wird hergestellt",
+        "connectToSparkMessage": "Verbindung zu deiner Wallet wird hergestellt.",
         "switchTokenText": "Anderen Token verwenden"
       },
       "handlingAddressErrors": {
@@ -1611,6 +1615,97 @@
         "maxSupply": "Maximales Angebot",
         "tokenTicker": "Token-Ticker",
         "tokenPubKey": "Öffentlicher Token-Schlüssel"
+      },
+      "giftPages": {
+        "expired": "Abgelaufen",
+        "lessThanMin": "Weniger als eine Minute übrig",
+        "timeLeft": {
+          "days_one": "{{count}} Tag übrig",
+          "days_other": "{{count}} Tage übrig",
+          "hours_one": "{{count}} Stunde übrig",
+          "hours_other": "{{count}} Stunden übrig",
+          "minutes_one": "{{count}} Minute übrig",
+          "minutes_other": "{{count}} Minuten übrig"
+        },
+        "shareMessage": "Du hast ein Geschenk von {{icon}}{{amount}} erhalten! Hier einlösen:\n{{link}}",
+        "fundGiftMessage": "Geschenk wird erstellt",
+        "reclaimGiftMessage": "Geschenk wird zurückgeholt",
+
+        "giftsHome": {
+          "title": "Geschenke",
+          "myGifts": "Meine Geschenke"
+        },
+
+        "giftsOverview": {
+          "noGiftsHead": "Noch keine Geschenke",
+          "noGiftsDesc": "Erstelle dein erstes Geschenk, um Bitcoin mit Freunden und Familie zu teilen",
+          "createGift": "Geschenk erstellen"
+        },
+
+        "createGift": {
+          "noAmountError": "Bitte gib einen Betrag ein, um dein Geschenk zu erstellen.",
+          "connectError": "Wir konnten deine Geschenk-Wallet nicht einrichten.",
+          "addressError": "Wir konnten die Geschenkadresse nicht abrufen.",
+          "saveError": "Wir konnten dein Geschenk nicht speichern.",
+          "fundError": "Wir konnten keine Mittel hinzufügen.",
+          "startProcess1": "Dein Geschenk wird vorbereitet…",
+          "startProcess2": "Einrichten…",
+          "startProcess3": "Guthaben wird hinzugefügt…",
+          "header": "Geschenk erstellen",
+          "inputPlaceholder": "Nachricht oder Notiz hinzufügen...",
+          "button": "Geschenk erstellen"
+        },
+
+        "giftConfirmation": {
+          "header": "Geschenk erstellt!",
+          "whatToDo": "Teile dieses Geschenk per QR-Code oder Link",
+          "details": "Geschenkdetails",
+          "expire": "Läuft ab",
+          "giftLink": "Geschenklink",
+          "shareGift": "Geschenk teilen",
+          "createAnother": "Weiteres erstellen",
+          "done": "Fertig"
+        },
+
+        "claimHome": {
+          "header": "Geschenklink eingeben",
+          "desc": "Füge den erhaltenen Link ein oder scanne den QR-Code, um dein Geschenk einzulösen",
+          "inputPlaceholder": "Geschenklink eingeben",
+          "claim": "Einlösen"
+        },
+
+        "reclaimPage": {
+          "header": "Geschenk zurückholen",
+          "desc": "Gib die Geschenk-ID ein oder wähle sie aus, um ein abgelaufenes oder nicht eingelöstes Geschenk zurückzubekommen.",
+          "inputPlaceholder": "Geschenk-ID eingeben",
+          "dropdownPlaceHolder": "Abgelaufenes Geschenk auswählen",
+          "button": "Geschenk zurückholen",
+          "noReclaimsMessage": "Du hast derzeit keine abgelaufenen Geschenke. Komm zurück, sobald ein Geschenk abgelaufen ist, um es zurückzuholen."
+        },
+
+        "claimPage": {
+          "parseError": "Die Geschenkinformationen konnten nicht gelesen werden.",
+          "noGiftForReclaim": "Dieses Geschenk wurde nicht gefunden. Es wurde möglicherweise bereits eingelöst.",
+          "expiredOrClaimed": "Dieses Geschenk wurde bereits eingelöst oder ist abgelaufen.",
+          "noGiftSeed": "Gift nicht erreichbar. Bitte später erneut versuchen.",
+          "giftWalletInitError": "Gift nicht erreichbar. Bitte später erneut versuchen.",
+          "noBalanceErrorReclaim": "Es sind keine Mittel mehr vorhanden.",
+          "notExpired": "Du kannst dieses Geschenk noch nicht zurückholen.",
+          "nobalanceError": "Der Restbetrag nach Gebühren ist zu gering.",
+          "paymentError": "Geschenk konnte nicht eingelöst werden.",
+          "claimHead": "Geschenk annehmen",
+          "reclaimHead": "Geschenk erstatten",
+          "claimLoading": "Einlösen… bitte in der App bleiben.",
+          "reclaimLoading": "Guthaben wird zurückgebucht… bitte in der App bleiben.",
+          "claimAmountHead": "Erhaltener Betrag",
+          "reclaimAmountHead": "Erstatteter Betrag",
+          "networkFeeWarning": "Dieser Betrag abzüglich Netzwerkgebühren wird deinem Guthaben hinzugefügt",
+          "buttonTextClaiming": "Wird eingelöst",
+          "reclaimButton": "Geschenk zurückholen",
+          "claimButton": "Geschenk annehmen",
+          "confirmMessage": "Dein Geschenk wurde eingelöst; du erhältst deine Gelder in Kürze",
+          "defaultDesc": "Blitz-Geschenk"
+        }
       }
     }
   },
