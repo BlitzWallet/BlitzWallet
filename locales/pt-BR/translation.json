@@ -1263,8 +1263,8 @@
     "sparkLrc20": {
       "balanceError": "O saldo atual da sua carteira é {{balance}}. A Blitz adiciona uma {{fee}} taxa em todos os pagamentos BTKN. Certifique-se de ter Bitcoin na sua carteira antes de enviar tokens.",
       "title": "Configurações Spark",
-      "sliderTitle_enabled": "BTKN habilitado",
-      "sliderTitle_disabled": "BTKN desabilitado",
+      "sliderTitle_enabled": "BTKN",
+      "sliderTitle_disabled": "BTKN",
       "sliderDesc": "BTKN é o padrão de tokens da Spark. Habilitar BTKN permite que você envie e receba tokens na rede Spark.\n\nBlitz é uma carteira focada em Bitcoin. Não promovemos nem endossamos o uso de tokens. Este recurso existe porque acreditamos que os usuários devem ter a liberdade de usar a tecnologia que desejarem.",
       "selectTokenHeader": "Token padrão",
       "selectTokenInformationPopup": "Escolha qual token você gostaria de usar primeiro ao enviar pagamentos. Não se preocupe — você ainda pode alterá-lo na página de pagamento a qualquer momento."
@@ -1307,8 +1307,8 @@
       "swap": "Trocar"
     },
     "notifications": {
-      "mainToggle_enabled": "Notificações habilitadas",
-      "mainToggle_disabled": "Notificações desabilitadas",
+      "mainToggle_enabled": "Notificações",
+      "mainToggle_disabled": "Notificações",
       "mainToggleDesc": "As notificações permitem que você fique informado sobre eventos e atualizações importantes que acontecem no aplicativo.",
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
