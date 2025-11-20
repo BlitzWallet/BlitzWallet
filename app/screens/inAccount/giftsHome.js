@@ -137,7 +137,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: 50,
+    // minHeight: 40,
+    marginBottom: 10,
     ...CENTER,
   },
   headerText: {

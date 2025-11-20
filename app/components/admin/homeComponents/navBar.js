@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     ...CENTER,
-    minHeight: 50,
+    marginBottom: 10,
   },
   iconButton: {
     zIndex: 2,

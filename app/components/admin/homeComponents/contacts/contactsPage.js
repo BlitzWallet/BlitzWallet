@@ -294,11 +294,11 @@ export default function ContactsPage({ navigation }) {
               styles={memoizedStyles.giftText}
               content={t('wallet.contactsPage.giftsText')}
             />
-            <Icon
-              color={
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-              }
-              name={'giftIcon'}
+            <ThemeImage
+              styles={{ width: 20, height: 20 }}
+              lightModeIcon={ICONS.giftBlue}
+              darkModeIcon={ICONS.giftBlue}
+              lightsOutIcon={ICONS.giftWhite}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={goToAddContact}>
@@ -691,7 +691,8 @@ const memoizedStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    minHeight: 50,
+    // minHeight: 40,
+    marginBottom: 10,
     ...CENTER,
   },
   hasNotification: {
@@ -763,7 +764,8 @@ const memoizedStyles = StyleSheet.create({
   },
 
   giftContainer: {
-    paddingVertical: 8,
+    height: 35,
+    // paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 20,
     flexDirection: 'row',
@@ -772,7 +774,7 @@ const memoizedStyles = StyleSheet.create({
     marginRight: 'auto',
   },
   giftText: {
-    marginRight: 5,
+    marginRight: 10,
     includeFontPadding: false,
   },
   noResultsContainer: {
