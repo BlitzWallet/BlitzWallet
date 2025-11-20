@@ -379,18 +379,21 @@ export const updateSparkTxStatus = async (
         sendWebViewRequest,
         accountId,
       ),
-      processSparkTransactions(txsByType.spark),
+      processSparkTransactions(txsByType.spark, mnemoninc, sendWebViewRequest),
     ]);
 
     const updatedTxs = [
       ...lightningUpdates,
       ...bitcoinUpdates,
-      ...sparkUpdates,
+      ...sparkUpdates.updatedTxs,
     ];
 
     if (!updatedTxs.length) return { updated: [] };
 
-    await bulkUpdateSparkTransactions(updatedTxs, 'restoreTxs');
+    await bulkUpdateSparkTransactions(
+      updatedTxs,
+      sparkUpdates.includesGift ? 'fullUpdate-waitBalance' : 'restoreTxs',
+    );
     console.log(`Updated transactions:`, updatedTxs);
     return { updated: updatedTxs };
   } catch (error) {
@@ -837,22 +840,56 @@ async function processBitcoinTransactions(
   return updatedTxs;
 }
 
-async function processSparkTransactions(sparkTxs) {
-  return [];
-  // sparkTxs.map(txStateUpdate => {
-  //   const details = JSON.parse(txStateUpdate.details);
-  //   if (details.isGift)
-  //     return {
-  //       id: txStateUpdate.sparkID,
-  //       paymentStatus: txStateUpdate.paymentStatus,
-  //       paymentType: 'spark',
-  //       accountId: txStateUpdate.accountId,
-  //     };
-  //   return {
-  //     id: txStateUpdate.sparkID,
-  //     paymentStatus: 'completed',
-  //     paymentType: 'spark',
-  //     accountId: txStateUpdate.accountId,
-  //   };
-  // });
+async function processSparkTransactions(
+  sparkTxs,
+  mnemonic,
+  sendWebViewRequest,
+) {
+  let includesGift = false;
+  let updatedTxs = [];
+  let transfersOffset = 0;
+  let cachedTransfers = [];
+  for (const txStateUpdate of sparkTxs) {
+    const details = JSON.parse(txStateUpdate.details);
+
+    if (details.isGift) {
+      const findTxResponse = await findTransactionTxFromTxHistory(
+        txStateUpdate.sparkID,
+        transfersOffset,
+        cachedTransfers,
+        mnemonic,
+        sendWebViewRequest,
+        25,
+        2,
+      );
+      if (findTxResponse.offset && findTxResponse.foundTransfers) {
+        transfersOffset = findTxResponse.offset;
+        cachedTransfers = findTxResponse.foundTransfers;
+      }
+
+      if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer) continue;
+
+      const { offset, foundTransfers, bitcoinTransfer } = findTxResponse;
+      transfersOffset = offset;
+      cachedTransfers = foundTransfers;
+
+      if (!bitcoinTransfer) continue;
+      includesGift = true;
+      updatedTxs.push({
+        id: txStateUpdate.sparkID,
+        paymentStatus: getSparkPaymentStatus(bitcoinTransfer.status),
+        paymentType: 'spark',
+        accountId: txStateUpdate.accountId,
+      });
+    } else {
+      updatedTxs.push({
+        id: txStateUpdate.sparkID,
+        paymentStatus: 'completed',
+        paymentType: 'spark',
+        accountId: txStateUpdate.accountId,
+      });
+    }
+  }
+
+  return { updatedTxs, includesGift };
 }
