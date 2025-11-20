@@ -1129,7 +1129,7 @@
   "settings": {
     "index": {
       "editProfile": "Editar perfil",
-      "showQR": "Mostrar QR",
+      "showQR": "Código QR",
       "profileHead": "Perfil",
       "settingsHead": "Configurações"
     },
