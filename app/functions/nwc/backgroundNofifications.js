@@ -25,7 +25,6 @@ import NWCInvoiceManager from './cachedNWCTxs';
 import {NOSTR_RELAY_URL, NWC_IDENTITY_PUB_KEY} from '../../constants';
 import {finalizeEvent} from 'nostr-tools';
 import {getFunctions} from '@react-native-firebase/functions';
-import {Platform} from 'react-native';
 import fetchBackend from '../../../db/handleBackend';
 import {getLocalStorageItem} from '../localStorage';
 import sha256Hash from '../hash';
@@ -481,6 +480,33 @@ const handleGetBalance = async (selectedNWCAccount, fullStorageObject) => {
   };
 };
 
+const handleEventProcess = async (event, selectedNWCAccount) => {
+  for (const nwcEvent of event.requestObjects) {
+    console.log(nwcEvent, selectedNWCAccount);
+    const eventTemplate = {
+      kind: nwcEvent.notification_type === 'payment_received' ? 23196 : 0,
+      created_at: Math.floor(Date.now() / 1000),
+      tags: [
+        ['p', nwcEvent.event.clientPubKey],
+        // ['e', event.id],
+      ],
+      content: encriptMessage(
+        selectedNWCAccount.privateKey,
+        nwcEvent.event.clientPubKey,
+        JSON.stringify(nwcEvent.notification),
+      ),
+    };
+    console.log(eventTemplate);
+
+    const finalizedEvent = finalizeEvent(
+      eventTemplate,
+      Buffer.from(selectedNWCAccount.privateKey, 'hex'),
+    );
+
+    await publishToSingleRelay([finalizedEvent], RELAY_URL);
+  }
+};
+
 const processEvent = async (event, selectedNWCAccount) => {
   const {requestMethod, requestParams} = event;
 
@@ -490,6 +516,9 @@ const processEvent = async (event, selectedNWCAccount) => {
   let returnObject;
 
   switch (requestMethod) {
+    case 'publish_notification':
+      await handleEventProcess(event, selectedNWCAccount);
+      break;
     case 'get_info':
       returnObject = handleGetInfo(selectedNWCAccount);
       break;
@@ -621,7 +650,15 @@ export default async function handleNWCBackgroundEvent(notificationData) {
     const filteredEvents = newEvents
       .map((event, index) => {
         const selectedNWCAccount = nwcAccounts[event.pubkey];
-        const parsedData = decryptEventMessage(selectedNWCAccount, event);
+
+        let parsedData;
+        try {
+          const decoded = decryptEventMessage(selectedNWCAccount, event);
+          if (!decoded) throw new Error('ALready decoded');
+          parsedData = decoded;
+        } catch (err) {
+          parsedData = event;
+        }
 
         const {method: requestMethod, params: requestParams} = parsedData;
         const handledKey = `${event.clientPubKey}-${requestMethod}`;
@@ -634,7 +671,7 @@ export default async function handleNWCBackgroundEvent(notificationData) {
 
     await filteredEvents.forEach(async (event, index) => {
       const selectedNWCAccount = nwcAccounts[event.pubkey];
-      console.log(selectedNWCAccount, 'SELECTED NWC ACCOUNT');
+
       if (!selectedNWCAccount) return null;
 
       try {
