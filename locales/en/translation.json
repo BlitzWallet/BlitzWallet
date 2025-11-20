@@ -1725,7 +1725,11 @@
           "reclaimButton": "Reclaim Gift",
           "claimButton": "Accept Gift",
           "confirmMessage": "Your gift has been claimed, you will receive your funds shortly",
-          "defaultDesc": "Blitz Gift"
+          "defaultDesc": "Blitz Gift",
+          "claimingGiftMessage1": "Preparing Gift...",
+          "claimingGiftMessage2": "Getting Gift balance...",
+          "claimingGiftMessage3": "Balance was zero, retrying ({{attempt}} of {{attemps}})...",
+          "claimingGiftMessage4": "Claiming Gift..."
         }
       }
     }

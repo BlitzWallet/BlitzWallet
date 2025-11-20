@@ -1551,7 +1551,11 @@
           "reclaimButton": "Recuperar regalo",
           "claimButton": "Aceptar regalo",
           "confirmMessage": "Tu regalo ha sido reclamado; recibirás tus fondos en breve",
-          "defaultDesc": "Regalo Blitz"
+          "defaultDesc": "Regalo Blitz",
+          "claimingGiftMessage1": "Preparando el regalo...",
+          "claimingGiftMessage2": "Obteniendo el saldo del regalo...",
+          "claimingGiftMessage3": "El saldo era cero, reintentando ({{attempt}} de {{attemps}})...",
+          "claimingGiftMessage4": "Reclamando el regalo..."
         }
       }
     }

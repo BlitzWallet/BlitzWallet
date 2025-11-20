@@ -1706,7 +1706,11 @@
           "reclaimButton": "Geschenk zurückholen",
           "claimButton": "Geschenk annehmen",
           "confirmMessage": "Dein Geschenk wurde eingelöst; du erhältst deine Gelder in Kürze",
-          "defaultDesc": "Blitz-Geschenk"
+          "defaultDesc": "Blitz-Geschenk",
+          "claimingGiftMessage1": "Geschenk wird vorbereitet...",
+          "claimingGiftMessage2": "Geschenkguthaben wird abgerufen...",
+          "claimingGiftMessage3": "Guthaben war null, neuer Versuch ({{attempt}} von {{attemps}})...",
+          "claimingGiftMessage4": "Geschenk wird eingelöst..."
         }
       }
     }

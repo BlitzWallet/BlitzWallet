@@ -1724,7 +1724,11 @@
           "reclaimButton": "Reivindicar presente",
           "claimButton": "Aceitar presente",
           "confirmMessage": "Seu presente foi resgatado; você receberá seus fundos em breve",
-          "defaultDesc": "Presente Blitz"
+          "defaultDesc": "Presente Blitz",
+          "claimingGiftMessage1": "Preparando o presente...",
+          "claimingGiftMessage2": "Obtendo o saldo do presente...",
+          "claimingGiftMessage3": "O saldo era zero, tentando novamente ({{attempt}} de {{attemps}})...",
+          "claimingGiftMessage4": "Resgatando o presente..."
         }
       }
     }
