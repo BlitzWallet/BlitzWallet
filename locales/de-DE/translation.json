@@ -860,7 +860,7 @@
       "header": "Empfänger auswählen",
       "inputTextPlaceholder": "Benutzernamen suchen...",
       "subHeader": "Alle Kontakte",
-      "giftsText": "Meine Geschenke"
+      "giftsText": "Geschenke von Kontakten"
     },
     "cameraPage": {
       "noCameraAccess": "Kein Zugriff auf die Kamera",
@@ -1093,7 +1093,7 @@
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Geschenkkarte",
-        "noCardsText": "Ihre Geschenkkarten erscheinen hier, sobald Sie welche erhalten",
+        "noCardsText": "Deine Geschenkkarten werden hier angezeigt, wenn dir ein Kontakt eine sendet.",
         "header": "Ihre Geschenkkarten",
         "cardsLenghSingular": "{{num}} Karte",
         "cardsLenghPlurl": "{{num}} Karten"

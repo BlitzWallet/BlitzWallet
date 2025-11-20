@@ -866,7 +866,7 @@
       "header": "Seleziona destinatario",
       "inputTextPlaceholder": "Cerca username...",
       "subHeader": "Tutti i Contatti",
-      "giftsText": "I miei regali"
+      "giftsText": "Regali dai contatti"
     },
     "cameraPage": {
       "noCameraAccess": "Nessun accesso alla fotocamera",
@@ -1104,7 +1104,7 @@
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Buono regalo",
-        "noCardsText": "I tuoi buoni regalo appariranno qui una volta ricevuti",
+        "noCardsText": "Le tue gift card appariranno qui quando un contatto te ne invierà una.",
         "header": "Le tue carte regalo",
         "cardsLenghSingular": "{{num}} carta",
         "cardsLenghPlurl": "{{num}} carte"

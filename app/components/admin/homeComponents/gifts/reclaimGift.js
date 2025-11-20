@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
@@ -12,7 +12,7 @@ import {
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useGifts } from '../../../../../context-store/giftContext';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import { useTranslation } from 'react-i18next';
@@ -52,6 +52,15 @@ export default function ReclaimGift({ theme }) {
   const handleDropdownSelection = item => {
     setEnteredLink(item.data.uuid);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (!enteredLink) return;
+        setEnteredLink('');
+      };
+    }, [enteredLink]),
+  );
 
   return (
     <View style={styles.container}>

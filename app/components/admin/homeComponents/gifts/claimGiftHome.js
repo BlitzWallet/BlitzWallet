@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
@@ -12,7 +12,7 @@ import {
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import GetThemeColors from '../../../../hooks/themeColors';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
 
@@ -46,7 +46,14 @@ export default function ClaimGiftHome({ theme }) {
       }, 300);
     }
   };
-
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (!enteredLink) return;
+        setEnteredLink('');
+      };
+    }, [enteredLink]),
+  );
   return (
     <View style={styles.container}>
       <KeyboardAwareScrollView

@@ -866,7 +866,7 @@
       "header": "Select recipient",
       "inputTextPlaceholder": "Search username...",
       "subHeader": "All Contacts",
-      "giftsText": "My Gifts"
+      "giftsText": "Gifts from Contacts"
     },
     "cameraPage": {
       "noCameraAccess": "No access to camera",
@@ -1107,7 +1107,7 @@
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Gift Card",
-        "noCardsText": "Your gift cards will appear here once you receive them",
+        "noCardsText": "Your gift cards will appear here when a contact sends you one.",
         "header": "Your Gift Cards",
         "cardsLenghSingular": "{{num}} card",
         "cardsLenghPlurl": "{{num}} cards"
