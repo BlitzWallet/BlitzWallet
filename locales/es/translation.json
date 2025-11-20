@@ -715,7 +715,7 @@
       "header": "Seleccionar destinatario",
       "inputTextPlaceholder": "Buscar nombre de usuario...",
       "subHeader": "Todos los contactos",
-      "giftsText": "Mis regalos"
+      "giftsText": "Regalos de contactos"
     },
     "cameraPage": {
       "noCameraAccess": "Sin acceso a la cámara",
@@ -947,7 +947,7 @@
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Tarjeta regalo",
-        "noCardsText": "Tus tarjetas regalo aparecerán aquí una vez que las recibas",
+        "noCardsText": "Tus tarjetas de regalo aparecerán aquí cuando un contacto te envíe una.",
         "header": "Tus tarjetas regalo",
         "cardsLenghSingular": "{{num}} tarjeta",
         "cardsLenghPlurl": "{{num}} tarjetas"
