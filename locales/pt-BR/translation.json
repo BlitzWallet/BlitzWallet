@@ -1692,7 +1692,7 @@
 
         "claimHome": {
           "header": "Insira o link do vale-bitcoin",
-          "desc": "Cole o link recebido ou leia o código QR para resgatar seu vale-bitcoin",
+          "desc": "Cole o link recebido ou leia o código QR para resgatar o vale-bitcoin",
           "inputPlaceholder": "Insira o link do vale-bitcoin",
           "claim": "Resgatar"
         },
