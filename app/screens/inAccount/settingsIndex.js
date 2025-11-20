@@ -30,6 +30,13 @@ import ContactProfileImage from '../../components/admin/homeComponents/contacts/
 import { Image } from 'expo-image';
 import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { supportedLanguagesList } from '../../../locales/localeslist';
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolation,
+} from 'react-native-reanimated';
 
 const PREFERENCES = [
   {
@@ -312,6 +319,8 @@ const DOOMSDAYSETTINGS = [
   ],
 ];
 
+const SCROLL_THRESHOLD = 340;
+
 export default function SettingsIndex(props) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet } = useAppStatus();
@@ -323,6 +332,82 @@ export default function SettingsIndex(props) {
   const isDoomsday = props?.route?.params?.isDoomsday;
   const navigate = useNavigation();
   useHandleBackPressNew();
+
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: event => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
+  // Animated styles for share icon
+  const shareIconStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollY.value,
+      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
+      [1, 0],
+      Extrapolation.CLAMP,
+    );
+
+    const translateY = interpolate(
+      scrollY.value,
+      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
+      [0, -10],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      opacity,
+      transform: [{ translateY }],
+    };
+  });
+
+  // Animated styles for "Profile" text
+  const profileTextStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollY.value,
+      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
+      [1, 0],
+      Extrapolation.CLAMP,
+    );
+
+    const translateY = interpolate(
+      scrollY.value,
+      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
+      [0, -10],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      opacity,
+      transform: [{ translateY }],
+      position: 'absolute',
+    };
+  });
+
+  // Animated styles for "Settings" text
+  const settingsTextStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollY.value,
+      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
+      [0, 1],
+      Extrapolation.CLAMP,
+    );
+
+    const translateY = interpolate(
+      scrollY.value,
+      [SCROLL_THRESHOLD - 50, SCROLL_THRESHOLD],
+      [10, 0],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      opacity,
+      transform: [{ translateY }],
+      position: 'absolute',
+    };
+  });
 
   const settignsList = isDoomsday ? DOOMSDAYSETTINGS : SETTINGSOPTIONS;
   const myProfileImage = cache[masterInfoObject?.uuid];
@@ -466,20 +551,55 @@ export default function SettingsIndex(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-      <CustomSettingsTopBar
-        // label={t('screens.inAccount.settingsContent.settings')}
-        showLeftImage={true}
-        leftImageBlue={ICONS.share}
-        LeftImageDarkMode={ICONS.shareWhite}
-        leftImageFunction={() => {
-          Share.share({
-            message: `${t('share.contact')}\nhttps://blitzwalletapp.com/u/${
-              myContact.uniqueName
-            }`,
-          });
-        }}
-      />
-      <ScrollView
+      <View style={styles.customTopbar}>
+        <TouchableOpacity style={styles.goBackTopbar} onPress={navigate.goBack}>
+          <ThemeImage
+            lightModeIcon={ICONS.smallArrowLeft}
+            darkModeIcon={ICONS.smallArrowLeft}
+            lightsOutIcon={ICONS.arrow_small_left_white}
+          />
+        </TouchableOpacity>
+
+        <View style={styles.headerTextContainer}>
+          <Animated.View style={profileTextStyle}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.topBarLabel}
+              content={'Profile'}
+            />
+          </Animated.View>
+
+          <Animated.View style={settingsTextStyle}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.topBarLabel}
+              content={'Settings'}
+            />
+          </Animated.View>
+        </View>
+
+        <Animated.View style={shareIconStyle}>
+          <TouchableOpacity
+            onPress={() => {
+              Share.share({
+                message: `${t('share.contact')}\nhttps://blitzwalletapp.com/u/${
+                  myContact.uniqueName
+                }`,
+              });
+            }}
+          >
+            <ThemeImage
+              lightModeIcon={ICONS.share}
+              darkModeIcon={ICONS.share}
+              lightsOutIcon={ICONS.shareWhite}
+            />
+          </TouchableOpacity>
+        </Animated.View>
+      </View>
+
+      <Animated.ScrollView
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollAign}
         style={styles.settingsContainer}
@@ -636,7 +756,7 @@ export default function SettingsIndex(props) {
             <BlitzSocialOptions />
           </>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
     </GlobalThemeView>
   );
 }
@@ -648,7 +768,25 @@ const styles = StyleSheet.create({
     width: '100%',
     ...CENTER,
   },
-
+  customTopbar: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  goBackTopbar: { marginRight: 'auto' },
+  topBarLabel: {
+    fontSize: SIZES.large,
+    flexShrink: 1,
+  },
+  headerTextContainer: {
+    width: '100%',
+    paddingHorizontal: 35,
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   profileImage: {
     width: 125,
     height: 125,

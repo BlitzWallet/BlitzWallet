@@ -968,7 +968,9 @@
   "settings": {
     "index": {
       "editProfile": "Editar perfil",
-      "showQR": "Mostrar QR"
+      "showQR": "Mostrar QR",
+      "profileHead": "Perfil",
+      "settingsHead": "Configuración"
     },
     "about": {
       "header1": "Software",

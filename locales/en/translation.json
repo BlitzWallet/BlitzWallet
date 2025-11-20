@@ -1129,7 +1129,9 @@
   "settings": {
     "index": {
       "editProfile": "Edit Profile",
-      "showQR": "Show QR"
+      "showQR": "Show QR",
+      "profileHead": "Profile",
+      "settingsHead": "Settings"
     },
     "about": {
       "header1": "Software",
