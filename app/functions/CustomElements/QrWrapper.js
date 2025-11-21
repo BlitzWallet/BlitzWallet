@@ -37,6 +37,8 @@ export default function QrCodeWrapper({
   const imageData = cache[masterInfoObject.uuid];
   const image = cache[masterInfoObject.uuid]?.localUri;
 
+  const imageSize = Math.round(qrSize * 0.23);
+
   const content = QRData || t('constants.noData');
 
   return (
@@ -55,14 +57,19 @@ export default function QrCodeWrapper({
           value={content}
           color={COLORS.lightModeText}
           backgroundColor={COLORS.darkModeText}
-          logo={createTransparentLogo(65)} //placeholder
-          logoSize={65}
+          logo={createTransparentLogo(imageSize)} //placeholder
+          logoSize={imageSize}
           logoMargin={logoMargin}
           logoBorderRadius={logoBorderRadius}
           logoBackgroundColor={COLORS.darkModeText}
         />
       </View>
-      <View style={styles.qrImageContainer}>
+      <View
+        style={[
+          styles.qrImageContainer,
+          { width: imageSize - 5, height: imageSize - 5 },
+        ]}
+      >
         <ContactProfileImage
           updated={imageData?.updated}
           uri={imageData?.uri}
