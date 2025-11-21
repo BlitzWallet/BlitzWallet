@@ -46,7 +46,7 @@ export default function ConfirmTxPage(props) {
 
   const paymentNetwork = paymentInformation?.sendingUUID
     ? t('screens.inAccount.expandedTxPage.contactPaymentType')
-    : transaction.details.isGift
+    : paymentInformation?.isGift
     ? t('constants.isGift')
     : transaction?.paymentType;
 
@@ -60,7 +60,7 @@ export default function ConfirmTxPage(props) {
 
   const isLRC20Payment = paymentInformation?.isLRC20Payment;
   const token = isLRC20Payment
-    ? sparkInformation.tokens?.[transaction.details.LRC20Token]
+    ? sparkInformation.tokens?.[paymentInformation?.LRC20Token]
     : '';
 
   const formattedTokensBalance = formatTokensNumber(
