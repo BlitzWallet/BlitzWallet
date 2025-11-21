@@ -114,18 +114,21 @@ export default function GiftConfirmation({
         <View
           style={[
             styles.card,
-            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
+            {
+              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+              padding: 10,
+            },
           ]}
         >
           <QrCodeWrapper
             outerContainerStyle={{
               backgroundColor: 'unset',
-              width: 220,
-              height: 220,
+              width: 250,
+              height: 250,
               overflow: 'hidden',
             }}
             QRData={giftLink}
-            qrSize={220}
+            qrSize={250}
           />
         </View>
 
@@ -199,7 +202,9 @@ export default function GiftConfirmation({
         <View
           style={[
             styles.card,
-            { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
+            {
+              backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
+            },
           ]}
         >
           <ThemeText
