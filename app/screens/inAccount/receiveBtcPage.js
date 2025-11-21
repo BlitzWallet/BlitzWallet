@@ -173,6 +173,13 @@ export default function ReceivePaymentHome(props) {
 
   return (
     <GlobalThemeView useStandardWidth={true}>
+      <CustomSettingsTopBar
+        showLeftImage={true}
+        leftImageBlue={ICONS.share}
+        LeftImageDarkMode={ICONS.shareWhite}
+        leftImageFunction={handleShare}
+        label={t('constants.receive')}
+      />
       <ScrollView
         contentContainerStyle={{
           flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
@@ -190,14 +197,6 @@ export default function ReceivePaymentHome(props) {
             flexGrow: contentHeight > screenDimensions.height ? 0 : 1,
           }}
         >
-          <CustomSettingsTopBar
-            showLeftImage={true}
-            leftImageBlue={ICONS.share}
-            LeftImageDarkMode={ICONS.shareWhite}
-            leftImageFunction={handleShare}
-            label={t('constants.receive')}
-          />
-
           <ThemeText
             styles={styles.title}
             content={t('screens.inAccount.receiveBtcPage.header', {
