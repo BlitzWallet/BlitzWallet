@@ -107,7 +107,11 @@ export default function ReclaimGift({ theme }) {
             >
               {!hasExpiredGift && (
                 <ThemeText
-                  styles={{ textAlign: 'center', fontSize: SIZES.small }}
+                  styles={{
+                    textAlign: 'center',
+                    fontSize: SIZES.small,
+                    includeFontPadding: false,
+                  }}
                   content={t(
                     'screens.inAccount.giftPages.reclaimPage.noReclaimsMessage',
                   )}

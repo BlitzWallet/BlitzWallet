@@ -181,6 +181,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
             />
           </View>
           <ThemeText
+            styles={styles.title}
             content={t('screens.inAccount.giftPages.giftsOverview.noGiftsHead')}
           />
           <ThemeText
@@ -258,16 +259,25 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
+    backgroundColor: '#ffffff',
+    borderWidth: 2,
+    borderColor: '#e5e5e5',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 30,
-    backgroundColor: COLORS.darkModeText,
+    marginBottom: 32,
+  },
+  title: {
+    fontSize: SIZES.large,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   noGiftsDesc: {
     width: INSET_WINDOW_WIDTH,
     textAlign: 'center',
-    opacity: 0.7,
+    opacity: 0.6,
     marginTop: 10,
+    fontSize: SIZES.small,
+    lineHeight: 20,
   },
   createGiftCont: {
     paddingVertical: 15,
