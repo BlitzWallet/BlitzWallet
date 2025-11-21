@@ -47,7 +47,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
-  const { backgroundOffset } = GetThemeColors();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const [giftDetails, setGiftDetails] = useState({});
   const [isClaiming, setIsClaiming] = useState(false);
   const { t } = useTranslation();
@@ -376,7 +376,15 @@ export default function ClaimGiftScreen({ url, claimType }) {
             : t('screens.inAccount.giftPages.claimPage.claimHead')
         }
       />
-      <View style={[styles.border, { backgroundColor: backgroundOffset }]} />
+      <View
+        style={[
+          styles.border,
+          {
+            backgroundColor:
+              theme && darkModeType ? backgroundColor : backgroundOffset,
+          },
+        ]}
+      />
 
       {isClaiming ? (
         <FullLoadingScreen
@@ -393,7 +401,10 @@ export default function ClaimGiftScreen({ url, claimType }) {
           <View
             style={[
               styles.amountContainer,
-              { backgroundColor: backgroundOffset },
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundColor : backgroundOffset,
+              },
             ]}
           >
             <ThemeText
