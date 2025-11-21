@@ -33,6 +33,7 @@ import { copyToClipboard } from '../../../../functions';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
 import { useTranslation } from 'react-i18next';
+import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -116,14 +117,16 @@ export default function GiftConfirmation({
             { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
           ]}
         >
-          <View style={styles.qrContainer}>
-            <QRCode
-              value={giftLink}
-              size={200}
-              color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-              backgroundColor={containerBackgrounds}
-            />
-          </View>
+          <QrCodeWrapper
+            outerContainerStyle={{
+              backgroundColor: 'unset',
+              width: 220,
+              height: 220,
+              overflow: 'hidden',
+            }}
+            QRData={giftLink}
+            qrSize={220}
+          />
         </View>
 
         {/* Gift Details */}
@@ -311,13 +314,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     marginBottom: 24,
-  },
-  qrContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 16,
   },
   cardHeader: {
     flexDirection: 'row',
