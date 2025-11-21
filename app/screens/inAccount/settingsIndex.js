@@ -37,6 +37,8 @@ import Animated, {
   interpolate,
   Extrapolation,
 } from 'react-native-reanimated';
+import { useToast } from '../../../context-store/toastManager';
+import { copyToClipboard } from '../../functions';
 
 const PREFERENCES = [
   {
@@ -322,6 +324,7 @@ const DOOMSDAYSETTINGS = [
 const SCROLL_THRESHOLD = 340;
 
 export default function SettingsIndex(props) {
+  const { showToast } = useToast();
   const { masterInfoObject } = useGlobalContextProvider();
   const { isConnectedToTheInternet } = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -549,6 +552,10 @@ export default function SettingsIndex(props) {
     currentLangugage,
   ]);
 
+  const handleUserNameCopy = () => {
+    copyToClipboard(myContact.uniqueName, showToast);
+  };
+
   return (
     <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
       <View style={styles.customTopbar}>
@@ -631,12 +638,13 @@ export default function SettingsIndex(props) {
             styles={{ opacity: myContact.name ? 0.5 : 0.8 }}
             content={myContact.name || t('constants.annonName')}
           />
-
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={styles.profileUniqueName}
-            content={`@${myContact.uniqueName}`}
-          />
+          <TouchableOpacity onPress={handleUserNameCopy}>
+            <ThemeText
+              CustomNumberOfLines={1}
+              styles={styles.profileUniqueName}
+              content={`@${myContact.uniqueName}`}
+            />
+          </TouchableOpacity>
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
