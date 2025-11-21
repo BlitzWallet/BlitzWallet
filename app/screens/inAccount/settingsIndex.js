@@ -565,7 +565,7 @@ export default function SettingsIndex(props) {
             <ThemeText
               CustomNumberOfLines={1}
               styles={styles.topBarLabel}
-              content={'Profile'}
+              content={t('settings.index.profileHead')}
             />
           </Animated.View>
 
@@ -573,7 +573,7 @@ export default function SettingsIndex(props) {
             <ThemeText
               CustomNumberOfLines={1}
               styles={styles.topBarLabel}
-              content={'Settings'}
+              content={t('settings.index.settingsHead')}
             />
           </Animated.View>
         </View>
