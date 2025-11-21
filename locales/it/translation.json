@@ -1728,8 +1728,10 @@
           "confirmMessage": "Il tuo regalo è stato riscattato; riceverai i tuoi fondi a breve",
           "defaultDesc": "Regalo Blitz",
           "claimingGiftMessage1": "Preparazione del regalo...",
-          "claimingGiftMessage2": "Recupero del saldo del regalo...",
-          "claimingGiftMessage3": "Il saldo era zero, nuovo tentativo ({{attempt}} di {{attemps}})...",
+          "giftBalanceMessage_0": "Un momento mentre prepariamo tutto...",
+          "giftBalanceMessage_1": "Stiamo recuperando le informazioni del tuo regalo...",
+          "giftBalanceMessage_2": "Quasi fatto—per favore tieni l’app aperta...",
+          "giftBalanceMessage_3": "Stiamo completando gli ultimi passaggi...",
           "claimingGiftMessage4": "Riscatto del regalo..."
         }
       }

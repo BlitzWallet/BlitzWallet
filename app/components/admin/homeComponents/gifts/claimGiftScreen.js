@@ -155,7 +155,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
     let attempt = 0;
 
     setClaimStatus(
-      t('screens.inAccount.giftPages.claimPage.claimingGiftMessage2'),
+      t('screens.inAccount.giftPages.claimPage.giftBalanceMessage_0'),
     );
 
     let result = await getSparkBalance(seed);
@@ -166,9 +166,8 @@ export default function ClaimGiftScreen({ url, claimType }) {
     for (const delay of delays) {
       attempt++;
       setClaimStatus(
-        t('screens.inAccount.giftPages.claimPage.claimingGiftMessage3', {
-          attempt,
-          attemps: delays.length,
+        t('screens.inAccount.giftPages.claimPage.giftBalanceMessage', {
+          context: attempt,
         }),
       );
 
@@ -381,10 +380,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
 
       {isClaiming ? (
         <FullLoadingScreen
-          textStyles={{
-            textAlign: 'center',
-            width: INSET_WINDOW_WIDTH,
-          }}
+          textStyles={styles.claimingMessage}
           text={
             claimStatus ||
             (claimType === 'reclaim'
@@ -480,4 +476,9 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   confirmMessage: { textAlign: 'center', marginBottom: 'auto' },
+  claimingMessage: {
+    textAlign: 'center',
+    width: INSET_WINDOW_WIDTH,
+    minHeight: 80,
+  },
 });

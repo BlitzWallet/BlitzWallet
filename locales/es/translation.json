@@ -1556,8 +1556,10 @@
           "confirmMessage": "Tu regalo ha sido reclamado; recibirás tus fondos en breve",
           "defaultDesc": "Regalo Blitz",
           "claimingGiftMessage1": "Preparando el regalo...",
-          "claimingGiftMessage2": "Obteniendo el saldo del regalo...",
-          "claimingGiftMessage3": "El saldo era cero, reintentando ({{attempt}} de {{attemps}})...",
+          "giftBalanceMessage_0": "Un momento mientras preparamos todo...",
+          "giftBalanceMessage_1": "Estamos recopilando la información de tu regalo...",
+          "giftBalanceMessage_2": "Ya casi—por favor mantén la app abierta...",
+          "giftBalanceMessage_3": "Terminando los últimos pasos...",
           "claimingGiftMessage4": "Reclamando el regalo..."
         }
       }

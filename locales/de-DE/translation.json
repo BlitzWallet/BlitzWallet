@@ -1711,8 +1711,10 @@
           "confirmMessage": "Dein Geschenk wurde eingelöst; du erhältst deine Gelder in Kürze",
           "defaultDesc": "Blitz-Geschenk",
           "claimingGiftMessage1": "Geschenk wird vorbereitet...",
-          "claimingGiftMessage2": "Geschenkguthaben wird abgerufen...",
-          "claimingGiftMessage3": "Guthaben war null, neuer Versuch ({{attempt}} von {{attemps}})...",
+          "giftBalanceMessage_0": "Einen Moment, wir bereiten alles vor...",
+          "giftBalanceMessage_1": "Wir sammeln die Informationen zu deinem Geschenk...",
+          "giftBalanceMessage_2": "Gleich geschafft—bitte lass die App geöffnet...",
+          "giftBalanceMessage_3": "Wir schließen die letzten Schritte ab...",
           "claimingGiftMessage4": "Geschenk wird eingelöst..."
         }
       }

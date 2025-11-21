@@ -1730,8 +1730,10 @@
           "confirmMessage": "Your gift has been claimed, you will receive your funds shortly",
           "defaultDesc": "Blitz Gift",
           "claimingGiftMessage1": "Preparing Gift...",
-          "claimingGiftMessage2": "Getting Gift balance...",
-          "claimingGiftMessage3": "Balance was zero, retrying ({{attempt}} of {{attemps}})...",
+          "giftBalanceMessage_0": "Just a moment while we get things ready...",
+          "giftBalanceMessage_1": "We’re gathering your gift information...",
+          "giftBalanceMessage_2": "Almost there—please keep the app open...",
+          "giftBalanceMessage_3": "Finishing up the last steps...",
           "claimingGiftMessage4": "Claiming Gift..."
         }
       }
