@@ -1726,11 +1726,11 @@
           "buttonTextClaiming": "Resgatando",
           "reclaimButton": "Reivindicar vale-bitcoin",
           "claimButton": "Aceitar vale-bitcoin",
-          "confirmMessage": "Seu vale-bitcoin foi resgatado; você receberá seus fundos em breve",
+          "confirmMessage": "O vale-bitcoin foi resgatado; você receberá seus fundos em breve",
           "defaultDesc": "Vale-bitcoin Blitz",
           "claimingGiftMessage1": "Preparando o vale-bitcoin...",
           "giftBalanceMessage_0": "Só um instante enquanto preparamos tudo...",
-          "giftBalanceMessage_1": "Estamos obtendo as informações do seu presente...",
+          "giftBalanceMessage_1": "Estamos obtendo as informações do vale-bitcoin...",
           "giftBalanceMessage_2": "Quase lá—por favor mantenha o app aberto...",
           "giftBalanceMessage_3": "Finalizando os últimos passos...",
           "claimingGiftMessage4": "Resgatando o vale-bitcoin..."
