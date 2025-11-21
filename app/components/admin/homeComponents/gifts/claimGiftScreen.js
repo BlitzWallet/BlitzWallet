@@ -151,7 +151,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
   };
 
   const getBalanceWithStatusRetry = async seed => {
-    const delays = [5000, 5000, 5000];
+    const delays = [5000, 7000, 8000];
     let attempt = 0;
 
     setClaimStatus(
