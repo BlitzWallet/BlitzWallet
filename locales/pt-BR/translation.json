@@ -1103,7 +1103,7 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} seu pedido",
         "acceptProfileMessage": "Pago {{name}}'s pedido",
         "acceptPayingContactMessage": "{{name}} pagou seu pedido",
-        "requestTitle": "Peddo recebido para "
+        "requestTitle": "Pedido recebido para "
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Cartão-presente",
@@ -1166,8 +1166,8 @@
       "appearance": "Aparência",
       "theme": "Tema",
       "light": "Claro",
-      "lightsOut": "Preto escuro",
-      "dim": "Azul escuro",
+      "lightsOut": "Escuro - preto",
+      "dim": "Escuro - azul",
       "balDisplay": "Exibição do saldo",
       "prev": "Prévia",
       "denomination": "Denominação",
