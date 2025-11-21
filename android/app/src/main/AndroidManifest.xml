@@ -133,6 +133,27 @@
           <data android:scheme="https" android:host="blitzwallet.app" android:pathPrefix="/u"/>
         </intent-filter>
 
+         <intent-filter android:autoVerify="true">
+          <action android:name="android.intent.action.VIEW"/>
+          <category android:name="android.intent.category.DEFAULT"/>
+          <category android:name="android.intent.category.BROWSABLE"/>
+          <data android:scheme="https" android:host="blitz-wallet.com" android:pathPrefix="/gift"/>
+        </intent-filter>
+
+        <intent-filter android:autoVerify="true">
+          <action android:name="android.intent.action.VIEW"/>
+          <category android:name="android.intent.category.DEFAULT"/>
+          <category android:name="android.intent.category.BROWSABLE"/>
+          <data android:scheme="https" android:host="blitzwalletapp.com" android:pathPrefix="/gift"/>
+        </intent-filter>
+
+        <intent-filter android:autoVerify="true">
+          <action android:name="android.intent.action.VIEW"/>
+          <category android:name="android.intent.category.DEFAULT"/>
+          <category android:name="android.intent.category.BROWSABLE"/>
+          <data android:scheme="https" android:host="blitzwallet.app" android:pathPrefix="/gift"/>
+        </intent-filter>
+
       </activity>
     </application>
 </manifest>
