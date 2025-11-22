@@ -1698,7 +1698,7 @@
         },
 
         "reclaimPage": {
-          "header": "Reivindicar seu vale-bitcoin",
+          "header": "Reivindicar vale-bitcoin expirado",
           "desc": "Digite ou escolha o ID do vale-bitcoin para recuperar um vale-bitcoin expirado ou não resgatado.",
           "inputPlaceholder": "Digite o ID do vale-bitcoin",
           "dropdownPlaceHolder": "Selecionar vale-bitcoin expirado",
