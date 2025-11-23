@@ -114,8 +114,8 @@
     "invoice": "Fatura",
     "annonName": "Usuário anônimo",
     "claim": "Resgatar",
-    "manage": "Emitido",
-    "reclaim": "Expirado",
+    "manage": "Emitidos",
+    "reclaim": "Expirados",
     "optionalFlag": "(Opcional)",
     "gift": "Presente"
   },
