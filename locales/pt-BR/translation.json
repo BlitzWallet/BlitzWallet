@@ -1713,7 +1713,7 @@
           "noGiftSeed": "Não conseguimos acessar o vale-bitcoin. Tente novamente mais tarde.",
           "giftWalletInitError": "Não conseguimos acessar o vale-bitcoin. Tente novamente mais tarde.",
           "noBalanceErrorReclaim": "Não há fundos restantes para resgatar.",
-          "notExpired": "Você ainda não pode resgatar este vale-bitcoin.",
+          "notExpired": "Você ainda não pode recuperar este vale-bitcoin.",
           "nobalanceError": "O valor restante após taxas é muito baixo.",
           "paymentError": "Não foi possível resgatar o vale-bitcoin.",
           "claimHead": "Aceitar vale-bitcoin",
