@@ -208,8 +208,7 @@ export default function CustomHalfModal(props) {
           <ManualEnterSendAddress
             setContentHeight={setContentHeight}
             setIsKeyboardActive={setIsKeyboardActive}
-            theme={theme}
-            darkModeType={darkModeType}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
       case 'addPOSItemsHalfModal':
