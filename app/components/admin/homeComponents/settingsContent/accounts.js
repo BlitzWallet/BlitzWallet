@@ -47,7 +47,7 @@ const AccountRow = React.memo(
   }) => {
     const isMainWallet = account.name === 'Main Wallet';
     const isNWC = account.name === 'NWC';
-    const isSpecialAccount = isMainWallet || isNWC;
+    const isSpecialAccount = isMainWallet;
     const isActive = currentWalletMnemoinc === account.mnemoinc;
     const isAccountLoading =
       isLoading.accountBeingLoaded === account.mnemoinc && isLoading.isLoading;
@@ -66,9 +66,8 @@ const AccountRow = React.memo(
     }, [isExpanded]);
 
     const expandedStyle = useAnimatedStyle(() => ({
-      height: expandHeight.value * 90,
+      height: expandHeight.value * (50 * (isNWC ? 1 : 2)),
       opacity: expandHeight.value,
-      marginTop: expandHeight.value * 12,
     }));
 
     const chevronStyle = useAnimatedStyle(() => ({
@@ -149,7 +148,6 @@ const AccountRow = React.memo(
             <TouchableOpacity
               style={styles.expandIcon}
               onPress={() => {
-                console.log(isSpecialAccount);
                 if (!isSpecialAccount) {
                   onToggleExpand(account.mnemoinc);
                 }
@@ -182,21 +180,23 @@ const AccountRow = React.memo(
               />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.expandedAction}
-              onPress={() => onNavigateEdit(account)}
-            >
-              <ThemeImage
-                styles={styles.actionIcon}
-                lightModeIcon={ICONS.settingsIcon}
-                darkModeIcon={ICONS.settingsIcon}
-                lightsOutIcon={ICONS.settingsWhite}
-              />
-              <ThemeText
-                styles={styles.actionText}
-                content={t('settings.accountComponents.homepage.editAccount')}
-              />
-            </TouchableOpacity>
+            {!isNWC && (
+              <TouchableOpacity
+                style={styles.expandedAction}
+                onPress={() => onNavigateEdit(account)}
+              >
+                <ThemeImage
+                  styles={styles.actionIcon}
+                  lightModeIcon={ICONS.settingsIcon}
+                  darkModeIcon={ICONS.settingsIcon}
+                  lightsOutIcon={ICONS.settingsWhite}
+                />
+                <ThemeText
+                  styles={styles.actionText}
+                  content={t('settings.accountComponents.homepage.editAccount')}
+                />
+              </TouchableOpacity>
+            )}
           </Animated.View>
         )}
 
@@ -564,9 +564,9 @@ const styles = StyleSheet.create({
     paddingLeft: 18,
   },
   expandedAction: {
+    height: 50,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
     gap: 14,
   },
   actionIcon: {
