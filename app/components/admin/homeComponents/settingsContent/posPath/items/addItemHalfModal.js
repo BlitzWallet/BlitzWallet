@@ -10,7 +10,10 @@ import { useGlobalThemeContext } from '../../../../../../../context-store/theme'
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { HIDDEN_OPACITY } from '../../../../../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+} from '../../../../../../constants/theme';
 
 export default function AddPOSItemHalfModal({
   setIsKeyboardActive,
@@ -170,7 +173,7 @@ export default function AddPOSItemHalfModal({
             textInputRef={priceInputRef}
             inputText={String(itemInformation.price)}
             setInputText={event => handleInput(event, 'price')}
-            keyboardType={'number-pad'}
+            keyboardType={'decimal-pad'}
             placeholderText={t(
               'settings.posPath.items.addItemHalfModal.pricePlaceholder',
               { number: masterInfoObject?.posSettings?.storeCurrency },
@@ -206,7 +209,7 @@ export default function AddPOSItemHalfModal({
 const styles = StyleSheet.create({
   halfModalContainer: {
     flex: 1,
-    width: '95%',
+    width: INSET_WINDOW_WIDTH,
     ...CENTER,
   },
   textInputContainer: {
