@@ -1,35 +1,39 @@
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
 } from '../../../../../constants';
-import {CountryCodeList} from 'react-native-country-picker-modal';
+import { CountryCodeList } from 'react-native-country-picker-modal';
 import CountryFlag from 'react-native-country-flag';
-import {getCountryInfoAsync} from 'react-native-country-picker-modal/lib/CountryService';
-import {useCallback, useRef, useState} from 'react';
-import {useGlobalAppData} from '../../../../../../context-store/appData';
-import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
+import { getCountryInfoAsync } from 'react-native-country-picker-modal/lib/CountryService';
+import { useCallback, useRef, useState } from 'react';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
+import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {useKeysContext} from '../../../../../../context-store/keys';
+import { useKeysContext } from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import {keyboardGoBack} from '../../../../../functions/customNavigation';
+import {
+  keyboardGoBack,
+  keyboardNavigate,
+} from '../../../../../functions/customNavigation';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import Icon from '../../../../../functions/CustomElements/Icon';
-import {useTranslation} from 'react-i18next';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
+import { useTranslation } from 'react-i18next';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 
 export default function CountryList(props) {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {toggleGlobalAppDataInformation, decodedGiftCards} = useGlobalAppData();
-  const {bottomPadding} = useGlobalInsets();
-  const {textColor, backgroundOffset} = GetThemeColors();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { toggleGlobalAppDataInformation, decodedGiftCards } =
+    useGlobalAppData();
+  const { bottomPadding } = useGlobalInsets();
+  const { textColor, backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
   const [allCountries, setAllCountries] = useState([]);
   const [searchInput, setSearchInput] = useState('');
@@ -38,7 +42,7 @@ export default function CountryList(props) {
   const ISOCode = decodedGiftCards?.profile?.isoCode;
   const onlyReturn = props?.route?.params?.onlyReturn;
   const pageName = props?.route?.params?.pageName;
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
   useFocusEffect(
@@ -48,8 +52,8 @@ export default function CountryList(props) {
         const retriveCountries = async () => {
           const countryInfoList = await Promise.all(
             CountryCodeList.map(async code => {
-              const info = await getCountryInfoAsync({countryCode: code});
-              return {...info, code};
+              const info = await getCountryInfoAsync({ countryCode: code });
+              return { ...info, code };
             }),
           );
           return countryInfoList;
@@ -57,7 +61,7 @@ export default function CountryList(props) {
         const response = await retriveCountries();
         if (onlyReturn) {
           setAllCountries([
-            {code: 'WW', countryName: 'World Wide'},
+            { code: 'WW', countryName: 'World Wide' },
             ...response,
           ]);
         } else {
@@ -78,7 +82,13 @@ export default function CountryList(props) {
       if (didClick.current) return;
       didClick.current = true;
       if (onlyReturn) {
-        navigate.popTo(pageName, {removeUserLocal: isoCode}, {merge: true});
+        keyboardNavigate(() =>
+          navigate.popTo(
+            pageName,
+            { removeUserLocal: isoCode },
+            { merge: true },
+          ),
+        );
         return;
       }
       const em = encriptMessage(
@@ -93,9 +103,9 @@ export default function CountryList(props) {
         }),
       );
 
-      toggleGlobalAppDataInformation({giftCards: em}, true);
+      toggleGlobalAppDataInformation({ giftCards: em }, true);
 
-      navigate.goBack();
+      keyboardGoBack(navigate);
       didClick.current = false;
     },
     [
@@ -114,7 +124,7 @@ export default function CountryList(props) {
   );
 
   const flatListElement = useCallback(
-    ({index, item}) => {
+    ({ index, item }) => {
       if (!item) return null;
       return (
         <TouchableOpacity
@@ -125,7 +135,8 @@ export default function CountryList(props) {
             flexDirection: 'row',
             marginVertical: 20,
             alignItems: 'center',
-          }}>
+          }}
+        >
           {item.code === 'WW' ? (
             <View
               style={{
@@ -135,7 +146,8 @@ export default function CountryList(props) {
                 justifyContent: 'center',
                 borderRadius: 8,
                 backgroundColor: backgroundOffset,
-              }}>
+              }}
+            >
               <Icon color={textColor} name={'globeIcon'} />
             </View>
           ) : (
@@ -167,7 +179,8 @@ export default function CountryList(props) {
       globalThemeViewStyles={{
         paddingBottom: isKeyboardActive ? CONTENT_KEYBOARD_OFFSET : 0,
       }}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       <CustomSettingsTopBar customBackFunction={keyboardDismissBack} />
       <CustomSearchInput
         inputText={searchInput}
@@ -181,7 +194,7 @@ export default function CountryList(props) {
         <FlatList
           contentContainerStyle={[
             styles.flatlist,
-            {paddingBottom: bottomPadding},
+            { paddingBottom: bottomPadding },
           ]}
           renderItem={flatListElement}
           key={item => item.code}
@@ -190,6 +203,7 @@ export default function CountryList(props) {
           windowSize={3}
           showsVerticalScrollIndicator={false}
           data={countries}
+          keyboardShouldPersistTaps="always"
         />
       )}
     </CustomKeyboardAvoidingView>
