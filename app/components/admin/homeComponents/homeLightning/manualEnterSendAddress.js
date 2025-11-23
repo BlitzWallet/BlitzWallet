@@ -8,7 +8,7 @@ import {
 import { ThemeText } from '../../../../functions/CustomElements';
 import { ICONS } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CENTER, KEYBOARDTIMEOUT } from '../../../../constants/styles';
 import { HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -21,13 +21,33 @@ import handlePreSendPageParsing from '../../../../functions/sendBitcoin/handlePr
 export default function ManualEnterSendAddress(props) {
   const navigate = useNavigation();
   const { t } = useTranslation();
-  const { setIsKeyboardActive, setContentHeight, theme, darkModeType } = props;
+  const { setIsKeyboardActive, setContentHeight, handleBackPressFunction } =
+    props;
   const initialValue = useRef(0);
+  const textInputRef = useRef(null);
 
   const [inputValue, setInputValue] = useState('');
 
+  useEffect(() => {
+    if (!textInputRef.current.isFocused()) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          textInputRef.current.focus();
+        });
+      });
+    }
+  }, []);
+
+  const handleTextInputBlur = () => {
+    console.log(inputValue);
+    setIsKeyboardActive(false);
+    if (!inputValue) {
+      handleBackPressFunction?.();
+    }
+  };
+
   return (
-    <TouchableWithoutFeedback
+    <View
       onLayout={e => {
         const { height } = e.nativeEvent.layout;
         if (!initialValue.current) {
@@ -35,52 +55,52 @@ export default function ManualEnterSendAddress(props) {
           setContentHeight(height);
         }
       }}
+      style={styles.popupContainer}
     >
-      <View style={styles.popupContainer}>
-        <View style={styles.informationContainer}>
-          <ThemeText
-            styles={styles.textInputLabel}
-            content={t('wallet.homeLightning.manualEnterSendAddress.title')}
-          />
-          <TouchableOpacity
-            onPress={() => {
-              navigate.navigate('InformationPopup', {
-                textContent: t(
-                  'wallet.homeLightning.manualEnterSendAddress.paymentTypesDesc',
-                ),
-                buttonText: t('constants.understandText'),
-              });
-            }}
-          >
-            <ThemeImage
-              styles={{ width: 20, height: 20 }}
-              lightsOutIcon={ICONS.aboutIconWhite}
-              lightModeIcon={ICONS.aboutIcon}
-              darkModeIcon={ICONS.aboutIcon}
-            />
-          </TouchableOpacity>
-        </View>
-        <CustomSearchInput
-          textInputMultiline={true}
-          inputText={inputValue}
-          setInputText={setInputValue}
-          textInputStyles={styles.testInputStyle}
-          containerStyles={styles.textInputContianerSyles}
-          textAlignVertical={'top'}
-          onBlurFunction={() => setIsKeyboardActive(false)}
-          onFocusFunction={() => setIsKeyboardActive(true)}
-          shouldDelayBlur={false}
+      <View style={styles.informationContainer}>
+        <ThemeText
+          styles={styles.textInputLabel}
+          content={t('wallet.homeLightning.manualEnterSendAddress.title')}
         />
-        <CustomButton
-          buttonStyles={{
-            ...styles.buttonContainer,
-            opacity: !inputValue ? HIDDEN_OPACITY : 1,
+        <TouchableOpacity
+          onPress={() => {
+            navigate.navigate('InformationPopup', {
+              textContent: t(
+                'wallet.homeLightning.manualEnterSendAddress.paymentTypesDesc',
+              ),
+              buttonText: t('constants.understandText'),
+            });
           }}
-          actionFunction={hanldeSubmit}
-          textContent={t('constants.continue')}
-        />
+        >
+          <ThemeImage
+            styles={{ width: 20, height: 20 }}
+            lightsOutIcon={ICONS.aboutIconWhite}
+            lightModeIcon={ICONS.aboutIcon}
+            darkModeIcon={ICONS.aboutIcon}
+          />
+        </TouchableOpacity>
       </View>
-    </TouchableWithoutFeedback>
+      <CustomSearchInput
+        textInputRef={textInputRef}
+        textInputMultiline={true}
+        inputText={inputValue}
+        setInputText={setInputValue}
+        textInputStyles={styles.testInputStyle}
+        containerStyles={styles.textInputContianerSyles}
+        textAlignVertical={'top'}
+        onBlurFunction={handleTextInputBlur}
+        onFocusFunction={() => setIsKeyboardActive(true)}
+        shouldDelayBlur={false}
+      />
+      <CustomButton
+        buttonStyles={{
+          ...styles.buttonContainer,
+          opacity: !inputValue ? HIDDEN_OPACITY : 1,
+        }}
+        actionFunction={hanldeSubmit}
+        textContent={t('constants.continue')}
+      />
+    </View>
   );
   function hanldeSubmit() {
     if (!inputValue) return;
