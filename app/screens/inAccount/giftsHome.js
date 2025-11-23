@@ -75,7 +75,7 @@ export default function GiftsPageHome({ navigation }) {
               styles.tabText,
               activeTab === 'my-gifts' && styles.activeTabText,
             ]}
-            content={t('screens.inAccount.giftPages.giftsHome.myGifts')}
+            content={t('constants.manage')}
           />
         </TouchableOpacity>
 

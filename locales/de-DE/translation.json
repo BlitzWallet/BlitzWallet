@@ -114,7 +114,8 @@
     "invoice": "Rechnung",
     "annonName": "Anonymer Benutzer",
     "claim": "Einlösen",
-    "reclaim": "Erneut einlösen",
+    "manage": "Verwalten",
+    "reclaim": "Abgelaufen",
     "optionalFlag": "(Optional)",
     "gift": "Geschenk"
   },
@@ -1637,8 +1638,7 @@
         "reclaimGiftMessage": "Geschenk wird zurückgeholt",
 
         "giftsHome": {
-          "title": "Geschenke",
-          "myGifts": "Meine Geschenke"
+          "title": "Bitcoin-Geschenke"
         },
 
         "giftsOverview": {

@@ -114,7 +114,8 @@
     "invoice": "Invoice",
     "annonName": "Anonymous User",
     "claim": "Claim",
-    "reclaim": "Reclaim",
+    "manage": "Manage",
+    "reclaim": "Expired",
     "optionalFlag": "(Optional)",
     "gift": "Gift"
   },
@@ -1659,8 +1660,7 @@
         "reclaimGiftMessage": "Reclaiming Gift",
 
         "giftsHome": {
-          "title": "Gifts",
-          "myGifts": "My Gifts"
+          "title": "Bitcoin Gifts"
         },
 
         "giftsOverview": {

@@ -114,7 +114,8 @@
     "invoice": "Fatura",
     "annonName": "Usuário anônimo",
     "claim": "Resgatar",
-    "reclaim": "Recuperar",
+    "manage": "Emitido",
+    "reclaim": "Expirado",
     "optionalFlag": "(Opcional)",
     "gift": "Presente"
   },
@@ -1655,8 +1656,7 @@
         "reclaimGiftMessage": "Reivindicando vale-bitcoin",
 
         "giftsHome": {
-          "title": "Vales-bitcoin",
-          "myGifts": "Emitidos"
+          "title": "Vales-bitcoin"
         },
 
         "giftsOverview": {
