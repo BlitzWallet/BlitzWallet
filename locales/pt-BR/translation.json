@@ -1655,8 +1655,7 @@
         "reclaimGiftMessage": "Reivindicando vale-bitcoin",
 
         "giftsHome": {
-          "title": "Vales-bitcoin",
-          "myGifts": "Emitidos"
+          "title": "Vales-bitcoin"
         },
 
         "giftsOverview": {

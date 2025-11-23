@@ -114,7 +114,8 @@
     "invoice": "Factura",
     "annonName": "Usuario anónimo",
     "claim": "Reclamar",
-    "reclaim": "Recuperar",
+    "manage": "Administrar",
+    "reclaim": "Vencido",
     "optionalFlag": "(Opcional)",
     "gift": "Regalo"
   },
@@ -1482,8 +1483,7 @@
         "reclaimGiftMessage": "Recuperando regalo",
 
         "giftsHome": {
-          "title": "Regalos",
-          "myGifts": "Mis regalos"
+          "title": "Regalos en Bitcoin"
         },
 
         "giftsOverview": {
