@@ -315,56 +315,56 @@ function ResetStack(): JSX.Element | null {
         try {
           let isContactLink = false;
 
-          if (lowerUrl.startsWith(contactSchemePrefix)) {
-            if (GIFT_DEEPLINK_REGEX.test(url)) {
-              navigationRef.current.navigate('CustomHalfModal', {
-                wantedContent: 'ClaimGiftScreen',
-                url,
-                sliderHight: 0.6,
-              });
-              return;
-            }
-            // If the URL starts with the contact scheme, check if it contains a wrapped payment scheme.
-            const contentAfterScheme = lowerUrl.substring(
-              contactSchemePrefix.length,
-            );
-
-            const isWrappedPaymentLink = BLITZ_PAYMENT_DEEP_LINK_SCHEMES.some(
-              scheme =>
-                // Check if the content starts with "scheme:" (e.g., "lightning:")
-                contentAfterScheme.startsWith(scheme + ':'),
-            );
-
-            isContactLink = !isWrappedPaymentLink;
-          }
-
-          if (isContactLink) {
-            // Logic for handling contact deep links
-            const deepLinkContact = await getDeepLinkUser({
-              deepLinkContent: url,
-              userProfile: { uuid: publicKey },
+          if (GIFT_DEEPLINK_REGEX.test(url)) {
+            navigationRef.current.navigate('CustomHalfModal', {
+              wantedContent: 'ClaimGiftScreen',
+              url,
+              sliderHight: 0.6,
             });
-
-            if (deepLinkContact.didWork) {
-              navigationRef.current.navigate('ExpandedAddContactsPage', {
-                newContact: deepLinkContact.data,
-              });
-            } else {
-              navigationRef.current.navigate('ErrorScreen', {
-                errorMessage: deepLinkContact.reason,
-                useTranslationString: true,
-              });
-            }
           } else {
-            let paymentUrl = url;
+            if (lowerUrl.startsWith(contactSchemePrefix)) {
+              // If the URL starts with the contact scheme, check if it contains a wrapped payment scheme.
+              const contentAfterScheme = lowerUrl.substring(
+                contactSchemePrefix.length,
+              );
 
-            // Regex to strip 'blitz-wallet:' OR 'blitz:' prefix if it exists.
-            // This ensures only the core payment URI is passed to the ConfirmPaymentScreen.
-            paymentUrl = paymentUrl.replace(/^(blitz-wallet|blitz):/i, '');
+              const isWrappedPaymentLink = BLITZ_PAYMENT_DEEP_LINK_SCHEMES.some(
+                scheme =>
+                  // Check if the content starts with "scheme:" (e.g., "lightning:")
+                  contentAfterScheme.startsWith(scheme + ':'),
+              );
 
-            navigationRef.current.navigate('ConfirmPaymentScreen', {
-              btcAdress: paymentUrl,
-            });
+              isContactLink = !isWrappedPaymentLink;
+            }
+
+            if (isContactLink) {
+              // Logic for handling contact deep links
+              const deepLinkContact = await getDeepLinkUser({
+                deepLinkContent: url,
+                userProfile: { uuid: publicKey },
+              });
+
+              if (deepLinkContact.didWork) {
+                navigationRef.current.navigate('ExpandedAddContactsPage', {
+                  newContact: deepLinkContact.data,
+                });
+              } else {
+                navigationRef.current.navigate('ErrorScreen', {
+                  errorMessage: deepLinkContact.reason,
+                  useTranslationString: true,
+                });
+              }
+            } else {
+              let paymentUrl = url;
+
+              // Regex to strip 'blitz-wallet:' OR 'blitz:' prefix if it exists.
+              // This ensures only the core payment URI is passed to the ConfirmPaymentScreen.
+              paymentUrl = paymentUrl.replace(/^(blitz-wallet|blitz):/i, '');
+
+              navigationRef.current.navigate('ConfirmPaymentScreen', {
+                btcAdress: paymentUrl,
+              });
+            }
           }
 
           // Clear the pending link after successful processing

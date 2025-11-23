@@ -26,7 +26,7 @@ const IS_SPARK_REQUEST_ID =
 const IS_BITCOIN_REQUEST_ID = /^SparkCoopExitRequest:[0-9a-fA-F\-]+$/;
 
 const GIFT_DEEPLINK_REGEX =
-  /^blitz-wallet:\/\/gift\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(#[A-Za-z0-9_-]+)?$/;
+  /^(?:blitz-wallet:\/\/gift\/|https:\/\/(?:blitz-wallet\.com|blitzwalletapp\.com|blitzwallet\.app)\/gift\/)[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}(#[A-Za-z0-9_-]+)?$/;
 
 const NOSTR_NAME_REGEX = /^[a-zA-Z0-9]+$/;
 const NOSTR_RELAY_URL = 'wss://relay.getalbypro.com/blitz';
