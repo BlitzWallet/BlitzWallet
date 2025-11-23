@@ -120,16 +120,18 @@ export default function GiftConfirmation({
             },
           ]}
         >
-          <QrCodeWrapper
-            outerContainerStyle={{
-              backgroundColor: 'unset',
-              width: 250,
-              height: 250,
-              overflow: 'hidden',
-            }}
-            QRData={giftLink}
-            qrSize={250}
-          />
+          <TouchableOpacity onPress={() => handleCopy(giftLink)}>
+            <QrCodeWrapper
+              outerContainerStyle={{
+                backgroundColor: 'unset',
+                width: 250,
+                height: 250,
+                overflow: 'hidden',
+              }}
+              QRData={giftLink}
+              qrSize={250}
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Gift Details */}
