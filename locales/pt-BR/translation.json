@@ -1703,7 +1703,7 @@
           "inputPlaceholder": "Digite o ID do vale-bitcoin",
           "dropdownPlaceHolder": "Selecionar vale-bitcoin expirado",
           "button": "Reivindicar vale-bitcoin",
-          "noReclaimsMessage": "Você não tem vales-bitcoin expirados no momento. Volte quando algum vale-bitcoin expirar para recuperá-lo."
+          "noReclaimsMessage": "Não há vales-bitcoin expirados para resgate no momento. Volte quando um vale que você enviou expirar para recupera-lo."
         },
 
         "claimPage": {
