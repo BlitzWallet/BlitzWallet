@@ -1654,9 +1654,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.4.5":
-  version: 0.4.5
-  resolution: "@buildonspark/spark-sdk@npm:0.4.5"
+"@buildonspark/spark-sdk@npm:^0.4.7":
+  version: 0.4.7
+  resolution: "@buildonspark/spark-sdk@npm:0.4.7"
   dependencies:
     "@bufbuild/protobuf": ^2.2.5
     "@lightsparkdev/core": ^1.4.4
@@ -1681,7 +1681,6 @@ __metadata:
     bare-crypto: ^1.9.2
     bare-fetch: ^2.4.1
     buffer: ^6.0.3
-    eciesjs: ^0.4.13
     eventemitter3: ^5.0.1
     js-base64: ^3.7.7
     light-bolt11-decoder: ^3.2.0
@@ -1704,7 +1703,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: 478122f63ef61872c565ae36c4090b35da8043298f8ec3abfcde02ce9b8450887abbb7ef4a39331be0289fa86f613a8b99507ec4fbac0722ce0d36757925b7b8
+  checksum: f306ac5cad7a293c6de34ea7633067ffab7908a9e42fd668bcc813a95ba4629f8eee32b388d623ce25eefc7edba78818e36879156321f851d26e16bb253ed18d
   languageName: node
   linkType: hard
 
@@ -4893,7 +4892,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.9
-    "@buildonspark/spark-sdk": ^0.4.5
+    "@buildonspark/spark-sdk": ^0.4.7
     "@craftzdog/react-native-buffer": ^6.1.0
     "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
