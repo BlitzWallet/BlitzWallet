@@ -114,8 +114,7 @@
     "invoice": "Fatura",
     "annonName": "Usuário anônimo",
     "claim": "Resgatar",
-    "manage": "Emitido",
-    "reclaim": "Expirado",
+    "reclaim": "Expirados",
     "optionalFlag": "(Opcional)",
     "gift": "Presente"
   },
@@ -1168,7 +1167,7 @@
       "theme": "Tema",
       "light": "Claro",
       "lightsOut": "Preto",
-      "dim": "Azul escuro",
+      "dim": "Azul",
       "balDisplay": "Exibição do saldo",
       "prev": "Prévia",
       "denomination": "Denominação",
@@ -1698,12 +1697,12 @@
         },
 
         "reclaimPage": {
-          "header": "Reivindicar seu vale-bitcoin",
+          "header": "Recuperar vale-bitcoin expirado",
           "desc": "Digite ou escolha o ID do vale-bitcoin para recuperar um vale-bitcoin expirado ou não resgatado.",
           "inputPlaceholder": "Digite o ID do vale-bitcoin",
           "dropdownPlaceHolder": "Selecionar vale-bitcoin expirado",
-          "button": "Reivindicar vale-bitcoin",
-          "noReclaimsMessage": "Você não tem vales-bitcoin expirados no momento. Volte quando algum vale-bitcoin expirar para recuperá-lo."
+          "button": "Recuperar vale-bitcoin",
+          "noReclaimsMessage": "Não há vales-bitcoin expirados no momento. Volte se algum vale que você enviou expirar para recuperá-lo."
         },
 
         "claimPage": {
@@ -1720,13 +1719,13 @@
           "reclaimHead": "Reembolsar vale-bitcoin",
           "claimLoading": "Resgatando… permaneça no app.",
           "reclaimLoading": "Devolvendo fundos… permaneça no app.",
-          "claimAmountHead": "Valor recebido",
+          "claimAmountHead": "Valor a receber",
           "reclaimAmountHead": "Valor devolvido",
           "networkFeeWarning": "Este valor, menos taxas, será adicionado ao seu saldo",
           "buttonTextClaiming": "Resgatando",
-          "reclaimButton": "Reivindicar vale-bitcoin",
+          "reclaimButton": "Recuperar vale-bitcoin",
           "claimButton": "Aceitar vale-bitcoin",
-          "confirmMessage": "O vale-bitcoin foi resgatado; você receberá seus fundos em breve",
+          "confirmMessage": "O vale-bitcoin foi resgatado com sucesso",
           "defaultDesc": "Vale-bitcoin Blitz",
           "claimingGiftMessage1": "Preparando o vale-bitcoin...",
           "giftBalanceMessage_0": "Só um instante enquanto preparamos tudo...",
