@@ -864,7 +864,7 @@
     "see_all_txs": "See all transactions",
     "no_transaction_history": "Send or receive a transaction for it to show up here",
     "contactsPage": {
-      "header": "Select recipient",
+      "header": "Select contact",
       "inputTextPlaceholder": "Search username...",
       "subHeader": "All Contacts",
       "giftsText": "Gifts from Contacts"
