@@ -190,7 +190,7 @@
     "date": "Data",
     "time": "Hora",
     "memo": "Nota",
-    "roostockSwap": "Troca da Rootstock para Spark"
+    "roostockSwap": "Transferência de Rootstock para Spark"
   },
 
   "createAccount": {
@@ -891,12 +891,10 @@
         "title": "Meios de recebimento",
         "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Receber diretamente via Spark irá expor seu saldo para a pessoa que está pagando e não é considerado privado.",
-        "swapWarning": "Os pagamentos {{swapType}} serão trocados para Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após o pagamento {{swapType}} ser confirmado.",
-        "unalignedSeeds": "Aviso: Você não está usando sua conta da carteira principal. Todos os swaps da Liquid serão enviados para sua carteira principal.",
-        "rootstockWarningText": "Os pagamentos Rootstock serão trocados por Spark. Pagamentos abaixo de {{amount}} não serão trocados. Os fundos só serão trocados após a confirmação do pagamento Rootstock.",
+        "swapWarning": "Pagamentos de {{swapType}} serão recebidos no Spark. Pagamentos abaixo de {{amount}} não serão transferidos. Os fundos só serão transferidos após a confirmação do pagamento {{swapType}}.",
         "oneMinute": "~ {{numMins}} minuto",
         "tenMinutes": "~ {{numMins}} minutos",
-        "notUsingMainAccountWarning": "Aviso: Você não está usando sua conta da carteira principal. Todos {{swapType}} fundos trocados serão enviadas para sua carteira principal.",
+        "notUsingMainAccountWarning": "Aviso: Você não está usando a conta principal da sua carteira. Todas as transferências {{swapType}} serão enviadas para sua carteira principal.",
         "sparkDesc": "Instantâneo, Suporta Tokens",
         "sparkTitle": "Endereço Spark",
         "bitcoinTitle": "Endereço Bitcoin",
@@ -1246,8 +1244,7 @@
     },
 
     "accounts": {
-      "inputPlaceholder": "Buscar conta existente",
-      "buttonCTA": "Trocar fundos"
+      "inputPlaceholder": "Buscar conta existente"
     },
     "resetWallet": {
       "header": "Tem certeza?",
@@ -1274,32 +1271,32 @@
       "selectTokenInformationPopup": "Escolha qual token você gostaria de usar primeiro ao enviar pagamentos. Não se preocupe — você ainda pode alterá-lo na página de pagamento a qualquer momento."
     },
     "viewSwapsHome": {
-      "swaps": "Trocas",
+      "swaps": "Transferências de rede",
       "selectionTitle": "Escolher rede",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
-      "pageTitle": "{{type}} Trocas"
+      "pageTitle": "Transferências de {{type}}"
     },
 
     "viewRoostockSwaps": {
-      "loadingMessage": "Carregando trocas Roostock salvos",
-      "noSwapsMessage": "Você não tem nenhuma troca de Roostock salva"
+      "loadingMessage": "Carregando transferências Roostock salvas",
+      "noSwapsMessage": "Você não tem transferências Roostock salvas"
     },
     "rootstockSwapInfo": {
       "title": "Trocas submarinas",
       "id": "ID",
-      "swapDetails": "Detalhes da troca",
+      "swapDetails": "Detalhes da transferência",
       "claimAddress": "Endereço de reclamação",
       "timeoutBHeight": "Altura do bloco de tempo limite",
       "expAmount": "Quantidade esperada",
       "invoice": "Fatura",
-      "refundSwap": "Reembolso da troca"
+      "refundSwap": "Reembolsar transferência"
     },
 
     "viewAllLiquidSwaps": {
       "rescanComplete": "Verificação concluída",
-      "swapStartedMessage": "A troca foi iniciada. Pode levar de 10 a 20 segundos para o pagamento aparecer.",
-      "balanceError": "O saldo Liquid atual é {{balance}} mas o valor mínimo de troca é {{swapAmount}}",
+      "swapStartedMessage": "A transferência foi iniciada. Pode levar de 10 a 20 segundos para o pagamento aparecer.",
+      "balanceError": "O saldo líquido atual é {{balance}}, mas o valor mínimo de transferência é {{swapAmount}}",
       "loadingMessage": "Obtendo informações Liquid",
       "breakdownHead": "Desagregação do saldo",
       "incoming": "{{amount}} entrada pendente",
@@ -1307,8 +1304,8 @@
       "balance": "{{amount}} Saldo Liquid",
       "rescan": "Verificar",
       "totalBalance": "Saldo total",
-      "swapMessage": "A Blitz Wallet tentará transferir seus fundos Liquid para Spark quando você carregar o aplicativo pela primeira vez ou quando receber pagamentos Liquid.\n\nNo entanto, em alguns casos, uma troca pode ser perdida. Para transferir esses fundos para o Spark manualmente, basta clicar no botão trocar abaixo.",
-      "swap": "Trocar"
+      "swapMessage": "A Blitz Wallet tentará transferir seus fundos Liquid para o Spark quando você abrir o app pela primeira vez ou quando receber pagamentos Liquid.\n\nNo entanto, em alguns casos a transferência pode não ocorrer. Para mover esses fundos manualmente para o Spark, toque no botão Transferir abaixo.",
+      "swap": "Transferir"
     },
     "notifications": {
       "mainToggle_enabled": "Notificações",
@@ -1402,24 +1399,24 @@
     "accountComponents": {
       "homepage": {
         "addNewAccount": "Adicionar",
-        "swap": "Trocar",
+        "swap": "Transferir",
         "viewSeed": "Ver frase-semente",
         "editAccount": "Editar conta",
-        "swapAccountError": "Você precisa de pelo menos duas contas para mover fundos entre elas.",
+        "swapAccountError": "Você precisa de pelo menos duas contas para fazer uma transferência.",
         "noAccountsFound": "Nenhuma conta corresponde à sua pesquisa."
       },
       "accountPaymentPage": {
-        "noAmountError": "Por favor, insira um valor a ser enviado",
-        "noAccountError": "Selecione uma conta para a qual os fundos serão enviados",
-        "noAccountToError": "Selecione uma conta para a qual os fundos serão recebidos",
-        "loadingFeeError": "Não foi possível iniciar a troca quando a taxa está sendo calculada",
+        "noAmountError": "Digite um valor para transferir",
+        "noAccountError": "Selecione uma conta de onde os fundos serão transferidos",
+        "noAccountToError": "Selecione uma conta para onde os fundos serão transferidos",
+        "loadingFeeError": "Não é possível iniciar a transferência enquanto a taxa está sendo calculada",
         "alreadyStartedTransferError": "Uma transferência já foi iniciada",
-        "balanceError": "O valor enviado é maior que seu saldo e taxas",
+        "balanceError": "O valor excede seu saldo incluindo as taxas",
         "noSendAddressError": "Não foi possível obter o endereço de transferência",
-        "noAccountInformation": "Não foi possível obter informações da conta",
-        "title": "Mover fundos",
-        "selectAccount": "Selecione a conta",
-        "inputPlaceHolderText": "Movendo fundos"
+        "noAccountInformation": "Não foi possível obter as informações da conta",
+        "title": "Transferência",
+        "selectAccount": "Selecionar conta",
+        "inputPlaceHolderText": "Transferência entre contas"
       },
       "createAccountPage": {
         "alreadyUsingSeedError": "Esta frase-semente já existe para outra conta",
@@ -1569,8 +1566,8 @@
 
       "receiveBtcPage": {
         "onchainFeeMessage": "Os pagamentos recebidos em endereços Bitcoin têm uma taxa de rede e uma taxa Spark de 0,1%.\n\nSe você enviar dinheiro para si mesmo, pagará a taxa de rede duas vezes: uma para enviar e outra para reivindicar.\n\nSe outra pessoa lhe enviar dinheiro, você pagará a taxa de rede apenas uma vez para reivindicá-lo.",
-        "liquidFeeMessage": "Os pagamentos recebidos em endereços Liquid precisam ser trocados para Spark.\n\nEste processo inclui uma taxa de bloqueio de cerca de {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}}, e uma taxa de serviço de 0,1% da Boltz com base no valor que você está enviando.",
-        "rootstockFeeMessage": "Os pagamentos recebidos em endereços Rootstock precisam ser trocados para Spark.\n\nEste processo inclui uma taxa de bloqueio de cerca de {{fee}}, e uma taxa de serviço de 0,1% da Boltz com base no valor que você está enviando.",
+        "liquidFeeMessage": "Pagamentos recebidos em endereços Liquid precisam ser transferidos para o Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
+        "rootstockFeeMessage": "Pagamentos recebidos em endereços Rootstock precisam ser transferidos para o Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
         "invoiceDescription_lightningInvoice": "Fatura Lightning",
@@ -1592,7 +1589,7 @@
         "display currency": "Moeda",
         "display options": "Opções de tela",
         "edit contact profile": "Editar perfil de contato",
-        "view all swaps": "Trocas",
+        "view all swaps": "Transferências de rede",
         "fast pay": "Pagamento rápido",
         "blitz fee details": "Taxas da carteira Blitz",
         "crash reports": "Relatório de falhas",
@@ -1813,7 +1810,7 @@
   },
 
   "swapMessages": {
-    "liquid": "Troca de Liquid para Spark"
+    "liquid": "Transferência de Liquid para Spark"
   },
   "tabs": {
     "home": "Carteira",

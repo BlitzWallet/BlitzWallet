@@ -190,7 +190,7 @@
     "date": "Datum",
     "time": "Zeit",
     "memo": "Notiz",
-    "roostockSwap": "Rootstock zu Spark Swap"
+    "roostockSwap": "Rootstock-zu-Spark-Transfer"
   },
 
   "createAccount": {
@@ -884,12 +884,10 @@
         "title": "Empfangsmethoden",
         "actionBTN": "{{action}} anzeigen",
         "sparkWarningMessage": "Der direkte Empfang über Spark macht Ihr Guthaben für die zahlende Person sichtbar und gilt nicht als privat.",
-        "swapWarning": "{{swapType}}-Zahlungen werden in Spark umgetauscht. Zahlungen unter {{amount}} werden nicht umgetauscht. Gelder werden erst nach Bestätigung der {{swapType}}-Zahlung umgetauscht.",
-        "unalignedSeeds": "Warnung: Sie verwenden nicht Ihr Hauptkonto. Alle Liquid-Swaps werden an Ihre Hauptwallet gesendet.",
-        "rootstockWarningText": "Rootstock-Zahlungen werden in Spark umgetauscht. Zahlungen unter {{amount}} werden nicht umgetauscht. Gelder werden erst nach Bestätigung der Rootstock-Zahlung umgetauscht.",
+        "swapWarning": "{{swapType}}-Zahlungen werden in Spark empfangen. Zahlungen unter {{amount}} werden nicht übertragen. Gelder werden erst übertragen, nachdem die {{swapType}}-Zahlung bestätigt wurde.",
         "oneMinute": "~ {{numMins}} Minute",
         "tenMinutes": "~ {{numMins}} Minuten",
-        "notUsingMainAccountWarning": "Warnung: Sie verwenden nicht Ihr Hauptkonto. Alle {{swapType}}-Swaps werden an Ihre Hauptwallet gesendet.",
+        "notUsingMainAccountWarning": "Warnung: Du nutzt nicht dein Hauptkonto. Alle {{swapType}}-Transfers werden an deine Hauptwallet gesendet.",
         "sparkDesc": "Sofort, unterstützt Token",
         "sparkTitle": "Spark-Adresse",
         "bitcoinTitle": "Bitcoin-Adresse",
@@ -1231,8 +1229,7 @@
       "descriptionText": "Absturzdaten helfen uns, die Stabilität und Leistung unserer Anwendung zu verbessern.\n\nWenn ein Absturz auftritt, werden automatisch folgende Geräteinformationen aufgezeichnet:\n\n• Betriebssystem: OS-Version, Geräteausrichtung und Jailbreak-Status\n• Gerätedetails: Modell, Ausrichtung und verfügbarer RAM\n• Absturzinformationen: Datum des Absturzes und App-Version"
     },
     "accounts": {
-      "inputPlaceholder": "Kontoname",
-      "buttonCTA": "Gelder tauschen"
+      "inputPlaceholder": "Kontoname"
     },
     "resetWallet": {
       "header": "Sind Sie sicher?",
@@ -1259,30 +1256,30 @@
       "selectTokenInformationPopup": "Wähle aus, welchen Token du zuerst für Zahlungen verwenden möchtest. Keine Sorge – du kannst dies jederzeit auf der Zahlungsseite ändern."
     },
     "viewSwapsHome": {
-      "swaps": "Swaps",
+      "swaps": "Netzwerkübertragungen",
       "selectionTitle": "Netzwerk wählen",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
-      "pageTitle": "{{type}} Swaps"
+      "pageTitle": "{{type}}-Übertragungen"
     },
     "viewRoostockSwaps": {
-      "loadingMessage": "Gespeicherte Rootstock-Swaps werden geladen",
-      "noSwapsMessage": "Sie haben keine gespeicherten Rootstock-Swaps"
+      "loadingMessage": "Gespeicherte Roostock-Übertragungen werden geladen",
+      "noSwapsMessage": "Du hast keine gespeicherten Roostock-Übertragungen"
     },
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
       "id": "ID",
-      "swapDetails": "Swap-Details",
+      "swapDetails": "Transferdetails",
       "claimAddress": "Anspruchsadresse",
       "timeoutBHeight": "Timeout-Blockhöhe",
       "expAmount": "Erwarteter Betrag",
       "invoice": "Rechnung",
-      "refundSwap": "Swap zurückerstatten"
+      "refundSwap": "Transfer erstatten"
     },
     "viewAllLiquidSwaps": {
       "rescanComplete": "Neu scannen abgeschlossen",
-      "swapStartedMessage": "Der Swap hat begonnen. Es kann 10–20 Sekunden dauern, bis die Zahlung angezeigt wird.",
-      "balanceError": "Aktuelles Liquid-Guthaben beträgt {{balance}}, aber der Mindest-Swap-Betrag ist {{swapAmount}}",
+      "swapStartedMessage": "Die Übertragung wurde gestartet. Es kann 10–20 Sekunden dauern, bis die Zahlung angezeigt wird.",
+      "balanceError": "Der aktuelle Liquid-Saldo beträgt {{balance}}, aber der Mindestbetrag für eine Übertragung ist {{swapAmount}}",
       "loadingMessage": "Liquid-Informationen werden abgerufen",
       "breakdownHead": "Guthabenaufschlüsselung",
       "incoming": "{{amount}} ausstehende eingehende",
@@ -1290,8 +1287,8 @@
       "balance": "{{amount}} Liquid-Guthaben",
       "rescan": "Neu scannen",
       "totalBalance": "Gesamtguthaben",
-      "swapMessage": "Blitz Wallet wird versuchen, Ihre Liquid-Gelder in Spark umzutauschen, wenn Sie die App zum ersten Mal laden oder wenn Sie Liquid-Zahlungen empfangen.\n\nIn einigen Fällen kann ein Swap jedoch übersehen werden. Um diese Gelder manuell in Spark zu verschieben, klicken Sie einfach unten auf die Schaltfläche Swap.",
-      "swap": "Swap"
+      "swapMessage": "Blitz Wallet versucht, deine Liquid-Gelder beim ersten App-Start oder beim Empfang von Liquid-Zahlungen nach Spark zu übertragen.\n\nIn manchen Fällen kann jedoch eine Übertragung verpasst werden. Um diese Gelder manuell nach Spark zu bewegen, tippe unten auf den Button Übertragen.",
+      "swap": "Übertragen"
     },
     "notifications": {
       "mainToggle_enabled": "Benachrichtigungen aktiviert",
@@ -1383,24 +1380,24 @@
     "accountComponents": {
       "homepage": {
         "addNewAccount": "Hinzufügen",
-        "swap": "Tauschen",
+        "swap": "Transferieren",
         "viewSeed": "Seed-Phrase anzeigen",
         "editAccount": "Konto bearbeiten",
-        "swapAccountError": "Du benötigst mindestens zwei Konten, um einen Tausch durchzuführen.",
+        "swapAccountError": "Du benötigst mindestens zwei Konten, um eine Überweisung durchzuführen.",
         "noAccountsFound": "Keine Konten entsprechen deiner Suche."
       },
       "accountPaymentPage": {
-        "noAmountError": "Bitte geben Sie einen Betrag ein, der getauscht werden soll",
-        "noAccountError": "Bitte wählen Sie ein Konto aus, von dem die Gelder getauscht werden sollen",
-        "noAccountToError": "Bitte wählen Sie ein Konto aus, an das die Gelder getauscht werden sollen",
-        "loadingFeeError": "Swap kann nicht gestartet werden, während die Gebühr berechnet wird",
-        "alreadyStartedTransferError": "Ein Transfer wurde bereits gestartet",
-        "balanceError": "Sendebetrag ist größer als Ihr Guthaben und die Gebühren",
-        "noSendAddressError": "Transferadresse konnte nicht abgerufen werden",
+        "noAmountError": "Bitte gib einen Betrag zum Übertragen ein",
+        "noAccountError": "Bitte wähle ein Konto aus, von dem die Mittel übertragen werden sollen",
+        "noAccountToError": "Bitte wähle ein Konto aus, auf das die Mittel übertragen werden sollen",
+        "loadingFeeError": "Übertragung kann nicht gestartet werden, während die Gebühr berechnet wird",
+        "alreadyStartedTransferError": "Es wurde bereits eine Übertragung gestartet",
+        "balanceError": "Der Betrag übersteigt dein Guthaben einschließlich Gebühren",
+        "noSendAddressError": "Die Transferadresse konnte nicht abgerufen werden",
         "noAccountInformation": "Kontoinformationen konnten nicht abgerufen werden",
-        "title": "Swap",
+        "title": "Übertragung",
         "selectAccount": "Konto auswählen",
-        "inputPlaceHolderText": "Kontoswap"
+        "inputPlaceHolderText": "Kontoübertragung"
       },
       "createAccountPage": {
         "alreadyUsingSeedError": "Diese Seed-Phrase existiert bereits für ein anderes Konto",
@@ -1551,8 +1548,8 @@
 
       "receiveBtcPage": {
         "onchainFeeMessage": "On-Chain-Zahlungen haben eine Netzwerkgebühr und eine Spark-Gebühr von 0,1%.\n\nWenn Sie Geld an sich selbst senden, zahlen Sie die Netzwerkgebühr zweimal – einmal zum Senden und einmal zum Einlösen.\n\nWenn Ihnen jemand anderes Geld sendet, zahlen Sie die Netzwerkgebühr nur einmal zum Einlösen.",
-        "liquidFeeMessage": "Liquid-Zahlungen müssen in Spark umgetauscht werden.\n\nDieser Prozess umfasst eine Sperrgebühr von etwa {{fee}}, eine Einlösungsgebühr von etwa {{claimFee}} und eine Servicegebühr von 0,1% von Boltz basierend auf dem gesendeten Betrag.",
-        "rootstockFeeMessage": "Rootstock-Zahlungen müssen in Spark umgetauscht werden.\n\nDieser Prozess umfasst eine Sperrgebühr von etwa {{fee}} und eine Servicegebühr von 0,1% von Boltz basierend auf dem gesendeten Betrag.",
+        "liquidFeeMessage": "Zahlungen, die an Liquid-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}}, eine Anspruchsgebühr von rund {{claimFee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
+        "rootstockFeeMessage": "Zahlungen, die an Rootstock-Adressen eingehen, müssen in Spark übertragen werden.\n\nDieser Prozess beinhaltet eine Sperrgebühr von etwa {{fee}} sowie eine Servicegebühr von 0,1 % von Boltz, basierend auf dem gesendeten Betrag.",
         "generatingInvoice": "Rechnung wird generiert",
         "amountPlaceholder": "Beliebiger Betrag",
         "invoiceDescription_lightningInvoice": "Lightning-Rechnung",
@@ -1574,7 +1571,7 @@
         "display currency": "Währung",
         "display options": "Anzeigeoptionen",
         "edit contact profile": "Kontaktprofil bearbeiten",
-        "view all swaps": "Swaps",
+        "view all swaps": "Netzwerkübertragungen",
         "fast pay": "Schnellzahlung",
         "blitz fee details": "Blitz-Gebührendetails",
         "crash reports": "Absturzberichte",
@@ -1795,7 +1792,7 @@
   },
 
   "swapMessages": {
-    "liquid": "Liquid zu Spark Swap"
+    "liquid": "Liquid-zu-Spark-Transfer"
   },
   "tabs": {
     "home": "Wallet",

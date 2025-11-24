@@ -190,7 +190,7 @@
     "date": "Date",
     "time": "Time",
     "memo": "Memo",
-    "roostockSwap": "Rootstock to Spark Swap"
+    "roostockSwap": "Rootstock to Spark Transfer"
   },
 
   "createAccount": {
@@ -891,12 +891,10 @@
         "title": "Receiving methods",
         "actionBTN": "Show {{action}}",
         "sparkWarningMessage": "Receiving directly via Spark will expose your balance to the person paying and is not considered private.",
-        "swapWarning": "{{swapType}} payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the {{swapType}} payment is confirmed.",
-        "unalignedSeeds": "Warning: You’re not using your main wallet account. All Liquid swaps will be sent to your main wallet.",
-        "rootstockWarningText": "Rootstock payments will be swapped into Spark. Payments below {{amount}} won’t be swapped. Funds will only be swapped after the Rootsock payment is confirmed.",
+        "swapWarning": "{{swapType}} payments will be received into Spark. Payments below {{amount}} won’t be transfered. Funds will only be transfered after the {{swapType}} payment is confirmed.",
         "oneMinute": "~ {{numMins}} minute",
         "tenMinutes": "~ {{numMins}} minutes",
-        "notUsingMainAccountWarning": "Warning: You’re not using your main wallet account. All {{swapType}} swaps will be sent to your main wallet.",
+        "notUsingMainAccountWarning": "Warning: You’re not using your main wallet account. All {{swapType}} transfers will be sent to your main wallet.",
         "sparkDesc": "Instant, Supports Tokens",
         "sparkTitle": "Spark Address",
         "bitcoinTitle": "Bitcoin Address",
@@ -1249,8 +1247,7 @@
     },
 
     "accounts": {
-      "inputPlaceholder": "Search existing account",
-      "buttonCTA": "Swap Funds"
+      "inputPlaceholder": "Search existing account"
     },
     "resetWallet": {
       "header": "Are you sure?",
@@ -1277,32 +1274,32 @@
       "selectTokenInformationPopup": "Choose which token you’d like to use first when sending payments. Don’t worry—you can still change it on the payment page anytime."
     },
     "viewSwapsHome": {
-      "swaps": "Swaps",
+      "swaps": "Network Transfers",
       "selectionTitle": "Choose Network",
       "liquid": "Liquid",
       "rootstock": "Rootstock",
-      "pageTitle": "{{type}} Swaps"
+      "pageTitle": "{{type}} Transfers"
     },
 
     "viewRoostockSwaps": {
-      "loadingMessage": "Loading saved Roostock swaps",
-      "noSwapsMessage": "You have no saved Roostock swaps"
+      "loadingMessage": "Loading saved Roostock transfers",
+      "noSwapsMessage": "You have no saved Roostock transfers"
     },
     "rootstockSwapInfo": {
       "title": "Submarine Swap",
       "id": "ID",
-      "swapDetails": "Swap Details",
+      "swapDetails": "Transfer Details",
       "claimAddress": "Claim Address",
       "timeoutBHeight": "Timeout Block Height",
       "expAmount": "Expected Amount",
       "invoice": "Invoice",
-      "refundSwap": "Refund swap"
+      "refundSwap": "Refund transfer"
     },
 
     "viewAllLiquidSwaps": {
       "rescanComplete": "Rescan complete",
-      "swapStartedMessage": "The swap has started. It may take 10–20 seconds for the payment to show up.",
-      "balanceError": "Current liquid balance is {{balance}} but the minimum swap amount is {{swapAmount}}",
+      "swapStartedMessage": "The transfer has started. It may take 10–20 seconds for the payment to show up.",
+      "balanceError": "Current liquid balance is {{balance}} but the minimum transfer amount is {{swapAmount}}",
       "loadingMessage": "Getting liquid info",
       "breakdownHead": "Balance Breakdown",
       "incoming": "{{amount}} pending incoming",
@@ -1310,8 +1307,8 @@
       "balance": "{{amount}} liquid balance",
       "rescan": "Rescan",
       "totalBalance": "Total Balance",
-      "swapMessage": "Blitz Wallet will try to swap your Liquid funds into Spark when you first load the app or when you receive Liquid payments.\n\nHowever, in some cases a swap might be missed. To move these funds into Spark manually, just click the Swap button below.",
-      "swap": "Swap"
+      "swapMessage": "Blitz Wallet will try to transfer your Liquid funds into Spark when you first load the app or when you receive Liquid payments.\n\nHowever, in some cases a transfer might be missed. To move these funds into Spark manually, just click the Transfer button below.",
+      "swap": "Transfer"
     },
     "notifications": {
       "mainToggle_enabled": "Enabled notifications",
@@ -1405,24 +1402,24 @@
     "accountComponents": {
       "homepage": {
         "addNewAccount": "Add",
-        "swap": "Swap",
+        "swap": "Transfer",
         "viewSeed": "View seed phrase",
         "editAccount": "Edit account",
-        "swapAccountError": "You need at least two accounts to make a swap.",
+        "swapAccountError": "You need at least two accounts to make a transfer.",
         "noAccountsFound": "No accounts match your search."
       },
       "accountPaymentPage": {
-        "noAmountError": "Please enter an amount to be swapped",
-        "noAccountError": "Please select an account for funds to be swapped from",
-        "noAccountToError": "Please select an account for funds to be swapped to",
-        "loadingFeeError": "Cannot start swap when fee is being calculated",
+        "noAmountError": "Please enter an amount to be transfered",
+        "noAccountError": "Please select an account for funds to be transfered from",
+        "noAccountToError": "Please select an account for funds to be transfered to",
+        "loadingFeeError": "Cannot start transfer when fee is being calculated",
         "alreadyStartedTransferError": "A transfer has already been started",
         "balanceError": "Sending amount is greater than your balance and fees",
         "noSendAddressError": "Not able to get transfer address",
         "noAccountInformation": "Not able to get account information",
-        "title": "Swap",
+        "title": "Transfer",
         "selectAccount": "Select Account",
-        "inputPlaceHolderText": "Account Swap"
+        "inputPlaceHolderText": "Account Transfer"
       },
       "createAccountPage": {
         "alreadyUsingSeedError": "This seed phrase already exists for another account",
@@ -1573,8 +1570,8 @@
 
       "receiveBtcPage": {
         "onchainFeeMessage": "Payments received to Bitcoin addresses have a network fee and 0.1% Spark fee.\n\nIf you send money to yourself, you'll pay the network fee twice — once to send it and once to claim it.\n\nIf someone else sends you money, you'll only pay the network fee once to claim it.",
-        "liquidFeeMessage": "Payments received to Liquid addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
-        "rootstockFeeMessage": "Payments received to Rootstock addresses need to be swapped into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
+        "liquidFeeMessage": "Payments received to Liquid addresses need to be transfered into Spark.\n\nThis process includes a lockup fee of about {{fee}}, a claim fee of around {{claimFee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
+        "rootstockFeeMessage": "Payments received to Rootstock addresses need to be transfered into Spark.\n\nThis process includes a lockup fee of about {{fee}}, and a 0.1% service fee from Boltz based on the amount you're sending.",
         "generatingInvoice": "Generating Invoice",
         "amountPlaceholder": "Any amount",
         "invoiceDescription_lightningInvoice": "Lightning invoice",
@@ -1596,7 +1593,7 @@
         "display currency": "Currency",
         "display options": "Display Options",
         "edit contact profile": "Edit Contact Profile",
-        "view all swaps": "Swaps",
+        "view all swaps": "Network Transfers",
         "fast pay": "Fast Pay",
         "blitz fee details": "Blitz Fee Details",
         "crash reports": "Crash Reports",
@@ -1813,7 +1810,7 @@
   },
 
   "swapMessages": {
-    "liquid": "Liquid to Spark Swap"
+    "liquid": "Liquid to Spark Transfer"
   },
   "tabs": {
     "home": "Wallet",

@@ -478,12 +478,16 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: '100%',
     gap: 12,
     ...CENTER,
     paddingBottom: CONTENT_KEYBOARD_OFFSET,
   },
   actionButton: {
     flex: 1,
+    width: '100%',
+    minWidth: 150,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
