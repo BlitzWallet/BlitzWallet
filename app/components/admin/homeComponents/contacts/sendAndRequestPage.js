@@ -36,6 +36,7 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
   SIZES,
+  WINDOWWIDTH,
 } from '../../../../constants/theme';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
@@ -53,7 +54,8 @@ import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalan
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import { receiveSparkLightningPayment } from '../../../../functions/spark';
 import { getBolt11InvoiceForContact } from '../../../../functions/contacts';
-
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 const MAX_SEND_OPTIONS = [
   { label: '25%', value: '25' },
   { label: '50%', value: '50' },
@@ -78,6 +80,7 @@ export default function SendAndRequestPage(props) {
   const [inputDenomination, setInputDenomination] = useState(
     masterInfoObject.userBalanceDenomination,
   );
+  const { bottomPadding } = useGlobalInsets();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
@@ -493,285 +496,310 @@ export default function SendAndRequestPage(props) {
     };
   }, []);
 
+  const handleEmoji = emoji => {
+    setDescriptionValue(prev => prev + emoji);
+  };
+
   return (
-    <CustomKeyboardAvoidingView
-      isKeyboardActive={!isAmountFocused}
-      useLocalPadding={true}
-      useStandardWidth={true}
-    >
-      <NavBarWithBalance showBalance={paymentType === 'send'} />
-      <>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollViewContainer}
-        >
-          <FormattedBalanceInput
-            maxWidth={0.9}
-            amountValue={amountValue || 0}
-            inputDenomination={inputDenomination}
-            containerFunction={() => {
-              setInputDenomination(prev => {
-                const newPrev = prev === 'sats' ? 'fiat' : 'sats';
-                return newPrev;
-              });
-              setAmountValue(
-                convertTextInputValue(
-                  amountValue,
-                  fiatStats,
-                  inputDenomination,
-                ),
-              );
-            }}
-          />
-
-          <FormattedSatText
-            containerStyles={{
-              ...styles.convertedAmount,
-              opacity: !amountValue ? HIDDEN_OPACITY : 1,
-            }}
-            neverHideBalance={true}
-            globalBalanceDenomination={isBTCdenominated ? 'fiat' : 'sats'}
-            balance={convertedSendAmount}
-          />
-
-          {/* Send Max Button */}
-          {paymentType === 'send' && !giftOption && !useAltLayout && (
-            <View>
-              <DropdownMenu
-                selectedValue={t(
-                  `wallet.sendPages.sendMaxComponent.${'sendMax'}`,
-                )}
-                onSelect={handleSelctProcesss}
-                options={MAX_SEND_OPTIONS}
-                showClearIcon={false}
-                textStyles={styles.sendMaxText}
-                showVerticalArrows={false}
-                customButtonStyles={memorizedContainerStyles}
-                useIsLoading={isGettingMax}
-              />
-            </View>
-          )}
-
-          {giftOption && (
-            <>
-              <View style={styles.giftAmountContainer}>
-                <TouchableOpacity
-                  onPress={() =>
-                    navigate.navigate('CustomHalfModal', {
-                      wantedContent: 'giftCardSendAndReceiveOption',
-                    })
-                  }
-                  style={[
-                    styles.pill,
-                    {
-                      borderColor: backgroundOffset,
-                      backgroundColor: theme
-                        ? backgroundOffset
-                        : backgroundOffset,
-                    },
-                  ]}
-                >
-                  <View style={styles.logoContainer}>
-                    <Image
-                      style={styles.cardLogo}
-                      source={{ uri: giftOption.logo }}
-                      contentFit="contain"
-                    />
-                  </View>
-                  <ThemeText
-                    CustomNumberOfLines={1}
-                    styles={styles.pillText}
-                    content={t('contacts.sendAndRequestPage.giftCardText', {
-                      giftName: giftOption.name,
-                    })}
-                  />
-                  <View
-                    style={[
-                      styles.editButton,
-                      {
-                        backgroundColor: backgroundOffset,
-                        borderColor: backgroundColor,
-                      },
-                    ]}
-                  >
-                    <ThemeImage
-                      styles={styles.editIcon}
-                      lightModeIcon={ICONS.editIcon}
-                      darkModeIcon={ICONS.editIconLight}
-                      lightsOutIcon={ICONS.editIconLight}
-                    />
-                  </View>
-                </TouchableOpacity>
-                {giftOption.memo && (
-                  <View style={styles.memoSection}>
-                    <ThemeText
-                      styles={styles.memoLabel}
-                      content={t('contacts.sendAndRequestPage.giftMessage')}
-                    />
-                    <View
-                      style={[
-                        styles.memoContainer,
-                        {
-                          backgroundColor: theme
-                            ? backgroundOffset
-                            : COLORS.darkModeText,
-                          borderColor: theme
-                            ? backgroundOffset
-                            : 'rgba(255,255,255,0.1)',
-                        },
-                      ]}
-                    >
-                      <ThemeText
-                        styles={styles.memoText}
-                        content={giftOption.memo}
-                      />
-                    </View>
-                  </View>
-                )}
-              </View>
-            </>
-          )}
-        </ScrollView>
-
-        {!giftOption && (
+    <>
+      <CustomKeyboardAvoidingView
+        globalThemeViewStyles={{
+          paddingBottom: !isAmountFocused ? 0 : bottomPadding,
+        }}
+      >
+        <View style={styles.replacementContainer}>
+          <NavBarWithBalance showBalance={paymentType === 'send'} />
           <>
-            <View style={styles.inputAndGiftContainer}>
-              {paymentType === 'send' &&
-                !giftOption &&
-                !selectedContact?.isLNURL &&
-                !HIDE_IN_APP_PURCHASE_ITEMS && (
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigate.navigate('SelectGiftCardForContacts')
-                    }
-                    style={[
-                      styles.giftContainer,
-                      {
-                        backgroundColor: backgroundOffset,
-                        marginBottom: useAltLayout
-                          ? 0
-                          : CONTENT_KEYBOARD_OFFSET,
-                      },
-                    ]}
-                  >
-                    <ThemeText
-                      styles={styles.giftText}
-                      content={t('contacts.sendAndRequestPage.sendGiftText')}
-                    />
-                    <Icon color={textColor} name={'giftIcon'} />
-                  </TouchableOpacity>
-                )}
-              <CustomSearchInput
-                onFocusFunction={() => {
-                  setIsAmountFocused(false);
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollViewContainer}
+            >
+              <FormattedBalanceInput
+                maxWidth={0.9}
+                amountValue={amountValue || 0}
+                inputDenomination={inputDenomination}
+                containerFunction={() => {
+                  setInputDenomination(prev => {
+                    const newPrev = prev === 'sats' ? 'fiat' : 'sats';
+                    return newPrev;
+                  });
+                  setAmountValue(
+                    convertTextInputValue(
+                      amountValue,
+                      fiatStats,
+                      inputDenomination,
+                    ),
+                  );
                 }}
-                onBlurFunction={() => {
-                  setIsAmountFocused(true);
-                }}
-                textInputRef={descriptionRef}
-                placeholderText={t(
-                  'contacts.sendAndRequestPage.descriptionPlaceholder',
-                )}
-                textInputStyles={{
-                  borderRadius: useAltLayout ? 15 : 8,
-                  height: useAltLayout ? 50 : 'unset',
-                }}
-                placeholderTextColor={
-                  theme && !darkModeType
-                    ? undefined
-                    : theme
-                    ? COLORS.lightsOutModeOpacityInput
-                    : COLORS.opaicityGray
-                }
-                editable={paymentType === 'send' ? true : !!convertedSendAmount}
-                containerStyles={styles.descriptionInput}
-                setInputText={setDescriptionValue}
-                inputText={descriptionValue}
-                textInputMultiline={true}
-                textAlignVertical={'center'}
-                maxLength={149}
               />
 
-              {useAltLayout && (
-                <View style={styles.maxAndAcceptContainer}>
-                  <View
-                    style={{
-                      flexShrink: useAltLayout ? 0 : 1,
-                      marginRight: useAltLayout ? 10 : 0,
-                      marginBottom: useAltLayout ? 0 : 20,
-                      alignSelf: useAltLayout ? 'auto' : 'center',
-                    }}
-                  >
-                    <DropdownMenu
-                      selectedValue={t(
-                        `wallet.sendPages.sendMaxComponent.${'sendMaxShort'}`,
-                      )}
-                      onSelect={handleSelctProcesss}
-                      options={MAX_SEND_OPTIONS}
-                      showClearIcon={false}
-                      textStyles={styles.sendMaxText}
-                      showVerticalArrows={false}
-                      customButtonStyles={{
-                        flex: 0,
-                        borderRadius: useAltLayout ? 30 : 8,
-                        height: useAltLayout ? 50 : 'unset',
-                        minWidth: useAltLayout ? 70 : 'unset',
-                        justifyContent: 'center',
-                      }}
-                    />
-                  </View>
+              <FormattedSatText
+                containerStyles={{
+                  ...styles.convertedAmount,
+                  opacity: !amountValue ? HIDDEN_OPACITY : 1,
+                }}
+                neverHideBalance={true}
+                globalBalanceDenomination={isBTCdenominated ? 'fiat' : 'sats'}
+                balance={convertedSendAmount}
+              />
 
-                  <CustomButton
-                    buttonStyles={{
-                      borderRadius: useAltLayout ? 30 : 8,
-                      height: useAltLayout ? 50 : 'unset',
-                      flexShrink: useAltLayout ? 1 : 0,
-                      width: useAltLayout ? '100%' : 'auto',
-                      ...CENTER,
-                    }}
-                    useLoading={isLoading}
-                    actionFunction={handleSubmit}
-                    textContent={
-                      paymentType === 'send'
-                        ? t('constants.confirm')
-                        : t('constants.request')
-                    }
+              {/* Send Max Button */}
+              {paymentType === 'send' && !giftOption && !useAltLayout && (
+                <View>
+                  <DropdownMenu
+                    selectedValue={t(
+                      `wallet.sendPages.sendMaxComponent.${'sendMax'}`,
+                    )}
+                    onSelect={handleSelctProcesss}
+                    options={MAX_SEND_OPTIONS}
+                    showClearIcon={false}
+                    textStyles={styles.sendMaxText}
+                    showVerticalArrows={false}
+                    customButtonStyles={memorizedContainerStyles}
+                    useIsLoading={isGettingMax}
                   />
                 </View>
               )}
-            </View>
-            {isAmountFocused && (
-              <CustomNumberKeyboard
-                showDot={masterInfoObject.userBalanceDenomination === 'fiat'}
-                frompage="sendContactsPage"
-                setInputValue={handleSearch}
-                usingForBalance={true}
-                fiatStats={fiatStats}
+
+              {giftOption && (
+                <>
+                  <View style={styles.giftAmountContainer}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigate.navigate('CustomHalfModal', {
+                          wantedContent: 'giftCardSendAndReceiveOption',
+                        })
+                      }
+                      style={[
+                        styles.pill,
+                        {
+                          borderColor: backgroundOffset,
+                          backgroundColor: theme
+                            ? backgroundOffset
+                            : backgroundOffset,
+                        },
+                      ]}
+                    >
+                      <View style={styles.logoContainer}>
+                        <Image
+                          style={styles.cardLogo}
+                          source={{ uri: giftOption.logo }}
+                          contentFit="contain"
+                        />
+                      </View>
+                      <ThemeText
+                        CustomNumberOfLines={1}
+                        styles={styles.pillText}
+                        content={t('contacts.sendAndRequestPage.giftCardText', {
+                          giftName: giftOption.name,
+                        })}
+                      />
+                      <View
+                        style={[
+                          styles.editButton,
+                          {
+                            backgroundColor: backgroundOffset,
+                            borderColor: backgroundColor,
+                          },
+                        ]}
+                      >
+                        <ThemeImage
+                          styles={styles.editIcon}
+                          lightModeIcon={ICONS.editIcon}
+                          darkModeIcon={ICONS.editIconLight}
+                          lightsOutIcon={ICONS.editIconLight}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                    {giftOption.memo && (
+                      <View style={styles.memoSection}>
+                        <ThemeText
+                          styles={styles.memoLabel}
+                          content={t('contacts.sendAndRequestPage.giftMessage')}
+                        />
+                        <View
+                          style={[
+                            styles.memoContainer,
+                            {
+                              backgroundColor: theme
+                                ? backgroundOffset
+                                : COLORS.darkModeText,
+                              borderColor: theme
+                                ? backgroundOffset
+                                : 'rgba(255,255,255,0.1)',
+                            },
+                          ]}
+                        >
+                          <ThemeText
+                            styles={styles.memoText}
+                            content={giftOption.memo}
+                          />
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                </>
+              )}
+            </ScrollView>
+
+            {!giftOption && (
+              <>
+                <View style={styles.inputAndGiftContainer}>
+                  {paymentType === 'send' &&
+                    !giftOption &&
+                    !selectedContact?.isLNURL &&
+                    !HIDE_IN_APP_PURCHASE_ITEMS && (
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigate.navigate('SelectGiftCardForContacts')
+                        }
+                        style={[
+                          styles.giftContainer,
+                          {
+                            backgroundColor: backgroundOffset,
+                            marginBottom: useAltLayout
+                              ? 0
+                              : CONTENT_KEYBOARD_OFFSET,
+                          },
+                        ]}
+                      >
+                        <ThemeText
+                          styles={styles.giftText}
+                          content={t(
+                            'contacts.sendAndRequestPage.sendGiftText',
+                          )}
+                        />
+                        <Icon color={textColor} name={'giftIcon'} />
+                      </TouchableOpacity>
+                    )}
+                  <CustomSearchInput
+                    onFocusFunction={() => {
+                      setIsAmountFocused(false);
+                    }}
+                    onBlurFunction={() => {
+                      setIsAmountFocused(true);
+                    }}
+                    textInputRef={descriptionRef}
+                    placeholderText={t(
+                      'contacts.sendAndRequestPage.descriptionPlaceholder',
+                    )}
+                    textInputStyles={{
+                      borderRadius: useAltLayout ? 15 : 8,
+                      height: useAltLayout ? 50 : 'unset',
+                    }}
+                    placeholderTextColor={
+                      theme && !darkModeType
+                        ? undefined
+                        : theme
+                        ? COLORS.lightsOutModeOpacityInput
+                        : COLORS.opaicityGray
+                    }
+                    editable={
+                      paymentType === 'send' ? true : !!convertedSendAmount
+                    }
+                    containerStyles={styles.descriptionInput}
+                    setInputText={setDescriptionValue}
+                    inputText={descriptionValue}
+                    textInputMultiline={true}
+                    textAlignVertical={'center'}
+                    maxLength={149}
+                  />
+
+                  {useAltLayout && (
+                    <View style={styles.maxAndAcceptContainer}>
+                      <View
+                        style={{
+                          flexShrink: useAltLayout ? 0 : 1,
+                          marginRight: useAltLayout ? 10 : 0,
+                          marginBottom: useAltLayout ? 0 : 20,
+                          alignSelf: useAltLayout ? 'auto' : 'center',
+                        }}
+                      >
+                        <DropdownMenu
+                          selectedValue={t(
+                            `wallet.sendPages.sendMaxComponent.${'sendMaxShort'}`,
+                          )}
+                          onSelect={handleSelctProcesss}
+                          options={MAX_SEND_OPTIONS}
+                          showClearIcon={false}
+                          textStyles={styles.sendMaxText}
+                          showVerticalArrows={false}
+                          customButtonStyles={{
+                            flex: 0,
+                            borderRadius: useAltLayout ? 30 : 8,
+                            height: useAltLayout ? 50 : 'unset',
+                            minWidth: useAltLayout ? 70 : 'unset',
+                            justifyContent: 'center',
+                          }}
+                        />
+                      </View>
+
+                      <CustomButton
+                        buttonStyles={{
+                          borderRadius: useAltLayout ? 30 : 8,
+                          height: useAltLayout ? 50 : 'unset',
+                          flexShrink: useAltLayout ? 1 : 0,
+                          width: useAltLayout ? '100%' : 'auto',
+                          ...CENTER,
+                        }}
+                        useLoading={isLoading}
+                        actionFunction={handleSubmit}
+                        textContent={
+                          paymentType === 'send'
+                            ? t('constants.confirm')
+                            : t('constants.request')
+                        }
+                      />
+                    </View>
+                  )}
+                </View>
+                {isAmountFocused && (
+                  <CustomNumberKeyboard
+                    showDot={
+                      masterInfoObject.userBalanceDenomination === 'fiat'
+                    }
+                    frompage="sendContactsPage"
+                    setInputValue={handleSearch}
+                    usingForBalance={true}
+                    fiatStats={fiatStats}
+                  />
+                )}
+              </>
+            )}
+            {((isAmountFocused && !useAltLayout) || giftOption) && (
+              <CustomButton
+                buttonStyles={{
+                  ...styles.button,
+                  opacity: canSendPayment ? 1 : HIDDEN_OPACITY,
+                }}
+                useLoading={isLoading}
+                actionFunction={handleSubmit}
+                textContent={
+                  paymentType === 'send'
+                    ? t('constants.review')
+                    : t('constants.request')
+                }
               />
             )}
           </>
-        )}
-        {((isAmountFocused && !useAltLayout) || giftOption) && (
-          <CustomButton
-            buttonStyles={{
-              ...styles.button,
-              opacity: canSendPayment ? 1 : HIDDEN_OPACITY,
-            }}
-            useLoading={isLoading}
-            actionFunction={handleSubmit}
-            textContent={
-              paymentType === 'send'
-                ? t('constants.review')
-                : t('constants.request')
-            }
+        </View>
+        {!isAmountFocused && (
+          <EmojiQuickBar
+            description={descriptionValue}
+            onEmojiSelect={handleEmoji}
           />
         )}
-      </>
-    </CustomKeyboardAvoidingView>
+      </CustomKeyboardAvoidingView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  replacementContainer: {
+    flexGrow: 1,
+    width: WINDOWWIDTH,
+    ...CENTER,
+  },
   topBar: {
     marginTop: 0,
     marginBottom: 0,
