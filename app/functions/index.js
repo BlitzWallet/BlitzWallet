@@ -1,6 +1,10 @@
-import {getLocalStorageItem, setLocalStorageItem} from './localStorage';
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+  removeLocalStorageItem,
+} from './localStorage';
 // import RotatingAnimation from './rotatingAnimation';
-import {retrieveData, terminateAccount, storeData} from './secureStore';
+import { retrieveData, terminateAccount, storeData } from './secureStore';
 
 import shuffleArray from './shuffleArray';
 import {
@@ -11,9 +15,9 @@ import {
 import formatBalanceAmount from './formatNumber';
 
 import copyToClipboard from './copyToClipboard';
-import {navigateToSendUsingClipboard, getQRImage} from './sendBitcoin';
+import { navigateToSendUsingClipboard, getQRImage } from './sendBitcoin';
 import numberConverter from './numberConverter';
-import {createAccountMnemonic} from './seed';
+import { createAccountMnemonic } from './seed';
 
 export {
   retrieveData,
@@ -24,6 +28,7 @@ export {
   // RotatingAnimation,
   getLocalStorageItem,
   setLocalStorageItem,
+  removeLocalStorageItem,
   hasHardware,
   hasSavedProfile,
   handleLogin,
