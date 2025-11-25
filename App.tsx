@@ -37,6 +37,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import GetThemeColors from './app/hooks/themeColors';
 import {
   BLITZ_PAYMENT_DEEP_LINK_SCHEMES,
+  CONTACT_UNIVERSAL_LINK_REGEX,
   GIFT_DEEPLINK_REGEX,
   LOGIN_SECUITY_MODE_KEY,
   LOGIN_SECURITY_MODE_TYPE_KEY,
@@ -211,6 +212,7 @@ function ResetStack(): JSX.Element | null {
 
   const handleDeepLink = useCallback(
     async (event: { url: string }, isInitialLoad = false) => {
+      console.log(event);
       const { url } = event;
       try {
         if (isInitialLoad) {
@@ -333,6 +335,10 @@ function ResetStack(): JSX.Element | null {
               sliderHight: 0.6,
             });
           } else {
+            if (CONTACT_UNIVERSAL_LINK_REGEX.test(url)) {
+              isContactLink = true;
+            }
+
             if (lowerUrl.startsWith(contactSchemePrefix)) {
               // If the URL starts with the contact scheme, check if it contains a wrapped payment scheme.
               const contentAfterScheme = lowerUrl.substring(
