@@ -176,7 +176,7 @@ export default function DisplayOptions() {
             <ThemeText
               styles={styles.previewBalance}
               content={displayCorrectDenomination({
-                amount: 50,
+                amount: 50000,
                 masterInfoObject,
                 fiatStats,
               })}
@@ -227,6 +227,27 @@ export default function DisplayOptions() {
             selected={masterInfoObject.satDisplay === 'word'}
             onPress={() => toggleMasterInfoObject({ satDisplay: 'word' })}
             label={t('settings.displayOptions.word')}
+          />
+
+          <View style={[styles.divider, { backgroundColor }]} />
+          {/* Seperator Format */}
+          <ThemeText
+            styles={styles.subsectionTitle}
+            content={t('settings.displayOptions.thousandsSeperator')}
+          />
+          <RadioOption
+            selected={masterInfoObject.thousandsSeperator === 'space'}
+            onPress={() =>
+              toggleMasterInfoObject({ thousandsSeperator: 'space' })
+            }
+            label={t('settings.displayOptions.space')}
+          />
+          <RadioOption
+            selected={masterInfoObject.thousandsSeperator === 'local'}
+            onPress={() =>
+              toggleMasterInfoObject({ thousandsSeperator: 'local' })
+            }
+            label={t('settings.displayOptions.local')}
           />
         </View>
       </SettingsSection>
