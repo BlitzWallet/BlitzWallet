@@ -95,7 +95,7 @@ export default function FormattedBalanceInput({
                 { color: textColor },
                 customTextInputStyles,
               ]}
-              value={formatBalanceAmount(amountValue)}
+              value={formatBalanceAmount(amountValue, false, masterInfoObject)}
               editable={false}
               scrollEnabled
               multiline={false}
@@ -127,7 +127,7 @@ export default function FormattedBalanceInput({
             setInputWidth(measuredWidth);
           }}
         >
-          {formatBalanceAmount(amountValue)}
+          {formatBalanceAmount(amountValue, false, masterInfoObject)}
         </Text>
       </View>
     );
@@ -169,7 +169,7 @@ export default function FormattedBalanceInput({
               { color: textColor },
               customTextInputStyles,
             ]}
-            value={formatBalanceAmount(amountValue)}
+            value={formatBalanceAmount(amountValue, false, masterInfoObject)}
             editable={false}
             scrollEnabled
             multiline={false}
@@ -197,7 +197,7 @@ export default function FormattedBalanceInput({
           setInputWidth(newWidth);
         }}
       >
-        {formatBalanceAmount(amountValue)}
+        {formatBalanceAmount(amountValue, false, masterInfoObject)}
       </Text>
     </View>
   );

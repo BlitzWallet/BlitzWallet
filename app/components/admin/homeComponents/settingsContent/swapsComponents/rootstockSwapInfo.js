@@ -1,45 +1,48 @@
-import React, {useState} from 'react';
-import {StyleSheet, View, ScrollView, TouchableOpacity} from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import {
   COLORS,
   INSET_WINDOW_WIDTH,
   SIZES,
 } from '../../../../../constants/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {ThemeText} from '../../../../../functions/CustomElements';
+import { ThemeText } from '../../../../../functions/CustomElements';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {ICONS} from '../../../../../constants';
-import {useNavigation} from '@react-navigation/native';
+import { ICONS } from '../../../../../constants';
+import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {useRootstockProvider} from '../../../../../../context-store/rootstockSwapContext';
-import {refundRootstockSubmarineSwap} from '../../../../../functions/boltz/rootstock/claims';
-import {useToast} from '../../../../../../context-store/toastManager';
-import {copyToClipboard, formatBalanceAmount} from '../../../../../functions';
-import {useTranslation} from 'react-i18next';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
+import { useRootstockProvider } from '../../../../../../context-store/rootstockSwapContext';
+import { refundRootstockSubmarineSwap } from '../../../../../functions/boltz/rootstock/claims';
+import { useToast } from '../../../../../../context-store/toastManager';
+import { copyToClipboard, formatBalanceAmount } from '../../../../../functions';
+import { useTranslation } from 'react-i18next';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
 
 export default function SubmarineSwapDisplay(props) {
   const swapData = props.route.params.swap;
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
-  const {signer} = useRootstockProvider();
+  const { signer } = useRootstockProvider();
   const [isRefunding, setIsRefunding] = useState(false);
-  const {showToast} = useToast();
-  const {t} = useTranslation();
-  const {bottomPadding, topPadding} = useGlobalInsets();
+  const { showToast } = useToast();
+  const { t } = useTranslation();
+  const { bottomPadding, topPadding } = useGlobalInsets();
 
   const formatAddress = address => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const CopyableValue = ({value, displayValue, style}) => (
+  const CopyableValue = ({ value, displayValue, style }) => (
     <TouchableOpacity
       onPress={() => copyToClipboard(value, showToast)}
-      style={styles.copyableContainer}>
+      style={styles.copyableContainer}
+    >
       <ThemeText
-        styles={{...styles.value, ...style}}
+        styles={{ ...styles.value, ...style }}
         content={displayValue || value}
       />
     </TouchableOpacity>
@@ -49,13 +52,15 @@ export default function SubmarineSwapDisplay(props) {
     <View
       style={[
         styles.container,
-        {paddingTop: topPadding, paddingBottom: bottomPadding},
-      ]}>
+        { paddingTop: topPadding, paddingBottom: bottomPadding },
+      ]}
+    >
       <View
         style={[
           styles.card,
-          {backgroundColor: theme ? backgroundOffset : COLORS.darkModeText},
-        ]}>
+          { backgroundColor: theme ? backgroundOffset : COLORS.darkModeText },
+        ]}
+      >
         <TouchableOpacity onPress={navigate.goBack} style={styles.closePopup}>
           <ThemeImage
             lightModeIcon={ICONS.xSmallIcon}
@@ -66,7 +71,8 @@ export default function SubmarineSwapDisplay(props) {
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}>
+          contentContainerStyle={styles.scrollContent}
+        >
           <ThemeText
             content={t('settings.rootstockSwapInfo.title')}
             styles={styles.title}
@@ -78,7 +84,9 @@ export default function SubmarineSwapDisplay(props) {
             />
             <CopyableValue value={swapData.id} />
           </View>
-          <View style={[styles.divider, {backgroundColor: backgroundColor}]} />
+          <View
+            style={[styles.divider, { backgroundColor: backgroundColor }]}
+          />
           <ThemeText
             content={t('settings.rootstockSwapInfo.swapDetails')}
             styles={styles.sectionTitle}
@@ -114,10 +122,13 @@ export default function SubmarineSwapDisplay(props) {
               displayValue={formatBalanceAmount(
                 swapData.data.swap.expectedAmount,
                 true,
+                masterInfoObject,
               )}
             />
           </View>
-          <View style={[styles.divider, {backgroundColor: backgroundColor}]} />
+          <View
+            style={[styles.divider, { backgroundColor: backgroundColor }]}
+          />
 
           <ThemeText
             content={t('settings.rootstockSwapInfo.invoice')}
@@ -126,11 +137,13 @@ export default function SubmarineSwapDisplay(props) {
           <View
             style={[
               styles.invoiceContainer,
-              {backgroundColor: theme ? backgroundColor : backgroundOffset},
-            ]}>
+              { backgroundColor: theme ? backgroundColor : backgroundOffset },
+            ]}
+          >
             <TouchableOpacity
               onPress={() => copyToClipboard(swapData.data.invoice, showToast)}
-              style={styles.copyableContainer}>
+              style={styles.copyableContainer}
+            >
               <ThemeText
                 styles={styles.invoice}
                 content={swapData.data.invoice}

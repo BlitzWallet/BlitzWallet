@@ -1,26 +1,29 @@
-import {StyleSheet, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useCallback, useMemo} from 'react';
-import {ThemeText} from '../../../../functions/CustomElements';
+import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useCallback, useMemo } from 'react';
+import { ThemeText } from '../../../../functions/CustomElements';
 import GetThemeColors from '../../../../hooks/themeColors';
 import writeAndShareFileToFilesystem from '../../../../functions/writeFileToFilesystem';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {CENTER} from '../../../../constants';
-import {crashlyticsLogReport} from '../../../../functions/crashlyticsLogs';
-import {useSparkWallet} from '../../../../../context-store/sparkContext';
-import {useTranslation} from 'react-i18next';
-import {getAllSparkTransactions} from '../../../../functions/spark/transactions';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { CENTER } from '../../../../constants';
+import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
+import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import { useTranslation } from 'react-i18next';
+import { getAllSparkTransactions } from '../../../../functions/spark/transactions';
+import { formatBalanceAmount } from '../../../../functions';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 export default function ConfirmExportPayments({
   startExport,
   theme,
   darkModeType,
 }) {
+  const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
-  const {sparkInformation} = useSparkWallet();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { sparkInformation } = useSparkWallet();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
 
   const onSwipeSuccess = useCallback(() => {
     setTimeout(async () => {
@@ -57,8 +60,16 @@ export default function ConfirmExportPayments({
                 ? txDetails.description
                 : t('constants.noDescription'),
               txDate.toLocaleString().replace(/,/g, ' '),
-              Math.round(txDetails.fee).toLocaleString().replace(/,/g, ' '),
-              Math.round(txDetails.amount).toLocaleString().replace(/,/g, ' '),
+              formatBalanceAmount(
+                txDetails.fee,
+                undefined,
+                masterInfoObject.thousandsSeperator,
+              ),
+              formatBalanceAmount(
+                txDetails.amount,
+                undefined,
+                masterInfoObject.thousandsSeperator,
+              ),
               txDetails.direction === 'OUTGOING'
                 ? t('constants.sent')
                 : t('constants.received'),
@@ -69,7 +80,15 @@ export default function ConfirmExportPayments({
           }
         }
 
-        const csvData = headers.concat(formatedData).join('\n');
+        const csvData = headers
+          .concat(formatedData)
+          .map(row =>
+            row
+              .map(field => `"${String(field).replace(/"/g, '""')}"`)
+              .join(','),
+          )
+          .join('\n');
+
         const fileName = 'BlitzWallet.csv';
 
         const response = await writeAndShareFileToFilesystem(
@@ -96,7 +115,10 @@ export default function ConfirmExportPayments({
         });
       }
     }, 1000);
-  }, []);
+  }, [
+    masterInfoObject.thousandsSeperator,
+    masterInfoObject.userSelectedLanguage,
+  ]);
 
   const dynamicStyles = useMemo(() => {
     return {
@@ -126,7 +148,7 @@ export default function ConfirmExportPayments({
 }
 
 const styles = StyleSheet.create({
-  titleText: {width: INSET_WINDOW_WIDTH, ...CENTER, textAlign: 'center'},
+  titleText: { width: INSET_WINDOW_WIDTH, ...CENTER, textAlign: 'center' },
   containerStyle: {
     flex: 1,
     alignItems: 'center',

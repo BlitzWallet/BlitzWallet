@@ -166,6 +166,8 @@ export default function SelectGiftCardForContacts() {
                                   : 'denominations'
                               ][0]
                             : 1,
+                          undefined,
+                          masterInfoObject,
                         )} ${item.currency} ${
                           item.denominations.length > 1 ? '-' : ''
                         } ${formatBalanceAmount(
@@ -180,10 +182,14 @@ export default function SelectGiftCardForContacts() {
                                 : 'denominations'
                             ].length - 1
                           ],
+                          undefined,
+                          masterInfoObject,
                         )} ${item.currency}`
-                      : `${formatBalanceAmount(item.denominations[0])} ${
-                          item.currency
-                        }`
+                      : `${formatBalanceAmount(
+                          item.denominations[0],
+                          undefined,
+                          masterInfoObject,
+                        )} ${item.currency}`
                   }
                 />
               </View>

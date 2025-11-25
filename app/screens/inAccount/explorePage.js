@@ -244,8 +244,14 @@ export default function ExploreUsers() {
           />
           <ThemeText
             styles={styles.statsCardNumberText}
-            content={`${formatBalanceAmount(max)} of ${formatBalanceAmount(
+            content={`${formatBalanceAmount(
+              max,
+              undefined,
+              masterInfoObject,
+            )} of ${formatBalanceAmount(
               BLITZ_GOAL_USER_COUNT,
+              undefined,
+              masterInfoObject,
             )} (${((max / BLITZ_GOAL_USER_COUNT) * 100).toFixed(4)}%)`}
           />
         </View>

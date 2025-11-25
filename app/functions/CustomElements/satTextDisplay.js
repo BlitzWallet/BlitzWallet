@@ -50,6 +50,7 @@ export default function FormattedSatText({
               fiatStats,
             ),
             useMillionDenomination,
+            masterInfoObject,
           ),
     [
       balance,
@@ -57,6 +58,8 @@ export default function FormattedSatText({
       localBalanceDenomination,
       fiatStats,
       useMillionDenomination,
+      masterInfoObject.thousandsSeperator,
+      masterInfoObject.userSelectedLanguage,
     ],
   );
 
