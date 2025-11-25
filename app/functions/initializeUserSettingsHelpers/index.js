@@ -23,6 +23,7 @@ const keys = [
   'didViewSeedPhrase',
   'enabledBTKNTokens',
   'defaultSpendToken',
+  'thousandsSeperator',
 ];
 
 const defaultValues = {
@@ -56,6 +57,7 @@ const defaultValues = {
   didViewSeedPhrase: null,
   enabledBTKNTokens: null,
   defaultSpendToken: 'Bitcoin',
+  thousandsSeperator: 'space',
 };
 
 export const fetchLocalStorageItems = async () => {
@@ -97,6 +99,7 @@ export const fetchLocalStorageItems = async () => {
     didViewSeedPhrase: parsedResults[16] ?? defaultValues.didViewSeedPhrase,
     enabledBTKNTokens: parsedResults[17] ?? defaultValues.enabledBTKNTokens,
     defaultSpendToken: parsedResults[18] ?? defaultValues.defaultSpendToken,
+    thousandsSeperator: parsedResults[19] ?? defaultValues.thousandsSeperator,
   };
 };
 
