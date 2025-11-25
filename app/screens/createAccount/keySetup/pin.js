@@ -11,6 +11,9 @@ import factoryResetWallet from '../../../functions/factoryResetWallet';
 import RNRestart from 'react-native-restart';
 import { useKeysContext } from '../../../../context-store/keys';
 import { storeMnemonicWithPinSecurity } from '../../../functions/handleMnemonic';
+import { privateKeyFromSeedWords } from '../../../functions/nostrCompatability';
+import { getPublicKey } from 'nostr-tools';
+import { initializeFirebase } from '../../../../db/initializeFirebase';
 
 export default function PinPage(props) {
   const { accountMnemoinc } = useKeysContext();
@@ -24,6 +27,18 @@ export default function PinPage(props) {
   const didNavigate = useRef(null);
   // const fromGiftPath = props.route.params?.from === 'giftPath';
   const didRestoreWallet = props.route.params?.didRestoreWallet;
+
+  useEffect(() => {
+    // begin initializing firebase to speed up loading time
+    async function preConnectToFirebase() {
+      const privateKey = await privateKeyFromSeedWords(accountMnemoinc);
+      const publicKey = privateKey ? getPublicKey(privateKey) : null;
+      if (privateKey && publicKey) {
+        initializeFirebase(publicKey, privateKey);
+      }
+    }
+    preConnectToFirebase();
+  }, []);
 
   useEffect(() => {
     const filteredPin = pin.filter(pin => {

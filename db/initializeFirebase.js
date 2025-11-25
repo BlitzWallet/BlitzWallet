@@ -4,55 +4,75 @@ import {
   signInWithCustomToken,
   signOut,
 } from '@react-native-firebase/auth';
-import {getFirestore} from '@react-native-firebase/firestore';
+import { getFirestore } from '@react-native-firebase/firestore';
 import {
   connectFunctionsEmulator,
   getFunctions,
 } from '@react-native-firebase/functions';
 import fetchBackend from './handleBackend';
-import {Platform} from 'react-native';
-import {getStorage} from '@react-native-firebase/storage';
-const db = getFirestore();
+import { Platform } from 'react-native';
+import { getStorage } from '@react-native-firebase/storage';
+
+export const db = getFirestore();
 export const storage = getStorage();
 export const firebaseAuth = getAuth();
 
+let initializationPromise = null;
+let lastInitializedKey = null;
+
 export async function initializeFirebase(publicKey, privateKey) {
-  try {
-    // Initialize App Check first
-    // Sign in anonymously
-    if (__DEV__) {
-      connectFunctionsEmulator(getFunctions(), process.env.DEVICE_IP, 5001);
-    }
+  const cacheKey = publicKey;
 
-    const currentUser = firebaseAuth.currentUser;
-    console.log('current auth', {
-      currentUser,
-      publicKey,
-    });
-
-    if (currentUser && currentUser?.uid === publicKey) {
-      return currentUser;
-    }
-    await signInAnonymously(firebaseAuth);
-    const isSignedIn = firebaseAuth.currentUser;
-    console.log(isSignedIn.uid, 'signed in');
-    const token = await fetchBackend(
-      'customToken',
-      {userAuth: isSignedIn?.uid},
-      privateKey,
-      publicKey,
-    );
-    if (!token) throw new Error('Not able to get custom token from backend');
-    console.log('custom sign in token from backend', token);
-    await signOut(firebaseAuth);
-
-    const customSignIn = await signInWithCustomToken(firebaseAuth, token);
-    console.log('custom sign in user id', customSignIn.user);
-    return customSignIn;
-  } catch (error) {
-    console.error('Error initializing Firebase:', error);
-    throw new Error(String(error.message));
+  if (initializationPromise && lastInitializedKey === cacheKey) {
+    console.log('Reusing existing initialization promise');
+    return initializationPromise;
   }
-}
 
-export {db};
+  if (lastInitializedKey !== cacheKey) {
+    initializationPromise = null;
+  }
+
+  lastInitializedKey = cacheKey;
+  initializationPromise = (async () => {
+    try {
+      // Initialize App Check first
+      // Sign in anonymously
+      if (__DEV__) {
+        connectFunctionsEmulator(getFunctions(), process.env.DEVICE_IP, 5001);
+      }
+
+      const currentUser = firebaseAuth.currentUser;
+      console.log('current auth', {
+        currentUser,
+        publicKey,
+      });
+
+      if (currentUser && currentUser?.uid === publicKey) {
+        return currentUser;
+      }
+      await signInAnonymously(firebaseAuth);
+      const isSignedIn = firebaseAuth.currentUser;
+      console.log(isSignedIn.uid, 'signed in');
+      const token = await fetchBackend(
+        'customToken',
+        { userAuth: isSignedIn?.uid },
+        privateKey,
+        publicKey,
+      );
+      if (!token) throw new Error('Not able to get custom token from backend');
+      console.log('custom sign in token from backend', token);
+      await signOut(firebaseAuth);
+
+      const customSignIn = await signInWithCustomToken(firebaseAuth, token);
+      console.log('custom sign in user id', customSignIn.user);
+      return customSignIn;
+    } catch (error) {
+      console.error('Error initializing Firebase:', error);
+      // Clear the cache on error so the next call can retry
+      initializationPromise = null;
+      lastInitializedKey = null;
+      throw new Error(String(error.message));
+    }
+  })();
+  return initializationPromise;
+}
