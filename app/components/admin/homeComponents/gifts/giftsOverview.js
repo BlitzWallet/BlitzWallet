@@ -170,6 +170,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
           data={giftsArray}
           renderItem={GiftsCard}
           refreshControl={refreshControl}
+          showsVerticalScrollIndicator={false}
         />
       ) : (
         <ScrollView contentContainerStyle={styles.scrollView}>

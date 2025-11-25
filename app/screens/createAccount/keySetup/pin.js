@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { setLocalStorageItem } from '../../../functions';
 import { SIZES } from '../../../constants';
@@ -21,6 +21,7 @@ export default function PinPage(props) {
   const [pinEnterCount, setPinEnterCount] = useState(0);
   const navigate = useNavigation();
   const { t } = useTranslation();
+  const didNavigate = useRef(null);
   // const fromGiftPath = props.route.params?.from === 'giftPath';
   const didRestoreWallet = props.route.params?.didRestoreWallet;
 
@@ -35,6 +36,7 @@ export default function PinPage(props) {
       setIsConfirming(true);
       return;
     }
+    if (didNavigate.current) return;
     (async () => {
       if (pin.toString() === confirmPin.toString()) {
         const resposne = await storeMnemonicWithPinSecurity(
@@ -60,6 +62,7 @@ export default function PinPage(props) {
         );
 
         clearSettings();
+        didNavigate.current = true;
         navigate.reset({
           index: 0,
           routes: [

@@ -45,6 +45,7 @@ export default function PinPage() {
   const numRetriesBiometric = useRef(0);
   const { setAccountMnemonic } = useKeysContext();
   const { t } = useTranslation();
+  const didNavigate = useRef(null);
 
   const navigate = useNavigation();
 
@@ -79,6 +80,7 @@ export default function PinPage() {
     });
 
     if (filteredPin.length != 4) return;
+    if (didNavigate.current) return;
 
     let comparisonHash = '';
     if (loginSettings.needsToBeMigrated) {
@@ -105,6 +107,7 @@ export default function PinPage() {
         );
         if (migrationResponse) {
           setAccountMnemonic(savedMnemonic.value);
+          didNavigate.current = true;
           navigate.replace('ConnectingToNodeLoadingScreen');
         } else
           navigate.navigate('ErrorScreen', {
@@ -117,9 +120,8 @@ export default function PinPage() {
         );
         setAccountMnemonic(mnemonicPlain);
 
-        requestAnimationFrame(() => {
-          navigate.replace('ConnectingToNodeLoadingScreen');
-        });
+        didNavigate.current = true;
+        navigate.replace('ConnectingToNodeLoadingScreen');
       }
     } else {
       if (loginSettings.enteredPinCount >= 7) {
@@ -206,6 +208,7 @@ export default function PinPage() {
           if (migrationResponse) {
             storeData('pinHash', sha256Hash(storedPin.value));
             setAccountMnemonic(savedMnemonic.value);
+            didNavigate.current = true;
             navigate.replace('ConnectingToNodeLoadingScreen');
           } else {
             navigate.navigate('ConfirmActionPage', {
@@ -236,6 +239,7 @@ export default function PinPage() {
         const decryptResponse = await decryptMnemonicWithBiometrics();
         if (decryptResponse) {
           setAccountMnemonic(decryptResponse);
+          didNavigate.current = true;
           navigate.replace('ConnectingToNodeLoadingScreen');
         } else {
           if (numRetriesBiometric.current++ < 3) {
