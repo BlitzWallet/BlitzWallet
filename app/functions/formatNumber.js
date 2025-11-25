@@ -55,7 +55,7 @@ export default function formatBalanceAmount(
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(numericValue);
-  } catch {
+  } catch (err) {
     console.log('format balance amount error', err);
     return '0';
   }
