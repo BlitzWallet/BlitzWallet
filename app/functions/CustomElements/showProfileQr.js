@@ -12,7 +12,13 @@ import { useToast } from '../../../context-store/toastManager';
 import GlobalThemeView from './globalThemeView';
 import CustomSettingsTopBar from './settingsTopBar';
 import GetThemeColors from '../../hooks/themeColors';
-import { CENTER, ICONS, SIZES } from '../../constants';
+import {
+  CENTER,
+  EMAIL_REGEX,
+  ICONS,
+  SIZES,
+  VALID_URL_REGEX,
+} from '../../constants';
 import ThemeText from './textTheme';
 import ThemeImage from './themeImage';
 import { useGlobalContacts } from '../../../context-store/globalContacts';
@@ -22,6 +28,9 @@ import { useImageCache } from '../../../context-store/imageCache';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import { COLORS, INSET_WINDOW_WIDTH } from '../../constants/theme';
+import getDeepLinkUser from '../../components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
+import { useNavigation } from '@react-navigation/native';
+import { getCachedProfileImage } from '../cachedImage';
 
 export default function ShowProfileQr() {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -31,7 +40,7 @@ export default function ShowProfileQr() {
   const { showToast } = useToast();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
   const { theme, darkModeType } = useGlobalThemeContext();
-
+  const navigate = useNavigation();
   const [activeType, setActiveType] = useState('blitz');
   const [copied, setCopied] = useState(false);
 
@@ -61,6 +70,87 @@ export default function ShowProfileQr() {
       Share.share({ message: currentValue });
     } else {
       Share.share({ message: t('share.contact') + '\n' + currentValue });
+    }
+  };
+
+  const handleProfileScan = async data => {
+    try {
+      if (EMAIL_REGEX.test(data)) {
+        navigate.reset({
+          index: 0, // The top-level route index
+          routes: [
+            {
+              name: 'HomeAdmin',
+              params: { screen: 'Home' },
+            },
+            {
+              name: 'ConfirmPaymentScreen',
+              params: {
+                btcAdress: data,
+              },
+            },
+          ],
+        });
+        return;
+      }
+
+      let newContact;
+      if (VALID_URL_REGEX.test(data)) {
+        const {
+          didWork,
+          reason,
+          data: userProfile,
+        } = await getDeepLinkUser({
+          deepLinkContent: data,
+          userProfile: globalContactsInformation.myProfile,
+        });
+
+        if (!didWork) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t(reason),
+          });
+          return;
+        }
+        newContact = userProfile;
+      } else {
+        const decoded = atob(data);
+        const parsedData = JSON.parse(decoded);
+        newContact = {
+          name: parsedData.name || '',
+          bio: parsedData.bio || '',
+          uniqueName: parsedData.uniqueName,
+          isFavorite: false,
+          // transactions: [],
+          unlookedTransactions: 0,
+          uuid: parsedData.uuid,
+          // receiveAddress: parsedData.receiveAddress,
+          isAdded: true,
+          // profileImage: '',
+        };
+      }
+
+      await getCachedProfileImage(newContact.uuid);
+
+      navigate.reset({
+        index: 0, // The top-level route index
+        routes: [
+          {
+            name: 'HomeAdmin',
+            params: { screen: 'Home' },
+          },
+          {
+            name: 'ExpandedAddContactsPage',
+            params: {
+              newContact: newContact,
+            },
+          },
+        ],
+      });
+    } catch (err) {
+      console.log('parse contact half modal error', err);
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('contacts.addContactsHalfModal.noContactsMessage'),
+      });
     }
   };
 
@@ -164,10 +254,19 @@ export default function ShowProfileQr() {
 
           <ThemeText styles={styles.label} content={currentLabel} />
 
-          <TouchableOpacity style={styles.copyButton} onPress={handleCopy}>
+          <TouchableOpacity
+            style={[
+              styles.copyButton,
+              {
+                backgroundColor:
+                  theme && darkModeType ? backgroundOffset : COLORS.primary,
+              },
+            ]}
+            onPress={handleCopy}
+          >
             <ThemeImage
               styles={{ width: 20, height: 20, marginRight: 5 }}
-              lightModeIcon={ICONS.clipboardDark}
+              lightModeIcon={ICONS.clipboardLight}
               darkModeIcon={ICONS.clipboardLight}
               lightsOutIcon={ICONS.clipboardLight}
             />
@@ -183,6 +282,28 @@ export default function ShowProfileQr() {
                     )
               }
             />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.copyButton,
+              {
+                marginTop: 0,
+              },
+            ]}
+            onPress={() => {
+              navigate.navigate('CameraModal', {
+                updateBitcoinAdressFunc: handleProfileScan,
+                fromPage: 'ShowProfileQr',
+              });
+            }}
+          >
+            <ThemeImage
+              styles={{ width: 20, height: 20, marginRight: 5 }}
+              lightModeIcon={ICONS.scanQrCodeDark}
+              darkModeIcon={ICONS.scanQrCodeLight}
+              lightsOutIcon={ICONS.scanQrCodeLight}
+            />
+            <ThemeText content={'Scan Profile'} />
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -249,19 +370,19 @@ const styles = StyleSheet.create({
   label: {
     opacity: 0.6,
     marginTop: 20,
+    marginBottom: 'auto',
   },
   copyButton: {
     width: '100%',
     paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: '#ccc',
+    borderRadius: 8,
     flexDirection: 'row',
     marginTop: 20,
   },
   copyText: {
-    fontSize: SIZES.small,
+    color: COLORS.darkModeText,
+    includeFontPadding: false,
   },
 });
