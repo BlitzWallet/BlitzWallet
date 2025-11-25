@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { CENTER, FONT, SATSPERBITCOIN, SIZES } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useState } from 'react';
@@ -13,11 +13,17 @@ import FormattedBalanceInput from '../../../../functions/CustomElements/formatte
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import useHandleBackPressNew from '../../../../hooks/useHandleBackPressNew';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
-import { COLORS, HIDDEN_OPACITY } from '../../../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  WINDOWWIDTH,
+} from '../../../../constants/theme';
 import { useActiveCustodyAccount } from '../../../../../context-store/activeAccount';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import customUUID from '../../../../functions/customUUID';
+import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -27,6 +33,7 @@ export default function EditReceivePaymentInformation(props) {
   const [amountValue, setAmountValue] = useState('');
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
   const [paymentDescription, setPaymentDescription] = useState('');
+  const { bottomPadding } = useGlobalInsets();
   const { t } = useTranslation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const fromPage = props.route.params.from;
@@ -65,87 +72,99 @@ export default function EditReceivePaymentInformation(props) {
 
   useHandleBackPressNew();
 
+  const handleEmoji = newDescription => {
+    setPaymentDescription(newDescription);
+  };
+
   return (
     <CustomKeyboardAvoidingView
-      useLocalPadding={true}
-      isKeyboardActive={isKeyboardFocused}
-      useStandardWidth={true}
+      globalThemeViewStyles={{
+        paddingBottom: isKeyboardFocused ? 0 : bottomPadding,
+      }}
     >
-      <CustomSettingsTopBar
-        shouldDismissKeyboard={true}
-        label={t('wallet.receivePages.editPaymentInfo.editAmount')}
-      />
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.amountScrollContainer}
-      >
-        <FormattedBalanceInput
-          maxWidth={0.9}
-          amountValue={amountValue}
-          inputDenomination={inputDenomination}
-          containerFunction={() => {
-            setInputDenomination(prev => {
-              const newPrev = prev === 'sats' ? 'fiat' : 'sats';
-
-              return newPrev;
-            });
-            setAmountValue(convertedValue() || '');
-          }}
+      <View style={styles.replacementContainer}>
+        <CustomSettingsTopBar
+          shouldDismissKeyboard={true}
+          label={t('wallet.receivePages.editPaymentInfo.editAmount')}
         />
 
-        <FormattedSatText
-          containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
-          neverHideBalance={true}
-          styles={{ includeFontPadding: false, ...styles.satValue }}
-          globalBalanceDenomination={
-            inputDenomination === 'sats' ? 'fiat' : 'sats'
-          }
-          balance={localSatAmount}
-        />
-      </ScrollView>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.amountScrollContainer}
+        >
+          <FormattedBalanceInput
+            maxWidth={0.9}
+            amountValue={amountValue}
+            inputDenomination={inputDenomination}
+            containerFunction={() => {
+              setInputDenomination(prev => {
+                const newPrev = prev === 'sats' ? 'fiat' : 'sats';
 
-      {(receiveType.toLowerCase() === 'lightning' ||
-        receiveType.toLowerCase() === 'bitcoin' ||
-        receiveType.toLowerCase() === 'liquid') && (
-        <CustomSearchInput
-          setInputText={setPaymentDescription}
-          placeholderText={t(
-            'wallet.receivePages.editPaymentInfo.descriptionInputPlaceholder',
-          )}
-          inputText={paymentDescription}
-          textInputStyles={styles.textInputStyles}
-          onFocusFunction={() => setIsKeyboardFocused(true)}
-          onBlurFunction={() => setIsKeyboardFocused(false)}
-          editable={!disableDescription}
-          containerStyles={{ maxWidth: 350 }}
-          placeholderTextColor={
-            theme && !darkModeType
-              ? undefined
-              : theme
-              ? COLORS.lightsOutModeOpacityInput
-              : COLORS.opaicityGray
-          }
-        />
-      )}
-
-      {!isKeyboardFocused && (
-        <>
-          <CustomNumberKeyboard
-            showDot={inputDenomination === 'fiat'}
-            setInputValue={setAmountValue}
-            usingForBalance={true}
-            fiatStats={fiatStats}
-          />
-
-          <CustomButton
-            buttonStyles={{
-              ...CENTER,
+                return newPrev;
+              });
+              setAmountValue(convertedValue() || '');
             }}
-            actionFunction={handleSubmit}
-            textContent={t('constants.request')}
           />
-        </>
+
+          <FormattedSatText
+            containerStyles={{ opacity: !amountValue ? HIDDEN_OPACITY : 1 }}
+            neverHideBalance={true}
+            styles={{ includeFontPadding: false, ...styles.satValue }}
+            globalBalanceDenomination={
+              inputDenomination === 'sats' ? 'fiat' : 'sats'
+            }
+            balance={localSatAmount}
+          />
+        </ScrollView>
+
+        {(receiveType.toLowerCase() === 'lightning' ||
+          receiveType.toLowerCase() === 'bitcoin' ||
+          receiveType.toLowerCase() === 'liquid') && (
+          <CustomSearchInput
+            setInputText={setPaymentDescription}
+            placeholderText={t(
+              'wallet.receivePages.editPaymentInfo.descriptionInputPlaceholder',
+            )}
+            inputText={paymentDescription}
+            textInputStyles={styles.textInputStyles}
+            onFocusFunction={() => setIsKeyboardFocused(true)}
+            onBlurFunction={() => setIsKeyboardFocused(false)}
+            editable={!disableDescription}
+            containerStyles={{ maxWidth: 350 }}
+            placeholderTextColor={
+              theme && !darkModeType
+                ? undefined
+                : theme
+                ? COLORS.lightsOutModeOpacityInput
+                : COLORS.opaicityGray
+            }
+          />
+        )}
+
+        {!isKeyboardFocused && (
+          <>
+            <CustomNumberKeyboard
+              showDot={inputDenomination === 'fiat'}
+              setInputValue={setAmountValue}
+              usingForBalance={true}
+              fiatStats={fiatStats}
+            />
+
+            <CustomButton
+              buttonStyles={{
+                ...CENTER,
+              }}
+              actionFunction={handleSubmit}
+              textContent={t('constants.request')}
+            />
+          </>
+        )}
+      </View>
+      {isKeyboardFocused && (
+        <EmojiQuickBar
+          description={paymentDescription}
+          onEmojiSelect={handleEmoji}
+        />
       )}
     </CustomKeyboardAvoidingView>
   );
@@ -176,6 +195,11 @@ export default function EditReceivePaymentInformation(props) {
 }
 
 const styles = StyleSheet.create({
+  replacementContainer: {
+    flexGrow: 1,
+    width: WINDOWWIDTH,
+    ...CENTER,
+  },
   globalContainer: {
     flex: 1,
   },

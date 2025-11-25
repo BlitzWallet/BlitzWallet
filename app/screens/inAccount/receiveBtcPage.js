@@ -376,6 +376,10 @@ function QrCode(props) {
       qrOpacity.value = withTiming(0, { duration: fadeOutDuration });
       loadingOpacity.value = 0;
       previousAddress.current = '';
+    } else if (newAddress) {
+      // if we have an address just show the qr code
+      loadingOpacity.value = 0;
+      qrOpacity.value = withTiming(1, { duration: fadeInDuration });
     }
   }, [
     addressState.generatedAddress,

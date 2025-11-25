@@ -45,12 +45,15 @@ import {
   COLORS,
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
 } from '../../../../constants/theme';
 import { SliderProgressAnimation } from '../../../../functions/CustomElements/sendPaymentAnimation';
 import { InputTypes } from 'bitcoin-address-parser';
 import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsTopBar';
 import { useWebView } from '../../../../../context-store/webViewContext';
 import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalance';
+import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 
 export default function SendPaymentScreen(props) {
   const { sendWebViewRequest } = useWebView();
@@ -78,6 +81,7 @@ export default function SendPaymentScreen(props) {
   // const {minMaxLiquidSwapAmounts} = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
+  const { bottomPadding } = useGlobalInsets();
   // const {webViewRef} = useWebView();
 
   const [isAmountFocused, setIsAmountFocused] = useState(true);
@@ -254,6 +258,10 @@ export default function SendPaymentScreen(props) {
     });
   }, [navigate]);
 
+  const handleEmoji = newDescription => {
+    setPaymentDescription(newDescription);
+  };
+
   if (
     (!Object.keys(paymentInfo).length && !errorMessage) ||
     !sparkInformation.didConnect
@@ -275,44 +283,49 @@ export default function SendPaymentScreen(props) {
 
   return (
     <CustomKeyboardAvoidingView
-      useLocalPadding={true}
-      isKeyboardActive={!isAmountFocused}
-      useStandardWidth={true}
+      globalThemeViewStyles={{
+        paddingBottom: !isAmountFocused ? 0 : bottomPadding,
+      }}
     >
-      <NavBarWithBalance
-        seletctedToken={seletctedToken}
-        selectedLRC20Asset={selectedLRC20Asset}
-        backFunction={handleBackpress}
-      />
-
-      {enabledLRC20 && paymentInfo.type === 'spark' && canEditPaymentAmount && (
-        <TouchableOpacity onPress={handleSelectTokenPress}>
-          <ThemeText
-            styles={styles.selectTokenText}
-            content={t('wallet.sendPages.sendPaymentScreen.switchTokenText')}
-          />
-        </TouchableOpacity>
-      )}
-
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingVertical: 10,
-        }}
-      >
-        <FormattedBalanceInput
-          maxWidth={0.9}
-          amountValue={sendingAmount}
-          inputDenomination={masterInfoObject.userBalanceDenomination}
-          activeOpacity={!sendingAmount ? 0.5 : 1}
-          customCurrencyCode={
-            isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
-          }
+      <View style={styles.replacementContainer}>
+        <NavBarWithBalance
+          seletctedToken={seletctedToken}
+          selectedLRC20Asset={selectedLRC20Asset}
+          backFunction={handleBackpress}
         />
 
-        {/* {isUsingLRC20 && (
+        {enabledLRC20 &&
+          paymentInfo.type === 'spark' &&
+          canEditPaymentAmount && (
+            <TouchableOpacity onPress={handleSelectTokenPress}>
+              <ThemeText
+                styles={styles.selectTokenText}
+                content={t(
+                  'wallet.sendPages.sendPaymentScreen.switchTokenText',
+                )}
+              />
+            </TouchableOpacity>
+          )}
+
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: 10,
+          }}
+        >
+          <FormattedBalanceInput
+            maxWidth={0.9}
+            amountValue={sendingAmount}
+            inputDenomination={masterInfoObject.userBalanceDenomination}
+            activeOpacity={!sendingAmount ? 0.5 : 1}
+            customCurrencyCode={
+              isUsingLRC20 ? seletctedToken?.tokenMetadata?.tokenTicker : ''
+            }
+          />
+
+          {/* {isUsingLRC20 && (
           <FormattedSatText
             neverHideBalance={true}
             containerStyles={{opacity: !sendingAmount ? 0.5 : 1}}
@@ -325,94 +338,130 @@ export default function SendPaymentScreen(props) {
             )}
           />
         )} */}
-        {!isUsingLRC20 && (
-          <FormattedSatText
-            containerStyles={{ opacity: !sendingAmount ? HIDDEN_OPACITY : 1 }}
-            neverHideBalance={true}
-            styles={{ includeFontPadding: false, ...styles.satValue }}
-            globalBalanceDenomination={
-              masterInfoObject.userBalanceDenomination === 'sats' ||
-              masterInfoObject.userBalanceDenomination === 'hidden'
-                ? 'fiat'
-                : 'sats'
-            }
-            balance={convertedSendAmount}
-          />
-        )}
-        {!useAltLayout && canEditPaymentAmount && (
-          <SendMaxComponent
-            fiatStats={fiatStats}
-            sparkInformation={sparkInformation}
-            paymentInfo={paymentInfo}
-            setPaymentInfo={setPaymentInfo}
-            masterInfoObject={masterInfoObject}
-            paymentFee={paymentFee}
-            paymentType={paymentInfo?.paymentNetwork}
-            // minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
-            selectedLRC20Asset={selectedLRC20Asset}
-            seletctedToken={seletctedToken}
-            useAltLayout={useAltLayout}
-          />
-        )}
+          {!isUsingLRC20 && (
+            <FormattedSatText
+              containerStyles={{ opacity: !sendingAmount ? HIDDEN_OPACITY : 1 }}
+              neverHideBalance={true}
+              styles={{ includeFontPadding: false, ...styles.satValue }}
+              globalBalanceDenomination={
+                masterInfoObject.userBalanceDenomination === 'sats' ||
+                masterInfoObject.userBalanceDenomination === 'hidden'
+                  ? 'fiat'
+                  : 'sats'
+              }
+              balance={convertedSendAmount}
+            />
+          )}
+          {!useAltLayout && canEditPaymentAmount && (
+            <SendMaxComponent
+              fiatStats={fiatStats}
+              sparkInformation={sparkInformation}
+              paymentInfo={paymentInfo}
+              setPaymentInfo={setPaymentInfo}
+              masterInfoObject={masterInfoObject}
+              paymentFee={paymentFee}
+              paymentType={paymentInfo?.paymentNetwork}
+              // minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+              selectedLRC20Asset={selectedLRC20Asset}
+              seletctedToken={seletctedToken}
+              useAltLayout={useAltLayout}
+            />
+          )}
 
-        {!canEditPaymentAmount && (
-          <SendTransactionFeeInfo
-            paymentFee={paymentFee}
-            isLightningPayment={isLightningPayment}
-            isLiquidPayment={isLiquidPayment}
-            isBitcoinPayment={isBitcoinPayment}
-            isSparkPayment={isSparkPayment}
-          />
-        )}
-        {!canEditPaymentAmount && (
-          <InvoiceInfo
-            paymentInfo={paymentInfo}
-            contactInfo={contactInfo}
-            fromPage={fromPage}
-            theme={theme}
-            darkModeType={darkModeType}
-          />
-        )}
-      </ScrollView>
-      {canEditPaymentAmount && (
-        <>
-          <CustomSearchInput
-            onFocusFunction={() => setIsAmountFocused(false)}
-            onBlurFunction={() => setIsAmountFocused(true)}
-            placeholderText={t(
-              'wallet.sendPages.sendPaymentScreen.descriptionPlaceholder',
+          {!canEditPaymentAmount && (
+            <SendTransactionFeeInfo
+              paymentFee={paymentFee}
+              isLightningPayment={isLightningPayment}
+              isLiquidPayment={isLiquidPayment}
+              isBitcoinPayment={isBitcoinPayment}
+              isSparkPayment={isSparkPayment}
+            />
+          )}
+          {!canEditPaymentAmount && (
+            <InvoiceInfo
+              paymentInfo={paymentInfo}
+              contactInfo={contactInfo}
+              fromPage={fromPage}
+              theme={theme}
+              darkModeType={darkModeType}
+            />
+          )}
+        </ScrollView>
+        {canEditPaymentAmount && (
+          <>
+            <CustomSearchInput
+              onFocusFunction={() => setIsAmountFocused(false)}
+              onBlurFunction={() => setIsAmountFocused(true)}
+              placeholderText={t(
+                'wallet.sendPages.sendPaymentScreen.descriptionPlaceholder',
+              )}
+              setInputText={setPaymentDescription}
+              inputText={paymentDescription}
+              textInputMultiline={true}
+              textAlignVertical={'baseline'}
+              textInputStyles={{
+                borderRadius: useAltLayout ? 15 : 8,
+              }}
+              maxLength={paymentInfo?.data?.commentAllowed || 150}
+              containerStyles={{
+                width: INSET_WINDOW_WIDTH,
+                marginTop: useAltLayout ? 0 : 10,
+                maxWidth: 350,
+              }}
+            />
+
+            {useAltLayout && (
+              <View style={styles.maxAndAcceptContainer}>
+                <SendMaxComponent
+                  fiatStats={fiatStats}
+                  sparkInformation={sparkInformation}
+                  paymentInfo={paymentInfo}
+                  setPaymentInfo={setPaymentInfo}
+                  masterInfoObject={masterInfoObject}
+                  paymentFee={paymentFee}
+                  paymentType={paymentInfo?.paymentNetwork}
+                  // minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+                  selectedLRC20Asset={selectedLRC20Asset}
+                  seletctedToken={seletctedToken}
+                  useAltLayout={useAltLayout}
+                />
+
+                <AcceptButtonSendPage
+                  isLiquidPayment={isLiquidPayment}
+                  canSendPayment={canSendPayment}
+                  decodeSendAddress={decodeSendAddress}
+                  errorMessageNavigation={errorMessageNavigation}
+                  btcAdress={btcAdress}
+                  paymentInfo={paymentInfo}
+                  convertedSendAmount={convertedSendAmount}
+                  paymentDescription={paymentDescription}
+                  setPaymentInfo={setPaymentInfo}
+                  setLoadingMessage={setLoadingMessage}
+                  fromPage={fromPage}
+                  publishMessageFunc={publishMessageFunc}
+                  // webViewRef={webViewRef}
+                  minLNURLSatAmount={minLNURLSatAmount}
+                  maxLNURLSatAmount={maxLNURLSatAmount}
+                  sparkInformation={sparkInformation}
+                  seletctedToken={seletctedToken}
+                  isLRC20Payment={isUsingLRC20}
+                  useAltLayout={useAltLayout}
+                  sendWebViewRequest={sendWebViewRequest}
+                />
+              </View>
             )}
-            setInputText={setPaymentDescription}
-            inputText={paymentDescription}
-            textInputMultiline={true}
-            textAlignVertical={'baseline'}
-            textInputStyles={{
-              borderRadius: useAltLayout ? 15 : 8,
-            }}
-            maxLength={paymentInfo?.data?.commentAllowed || 150}
-            containerStyles={{
-              width: INSET_WINDOW_WIDTH,
-              marginTop: useAltLayout ? 0 : 10,
-              maxWidth: 350,
-            }}
-          />
 
-          {useAltLayout && (
-            <View style={styles.maxAndAcceptContainer}>
-              <SendMaxComponent
-                fiatStats={fiatStats}
-                sparkInformation={sparkInformation}
+            {isAmountFocused && (
+              <NumberInputSendPage
                 paymentInfo={paymentInfo}
                 setPaymentInfo={setPaymentInfo}
-                masterInfoObject={masterInfoObject}
-                paymentFee={paymentFee}
-                paymentType={paymentInfo?.paymentNetwork}
-                // minMaxLiquidSwapAmounts={minMaxLiquidSwapAmounts}
+                fiatStats={fiatStats}
                 selectedLRC20Asset={selectedLRC20Asset}
                 seletctedToken={seletctedToken}
-                useAltLayout={useAltLayout}
               />
+            )}
 
+            {!useAltLayout && isAmountFocused && (
               <AcceptButtonSendPage
                 isLiquidPayment={isLiquidPayment}
                 canSendPayment={canSendPayment}
@@ -435,85 +484,56 @@ export default function SendPaymentScreen(props) {
                 useAltLayout={useAltLayout}
                 sendWebViewRequest={sendWebViewRequest}
               />
-            </View>
-          )}
+            )}
+          </>
+        )}
 
-          {isAmountFocused && (
-            <NumberInputSendPage
-              paymentInfo={paymentInfo}
-              setPaymentInfo={setPaymentInfo}
-              fiatStats={fiatStats}
-              selectedLRC20Asset={selectedLRC20Asset}
-              seletctedToken={seletctedToken}
-            />
-          )}
-
-          {!useAltLayout && isAmountFocused && (
-            <AcceptButtonSendPage
-              isLiquidPayment={isLiquidPayment}
-              canSendPayment={canSendPayment}
-              decodeSendAddress={decodeSendAddress}
-              errorMessageNavigation={errorMessageNavigation}
-              btcAdress={btcAdress}
-              paymentInfo={paymentInfo}
-              convertedSendAmount={convertedSendAmount}
-              paymentDescription={paymentDescription}
-              setPaymentInfo={setPaymentInfo}
-              setLoadingMessage={setLoadingMessage}
-              fromPage={fromPage}
-              publishMessageFunc={publishMessageFunc}
-              // webViewRef={webViewRef}
-              minLNURLSatAmount={minLNURLSatAmount}
-              maxLNURLSatAmount={maxLNURLSatAmount}
-              sparkInformation={sparkInformation}
-              seletctedToken={seletctedToken}
-              isLRC20Payment={isUsingLRC20}
-              useAltLayout={useAltLayout}
-              sendWebViewRequest={sendWebViewRequest}
-            />
-          )}
-        </>
-      )}
-
-      {!canEditPaymentAmount && (
-        <View style={styles.buttonContainer}>
-          {/* Show slider progress animation instead of swipe button when processing */}
-          {showProgressAnimation ? (
-            <SliderProgressAnimation
-              ref={progressAnimationRef}
-              isVisible={showProgressAnimation}
-              textColor={COLORS.darkModeText}
-              backgroundColor={
-                theme && darkModeType ? backgroundOffset : COLORS.primary
-              }
-              width={0.95}
-            />
-          ) : (
-            <SwipeButtonNew
-              onSwipeSuccess={sendPayment}
-              width={0.85}
-              resetAfterSuccessAnimDuration={true}
-              // shouldAnimateViewOnSuccess={true}
-              shouldResetAfterSuccess={!canSendPayment}
-              // shouldDisplaySuccessState={isSendingPayment}
-              containerStyles={{
-                opacity: canSendPayment ? 1 : HIDDEN_OPACITY,
-              }}
-              thumbIconStyles={{
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : backgroundColor,
-                borderColor:
-                  theme && darkModeType ? backgroundOffset : backgroundColor,
-              }}
-              railStyles={{
-                backgroundColor:
-                  theme && darkModeType ? backgroundOffset : backgroundColor,
-                borderColor:
-                  theme && darkModeType ? backgroundOffset : backgroundColor,
-              }}
-            />
-          )}
-        </View>
+        {!canEditPaymentAmount && (
+          <View style={styles.buttonContainer}>
+            {/* Show slider progress animation instead of swipe button when processing */}
+            {showProgressAnimation ? (
+              <SliderProgressAnimation
+                ref={progressAnimationRef}
+                isVisible={showProgressAnimation}
+                textColor={COLORS.darkModeText}
+                backgroundColor={
+                  theme && darkModeType ? backgroundOffset : COLORS.primary
+                }
+                width={0.95}
+              />
+            ) : (
+              <SwipeButtonNew
+                onSwipeSuccess={sendPayment}
+                width={0.85}
+                resetAfterSuccessAnimDuration={true}
+                // shouldAnimateViewOnSuccess={true}
+                shouldResetAfterSuccess={!canSendPayment}
+                // shouldDisplaySuccessState={isSendingPayment}
+                containerStyles={{
+                  opacity: canSendPayment ? 1 : HIDDEN_OPACITY,
+                }}
+                thumbIconStyles={{
+                  backgroundColor:
+                    theme && darkModeType ? backgroundOffset : backgroundColor,
+                  borderColor:
+                    theme && darkModeType ? backgroundOffset : backgroundColor,
+                }}
+                railStyles={{
+                  backgroundColor:
+                    theme && darkModeType ? backgroundOffset : backgroundColor,
+                  borderColor:
+                    theme && darkModeType ? backgroundOffset : backgroundColor,
+                }}
+              />
+            )}
+          </View>
+        )}
+      </View>
+      {!isAmountFocused && (
+        <EmojiQuickBar
+          description={paymentDescription}
+          onEmojiSelect={handleEmoji}
+        />
       )}
     </CustomKeyboardAvoidingView>
   );
@@ -648,6 +668,11 @@ export default function SendPaymentScreen(props) {
 }
 
 const styles = StyleSheet.create({
+  replacementContainer: {
+    flexGrow: 1,
+    width: WINDOWWIDTH,
+    ...CENTER,
+  },
   topBar: {
     width: '100%',
     flexDirection: 'row',
