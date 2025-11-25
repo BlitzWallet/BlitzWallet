@@ -258,8 +258,8 @@ export default function SendPaymentScreen(props) {
     });
   }, [navigate]);
 
-  const handleEmoji = emoji => {
-    setPaymentDescription(prev => prev + emoji);
+  const handleEmoji = newDescription => {
+    setPaymentDescription(newDescription);
   };
 
   if (

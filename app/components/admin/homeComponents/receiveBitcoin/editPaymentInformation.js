@@ -72,8 +72,8 @@ export default function EditReceivePaymentInformation(props) {
 
   useHandleBackPressNew();
 
-  const handleEmoji = emoji => {
-    setPaymentDescription(prev => prev + emoji);
+  const handleEmoji = newDescription => {
+    setPaymentDescription(newDescription);
   };
 
   return (

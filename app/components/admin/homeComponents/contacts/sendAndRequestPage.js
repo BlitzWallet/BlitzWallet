@@ -496,8 +496,8 @@ export default function SendAndRequestPage(props) {
     };
   }, []);
 
-  const handleEmoji = emoji => {
-    setDescriptionValue(prev => prev + emoji);
+  const handleEmoji = newDescription => {
+    setDescriptionValue(newDescription);
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { CONTENT_KEYBOARD_OFFSET, SIZES } from '../../constants';
 import GetThemeColors from '../../hooks/themeColors';
@@ -309,33 +309,60 @@ const DEFAULT_EMOJI_ORDER = ['💵', '🏠', '⛽', '🍕', '☕', '🎁', '🎉
 const EmojiQuickBar = ({ description = '', onEmojiSelect }) => {
   const { backgroundOffset } = GetThemeColors();
 
+  const defalutItems = useMemo(() => {
+    return DEFAULT_EMOJI_ORDER.map(item => ({
+      emoji: item,
+      shouldReplace: false,
+      score: 0,
+    }));
+  }, []);
+
   const sortedEmojis = useMemo(() => {
     const splitString = description.split(' ');
     const currentWord = splitString[splitString.length - 1] || '';
     if (!currentWord.trim()) {
-      return DEFAULT_EMOJI_ORDER;
+      return defalutItems;
     }
 
     const lowerDescription = currentWord.toLowerCase();
     const scored = ALL_EMOJIS.map(emoji => {
       const keywords = EMOJI_KEYWORDS[i18next.language][emoji] || [];
 
+      const shouldReplace = keywords[0]
+        ?.toLowerCase()
+        .startsWith(lowerDescription);
       const score = keywords.reduce((count, keyword) => {
         return count + (keyword.includes(lowerDescription) ? 1 : 0);
       }, 0);
       if (score === 0) return false;
-      return { emoji, score };
+      return { emoji, score, shouldReplace };
     }).filter(Boolean);
 
-    if (!scored.length) return DEFAULT_EMOJI_ORDER;
+    if (!scored.length) return defalutItems;
 
     return scored
       .sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score;
         return ALL_EMOJIS.indexOf(a.emoji) - ALL_EMOJIS.indexOf(b.emoji);
       })
-      .map(item => item.emoji);
-  }, [description]);
+      .map(item => item);
+  }, [description, defalutItems]);
+
+  const createDescription = useCallback(
+    emoji => {
+      let newDescription = '';
+      if (emoji.shouldReplace) {
+        let prevDescription = description.split(' ');
+        prevDescription.pop();
+        newDescription = prevDescription.join(' ') + emoji.emoji;
+      } else {
+        newDescription = description + ' ' + emoji.emoji;
+      }
+
+      onEmojiSelect(newDescription);
+    },
+    [description, onEmojiSelect],
+  );
 
   return (
     <View style={[styles.emojiBar, { backgroundColor: backgroundOffset }]}>
@@ -348,10 +375,10 @@ const EmojiQuickBar = ({ description = '', onEmojiSelect }) => {
         {sortedEmojis.map((emoji, index) => (
           <TouchableOpacity
             key={index}
-            onPress={() => onEmojiSelect(emoji)}
+            onPress={() => createDescription(emoji)}
             style={styles.emojiButton}
           >
-            <ThemeText styles={styles.emoji} content={emoji} />
+            <ThemeText styles={styles.emoji} content={emoji.emoji} />
           </TouchableOpacity>
         ))}
       </ScrollView>
