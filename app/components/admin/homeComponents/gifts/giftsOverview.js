@@ -248,8 +248,8 @@ const styles = StyleSheet.create({
     fontSize: SIZES.small,
     textTransform: 'capitalize',
   },
-  flatlistStyle: { paddingTop: 20 },
-  flatListContent: { flexGrow: 1 },
+  flatlistStyle: { paddingTop: 0 },
+  flatListContent: { flexGrow: 1, paddingTop: 20 },
   scrollView: {
     flexGrow: 1,
     alignItems: 'center',
