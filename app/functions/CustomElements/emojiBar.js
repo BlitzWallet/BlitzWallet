@@ -356,7 +356,10 @@ const EmojiQuickBar = ({ description = '', onEmojiSelect }) => {
         prevDescription.pop();
         newDescription = prevDescription.join(' ') + emoji.emoji;
       } else {
-        newDescription = description.trim() + ' ' + emoji.emoji;
+        newDescription =
+          description.trim() +
+          (description.trim().length ? ' ' : '') +
+          emoji.emoji;
       }
 
       onEmojiSelect(newDescription + ' ');
