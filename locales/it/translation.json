@@ -1199,7 +1199,10 @@
       "text12": "Scorri a destra dallo schermo principale—che tu sia su Contatti, Wallet, o la Home page—per aprire rapidamente la fotocamera per la scansione.",
       "text13": "Transazioni visualizzate",
       "text14": "Pagina Contatti",
-      "text15": "Nascondi mittenti sconosciuti"
+      "text15": "Nascondi mittenti sconosciuti",
+      "thousandsSeperator": "Separatore delle migliaia",
+      "space": "Spazio",
+      "local": "Formato numerico locale"
     },
     "fastPay": {
       "text1": "Errore nell'aggiungere il valore inserito, riprova.",

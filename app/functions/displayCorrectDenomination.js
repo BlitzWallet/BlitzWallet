@@ -31,7 +31,11 @@ export default function displayCorrectDenomination({
       localBalanceDenomination === 'sats' ||
       localBalanceDenomination === 'hidden';
 
-    const formattedSat = formatBalanceAmount(convertedAmount);
+    const formattedSat = formatBalanceAmount(
+      convertedAmount,
+      true,
+      masterInfoObject,
+    );
 
     if (showSats) {
       return showSymbol

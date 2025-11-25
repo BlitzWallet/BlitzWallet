@@ -321,7 +321,7 @@ const DOOMSDAYSETTINGS = [
   ],
 ];
 
-const SCROLL_THRESHOLD = 340;
+const SCROLL_THRESHOLD = 360;
 
 export default function SettingsIndex(props) {
   const { showToast } = useToast();
@@ -876,15 +876,20 @@ const styles = StyleSheet.create({
   },
   profileUniqueName: { marginBottom: 35 },
   buttonContainer: {
+    width: '100%',
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    columnGap: 10,
+    gap: 10,
+    flexWrap: 'wrap',
   },
   button: {
+    minHeight: 45,
+    flexGrow: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 2,
-
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 20,

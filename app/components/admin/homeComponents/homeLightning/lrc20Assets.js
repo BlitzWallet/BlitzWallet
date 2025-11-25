@@ -19,6 +19,7 @@ import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance'
 import { useTranslation } from 'react-i18next';
 import { Image as ExpoImage } from 'expo-image';
 import Icon from '../../../../functions/CustomElements/Icon';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
 
 // Token item component with image fetching
 function TokenItem({
@@ -29,6 +30,7 @@ function TokenItem({
   theme,
   darkModeType,
   tokensImageCache,
+  masterInfoObject,
 }) {
   const imageUri = tokensImageCache[tokenIdentifier];
 
@@ -100,6 +102,7 @@ function TokenItem({
             details?.tokenMetadata?.decimals || 0,
           ),
           true,
+          masterInfoObject,
         )}
       />
     </TouchableOpacity>
@@ -109,6 +112,7 @@ function TokenItem({
 export default function LRC20Assets() {
   const { darkModeType, theme } = useGlobalThemeContext();
   const { sparkInformation, tokensImageCache } = useSparkWallet();
+  const { masterInfoObject } = useGlobalContextProvider();
   const navigate = useNavigation();
   const { textColor } = GetThemeColors();
   const { t } = useTranslation();
@@ -192,6 +196,7 @@ export default function LRC20Assets() {
             theme={theme}
             darkModeType={darkModeType}
             tokensImageCache={tokensImageCache}
+            masterInfoObject={masterInfoObject}
           />
         );
       })
@@ -203,6 +208,8 @@ export default function LRC20Assets() {
     homepageBackgroundOffsetColor,
     navigate,
     tokensImageCache,
+    masterInfoObject.thousandsSeperator,
+    masterInfoObject.userSelectedLanguage,
   ]);
 
   return (

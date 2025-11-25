@@ -1201,7 +1201,10 @@
       "text12": "Deslize para a direita na tela principal para ler um código QR — esteja você navegando em Contatos, Carteira ou na Página inicial.",
       "text13": "Total de transações exibidas",
       "text14": "Página de contatos",
-      "text15": "Ocultar remetentes desconhecidos"
+      "text15": "Ocultar remetentes desconhecidos",
+      "thousandsSeperator": "Separador de milhares",
+      "space": "Espaço",
+      "local": "Formato numérico local"
     },
     "fastPay": {
       "text1": "Erro ao inserir o valor, tente novamente.",

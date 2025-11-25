@@ -1204,7 +1204,9 @@
       "text15": "Hide Unknown Senders",
       "sparkTitle": "BKTN Spark Tokens",
       "sliderTitle_enabled": "Show BTKN tokens",
-      "sparkInfoPopup": "BTKN is Spark’s native token. Enabling BTKN allows you send and receive tokens on the Spark network.\n\nBlitz is a Bitcoin focused wallet. We do not promote or endorse the use of tokens. This feature exists because we believe users should have the freedom to use the technology they want to use.\n\nBlitz also applies a {{fee}} fee to all token transactions, with 20% of that fee donated to support open-source Bitcoin development."
+      "thousandsSeperator": "Thousands Separator",
+      "space": "Space",
+      "local": "Local Number Format"
     },
     "fastPay": {
       "text1": "Error adding inputed value, plase try again.",

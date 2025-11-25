@@ -16,6 +16,7 @@ import { useToast } from '../../../context-store/toastManager';
 import copyToClipboard from '../copyToClipboard';
 import formatTokensNumber from './formatTokensBalance';
 import { useTranslation } from 'react-i18next';
+import { useGlobalContextProvider } from '../../../context-store/context';
 
 export default function LRC20TokenInformation({
   theme,
@@ -25,6 +26,7 @@ export default function LRC20TokenInformation({
   setContentHeight,
 }) {
   const { showToast } = useToast();
+  const { masterInfoObject } = useGlobalContextProvider();
   const { sparkInformation } = useSparkWallet();
   const selectedToken = sparkInformation?.tokens
     ? sparkInformation.tokens?.[tokenIdentifier]
@@ -83,6 +85,7 @@ export default function LRC20TokenInformation({
             content={formatBalanceAmount(
               formatTokensNumber(balance, tokenMetadata?.decimals),
               true,
+              masterInfoObject,
             )}
           />
         </View>

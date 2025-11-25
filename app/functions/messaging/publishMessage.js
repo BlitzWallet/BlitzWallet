@@ -1,8 +1,8 @@
 import formatBalanceAmount from '../formatNumber';
-import {updateMessage} from '../../../db';
-import {BITCOIN_SAT_TEXT, SATSPERBITCOIN} from '../../constants';
+import { updateMessage } from '../../../db';
+import { BITCOIN_SAT_TEXT, SATSPERBITCOIN } from '../../constants';
 import fetchBackend from '../../../db/handleBackend';
-import {crashlyticsLogReport} from '../crashlyticsLogs';
+import { crashlyticsLogReport } from '../crashlyticsLogs';
 import loadNewFiatData from '../saveAndUpdateFiatData';
 
 export async function publishMessage({
@@ -143,6 +143,8 @@ export async function sendPushNotification({
           sendingContactDenominationType != 'fiat' || !fiatAmount
             ? data.amountMsat / 1000
             : fiatAmount,
+          undefined,
+          { thousandsSeperator: 'space' },
         )} ${
           sendingContactDenominationType != 'fiat' || !fiatAmount
             ? BITCOIN_SAT_TEXT
@@ -155,6 +157,8 @@ export async function sendPushNotification({
           sendingContactDenominationType != 'fiat' || !fiatAmount
             ? data.amountMsat / 1000
             : fiatAmount,
+          undefined,
+          { thousandsSeperator: 'space' },
         )} ${
           sendingContactDenominationType != 'fiat' || !fiatAmount
             ? BITCOIN_SAT_TEXT

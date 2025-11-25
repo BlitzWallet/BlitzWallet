@@ -31,10 +31,12 @@ import { keyboardNavigate } from '../../../../../functions/customNavigation';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
 
 export default function GiftCardPage() {
   const { decodedGiftCards, toggleGiftCardsList, giftCardsList } =
     useGlobalAppData();
+  const { masterInfoObject } = useGlobalContextProvider();
   const { t } = useTranslation();
   const { backgroundOffset } = GetThemeColors();
   const [errorMessage, setErrorMessage] = useState('');
@@ -138,6 +140,8 @@ export default function GiftCardPage() {
                               : 'denominations'
                           ][0]
                         : 1,
+                      undefined,
+                      masterInfoObject,
                     )} ${item.currency} ${
                       item.denominations.length > 1 ? '-' : ''
                     } ${formatBalanceAmount(
@@ -152,17 +156,26 @@ export default function GiftCardPage() {
                             : 'denominations'
                         ].length - 1
                       ],
+                      undefined,
+                      masterInfoObject,
                     )} ${item.currency}`
-                  : `${formatBalanceAmount(item.denominations[0])} ${
-                      item.currency
-                    }`
+                  : `${formatBalanceAmount(
+                      item.denominations[0],
+                      undefined,
+                      masterInfoObject,
+                    )} ${item.currency}`
               }
             />
           </View>
         </TouchableOpacity>
       );
     },
-    [navigate, backgroundOffset],
+    [
+      navigate,
+      backgroundOffset,
+      masterInfoObject.thousandsSeperator,
+      masterInfoObject.userSelectedLanguage,
+    ],
   );
 
   return (

@@ -1187,7 +1187,10 @@
       "text12": "Wischen Sie von der Hauptseite nach rechts – egal ob Sie sich auf Kontakte, Wallet oder der Startseite befinden – um die Kamera schnell zum Scannen zu öffnen.",
       "text13": "Angezeigte Transaktionen",
       "text14": "Kontaktseite",
-      "text15": "Unbekannte Absender ausblenden"
+      "text15": "Unbekannte Absender ausblenden",
+      "thousandsSeperator": "Tausendertrennzeichen",
+      "space": "Leerzeichen",
+      "local": "Lokales Zahlenformat"
     },
     "fastPay": {
       "text1": "Fehler beim Hinzufügen des eingegebenen Werts, bitte versuchen Sie es erneut.",

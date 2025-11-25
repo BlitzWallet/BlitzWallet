@@ -1038,7 +1038,10 @@
       "text12": "Desliza a la derecha desde la pantalla principal — ya sea en Contactos, Billetera o Inicio — para abrir rápidamente la cámara y escanear.",
       "text13": "Transacciones mostradas",
       "text14": "Página de contactos",
-      "text15": "Ocultar remitentes desconocidos"
+      "text15": "Ocultar remitentes desconocidos",
+      "thousandsSeperator": "Separador de miles",
+      "space": "Espacio",
+      "local": "Formato numérico local"
     },
     "fastPay": {
       "text1": "Error al añadir el valor ingresado, por favor intenta de nuevo.",
