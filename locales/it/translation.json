@@ -1202,7 +1202,7 @@
       "text15": "Nascondi mittenti sconosciuti",
       "thousandsSeperator": "Separatore delle migliaia",
       "space": "Spazio",
-      "local": "Formato numerico locale"
+      "local": "Formato locale"
     },
     "fastPay": {
       "text1": "Errore nell'aggiungere il valore inserito, riprova.",
@@ -1788,7 +1788,7 @@
     "liquidInvoiceError": "C'è stato un problema nella generazione del tuo indirizzo Liquid. Riprova.",
     "bitcoinInvoiceError": "C'è stato un problema nella generazione del tuo indirizzo Bitcoin. Riprova.",
     "sparkInvioceError": "C'è stato un problema nella generazione del tuo indirizzo Spark. Riprova.",
-    "lightningInvioceError": "C'è stato un problema nella generazione del tuo indirizzo Lightning. Riprova.",
+    "lightningInvoiceError": "C'è stato un problema nella generazione del tuo indirizzo Lightning. Riprova.",
     "sparkConnectionError": "Connessione Spark fallita. Riprova.",
     "giftCardExpiration": "Le carte regalo possono essere recuperate solo entro 7 giorni dall'invio. Se questa app viene eliminata o l'archiviazione locale viene cancellata dopo tale periodo, le tue carte regalo andranno perse. Assicurati di salvare i link di richiesta o i codici delle carte regalo in un luogo sicuro.",
     "receivedRootstock": "Pagamento Rootstock ricevuto: il tuo scambio sta iniziando. Potrebbe volerci fino a un minuto, quindi tieni l'app aperta.",

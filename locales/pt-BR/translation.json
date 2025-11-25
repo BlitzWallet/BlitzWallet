@@ -1788,7 +1788,7 @@
     "liquidInvoiceError": "Ocorreu um problema ao gerar seu endereço Liquid. Tente novamente.",
     "bitcoinInvoiceError": "Ocorreu um problema ao gerar seu endereço Bitcoin. Tente novamente..",
     "sparkInvioceError": "Ocorreu um problema ao gerar seu endereço Spark. Tente novamente.",
-    "lightningInvioceError": "Ocorreu um problema ao gerar seu endereço Lightning. Tente novamente.",
+    "lightningInvoiceError": "Ocorreu um problema ao gerar seu endereço Lightning. Tente novamente.",
     "sparkConnectionError": "Falha na conexão com a Spark. Tente novamente..",
     "giftCardExpiration": "Os vales-presente só podem ser recuperados em até 7 dias após o envio. Se este aplicativo for excluído ou o armazenamento local for limpo após esse período, seus vales-presente serão perdidos. Guarde os links de resgate ou os códigos dos vales-presente em um local seguro.",
     "receivedRootstock": "Pagamento Rootstock recebido — sua troca está começando. Pode levar até um minuto, então mantenha o aplicativo aberto.",

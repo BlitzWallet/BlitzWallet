@@ -1770,7 +1770,7 @@
     "liquidInvoiceError": "Es gab ein Problem beim Generieren Ihrer Liquid-Adresse. Bitte versuchen Sie es erneut.",
     "bitcoinInvoiceError": "Es gab ein Problem beim Generieren Ihrer Bitcoin-Adresse. Bitte versuchen Sie es erneut.",
     "sparkInvioceError": "Es gab ein Problem beim Generieren Ihrer Spark-Adresse. Bitte versuchen Sie es erneut.",
-    "lightningInvioceError": "Es gab ein Problem beim Generieren Ihrer Lightning-Adresse. Bitte versuchen Sie es erneut.",
+    "lightningInvoiceError": "Es gab ein Problem beim Generieren Ihrer Lightning-Adresse. Bitte versuchen Sie es erneut.",
     "sparkConnectionError": "Spark-Verbindung fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "giftCardExpiration": "Geschenkkarten können nur innerhalb von 7 Tagen nach dem Versand wiederhergestellt werden. Wenn die App gelöscht wird oder der lokale Speicher nach dieser Zeit gelöscht wird, gehen Ihre Geschenkkarten verloren. Stellen Sie sicher, dass Sie die Einlösungslinks oder Geschenkkartencodes an einem sicheren Ort speichern.",
     "receivedRootstock": "Rootstock-Zahlung erhalten – Ihr Swap beginnt. Dies kann bis zu einer Minute dauern, bitte lassen Sie die App geöffnet.",
