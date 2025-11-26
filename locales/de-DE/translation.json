@@ -1117,7 +1117,8 @@
       "editProfile": "Profil bearbeiten",
       "showQR": "QR anzeigen",
       "profileHead": "Profil",
-      "settingsHead": "Einstellungen"
+      "settingsHead": "Einstellungen",
+      "seedPopup": "Eine Wiederherstellungsphrase ist eine Liste von Wörtern, mit der Sie Ihre Bitcoin wiederherstellen können, wenn Ihr Gerät verloren geht oder beschädigt wird. Schreiben Sie sie auf und bewahren Sie sie sicher auf. Geben Sie sie niemals an jemand anderen weiter—wer sie besitzt, kann all Ihre Bitcoin stehlen."
     },
     "about": {
       "header1": "Software",

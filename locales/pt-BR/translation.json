@@ -1131,7 +1131,8 @@
       "editProfile": "Editar perfil",
       "showQR": "Código QR",
       "profileHead": "Perfil",
-      "settingsHead": "Configurações"
+      "settingsHead": "Configurações",
+      "seedPopup": "Uma frase de recuperação é uma lista de palavras que permite recuperar seus Bitcoin caso seu dispositivo seja perdido ou danificado. Anote-a e guarde-a em um lugar seguro. Nunca a entregue a ninguém—se alguém tiver acesso a ela, poderá tomar todos os seus Bitcoin."
     },
     "about": {
       "header1": "Software",

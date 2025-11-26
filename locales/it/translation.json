@@ -1129,7 +1129,8 @@
       "editProfile": "Modifica profilo",
       "showQR": "Mostra QR",
       "profileHead": "Profilo",
-      "settingsHead": "Impostazioni"
+      "settingsHead": "Impostazioni",
+      "seedPopup": "Una frase di recupero è un elenco di parole che ti permette di recuperare i tuoi Bitcoin se il tuo dispositivo viene perso o danneggiato. Scrivila e conservala in un posto sicuro. Non darla mai a nessuno—se qualcuno la ottiene, può prendere tutti i tuoi Bitcoin."
     },
     "about": {
       "header1": "Software",

@@ -971,7 +971,8 @@
       "editProfile": "Editar perfil",
       "showQR": "Mostrar QR",
       "profileHead": "Perfil",
-      "settingsHead": "Configuración"
+      "settingsHead": "Configuración",
+      "seedPopup": "Una frase semilla es una lista de palabras que te permite recuperar tus Bitcoin si tu dispositivo se pierde o se daña. Escríbela y guárdala en un lugar seguro. Nunca se la des a nadie—si alguien la obtiene, puede tomar todos tus Bitcoin."
     },
     "about": {
       "header1": "Software",

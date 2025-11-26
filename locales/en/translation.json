@@ -1131,7 +1131,8 @@
       "editProfile": "Edit Profile",
       "showQR": "Show QR",
       "profileHead": "Profile",
-      "settingsHead": "Settings"
+      "settingsHead": "Settings",
+      "seedPopup": "A seed phrase is a list of words that lets you recover your Bitcoin if your device is lost or damaged. Write it down and store it safely. Never give it to anyone—if someone gets it, they can take all your Bitcoin."
     },
     "about": {
       "header1": "Software",

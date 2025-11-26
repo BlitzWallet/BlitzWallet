@@ -72,25 +72,26 @@ export default function SettingsContentIndex(props) {
         <GlobalThemeView styles={styles.globalContainer}>
           <View style={styles.innerContainer}>
             <CustomSettingsTopBar
-              // showLeftImage={selectedPage?.toLowerCase() === 'spark info'}
-              // leftImageBlue={
-              //   selectedPage?.toLowerCase() === 'spark info'
-              //     ? ICONS.settingsIcon
-              //     : ''
-              // }
-              // LeftImageDarkMode={
-              //   selectedPage?.toLowerCase() === 'spark info'
-              //     ? ICONS.settingsWhite
-              //     : ''
-              // }
-              // leftImageFunction={() => {
-              //   if (selectedPage?.toLowerCase() === 'spark info') {
-              //     navigate.navigate('SparkSettingsPage');
-              //   }
-              // }}
-              // shouldDismissKeyboard={
-              //   selectedPage?.toLowerCase() === 'spark info'
-              // }
+              showLeftImage={selectedPage?.toLowerCase() === 'backup wallet'}
+              leftImageStyles={{ width: 25, height: 25 }}
+              leftImageBlue={
+                selectedPage?.toLowerCase() === 'backup wallet'
+                  ? ICONS.aboutIcon
+                  : ''
+              }
+              LeftImageDarkMode={
+                selectedPage?.toLowerCase() === 'backup wallet'
+                  ? ICONS.aboutIconWhite
+                  : ''
+              }
+              leftImageFunction={() => {
+                if (selectedPage?.toLowerCase() === 'backup wallet') {
+                  navigate.navigate('InformationPopup', {
+                    textContent: t('settings.index.seedPopup'),
+                    buttonText: t('constants.iunderstand'),
+                  });
+                }
+              }}
               label={t(
                 `screens.inAccount.settingsContent.${selectedPage.toLowerCase()}`,
               )}
