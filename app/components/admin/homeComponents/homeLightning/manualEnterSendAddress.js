@@ -1,14 +1,8 @@
-import {
-  Keyboard,
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../functions/CustomElements';
 import { ICONS } from '../../../../constants';
-import { useNavigation } from '@react-navigation/native';
-import { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useCallback, useRef, useState } from 'react';
 import { CENTER, KEYBOARDTIMEOUT } from '../../../../constants/styles';
 import { HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -17,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import handlePreSendPageParsing from '../../../../functions/sendBitcoin/handlePreSendPageParsing';
+import { keyboardNavigate } from '../../../../functions/customNavigation';
 
 export default function ManualEnterSendAddress(props) {
   const navigate = useNavigation();
@@ -25,25 +20,29 @@ export default function ManualEnterSendAddress(props) {
     props;
   const initialValue = useRef(0);
   const textInputRef = useRef(null);
+  const didClickInfo = useRef(null);
 
   const [inputValue, setInputValue] = useState('');
 
-  useEffect(() => {
-    if (!textInputRef.current.isFocused()) {
-      requestAnimationFrame(() => {
+  useFocusEffect(
+    useCallback(() => {
+      if (!textInputRef.current.isFocused()) {
         requestAnimationFrame(() => {
-          textInputRef.current.focus();
+          requestAnimationFrame(() => {
+            textInputRef.current.focus();
+          });
         });
-      });
-    }
-  }, []);
+      }
+    }, []),
+  );
 
   const handleTextInputBlur = () => {
     console.log(inputValue);
     setIsKeyboardActive(false);
-    if (!inputValue) {
+    if (!inputValue && !didClickInfo.current) {
       handleBackPressFunction?.();
     }
+    didClickInfo.current = false;
   };
 
   return (
@@ -64,12 +63,15 @@ export default function ManualEnterSendAddress(props) {
         />
         <TouchableOpacity
           onPress={() => {
-            navigate.navigate('InformationPopup', {
-              textContent: t(
-                'wallet.homeLightning.manualEnterSendAddress.paymentTypesDesc',
-              ),
-              buttonText: t('constants.understandText'),
-            });
+            didClickInfo.current = true;
+            keyboardNavigate(() =>
+              navigate.navigate('InformationPopup', {
+                textContent: t(
+                  'wallet.homeLightning.manualEnterSendAddress.paymentTypesDesc',
+                ),
+                buttonText: t('constants.understandText'),
+              }),
+            );
           }}
         >
           <ThemeImage
