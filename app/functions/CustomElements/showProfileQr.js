@@ -305,7 +305,7 @@ export default function ShowProfileQr() {
             />
             <ThemeText
               styles={{ includeFontPadding: false }}
-              content={'Scan Profile'}
+              content={t('contacts.showProfileQr.scanProfile')}
             />
           </TouchableOpacity>
         </View>

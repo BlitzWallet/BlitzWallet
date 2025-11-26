@@ -962,7 +962,8 @@
       "blitzContact": "Contacto Blitz",
       "copyMessage": "¡Copiado!",
       "lnurlCopy": "Copiar dirección",
-      "blitzCopy": "Copiar enlace"
+      "blitzCopy": "Copiar enlace",
+      "scanProfile": "Escanear perfil"
     }
   },
   "settings": {
