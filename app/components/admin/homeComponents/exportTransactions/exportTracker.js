@@ -60,15 +60,11 @@ export default function ConfirmExportPayments({
                 ? txDetails.description
                 : t('constants.noDescription'),
               txDate.toLocaleString().replace(/,/g, ' '),
-              formatBalanceAmount(
-                txDetails.fee,
-                undefined,
-                masterInfoObject.thousandsSeperator,
-              ),
+              formatBalanceAmount(txDetails.fee, undefined, masterInfoObject),
               formatBalanceAmount(
                 txDetails.amount,
                 undefined,
-                masterInfoObject.thousandsSeperator,
+                masterInfoObject,
               ),
               txDetails.direction === 'OUTGOING'
                 ? t('constants.sent')

@@ -252,7 +252,7 @@ export default function ExploreUsers() {
               BLITZ_GOAL_USER_COUNT,
               undefined,
               masterInfoObject,
-            )} (${((max / BLITZ_GOAL_USER_COUNT) * 100).toFixed(4)}%)`}
+            )} (${((max / BLITZ_GOAL_USER_COUNT) * 100).toFixed(3)}%)`}
           />
         </View>
         <View
@@ -282,10 +282,15 @@ export default function ExploreUsers() {
             styles={styles.statsCardNumberText}
             content={`${formatBalanceAmount(
               totalYesterday,
-            )} of ${formatBalanceAmount(BLITZ_GOAL_USER_COUNT)} (${(
-              (totalYesterday / BLITZ_GOAL_USER_COUNT) *
-              100
-            ).toFixed(4)}%)`}
+              undefined,
+              masterInfoObject,
+            )} of ${formatBalanceAmount(
+              BLITZ_GOAL_USER_COUNT,
+              undefined,
+              masterInfoObject,
+            )} (${((totalYesterday / BLITZ_GOAL_USER_COUNT) * 100).toFixed(
+              3,
+            )}%)`}
           />
         </View>
       </View>
