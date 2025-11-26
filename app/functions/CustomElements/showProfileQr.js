@@ -303,7 +303,10 @@ export default function ShowProfileQr() {
               darkModeIcon={ICONS.scanQrCodeLight}
               lightsOutIcon={ICONS.scanQrCodeLight}
             />
-            <ThemeText content={'Scan Profile'} />
+            <ThemeText
+              styles={{ includeFontPadding: false }}
+              content={'Scan Profile'}
+            />
           </TouchableOpacity>
         </View>
       </ScrollView>
