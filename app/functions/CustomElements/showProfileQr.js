@@ -252,7 +252,7 @@ export default function ShowProfileQr() {
             <QRCode value={currentValue} size={240} />
           </View>
 
-          <ThemeText styles={styles.label} content={currentLabel} />
+          {/* <ThemeText styles={styles.label} content={currentLabel} /> */}
 
           <TouchableOpacity
             style={[
@@ -260,6 +260,7 @@ export default function ShowProfileQr() {
               {
                 backgroundColor:
                   theme && darkModeType ? backgroundOffset : COLORS.primary,
+                marginTop: 'auto',
               },
             ]}
             onPress={handleCopy}
@@ -369,6 +370,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 16,
     borderWidth: 1,
+    marginBottom: 20,
   },
   label: {
     opacity: 0.6,
