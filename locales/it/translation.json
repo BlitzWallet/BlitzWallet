@@ -1793,7 +1793,9 @@
     "giftCardExpiration": "Le carte regalo possono essere recuperate solo entro 7 giorni dall'invio. Se questa app viene eliminata o l'archiviazione locale viene cancellata dopo tale periodo, le tue carte regalo andranno perse. Assicurati di salvare i link di richiesta o i codici delle carte regalo in un luogo sicuro.",
     "receivedRootstock": "Pagamento Rootstock ricevuto: il tuo scambio sta iniziando. Potrebbe volerci fino a un minuto, quindi tieni l'app aperta.",
     "receivedLiquid": "Pagamento Liquid ricevuto: il tuo scambio sta iniziando. Potrebbe volerci fino a un minuto, quindi tieni l'app aperta.",
-    "invalidData": "I dati forniti non sono validi"
+    "invalidData": "I dati forniti non sono validi",
+    "paymentError": "Si è verificato un errore durante l'elaborazione del pagamento. Riprova. Se continua a non funzionare, chiudi l'app e riaprila prima di riprovare.",
+    "paymentFeeError": "Non siamo riusciti a recuperare la commissione di pagamento. Riprova. Se il problema persiste, chiudi l'app e riaprila prima di riprovare."
   },
 
   "loadingScreen": {

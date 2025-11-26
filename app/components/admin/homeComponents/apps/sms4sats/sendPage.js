@@ -392,7 +392,7 @@ export default function SMSMessagingSendPage() {
           mnemonic: currentWalletMnemoinc,
           sendWebViewRequest,
         });
-        if (!fee.didWork) throw new Error(fee.error);
+        if (!fee.didWork) throw new Error(t('errormessages.paymentFeeError'));
 
         orderInformation = {
           ...data,

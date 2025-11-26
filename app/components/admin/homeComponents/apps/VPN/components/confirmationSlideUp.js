@@ -66,7 +66,7 @@ export default function ConfirmVPNPage(props) {
           mnemonic: currentWalletMnemoinc,
           sendWebViewRequest,
         });
-        if (!fee.didWork) throw new Error(fee.error);
+        if (!fee.didWork) throw new Error(t('errormessages.paymentFeeError'));
         if (
           sparkInformation.balance <
           parsedInvoice.satoshis + fee.supportFee + fee.fee

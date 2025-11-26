@@ -1793,7 +1793,9 @@
     "giftCardExpiration": "Gift cards can only be recovered for 7 days after they are sent. If this app is deleted or local storage is cleared after that time, your gift cards will be lost. Be sure to save the claim links or gift card codes somewhere safe.",
     "receivedRootstock": "Rootstock payment received — your swap is starting. It may take up to a minute, so please keep the app open.",
     "receivedLiquid": "Liquid payment received — your swap is starting. It may take up to a minute, so please keep the app open.",
-    "invalidData": "The data you entered isn’t valid"
+    "invalidData": "The data you entered isn’t valid",
+    "paymentError": "Something went wrong while processing your payment. Please try again. If it still doesn’t work, close the app and reopen it before trying again.",
+    "paymentFeeError": "We couldn’t retrieve the payment fee. Please try again. If the issue continues, close the app and reopen it before trying again."
   },
 
   "loadingScreen": {

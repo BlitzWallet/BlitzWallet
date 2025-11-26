@@ -217,7 +217,7 @@ export default function ConfirmTxPage(props) {
           }}
         >
           <ScrollView contentContainerStyle={{ padding: 10 }}>
-            <ThemeText content={errorMessage} />
+            <ThemeText content={t('errormessages.paymentError')} />
           </ScrollView>
         </View>
       )}

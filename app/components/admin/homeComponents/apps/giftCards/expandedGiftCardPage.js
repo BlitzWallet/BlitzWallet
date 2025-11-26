@@ -549,8 +549,7 @@ export default function ExpandedGiftCardPage(props) {
           };
         });
         navigate.navigate('ErrorScreen', {
-          errorMessage:
-            paymentResponse.reason || t('errormessages.payingInvoiceError'),
+          errorMessage: t('errormessages.paymentError'),
         });
         return;
       }

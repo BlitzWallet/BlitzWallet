@@ -275,7 +275,7 @@ export default function AddChatGPTCredits({ confirmationSliderData }) {
     } catch (err) {
       console.log(err);
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Error processing payment. Try again.',
+        errorMessage: t('errormessages.paymentError'),
       });
     } finally {
       setIsPaying(false);
