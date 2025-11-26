@@ -1793,7 +1793,9 @@
     "giftCardExpiration": "Os vales-presente só podem ser recuperados em até 7 dias após o envio. Se este aplicativo for excluído ou o armazenamento local for limpo após esse período, seus vales-presente serão perdidos. Guarde os links de resgate ou os códigos dos vales-presente em um local seguro.",
     "receivedRootstock": "Pagamento Rootstock recebido — sua troca está começando. Pode levar até um minuto, então mantenha o aplicativo aberto.",
     "receivedLiquid": "Pagamento Liquid recebido — sua troca está sendo iniciada. Pode levar até um minuto, então mantenha o aplicativo aberto.",
-    "invalidData": "Os dados fornecidos não são válidos"
+    "invalidData": "Os dados fornecidos não são válidos",
+    "paymentError": "Ocorreu um erro ao processar seu pagamento. Tente novamente. Se ainda não funcionar, feche o app e abra-o novamente antes de tentar de novo.",
+    "paymentFeeError": "Não foi possível recuperar a taxa de pagamento. Tente novamente. Se o problema continuar, feche o app e abra-o novamente antes de tentar de novo."
   },
 
   "loadingScreen": {

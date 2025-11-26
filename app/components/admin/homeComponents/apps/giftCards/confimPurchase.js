@@ -83,7 +83,7 @@ export default function ConfirmGiftCardPurchase(props) {
           sendWebViewRequest,
         });
 
-        if (!fee.didWork) throw new Error(fee.error);
+        if (!fee.didWork) throw new Error(t('errormessages.paymentFeeError'));
         if (
           sparkInformation.balance <
           decodedInvoice.satoshis + fee.supportFee + fee.fee

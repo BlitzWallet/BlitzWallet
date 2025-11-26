@@ -148,7 +148,7 @@ export default function CreateGift(props) {
 
       if (!paymentResponse.didWork) {
         await deleteGiftFromCloudAndLocal(storageObject.uuid);
-        throw new Error(t('screens.inAccount.giftPages.createGift.fundError'));
+        throw new Error(t('errormessages.paymentError'));
       }
 
       // need to add gift tracking to local database to keep track of items

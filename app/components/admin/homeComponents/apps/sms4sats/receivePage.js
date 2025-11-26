@@ -181,7 +181,8 @@ export default function SMSMessagingReceivedPage(props) {
           currentWalletMnemoinc: currentWalletMnemoinc,
           sendWebViewRequest,
         });
-        if (!paymentResponse.didWork) throw new Error(paymentResponse.reason);
+        if (!paymentResponse.didWork)
+          throw new Error(t('errormessages.paymentError'));
 
         saveMessagesToDB(savedMessages);
         setIsPurchasing(prev => ({

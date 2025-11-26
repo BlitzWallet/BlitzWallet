@@ -251,6 +251,11 @@ export default function ClaimGiftScreen({ url, claimType }) {
         mnemonic: giftDetails.giftSeed,
       });
 
+      if (!paymentResponse.didWork)
+        throw new Error(
+          t('screens.inAccount.giftPages.claimPage.paymentError'),
+        );
+
       const tx = {
         ...paymentResponse.response,
         description:
@@ -281,10 +286,6 @@ export default function ClaimGiftScreen({ url, claimType }) {
 
       await bulkUpdateSparkTransactions([transaction]);
 
-      if (!paymentResponse.didWork)
-        throw new Error(
-          t('screens.inAccount.giftPages.claimPage.paymentError'),
-        );
       if (claimType === 'reclaim') {
         await deleteGiftFromCloudAndLocal(giftDetails.uuid);
       } else {

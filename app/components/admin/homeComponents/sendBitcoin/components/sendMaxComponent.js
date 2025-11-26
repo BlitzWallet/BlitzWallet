@@ -111,7 +111,8 @@ export default function SendMaxComponent({
             sendWebViewRequest,
           });
 
-          if (!feeResponse.didWork) throw new Error(feeResponse.error);
+          if (!feeResponse.didWork)
+            throw new Error(t('errormessages.paymentFeeError'));
 
           const maxAmountSats = Math.max(
             Number(sendingBalance) -
@@ -141,7 +142,7 @@ export default function SendMaxComponent({
         setIsGettingMax(false);
       }
     },
-    [isGettingMax, seletctedToken, selectedLRC20Asset],
+    [isGettingMax, seletctedToken, selectedLRC20Asset, t],
   );
 
   const memorizedDropdowntyles = useMemo(() => {

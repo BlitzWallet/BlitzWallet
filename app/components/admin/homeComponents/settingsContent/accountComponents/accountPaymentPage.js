@@ -176,7 +176,7 @@ export default function AccountPaymentPage(props) {
       });
 
       if (!sendingResponse.didWork) {
-        throw new Error(sendingResponse.error);
+        throw new Error(t('errormessages.paymentError'));
       }
 
       await bulkUpdateSparkTransactions([

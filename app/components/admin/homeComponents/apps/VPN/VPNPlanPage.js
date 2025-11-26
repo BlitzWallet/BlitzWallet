@@ -212,9 +212,7 @@ export default function VPNPlanPage({ vpnInformation }) {
         if (!paymentResponse.didWork) {
           setIsPaying(false);
           navigate.navigate('ErrorScreen', {
-            errorMessage:
-              paymentResponse.reason ||
-              t('apps.VPN.VPNPlanPage.backupPaymentError'),
+            errorMessage: t('errormessages.paymentError'),
           });
           return;
         }
