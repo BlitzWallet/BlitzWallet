@@ -1,5 +1,5 @@
-import React, {createContext, useContext, useEffect} from 'react';
-import {Platform, View} from 'react-native';
+import React, { createContext, useContext, useEffect } from 'react';
+import { Platform, View } from 'react-native';
 import * as TaskManager from 'expo-task-manager';
 import {
   getAPNSToken,
@@ -8,11 +8,11 @@ import {
   registerDeviceForRemoteMessages,
   setBackgroundMessageHandler,
 } from '@react-native-firebase/messaging';
-import {encriptMessage} from '../app/functions/messaging/encodingAndDecodingMessages';
-import {useGlobalContextProvider} from './context';
-import {useKeysContext} from './keys';
-import {checkGooglePlayServices} from '../app/functions/checkGoogleServices';
-import {isEmulatorSync} from 'react-native-device-info';
+import { encriptMessage } from '../app/functions/messaging/encodingAndDecodingMessages';
+import { useGlobalContextProvider } from './context';
+import { useKeysContext } from './keys';
+import { checkGooglePlayServices } from '../app/functions/checkGoogleServices';
+import { isEmulatorSync } from 'react-native-device-info';
 import handleNWCBackgroundEvent from '../app/functions/nwc/backgroundNofifications';
 import i18n from 'i18next';
 import {
@@ -27,8 +27,8 @@ import {
   setNotificationChannelAsync,
 } from 'expo-notifications';
 import sha256Hash from '../app/functions/hash';
-import {getLocalStorageItem} from '../app/functions';
-import {pushInstantNotification} from '../app/functions/notifications';
+import { getLocalStorageItem } from '../app/functions';
+import { pushInstantNotification } from '../app/functions/notifications';
 import displayCorrectDenomination from '../app/functions/displayCorrectDenomination';
 
 const firebaseMessaging = getMessaging();
@@ -37,9 +37,9 @@ const firebaseMessaging = getMessaging();
 const PushNotificationContext = createContext({});
 
 // Provider component
-export const PushNotificationProvider = ({children}) => {
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {contactsPrivateKey} = useKeysContext();
+export const PushNotificationProvider = ({ children }) => {
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { contactsPrivateKey } = useKeysContext();
   const pushNotificationData = masterInfoObject?.pushNotifications;
 
   useEffect(() => {
@@ -74,16 +74,16 @@ export const PushNotificationProvider = ({children}) => {
         console.log('current notification token hash', hashedPushKey);
 
         if (pushNotificationData?.hash === hashedPushKey)
-          return {shouldUpdate: false, error: '', didWork: true};
+          return { shouldUpdate: false, error: '', didWork: true };
       }
 
       const response = await savePushNotificationToDatabase(deviceToken);
       if (!response.didWork) throw new Error(response.error);
 
-      return {shouldUpdate: true, didWork: true, data: response.data};
+      return { shouldUpdate: true, didWork: true, data: response.data };
     } catch (error) {
       console.error('Error in checkAndSavePushNotificationToDatabase', error);
-      return {shouldUpdate: false, error: error.message, didWork: false};
+      return { shouldUpdate: false, error: error.message, didWork: false };
     }
   };
 
@@ -100,14 +100,14 @@ export const PushNotificationProvider = ({children}) => {
       return {
         data: {
           platform: Platform.OS,
-          key: {encriptedText: encriptedPushKey},
+          key: { encriptedText: encriptedPushKey },
           hash: hashedPushKey,
         },
         didWork: true,
       };
     } catch (error) {
       console.error('Error saving push notification to database', error);
-      return {didWork: false, error: error.message};
+      return { didWork: false, error: error.message };
     }
   };
 
@@ -129,8 +129,9 @@ export const PushNotificationProvider = ({children}) => {
         registerBackgroundNotificationTask,
         registerForPushNotificationsAsync,
         getCurrentPushNotifiicationPermissions,
-      }}>
-      <View style={{flex: 1}}>{children}</View>
+      }}
+    >
+      <View style={{ flex: 1 }}>{children}</View>
     </PushNotificationContext.Provider>
   );
 };
@@ -175,20 +176,20 @@ async function registerForPushNotificationsAsync() {
       throw new Error('errormessages.noNotificationPermission');
     }
 
-    let options = {projectId: process.env.EXPO_PROJECT_ID};
+    let options = { projectId: process.env.EXPO_PROJECT_ID };
     if (Platform.OS === 'ios') {
       const isRegisted = isDeviceRegisteredForRemoteMessages(firebaseMessaging);
       if (!isRegisted) await registerDeviceForRemoteMessages(firebaseMessaging);
       const token = await getAPNSToken(firebaseMessaging);
-      options.devicePushToken = {type: 'ios', data: token};
+      options.devicePushToken = { type: 'ios', data: token };
     }
 
     const pushToken = await getExpoPushTokenAsync(options);
     console.log(pushToken);
-    return {didWork: true, token: pushToken.data};
+    return { didWork: true, token: pushToken.data };
   } catch (err) {
     console.error('UNEXPECTED ERROR IN FUNCTION', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 }
 
@@ -196,21 +197,27 @@ async function registerForPushNotificationsAsync() {
 const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';
 
 async function formatPushNotification(data) {
-  const [selectedLangugae, satDisplay, bitcoinPrice, userBalanceDenomination] =
-    await Promise.all([
-      getLocalStorageItem('userSelectedLanguage').then(
-        data => JSON.parse(data) || 'en',
-      ),
-      getLocalStorageItem('satDisplay').then(
-        data => JSON.parse(data) || 'word',
-      ),
-      getLocalStorageItem('cachedBitcoinPrice').then(
-        data => JSON.parse(data) || {coin: 'USD', value: 100_000},
-      ),
-      getLocalStorageItem('userBalanceDenomination').then(
-        data => JSON.parse(data) || 'sats',
-      ),
-    ]);
+  const [
+    selectedLangugae,
+    satDisplay,
+    bitcoinPrice,
+    userBalanceDenomination,
+    thousandsSeperator,
+  ] = await Promise.all([
+    getLocalStorageItem('userSelectedLanguage').then(
+      data => JSON.parse(data) || 'en',
+    ),
+    getLocalStorageItem('satDisplay').then(data => JSON.parse(data) || 'word'),
+    getLocalStorageItem('cachedBitcoinPrice').then(
+      data => JSON.parse(data) || { coin: 'USD', value: 100_000 },
+    ),
+    getLocalStorageItem('userBalanceDenomination').then(
+      data => JSON.parse(data) || 'sats',
+    ),
+    getLocalStorageItem('thousandsSeperator').then(
+      data => JSON.parse(data) || 'space',
+    ),
+  ]);
   i18n.changeLanguage(selectedLangugae);
 
   let messsage = '';
@@ -220,6 +227,7 @@ async function formatPushNotification(data) {
         masterInfoObject: {
           userBalanceDenomination: userBalanceDenomination,
           satDisplay: satDisplay,
+          thousandsSeperator,
         },
         fiatStats: bitcoinPrice,
       })
@@ -254,20 +262,23 @@ async function formatPushNotification(data) {
   pushInstantNotification(messsage);
 }
 
-TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, async ({data, error}) => {
-  console.log(data, error, 'RUNNING IN BACKGROUND');
-  if (error) {
-    console.error('Background task error:', error);
-    return;
-  }
-  if (data) {
-    if (data.data.body?.format) {
-      await formatPushNotification(data.data.body);
+TaskManager.defineTask(
+  BACKGROUND_NOTIFICATION_TASK,
+  async ({ data, error }) => {
+    console.log(data, error, 'RUNNING IN BACKGROUND');
+    if (error) {
+      console.error('Background task error:', error);
       return;
     }
-    await handleNWCBackgroundEvent(data);
-  }
-});
+    if (data) {
+      if (data.data.body?.format) {
+        await formatPushNotification(data.data.body);
+        return;
+      }
+      await handleNWCBackgroundEvent(data);
+    }
+  },
+);
 
 export async function registerBackgroundNotificationTask() {
   try {
