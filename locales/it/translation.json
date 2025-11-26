@@ -1311,7 +1311,8 @@
       "swap": "Trasferisci"
     },
     "notifications": {
-      "mainToggle": "{{state}} notifiche",
+      "mainToggle_enabled": "Notifiche abilitate",
+      "mainToggle_disabled": "Notifiche disabilitate",
       "mainToggleDesc": "Le notifiche ti tengono informato su eventi e aggiornamenti importanti che accadono nell'app.",
       "optionsTitle": "Opzioni notifiche",
       "contact": "Contatto",
