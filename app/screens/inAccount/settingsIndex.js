@@ -572,7 +572,11 @@ export default function SettingsIndex(props) {
             <ThemeText
               CustomNumberOfLines={1}
               styles={styles.topBarLabel}
-              content={t('settings.index.profileHead')}
+              content={
+                !isDoomsday
+                  ? t('settings.index.profileHead')
+                  : t('settings.index.settingsHead')
+              }
             />
           </Animated.View>
 
@@ -584,24 +588,25 @@ export default function SettingsIndex(props) {
             />
           </Animated.View>
         </View>
-
-        <Animated.View style={shareIconStyle}>
-          <TouchableOpacity
-            onPress={() => {
-              Share.share({
-                message: `${t('share.contact')}\nhttps://blitzwalletapp.com/u/${
-                  myContact.uniqueName
-                }`,
-              });
-            }}
-          >
-            <ThemeImage
-              lightModeIcon={ICONS.share}
-              darkModeIcon={ICONS.share}
-              lightsOutIcon={ICONS.shareWhite}
-            />
-          </TouchableOpacity>
-        </Animated.View>
+        {!isDoomsday && (
+          <Animated.View style={shareIconStyle}>
+            <TouchableOpacity
+              onPress={() => {
+                Share.share({
+                  message: `${t(
+                    'share.contact',
+                  )}\nhttps://blitzwalletapp.com/u/${myContact.uniqueName}`,
+                });
+              }}
+            >
+              <ThemeImage
+                lightModeIcon={ICONS.share}
+                darkModeIcon={ICONS.share}
+                lightsOutIcon={ICONS.shareWhite}
+              />
+            </TouchableOpacity>
+          </Animated.View>
+        )}
       </View>
 
       <Animated.ScrollView
@@ -610,92 +615,96 @@ export default function SettingsIndex(props) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollAign}
         style={styles.settingsContainer}
+        scrollEnabled={!isDoomsday}
       >
-        <View
-          style={[
-            styles.profileContainer,
-            { borderBottomColor: backgroundOffset },
-          ]}
-        >
+        {!isDoomsday && (
           <View
             style={[
-              styles.profileImage,
-              {
-                backgroundColor: backgroundOffset,
-              },
+              styles.profileContainer,
+              { borderBottomColor: backgroundOffset },
             ]}
           >
-            <ContactProfileImage
-              updated={myProfileImage?.updated}
-              uri={myProfileImage?.localUri}
-              darkModeType={darkModeType}
-              theme={theme}
-            />
-          </View>
+            <View
+              style={[
+                styles.profileImage,
+                {
+                  backgroundColor: backgroundOffset,
+                },
+              ]}
+            >
+              <ContactProfileImage
+                updated={myProfileImage?.updated}
+                uri={myProfileImage?.localUri}
+                darkModeType={darkModeType}
+                theme={theme}
+              />
+            </View>
 
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={{ opacity: myContact.name ? 0.5 : 0.8 }}
-            content={myContact.name || t('constants.annonName')}
-          />
-          <TouchableOpacity onPress={handleUserNameCopy}>
             <ThemeText
               CustomNumberOfLines={1}
-              styles={styles.profileUniqueName}
-              content={`@${myContact.uniqueName}`}
+              styles={{ opacity: myContact.name ? 0.5 : 0.8 }}
+              content={myContact.name || t('constants.annonName')}
             />
-          </TouchableOpacity>
+            <TouchableOpacity onPress={handleUserNameCopy}>
+              <ThemeText
+                CustomNumberOfLines={1}
+                styles={styles.profileUniqueName}
+                content={`@${myContact.uniqueName}`}
+              />
+            </TouchableOpacity>
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              onPress={() =>
-                navigate.navigate('SettingsContentHome', {
-                  for: 'edit contact profile',
-                  isDoomsday: isDoomsday,
-                })
-              }
-              style={[
-                styles.button,
-                {
-                  borderColor: backgroundOffset,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={styles.buttonImage}
-                lightModeIcon={ICONS.editIcon}
-                darkModeIcon={ICONS.editIconLight}
-                lightsOutIcon={ICONS.editIconLight}
-              />
-              <ThemeText
-                styles={{ includeFontPadding: false }}
-                content={t('settings.index.editProfile')}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                navigate.navigate('ShowProfileQr');
-              }}
-              style={[
-                styles.button,
-                {
-                  borderColor: backgroundOffset,
-                },
-              ]}
-            >
-              <ThemeImage
-                styles={styles.buttonImage}
-                lightModeIcon={ICONS.scanQrCodeDark}
-                darkModeIcon={ICONS.scanQrCodeLight}
-                lightsOutIcon={ICONS.scanQrCodeLight}
-              />
-              <ThemeText
-                styles={{ includeFontPadding: false }}
-                content={t('settings.index.showQR')}
-              />
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigate.navigate('SettingsContentHome', {
+                    for: 'edit contact profile',
+                    isDoomsday: isDoomsday,
+                  })
+                }
+                style={[
+                  styles.button,
+                  {
+                    borderColor: backgroundOffset,
+                  },
+                ]}
+              >
+                <ThemeImage
+                  styles={styles.buttonImage}
+                  lightModeIcon={ICONS.editIcon}
+                  darkModeIcon={ICONS.editIconLight}
+                  lightsOutIcon={ICONS.editIconLight}
+                />
+                <ThemeText
+                  styles={{ includeFontPadding: false }}
+                  content={t('settings.index.editProfile')}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  navigate.navigate('ShowProfileQr');
+                }}
+                style={[
+                  styles.button,
+                  {
+                    borderColor: backgroundOffset,
+                  },
+                ]}
+              >
+                <ThemeImage
+                  styles={styles.buttonImage}
+                  lightModeIcon={ICONS.scanQrCodeDark}
+                  darkModeIcon={ICONS.scanQrCodeLight}
+                  lightsOutIcon={ICONS.scanQrCodeLight}
+                />
+                <ThemeText
+                  styles={{ includeFontPadding: false }}
+                  content={t('settings.index.showQR')}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        )}
+
         {settingsElements}
 
         {isDoomsday && (
