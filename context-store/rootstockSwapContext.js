@@ -130,7 +130,7 @@ export const RootstockSwapProvider = ({ children }) => {
     try {
       console.log('PROCESSS WALLET', new Date().getTime());
       const wallet = Wallet.fromPhrase(accountMnemoinc);
-      console.log(wallet);
+
       console.log('PROCESSS WALLET 2', new Date().getTime());
       const connectedSigner = wallet.connect(provider);
       console.log('PROCESSS WALLET 3', new Date().getTime());
