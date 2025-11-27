@@ -126,7 +126,6 @@ export const PushNotificationProvider = ({ children }) => {
       value={{
         checkAndSavePushNotificationToDatabase,
         registerNotificationHandlers,
-        registerBackgroundNotificationTask,
         registerForPushNotificationsAsync,
         getCurrentPushNotifiicationPermissions,
       }}
@@ -190,123 +189,6 @@ async function registerForPushNotificationsAsync() {
   } catch (err) {
     console.error('UNEXPECTED ERROR IN FUNCTION', err);
     return { didWork: false, error: err.message };
-  }
-}
-
-// Background task registration
-const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';
-
-async function formatPushNotification(data) {
-  const [
-    selectedLangugae,
-    satDisplay,
-    bitcoinPrice,
-    userBalanceDenomination,
-    thousandsSeperator,
-  ] = await Promise.all([
-    getLocalStorageItem('userSelectedLanguage').then(
-      data => JSON.parse(data) || 'en',
-    ),
-    getLocalStorageItem('satDisplay').then(data => JSON.parse(data) || 'word'),
-    getLocalStorageItem('cachedBitcoinPrice').then(
-      data => JSON.parse(data) || { coin: 'USD', value: 100_000 },
-    ),
-    getLocalStorageItem('userBalanceDenomination').then(
-      data => JSON.parse(data) || 'sats',
-    ),
-    getLocalStorageItem('thousandsSeperator').then(
-      data => JSON.parse(data) || 'space',
-    ),
-  ]);
-  i18n.changeLanguage(selectedLangugae);
-
-  let messsage = '';
-  const formattedAmount = data.amountSat
-    ? displayCorrectDenomination({
-        amount: data.amountSat,
-        masterInfoObject: {
-          userBalanceDenomination: userBalanceDenomination,
-          satDisplay: satDisplay,
-          thousandsSeperator,
-        },
-        fiatStats: bitcoinPrice,
-      })
-    : '';
-
-  if (data.notificationType === 'POS') {
-    messsage = i18n.t('pushNotifications.POS', {
-      totalAmount: formattedAmount,
-    });
-  } else if (data.notificationType === 'LNURL') {
-    messsage = i18n.t(`pushNotifications.LNURL.${data.type}`, {
-      totalAmount: formattedAmount,
-    });
-  } else if (data.notificationType === 'contacts') {
-    if (data.type === 'updateMessage') {
-      messsage = i18n.t(`pushNotifications.contacts.updateMessage`, {
-        name: data.name,
-        option: i18n.t(`transactionLabelText.${data.option}`),
-      });
-    } else if (data.type === 'giftCard') {
-      messsage = i18n.t(`pushNotifications.contacts.giftCard`, {
-        name: data.name,
-        giftCardName: data.giftCardName,
-      });
-    } else {
-      messsage = i18n.t(`pushNotifications.contacts.${data.type}`, {
-        name: data.name,
-        amount: formattedAmount,
-      });
-    }
-  }
-  pushInstantNotification(messsage);
-}
-
-TaskManager.defineTask(
-  BACKGROUND_NOTIFICATION_TASK,
-  async ({ data, error }) => {
-    console.log(data, error, 'RUNNING IN BACKGROUND');
-    if (error) {
-      console.error('Background task error:', error);
-      return;
-    }
-    if (data) {
-      if (data.data.body?.format) {
-        await formatPushNotification(data.data.body);
-        return;
-      }
-      await handleNWCBackgroundEvent(data);
-    }
-  },
-);
-
-export async function registerBackgroundNotificationTask() {
-  try {
-    if (Platform.OS === 'android') {
-      setBackgroundMessageHandler(firebaseMessaging, async data => {
-        console.log(data, 'RUNNING IN BACKGROUND');
-        if (data) {
-          let parsedData;
-          try {
-            parsedData = JSON.parse(data.data.body);
-          } catch (err) {
-            parsedData = data.data.body;
-          }
-
-          console.log(parsedData, 'PARSED DATA');
-
-          if (parsedData?.format) {
-            await formatPushNotification(parsedData);
-            return;
-          }
-          await handleNWCBackgroundEvent(data);
-        }
-      });
-    } else {
-      await registerTaskAsync(BACKGROUND_NOTIFICATION_TASK);
-    }
-  } catch (error) {
-    console.error('Task registration failed:', error);
   }
 }
 

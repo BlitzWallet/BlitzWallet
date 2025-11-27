@@ -7,7 +7,14 @@
 
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, { JSX, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  JSX,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { registerRootComponent } from 'expo';
 import {
   getLocalStorageItem,
@@ -205,8 +212,9 @@ function ResetStack(): JSX.Element | null {
     timestamp: null,
   });
   const { theme, darkModeType } = useGlobalThemeContext();
-  const { didGetToHomepage } = useAppStatus();
+  const { didGetToHomepage, appState } = useAppStatus();
   const { publicKey, setAccountMnemonic } = useKeysContext();
+  const didInitializeSettings = useRef(false);
   const { backgroundColor } = GetThemeColors();
   const { i18n } = useTranslation();
 
@@ -279,18 +287,20 @@ function ResetStack(): JSX.Element | null {
   }, [handleDeepLink]);
 
   const setNavigationBar = useCallback(async () => {
-    if (Platform.OS === 'android') {
-      try {
-        await SystemUI.setBackgroundColorAsync(backgroundColor);
-        await NavigationBar.setBackgroundColorAsync(backgroundColor);
-        await NavigationBar.setButtonStyleAsync(theme ? 'light' : 'dark');
-        setStatusBarBackgroundColor(backgroundColor);
-        setStatusBarStyle(theme ? 'light' : 'dark');
-      } catch (error) {
-        console.warn('Failed to set navigation bar:', error);
+    if (appState === 'active') {
+      if (Platform.OS === 'android') {
+        try {
+          await SystemUI.setBackgroundColorAsync(backgroundColor);
+          await NavigationBar.setBackgroundColorAsync(backgroundColor);
+          await NavigationBar.setButtonStyleAsync(theme ? 'light' : 'dark');
+          setStatusBarBackgroundColor(backgroundColor);
+          setStatusBarStyle(theme ? 'light' : 'dark');
+        } catch (error) {
+          console.warn('Failed to set navigation bar:', error);
+        }
       }
     }
-  }, [backgroundColor, theme]);
+  }, [backgroundColor, theme, appState]);
 
   useEffect(() => {
     async function handleDeeplink() {
@@ -480,8 +490,12 @@ function ResetStack(): JSX.Element | null {
       i18n.changeLanguage(userSelectedLanguage);
     }
 
+    if (appState === 'background') return;
+    if (didInitializeSettings.current) return;
+    didInitializeSettings.current = true;
+
     initWallet();
-  }, []);
+  }, [appState]);
 
   const handleAnimationFinish = () => {
     setInitSettings(prev => {
@@ -506,8 +520,9 @@ function ResetStack(): JSX.Element | null {
   );
 
   useEffect(() => {
+    if (appState === 'background') return;
     setNavigationBar();
-  }, [backgroundColor, theme]);
+  }, [backgroundColor, theme, appState]);
 
   const screenOptions = useMemo(() => {
     return {
@@ -527,6 +542,8 @@ function ResetStack(): JSX.Element | null {
   if (theme === null || darkModeType === null) {
     return null;
   }
+
+  if (appState === 'background' && !didInitializeSettings.current) return null;
 
   return (
     <NavigationContainer theme={navigationTheme} ref={navigationRef}>
