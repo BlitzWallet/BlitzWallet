@@ -152,7 +152,13 @@ export default function GiftsOverview({ theme, darkModeType }) {
             <View>
               <ThemeText
                 styles={styles.state}
-                content={useState ? state : timeRemaining.string}
+                content={
+                  useState
+                    ? t(
+                        `screens.inAccount.giftPages.giftsOverview.${state.toLowerCase()}`,
+                      )
+                    : timeRemaining.string
+                }
               />
             </View>
           </View>

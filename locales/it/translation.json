@@ -1665,7 +1665,10 @@
         "giftsOverview": {
           "noGiftsHead": "Nessun regalo ancora",
           "noGiftsDesc": "Crea il tuo primo regalo per condividere Bitcoin con amici e famiglia",
-          "createGift": "Crea regalo"
+          "createGift": "Crea regalo",
+          "claimed": "Riscattato",
+          "expired": "Scaduto",
+          "unclimaed": "Non riscattato"
         },
 
         "createGift": {
