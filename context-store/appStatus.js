@@ -28,11 +28,13 @@ const AppStatusProvider = ({ children }) => {
     useState(true);
   const [didGetToHomepage, setDidGetToHomePage] = useState(false);
   const [appState, setAppState] = useState(AppState.currentState);
-  const [screenDimensions, setScreenDimensions] = useState(0);
+  const [screenDimensions, setScreenDimensions] = useState(() =>
+    Dimensions.get('screen'),
+  );
 
   const hasInitializedNavListener = useRef(false);
   const hasInitializedBoltzData = useRef(false);
-  const hasInitializedNetworkMonitoring = useRef(false);
+  const hasInitializedNetworkMonitoring = useRef(null);
 
   const toggleDidGetToHomepage = useCallback(newInfo => {
     setDidGetToHomePage(newInfo);
@@ -43,12 +45,12 @@ const AppStatusProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const handleWindowSizechange = newDimensions => {
+    const handleWindowSizeChange = newDimensions => {
       console.log('Window size state changed to:', newDimensions.screen);
       setScreenDimensions(newDimensions.screen);
     };
-    setScreenDimensions(Dimensions.get('screen'));
-    Dimensions.addEventListener('change', handleWindowSizechange);
+
+    Dimensions.addEventListener('change', handleWindowSizeChange);
   }, []);
 
   useEffect(() => {
@@ -68,8 +70,9 @@ const AppStatusProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (!__DEV__) return;
     if (appState !== 'active' || hasInitializedNavListener.current) {
-      if (appState !== 'active') {
+      if (appState !== 'active' && !hasInitializedNavListener.current) {
         console.log('Skipping navigation listener setup - app not active');
       }
       return;
@@ -92,7 +95,7 @@ const AppStatusProvider = ({ children }) => {
 
   useEffect(() => {
     if (appState !== 'active' || hasInitializedBoltzData.current) {
-      if (appState !== 'active') {
+      if (appState !== 'active' && !hasInitializedBoltzData.current) {
         console.log('Skipping Boltz API calls - app not active');
       }
       return;
@@ -115,27 +118,33 @@ const AppStatusProvider = ({ children }) => {
         const min = liquidReverse?.limits?.minimal || 1000;
         const max = liquidReverse?.limits?.maximal || 25000000;
 
-        toggleMinMaxLiquidSwapAmounts({
+        setMinMaxLiquidSwapAmounts(prev => ({
           // reverseSwapStats: liquidReverse,
           // submarineSwapStats: submarineSwapStats['L-BTC'].BTC,
+          ...prev,
           min,
           max,
           rsk: {
+            ...prev.rsk,
             submarine: reverseSwapStats.BTC.RBTC,
             // reverse: submarineSwapStats.RBTC.BTC,
             min: reverseSwapStats.BTC.RBTC.limits.minimal,
             max: reverseSwapStats.BTC.RBTC.limits.maximal,
           },
-        });
+        }));
       } catch (error) {
         console.error('Error fetching Boltz swap information:', error);
       }
     })();
-  }, [appState, toggleMinMaxLiquidSwapAmounts]);
+  }, [appState]);
 
   useEffect(() => {
     if (appState !== 'active') {
-      console.log('Skipping network monitoring setup - app not active');
+      console.log('Stopping network monitoring - app not active');
+      if (hasInitializedNetworkMonitoring.current) {
+        clearInterval(hasInitializedNetworkMonitoring.current);
+        hasInitializedNetworkMonitoring.current = null;
+      }
       return;
     }
 
@@ -153,11 +162,17 @@ const AppStatusProvider = ({ children }) => {
 
     checkNetworkState();
 
-    const interval = setInterval(checkNetworkState, 5000);
+    hasInitializedNetworkMonitoring.current = setInterval(
+      checkNetworkState,
+      5000,
+    );
 
     return () => {
       console.log('Cleaning up network monitoring');
-      clearInterval(interval);
+      if (hasInitializedNetworkMonitoring.current) {
+        clearInterval(hasInitializedNetworkMonitoring.current);
+        hasInitializedNetworkMonitoring.current = null;
+      }
     };
   }, [appState]);
 
