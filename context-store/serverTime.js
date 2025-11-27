@@ -22,6 +22,7 @@ const GlobalServerTimeProvider = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const retryTimeoutRef = useRef(null);
+  const hasAttemptedSyncRef = useRef(false);
 
   const syncServerTime = useCallback(
     async (isRetry = false) => {
@@ -36,7 +37,6 @@ const GlobalServerTimeProvider = ({ children }) => {
         );
 
         if (
-          savedServerTimeOffset &&
           savedServerTimeOffset?.offset !== undefined &&
           !isMoreThanADayOld(savedServerTimeOffset.lastRotated)
         ) {
@@ -46,6 +46,7 @@ const GlobalServerTimeProvider = ({ children }) => {
           );
           setServerTimeOffset(savedServerTimeOffset.offset);
           setIsInitialized(true);
+          setIsSyncing(false);
           return;
         }
 
@@ -79,29 +80,29 @@ const GlobalServerTimeProvider = ({ children }) => {
         setServerTimeOffset(offset);
         await setLocalStorageItem(
           'savedServerTimeOffset',
-          JSON.stringify({ offset, lastRotated: new Date().getTime() }),
+          JSON.stringify({ offset, lastRotated: Date.now() }),
         );
 
         setIsInitialized(true);
+        setIsSyncing(false);
       } catch (error) {
         console.error('Failed to sync server time:', error);
 
-        if (!isRetry && !isInitialized) {
-          // Only retry once for initial sync
-          console.log('Retrying server time sync in 20 seconds...');
+        if (!isRetry) {
+          console.log('Retrying server time sync in 30 seconds...');
           retryTimeoutRef.current = setTimeout(() => {
             syncServerTime(true);
           }, 30000);
-        } else if (!isInitialized) {
-          // Complete failure - use device time
+        } else {
+          console.warn('Server time sync failed, falling back to device time');
           setServerTimeOffset(0);
           setIsInitialized(true);
         }
-      } finally {
+
         setIsSyncing(false);
       }
     },
-    [contactsPrivateKey, publicKey, isSyncing, isInitialized],
+    [contactsPrivateKey, publicKey],
   );
 
   const getServerTime = useCallback(() => {
@@ -114,27 +115,36 @@ const GlobalServerTimeProvider = ({ children }) => {
   }, [serverTimeOffset, isInitialized]);
 
   useEffect(() => {
-    if (!contactsPrivateKey || !publicKey || isInitialized || isSyncing) return;
+    hasAttemptedSyncRef.current = false;
+    setIsInitialized(false);
+  }, [contactsPrivateKey, publicKey]);
+
+  useEffect(() => {
+    if (!contactsPrivateKey || !publicKey) return;
+    if (hasAttemptedSyncRef.current) return;
 
     console.log('Initializing server time sync...');
+    hasAttemptedSyncRef.current = true;
     syncServerTime();
 
     return () => {
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
       }
     };
-  }, [contactsPrivateKey, publicKey, isInitialized, isSyncing, syncServerTime]);
+  }, [contactsPrivateKey, publicKey, syncServerTime]);
 
-  const contextValue = useMemo(() => {
-    return {
+  const contextValue = useMemo(
+    () => ({
       getServerTime,
       isInitialized,
       isSyncing,
       serverTimeOffset,
       isUsingServerTime: isInitialized && serverTimeOffset !== 0,
-    };
-  }, [getServerTime, isInitialized, isSyncing, serverTimeOffset]);
+    }),
+    [getServerTime, isInitialized, isSyncing, serverTimeOffset],
+  );
 
   return (
     <ServerTimeManager.Provider value={contextValue}>
