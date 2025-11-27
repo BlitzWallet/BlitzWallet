@@ -46,20 +46,20 @@ export default function NotificationPreferances() {
 
           if (wantsToEnable) {
             // User wants to enable notifications
+            // Must re-register with system
+            const response = await registerForPushNotificationsAsync();
+            if (!response.didWork) throw new Error(response.error);
+            const checkResponse = await checkAndSavePushNotificationToDatabase(
+              response.token,
+            );
+            if (!checkResponse.didWork) throw new Error(checkResponse.error);
+
+            if (checkResponse.shouldUpdate) {
+              const { hash, key, platform } = checkResponse.data;
+              Object.assign(newObject, { hash, key, platform });
+            }
+
             if (!systemHasPermissions) {
-              // Must re-register with system
-              const response = await registerForPushNotificationsAsync();
-              if (!response.didWork) throw new Error(response.error);
-
-              const checkResponse =
-                await checkAndSavePushNotificationToDatabase(response.token);
-              if (!checkResponse.didWork) throw new Error(checkResponse.error);
-
-              if (checkResponse.shouldUpdate) {
-                const { hash, key, platform } = checkResponse.data;
-                Object.assign(newObject, { hash, key, platform });
-              }
-
               await loadCurrentNotificationPermission(); // refresh system state
             }
 
