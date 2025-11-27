@@ -150,7 +150,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
     }
   };
 
-  const getBalanceWithStatusRetry = async seed => {
+  const getBalanceWithStatusRetry = async (seed, expectedAmount) => {
     const delays = [5000, 7000, 8000];
     let attempt = 0;
 
@@ -159,7 +159,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
     );
 
     let result = await getSparkBalance(seed);
-    if (result?.didWork && Number(result.balance) > 0) {
+    if (result?.didWork && Number(result.balance) === expectedAmount) {
       return result;
     }
 
@@ -174,7 +174,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
       await new Promise(res => setTimeout(res, delay));
 
       result = await getSparkBalance(seed);
-      if (result?.didWork && Number(result.balance) > 0) {
+      if (result?.didWork && Number(result.balance) === expectedAmount) {
         return result;
       }
     }
@@ -215,6 +215,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
 
       const walletBalance = await getBalanceWithStatusRetry(
         giftDetails.giftSeed,
+        giftDetails.amount,
       );
 
       const fees = await getSparkPaymentFeeEstimate(
@@ -229,13 +230,6 @@ export default function ClaimGiftScreen({ url, claimType }) {
       const sendingAmount = formattedWalletBalance - fees;
 
       if (sendingAmount <= 0) {
-        if (claimType === 'reclaim') {
-          await deleteGiftFromCloudAndLocal(giftDetails.uuid);
-          throw new Error(
-            t('screens.inAccount.giftPages.claimPage.noBalanceErrorReclaim'),
-          );
-        }
-
         throw new Error(
           t('screens.inAccount.giftPages.claimPage.nobalanceError'),
         );
@@ -470,7 +464,6 @@ const styles = StyleSheet.create({
   amount: {
     textAlign: 'center',
     fontSize: SIZES.xxLarge,
-    fontWeight: 500,
     marginVertical: 10,
   },
   amountDescription: {
