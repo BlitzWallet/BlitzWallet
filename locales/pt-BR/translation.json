@@ -1132,7 +1132,7 @@
       "showQR": "Código QR",
       "profileHead": "Perfil",
       "settingsHead": "Configurações",
-      "seedPopup": "A frase-semente é uma lista de palavras que permite recuperar seus Bitcoins caso seu dispositivo seja perdido ou danificado. Anote as palavras e guarde em um local seguro. Nunca mostre as palavras para ninguém, pois se alguém tiver acesso a elas poderá roubar todos os seus Bitcoins."
+      "seedPopup": "A frase-semente é uma lista de palavras que permite recuperar seus Bitcoins caso seu dispositivo seja perdido ou danificado. Anote as palavras e guarde em um local seguro. Nunca mostre as palavras para ninguém pois se alguém tiver acesso a elas, poderá roubar todos os seus Bitcoins."
     },
     "about": {
       "header1": "Software",
