@@ -287,6 +287,10 @@ export default function CreateGift(props) {
                   onChangeText={setDescription}
                 />
               </View>
+              <ThemeText
+                styles={styles.disclaimer}
+                content={t('screens.inAccount.giftPages.createGift.disclaimer')}
+              />
             </View>
           </KeyboardAwareScrollView>
           <CustomButton
@@ -373,5 +377,10 @@ const styles = StyleSheet.create({
     width: INSET_WINDOW_WIDTH,
     marginTop: CONTENT_KEYBOARD_OFFSET,
     ...CENTER,
+  },
+  disclaimer: {
+    textAlign: 'center',
+    opacity: 0.6,
+    fontSize: SIZES.small,
   },
 });

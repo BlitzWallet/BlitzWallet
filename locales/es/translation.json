@@ -1509,7 +1509,8 @@
           "startProcess3": "Agregando fondos a tu regalo…",
           "header": "Crear regalo",
           "inputPlaceholder": "Añade un mensaje o nota...",
-          "button": "Crear regalo"
+          "button": "Crear regalo",
+          "disclaimer": "Cuando creas un regalo, el dinero queda bloqueado durante 7 días. Si nadie lo reclama en ese período, puedes ir a la página de recuperación para recuperarlo."
         },
 
         "giftConfirmation": {

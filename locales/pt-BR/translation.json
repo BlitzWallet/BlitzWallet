@@ -1681,7 +1681,8 @@
           "startProcess3": "Adicionando fundos ao vale-bitcoin…",
           "header": "Criar vale-bitcoin",
           "inputPlaceholder": "Adicione uma mensagem ou nota...",
-          "button": "Criar vale-bitcoin"
+          "button": "Criar vale-bitcoin",
+          "disclaimer": "Quando você cria um presente, o dinheiro fica bloqueado por 7 dias. Se ninguém o reivindicar nesse período, você pode ir à página de recuperação para pegá-lo de volta."
         },
 
         "giftConfirmation": {
