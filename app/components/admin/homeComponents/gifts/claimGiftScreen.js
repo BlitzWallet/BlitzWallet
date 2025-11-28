@@ -257,6 +257,10 @@ export default function ClaimGiftScreen({
       const sendingAmount = formattedWalletBalance - fees;
 
       if (sendingAmount <= 0) {
+        if (claimType === 'reclaim') {
+          await deleteGiftFromCloudAndLocal(giftDetails.uuid);
+        }
+
         if (expertMode) {
           throw new Error(
             t('screens.inAccount.giftPages.claimPage.nobalanceErrorExpert'),
