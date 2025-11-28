@@ -288,16 +288,16 @@ function ResetStack(): JSX.Element | null {
 
   const setNavigationBar = useCallback(async () => {
     if (appState === 'active') {
-      if (Platform.OS === 'android') {
-        try {
-          await SystemUI.setBackgroundColorAsync(backgroundColor);
+      try {
+        if (Platform.OS === 'android') {
           await NavigationBar.setBackgroundColorAsync(backgroundColor);
           await NavigationBar.setButtonStyleAsync(theme ? 'light' : 'dark');
-          setStatusBarBackgroundColor(backgroundColor);
-          setStatusBarStyle(theme ? 'light' : 'dark');
-        } catch (error) {
-          console.warn('Failed to set navigation bar:', error);
+          setStatusBarBackgroundColor(backgroundColor, false);
+          setStatusBarStyle(theme ? 'light' : 'dark', false);
         }
+        await SystemUI.setBackgroundColorAsync(backgroundColor);
+      } catch (error) {
+        console.warn('Failed to set navigation bar:', error);
       }
     }
   }, [backgroundColor, theme, appState]);
