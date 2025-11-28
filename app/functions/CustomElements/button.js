@@ -1,14 +1,10 @@
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, FONT, ICONS, SIZES } from '../../constants';
 import FullLoadingScreen from './loadingScreen';
 import ThemeText from './textTheme';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import ThemeImage from './themeImage';
+import { useMemo } from 'react';
 
 export default function CustomButton({
   buttonStyles,
@@ -20,14 +16,68 @@ export default function CustomButton({
   useArrow = false,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
+
+  const memorizedContainerStyles = useMemo(() => {
+    // Base styles with theme color
+    const baseStyles = {
+      ...styles.buttonLocalStyles,
+      minWidth: useArrow ? 50 : 120,
+    };
+
+    if (!buttonStyles) {
+      return baseStyles;
+    }
+
+    if (Array.isArray(buttonStyles)) {
+      return buttonStyles.reduce(
+        (acc, style) => ({
+          ...acc,
+          ...(style || {}),
+        }),
+        baseStyles,
+      );
+    }
+
+    return {
+      ...baseStyles,
+      ...buttonStyles,
+    };
+  }, [buttonStyles]);
+
+  const memorizedTextStyles = useMemo(() => {
+    // Base styles with theme color
+    const baseStyles = {
+      ...styles.text,
+      color: theme
+        ? darkModeType
+          ? COLORS.lightsOutBackground
+          : COLORS.darkModeBackground
+        : COLORS.lightModeText,
+    };
+
+    if (!textStyles) {
+      return baseStyles;
+    }
+
+    if (Array.isArray(textStyles)) {
+      return textStyles.reduce(
+        (acc, style) => ({
+          ...acc,
+          ...(style || {}),
+        }),
+        baseStyles,
+      );
+    }
+
+    return {
+      ...baseStyles,
+      ...textStyles,
+    };
+  }, [theme, darkModeType, textStyles]);
+
   return (
     <TouchableOpacity
-      style={{
-        ...styles.buttonLocalStyles,
-        backgroundColor: COLORS.darkModeText,
-        minWidth: useArrow ? 50 : 120,
-        ...buttonStyles,
-      }}
+      style={memorizedContainerStyles}
       onPress={() => {
         if (useLoading) return;
         actionFunction();
@@ -54,15 +104,7 @@ export default function CustomButton({
         <ThemeText
           CustomNumberOfLines={1}
           content={textContent}
-          styles={{
-            ...styles.text,
-            color: theme
-              ? darkModeType
-                ? COLORS.lightsOutBackground
-                : COLORS.darkModeBackground
-              : COLORS.lightModeText,
-            ...textStyles,
-          }}
+          styles={memorizedTextStyles}
         />
       )}
     </TouchableOpacity>
@@ -76,6 +118,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8,
+    backgroundColor: COLORS.darkModeText,
   },
   text: {
     includeFontPadding: false,
