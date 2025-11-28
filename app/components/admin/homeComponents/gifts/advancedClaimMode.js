@@ -35,6 +35,7 @@ export default function AdvancedGiftClaim() {
     if (!giftNumber || num < 1 || num > currentGiftIndex) {
       return;
     }
+    setGiftNumber('');
     keyboardNavigate(() =>
       navigate.navigate('CustomHalfModal', {
         wantedContent: 'ClaimGiftScreen',
