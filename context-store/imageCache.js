@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useRef,
   useMemo,
+  useCallback,
 } from 'react';
 import {
   getDownloadURL,
@@ -43,7 +44,9 @@ export function ImageCacheProvider({ children }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const didRunContextCacheCheck = useRef(null);
 
-  const refreshCacheObject = async () => {
+  const inFlightRequests = useRef(new Map());
+
+  const refreshCacheObject = useCallback(async () => {
     try {
       const keys = await getAllLocalKeys();
       const imgKeys = keys.filter(k =>
@@ -62,108 +65,88 @@ export function ImageCacheProvider({ children }) {
     } catch (e) {
       console.error('Error loading image cache from storage', e);
     }
-  };
+  }, []);
 
   useEffect(() => {
     refreshCacheObject();
-  }, [decodedAddedContacts]); //rerun the cache when adding or removing contacts
+  }, [decodedAddedContacts, refreshCacheObject]); //rerun the cache when adding or removing contacts
 
-  useEffect(() => {
-    if (!didGetToHomepage) return;
-    if (didRunContextCacheCheck.current) return;
-    if (!masterInfoObject.uuid) return;
-    if (!sparkInformation.identityPubKey) return;
-    didRunContextCacheCheck.current = true;
+  const refreshCache = useCallback(
+    async (uuid, hasdownloadURL, skipCacheUpdate = false) => {
+      if (inFlightRequests.current.has(uuid)) {
+        console.log('Request already in flight for', uuid);
+        return inFlightRequests.current.get(uuid);
+      }
+      const requestPromise = (async () => {
+        try {
+          console.log('Refreshing image for', uuid);
+          const key = `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}`;
+          let url;
+          let metadata;
+          let updated;
 
-    async function refreshContactsImages() {
-      // allways check all images, will return cahced image if its already cached. But this prevents against stale images
-      let refreshArray = [
-        ...decodedAddedContacts,
-        { uuid: masterInfoObject.uuid },
-      ];
+          if (!hasdownloadURL) {
+            const reference = ref(
+              storage,
+              `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}.jpg`,
+            );
 
-      const cacheUpdates = {};
-      for (let index = 0; index < refreshArray.length; index++) {
-        const element = refreshArray[index];
-        if (element.isLNURL) continue;
-        const newCacheEntry = await refreshCache(element.uuid, null, true);
-        if (newCacheEntry) {
-          cacheUpdates[element.uuid] = newCacheEntry;
+            metadata = await getMetadata(reference);
+            updated = metadata.updated;
+
+            const cached = cache[uuid];
+            if (cached && cached.updated === updated) {
+              const fileInfo = await getInfoAsync(cached.localUri);
+              if (fileInfo.exists) return cached;
+            }
+
+            url = await getDownloadURL(reference);
+          } else {
+            url = hasdownloadURL;
+            updated = new Date().toISOString();
+          }
+
+          const localUri = `${FILE_DIR}${uuid}.jpg`;
+
+          await makeDirectoryAsync(FILE_DIR, { intermediates: true });
+
+          if (VALID_URL_REGEX.test(url)) {
+            console.log('Downloading image from', url, 'to', localUri);
+            await downloadAsync(url, localUri);
+          } else {
+            console.log('Copying image from', url, 'to', localUri);
+            await copyAsync({ from: url, to: localUri });
+          }
+
+          const newCacheEntry = {
+            uri: localUri,
+            localUri,
+            updated,
+          };
+
+          await setLocalStorageItem(key, JSON.stringify(newCacheEntry));
+
+          if (!skipCacheUpdate) {
+            setCache(prev => ({ ...prev, [uuid]: newCacheEntry }));
+          }
+
+          return newCacheEntry;
+        } catch (err) {
+          console.log('Error refreshing image cache', err);
+          throw err;
+        } finally {
+          inFlightRequests.current.delete(uuid);
         }
-      }
+      })();
 
-      if (Object.keys(cacheUpdates).length > 0) {
-        setCache(prev => ({ ...prev, ...cacheUpdates }));
-      }
-    }
-    refreshContactsImages();
-  }, [
-    decodedAddedContacts,
-    didGetToHomepage,
-    masterInfoObject?.uuid,
-    sparkInformation.identityPubKey,
-  ]);
+      inFlightRequests.current.set(uuid, requestPromise);
 
-  async function refreshCache(uuid, hasdownloadURL, skipCacheUpdate = false) {
-    try {
-      console.log('Refreshing image for', uuid);
-      const key = `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}`;
-      let url;
-      let metadata;
-      let updated;
+      return requestPromise;
+    },
+    [cache],
+  );
 
-      if (!hasdownloadURL) {
-        const reference = ref(
-          storage,
-          `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}.jpg`,
-        );
-
-        metadata = await getMetadata(reference);
-        updated = metadata.updated;
-
-        const cached = cache[uuid];
-        if (cached && cached.updated === updated) {
-          const fileInfo = await getInfoAsync(cached.localUri);
-          if (fileInfo.exists) return;
-        }
-
-        url = await getDownloadURL(reference);
-      } else {
-        url = hasdownloadURL;
-        updated = new Date().toISOString();
-      }
-
-      const localUri = `${FILE_DIR}${uuid}.jpg`;
-
-      await makeDirectoryAsync(FILE_DIR, { intermediates: true });
-
-      if (VALID_URL_REGEX.test(url)) {
-        console.log('Downloading image from', url, 'to', localUri);
-        await downloadAsync(url, localUri);
-      } else {
-        console.log('Copying image from', url, 'to', localUri);
-        await copyAsync({ from: url, to: localUri });
-      }
-
-      const newCacheEntry = {
-        uri: localUri,
-        localUri,
-        updated,
-      };
-
-      await setLocalStorageItem(key, JSON.stringify(newCacheEntry));
-
-      if (!skipCacheUpdate) {
-        setCache(prev => ({ ...prev, [uuid]: newCacheEntry }));
-      }
-
-      return newCacheEntry;
-    } catch (err) {
-      console.log('Error refreshing image cache', err);
-    }
-  }
-
-  async function removeProfileImageFromCache(uuid) {
+  const removeProfileImageFromCache = useCallback(async uuid => {
     try {
       console.log('Deleting profile image', uuid);
       const key = `${BLITZ_PROFILE_IMG_STORAGE_REF}/${uuid}`;
@@ -180,7 +163,48 @@ export function ImageCacheProvider({ children }) {
     } catch (err) {
       console.log('Error refreshing image cache', err);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (!didGetToHomepage) return;
+    if (didRunContextCacheCheck.current) return;
+    if (!masterInfoObject.uuid) return;
+    if (!sparkInformation.identityPubKey) return;
+    didRunContextCacheCheck.current = true;
+
+    async function refreshContactsImages() {
+      // allways check all images, will return cahced image if its already cached. But this prevents against stale images
+      let refreshArray = [
+        ...decodedAddedContacts,
+        { uuid: masterInfoObject.uuid },
+      ];
+
+      const validContacts = refreshArray.filter(element => !element.isLNURL);
+
+      const results = await Promise.allSettled(
+        validContacts.map(element => refreshCache(element.uuid, null, true)),
+      );
+
+      const cacheUpdates = {};
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled' && result.value) {
+          const uuid = validContacts[index].uuid;
+          cacheUpdates[uuid] = result.value;
+        }
+      });
+
+      if (Object.keys(cacheUpdates).length > 0) {
+        setCache(prev => ({ ...prev, ...cacheUpdates }));
+      }
+    }
+    refreshContactsImages();
+  }, [
+    decodedAddedContacts,
+    didGetToHomepage,
+    masterInfoObject?.uuid,
+    sparkInformation.identityPubKey,
+    refreshCache,
+  ]);
 
   const contextValue = useMemo(
     () => ({
