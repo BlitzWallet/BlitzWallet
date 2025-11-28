@@ -1545,12 +1545,12 @@
           "header": "Modo avanzado",
           "currentIndexHead": "Índice actual del regalo",
           "infoHead": "Cómo funcionan los regalos en Bitcoin",
-          "infoDesc1": "Blitz crea billeteras de regalo individuales que permanecen conectadas a tu billetera principal. Gracias a esto, siempre puedes recuperar fondos de regalos que nunca fueron reclamados.",
-          "infoDesc2": "La mayoría de los regalos vencidos pueden gestionarse desde la página de reclamación normal. Si un regalo no se recibió completamente o la opción habitual no funciona, puedes usar esta página para restablecer el regalo y verificar si aún queda dinero disponible.",
+          "infoDesc1": "Los regalos de Blitz usan billeteras separadas creadas a partir de tu billetera principal. Esto te permite recuperar fondos no reclamados mientras mantienes tu billetera principal protegida.",
+          "infoDesc2": "La mayoría de los regalos vencidos pueden recuperarse en la página normal de recuperación. Si un regalo no se recibió por completo o la opción habitual no funciona, puedes usar esta página para seleccionar un regalo específico y comprobar si aún queda dinero.",
           "inputHead": "Ingresa el número del regalo",
           "invalidGiftNum": "Ingresa un número de regalo válido entre 1 y {{currentGiftIndex}}",
           "restoreGiftBTN": "Restaurar regalo",
-          "advancedWarning": "Esta función avanzada solo debe usarse cuando el proceso de reclamación estándar no funciona. Si no estás seguro, prueba primero la página de reclamación normal."
+          "advancedWarning": "Esta función avanzada solo debe usarse cuando el proceso normal de recuperación no funciona. Si no estás seguro, prueba primero la página de recuperación normal."
         },
 
         "claimPage": {

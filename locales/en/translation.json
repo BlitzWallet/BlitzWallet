@@ -1717,12 +1717,12 @@
           "header": "Advanced Mode",
           "currentIndexHead": "Current Gift Index",
           "infoHead": "How Bitcoin Gifts Work",
-          "infoDesc1": "Blitz creates individual gift wallets that stay connected to your main wallet. Because of this, you can always recover funds from gifts that were never claimed.",
-          "infoDesc2": "Most expired gifts can be handled through the regular claim page. If a gift wasn’t fully received or the usual claim option doesn’t work, you can use this page to reset the gift and check if any money is still available.",
+          "infoDesc1": "Blitz gifts use separate wallets created from your main wallet. This lets you recover unclaimed funds while keeping your main wallet protected.",
+          "infoDesc2": "Most expired gifts can be reclaimed on the regular reclaim page. If a gift wasn’t fully received or the normal reclaim option doesn’t work, you can use this page to select a specific gift and check if any money is still left.",
           "inputHead": "Enter Gift Number",
           "invalidGiftNum": "Please enter a valid gift number between 1 and {{currentGiftIndex}}",
           "restoreGiftBTN": "Restore Gift",
-          "advancedWarning": "This advanced feature should only be used when the standard claim process doesn't work. If you're unsure, try the normal claim page first."
+          "advancedWarning": "This advanced feature should only be used when the standard reclaim process doesn't work. If you're unsure, try the normal reclaim page first."
         },
         "claimPage": {
           "parseError": "We couldn’t read the gift details from this link.",

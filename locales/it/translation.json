@@ -1718,12 +1718,12 @@
           "header": "Modalità avanzata",
           "currentIndexHead": "Indice regalo corrente",
           "infoHead": "Come funzionano i regali in Bitcoin",
-          "infoDesc1": "Blitz crea portafogli regalo individuali che rimangono collegati al tuo portafoglio principale. Per questo motivo puoi sempre recuperare fondi da regali che non sono mai stati riscattati.",
-          "infoDesc2": "La maggior parte dei regali scaduti può essere gestita tramite la pagina normale di riscatto. Se un regalo non è stato ricevuto completamente o la procedura abituale non funziona, puoi usare questa pagina per ripristinare il regalo e verificare se è ancora disponibile del denaro.",
+          "infoDesc1": "I regali Blitz utilizzano portafogli separati creati dal tuo portafoglio principale. Questo ti permette di recuperare fondi non riscattati mantenendo protetto il tuo portafoglio principale.",
+          "infoDesc2": "La maggior parte dei regali scaduti può essere recuperata tramite la pagina normale di recupero. Se un regalo non è stato ricevuto completamente o l'opzione standard non funziona, puoi usare questa pagina per selezionare un regalo specifico e verificare se è rimasto del denaro.",
           "inputHead": "Inserisci il numero del regalo",
           "invalidGiftNum": "Inserisci un numero di regalo valido tra 1 e {{currentGiftIndex}}",
           "restoreGiftBTN": "Ripristina regalo",
-          "advancedWarning": "Questa funzione avanzata dovrebbe essere utilizzata solo quando la procedura standard non funziona. Se non sei sicuro, prova prima la pagina normale di riscatto."
+          "advancedWarning": "Questa funzione avanzata dovrebbe essere utilizzata solo quando il normale processo di recupero non funziona. Se non sei sicuro, prova prima la pagina normale di recupero."
         },
 
         "claimPage": {

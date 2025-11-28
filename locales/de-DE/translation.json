@@ -1699,12 +1699,12 @@
           "header": "Erweiterter Modus",
           "currentIndexHead": "Aktueller Geschenk-Index",
           "infoHead": "Wie Bitcoin-Geschenke funktionieren",
-          "infoDesc1": "Blitz erstellt einzelne Geschenk-Wallets, die mit Ihrer Haupt-Wallet verbunden bleiben. Dadurch können Sie jederzeit Gelder von Geschenken wiederherstellen, die nie eingelöst wurden.",
-          "infoDesc2": "Die meisten abgelaufenen Geschenke können über die normale Einlöseseite bearbeitet werden. Wenn ein Geschenk nicht vollständig empfangen wurde oder die übliche Einlöseoption nicht funktioniert, können Sie diese Seite verwenden, um das Geschenk zurückzusetzen und zu prüfen, ob noch Geld verfügbar ist.",
+          "infoDesc1": "Blitz-Geschenke verwenden separate Wallets, die aus Ihrer Haupt-Wallet erstellt werden. Dadurch können Sie nicht eingelöste Beträge wiederherstellen, während Ihre Haupt-Wallet geschützt bleibt.",
+          "infoDesc2": "Die meisten abgelaufenen Geschenke können über die normale Rückforderungsseite zurückgeholt werden. Wenn ein Geschenk nicht vollständig empfangen wurde oder die normale Rückforderungsoption nicht funktioniert, können Sie auf dieser Seite ein bestimmtes Geschenk auswählen und prüfen, ob noch Geld übrig ist.",
           "inputHead": "Geschenknummer eingeben",
           "invalidGiftNum": "Bitte geben Sie eine gültige Geschenknummer zwischen 1 und {{currentGiftIndex}} ein",
           "restoreGiftBTN": "Geschenk wiederherstellen",
-          "advancedWarning": "Diese erweiterte Funktion sollte nur verwendet werden, wenn der normale Einlöseprozess nicht funktioniert. Wenn Sie unsicher sind, probieren Sie zuerst die normale Einlöseseite."
+          "advancedWarning": "Diese erweiterte Funktion sollte nur verwendet werden, wenn der normale Rückforderungsprozess nicht funktioniert. Wenn Sie unsicher sind, probieren Sie zuerst die normale Rückforderungsseite."
         },
 
         "claimPage": {
