@@ -157,7 +157,7 @@ export default function ShowProfileQr() {
   return (
     <GlobalThemeView useStandardWidth={true} style={styles.container}>
       <CustomSettingsTopBar
-        label={t('contacts.showProfileQr.header')}
+        label={t('settings.index.showQR')}
         showLeftImage={true}
         leftImageBlue={ICONS.share}
         LeftImageDarkMode={ICONS.shareWhite}
