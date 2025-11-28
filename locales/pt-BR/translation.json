@@ -1116,7 +1116,7 @@
       }
     },
     "showProfileQr": {
-      "header": "Código QR",
+      "header": "Compartilhar perfil",
       "lnAddress": "Endereço Lightning",
       "blitzContact": "Contato Blitz",
       "copyMessage": "Copiado!",
