@@ -1691,7 +1691,20 @@
           "inputPlaceholder": "Geschenk-ID eingeben",
           "dropdownPlaceHolder": "Abgelaufenes Geschenk auswählen",
           "button": "Geschenk zurückholen",
-          "noReclaimsMessage": "Du hast derzeit keine abgelaufenen Geschenke. Komm zurück, sobald ein Geschenk abgelaufen ist, um es zurückzuholen."
+          "noReclaimsMessage": "Du hast derzeit keine abgelaufenen Geschenke. Komm zurück, sobald ein Geschenk abgelaufen ist, um es zurückzuholen.",
+          "advancedModeBTN": "Erweiterter Modus"
+        },
+
+        "advancedMode": {
+          "header": "Erweiterter Modus",
+          "currentIndexHead": "Aktueller Geschenk-Index",
+          "infoHead": "Wie Bitcoin-Geschenke funktionieren",
+          "infoDesc1": "Blitz erstellt einzelne Geschenk-Wallets, die mit Ihrer Haupt-Wallet verbunden bleiben. Dadurch können Sie jederzeit Gelder von Geschenken wiederherstellen, die nie eingelöst wurden.",
+          "infoDesc2": "Die meisten abgelaufenen Geschenke können über die normale Einlöseseite bearbeitet werden. Wenn ein Geschenk nicht vollständig empfangen wurde oder die übliche Einlöseoption nicht funktioniert, können Sie diese Seite verwenden, um das Geschenk zurückzusetzen und zu prüfen, ob noch Geld verfügbar ist.",
+          "inputHead": "Geschenknummer eingeben",
+          "invalidGiftNum": "Bitte geben Sie eine gültige Geschenknummer zwischen 1 und {{currentGiftIndex}} ein",
+          "restoreGiftBTN": "Geschenk wiederherstellen",
+          "advancedWarning": "Diese erweiterte Funktion sollte nur verwendet werden, wenn der normale Einlöseprozess nicht funktioniert. Wenn Sie unsicher sind, probieren Sie zuerst die normale Einlöseseite."
         },
 
         "claimPage": {
@@ -1702,7 +1715,8 @@
           "giftWalletInitError": "Gift nicht erreichbar. Bitte später erneut versuchen.",
           "noBalanceErrorReclaim": "Es sind keine Mittel mehr vorhanden.",
           "notExpired": "Du kannst dieses Geschenk noch nicht zurückholen.",
-          "nobalanceError": "Der Restbetrag nach Gebühren ist zu gering.",
+          "nobalanceError": "Wir konnten keinen Betrag für dieses Geschenk finden. Bitte versuchen Sie es später erneut oder versuchen Sie, das Geschenk wiederherzustellen.",
+          "nobalanceErrorExpert": "Für dieses Geschenk ist kein Betrag zur Wiederherstellung verfügbar.",
           "paymentError": "Geschenk konnte nicht eingelöst werden.",
           "claimHead": "Geschenk annehmen",
           "reclaimHead": "Geschenk erstatten",
@@ -1710,6 +1724,8 @@
           "reclaimLoading": "Guthaben wird zurückgebucht… bitte in der App bleiben.",
           "claimAmountHead": "Erhaltener Betrag",
           "reclaimAmountHead": "Erstatteter Betrag",
+          "reclaimAmountHeadExpert": "Geschenknummer wiederhergestellt",
+          "networkFeeWarningExpert": "Jeder gefundene Betrag abzüglich Netzwerkgebühren wird Ihrem Guthaben hinzugefügt",
           "networkFeeWarning": "Dieser Betrag abzüglich Netzwerkgebühren wird deinem Guthaben hinzugefügt",
           "buttonTextClaiming": "Wird eingelöst",
           "reclaimButton": "Geschenk zurückholen",

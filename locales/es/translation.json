@@ -1537,7 +1537,20 @@
           "inputPlaceholder": "Ingresa el ID del regalo",
           "dropdownPlaceHolder": "Seleccionar regalo expirado",
           "button": "Recuperar regalo",
-          "noReclaimsMessage": "No tienes regalos vencidos en este momento. Vuelve cuando algún regalo haya vencido para recuperarlo."
+          "noReclaimsMessage": "No tienes regalos vencidos en este momento. Vuelve cuando algún regalo haya vencido para recuperarlo.",
+          "advancedModeBTN": "Modo avanzado"
+        },
+
+        "advancedMode": {
+          "header": "Modo avanzado",
+          "currentIndexHead": "Índice actual del regalo",
+          "infoHead": "Cómo funcionan los regalos en Bitcoin",
+          "infoDesc1": "Blitz crea billeteras de regalo individuales que permanecen conectadas a tu billetera principal. Gracias a esto, siempre puedes recuperar fondos de regalos que nunca fueron reclamados.",
+          "infoDesc2": "La mayoría de los regalos vencidos pueden gestionarse desde la página de reclamación normal. Si un regalo no se recibió completamente o la opción habitual no funciona, puedes usar esta página para restablecer el regalo y verificar si aún queda dinero disponible.",
+          "inputHead": "Ingresa el número del regalo",
+          "invalidGiftNum": "Ingresa un número de regalo válido entre 1 y {{currentGiftIndex}}",
+          "restoreGiftBTN": "Restaurar regalo",
+          "advancedWarning": "Esta función avanzada solo debe usarse cuando el proceso de reclamación estándar no funciona. Si no estás seguro, prueba primero la página de reclamación normal."
         },
 
         "claimPage": {
@@ -1547,7 +1560,8 @@
           "noGiftSeed": "No pudimos acceder al regalo. Inténtalo más tarde.",
           "giftWalletInitError": "No pudimos acceder al regalo. Inténtalo más tarde.",
           "noBalanceErrorReclaim": "No quedan fondos para recuperar de este regalo.",
-          "nobalanceError": "El monto restante después de las tarifas es demasiado pequeño para reclamar.",
+          "nobalanceError": "No pudimos encontrar un monto para este regalo. Inténtalo de nuevo más tarde o intenta restaurar el regalo.",
+          "nobalanceErrorExpert": "No hay ningún monto disponible para restaurar este regalo.",
           "notExpired": "Aún no puedes recuperar este regalo.",
           "paymentError": "No pudimos reclamar el regalo. Inténtalo de nuevo.",
           "claimHead": "Aceptar regalo",
@@ -1556,6 +1570,8 @@
           "reclaimLoading": "Devolviendo tus fondos… permanece en la app.",
           "claimAmountHead": "Monto recibido",
           "reclaimAmountHead": "Monto devuelto",
+          "reclaimAmountHeadExpert": "Número del regalo restaurado",
+          "networkFeeWarningExpert": "Cualquier monto encontrado, menos las comisiones de red, se añadirá a tu saldo",
           "networkFeeWarning": "Este monto menos las tarifas de red se añadirá a tu saldo",
           "buttonTextClaiming": "Reclamando",
           "reclaimButton": "Recuperar regalo",

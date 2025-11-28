@@ -1710,7 +1710,20 @@
           "inputPlaceholder": "Inserisci ID regalo",
           "dropdownPlaceHolder": "Seleziona regalo scaduto",
           "button": "Recupera regalo",
-          "noReclaimsMessage": "Non hai regali scaduti al momento. Torna quando un regalo sarà scaduto per recuperarlo."
+          "noReclaimsMessage": "Non hai regali scaduti al momento. Torna quando un regalo sarà scaduto per recuperarlo.",
+          "advancedModeBTN": "Modalità avanzata"
+        },
+
+        "advancedMode": {
+          "header": "Modalità avanzata",
+          "currentIndexHead": "Indice regalo corrente",
+          "infoHead": "Come funzionano i regali in Bitcoin",
+          "infoDesc1": "Blitz crea portafogli regalo individuali che rimangono collegati al tuo portafoglio principale. Per questo motivo puoi sempre recuperare fondi da regali che non sono mai stati riscattati.",
+          "infoDesc2": "La maggior parte dei regali scaduti può essere gestita tramite la pagina normale di riscatto. Se un regalo non è stato ricevuto completamente o la procedura abituale non funziona, puoi usare questa pagina per ripristinare il regalo e verificare se è ancora disponibile del denaro.",
+          "inputHead": "Inserisci il numero del regalo",
+          "invalidGiftNum": "Inserisci un numero di regalo valido tra 1 e {{currentGiftIndex}}",
+          "restoreGiftBTN": "Ripristina regalo",
+          "advancedWarning": "Questa funzione avanzata dovrebbe essere utilizzata solo quando la procedura standard non funziona. Se non sei sicuro, prova prima la pagina normale di riscatto."
         },
 
         "claimPage": {
@@ -1720,7 +1733,8 @@
           "noGiftSeed": "Impossibile raggiungere il regalo. Riprova più tardi.",
           "giftWalletInitError": "Impossibile raggiungere il regalo. Riprova più tardi.",
           "noBalanceErrorReclaim": "Nessun fondo rimasto da recuperare.",
-          "nobalanceError": "L'importo rimanente dopo le commissioni è troppo basso.",
+          "nobalanceError": "Non siamo riusciti a trovare un importo per questo regalo. Riprova più tardi o prova a ripristinare il regalo.",
+          "nobalanceErrorExpert": "Non è disponibile alcun importo da ripristinare per questo regalo.",
           "notExpired": "Non puoi ancora recuperare questo regalo.",
           "paymentError": "Impossibile riscattare il regalo.",
           "claimHead": "Accetta regalo",
@@ -1729,6 +1743,8 @@
           "reclaimLoading": "Restituzione fondi… rimani nell'app.",
           "claimAmountHead": "Importo ricevuto",
           "reclaimAmountHead": "Importo restituito",
+          "reclaimAmountHeadExpert": "Numero del regalo ripristinato",
+          "networkFeeWarningExpert": "Qualsiasi importo trovato, meno le commissioni di rete, verrà aggiunto al tuo saldo",
           "networkFeeWarning": "Questo importo meno le commissioni verrà aggiunto al saldo",
           "buttonTextClaiming": "Riscattando",
           "reclaimButton": "Recupera regalo",
