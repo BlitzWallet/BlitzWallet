@@ -54,6 +54,7 @@ import { useWebView } from '../../../../../context-store/webViewContext';
 import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalance';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
+import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 
 export default function SendPaymentScreen(props) {
   const { sendWebViewRequest } = useWebView();
@@ -78,6 +79,7 @@ export default function SendPaymentScreen(props) {
   const { sparkInformation, showTokensInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { liquidNodeInformation, fiatStats } = useNodeContext();
+  const { globalContactsInformation } = useGlobalContacts();
   // const {minMaxLiquidSwapAmounts} = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
@@ -210,6 +212,7 @@ export default function SendPaymentScreen(props) {
         t,
         sendWebViewRequest,
         contactInfo,
+        globalContactsInformation,
       });
     }
     if (!sparkInformation.didConnect) return;
@@ -447,6 +450,7 @@ export default function SendPaymentScreen(props) {
                   isLRC20Payment={isUsingLRC20}
                   useAltLayout={useAltLayout}
                   sendWebViewRequest={sendWebViewRequest}
+                  globalContactsInformation={globalContactsInformation}
                 />
               </View>
             )}
@@ -483,6 +487,7 @@ export default function SendPaymentScreen(props) {
                 isLRC20Payment={isUsingLRC20}
                 useAltLayout={useAltLayout}
                 sendWebViewRequest={sendWebViewRequest}
+                globalContactsInformation={globalContactsInformation}
               />
             )}
           </>

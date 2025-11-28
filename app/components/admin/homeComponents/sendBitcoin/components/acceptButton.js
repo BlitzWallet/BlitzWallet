@@ -35,6 +35,7 @@ export default function AcceptButtonSendPage({
   isLRC20Payment,
   useAltLayout,
   sendWebViewRequest,
+  globalContactsInformation,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -244,6 +245,7 @@ export default function AcceptButtonSendPage({
         currentWalletMnemoinc,
         t,
         sendWebViewRequest,
+        globalContactsInformation,
       });
     } catch (error) {
       console.log('Accept button error:', error);

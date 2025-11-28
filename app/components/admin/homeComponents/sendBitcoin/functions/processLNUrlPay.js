@@ -18,9 +18,21 @@ export default async function processLNUrlPay(input, context) {
     sendWebViewRequest,
     fromPage,
     contactInfo,
+    globalContactsInformation,
   } = context;
-
   crashlyticsLogReport('Beiging decode LNURL pay');
+
+  if (
+    input.data.address?.split('@')?.[0]?.toLowerCase() ===
+    globalContactsInformation.myProfile.uniqueName?.toLowerCase()
+  ) {
+    throw new Error(
+      t('wallet.sendPages.handlingAddressErrors.payingToSameAddress', {
+        addressType: 'Lightning',
+      }),
+    );
+  }
+
   const amountMsat = comingFromAccept
     ? enteredPaymentInfo.amount * 1000
     : input.data.minSendable;
