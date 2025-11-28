@@ -248,9 +248,12 @@ export default function ShowProfileQr() {
 
         {/* QR */}
         <View style={styles.qrWrapper}>
-          <View style={[styles.qrCard, { borderColor: backgroundOffset }]}>
+          <TouchableOpacity
+            onPress={handleCopy}
+            style={[styles.qrCard, { borderColor: backgroundOffset }]}
+          >
             <QRCode value={currentValue} size={240} />
-          </View>
+          </TouchableOpacity>
 
           {/* <ThemeText styles={styles.label} content={currentLabel} /> */}
 
