@@ -14,6 +14,7 @@ import {
   CENTER,
   GIFT_DERIVE_PATH_CUTOFF,
   SIZES,
+  STARTING_INDEX_FOR_GIFTS_DERIVE,
   WEBSITE_REGEX,
 } from '../../../../constants';
 import GetThemeColors from '../../../../hooks/themeColors';
@@ -40,7 +41,12 @@ import { deriveKeyFromMnemonic } from '../../../../functions/seed';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
-export default function ClaimGiftScreen({ url, claimType }) {
+export default function ClaimGiftScreen({
+  url,
+  claimType,
+  expertMode,
+  customGiftIndex,
+}) {
   const { accountMnemoinc } = useKeysContext();
   const { deleteGiftFromCloudAndLocal } = useGifts();
   const navigate = useNavigation();
@@ -65,41 +71,54 @@ export default function ClaimGiftScreen({ url, claimType }) {
       let giftSeed;
 
       if (claimType === 'reclaim') {
-        let uuid;
-        if (WEBSITE_REGEX.test(url)) {
-          const parsedURL = parseGiftUrl(url);
-          uuid = parsedURL.giftId;
-        } else {
-          uuid = url;
-        }
-
-        const savedGift = await getGiftByUuid(uuid);
-
-        if (Date.now() < savedGift.expireTime) {
-          throw new Error(
-            t('screens.inAccount.giftPages.claimPage.notExpired'),
-          );
-        }
-
-        let giftWalletMnemonic;
-
-        if (savedGift.createdTime > GIFT_DERIVE_PATH_CUTOFF) {
-          giftWalletMnemonic = await deriveSparkGiftMnemonic(
+        if (expertMode) {
+          const giftWalletMnemonic = await deriveSparkGiftMnemonic(
             accountMnemoinc,
-            savedGift.giftNum,
+            STARTING_INDEX_FOR_GIFTS_DERIVE + customGiftIndex,
           );
-        } else {
-          giftWalletMnemonic = await deriveKeyFromMnemonic(
-            accountMnemoinc,
-            savedGift.giftNum,
-          );
-        }
-        giftSeed = giftWalletMnemonic.derivedMnemonic;
 
-        setGiftDetails({
-          ...savedGift,
-          giftSeed: giftSeed,
-        });
+          giftSeed = giftWalletMnemonic.derivedMnemonic;
+
+          setGiftDetails({
+            giftSeed: giftSeed,
+          });
+        } else {
+          let uuid;
+          if (WEBSITE_REGEX.test(url)) {
+            const parsedURL = parseGiftUrl(url);
+            uuid = parsedURL.giftId;
+          } else {
+            uuid = url;
+          }
+
+          const savedGift = await getGiftByUuid(uuid);
+
+          if (Date.now() < savedGift.expireTime) {
+            throw new Error(
+              t('screens.inAccount.giftPages.claimPage.notExpired'),
+            );
+          }
+
+          let giftWalletMnemonic;
+
+          if (savedGift.createdTime > GIFT_DERIVE_PATH_CUTOFF) {
+            giftWalletMnemonic = await deriveSparkGiftMnemonic(
+              accountMnemoinc,
+              savedGift.giftNum,
+            );
+          } else {
+            giftWalletMnemonic = await deriveKeyFromMnemonic(
+              accountMnemoinc,
+              savedGift.giftNum,
+            );
+          }
+          giftSeed = giftWalletMnemonic.derivedMnemonic;
+
+          setGiftDetails({
+            ...savedGift,
+            giftSeed: giftSeed,
+          });
+        }
       } else {
         const parsedURL = parseGiftUrl(url);
         if (!parsedURL)
@@ -159,7 +178,11 @@ export default function ClaimGiftScreen({ url, claimType }) {
     );
 
     let result = await getSparkBalance(seed);
-    if (result?.didWork && Number(result.balance) === expectedAmount) {
+    if (
+      result?.didWork &&
+      (Number(result.balance) === expectedAmount ||
+        (!expectedAmount && Number(result.balance) > 0))
+    ) {
       return result;
     }
 
@@ -174,7 +197,11 @@ export default function ClaimGiftScreen({ url, claimType }) {
       await new Promise(res => setTimeout(res, delay));
 
       result = await getSparkBalance(seed);
-      if (result?.didWork && Number(result.balance) === expectedAmount) {
+      if (
+        result?.didWork &&
+        (Number(result.balance) === expectedAmount ||
+          (!expectedAmount && Number(result.balance) > 0))
+      ) {
         return result;
       }
     }
@@ -215,24 +242,30 @@ export default function ClaimGiftScreen({ url, claimType }) {
 
       const walletBalance = await getBalanceWithStatusRetry(
         giftDetails.giftSeed,
-        giftDetails.amount,
-      );
-
-      const fees = await getSparkPaymentFeeEstimate(
-        giftDetails.amount,
-        giftDetails.giftSeed,
+        expertMode ? undefined : giftDetails.amount,
       );
 
       const formattedWalletBalance = walletBalance?.didWork
         ? Number(walletBalance?.balance)
-        : giftDetails.amount;
+        : giftDetails.amount || 0;
+
+      const fees = await getSparkPaymentFeeEstimate(
+        formattedWalletBalance,
+        giftDetails.giftSeed,
+      );
 
       const sendingAmount = formattedWalletBalance - fees;
 
       if (sendingAmount <= 0) {
-        throw new Error(
-          t('screens.inAccount.giftPages.claimPage.nobalanceError'),
-        );
+        if (expertMode) {
+          throw new Error(
+            t('screens.inAccount.giftPages.claimPage.nobalanceErrorExpert'),
+          );
+        } else {
+          throw new Error(
+            t('screens.inAccount.giftPages.claimPage.nobalanceError'),
+          );
+        }
       }
 
       setClaimStatus(
@@ -280,10 +313,12 @@ export default function ClaimGiftScreen({ url, claimType }) {
 
       await bulkUpdateSparkTransactions([transaction]);
 
-      if (claimType === 'reclaim') {
-        await deleteGiftFromCloudAndLocal(giftDetails.uuid);
-      } else {
-        await deleteGift(giftDetails.uuid);
+      if (!expertMode) {
+        if (claimType === 'reclaim') {
+          await deleteGiftFromCloudAndLocal(giftDetails.uuid);
+        } else {
+          await deleteGift(giftDetails.uuid);
+        }
       }
       setDidClaim(true);
     } catch (err) {
@@ -298,7 +333,7 @@ export default function ClaimGiftScreen({ url, claimType }) {
   };
 
   useEffect(() => {
-    if (!url) return;
+    if (!expertMode && !url) return;
 
     async function run() {
       const isConnected =
@@ -406,23 +441,37 @@ export default function ClaimGiftScreen({ url, claimType }) {
               styles={styles.amountHeader}
               content={
                 claimType === 'reclaim'
-                  ? t('screens.inAccount.giftPages.claimPage.reclaimAmountHead')
+                  ? expertMode
+                    ? t(
+                        'screens.inAccount.giftPages.claimPage.reclaimAmountHeadExpert',
+                      )
+                    : t(
+                        'screens.inAccount.giftPages.claimPage.reclaimAmountHead',
+                      )
                   : t('screens.inAccount.giftPages.claimPage.claimAmountHead')
               }
             />
             <ThemeText
               styles={styles.amount}
-              content={displayCorrectDenomination({
-                amount: giftDetails.amount,
-                masterInfoObject,
-                fiatStats,
-              })}
+              content={
+                expertMode
+                  ? customGiftIndex
+                  : displayCorrectDenomination({
+                      amount: giftDetails.amount,
+                      masterInfoObject,
+                      fiatStats,
+                    })
+              }
             />
             <ThemeText
               styles={styles.amountDescription}
-              content={t(
-                'screens.inAccount.giftPages.claimPage.networkFeeWarning',
-              )}
+              content={
+                expertMode
+                  ? t(
+                      'screens.inAccount.giftPages.claimPage.networkFeeWarningExpert',
+                    )
+                  : t('screens.inAccount.giftPages.claimPage.networkFeeWarning')
+              }
             />
           </View>
           <CustomButton
