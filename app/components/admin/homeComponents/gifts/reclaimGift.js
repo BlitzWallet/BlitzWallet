@@ -16,6 +16,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useGifts } from '../../../../../context-store/giftContext';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import { useTranslation } from 'react-i18next';
+import CustomButton from '../../../../functions/CustomElements/button';
 
 export default function ReclaimGift({ theme }) {
   const { expiredGiftsArray } = useGifts();
@@ -51,6 +52,10 @@ export default function ReclaimGift({ theme }) {
 
   const handleDropdownSelection = item => {
     setEnteredLink(item.data.uuid);
+  };
+
+  const handleAdvancedMode = () => {
+    navigate.navigate('AdvancedGiftClaim');
   };
 
   useFocusEffect(
@@ -152,6 +157,14 @@ export default function ReclaimGift({ theme }) {
                 </View>
               )}
             </View>
+            <CustomButton
+              buttonStyles={styles.advancedContainer}
+              textStyles={{ ...styles.advancedText, color: textColor }}
+              textContent={t(
+                'screens.inAccount.giftPages.reclaimPage.advancedModeBTN',
+              )}
+              actionFunction={handleAdvancedMode}
+            />
           </View>
         </View>
       </KeyboardAwareScrollView>
@@ -226,7 +239,6 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 16,
     padding: 24,
-    marginBottom: 32,
     justifyContent: 'center',
   },
   input: {
@@ -248,5 +260,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  advancedContainer: {
+    backgroundColor: 'unset',
+    marginBottom: 20,
+  },
+  advancedText: {
+    textDecorationLine: 'underline',
   },
 });
