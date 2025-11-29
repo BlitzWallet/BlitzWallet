@@ -1718,7 +1718,7 @@
           "currentIndexHead": "Índice atual do vale-bitcoin",
           "infoHead": "Como funcionam os vales-bitcoin",
           "infoDesc1": "Os vales-bitcoin Blitz usam carteiras separadas criadas a partir da sua carteira principal. Isso permite recuperar valores não resgatados enquanto mantém sua carteira principal protegida.",
-          "infoDesc2": "A maioria dos presentes expirados pode ser recuperada na página comum de recuperação. Se um presente não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um presente específico e verificar se ainda há dinheiro disponível.",
+          "infoDesc2": "A maioria dos vales-bitcoin expirados podem ser recuperados na página Expirados. Se um vale-bitcoin não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um vale-bitcoin específico e verificar se ainda há fundos disponíveis.",
           "inputHead": "Digite o número do presente",
           "invalidGiftNum": "Digite um número de presente válido entre 1 e {{currentGiftIndex}}",
           "restoreGiftBTN": "Restaurar presente",
