@@ -1710,7 +1710,19 @@
           "inputPlaceholder": "Enter gift ID",
           "dropdownPlaceHolder": "Select Expired Gift",
           "button": "Reclaim Gift",
-          "noReclaimsMessage": "You have no expired gifts right now. Come back after a gift has expired to reclaim it."
+          "noReclaimsMessage": "You have no expired gifts right now. Come back after a gift has expired to reclaim it.",
+          "advancedModeBTN": "Advanced Mode"
+        },
+        "advancedMode": {
+          "header": "Advanced Mode",
+          "currentIndexHead": "Current Gift Index",
+          "infoHead": "How Bitcoin Gifts Work",
+          "infoDesc1": "Blitz gifts use separate wallets created from your main wallet. This lets you recover unclaimed funds while keeping your main wallet protected.",
+          "infoDesc2": "Most expired gifts can be reclaimed on the regular reclaim page. If a gift wasn’t fully received or the normal reclaim option doesn’t work, you can use this page to select a specific gift and check if any money is still left.",
+          "inputHead": "Enter Gift Number",
+          "invalidGiftNum": "Please enter a valid gift number between 1 and {{currentGiftIndex}}",
+          "restoreGiftBTN": "Restore Gift",
+          "advancedWarning": "This advanced feature should only be used when the standard reclaim process doesn't work. If you're unsure, try the normal reclaim page first."
         },
         "claimPage": {
           "parseError": "We couldn’t read the gift details from this link.",
@@ -1720,7 +1732,8 @@
           "giftWalletInitError": "We were unable to reach the gift, please try again later.",
           "noBalanceErrorReclaim": "There are no funds left to reclaim from this gift.",
           "notExpired": "You cannot reclaim this gift yet.",
-          "nobalanceError": "The amount left after fees is too small to claim.",
+          "nobalanceError": "We couldn’t find an amount for this gift. Please try again later or try restoring the gift.",
+          "nobalanceErrorExpert": "There’s no amount available to restore for this gift.",
           "paymentError": "We couldn’t claim the gift. Please try again.",
           "claimHead": "Accept Gift",
           "reclaimHead": "Refund Gift",
@@ -1728,6 +1741,8 @@
           "reclaimLoading": "Returning your funds… please stay in the app.",
           "claimAmountHead": "Receving amount",
           "reclaimAmountHead": "Amount Restored",
+          "reclaimAmountHeadExpert": "Gift Number Restored",
+          "networkFeeWarningExpert": "Any amount found minus network fees will be added to your balance",
           "networkFeeWarning": "This amount minus network fees will be added to your balance",
           "buttonTextClaiming": "Claiming",
           "reclaimButton": "Reclaim Gift",

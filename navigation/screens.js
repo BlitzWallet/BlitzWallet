@@ -58,6 +58,7 @@ import CustomHalfModal from '../app/functions/CustomElements/halfModal';
 import InformationPopup from '../app/functions/CustomElements/informationPopup';
 import ShowProfileQr from '../app/functions/CustomElements/showProfileQr';
 import CreateGift from '../app/components/admin/homeComponents/gifts/createGift';
+import AdvancedGiftClaim from '../app/components/admin/homeComponents/gifts/advancedClaimMode';
 import {
   CreateAccountHome,
   DislaimerPage,
@@ -154,6 +155,7 @@ const SLIDE_FROM_RIGHT_SCREENS = [
   { name: 'SMSMessagingReceivedPage', component: SMSMessagingReceivedPage },
   { name: 'SMSMessagingSendPage', component: SMSMessagingSendPage },
   { name: 'CreateGift', component: CreateGift },
+  { name: 'AdvancedGiftClaim', component: AdvancedGiftClaim },
 ];
 
 const FADE_SCREENS = [

@@ -1709,7 +1709,20 @@
           "inputPlaceholder": "Digite o ID do vale-bitcoin",
           "dropdownPlaceHolder": "Selecionar vale-bitcoin expirado",
           "button": "Recuperar vale-bitcoin",
-          "noReclaimsMessage": "Não há vales-bitcoin expirados no momento. Você sempre pode recuperar o valor dos vales-bitcoin que você criou e não foram resgatados."
+          "noReclaimsMessage": "Não há vales-bitcoin expirados no momento. Você sempre pode recuperar o valor dos vales-bitcoin que você criou e não foram resgatados.",
+          "advancedModeBTN": "Modo avançado"
+        },
+
+        "advancedMode": {
+          "header": "Modo avançado",
+          "currentIndexHead": "Índice atual do vale-bitcoin",
+          "infoHead": "Como funcionam os vales-bitcoin",
+          "infoDesc1": "Os vales-bitcoin Blitz usam carteiras separadas criadas a partir da sua carteira principal. Isso permite recuperar valores não resgatados enquanto mantém sua carteira principal protegida.",
+          "infoDesc2": "A maioria dos vales-bitcoin expirados podem ser recuperados na página Expirados. Se um vale-bitcoin não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um vale-bitcoin específico e verificar se ainda há fundos disponíveis.",
+          "inputHead": "Digite o número do vale-bitcoin",
+          "invalidGiftNum": "Digite um número de vale-bitcoin válido entre 1 e {{currentGiftIndex}}",
+          "restoreGiftBTN": "Recuperar valor do vale-bitcoin",
+          "advancedWarning": "Este recurso avançado deve ser usado apenas quando o processo padrão de recuperação não funcionar. Se tiver dúvidas, tente primeiro o processo normal de recuperação."
         },
 
         "claimPage": {
@@ -1720,7 +1733,8 @@
           "giftWalletInitError": "Não conseguimos acessar o vale-bitcoin. Tente novamente mais tarde.",
           "noBalanceErrorReclaim": "Não há fundos restantes para resgatar.",
           "notExpired": "Você ainda não pode recuperar este vale-bitcoin.",
-          "nobalanceError": "O valor restante após taxas é muito baixo.",
+          "nobalanceError": "Não foi possível encontrar um valor para este presente. Tente novamente mais tarde ou tente restaurar o presente.",
+          "nobalanceErrorExpert": "Não há nenhum valor disponível para restaurar este presente.",
           "paymentError": "Não foi possível resgatar o vale-bitcoin.",
           "claimHead": "Aceitar vale-bitcoin",
           "reclaimHead": "Reembolsar vale-bitcoin",
@@ -1728,6 +1742,8 @@
           "reclaimLoading": "Devolvendo fundos… permaneça no app.",
           "claimAmountHead": "Valor a receber",
           "reclaimAmountHead": "Valor devolvido",
+          "reclaimAmountHeadExpert": "Número do presente restaurado",
+          "networkFeeWarningExpert": "Qualquer valor encontrado, descontadas as taxas de rede, será adicionado ao seu saldo",
           "networkFeeWarning": "Este valor, menos taxas, será adicionado ao seu saldo",
           "buttonTextClaiming": "Resgatando",
           "reclaimButton": "Recuperar vale-bitcoin",

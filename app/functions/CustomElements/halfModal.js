@@ -326,6 +326,8 @@ export default function CustomHalfModal(props) {
           <ClaimGiftScreen
             url={props?.route?.params?.url}
             claimType={props?.route?.params?.claimType}
+            expertMode={props?.route?.params?.expertMode}
+            customGiftIndex={props?.route?.params?.customGiftIndex}
             theme={theme}
             darkModeType={darkModeType}
           />
