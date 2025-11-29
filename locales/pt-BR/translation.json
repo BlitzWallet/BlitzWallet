@@ -1721,7 +1721,7 @@
           "infoDesc2": "A maioria dos vales-bitcoin expirados podem ser recuperados na página Expirados. Se um vale-bitcoin não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um vale-bitcoin específico e verificar se ainda há fundos disponíveis.",
           "inputHead": "Digite o número do vale-bitcoin",
           "invalidGiftNum": "Digite um número de vale-bitcoin válido entre 1 e {{currentGiftIndex}}",
-          "restoreGiftBTN": "Restaurar presente",
+          "restoreGiftBTN": "Recuperar valor do vale-bitcoin",
           "advancedWarning": "Este recurso avançado deve ser usado apenas quando o processo padrão de recuperação não funcionar. Se tiver dúvidas, tente primeiro a página normal de recuperação."
         },
 
