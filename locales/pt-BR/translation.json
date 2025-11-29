@@ -1715,7 +1715,7 @@
 
         "advancedMode": {
           "header": "Modo avançado",
-          "currentIndexHead": "Índice atual do presente",
+          "currentIndexHead": "Índice atual do vale-bitcoin",
           "infoHead": "Como funcionam os presentes em Bitcoin",
           "infoDesc1": "Os presentes Blitz usam carteiras separadas criadas a partir da sua carteira principal. Isso permite recuperar valores não reivindicados enquanto mantém sua carteira principal protegida.",
           "infoDesc2": "A maioria dos presentes expirados pode ser recuperada na página comum de recuperação. Se um presente não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um presente específico e verificar se ainda há dinheiro disponível.",
