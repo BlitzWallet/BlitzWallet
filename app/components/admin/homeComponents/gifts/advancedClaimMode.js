@@ -8,7 +8,12 @@ import CustomSettingsTopBar from '../../../../functions/CustomElements/settingsT
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { CENTER, ICONS } from '../../../../constants';
-import { COLORS, HIDDEN_OPACITY, SIZES } from '../../../../constants/theme';
+import {
+  COLORS,
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  SIZES,
+} from '../../../../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -62,7 +67,7 @@ export default function AdvancedGiftClaim() {
 
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.container]}
+        contentContainerStyle={styles.container}
         bottomOffset={100}
       >
         {/* Current Index Card */}
@@ -202,8 +207,7 @@ export default function AdvancedGiftClaim() {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    paddingHorizontal: '5%',
+    width: INSET_WINDOW_WIDTH,
     flexGrow: 1,
     ...CENTER,
   },
