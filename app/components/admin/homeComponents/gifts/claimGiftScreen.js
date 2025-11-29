@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { deleteGift, getGiftCard } from '../../../../../db';
 import { parseGiftUrl } from '../../../../functions/gift/encodeDecodeSecret';
@@ -65,96 +65,98 @@ export default function ClaimGiftScreen({
   // Store the initialization promise and result
   const walletInitPromise = useRef(null);
   const walletInitResult = useRef(null);
+  const isClaimingRef = useRef(false);
 
-  const loadGiftDetails = async () => {
+  const handleError = useCallback(
+    errorMessage => {
+      navigate.navigate('ErrorScreen', { errorMessage });
+    },
+    [navigate],
+  );
+
+  const deriveReclaimGiftSeed = useCallback(async () => {
+    if (expertMode) {
+      const giftWalletMnemonic = await deriveSparkGiftMnemonic(
+        accountMnemoinc,
+        STARTING_INDEX_FOR_GIFTS_DERIVE + customGiftIndex,
+      );
+      return { giftSeed: giftWalletMnemonic.derivedMnemonic };
+    }
+
+    let uuid;
+    if (WEBSITE_REGEX.test(url)) {
+      const parsedURL = parseGiftUrl(url);
+      uuid = parsedURL.giftId;
+    } else {
+      uuid = url;
+    }
+
+    const savedGift = await getGiftByUuid(uuid);
+
+    if (Date.now() < savedGift.expireTime) {
+      throw new Error(t('screens.inAccount.giftPages.claimPage.notExpired'));
+    }
+
+    let giftWalletMnemonic;
+    if (savedGift.createdTime > GIFT_DERIVE_PATH_CUTOFF) {
+      giftWalletMnemonic = await deriveSparkGiftMnemonic(
+        accountMnemoinc,
+        savedGift.giftNum,
+      );
+    } else {
+      giftWalletMnemonic = await deriveKeyFromMnemonic(
+        accountMnemoinc,
+        savedGift.giftNum,
+      );
+    }
+
+    return {
+      ...savedGift,
+      giftSeed: giftWalletMnemonic.derivedMnemonic,
+    };
+  }, [expertMode, url, customGiftIndex, accountMnemoinc, t]);
+
+  const deriveClaimGiftSeed = useCallback(async () => {
+    const parsedURL = parseGiftUrl(url);
+    if (!parsedURL) {
+      throw new Error(t('screens.inAccount.giftPages.claimPage.parseError'));
+    }
+
+    const retrivedGift = await getGiftCard(parsedURL.giftId);
+
+    if (!retrivedGift || retrivedGift?.expireTime < Date.now()) {
+      throw new Error(
+        t('screens.inAccount.giftPages.claimPage.expiredOrClaimed'),
+      );
+    }
+
+    const publicKey = getPublicKey(parsedURL.secret);
+    const decodedSeed = decryptMessage(
+      parsedURL.secret,
+      publicKey,
+      retrivedGift.encryptedText,
+    );
+
+    if (decodedSeed.split(' ').length < 5) {
+      throw new Error(t('screens.inAccount.giftPages.claimPage.noGiftSeed'));
+    }
+
+    return { ...retrivedGift, giftSeed: decodedSeed };
+  }, [url, t]);
+
+  const loadGiftDetails = useCallback(async () => {
     try {
-      let giftSeed;
+      const details =
+        claimType === 'reclaim'
+          ? await deriveReclaimGiftSeed()
+          : await deriveClaimGiftSeed();
 
-      if (claimType === 'reclaim') {
-        if (expertMode) {
-          const giftWalletMnemonic = await deriveSparkGiftMnemonic(
-            accountMnemoinc,
-            STARTING_INDEX_FOR_GIFTS_DERIVE + customGiftIndex,
-          );
+      setGiftDetails(details);
 
-          giftSeed = giftWalletMnemonic.derivedMnemonic;
-
-          setGiftDetails({
-            giftSeed: giftSeed,
-          });
-        } else {
-          let uuid;
-          if (WEBSITE_REGEX.test(url)) {
-            const parsedURL = parseGiftUrl(url);
-            uuid = parsedURL.giftId;
-          } else {
-            uuid = url;
-          }
-
-          const savedGift = await getGiftByUuid(uuid);
-
-          if (Date.now() < savedGift.expireTime) {
-            throw new Error(
-              t('screens.inAccount.giftPages.claimPage.notExpired'),
-            );
-          }
-
-          let giftWalletMnemonic;
-
-          if (savedGift.createdTime > GIFT_DERIVE_PATH_CUTOFF) {
-            giftWalletMnemonic = await deriveSparkGiftMnemonic(
-              accountMnemoinc,
-              savedGift.giftNum,
-            );
-          } else {
-            giftWalletMnemonic = await deriveKeyFromMnemonic(
-              accountMnemoinc,
-              savedGift.giftNum,
-            );
-          }
-          giftSeed = giftWalletMnemonic.derivedMnemonic;
-
-          setGiftDetails({
-            ...savedGift,
-            giftSeed: giftSeed,
-          });
-        }
-      } else {
-        const parsedURL = parseGiftUrl(url);
-        if (!parsedURL)
-          throw new Error(
-            t('screens.inAccount.giftPages.claimPage.parseError'),
-          );
-
-        const retrivedGift = await getGiftCard(parsedURL.giftId);
-
-        if (!retrivedGift || retrivedGift?.expireTime < Date.now())
-          throw new Error(
-            t('screens.inAccount.giftPages.claimPage.expiredOrClaimed'),
-          );
-
-        const publicKey = getPublicKey(parsedURL.secret);
-        const decodedSeed = decryptMessage(
-          parsedURL.secret,
-          publicKey,
-          retrivedGift.encryptedText,
-        );
-
-        // very basic check to see if decryption failed
-        if (decodedSeed.split(' ').length < 5)
-          throw new Error(
-            t('screens.inAccount.giftPages.claimPage.noGiftSeed'),
-          );
-
-        giftSeed = decodedSeed;
-        setGiftDetails({ ...retrivedGift, giftSeed });
-      }
-
-      // Pre-initialize the wallet in the background
-      walletInitPromise.current = initializeSparkWallet(giftSeed)
+      // Pre-initialize wallet in background
+      walletInitPromise.current = initializeSparkWallet(details.giftSeed)
         .then(result => {
           walletInitResult.current = result;
-          console.log('Wallet pre-initialized successfully:', result);
           return result;
         })
         .catch(err => {
@@ -163,40 +165,28 @@ export default function ClaimGiftScreen({
           return null;
         });
     } catch (err) {
-      console.log(err);
+      console.log('error loading gift details', err);
       navigate.goBack();
-      navigate.navigate('ErrorScreen', { errorMessage: err.message });
+      handleError(err.message);
     }
-  };
+  }, [
+    claimType,
+    deriveReclaimGiftSeed,
+    deriveClaimGiftSeed,
+    navigate,
+    handleError,
+  ]);
 
-  const getBalanceWithStatusRetry = async (seed, expectedAmount) => {
-    const delays = [5000, 7000, 8000];
-    let attempt = 0;
+  const getBalanceWithStatusRetry = useCallback(
+    async (seed, expectedAmount) => {
+      const delays = [5000, 7000, 8000];
+      let attempt = 0;
 
-    setClaimStatus(
-      t('screens.inAccount.giftPages.claimPage.giftBalanceMessage_0'),
-    );
-
-    let result = await getSparkBalance(seed);
-    if (
-      result?.didWork &&
-      (Number(result.balance) === expectedAmount ||
-        (!expectedAmount && Number(result.balance) > 0))
-    ) {
-      return result;
-    }
-
-    for (const delay of delays) {
-      attempt++;
       setClaimStatus(
-        t('screens.inAccount.giftPages.claimPage.giftBalanceMessage', {
-          context: attempt,
-        }),
+        t('screens.inAccount.giftPages.claimPage.giftBalanceMessage_0'),
       );
 
-      await new Promise(res => setTimeout(res, delay));
-
-      result = await getSparkBalance(seed);
+      let result = await getSparkBalance(seed);
       if (
         result?.didWork &&
         (Number(result.balance) === expectedAmount ||
@@ -204,54 +194,69 @@ export default function ClaimGiftScreen({
       ) {
         return result;
       }
-    }
 
-    return result;
-  };
+      for (const delay of delays) {
+        attempt++;
+        setClaimStatus(
+          t('screens.inAccount.giftPages.claimPage.giftBalanceMessage', {
+            context: attempt,
+          }),
+        );
 
-  const handleClaim = async () => {
-    if (isClaiming) return; // Prevent double-clicks
-    setIsClaiming(true);
+        await new Promise(res => setTimeout(res, delay));
 
-    try {
-      setClaimStatus(
-        t('screens.inAccount.giftPages.claimPage.claimingGiftMessage1'),
-      );
-      // Wait for the pre-initialization to complete
+        result = await getSparkBalance(seed);
+        if (
+          result?.didWork &&
+          (Number(result.balance) === expectedAmount ||
+            (!expectedAmount && Number(result.balance) > 0))
+        ) {
+          return result;
+        }
+      }
+
+      return result;
+    },
+    [t],
+  );
+
+  const ensureWalletInitialized = useCallback(
+    async giftSeed => {
       let initResult = walletInitResult.current;
 
       if (walletInitPromise.current && !initResult) {
-        console.log('Waiting for pre-initialization to complete...');
         initResult = await walletInitPromise.current;
       }
 
-      // If pre-initialization failed or wasn't successful, try again
       if (!initResult) {
-        console.log('Retrying wallet initialization...');
-        initResult = await initializeSparkWallet(giftDetails.giftSeed);
+        initResult = await initializeSparkWallet(giftSeed);
       }
 
-      // Verify initialization was successful
       if (!initResult) {
         throw new Error(
           t('screens.inAccount.giftPages.claimPage.giftWalletInitError'),
         );
       }
 
-      const receivingAddress = sparkInformation.sparkAddress;
+      return initResult;
+    },
+    [t],
+  );
 
+  const calculatePaymentAmount = useCallback(
+    async (giftSeed, giftAmount) => {
       const walletBalance = await getBalanceWithStatusRetry(
-        giftDetails.giftSeed,
-        expertMode ? undefined : giftDetails.amount,
+        giftSeed,
+        expertMode ? undefined : giftAmount,
       );
 
       const formattedWalletBalance = walletBalance?.didWork
         ? Number(walletBalance?.balance)
-        : giftDetails.amount || 0;
+        : giftAmount || 0;
 
       const fees = await getSparkPaymentFeeEstimate(
         formattedWalletBalance,
-        giftDetails.giftSeed,
+        giftSeed,
       );
 
       const sendingAmount = formattedWalletBalance - fees;
@@ -261,32 +266,28 @@ export default function ClaimGiftScreen({
           await deleteGiftFromCloudAndLocal(giftDetails.uuid);
         }
 
-        if (expertMode) {
-          throw new Error(
-            t('screens.inAccount.giftPages.claimPage.nobalanceErrorExpert'),
-          );
-        } else {
-          throw new Error(
-            t('screens.inAccount.giftPages.claimPage.nobalanceError'),
-          );
-        }
+        throw new Error(
+          expertMode
+            ? t('screens.inAccount.giftPages.claimPage.nobalanceErrorExpert')
+            : t('screens.inAccount.giftPages.claimPage.nobalanceError'),
+        );
       }
 
-      setClaimStatus(
-        t('screens.inAccount.giftPages.claimPage.claimingGiftMessage4'),
-      );
+      return sendingAmount;
+    },
+    [
+      getBalanceWithStatusRetry,
+      expertMode,
+      claimType,
+      giftDetails.uuid,
+      deleteGiftFromCloudAndLocal,
+      t,
+    ],
+  );
 
-      const paymentResponse = await sendSparkPayment({
-        receiverSparkAddress: receivingAddress,
-        amountSats: sendingAmount,
-        mnemonic: giftDetails.giftSeed,
-      });
-
-      if (!paymentResponse.didWork)
-        throw new Error(
-          t('screens.inAccount.giftPages.claimPage.paymentError'),
-        );
-
+  // Extract transaction processing logic
+  const processTransaction = useCallback(
+    async (paymentResponse, receivingAddress) => {
       const tx = {
         ...paymentResponse.response,
         description:
@@ -298,7 +299,7 @@ export default function ClaimGiftScreen({
 
       const transaction = await transformTxToPaymentObject(
         tx,
-        sparkInformation.sparkAddress,
+        receivingAddress,
         undefined,
         false,
         [],
@@ -306,6 +307,7 @@ export default function ClaimGiftScreen({
         1,
         true,
       );
+
       transaction.details.direction = 'INCOMING';
       transaction.paymentStatus = 'pending';
 
@@ -324,38 +326,104 @@ export default function ClaimGiftScreen({
           await deleteGift(giftDetails.uuid);
         }
       }
+    },
+    [
+      claimType,
+      giftDetails.description,
+      giftDetails.uuid,
+      expertMode,
+      deleteGiftFromCloudAndLocal,
+      t,
+    ],
+  );
+
+  const handleClaim = useCallback(async () => {
+    if (isClaimingRef.current) return;
+    isClaimingRef.current = true;
+    setIsClaiming(true);
+
+    try {
+      setClaimStatus(
+        t('screens.inAccount.giftPages.claimPage.claimingGiftMessage1'),
+      );
+
+      await ensureWalletInitialized(giftDetails.giftSeed);
+
+      const receivingAddress = sparkInformation.sparkAddress;
+      const sendingAmount = await calculatePaymentAmount(
+        giftDetails.giftSeed,
+        giftDetails.amount,
+      );
+
+      setClaimStatus(
+        t('screens.inAccount.giftPages.claimPage.claimingGiftMessage4'),
+      );
+
+      const paymentResponse = await sendSparkPayment({
+        receiverSparkAddress: receivingAddress,
+        amountSats: sendingAmount,
+        mnemonic: giftDetails.giftSeed,
+      });
+
+      if (!paymentResponse.didWork) {
+        throw new Error(
+          t('screens.inAccount.giftPages.claimPage.paymentError'),
+        );
+      }
+
+      await processTransaction(paymentResponse, receivingAddress);
       setDidClaim(true);
     } catch (err) {
       console.log('Error claiming gift:', err);
       navigate.goBack();
-      navigate.navigate('ErrorScreen', {
-        errorMessage: err.message || 'Failed to claim gift',
-      });
+      handleError(err.message || 'Failed to claim gift');
     } finally {
       setIsClaiming(false);
+      isClaimingRef.current = false;
     }
-  };
+  }, [
+    giftDetails.giftSeed,
+    giftDetails.amount,
+    sparkInformation.sparkAddress,
+    ensureWalletInitialized,
+    calculatePaymentAmount,
+    processTransaction,
+    navigate,
+    handleError,
+    t,
+  ]);
 
   useEffect(() => {
     if (!expertMode && !url) return;
 
-    async function run() {
-      const isConnected =
-        sparkInformation.identityPubKey && sparkInformation.didConnect;
+    const isConnected =
+      sparkInformation.identityPubKey && sparkInformation.didConnect;
 
-      if (isConnected) {
-        loadGiftDetails();
-        return;
-      }
+    if (isConnected) {
+      loadGiftDetails();
     }
-
-    run();
-  }, [url, sparkInformation.identityPubKey, sparkInformation.didConnect]);
+  }, [
+    url,
+    sparkInformation.identityPubKey,
+    sparkInformation.didConnect,
+    expertMode,
+    loadGiftDetails,
+  ]);
 
   useEffect(() => {
-    if (!didClaim) return;
-    animationRef.current?.play();
+    if (didClaim) {
+      animationRef.current?.play();
+    }
   }, [didClaim]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      walletInitPromise.current = null;
+      walletInitResult.current = null;
+      isClaimingRef.current = false;
+    };
+  }, []);
 
   const confirmAnimation = useMemo(() => {
     return updateConfirmAnimation(
@@ -363,6 +431,10 @@ export default function ClaimGiftScreen({
       theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
     );
   }, [theme, darkModeType]);
+
+  const containerBackgroundColor = useMemo(() => {
+    return theme && darkModeType ? backgroundColor : backgroundOffset;
+  }, [theme, darkModeType, backgroundColor, backgroundOffset]);
 
   if (!sparkInformation.identityPubKey || !sparkInformation.didConnect) {
     return (
@@ -383,10 +455,7 @@ export default function ClaimGiftScreen({
           ref={animationRef}
           source={confirmAnimation}
           loop={false}
-          style={{
-            width: 150,
-            height: 150,
-          }}
+          style={styles.lottieView}
         />
         <ThemeText
           styles={styles.confirmMessage}
@@ -400,93 +469,75 @@ export default function ClaimGiftScreen({
     );
   }
 
+  const amountDisplay = expertMode
+    ? customGiftIndex
+    : displayCorrectDenomination({
+        amount: giftDetails.amount,
+        masterInfoObject,
+        fiatStats,
+      });
+
+  const headerText =
+    claimType === 'reclaim'
+      ? t('screens.inAccount.giftPages.claimPage.reclaimHead')
+      : t('screens.inAccount.giftPages.claimPage.claimHead');
+
+  const amountHeaderText =
+    claimType === 'reclaim'
+      ? expertMode
+        ? t('screens.inAccount.giftPages.claimPage.reclaimAmountHeadExpert')
+        : t('screens.inAccount.giftPages.claimPage.reclaimAmountHead')
+      : t('screens.inAccount.giftPages.claimPage.claimAmountHead');
+
+  const amountDescriptionText = expertMode
+    ? t('screens.inAccount.giftPages.claimPage.networkFeeWarningExpert')
+    : t('screens.inAccount.giftPages.claimPage.networkFeeWarning');
+
+  const buttonText = isClaiming
+    ? t('screens.inAccount.giftPages.claimPage.buttonTextClaiming')
+    : claimType === 'reclaim'
+    ? t('screens.inAccount.giftPages.claimPage.reclaimButton')
+    : t('screens.inAccount.giftPages.claimPage.claimButton');
+
+  const loadingText =
+    claimStatus ||
+    (claimType === 'reclaim'
+      ? t('screens.inAccount.giftPages.claimPage.reclaimLoading')
+      : t('screens.inAccount.giftPages.claimPage.claimLoading'));
+
   return (
     <View style={styles.container}>
-      <ThemeText
-        styles={styles.header}
-        content={
-          claimType === 'reclaim'
-            ? t('screens.inAccount.giftPages.claimPage.reclaimHead')
-            : t('screens.inAccount.giftPages.claimPage.claimHead')
-        }
-      />
+      <ThemeText styles={styles.header} content={headerText} />
       <View
-        style={[
-          styles.border,
-          {
-            backgroundColor:
-              theme && darkModeType ? backgroundColor : backgroundOffset,
-          },
-        ]}
+        style={[styles.border, { backgroundColor: containerBackgroundColor }]}
       />
 
       {isClaiming ? (
         <FullLoadingScreen
           textStyles={styles.claimingMessage}
-          text={
-            claimStatus ||
-            (claimType === 'reclaim'
-              ? t('screens.inAccount.giftPages.claimPage.reclaimLoading')
-              : t('screens.inAccount.giftPages.claimPage.claimLoading'))
-          }
+          text={loadingText}
         />
       ) : (
         <>
           <View
             style={[
               styles.amountContainer,
-              {
-                backgroundColor:
-                  theme && darkModeType ? backgroundColor : backgroundOffset,
-              },
+              { backgroundColor: containerBackgroundColor },
             ]}
           >
             <ThemeText
               styles={styles.amountHeader}
-              content={
-                claimType === 'reclaim'
-                  ? expertMode
-                    ? t(
-                        'screens.inAccount.giftPages.claimPage.reclaimAmountHeadExpert',
-                      )
-                    : t(
-                        'screens.inAccount.giftPages.claimPage.reclaimAmountHead',
-                      )
-                  : t('screens.inAccount.giftPages.claimPage.claimAmountHead')
-              }
+              content={amountHeaderText}
             />
-            <ThemeText
-              styles={styles.amount}
-              content={
-                expertMode
-                  ? customGiftIndex
-                  : displayCorrectDenomination({
-                      amount: giftDetails.amount,
-                      masterInfoObject,
-                      fiatStats,
-                    })
-              }
-            />
+            <ThemeText styles={styles.amount} content={amountDisplay} />
             <ThemeText
               styles={styles.amountDescription}
-              content={
-                expertMode
-                  ? t(
-                      'screens.inAccount.giftPages.claimPage.networkFeeWarningExpert',
-                    )
-                  : t('screens.inAccount.giftPages.claimPage.networkFeeWarning')
-              }
+              content={amountDescriptionText}
             />
           </View>
           <CustomButton
             buttonStyles={styles.buttonContainer}
-            textContent={
-              isClaiming
-                ? t('screens.inAccount.giftPages.claimPage.buttonTextClaiming')
-                : claimType === 'reclaim'
-                ? t('screens.inAccount.giftPages.claimPage.reclaimButton')
-                : t('screens.inAccount.giftPages.claimPage.claimButton')
-            }
+            textContent={buttonText}
             actionFunction={handleClaim}
           />
         </>
@@ -538,5 +589,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: INSET_WINDOW_WIDTH,
     minHeight: 80,
+  },
+  lottieView: {
+    width: 150,
+    height: 150,
   },
 });
