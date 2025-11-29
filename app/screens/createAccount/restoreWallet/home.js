@@ -253,7 +253,9 @@ export default function RestoreWallet({
               autoCorrect={false}
               autoComplete="off"
               autoCapitalize="none"
-              keyboardAppearance={theme ? 'dark' : 'light'}
+              spellCheck={false}
+              textContentType="none"
+              tzkeyboardAppearance={theme ? 'dark' : 'light'}
               ref={ref => (keyRefs.current[item1] = ref)}
               value={inputedKey[`key${item1}`]}
               onFocus={() => handleFocus(item1)}
@@ -274,6 +276,11 @@ export default function RestoreWallet({
           >
             <ThemeText styles={styles.numberText} content={`${item2}.`} />
             <TextInput
+              autoCorrect={false}
+              autoComplete="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              textContentType="none"
               keyboardAppearance={theme ? 'dark' : 'light'}
               ref={ref => (keyRefs.current[item2] = ref)}
               value={inputedKey[`key${item2}`]}
