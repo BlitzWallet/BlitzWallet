@@ -1722,7 +1722,7 @@
           "inputHead": "Digite o número do vale-bitcoin",
           "invalidGiftNum": "Digite um número de vale-bitcoin válido entre 1 e {{currentGiftIndex}}",
           "restoreGiftBTN": "Recuperar valor do vale-bitcoin",
-          "advancedWarning": "Este recurso avançado deve ser usado apenas quando o processo padrão de recuperação não funcionar. Se tiver dúvidas, tente primeiro a página normal de recuperação."
+          "advancedWarning": "Este recurso avançado deve ser usado apenas quando o processo padrão de recuperação não funcionar. Se tiver dúvidas, tente primeiro o processo normal de recuperação."
         },
 
         "claimPage": {
