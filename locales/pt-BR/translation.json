@@ -891,10 +891,10 @@
         "title": "Meios de recebimento",
         "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Receber diretamente via Spark irá expor seu saldo para a pessoa que está pagando e não é considerado privado.",
-        "swapWarning": "Pagamentos de {{swapType}} serão recebidos no Spark. Pagamentos abaixo de {{amount}} não serão transferidos. Os fundos só serão transferidos após a confirmação do pagamento {{swapType}}.",
+        "swapWarning": "Os pagamentos {{swapType}} serão transferidos para Bitcoin na Spark. Pagamentos abaixo de {{amount}} não serão recebidos. Os fundos só serão recebidos após o pagamento {{swapType}} ser confirmado.",
         "oneMinute": "~ {{numMins}} minuto",
         "tenMinutes": "~ {{numMins}} minutos",
-        "notUsingMainAccountWarning": "Aviso: Você não está usando a conta principal da sua carteira. Todas as transferências {{swapType}} serão enviadas para sua carteira principal.",
+        "notUsingMainAccountWarning": "Aviso: Você não está usando a conta principal da sua carteira. Todas as transferências {{swapType}} recebidas serão enviadas para sua carteira principal.",
         "sparkDesc": "Instantâneo, Suporta Tokens",
         "sparkTitle": "Endereço Spark",
         "bitcoinTitle": "Endereço Bitcoin",
@@ -1301,7 +1301,7 @@
     "viewAllLiquidSwaps": {
       "rescanComplete": "Verificação concluída",
       "swapStartedMessage": "A transferência foi iniciada. Pode levar de 10 a 20 segundos para o pagamento aparecer.",
-      "balanceError": "O saldo líquido atual é {{balance}}, mas o valor mínimo de transferência é {{swapAmount}}",
+      "balanceError": "O saldo Liquid atual é de {{balance}}, mas o valor mínimo de transferência é de {{swapAmount}}",
       "loadingMessage": "Obtendo informações Liquid",
       "breakdownHead": "Desagregação do saldo",
       "incoming": "{{amount}} entrada pendente",
@@ -1309,7 +1309,7 @@
       "balance": "{{amount}} Saldo Liquid",
       "rescan": "Verificar",
       "totalBalance": "Saldo total",
-      "swapMessage": "A Blitz Wallet tentará transferir seus fundos Liquid para o Spark quando você abrir o app pela primeira vez ou quando receber pagamentos Liquid.\n\nNo entanto, em alguns casos a transferência pode não ocorrer. Para mover esses fundos manualmente para o Spark, toque no botão Transferir abaixo.",
+      "swapMessage": "A carteira Blitz tentará transferir seus fundos Liquid para a Spark quando você abrir o app pela primeira vez ou quando receber pagamentos Liquid.\n\nNo entanto, em alguns casos a transferência pode não ocorrer. Para mover esses fundos manualmente para a Spark, toque no botão Transferir abaixo.",
       "swap": "Transferir"
     },
     "notifications": {
@@ -1330,13 +1330,13 @@
       "nwcDesc": "Conecte sua carteira Blitz aos aplicativos que usam o Nostr."
     },
     "fiatCurrency": {
-      "title": "Moeda",
+      "title": "Moeda de exibição",
       "placeholderText": "Procurar moeda",
       "saveCurrencyError": "Não foi possível salvar a moeda selecionada, tente novamente."
     },
     "feeInformation": {
       "title": "",
-      "description": "A Blitz Wallet oferece produtos gratuitos e de código aberto para a comunidade Bitcoin. \n\nPara ajudar a manter o projeto sustentável, adicionamos uma pequena taxa de transação a cada pagamento.\n\nVeja como essas taxas são distribuídas:",
+      "description": "A carteira Blitz oferece produtos gratuitos e de código aberto para a comunidade Bitcoin. \n\nPara ajudar a manter o projeto sustentável, adicionamos uma pequena taxa de transação a cada pagamento.\n\nVeja como essas taxas são distribuídas:",
       "upTo": "Até",
       "fixedFee": "Taxa fixa",
       "percent": "Porcentagem",
@@ -1571,8 +1571,8 @@
 
       "receiveBtcPage": {
         "onchainFeeMessage": "Os pagamentos recebidos em endereços Bitcoin têm uma taxa de rede e uma taxa Spark de 0,1%.\n\nSe você enviar dinheiro para si mesmo, pagará a taxa de rede duas vezes: uma para enviar e outra para reivindicar.\n\nSe outra pessoa lhe enviar dinheiro, você pagará a taxa de rede apenas uma vez para reivindicá-lo.",
-        "liquidFeeMessage": "Pagamentos recebidos em endereços Liquid precisam ser transferidos para o Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
-        "rootstockFeeMessage": "Pagamentos recebidos em endereços Rootstock precisam ser transferidos para o Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
+        "liquidFeeMessage": "Pagamentos recebidos em endereços Liquid precisam ser transferidos para a Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}}, uma taxa de reivindicação de cerca de {{claimFee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
+        "rootstockFeeMessage": "Pagamentos recebidos em endereços Rootstock precisam ser transferidos para a Spark.\n\nEsse processo inclui uma taxa de bloqueio de aproximadamente {{fee}} e uma taxa de serviço de 0,1% da Boltz baseada no valor enviado.",
         "generatingInvoice": "Gerando fatura",
         "amountPlaceholder": "Qualquer valor",
         "invoiceDescription_lightningInvoice": "Fatura Lightning",
@@ -1591,7 +1591,7 @@
       "settingsContent": {
         "about": "Sobre",
         "language": "Idioma",
-        "display currency": "Moeda",
+        "display currency": "Moeda de exibição",
         "display options": "Opções de tela",
         "edit contact profile": "Editar perfil de contato",
         "view all swaps": "Transferências de rede",
@@ -1682,7 +1682,7 @@
           "header": "Criar vale-bitcoin",
           "inputPlaceholder": "Adicione uma mensagem ou nota...",
           "button": "Criar vale-bitcoin",
-          "disclaimer": "Quando você cria um presente, o dinheiro fica bloqueado por 7 dias. Se ninguém o reivindicar nesse período, você pode ir à página de recuperação para pegá-lo de volta."
+          "disclaimer": "Quando você cria um vale-bitcoin, o valor usado para emiti-lo fica bloqueado por 7 dias. Se ninguém resgatar o vale nesse período, você pode ir na aba Expirados e recuperar o valor."
         },
 
         "giftConfirmation": {
