@@ -1735,6 +1735,7 @@
           "notExpired": "You cannot reclaim this gift yet.",
           "nobalanceError": "We couldn’t find an amount for this gift. Please try again later or try restoring the gift.",
           "nobalanceErrorExpert": "There’s no amount available to restore for this gift.",
+          "balanceMismatchError": "There was an issue getting the gift amount. Please try again.",
           "paymentError": "We couldn’t claim the gift. Please try again.",
           "claimHead": "Accept Gift",
           "reclaimHead": "Refund Gift",

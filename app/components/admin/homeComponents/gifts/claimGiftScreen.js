@@ -181,7 +181,7 @@ export default function ClaimGiftScreen({
   ]);
 
   const getBalanceWithStatusRetry = useCallback(
-    async (seed, expectedAmount) => {
+    async (seed, expectedAmount, shouldEnforceAmount = false) => {
       const delays = [5000, 7000, 8000];
       let attempt = 0;
 
@@ -210,6 +210,16 @@ export default function ClaimGiftScreen({
         if (Number(result.balance) === expectedAmount) {
           return result;
         }
+      }
+
+      if (
+        shouldEnforceAmount &&
+        expectedAmount !== undefined &&
+        Number(result?.balance) !== expectedAmount
+      ) {
+        throw new Error(
+          t('screens.inAccount.giftPages.claimPage.balanceMismatchError'),
+        );
       }
 
       return result;
@@ -245,6 +255,7 @@ export default function ClaimGiftScreen({
       const walletBalance = await getBalanceWithStatusRetry(
         giftSeed,
         expertMode ? undefined : giftAmount,
+        claimType === 'claim',
       );
 
       const formattedWalletBalance = walletBalance?.didWork

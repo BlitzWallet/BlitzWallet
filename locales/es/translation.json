@@ -1563,6 +1563,7 @@
           "noBalanceErrorReclaim": "No quedan fondos para recuperar de este regalo.",
           "nobalanceError": "No pudimos encontrar un monto para este regalo. Inténtalo de nuevo más tarde o intenta restaurar el regalo.",
           "nobalanceErrorExpert": "No hay ningún monto disponible para restaurar este regalo.",
+          "balanceMismatchError": "Hubo un problema al obtener el monto del regalo. Inténtalo de nuevo.",
           "notExpired": "Aún no puedes recuperar este regalo.",
           "paymentError": "No pudimos reclamar el regalo. Inténtalo de nuevo.",
           "claimHead": "Aceptar regalo",

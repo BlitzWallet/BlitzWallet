@@ -343,6 +343,7 @@ function ResetStack(): JSX.Element | null {
               wantedContent: 'ClaimGiftScreen',
               url,
               sliderHight: 0.6,
+              claimType: 'claim',
             });
           } else {
             if (CONTACT_UNIVERSAL_LINK_REGEX.test(url)) {

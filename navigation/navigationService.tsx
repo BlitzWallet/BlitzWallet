@@ -6,7 +6,12 @@ type RootStackParamList = {
   ExpandedAddContactsPage: { newContact: object };
   ConfirmPaymentScreen: { btcAdress: string };
   ErrorScreen: { errorMessage: string; useTranslationString?: boolean };
-  CustomHalfModal: { wantedContent: string; url: string; sliderHight: number };
+  CustomHalfModal: {
+    wantedContent: string;
+    url: string;
+    sliderHight: number;
+    claimType: string;
+  };
 };
 
 // Correct way to define the navigationRef

@@ -1736,6 +1736,7 @@
           "notExpired": "Você ainda não pode recuperar este vale-bitcoin.",
           "nobalanceError": "Não foi possível encontrar um valor para este presente. Tente novamente mais tarde ou tente restaurar o presente.",
           "nobalanceErrorExpert": "Não há nenhum valor disponível para reembolso.",
+          "balanceMismatchError": "Ocorreu um problema ao obter o valor do presente. Tente novamente.",
           "paymentError": "Não foi possível resgatar o vale-bitcoin.",
           "claimHead": "Aceitar vale-bitcoin",
           "reclaimHead": "Reembolsar valor",

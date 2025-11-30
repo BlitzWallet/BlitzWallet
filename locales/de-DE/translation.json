@@ -1718,6 +1718,7 @@
           "notExpired": "Du kannst dieses Geschenk noch nicht zurückholen.",
           "nobalanceError": "Wir konnten keinen Betrag für dieses Geschenk finden. Bitte versuchen Sie es später erneut oder versuchen Sie, das Geschenk wiederherzustellen.",
           "nobalanceErrorExpert": "Für dieses Geschenk ist kein Betrag zur Wiederherstellung verfügbar.",
+          "balanceMismatchError": "Es gab ein Problem beim Abrufen des Geschenkbetrags. Bitte versuchen Sie es erneut.",
           "paymentError": "Geschenk konnte nicht eingelöst werden.",
           "claimHead": "Geschenk annehmen",
           "reclaimHead": "Geschenk erstatten",
