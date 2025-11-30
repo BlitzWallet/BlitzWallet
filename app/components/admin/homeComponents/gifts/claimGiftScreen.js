@@ -187,11 +187,7 @@ export default function ClaimGiftScreen({
       );
 
       let result = await getSparkBalance(seed);
-      if (
-        result?.didWork &&
-        (Number(result.balance) === expectedAmount ||
-          (!expectedAmount && Number(result.balance) > 0))
-      ) {
+      if (result?.didWork && Number(result.balance) === expectedAmount) {
         return result;
       }
 
@@ -206,18 +202,16 @@ export default function ClaimGiftScreen({
         await new Promise(res => setTimeout(res, delay));
 
         result = await getSparkBalance(seed);
-        if (
-          result?.didWork &&
-          (Number(result.balance) === expectedAmount ||
-            (!expectedAmount && Number(result.balance) > 0))
-        ) {
+        if (!result?.didWork) continue;
+
+        if (Number(result.balance) === expectedAmount) {
           return result;
         }
       }
 
       return result;
     },
-    [t],
+    [t, expertMode],
   );
 
   const ensureWalletInitialized = useCallback(
