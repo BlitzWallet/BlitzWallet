@@ -1742,7 +1742,7 @@
           "reclaimLoading": "Devolvendo fundos… permaneça no app.",
           "claimAmountHead": "Valor a receber",
           "reclaimAmountHead": "Valor a ser devolvido",
-          "reclaimAmountHeadExpert": "Número do presente restaurado",
+          "reclaimAmountHeadExpert": "Número do presente",
           "networkFeeWarningExpert": "Qualquer valor encontrado, descontadas as taxas de rede, será adicionado ao seu saldo",
           "networkFeeWarning": "Este valor, menos taxas, será adicionado ao seu saldo",
           "buttonTextClaiming": "Resgatando",
