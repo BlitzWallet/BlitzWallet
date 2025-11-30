@@ -58,8 +58,9 @@ export const NavBar = memo(function NavBar({
           />
         </TouchableOpacity>
       )}
-
-      <ProfileImageSettingsNavigator />
+      <View style={styles.iconButton}>
+        <ProfileImageSettingsNavigator />
+      </View>
     </View>
   );
 });
@@ -72,7 +73,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     ...CENTER,
-    marginBottom: 10,
   },
   iconButton: {
     zIndex: 2,

@@ -34,6 +34,7 @@ import {
   SPARK_TX_UPDATE_ENVENT_NAME,
   sparkTransactionsEventEmitter,
 } from '../../../functions/spark/transactions';
+import { scheduleOnRN } from 'react-native-worklets';
 
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
@@ -83,14 +84,17 @@ export default function HomeLightning() {
     }, 250);
   }, []);
 
-  const handleStateUpdate = newObj => {
-    if (
-      newObj.borderRadius === scrollContentChanges.borderRadius &&
-      newObj.backgroundColor === scrollContentChanges.backgroundColor
-    )
-      return;
-    setScrollContentChanges(newObj);
-  };
+  const handleStateUpdate = useCallback(
+    newObj => {
+      if (
+        newObj.borderRadius === scrollContentChanges.borderRadius &&
+        newObj.backgroundColor === scrollContentChanges.backgroundColor
+      )
+        return;
+      setScrollContentChanges(newObj);
+    },
+    [scrollContentChanges],
+  );
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: event => {
@@ -100,7 +104,7 @@ export default function HomeLightning() {
       const newBorderRadius = offsetY > 40;
       const newBg = offsetY > 100;
 
-      runOnJS(handleStateUpdate)({
+      scheduleOnRN(handleStateUpdate, {
         borderRadius: newBorderRadius,
         backgroundColor: newBg,
       });
@@ -240,6 +244,7 @@ export default function HomeLightning() {
 
   const renderItem = useCallback(
     ({ item }) => {
+      if (!item) return null;
       switch (item.type) {
         case 'navbar':
           return (
@@ -417,18 +422,18 @@ export default function HomeLightning() {
 
 const styles = StyleSheet.create({
   navbarContainer: {
-    zIndex: 0,
-    position: 'relative',
     justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 10,
   },
   navbarBalance: {
     position: 'absolute',
-    // top: 0,
+    top: 0,
     left: 0,
     right: 0,
-    // bottom: 0,
-    // justifyContent: 'center',
-    // alignItems: 'center',
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 1,
   },
   navbarBalanceText: {
