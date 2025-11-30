@@ -1737,7 +1737,7 @@
           "nobalanceErrorExpert": "Não há nenhum valor disponível para restaurar este presente.",
           "paymentError": "Não foi possível resgatar o vale-bitcoin.",
           "claimHead": "Aceitar vale-bitcoin",
-          "reclaimHead": "Reembolsar vale-bitcoin",
+          "reclaimHead": "Reembolsar valor",
           "claimLoading": "Resgatando… permaneça no app.",
           "reclaimLoading": "Devolvendo fundos… permaneça no app.",
           "claimAmountHead": "Valor a receber",
