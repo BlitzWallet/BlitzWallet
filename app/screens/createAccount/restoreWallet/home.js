@@ -255,7 +255,7 @@ export default function RestoreWallet({
               autoCapitalize="none"
               spellCheck={false}
               textContentType="none"
-              tzkeyboardAppearance={theme ? 'dark' : 'light'}
+              keyboardAppearance={theme ? 'dark' : 'light'}
               ref={ref => (keyRefs.current[item1] = ref)}
               value={inputedKey[`key${item1}`]}
               onFocus={() => handleFocus(item1)}
