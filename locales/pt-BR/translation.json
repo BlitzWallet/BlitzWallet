@@ -1734,7 +1734,7 @@
           "noBalanceErrorReclaim": "Não há fundos restantes para resgatar.",
           "notExpired": "Você ainda não pode recuperar este vale-bitcoin.",
           "nobalanceError": "Não foi possível encontrar um valor para este presente. Tente novamente mais tarde ou tente restaurar o presente.",
-          "nobalanceErrorExpert": "Não há nenhum valor disponível para restaurar este presente.",
+          "nobalanceErrorExpert": "Não há nenhum valor disponível para reembolso.",
           "paymentError": "Não foi possível resgatar o vale-bitcoin.",
           "claimHead": "Aceitar vale-bitcoin",
           "reclaimHead": "Reembolsar valor",
