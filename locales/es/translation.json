@@ -1495,7 +1495,8 @@
           "createGift": "Crear regalo",
           "claimed": "Canjeado",
           "expired": "Vencido",
-          "unclimaed": "No canjeado"
+          "unclaimed": "No canjeado",
+          "reclaimed": "Recuperado"
         },
 
         "createGift": {

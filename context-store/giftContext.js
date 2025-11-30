@@ -278,7 +278,11 @@ export function GiftProvider({ children }) {
 
     Object.values(state.gifts).forEach(gift => {
       all.push(gift);
-      if (now >= gift.expireTime && gift.state?.toLowerCase() !== 'claimed') {
+      if (
+        now >= gift.expireTime &&
+        gift.state?.toLowerCase() !== 'claimed' &&
+        gift.state?.toLowerCase() !== 'reclaimed'
+      ) {
         expired.push(gift);
       }
     });
@@ -296,6 +300,7 @@ export function GiftProvider({ children }) {
         saveGiftToCloud,
         checkForRefunds,
         deleteGiftFromCloudAndLocal,
+        updateGiftList,
         giftsArray,
         expiredGiftsArray,
       }}

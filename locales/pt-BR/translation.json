@@ -1667,7 +1667,8 @@
           "createGift": "Criar vale-bitcoin",
           "claimed": "Resgatado",
           "expired": "Expirado",
-          "unclimaed": "Não resgatado"
+          "unclaimed": "Não resgatado",
+          "reclaimed": "Recuperado"
         },
 
         "createGift": {

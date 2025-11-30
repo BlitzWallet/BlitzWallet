@@ -1670,7 +1670,8 @@
           "createGift": "Create Gift",
           "claimed": "Claimed",
           "expired": "Expired",
-          "unclimaed": "Unclaimed"
+          "unclaimed": "Unclaimed",
+          "reclaimed": "Reclaimed"
         },
 
         "createGift": {

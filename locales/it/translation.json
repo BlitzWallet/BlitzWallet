@@ -1668,7 +1668,8 @@
           "createGift": "Crea regalo",
           "claimed": "Riscattato",
           "expired": "Scaduto",
-          "unclimaed": "Non riscattato"
+          "unclaimed": "Non riscattato",
+          "reclaimed": "Recuperato"
         },
 
         "createGift": {

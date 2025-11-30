@@ -119,7 +119,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
                 content={uuid.slice(0, 4) + '...' + uuid.slice(uuid.length - 4)}
               />
             </View>
-            {state !== 'Claimed' && (
+            {state !== 'Claimed' && state !== 'Reclaimed' && (
               <TouchableOpacity
                 onPress={async () => {
                   if (useState) {

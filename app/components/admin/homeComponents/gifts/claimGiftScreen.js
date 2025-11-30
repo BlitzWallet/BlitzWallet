@@ -30,7 +30,10 @@ import {
 import { useGifts } from '../../../../../context-store/giftContext';
 import { useTranslation } from 'react-i18next';
 import { useKeysContext } from '../../../../../context-store/keys';
-import { getGiftByUuid } from '../../../../functions/gift/giftsStorage';
+import {
+  getGiftByUuid,
+  updateGiftLocal,
+} from '../../../../functions/gift/giftsStorage';
 import { transformTxToPaymentObject } from '../../../../functions/spark/transformTxToPayment';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 import { updateConfirmAnimation } from '../../../../functions/lottieViewColorTransformer';
@@ -48,7 +51,7 @@ export default function ClaimGiftScreen({
   customGiftIndex,
 }) {
   const { accountMnemoinc } = useKeysContext();
-  const { deleteGiftFromCloudAndLocal } = useGifts();
+  const { updateGiftList } = useGifts();
   const navigate = useNavigation();
   const { sparkInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -257,7 +260,10 @@ export default function ClaimGiftScreen({
 
       if (sendingAmount <= 0) {
         if (claimType === 'reclaim' && !expertMode) {
-          await deleteGiftFromCloudAndLocal(giftDetails.uuid);
+          await updateGiftLocal(giftDetails.uuid, {
+            state: 'Reclaimed',
+          });
+          await updateGiftList();
         }
 
         throw new Error(
@@ -274,7 +280,7 @@ export default function ClaimGiftScreen({
       expertMode,
       claimType,
       giftDetails.uuid,
-      deleteGiftFromCloudAndLocal,
+      updateGiftList,
       t,
     ],
   );
@@ -314,10 +320,12 @@ export default function ClaimGiftScreen({
       await bulkUpdateSparkTransactions([transaction]);
 
       if (!expertMode) {
+        await deleteGift(giftDetails.uuid);
         if (claimType === 'reclaim') {
-          await deleteGiftFromCloudAndLocal(giftDetails.uuid);
-        } else {
-          await deleteGift(giftDetails.uuid);
+          await updateGiftLocal(giftDetails.uuid, {
+            state: 'Reclaimed',
+          });
+          await updateGiftList();
         }
       }
     },
@@ -326,7 +334,7 @@ export default function ClaimGiftScreen({
       giftDetails.description,
       giftDetails.uuid,
       expertMode,
-      deleteGiftFromCloudAndLocal,
+      updateGiftList,
       t,
     ],
   );

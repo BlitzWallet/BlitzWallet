@@ -1649,7 +1649,8 @@
           "createGift": "Geschenk erstellen",
           "claimed": "Eingelöst",
           "expired": "Abgelaufen",
-          "unclimaed": "Nicht eingelöst"
+          "unclaimed": "Nicht eingelöst",
+          "reclaimed": "Zurückgeholt"
         },
 
         "createGift": {
