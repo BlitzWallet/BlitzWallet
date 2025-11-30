@@ -117,7 +117,7 @@
     "manage": "Emitidos",
     "reclaim": "Expirados",
     "optionalFlag": "(Opcional)",
-    "gift": "Presente"
+    "gift": "Vale-bitcoin"
   },
 
   "languages": {
@@ -891,7 +891,7 @@
         "title": "Meios de recebimento",
         "actionBTN": "Mostrar {{action}}",
         "sparkWarningMessage": "Receber diretamente via Spark irá expor seu saldo para a pessoa que está pagando e não é considerado privado.",
-        "swapWarning": "Os pagamentos {{swapType}} serão transferidos para Bitcoin na Spark. Pagamentos abaixo de {{amount}} não serão recebidos. Os fundos só serão recebidos após o pagamento {{swapType}} ser confirmado.",
+        "swapWarning": "Os pagamentos recebidos em endereços {{swapType}} serão transferidos para Bitcoin na Spark. Valores abaixo de {{amount}} não serão recebidos. Os fundos só serão recebidos após o pagamento {{swapType}} ser confirmado.",
         "oneMinute": "~ {{numMins}} minuto",
         "tenMinutes": "~ {{numMins}} minutos",
         "notUsingMainAccountWarning": "Aviso: Você não está usando a conta principal da sua carteira. Todas as transferências {{swapType}} recebidas serão enviadas para sua carteira principal.",
@@ -1655,7 +1655,7 @@
         },
         "shareMessage": "Você recebeu um vale-bitcoin de {{icon}}{{amount}}! Resgate aqui:\n{{link}}",
         "fundGiftMessage": "Criando vale-bitcoin",
-        "reclaimGiftMessage": "Reivindicando vale-bitcoin",
+        "reclaimGiftMessage": "Reembolso vale-bitcoin",
 
         "giftsHome": {
           "title": "Vales-bitcoin"
@@ -1707,7 +1707,7 @@
           "header": "Recuperar vale-bitcoin expirado",
           "desc": "Digite ou escolha o ID do vale-bitcoin para recuperar um vale-bitcoin expirado ou não resgatado.",
           "inputPlaceholder": "Digite o ID do vale-bitcoin",
-          "dropdownPlaceHolder": "Selecionar vale-bitcoin expirado",
+          "dropdownPlaceHolder": "Vales-bitcoin expirados",
           "button": "Recuperar vale-bitcoin",
           "noReclaimsMessage": "Não há vales-bitcoin expirados no momento. Você sempre pode recuperar o valor dos vales-bitcoin que você criou e não foram resgatados.",
           "advancedModeBTN": "Modo avançado"
@@ -1734,15 +1734,15 @@
           "noBalanceErrorReclaim": "Não há fundos restantes para resgatar.",
           "notExpired": "Você ainda não pode recuperar este vale-bitcoin.",
           "nobalanceError": "Não foi possível encontrar um valor para este presente. Tente novamente mais tarde ou tente restaurar o presente.",
-          "nobalanceErrorExpert": "Não há nenhum valor disponível para restaurar este presente.",
+          "nobalanceErrorExpert": "Não há nenhum valor disponível para reembolso.",
           "paymentError": "Não foi possível resgatar o vale-bitcoin.",
           "claimHead": "Aceitar vale-bitcoin",
-          "reclaimHead": "Reembolsar vale-bitcoin",
+          "reclaimHead": "Reembolsar valor",
           "claimLoading": "Resgatando… permaneça no app.",
           "reclaimLoading": "Devolvendo fundos… permaneça no app.",
           "claimAmountHead": "Valor a receber",
-          "reclaimAmountHead": "Valor devolvido",
-          "reclaimAmountHeadExpert": "Número do presente restaurado",
+          "reclaimAmountHead": "Valor a ser devolvido",
+          "reclaimAmountHeadExpert": "Número do vale-bitcoin",
           "networkFeeWarningExpert": "Qualquer valor encontrado, descontadas as taxas de rede, será adicionado ao seu saldo",
           "networkFeeWarning": "Este valor, menos taxas, será adicionado ao seu saldo",
           "buttonTextClaiming": "Resgatando",
