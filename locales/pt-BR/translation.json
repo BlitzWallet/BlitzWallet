@@ -1655,7 +1655,7 @@
         },
         "shareMessage": "Você recebeu um vale-bitcoin de {{icon}}{{amount}}! Resgate aqui:\n{{link}}",
         "fundGiftMessage": "Criando vale-bitcoin",
-        "reclaimGiftMessage": "Reivindicando vale-bitcoin",
+        "reclaimGiftMessage": "Reembolso vale-bitcoin",
 
         "giftsHome": {
           "title": "Vales-bitcoin"
