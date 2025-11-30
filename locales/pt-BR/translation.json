@@ -1707,7 +1707,7 @@
           "header": "Recuperar vale-bitcoin expirado",
           "desc": "Digite ou escolha o ID do vale-bitcoin para recuperar um vale-bitcoin expirado ou não resgatado.",
           "inputPlaceholder": "Digite o ID do vale-bitcoin",
-          "dropdownPlaceHolder": "Selecionar vale-bitcoin expirado",
+          "dropdownPlaceHolder": "Vales-bitcoin expirados",
           "button": "Recuperar vale-bitcoin",
           "noReclaimsMessage": "Não há vales-bitcoin expirados no momento. Você sempre pode recuperar o valor dos vales-bitcoin que você criou e não foram resgatados.",
           "advancedModeBTN": "Modo avançado"
