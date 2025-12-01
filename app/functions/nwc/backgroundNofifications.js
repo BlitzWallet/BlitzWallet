@@ -8,7 +8,7 @@ import {
   decryptMessage,
   encriptMessage,
 } from '../messaging/encodingAndDecodingMessages';
-import {publishToSingleRelay} from './publishResponse';
+import { publishToSingleRelay } from './publishResponse';
 import {
   getNWCLightningReceiveRequest,
   getNWCSparkBalance,
@@ -19,17 +19,17 @@ import {
   sendNWCSparkLightningPayment,
 } from './wallet';
 import bolt11 from 'bolt11';
-import {getSparkPaymentStatus, sparkPaymentType} from '../spark';
-import {pushInstantNotification} from '../notifications';
+import { getSparkPaymentStatus, sparkPaymentType } from '../spark';
+import { pushInstantNotification } from '../notifications';
 import NWCInvoiceManager from './cachedNWCTxs';
-import {NOSTR_RELAY_URL, NWC_IDENTITY_PUB_KEY} from '../../constants';
-import {finalizeEvent} from 'nostr-tools';
-import {getFunctions} from '@react-native-firebase/functions';
-import {Platform} from 'react-native';
+import { NOSTR_RELAY_URL, NWC_IDENTITY_PUB_KEY } from '../../constants';
+import { finalizeEvent } from 'nostr-tools';
+import { getFunctions } from '@react-native-firebase/functions';
+import { Platform } from 'react-native';
 import fetchBackend from '../../../db/handleBackend';
-import {getLocalStorageItem} from '../localStorage';
+import { getLocalStorageItem } from '../localStorage';
 import sha256Hash from '../hash';
-import {transformTxToPaymentObject} from '../spark/transformTxToPayment';
+import { transformTxToPaymentObject } from '../spark/transformTxToPayment';
 
 const handledEventIds = new Set();
 let nwcAccounts, fullStorageObject;
@@ -45,12 +45,12 @@ const ERROR_CODES = {
 
 const createErrorResponse = (method, code, message) => ({
   result_type: method,
-  error: {code, message},
+  error: { code, message },
 });
 
 const ensureWalletConnection = async () => {
   if (nwcWallet) {
-    return {isConnected: true};
+    return { isConnected: true };
   }
 
   if (walletInitializationPromise) {
@@ -95,7 +95,7 @@ const handleGetTransactions = async requestParams => {
     );
   }
 
-  const {from, until, limit = 20, offset = 0, type} = requestParams;
+  const { from, until, limit = 20, offset = 0, type } = requestParams;
 
   let allTransactions = [];
   let currentOffset = 0;
@@ -127,7 +127,8 @@ const handleGetTransactions = async requestParams => {
   let filteredTransactions = allTransactions.filter(tx => {
     // Filter by timestamp range if provided
     const type = sparkPaymentType(tx);
-    if (tx === 'sparl') return false;
+
+    if (type === 'spark') return false;
     if (from || until) {
       const txTime = tx.createdTime
         ? new Date(tx.createdTime).getTime() / 1000
@@ -223,7 +224,7 @@ const handleMakeInvoice = async (
       publicKey: selectedNWCAccount.publicKey,
       privateKey: selectedNWCAccount.privateKey,
       sparkIdentityPubKey: sparkPubKey,
-      event: {clientPubKey: event.clientPubKey, id: event.id},
+      event: { clientPubKey: event.clientPubKey, id: event.id },
     },
     selectedNWCAccount.privateKey,
     selectedNWCAccount.publicKey,
@@ -246,7 +247,7 @@ const handleLookupInvoice = async (
   selectedNWCAccount,
 ) => {
   let foundInvoice = null;
-  const {payment_hash, invoice} = requestParams;
+  const { payment_hash, invoice } = requestParams;
   try {
     foundInvoice = await NWCInvoiceManager.handleLookupInvoice(requestParams);
   } catch (err) {
@@ -259,7 +260,7 @@ const handleLookupInvoice = async (
   }
 
   if (foundInvoice) {
-    const {sparkID, ...invoiceWithoutSparkID} = foundInvoice;
+    const { sparkID, ...invoiceWithoutSparkID } = foundInvoice;
     if (invoiceWithoutSparkID.status !== 'pending') {
       return {
         result_type: 'lookup_invoice',
@@ -322,7 +323,7 @@ const handleLookupInvoice = async (
       payment_hash: payment_hash,
       publicKey: selectedNWCAccount.publicKey,
       privateKey: selectedNWCAccount.privateKey,
-      event: {clientPubKey: event.clientPubKey, id: event.id},
+      event: { clientPubKey: event.clientPubKey, id: event.id },
     },
     selectedNWCAccount.privateKey,
     selectedNWCAccount.publicKey,
@@ -482,7 +483,7 @@ const handleGetBalance = async (selectedNWCAccount, fullStorageObject) => {
 };
 
 const processEvent = async (event, selectedNWCAccount) => {
-  const {requestMethod, requestParams} = event;
+  const { requestMethod, requestParams } = event;
 
   console.log('request method', requestMethod);
   console.log('request params', requestParams);
@@ -597,7 +598,7 @@ export default async function handleNWCBackgroundEvent(notificationData) {
       getFunctions().useEmulator(process.env.DEVICE_IP, 5001);
     }
     let {
-      data: {body: nwcEvent},
+      data: { body: nwcEvent },
     } = notificationData;
     console.log('background nwc event', nwcEvent);
     if (!nwcEvent) return;
@@ -623,12 +624,12 @@ export default async function handleNWCBackgroundEvent(notificationData) {
         const selectedNWCAccount = nwcAccounts[event.pubkey];
         const parsedData = decryptEventMessage(selectedNWCAccount, event);
 
-        const {method: requestMethod, params: requestParams} = parsedData;
+        const { method: requestMethod, params: requestParams } = parsedData;
         const handledKey = `${event.clientPubKey}-${requestMethod}`;
 
         if (handledEventIds.has(handledKey)) return false;
         handledEventIds.add(handledKey);
-        return {requestMethod, requestParams, ...event, content: parsedData};
+        return { requestMethod, requestParams, ...event, content: parsedData };
       })
       .filter(Boolean);
 
