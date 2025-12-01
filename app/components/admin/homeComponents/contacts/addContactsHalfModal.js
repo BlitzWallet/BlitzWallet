@@ -155,18 +155,22 @@ export default function AddContactsHalfModal({
       } else {
         const decoded = atob(data);
         const parsedData = JSON.parse(decoded);
-        newContact = {
-          name: parsedData.name || '',
-          bio: parsedData.bio || '',
-          uniqueName: parsedData.uniqueName,
-          isFavorite: false,
-          // transactions: [],
-          unlookedTransactions: 0,
-          uuid: parsedData.uuid,
-          // receiveAddress: parsedData.receiveAddress,
-          isAdded: true,
-          // profileImage: '',
-        };
+        const {
+          didWork,
+          reason,
+          data: userProfile,
+        } = await getDeepLinkUser({
+          deepLinkContent: `blitz-wallet/u/${parsedData.uniqueName}`,
+          userProfile: globalContactsInformation.myProfile,
+        });
+
+        if (!didWork) {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t(reason),
+          });
+          return;
+        }
+        newContact = userProfile;
       }
 
       await getCachedProfileImage(newContact.uuid);
