@@ -202,7 +202,7 @@ export default function ContactsTransactionItem(props) {
   const paymentDescription = txParsed?.description || '';
 
   const updatePaymentStatus = useCallback(
-    async (transaction, usingOnPage, didPay) => {
+    async (transaction, usingOnPage, didPay, txid) => {
       try {
         usingOnPage &&
           setIsLoading(prev => ({
@@ -212,6 +212,10 @@ export default function ContactsTransactionItem(props) {
         let newMessage = {
           ...transaction.message,
           isRedeemed: didPay,
+          txid,
+          name:
+            globalContactsInformation.myProfile.name ||
+            globalContactsInformation.myProfile.uniqueName,
         };
         delete newMessage.didSend;
         delete newMessage.wasSeen;
@@ -295,6 +299,7 @@ export default function ContactsTransactionItem(props) {
       getServerTime,
       navigate,
       masterInfoObject,
+      globalContactsInformation,
     ],
   );
 
@@ -362,7 +367,8 @@ export default function ContactsTransactionItem(props) {
           uuid: retrivedContact?.uuid,
         },
         fromPage: 'contacts',
-        publishMessageFunc: () => updatePaymentStatus(transaction, false, true),
+        publishMessageFunc: txid =>
+          updatePaymentStatus(transaction, false, true, txid),
       });
       return;
     },

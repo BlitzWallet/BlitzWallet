@@ -1,6 +1,7 @@
 import { decode } from 'bolt11';
 import { getSparkPaymentStatus, sparkPaymentType } from '.';
 import calculateProgressiveBracketFee from './calculateSupportFee';
+import { deleteSparkContactTransaction } from './transactions';
 
 export async function transformTxToPaymentObject(
   tx,
@@ -11,6 +12,7 @@ export async function transformTxToPaymentObject(
   identityPubKey,
   numTxsBeingRestored = 1,
   forceOutgoing = false,
+  unpaidContactInvoices,
 ) {
   // Defer all payments to the 10 second interval to be updated
   const paymentType = forcePaymentType
@@ -104,17 +106,24 @@ export async function transformTxToPaymentObject(
       },
     };
   } else if (paymentType === 'spark') {
+    const foundInvoice = unpaidContactInvoices?.find(
+      savedTx => savedTx.sparkID === tx.id,
+    );
     const paymentFee = tx.transferDirection === 'OUTGOING' ? 0 : 0;
     const supportFee = await (tx.transferDirection === 'OUTGOING'
       ? calculateProgressiveBracketFee(paymentAmount, 'spark')
       : Promise.resolve(0));
 
+    if (foundInvoice?.sparkID) {
+      deleteSparkContactTransaction(foundInvoice.sparkID);
+    }
     return {
       id: tx.id,
       paymentStatus: 'completed',
       paymentType: 'spark',
       accountId: accountId,
       details: {
+        sendingUUID: foundInvoice?.sendersPubkey,
         fee: paymentFee,
         totalFee: paymentFee + supportFee,
         supportFee: supportFee,
@@ -125,7 +134,7 @@ export async function transformTxToPaymentObject(
           : new Date().getTime(),
         direction: tx.transferDirection,
         senderIdentityPublicKey: tx.senderIdentityPublicKey,
-        description: tx.description || '',
+        description: tx.description || foundInvoice?.description || '',
         isGift: tx.isGift,
         isRestore,
       },

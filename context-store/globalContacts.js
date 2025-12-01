@@ -22,8 +22,8 @@ import {
   getCachedMessages,
   queueSetCashedMessages,
 } from '../app/functions/messaging/cachedMessages';
-import {db} from '../db/initializeFirebase';
-import {useKeysContext} from './keys';
+import { db } from '../db/initializeFirebase';
+import { useKeysContext } from './keys';
 import {
   collection,
   onSnapshot,
@@ -32,13 +32,13 @@ import {
   query,
   where,
 } from '@react-native-firebase/firestore';
-import {getCachedProfileImage} from '../app/functions/cachedImage';
+import { getCachedProfileImage } from '../app/functions/cachedImage';
 
 // Create a context for the WebView ref
 const GlobalContacts = createContext(null);
 
-export const GlobalContactsList = ({children}) => {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+export const GlobalContactsList = ({ children }) => {
+  const { contactsPrivateKey, publicKey } = useKeysContext();
   const [globalContactsInformation, setGlobalContactsInformation] = useState(
     {},
   );
@@ -50,10 +50,10 @@ export const GlobalContactsList = ({children}) => {
   const toggleGlobalContactsInformation = useCallback(
     (newData, writeToDB) => {
       setGlobalContactsInformation(prev => {
-        const newContacts = {...prev, ...newData};
+        const newContacts = { ...prev, ...newData };
         if (writeToDB) {
           addDataToCollection(
-            {contacts: newContacts},
+            { contacts: newContacts },
             'blitzWalletUsers',
             publicKey,
           );
@@ -116,7 +116,7 @@ export const GlobalContactsList = ({children}) => {
 
       toggleGlobalContactsInformation(
         {
-          myProfile: {...globalContactsInformation.myProfile},
+          myProfile: { ...globalContactsInformation.myProfile },
           addedContacts: encriptMessage(
             contactsPrivateKey,
             globalContactsInformation.myProfile.uuid,
@@ -202,7 +202,12 @@ export const GlobalContactsList = ({children}) => {
                 console.log('error parsing decoded message', err);
                 return;
               }
-              newMessages.push({...newMessage, message: parsedMessage});
+              newMessages.push({
+                ...newMessage,
+                message: parsedMessage,
+                sendersPubkey,
+                isReceived,
+              });
             } else newMessages.push(newMessage);
           }
         });

@@ -603,8 +603,8 @@ export default function SendPaymentScreen(props) {
     }
 
     if (paymentResponse.didWork) {
-      if (fromPage === 'contacts') {
-        publishMessageFunc();
+      if (fromPage === 'contacts' && paymentResponse.response?.id) {
+        publishMessageFunc(paymentResponse.response.id);
       }
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {

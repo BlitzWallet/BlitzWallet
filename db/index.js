@@ -383,6 +383,7 @@ function processWithRAF(allMessages, myPubKey, privateKey) {
       for (let i = currentIndex; i < endIndex; i++) {
         const message = allMessages[i];
         try {
+          const isReceived = message.toPubKey === myPubKey;
           if (typeof message.message === 'string') {
             const sendersPubkey =
               message.toPubKey === myPubKey
@@ -402,7 +403,12 @@ function processWithRAF(allMessages, myPubKey, privateKey) {
               console.log('error parsing decoded message', err);
               continue;
             }
-            processedMessages.push({ ...message, message: parsedMessage });
+            processedMessages.push({
+              ...message,
+              message: parsedMessage,
+              sendersPubkey,
+              isReceived,
+            });
           } else {
             processedMessages.push(message);
           }

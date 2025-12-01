@@ -24,6 +24,7 @@ import {
   deleteUnpaidSparkLightningTransaction,
   getAllPendingSparkPayments,
   getAllSparkTransactions,
+  getAllSparkContactInvoices,
   getAllUnpaidSparkLightningInvoices,
 } from './transactions';
 import { transformTxToPaymentObject } from './transformTxToPayment';
@@ -153,6 +154,7 @@ async function processTransactionChunk(
   unpaidInvoices,
   identityPubKey,
   numberOfRestoredTxs,
+  unpaidContactInvoices,
 ) {
   const chunkPaymentObjects = [];
 
@@ -166,6 +168,8 @@ async function processTransactionChunk(
         unpaidInvoices,
         identityPubKey,
         numberOfRestoredTxs,
+        undefined,
+        unpaidContactInvoices,
       );
       if (paymentObject) {
         chunkPaymentObjects.push(paymentObject);
@@ -207,7 +211,10 @@ export async function fullRestoreSparkState({
       sendWebViewRequest,
     );
     if (!restored.txs.length) return;
-    const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
+    const [unpaidInvoices, unpaidContactInvoices] = await Promise.all([
+      getAllUnpaidSparkLightningInvoices(),
+      getAllSparkContactInvoices(),
+    ]);
     const txChunks = chunkArray(restored.txs, chunkSize);
 
     console.log(
@@ -229,6 +236,7 @@ export async function fullRestoreSparkState({
           unpaidInvoices,
           identityPubKey,
           restored.txs.length,
+          unpaidContactInvoices,
         ),
       );
 

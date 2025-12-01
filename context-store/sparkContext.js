@@ -20,6 +20,7 @@ import {
   addSingleSparkTransaction,
   bulkUpdateSparkTransactions,
   getAllSparkTransactions,
+  getAllSparkContactInvoices,
   getAllUnpaidSparkLightningInvoices,
   SPARK_TX_UPDATE_ENVENT_NAME,
   sparkTransactionsEventEmitter,
@@ -260,7 +261,10 @@ const SparkWalletProvider = ({ children }) => {
       if (selectedSparkTransaction.type === 'UTXO_SWAP')
         throw new Error('Being handled by bitcoin functionality bellow');
 
-      const unpaidInvoices = await getAllUnpaidSparkLightningInvoices();
+      const [unpaidInvoices, unpaidContactInvoices] = await Promise.all([
+        getAllUnpaidSparkLightningInvoices(),
+        getAllSparkContactInvoices(),
+      ]);
       const paymentObject = await transformTxToPaymentObject(
         selectedSparkTransaction,
         sparkInfoRef.current.sparkAddress,
@@ -268,6 +272,9 @@ const SparkWalletProvider = ({ children }) => {
         false,
         unpaidInvoices,
         sparkInfoRef.current.identityPubKey,
+        1,
+        undefined,
+        unpaidContactInvoices,
       );
 
       if (paymentObject) {

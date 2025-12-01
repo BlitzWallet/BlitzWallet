@@ -38,7 +38,7 @@ export default async function getReceiveAddressAndContactForContactsPayment({
           message = payingContactMessage;
         }
 
-        receiveAddress = `${retrivedContact?.contacts?.myProfile?.uniqueName}@blitzwalletapp.com`;
+        receiveAddress = retrivedContact?.contacts?.myProfile?.sparkAddress;
       } else throw new Error('errormessages.legacyContactError');
     }
 

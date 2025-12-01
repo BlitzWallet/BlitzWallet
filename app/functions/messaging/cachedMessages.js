@@ -1,8 +1,10 @@
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
-import {getTwoWeeksAgoDate} from '../rotateAddressDateChecker';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
+import { getTwoWeeksAgoDate } from '../rotateAddressDateChecker';
 import EventEmitter from 'events';
-import {handleEventEmitterPost} from '../handleEventEmitters';
-import {openDatabaseAsync} from 'expo-sqlite';
+import { handleEventEmitterPost } from '../handleEventEmitters';
+import { openDatabaseAsync } from 'expo-sqlite';
+import i18next from 'i18next';
+import { addBulkUnpaidSparkContactTransactions } from '../spark/transactions';
 export const CACHED_MESSAGES_KEY = 'CASHED_CONTACTS_MESSAGES';
 export const SQL_TABLE_NAME = 'messagesTable';
 export const LOCALSTORAGE_LAST_RECEIVED_TIME_KEY =
@@ -78,7 +80,7 @@ export const getCachedMessages = async () => {
     if (savedNewestTime < convertedTime) {
       newestTimestap = convertedTime;
     } else newestTimestap = savedNewestTime;
-    return {...returnObj, lastMessageTimestamp: newestTimestap};
+    return { ...returnObj, lastMessageTimestamp: newestTimestap };
   } catch (err) {
     console.log(err, 'get cached message SQL error');
     return false;
@@ -90,12 +92,15 @@ const processQueue = async () => {
   if (isProcessing) return;
   isProcessing = true;
   while (messageQueue.length > 0) {
-    const {newMessagesList, myPubKey} = messageQueue.shift();
+    const { newMessagesList, myPubKey } = messageQueue.shift();
     try {
-      await setCashedMessages({
-        newMessagesList,
-        myPubKey,
-      });
+      await Promise.all([
+        addUnpaidContactTransactions({ newMessagesList, myPubKey }),
+        setCashedMessages({
+          newMessagesList,
+          myPubKey,
+        }),
+      ]);
     } catch (err) {
       console.error('Error processing batch in queue:', err);
     }
@@ -103,7 +108,7 @@ const processQueue = async () => {
 
   isProcessing = false;
 };
-export const queueSetCashedMessages = ({newMessagesList, myPubKey}) => {
+export const queueSetCashedMessages = ({ newMessagesList, myPubKey }) => {
   messageQueue.push({
     newMessagesList,
     myPubKey,
@@ -113,7 +118,29 @@ export const queueSetCashedMessages = ({newMessagesList, myPubKey}) => {
   }
 };
 
-const setCashedMessages = async ({newMessagesList, myPubKey}) => {
+const addUnpaidContactTransactions = async ({ newMessagesList, myPubKey }) => {
+  let formatted = [];
+  for (const message of newMessagesList) {
+    const parsedMessage = message.message;
+    if (message.isReceived && parsedMessage?.txid) {
+      formatted.push({
+        id: parsedMessage.txid,
+        description:
+          parsedMessage.description ||
+          i18next.t('contacts.sendAndRequestPage.contactMessage', {
+            name: parsedMessage?.name || '',
+          }),
+        sendersPubkey: message.sendersPubkey,
+        details: '',
+      });
+    }
+  }
+  if (formatted.length > 0) {
+    await addBulkUnpaidSparkContactTransactions(formatted);
+  }
+};
+
+const setCashedMessages = async ({ newMessagesList, myPubKey }) => {
   const BATCH_SIZE = 25;
   try {
     for (let i = 0; i < newMessagesList.length; i += BATCH_SIZE) {
@@ -125,7 +152,7 @@ const setCashedMessages = async ({newMessagesList, myPubKey}) => {
         try {
           const hasSavedMessage = await sqlLiteDB.getFirstAsync(
             `SELECT * FROM ${SQL_TABLE_NAME} WHERE messageUUID = $newMessageUUID;`,
-            {$newMessageUUID: newMessage.message.uuid},
+            { $newMessageUUID: newMessage.message.uuid },
           );
 
           const parsedMessage = !!hasSavedMessage
@@ -134,8 +161,8 @@ const setCashedMessages = async ({newMessagesList, myPubKey}) => {
 
           const addedProperties =
             newMessage.toPubKey === myPubKey
-              ? {wasSeen: false, didSend: false}
-              : {wasSeen: true, didSend: true};
+              ? { wasSeen: false, didSend: false }
+              : { wasSeen: true, didSend: true };
 
           const contactsPubKey =
             newMessage.toPubKey === myPubKey
@@ -151,7 +178,7 @@ const setCashedMessages = async ({newMessagesList, myPubKey}) => {
           if (!parsedMessage) {
             const insertedMessage = {
               ...newMessage,
-              message: {...newMessage.message, ...addedProperties},
+              message: { ...newMessage.message, ...addedProperties },
             };
             await sqlLiteDB.runAsync(
               `INSERT INTO ${SQL_TABLE_NAME} (contactPubKey, message, messageUUID, timestamp)
