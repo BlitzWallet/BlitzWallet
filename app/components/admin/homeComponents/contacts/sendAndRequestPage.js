@@ -421,11 +421,17 @@ export default function SendAndRequestPage(props) {
             uuid: selectedContact.uuid,
           },
           fromPage: 'contacts',
-          publishMessageFunc: () =>
+          publishMessageFunc: txid =>
             publishMessage({
               toPubKey: selectedContact.uuid,
               fromPubKey: globalContactsInformation.myProfile.uuid,
-              data: sendObject,
+              data: {
+                ...sendObject,
+                txid,
+                name:
+                  globalContactsInformation.myProfile.name ||
+                  globalContactsInformation.myProfile.uniqueName,
+              },
               globalContactsInformation,
               selectedContact,
               isLNURLPayment: selectedContact?.isLNURL,

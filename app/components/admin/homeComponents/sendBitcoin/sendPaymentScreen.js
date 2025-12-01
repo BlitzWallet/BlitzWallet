@@ -604,7 +604,7 @@ export default function SendPaymentScreen(props) {
 
     if (paymentResponse.didWork) {
       if (fromPage === 'contacts') {
-        publishMessageFunc();
+        publishMessageFunc(paymentResponse.response.id);
       }
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {

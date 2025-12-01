@@ -223,6 +223,7 @@ export const sparkPaymenWrapper = async ({
         paymentType: 'spark',
         accountId: sparkInformation.identityPubKey,
         details: {
+          sendingUUID: contactInfo?.uuid,
           fee: 0,
           totalFee: 0 + supportFee,
           supportFee: supportFee,
