@@ -20,6 +20,7 @@ import {
 } from '../../../../constants/theme';
 import { removeAllLocalData } from '../../../../functions/localStorage';
 import {
+  deleteSparkContactsTransactionsTable,
   deleteSparkTransactionTable,
   deleteUnpaidSparkLightningTransactionTable,
 } from '../../../../functions/spark/transactions';
@@ -72,6 +73,7 @@ export default function ResetPage(props) {
         didClearTxTable,
         didClearPendingTxTable,
         didClearGiftsTable,
+        didClearSparkTxTable,
         didClearSecureItems,
       ] = await Promise.all([
         removeAllLocalData(),
@@ -80,6 +82,7 @@ export default function ResetPage(props) {
         deleteSparkTransactionTable(),
         deleteUnpaidSparkLightningTransactionTable(),
         deleteGiftsTable(),
+        deleteSparkContactsTransactionsTable(),
         terminateAccount(),
       ]);
 

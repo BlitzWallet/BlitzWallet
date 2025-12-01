@@ -4,6 +4,7 @@ import { deletePOSTransactionsTable } from './pos';
 import { terminateAccount } from './secureStore';
 import { signOut } from '@react-native-firebase/auth';
 import {
+  deleteSparkContactsTransactionsTable,
   deleteSparkTransactionTable,
   deleteUnpaidSparkLightningTransactionTable,
 } from './spark/transactions';
@@ -17,6 +18,7 @@ export default async function factoryResetWallet() {
     await deletePOSTransactionsTable();
     await deleteSparkTransactionTable();
     await deleteUnpaidSparkLightningTransactionTable();
+    await deleteSparkContactsTransactionsTable();
     await deleteGiftsTable();
     await terminateAccount();
 
