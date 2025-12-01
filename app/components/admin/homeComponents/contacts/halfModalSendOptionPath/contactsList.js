@@ -158,7 +158,7 @@ export default function ChooseContactHalfModal() {
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="always"
+        keyboardShouldPersistTaps="handled"
         stickyHeaderIndices={[0]}
         contentContainerStyle={{
           ...styles.innerContainer,
