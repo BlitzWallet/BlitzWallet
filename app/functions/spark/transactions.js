@@ -4,6 +4,7 @@ import { openDatabaseAsync } from 'expo-sqlite';
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
 export const SPARK_TRANSACTIONS_TABLE_NAME = 'SPARK_TRANSACTIONS';
 export const LIGHTNING_REQUEST_IDS_TABLE_NAME = 'LIGHTNING_REQUEST_IDS';
+export const SPARK_REQUEST_IDS_TABLE_NAME = 'SPARK_REQUEST_IDS';
 export const sparkTransactionsEventEmitter = new EventEmitter();
 export const SPARK_TX_UPDATE_ENVENT_NAME = 'UPDATE_SPARK_STATE';
 let bulkUpdateTransactionQueue = [];
@@ -42,6 +43,14 @@ export const initializeSparkDatabase = async () => {
         expiration INTEGER NOT NULL,
         description TEXT NOT NULL,
         shouldNavigate INTEGER NOT NULL,
+        details TEXT
+      );
+
+       CREATE TABLE IF NOT EXISTS ${SPARK_REQUEST_IDS_TABLE_NAME} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sparkID TEXT NOT NULL,
+        description TEXT NOT NULL,
+        sendersPubkey TEXT NOT NULL,
         details TEXT
       );
     `);
@@ -118,6 +127,96 @@ export const getAllPendingSparkPayments = async accountId => {
   } catch (error) {
     console.error('Error fetching pending spark payments:', error);
     return [];
+  }
+};
+
+export const getAllSparkContactInvoices = async () => {
+  try {
+    const result = await sqlLiteDB.getAllAsync(
+      `SELECT * FROM ${SPARK_REQUEST_IDS_TABLE_NAME}`,
+    );
+    return result;
+  } catch (error) {
+    console.error('Error fetching contacts saved transactions:', error);
+  }
+};
+
+export const addSingleUnpaidSparkTransaction = async tx => {
+  if (!tx || !tx.id) {
+    console.error('Invalid transaction object');
+    return false;
+  }
+
+  try {
+    await sqlLiteDB.runAsync(
+      `INSERT INTO ${SPARK_REQUEST_IDS_TABLE_NAME}
+       (sparkID, description, sendersPubkey, details)
+       VALUES (?, ?, ?, ?)`,
+      [tx.id, tx.description, tx.sendersPubkey, JSON.stringify(tx.details)],
+    );
+    console.log('sucesfully added unpaid contacts invoice', tx);
+    return true;
+  } catch (error) {
+    console.error('Error adding spark transaction:', error);
+    return false;
+  }
+};
+
+export const addBulkUnpaidSparkContactTransactions = async transactions => {
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    console.error('Invalid transactions array');
+    return { success: false, added: 0, failed: 0 };
+  }
+
+  const validTransactions = transactions.filter(tx => tx && tx.id);
+
+  if (validTransactions.length === 0) {
+    console.error('No valid transactions to add');
+    return { success: false, added: 0, failed: transactions.length };
+  }
+
+  try {
+    const placeholders = validTransactions.map(() => '(?, ?, ?, ?)').join(', ');
+
+    const values = validTransactions.flatMap(tx => [
+      tx.id,
+      tx.description,
+      tx.sendersPubkey,
+      JSON.stringify(tx.details),
+    ]);
+
+    await sqlLiteDB.runAsync(
+      `INSERT INTO ${SPARK_REQUEST_IDS_TABLE_NAME}
+       (sparkID, description, sendersPubkey, details)
+       VALUES ${placeholders}`,
+      values,
+    );
+
+    console.log(
+      `Successfully added ${validTransactions.length} unpaid contact invoices`,
+    );
+    return {
+      success: true,
+      added: validTransactions.length,
+      failed: transactions.length - validTransactions.length,
+    };
+  } catch (error) {
+    console.error('Error adding bulk spark contact transactions:', error);
+    return { success: false, added: 0, failed: transactions.length };
+  }
+};
+
+export const deleteSparkContactTransaction = async sparkID => {
+  try {
+    await sqlLiteDB.runAsync(
+      `DELETE FROM ${SPARK_REQUEST_IDS_TABLE_NAME} WHERE sparkID = ?`,
+      sparkID,
+    );
+
+    return true;
+  } catch (error) {
+    console.error(`Error deleting transaction ${sparkID}:`, error);
+    return false;
   }
 };
 
@@ -530,6 +629,19 @@ export const deleteSparkTransactionTable = async () => {
     return false;
   }
 };
+
+export const deleteSparkContactsTransactionsTable = async () => {
+  try {
+    await sqlLiteDB.execAsync(
+      `DROP TABLE IF EXISTS ${SPARK_REQUEST_IDS_TABLE_NAME}`,
+    );
+    return true;
+  } catch (error) {
+    console.error('Error deleting spark_transactions table:', error);
+    return false;
+  }
+};
+
 export const deleteUnpaidSparkLightningTransactionTable = async () => {
   try {
     await sqlLiteDB.execAsync(
