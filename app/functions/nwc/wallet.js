@@ -1,35 +1,36 @@
-import {
-  SparkWallet,
-  ReactNativeSparkSigner,
-} from '@buildonspark/spark-sdk/native';
-import {retrieveData} from '../secureStore';
-import {NWC_SECURE_STORE_MNEMOINC} from '../../constants';
+import { SparkWallet } from '@buildonspark/spark-sdk';
+import { retrieveData } from '../secureStore';
+import { NWC_SECURE_STORE_MNEMOINC } from '../../constants';
 export let nwcWallet = null;
 
 export const initializeNWCWallet = async () => {
   try {
     if (nwcWallet) {
       console.log('using cahced wallet', nwcWallet);
-      return {isConnected: true};
+      return { isConnected: true };
     }
     const NWCMnemoinc = (await retrieveData(NWC_SECURE_STORE_MNEMOINC)).value;
 
     if (!NWCMnemoinc) throw new Error('No seed created');
 
-    const {wallet} = await SparkWallet.initialize({
-      signer: new ReactNativeSparkSigner(),
+    const { wallet } = await SparkWallet.initialize({
       mnemonicOrSeed: NWCMnemoinc,
-      options: {network: 'MAINNET'},
+      options: {
+        network: 'MAINNET',
+        optimizationOptions: {
+          multiplicity: 2,
+        },
+      },
     });
 
     console.log('Connected to new nwc wallet');
     nwcWallet = wallet;
 
-    return {isConnected: true};
+    return { isConnected: true };
   } catch (err) {
     console.log('Initialize spark wallet error nwc', err);
     nwcWallet = null;
-    return {isConnected: false, error: err.message};
+    return { isConnected: false, error: err.message };
   }
 };
 export const getNWCSparkIdentityPubKey = async () => {
@@ -53,10 +54,10 @@ export const getNWCSparkAddress = async () => {
   try {
     if (!nwcWallet) throw new Error('sparkWallet not initialized');
     const response = await nwcWallet.getSparkAddress();
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Get spark address error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 export const getNWCSparkLightningPaymentFeeEstimate = async (
@@ -69,10 +70,10 @@ export const getNWCSparkLightningPaymentFeeEstimate = async (
       encodedInvoice: invoice,
       amountSats: amountSat,
     });
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Get lightning payment fee error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 export const receiveNWCSparkLightningPayment = async ({
@@ -87,10 +88,10 @@ export const receiveNWCSparkLightningPayment = async ({
       memo,
       expirySeconds, // 12 hour invoice expiry
     });
-    return {didWork: true, response};
+    return { didWork: true, response };
   } catch (err) {
     console.log('Receive lightning payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 
@@ -106,20 +107,20 @@ export const sendNWCSparkLightningPayment = async ({
       maxFeeSats: Math.round(maxFeeSats * 1.2),
       amountSatsToSend: amountSats,
     });
-    return {didWork: true, paymentResponse};
+    return { didWork: true, paymentResponse };
   } catch (err) {
     console.log('Send lightning payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 export const NWCSparkLightningPaymentStatus = async id => {
   try {
     if (!nwcWallet) throw new Error('sparkWallet not initialized');
     const paymentResponse = await nwcWallet.getLightningSendRequest(id);
-    return {didWork: true, paymentResponse};
+    return { didWork: true, paymentResponse };
   } catch (err) {
     console.log('Send lightning payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 export const getNWCLightningReceiveRequest = async lightningInvoiceId => {
@@ -128,10 +129,10 @@ export const getNWCLightningReceiveRequest = async lightningInvoiceId => {
     const paymentResponse = await nwcWallet.getLightningReceiveRequest(
       lightningInvoiceId,
     );
-    return {didWork: true, paymentResponse};
+    return { didWork: true, paymentResponse };
   } catch (err) {
     console.log('Get lightning payment status error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
 export const getNWCSparkTransactions = async (
@@ -152,9 +153,9 @@ export const sendNWCSparkPayment = async (amount, address) => {
       receiverSparkAddress: address,
       amountSats: amount,
     });
-    return {didWork: true, paymentResponse};
+    return { didWork: true, paymentResponse };
   } catch (err) {
     console.log('Send lightning payment error', err);
-    return {didWork: false, error: err.message};
+    return { didWork: false, error: err.message };
   }
 };
