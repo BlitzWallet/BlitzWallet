@@ -14,6 +14,7 @@ import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../../../constants/theme';
+import { normalizeNumber } from '../../../../../../functions';
 
 export default function AddPOSItemHalfModal({
   setIsKeyboardActive,
@@ -65,7 +66,8 @@ export default function AddPOSItemHalfModal({
 
   const addNewItem = () => {
     try {
-      if (!itemInformation.name || !Number(itemInformation.price)) return;
+      const parsedNumber = normalizeNumber(itemInformation.price);
+      if (!itemInformation.name || !parsedNumber) return;
       if (itemInformation.name.length > 60) {
         navigate.navigate('ErrorScreen', {
           errorMessage: t(
@@ -88,7 +90,7 @@ export default function AddPOSItemHalfModal({
             return {
               ...item,
               name: itemInformation.name,
-              price: Number(itemInformation.price),
+              price: parsedNumber,
               initialCurrency: masterInfoObject?.posSettings?.storeCurrency,
             };
           else return item;
@@ -96,7 +98,7 @@ export default function AddPOSItemHalfModal({
       } else
         posObject.items.push({
           name: itemInformation.name,
-          price: Number(itemInformation.price),
+          price: parsedNumber,
           uuid: customUUID(),
           initialCurrency: masterInfoObject?.posSettings?.storeCurrency,
         });

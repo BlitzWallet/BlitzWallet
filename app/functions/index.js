@@ -18,6 +18,7 @@ import copyToClipboard from './copyToClipboard';
 import { navigateToSendUsingClipboard, getQRImage } from './sendBitcoin';
 import numberConverter from './numberConverter';
 import { createAccountMnemonic } from './seed';
+import { normalizeNumber } from './normalizeNumber';
 
 export {
   retrieveData,
@@ -37,4 +38,5 @@ export {
   navigateToSendUsingClipboard,
   getQRImage,
   numberConverter,
+  normalizeNumber,
 };
