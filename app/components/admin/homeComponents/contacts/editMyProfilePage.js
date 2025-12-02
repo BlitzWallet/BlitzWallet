@@ -45,6 +45,7 @@ export default function EditMyProfilePage(props) {
     decodedAddedContacts,
     toggleGlobalContactsInformation,
     globalContactsInformation,
+    deleteContact,
   } = useGlobalContacts();
 
   const { t } = useTranslation();
@@ -66,6 +67,13 @@ export default function EditMyProfilePage(props) {
       );
 
   useHandleBackPressNew();
+
+  const deleteUser = shouldDelete => {
+    if (shouldDelete) {
+      deleteContact(selectedAddedContact);
+      navigate.popTo('HomeAdmin');
+    }
+  };
 
   if (hideProfileImage) {
     return (
@@ -102,6 +110,17 @@ export default function EditMyProfilePage(props) {
           }
           keyboardGoBack(navigate);
         }}
+        leftImageBlue={ICONS.trashIcon}
+        LeftImageDarkMode={ICONS.trashIconWhite}
+        leftImageFunction={() =>
+          navigate.navigate('ConfirmActionPage', {
+            confirmMessage: t('contacts.editMyProfilePage.deleateWarning'),
+            confirmFunction: () => deleteUser(true),
+            cancelFunction: () => deleteUser(false),
+          })
+        }
+        leftImageStyles={{ height: 25, width: 'unset', aspectRatio: 1 }}
+        showLeftImage={!isEditingMyProfile}
       />
       <InnerContent
         isEditingMyProfile={isEditingMyProfile}

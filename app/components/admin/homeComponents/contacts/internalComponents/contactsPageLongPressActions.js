@@ -4,34 +4,34 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import {COLORS} from '../../../../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
-import {useGlobalContacts} from '../../../../../../context-store/globalContacts';
+import { COLORS } from '../../../../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
+import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {deleteCachedMessages} from '../../../../../functions/messaging/cachedMessages';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {useKeysContext} from '../../../../../../context-store/keys';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { useKeysContext } from '../../../../../../context-store/keys';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 export default function ContactsPageLongPressActions({
   route: {
-    params: {contact},
+    params: { contact },
   },
 }) {
   const navigate = useNavigation();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {textColor, backgroundColor} = GetThemeColors();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { textColor, backgroundColor } = GetThemeColors();
   const {
     decodedAddedContacts,
     globalContactsInformation,
     toggleGlobalContactsInformation,
+    deleteContact,
   } = useGlobalContacts();
   useHandleBackPressNew();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <TouchableWithoutFeedback onPress={() => navigate.goBack()}>
@@ -43,12 +43,14 @@ export default function ContactsPageLongPressActions({
               {
                 backgroundColor: backgroundColor,
               },
-            ]}>
+            ]}
+          >
             <TouchableOpacity
               onPress={() => {
                 toggleContactPin(contact);
                 navigate.goBack();
-              }}>
+              }}
+            >
               <ThemeText
                 styles={styles.cancelButton}
                 content={t(`constants.${contact.isFavorite ? 'unpin' : 'pin'}`)}
@@ -65,7 +67,8 @@ export default function ContactsPageLongPressActions({
               onPress={() => {
                 deleteContact(contact);
                 navigate.goBack();
-              }}>
+              }}
+            >
               <ThemeText
                 styles={styles.cancelButton}
                 content={t('constants.delete')}
@@ -77,33 +80,10 @@ export default function ContactsPageLongPressActions({
     </TouchableWithoutFeedback>
   );
 
-  async function deleteContact(contact) {
-    const newAddedContacts = decodedAddedContacts
-      .map(savedContacts => {
-        if (savedContacts.uuid === contact.uuid) {
-          return null;
-        } else return savedContacts;
-      })
-      .filter(contact => contact);
-
-    await deleteCachedMessages(contact.uuid);
-    toggleGlobalContactsInformation(
-      {
-        addedContacts: encriptMessage(
-          contactsPrivateKey,
-          publicKey,
-          JSON.stringify(newAddedContacts),
-        ),
-        myProfile: {...globalContactsInformation.myProfile},
-      },
-      true,
-    );
-  }
-
   function toggleContactPin(contact) {
     const newAddedContacts = decodedAddedContacts.map(savedContacts => {
       if (savedContacts.uuid === contact.uuid) {
-        return {...savedContacts, isFavorite: !savedContacts.isFavorite};
+        return { ...savedContacts, isFavorite: !savedContacts.isFavorite };
       } else return savedContacts;
     });
 
@@ -114,7 +94,7 @@ export default function ContactsPageLongPressActions({
           publicKey,
           JSON.stringify(newAddedContacts),
         ),
-        myProfile: {...globalContactsInformation.myProfile},
+        myProfile: { ...globalContactsInformation.myProfile },
       },
       true,
     );

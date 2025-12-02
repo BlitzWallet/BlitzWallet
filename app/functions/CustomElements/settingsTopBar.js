@@ -55,7 +55,11 @@ export default function CustomSettingsTopBar({
       />
       {showLeftImage && (
         <TouchableOpacity
-          style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}
+          style={{
+            position: 'absolute',
+            right: 0,
+            zIndex: 1,
+          }}
           onPress={leftImageFunction}
         >
           <ThemeImage

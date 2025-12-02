@@ -1054,7 +1054,8 @@
       "unqiueNameRegexError": "Puoi avere solo lettere, numeri o trattini bassi nel tuo nome utente e deve contenere almeno 1 lettera.",
       "usernameAlreadyExistsError": "Questo nome utente esiste già, scegli un altro.",
       "unableToSaveError": "Impossibile salvare l'immagine del profilo, riprova.",
-      "deleteProfileImageError": "Impossibile eliminare l'immagine del profilo, riprova."
+      "deleteProfileImageError": "Impossibile eliminare l'immagine del profilo, riprova.",
+      "deleateWarning": "Sei sicuro di voler eliminare questo contatto? I messaggi più vecchi di una settimana non possono essere ripristinati."
     },
 
     "sendAndRequestPage": {

@@ -19,6 +19,7 @@ import {
 import {
   CONTACTS_TRANSACTION_UPDATE_NAME,
   contactsSQLEventEmitter,
+  deleteCachedMessages,
   getCachedMessages,
   queueSetCashedMessages,
 } from '../app/functions/messaging/cachedMessages';
@@ -227,6 +228,42 @@ export const GlobalContactsList = ({ children }) => {
     };
   }, [globalContactsInformation?.myProfile?.uuid, contactsPrivateKey]);
 
+  const deleteContact = useCallback(
+    async contact => {
+      try {
+        const newAddedContacts = decodedAddedContacts
+          .map(savedContacts => {
+            if (savedContacts.uuid === contact.uuid) {
+              return null;
+            } else return savedContacts;
+          })
+          .filter(contact => contact);
+
+        await deleteCachedMessages(contact.uuid);
+
+        toggleGlobalContactsInformation(
+          {
+            addedContacts: encriptMessage(
+              contactsPrivateKey,
+              publicKey,
+              JSON.stringify(newAddedContacts),
+            ),
+            myProfile: { ...globalContactsInformation.myProfile },
+          },
+          true,
+        );
+      } catch (err) {
+        console.log('Error deleating contact', err);
+      }
+    },
+    [
+      decodedAddedContacts,
+      contactsPrivateKey,
+      publicKey,
+      globalContactsInformation,
+    ],
+  );
+
   useEffect(() => {
     if (!Object.keys(globalContactsInformation).length) return;
     if (lookForNewMessages.current) return;
@@ -306,6 +343,7 @@ export const GlobalContactsList = ({ children }) => {
       updatedCachedMessagesStateFunction,
       giftCardsList,
       hasUnlookedTransactions,
+      deleteContact,
     }),
     [
       decodedAddedContacts,
@@ -315,6 +353,7 @@ export const GlobalContactsList = ({ children }) => {
       updatedCachedMessagesStateFunction,
       giftCardsList,
       hasUnlookedTransactions,
+      deleteContact,
     ],
   );
 

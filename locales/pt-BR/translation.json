@@ -1054,7 +1054,8 @@
       "unqiueNameRegexError": "O nome de usuário só pode ter letras, números ou sublinhados e deve conter pelo menos 1 letra.",
       "usernameAlreadyExistsError": "Este nome de usuário já existe, escolha outro.",
       "unableToSaveError": "Não foi possível salvar a imagem do perfil, tente novamente.",
-      "deleteProfileImageError": "Não foi possível excluir a imagem do perfil, tente novamente."
+      "deleteProfileImageError": "Não foi possível excluir a imagem do perfil, tente novamente.",
+      "deleateWarning": "Tem certeza de que deseja excluir este contato? Mensagens com mais de uma semana não podem ser restauradas."
     },
 
     "sendAndRequestPage": {

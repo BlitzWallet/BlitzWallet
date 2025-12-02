@@ -1054,7 +1054,8 @@
       "unqiueNameRegexError": "You can only have letters, numbers, or underscores in your username, and must contain at least 1 letter.",
       "usernameAlreadyExistsError": "This username already exists, please choose another.",
       "unableToSaveError": "Unable to save profile image, please try again.",
-      "deleteProfileImageError": "Unable to delete profile image, please try again."
+      "deleteProfileImageError": "Unable to delete profile image, please try again.",
+      "deleateWarning": "Are you sure you want to delete this contact? Messages older than a week cannot restored."
     },
 
     "sendAndRequestPage": {

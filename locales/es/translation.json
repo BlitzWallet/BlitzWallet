@@ -898,7 +898,8 @@
       "unqiueNameRegexError": "Solo puedes usar letras, números o guiones bajos en tu nombre de usuario, y debe contener al menos 1 letra.",
       "usernameAlreadyExistsError": "Este nombre de usuario ya existe, elige otro.",
       "unableToSaveError": "No se pudo guardar la imagen de perfil, intenta de nuevo.",
-      "deleteProfileImageError": "No se pudo eliminar la imagen de perfil, intenta de nuevo."
+      "deleteProfileImageError": "No se pudo eliminar la imagen de perfil, intenta de nuevo.",
+      "deleateWarning": "¿Seguro que deseas eliminar este contacto? Los mensajes de más de una semana no se pueden restaurar."
     },
     "sendAndRequestPage": {
       "descriptionPlaceholder": "Descripción del pago",
