@@ -379,10 +379,7 @@ export default function RestoreWallet({
             }}
           >
             <CustomButton
-              buttonStyles={{
-                width: 145,
-                marginRight: 10,
-              }}
+              buttonStyles={styles.buttonContainer}
               textStyles={{
                 color: COLORS.lightModeText,
               }}
@@ -394,10 +391,12 @@ export default function RestoreWallet({
               }
             />
             <CustomButton
-              buttonStyles={{
-                width: 145,
-                backgroundColor: COLORS.primary,
-              }}
+              buttonStyles={[
+                styles.buttonContainer,
+                {
+                  backgroundColor: COLORS.primary,
+                },
+              ]}
               textStyles={{
                 color: COLORS.darkModeText,
               }}
@@ -432,29 +431,25 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
   },
   headerText: {
+    width: '95%',
     fontSize: SIZES.xLarge,
     textAlign: 'center',
     marginBottom: 10,
+    ...CENTER,
   },
   contentContainer: {
     flex: 1,
-    width: '90%',
+    width: '95%',
     ...CENTER,
   },
   pasteButton: {
-    width: 145,
+    // width: 145,
     backgroundColor: 'transparent',
     borderWidth: 1,
     marginTop: 20,
     marginBottom: 20,
     ...CENTER,
     textAlign: 'center',
-  },
-  pasteButtonRestore: {
-    width: 145,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    marginRight: 10,
   },
   seedRow: {
     width: '100%',
@@ -482,11 +477,15 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     color: COLORS.lightModeText,
   },
-
+  buttonContainer: {
+    flexGrow: 1,
+    maxWidth: '50%',
+  },
   mainBTCContainer: {
-    width: '100%',
+    width: '90%',
     flexDirection: 'row',
     justifyContent: 'center',
+    columnGap: 10,
     ...CENTER,
   },
 });
