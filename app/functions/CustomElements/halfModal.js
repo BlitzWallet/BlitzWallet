@@ -220,18 +220,18 @@ export default function CustomHalfModal(props) {
             handleBackPressFunction={handleBackPressFunction}
           />
         );
-      case 'editLNURLOnReceive':
-        return (
-          <EditLNURLContactOnReceivePage
-            theme={theme}
-            darkModeType={darkModeType}
-            slideHeight={slideHeight}
-            isKeyboardActive={isKeyboardActive}
-            setIsKeyboardActive={setIsKeyboardActive}
-            setContentHeight={setContentHeight}
-            handleBackPressFunction={handleBackPressFunction}
-          />
-        );
+      // case 'editLNURLOnReceive':
+      //   return (
+      //     <EditLNURLContactOnReceivePage
+      //       theme={theme}
+      //       darkModeType={darkModeType}
+      //       slideHeight={slideHeight}
+      //       isKeyboardActive={isKeyboardActive}
+      //       setIsKeyboardActive={setIsKeyboardActive}
+      //       setContentHeight={setContentHeight}
+      //       handleBackPressFunction={handleBackPressFunction}
+      //     />
+      //   );
       case 'switchReceiveOption':
         return (
           <SwitchReceiveOptionPage
@@ -387,7 +387,7 @@ export default function CustomHalfModal(props) {
               contentType === 'manualEnterSendAddress' ||
               contentType === 'switchGenerativeAiModel' ||
               contentType === 'addPOSItemsHalfModal' ||
-              contentType === 'editLNURLOnReceive' ||
+              // contentType === 'editLNURLOnReceive' ||
               contentType === 'addContacts' ||
               contentType === 'SelectLRC20Token'
                 ? isKeyboardActive

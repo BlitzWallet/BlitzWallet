@@ -428,11 +428,11 @@ function QrCode(props) {
     });
   };
 
-  const editLNURL = () => {
-    navigate.navigate('CustomHalfModal', {
-      wantedContent: 'editLNURLOnReceive',
-    });
-  };
+  // const editLNURL = () => {
+  //   navigate.navigate('CustomHalfModal', {
+  //     wantedContent: 'editLNURLOnReceive',
+  //   });
+  // };
 
   const qrData = isUsingLnurl
     ? encodeLNURL(globalContactsInformation?.myProfile?.uniqueName)
