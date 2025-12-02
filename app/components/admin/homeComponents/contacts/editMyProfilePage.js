@@ -271,6 +271,7 @@ function InnerContent({
   const uniquenameRef = useRef(null);
   const bioRef = useRef(null);
   const receiveAddressRef = useRef(null);
+  const didCallImagePicker = useRef(null);
   const myContact = globalContactsInformation.myProfile;
 
   const myContactName = myContact?.name;
@@ -379,6 +380,8 @@ function InnerContent({
   };
 
   const addProfilePicture = async () => {
+    if (didCallImagePicker.current) return;
+    didCallImagePicker.current = true;
     const response = await getProfileImage();
     if (response?.imgURL && response?.comparison) {
       setTempImage({
@@ -387,6 +390,7 @@ function InnerContent({
         updated: Date.now(),
       });
     }
+    didCallImagePicker.current = false;
   };
 
   useEffect(() => {

@@ -42,6 +42,7 @@ export default function CameraModal(props) {
   const [isFocused, setIsFocused] = useState(false);
   const [isFlashOn, setIsFlashOn] = useState(false);
   const didScanRef = useRef(false);
+  const didCallImagePicker = useRef(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -196,9 +197,14 @@ export default function CameraModal(props) {
   }
 
   async function getQRImage() {
+    if (didCallImagePicker.current) return;
+    didCallImagePicker.current = true;
     const imagePickerResponse = await getImageFromLibrary();
     const { didRun, error, imgURL } = imagePickerResponse;
-    if (!didRun) return;
+    if (!didRun) {
+      didCallImagePicker.current = false;
+      return;
+    }
     if (error) {
       crashlyticsRecordErrorReport(error);
       navigate.goBack();
@@ -210,6 +216,7 @@ export default function CameraModal(props) {
         },
         Platform.OS === 'android' ? 350 : 50,
       );
+      didCallImagePicker.current = false;
       return;
     }
 
@@ -247,6 +254,8 @@ export default function CameraModal(props) {
           errorMessage: t('wallet.cameraModal.qrDecodeError'),
         });
       }, 150);
+    } finally {
+      didCallImagePicker.current = false;
     }
   }
 }

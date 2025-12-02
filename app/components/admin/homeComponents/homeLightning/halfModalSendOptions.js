@@ -13,6 +13,7 @@ import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
 import Icon from '../../../../functions/CustomElements/Icon';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import { useRef } from 'react';
 
 export default function HalfModalSendOptions(props) {
   const navigate = useNavigation();
@@ -20,6 +21,7 @@ export default function HalfModalSendOptions(props) {
   const { bottomPadding } = useGlobalInsets();
   const { decodedAddedContacts } = useGlobalContacts();
   const { t } = useTranslation();
+  const didCallImagePicker = useRef(null);
 
   const sendOptionElements = ['img', 'clipboard', 'manual'].map((item, key) => {
     const lightIcon =
@@ -49,18 +51,25 @@ export default function HalfModalSendOptions(props) {
             `Running in half modal sent options navigation function`,
           );
           if (item === 'img') {
+            if (didCallImagePicker.current) return;
+            didCallImagePicker.current = true;
             const response = await getQRImage();
             if (response.error) {
               navigate.replace('ErrorScreen', {
                 errorMessage: t(response.error),
               });
+              didCallImagePicker.current = false;
               return;
             }
-            if (!response.didWork || !response.btcAdress) return;
+            if (!response.didWork || !response.btcAdress) {
+              didCallImagePicker.current = false;
+              return;
+            }
             navigate.replace('ConfirmPaymentScreen', {
               btcAdress: response.btcAdress,
               fromPage: '',
             });
+            didCallImagePicker.current = false;
           } else if (item === 'clipboard') {
             navigateToSendUsingClipboard(navigate, 'modal', undefined, t);
           } else {

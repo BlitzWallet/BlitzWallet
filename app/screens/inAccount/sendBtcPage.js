@@ -179,22 +179,26 @@ export default function SendPaymentHome({ pageViewPage, from }) {
             },
             Platform.OS === 'android' ? 350 : 50,
           );
+          isPhotoeLibraryOpen.current = false;
           return;
         }
 
         navigate.navigate('ErrorScreen', {
           errorMessage: t(response.error),
         });
+        isPhotoeLibraryOpen.current = false;
         return;
       }
 
-      if (!response.didWork || !response.btcAdress) return;
+      if (!response.didWork || !response.btcAdress) {
+        isPhotoeLibraryOpen.current = false;
+        return;
+      }
       crashlyticsLogReport('Navigating to confirm payment screen');
       handleInvoice(response.btcAdress);
+      isPhotoeLibraryOpen.current = false;
     } catch (err) {
       console.log('Error in getting QR image', err);
-    } finally {
-      isPhotoeLibraryOpen.current = false;
     }
   }, [navigate]);
 
