@@ -274,16 +274,16 @@ function InnerContent({
   const didCallImagePicker = useRef(null);
   const myContact = globalContactsInformation.myProfile;
 
-  const myContactName = myContact?.name;
-  const myContactBio = myContact?.bio;
-  const myContactUniqueName = myContact?.uniqueName;
+  const myContactName = myContact?.name || '';
+  const myContactBio = myContact?.bio || '';
+  const myContactUniqueName = myContact?.uniqueName || '';
   const isFirstTimeEditing = myContact.didEditProfile;
 
-  const selectedAddedContactName = selectedAddedContact?.name;
-  const selectedAddedContactBio = selectedAddedContact?.bio;
-  const selectedAddedContactUniqueName = selectedAddedContact?.uniqueName;
+  const selectedAddedContactName = selectedAddedContact?.name || '';
+  const selectedAddedContactBio = selectedAddedContact?.bio || '';
+  const selectedAddedContactUniqueName = selectedAddedContact?.uniqueName || '';
   const selectedAddedContactReceiveAddress =
-    selectedAddedContact?.receiveAddress;
+    selectedAddedContact?.receiveAddress || '';
 
   const [isSaving, setIsSaving] = useState(false);
   const [inputs, setInputs] = useState({
@@ -369,6 +369,22 @@ function InnerContent({
       fromInitialAdd ||
       tempImage.uri ||
       tempImage.shouldDelete;
+
+  console.log(
+    hasChangedInfo,
+    'has info changed',
+    selectedAddedContactName,
+    inputs.name,
+    selectedAddedContactBio,
+    inputs.bio,
+    selectedAddedContactUniqueName,
+    inputs.uniquename,
+    selectedAddedContactReceiveAddress,
+    inputs.receiveAddress,
+    fromInitialAdd,
+    tempImage.uri,
+    tempImage.shouldDelete,
+  );
 
   const handleDeleteProfilePicture = () => {
     setTempImage({
