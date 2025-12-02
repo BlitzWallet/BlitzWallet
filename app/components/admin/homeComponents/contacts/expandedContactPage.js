@@ -164,7 +164,11 @@ export default function ExpandedContactsPage(props) {
         <View
           style={{
             ...styles.buttonGlobalContainer,
-            marginBottom: selectedContact?.bio ? 10 : 0,
+            marginBottom: selectedContact?.bio
+              ? 10
+              : contactTransactions.length
+              ? 30
+              : 0,
           }}
         >
           <CustomSendAndRequsetBTN
@@ -237,6 +241,7 @@ export default function ExpandedContactsPage(props) {
               styles.bioContainer,
               {
                 marginTop: 10,
+                marginBottom: contactTransactions.length ? 30 : 0,
                 backgroundColor: textInputBackground,
               },
             ]}
@@ -269,6 +274,7 @@ export default function ExpandedContactsPage(props) {
       imageData?.localUri,
       isConnectedToTheInternet,
       hideProfileImage,
+      contactTransactions.length,
     ],
   );
 
