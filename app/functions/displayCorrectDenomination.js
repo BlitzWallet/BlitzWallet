@@ -45,14 +45,14 @@ export default function displayCorrectDenomination({
 
     // Fiat display
     if (showSymbol && isSymbolInFront) {
-      return `${currencySymbol}${formattedCurrency[1]}`;
+      return `${currencySymbol}${formattedSat}`;
     }
 
     if (showSymbol && !isSymbolInFront) {
-      return `${formattedCurrency[1]}${currencySymbol}`;
+      return `${formattedSat}${currencySymbol}`;
     }
 
-    return `${formattedCurrency[1]} ${currencyText}`;
+    return `${formattedSat} ${currencyText}`;
   } catch (err) {
     console.log('display correct denomination error', err);
     return '';
