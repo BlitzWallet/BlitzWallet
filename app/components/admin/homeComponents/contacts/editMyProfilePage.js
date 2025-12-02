@@ -38,6 +38,7 @@ import { useImageCache } from '../../../../../context-store/imageCache';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useProfileImage } from './hooks/useProfileImage';
 import EditProfileTextInput from './internalComponents/editProfileTextItems';
+import { areImagesSame } from './utils/imageComparison';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -259,8 +260,12 @@ function InnerContent({
     toggleGlobalContactsInformation,
   } = useGlobalContacts();
   const { t } = useTranslation();
-  const { isAddingImage, addProfilePicture, deleteProfilePicture } =
-    useProfileImage();
+  const {
+    isAddingImage,
+    deleteProfilePicture,
+    getProfileImage,
+    saveProfileImage,
+  } = useProfileImage();
 
   const nameRef = useRef(null);
   const uniquenameRef = useRef(null);
@@ -279,11 +284,18 @@ function InnerContent({
   const selectedAddedContactReceiveAddress =
     selectedAddedContact?.receiveAddress;
 
+  const [isSaving, setIsSaving] = useState(false);
   const [inputs, setInputs] = useState({
     name: '',
     bio: '',
     uniquename: '',
     receiveAddress: '',
+  });
+  const [tempImage, setTempImage] = useState({
+    uri: null,
+    comparison: null,
+    updated: 0,
+    shouldDelete: false,
   });
 
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
@@ -335,9 +347,47 @@ function InnerContent({
 
   const myProfileImage = cache[myContact?.uuid];
   const selectedAddedContactImage = cache[selectedAddedContact?.uuid];
-  const hasImage = isEditingMyProfile
+  const hasImage = tempImage.shouldDelete
+    ? false
+    : tempImage.uri
+    ? true
+    : isEditingMyProfile
     ? !!myProfileImage?.localUri
     : !!selectedAddedContactImage?.localUri;
+
+  const hasChangedInfo = isEditingMyProfile
+    ? myContactName !== inputs.name ||
+      myContactBio !== inputs.bio ||
+      myContactUniqueName !== inputs.uniquename ||
+      tempImage.uri ||
+      tempImage.shouldDelete
+    : selectedAddedContactName !== inputs.name ||
+      selectedAddedContactBio !== inputs.bio ||
+      selectedAddedContactUniqueName !== inputs.uniquename ||
+      selectedAddedContactReceiveAddress !== inputs.receiveAddress ||
+      fromInitialAdd ||
+      tempImage.uri ||
+      tempImage.shouldDelete;
+
+  const handleDeleteProfilePicture = () => {
+    setTempImage({
+      uri: null,
+      comparison: null,
+      updated: 0,
+      shouldDelete: true,
+    });
+  };
+
+  const addProfilePicture = async () => {
+    const response = await getProfileImage();
+    if (response?.imgURL && response?.comparison) {
+      setTempImage({
+        comparison: response?.comparison,
+        uri: response?.imgURL,
+        updated: Date.now(),
+      });
+    }
+  };
 
   useEffect(() => {
     if (!fromInitialAdd) return;
@@ -382,11 +432,14 @@ function InnerContent({
               ? CONTENT_KEYBOARD_OFFSET
               : bottomPadding,
           }}
+          useLoading={isSaving}
           actionFunction={saveChanges}
           textContent={
-            fromInitialAdd
-              ? t('contacts.editMyProfilePage.addContactBTN')
-              : t('constants.save')
+            hasChangedInfo
+              ? fromInitialAdd
+                ? t('contacts.editMyProfilePage.addContactBTN')
+                : t('constants.save')
+              : t('constants.back')
           }
         />
       </>
@@ -426,8 +479,7 @@ function InnerContent({
             navigate.navigate('AddOrDeleteContactImage', {
               addPhoto: () =>
                 addProfilePicture(isEditingMyProfile, selectedAddedContact),
-              deletePhoto: () =>
-                deleteProfilePicture(isEditingMyProfile, selectedAddedContact),
+              deletePhoto: handleDeleteProfilePicture,
               hasImage: hasImage,
             });
           }}
@@ -440,24 +492,28 @@ function InnerContent({
               },
             ]}
           >
-            {isAddingImage ? (
-              <FullLoadingScreen showText={false} />
-            ) : (
-              <ContactProfileImage
-                updated={
-                  isEditingMyProfile
-                    ? myProfileImage?.updated
-                    : selectedAddedContactImage?.updated
-                }
-                uri={
-                  isEditingMyProfile
-                    ? myProfileImage?.localUri
-                    : selectedAddedContactImage?.localUri
-                }
-                darkModeType={darkModeType}
-                theme={theme}
-              />
-            )}
+            <ContactProfileImage
+              updated={
+                tempImage.shouldDelete
+                  ? null
+                  : tempImage.uri
+                  ? tempImage.comparison?.updated
+                  : isEditingMyProfile
+                  ? myProfileImage?.updated
+                  : selectedAddedContactImage?.updated
+              }
+              uri={
+                tempImage.shouldDelete
+                  ? null
+                  : tempImage.uri
+                  ? tempImage.comparison?.uri
+                  : isEditingMyProfile
+                  ? myProfileImage?.localUri
+                  : selectedAddedContactImage?.localUri
+              }
+              darkModeType={darkModeType}
+              theme={theme}
+            />
           </View>
           {(isEditingMyProfile || selectedAddedContact.isLNURL) && (
             <View style={styles.selectFromPhotos}>
@@ -481,10 +537,13 @@ function InnerContent({
               : bottomPadding,
           }}
           actionFunction={saveChanges}
+          useLoading={isSaving}
           textContent={
-            fromInitialAdd
-              ? t('contacts.editMyProfilePage.addContactBTN')
-              : t('constants.save')
+            hasChangedInfo
+              ? fromInitialAdd
+                ? t('contacts.editMyProfilePage.addContactBTN')
+                : t('constants.save')
+              : t('constants.back')
           }
         />
       </ScrollView>
@@ -492,152 +551,183 @@ function InnerContent({
   );
 
   async function saveChanges() {
-    if (
-      inputs.name.length >= 30 ||
-      inputs.bio.length >= 150 ||
-      inputs.uniquename.length >= 30 ||
-      (selectedAddedContact?.isLNURL && inputs.receiveAddress.length >= 200)
-    )
-      return;
-
-    const uniqueName =
-      isEditingMyProfile && !isFirstTimeEditing
-        ? inputs.uniquename || myContact.uniqueName
-        : inputs.uniquename;
-
-    if (isEditingMyProfile) {
+    try {
       if (
-        myContact?.bio === inputs.bio &&
-        myContact?.name === inputs.name &&
-        myContact?.uniqueName === inputs.uniquename &&
-        isFirstTimeEditing
-      ) {
-        navigate.goBack();
-      } else {
-        if (!VALID_USERNAME_REGEX.test(uniqueName)) {
-          navigate.navigate('ErrorScreen', {
-            errorMessage: t('contacts.editMyProfilePage.unqiueNameRegexError'),
-          });
-          return;
-        }
-        if (myContact?.uniqueName != uniqueName) {
-          const isFreeUniqueName = await isValidUniqueName(
-            'blitzWalletUsers',
-            inputs.uniquename.trim(),
+        inputs.name.length >= 30 ||
+        inputs.bio.length >= 150 ||
+        inputs.uniquename.length >= 30 ||
+        (selectedAddedContact?.isLNURL && inputs.receiveAddress.length >= 200)
+      )
+        return;
+
+      setIsSaving(true);
+
+      // delete or save new image
+      if (tempImage.shouldDelete) {
+        await deleteProfilePicture(isEditingMyProfile, selectedAddedContact);
+      } else if (tempImage.uri && tempImage.comparison) {
+        const areImagesTheSame = await areImagesSame(
+          tempImage.comparison?.uri,
+          isEditingMyProfile
+            ? myProfileImage?.localUri
+            : selectedAddedContactImage?.localUri,
+        );
+        if (!areImagesTheSame) {
+          await saveProfileImage(
+            tempImage.uri,
+            isEditingMyProfile,
+            selectedAddedContact,
           );
-          if (!isFreeUniqueName) {
+        }
+      }
+
+      const uniqueName =
+        isEditingMyProfile && !isFirstTimeEditing
+          ? inputs.uniquename || myContact.uniqueName
+          : inputs.uniquename;
+
+      if (isEditingMyProfile) {
+        if (
+          myContact?.bio === inputs.bio &&
+          myContact?.name === inputs.name &&
+          myContact?.uniqueName === inputs.uniquename &&
+          isFirstTimeEditing
+        ) {
+          navigate.goBack();
+        } else {
+          if (!VALID_USERNAME_REGEX.test(uniqueName)) {
             navigate.navigate('ErrorScreen', {
               errorMessage: t(
-                'contacts.editMyProfilePage.usernameAlreadyExistsError',
+                'contacts.editMyProfilePage.unqiueNameRegexError',
               ),
             });
             return;
           }
-        }
-        toggleGlobalContactsInformation(
-          {
-            myProfile: {
-              ...globalContactsInformation.myProfile,
-              name: inputs.name.trim(),
-              nameLower: inputs.name.trim().toLowerCase(),
-              bio: inputs.bio,
-              uniqueName: uniqueName.trim(),
-              uniqueNameLower: uniqueName.trim().toLowerCase(),
-              didEditProfile: true,
+          if (myContact?.uniqueName != uniqueName) {
+            const isFreeUniqueName = await isValidUniqueName(
+              'blitzWalletUsers',
+              inputs.uniquename.trim(),
+            );
+            if (!isFreeUniqueName) {
+              navigate.navigate('ErrorScreen', {
+                errorMessage: t(
+                  'contacts.editMyProfilePage.usernameAlreadyExistsError',
+                ),
+              });
+              return;
+            }
+          }
+          toggleGlobalContactsInformation(
+            {
+              myProfile: {
+                ...globalContactsInformation.myProfile,
+                name: inputs.name.trim(),
+                nameLower: inputs.name.trim().toLowerCase(),
+                bio: inputs.bio,
+                uniqueName: uniqueName.trim(),
+                uniqueNameLower: uniqueName.trim().toLowerCase(),
+                didEditProfile: true,
+              },
+              addedContacts: globalContactsInformation.addedContacts,
             },
-            addedContacts: globalContactsInformation.addedContacts,
-          },
-          true,
-        );
-        navigate.goBack();
-      }
-    } else {
-      if (fromInitialAdd) {
-        let tempContact = JSON.parse(JSON.stringify(selectedAddedContact));
-        tempContact.name = inputs.name.trim();
-        tempContact.nameLower = inputs.name.trim().toLowerCase();
-        tempContact.bio = inputs.bio;
-        tempContact.isAdded = true;
-        tempContact.unlookedTransactions = 0;
-        if (selectedAddedContact.isLNURL) {
-          tempContact.receiveAddress = inputs.receiveAddress;
+            true,
+          );
+          navigate.goBack();
         }
+      } else {
+        if (fromInitialAdd) {
+          let tempContact = JSON.parse(JSON.stringify(selectedAddedContact));
+          tempContact.name = inputs.name.trim();
+          tempContact.nameLower = inputs.name.trim().toLowerCase();
+          tempContact.bio = inputs.bio;
+          tempContact.isAdded = true;
+          tempContact.unlookedTransactions = 0;
+          if (selectedAddedContact.isLNURL) {
+            tempContact.receiveAddress = inputs.receiveAddress;
+          }
 
-        let newAddedContacts = JSON.parse(JSON.stringify(decodedAddedContacts));
-        const isContactInAddedContacts = newAddedContacts.filter(
-          addedContact => addedContact.uuid === tempContact.uuid,
-        ).length;
+          let newAddedContacts = JSON.parse(
+            JSON.stringify(decodedAddedContacts),
+          );
+          const isContactInAddedContacts = newAddedContacts.filter(
+            addedContact => addedContact.uuid === tempContact.uuid,
+          ).length;
 
-        if (isContactInAddedContacts) {
-          newAddedContacts = newAddedContacts.map(addedContact => {
-            if (addedContact.uuid === tempContact.uuid) {
-              return {
-                ...addedContact,
-                name: tempContact.name,
-                nameLower: tempContact.nameLower,
-                bio: tempContact.bio,
-                unlookedTransactions: 0,
-                isAdded: true,
-              };
-            } else return addedContact;
-          });
-        } else newAddedContacts.push(tempContact);
+          if (isContactInAddedContacts) {
+            newAddedContacts = newAddedContacts.map(addedContact => {
+              if (addedContact.uuid === tempContact.uuid) {
+                return {
+                  ...addedContact,
+                  name: tempContact.name,
+                  nameLower: tempContact.nameLower,
+                  bio: tempContact.bio,
+                  unlookedTransactions: 0,
+                  isAdded: true,
+                };
+              } else return addedContact;
+            });
+          } else newAddedContacts.push(tempContact);
 
-        toggleGlobalContactsInformation(
-          {
-            myProfile: {
-              ...globalContactsInformation.myProfile,
+          toggleGlobalContactsInformation(
+            {
+              myProfile: {
+                ...globalContactsInformation.myProfile,
+              },
+              addedContacts: encriptMessage(
+                contactsPrivateKey,
+                publicKey,
+                JSON.stringify(newAddedContacts),
+              ),
             },
-            addedContacts: encriptMessage(
-              contactsPrivateKey,
-              publicKey,
-              JSON.stringify(newAddedContacts),
-            ),
-          },
-          true,
-        );
+            true,
+          );
 
-        return;
-      }
-      if (
-        selectedAddedContact?.bio === inputs.bio &&
-        selectedAddedContact?.name === inputs.name &&
-        selectedAddedContact?.receiveAddress === inputs.receiveAddress
-      )
-        navigate.goBack();
-      else {
-        let newAddedContacts = [...decodedAddedContacts];
-        const indexOfContact = decodedAddedContacts.findIndex(
-          obj => obj.uuid === selectedAddedContact.uuid,
-        );
-
-        let contact = newAddedContacts[indexOfContact];
-
-        contact['name'] = inputs.name.trim();
-        contact['nameLower'] = inputs.name.trim().toLowerCase();
-        contact['bio'] = inputs.bio.trim();
+          return;
+        }
         if (
-          selectedAddedContact.isLNURL &&
-          selectedAddedContact?.receiveAddress !== inputs.receiveAddress
-        ) {
-          contact['receiveAddress'] = inputs.receiveAddress.trim();
-        }
+          selectedAddedContact?.bio === inputs.bio &&
+          selectedAddedContact?.name === inputs.name &&
+          selectedAddedContact?.receiveAddress === inputs.receiveAddress
+        )
+          navigate.goBack();
+        else {
+          let newAddedContacts = [...decodedAddedContacts];
+          const indexOfContact = decodedAddedContacts.findIndex(
+            obj => obj.uuid === selectedAddedContact.uuid,
+          );
 
-        toggleGlobalContactsInformation(
-          {
-            myProfile: {
-              ...globalContactsInformation.myProfile,
+          let contact = newAddedContacts[indexOfContact];
+
+          contact['name'] = inputs.name.trim();
+          contact['nameLower'] = inputs.name.trim().toLowerCase();
+          contact['bio'] = inputs.bio.trim();
+          if (
+            selectedAddedContact.isLNURL &&
+            selectedAddedContact?.receiveAddress !== inputs.receiveAddress
+          ) {
+            contact['receiveAddress'] = inputs.receiveAddress.trim();
+          }
+
+          toggleGlobalContactsInformation(
+            {
+              myProfile: {
+                ...globalContactsInformation.myProfile,
+              },
+              addedContacts: encriptMessage(
+                contactsPrivateKey,
+                publicKey,
+                JSON.stringify(newAddedContacts),
+              ),
             },
-            addedContacts: encriptMessage(
-              contactsPrivateKey,
-              publicKey,
-              JSON.stringify(newAddedContacts),
-            ),
-          },
-          true,
-        );
-        navigate.goBack();
+            true,
+          );
+          navigate.goBack();
+        }
       }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsSaving(false);
     }
   }
 }

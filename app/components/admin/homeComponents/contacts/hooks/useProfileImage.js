@@ -68,6 +68,66 @@ export function useProfileImage() {
   };
 
   /**
+   * gets a profile picture for a contact
+   */
+  const getProfileImage = async () => {
+    const imagePickerResponse = await getImageFromLibrary({ quality: 1 });
+    const { didRun, error, imgURL } = imagePickerResponse;
+
+    if (!didRun) return;
+
+    if (error) {
+      navigate.navigate('ErrorScreen', { errorMessage: t(error) });
+      return;
+    }
+
+    const savedImage = await resizeImage({ imgURL });
+
+    if (!savedImage.uri) return;
+
+    return { comparison: savedImage, imgURL };
+  };
+
+  /**
+   * Saves a profile picture for a contact
+   * @param {string} imgURL - Imgae URI
+   * @param {boolean} isEditingMyProfile - Whether editing own profile
+   */
+  const saveProfileImage = async (
+    imgURL,
+    isEditingMyProfile,
+    selectedContact,
+  ) => {
+    if (isEditingMyProfile) {
+      const response = await uploadProfileImage({
+        imgURL: imgURL,
+        uuid: globalContactsInformation.myProfile.uuid,
+      });
+
+      if (!response) return;
+
+      toggleGlobalContactsInformation(
+        {
+          myProfile: {
+            ...globalContactsInformation.myProfile,
+            hasProfileImage: true,
+          },
+          addedContacts: globalContactsInformation.addedContacts,
+        },
+        true,
+      );
+      return;
+    }
+
+    // For other contacts, just refresh cache
+    if (selectedContact) {
+      const savedImage = await resizeImage({ imgURL });
+      if (!savedImage.uri) return;
+      await refreshCache(selectedContact.uuid, savedImage.uri, false);
+    }
+  };
+
+  /**
    * Resizes an image for consistancy
    * @param {object} params - Upload parameters
    * @param {object} params.imgURL - Image URL object
@@ -174,5 +234,7 @@ export function useProfileImage() {
     isAddingImage,
     addProfilePicture,
     deleteProfilePicture,
+    getProfileImage,
+    saveProfileImage,
   };
 }

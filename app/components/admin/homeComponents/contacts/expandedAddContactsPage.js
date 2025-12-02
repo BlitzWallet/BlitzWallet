@@ -1,8 +1,8 @@
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 import ExpandedContactsPage from './expandedContactPage';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import EditMyProfilePage from './editMyProfilePage';
-import { CustomKeyboardAvoidingView } from '../../../../functions/CustomElements';
+import { GlobalThemeView } from '../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
@@ -18,6 +18,7 @@ import { Image } from 'expo-image';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../functions/CustomElements/Icon';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import AddContactsPage from './addContactsPage';
 
 // Memoized shared header component
 const SharedHeader = memo(
@@ -31,66 +32,24 @@ const SharedHeader = memo(
     isEditingMyProfile,
     navigate,
   }) => {
-    const { isAddingImage, addProfilePicture, deleteProfilePicture } =
-      useProfileImage();
-    const hasImage = !!imageData?.localUri;
-
     return (
-      <TouchableOpacity
-        activeOpacity={
-          (isContactAdded && !isAddingImage) || !selectedContact.isLNURL
-            ? 1
-            : 0.2
-        }
-        onPress={() => {
-          if (!isEditingMyProfile && !selectedContact.isLNURL) return;
-          if (isAddingImage) return;
-          if (!hasImage) {
-            addProfilePicture(isEditingMyProfile, selectedContact);
-            return;
-          }
-          navigate.navigate('AddOrDeleteContactImage', {
-            addPhoto: () =>
-              addProfilePicture(isEditingMyProfile, selectedContact),
-            deletePhoto: () =>
-              deleteProfilePicture(isEditingMyProfile, selectedContact),
-            hasImage: hasImage,
-          });
-        }}
-      >
-        <View style={styles.profileImageContainer}>
-          <View
-            style={[
-              styles.profileImage,
-              {
-                backgroundColor: backgroundOffset,
-              },
-            ]}
-          >
-            {isAddingImage ? (
-              <FullLoadingScreen showText={false} />
-            ) : (
-              <ContactProfileImage
-                updated={imageData?.updated}
-                uri={imageData?.localUri}
-                darkModeType={darkModeType}
-                theme={theme}
-              />
-            )}
-          </View>
-          {(isEditingMyProfile || selectedContact.isLNURL) &&
-            !isContactAdded && (
-              <View style={styles.selectFromPhotos}>
-                <Image
-                  source={
-                    hasImage ? ICONS.xSmallIconBlack : ICONS.ImagesIconDark
-                  }
-                  style={{ width: 20, height: 20 }}
-                />
-              </View>
-            )}
+      <View style={styles.profileImageContainer}>
+        <View
+          style={[
+            styles.profileImage,
+            {
+              backgroundColor: backgroundOffset,
+            },
+          ]}
+        >
+          <ContactProfileImage
+            updated={imageData?.updated}
+            uri={imageData?.localUri}
+            darkModeType={darkModeType}
+            theme={theme}
+          />
         </View>
-      </TouchableOpacity>
+      </View>
     );
   },
 );
@@ -160,9 +119,14 @@ export default function ExpandedAddContactsPage(props) {
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
-  const { cache } = useImageCache();
+  const { cache, refreshCacheObject } = useImageCache();
   const { handleFavortie, handleSettings } = useExpandedNavbar();
   const { bottomPadding } = useGlobalInsets();
+
+  useEffect(() => {
+    // make sure to refresh cache object so profile image shows
+    refreshCacheObject();
+  }, []);
 
   const newContact = props.route.params?.newContact;
 
@@ -193,10 +157,7 @@ export default function ExpandedAddContactsPage(props) {
   }, [navigate]);
 
   return (
-    <CustomKeyboardAvoidingView
-      useTouchableWithoutFeedback={true}
-      useStandardWidth={true}
-    >
+    <GlobalThemeView useStandardWidth={true}>
       <MemoizedNavBar
         theme={theme}
         darkModeType={darkModeType}
@@ -232,15 +193,10 @@ export default function ExpandedAddContactsPage(props) {
             hideProfileImage={true}
           />
         ) : (
-          <EditMyProfilePage
-            pageType={isSelf ? 'myProfile' : 'addedContact'}
-            selectedAddedContact={newContact}
-            fromInitialAdd={!isSelf}
-            hideProfileImage={true}
-          />
+          <AddContactsPage selectedContact={newContact} />
         )}
       </ScrollView>
-    </CustomKeyboardAvoidingView>
+    </GlobalThemeView>
   );
 }
 

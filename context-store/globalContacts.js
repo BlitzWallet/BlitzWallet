@@ -228,6 +228,70 @@ export const GlobalContactsList = ({ children }) => {
     };
   }, [globalContactsInformation?.myProfile?.uuid, contactsPrivateKey]);
 
+  const addContact = useCallback(
+    async contact => {
+      try {
+        const newContact = {
+          name: contact.name || '',
+          nameLower: contact.nameLower || '',
+          bio: contact.bio,
+          unlookedTransactions: 0,
+          isLNURL: contact.isLNURL,
+          uniqueName: contact.uniqueName,
+          uuid: contact.uuid,
+          isAdded: true,
+          isFavorite: false,
+          profileImage: contact.profileImage,
+          receiveAddress: contact.receiveAddress,
+          transactions: [],
+        };
+
+        let newAddedContacts = JSON.parse(JSON.stringify(decodedAddedContacts));
+
+        const isContactInAddedContacts = newAddedContacts.filter(
+          addedContact => addedContact.uuid === newContact.uuid,
+        ).length;
+
+        if (isContactInAddedContacts) {
+          newAddedContacts = newAddedContacts.map(addedContact => {
+            if (addedContact.uuid === newContact.uuid) {
+              return {
+                ...addedContact,
+                name: newContact.name,
+                nameLower: newContact.nameLower,
+                bio: newContact.bio,
+                unlookedTransactions: 0,
+                isAdded: true,
+              };
+            } else return addedContact;
+          });
+        } else newAddedContacts.push(newContact);
+
+        toggleGlobalContactsInformation(
+          {
+            myProfile: {
+              ...globalContactsInformation.myProfile,
+            },
+            addedContacts: encriptMessage(
+              contactsPrivateKey,
+              publicKey,
+              JSON.stringify(newAddedContacts),
+            ),
+          },
+          true,
+        );
+      } catch (err) {
+        console.log('Error adding  contact', err);
+      }
+    },
+    [
+      decodedAddedContacts,
+      contactsPrivateKey,
+      publicKey,
+      globalContactsInformation,
+    ],
+  );
+
   const deleteContact = useCallback(
     async contact => {
       try {
@@ -344,6 +408,7 @@ export const GlobalContactsList = ({ children }) => {
       giftCardsList,
       hasUnlookedTransactions,
       deleteContact,
+      addContact,
     }),
     [
       decodedAddedContacts,
@@ -354,6 +419,7 @@ export const GlobalContactsList = ({ children }) => {
       giftCardsList,
       hasUnlookedTransactions,
       deleteContact,
+      addContact,
     ],
   );
 

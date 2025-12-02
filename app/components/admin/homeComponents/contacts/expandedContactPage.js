@@ -147,9 +147,19 @@ export default function ExpandedContactsPage(props) {
         )}
 
         <ThemeText
-          styles={styles.profileName}
-          content={selectedContact.name || selectedContact.uniqueName}
+          styles={[
+            styles.nameText,
+            { marginBottom: selectedContact?.uniqueName ? 5 : 25 },
+          ]}
+          content={selectedContact.name || t('constants.annonName')}
         />
+
+        {selectedContact.uniqueName && (
+          <ThemeText
+            styles={styles.usernameText}
+            content={`@${selectedContact.uniqueName}`}
+          />
+        )}
 
         <View
           style={{
@@ -225,15 +235,19 @@ export default function ExpandedContactsPage(props) {
           <View
             style={[
               styles.bioContainer,
-              { marginTop: 10, backgroundColor: textInputBackground },
+              {
+                marginTop: 10,
+                backgroundColor: textInputBackground,
+              },
             ]}
           >
             <ScrollView
               contentContainerStyle={{
-                alignItems: selectedContact.bio ? null : 'center',
-                flexGrow: selectedContact.bio ? null : 1,
+                alignItems: 'center',
+                flexGrow: 1,
               }}
               showsVerticalScrollIndicator={false}
+              nestedScrollEnabled={true}
             >
               <ThemeText
                 styles={{ ...styles.bioText, color: textInputColor }}
@@ -408,10 +422,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     overflow: 'hidden',
   },
-  profileName: {
+  nameText: {
     fontSize: SIZES.large,
+    textAlign: 'center',
+    opacity: 0.6,
+    includeFontPadding: false,
+  },
+  usernameText: {
+    fontSize: SIZES.medium,
+    textAlign: 'center',
     marginBottom: 20,
-    ...CENTER,
+    includeFontPadding: false,
   },
   buttonGlobalContainer: {
     alignItems: 'center',
@@ -430,6 +451,7 @@ const styles = StyleSheet.create({
     ...CENTER,
   },
   bioText: {
+    textAlign: 'center',
     marginBottom: 'auto',
     marginTop: 'auto',
   },
