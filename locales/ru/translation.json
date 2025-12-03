@@ -1628,11 +1628,19 @@
         "lessThanMin": "Осталось меньше минуты",
         "timeLeft": {
           "days_one": "{{count}} остался день",
-          "days_other": "{{count}} оставшиеся дни",
+          "days_few": "{{count}} осталось дня",
+          "days_many": "{{count}} осталось дней",
+          "days_other": "{{count}} дней",
+
           "hours_one": "{{count}} остался час",
-          "hours_other": "{{count}} оставшиеся часы",
+          "hours_few": "{{count}} осталось часа",
+          "hours_many": "{{count}} осталось часов",
+          "hours_other": "{{count}} часов",
+
           "minutes_one": "{{count}} осталась минута",
-          "minutes_other": "{{count}} оставшиеся минуты"
+          "minutes_few": "{{count}} осталось минуты",
+          "minutes_many": "{{count}} осталось минут",
+          "minutes_other": "{{count}} минут"
         },
         "shareMessage": "Вы получили подарок {{icon}}{{amount}} ! Заявите об этом здесь:\n{{link}}",
         "fundGiftMessage": "Создание подарка",
