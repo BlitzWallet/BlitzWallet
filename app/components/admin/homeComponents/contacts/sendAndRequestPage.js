@@ -127,7 +127,7 @@ export default function SendAndRequestPage(props) {
         // small pause for UI
         await new Promise(res => setTimeout(res, 250));
 
-        let invoice = '';
+        let maxAmountSats = 0;
 
         // get fake invoice to get payment fee
         if (selectedContact.isLNURL) {
@@ -140,34 +140,39 @@ export default function SendAndRequestPage(props) {
             domain,
           );
           if (!lnurlResposne) throw new Error('Unable to get invoice');
-          invoice = lnurlResposne;
+          const invoice = lnurlResposne;
+          // get routing fee for balance amount
+          const fee = await sparkPaymenWrapper({
+            getFee: true,
+            address: invoice,
+            masterInfoObject,
+            paymentType: 'lightning',
+            mnemonic: currentWalletMnemoinc,
+          });
+
+          if (!fee.didWork) throw new Error(fee.error);
+
+          // subtract routing fee from balance to get max sending amount
+          maxAmountSats = Math.max(
+            Number(sendingBalance) - fee.fee + fee.supportFee,
+            0,
+          );
         } else {
-          const invoiceResponse = await receiveSparkLightningPayment({
+          // contact payments now use spark
+          const feeResponse = await sparkPaymenWrapper({
+            getFee: true,
+            address: sparkInformation.sparkAddress,
+            masterInfoObject,
+            paymentType: 'spark',
             amountSats: sendingBalance,
             mnemonic: currentWalletMnemoinc,
           });
-          if (!invoiceResponse.didWork)
-            throw new Error('Unable to get invoice');
-
-          invoice = invoiceResponse.response.invoice.encodedInvoice;
+          if (!feeResponse.didWork) throw new Error('Unable to get invoice');
+          maxAmountSats = Math.max(
+            Number(sendingBalance) - feeResponse.fee + feeResponse.supportFee,
+            0,
+          );
         }
-
-        // get routing fee for balance amount
-        const fee = await sparkPaymenWrapper({
-          getFee: true,
-          address: invoice,
-          masterInfoObject,
-          paymentType: 'lightning',
-          mnemonic: currentWalletMnemoinc,
-        });
-
-        if (!fee.didWork) throw new Error(fee.error);
-
-        // subtract routing fee from balance to get max sending amount
-        const maxAmountSats = Math.max(
-          Number(sendingBalance) - fee.fee + fee.supportFee,
-          0,
-        );
 
         const convertedMax =
           inputDenomination != 'fiat'
