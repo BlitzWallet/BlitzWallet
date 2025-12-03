@@ -44,11 +44,7 @@ export const sparkPaymenWrapper = async ({
     console.log('Begining spark payment');
     // if (!sparkWallet[sha256Hash(mnemonic)])
     //   throw new Error('sparkWallet not initialized');
-    const supportFee = await calculateProgressiveBracketFee(
-      amountSats,
-      paymentType,
-      mnemonic,
-    );
+    const supportFee = 0;
     if (getFee) {
       console.log('Calculating spark payment fee');
       let calculatedFee = 0;
@@ -110,7 +106,7 @@ export const sparkPaymenWrapper = async ({
       // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
 
       const lightningPayResponse = await sendSparkLightningPayment({
-        // maxFeeSats: initialFee,
+        maxFeeSats: Math.max(initialFee, 1000),
         invoice: address,
         amountSats: usingZeroAmountInvoice ? amountSats : undefined,
         mnemonic,
@@ -149,8 +145,6 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-
-      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
     } else if (paymentType === 'bitcoin') {
       // make sure to import exist speed
       // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
@@ -190,7 +184,6 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
     } else {
       let sparkPayResponse;
 
@@ -242,9 +235,10 @@ export const sparkPaymenWrapper = async ({
         },
       };
       response = tx;
-      await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
     }
+
     console.log(response, 'resonse in send function');
+    await bulkUpdateSparkTransactions([response], 'paymentWrapperTx', 0);
     return { didWork: true, response };
   } catch (err) {
     console.log('Send lightning payment error', err);

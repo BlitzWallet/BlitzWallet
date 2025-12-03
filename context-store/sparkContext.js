@@ -89,7 +89,7 @@ const SparkWalletProvider = ({ children }) => {
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
   const [pendingNavigation, setPendingNavigation] = useState(null);
-  const [pendingLiquidPayment, setPendingLiquidPayment] = useState(null);
+  // const [pendingLiquidPayment, setPendingLiquidPayment] = useState(null);
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
   const updatePendingPaymentsIntervalRef = useRef(null);
@@ -97,9 +97,13 @@ const SparkWalletProvider = ({ children }) => {
   const isInitialLRC20Run = useRef(true);
   const didInitializeSendingPaymentEvent = useRef(false);
   const initialBitcoinIntervalRun = useRef(null);
-  const sparkInfoRef = useRef(sparkInformation);
-  const sessionTimeRef = useRef(sessionTime);
-  const [numberOfCachedTxs, setNumberOfCachedTxs] = useState(0);
+  const sparkInfoRef = useRef({
+    balance: 0,
+    tokens: {},
+    identityPubKey: '',
+    sparkAddress: '',
+  });
+  const sessionTimeRef = useRef(Date.now());
   const handledTransfers = useRef(new Set());
   const prevListenerType = useRef(null);
   const prevAppState = useRef(appState);
@@ -119,21 +123,27 @@ const SparkWalletProvider = ({ children }) => {
     didRunNormalConnection || normalConnectionTimeout;
   const currentMnemonicRef = useRef(currentWalletMnemoinc);
 
-  const sessionTime = useMemo(() => {
-    return Date.now();
-  }, [currentWalletMnemoinc]);
-
   useEffect(() => {
-    sparkInfoRef.current = sparkInformation;
-  }, [sparkInformation]);
+    sparkInfoRef.current = {
+      balance: sparkInformation.balance,
+      tokens: sparkInformation.tokens,
+      identityPubKey: sparkInformation.identityPubKey,
+      sparkAddress: sparkInformation.sparkAddress,
+    };
+  }, [
+    sparkInformation.balance,
+    sparkInformation.tokens,
+    sparkInformation.identityPubKey,
+    sparkInformation.sparkAddress,
+  ]);
 
   useEffect(() => {
     currentMnemonicRef.current = currentWalletMnemoinc;
   }, [currentWalletMnemoinc]);
 
   useEffect(() => {
-    sessionTimeRef.current = sessionTime;
-  }, [sessionTime]);
+    sessionTimeRef.current = Date.now();
+  }, [currentWalletMnemoinc]);
 
   useEffect(() => {
     if (!didGetToHomepage) return;
@@ -181,7 +191,6 @@ const SparkWalletProvider = ({ children }) => {
       const newCache = {};
 
       for (const [tokenId] of availableAssets) {
-        console.log(tokenId);
         newCache[tokenId] = null;
 
         for (const ext of extensions) {
@@ -1118,8 +1127,6 @@ const SparkWalletProvider = ({ children }) => {
       connectToSparkWallet,
       sparkConnectionError,
       setSparkConnectionError,
-      pendingLiquidPayment,
-      setPendingLiquidPayment,
       tokensImageCache,
       showTokensInformation,
     }),
@@ -1133,8 +1140,6 @@ const SparkWalletProvider = ({ children }) => {
       connectToSparkWallet,
       sparkConnectionError,
       setSparkConnectionError,
-      pendingLiquidPayment,
-      setPendingLiquidPayment,
       tokensImageCache,
       showTokensInformation,
     ],
