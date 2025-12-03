@@ -23,6 +23,10 @@ import {
   setForceReactNative,
 } from '../../../context-store/webViewContext';
 import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
+import {
+  deriveSparkAddress,
+  deriveSparkIdentityKey,
+} from '../gift/deriveGiftWallet';
 
 export let sparkWallet = {};
 let initializingWallets = {};
@@ -201,6 +205,11 @@ export const getSparkIdentityPubKey = async (mnemonic, sendWebViewRequest) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
     if (runtime === 'webview') {
+      const derivedIdentityPubKey = await deriveSparkIdentityKey(mnemonic, 1);
+
+      if (derivedIdentityPubKey.publicKeyHex) {
+        return derivedIdentityPubKey.publicKeyHex;
+      }
       const response = await sendWebViewRequestGlobal(
         OPERATION_TYPES.getIdentityKey,
         {
@@ -430,7 +439,16 @@ export const claimnSparkStaticDepositAddress = async ({
 export const getSparkAddress = async mnemonic => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
+
     if (runtime === 'webview') {
+      const derivedIdentityPubKey = await deriveSparkIdentityKey(mnemonic, 1);
+      const derivedSparkAddress = deriveSparkAddress(
+        derivedIdentityPubKey.publicKey,
+      );
+      if (derivedSparkAddress.address) {
+        return { didWork: true, response: derivedSparkAddress.address };
+      }
+
       const response = await sendWebViewRequestGlobal(
         OPERATION_TYPES.getSparkAddress,
         {
