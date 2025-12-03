@@ -114,7 +114,7 @@ const MemoizedNavBar = memo(
 );
 
 export default function ExpandedAddContactsPage(props) {
-  const { decodedAddedContacts, globalContactsInformation } =
+  const { decodedAddedContacts, globalContactsInformation, contactsMessags } =
     useGlobalContacts();
   const navigate = useNavigation();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -150,6 +150,7 @@ export default function ExpandedAddContactsPage(props) {
 
   const isContactAdded = !!selectedContact;
   const imageData = cache[newContact?.uuid];
+  const contactTransactions = contactsMessags[newContact?.uuid]?.messages || [];
 
   // Memoize back handler
   const handleBack = useMemo(() => {
@@ -175,6 +176,7 @@ export default function ExpandedAddContactsPage(props) {
           flexGrow: 1,
         }}
         showsVerticalScrollIndicator={false}
+        scrollEnabled={isContactAdded && !!contactTransactions.length}
       >
         <SharedHeader
           selectedContact={newContact}
