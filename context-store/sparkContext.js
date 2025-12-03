@@ -74,7 +74,6 @@ const SparkWalletProvider = ({ children }) => {
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { didGetToHomepage, appState } = useAppStatus();
   // const { liquidNodeInformation } = useNodeContext();
-  const [isSendingPayment, setIsSendingPayment] = useState(false);
   const { toggleGlobalContactsInformation, globalContactsInformation } =
     useGlobalContacts();
   const prevAccountMnemoincRef = useRef(null);
@@ -105,6 +104,7 @@ const SparkWalletProvider = ({ children }) => {
   const prevListenerType = useRef(null);
   const prevAppState = useRef(appState);
   const prevAccountId = useRef(null);
+  const isSendingPaymentRef = useRef(false);
   const balancePollingTimeoutRef = useRef(null);
   const balancePollingAbortControllerRef = useRef(null);
   const currentPollingMnemonicRef = useRef(null);
@@ -209,7 +209,7 @@ const SparkWalletProvider = ({ children }) => {
   const pendingTransferIds = useRef(new Set());
 
   const toggleIsSendingPayment = isSending => {
-    setIsSendingPayment(isSending);
+    isSendingPaymentRef.current = isSending;
   };
 
   useEffect(() => {
@@ -333,6 +333,7 @@ const SparkWalletProvider = ({ children }) => {
       return;
     if (details.isRestore) return;
     if (storedTransaction.paymentCreatedTime < sessionTimeRef.current) return;
+    if (isSendingPaymentRef.current) return;
     // Handle confirm animation here
     setPendingNavigation({
       routes: [
@@ -656,7 +657,7 @@ const SparkWalletProvider = ({ children }) => {
       await fullRestoreSparkState({
         sparkAddress: sparkInfoRef.current.sparkAddress,
         batchSize: isInitialRestore.current ? 10 : 2,
-        isSendingPayment: isSendingPayment,
+        isSendingPayment: isSendingPaymentRef.current,
         mnemonic: currentMnemonicRef.current,
         identityPubKey: sparkInfoRef.current.identityPubKey,
         sendWebViewRequest,
@@ -766,8 +767,7 @@ const SparkWalletProvider = ({ children }) => {
       if (!sparkInformation.identityPubKey) return;
 
       const getListenerType = () => {
-        if (appState === 'active' && !isSendingPayment) return 'full';
-        if (appState === 'active' && isSendingPayment) return 'sparkOnly';
+        if (appState === 'active') return 'full';
         return null;
       };
 
@@ -796,7 +796,7 @@ const SparkWalletProvider = ({ children }) => {
     sparkInformation.didConnect,
     sparkInformation.identityPubKey,
     didGetToHomepage,
-    isSendingPayment,
+    // isSendingPayment,
     sendWebViewRequest,
   ]);
 
@@ -810,6 +810,7 @@ const SparkWalletProvider = ({ children }) => {
       try {
         console.log('l1Deposit check running....');
         if (AppState.currentState !== 'active') return;
+        if (isSendingPaymentRef.current) return;
         const allTxs = await getAllSparkTransactions({
           accountId: sparkInfoRef.current.identityPubKey,
         });
@@ -1030,8 +1031,6 @@ const SparkWalletProvider = ({ children }) => {
       clearInterval(depositAddressIntervalRef.current);
     }
 
-    if (isSendingPayment) return;
-
     if (!initialBitcoinIntervalRun.current) {
       setTimeout(handleDepositAddressCheck, 1_000 * 5);
       initialBitcoinIntervalRun.current = true;
@@ -1044,7 +1043,6 @@ const SparkWalletProvider = ({ children }) => {
   }, [
     sparkInformation.didConnect,
     didGetToHomepage,
-    isSendingPayment,
     sparkInformation.identityPubKey,
   ]);
 
