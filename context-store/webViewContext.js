@@ -916,8 +916,8 @@ export const WebViewProvider = ({ children }) => {
       }
       initHandshake();
     }
-    // forceReactNativeUse = true;
-    startHandshake(); //remove this and app fully uses RN
+    forceReactNativeUse = true;
+    // startHandshake(); //remove this and app fully uses RN
   }, [isWebViewReady, verifiedPath, initHandshake, appState]);
 
   useEffect(() => {

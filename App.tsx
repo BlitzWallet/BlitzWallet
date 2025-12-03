@@ -119,6 +119,7 @@ import { GiftProvider } from './context-store/giftContext';
 // import { LRC20EventProvider } from './context-store/lrc20Listener';
 import { useTranslation } from 'react-i18next';
 import { isMoreThan40MinOld } from './app/functions/rotateAddressDateChecker';
+import SparkPerformanceTest from './app/screens/sparkDebug';
 const DeepLinkIntentModule = NativeModules.DeepLinkIntentModule;
 const Stack = createNativeStackNavigator();
 // will unhide splashscreen when showing dynamic loading in splashscreen component
@@ -568,7 +569,7 @@ function ResetStack(): JSX.Element | null {
         />
         <Stack.Screen
           name="Home"
-          component={HomeComponent}
+          component={SparkPerformanceTest} //SparkPerformanceTest
           options={{
             animation: 'fade',
             gestureEnabled: false,
