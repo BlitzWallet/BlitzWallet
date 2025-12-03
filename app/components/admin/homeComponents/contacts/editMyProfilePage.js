@@ -512,28 +512,32 @@ function InnerContent({
               },
             ]}
           >
-            <ContactProfileImage
-              updated={
-                tempImage.shouldDelete
-                  ? null
-                  : tempImage.uri
-                  ? tempImage.comparison?.updated
-                  : isEditingMyProfile
-                  ? myProfileImage?.updated
-                  : selectedAddedContactImage?.updated
-              }
-              uri={
-                tempImage.shouldDelete
-                  ? null
-                  : tempImage.uri
-                  ? tempImage.comparison?.uri
-                  : isEditingMyProfile
-                  ? myProfileImage?.localUri
-                  : selectedAddedContactImage?.localUri
-              }
-              darkModeType={darkModeType}
-              theme={theme}
-            />
+            {isAddingImage ? (
+              <FullLoadingScreen showText={false} />
+            ) : (
+              <ContactProfileImage
+                updated={
+                  tempImage.shouldDelete
+                    ? null
+                    : tempImage.uri
+                    ? tempImage.comparison?.updated
+                    : isEditingMyProfile
+                    ? myProfileImage?.updated
+                    : selectedAddedContactImage?.updated
+                }
+                uri={
+                  tempImage.shouldDelete
+                    ? null
+                    : tempImage.uri
+                    ? tempImage.comparison?.uri
+                    : isEditingMyProfile
+                    ? myProfileImage?.localUri
+                    : selectedAddedContactImage?.localUri
+                }
+                darkModeType={darkModeType}
+                theme={theme}
+              />
+            )}
           </View>
           {(isEditingMyProfile || selectedAddedContact.isLNURL) && (
             <View style={styles.selectFromPhotos}>
@@ -576,7 +580,9 @@ function InnerContent({
         inputs.name.length >= 30 ||
         inputs.bio.length >= 150 ||
         inputs.uniquename.length >= 30 ||
-        (selectedAddedContact?.isLNURL && inputs.receiveAddress.length >= 200)
+        (selectedAddedContact?.isLNURL &&
+          inputs.receiveAddress.length >= 200) ||
+        isAddingImage
       )
         return;
 
@@ -594,7 +600,7 @@ function InnerContent({
         );
         if (!areImagesTheSame) {
           await saveProfileImage(
-            tempImage.uri,
+            tempImage,
             isEditingMyProfile,
             selectedAddedContact,
           );

@@ -11,7 +11,6 @@ import ContactProfileImage from './internalComponents/profileImage';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useImageCache } from '../../../../../context-store/imageCache';
-import { useProfileImage } from './hooks/useProfileImage';
 import { useExpandedNavbar } from './hooks/useExpandedNavbar';
 import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
 import { Image } from 'expo-image';
