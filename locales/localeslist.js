@@ -47,4 +47,20 @@ export const supportedLanguagesList = [
     id: 'fr',
     flagCode: 'fr',
   },
+  {
+    languageName: 'Svenska',
+    fullySupported: true,
+    translatedName: 'languages.swedish',
+    shortId: 'sv',
+    id: 'sv',
+    flagCode: 'sv',
+  },
+  {
+    languageName: 'русский',
+    fullySupported: true,
+    translatedName: 'languages.russian',
+    shortId: 'ru',
+    id: 'ru',
+    flagCode: 'ru',
+  },
 ];

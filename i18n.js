@@ -8,11 +8,24 @@ import itTranslation from './locales/it/translation.json';
 import ptBrTranslation from './locales/pt-BR/translation.json';
 import germanTranslation from './locales/de-DE/translation.json';
 import frenchTranslation from './locales/fr/translation.json';
+import swedishTranslation from './locales/sv/translation.json';
+import russianTranslation from './locales/ru/translation.json';
 
 i18n.use(initReactI18next).init({
   debug: true,
   fallbackLng: 'en',
-  supportedLngs: ['en', 'es', 'it', 'pt', 'pt-BR', 'de', 'de-DE', 'fr'],
+  supportedLngs: [
+    'en',
+    'es',
+    'it',
+    'pt',
+    'pt-BR',
+    'de',
+    'de-DE',
+    'fr',
+    'sv',
+    'ru',
+  ],
   load: 'currentOnly',
   interpolation: { escapeValue: false },
   resources: {
@@ -24,5 +37,7 @@ i18n.use(initReactI18next).init({
     'de-DE': { translation: germanTranslation },
     de: { translation: germanTranslation },
     fr: { translation: frenchTranslation },
+    sv: { translation: swedishTranslation },
+    ru: { translation: russianTranslation },
   },
 });
