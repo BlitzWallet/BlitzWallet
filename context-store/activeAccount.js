@@ -14,25 +14,28 @@ import {
   CUSTODY_ACCOUNTS_STORAGE_KEY,
   NWC_SECURE_STORE_MNEMOINC,
 } from '../app/constants';
-import {useKeysContext} from './keys';
+import { useKeysContext } from './keys';
 import {
   decryptMnemonic,
   encryptMnemonic,
 } from '../app/functions/handleMnemonic';
-import {useGlobalContextProvider} from './context';
+import { useGlobalContextProvider } from './context';
+import { useAuthContext } from './authContext';
 
 // Create a context for the WebView ref
 const ActiveCustodyAccount = createContext(null);
 
-export const ActiveCustodyAccountProvider = ({children}) => {
-  const {masterInfoObject} = useGlobalContextProvider();
+export const ActiveCustodyAccountProvider = ({ children }) => {
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { authResetkey } = useAuthContext();
   const [custodyAccounts, setCustodyAccounts] = useState([]);
   const [isUsingNostr, setIsUsingNostr] = useState(false);
-  const {accountMnemoinc} = useKeysContext();
+  const { accountMnemoinc } = useKeysContext();
   const [nostrSeed, setNostrSeed] = useState('');
   const hasSessionReset = useRef(false);
   const selectedAltAccount = custodyAccounts.filter(item => item.isActive);
   const didSelectAltAccount = !!selectedAltAccount.length;
+  const isInitialRender = useRef(true);
   const enabledNWC = masterInfoObject.didViewNWCMessage;
 
   useEffect(() => {
@@ -125,10 +128,10 @@ export const ActiveCustodyAccountProvider = ({children}) => {
         JSON.stringify(encriptAccountsList(newAccounts)),
       );
       setCustodyAccounts(newAccounts);
-      return {didWork: true};
+      return { didWork: true };
     } catch (err) {
       console.log('Remove account error', err);
-      return {didWork: false, err: err.message};
+      return { didWork: false, err: err.message };
     }
   };
   const createAccount = async accountInformation => {
@@ -143,10 +146,10 @@ export const ActiveCustodyAccountProvider = ({children}) => {
         JSON.stringify(encriptAccountsList(savedAccountInformation)),
       );
       setCustodyAccounts(savedAccountInformation);
-      return {didWork: true};
+      return { didWork: true };
     } catch (err) {
       console.log('Create custody account error', err);
-      return {didWork: false, err: err.message};
+      return { didWork: false, err: err.message };
     }
   };
 
@@ -155,7 +158,7 @@ export const ActiveCustodyAccountProvider = ({children}) => {
       let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
       let newAccounts = accountInformation.map(accounts => {
         if (account.uuid === accounts.uuid) {
-          return {...accounts, ...account};
+          return { ...accounts, ...account };
         } else return accounts;
       });
 
@@ -164,10 +167,10 @@ export const ActiveCustodyAccountProvider = ({children}) => {
         JSON.stringify(encriptAccountsList(newAccounts)),
       );
       setCustodyAccounts(newAccounts);
-      return {didWork: true};
+      return { didWork: true };
     } catch (err) {
       console.log('Remove account error', err);
-      return {didWork: false, err: err.message};
+      return { didWork: false, err: err.message };
     }
   };
   const updateAccountCacheOnly = async account => {
@@ -176,17 +179,28 @@ export const ActiveCustodyAccountProvider = ({children}) => {
       let accountInformation = JSON.parse(JSON.stringify(custodyAccounts));
       let newAccounts = accountInformation.map(accounts => {
         if (account.uuid === accounts.uuid) {
-          return {...accounts, ...account};
-        } else return {...accounts, isActive: false};
+          return { ...accounts, ...account };
+        } else return { ...accounts, isActive: false };
       });
 
       setCustodyAccounts(newAccounts);
-      return {didWork: true};
+      return { didWork: true };
     } catch (err) {
       console.log('Remove account error', err);
-      return {didWork: false, err: err.message};
+      return { didWork: false, err: err.message };
     }
   };
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    setNostrSeed('');
+    setIsUsingNostr(false);
+    setCustodyAccounts([]);
+    hasSessionReset.current = false;
+  }, [authResetkey]);
 
   const currentWalletMnemoinc = useMemo(() => {
     if (didSelectAltAccount) {
@@ -220,7 +234,8 @@ export const ActiveCustodyAccountProvider = ({children}) => {
         toggleIsUsingNostr,
         isUsingNostr,
         nostrSeed,
-      }}>
+      }}
+    >
       {children}
     </ActiveCustodyAccount.Provider>
   );
