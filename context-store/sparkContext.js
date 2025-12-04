@@ -9,6 +9,7 @@ import {
 } from 'react';
 import {
   claimnSparkStaticDepositAddress,
+  clearMnemonicCache,
   findTransactionTxFromTxHistory,
   getSparkBalance,
   getSparkStaticBitcoinL1AddressQuote,
@@ -60,6 +61,7 @@ import {
   useWebView,
 } from './webViewContext';
 import { useGlobalContextProvider } from './context';
+import { useAuthContext } from './authContext';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -68,11 +70,12 @@ export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
 const SparkWalletManager = createContext(null);
 
 const SparkWalletProvider = ({ children }) => {
+  const { authResetkey } = useAuthContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { changeSparkConnectionState, sendWebViewRequest } = useWebView();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { didGetToHomepage, appState } = useAppStatus();
+  const { didGetToHomepage, appState, shouldResetStateRef } = useAppStatus();
   // const { liquidNodeInformation } = useNodeContext();
   const { toggleGlobalContactsInformation, globalContactsInformation } =
     useGlobalContacts();
@@ -112,6 +115,7 @@ const SparkWalletProvider = ({ children }) => {
   const balancePollingTimeoutRef = useRef(null);
   const balancePollingAbortControllerRef = useRef(null);
   const currentPollingMnemonicRef = useRef(null);
+  const isInitialRender = useRef(true);
   const showTokensInformation =
     masterInfoObject.enabledBTKNTokens === null
       ? !!Object.keys(sparkInformation.tokens || {}).length
@@ -225,10 +229,14 @@ const SparkWalletProvider = ({ children }) => {
     if (didInitializeSendingPaymentEvent.current) return;
     didInitializeSendingPaymentEvent.current = true;
 
-    isSendingPayingEventEmiiter.addListener(
-      SENDING_PAYMENT_EVENT_NAME,
-      toggleIsSendingPayment,
-    );
+    if (
+      !isSendingPayingEventEmiiter.listenerCount(SENDING_PAYMENT_EVENT_NAME)
+    ) {
+      isSendingPayingEventEmiiter.addListener(
+        SENDING_PAYMENT_EVENT_NAME,
+        toggleIsSendingPayment,
+      );
+    }
   }, []);
 
   // This is a function that handles incoming transactions and formats it to required format
@@ -713,28 +721,30 @@ const SparkWalletProvider = ({ children }) => {
     isRunningAddListeners.current = false;
   };
 
-  const removeListeners = async () => {
+  const removeListeners = async (onlyClearIntervals = false) => {
     console.log('Removing spark listeners');
-    const runtime = await selectSparkRuntime(currentMnemonicRef.current);
-    if (!prevAccountMnemoincRef.current) {
-      prevAccountMnemoincRef.current = currentMnemonicRef.current;
-      return;
-    }
-    const hashedMnemoinc = sha256Hash(prevAccountMnemoincRef.current);
-
-    if (runtime === 'native') {
-      if (
-        prevAccountMnemoincRef.current &&
-        sparkWallet[hashedMnemoinc]?.listenerCount('transfer:claimed')
-      ) {
-        sparkWallet[hashedMnemoinc]?.removeAllListeners('transfer:claimed');
+    if (!onlyClearIntervals) {
+      const runtime = await selectSparkRuntime(currentMnemonicRef.current);
+      if (!prevAccountMnemoincRef.current) {
+        prevAccountMnemoincRef.current = currentMnemonicRef.current;
+        return;
       }
-    } else {
-      await sendWebViewRequestGlobal(OPERATION_TYPES.removeListeners, {
-        mnemonic: prevAccountMnemoincRef.current,
-      });
+      const hashedMnemoinc = sha256Hash(prevAccountMnemoincRef.current);
+
+      if (runtime === 'native') {
+        if (
+          prevAccountMnemoincRef.current &&
+          sparkWallet[hashedMnemoinc]?.listenerCount('transfer:claimed')
+        ) {
+          sparkWallet[hashedMnemoinc]?.removeAllListeners('transfer:claimed');
+        }
+      } else {
+        await sendWebViewRequestGlobal(OPERATION_TYPES.removeListeners, {
+          mnemonic: prevAccountMnemoincRef.current,
+        });
+      }
+      prevAccountMnemoincRef.current = currentMnemonicRef.current;
     }
-    prevAccountMnemoincRef.current = currentMnemonicRef.current;
 
     // Clear debounce timeout when removing listeners
     if (debounceTimeoutRef.current) {
@@ -761,8 +771,54 @@ const SparkWalletProvider = ({ children }) => {
     currentPollingMnemonicRef.current = null;
   };
 
-  // Add event listeners to listen for bitcoin and lightning or spark transfers when receiving only when screen is active
+  const resetSparkState = useCallback(async () => {
+    // Reset refs to initial values
+    await removeListeners(true);
+    clearMnemonicCache();
+    prevAccountMnemoincRef.current = null;
+    isRunningAddListeners.current = false;
+    depositAddressIntervalRef.current = null;
+    updatePendingPaymentsIntervalRef.current = null;
+    sparkInfoRef.current = {
+      balance: 0,
+      tokens: {},
+      identityPubKey: '',
+      sparkAddress: '',
+    };
+    handledTransfers.current = new Set();
+    prevListenerType.current = null;
+    prevAppState.current = 'active';
+    prevAccountId.current = null;
+    isSendingPaymentRef.current = false;
+    balancePollingTimeoutRef.current = null;
+    balancePollingAbortControllerRef.current = null;
+    currentPollingMnemonicRef.current = null;
 
+    // Reset state variables
+    setSparkConnectionError(null);
+    setSparkInformation({
+      balance: 0,
+      tokens: {},
+      transactions: [],
+      identityPubKey: '',
+      sparkAddress: '',
+      didConnect: null,
+    });
+    setPendingNavigation(null);
+    setDidRunNormalConnection(false);
+    setNormalConnectionTimeout(false);
+  }, []);
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
+    resetSparkState();
+  }, [authResetkey]);
+
+  // Add event listeners to listen for bitcoin and lightning or spark transfers when receiving only when screen is active
   useEffect(() => {
     // Handle immediate background transitions synchronously(background events on android were not running)
     if (prevAppState.current !== appState && appState === 'background') {
@@ -772,8 +828,7 @@ const SparkWalletProvider = ({ children }) => {
 
     const timeoutId = setTimeout(async () => {
       if (!didGetToHomepage) return;
-      if (!sparkInformation.didConnect) return;
-      if (!sparkInformation.identityPubKey) return;
+      if (!sparkInfoRef.current.identityPubKey) return;
 
       const getListenerType = () => {
         if (appState === 'active') return 'full';
@@ -820,6 +875,7 @@ const SparkWalletProvider = ({ children }) => {
         console.log('l1Deposit check running....');
         if (AppState.currentState !== 'active') return;
         if (isSendingPaymentRef.current) return;
+        if (!currentMnemonicRef.current) return;
         const allTxs = await getAllSparkTransactions({
           accountId: sparkInfoRef.current.identityPubKey,
         });
