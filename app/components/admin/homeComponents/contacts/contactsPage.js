@@ -66,7 +66,7 @@ export default function ContactsPage({ navigation }) {
   const tabsNavigate = navigation.navigate;
   const navigate = useNavigation();
   const myProfile = globalContactsInformation.myProfile;
-  const didEditProfile = myProfile.didEditProfile;
+  const didEditProfile = myProfile?.didEditProfile;
 
   // Use custom hooks for processed data
   const contactInfoList = useProcessedContacts(
