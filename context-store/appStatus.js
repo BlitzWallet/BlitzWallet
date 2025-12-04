@@ -68,6 +68,10 @@ const AppStatusProvider = ({ children }) => {
           : 0;
 
         if (timeInBackground > BACKGROUND_THRESHOLD_MS) {
+          setTimeout(() => {
+            toggleDidGetToHomepage(false);
+          }, 100);
+
           shouldResetStateRef.current = true;
         } else {
           shouldResetStateRef.current = false;
