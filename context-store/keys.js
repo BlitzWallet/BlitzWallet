@@ -1,4 +1,4 @@
-import {getPublicKey} from 'nostr-tools';
+import { getPublicKey } from 'nostr-tools';
 import {
   createContext,
   useState,
@@ -6,21 +6,34 @@ import {
   useEffect,
   useMemo,
   useCallback,
+  useRef,
 } from 'react';
+import { useAuthContext } from './authContext';
 // Initiate context
 const KeysContextManager = createContext(null);
 
-const KeysContextProvider = ({children}) => {
+const KeysContextProvider = ({ children }) => {
+  const { authResetkey } = useAuthContext();
   const [contactsPrivateKey, setContactsPrivateKey] = useState('');
   const publicKey = useMemo(
     () => (contactsPrivateKey ? getPublicKey(contactsPrivateKey) : null),
     [contactsPrivateKey],
   );
   const [accountMnemoinc, setAccountMnemonic] = useState('');
+  const isInitialRender = useRef(true);
 
   const toggleContactsPrivateKey = useCallback(newKey => {
     setContactsPrivateKey(newKey);
   }, []);
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    setContactsPrivateKey('');
+    setAccountMnemonic('');
+  }, [authResetkey]);
 
   const contextValue = useMemo(
     () => ({
@@ -54,4 +67,4 @@ function useKeysContext() {
   return context;
 }
 
-export {KeysContextManager, KeysContextProvider, useKeysContext};
+export { KeysContextManager, KeysContextProvider, useKeysContext };
