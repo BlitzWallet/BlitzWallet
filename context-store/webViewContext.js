@@ -26,6 +26,7 @@ import DeviceInfo, {
 import { getLocalStorageItem, setLocalStorageItem } from '../app/functions';
 import { useAppStatus } from './appStatus';
 import { useActiveCustodyAccount } from './activeAccount';
+import { useAuthContext } from './authContext';
 
 export const OPERATION_TYPES = {
   initWallet: 'initializeSparkWallet',
@@ -101,7 +102,6 @@ const WASM_ERRORS = [
 let handshakeComplete = false;
 let forceReactNativeUse = null;
 let globalSendWebViewRequest = null;
-const BACKGROUND_THRESHOLD_MS = 3 * 60 * 1000;
 
 const WebViewContext = createContext(null);
 
@@ -150,6 +150,7 @@ export const getHandshakeComplete = () => {
 };
 
 export const WebViewProvider = ({ children }) => {
+  const { authResetkey } = useAuthContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { appState, isConnectedToTheInternet, didGetToHomepage } =
     useAppStatus();
@@ -171,13 +172,27 @@ export const WebViewProvider = ({ children }) => {
   const prevConnectionStatus = useRef(isConnectedToTheInternet);
   const internetConnectionRef = useRef(isConnectedToTheInternet);
   const walletInitialized = useRef(false);
-  const backgroundTimeRef = useRef(null);
+  const isInitialRender = useRef(true);
+  const currentWalletMnemoincRef = useRef(currentWalletMnemoinc);
   const didRunInit = useRef(null);
   const didGetToHomepageRef = useRef(didGetToHomepage);
   const [changeSparkConnectionState, setChangeSparkConnectionState] = useState({
     state: null,
     count: 0,
   });
+
+  useEffect(() => {
+    currentWalletMnemoincRef.current = currentWalletMnemoinc;
+  }, [currentWalletMnemoinc]);
+
+  // reset webview when app is stale in background
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    blockAndResetWebview();
+  }, [authResetkey]);
 
   useEffect(() => {
     didGetToHomepageRef.current = didGetToHomepage;
@@ -321,7 +336,6 @@ export const WebViewProvider = ({ children }) => {
 
     if (appState === 'background') {
       console.log('App going to background - clearing all timeouts');
-      backgroundTimeRef.current = Date.now();
       // Clear everything to prevent timeout issues on background
       Object.values(activeTimeoutsRef.current).forEach(t =>
         clearTimeout(t.timeoutId),
@@ -332,10 +346,6 @@ export const WebViewProvider = ({ children }) => {
       prevConnectionStatus.current = isConnectedToTheInternet;
     } else if (appState === 'active') {
       console.log('App returned to foreground');
-
-      const timeInBackground = backgroundTimeRef.current
-        ? Date.now() - backgroundTimeRef.current
-        : 0;
 
       // Wait for internet connection before proceeding
       if (!isConnectedToTheInternet) {
@@ -360,10 +370,7 @@ export const WebViewProvider = ({ children }) => {
         connectionChanged && isConnectedToTheInternet;
 
       if (justBecameActive || connectionJustRestored) {
-        if (
-          timeInBackground > BACKGROUND_THRESHOLD_MS ||
-          (!nonceVerified.current && !isResetting.current)
-        ) {
+        if (!nonceVerified.current && !isResetting.current) {
           console.log('Background time exceeded threshold - reloading WebView');
           blockAndResetWebview();
         } else {
@@ -384,8 +391,6 @@ export const WebViewProvider = ({ children }) => {
             }
           }
         }
-
-        backgroundTimeRef.current = null;
       }
 
       previousAppState.current = appState;
@@ -577,12 +582,7 @@ export const WebViewProvider = ({ children }) => {
         forceReactNativeUse = true;
       }
     },
-    [
-      decryptMessage,
-      resetWebViewState,
-      currentWalletMnemoinc,
-      processQueuedRequests,
-    ],
+    [decryptMessage, resetWebViewState, processQueuedRequests],
   );
 
   const sendWebViewRequestInternal = useCallback(
@@ -955,15 +955,15 @@ export const WebViewProvider = ({ children }) => {
       if (
         (handshakeComplete &&
           !walletInitialized.current &&
-          currentWalletMnemoinc) ||
-        (currentWalletMnemoinc && connectionJustRestored)
+          currentWalletMnemoincRef.current) ||
+        (currentWalletMnemoincRef.current && connectionJustRestored)
       ) {
         console.log('Re-initializing wallet before processing queue');
         try {
           // No need to handle any state changes here, handled inside of the promise. But this might be where the stale connection state comes from. if a request is sent to the webview but not responded to the change to react-native woudnt have happpened before leaving everything in "not connected to spark".
           const response = await sendWebViewRequestInternal(
             OPERATION_TYPES.initWallet,
-            { mnemonic: currentWalletMnemoinc },
+            { mnemonic: currentWalletMnemoincRef.current },
             true,
           );
           if (!response?.isConnected) throw new Error('Wallet init failed');
@@ -986,7 +986,10 @@ export const WebViewProvider = ({ children }) => {
         `Processing ${queuedRequests.current.length} queued requests`,
       );
 
-      if (queuedRequests.current.length === 0) {
+      if (
+        queuedRequests.current.length === 0 ||
+        !currentWalletMnemoincRef.current
+      ) {
         isResetting.current = false;
         return;
       }
@@ -1007,7 +1010,7 @@ export const WebViewProvider = ({ children }) => {
 
       isResetting.current = false;
     },
-    [currentWalletMnemoinc, sendWebViewRequestInternal],
+    [sendWebViewRequestInternal],
   );
 
   const getCustomUserAgent = useCallback(() => {
