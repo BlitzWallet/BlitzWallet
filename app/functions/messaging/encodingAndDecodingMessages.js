@@ -4,7 +4,42 @@ import {
   createCipheriv,
   createDecipheriv,
   randomBytes,
+  createHash,
 } from 'react-native-quick-crypto';
+
+const sharedSecretCache = new Map();
+const MAX_CACHE_SIZE = 20;
+
+function getCacheKey(privkey, pubkey) {
+  const hash = createHash('sha256');
+  hash.update(privkey);
+  hash.update(pubkey);
+  return hash.digest('hex');
+}
+
+function getSharedSecretCached(privkey, pubkey) {
+  const cacheKey = getCacheKey(privkey, pubkey);
+
+  if (sharedSecretCache.has(cacheKey)) {
+    const value = sharedSecretCache.get(cacheKey);
+    sharedSecretCache.delete(cacheKey);
+    sharedSecretCache.set(cacheKey, value);
+    return value;
+  }
+
+  if (sharedSecretCache.size >= MAX_CACHE_SIZE) {
+    const oldestKey = sharedSecretCache.keys().next().value;
+    const buffer = sharedSecretCache.get(oldestKey);
+    if (buffer?.fill) buffer.fill(0);
+    sharedSecretCache.delete(oldestKey);
+  }
+
+  const shardPoint = getSharedSecret(privkey, '02' + pubkey);
+  const sharedX = shardPoint.slice(1, 33);
+
+  sharedSecretCache.set(cacheKey, sharedX);
+  return sharedX;
+}
 
 function encriptMessage(privkey, pubkey, text) {
   //   const encripted = await nostr.nip04.encrypt(privkey, pubkey, text);
@@ -16,8 +51,7 @@ function encriptMessage(privkey, pubkey, text) {
     // return nip04.encrypt(priv, pubkey, content);
 
     // return;
-    const shardPoint = getSharedSecret(privkey, '02' + pubkey);
-    const sharedX = shardPoint.slice(1, 33);
+    const sharedX = getSharedSecretCached(privkey, pubkey);
 
     const iv = randomBytes(16);
 
@@ -34,8 +68,7 @@ function encriptMessage(privkey, pubkey, text) {
 }
 function decryptMessage(privkey, pubkey, encryptedText) {
   try {
-    const shardPoint = getSharedSecret(privkey, '02' + pubkey);
-    const sharedX = shardPoint.slice(1, 33);
+    const sharedX = getSharedSecretCached(privkey, pubkey);
 
     // Extract IV from the encrypted message
     const ivStr = encryptedText.split('?iv=')[1];
@@ -55,4 +88,11 @@ function decryptMessage(privkey, pubkey, encryptedText) {
   }
 }
 
-export { encriptMessage, decryptMessage };
+function clearSharedSecretCache() {
+  for (const [key, buffer] of sharedSecretCache.entries()) {
+    if (buffer?.fill) buffer.fill(0);
+  }
+  sharedSecretCache.clear();
+}
+
+export { encriptMessage, decryptMessage, clearSharedSecretCache };

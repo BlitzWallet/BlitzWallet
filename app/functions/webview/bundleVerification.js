@@ -1,7 +1,7 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import { Asset } from 'expo-asset';
 import { Platform } from 'react-native';
-import { randomBytes } from '@noble/hashes/utils';
+import { randomBytes } from 'react-native-quick-crypto';
 
 /**
  * Verifies the bundled HTML, injects a nonce, and writes a verified version to cache.

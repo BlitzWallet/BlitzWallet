@@ -10,10 +10,13 @@ import customUUID from '../app/functions/customUUID';
 import EventEmitter from 'events';
 import { sha256 } from '@noble/hashes/sha2';
 import { hkdf } from '@noble/hashes/hkdf';
-import { randomBytes } from '@noble/hashes/utils';
 import { AppState, Platform } from 'react-native';
 import { getSharedSecret, getPublicKey } from '@noble/secp256k1';
-import { createCipheriv, createDecipheriv } from 'react-native-quick-crypto';
+import {
+  createCipheriv,
+  createDecipheriv,
+  randomBytes,
+} from 'react-native-quick-crypto';
 import sha256Hash from '../app/functions/hash';
 import { verifyAndPrepareWebView } from '../app/functions/webview/bundleVerification';
 import DeviceInfo, {
