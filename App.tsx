@@ -114,6 +114,7 @@ import { RootstockSwapProvider } from './context-store/rootstockSwapContext';
 import { SparkConnectionManager } from './context-store/sparkConnection';
 import { GlobalNostrWalletConnectProvider } from './context-store/NWC';
 import { GlobalServerTimeProvider } from './context-store/serverTime';
+import { AuthStatusProvider } from './context-store/authContext';
 import { ActiveCustodyAccountProvider } from './context-store/activeAccount';
 import { GiftProvider } from './context-store/giftContext';
 // import { LRC20EventProvider } from './context-store/lrc20Listener';
@@ -138,51 +139,53 @@ function App(): JSX.Element {
               <GlobalThemeProvider>
                 <DropdownProvider>
                   <AppStatusProvider>
-                    <KeysContextProvider>
-                      <GlobalContactsList>
-                        <GlobalContextProvider>
-                          <ActiveCustodyAccountProvider>
-                            <WebViewProvider>
-                              {/* <GlobaleCashVariables> */}
-                              <SparkWalletProvider>
-                                <GLobalNodeContextProider>
-                                  {/* <GlobalConbinedTxContextProvider> */}
-                                  <GlobalAppDataProvider>
-                                    <POSTransactionsProvider>
-                                      <PushNotificationProvider>
-                                        <LiquidEventProvider>
-                                          <RootstockSwapProvider>
-                                            {/* <LRC20EventProvider> */}
-                                            <GlobalNostrWalletConnectProvider>
-                                              {/* <LightningEventProvider> */}
-                                              <ImageCacheProvider>
-                                                <GlobalServerTimeProvider>
-                                                  <GiftProvider>
-                                                    {/* <Suspense
+                    <AuthStatusProvider>
+                      <KeysContextProvider>
+                        <GlobalContactsList>
+                          <GlobalContextProvider>
+                            <ActiveCustodyAccountProvider>
+                              <WebViewProvider>
+                                {/* <GlobaleCashVariables> */}
+                                <SparkWalletProvider>
+                                  <GLobalNodeContextProider>
+                                    {/* <GlobalConbinedTxContextProvider> */}
+                                    <GlobalAppDataProvider>
+                                      <POSTransactionsProvider>
+                                        <PushNotificationProvider>
+                                          <LiquidEventProvider>
+                                            <RootstockSwapProvider>
+                                              {/* <LRC20EventProvider> */}
+                                              <GlobalNostrWalletConnectProvider>
+                                                {/* <LightningEventProvider> */}
+                                                <ImageCacheProvider>
+                                                  <GlobalServerTimeProvider>
+                                                    <GiftProvider>
+                                                      {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
-                                                    <ResetStack />
-                                                  </GiftProvider>
-                                                  {/* </Suspense> */}
-                                                </GlobalServerTimeProvider>
-                                              </ImageCacheProvider>
-                                              {/* </LightningEventProvider> */}
-                                            </GlobalNostrWalletConnectProvider>
-                                            {/* </LRC20EventProvider> */}
-                                          </RootstockSwapProvider>
-                                        </LiquidEventProvider>
-                                      </PushNotificationProvider>
-                                    </POSTransactionsProvider>
-                                  </GlobalAppDataProvider>
-                                  {/* <BreezTest /> */}
-                                  {/* </GlobalConbinedTxContextProvider> */}
-                                </GLobalNodeContextProider>
-                              </SparkWalletProvider>
-                              {/* </GlobaleCashVariables> */}
-                            </WebViewProvider>
-                          </ActiveCustodyAccountProvider>
-                        </GlobalContextProvider>
-                      </GlobalContactsList>
-                    </KeysContextProvider>
+                                                      <ResetStack />
+                                                    </GiftProvider>
+                                                    {/* </Suspense> */}
+                                                  </GlobalServerTimeProvider>
+                                                </ImageCacheProvider>
+                                                {/* </LightningEventProvider> */}
+                                              </GlobalNostrWalletConnectProvider>
+                                              {/* </LRC20EventProvider> */}
+                                            </RootstockSwapProvider>
+                                          </LiquidEventProvider>
+                                        </PushNotificationProvider>
+                                      </POSTransactionsProvider>
+                                    </GlobalAppDataProvider>
+                                    {/* <BreezTest /> */}
+                                    {/* </GlobalConbinedTxContextProvider> */}
+                                  </GLobalNodeContextProider>
+                                </SparkWalletProvider>
+                                {/* </GlobaleCashVariables> */}
+                              </WebViewProvider>
+                            </ActiveCustodyAccountProvider>
+                          </GlobalContextProvider>
+                        </GlobalContactsList>
+                      </KeysContextProvider>
+                    </AuthStatusProvider>
                   </AppStatusProvider>
                 </DropdownProvider>
               </GlobalThemeProvider>
