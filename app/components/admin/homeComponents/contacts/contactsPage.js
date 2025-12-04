@@ -277,7 +277,7 @@ export default function ContactsPage({ navigation }) {
       useTouchableWithoutFeedback={true}
       useStandardWidth={true}
     >
-      {didEditProfile && (
+      {(didEditProfile || hasContacts) && (
         <View style={memoizedStyles.topBar}>
           <TouchableOpacity
             onPress={() =>
@@ -330,7 +330,7 @@ export default function ContactsPage({ navigation }) {
           </TouchableOpacity>
         </View>
       )}
-      {hasContacts && myProfile.didEditProfile ? (
+      {hasContacts && didEditProfile ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={scrollContentStyle}

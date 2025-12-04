@@ -271,6 +271,7 @@ export const GlobalContactsList = ({ children }) => {
           {
             myProfile: {
               ...globalContactsInformation.myProfile,
+              didEditProfile: true,
             },
             addedContacts: encriptMessage(
               contactsPrivateKey,
