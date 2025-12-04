@@ -445,7 +445,6 @@ function ResetStack(): JSX.Element | null {
       await runSecureStoreMigrationV2();
       const [
         initialURL,
-        // registerBackground,
         loginModeType,
         pin,
         mnemonic,
@@ -453,7 +452,6 @@ function ResetStack(): JSX.Element | null {
         userSelectedLanguage,
       ] = await Promise.all([
         getInitialURL(),
-        // registerBackgroundNotificationTask(),
         retrieveData(LOGIN_SECURITY_MODE_TYPE_KEY),
         retrieveData('pinHash'),
         retrieveData('encryptedMnemonic'),
@@ -495,10 +493,32 @@ function ResetStack(): JSX.Element | null {
     }
 
     if (appState === 'background') return;
-    if (didInitializeSettings.current) return;
-    didInitializeSettings.current = true;
 
-    initWallet();
+    if (!didInitializeSettings.current) {
+      didInitializeSettings.current = true;
+      initWallet();
+    } else {
+      // Re-check login status when app becomes active again
+      async function recheckLoginStatus() {
+        const [pin, mnemonic, securitySettings] = await Promise.all([
+          retrieveData('pinHash'),
+          retrieveData('encryptedMnemonic'),
+          getLocalStorageItem(LOGIN_SECUITY_MODE_KEY),
+        ]);
+
+        const storedSettings = JSON.parse(securitySettings);
+
+        setInitSettings(prev => {
+          return {
+            ...prev,
+            isLoggedIn: !!pin.value && !!mnemonic.value,
+            hasSecurityEnabled: storedSettings?.isSecurityEnabled ?? true,
+          };
+        });
+      }
+
+      recheckLoginStatus();
+    }
   }, [appState]);
 
   const handleAnimationFinish = () => {
