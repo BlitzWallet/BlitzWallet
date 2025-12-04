@@ -25,6 +25,10 @@ const getDatabase = async () => {
   }
 };
 
+export const isGiftDatabaseOpen = () => {
+  return !!sqlLiteDB;
+};
+
 export const initGiftDb = async () => {
   try {
     console.log('Initializing gift database...');

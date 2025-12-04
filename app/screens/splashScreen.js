@@ -12,18 +12,33 @@ import {
   applyErrorAnimationTheme,
   updateBlitzAnimationData,
 } from '../functions/lottieViewColorTransformer';
-import { initializeDatabase } from '../functions/messaging/cachedMessages';
-import { initializeGiftCardDatabase } from '../functions/contacts/giftCardStorage';
-import { initializePOSTransactionsDatabase } from '../functions/pos';
-import { initializeSparkDatabase } from '../functions/spark/transactions';
-import { initRootstockSwapDB } from '../functions/boltz/rootstock/swapDb';
+import {
+  initializeDatabase,
+  isMessagesDatabaseOpen,
+} from '../functions/messaging/cachedMessages';
+import {
+  initializeGiftCardDatabase,
+  isGiftCardDatabaseOpen,
+} from '../functions/contacts/giftCardStorage';
+import {
+  initializePOSTransactionsDatabase,
+  isSavedPOSTxsDatabaseOpen,
+} from '../functions/pos';
+import {
+  initializeSparkDatabase,
+  isSparkTxDatabaseOpen,
+} from '../functions/spark/transactions';
+import {
+  initRootstockSwapDB,
+  isRoostockDatabaseOpen,
+} from '../functions/boltz/rootstock/swapDb';
 import { GlobalThemeView, ThemeText } from '../functions/CustomElements';
 import { t } from 'i18next';
 import CustomButton from '../functions/CustomElements/button';
 import { INSET_WINDOW_WIDTH } from '../constants/theme';
 import openWebBrowser from '../functions/openWebBrowser';
 import { useNavigation } from '@react-navigation/native';
-import { initGiftDb } from '../functions/gift/giftsStorage';
+import { initGiftDb, isGiftDatabaseOpen } from '../functions/gift/giftsStorage';
 
 import * as ExpoSplashScreen from 'expo-splash-screen';
 const BlitzAnimation = require('../assets/BlitzAnimation.json');
@@ -76,31 +91,42 @@ const SplashScreen = () => {
           animationRef.current?.play();
         }, 500);
 
-        const [
-          didOpen,
-          giftCardTable,
-          posTransactions,
-          sparkTxs,
-          rootstockSwaps,
-          giftsDb,
-        ] = await Promise.all([
-          initializeDatabase(),
-          initializeGiftCardDatabase(),
-          initializePOSTransactionsDatabase(),
-          initializeSparkDatabase(),
-          initRootstockSwapDB(),
-          initGiftDb(),
-        ]);
-
         if (
-          !didOpen ||
-          !giftCardTable ||
-          !posTransactions ||
-          !sparkTxs ||
-          !rootstockSwaps ||
-          !giftsDb
-        )
-          throw new Error(t('screens.inAccount.loadingScreen.dbInitError'));
+          isMessagesDatabaseOpen() &&
+          isGiftCardDatabaseOpen() &&
+          isSavedPOSTxsDatabaseOpen() &&
+          isSparkTxDatabaseOpen() &&
+          isRoostockDatabaseOpen() &&
+          isGiftDatabaseOpen()
+        ) {
+          console.log('Tables are already opened, blocking...');
+        } else {
+          const [
+            didOpen,
+            giftCardTable,
+            posTransactions,
+            sparkTxs,
+            rootstockSwaps,
+            giftsDb,
+          ] = await Promise.all([
+            initializeDatabase(),
+            initializeGiftCardDatabase(),
+            initializePOSTransactionsDatabase(),
+            initializeSparkDatabase(),
+            initRootstockSwapDB(),
+            initGiftDb(),
+          ]);
+
+          if (
+            !didOpen ||
+            !giftCardTable ||
+            !posTransactions ||
+            !sparkTxs ||
+            !rootstockSwaps ||
+            !giftsDb
+          )
+            throw new Error(t('screens.inAccount.loadingScreen.dbInitError'));
+        }
 
         setTimeout(() => {
           if (navigate) {

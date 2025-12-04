@@ -1,9 +1,9 @@
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
-import {getTwoWeeksAgoDate} from '../rotateAddressDateChecker';
-import {decryptMessage} from '../messaging/encodingAndDecodingMessages';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
+import { getTwoWeeksAgoDate } from '../rotateAddressDateChecker';
+import { decryptMessage } from '../messaging/encodingAndDecodingMessages';
 import EventEmitter from 'events';
-import {handleEventEmitterPost} from '../handleEventEmitters';
-import {openDatabaseAsync} from 'expo-sqlite';
+import { handleEventEmitterPost } from '../handleEventEmitters';
+import { openDatabaseAsync } from 'expo-sqlite';
 export const POS_TRANSACTION_TABLE_NAME = 'POS_TRANSACTIONS';
 
 export const POS_LAST_RECEIVED_TIME = 'LAST_RECEIVED_POS_EVENT';
@@ -71,6 +71,10 @@ export const initializePOSTransactionsDatabase = async () => {
     return false;
   }
 };
+
+export const isSavedPOSTxsDatabaseOpen = () => {
+  return !!sqlLiteDB;
+};
 export const getSavedPOSTransactions = async () => {
   try {
     const result = await sqlLiteDB.getAllAsync(
@@ -108,7 +112,7 @@ const processQueue = async () => {
   if (isProcessing) return;
   isProcessing = true;
   while (messageQueue.length > 0) {
-    const {transactionsList, privateKey} = messageQueue.shift();
+    const { transactionsList, privateKey } = messageQueue.shift();
     try {
       await setPOSTransactions({
         transactionsList,
@@ -121,7 +125,7 @@ const processQueue = async () => {
 
   isProcessing = false;
 };
-export const queuePOSTransactions = ({transactionsList, privateKey}) => {
+export const queuePOSTransactions = ({ transactionsList, privateKey }) => {
   messageQueue.push({
     transactionsList,
     privateKey,
@@ -131,7 +135,7 @@ export const queuePOSTransactions = ({transactionsList, privateKey}) => {
   }
 };
 
-const setPOSTransactions = async ({transactionsList, privateKey}) => {
+const setPOSTransactions = async ({ transactionsList, privateKey }) => {
   try {
     // Start a database transaction for better performance
     await sqlLiteDB.execAsync('BEGIN TRANSACTION;');

@@ -62,7 +62,9 @@ export const initializeSparkDatabase = async () => {
     return false;
   }
 };
-
+export const isSparkTxDatabaseOpen = () => {
+  return !!sqlLiteDB;
+};
 export const getAllSparkTransactions = async (options = {}) => {
   try {
     const {

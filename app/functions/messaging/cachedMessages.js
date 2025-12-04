@@ -39,6 +39,10 @@ export const initializeDatabase = async () => {
     return false;
   }
 };
+
+export const isMessagesDatabaseOpen = () => {
+  return !!sqlLiteDB;
+};
 export const getCachedMessages = async () => {
   try {
     const result = await sqlLiteDB.getAllAsync(

@@ -1,5 +1,5 @@
 // giftCardStorage.js
-import {openDatabaseAsync} from 'expo-sqlite';
+import { openDatabaseAsync } from 'expo-sqlite';
 import fetchBackend from '../../../db/handleBackend';
 
 export const GIFT_CARDS_TABLE_NAME = 'giftCardsTable';
@@ -31,6 +31,10 @@ export const initializeGiftCardDatabase = async () => {
     console.log('Error initializing gift card database:', err);
     return false;
   }
+};
+
+export const isGiftCardDatabaseOpen = () => {
+  return !!giftCardDB;
 };
 
 export const getGiftCardData = async invoice => {

@@ -6,8 +6,8 @@ import {
   useMemo,
   useCallback,
 } from 'react';
-import {useKeysContext} from './keys';
-import {db} from '../db/initializeFirebase';
+import { useKeysContext } from './keys';
+import { db } from '../db/initializeFirebase';
 import {
   DID_OPEN_TABLES_EVENT_NAME,
   getSavedPOSTransactions,
@@ -15,7 +15,7 @@ import {
   POS_EVENT_UPDATE,
   queuePOSTransactions,
 } from '../app/functions/pos';
-import {getTwoWeeksAgoDate} from '../app/functions/rotateAddressDateChecker';
+import { getTwoWeeksAgoDate } from '../app/functions/rotateAddressDateChecker';
 import {
   collection,
   getDocs,
@@ -28,8 +28,8 @@ import {
 // Initiate context
 const POSTransactionsContextManager = createContext(null);
 
-const POSTransactionsProvider = ({children}) => {
-  const {publicKey, contactsPrivateKey} = useKeysContext();
+const POSTransactionsProvider = ({ children }) => {
+  const { publicKey, contactsPrivateKey } = useKeysContext();
   const [txList, setTxList] = useState([]);
   const [didOpenTable, setDidOpenTable] = useState(false);
 
@@ -165,6 +165,7 @@ const POSTransactionsProvider = ({children}) => {
     pointOfSaleEventEmitter.on(POS_EVENT_UPDATE, updateTxListFunction);
     return () => {
       pointOfSaleEventEmitter.removeAllListeners(POS_EVENT_UPDATE);
+      pointOfSaleEventEmitter.removeAllListeners(DID_OPEN_TABLES_EVENT_NAME);
     };
   }, []);
 

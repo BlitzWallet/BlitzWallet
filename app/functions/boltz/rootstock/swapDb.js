@@ -1,4 +1,4 @@
-import {openDatabaseAsync} from 'expo-sqlite';
+import { openDatabaseAsync } from 'expo-sqlite';
 
 export const ROOTSTOCK_DB_NAME = 'ROOTSTOCK_SWAPS';
 export const ROOTSTOCK_TABLE_NAME = 'saved_rootstock_swaps';
@@ -26,6 +26,10 @@ export async function initRootstockSwapDB() {
     return false;
   }
 }
+
+export const isRoostockDatabaseOpen = () => {
+  return !!sqlLiteDB;
+};
 
 // Save swap as JSON string
 export async function saveSwap(id, type, data) {
