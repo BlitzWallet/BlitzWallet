@@ -306,39 +306,43 @@ function ResetStack(): JSX.Element | null {
   }, [backgroundColor, theme, appState]);
 
   useEffect(() => {
-    async function handleDeeplink() {
+    let debounceTimer: NodeJS.Timeout | null = null;
+    let cancelled = false;
+
+    debounceTimer = setTimeout(async () => {
+      if (cancelled) return;
+
       const { url, timestamp } = pendingLinkData;
       if (!url) return;
       if (!navigationRef.current) return;
 
-      // Convert URL to lowercase for case-insensitive checks
-      const lowerUrl = url.toLowerCase();
-      const contactSchemePrefix = 'blitz-wallet:';
+      if (appState !== 'active') return;
 
-      console.log(
-        'Processing link:',
-        url,
-        'at timestamp:',
-        timestamp,
-        'conditions:',
-        {
-          didGetToHomepage,
-          hasNavigationRef: !!navigationRef.current,
-          hasPublicKey: !!publicKey,
-        },
-      );
-      const blockSoftReset =
-        (navigationRef.getRootState().routes[0]?.name === 'Home' &&
-          navigationRef.getRootState().routes.length === 1) ||
-        navigationRef.getRootState().routes[0]?.name === 'Splash';
+      if (!didGetToHomepage || !publicKey) return;
 
-      if (
-        didGetToHomepage &&
-        navigationRef.current &&
-        publicKey &&
-        !blockSoftReset
-      ) {
-        try {
+      try {
+        // Convert URL to lowercase for case-insensitive checks
+        const lowerUrl = url.toLowerCase();
+        const contactSchemePrefix = 'blitz-wallet:';
+
+        console.log(
+          'Processing link:',
+          url,
+          'at timestamp:',
+          timestamp,
+          'conditions:',
+          {
+            didGetToHomepage,
+            hasNavigationRef: !!navigationRef.current,
+            hasPublicKey: !!publicKey,
+          },
+        );
+        const blockSoftReset =
+          (navigationRef.getRootState().routes[0]?.name === 'Home' &&
+            navigationRef.getRootState().routes.length === 1) ||
+          navigationRef.getRootState().routes[0]?.name === 'Splash';
+
+        if (!blockSoftReset) {
           let isContactLink = false;
 
           if (GIFT_DEEPLINK_REGEX.test(url)) {
@@ -386,12 +390,9 @@ function ResetStack(): JSX.Element | null {
                 });
               }
             } else {
-              let paymentUrl = url;
-
               // Regex to strip 'blitz-wallet:' OR 'blitz:' prefix if it exists.
               // This ensures only the core payment URI is passed to the ConfirmPaymentScreen.
-              paymentUrl = paymentUrl.replace(/^(blitz-wallet|blitz):/i, '');
-
+              const paymentUrl = url.replace(/^(blitz-wallet|blitz):/i, '');
               navigationRef.current.navigate('ConfirmPaymentScreen', {
                 btcAdress: paymentUrl,
               });
@@ -400,20 +401,24 @@ function ResetStack(): JSX.Element | null {
 
           // Clear the pending link after successful processing
           await clearDeepLink();
-        } catch (error: any) {
-          console.error('Error processing deep link:', error);
-          navigationRef.current.navigate('ErrorScreen', {
-            errorMessage: 'errormessages.processingDeepLinkError',
-            useTranslationString: true,
-          });
-
-          // Clear the pending link even if there was an error
-          await clearDeepLink();
         }
+      } catch (err) {
+        console.error('Error processing deep link:', err);
+        navigationRef.current.navigate('ErrorScreen', {
+          errorMessage: 'errormessages.processingDeepLinkError',
+          useTranslationString: true,
+        });
+
+        // Clear the pending link even if there was an error
+        await clearDeepLink();
       }
-    }
-    handleDeeplink();
-  }, [pendingLinkData, didGetToHomepage, publicKey, clearDeepLink]);
+    }, 700);
+
+    return () => {
+      cancelled = true;
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, [pendingLinkData, appState, didGetToHomepage, publicKey, clearDeepLink]);
 
   useEffect(() => {
     async function loadPendingDeepLink() {

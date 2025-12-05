@@ -811,6 +811,10 @@ const SparkWalletProvider = ({ children }) => {
     clearMnemonicCache();
     prevAccountMnemoincRef.current = null;
     isRunningAddListeners.current = false;
+    if (depositAddressIntervalRef.current) {
+      clearInterval(depositAddressIntervalRef.current);
+    }
+    initialBitcoinIntervalRun.current = null;
     depositAddressIntervalRef.current = null;
     updatePendingPaymentsIntervalRef.current = null;
     sparkInfoRef.current = {
