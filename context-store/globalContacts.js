@@ -237,7 +237,7 @@ export const GlobalContactsList = ({ children }) => {
           bio: contact.bio,
           unlookedTransactions: 0,
           isLNURL: contact.isLNURL,
-          uniqueName: contact.uniqueName,
+          uniqueName: contact.uniqueName || '',
           uuid: contact.uuid,
           isAdded: true,
           isFavorite: false,

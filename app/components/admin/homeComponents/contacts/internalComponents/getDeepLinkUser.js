@@ -23,7 +23,7 @@ export default async function getDeepLinkUser({
     const newContact = {
       name: user.contacts.myProfile.name || '',
       bio: user.contacts.myProfile.bio || '',
-      uniqueName: user.contacts.myProfile.uniqueName,
+      uniqueName: user.contacts.myProfile.uniqueName || '',
       isFavorite: false,
       unlookedTransactions: 0,
       uuid: user.contacts.myProfile.uuid,

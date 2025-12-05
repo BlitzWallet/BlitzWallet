@@ -286,12 +286,26 @@ function InnerContent({
     selectedAddedContact?.receiveAddress || '';
 
   const [isSaving, setIsSaving] = useState(false);
-  const [inputs, setInputs] = useState({
-    name: '',
-    bio: '',
-    uniquename: '',
-    receiveAddress: '',
-  });
+  const [inputs, setInputs] = useState(() => ({
+    name: isFirstTimeEditing
+      ? isEditingMyProfile
+        ? myContactName || ''
+        : selectedAddedContactName || ''
+      : '',
+    bio: isFirstTimeEditing
+      ? isEditingMyProfile
+        ? myContactBio || ''
+        : selectedAddedContactBio || ''
+      : '',
+    uniquename: isFirstTimeEditing
+      ? isEditingMyProfile
+        ? myContactUniqueName || ''
+        : selectedAddedContactUniqueName || ''
+      : '',
+    receiveAddress: selectedAddedContactReceiveAddress || '',
+  }));
+
+  // Remove the entire useEffect
   const [tempImage, setTempImage] = useState({
     uri: null,
     comparison: null,
@@ -309,42 +323,6 @@ function InnerContent({
       return { ...prev, [type]: text };
     });
   }
-
-  useEffect(() => {
-    changeInputText(
-      isFirstTimeEditing
-        ? isEditingMyProfile
-          ? myContactName || ''
-          : selectedAddedContactName || ''
-        : '',
-      'name',
-    );
-    changeInputText(
-      isFirstTimeEditing
-        ? isEditingMyProfile
-          ? myContactBio || ''
-          : selectedAddedContactBio || ''
-        : '',
-      'bio',
-    );
-    changeInputText(
-      isFirstTimeEditing
-        ? isEditingMyProfile
-          ? myContactUniqueName || ''
-          : selectedAddedContactUniqueName || ''
-        : '',
-      'uniquename',
-    );
-    changeInputText(selectedAddedContactReceiveAddress || '', 'receiveAddress');
-  }, [
-    isEditingMyProfile,
-    myContactName,
-    myContactBio,
-    myContactUniqueName,
-    selectedAddedContactName,
-    selectedAddedContactBio,
-    selectedAddedContactUniqueName,
-  ]);
 
   const myProfileImage = cache[myContact?.uuid];
   const selectedAddedContactImage = cache[selectedAddedContact?.uuid];
@@ -612,6 +590,8 @@ function InnerContent({
           ? inputs.uniquename || myContact.uniqueName
           : inputs.uniquename;
 
+      console.log(selectedAddedContact, 'tt', isEditingMyProfile);
+
       if (isEditingMyProfile) {
         if (
           myContact?.bio === inputs.bio &&
@@ -661,6 +641,7 @@ function InnerContent({
           navigate.goBack();
         }
       } else {
+        console.log(selectedAddedContact, 'testing');
         if (fromInitialAdd) {
           let tempContact = JSON.parse(JSON.stringify(selectedAddedContact));
           tempContact.name = inputs.name.trim();
@@ -693,7 +674,7 @@ function InnerContent({
               } else return addedContact;
             });
           } else newAddedContacts.push(tempContact);
-
+          console.log(tempContact, newAddedContacts);
           toggleGlobalContactsInformation(
             {
               myProfile: {
@@ -733,6 +714,7 @@ function InnerContent({
           ) {
             contact['receiveAddress'] = inputs.receiveAddress.trim();
           }
+          console.log(contact, newAddedContacts);
 
           toggleGlobalContactsInformation(
             {

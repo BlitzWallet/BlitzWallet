@@ -30,6 +30,7 @@ import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
 import { useImageCache } from '../../../../../../context-store/imageCache';
 import ContactProfileImage from '../internalComponents/profileImage';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { formatDisplayName } from '../utils/formatListDisplayName';
 
 export default function ChooseContactHalfModal() {
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -74,7 +75,9 @@ export default function ChooseContactHalfModal() {
       return (
         contact.name.toLowerCase().startsWith(inputText.toLowerCase()) ||
         (!contact.isLNURL &&
-          contact.uniqueName.toLowerCase().startsWith(inputText.toLowerCase()))
+          contact.uniqueName
+            ?.toLowerCase()
+            ?.startsWith(inputText.toLowerCase()))
       );
     });
   }, [sortedContacts, inputText, cache]);
@@ -119,9 +122,7 @@ export default function ChooseContactHalfModal() {
             <ThemeText
               CustomEllipsizeMode={'tail'}
               CustomNumberOfLines={1}
-              content={
-                !!contact.name.length ? contact.name : contact.uniqueName
-              }
+              content={formatDisplayName(contact)}
             />
             <ThemeText
               CustomEllipsizeMode={'tail'}
