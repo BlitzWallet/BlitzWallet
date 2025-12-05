@@ -116,7 +116,7 @@ export default function ConnectingToNodeLoadingScreen({
             t('screens.inAccount.loadingScreen.userSettingsError'),
           );
 
-        const hasSavedInfo = !!Object.keys(masterInfoObject).length;
+        const hasSavedInfo = Object.keys(masterInfoObject || {}).length > 5; //arbitrary number but filters out onboarding items
 
         if (!hasSavedInfo) {
           // connectToLiquidNode(accountMnemoinc);
