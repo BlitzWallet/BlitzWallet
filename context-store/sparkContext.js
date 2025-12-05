@@ -116,6 +116,7 @@ const SparkWalletProvider = ({ children }) => {
   const balancePollingAbortControllerRef = useRef(null);
   const currentPollingMnemonicRef = useRef(null);
   const isInitialRender = useRef(true);
+  const authResetKeyRef = useRef(authResetkey);
   const showTokensInformation =
     masterInfoObject.enabledBTKNTokens === null
       ? !!Object.keys(sparkInformation.tokens || {}).length
@@ -126,6 +127,10 @@ const SparkWalletProvider = ({ children }) => {
   const shouldRunNormalConnection =
     didRunNormalConnection || normalConnectionTimeout;
   const currentMnemonicRef = useRef(currentWalletMnemoinc);
+
+  useEffect(() => {
+    authResetKeyRef.current = authResetkey;
+  }, [authResetkey]);
 
   useEffect(() => {
     sparkInfoRef.current = {
@@ -691,14 +696,43 @@ const SparkWalletProvider = ({ children }) => {
         console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
         clearInterval(updatePendingPaymentsIntervalRef.current);
       }
+
+      const capturedAuthKey = authResetKeyRef.current;
+      const capturedMnemonic = currentMnemonicRef.current;
+
       updatePendingPaymentsIntervalRef.current = setInterval(async () => {
         try {
-          if (AppState.currentState !== 'active') return;
+          if (capturedAuthKey !== authResetKeyRef.current) {
+            console.log('Auth key changed. Aborting interval.');
+            return;
+          }
+
+          if (capturedMnemonic !== currentMnemonicRef.current) {
+            console.log('Mnemonic changed. Aborting interval.');
+            return;
+          }
+
+          if (AppState.currentState !== 'active') {
+            console.log('App not active. Skipping interval.');
+            return;
+          }
+
           await updateSparkTxStatus(
             currentMnemonicRef.current,
             sparkInfoRef.current.identityPubKey,
             sendWebViewRequest,
           );
+
+          if (
+            capturedAuthKey !== authResetKeyRef.current ||
+            capturedMnemonic !== currentMnemonicRef.current
+          ) {
+            console.log(
+              'Context changed during updateSparkTxStatus. Aborting getLRC20Transactions.',
+            );
+            return;
+          }
+
           await getLRC20Transactions({
             ownerPublicKeys: [sparkInfoRef.current.identityPubKey],
             sparkAddress: sparkInfoRef.current.sparkAddress,
