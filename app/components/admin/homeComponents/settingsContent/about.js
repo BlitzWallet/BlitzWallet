@@ -107,7 +107,7 @@ export default function AboutPage() {
         onPress={() =>
           navigate.navigate('CustomWebView', {
             headerText: 'Spark',
-            webViewURL: 'https://docs.spark.money/spark/spark-tldr',
+            webViewURL: 'https://docs.spark.money/learn/tldr',
           })
         }
       >
