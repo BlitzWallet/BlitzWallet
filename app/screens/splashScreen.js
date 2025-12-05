@@ -101,21 +101,13 @@ const SplashScreen = () => {
         ) {
           console.log('Tables are already opened, blocking...');
         } else {
-          const [
-            didOpen,
-            giftCardTable,
-            posTransactions,
-            sparkTxs,
-            rootstockSwaps,
-            giftsDb,
-          ] = await Promise.all([
-            initializeDatabase(),
-            initializeGiftCardDatabase(),
-            initializePOSTransactionsDatabase(),
-            initializeSparkDatabase(),
-            initRootstockSwapDB(),
-            initGiftDb(),
-          ]);
+          // Initialize databases one at a time
+          const didOpen = await initializeDatabase();
+          const giftCardTable = await initializeGiftCardDatabase();
+          const posTransactions = await initializePOSTransactionsDatabase();
+          const sparkTxs = await initializeSparkDatabase();
+          const rootstockSwaps = await initRootstockSwapDB();
+          const giftsDb = await initGiftDb();
 
           if (
             !didOpen ||

@@ -15,15 +15,34 @@ export const contactsSQLEventEmitter = new EventEmitter();
 let sqlLiteDB;
 let messageQueue = [];
 let isProcessing = false;
+let isInitialized = false;
+let initPromise = null;
 
-if (!sqlLiteDB) {
-  async function openDBConnection() {
-    sqlLiteDB = await openDatabaseAsync(`${CACHED_MESSAGES_KEY}.db`);
+async function openDBConnection() {
+  if (!initPromise) {
+    initPromise = (async () => {
+      sqlLiteDB = await openDatabaseAsync(`${CACHED_MESSAGES_KEY}.db`);
+      isInitialized = true;
+      return sqlLiteDB;
+    })();
   }
-  openDBConnection();
+  return initPromise;
 }
+
+export const isMessagesDatabaseOpen = () => {
+  return isInitialized;
+};
+
+export const ensureDatabaseReady = async () => {
+  if (!isInitialized) {
+    await openDBConnection();
+  }
+  return sqlLiteDB;
+};
+
 export const initializeDatabase = async () => {
   try {
+    await ensureDatabaseReady();
     await sqlLiteDB.execAsync(`PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS ${SQL_TABLE_NAME} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,16 +54,14 @@ export const initializeDatabase = async () => {
     console.log('didOPEN');
     return true;
   } catch (err) {
-    console.log(err);
+    console.log('error opening messages database', err);
     return false;
   }
 };
 
-export const isMessagesDatabaseOpen = () => {
-  return !!sqlLiteDB;
-};
 export const getCachedMessages = async () => {
   try {
+    await ensureDatabaseReady();
     const result = await sqlLiteDB.getAllAsync(
       `SELECT * FROM ${SQL_TABLE_NAME} ORDER BY timestamp ASC;`,
     );
@@ -147,6 +164,7 @@ const addUnpaidContactTransactions = async ({ newMessagesList, myPubKey }) => {
 const setCashedMessages = async ({ newMessagesList, myPubKey }) => {
   const BATCH_SIZE = 25;
   try {
+    await ensureDatabaseReady();
     for (let i = 0; i < newMessagesList.length; i += BATCH_SIZE) {
       const batch = newMessagesList.slice(i, i + BATCH_SIZE);
 
@@ -253,6 +271,7 @@ const setCashedMessages = async ({ newMessagesList, myPubKey }) => {
 
 export const deleteCachedMessages = async contactPubKey => {
   try {
+    await ensureDatabaseReady();
     await sqlLiteDB.runAsync(
       `DELETE FROM ${SQL_TABLE_NAME} WHERE contactPubKey = ?;`,
       [contactPubKey],
@@ -273,6 +292,7 @@ export const deleteCachedMessages = async contactPubKey => {
 };
 export const deleteTable = async () => {
   try {
+    await ensureDatabaseReady();
     await sqlLiteDB.runAsync(`DROP TABLE IF EXISTS ${SQL_TABLE_NAME};`);
     console.log(`Table ${SQL_TABLE_NAME} deleted successfully`);
   } catch (error) {
