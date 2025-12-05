@@ -61,7 +61,7 @@
     "support": "Suporte",
     "change": "Mudar",
     "unpin": "Desafixar",
-    "pin": "Pin",
+    "pin": "Fixar",
     "noBioSet": "Sem bio definida",
     "noTransactions": "Envie ou solicite um pagamento para ver o histórico de transações.",
     "leftPageMessage": "Aonde você foi?",
@@ -1701,30 +1701,30 @@
 
         "claimHome": {
           "header": "Insira o link do vale-bitcoin",
-          "desc": "Cole o link recebido ou leia o código QR para resgatar o vale-bitcoin",
+          "desc": "Cole o link recebido ou leia o código QR para resgatar o valor",
           "inputPlaceholder": "Insira o link do vale-bitcoin",
           "claim": "Resgatar"
         },
 
         "reclaimPage": {
-          "header": "Recuperar vale-bitcoin expirado",
-          "desc": "Digite ou escolha o ID do vale-bitcoin para recuperar um vale-bitcoin expirado ou não resgatado.",
+          "header": "Vales-bitcoin expirados",
+          "desc": "Digite ou escolha o ID do vale-bitcoin para recuperar o valor de um vale-bitcoin expirado ou não resgatado.",
           "inputPlaceholder": "Digite o ID do vale-bitcoin",
           "dropdownPlaceHolder": "Vales-bitcoin expirados",
-          "button": "Recuperar vale-bitcoin",
+          "button": "Recuperar valor",
           "noReclaimsMessage": "Não há vales-bitcoin expirados no momento. Você sempre pode recuperar o valor dos vales-bitcoin que você criou e não foram resgatados.",
           "advancedModeBTN": "Modo avançado"
         },
 
         "advancedMode": {
           "header": "Modo avançado",
-          "currentIndexHead": "Índice atual do vale-bitcoin",
+          "currentIndexHead": "Total de vales-bitcoin emitidos",
           "infoHead": "Como funcionam os vales-bitcoin",
           "infoDesc1": "Os vales-bitcoin Blitz usam carteiras separadas criadas a partir da sua carteira principal. Isso permite recuperar valores não resgatados enquanto mantém sua carteira principal protegida.",
-          "infoDesc2": "A maioria dos vales-bitcoin expirados podem ser recuperados na página Expirados. Se um vale-bitcoin não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um vale-bitcoin específico e verificar se ainda há fundos disponíveis.",
+          "infoDesc2": "O valor da maioria dos vales-bitcoin expirados podem ser recuperados na página Expirados. Se um vale-bitcoin não foi totalmente recebido ou a opção normal não funcionar, você pode usar esta página para selecionar um vale-bitcoin específico e verificar se ainda há fundos disponíveis.",
           "inputHead": "Digite o número do vale-bitcoin",
           "invalidGiftNum": "Digite um número de vale-bitcoin válido entre 1 e {{currentGiftIndex}}",
-          "restoreGiftBTN": "Recuperar valor do vale-bitcoin",
+          "restoreGiftBTN": "Recuperar valor",
           "advancedWarning": "Este recurso avançado deve ser usado apenas quando o processo padrão de recuperação não funcionar. Se tiver dúvidas, tente primeiro o processo normal de recuperação."
         },
 
