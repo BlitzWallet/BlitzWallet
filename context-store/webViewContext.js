@@ -903,12 +903,12 @@ export const WebViewProvider = ({ children }) => {
       if (didRunInit.current) return;
       didRunInit.current = true;
 
-      const androidAPI = DeviceInfo.getApiLevelSync();
-      if (androidAPI == 33 || androidAPI == 34) {
-        console.warn(`Skipping handshake on Android API ${androidAPI}`);
-        forceReactNativeUse = true;
-        return;
-      }
+      // const androidAPI = DeviceInfo.getApiLevelSync();
+      // if (androidAPI == 33 || androidAPI == 34) {
+      //   console.warn(`Skipping handshake on Android API ${androidAPI}`);
+      //   forceReactNativeUse = true;
+      //   return;
+      // }
 
       const savedVariable = await getLocalStorageItem('FORCE_REACT_NATIVE');
 
