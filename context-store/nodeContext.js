@@ -15,6 +15,7 @@ import connectToLiquidNode from '../app/functions/connectToLiquid';
 import { useSparkWallet } from './sparkContext';
 import { useGlobalContacts } from './globalContacts';
 import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
+import { useAuthContext } from './authContext';
 
 // Initiate context
 const NodeContextManager = createContext(null);
@@ -30,6 +31,8 @@ const GLobalNodeContextProider = ({ children }) => {
     transactions: [],
     userBalance: 0,
   });
+  const isInitialRender = useRef(true);
+  const { authResetkey } = useAuthContext();
   const selectedCurrency = masterInfoObject.fiatCurrency;
   const [fiatStats, setFiatStats] = useState({ coin: 'USD', value: 100_000 });
 
@@ -123,6 +126,14 @@ const GLobalNodeContextProider = ({ children }) => {
     sparkInformation.identityPubKey,
     globalContactsInformation?.myProfile?.uniqueName,
   ]);
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    didRunLiquidConnection.current = false;
+  }, [authResetkey]);
 
   const contextValue = useMemo(
     () => ({

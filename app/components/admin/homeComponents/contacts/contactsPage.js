@@ -43,6 +43,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { TAB_ITEM_HEIGHT } from '../../../../../navigation/tabs';
+import { formatDisplayName } from './utils/formatListDisplayName';
 
 export default function ContactsPage({ navigation }) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -66,7 +67,7 @@ export default function ContactsPage({ navigation }) {
   const tabsNavigate = navigation.navigate;
   const navigate = useNavigation();
   const myProfile = globalContactsInformation.myProfile;
-  const didEditProfile = myProfile.didEditProfile;
+  const didEditProfile = myProfile?.didEditProfile;
 
   // Use custom hooks for processed data
   const contactInfoList = useProcessedContacts(
@@ -524,11 +525,7 @@ const PinnedContactElement = memo(
                 fontSize: SIZES.small,
                 textAlign: 'center',
               }}
-              content={
-                contact.name?.length
-                  ? contact.name.trim()
-                  : contact.uniqueName.trim()
-              }
+              content={formatDisplayName(contact)}
             />
           </View>
         </View>
@@ -587,9 +584,6 @@ const ContactElement = memo(
       navigateToExpandedContact(contact);
     }, [contact, navigateToExpandedContact]);
 
-    const displayName = contact.name?.length
-      ? contact.name
-      : contact.uniqueName;
     const formattedDate = lastUpdated
       ? createFormattedDate(
           lastUpdated - serverTimeOffset,
@@ -618,7 +612,7 @@ const ContactElement = memo(
               CustomEllipsizeMode="tail"
               CustomNumberOfLines={1}
               styles={{ flex: 1, marginRight: 5 }}
-              content={displayName}
+              content={formatDisplayName(contact)}
             />
             {hasUnlookedTransaction && <View style={notificationStyle} />}
             <ThemeText

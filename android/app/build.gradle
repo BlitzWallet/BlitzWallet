@@ -94,9 +94,9 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 60
         versionName "0.7.2"
-        ndk {
-            abiFilters 'arm64-v8a', 'x86_64', 'x86', 'armeabi-v7a'// Exclude riscv64
-        }
+        // ndk {
+        //     abiFilters 'arm64-v8a', 'x86_64', 'x86', 'armeabi-v7a'// Exclude riscv64
+        // }
     }
 
     signingConfigs {
@@ -113,14 +113,14 @@ android {
             keyPassword System.getenv("MY_KEY_PASSWORD")
         }
     }
-    // splits {
-    //     abi {
-    //         reset()
-    //         enable true
-    //         universalApk true
-    //         include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-    //     }
-    // }
+    splits {
+        abi {
+            reset()
+            enable true
+            universalApk true
+            include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+    }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -146,6 +146,12 @@ android {
                 def abiCode = versionCodes[abi] ?: 0
                 output.versionCodeOverride = defaultConfig.versionCode * 1000 + abiCode
             }
+        }
+    }
+
+     packagingOptions {
+        jniLibs {
+            useLegacyPackaging true
         }
     }
 

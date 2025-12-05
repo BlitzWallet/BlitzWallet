@@ -1,6 +1,4 @@
-import { privateKeyFromSeedWords } from './nostrCompatability';
-import { getPublicKey } from 'nostr-tools';
-import { addDataToCollection, getDataFromCollection } from '../../db';
+import { getDataFromCollection } from '../../db';
 import { generateRandomContact } from './contacts';
 import {
   getCurrentDateFormatted,
@@ -13,39 +11,26 @@ import {
 } from '../constants';
 import { sendDataToDB } from '../../db/interactionManager';
 import { firebaseAuth, initializeFirebase } from '../../db/initializeFirebase';
-import {
-  fetchLocalStorageItems,
-  shouldLoadExploreData,
-} from './initializeUserSettingsHelpers';
+import { fetchLocalStorageItems } from './initializeUserSettingsHelpers';
 import { crashlyticsLogReport } from './crashlyticsLogs';
-import { getLocalStorageItem, setLocalStorageItem } from './localStorage';
-import fetchBackend from '../../db/handleBackend';
+import { setLocalStorageItem } from './localStorage';
 import { getNWCData } from './nwc';
 import { getNWCSparkIdentityPubKey, initializeNWCWallet } from './nwc/wallet';
 
 export default async function initializeUserSettingsFromHistory({
-  accountMnemoinc,
-  setContactsPrivateKey,
   setMasterInfoObject,
   toggleGlobalContactsInformation,
   toggleGlobalAppDataInformation,
   toggleMasterInfoObject,
   preloadedData,
   setPreLoadedUserData,
+  privateKey,
+  publicKey,
 }) {
   try {
     crashlyticsLogReport('Begining process of getting user settings');
     let needsToUpdate = false;
     let tempObject = {};
-    const mnemonic = accountMnemoinc;
-
-    if (!mnemonic) throw new Error('Unable to load user settings, no mnemonic');
-
-    const privateKey = await privateKeyFromSeedWords(mnemonic);
-
-    const publicKey = privateKey ? getPublicKey(privateKey) : null;
-
-    if (!privateKey || !publicKey) throw Error('Failed to retrieve keys');
 
     const [
       _,
@@ -109,8 +94,6 @@ export default async function initializeUserSettingsFromHistory({
 
     if (blitzStoredData === null) throw Error('Failed to retrive');
     blitzStoredData = blitzStoredData || {};
-
-    setContactsPrivateKey(privateKey);
 
     const generatedUniqueName = blitzStoredData?.contacts?.uniqueName
       ? ''

@@ -10,9 +10,11 @@ import {
   addEventListener,
   removeEventListener,
   SdkEventVariant,
+  disconnect,
 } from '@breeztech/react-native-breez-sdk-liquid';
 import startLiquidUpdateInterval from '../app/functions/liquidBackupUpdate';
 import { useNodeContext } from './nodeContext';
+import { useAuthContext } from './authContext';
 
 const LiquidEventContext = createContext(null);
 
@@ -22,6 +24,7 @@ const REQUIRED_SYNC_COUNT = 2;
 
 // Create a context for the WebView ref
 export function LiquidEventProvider({ children }) {
+  const { authResetkey } = useAuthContext();
   const { toggleLiquidNodeInformation, liquidNodeInformation } =
     useNodeContext();
   const initialLiquidRun = useRef(null);
@@ -31,6 +34,7 @@ export function LiquidEventProvider({ children }) {
   const intervalId = useRef(null);
   const debounceTimer = useRef(null);
   const syncRunCounter = useRef(0);
+  const isInitialRender = useRef(true);
 
   useEffect(() => {
     if (!liquidNodeInformation.didConnectToNode) return;
@@ -38,6 +42,23 @@ export function LiquidEventProvider({ children }) {
     initialLiquidRun.current = true;
     startLiquidEventListener(6);
   }, [liquidNodeInformation.didConnectToNode]);
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    cleanup();
+    disconnect();
+    toggleLiquidNodeInformation({
+      didConnectToNode: null,
+      transactions: [],
+      userBalance: 0,
+    });
+    liquidEventRunCounter.current = 0;
+    numberOfLiquidEvents.current = DEFAULT_EVENT_LIMIT;
+    initialLiquidRun.current = null;
+  }, [authResetkey]);
 
   const cleanup = useCallback(() => {
     if (debounceTimer.current) {

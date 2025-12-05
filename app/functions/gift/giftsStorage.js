@@ -4,14 +4,34 @@ export const CACHED_GIFTS = 'SAVED_GIFTS';
 
 let sqlLiteDB = null;
 let isInitialized = false;
+let initPromise = null;
 
-const getDatabase = async () => {
-  try {
-    if (!sqlLiteDB) {
+async function openDBConnection() {
+  if (!initPromise) {
+    initPromise = (async () => {
       console.log('Opening database connection...');
       sqlLiteDB = await SQLite.openDatabaseAsync(`${CACHED_GIFTS}.db`);
       console.log('Database connection opened');
-    }
+      return sqlLiteDB;
+    })();
+  }
+  return initPromise;
+}
+
+export const isGiftDatabaseOpen = () => {
+  return isInitialized;
+};
+
+const ensureGiftDatabaseReady = async () => {
+  if (!sqlLiteDB) {
+    await openDBConnection();
+  }
+  return sqlLiteDB;
+};
+
+const getDatabase = async () => {
+  try {
+    await ensureGiftDatabaseReady();
 
     // Initialize database if not already done
     if (!isInitialized) {
@@ -29,9 +49,7 @@ export const initGiftDb = async () => {
   try {
     console.log('Initializing gift database...');
 
-    if (!sqlLiteDB) {
-      sqlLiteDB = await SQLite.openDatabaseAsync(`${CACHED_GIFTS}.db`);
-    }
+    await ensureGiftDatabaseReady();
 
     await sqlLiteDB.execAsync(`
       PRAGMA journal_mode = WAL;

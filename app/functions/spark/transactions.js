@@ -1,28 +1,48 @@
 import EventEmitter from 'events';
 import { handleEventEmitterPost } from '../handleEventEmitters';
 import { openDatabaseAsync } from 'expo-sqlite';
+
 export const SPARK_TRANSACTIONS_DATABASE_NAME = 'SPARK_INFORMATION_DATABASE';
 export const SPARK_TRANSACTIONS_TABLE_NAME = 'SPARK_TRANSACTIONS';
 export const LIGHTNING_REQUEST_IDS_TABLE_NAME = 'LIGHTNING_REQUEST_IDS';
 export const SPARK_REQUEST_IDS_TABLE_NAME = 'SPARK_REQUEST_IDS';
 export const sparkTransactionsEventEmitter = new EventEmitter();
 export const SPARK_TX_UPDATE_ENVENT_NAME = 'UPDATE_SPARK_STATE';
+
 let bulkUpdateTransactionQueue = [];
 let isProcessingBulkUpdate = false;
 
 let sqlLiteDB;
+let isInitialized = false;
+let initPromise = null;
 
-if (!sqlLiteDB) {
-  async function openDBConnection() {
-    sqlLiteDB = await openDatabaseAsync(
-      `${SPARK_TRANSACTIONS_DATABASE_NAME}.db`,
-    );
+async function openDBConnection() {
+  if (!initPromise) {
+    initPromise = (async () => {
+      sqlLiteDB = await openDatabaseAsync(
+        `${SPARK_TRANSACTIONS_DATABASE_NAME}.db`,
+      );
+      isInitialized = true;
+      return sqlLiteDB;
+    })();
   }
-  openDBConnection();
+  return initPromise;
 }
+
+export const isSparkTxDatabaseOpen = () => {
+  return isInitialized;
+};
+
+export const ensureSparkDatabaseReady = async () => {
+  if (!isInitialized) {
+    await openDBConnection();
+  }
+  return sqlLiteDB;
+};
 
 export const initializeSparkDatabase = async () => {
   try {
+    await ensureSparkDatabaseReady();
     // Payment status: pending, completed, failed
     await sqlLiteDB.execAsync(`
       PRAGMA journal_mode = WAL;
@@ -58,13 +78,13 @@ export const initializeSparkDatabase = async () => {
     console.log('Opened spark transaction and contacts tables');
     return true;
   } catch (err) {
-    console.log('Database initialization failed:', err);
+    console.log('Spark Database initialization failed:', err);
     return false;
   }
 };
-
 export const getAllSparkTransactions = async (options = {}) => {
   try {
+    await ensureSparkDatabaseReady();
     const {
       limit = null,
       offset = null,
@@ -110,6 +130,7 @@ export const getAllSparkTransactions = async (options = {}) => {
 
 export const getAllPendingSparkPayments = async accountId => {
   try {
+    await ensureSparkDatabaseReady();
     let query = `
       SELECT * 
       FROM ${SPARK_TRANSACTIONS_TABLE_NAME} 
@@ -132,6 +153,7 @@ export const getAllPendingSparkPayments = async accountId => {
 
 export const getAllSparkContactInvoices = async () => {
   try {
+    await ensureSparkDatabaseReady();
     const result = await sqlLiteDB.getAllAsync(
       `SELECT * FROM ${SPARK_REQUEST_IDS_TABLE_NAME}`,
     );
@@ -148,6 +170,7 @@ export const addSingleUnpaidSparkTransaction = async tx => {
   }
 
   try {
+    await ensureSparkDatabaseReady();
     await sqlLiteDB.runAsync(
       `INSERT INTO ${SPARK_REQUEST_IDS_TABLE_NAME}
        (sparkID, description, sendersPubkey, details)
@@ -176,6 +199,7 @@ export const addBulkUnpaidSparkContactTransactions = async transactions => {
   }
 
   try {
+    await ensureSparkDatabaseReady();
     const placeholders = validTransactions.map(() => '(?, ?, ?, ?)').join(', ');
 
     const values = validTransactions.flatMap(tx => [
@@ -208,6 +232,7 @@ export const addBulkUnpaidSparkContactTransactions = async transactions => {
 
 export const deleteSparkContactTransaction = async sparkID => {
   try {
+    await ensureSparkDatabaseReady();
     await sqlLiteDB.runAsync(
       `DELETE FROM ${SPARK_REQUEST_IDS_TABLE_NAME} WHERE sparkID = ?`,
       sparkID,
@@ -222,6 +247,7 @@ export const deleteSparkContactTransaction = async sparkID => {
 
 export const getAllUnpaidSparkLightningInvoices = async () => {
   try {
+    await ensureSparkDatabaseReady();
     const result = await sqlLiteDB.getAllAsync(
       `SELECT * FROM ${LIGHTNING_REQUEST_IDS_TABLE_NAME}`,
     );
@@ -237,6 +263,7 @@ export const addSingleUnpaidSparkLightningTransaction = async tx => {
   }
 
   try {
+    await ensureSparkDatabaseReady();
     await sqlLiteDB.runAsync(
       `INSERT INTO ${LIGHTNING_REQUEST_IDS_TABLE_NAME}
        (sparkID, amount, expiration, description, shouldNavigate, details)
@@ -298,6 +325,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
 
   return addToBulkUpdateQueue(async () => {
     try {
+      await ensureSparkDatabaseReady();
       console.log('Running bulk updates', updateType);
       console.log(transactions);
 
@@ -558,6 +586,7 @@ export const addSingleSparkTransaction = async tx => {
   }
 
   try {
+    await ensureSparkDatabaseReady();
     const newDetails = tx.details;
     await sqlLiteDB.runAsync(
       `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}
@@ -588,6 +617,7 @@ export const addSingleSparkTransaction = async tx => {
 
 export const deleteSparkTransaction = async sparkID => {
   try {
+    await ensureSparkDatabaseReady();
     await sqlLiteDB.runAsync(
       `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ?`,
       sparkID,
@@ -605,8 +635,10 @@ export const deleteSparkTransaction = async sparkID => {
     return false;
   }
 };
+
 export const deleteUnpaidSparkLightningTransaction = async sparkID => {
   try {
+    await ensureSparkDatabaseReady();
     await sqlLiteDB.runAsync(
       `DELETE FROM ${LIGHTNING_REQUEST_IDS_TABLE_NAME} WHERE sparkID = ?`,
       sparkID,
@@ -620,6 +652,7 @@ export const deleteUnpaidSparkLightningTransaction = async sparkID => {
 
 export const deleteSparkTransactionTable = async () => {
   try {
+    await ensureSparkDatabaseReady();
     await sqlLiteDB.execAsync(
       `DROP TABLE IF EXISTS ${SPARK_TRANSACTIONS_TABLE_NAME}`,
     );
@@ -632,6 +665,7 @@ export const deleteSparkTransactionTable = async () => {
 
 export const deleteSparkContactsTransactionsTable = async () => {
   try {
+    await ensureSparkDatabaseReady();
     await sqlLiteDB.execAsync(
       `DROP TABLE IF EXISTS ${SPARK_REQUEST_IDS_TABLE_NAME}`,
     );
@@ -644,6 +678,7 @@ export const deleteSparkContactsTransactionsTable = async () => {
 
 export const deleteUnpaidSparkLightningTransactionTable = async () => {
   try {
+    await ensureSparkDatabaseReady();
     await sqlLiteDB.execAsync(
       `DROP TABLE IF EXISTS ${LIGHTNING_REQUEST_IDS_TABLE_NAME}`,
     );
@@ -656,6 +691,7 @@ export const deleteUnpaidSparkLightningTransactionTable = async () => {
 
 export const cleanStalePendingSparkLightningTransactions = async () => {
   try {
+    await ensureSparkDatabaseReady();
     const now = new Date().getTime();
     // Delete where status is 'INVOICE_CREATED' and expires_at_time is not null and in the past
     await sqlLiteDB.runAsync(

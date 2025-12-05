@@ -11,6 +11,7 @@ import { AppState, Dimensions, Platform } from 'react-native';
 import { getBoltzSwapPairInformation } from '../app/functions/boltz/boltzSwapInfo';
 import * as Network from 'expo-network';
 import { navigationRef } from '../navigation/navigationService';
+import { BACKGROUND_THRESHOLD_MS } from '../app/constants';
 
 // Initiate context
 const AppStatusManager = createContext(null);
@@ -31,6 +32,8 @@ const AppStatusProvider = ({ children }) => {
   const [screenDimensions, setScreenDimensions] = useState(() =>
     Dimensions.get('screen'),
   );
+  const shouldResetStateRef = useRef(null);
+  const timeInBackgroundRef = useRef(0);
 
   const hasInitializedNavListener = useRef(false);
   const hasInitializedBoltzData = useRef(false);
@@ -56,6 +59,26 @@ const AppStatusProvider = ({ children }) => {
   useEffect(() => {
     const handleAppStateChange = nextAppState => {
       console.log('App state changed to:', nextAppState);
+      if (nextAppState === 'background') {
+        shouldResetStateRef.current = false;
+        timeInBackgroundRef.current = Date.now();
+      } else if (nextAppState === 'active') {
+        const timeInBackground = timeInBackgroundRef.current
+          ? Date.now() - timeInBackgroundRef.current
+          : 0;
+
+        if (timeInBackground > BACKGROUND_THRESHOLD_MS) {
+          setTimeout(() => {
+            toggleDidGetToHomepage(false);
+          }, 100);
+
+          shouldResetStateRef.current = true;
+        } else {
+          shouldResetStateRef.current = false;
+        }
+        timeInBackgroundRef.current = null;
+      }
+
       setAppState(nextAppState);
     };
 
@@ -187,6 +210,7 @@ const AppStatusProvider = ({ children }) => {
       toggleDidGetToHomepage,
       appState,
       screenDimensions,
+      shouldResetStateRef,
     }),
     [
       minMaxLiquidSwapAmounts,
@@ -196,6 +220,7 @@ const AppStatusProvider = ({ children }) => {
       toggleDidGetToHomepage,
       appState,
       screenDimensions,
+      shouldResetStateRef,
     ],
   );
 

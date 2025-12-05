@@ -21,6 +21,8 @@ import { updateMascatWalkingAnimation } from '../../functions/lottieViewColorTra
 import { crashlyticsLogReport } from '../../functions/crashlyticsLogs';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { removeLocalStorageItem } from '../../functions/localStorage';
+import { privateKeyFromSeedWords } from '../../functions/nostrCompatability';
+import { getPublicKey } from 'nostr-tools';
 // import { initializeSparkDatabase } from '../../functions/spark/transactions';
 // import { getCachedSparkTransactions } from '../../functions/spark';
 // import { getLocalStorageItem, setLocalStorageItem } from '../../functions';
@@ -39,7 +41,7 @@ export default function ConnectingToNodeLoadingScreen({
   const navigate = useNavigation();
   const {
     toggleMasterInfoObject,
-    // masterInfoObject,
+    masterInfoObject,
     setMasterInfoObject,
     preloadedUserData,
     setPreLoadedUserData,
@@ -106,46 +108,62 @@ export default function ConnectingToNodeLoadingScreen({
         console.log('Process 1', new Date().getTime());
         connectToSparkWallet();
 
-        // connectToLiquidNode(accountMnemoinc);
-        const [
-          // didOpen,
-          // giftCardTable,
-          // posTransactions,
-          // sparkTxs,
-          // rootstockSwaps,
-          didLoadUserSettings,
-        ] = await Promise.all([
-          // initializeDatabase(),
-          // initializeGiftCardDatabase(),
-          // initializePOSTransactionsDatabase(),
-          // initializeSparkDatabase(),
-          // initRootstockSwapDB(),
-          initializeUserSettingsFromHistory({
-            accountMnemoinc,
-            setContactsPrivateKey: toggleContactsPrivateKey,
-            setMasterInfoObject,
-            toggleGlobalContactsInformation,
-            // toggleGLobalEcashInformation,
-            toggleGlobalAppDataInformation,
-            toggleMasterInfoObject,
-            preloadedData: preloadedUserData.data,
-            setPreLoadedUserData,
-          }),
-        ]);
+        const privateKey = await privateKeyFromSeedWords(accountMnemoinc);
+        const publicKey = privateKey ? getPublicKey(privateKey) : null;
 
-        console.log('Process 2', new Date().getTime());
-        crashlyticsLogReport('Opened all SQL lite tables');
-
-        if (!didLoadUserSettings)
+        if (!privateKey || !publicKey)
           throw new Error(
             t('screens.inAccount.loadingScreen.userSettingsError'),
           );
-        crashlyticsLogReport('Loaded users settings from firebase');
 
+        const hasSavedInfo = Object.keys(masterInfoObject || {}).length > 5; //arbitrary number but filters out onboarding items
+
+        if (!hasSavedInfo) {
+          // connectToLiquidNode(accountMnemoinc);
+          const [
+            // didOpen,
+            // giftCardTable,
+            // posTransactions,
+            // sparkTxs,
+            // rootstockSwaps,
+            didLoadUserSettings,
+          ] = await Promise.all([
+            // initializeDatabase(),
+            // initializeGiftCardDatabase(),
+            // initializePOSTransactionsDatabase(),
+            // initializeSparkDatabase(),
+            // initRootstockSwapDB(),
+            initializeUserSettingsFromHistory({
+              setMasterInfoObject,
+              toggleGlobalContactsInformation,
+              // toggleGLobalEcashInformation,
+              toggleGlobalAppDataInformation,
+              toggleMasterInfoObject,
+              preloadedData: preloadedUserData.data,
+              setPreLoadedUserData,
+              privateKey,
+              publicKey,
+            }),
+          ]);
+
+          console.log('Process 2', new Date().getTime());
+          crashlyticsLogReport('Opened all SQL lite tables');
+
+          if (!didLoadUserSettings)
+            throw new Error(
+              t('screens.inAccount.loadingScreen.userSettingsError'),
+            );
+          crashlyticsLogReport('Loaded users settings from firebase');
+        }
+
+        toggleContactsPrivateKey(privateKey);
         console.log('Process 3', new Date().getTime());
 
         const elapsedTime = Date.now() - startTime;
-        const remainingTime = Math.max(0, 1500 - elapsedTime);
+        const remainingTime = Math.max(
+          0,
+          (hasSavedInfo ? 500 : 1500) - elapsedTime,
+        );
 
         if (remainingTime > 0) {
           console.log(
@@ -165,7 +183,7 @@ export default function ConnectingToNodeLoadingScreen({
     didRunConnectionRef.current = true;
 
     requestAnimationFrame(startConnectProcess);
-  }, [preloadedUserData]);
+  }, [preloadedUserData, masterInfoObject]);
   // useEffect(() => {
   //   if (
   //     Object.keys(masterInfoObject).length === 0 ||

@@ -194,7 +194,7 @@ export default function AddContactsHalfModal({
       newContact: {
         name: searchInput.split('@')[0],
         bio: '',
-        uniqueName: null,
+        uniqueName: '',
         isFavorite: false,
         transactions: [],
         unlookedTransactions: 0,

@@ -1,9 +1,9 @@
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
-import {getTwoWeeksAgoDate} from '../rotateAddressDateChecker';
-import {decryptMessage} from '../messaging/encodingAndDecodingMessages';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
+import { getTwoWeeksAgoDate } from '../rotateAddressDateChecker';
+import { decryptMessage } from '../messaging/encodingAndDecodingMessages';
 import EventEmitter from 'events';
-import {handleEventEmitterPost} from '../handleEventEmitters';
-import {openDatabaseAsync} from 'expo-sqlite';
+import { handleEventEmitterPost } from '../handleEventEmitters';
+import { openDatabaseAsync } from 'expo-sqlite';
 export const POS_TRANSACTION_TABLE_NAME = 'POS_TRANSACTIONS';
 
 export const POS_LAST_RECEIVED_TIME = 'LAST_RECEIVED_POS_EVENT';
@@ -14,16 +14,34 @@ export const pointOfSaleEventEmitter = new EventEmitter();
 let sqlLiteDB;
 let messageQueue = [];
 let isProcessing = false;
+let isInitialized = false;
+let initPromise = null;
 
-if (!sqlLiteDB) {
-  async function openDBConnection() {
-    sqlLiteDB = await openDatabaseAsync(`${POS_TRANSACTION_TABLE_NAME}.db`);
+async function openDBConnection() {
+  if (!initPromise) {
+    initPromise = (async () => {
+      sqlLiteDB = await openDatabaseAsync(`${POS_TRANSACTION_TABLE_NAME}.db`);
+      isInitialized = true;
+      return sqlLiteDB;
+    })();
   }
-  openDBConnection();
+  return initPromise;
 }
+
+export const isSavedPOSTxsDatabaseOpen = () => {
+  return isInitialized;
+};
+
+export const ensurePOSDatabaseReady = async () => {
+  if (!isInitialized) {
+    await openDBConnection();
+  }
+  return sqlLiteDB;
+};
 
 export const initializePOSTransactionsDatabase = async () => {
   try {
+    await ensurePOSDatabaseReady();
     await sqlLiteDB.execAsync('PRAGMA journal_mode = WAL;');
 
     await sqlLiteDB.execAsync(`
@@ -61,7 +79,7 @@ export const initializePOSTransactionsDatabase = async () => {
     );
     return true;
   } catch (err) {
-    console.log(err);
+    console.log('error opening pos txs database', err);
     handleEventEmitterPost(
       pointOfSaleEventEmitter,
       DID_OPEN_TABLES_EVENT_NAME,
@@ -71,8 +89,10 @@ export const initializePOSTransactionsDatabase = async () => {
     return false;
   }
 };
+
 export const getSavedPOSTransactions = async () => {
   try {
+    await ensurePOSDatabaseReady();
     const result = await sqlLiteDB.getAllAsync(
       `SELECT * FROM ${POS_TRANSACTION_TABLE_NAME} ORDER BY timestamp DESC;`,
     );
@@ -108,7 +128,7 @@ const processQueue = async () => {
   if (isProcessing) return;
   isProcessing = true;
   while (messageQueue.length > 0) {
-    const {transactionsList, privateKey} = messageQueue.shift();
+    const { transactionsList, privateKey } = messageQueue.shift();
     try {
       await setPOSTransactions({
         transactionsList,
@@ -121,7 +141,7 @@ const processQueue = async () => {
 
   isProcessing = false;
 };
-export const queuePOSTransactions = ({transactionsList, privateKey}) => {
+export const queuePOSTransactions = ({ transactionsList, privateKey }) => {
   messageQueue.push({
     transactionsList,
     privateKey,
@@ -131,8 +151,9 @@ export const queuePOSTransactions = ({transactionsList, privateKey}) => {
   }
 };
 
-const setPOSTransactions = async ({transactionsList, privateKey}) => {
+const setPOSTransactions = async ({ transactionsList, privateKey }) => {
   try {
+    await ensurePOSDatabaseReady();
     // Start a database transaction for better performance
     await sqlLiteDB.execAsync('BEGIN TRANSACTION;');
 
@@ -190,6 +211,7 @@ export const bulkUpdateDidPay = async dbDateAddedArray => {
   }
 
   try {
+    await ensurePOSDatabaseReady();
     // Generate placeholders for the query (?, ?, ?)
     const placeholders = dbDateAddedArray.map(() => '?').join(', ');
 
@@ -219,6 +241,7 @@ export const updateDidPayForSingleTx = async (didPaySetting, dbDateAdded) => {
     return;
   }
   try {
+    await ensurePOSDatabaseReady();
     await sqlLiteDB.runAsync(
       `UPDATE ${POS_TRANSACTION_TABLE_NAME} 
        SET didPay = ?
@@ -241,6 +264,7 @@ export const updateDidPayForSingleTx = async (didPaySetting, dbDateAdded) => {
 
 export const deleteEmployee = async employeeName => {
   try {
+    await ensurePOSDatabaseReady();
     await sqlLiteDB.runAsync(
       `DELETE FROM ${POS_TRANSACTION_TABLE_NAME} WHERE LOWER(serverName) = LOWER(?);`,
       [employeeName],
@@ -262,6 +286,7 @@ export const deleteEmployee = async employeeName => {
 
 export const deletePOSTransactionsTable = async () => {
   try {
+    await ensurePOSDatabaseReady();
     await sqlLiteDB.runAsync(
       `DROP TABLE IF EXISTS ${POS_TRANSACTION_TABLE_NAME};`,
     );

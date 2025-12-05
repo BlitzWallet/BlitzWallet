@@ -1,18 +1,36 @@
-import {openDatabaseAsync} from 'expo-sqlite';
+import { openDatabaseAsync } from 'expo-sqlite';
 
 export const ROOTSTOCK_DB_NAME = 'ROOTSTOCK_SWAPS';
 export const ROOTSTOCK_TABLE_NAME = 'saved_rootstock_swaps';
 let sqlLiteDB;
+let isInitialized = false;
+let initPromise = null;
 
-if (!sqlLiteDB) {
-  async function openDBConnection() {
-    sqlLiteDB = await openDatabaseAsync(`${ROOTSTOCK_DB_NAME}.db`);
+async function openDBConnection() {
+  if (!initPromise) {
+    initPromise = (async () => {
+      sqlLiteDB = await openDatabaseAsync(`${ROOTSTOCK_DB_NAME}.db`);
+      isInitialized = true;
+      return sqlLiteDB;
+    })();
   }
-  openDBConnection();
+  return initPromise;
 }
+
+export const isRoostockDatabaseOpen = () => {
+  return isInitialized;
+};
+
+export const ensureRootstockDatabaseReady = async () => {
+  if (!isInitialized) {
+    await openDBConnection();
+  }
+  return sqlLiteDB;
+};
 
 export async function initRootstockSwapDB() {
   try {
+    await ensureRootstockDatabaseReady();
     await sqlLiteDB.execAsync(`PRAGMA journal_mode = WAL;
        CREATE TABLE IF NOT EXISTS ${ROOTSTOCK_TABLE_NAME} (
         id TEXT PRIMARY KEY NOT NULL,
@@ -30,6 +48,7 @@ export async function initRootstockSwapDB() {
 // Save swap as JSON string
 export async function saveSwap(id, type, data) {
   try {
+    await ensureRootstockDatabaseReady();
     await sqlLiteDB.runAsync(
       `INSERT OR REPLACE INTO ${ROOTSTOCK_TABLE_NAME} (id, type, data) VALUES (?, ?, ?)`,
       [id, type, JSON.stringify(data)],
@@ -42,6 +61,7 @@ export async function saveSwap(id, type, data) {
 // Update swap with new details properties
 export async function updateSwap(id, newDetails) {
   try {
+    await ensureRootstockDatabaseReady();
     // First, get the existing swap data
     const existingSwap = await sqlLiteDB.getFirstAsync(
       `SELECT data FROM ${ROOTSTOCK_TABLE_NAME} WHERE id = ?`,
@@ -78,6 +98,7 @@ export async function updateSwap(id, newDetails) {
 // Load all swaps
 export async function loadSwaps() {
   try {
+    await ensureRootstockDatabaseReady();
     const result = await sqlLiteDB.getAllAsync(
       `SELECT * FROM ${ROOTSTOCK_TABLE_NAME}`,
     );
@@ -94,6 +115,7 @@ export async function loadSwaps() {
 // Load single swap by id
 export async function getSwapById(id) {
   try {
+    await ensureRootstockDatabaseReady();
     const result = await sqlLiteDB.getAllAsync(
       `SELECT * FROM ${ROOTSTOCK_TABLE_NAME} WHERE id = ?`,
       [id],
@@ -114,6 +136,7 @@ export async function getSwapById(id) {
  */
 export async function deleteSwapById(id) {
   try {
+    await ensureRootstockDatabaseReady();
     await sqlLiteDB.runAsync(
       `DELETE FROM ${ROOTSTOCK_TABLE_NAME} WHERE id = ?`,
       [id],

@@ -31,11 +31,13 @@ import { JsonRpcProvider, Wallet } from 'ethers';
 import { getBoltzWsUrl } from '../app/functions/boltz/boltzEndpoitns';
 import { useSparkWallet } from './sparkContext';
 import { useWebView } from './webViewContext';
+import { useAuthContext } from './authContext';
 
 export const RootstockSwapContext = createContext();
 
 export const RootstockSwapProvider = ({ children }) => {
   const { sendWebViewRequest } = useWebView();
+  const { authResetkey } = useAuthContext();
   const { sparkInformation } = useSparkWallet();
   const { accountMnemoinc } = useKeysContext();
   const { didGetToHomepage, minMaxLiquidSwapAmounts } = useAppStatus();
@@ -44,6 +46,7 @@ export const RootstockSwapProvider = ({ children }) => {
   const [signer, setSigner] = useState(null);
   const [pendingNavigation, setPendingNavigation] = useState(null);
 
+  const isInitialRender = useRef(true);
   const wsRef = useRef(null);
   const intervalRef = useRef(null);
   const timeoutRef = useRef(null);
@@ -371,6 +374,16 @@ export const RootstockSwapProvider = ({ children }) => {
       provider,
     ],
   );
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    cleanupRootstockListener();
+    didRunSignerCreation.current = false;
+    setSigner(null);
+  }, [authResetkey]);
 
   const contextValue = useMemo(() => {
     return {

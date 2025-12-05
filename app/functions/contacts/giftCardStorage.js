@@ -1,22 +1,39 @@
 // giftCardStorage.js
-import {openDatabaseAsync} from 'expo-sqlite';
+import { openDatabaseAsync } from 'expo-sqlite';
 import fetchBackend from '../../../db/handleBackend';
 
 export const GIFT_CARDS_TABLE_NAME = 'giftCardsTable';
 export const GIFT_CARD_UPDATE_EVENT_NAME = 'GIFT_CARD_UPDATED';
 
 let giftCardDB;
+let isInitialized = false;
+let initPromise = null;
 
-// Initialize database connection
-if (!giftCardDB) {
-  async function openGiftCardDB() {
-    giftCardDB = await openDatabaseAsync('giftCards.db');
+async function openGiftCardDB() {
+  if (!initPromise) {
+    initPromise = (async () => {
+      giftCardDB = await openDatabaseAsync('giftCards.db');
+      isInitialized = true;
+      return giftCardDB;
+    })();
   }
-  openGiftCardDB();
+  return initPromise;
 }
+
+export const isGiftCardDatabaseOpen = () => {
+  return isInitialized;
+};
+
+export const ensureGiftCardDatabaseReady = async () => {
+  if (!isInitialized) {
+    await openGiftCardDB();
+  }
+  return giftCardDB;
+};
 
 export const initializeGiftCardDatabase = async () => {
   try {
+    await ensureGiftCardDatabaseReady();
     await giftCardDB.execAsync(`PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS ${GIFT_CARDS_TABLE_NAME} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,6 +52,7 @@ export const initializeGiftCardDatabase = async () => {
 
 export const getGiftCardData = async invoice => {
   try {
+    await ensureGiftCardDatabaseReady();
     const result = await giftCardDB.getFirstAsync(
       `SELECT * FROM ${GIFT_CARDS_TABLE_NAME} WHERE invoice = ?;`,
       [invoice],
@@ -57,6 +75,7 @@ export const getGiftCardData = async invoice => {
 
 export const saveGiftCardData = async (invoice, giftCardData) => {
   try {
+    await ensureGiftCardDatabaseReady();
     const existingData = await giftCardDB.getFirstAsync(
       `SELECT id FROM ${GIFT_CARDS_TABLE_NAME} WHERE invoice = ?;`,
       [invoice],
@@ -156,6 +175,7 @@ export const fetchAndCacheGiftCardData = async (
 
 export const getAllGiftCards = async () => {
   try {
+    await ensureGiftCardDatabaseReady();
     const result = await giftCardDB.getAllAsync(
       `SELECT * FROM ${GIFT_CARDS_TABLE_NAME} ORDER BY lastUpdated DESC;`,
     );
@@ -174,6 +194,7 @@ export const getAllGiftCards = async () => {
 
 export const deleteGiftCardData = async invoice => {
   try {
+    await ensureGiftCardDatabaseReady();
     await giftCardDB.runAsync(
       `DELETE FROM ${GIFT_CARDS_TABLE_NAME} WHERE invoice = ?;`,
       [invoice],
