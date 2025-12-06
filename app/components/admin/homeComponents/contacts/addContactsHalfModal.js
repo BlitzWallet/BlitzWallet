@@ -19,8 +19,8 @@ import {
 } from '../../../../constants';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
-import { useEffect, useRef, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { searchUsers } from '../../../../../db';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import CustomButton from '../../../../functions/CustomElements/button';
@@ -39,6 +39,7 @@ export default function AddContactsHalfModal({
   slideHeight,
   setIsKeyboardActive,
   startingSearchValue,
+  handleBackPressFunction,
 }) {
   const { contactsPrivateKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -51,6 +52,7 @@ export default function AddContactsHalfModal({
   const keyboardRef = useRef(null);
   const { refreshCacheObject } = useImageCache();
   const searchTrackerRef = useRef(null);
+  const didClickCamera = useRef(null);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -63,6 +65,26 @@ export default function AddContactsHalfModal({
     const requestUUID = customUUID();
     searchTrackerRef.current = requestUUID; // Simply store the latest UUID
     return requestUUID;
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!keyboardRef.current.isFocused()) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            keyboardRef.current.focus();
+          });
+        });
+      }
+    }, []),
+  );
+
+  const handleTextInputBlur = () => {
+    setIsKeyboardActive(false);
+    if (!searchInput && !didClickCamera.current) {
+      handleBackPressFunction?.();
+    }
+    didClickCamera.current = false;
   };
 
   const debouncedSearch = useDebounce(async (term, requestUUID) => {
@@ -238,6 +260,7 @@ export default function AddContactsHalfModal({
         buttonComponent={
           <TouchableOpacity
             onPress={() => {
+              didClickCamera.current = true;
               keyboardNavigate(() =>
                 navigate.navigate('CameraModal', {
                   updateBitcoinAdressFunc: parseContact,
@@ -259,7 +282,7 @@ export default function AddContactsHalfModal({
           </TouchableOpacity>
         }
         onFocusFunction={() => setIsKeyboardActive(true)}
-        onBlurFunction={() => setIsKeyboardActive(false)}
+        onBlurFunction={handleTextInputBlur}
       />
 
       {searchInput.includes('@') ? (

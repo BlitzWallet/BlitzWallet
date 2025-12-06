@@ -188,6 +188,7 @@ export default function CustomHalfModal(props) {
             slideHeight={slideHeight}
             setIsKeyboardActive={setIsKeyboardActive}
             startingSearchValue={props.route.params?.startingSearchValue}
+            handleBackPressFunction={handleBackPressFunction}
           />
         );
 
