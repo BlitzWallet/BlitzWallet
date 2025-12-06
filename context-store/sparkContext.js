@@ -75,7 +75,7 @@ const SparkWalletProvider = ({ children }) => {
   const { changeSparkConnectionState, sendWebViewRequest } = useWebView();
   const { accountMnemoinc, contactsPrivateKey, publicKey } = useKeysContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { didGetToHomepage, appState, shouldResetStateRef } = useAppStatus();
+  const { didGetToHomepage, appState, lastConnectedTimeRef } = useAppStatus();
   // const { liquidNodeInformation } = useNodeContext();
   const { toggleGlobalContactsInformation, globalContactsInformation } =
     useGlobalContacts();
@@ -1160,6 +1160,7 @@ const SparkWalletProvider = ({ children }) => {
       sendWebViewRequest,
     });
     setDidRunNormalConnection(true);
+    lastConnectedTimeRef.current = Date.now();
     if (!didWork) {
       setSparkInformation(prev => ({ ...prev, didConnect: false }));
       setSparkConnectionError(error);
