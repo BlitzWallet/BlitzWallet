@@ -175,6 +175,7 @@ export const WebViewProvider = ({ children }) => {
   const isInitialRender = useRef(true);
   const currentWalletMnemoincRef = useRef(currentWalletMnemoinc);
   const didRunInit = useRef(null);
+  const isWebviewReadyRef = useRef(null);
   const didGetToHomepageRef = useRef(didGetToHomepage);
   const [changeSparkConnectionState, setChangeSparkConnectionState] = useState({
     state: null,
@@ -184,6 +185,10 @@ export const WebViewProvider = ({ children }) => {
   useEffect(() => {
     currentWalletMnemoincRef.current = currentWalletMnemoinc;
   }, [currentWalletMnemoinc]);
+
+  useEffect(() => {
+    isWebviewReadyRef.current = isWebViewReady;
+  }, [isWebViewReady]);
 
   // reset webview when app is stale in background
   useEffect(() => {
@@ -659,12 +664,12 @@ export const WebViewProvider = ({ children }) => {
             return;
           }
 
-          if (!webViewRef.current || !isWebViewReady) {
+          if (!webViewRef.current || !isWebviewReadyRef.current) {
             console.log(
               'WebView not ready or internet is not connected, queueing message:',
               action,
               webViewRef.current,
-              isWebViewReady,
+              isWebviewReadyRef.current,
             );
             if (!isDuplicate(queuedRequests.current, action, args)) {
               queuedRequests.current.push({
@@ -857,7 +862,6 @@ export const WebViewProvider = ({ children }) => {
       });
     },
     [
-      isWebViewReady,
       encryptMessage,
       resetWebViewState,
       getNextSequence,
