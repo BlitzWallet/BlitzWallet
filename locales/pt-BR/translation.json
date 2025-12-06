@@ -1029,7 +1029,7 @@
       "searchPlaceholder": "Encontre um contato",
       "lnurlAddMessage": "Você está prestes a adicionar",
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
-      "startTypingMessage": "Procurar por endereço Lightning (e.g. name@service.com) ou nome de usuário Blitz."
+      "startTypingMessage": "Procurar por endereço Lightning (ex. name@service.com) ou nome de usuário Blitz."
     },
 
     "expandedContactPage": {
