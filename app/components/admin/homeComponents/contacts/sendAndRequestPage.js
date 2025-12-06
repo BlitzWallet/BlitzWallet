@@ -523,13 +523,17 @@ export default function SendAndRequestPage(props) {
           <>
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollViewContainer}
+              contentContainerStyle={[
+                styles.scrollViewContainer,
+                { opacity: isAmountFocused ? 1 : HIDDEN_OPACITY },
+              ]}
             >
               <FormattedBalanceInput
                 maxWidth={0.9}
                 amountValue={amountValue || 0}
                 inputDenomination={inputDenomination}
                 containerFunction={() => {
+                  if (!isAmountFocused) return;
                   setInputDenomination(prev => {
                     const newPrev = prev === 'sats' ? 'fiat' : 'sats';
                     return newPrev;
