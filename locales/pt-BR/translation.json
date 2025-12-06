@@ -1029,12 +1029,12 @@
       "searchPlaceholder": "Encontre um contato",
       "lnurlAddMessage": "Você está prestes a adicionar",
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
-      "startTypingMessage": "Procurar por LNURL (e.g. name@service.com) ou nome de usuário Blitz."
+      "startTypingMessage": "Procurar por endereço Lightning (e.g. name@service.com) ou nome de usuário Blitz."
     },
 
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente.",
-      "requestLNURLError": "Você só pode solicitar dinheiro dos contatos da Blitz, não de endereços LNURL.",
+      "requestLNURLError": "Você só pode solicitar dinheiro dos contatos da Blitz, não de endereços Lightning.",
       "noTransactions": "Envie ou solicite um pagamento para ver o histórico de transações."
     },
     "expandedMessageHalfModal": {
