@@ -69,7 +69,7 @@ export default function AdvancedGiftClaim() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.container}
         bottomOffset={100}
-        keyboardShouldPersistTaps="always"
+        keyboardShouldPersistTaps="handled"
       >
         {/* Current Index Card */}
         <View

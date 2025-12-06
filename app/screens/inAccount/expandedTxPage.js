@@ -304,7 +304,7 @@ export default function ExpandedTx(props) {
             styles.scrollContent,
             { paddingBottom: bottomPadding },
           ]}
-          keyboardShouldPersistTaps="always"
+          keyboardShouldPersistTaps="handled"
           bottomOffset={150}
         >
           <View
