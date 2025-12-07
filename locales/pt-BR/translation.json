@@ -697,7 +697,7 @@
       "giftCardsPage": {
         "searchPlaceholder": "Procure um cartão-presente",
         "leftPageMessage": "Aonde você foi?",
-        "loadingCardsMessage": "Obtendo cartões-presente",
+        "loadingCardsMessage": "Buscando cartões-presente",
         "noCardsAvailable": "Nenhum cartão-presente disponível"
       },
       "confimPurchase": {
@@ -796,9 +796,9 @@
         "autoSelectInfoMessage": "Selecione o país do número de telefone que você deseja usar. Para ter mais chances de receber seu código, recomendamos mantê-lo em seleção automática para que o sistema escolha a opção mais confiável.",
         "autoSelect": "Seleção automática",
         "inputPlaceholder": "Pesquisar um serviço",
-        "loacationLoadingMessage": "Obtendo serviços baseados em localização",
+        "loacationLoadingMessage": "Buscando serviços baseados em localização",
         "noAvailableServices": "Este local não possui serviços",
-        "orderDetailsLoading": "Obtendo detalhes do pedido"
+        "orderDetailsLoading": "Buscando detalhes do pedido"
       },
       "confirmCodePage": {
         "header": "Seu pedido foi iniciado com sucesso. Veja o que acontece em seguida:",
@@ -1304,7 +1304,7 @@
       "rescanComplete": "Verificação concluída",
       "swapStartedMessage": "A transferência foi iniciada. Pode levar de 10 a 20 segundos para o pagamento aparecer.",
       "balanceError": "O saldo Liquid atual é de {{balance}}, mas o valor mínimo de transferência é de {{swapAmount}}",
-      "loadingMessage": "Obtendo informações Liquid",
+      "loadingMessage": "Buscando informações Liquid",
       "breakdownHead": "Desagregação do saldo",
       "incoming": "{{amount}} entrada pendente",
       "outgoing": "{{amount}} pendente de saída",
@@ -1756,7 +1756,7 @@
           "defaultDesc": "Vale-bitcoin Blitz",
           "claimingGiftMessage1": "Preparando o vale-bitcoin...",
           "giftBalanceMessage_0": "Só um instante enquanto preparamos tudo...",
-          "giftBalanceMessage_1": "Estamos obtendo as informações do vale-bitcoin...",
+          "giftBalanceMessage_1": "Estamos buscando as informações do vale-bitcoin...",
           "giftBalanceMessage_2": "Quase lá—por favor mantenha o app aberto...",
           "giftBalanceMessage_3": "Finalizando os últimos passos...",
           "claimingGiftMessage4": "Resgatando o vale-bitcoin..."
