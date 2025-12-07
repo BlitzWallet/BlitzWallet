@@ -34,18 +34,21 @@ import {
   where,
 } from '@react-native-firebase/firestore';
 import { getCachedProfileImage } from '../app/functions/cachedImage';
+import { useAuthContext } from './authContext';
 
 // Create a context for the WebView ref
 const GlobalContacts = createContext(null);
 
 export const GlobalContactsList = ({ children }) => {
+  const { authResetkey } = useAuthContext();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const [globalContactsInformation, setGlobalContactsInformation] = useState(
     {},
   );
   const [contactsMessags, setContactsMessagses] = useState({});
-  const lookForNewMessages = useRef(false);
+  const lookForNewMessages = useRef(true);
   const unsubscribeMessagesRef = useRef(null);
+  const isInitialLoad = useRef(true);
   const addedContacts = globalContactsInformation.addedContacts;
 
   const toggleGlobalContactsInformation = useCallback(
@@ -152,6 +155,7 @@ export const GlobalContactsList = ({ children }) => {
 
   useEffect(() => {
     if (!Object.keys(globalContactsInformation).length) return;
+    if (!contactsPrivateKey) return;
     const now = new Date().getTime();
 
     // Unsubscribe from previous listeners before setting new ones
@@ -331,13 +335,16 @@ export const GlobalContactsList = ({ children }) => {
 
   useEffect(() => {
     if (!Object.keys(globalContactsInformation).length) return;
-    if (lookForNewMessages.current) return;
-    lookForNewMessages.current = true;
-    syncDatabasePayment(
-      globalContactsInformation.myProfile.uuid,
-      updatedCachedMessagesStateFunction,
-      contactsPrivateKey,
-    );
+    if (!contactsPrivateKey) return;
+
+    if (lookForNewMessages.current) {
+      lookForNewMessages.current = false;
+      syncDatabasePayment(
+        globalContactsInformation.myProfile.uuid,
+        updatedCachedMessagesStateFunction,
+        contactsPrivateKey,
+      );
+    }
   }, [
     globalContactsInformation,
     updatedCachedMessagesStateFunction,
@@ -398,6 +405,19 @@ export const GlobalContactsList = ({ children }) => {
       return messages?.some(message => !message.message.wasSeen) || false;
     });
   }, [contactsMessags, globalContactsInformation?.myProfile?.uuid]);
+
+  useEffect(() => {
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
+      return;
+    }
+
+    if (unsubscribeMessagesRef.current) {
+      unsubscribeMessagesRef.current();
+      unsubscribeMessagesRef.current = null;
+    }
+    lookForNewMessages.current = true;
+  }, [authResetkey]);
 
   const contextValue = useMemo(
     () => ({
