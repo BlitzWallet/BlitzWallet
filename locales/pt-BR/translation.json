@@ -1220,7 +1220,7 @@
     "loginSecurity": {
       "text1": "Segurança de acesso",
       "text2": "Tipo de segurança",
-      "text3": "Pin",
+      "text3": "PIN",
       "text4": "Biometria",
       "text5": "O dispositivo não possui um perfil biométrico. Crie um nas configurações para continuar.",
       "text6": "Erro ao acessar usando biometria",
