@@ -1102,9 +1102,9 @@
       },
       "contactsTransactions": {
         "pushNotificationUpdateMessage": "{{name}} {{option}} seu pedido",
-        "acceptProfileMessage": "Pago {{name}}'s pedido",
-        "acceptPayingContactMessage": "{{name}} pagou seu pedido",
-        "requestTitle": "Pedido recebido para "
+        "acceptProfileMessage": "Solicitação de {{name}}'s paga",
+        "acceptPayingContactMessage": "{{name}} pagou sua solicitação",
+        "requestTitle": "Solicitação de pagamento de "
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Cartão-presente",
