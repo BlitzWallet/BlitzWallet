@@ -146,9 +146,12 @@ export default function FormattedSatText({
   } else if (useCustomLabel) {
     children = [
       frontText && renderText(frontText, { marginLeft: 'auto' }),
-      renderText(formatBalanceAmount(balance, useMillionDenomination), {
-        marginLeft: frontText ? 0 : 'auto',
-      }),
+      renderText(
+        formatBalanceAmount(balance, useMillionDenomination, masterInfoObject),
+        {
+          marginLeft: frontText ? 0 : 'auto',
+        },
+      ),
       renderText(
         ` ${customLabel?.toUpperCase()?.slice(0, TOKEN_TICKER_MAX_LENGTH)}`,
         { flexShrink: 1 },
