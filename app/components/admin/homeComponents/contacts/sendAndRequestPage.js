@@ -4,6 +4,7 @@ import {
   CONTENT_KEYBOARD_OFFSET,
   HIDE_IN_APP_PURCHASE_ITEMS,
   ICONS,
+  QUICK_PAY_STORAGE_KEY,
   SATSPERBITCOIN,
 } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
@@ -114,6 +115,14 @@ export default function SendAndRequestPage(props) {
       paymentType,
     ],
   );
+
+  const switchTextToConfirm = useMemo(() => {
+    return (
+      masterInfoObject[QUICK_PAY_STORAGE_KEY].isFastPayEnabled &&
+      convertedSendAmount <=
+        masterInfoObject[QUICK_PAY_STORAGE_KEY].fastPayThresholdSats
+    );
+  }, [convertedSendAmount]);
 
   const handleSelctProcesss = useCallback(
     async item => {
@@ -791,7 +800,9 @@ export default function SendAndRequestPage(props) {
                 actionFunction={handleSubmit}
                 textContent={
                   paymentType === 'send'
-                    ? t('constants.review')
+                    ? switchTextToConfirm
+                      ? t('constants.confirm')
+                      : t('constants.review')
                     : t('constants.request')
                 }
               />

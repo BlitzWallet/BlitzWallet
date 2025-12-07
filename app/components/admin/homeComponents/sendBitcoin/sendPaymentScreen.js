@@ -238,9 +238,11 @@ export default function SendPaymentScreen(props) {
     )
       return;
 
-    setTimeout(() => {
-      sendPayment();
-    }, 150);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        sendPayment();
+      });
+    });
   }, [paymentInfo, canEditPaymentAmount, sparkInformation.didConnect]);
 
   // useEffect(() => {
