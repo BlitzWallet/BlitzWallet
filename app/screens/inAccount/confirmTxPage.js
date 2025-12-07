@@ -47,7 +47,7 @@ export default function ConfirmTxPage(props) {
   const paymentNetwork = paymentInformation?.sendingUUID
     ? t('screens.inAccount.expandedTxPage.contactPaymentType')
     : paymentInformation?.isGift
-    ? t('constants.isGift')
+    ? t('constants.gift')
     : transaction?.paymentType;
 
   const showPendingMessage = transaction?.paymentStatus === 'pending';
