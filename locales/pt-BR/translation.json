@@ -8,7 +8,7 @@
     "skip": "Pular",
     "verify": "Verificar",
     "internetError": "Reconecte-se à internet para usar este recurso",
-    "send": "Enviar",
+    "send": "Aprovar",
     "decline": "Recusar",
     "receive": "Receber",
     "accept": "Aceitar",
@@ -186,7 +186,7 @@
     "sent": "Você enviou",
     "received": "Você recebeu",
     "paidLower": "pago",
-    "declinedLower": "recusada",
+    "declinedLower": "recusou",
     "receivedRequest": "Solicitação recebida",
     "date": "Data",
     "time": "Hora",
@@ -697,7 +697,7 @@
       "giftCardsPage": {
         "searchPlaceholder": "Procure um cartão-presente",
         "leftPageMessage": "Aonde você foi?",
-        "loadingCardsMessage": "Obtendo cartões-presente",
+        "loadingCardsMessage": "Buscando cartões-presente",
         "noCardsAvailable": "Nenhum cartão-presente disponível"
       },
       "confimPurchase": {
@@ -796,9 +796,9 @@
         "autoSelectInfoMessage": "Selecione o país do número de telefone que você deseja usar. Para ter mais chances de receber seu código, recomendamos mantê-lo em seleção automática para que o sistema escolha a opção mais confiável.",
         "autoSelect": "Seleção automática",
         "inputPlaceholder": "Pesquisar um serviço",
-        "loacationLoadingMessage": "Obtendo serviços baseados em localização",
+        "loacationLoadingMessage": "Buscando serviços baseados em localização",
         "noAvailableServices": "Este local não possui serviços",
-        "orderDetailsLoading": "Obtendo detalhes do pedido"
+        "orderDetailsLoading": "Buscando detalhes do pedido"
       },
       "confirmCodePage": {
         "header": "Seu pedido foi iniciado com sucesso. Veja o que acontece em seguida:",
@@ -868,7 +868,7 @@
       "header": "Selecione o contato",
       "inputTextPlaceholder": "Procurar nome de usuário...",
       "subHeader": "Todos contatos",
-      "giftsText": "Meus cartões-presente"
+      "giftsText": "Cartões-presente recebidos"
     },
     "cameraPage": {
       "noCameraAccess": "Sem acesso à câmera",
@@ -1029,12 +1029,12 @@
       "searchPlaceholder": "Encontre um contato",
       "lnurlAddMessage": "Você está prestes a adicionar",
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
-      "startTypingMessage": "Procurar por LNURL (e.g. name@service.com) ou nome de usuário Blitz."
+      "startTypingMessage": "Procurar por endereço Lightning (ex. nome@servico.com) ou nome de usuário Blitz."
     },
 
     "expandedContactPage": {
       "loadingContactError": "Não foi possível carregar o contato, tente novamente.",
-      "requestLNURLError": "Você só pode solicitar dinheiro dos contatos da Blitz, não de endereços LNURL.",
+      "requestLNURLError": "Você só pode solicitar dinheiro dos contatos da Blitz, não de endereços Lightning.",
       "noTransactions": "Envie ou solicite um pagamento para ver o histórico de transações."
     },
     "expandedMessageHalfModal": {
@@ -1102,9 +1102,9 @@
       },
       "contactsTransactions": {
         "pushNotificationUpdateMessage": "{{name}} {{option}} seu pedido",
-        "acceptProfileMessage": "Pago {{name}}'s pedido",
-        "acceptPayingContactMessage": "{{name}} pagou seu pedido",
-        "requestTitle": "Pedido recebido para "
+        "acceptProfileMessage": "Solicitação de {{name}}'s paga",
+        "acceptPayingContactMessage": "Você pagou a solicitação de {{name}}",
+        "requestTitle": "Solicitação de pagamento de "
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Cartão-presente",
@@ -1220,7 +1220,7 @@
     "loginSecurity": {
       "text1": "Segurança de acesso",
       "text2": "Tipo de segurança",
-      "text3": "Pin",
+      "text3": "PIN",
       "text4": "Biometria",
       "text5": "O dispositivo não possui um perfil biométrico. Crie um nas configurações para continuar.",
       "text6": "Erro ao acessar usando biometria",
@@ -1304,7 +1304,7 @@
       "rescanComplete": "Verificação concluída",
       "swapStartedMessage": "A transferência foi iniciada. Pode levar de 10 a 20 segundos para o pagamento aparecer.",
       "balanceError": "O saldo Liquid atual é de {{balance}}, mas o valor mínimo de transferência é de {{swapAmount}}",
-      "loadingMessage": "Obtendo informações Liquid",
+      "loadingMessage": "Buscando informações Liquid",
       "breakdownHead": "Desagregação do saldo",
       "incoming": "{{amount}} entrada pendente",
       "outgoing": "{{amount}} pendente de saída",
@@ -1656,8 +1656,8 @@
           "minutes_other": "{{count}} minutos restantes"
         },
         "shareMessage": "Você recebeu um vale-bitcoin de {{icon}}{{amount}}! Resgate aqui:\n{{link}}",
-        "fundGiftMessage": "Criando vale-bitcoin",
-        "reclaimGiftMessage": "Reembolso vale-bitcoin",
+        "fundGiftMessage": "Vale-bitcoin criado",
+        "reclaimGiftMessage": "Vale-bitcoin reembolsado",
 
         "giftsHome": {
           "title": "Vales-bitcoin"
@@ -1756,7 +1756,7 @@
           "defaultDesc": "Vale-bitcoin Blitz",
           "claimingGiftMessage1": "Preparando o vale-bitcoin...",
           "giftBalanceMessage_0": "Só um instante enquanto preparamos tudo...",
-          "giftBalanceMessage_1": "Estamos obtendo as informações do vale-bitcoin...",
+          "giftBalanceMessage_1": "Estamos buscando as informações do vale-bitcoin...",
           "giftBalanceMessage_2": "Quase lá—por favor mantenha o app aberto...",
           "giftBalanceMessage_3": "Finalizando os últimos passos...",
           "claimingGiftMessage4": "Resgatando o vale-bitcoin..."
