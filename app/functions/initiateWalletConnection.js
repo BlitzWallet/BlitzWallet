@@ -16,6 +16,7 @@ export async function initWallet({
   // globalContactsInformation,
   mnemonic,
   sendWebViewRequest,
+  hasRestoreCompleted = true,
 }) {
   try {
     crashlyticsLogReport('Trying to connect to nodes');
@@ -44,6 +45,7 @@ export async function initWallet({
         // toggleGlobalContactsInformation,
         mnemonic,
         sendWebViewRequest,
+        hasRestoreCompleted,
       });
 
       if (!didSetSpark)
@@ -69,6 +71,7 @@ export async function initializeSparkSession({
   // toggleGlobalContactsInformation,
   mnemonic,
   sendWebViewRequest,
+  hasRestoreCompleted,
 }) {
   try {
     // Clean DB state but do not hold up process
@@ -169,14 +172,33 @@ export async function initializeSparkSession({
     const storageObject = {
       balance: finalBalanceToUse,
       tokens: balance.tokensObj,
-      transactions: transactions,
       identityPubKey,
       sparkAddress: sparkAddress.response,
       didConnect: true,
     };
     console.log('Spark storage object', storageObject);
     await new Promise(res => setTimeout(res, 500));
-    setSparkInformation(storageObject);
+    setSparkInformation(prev => {
+      let txToUse;
+
+      // Restore has not run yet:
+      if (!hasRestoreCompleted) {
+        // We show cached transactions immediately to avoid blanks.
+        // But DO NOT overwrite later once restore writes.
+        txToUse = transactions;
+      } else {
+        // Restore has finished:
+        // Never insert fetchedTransactions (they may be stale)
+        // Use whatever DB restore already put in state.
+        txToUse = prev.transactions;
+      }
+
+      return {
+        ...prev,
+        ...storageObject,
+        transactions: txToUse,
+      };
+    });
     return storageObject;
   } catch (err) {
     console.log('Set spark error', err);

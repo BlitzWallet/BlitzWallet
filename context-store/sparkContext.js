@@ -11,6 +11,7 @@ import {
   claimnSparkStaticDepositAddress,
   clearMnemonicCache,
   findTransactionTxFromTxHistory,
+  getCachedSparkTransactions,
   getSparkBalance,
   getSparkStaticBitcoinL1AddressQuote,
   queryAllStaticDepositAddresses,
@@ -92,6 +93,9 @@ const SparkWalletProvider = ({ children }) => {
   });
   const [tokensImageCache, setTokensImageCache] = useState({});
   const [pendingNavigation, setPendingNavigation] = useState(null);
+  const [restoreCompleted, setRestoreCompleted] = useState(false);
+  const hasRestoreCompleted = useRef(false);
+
   // const [pendingLiquidPayment, setPendingLiquidPayment] = useState(null);
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
@@ -1183,21 +1187,46 @@ const SparkWalletProvider = ({ children }) => {
     sparkInformation.identityPubKey,
   ]);
 
+  // Run fullRestore when didConnect becomes true
   useEffect(() => {
     if (!sparkInformation.didConnect) return;
     if (didRunInitialRestore.current) return;
     didRunInitialRestore.current = true;
 
-    fullRestoreSparkState({
-      sparkAddress: sparkInfoRef.current.sparkAddress,
-      batchSize: isInitialRestore.current ? 5 : 2,
-      isSendingPayment: isSendingPaymentRef.current,
-      mnemonic: currentMnemonicRef.current,
-      identityPubKey: sparkInfoRef.current.identityPubKey,
-      sendWebViewRequest,
-      isInitialRestore: isInitialRestore.current,
-    });
+    async function runRestore() {
+      const restoreResponse = await fullRestoreSparkState({
+        sparkAddress: sparkInfoRef.current.sparkAddress,
+        batchSize: isInitialRestore.current ? 5 : 2,
+        isSendingPayment: isSendingPaymentRef.current,
+        mnemonic: currentMnemonicRef.current,
+        identityPubKey: sparkInfoRef.current.identityPubKey,
+        sendWebViewRequest,
+        isInitialRestore: isInitialRestore.current,
+      });
+
+      if (!restoreResponse) {
+        setRestoreCompleted(true); // This will get the transactions for the session
+      }
+    }
+
+    runRestore();
   }, [sparkInformation.didConnect]);
+
+  // Run transactions after BOTH restore completes
+  useEffect(() => {
+    if (!restoreCompleted) return;
+
+    async function fetchTransactions() {
+      const transactions = await getCachedSparkTransactions(
+        null,
+        sparkInfoRef.current.identityPubKey,
+      );
+      setSparkInformation(prev => ({ ...prev, transactions }));
+      hasRestoreCompleted.current = true;
+    }
+
+    fetchTransactions();
+  }, [restoreCompleted]);
 
   // This function connects to the spark node and sets the session up
 
@@ -1208,6 +1237,7 @@ const SparkWalletProvider = ({ children }) => {
       // globalContactsInformation,
       mnemonic: accountMnemoinc,
       sendWebViewRequest,
+      hasRestoreCompleted: hasRestoreCompleted.current,
     });
     setDidRunNormalConnection(true);
     lastConnectedTimeRef.current = Date.now();
