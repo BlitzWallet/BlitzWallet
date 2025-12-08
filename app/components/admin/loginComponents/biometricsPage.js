@@ -7,7 +7,7 @@ import CustomButton from '../../../functions/CustomElements/button';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import GetThemeColors from '../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
-import { retrieveData, terminateAccount } from '../../../functions';
+import { retrieveData, storeData, terminateAccount } from '../../../functions';
 import {
   decryptMnemonicWithBiometrics,
   handleLoginSecuritySwitch,
@@ -107,7 +107,6 @@ export default function BiometricsLogin() {
           confirmFunction: async () => {
             const deleted = await terminateAccount();
             if (deleted) {
-              clearSettings();
               try {
                 await signOut(firebaseAuth);
               } catch (err) {
