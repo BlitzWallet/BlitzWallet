@@ -518,6 +518,10 @@ export const WebViewProvider = ({ children }) => {
           // resolve requset to avoid timeout
           resolve({ didComplete: true });
           delete pendingRequests.current[message.id];
+
+          setTimeout(() => {
+            processQueuedRequests();
+          }, 100);
           return;
         }
 
