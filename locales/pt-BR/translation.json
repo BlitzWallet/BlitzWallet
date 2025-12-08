@@ -185,7 +185,7 @@
     "paidRequest": "Solicitação paga",
     "sent": "Você enviou",
     "received": "Você recebeu",
-    "paidLower": "pago",
+    "paidLower": "pagou",
     "declinedLower": "recusou",
     "receivedRequest": "Solicitação recebida",
     "date": "Data",
@@ -1860,7 +1860,7 @@
     },
     "POS": "Pedido recebido: {{totalAmount}}",
     "contacts": {
-      "updateMessage": "{{name}} {{option}} sua solicitção",
+      "updateMessage": "{{name}} {{option}} sua solicitação",
       "request": "{{name}} solicitou você {{amount}}",
       "payment": "{{name}} pagou você {{amount}}",
       "giftCard": "{{name}} enviou para você um {{giftCardName}} cartão-presente"
