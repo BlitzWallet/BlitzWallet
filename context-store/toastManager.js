@@ -9,6 +9,7 @@ import { View } from 'react-native';
 import { Toast } from '../app/screens/toast';
 import { useNodeContext } from './nodeContext';
 import { useSparkWallet } from './sparkContext';
+import { useGlobalContextProvider } from './context';
 
 const ToastContext = createContext();
 
@@ -96,6 +97,7 @@ export const ToastContainer = () => {
   const { toasts, hideToast } = useToast();
   const { fiatStats } = useNodeContext();
   const { sparkInformation } = useSparkWallet();
+  const { masterInfoObject } = useGlobalContextProvider();
 
   return (
     <View pointerEvents="box-none">
@@ -106,6 +108,7 @@ export const ToastContainer = () => {
           onHide={() => hideToast(toast.id)}
           fiatStats={fiatStats}
           sparkInformation={sparkInformation}
+          masterInfoObject={masterInfoObject}
         />
       ))}
     </View>

@@ -17,14 +17,18 @@ import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../hooks/themeColors';
 import Icon from '../functions/CustomElements/Icon';
 import displayCorrectDenomination from '../functions/displayCorrectDenomination';
-import { useGlobalContextProvider } from '../../context-store/context';
 import formatTokensNumber from '../functions/lrc20/formatTokensBalance';
 
-export function Toast({ toast, onHide, fiatStats, sparkInformation }) {
+export function Toast({
+  toast,
+  onHide,
+  fiatStats,
+  sparkInformation,
+  masterInfoObject,
+}) {
   const { topPadding } = useGlobalInsets();
   const { t } = useTranslation();
   const { backgroundColor } = GetThemeColors();
-  const { masterInfoObject } = useGlobalContextProvider();
 
   // shared values
   const slideY = useSharedValue(50);
