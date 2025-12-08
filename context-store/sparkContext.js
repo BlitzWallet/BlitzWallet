@@ -623,19 +623,6 @@ const SparkWalletProvider = ({ children }) => {
         );
         return;
       }
-      if (
-        details.isLNURL &&
-        !details.isBlitzContactPayment &&
-        navigationRef
-          .getRootState()
-          .routes?.filter(item => item.name === 'ReceiveBTC').length !== 1
-      ) {
-        console.log(
-          'Not on reaceive page and is LNURL, skipping confirm tx page navigation',
-        );
-        return;
-      }
-
       if (new Date(details.time).getTime() < sessionTimeRef.current) {
         console.log(
           'created before session time was set, skipping confirm tx page navigation',
@@ -649,19 +636,14 @@ const SparkWalletProvider = ({ children }) => {
       }
       // Handle confirm animation here
       setPendingNavigation({
-        routes: [
-          {
-            name: 'HomeAdmin',
-            params: { screen: 'Home' },
-          },
-          {
-            name: 'ConfirmTxPage',
-            params: {
-              for: 'invoicePaid',
-              transaction: parsedTx,
-            },
-          },
-        ],
+        tx: parsedTx,
+        amount: details.amount,
+        LRC20Token: details.LRC20Token,
+        isLRC20Payment: !!details.LRC20Token,
+        showFullAnimation:
+          navigationRef
+            .getRootState()
+            .routes?.filter(item => item.name === 'ReceiveBTC').length === 1,
       });
     } catch (err) {
       console.log('error in spark handle db update function', err);
@@ -1141,19 +1123,13 @@ const SparkWalletProvider = ({ children }) => {
               if (handledNavigatedTxs.current.has(updatedTx.id)) return;
               handledNavigatedTxs.current.add(updatedTx.id);
               setPendingNavigation({
-                routes: [
-                  {
-                    name: 'HomeAdmin',
-                    params: { screen: 'Home' },
-                  },
-                  {
-                    name: 'ConfirmTxPage',
-                    params: {
-                      for: 'invoicePaid',
-                      transaction: updatedTx,
-                    },
-                  },
-                ],
+                tx: updatedTx,
+                amount: updatedTx.details.amount,
+                showFullAnimation:
+                  navigationRef
+                    .getRootState()
+                    .routes?.filter(item => item.name === 'ReceiveBTC')
+                    .length === 1,
               });
             }
           }

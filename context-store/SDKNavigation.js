@@ -6,6 +6,7 @@ import { useSparkWallet } from './sparkContext';
 import { useRootstockProvider } from './rootstockSwapContext';
 import i18next from 'i18next';
 import { InteractionManager } from 'react-native';
+import { useToast } from './toastManager';
 
 export function RootstockNavigationListener() {
   const navigation = useNavigation();
@@ -76,6 +77,7 @@ export function SparkNavigationListener() {
   const { didGetToHomepage } = useAppStatus();
   const { pendingNavigation, setPendingNavigation } = useSparkWallet();
   const isNavigating = useRef(false); // Use a ref for local state
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!pendingNavigation) return;
@@ -89,9 +91,33 @@ export function SparkNavigationListener() {
 
     setTimeout(() => {
       requestAnimationFrame(() => {
-        navigation.reset(pendingNavigation);
-        isNavigating.current = false;
+        if (pendingNavigation.showFullAnimation) {
+          navigation.reset({
+            routes: [
+              {
+                name: 'HomeAdmin',
+                params: { screen: 'Home' },
+              },
+              {
+                name: 'ConfirmTxPage',
+                params: {
+                  for: 'invoicePaid',
+                  transaction: pendingNavigation.tx,
+                },
+              },
+            ],
+          });
+        } else {
+          showToast({
+            amount: pendingNavigation.amount,
+            LRC20Token: pendingNavigation.LRC20Token,
+            isLRC20Payment: pendingNavigation.isLRC20Payment,
+            duration: 7000,
+            type: 'confirmTx',
+          });
+        }
         console.log('cleaning up navigation for spark');
+        isNavigating.current = false;
       });
     }, 100);
 

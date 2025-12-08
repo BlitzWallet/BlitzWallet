@@ -5,8 +5,11 @@ import React, {
   useCallback,
   useState,
 } from 'react';
-import {View} from 'react-native';
-import {Toast} from '../app/screens/toast';
+import { View } from 'react-native';
+import { Toast } from '../app/screens/toast';
+import { useNodeContext } from './nodeContext';
+import { useSparkWallet } from './sparkContext';
+import { useGlobalContextProvider } from './context';
 
 const ToastContext = createContext();
 
@@ -36,7 +39,7 @@ const toastReducer = (state, action) => {
   }
 };
 
-export const ToastProvider = ({children}) => {
+export const ToastProvider = ({ children }) => {
   const [state, dispatch] = useReducer(toastReducer, initialState);
 
   const showToast = toast => {
@@ -49,11 +52,11 @@ export const ToastProvider = ({children}) => {
       ...toast,
     };
 
-    dispatch({type: 'ADD_TOAST', payload: toastWithId});
+    dispatch({ type: 'ADD_TOAST', payload: toastWithId });
 
     if (toastWithId.duration > 0) {
       setTimeout(() => {
-        dispatch({type: 'REMOVE_TOAST', payload: id});
+        dispatch({ type: 'REMOVE_TOAST', payload: id });
       }, toastWithId.duration);
     }
 
@@ -61,11 +64,11 @@ export const ToastProvider = ({children}) => {
   };
 
   const hideToast = id => {
-    dispatch({type: 'REMOVE_TOAST', payload: id});
+    dispatch({ type: 'REMOVE_TOAST', payload: id });
   };
 
   const clearToasts = () => {
-    dispatch({type: 'CLEAR_TOASTS'});
+    dispatch({ type: 'CLEAR_TOASTS' });
   };
 
   return (
@@ -75,7 +78,8 @@ export const ToastProvider = ({children}) => {
         showToast,
         hideToast,
         clearToasts,
-      }}>
+      }}
+    >
       {children}
     </ToastContext.Provider>
   );
@@ -90,7 +94,10 @@ export const useToast = () => {
 };
 
 export const ToastContainer = () => {
-  const {toasts, hideToast} = useToast();
+  const { toasts, hideToast } = useToast();
+  const { fiatStats } = useNodeContext();
+  const { sparkInformation } = useSparkWallet();
+  const { masterInfoObject } = useGlobalContextProvider();
 
   return (
     <View pointerEvents="box-none">
@@ -99,6 +106,9 @@ export const ToastContainer = () => {
           key={toast.id}
           toast={toast}
           onHide={() => hideToast(toast.id)}
+          fiatStats={fiatStats}
+          sparkInformation={sparkInformation}
+          masterInfoObject={masterInfoObject}
         />
       ))}
     </View>
