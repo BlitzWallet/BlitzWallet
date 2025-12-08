@@ -817,18 +817,19 @@ export const WebViewProvider = ({ children }) => {
           } else if (action !== 'handshake:init') {
             // For non-init actions, check if wallet was initialized
             if (handshakeComplete && !walletInitialized.current) {
-              console.warn(
-                'Wallet not initialized, forcing React Native for action:',
-                action,
-              );
+              console.warn('Wallet not initialized, blocking request:', action);
               if (timeoutId) clearTimeout(timeoutId);
-              forceReactNativeUse = true;
-              setChangeSparkConnectionState(prev => ({
-                state: true,
-                count: prev.count + 1,
-              }));
+              // forceReactNativeUse = true;
+              // setChangeSparkConnectionState(prev => ({
+              //   state: true,
+              //   count: prev.count + 1,
+              // }));
+              expectedSequenceRef.current = Math.max(
+                0,
+                expectedSequenceRef.current - 1,
+              );
               return resolve({
-                error: 'Wallet initialization failed, using React Native(3)',
+                error: 'Wallet not initialized, Blocking request',
               });
             }
           }
