@@ -15,11 +15,16 @@ import { useGlobalInsets } from '../../context-store/insetsProvider';
 import { WINDOWWIDTH } from '../constants/theme';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../hooks/themeColors';
+import Icon from '../functions/CustomElements/Icon';
+import displayCorrectDenomination from '../functions/displayCorrectDenomination';
+import { useGlobalContextProvider } from '../../context-store/context';
+import formatTokensNumber from '../functions/lrc20/formatTokensBalance';
 
-export function Toast({ toast, onHide }) {
+export function Toast({ toast, onHide, fiatStats, sparkInformation }) {
   const { topPadding } = useGlobalInsets();
   const { t } = useTranslation();
   const { backgroundColor } = GetThemeColors();
+  const { masterInfoObject } = useGlobalContextProvider();
 
   // shared values
   const slideY = useSharedValue(50);
@@ -79,8 +84,8 @@ export function Toast({ toast, onHide }) {
     switch (toast.type) {
       case 'clipboard':
         return [...baseStyle, styles.clipboardToast];
-      case 'success':
-        return [...baseStyle, styles.successToast];
+      case 'confirmTx':
+        return [...baseStyle, styles.clipboardToast];
       case 'error':
         return [...baseStyle, styles.errorToast];
       case 'warning':
@@ -94,8 +99,6 @@ export function Toast({ toast, onHide }) {
 
   const getIconForType = () => {
     switch (toast.type) {
-      case 'success':
-        return '✓';
       case 'error':
         return '✕';
       case 'warning':
@@ -106,6 +109,15 @@ export function Toast({ toast, onHide }) {
         return '•';
     }
   };
+
+  const token = toast.isLRC20Payment
+    ? sparkInformation.tokens?.[toast?.LRC20Token]
+    : '';
+
+  const formattedTokensBalance =
+    toast.type === 'confirmTx' && !!token
+      ? formatTokensNumber(toast.amount, token?.tokenMetadata?.decimals)
+      : 0;
 
   return (
     <GestureDetector gesture={panGesture}>
@@ -121,15 +133,41 @@ export function Toast({ toast, onHide }) {
                 darkModeIcon={ICONS.clipboardDark}
                 lightsOutIcon={ICONS.clipboardDark}
               />
+            ) : toast.type === 'confirmTx' ? (
+              <View style={{ marginRight: 15 }}>
+                <Icon
+                  width={20}
+                  height={20}
+                  color={COLORS.lightModeText}
+                  name={'expandedTxCheck'}
+                />
+              </View>
             ) : (
               <ThemeText styles={styles.toastIcon} content={getIconForType()} />
             )}
             <View style={styles.textContainer}>
-              <ThemeText
-                CustomNumberOfLines={1}
-                styles={styles.toastTitle}
-                content={t(toast.title)}
-              />
+              {toast.type === 'confirmTx' ? (
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={styles.toastTitle}
+                  content={t('pushNotifications.LNURL.regular', {
+                    totalAmount: displayCorrectDenomination({
+                      amount: !!token ? formattedTokensBalance : toast.amount,
+                      masterInfoObject,
+                      fiatStats,
+                      useCustomLabel: !!token,
+                      customLabel: token?.tokenMetadata?.tokenTicker,
+                      useMillionDenomination: true,
+                    }),
+                  })}
+                />
+              ) : (
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={styles.toastTitle}
+                  content={t(toast.title)}
+                />
+              )}
             </View>
           </View>
         </View>
