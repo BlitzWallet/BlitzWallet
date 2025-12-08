@@ -38,11 +38,11 @@ export default async function processLNUrlWithdraw(input, context) {
   setLoadingMessage(
     t('wallet.sendPages.handlingAddressErrors.waitingForLnurlWithdrawl'),
   );
-  await pollForResponse(
-    invoice.data,
-    currentWalletMnemoinc,
-    sendWebViewRequest,
-  );
+  // await pollForResponse(
+  //   invoice.data,
+  //   currentWalletMnemoinc,
+  //   sendWebViewRequest,
+  // );
 }
 
 async function pollForResponse(
@@ -54,7 +54,7 @@ async function pollForResponse(
   let maxCount = 5;
   let currentCount = 0;
   while (!didFind && currentCount < maxCount) {
-    await new Promise(res => setTimeout(res, 5000));
+    await new Promise(res => setTimeout(res, 2000));
     const sparkReceiveResposne = await getSparkLightningPaymentStatus({
       lightningInvoiceId: invoiceData.id,
       mnemonic: currentWalletMnemoinc,
