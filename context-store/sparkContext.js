@@ -122,6 +122,8 @@ const SparkWalletProvider = ({ children }) => {
       ? !!Object.keys(sparkInformation.tokens || {}).length
       : masterInfoObject.enabledBTKNTokens;
 
+  const didRunInitialRestore = useRef(false);
+
   const handledNavigatedTxs = useRef(new Set());
 
   const [didRunNormalConnection, setDidRunNormalConnection] = useState(false);
@@ -153,7 +155,8 @@ const SparkWalletProvider = ({ children }) => {
   }, [currentWalletMnemoinc]);
 
   useEffect(() => {
-    sessionTimeRef.current = Date.now();
+    // Fixing race condition with new preloaded txs
+    sessionTimeRef.current = Date.now() + 5 * 1000;
   }, [currentWalletMnemoinc, authResetkey]);
 
   useEffect(() => {
@@ -707,16 +710,17 @@ const SparkWalletProvider = ({ children }) => {
           mnemonic: currentMnemonicRef.current,
         });
       }
-
-      await fullRestoreSparkState({
-        sparkAddress: sparkInfoRef.current.sparkAddress,
-        batchSize: isInitialRestore.current ? 10 : 2,
-        isSendingPayment: isSendingPaymentRef.current,
-        mnemonic: currentMnemonicRef.current,
-        identityPubKey: sparkInfoRef.current.identityPubKey,
-        sendWebViewRequest,
-        isInitialRestore: isInitialRestore.current,
-      });
+      if (!isInitialRestore.current) {
+        await fullRestoreSparkState({
+          sparkAddress: sparkInfoRef.current.sparkAddress,
+          batchSize: isInitialRestore.current ? 5 : 2,
+          isSendingPayment: isSendingPaymentRef.current,
+          mnemonic: currentMnemonicRef.current,
+          identityPubKey: sparkInfoRef.current.identityPubKey,
+          sendWebViewRequest,
+          isInitialRestore: isInitialRestore.current,
+        });
+      }
 
       await updateSparkTxStatus(
         currentMnemonicRef.current,
@@ -863,6 +867,7 @@ const SparkWalletProvider = ({ children }) => {
     balancePollingTimeoutRef.current = null;
     balancePollingAbortControllerRef.current = null;
     currentPollingMnemonicRef.current = null;
+    didRunInitialRestore.current = false;
 
     // Reset state variables
     setSparkConnectionError(null);
@@ -1177,6 +1182,22 @@ const SparkWalletProvider = ({ children }) => {
     didGetToHomepage,
     sparkInformation.identityPubKey,
   ]);
+
+  useEffect(() => {
+    if (!sparkInformation.didConnect) return;
+    if (didRunInitialRestore.current) return;
+    didRunInitialRestore.current = true;
+
+    fullRestoreSparkState({
+      sparkAddress: sparkInfoRef.current.sparkAddress,
+      batchSize: isInitialRestore.current ? 5 : 2,
+      isSendingPayment: isSendingPaymentRef.current,
+      mnemonic: currentMnemonicRef.current,
+      identityPubKey: sparkInfoRef.current.identityPubKey,
+      sendWebViewRequest,
+      isInitialRestore: isInitialRestore.current,
+    });
+  }, [sparkInformation.didConnect]);
 
   // This function connects to the spark node and sets the session up
 
