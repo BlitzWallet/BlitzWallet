@@ -1823,6 +1823,10 @@
     "contacts": "Контакты"
   },
   "pushNotifications": {
+    "paymentReceived": {
+      "title": "Платёж получен",
+      "body": "Вы получили {{totalAmount}}"
+    },
     "LNURL": {
       "zapped": "Вас ударило током. {{totalAmount}}",
       "regular": "Вы только что получили {{totalAmount}}"

@@ -12,10 +12,9 @@ import { ThemeText } from '../functions/CustomElements';
 import ThemeImage from '../functions/CustomElements/themeImage';
 import { COLORS, ICONS } from '../constants';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
-import { WINDOWWIDTH } from '../constants/theme';
+import { SIZES, WINDOWWIDTH } from '../constants/theme';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../hooks/themeColors';
-import Icon from '../functions/CustomElements/Icon';
 import displayCorrectDenomination from '../functions/displayCorrectDenomination';
 import formatTokensNumber from '../functions/lrc20/formatTokensBalance';
 
@@ -66,7 +65,7 @@ export function Toast({
       }
     })
     .onEnd(event => {
-      if (event.translationY < -topPadding) {
+      if (event.translationY < -20) {
         runOnJS(animateOut)(onHide);
       } else {
         translateY.value = withSpring(0);
@@ -138,33 +137,38 @@ export function Toast({
                 lightsOutIcon={ICONS.clipboardDark}
               />
             ) : toast.type === 'confirmTx' ? (
-              <View style={{ marginRight: 15 }}>
-                <Icon
-                  width={20}
-                  height={20}
-                  color={COLORS.lightModeText}
-                  name={'expandedTxCheck'}
-                />
-              </View>
+              <ThemeImage
+                styles={{ width: 25, height: 25, marginRight: 15 }}
+                lightModeIcon={ICONS.aboutIcon}
+                darkModeIcon={ICONS.aboutIcon}
+                lightsOutIcon={ICONS.aboutIconBlack}
+              />
             ) : (
               <ThemeText styles={styles.toastIcon} content={getIconForType()} />
             )}
             <View style={styles.textContainer}>
               {toast.type === 'confirmTx' ? (
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  styles={styles.toastTitle}
-                  content={t('pushNotifications.LNURL.regular', {
-                    totalAmount: displayCorrectDenomination({
-                      amount: !!token ? formattedTokensBalance : toast.amount,
-                      masterInfoObject,
-                      fiatStats,
-                      useCustomLabel: !!token,
-                      customLabel: token?.tokenMetadata?.tokenTicker,
-                      useMillionDenomination: true,
-                    }),
-                  })}
-                />
+                <View>
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={[styles.paymentReceivedTitle, { fontWeight: 500 }]}
+                    content={t('pushNotifications.paymentReceived.title')}
+                  />
+                  <ThemeText
+                    CustomNumberOfLines={1}
+                    styles={styles.paymentReceivedTitle}
+                    content={t('pushNotifications.paymentReceived.body', {
+                      totalAmount: displayCorrectDenomination({
+                        amount: !!token ? formattedTokensBalance : toast.amount,
+                        masterInfoObject,
+                        fiatStats,
+                        useCustomLabel: !!token,
+                        customLabel: token?.tokenMetadata?.tokenTicker,
+                        useMillionDenomination: true,
+                      }),
+                    })}
+                  />
+                </View>
               ) : (
                 <ThemeText
                   CustomNumberOfLines={1}
@@ -228,6 +232,12 @@ const styles = StyleSheet.create({
   toastTitle: {
     color: COLORS.lightModeText,
     includeFontPadding: false,
+    flexShrink: 1,
+  },
+  paymentReceivedTitle: {
+    color: COLORS.lightModeText,
+    includeFontPadding: false,
+    fontSize: SIZES.small,
     flexShrink: 1,
   },
 });

@@ -1815,6 +1815,10 @@
     "contacts": "Contacts"
   },
   "pushNotifications": {
+    "paymentReceived": {
+      "title": "Paiement reçu",
+      "body": "Vous avez reçu {{totalAmount}}"
+    },
     "LNURL": {
       "zapped": "Vous avez été zappé {{totalAmount}}",
       "regular": "Vous venez de recevoir {{totalAmount}}"

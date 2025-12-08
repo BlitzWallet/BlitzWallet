@@ -1849,6 +1849,10 @@
     "contacts": "Contacts"
   },
   "pushNotifications": {
+    "paymentReceived": {
+      "title": "Payment received",
+      "body": "You received {{totalAmount}}"
+    },
     "LNURL": {
       "zapped": "You were zapped {{totalAmount}}",
       "regular": "You just received {{totalAmount}}"

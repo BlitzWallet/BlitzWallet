@@ -19,6 +19,7 @@ import notificationsIcon from '../assets/icons/notificationsIcon.png';
 import nodeIcon from '../assets/icons/nodeIcon.png';
 import currencyIcon from '../assets/icons/currencyIcon.png';
 import aboutIcon from '../assets/icons/aboutIcon.png';
+import aboutIconBlack from '../assets/icons/aboutIconBlack.png';
 import colorIcon from '../assets/icons/colorIcon.png';
 import transparentIcon from '../assets/TransparentIcon.png';
 import contactsIconBlue from '../assets/icons/contactsIconBlue.png';
@@ -217,6 +218,7 @@ export default {
   contactsIconBlueSelected,
   contactsIconLight,
   aboutIconWhite,
+  aboutIconBlack,
   adminHomeWallet_white,
   appStore_white,
   appStoreFilled_white,

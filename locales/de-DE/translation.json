@@ -1833,6 +1833,10 @@
     "contacts": "Kontakte"
   },
   "pushNotifications": {
+    "paymentReceived": {
+      "title": "Zahlung erhalten",
+      "body": "Sie haben {{totalAmount}} erhalten"
+    },
     "LNURL": {
       "zapped": "Sie wurden mit {{totalAmount}} gezappt",
       "regular": "Sie haben gerade {{totalAmount}} erhalten"

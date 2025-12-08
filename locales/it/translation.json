@@ -1853,6 +1853,10 @@
     "contacts": "Contatti"
   },
   "pushNotifications": {
+    "paymentReceived": {
+      "title": "Pagamento ricevuto",
+      "body": "Hai ricevuto {{totalAmount}}"
+    },
     "LNURL": {
       "zapped": "Sei stato zappato {{totalAmount}}",
       "regular": "Hai appena ricevuto {{totalAmount}}"

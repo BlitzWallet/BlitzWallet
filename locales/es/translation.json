@@ -1676,6 +1676,10 @@
     "contact": "¡Hola, agrégame en Blitz!"
   },
   "pushNotifications": {
+    "paymentReceived": {
+      "title": "Pago recibido",
+      "body": "Has recibido {{totalAmount}}"
+    },
     "LNURL": {
       "zapped": "Fuiste electrocutado {{totalAmount}}",
       "regular": "Acabas de recibir {{totalAmount}}"

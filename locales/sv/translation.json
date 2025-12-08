@@ -1815,6 +1815,10 @@
     "contacts": "Kontaktpersoner"
   },
   "pushNotifications": {
+    "paymentReceived": {
+      "title": "Betalning mottagen",
+      "body": "Du har fått {{totalAmount}}"
+    },
     "LNURL": {
       "zapped": "Du blev zappad {{totalAmount}}",
       "regular": "Du har just fått {{totalAmount}}"
