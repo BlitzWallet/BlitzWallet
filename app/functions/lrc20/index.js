@@ -100,7 +100,7 @@ export async function getLRC20Transactions({
     // using restore flag on initial run since we know the balance updated, otherwise we need to recheck the balance. On any new txs the fullUpdate reloads the wallet balance
     await bulkUpdateSparkTransactions(
       newTxs,
-      isInitialRun ? 'restoreTxs' : 'fullUpdate',
+      isInitialRun ? 'lrc20Payments' : 'fullUpdate',
     );
   } catch (err) {
     console.log('error running lrc20 tokens', err);

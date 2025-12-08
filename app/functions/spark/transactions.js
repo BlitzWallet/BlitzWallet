@@ -579,7 +579,10 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
   });
 };
 
-export const addSingleSparkTransaction = async tx => {
+export const addSingleSparkTransaction = async (
+  tx,
+  updateType = 'fullUpdate',
+) => {
   if (!tx || !tx.id) {
     console.error('Invalid transaction object');
     return false;
@@ -605,7 +608,7 @@ export const addSingleSparkTransaction = async tx => {
     handleEventEmitterPost(
       sparkTransactionsEventEmitter,
       SPARK_TX_UPDATE_ENVENT_NAME,
-      'fullUpdate',
+      updateType,
     );
 
     return true;

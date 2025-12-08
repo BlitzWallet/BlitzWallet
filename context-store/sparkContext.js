@@ -122,6 +122,8 @@ const SparkWalletProvider = ({ children }) => {
       ? !!Object.keys(sparkInformation.tokens || {}).length
       : masterInfoObject.enabledBTKNTokens;
 
+  const handledNavigatedTxs = useRef(new Set());
+
   const [didRunNormalConnection, setDidRunNormalConnection] = useState(false);
   const [normalConnectionTimeout, setNormalConnectionTimeout] = useState(false);
   const shouldRunNormalConnection =
@@ -152,7 +154,7 @@ const SparkWalletProvider = ({ children }) => {
 
   useEffect(() => {
     sessionTimeRef.current = Date.now();
-  }, [currentWalletMnemoinc]);
+  }, [currentWalletMnemoinc, authResetkey]);
 
   useEffect(() => {
     if (!didGetToHomepage) return;
@@ -337,41 +339,7 @@ const SparkWalletProvider = ({ children }) => {
         ...prev,
         balance: balance,
       }));
-
-      return;
     }
-
-    if (!storedTransaction.paymentObject) return;
-
-    const details = storedTransaction.paymentObject?.details;
-    if (details?.shouldNavigate && !details.isLNURL) return;
-    if (
-      details.isLNURL &&
-      !details.isBlitzContactPayment &&
-      navigationRef
-        .getRootState()
-        .routes?.filter(item => item.name === 'ReceiveBTC').length !== 1
-    )
-      return;
-    if (details.isRestore) return;
-    if (storedTransaction.paymentCreatedTime < sessionTimeRef.current) return;
-    if (isSendingPaymentRef.current) return;
-    // Handle confirm animation here
-    setPendingNavigation({
-      routes: [
-        {
-          name: 'HomeAdmin',
-          params: { screen: 'Home' },
-        },
-        {
-          name: 'ConfirmTxPage',
-          params: {
-            for: 'invoicePaid',
-            transaction: storedTransaction.paymentObject,
-          },
-        },
-      ],
-    });
   };
 
   const debouncedHandleIncomingPayment = useCallback(
@@ -437,17 +405,15 @@ const SparkWalletProvider = ({ children }) => {
       });
 
       if (
-        updateType === 'supportTx' ||
-        updateType === 'restoreTxs' ||
+        updateType === 'lrc20Payments' ||
+        updateType === 'txStatusUpdate' ||
         updateType === 'transactions'
       ) {
         setSparkInformation(prev => ({
           ...prev,
           transactions: txs || prev.transactions,
         }));
-        return;
-      }
-      if (updateType === 'incomingPayment') {
+      } else if (updateType === 'incomingPayment') {
         handleBalanceCache({
           isCheck: false,
           passedBalance: Number(passedBalance),
@@ -458,10 +424,7 @@ const SparkWalletProvider = ({ children }) => {
           transactions: txs || prev.transactions,
           balance: Number(passedBalance),
         }));
-        return;
-      }
-
-      if (updateType === 'fullUpdate-waitBalance') {
+      } else if (updateType === 'fullUpdate-waitBalance') {
         if (balancePollingTimeoutRef.current) {
           clearTimeout(balancePollingTimeoutRef.current);
           balancePollingTimeoutRef.current = null;
@@ -573,46 +536,133 @@ const SparkWalletProvider = ({ children }) => {
         };
 
         pollBalance(0);
+      } else {
+        const balance = await getSparkBalance(currentMnemonicRef.current);
+
+        if (updateType === 'paymentWrapperTx') {
+          setSparkInformation(prev => {
+            handleBalanceCache({
+              isCheck: false,
+              passedBalance: Math.round(
+                (balance.didWork ? Number(balance.balance) : prev.balance) -
+                  fee,
+              ),
+              mnemonic: currentMnemonicRef.current,
+            });
+            return {
+              ...prev,
+              transactions: txs || prev.transactions,
+              balance: Math.round(
+                (balance.didWork ? Number(balance.balance) : prev.balance) -
+                  fee,
+              ),
+              tokens: balance.didWork ? balance.tokensObj : prev.tokens,
+            };
+          });
+        } else if (updateType === 'fullUpdate') {
+          setSparkInformation(prev => {
+            handleBalanceCache({
+              isCheck: false,
+              passedBalance: balance.didWork
+                ? Number(balance.balance)
+                : prev.balance,
+              mnemonic: currentMnemonicRef.current,
+            });
+            return {
+              ...prev,
+              balance: balance.didWork ? Number(balance.balance) : prev.balance,
+              transactions: txs || prev.transactions,
+              tokens: balance.didWork ? balance.tokensObj : prev.tokens,
+            };
+          });
+        }
+      }
+
+      if (
+        updateType === 'paymentWrapperTx' ||
+        updateType === 'transactions' ||
+        updateType === 'txStatusUpdate' ||
+        updateType === 'lrc20Payments'
+      ) {
+        console.log(
+          'Payment type is send payment, transaction, lrc20 first render, or txstatus update, skipping confirm tx page navigation',
+        );
+        return;
+      }
+      const [lastAddedTx] = await getAllSparkTransactions({
+        accountId: sparkInfoRef.current.identityPubKey,
+        limit: 1,
+      });
+
+      if (!lastAddedTx) {
+        console.log(
+          'No transaction found, skipping confirm tx page navigation',
+        );
+
         return;
       }
 
-      const balance = await getSparkBalance(currentMnemonicRef.current);
+      const parsedTx = {
+        ...lastAddedTx,
+        details: JSON.parse(lastAddedTx.details),
+      };
 
-      if (updateType === 'paymentWrapperTx') {
-        setSparkInformation(prev => {
-          handleBalanceCache({
-            isCheck: false,
-            passedBalance: Math.round(
-              (balance.didWork ? Number(balance.balance) : prev.balance) - fee,
-            ),
-            mnemonic: currentMnemonicRef.current,
-          });
-          return {
-            ...prev,
-            transactions: txs || prev.transactions,
-            balance: Math.round(
-              (balance.didWork ? Number(balance.balance) : prev.balance) - fee,
-            ),
-            tokens: balance.didWork ? balance.tokensObj : prev.tokens,
-          };
-        });
-      } else if (updateType === 'fullUpdate') {
-        setSparkInformation(prev => {
-          handleBalanceCache({
-            isCheck: false,
-            passedBalance: balance.didWork
-              ? Number(balance.balance)
-              : prev.balance,
-            mnemonic: currentMnemonicRef.current,
-          });
-          return {
-            ...prev,
-            balance: balance.didWork ? Number(balance.balance) : prev.balance,
-            transactions: txs || prev.transactions,
-            tokens: balance.didWork ? balance.tokensObj : prev.tokens,
-          };
-        });
+      if (handledNavigatedTxs.current.has(parsedTx.sparkID)) {
+        console.log(
+          'Already handled transaction, skipping confirm tx page navigation',
+        );
+        return;
       }
+      handledNavigatedTxs.current.add(parsedTx.sparkID);
+
+      const details = parsedTx?.details;
+
+      if (details?.shouldNavigate && !details.isLNURL) {
+        console.log(
+          'Flagged as should not navigate, skipping confirm tx page navigation',
+        );
+        return;
+      }
+      if (
+        details.isLNURL &&
+        !details.isBlitzContactPayment &&
+        navigationRef
+          .getRootState()
+          .routes?.filter(item => item.name === 'ReceiveBTC').length !== 1
+      ) {
+        console.log(
+          'Not on reaceive page and is LNURL, skipping confirm tx page navigation',
+        );
+        return;
+      }
+
+      if (new Date(details.time).getTime() < sessionTimeRef.current) {
+        console.log(
+          'created before session time was set, skipping confirm tx page navigation',
+        );
+        return;
+      }
+
+      if (isSendingPaymentRef.current) {
+        console.log('Is sending payment, skipping confirm tx page navigation');
+        return;
+      }
+      // Handle confirm animation here
+      setPendingNavigation({
+        routes: [
+          {
+            name: 'HomeAdmin',
+            params: { screen: 'Home' },
+          },
+          {
+            name: 'ConfirmTxPage',
+            params: {
+              for: 'invoicePaid',
+              transaction: parsedTx,
+            },
+          },
+        ],
+      });
     } catch (err) {
       console.log('error in spark handle db update function', err);
     }
@@ -1086,7 +1136,10 @@ const SparkWalletProvider = ({ children }) => {
             console.log('Updated bitcoin transaction:', updatedTx);
             await bulkUpdateSparkTransactions([updatedTx]);
             // If no details are provided do not show confirm screen
+            // Navigate here, since bulkUpdateSparkTransactions will default to transactions and get blocked in other path
             if (updatedTx.details) {
+              if (handledNavigatedTxs.current.has(updatedTx.id)) return;
+              handledNavigatedTxs.current.add(updatedTx.id);
               setPendingNavigation({
                 routes: [
                   {
@@ -1127,7 +1180,7 @@ const SparkWalletProvider = ({ children }) => {
           isRestore: true, // This is a restore payment
         },
       };
-      await addSingleSparkTransaction(pendingTx);
+      await addSingleSparkTransaction(pendingTx, 'transactions');
     };
 
     if (depositAddressIntervalRef.current) {

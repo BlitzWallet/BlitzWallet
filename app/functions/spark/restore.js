@@ -400,7 +400,7 @@ export const updateSparkTxStatus = async (
 
     await bulkUpdateSparkTransactions(
       updatedTxs,
-      sparkUpdates.includesGift ? 'fullUpdate-waitBalance' : 'restoreTxs',
+      sparkUpdates.includesGift ? 'fullUpdate-waitBalance' : 'txStatusUpdate',
     );
     console.log(`Updated transactions:`, updatedTxs);
     return { updated: updatedTxs };
