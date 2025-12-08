@@ -261,7 +261,7 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Não foi possível verificar seus dados biométricos.\n\nDeseja apagar todos os dados da carteira? Continue somente se sua seed phrase estiver salva com segurança.",
+      "isBiometricEnabledConfirmAction": "Não foi possível verificar seus dados biométricos.\n\nDeseja apagar todos os dados da carteira? Continue somente se sua frase-semente estiver salva com segurança.",
       "wrongPinError": "PIN incorreto, tente novamente",
       "enterPinMessage": "Inserir PIN",
       "attemptsText": "{{attempts}} tentativas restantes",
