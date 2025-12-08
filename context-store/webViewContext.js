@@ -819,15 +819,15 @@ export const WebViewProvider = ({ children }) => {
             if (handshakeComplete && !walletInitialized.current) {
               console.warn('Wallet not initialized, blocking request:', action);
               if (timeoutId) clearTimeout(timeoutId);
-              // forceReactNativeUse = true;
-              // setChangeSparkConnectionState(prev => ({
-              //   state: true,
-              //   count: prev.count + 1,
-              // }));
-              expectedSequenceRef.current = Math.max(
-                0,
-                expectedSequenceRef.current - 1,
-              );
+              forceReactNativeUse = true;
+              setChangeSparkConnectionState(prev => ({
+                state: true,
+                count: prev.count + 1,
+              }));
+              // expectedSequenceRef.current = Math.max(
+              //   0,
+              //   expectedSequenceRef.current - 1,
+              // );
               return resolve({
                 error: 'Wallet not initialized, Blocking request',
               });
