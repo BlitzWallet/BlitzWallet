@@ -263,10 +263,11 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "You can’t use your PIN while biometrics are enabled.\n\nWould you like to delete all wallet data? Make sure your seed phrase is backed up.\n",
+      "isBiometricEnabledConfirmAction": "We couldn’t verify your biometrics.\n\n Do you want to delete all wallet data? Only continue if your seed phrase is securely backed up.",
       "wrongPinError": "Wrong PIN, try again",
       "enterPinMessage": "Enter PIN",
-      "attemptsText": "{{attempts}} attempts left"
+      "attemptsText": "{{attempts}} attempts left",
+      "biometricsHeader": "Open with Biometrics"
     }
   },
 

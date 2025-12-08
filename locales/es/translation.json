@@ -258,10 +258,11 @@
   },
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "No puedes usar tu PIN mientras la biometría esté activada.\n\n ¿Quieres eliminar todos los datos de tu monedero? Asegúrate de tener una copia de seguridad de tu frase semilla.\n",
+      "isBiometricEnabledConfirmAction": "No pudimos verificar tus datos biométricos.\n\n¿Quieres eliminar todos los datos de la billetera? Continúa solo si tu frase semilla está respaldada de forma segura.",
       "wrongPinError": "PIN incorrecto, intenta de nuevo",
       "enterPinMessage": "Ingresar PIN",
-      "attemptsText": "{{attempts}} intentos restantes"
+      "attemptsText": "{{attempts}} intentos restantes",
+      "biometricsHeader": "Abrir con biometría"
     }
   },
   "apps": {

@@ -207,6 +207,7 @@ function ResetStack(): JSX.Element | null {
     hasSecurityEnabled: null,
     isLoaded: null,
   });
+  const [securitySettings, setSecuritySettings] = useState<any>(null);
   const [pendingLinkData, setPendingLinkData] = useState<{
     url: string;
     timestamp: number | null;
@@ -486,6 +487,7 @@ function ResetStack(): JSX.Element | null {
         setAccountMnemonic(mnemonic.value);
       }
 
+      setSecuritySettings(parsedSettings);
       setInitSettings(prev => {
         return {
           ...prev,
@@ -597,6 +599,7 @@ function ResetStack(): JSX.Element | null {
         <Stack.Screen
           name="Home"
           component={HomeComponent}
+          initialParams={securitySettings}
           options={{
             animation: 'fade',
             gestureEnabled: false,

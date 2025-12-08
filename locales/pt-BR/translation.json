@@ -261,10 +261,11 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Você não pode usar seu PIN enquanto a biometria estiver ativada.\n\nDeseja excluir todos os dados da carteira? Certifique-se de que você tem o backup da sua frase-semente.\n",
+      "isBiometricEnabledConfirmAction": "Não foi possível verificar seus dados biométricos.\n\nDeseja apagar todos os dados da carteira? Continue somente se sua seed phrase estiver salva com segurança.",
       "wrongPinError": "PIN incorreto, tente novamente",
       "enterPinMessage": "Inserir PIN",
-      "attemptsText": "{{attempts}} tentativas restantes"
+      "attemptsText": "{{attempts}} tentativas restantes",
+      "biometricsHeader": "Abrir com biometria"
     }
   },
 

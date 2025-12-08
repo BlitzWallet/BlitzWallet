@@ -262,10 +262,11 @@
   },
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Du kan inte använda din PIN-kod när biometri är aktiverat.\n\nVill du radera alla plånboksdata? Se till att din seed phrase är säkerhetskopierad.\n",
+      "isBiometricEnabledConfirmAction": "Vi kunde inte verifiera din biometriska information.\n\nVill du radera all plånboksdata? Fortsätt endast om din seed phrase är säkert säkerhetskopierad.",
       "wrongPinError": "Fel PIN-kod, försök igen",
       "enterPinMessage": "Ange PIN-kod",
-      "attemptsText": "{{attempts}} försök kvar"
+      "attemptsText": "{{attempts}} försök kvar",
+      "biometricsHeader": "Öppna med biometrik"
     }
   },
   "apps": {

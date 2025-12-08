@@ -262,10 +262,11 @@
   },
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Vous ne pouvez pas utiliser votre code PIN lorsque la biométrie est activée.\n\nSouhaitez-vous supprimer toutes les données de votre portefeuille ? Assurez-vous que votre phrase de base est sauvegardée.\n",
+      "isBiometricEnabledConfirmAction": "Nous n’avons pas pu vérifier vos données biométriques.\n\nVoulez-vous supprimer toutes les données du portefeuille ? Ne continuez que si votre phrase de récupération est sauvegardée en toute sécurité.",
       "wrongPinError": "Code PIN erroné, réessayer",
       "enterPinMessage": "Saisir le code PIN",
-      "attemptsText": "{{attempts}} tentatives restantes"
+      "attemptsText": "{{attempts}} tentatives restantes",
+      "biometricsHeader": "Ouvrir avec la biométrie"
     }
   },
   "apps": {

@@ -263,10 +263,11 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Sie können Ihren PIN nicht verwenden, solange die biometrische Authentifizierung aktiviert ist.\n\nMöchten Sie alle Wallet-Daten löschen? Stellen Sie sicher, dass Ihre Seed-Phrase gesichert ist.\n",
+      "isBiometricEnabledConfirmAction": "Wir konnten deine biometrischen Daten nicht verifizieren.\n\nMöchtest du alle Wallet-Daten löschen? Fahre nur fort, wenn deine Seed-Phrase sicher gesichert ist.",
       "wrongPinError": "Falscher PIN, versuchen Sie es erneut",
       "enterPinMessage": "PIN eingeben",
-      "attemptsText": "{{attempts}} Versuche übrig"
+      "attemptsText": "{{attempts}} Versuche übrig",
+      "biometricsHeader": "Mit Biometrie öffnen"
     }
   },
 

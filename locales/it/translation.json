@@ -263,10 +263,11 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Non puoi utilizzare il PIN mentre i dati biometrici sono abilitati.\n\n Vuoi eliminare tutti i dati del portafoglio? Assicurati di aver eseguito il backup della frase seed.\n",
+      "isBiometricEnabledConfirmAction": "Non siamo riusciti a verificare i tuoi dati biometrici.\n\nVuoi eliminare tutti i dati del portafoglio? Continua solo se la tua seed phrase è stata salvata in modo sicuro.",
       "wrongPinError": "PIN errato, riprova",
       "enterPinMessage": "Inserisci PIN",
-      "attemptsText": "{{attempts}} tentativi rimasti"
+      "attemptsText": "{{attempts}} tentativi rimasti",
+      "biometricsHeader": "Apri con biometria"
     }
   },
 

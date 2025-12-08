@@ -1,10 +1,16 @@
 import PinPage from '../../components/admin/loginComponents/pinPage';
-import {GlobalThemeView} from '../../functions/CustomElements';
+import BiometricsLogin from '../../components/admin/loginComponents/biometricsPage';
+import { GlobalThemeView } from '../../functions/CustomElements';
 
-export default function AdminLogin() {
+export default function AdminLogin(props) {
+  const initialSettings = props.route.params;
   return (
     <GlobalThemeView useStandardWidth={true}>
-      <PinPage />
+      {initialSettings.isBiometricEnabled ? (
+        <BiometricsLogin initialSettings={initialSettings} />
+      ) : (
+        <PinPage initialSettings={initialSettings} />
+      )}
     </GlobalThemeView>
   );
 }
