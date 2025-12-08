@@ -57,12 +57,6 @@ import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 
 export default function SendPaymentScreen(props) {
-  const { sendWebViewRequest } = useWebView();
-  console.log('CONFIRM SEND PAYMENT SCREEN');
-  const [showProgressAnimation, setShowProgressAnimation] = useState(false);
-  const progressAnimationRef = useRef(null);
-  const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
   const {
     btcAdress,
@@ -74,21 +68,31 @@ export default function SendPaymentScreen(props) {
     contactInfo,
     masterTokenInfo = {},
   } = props.route.params;
-  const useAltLayout = screenDimensions.height < 720;
+
+  const paramsRef = useRef({
+    btcAdress,
+  });
+
+  useHandleBackPressNew(goBackFunction);
+
   const { t } = useTranslation();
+  const { sendWebViewRequest } = useWebView();
+  const { currentWalletMnemoinc } = useActiveCustodyAccount();
+  const { screenDimensions } = useAppStatus();
   const { sparkInformation, showTokensInformation } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { liquidNodeInformation, fiatStats } = useNodeContext();
   const { globalContactsInformation } = useGlobalContacts();
-  // const {minMaxLiquidSwapAmounts} = useAppStatus();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset, backgroundColor } = GetThemeColors();
   const { bottomPadding } = useGlobalInsets();
-  // const {webViewRef} = useWebView();
 
+  const useAltLayout = screenDimensions.height < 720;
   const [isAmountFocused, setIsAmountFocused] = useState(true);
+  const [showProgressAnimation, setShowProgressAnimation] = useState(false);
+  const progressAnimationRef = useRef(null);
+
   const [paymentInfo, setPaymentInfo] = useState({});
-  const isSendingPayment = useRef(null);
   const [paymentDescription, setPaymentDescription] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(
     sparkInformation.didConnect
@@ -96,16 +100,17 @@ export default function SendPaymentScreen(props) {
       : t('wallet.sendPages.sendPaymentScreen.connectToSparkMessage'),
   );
   const [refreshDecode, setRefreshDecode] = useState(0);
+  const isSendingPayment = useRef(null);
 
-  const sendingAmount = paymentInfo?.sendAmount || 0;
   const isBTCdenominated =
     masterInfoObject.userBalanceDenomination === 'hidden' ||
     masterInfoObject.userBalanceDenomination === 'sats';
-  const canEditPaymentAmount = paymentInfo?.canEditPayment;
+
   const enabledLRC20 = showTokensInformation;
   const defaultToken = enabledLRC20
     ? masterInfoObject?.defaultSpendToken || 'Bitcoin'
     : 'Bitcoin';
+
   const selectedLRC20Asset = masterTokenInfo?.tokenName || defaultToken;
   const seletctedToken =
     masterTokenInfo?.details ||
@@ -113,9 +118,47 @@ export default function SendPaymentScreen(props) {
     {};
   const isUsingLRC20 = selectedLRC20Asset?.toLowerCase() !== 'bitcoin';
 
-  const paramsRef = useRef({
-    btcAdress,
-  });
+  const sendingAmount = paymentInfo?.sendAmount || 0;
+  const canEditPaymentAmount = paymentInfo?.canEditPayment;
+
+  const convertedSendAmount = !isUsingLRC20
+    ? isBTCdenominated
+      ? Math.round(Number(sendingAmount))
+      : Math.round((SATSPERBITCOIN / fiatStats?.value) * Number(sendingAmount))
+    : Number(sendingAmount);
+
+  const paymentFee =
+    (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
+
+  const canSendPayment = !isUsingLRC20
+    ? Number(sparkInformation.balance) >=
+        Number(convertedSendAmount) + paymentFee && sendingAmount != 0
+    : sparkInformation.balance >= paymentFee &&
+      sendingAmount != 0 &&
+      seletctedToken.balance >=
+        sendingAmount * 10 ** seletctedToken?.tokenMetadata?.decimals;
+
+  const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
+  const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
+  const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
+  const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
+  const isLNURLPayment = paymentInfo?.type === InputTypes.LNURL_PAY;
+
+  const minLNURLSatAmount = isLNURLPayment
+    ? paymentInfo?.data?.minSendable / 1000
+    : 0;
+  const maxLNURLSatAmount = isLNURLPayment
+    ? paymentInfo?.data?.maxSendable / 1000
+    : 0;
+
+  const isUsingFastPay =
+    sparkInformation.didConnect &&
+    Object.keys(paymentInfo).length > 0 &&
+    masterInfoObject[QUICK_PAY_STORAGE_KEY].isFastPayEnabled &&
+    canSendPayment &&
+    !canEditPaymentAmount &&
+    masterInfoObject[QUICK_PAY_STORAGE_KEY].fastPayThresholdSats >=
+      convertedSendAmount;
 
   useEffect(() => {
     const currentParams = {
@@ -142,48 +185,6 @@ export default function SendPaymentScreen(props) {
       paramsRef.current = currentParams;
     }
   }, [btcAdress, sparkInformation.didConnect, t]);
-
-  const convertedSendAmount = !isUsingLRC20
-    ? isBTCdenominated
-      ? Math.round(Number(sendingAmount))
-      : Math.round((SATSPERBITCOIN / fiatStats?.value) * Number(sendingAmount))
-    : Number(sendingAmount);
-
-  const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
-  const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
-  const isBitcoinPayment = paymentInfo?.paymentNetwork === 'Bitcoin';
-  const isSparkPayment = paymentInfo?.paymentNetwork === 'spark';
-  const isLNURLPayment = paymentInfo?.type === InputTypes.LNURL_PAY;
-  const minLNURLSatAmount = isLNURLPayment
-    ? paymentInfo?.data?.minSendable / 1000
-    : 0;
-  const maxLNURLSatAmount = isLNURLPayment
-    ? paymentInfo?.data?.maxSendable / 1000
-    : 0;
-
-  console.log(minLNURLSatAmount, maxLNURLSatAmount, selectedLRC20Asset);
-
-  const paymentFee =
-    (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
-  const canSendPayment = !isUsingLRC20
-    ? Number(sparkInformation.balance) >=
-        Number(convertedSendAmount) + paymentFee && sendingAmount != 0
-    : sparkInformation.balance >= paymentFee &&
-      sendingAmount != 0 &&
-      seletctedToken.balance >=
-        sendingAmount * 10 ** seletctedToken?.tokenMetadata?.decimals;
-  console.log(
-    canSendPayment,
-    'can send payment',
-    sparkInformation.balance,
-    sendingAmount,
-    paymentFee,
-    sendingAmount,
-    paymentInfo,
-    enteredPaymentInfo,
-  );
-
-  useHandleBackPressNew(goBackFunction);
 
   useEffect(() => {
     async function decodePayment() {
@@ -225,18 +226,7 @@ export default function SendPaymentScreen(props) {
   }, [sparkInformation.didConnect, refreshDecode]);
 
   useEffect(() => {
-    if (!sparkInformation.didConnect) return;
-    if (!Object.keys(paymentInfo).length) return;
-    if (!masterInfoObject[QUICK_PAY_STORAGE_KEY].isFastPayEnabled) return;
-    if (!canSendPayment) return;
-    if (canEditPaymentAmount) return;
-    if (
-      !(
-        masterInfoObject[QUICK_PAY_STORAGE_KEY].fastPayThresholdSats >=
-        convertedSendAmount
-      )
-    )
-      return;
+    if (!isUsingFastPay) return;
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -267,6 +257,23 @@ export default function SendPaymentScreen(props) {
     setPaymentDescription(newDescription);
   };
 
+  const handleBackpress = () => {
+    goBackFunction();
+  };
+
+  console.log('CONFIRM SEND PAYMENT SCREEN');
+  console.log(minLNURLSatAmount, maxLNURLSatAmount, selectedLRC20Asset);
+  console.log(
+    canSendPayment,
+    'can send payment',
+    sparkInformation.balance,
+    sendingAmount,
+    paymentFee,
+    sendingAmount,
+    paymentInfo,
+    enteredPaymentInfo,
+  );
+
   if (
     (!Object.keys(paymentInfo).length && !errorMessage) ||
     !sparkInformation.didConnect
@@ -281,10 +288,6 @@ export default function SendPaymentScreen(props) {
   if (errorMessage) {
     return <ErrorWithPayment reason={errorMessage} />;
   }
-
-  const handleBackpress = () => {
-    goBackFunction();
-  };
 
   return (
     <CustomKeyboardAvoidingView
@@ -498,10 +501,10 @@ export default function SendPaymentScreen(props) {
         {!canEditPaymentAmount && (
           <View style={styles.buttonContainer}>
             {/* Show slider progress animation instead of swipe button when processing */}
-            {showProgressAnimation ? (
+            {showProgressAnimation || isUsingFastPay ? (
               <SliderProgressAnimation
                 ref={progressAnimationRef}
-                isVisible={showProgressAnimation}
+                isVisible={showProgressAnimation || isUsingFastPay}
                 textColor={COLORS.darkModeText}
                 backgroundColor={
                   theme && darkModeType ? backgroundOffset : COLORS.primary
