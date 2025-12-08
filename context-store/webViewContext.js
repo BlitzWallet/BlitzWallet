@@ -518,10 +518,6 @@ export const WebViewProvider = ({ children }) => {
           // resolve requset to avoid timeout
           resolve({ didComplete: true });
           delete pendingRequests.current[message.id];
-          // Process any queued requests after handshake completes
-          setTimeout(() => {
-            processQueuedRequests();
-          }, 100);
           return;
         }
 
@@ -587,7 +583,7 @@ export const WebViewProvider = ({ children }) => {
         forceReactNativeUse = true;
       }
     },
-    [decryptMessage, resetWebViewState, processQueuedRequests],
+    [decryptMessage, resetWebViewState],
   );
 
   const sendWebViewRequestInternal = useCallback(
@@ -686,9 +682,6 @@ export const WebViewProvider = ({ children }) => {
             }
             return;
           }
-
-          const sequence = getNextSequence();
-          const timestamp = Date.now();
 
           const getTimeoutDuration = action => {
             if (action === 'handshake:init') return 2000;
@@ -804,6 +797,13 @@ export const WebViewProvider = ({ children }) => {
                   state: true,
                   count: prev.count + 1,
                 }));
+
+                queuedRequests.current.forEach(({ reject }) => {
+                  reject({
+                    error: 'Wallet initialization failed, using React Native',
+                  });
+                });
+                queuedRequests.current = [];
               } else {
                 walletInitialized.current = true;
                 setChangeSparkConnectionState(prev => ({
@@ -811,28 +811,44 @@ export const WebViewProvider = ({ children }) => {
                   count: prev.count + 1,
                 }));
                 console.log('Wallet initialized successfully');
+                processQueuedRequests();
               }
               wrappedResolve(result);
             };
           } else if (action !== 'handshake:init') {
             // For non-init actions, check if wallet was initialized
             if (handshakeComplete && !walletInitialized.current) {
-              console.warn('Wallet not initialized, blocking request:', action);
-              if (timeoutId) clearTimeout(timeoutId);
-              forceReactNativeUse = true;
-              setChangeSparkConnectionState(prev => ({
-                state: true,
-                count: prev.count + 1,
-              }));
-              // expectedSequenceRef.current = Math.max(
-              //   0,
-              //   expectedSequenceRef.current - 1,
-              // );
-              return resolve({
-                error: 'Wallet not initialized, Blocking request',
-              });
+              console.log(
+                'Wallet initialization in progress, queueing request:',
+                action,
+              );
+
+              // Queue the request instead of blocking
+              if (!isDuplicate(queuedRequests.current, action, args)) {
+                queuedRequests.current.push({
+                  id,
+                  action,
+                  args,
+                  encrypt,
+                  resolve,
+                  reject,
+                });
+
+                // Clean up timeout since we're queueing
+                if (timeoutId) clearTimeout(timeoutId);
+                delete activeTimeoutsRef.current[id];
+
+                return;
+              } else {
+                console.log('Duplicate request ignored:', action);
+                if (timeoutId) clearTimeout(timeoutId);
+                return reject(new Error('Duplicate request ignored'));
+              }
             }
           }
+
+          const sequence = getNextSequence();
+          const timestamp = Date.now();
 
           let payload = { id, action, args, sequence, timestamp };
           console.log('sending message to webview', action, payload);
@@ -1000,6 +1016,7 @@ export const WebViewProvider = ({ children }) => {
       }
 
       const requests = [...queuedRequests.current];
+      queuedRequests.current = [];
       await Promise.allSettled(
         requests.map(({ id, action, args, encrypt, resolve, reject }) =>
           sendWebViewRequestInternal(action, args, encrypt)
