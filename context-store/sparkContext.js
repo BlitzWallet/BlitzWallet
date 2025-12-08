@@ -872,6 +872,7 @@ const SparkWalletProvider = ({ children }) => {
     balancePollingAbortControllerRef.current = null;
     currentPollingMnemonicRef.current = null;
     didRunInitialRestore.current = false;
+    hasRestoreCompleted.current = false;
 
     // Reset state variables
     setSparkConnectionError(null);
