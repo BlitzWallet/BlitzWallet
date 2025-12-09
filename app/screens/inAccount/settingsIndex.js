@@ -413,7 +413,7 @@ export default function SettingsIndex(props) {
 
   const settignsList = isDoomsday ? DOOMSDAYSETTINGS : SETTINGSOPTIONS;
   const myProfileImage = cache[masterInfoObject?.uuid];
-  const myContact = globalContactsInformation.myProfile;
+  const myContact = globalContactsInformation?.myProfile;
   const currentLangugage = supportedLanguagesList.find(
     item => item.id === masterInfoObject.userSelectedLanguage,
   )?.languageName;
@@ -552,7 +552,7 @@ export default function SettingsIndex(props) {
   ]);
 
   const handleUserNameCopy = () => {
-    copyToClipboard(myContact.uniqueName, showToast);
+    copyToClipboard(myContact?.uniqueName, showToast);
   };
 
   return (
@@ -594,7 +594,7 @@ export default function SettingsIndex(props) {
                 Share.share({
                   message: `${t(
                     'share.contact',
-                  )}\nhttps://blitzwalletapp.com/u/${myContact.uniqueName}`,
+                  )}\nhttps://blitzwalletapp.com/u/${myContact?.uniqueName}`,
                 });
               }}
             >
@@ -641,14 +641,14 @@ export default function SettingsIndex(props) {
 
             <ThemeText
               CustomNumberOfLines={1}
-              styles={{ opacity: myContact.name ? 0.5 : 0.8 }}
-              content={myContact.name || t('constants.annonName')}
+              styles={{ opacity: myContact?.name ? 0.5 : 0.8 }}
+              content={myContact?.name || t('constants.annonName')}
             />
             <TouchableOpacity onPress={handleUserNameCopy}>
               <ThemeText
                 CustomNumberOfLines={1}
                 styles={styles.profileUniqueName}
-                content={`@${myContact.uniqueName}`}
+                content={`@${myContact?.uniqueName}`}
               />
             </TouchableOpacity>
 
