@@ -1,24 +1,24 @@
-import {StyleSheet, View, TouchableOpacity, ScrollView} from 'react-native';
-import {CENTER, ICONS} from '../../constants';
-import {useNavigation} from '@react-navigation/native';
-import {copyToClipboard} from '../../functions';
-import {GlobalThemeView, ThemeText} from '../../functions/CustomElements';
+import { StyleSheet, View, TouchableOpacity, ScrollView } from 'react-native';
+import { CENTER, ICONS } from '../../constants';
+import { useNavigation } from '@react-navigation/native';
+import { copyToClipboard } from '../../functions';
+import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
-import {useToast} from '../../../context-store/toastManager';
-import {useTranslation} from 'react-i18next';
+import { useToast } from '../../../context-store/toastManager';
+import { useTranslation } from 'react-i18next';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 
 export default function TechnicalTransactionDetails(props) {
   console.log('Transaction Detials Page');
-  const {showToast} = useToast();
+  const { showToast } = useToast();
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   useHandleBackPressNew();
 
-  const {transaction} = props.route.params;
+  const { transaction } = props.route.params;
 
-  const {details, sparkID} = transaction;
+  const { details, sparkID } = transaction;
 
   const isPending = transaction.paymentStatus === 'pending';
 
@@ -61,20 +61,21 @@ export default function TechnicalTransactionDetails(props) {
     return (
       <View key={id}>
         <View style={styles.headerContainer}>
-          <ThemeText content={item} styles={{...styles.headerText}} />
+          <ThemeText content={item} styles={{ ...styles.headerText }} />
           {!isPending && !txItem && (
             <TouchableOpacity
               onPress={() => {
                 navigate.navigate('InformationPopup', {
                   textContent: t(
                     'screens.inAccount.technicalTransactionDetails.noInformationLabel',
-                    {item},
+                    { item },
                   ),
                   buttonText: t('constants.understandText'),
                 });
-              }}>
+              }}
+            >
               <ThemeImage
-                styles={{width: 20, height: 20}}
+                styles={{ width: 20, height: 20 }}
                 lightModeIcon={ICONS.aboutIcon}
                 darkModeIcon={ICONS.aboutIcon}
                 lightsOutIcon={ICONS.aboutIconWhite}
@@ -95,11 +96,12 @@ export default function TechnicalTransactionDetails(props) {
               return;
             }
             copyToClipboard(txItem, showToast);
-          }}>
+          }}
+        >
           <ThemeText
             CustomNumberOfLines={2}
             content={txItem || 'N/A'}
-            styles={{...styles.descriptionText}}
+            styles={{ ...styles.descriptionText }}
           />
         </TouchableOpacity>
       </View>
@@ -111,9 +113,10 @@ export default function TechnicalTransactionDetails(props) {
       <CustomSettingsTopBar />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={styles.innerContainer}>
+        style={styles.innerContainer}
+      >
         {infoElements}
-        {transaction.paymentType === 'spark' && (
+        {/* {transaction.paymentType === 'spark' && (
           <ThemeText
             content={t(
               'screens.inAccount.technicalTransactionDetails.privacyMessage',
@@ -126,7 +129,7 @@ export default function TechnicalTransactionDetails(props) {
               },
             )}
           />
-        )}
+        )} */}
       </ScrollView>
     </GlobalThemeView>
   );
@@ -142,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 5,
   },
-  headerText: {includeFontPadding: false, marginRight: 5},
+  headerText: { includeFontPadding: false, marginRight: 5 },
   descriptionText: {
     marginBottom: 30,
   },
