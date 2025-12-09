@@ -52,7 +52,7 @@ export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
-  const { sparkInformation } = useSparkWallet();
+  const { sparkInformation, toggleNewestPaymentTimestamp } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContacts();
   const { minMaxLiquidSwapAmounts, screenDimensions } = useAppStatus();
@@ -100,6 +100,7 @@ export default function ReceivePaymentHome(props) {
   useEffect(() => {
     async function runAddressInit() {
       crashlyticsLogReport('Begining adddress initialization');
+      toggleNewestPaymentTimestamp();
 
       if (
         prevRequstInfo.current &&

@@ -95,6 +95,8 @@ const SparkWalletProvider = ({ children }) => {
   const [pendingNavigation, setPendingNavigation] = useState(null);
   const [restoreCompleted, setRestoreCompleted] = useState(false);
   const hasRestoreCompleted = useRef(false);
+  const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
+    useState(0);
 
   // const [pendingLiquidPayment, setPendingLiquidPayment] = useState(null);
   const depositAddressIntervalRef = useRef(null);
@@ -111,6 +113,7 @@ const SparkWalletProvider = ({ children }) => {
     sparkAddress: '',
   });
   const sessionTimeRef = useRef(Date.now());
+  const newestPaymentTimeRef = useRef(Date.now());
   const handledTransfers = useRef(new Set());
   const prevListenerType = useRef(null);
   const prevAppState = useRef(appState);
@@ -162,6 +165,10 @@ const SparkWalletProvider = ({ children }) => {
     // Fixing race condition with new preloaded txs
     sessionTimeRef.current = Date.now() + 5 * 1000;
   }, [currentWalletMnemoinc, authResetkey]);
+
+  useEffect(() => {
+    newestPaymentTimeRef.current = Date.now();
+  }, [reloadNewestPaymentTimestamp]);
 
   useEffect(() => {
     if (!didGetToHomepage) return;
@@ -237,6 +244,10 @@ const SparkWalletProvider = ({ children }) => {
 
   const toggleIsSendingPayment = isSending => {
     isSendingPaymentRef.current = isSending;
+  };
+
+  const toggleNewestPaymentTimestamp = () => {
+    setReloadNewestPaymentTimestamp(prev => prev + 1);
   };
 
   useEffect(() => {
@@ -624,12 +635,6 @@ const SparkWalletProvider = ({ children }) => {
 
       const details = parsedTx?.details;
 
-      if (details?.shouldNavigate && !details.isLNURL) {
-        console.log(
-          'Flagged as should not navigate, skipping confirm tx page navigation',
-        );
-        return;
-      }
       if (new Date(details.time).getTime() < sessionTimeRef.current) {
         console.log(
           'created before session time was set, skipping confirm tx page navigation',
@@ -641,16 +646,35 @@ const SparkWalletProvider = ({ children }) => {
         console.log('Is sending payment, skipping confirm tx page navigation');
         return;
       }
+
+      const isOnReceivePage =
+        navigationRef
+          .getRootState()
+          .routes?.filter(item => item.name === 'ReceiveBTC').length === 1;
+
+      const isNewestPayment = details?.createdTime
+        ? new Date(details.createdTime).getTime() > newestPaymentTimeRef.current
+        : false;
+
+      let shouldShowConfirm = false;
+
+      if (
+        lastAddedTx.paymentType?.toLowerCase() === 'lightning' &&
+        !details.isLNURL &&
+        !details?.shouldNavigate &&
+        isOnReceivePage &&
+        isNewestPayment
+      ) {
+        shouldShowConfirm = true;
+      }
+
       // Handle confirm animation here
       setPendingNavigation({
         tx: parsedTx,
         amount: details.amount,
         LRC20Token: details.LRC20Token,
         isLRC20Payment: !!details.LRC20Token,
-        showFullAnimation:
-          navigationRef
-            .getRootState()
-            .routes?.filter(item => item.name === 'ReceiveBTC').length === 1,
+        showFullAnimation: shouldShowConfirm,
       });
     } catch (err) {
       console.log('error in spark handle db update function', err);
@@ -1135,11 +1159,7 @@ const SparkWalletProvider = ({ children }) => {
               setPendingNavigation({
                 tx: updatedTx,
                 amount: updatedTx.details.amount,
-                showFullAnimation:
-                  navigationRef
-                    .getRootState()
-                    .routes?.filter(item => item.name === 'ReceiveBTC')
-                    .length === 1,
+                showFullAnimation: false,
               });
             }
           }
@@ -1305,6 +1325,7 @@ const SparkWalletProvider = ({ children }) => {
       setSparkConnectionError,
       tokensImageCache,
       showTokensInformation,
+      toggleNewestPaymentTimestamp,
     }),
     [
       sparkInformation,
@@ -1318,6 +1339,7 @@ const SparkWalletProvider = ({ children }) => {
       setSparkConnectionError,
       tokensImageCache,
       showTokensInformation,
+      toggleNewestPaymentTimestamp,
     ],
   );
 

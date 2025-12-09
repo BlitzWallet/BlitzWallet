@@ -29,15 +29,9 @@ export async function transformTxToPaymentObject(
   if (paymentType === 'lightning') {
     const userRequest = tx.userRequest;
     const userRequestId = userRequest?.id;
-    const foundInvoice = unpaidLNInvoices.find(item => {
-      const details = JSON.parse(item.details);
-      return (
-        item.amount === tx.totalValue &&
-        (Math.abs(details?.createdTime - new Date(tx.createdTime).getTime()) <
-          1000 * 30 ||
-          item.id === userRequestId)
-      );
-    });
+    const foundInvoice = unpaidLNInvoices.find(
+      item => item.sparkID === userRequestId,
+    );
 
     const status = getSparkPaymentStatus(tx.status);
     const isSendRequest = userRequest?.typename === 'LightningSendRequest';
@@ -88,6 +82,9 @@ export async function transformTxToPaymentObject(
             ? userRequest?.encodedInvoice
             : userRequest.invoice?.encodedInvoice
           : '',
+        createdTime: foundInvoiceDetails
+          ? foundInvoiceDetails.createdTime
+          : new Date(tx.createdTime).getTime(),
         time: tx.updatedTime
           ? new Date(tx.updatedTime).getTime()
           : new Date().getTime(),

@@ -21,7 +21,7 @@ import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
 import {
   bulkUpdateSparkTransactions,
   deleteSparkTransaction,
-  deleteUnpaidSparkLightningTransaction,
+  // deleteUnpaidSparkLightningTransaction,
   getAllPendingSparkPayments,
   getAllSparkTransactions,
   getAllSparkContactInvoices,
@@ -547,11 +547,11 @@ async function processLightningTransaction(
       sendWebViewRequest,
     );
 
-    if (matchResult.savedInvoice) {
-      await deleteUnpaidSparkLightningTransaction(
-        matchResult.savedInvoice.sparkID,
-      );
-    }
+    // if (matchResult.savedInvoice) {
+    //   await deleteUnpaidSparkLightningTransaction(
+    //     matchResult.savedInvoice.sparkID,
+    //   );
+    // }
 
     const savedDetails = matchResult.savedInvoice?.details
       ? JSON.parse(matchResult.savedInvoice.details)
