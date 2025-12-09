@@ -686,6 +686,7 @@ export const receiveSparkLightningPayment = async ({
         amountSats,
         memo,
         expirySeconds: DEFAULT_PAYMENT_EXPIRY_SEC, // 12 hour invoice expiry
+        includeSparkAddress: true,
       });
       return { didWork: true, response };
     }
@@ -774,6 +775,7 @@ export const sendSparkLightningPayment = async ({
         invoice: invoice.toLowerCase(),
         maxFeeSats: maxFeeSats,
         amountSatsToSend: amountSats,
+        preferSpark: true,
       });
       return { didWork: true, paymentResponse };
     }

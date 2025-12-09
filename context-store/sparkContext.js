@@ -119,6 +119,7 @@ const SparkWalletProvider = ({ children }) => {
   const sessionTimeRef = useRef(Date.now());
   const newestPaymentTimeRef = useRef(Date.now());
   const handledTransfers = useRef(new Set());
+  const usedSavedTxIds = useRef(new Set());
   const prevListenerType = useRef(null);
   const prevAppState = useRef(appState);
   const prevAccountId = useRef(null);
@@ -594,25 +595,62 @@ const SparkWalletProvider = ({ children }) => {
         return;
       }
 
+      if (details.direction === 'OUTGOING') {
+        console.log(
+          'Only incoming payments navigate here, skipping confirm tx page navigation',
+        );
+        return;
+      }
+
       const isOnReceivePage =
         navigationRef
           .getRootState()
           .routes?.filter(item => item.name === 'ReceiveBTC').length === 1;
 
-      const isNewestPayment = details?.createdTime
-        ? new Date(details.createdTime).getTime() > newestPaymentTimeRef.current
-        : false;
+      const isNewestPayment =
+        !!details?.createdTime || !!details?.time
+          ? new Date(details.createdTime || details?.time).getTime() >
+            newestPaymentTimeRef.current
+          : false;
 
       let shouldShowConfirm = false;
 
       if (
-        lastAddedTx.paymentType?.toLowerCase() === 'lightning' &&
-        !details.isLNURL &&
-        !details?.shouldNavigate &&
-        isOnReceivePage &&
-        isNewestPayment
+        (lastAddedTx.paymentType?.toLowerCase() === 'lightning' &&
+          !details.isLNURL &&
+          !details?.shouldNavigate &&
+          isOnReceivePage &&
+          isNewestPayment) ||
+        (lastAddedTx.paymentType?.toLowerCase() === 'spark' &&
+          !details.isLRC20Payment &&
+          isOnReceivePage &&
+          isNewestPayment)
       ) {
-        shouldShowConfirm = true;
+        if (lastAddedTx.paymentType?.toLowerCase() === 'spark') {
+          const upaidLNInvoices = await getAllUnpaidSparkLightningInvoices();
+          const lastMatch = upaidLNInvoices.findLast(invoice => {
+            const savedInvoiceDetails = JSON.parse(invoice.details);
+            return (
+              !savedInvoiceDetails.sendingUUID &&
+              !savedInvoiceDetails.isLNURL &&
+              invoice.amount === details.amount
+            );
+          });
+
+          if (lastMatch) {
+            if (!usedSavedTxIds.current.has(lastMatch.id)) {
+              usedSavedTxIds.current.add(lastMatch.id);
+              const lastInvoiceDetails = JSON.parse(lastMatch.details);
+              const lastInvoiceTime = lastInvoiceDetails.createdTime;
+              const txTime = details.time;
+              if (txTime - lastInvoiceTime < 60 * 1000) {
+                shouldShowConfirm = true;
+              }
+            }
+          }
+        } else {
+          shouldShowConfirm = true;
+        }
       }
 
       // Handle confirm animation here
@@ -831,7 +869,6 @@ const SparkWalletProvider = ({ children }) => {
     }
     initialBitcoinIntervalRun.current = null;
     depositAddressIntervalRef.current = null;
-    updatePendingPaymentsIntervalRef.current = null;
     sparkInfoRef.current = {
       balance: 0,
       tokens: {},

@@ -121,31 +121,58 @@ export const sparkPaymenWrapper = async ({
       console.log(lightningPayResponse, 'lightniing pay response');
       const data = lightningPayResponse.paymentResponse;
 
-      const realPaymentFee = data?.fee?.originalValue
-        ? data?.fee?.originalValue /
-          (data?.fee?.originalUnit === 'MILLISATOSHI' ? 1000 : 1)
-        : initialFee;
+      // check if lightning payment used LN or handled over spark
+      const paymentType = !!data?.type ? 'spark' : 'lightning';
 
-      const tx = {
-        id: data.id,
-        paymentStatus: 'pending',
-        paymentType: 'lightning',
-        accountId: sparkInformation.identityPubKey,
-        details: {
-          sendingUUID: contactInfo?.uuid,
-          fee: realPaymentFee,
-          totalFee: supportFee + realPaymentFee,
-          supportFee: supportFee,
-          amount: amountSats,
-          description: memo || '',
-          address: address,
-          time: new Date(data.updatedAt).getTime(),
-          createdAt: new Date(data.createdAt).getTime(),
-          direction: 'OUTGOING',
-          preimage: '',
-        },
-      };
-      response = tx;
+      if (paymentType === 'lightning') {
+        const realPaymentFee = data?.fee?.originalValue
+          ? data?.fee?.originalValue /
+            (data?.fee?.originalUnit === 'MILLISATOSHI' ? 1000 : 1)
+          : initialFee;
+
+        const tx = {
+          id: data.id,
+          paymentStatus: 'pending',
+          paymentType: 'lightning',
+          accountId: sparkInformation.identityPubKey,
+          details: {
+            sendingUUID: contactInfo?.uuid,
+            fee: realPaymentFee,
+            totalFee: supportFee + realPaymentFee,
+            supportFee: supportFee,
+            amount: amountSats,
+            description: memo || '',
+            address: address,
+            time: new Date(data.updatedAt).getTime(),
+            createdAt: new Date(data.createdAt).getTime(),
+            direction: 'OUTGOING',
+            preimage: '',
+          },
+        };
+        response = tx;
+      } else {
+        const tx = {
+          id: data.id,
+          paymentStatus: 'completed',
+          paymentType: 'spark',
+          accountId: sparkInformation.identityPubKey,
+          details: {
+            sendingUUID: contactInfo?.uuid,
+            fee: 0,
+            totalFee: 0 + supportFee,
+            supportFee: supportFee,
+            amount: amountSats,
+            address: address,
+            time: new Date(data.updatedTime).getTime(),
+            direction: 'OUTGOING',
+            description: memo || '',
+            senderIdentityPublicKey: data.receiverIdentityPublicKey,
+            isLRC20Payment: false,
+            LRC20Token: seletctedToken,
+          },
+        };
+        response = tx;
+      }
     } else if (paymentType === 'bitcoin') {
       // make sure to import exist speed
       // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
