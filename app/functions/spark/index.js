@@ -27,6 +27,7 @@ import {
   deriveSparkAddress,
   deriveSparkIdentityKey,
 } from '../gift/deriveGiftWallet';
+import { DEFAULT_PAYMENT_EXPIRY_SEC } from '../../constants';
 
 export let sparkWallet = {};
 let initializingWallets = {};
@@ -672,7 +673,7 @@ export const receiveSparkLightningPayment = async ({
           mnemonic,
           amountSats,
           memo,
-          expirySeconds: 60 * 60 * 12,
+          expirySeconds: DEFAULT_PAYMENT_EXPIRY_SEC, // 12 hour invoice expiry
         },
       );
       return validateWebViewResponse(
@@ -684,7 +685,7 @@ export const receiveSparkLightningPayment = async ({
       const response = await wallet.createLightningInvoice({
         amountSats,
         memo,
-        expirySeconds: 60 * 60 * 12, // 12 hour invoice expiry
+        expirySeconds: DEFAULT_PAYMENT_EXPIRY_SEC, // 12 hour invoice expiry
       });
       return { didWork: true, response };
     }

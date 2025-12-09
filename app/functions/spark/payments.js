@@ -15,6 +15,7 @@ import {
   isSendingPayingEventEmiiter,
   SENDING_PAYMENT_EVENT_NAME,
 } from '../../../context-store/sparkContext';
+import { DEFAULT_PAYMENT_EXPIRY_SEC } from '../../constants';
 import sha256Hash from '../hash';
 import calculateProgressiveBracketFee from './calculateSupportFee';
 import {
@@ -275,7 +276,9 @@ export const sparkReceivePaymentWrapper = async ({
       const tempTransaction = {
         id: invoice.id,
         amount: amountSats,
-        expiration: invoice.invoice.expiresAt,
+        expiration:
+          new Date(invoice.createdAt).getTime() +
+          DEFAULT_PAYMENT_EXPIRY_SEC * 1000,
         description: memo || '',
         shouldNavigate,
         details: {
