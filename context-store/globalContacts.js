@@ -70,13 +70,21 @@ export const GlobalContactsList = ({ children }) => {
 
   const decodedAddedContacts = useMemo(() => {
     if (!publicKey || !addedContacts) return [];
-    return typeof addedContacts === 'string'
-      ? [
-          ...JSON.parse(
-            decryptMessage(contactsPrivateKey, publicKey, addedContacts),
-          ),
-        ]
-      : [];
+
+    if (typeof addedContacts !== 'string') return [];
+
+    try {
+      const decryptedData = decryptMessage(
+        contactsPrivateKey,
+        publicKey,
+        addedContacts,
+      );
+
+      return [...JSON.parse(decryptedData)];
+    } catch (error) {
+      console.warn('Failed to parse addedContacts.', error);
+      return [];
+    }
   }, [addedContacts, publicKey, contactsPrivateKey]);
 
   const updatedCachedMessagesStateFunction = useCallback(async () => {
