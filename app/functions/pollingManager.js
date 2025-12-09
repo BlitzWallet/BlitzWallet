@@ -164,6 +164,6 @@ export const createRestorePoller = (
       onRestoreComplete(result);
     },
     abortController,
-    delays: [500, 2500, 5500],
+    delays: [0, 2000, 5000],
   });
 };
