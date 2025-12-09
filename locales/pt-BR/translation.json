@@ -1863,7 +1863,7 @@
       "updateMessage": "{{name}} {{option}} sua solicitação",
       "request": "{{name}} solicitou você {{amount}}",
       "payment": "{{name}} pagou você {{amount}}",
-      "giftCard": "{{name}} enviou para você um {{giftCardName}} cartão-presente"
+      "giftCard": "{{name}} enviou para você um cartão-presente {{giftCardName}}"
     }
   }
 }
