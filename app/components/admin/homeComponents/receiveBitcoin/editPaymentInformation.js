@@ -90,13 +90,17 @@ export default function EditReceivePaymentInformation(props) {
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.amountScrollContainer}
+          contentContainerStyle={[
+            styles.amountScrollContainer,
+            { opacity: isKeyboardFocused ? HIDDEN_OPACITY : 1 },
+          ]}
         >
           <FormattedBalanceInput
             maxWidth={0.9}
             amountValue={amountValue}
             inputDenomination={inputDenomination}
             containerFunction={() => {
+              if (isKeyboardFocused) return;
               setInputDenomination(prev => {
                 const newPrev = prev === 'sats' ? 'fiat' : 'sats';
 
