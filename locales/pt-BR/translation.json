@@ -185,7 +185,7 @@
     "paidRequest": "Solicitação paga",
     "sent": "Você enviou",
     "received": "Você recebeu",
-    "paidLower": "pago",
+    "paidLower": "pagou",
     "declinedLower": "recusou",
     "receivedRequest": "Solicitação recebida",
     "date": "Data",
@@ -261,7 +261,7 @@
 
   "adminLogin": {
     "pinPage": {
-      "isBiometricEnabledConfirmAction": "Não foi possível verificar seus dados biométricos.\n\nDeseja apagar todos os dados da carteira? Continue somente se sua seed phrase estiver salva com segurança.",
+      "isBiometricEnabledConfirmAction": "Não foi possível verificar seus dados biométricos.\n\nDeseja apagar todos os dados da carteira? Continue somente se sua frase-semente estiver salva com segurança.",
       "wrongPinError": "PIN incorreto, tente novamente",
       "enterPinMessage": "Inserir PIN",
       "attemptsText": "{{attempts}} tentativas restantes",
@@ -1736,13 +1736,13 @@
           "noGiftSeed": "Não conseguimos acessar o vale-bitcoin. Tente novamente mais tarde.",
           "giftWalletInitError": "Não conseguimos acessar o vale-bitcoin. Tente novamente mais tarde.",
           "noBalanceErrorReclaim": "Não há fundos restantes para resgatar.",
-          "notExpired": "Você ainda não pode recuperar este vale-bitcoin.",
-          "nobalanceError": "Não foi possível encontrar um valor para este presente. Tente novamente mais tarde ou tente restaurar o presente.",
+          "notExpired": "Você ainda não pode recuperar o valor deste vale-bitcoin.",
+          "nobalanceError": "Não foi possível encontrar um valor para este vale-bitcoin. Tente novamente mais tarde ou tente restaurar o vale-bitcoin.",
           "nobalanceErrorExpert": "Não há nenhum valor disponível para reembolso.",
-          "balanceMismatchError": "Ocorreu um problema ao obter o valor do presente. Tente novamente.",
+          "balanceMismatchError": "Ocorreu um problema ao obter o valor do vale-bitcoin. Tente novamente.",
           "paymentError": "Não foi possível resgatar o vale-bitcoin.",
           "claimHead": "Aceitar vale-bitcoin",
-          "reclaimHead": "Reembolsar valor",
+          "reclaimHead": "Receber reembolso",
           "claimLoading": "Resgatando… permaneça no app.",
           "reclaimLoading": "Devolvendo fundos… permaneça no app.",
           "claimAmountHead": "Valor a receber",
@@ -1751,7 +1751,7 @@
           "networkFeeWarningExpert": "Qualquer valor encontrado, descontadas as taxas de rede, será adicionado ao seu saldo",
           "networkFeeWarning": "Este valor, menos taxas, será adicionado ao seu saldo",
           "buttonTextClaiming": "Resgatando",
-          "reclaimButton": "Recuperar vale-bitcoin",
+          "reclaimButton": "Receber",
           "claimButton": "Aceitar vale-bitcoin",
           "confirmMessage": "O vale-bitcoin foi resgatado com sucesso",
           "defaultDesc": "Vale-bitcoin Blitz",
@@ -1860,10 +1860,10 @@
     },
     "POS": "Pedido recebido: {{totalAmount}}",
     "contacts": {
-      "updateMessage": "{{name}} {{option}} sua solicitção",
+      "updateMessage": "{{name}} {{option}} sua solicitação",
       "request": "{{name}} solicitou você {{amount}}",
       "payment": "{{name}} pagou você {{amount}}",
-      "giftCard": "{{name}} enviou para você um {{giftCardName}} cartão-presente"
+      "giftCard": "{{name}} enviou para você um cartão-presente {{giftCardName}}"
     }
   }
 }
