@@ -500,7 +500,7 @@ const SparkWalletProvider = ({ children }) => {
         );
 
         balancePollingTimeoutRef.current = poller;
-        await poller.start();
+        poller.start();
       } else {
         const balance = await getSparkBalance(currentMnemonicRef.current);
 
