@@ -232,12 +232,13 @@ const styles = StyleSheet.create({
   toastTitle: {
     color: COLORS.lightModeText,
     includeFontPadding: false,
+    fontSize: SIZES.smedium,
     flexShrink: 1,
   },
   paymentReceivedTitle: {
     color: COLORS.lightModeText,
     includeFontPadding: false,
-    fontSize: SIZES.small,
+    fontSize: SIZES.smedium,
     flexShrink: 1,
   },
 });
