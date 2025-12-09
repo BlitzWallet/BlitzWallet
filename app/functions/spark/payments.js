@@ -276,9 +276,7 @@ export const sparkReceivePaymentWrapper = async ({
       const tempTransaction = {
         id: invoice.id,
         amount: amountSats,
-        expiration:
-          new Date(invoice.createdAt).getTime() +
-          DEFAULT_PAYMENT_EXPIRY_SEC * 1000,
+        expiration: invoice.invoice.expiresAt,
         description: memo || '',
         shouldNavigate,
         details: {

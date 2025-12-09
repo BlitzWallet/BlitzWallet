@@ -695,12 +695,14 @@ export const deleteUnpaidSparkLightningTransactionTable = async () => {
 export const cleanStalePendingSparkLightningTransactions = async () => {
   try {
     await ensureSparkDatabaseReady();
-    const now = new Date().getTime();
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+    const twoWeeksAgoISO = twoWeeksAgo.toISOString();
     // Delete where status is 'INVOICE_CREATED' and expires_at_time is not null and in the past
     await sqlLiteDB.runAsync(
       `DELETE FROM ${LIGHTNING_REQUEST_IDS_TABLE_NAME}
        WHERE expiration < ?`,
-      now,
+      twoWeeksAgoISO,
     );
     console.log('Stale spark transactions cleaned up');
     return true;
