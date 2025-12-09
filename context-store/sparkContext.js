@@ -63,6 +63,10 @@ import {
 } from './webViewContext';
 import { useGlobalContextProvider } from './context';
 import { useAuthContext } from './authContext';
+import {
+  createBalancePoller,
+  createRestorePoller,
+} from '../app/functions/pollingManager';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -382,7 +386,7 @@ const SparkWalletProvider = ({ children }) => {
             cachedTransfers,
             currentMnemonicRef.current,
             sendWebViewRequest,
-            5,
+            2,
           );
           if (findTxResponse.offset || findTxResponse.foundTransfers) {
             transfersOffset = findTxResponse.offset;
@@ -443,10 +447,6 @@ const SparkWalletProvider = ({ children }) => {
           balance: Number(passedBalance),
         }));
       } else if (updateType === 'fullUpdate-waitBalance') {
-        if (balancePollingTimeoutRef.current) {
-          clearTimeout(balancePollingTimeoutRef.current);
-          balancePollingTimeoutRef.current = null;
-        }
         if (balancePollingAbortControllerRef.current) {
           balancePollingAbortControllerRef.current.abort();
         }
@@ -455,7 +455,6 @@ const SparkWalletProvider = ({ children }) => {
         currentPollingMnemonicRef.current = currentMnemonicRef.current;
 
         const pollingMnemonic = currentPollingMnemonicRef.current;
-        const currentAbortController = balancePollingAbortControllerRef.current;
 
         const initialBalance = await getSparkBalance(pollingMnemonic);
 
@@ -477,83 +476,31 @@ const SparkWalletProvider = ({ children }) => {
           };
         });
 
-        const delays = [1000, 2000, 5000, 15000];
-        let previousBalance = startBalance;
-
-        const pollBalance = async delayIndex => {
-          try {
-            if (
-              currentAbortController.signal.aborted ||
-              pollingMnemonic !== currentMnemonicRef.current
-            ) {
-              console.log(
-                'Balance polling stopped:',
-                currentAbortController.signal.aborted
-                  ? 'aborted'
-                  : 'wallet changed',
-              );
-              return;
-            }
-
-            if (delayIndex >= delays.length) {
-              console.log('Balance polling completed after all retries');
-              balancePollingAbortControllerRef.current = null;
-              currentPollingMnemonicRef.current = null;
-              return;
-            }
-
-            balancePollingTimeoutRef.current = setTimeout(async () => {
-              try {
-                if (
-                  currentAbortController.signal.aborted ||
-                  pollingMnemonic !== currentMnemonicRef.current
-                ) {
-                  return;
-                }
-
-                const balance = await getSparkBalance(pollingMnemonic);
-                const newBalance = balance.didWork
-                  ? Number(balance.balance)
-                  : previousBalance;
-
-                if (newBalance > previousBalance) {
-                  console.log(
-                    `Balance polling: updated from ${previousBalance} to ${newBalance} ` +
-                      `after ${delays
-                        .slice(0, delayIndex + 1)
-                        .reduce((a, b) => a + b, 0)}ms`,
-                  );
-                  previousBalance = newBalance;
-
-                  setSparkInformation(prev => {
-                    if (pollingMnemonic !== currentMnemonicRef.current) {
-                      return prev;
-                    }
-                    handleBalanceCache({
-                      isCheck: false,
-                      passedBalance: newBalance,
-                      mnemonic: pollingMnemonic,
-                    });
-                    return {
-                      ...prev,
-                      balance: newBalance,
-                      tokens: balance.tokensObj || prev.tokens,
-                    };
-                  });
-                  return;
-                }
-                pollBalance(delayIndex + 1);
-              } catch (err) {
-                console.log('Error in balance polling, continuing:', err);
-                pollBalance(delayIndex + 1);
+        const poller = createBalancePoller(
+          pollingMnemonic,
+          currentMnemonicRef,
+          balancePollingAbortControllerRef.current,
+          newBalance => {
+            setSparkInformation(prev => {
+              if (pollingMnemonic !== currentMnemonicRef.current) {
+                return prev;
               }
-            }, delays[delayIndex]);
-          } catch (err) {
-            console.log('Error in poll balance', err);
-          }
-        };
+              handleBalanceCache({
+                isCheck: false,
+                passedBalance: newBalance,
+                mnemonic: pollingMnemonic,
+              });
+              return {
+                ...prev,
+                balance: newBalance,
+              };
+            });
+          },
+          startBalance,
+        );
 
-        pollBalance(0);
+        balancePollingTimeoutRef.current = poller;
+        await poller.start();
       } else {
         const balance = await getSparkBalance(currentMnemonicRef.current);
 
@@ -739,15 +686,19 @@ const SparkWalletProvider = ({ children }) => {
         });
       }
       if (!isInitialRestore.current) {
-        await fullRestoreSparkState({
-          sparkAddress: sparkInfoRef.current.sparkAddress,
-          batchSize: isInitialRestore.current ? 5 : 2,
-          isSendingPayment: isSendingPaymentRef.current,
-          mnemonic: currentMnemonicRef.current,
-          identityPubKey: sparkInfoRef.current.identityPubKey,
+        const restorePoller = createRestorePoller(
+          currentMnemonicRef.current,
+          isSendingPaymentRef.current,
+          currentMnemonicRef,
+          new AbortController(),
+          result => {
+            console.log('RESTORE COMPLETE');
+          },
+          sparkInfoRef.current,
           sendWebViewRequest,
-          isInitialRestore: isInitialRestore.current,
-        });
+        );
+
+        await restorePoller.start();
       }
 
       await updateSparkTxStatus(
