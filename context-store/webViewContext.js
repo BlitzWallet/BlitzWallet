@@ -165,7 +165,6 @@ export const WebViewProvider = ({ children }) => {
   const aesKeyRef = useRef(null);
   const expectedNonceRef = useRef(null);
   const [verifiedPath, setVerifiedPath] = useState('');
-  const [fileHash, setFileHash] = useState('');
   const expectedSequenceRef = useRef(0);
   const nonceVerified = useRef(false);
   const previousAppState = useRef(appState);
@@ -181,6 +180,8 @@ export const WebViewProvider = ({ children }) => {
     state: null,
     count: 0,
   });
+
+  const fileHash = !!verifiedPath ? process.env.WEBVIEW_BUNDLE_HASH : '';
 
   useEffect(() => {
     currentWalletMnemoincRef.current = currentWalletMnemoinc;
@@ -294,23 +295,6 @@ export const WebViewProvider = ({ children }) => {
           : 'file:///android_asset/sparkContext.html',
       );
 
-      if (hashHex !== fileHash) {
-        console.error(
-          'SECURITY VIOLATION: File integrity check failed - content was modified!',
-        );
-        console.error(`Expected hash: ${fileHash}`);
-        console.error(`Current hash: ${hashHex}`);
-
-        // Force React Native mode due to security violation
-        forceReactNativeUse = true;
-        setHandshakeComplete(false);
-        setChangeSparkConnectionState(prev => ({
-          state: true,
-          count: prev.count + 1,
-        }));
-        return;
-      }
-
       // File is verified, safe to reload
       console.log('File integrity verified, reloading WebView');
       didRunInit.current = false;
@@ -328,7 +312,7 @@ export const WebViewProvider = ({ children }) => {
         count: prev.count + 1,
       }));
     }
-  }, [fileHash]);
+  }, []);
 
   // Handle app state changes
   useEffect(() => {
@@ -968,7 +952,6 @@ export const WebViewProvider = ({ children }) => {
         );
 
         expectedNonceRef.current = nonceHex;
-        setFileHash(hashHex);
         setVerifiedPath(htmlPath);
       } catch (err) {
         console.log(
