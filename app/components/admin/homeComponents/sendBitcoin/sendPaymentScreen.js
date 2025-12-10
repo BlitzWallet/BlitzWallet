@@ -153,12 +153,13 @@ export default function SendPaymentScreen(props) {
 
   const isUsingFastPay =
     sparkInformation.didConnect &&
-    Object.keys(paymentInfo).length > 0 &&
-    masterInfoObject[QUICK_PAY_STORAGE_KEY].isFastPayEnabled &&
+    Object.keys(paymentInfo || {}).length > 0 &&
+    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.isFastPayEnabled &&
     canSendPayment &&
     !canEditPaymentAmount &&
-    masterInfoObject[QUICK_PAY_STORAGE_KEY].fastPayThresholdSats >=
-      convertedSendAmount;
+    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.fastPayThresholdSats >=
+      convertedSendAmount &&
+    !isUsingLRC20;
 
   useEffect(() => {
     const currentParams = {
