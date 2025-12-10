@@ -8,7 +8,7 @@
     "skip": "Pular",
     "verify": "Verificar",
     "internetError": "Reconecte-se à internet para usar este recurso",
-    "send": "Aprovar",
+    "send": "Enviar",
     "decline": "Recusar",
     "receive": "Receber",
     "accept": "Aceitar",
@@ -1234,7 +1234,7 @@
       "migratingStorageMessgae": "Migrando armazenamento para nova segurança.",
       "createPinPageHeader": "{{type}} seu PIN Blitz",
       "invalidPinconfirmation": "Os PINs não correspondem. Tente novamente!",
-      "randomPinKeyboardToggle": "Embaralhar teclado numérico",
+      "randomPinKeyboardToggle": "Embaralhar teclado",
       "randomPinKeyboardInfo": "Ative este recurso para embaralhar os números do teclado toda vez que você fizer login. Isso adiciona uma camada extra de segurança, dificultando que alguém próximo descubra o seu padrão de PIN."
     },
     "seedPhrase": {
