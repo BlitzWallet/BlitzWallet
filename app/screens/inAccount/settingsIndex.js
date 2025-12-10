@@ -790,11 +790,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
+    minHeight: 30,
   },
   goBackTopbar: { marginRight: 'auto' },
   topBarLabel: {
     fontSize: SIZES.large,
     flexShrink: 1,
+    includeFontPadding: false,
   },
   headerTextContainer: {
     width: '100%',

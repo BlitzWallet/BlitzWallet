@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
     marginBottom: 10,
+    minHeight: 30,
   },
   backArrow: { position: 'absolute', left: 0, zIndex: 1 },
 
