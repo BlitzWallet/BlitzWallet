@@ -16,6 +16,7 @@ import {
   ICONS,
   SIZES,
   VALID_URL_REGEX,
+  VALID_USERNAME_REGEX,
 } from '../../../../constants';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import useDebounce from '../../../../hooks/useDebounce';
@@ -55,6 +56,9 @@ export default function AddContactsHalfModal({
   const didClickCamera = useRef(null);
   const { t } = useTranslation();
 
+  const isUsingLNURL =
+    searchInput?.includes('@') && searchInput?.indexOf('@') !== 0;
+
   useEffect(() => {
     if (startingSearchValue) {
       handleSearch(startingSearchValue);
@@ -93,53 +97,58 @@ export default function AddContactsHalfModal({
       return;
     }
 
-    const results = await searchUsers(term);
-    const newUsers = (
-      await Promise.all(
-        results.map(async savedContact => {
-          if (!savedContact) return false;
-          if (
-            savedContact.uniqueName ===
-            globalContactsInformation.myProfile.uniqueName
-          )
-            return false;
-          if (!savedContact?.uuid) return false;
+    const searchTerm = term.replace(/@/g, '');
+    if (searchTerm && VALID_USERNAME_REGEX.test(searchTerm)) {
+      const results = await searchUsers(searchTerm);
+      const newUsers = (
+        await Promise.all(
+          results.map(async savedContact => {
+            if (!savedContact) return false;
+            if (
+              savedContact.uniqueName ===
+              globalContactsInformation.myProfile.uniqueName
+            )
+              return false;
+            if (!savedContact?.uuid) return false;
 
-          let responseData;
+            let responseData;
 
-          if (
-            savedContact.hasProfileImage ||
-            typeof savedContact.hasProfileImage === 'boolean'
-          ) {
-            responseData = await getCachedProfileImage(savedContact.uuid);
-            console.log(responseData, 'response');
-          }
+            if (
+              savedContact.hasProfileImage ||
+              typeof savedContact.hasProfileImage === 'boolean'
+            ) {
+              responseData = await getCachedProfileImage(savedContact.uuid);
+              console.log(responseData, 'response');
+            }
 
-          if (!responseData) return savedContact;
-          else
-            return {
-              ...savedContact,
-              ...responseData,
-            };
-        }),
-      )
-    ).filter(Boolean);
+            if (!responseData) return savedContact;
+            else
+              return {
+                ...savedContact,
+                ...responseData,
+              };
+          }),
+        )
+      ).filter(Boolean);
 
-    refreshCacheObject();
-    setIsSearching(false);
-    setUsers(newUsers);
+      refreshCacheObject();
+      setIsSearching(false);
+      setUsers(newUsers);
+    } else {
+      setIsSearching(false);
+    }
   }, 650);
 
   const handleSearch = term => {
     setSearchInput(term);
     handleSearchTrackerRef();
-    if (term.includes('@')) {
+    if (isUsingLNURL) {
       searchTrackerRef.current = null;
       setIsSearching(false);
       return;
     }
 
-    if (term.length === 0) {
+    if (term.length === 0 || term === '@') {
       searchTrackerRef.current = null;
       setUsers([]);
       setIsSearching(false);
@@ -212,20 +221,22 @@ export default function AddContactsHalfModal({
   const clearHalfModalForLNURL = () => {
     if (!EMAIL_REGEX.test(searchInput)) return;
 
-    navigate.replace('ExpandedAddContactsPage', {
-      newContact: {
-        name: searchInput.split('@')[0],
-        bio: '',
-        uniqueName: '',
-        isFavorite: false,
-        transactions: [],
-        unlookedTransactions: 0,
-        receiveAddress: searchInput,
-        isAdded: true,
-        isLNURL: true,
-        profileImage: '',
-        uuid: customUUID(),
-      },
+    keyboardNavigate(() => {
+      navigate.replace('ExpandedAddContactsPage', {
+        newContact: {
+          name: searchInput.split('@')[0],
+          bio: '',
+          uniqueName: '',
+          isFavorite: false,
+          transactions: [],
+          unlookedTransactions: 0,
+          receiveAddress: searchInput,
+          isAdded: true,
+          isLNURL: true,
+          profileImage: '',
+          uuid: customUUID(),
+        },
+      });
     });
   };
 
@@ -285,7 +296,7 @@ export default function AddContactsHalfModal({
         onBlurFunction={handleTextInputBlur}
       />
 
-      {searchInput.includes('@') ? (
+      {isUsingLNURL ? (
         <ScrollView
           keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
@@ -335,7 +346,7 @@ export default function AddContactsHalfModal({
               content={
                 isSearching && searchInput.length > 0
                   ? ''
-                  : searchInput.length > 0
+                  : searchInput.length > 0 && searchInput !== '@'
                   ? t('contacts.addContactsHalfModal.noProfilesFound')
                   : t('contacts.addContactsHalfModal.startTypingMessage')
               }
