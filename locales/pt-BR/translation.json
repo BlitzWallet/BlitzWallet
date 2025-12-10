@@ -1106,7 +1106,7 @@
         "acceptProfileMessage": "Solicitação de {{name}}'s paga",
         "acceptPayingContactMessage": "Você pagou a solicitação de {{name}}",
         "requestTitle": "Solicitação de pagamento de ",
-        "send": "Enviar"
+        "send": "Aprovar"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Cartão-presente",
