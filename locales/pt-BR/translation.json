@@ -265,7 +265,7 @@
       "wrongPinError": "PIN incorreto, tente novamente",
       "enterPinMessage": "Inserir PIN",
       "attemptsText": "{{attempts}} tentativas restantes",
-      "biometricsHeader": "Abrir com biometria"
+      "biometricsHeader": "Desbloquear"
     }
   },
 
