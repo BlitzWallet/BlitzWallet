@@ -71,6 +71,17 @@ import {
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
 
+if (!global.blitzWalletSparkIntervalState) {
+  global.blitzWalletSparkIntervalState = {
+    intervalTracker: new Map(),
+    listenerLock: new Map(),
+    allIntervalIds: new Set(),
+    depositIntervalIds: new Set(),
+  };
+}
+const { intervalTracker, listenerLock, allIntervalIds, depositIntervalIds } =
+  global.blitzWalletSparkIntervalState;
+
 // Initiate context
 const SparkWalletManager = createContext(null);
 
@@ -143,6 +154,31 @@ const SparkWalletProvider = ({ children }) => {
   const shouldRunNormalConnection =
     didRunNormalConnection || normalConnectionTimeout;
   const currentMnemonicRef = useRef(currentWalletMnemoinc);
+
+  const cleanStatusAndLRC20Intervals = () => {
+    for (const intervalId of allIntervalIds) {
+      console.log('Clearing stored interval ID:', intervalId);
+      clearInterval(intervalId);
+    }
+
+    intervalTracker.clear();
+    allIntervalIds.clear();
+  };
+
+  const clearAllDepositIntervals = () => {
+    console.log(
+      'Clearing all deposit address intervals. Counts:',
+      depositIntervalIds.size,
+    );
+
+    for (const intervalId of depositIntervalIds) {
+      console.log('Clearing deposit interval ID:', intervalId);
+      clearInterval(intervalId);
+    }
+
+    depositIntervalIds.clear();
+    console.log('All deposit intervals cleared');
+  };
 
   useEffect(() => {
     authResetKeyRef.current = authResetkey;
@@ -707,123 +743,153 @@ const SparkWalletProvider = ({ children }) => {
   const addListeners = async mode => {
     console.log('Adding Spark listeners...');
     if (AppState.currentState !== 'active') return;
-    if (isRunningAddListeners.current) return;
 
     const walletHash = sha256Hash(currentMnemonicRef.current);
-    isRunningAddListeners.current = true;
-    const runtime = await selectSparkRuntime(currentMnemonicRef.current);
 
-    if (mode === 'full') {
-      if (runtime === 'native') {
-        if (!sparkWallet[walletHash]?.listenerCount('transfer:claimed')) {
-          sparkWallet[walletHash]?.on('transfer:claimed', transferHandler);
+    if (listenerLock.get(walletHash)) {
+      console.log('addListeners already running for this wallet, skippingdh');
+      return;
+    }
+
+    listenerLock.set(walletHash, true);
+
+    try {
+      const runtime = await selectSparkRuntime(currentMnemonicRef.current);
+
+      if (mode === 'full') {
+        if (runtime === 'native') {
+          if (!sparkWallet[walletHash]?.listenerCount('transfer:claimed')) {
+            sparkWallet[walletHash]?.on('transfer:claimed', transferHandler);
+          }
+        } else {
+          await sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, {
+            mnemonic: currentMnemonicRef.current,
+          });
         }
-      } else {
-        await sendWebViewRequestGlobal(OPERATION_TYPES.addListeners, {
-          mnemonic: currentMnemonicRef.current,
-        });
-      }
-      if (!isInitialRestore.current) {
-        const restorePoller = createRestorePoller(
-          currentMnemonicRef.current,
-          isSendingPaymentRef.current,
-          currentMnemonicRef,
-          new AbortController(),
-          result => {
-            console.log('RESTORE COMPLETE');
-          },
-          sparkInfoRef.current,
-          sendWebViewRequest,
-        );
-
-        await restorePoller.start();
-      }
-
-      await updateSparkTxStatus(
-        currentMnemonicRef.current,
-        sparkInfoRef.current.identityPubKey,
-        sendWebViewRequest,
-      );
-
-      if (updatePendingPaymentsIntervalRef.current) {
-        console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
-        clearInterval(updatePendingPaymentsIntervalRef.current);
-      }
-
-      const capturedAuthKey = authResetKeyRef.current;
-      const capturedMnemonic = currentMnemonicRef.current;
-
-      updatePendingPaymentsIntervalRef.current = setInterval(async () => {
-        try {
-          if (capturedAuthKey !== authResetKeyRef.current) {
-            console.log('Auth key changed. Aborting interval.');
-            return;
-          }
-
-          if (capturedMnemonic !== currentMnemonicRef.current) {
-            console.log('Mnemonic changed. Aborting interval.');
-            return;
-          }
-
-          if (AppState.currentState !== 'active') {
-            console.log('App not active. Skipping interval.');
-            return;
-          }
-
-          await updateSparkTxStatus(
+        if (!isInitialRestore.current) {
+          const restorePoller = createRestorePoller(
             currentMnemonicRef.current,
-            sparkInfoRef.current.identityPubKey,
+            isSendingPaymentRef.current,
+            currentMnemonicRef,
+            new AbortController(),
+            result => {
+              console.log('RESTORE COMPLETE');
+            },
+            sparkInfoRef.current,
             sendWebViewRequest,
           );
 
-          if (
-            capturedAuthKey !== authResetKeyRef.current ||
-            capturedMnemonic !== currentMnemonicRef.current
-          ) {
-            console.log(
-              'Context changed during updateSparkTxStatus. Aborting getLRC20Transactions.',
-            );
-            return;
-          }
-
-          await getLRC20Transactions({
-            ownerPublicKeys: [sparkInfoRef.current.identityPubKey],
-            sparkAddress: sparkInfoRef.current.sparkAddress,
-            isInitialRun: isInitialLRC20Run.current,
-            mnemonic: currentMnemonicRef.current,
-            sendWebViewRequest,
-          });
-          if (isInitialLRC20Run.current) {
-            isInitialLRC20Run.current = false;
-          }
-        } catch (err) {
-          console.error('Error during periodic restore:', err);
+          await restorePoller.start();
         }
-      }, 10 * 1000);
 
-      if (isInitialRestore.current) {
-        isInitialRestore.current = false;
+        await updateSparkTxStatus(
+          currentMnemonicRef.current,
+          sparkInfoRef.current.identityPubKey,
+          sendWebViewRequest,
+        );
+
+        if (updatePendingPaymentsIntervalRef.current) {
+          console.log('BLOCKING TRYING TO SET INTERVAL AGAIN');
+          clearInterval(updatePendingPaymentsIntervalRef.current);
+          updatePendingPaymentsIntervalRef.current = null;
+        }
+
+        const capturedAuthKey = authResetKeyRef.current;
+        const capturedMnemonic = currentMnemonicRef.current;
+        const capturedWalletHash = walletHash;
+
+        const intervalId = setInterval(async () => {
+          try {
+            if (capturedAuthKey !== authResetKeyRef.current) {
+              console.log('Auth key changed. Aborting interval.');
+              clearInterval(intervalId);
+              intervalTracker.delete(capturedWalletHash);
+              allIntervalIds.delete(intervalId);
+              return;
+            }
+
+            if (capturedMnemonic !== currentMnemonicRef.current) {
+              console.log('Mnemonic changed. Aborting interval.');
+              clearInterval(intervalId);
+              intervalTracker.delete(capturedWalletHash);
+              allIntervalIds.delete(intervalId);
+              return;
+            }
+
+            if (AppState.currentState !== 'active') {
+              console.log('App not active. Skipping interval.');
+              return;
+            }
+
+            await updateSparkTxStatus(
+              currentMnemonicRef.current,
+              sparkInfoRef.current.identityPubKey,
+              sendWebViewRequest,
+            );
+
+            if (
+              capturedAuthKey !== authResetKeyRef.current ||
+              capturedMnemonic !== currentMnemonicRef.current
+            ) {
+              console.log(
+                'Context changed during updateSparkTxStatus. Aborting getLRC20Transactions.',
+              );
+              clearInterval(intervalId);
+              intervalTracker.delete(capturedWalletHash);
+              allIntervalIds.delete(intervalId);
+              return;
+            }
+
+            await getLRC20Transactions({
+              ownerPublicKeys: [sparkInfoRef.current.identityPubKey],
+              sparkAddress: sparkInfoRef.current.sparkAddress,
+              isInitialRun: isInitialLRC20Run.current,
+              mnemonic: currentMnemonicRef.current,
+              sendWebViewRequest,
+            });
+            if (isInitialLRC20Run.current) {
+              isInitialLRC20Run.current = false;
+            }
+          } catch (err) {
+            console.error('Error during periodic restore:', err);
+          }
+        }, 10 * 1000);
+
+        if (isInitialRestore.current) {
+          isInitialRestore.current = false;
+        }
+
+        updatePendingPaymentsIntervalRef.current = intervalId;
+        intervalTracker.set(walletHash, intervalId);
+        allIntervalIds.add(intervalId);
       }
+    } catch (error) {
+      console.error('Error in addListeners:', error);
+    } finally {
+      listenerLock.set(walletHash, false);
+      console.log('Lock released for wallet:', walletHash);
     }
-    isRunningAddListeners.current = false;
   };
 
   const removeListeners = async (onlyClearIntervals = false) => {
     console.log('Removing spark listeners');
+
+    cleanStatusAndLRC20Intervals();
+
     if (!onlyClearIntervals) {
       const runtime = await selectSparkRuntime(currentMnemonicRef.current);
       if (!prevAccountMnemoincRef.current) {
         prevAccountMnemoincRef.current = currentMnemonicRef.current;
         return;
       }
-      const hashedMnemoinc = sha256Hash(prevAccountMnemoincRef.current);
+      const hashedMnemonic = sha256Hash(prevAccountMnemoincRef.current);
 
       if (runtime === 'native') {
         if (
           prevAccountMnemoincRef.current &&
-          sparkWallet[hashedMnemoinc]?.listenerCount('transfer:claimed')
+          sparkWallet[hashedMnemonic]?.listenerCount('transfer:claimed')
         ) {
-          sparkWallet[hashedMnemoinc]?.removeAllListeners('transfer:claimed');
+          sparkWallet[hashedMnemonic]?.removeAllListeners('transfer:claimed');
         }
       } else {
         await sendWebViewRequestGlobal(OPERATION_TYPES.removeListeners, {
@@ -1177,8 +1243,11 @@ const SparkWalletProvider = ({ children }) => {
       await addSingleSparkTransaction(pendingTx, 'transactions');
     };
 
+    clearAllDepositIntervals();
+
     if (depositAddressIntervalRef.current) {
       clearInterval(depositAddressIntervalRef.current);
+      depositAddressIntervalRef.current = null;
     }
 
     if (!initialBitcoinIntervalRun.current) {
@@ -1186,10 +1255,25 @@ const SparkWalletProvider = ({ children }) => {
       initialBitcoinIntervalRun.current = true;
     }
 
-    depositAddressIntervalRef.current = setInterval(
+    const depositIntervalId = setInterval(
       handleDepositAddressCheck,
       1_000 * 60,
     );
+
+    depositAddressIntervalRef.current = depositIntervalId;
+    depositIntervalIds.add(depositIntervalId);
+
+    return () => {
+      console.log('Cleaning up deposit interval on unmount/dependency change');
+      if (depositIntervalId) {
+        clearInterval(depositIntervalId);
+        depositIntervalIds.delete(depositIntervalId);
+      }
+      if (depositAddressIntervalRef.current) {
+        clearInterval(depositAddressIntervalRef.current);
+        depositAddressIntervalRef.current = null;
+      }
+    };
   }, [
     sparkInformation.didConnect,
     didGetToHomepage,
