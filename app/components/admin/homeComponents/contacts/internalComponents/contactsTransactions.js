@@ -217,6 +217,11 @@ export default function ContactsTransactionItem(props) {
             globalContactsInformation.myProfile.name ||
             globalContactsInformation.myProfile.uniqueName,
         };
+        // Need to switch unqiue name since the original receiver is now the sender
+        if (newMessage.senderProfileSnapshot) {
+          newMessage.senderProfileSnapshot.uniqueName =
+            globalContactsInformation.myProfile.uniqueName;
+        }
         delete newMessage.didSend;
         delete newMessage.wasSeen;
         const [retrivedContact] = await Promise.all([
