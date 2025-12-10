@@ -493,23 +493,10 @@ const SparkWalletProvider = ({ children }) => {
 
         const pollingMnemonic = currentPollingMnemonicRef.current;
 
-        const initialBalance = await getSparkBalance(pollingMnemonic);
-
-        const startBalance = initialBalance.didWork
-          ? Number(initialBalance.balance)
-          : sparkInfoRef.current.balance;
-
         setSparkInformation(prev => {
-          handleBalanceCache({
-            isCheck: false,
-            passedBalance: startBalance,
-            mnemonic: pollingMnemonic,
-          });
           return {
             ...prev,
             transactions: txs || prev.transactions,
-            balance: startBalance,
-            tokens: initialBalance.tokensObj || prev.tokens,
           };
         });
 
@@ -533,7 +520,7 @@ const SparkWalletProvider = ({ children }) => {
               };
             });
           },
-          startBalance,
+          sparkInfoRef.current.balance,
         );
 
         balancePollingTimeoutRef.current = poller;
@@ -558,6 +545,14 @@ const SparkWalletProvider = ({ children }) => {
                 (balance.didWork ? Number(balance.balance) : prev.balance) -
                   fee,
               ),
+              tokens: balance.didWork ? balance.tokensObj : prev.tokens,
+            };
+          });
+        } else if (updateType === 'fullUpdate-tokens') {
+          setSparkInformation(prev => {
+            return {
+              ...prev,
+              transactions: txs || prev.transactions,
               tokens: balance.didWork ? balance.tokensObj : prev.tokens,
             };
           });

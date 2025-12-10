@@ -19,9 +19,10 @@ export const createPollingManager = ({
   delays = [1000, 2000, 5000, 15000],
   abortController,
   validateResult = () => true,
+  initialBalance,
 }) => {
   let timeoutRef = null;
-  let previousResult = null;
+  let previousResult = initialBalance || null;
 
   const cleanup = () => {
     if (timeoutRef) {
@@ -117,7 +118,7 @@ export const createBalancePoller = (
     shouldContinue: () => mnemonic === currentMnemonicRef.current,
     validateResult: (newBalance, previousBalance) => {
       if (newBalance === null) return false;
-      if (previousBalance === null) return true;
+      if (previousBalance === null) return false;
       return newBalance > previousBalance;
     },
     onUpdate: (newBalance, delayIndex) => {
@@ -127,7 +128,8 @@ export const createBalancePoller = (
       onBalanceUpdate(newBalance);
     },
     abortController,
-    delays: [1000, 2000, 5000, 15000],
+    delays: [250, 1750, 3000, 2000],
+    initialBalance,
   });
 };
 
