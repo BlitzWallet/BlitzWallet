@@ -318,11 +318,7 @@ export async function updateMessage({
     return false;
   }
 }
-export async function syncDatabasePayment(
-  myPubKey,
-  updatedCachedMessagesStateFunction,
-  privateKey,
-) {
+export async function syncDatabasePayment(myPubKey, privateKey) {
   try {
     crashlyticsLogReport('Starting sync database payments');
     const cachedConversations = await getCachedMessages();
@@ -343,10 +339,7 @@ export async function syncDatabasePayment(
     const snapshot = await getDocs(combinedQuery);
     const allMessages = snapshot.docs.map(doc => doc.data());
 
-    if (allMessages.length === 0) {
-      updatedCachedMessagesStateFunction();
-      return;
-    }
+    if (allMessages.length === 0) return [];
 
     console.log(`${allMessages.length} messages received from history`);
 
@@ -356,14 +349,11 @@ export async function syncDatabasePayment(
       privateKey,
     );
 
-    queueSetCashedMessages({
-      newMessagesList: processedMessages,
-      myPubKey,
-    });
+    return processedMessages;
   } catch (err) {
     console.error('Error syncing database payments:', err);
     crashlyticsLogReport(err.message);
-    updatedCachedMessagesStateFunction();
+    return [];
   }
 }
 

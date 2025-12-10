@@ -161,6 +161,126 @@ export const GlobalContactsList = ({ children }) => {
     };
   }, [updatedCachedMessagesStateFunction]);
 
+  const updateContactUniqueName = useCallback(
+    async newUniqueNames => {
+      try {
+        if (newUniqueNames.size === 0) {
+          return;
+        }
+
+        setGlobalContactsInformation(prev => {
+          try {
+            // Validate prerequisites
+            if (!contactsPrivateKey || !publicKey) {
+              console.warn('Missing required data for contact update');
+              return prev;
+            }
+
+            let currentContacts;
+            try {
+              const decryptedData = decryptMessage(
+                contactsPrivateKey,
+                publicKey,
+                prev.addedContacts,
+              );
+
+              if (!decryptedData) {
+                console.warn('Decryption returned empty data');
+                return prev;
+              }
+
+              currentContacts = JSON.parse(decryptedData);
+
+              // Validate parsed data
+              if (!Array.isArray(currentContacts)) {
+                console.warn('Decrypted contacts is not an array');
+                return prev;
+              }
+            } catch (decryptError) {
+              console.error(
+                'Failed to decode contacts for update:',
+                decryptError,
+              );
+              return prev;
+            }
+
+            let hasChanges = false;
+            const updatedContacts = currentContacts.map(contact => {
+              try {
+                const newUniqueName = newUniqueNames.get(contact.uuid);
+
+                if (
+                  newUniqueName &&
+                  typeof newUniqueName === 'string' &&
+                  newUniqueName.trim() !== '' &&
+                  newUniqueName !== contact.uniqueName
+                ) {
+                  hasChanges = true;
+                  return {
+                    ...contact,
+                    uniqueName: newUniqueName,
+                  };
+                }
+
+                return contact;
+              } catch (mapError) {
+                console.error('Error processing contact:', mapError);
+                return contact;
+              }
+            });
+
+            if (!hasChanges) {
+              return prev;
+            }
+
+            try {
+              const newEncryptedContacts = encriptMessage(
+                contactsPrivateKey,
+                publicKey,
+                JSON.stringify(updatedContacts),
+              );
+
+              if (!newEncryptedContacts) {
+                console.error('Encryption failed, aborting update');
+                return prev;
+              }
+
+              addDataToCollection(
+                {
+                  contacts: {
+                    ...prev,
+                    addedContacts: newEncryptedContacts,
+                  },
+                },
+                'blitzWalletUsers',
+                publicKey,
+              ).catch(dbError => {
+                console.error('Failed to save contacts to database:', dbError);
+              });
+
+              return {
+                ...prev,
+                addedContacts: newEncryptedContacts,
+              };
+            } catch (encryptError) {
+              console.error(
+                'Failed to encrypt updated contacts:',
+                encryptError,
+              );
+              return prev;
+            }
+          } catch (stateError) {
+            console.error('Error in state update function:', stateError);
+            return prev;
+          }
+        });
+      } catch (outerError) {
+        console.error('Critical error in updateContactUniqueName:', outerError);
+      }
+    },
+    [contactsPrivateKey, publicKey],
+  );
+
   useEffect(() => {
     if (!Object.keys(globalContactsInformation).length) return;
     if (!contactsPrivateKey) return;
@@ -186,6 +306,7 @@ export const GlobalContactsList = ({ children }) => {
       snapshot => {
         if (!snapshot?.docChanges()?.length) return;
         let newMessages = [];
+        let newUniqueIds = new Map();
         snapshot.docChanges().forEach(change => {
           if (change.type === 'added') {
             const newMessage = change.doc.data();
@@ -215,6 +336,14 @@ export const GlobalContactsList = ({ children }) => {
                 console.log('error parsing decoded message', err);
                 return;
               }
+
+              if (parsedMessage?.senderProfileSnapshot && isReceived) {
+                newUniqueIds.set(
+                  sendersPubkey,
+                  parsedMessage.senderProfileSnapshot?.uniqueName,
+                );
+              }
+
               newMessages.push({
                 ...newMessage,
                 message: parsedMessage,
@@ -224,6 +353,7 @@ export const GlobalContactsList = ({ children }) => {
             } else newMessages.push(newMessage);
           }
         });
+        updateContactUniqueName(newUniqueIds);
         if (newMessages.length > 0) {
           queueSetCashedMessages({
             newMessagesList: newMessages,
@@ -347,11 +477,36 @@ export const GlobalContactsList = ({ children }) => {
 
     if (lookForNewMessages.current) {
       lookForNewMessages.current = false;
-      syncDatabasePayment(
-        globalContactsInformation.myProfile.uuid,
-        updatedCachedMessagesStateFunction,
-        contactsPrivateKey,
-      );
+      async function handleOfflineMessageSync() {
+        const restoredPayments = await syncDatabasePayment(
+          globalContactsInformation.myProfile.uuid,
+          contactsPrivateKey,
+        );
+
+        if (restoredPayments.length === 0) {
+          updatedCachedMessagesStateFunction();
+        }
+
+        const contactDataMap = new Map(
+          restoredPayments
+            .filter(
+              item =>
+                item.isReceived &&
+                item?.message?.senderProfileSnapshot?.uniqueName,
+            )
+            .map(item => [
+              item.sendersPubkey,
+              item.message.senderProfileSnapshot.uniqueName,
+            ]),
+        );
+        updateContactUniqueName(contactDataMap);
+
+        queueSetCashedMessages({
+          newMessagesList: restoredPayments,
+          myPubKey: globalContactsInformation.myProfile.uuid,
+        });
+      }
+      handleOfflineMessageSync();
     }
   }, [
     globalContactsInformation,

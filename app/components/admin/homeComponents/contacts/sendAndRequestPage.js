@@ -264,6 +264,12 @@ export default function SendAndRequestPage(props) {
       const UUID = customUUID();
       let sendObject = {};
 
+      if (globalContactsInformation.myProfile.uniqueName) {
+        sendObject['senderProfileSnapshot'] = {
+          uniqueName: globalContactsInformation.myProfile.uniqueName,
+        };
+      }
+
       if (giftOption) {
         const retrivedContact = await getDataFromCollection(
           'blitzWalletUsers',
