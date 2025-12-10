@@ -1093,7 +1093,8 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} votre demande",
         "acceptProfileMessage": "Paiement de la demande de {{name}}",
         "acceptPayingContactMessage": "{{name}} payé votre demande",
-        "requestTitle": "Réception d'une demande de "
+        "requestTitle": "Réception d'une demande de ",
+        "send": "Envoyer"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Carte cadeau",

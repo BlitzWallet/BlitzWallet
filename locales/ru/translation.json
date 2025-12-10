@@ -1093,7 +1093,8 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} ваш запрос",
         "acceptProfileMessage": "Оплачено {{name}}",
         "acceptPayingContactMessage": "{{name}} оплатил ваш запрос",
-        "requestTitle": "Получил запрос на "
+        "requestTitle": "Получил запрос на ",
+        "send": "Отправить"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Подарочная карта",

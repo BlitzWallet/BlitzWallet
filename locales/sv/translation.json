@@ -1093,7 +1093,8 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} din förfrågan",
         "acceptProfileMessage": "Betalade {{name}}:s begäran",
         "acceptPayingContactMessage": "{{name}} betalat din förfrågan",
-        "requestTitle": "Mottagen begäran om "
+        "requestTitle": "Mottagen begäran om ",
+        "send": "Skicka"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Presentkort",

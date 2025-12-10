@@ -948,7 +948,8 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} tu solicitud",
         "acceptProfileMessage": "Pagó la solicitud de {{name}}",
         "acceptPayingContactMessage": "{{name}} pagó tu solicitud",
-        "requestTitle": "Solicitud recibida por "
+        "requestTitle": "Solicitud recibida por ",
+        "send": "Enviar"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Tarjeta regalo",

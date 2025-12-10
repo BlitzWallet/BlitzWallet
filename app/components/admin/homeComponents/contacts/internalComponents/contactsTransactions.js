@@ -483,7 +483,9 @@ export default function ContactsTransactionItem(props) {
                 color: backgroundColor,
                 includeFontPadding: false,
               }}
-              textContent={t('constants.send')}
+              textContent={t(
+                'contacts.internalComponents.contactsTransactions.send',
+              )}
             />
 
             <CustomButton

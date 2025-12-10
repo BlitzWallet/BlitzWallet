@@ -1107,7 +1107,8 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} your request",
         "acceptProfileMessage": "Paid {{name}}'s request",
         "acceptPayingContactMessage": "{{name}} paid your request",
-        "requestTitle": "Received request for "
+        "requestTitle": "Received request for ",
+        "send": "Send"
       },
       "viewAllGiftCards": {
         "cardNamePlaceH": "Gift Card",
