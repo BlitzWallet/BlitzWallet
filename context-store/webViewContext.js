@@ -285,6 +285,7 @@ export const WebViewProvider = ({ children }) => {
   const reloadWebViewSecurely = useCallback(async () => {
     try {
       console.log('Re-verifying WebView before reload...');
+      if (forceReactNativeUse) return;
 
       // Re-verify the file
       const { htmlPath, nonceHex, hashHex } = await verifyAndPrepareWebView(
@@ -944,8 +945,17 @@ export const WebViewProvider = ({ children }) => {
       }
       initHandshake();
     }
-    // forceReactNativeUse = true;
-    startHandshake(); //remove this and app fully uses RN
+
+    const debouceID = setTimeout(() => {
+      // forceReactNativeUse = true;
+      startHandshake(); //remove this and app fully uses RN
+    }, 250);
+
+    return () => {
+      if (debouceID) {
+        clearTimeout(debouceID);
+      }
+    };
   }, [isWebViewReady, verifiedPath, initHandshake, appState]);
 
   useEffect(() => {
