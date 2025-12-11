@@ -36,6 +36,7 @@ export default function AcceptButtonSendPage({
   useAltLayout,
   sendWebViewRequest,
   globalContactsInformation,
+  canUseFastPay,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -269,7 +270,9 @@ export default function AcceptButtonSendPage({
       buttonStyles={memorizedStyles}
       useLoading={isGeneratingInvoice}
       actionFunction={handleEnterSendAmount}
-      textContent={t('constants.review')}
+      textContent={
+        canUseFastPay ? t('constants.confirm') : t('constants.review')
+      }
     />
   );
 }

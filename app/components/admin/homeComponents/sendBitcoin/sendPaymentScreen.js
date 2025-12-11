@@ -160,6 +160,13 @@ export default function SendPaymentScreen(props) {
     masterInfoObject[QUICK_PAY_STORAGE_KEY]?.fastPayThresholdSats >=
       convertedSendAmount &&
     !isUsingLRC20;
+  const canUseFastPay =
+    sparkInformation.didConnect &&
+    Object.keys(paymentInfo || {}).length > 0 &&
+    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.isFastPayEnabled &&
+    masterInfoObject[QUICK_PAY_STORAGE_KEY]?.fastPayThresholdSats >=
+      convertedSendAmount &&
+    !isUsingLRC20;
 
   useEffect(() => {
     const currentParams = {
@@ -457,6 +464,7 @@ export default function SendPaymentScreen(props) {
                   useAltLayout={useAltLayout}
                   sendWebViewRequest={sendWebViewRequest}
                   globalContactsInformation={globalContactsInformation}
+                  canUseFastPay={canUseFastPay}
                 />
               </View>
             )}
@@ -494,6 +502,7 @@ export default function SendPaymentScreen(props) {
                 useAltLayout={useAltLayout}
                 sendWebViewRequest={sendWebViewRequest}
                 globalContactsInformation={globalContactsInformation}
+                canUseFastPay={canUseFastPay}
               />
             )}
           </>
