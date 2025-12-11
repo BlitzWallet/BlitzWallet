@@ -57,6 +57,7 @@ export const createPollingManager = ({
       }
 
       timeoutRef = setTimeout(async () => {
+        let globalResult;
         try {
           // Re-check abort conditions before executing
           if (abortController?.signal?.aborted || !shouldContinue()) {
@@ -66,20 +67,18 @@ export const createPollingManager = ({
           }
 
           // Execute the poll function
-          const result = await pollFn(delayIndex);
+          globalResult = await pollFn(delayIndex);
 
           // Validate if we should continue
-          if (validateResult(result, previousResult)) {
-            previousResult = result;
-
+          if (validateResult(globalResult, previousResult)) {
             // Call update callback
             if (onUpdate) {
-              onUpdate(result, delayIndex);
+              onUpdate(globalResult, delayIndex);
             }
 
             // Success - stop polling
             cleanup();
-            resolve({ success: true, result });
+            resolve({ success: true, globalResult });
             return;
           }
 
@@ -88,6 +87,14 @@ export const createPollingManager = ({
         } catch (err) {
           console.log('Error in polling iteration, continuing:', err);
           poll(delayIndex + 1, resolve, reject);
+        } finally {
+          if (
+            globalResult != null &&
+            (previousResult == null || globalResult >= previousResult)
+          ) {
+            // Only update if same or higher
+            previousResult = globalResult;
+          }
         }
       }, delays[delayIndex]);
     } catch (err) {
@@ -110,6 +117,8 @@ export const createBalancePoller = (
   onBalanceUpdate,
   initialBalance,
 ) => {
+  let hasIncreasedAtLeastOnce = false;
+  let sameValueIndex = 0;
   return createPollingManager({
     pollFn: async () => {
       const balance = await getSparkBalance(mnemonic);
@@ -117,9 +126,37 @@ export const createBalancePoller = (
     },
     shouldContinue: () => mnemonic === currentMnemonicRef.current,
     validateResult: (newBalance, previousBalance) => {
-      if (newBalance === null) return false;
-      if (previousBalance === null) return false;
-      return newBalance > previousBalance;
+      console.log(
+        newBalance,
+        previousBalance,
+        hasIncreasedAtLeastOnce,
+        sameValueIndex,
+      );
+
+      if (newBalance == null || previousBalance == null) return false;
+
+      if (newBalance < previousBalance) {
+        console.log('Balance dropped — ignoring');
+        sameValueIndex = 0;
+        return false;
+      }
+
+      if (newBalance > previousBalance) {
+        hasIncreasedAtLeastOnce = true;
+        sameValueIndex = 0;
+        return false;
+      }
+
+      sameValueIndex++;
+
+      if (
+        (hasIncreasedAtLeastOnce && sameValueIndex >= 2) ||
+        sameValueIndex >= 3
+      ) {
+        return true;
+      }
+
+      return false;
     },
     onUpdate: (newBalance, delayIndex) => {
       console.log(
@@ -128,7 +165,7 @@ export const createBalancePoller = (
       onBalanceUpdate(newBalance);
     },
     abortController,
-    delays: [250, 1750, 3000, 2000],
+    delays: [250, 1750, 3000, 2000, 2000, 2000, 2000, 2000, 2000],
     initialBalance,
   });
 };
