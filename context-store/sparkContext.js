@@ -112,7 +112,6 @@ const SparkWalletProvider = ({ children }) => {
   const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
     useState(0);
 
-  // const [pendingLiquidPayment, setPendingLiquidPayment] = useState(null);
   const depositAddressIntervalRef = useRef(null);
   const sparkDBaddress = useRef(null);
   const updatePendingPaymentsIntervalRef = useRef(null);
@@ -136,6 +135,8 @@ const SparkWalletProvider = ({ children }) => {
   const isSendingPaymentRef = useRef(false);
   const balancePollingTimeoutRef = useRef(null);
   const balancePollingAbortControllerRef = useRef(null);
+  const txPollingTimeoutRef = useRef(null);
+  const txPollingAbortControllerRef = useRef(null);
   const currentPollingMnemonicRef = useRef(null);
   const isInitialRender = useRef(true);
   const authResetKeyRef = useRef(authResetkey);
@@ -722,11 +723,16 @@ const SparkWalletProvider = ({ children }) => {
           });
         }
         if (!isInitialRestore.current) {
+          if (txPollingAbortControllerRef.current) {
+            txPollingAbortControllerRef.current.abort();
+          }
+
+          txPollingAbortControllerRef.current = new AbortController();
           const restorePoller = createRestorePoller(
             currentMnemonicRef.current,
             isSendingPaymentRef.current,
             currentMnemonicRef,
-            new AbortController(),
+            txPollingAbortControllerRef.current,
             result => {
               console.log('RESTORE COMPLETE');
             },
@@ -734,10 +740,10 @@ const SparkWalletProvider = ({ children }) => {
             sendWebViewRequest,
           );
 
-          await restorePoller.start();
+          restorePoller.start();
         }
 
-        await updateSparkTxStatus(
+        updateSparkTxStatus(
           currentMnemonicRef.current,
           sparkInfoRef.current.identityPubKey,
           sendWebViewRequest,
@@ -876,6 +882,14 @@ const SparkWalletProvider = ({ children }) => {
       balancePollingAbortControllerRef.current.abort();
       balancePollingAbortControllerRef.current = null;
     }
+    if (txPollingTimeoutRef.current) {
+      clearTimeout(txPollingTimeoutRef.current);
+      txPollingTimeoutRef.current = null;
+    }
+    if (txPollingAbortControllerRef.current) {
+      txPollingAbortControllerRef.current.abort();
+      txPollingAbortControllerRef.current = null;
+    }
     currentPollingMnemonicRef.current = null;
   };
 
@@ -903,6 +917,8 @@ const SparkWalletProvider = ({ children }) => {
     isSendingPaymentRef.current = false;
     balancePollingTimeoutRef.current = null;
     balancePollingAbortControllerRef.current = null;
+    txPollingAbortControllerRef.current = null;
+    txPollingTimeoutRef.current = null;
     currentPollingMnemonicRef.current = null;
     didRunInitialRestore.current = false;
     hasRestoreCompleted.current = false;
