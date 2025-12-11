@@ -53,6 +53,7 @@ export const OPERATION_TYPES = {
   addListeners: 'addWalletEventListener',
   removeListeners: 'removeWalletEventListener',
   setPrivacyEnabled: 'setPrivacyEnabled',
+  getSingleTxDetails: 'getSingleTxDetails',
 };
 
 const longOperations = [
@@ -76,6 +77,7 @@ const mediumOperations = [
   OPERATION_TYPES.getLightningSendRequest,
   OPERATION_TYPES.getLightningPaymentStatus,
   OPERATION_TYPES.getTransactions,
+  OPERATION_TYPES.getSingleTxDetails,
   OPERATION_TYPES.getTokenTransactions,
   OPERATION_TYPES.setPrivacyEnabled,
 ];
