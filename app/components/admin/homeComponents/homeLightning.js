@@ -45,6 +45,7 @@ export default function HomeLightning() {
   const {
     sparkInformation,
     showTokensInformation,
+    isSendingPaymentRef,
     // numberOfCachedTxs
   } = useSparkWallet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -193,7 +194,7 @@ export default function HomeLightning() {
       const response = await fullRestoreSparkState({
         sparkAddress: sparkInformation.sparkAddress,
         batchSize: 2,
-        isSendingPayment: false,
+        isSendingPayment: isSendingPaymentRef.current,
         mnemonic: currentWalletMnemoinc,
         identityPubKey: sparkInformation.identityPubKey,
         isInitialRestore: false,

@@ -117,7 +117,6 @@ const SparkWalletProvider = ({ children }) => {
   const updatePendingPaymentsIntervalRef = useRef(null);
   const isInitialRestore = useRef(true);
   const isInitialLRC20Run = useRef(true);
-  const didInitializeSendingPaymentEvent = useRef(false);
   const initialBitcoinIntervalRun = useRef(null);
   const sparkInfoRef = useRef({
     balance: 0,
@@ -283,18 +282,16 @@ const SparkWalletProvider = ({ children }) => {
   const debounceTimeoutRef = useRef(null);
   const pendingTransferIds = useRef(new Set());
 
-  const toggleIsSendingPayment = isSending => {
+  const toggleIsSendingPayment = useCallback(isSending => {
+    console.log('Setting is sending payment', isSending);
     isSendingPaymentRef.current = isSending;
-  };
+  }, []);
 
   const toggleNewestPaymentTimestamp = () => {
     setReloadNewestPaymentTimestamp(prev => prev + 1);
   };
 
   useEffect(() => {
-    if (didInitializeSendingPaymentEvent.current) return;
-    didInitializeSendingPaymentEvent.current = true;
-
     if (
       !isSendingPayingEventEmiiter.listenerCount(SENDING_PAYMENT_EVENT_NAME)
     ) {
@@ -303,7 +300,15 @@ const SparkWalletProvider = ({ children }) => {
         toggleIsSendingPayment,
       );
     }
-  }, []);
+
+    return () => {
+      console.log('clearning up toggle send pament');
+      isSendingPayingEventEmiiter.removeListener(
+        SENDING_PAYMENT_EVENT_NAME,
+        toggleIsSendingPayment,
+      );
+    };
+  }, [toggleIsSendingPayment]);
 
   const debouncedHandleIncomingPayment = useCallback(
     async balance => {
@@ -1355,6 +1360,7 @@ const SparkWalletProvider = ({ children }) => {
       tokensImageCache,
       showTokensInformation,
       toggleNewestPaymentTimestamp,
+      isSendingPaymentRef,
     }),
     [
       sparkInformation,
@@ -1369,6 +1375,7 @@ const SparkWalletProvider = ({ children }) => {
       tokensImageCache,
       showTokensInformation,
       toggleNewestPaymentTimestamp,
+      isSendingPaymentRef,
     ],
   );
 
