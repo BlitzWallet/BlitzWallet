@@ -271,6 +271,7 @@ export default function ClaimGiftScreen({
 
       if (sendingAmount <= 0) {
         if (claimType === 'reclaim' && !expertMode) {
+          await deleteGift(giftDetails.uuid);
           await updateGiftLocal(giftDetails.uuid, {
             state: 'Reclaimed',
           });
