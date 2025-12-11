@@ -7,6 +7,7 @@ import { useRootstockProvider } from './rootstockSwapContext';
 import i18next from 'i18next';
 import { InteractionManager } from 'react-native';
 import { useToast } from './toastManager';
+import { useNodeContext } from './nodeContext';
 
 export function RootstockNavigationListener() {
   const navigation = useNavigation();
@@ -43,7 +44,7 @@ export function RootstockNavigationListener() {
 export function LiquidNavigationListener() {
   const navigation = useNavigation();
   const { didGetToHomepage } = useAppStatus();
-  const { pendingLiquidPayment, setPendingLiquidPayment } = useSparkWallet();
+  const { pendingLiquidPayment, setPendingLiquidPayment } = useNodeContext();
   const isNavigating = useRef(false); // Use a ref for local state
 
   useEffect(() => {
