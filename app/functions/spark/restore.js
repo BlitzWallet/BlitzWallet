@@ -1,6 +1,6 @@
 import {
-  findTransactionTxFromTxHistory,
   getCachedSparkTransactions,
+  getSingleTxDetails,
   getSparkBitcoinPaymentRequest,
   getSparkLightningPaymentStatus,
   getSparkLightningSendRequest,
@@ -285,53 +285,6 @@ export async function fullRestoreSparkState({
   }
 }
 
-export const findSignleTxFromHistory = async (
-  txid,
-  BATCH_SIZE,
-  mnemonic,
-  sendWebViewRequest,
-) => {
-  let restoredTx;
-  try {
-    // here we do not want to save any tx to be shown, we only want to flag that it came from restore and then when we get the actual notification of it we can block the navigation
-    let start = 0;
-
-    let foundOverlap = false;
-
-    do {
-      const txs = await getSparkTransactions(
-        start + BATCH_SIZE,
-        start,
-        mnemonic,
-      );
-      const batchTxs = txs.transfers || [];
-
-      if (!batchTxs.length) {
-        console.log('No more transactions found, ending restore.');
-        break;
-      }
-
-      // Check for overlap with saved transactions
-      const overlap = batchTxs.find(tx => tx.id === txid);
-
-      if (overlap) {
-        console.log('Found overlap with saved transactions, stopping restore.');
-        foundOverlap = true;
-        restoredTx = overlap;
-      }
-
-      start += BATCH_SIZE;
-    } while (!foundOverlap);
-
-    // Filter out any already-saved txs or dontation payments
-    console.log(`Restored transaction`, restoredTx);
-
-    return { tx: restoredTx };
-  } catch (error) {
-    console.error('Error in spark restore history state:', error);
-    return { tx: null };
-  }
-};
 let isUpdatingSparkTxStatus = false;
 export const updateSparkTxStatus = async (
   mnemoninc,
@@ -445,31 +398,15 @@ async function processLightningTransactions(
 
   let newTxs = [];
 
-  let transfersOffset = 0;
-  let cachedTransfers = [];
-
   for (const result of updatedTxs) {
     if (!result.lookThroughTxHistory) {
       newTxs.push(result);
       continue;
     }
 
-    const findTxResponse = await findTransactionTxFromTxHistory(
-      result.id,
-      transfersOffset,
-      cachedTransfers,
-      mnemonic,
-      sendWebViewRequest,
-      25,
-      3,
-    );
+    const findTxResponse = await getSingleTxDetails(mnemonic, result.id);
 
-    if (findTxResponse.offset && findTxResponse.foundTransfers) {
-      transfersOffset = findTxResponse.offset;
-      cachedTransfers = findTxResponse.foundTransfers;
-    }
-
-    if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer) {
+    if (!findTxResponse) {
       // If no transaction is found just call it completed
       const details = JSON.parse(result.txStateUpdate.details);
       newTxs.push({
@@ -482,7 +419,7 @@ async function processLightningTransactions(
       continue;
     }
 
-    const { bitcoinTransfer } = findTxResponse;
+    const bitcoinTransfer = findTxResponse;
 
     const paymentStatus = getSparkPaymentStatus(bitcoinTransfer.status);
     const expiryDate = new Date(bitcoinTransfer.expiryTime);
@@ -715,8 +652,6 @@ async function processBitcoinTransactions(
     await setLocalStorageItem('lastRunBitcoinTxUpdate', JSON.stringify(now));
   }
   const updatedTxs = [];
-  let transfersOffset = 0;
-  let cachedTransfers = [];
 
   for (const txStateUpdate of bitcoinTxs) {
     const details = JSON.parse(txStateUpdate.details);
@@ -760,31 +695,16 @@ async function processBitcoinTransactions(
         continue;
       }
 
-      const findTxResponse = await findTransactionTxFromTxHistory(
-        txStateUpdate.sparkID,
-        transfersOffset,
-        cachedTransfers,
+      const transfer = await getSingleTxDetails(
         mnemonic,
-        sendWebViewRequest,
-        25,
+        txStateUpdate.sparkID,
       );
 
-      if (findTxResponse.offset && findTxResponse.foundTransfers) {
-        transfersOffset = findTxResponse.offset;
-        cachedTransfers = findTxResponse.foundTransfers;
-      }
-
-      if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer) continue;
-
-      const { offset, foundTransfers, bitcoinTransfer } = findTxResponse;
-      transfersOffset = offset;
-      cachedTransfers = foundTransfers;
-
-      if (!bitcoinTransfer) continue;
+      if (!transfer) continue;
 
       updatedTxs.push({
         id: txStateUpdate.sparkID,
-        paymentStatus: getSparkPaymentStatus(bitcoinTransfer.status),
+        paymentStatus: getSparkPaymentStatus(transfer.status),
         paymentType: 'bitcoin',
         accountId: txStateUpdate.accountId,
       });
@@ -855,37 +775,21 @@ async function processSparkTransactions(
 ) {
   let includesGift = false;
   let updatedTxs = [];
-  let transfersOffset = 0;
-  let cachedTransfers = [];
   for (const txStateUpdate of sparkTxs) {
     const details = JSON.parse(txStateUpdate.details);
 
     if (details.isGift) {
-      const findTxResponse = await findTransactionTxFromTxHistory(
-        txStateUpdate.sparkID,
-        transfersOffset,
-        cachedTransfers,
+      const findTxResponse = await getSingleTxDetails(
         mnemonic,
-        sendWebViewRequest,
-        25,
-        2,
+        txStateUpdate.sparkID,
       );
-      if (findTxResponse.offset && findTxResponse.foundTransfers) {
-        transfersOffset = findTxResponse.offset;
-        cachedTransfers = findTxResponse.foundTransfers;
-      }
 
-      if (!findTxResponse.didWork || !findTxResponse.bitcoinTransfer) continue;
+      if (!findTxResponse) continue;
 
-      const { offset, foundTransfers, bitcoinTransfer } = findTxResponse;
-      transfersOffset = offset;
-      cachedTransfers = foundTransfers;
-
-      if (!bitcoinTransfer) continue;
       includesGift = true;
       updatedTxs.push({
         id: txStateUpdate.sparkID,
-        paymentStatus: getSparkPaymentStatus(bitcoinTransfer.status),
+        paymentStatus: getSparkPaymentStatus(findTxResponse.status),
         paymentType: 'spark',
         accountId: txStateUpdate.accountId,
       });
