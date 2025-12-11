@@ -1016,84 +1016,25 @@ export const useIsSparkPaymentFailed = (tx, transactionPaymentType) => {
   }
 };
 
-export const findTransactionTxFromTxHistory = async (
-  sparkTxId,
-  previousOffset = 0,
-  previousTxs = [],
-  mnemonic,
-  sendWebViewRequest,
-  transferCount = 100,
-  maxAttempts = 10,
-) => {
+export const getSingleTxDetails = async (mnemonic, id) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
-    // Early return with cached transaction
-    const cachedTx = previousTxs.find(tx => tx.id === sparkTxId);
-    if (cachedTx) {
-      console.log('Using cache tx history');
-      return {
-        didWork: true,
-        offset: previousOffset,
-        foundTransfers: previousTxs,
-        bitcoinTransfer: cachedTx,
-      };
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.getSingleTxDetails,
+        {
+          mnemonic,
+          id,
+        },
+      );
+      return validateWebViewResponse(response, 'No transaction found');
+    } else {
+      const wallet = await getWallet(mnemonic);
+      return await wallet.getTransfer(id);
     }
-
-    let offset = previousOffset;
-    let foundTransfers = [];
-    let bitcoinTransfer;
-
-    let wallet;
-    if (runtime === 'native') {
-      wallet = await getWallet(mnemonic);
-    }
-
-    while (offset < maxAttempts) {
-      let transfers;
-      if (runtime === 'webview') {
-        transfers = await sendWebViewRequestGlobal(
-          OPERATION_TYPES.getTransactions,
-          {
-            mnemonic,
-            transferCount: transferCount,
-            offsetIndex: transferCount * offset,
-          },
-        );
-        validateWebViewResponse(
-          transfers,
-          'Not able to send spark token transactions',
-        );
-      } else {
-        transfers = await wallet.getTransfers(
-          transferCount,
-          transferCount * offset,
-        );
-      }
-
-      foundTransfers = transfers.transfers;
-
-      if (!foundTransfers.length) {
-        break;
-      }
-
-      const includesTx = foundTransfers.find(tx => tx.id === sparkTxId);
-      if (includesTx) {
-        bitcoinTransfer = includesTx;
-        break;
-      }
-
-      if (transfers.offset === -1) {
-        console.log('Reached end of transactions (offset: -1)');
-        break;
-      }
-
-      offset += 1;
-    }
-
-    return { didWork: true, offset, foundTransfers, bitcoinTransfer };
   } catch (err) {
-    console.log('Error finding bitcoin tx from history', err);
-    return { didWork: false, error: err.message };
+    console.log('get single spark transaction error', err);
+    return undefined;
   }
 };
 

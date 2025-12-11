@@ -22,10 +22,11 @@ const NodeContextManager = createContext(null);
 
 const GLobalNodeContextProider = ({ children }) => {
   const { globalContactsInformation } = useGlobalContacts();
-  const { sparkInformation, setPendingLiquidPayment } = useSparkWallet();
+  const { sparkInformation } = useSparkWallet();
   const { contactsPrivateKey, publicKey, accountMnemoinc } = useKeysContext();
   const { didGetToHomepage, minMaxLiquidSwapAmounts } = useAppStatus();
   const { masterInfoObject } = useGlobalContextProvider();
+  const [pendingLiquidPayment, setPendingLiquidPayment] = useState(null);
   const [liquidNodeInformation, setLiquidNodeInformation] = useState({
     didConnectToNode: null,
     transactions: [],
@@ -141,12 +142,16 @@ const GLobalNodeContextProider = ({ children }) => {
       toggleLiquidNodeInformation,
       toggleFiatStats,
       fiatStats,
+      pendingLiquidPayment,
+      setPendingLiquidPayment,
     }),
     [
       liquidNodeInformation,
       fiatStats,
       toggleFiatStats,
       toggleLiquidNodeInformation,
+      pendingLiquidPayment,
+      setPendingLiquidPayment,
     ],
   );
 
