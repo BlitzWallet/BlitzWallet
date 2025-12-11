@@ -1600,9 +1600,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@buildonspark/spark-sdk@npm:^0.4.7":
-  version: 0.4.7
-  resolution: "@buildonspark/spark-sdk@npm:0.4.7"
+"@buildonspark/spark-sdk@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@buildonspark/spark-sdk@npm:0.5.0"
   dependencies:
     "@bufbuild/protobuf": ^2.2.5
     "@lightsparkdev/core": ^1.4.4
@@ -1612,7 +1612,6 @@ __metadata:
     "@opentelemetry/context-async-hooks": ^2.0.0
     "@opentelemetry/core": ^2.0.0
     "@opentelemetry/instrumentation": ^0.203.0
-    "@opentelemetry/instrumentation-fetch": ^0.203.0
     "@opentelemetry/instrumentation-undici": ^0.14.0
     "@opentelemetry/sdk-trace-base": ^2.0.0
     "@opentelemetry/sdk-trace-node": ^2.0.1
@@ -1649,7 +1648,7 @@ __metadata:
       optional: true
     react-native-get-random-values:
       optional: true
-  checksum: f306ac5cad7a293c6de34ea7633067ffab7908a9e42fd668bcc813a95ba4629f8eee32b388d623ce25eefc7edba78818e36879156321f851d26e16bb253ed18d
+  checksum: bdd3bbdc694ae43c078f2665d7ca31b86cbe94e53afd0e17c9208405b13da3ba96145471e8e2f6ecda09eed165a1b71b5c928f940679c81199b8c9e64ffba54f
   languageName: node
   linkType: hard
 
@@ -3351,17 +3350,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/core@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@opentelemetry/core@npm:2.0.1"
-  dependencies:
-    "@opentelemetry/semantic-conventions": ^1.29.0
-  peerDependencies:
-    "@opentelemetry/api": ">=1.0.0 <1.10.0"
-  checksum: e1ac1f69a84d1e5e9bd8fb75f459f963c96e5adb4ffc5e7be35ae3100471c3337d053eab1d5dc3b5de68affb8ae0d72c1f229c0e067fa1679623d92fadd50a94
-  languageName: node
-  linkType: hard
-
 "@opentelemetry/core@npm:2.2.0, @opentelemetry/core@npm:^2.0.0":
   version: 2.2.0
   resolution: "@opentelemetry/core@npm:2.2.0"
@@ -3370,20 +3358,6 @@ __metadata:
   peerDependencies:
     "@opentelemetry/api": ">=1.0.0 <1.10.0"
   checksum: cfb75e67b91086ce47783b3ff30e4b0d3099630a6ead821c69dfc7c37925498e9e398d610ec5b87c2b5b86e17900dd8a5bb4a3d9dea6e122ed1add54efdcd149
-  languageName: node
-  linkType: hard
-
-"@opentelemetry/instrumentation-fetch@npm:^0.203.0":
-  version: 0.203.0
-  resolution: "@opentelemetry/instrumentation-fetch@npm:0.203.0"
-  dependencies:
-    "@opentelemetry/core": 2.0.1
-    "@opentelemetry/instrumentation": 0.203.0
-    "@opentelemetry/sdk-trace-web": 2.0.1
-    "@opentelemetry/semantic-conventions": ^1.29.0
-  peerDependencies:
-    "@opentelemetry/api": ^1.3.0
-  checksum: 8bb9cea11ef469df787816f8e8ef675f6718da0fb19e9d40654c8e6612966293118d10d24783f40e9d2301a3d9e9c7301107212472616dc7949ff66da6428947
   languageName: node
   linkType: hard
 
@@ -3399,7 +3373,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/instrumentation@npm:0.203.0, @opentelemetry/instrumentation@npm:^0.203.0":
+"@opentelemetry/instrumentation@npm:^0.203.0":
   version: 0.203.0
   resolution: "@opentelemetry/instrumentation@npm:0.203.0"
   dependencies:
@@ -3412,18 +3386,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/resources@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@opentelemetry/resources@npm:2.0.1"
-  dependencies:
-    "@opentelemetry/core": 2.0.1
-    "@opentelemetry/semantic-conventions": ^1.29.0
-  peerDependencies:
-    "@opentelemetry/api": ">=1.3.0 <1.10.0"
-  checksum: c6609739dba208d7b5fe17595cec391a27a774a7e2b9d9ff23d916269a4a5523422d7a8180f6256701f403d68e79e903145454476792b8d83551770a2e42df59
-  languageName: node
-  linkType: hard
-
 "@opentelemetry/resources@npm:2.2.0":
   version: 2.2.0
   resolution: "@opentelemetry/resources@npm:2.2.0"
@@ -3433,19 +3395,6 @@ __metadata:
   peerDependencies:
     "@opentelemetry/api": ">=1.3.0 <1.10.0"
   checksum: 437332f09f138577c0b2f4b15bbd63851083f19f8e30843ca50f16abf9012eedc32c5d86ed21305c40383dbc09b865dd2f399bf08f995c8cdcfe7472d29fd5c5
-  languageName: node
-  linkType: hard
-
-"@opentelemetry/sdk-trace-base@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@opentelemetry/sdk-trace-base@npm:2.0.1"
-  dependencies:
-    "@opentelemetry/core": 2.0.1
-    "@opentelemetry/resources": 2.0.1
-    "@opentelemetry/semantic-conventions": ^1.29.0
-  peerDependencies:
-    "@opentelemetry/api": ">=1.3.0 <1.10.0"
-  checksum: a1acccfdacee811b5cc42718679e8b5fb47ce0dfe26a128a8f8b8a54f726531d8582e2c3ddcfcd2b63f5f7c0d66ee6b6a30d0a931cf628fff7238931a564f80b
   languageName: node
   linkType: hard
 
@@ -3472,18 +3421,6 @@ __metadata:
   peerDependencies:
     "@opentelemetry/api": ">=1.0.0 <1.10.0"
   checksum: 8729015a3a67a5cdb46eb53f128d1aa0df15873c3a0382c8652a103b89a36d2816e26ff93f53637a7292b47c66feee10569a0d85747ca08ec734a98971b47a10
-  languageName: node
-  linkType: hard
-
-"@opentelemetry/sdk-trace-web@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@opentelemetry/sdk-trace-web@npm:2.0.1"
-  dependencies:
-    "@opentelemetry/core": 2.0.1
-    "@opentelemetry/sdk-trace-base": 2.0.1
-  peerDependencies:
-    "@opentelemetry/api": ">=1.0.0 <1.10.0"
-  checksum: 4cf53177d551e1389794561c3617a7e0d45f298e98f01b68ab6b814a4905a98eb9a1ed49e5f87d5c2b9a064e78b48ada47ca496575b03782ecb140e42e52a467
   languageName: node
   linkType: hard
 
@@ -4831,7 +4768,7 @@ __metadata:
     "@babel/runtime": ^7.25.0
     "@bitcoinerlab/secp256k1": ^1.2.0
     "@breeztech/react-native-breez-sdk-liquid": ^0.11.9
-    "@buildonspark/spark-sdk": ^0.4.7
+    "@buildonspark/spark-sdk": ^0.5.0
     "@craftzdog/react-native-buffer": ^6.1.0
     "@miblanchard/react-native-slider": ^2.6.0
     "@noble/hashes": ^1.8.0
@@ -13923,13 +13860,13 @@ __metadata:
 
 "spark-web-context@https://github.com/blitzwallet/spark-web-context.git":
   version: 1.0.0
-  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=e25c24799cb42fa19a758f0fdb338756d4f2f896"
+  resolution: "spark-web-context@https://github.com/blitzwallet/spark-web-context.git#commit=c5f9082b9afafe19b65987c6cb7e01e3b7e1167f"
   dependencies:
-    "@buildonspark/spark-sdk": ^0.4.7
+    "@buildonspark/spark-sdk": ^0.5.0
     "@ecies/ciphers": ^0.2.4
     "@noble/hashes": ^2.0.1
     "@noble/secp256k1": ^3.0.0
-  checksum: ae88edb6337be9c37cbff9613ccd69ecf476ee7f689d843edbddaa10d956a907ccb2ffbbdd1935d1eeb202422b6993a34db2b3da5f6536d8eab553e18d28162b
+  checksum: 6143d9960a40a162f8ba8ea627c7195ca087e7275d78d5099e57cb202e4c2dc7276d25fa62a5b51c452ca17c63c736f72279137bfb93fef4b958481e6d258994
   languageName: node
   linkType: hard
 
