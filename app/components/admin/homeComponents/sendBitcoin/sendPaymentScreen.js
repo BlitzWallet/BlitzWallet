@@ -33,7 +33,11 @@ import { keyboardGoBack } from '../../../../functions/customNavigation';
 import ErrorWithPayment from './components/errorScreen';
 import SwipeButtonNew from '../../../../functions/CustomElements/sliderButton';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
-import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import {
+  isSendingPayingEventEmiiter,
+  SENDING_PAYMENT_EVENT_NAME,
+  useSparkWallet,
+} from '../../../../../context-store/sparkContext';
 import { sparkPaymenWrapper } from '../../../../functions/spark/payments';
 import InvoiceInfo from './components/invoiceInfo';
 import formatSparkPaymentAddress from './functions/formatSparkPaymentAddress';
@@ -55,6 +59,7 @@ import NavBarWithBalance from '../../../../functions/CustomElements/navWithBalan
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
 
 export default function SendPaymentScreen(props) {
   const navigate = useNavigation();
@@ -77,7 +82,8 @@ export default function SendPaymentScreen(props) {
   const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { screenDimensions } = useAppStatus();
-  const { sparkInformation, showTokensInformation } = useSparkWallet();
+  const { sparkInformation, showTokensInformation, sparkInfoRef } =
+    useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { liquidNodeInformation, fiatStats } = useNodeContext();
   const { globalContactsInformation } = useGlobalContacts();
@@ -250,6 +256,161 @@ export default function SendPaymentScreen(props) {
     });
   }, [sparkInformation.didConnect, refreshDecode]);
 
+  const sendPayment = useCallback(async () => {
+    if (!canSendPayment) return;
+    if (isSendingPayment.current) return;
+
+    isSendingPayment.current = true;
+    setShowProgressAnimation(true);
+
+    try {
+      const formattedSparkPaymentInfo = formatSparkPaymentAddress(
+        paymentInfo,
+        selectedLRC20Asset?.toLowerCase() !== 'bitcoin',
+      );
+
+      console.log(formattedSparkPaymentInfo, 'manual spark information');
+
+      const memo =
+        paymentInfo.type === InputTypes.BOLT11
+          ? enteredPaymentInfo?.description ||
+            paymentDescription ||
+            paymentInfo?.data.message ||
+            ''
+          : paymentDescription || paymentInfo?.data.message || '';
+
+      const paymentObject = {
+        getFee: false,
+        ...formattedSparkPaymentInfo,
+        amountSats: isUsingLRC20
+          ? paymentInfo?.sendAmount * 10 ** tokenDecimals
+          : paymentInfo?.type === 'Bitcoin'
+          ? convertedSendAmount + (paymentInfo?.paymentFee || 0)
+          : convertedSendAmount,
+        masterInfoObject,
+        fee: paymentFee,
+        memo,
+        userBalance: sparkBalance,
+        sparkInformation: sparkInfoRef.current,
+        feeQuote: paymentInfo.feeQuote,
+        usingZeroAmountInvoice: paymentInfo.usingZeroAmountInvoice,
+        seletctedToken: selectedLRC20Asset,
+        mnemonic: currentWalletMnemoinc,
+        sendWebViewRequest,
+        contactInfo,
+        fromMainSendScreen: true,
+      };
+
+      const paymentResponse = await sparkPaymenWrapper(paymentObject);
+
+      // Handle deferred save if identityPubKey wasn't available during payment
+      if (paymentResponse.shouldSave) {
+        let retries = 0;
+        const maxRetries = 20; // 10 seconds max wait
+
+        while (!sparkInfoRef.current.identityPubKey && retries < maxRetries) {
+          console.log('WATIINT FOR IDENTITY PUBKEY');
+          await new Promise(res => setTimeout(res, 500));
+          retries++;
+        }
+
+        if (sparkInfoRef.current.identityPubKey) {
+          const tx = {
+            ...paymentResponse.response,
+            accountId: sparkInfoRef.current.identityPubKey,
+          };
+          await bulkUpdateSparkTransactions([tx], 'paymentWrapperTx', 0);
+        } else {
+          console.error('Failed to get identityPubKey after waiting');
+        }
+
+        isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, false);
+      }
+
+      if (progressAnimationRef.current) {
+        progressAnimationRef.current.completeProgress();
+        await new Promise(res => setTimeout(res, 600));
+      }
+
+      if (paymentResponse.didWork) {
+        if (fromPage === 'contacts' && paymentResponse.response?.id) {
+          publishMessageFunc(paymentResponse.response.id);
+        }
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            navigate.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'HomeAdmin',
+                  params: {
+                    screen: 'Home',
+                  },
+                },
+                {
+                  name: 'ConfirmTxPage',
+                  params: {
+                    transaction: paymentResponse.response,
+                  },
+                },
+              ],
+            });
+          });
+        });
+      } else {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            navigate.reset({
+              index: 0,
+              routes: [
+                {
+                  name: 'HomeAdmin',
+                  params: {
+                    screen: 'Home',
+                  },
+                },
+                {
+                  name: 'ConfirmTxPage',
+                  params: {
+                    transaction: paymentResponse.response,
+                    error: paymentResponse.error,
+                  },
+                },
+              ],
+            });
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Error in sendPayment:', error);
+      // Reset state on error
+      isSendingPayment.current = false;
+      setShowProgressAnimation(false);
+      // Optionally show error to user
+      errorMessageNavigation(error.message);
+    }
+  }, [
+    canSendPayment,
+    paymentInfo,
+    selectedLRC20Asset,
+    enteredPaymentInfo,
+    paymentDescription,
+    isUsingLRC20,
+    tokenDecimals,
+    convertedSendAmount,
+    masterInfoObject,
+    paymentFee,
+    sparkBalance,
+    sparkInformation,
+    currentWalletMnemoinc,
+    sendWebViewRequest,
+    contactInfo,
+    fromPage,
+    publishMessageFunc,
+    navigate,
+    errorMessageNavigation,
+  ]);
+
   useEffect(() => {
     if (
       !isUsingFastPay ||
@@ -263,7 +424,7 @@ export default function SendPaymentScreen(props) {
     requestAnimationFrame(() => {
       sendPayment();
     });
-  }, [isUsingFastPay]);
+  }, [isUsingFastPay, sendPayment]);
 
   // useEffect(() => {
   //   // unmounting started websocket if it exists
@@ -574,118 +735,6 @@ export default function SendPaymentScreen(props) {
       )}
     </CustomKeyboardAvoidingView>
   );
-
-  async function sendPayment() {
-    if (!canSendPayment) return;
-    if (isSendingPayment.current) return;
-    isSendingPayment.current = true;
-    setShowProgressAnimation(true);
-
-    // await new Promise(res => setTimeout(res, 4000));
-
-    // if (progressAnimationRef.current) {
-    //   progressAnimationRef.current.completeProgress();
-    // }
-
-    // return;
-
-    const formmateedSparkPaymentInfo = formatSparkPaymentAddress(
-      paymentInfo,
-      selectedLRC20Asset?.toLowerCase() !== 'bitcoin',
-    );
-
-    console.log(formmateedSparkPaymentInfo, 'manual spark information');
-
-    const memo =
-      paymentInfo.type === InputTypes.BOLT11
-        ? enteredPaymentInfo?.description ||
-          paymentDescription ||
-          paymentInfo?.data.message ||
-          ''
-        : paymentDescription || paymentInfo?.data.message || '';
-
-    const paymentObject = {
-      getFee: false,
-      ...formmateedSparkPaymentInfo,
-      amountSats: isUsingLRC20
-        ? paymentInfo?.sendAmount * 10 ** tokenDecimals
-        : paymentInfo?.type === 'Bitcoin'
-        ? convertedSendAmount + (paymentInfo?.paymentFee || 0)
-        : convertedSendAmount,
-      masterInfoObject,
-      fee: paymentFee,
-      memo,
-      userBalance: sparkBalance,
-      sparkInformation,
-      feeQuote: paymentInfo.feeQuote,
-      usingZeroAmountInvoice: paymentInfo.usingZeroAmountInvoice,
-      seletctedToken: selectedLRC20Asset,
-      mnemonic: currentWalletMnemoinc,
-      sendWebViewRequest,
-      contactInfo,
-    };
-
-    // Shouuld be same for all paymetns
-    const paymentResponse = await sparkPaymenWrapper(paymentObject);
-
-    if (progressAnimationRef.current) {
-      progressAnimationRef.current.completeProgress();
-      await new Promise(res => setTimeout(res, 600));
-    }
-
-    if (paymentResponse.didWork) {
-      if (fromPage === 'contacts' && paymentResponse.response?.id) {
-        publishMessageFunc(paymentResponse.response.id);
-      }
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          navigate.reset({
-            index: 0, // The top-level route index
-            routes: [
-              {
-                name: 'HomeAdmin', // Navigate to HomeAdmin
-                params: {
-                  screen: 'Home',
-                },
-              },
-              {
-                name: 'ConfirmTxPage',
-                params: {
-                  transaction: paymentResponse.response,
-                },
-              },
-            ],
-          });
-        });
-      });
-    } else {
-      // if (paymentInfo?.webSocket) {
-      //   paymentInfo?.webSocket?.close();
-      // }
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          navigate.reset({
-            index: 0, // The top-level route index
-            routes: [
-              {
-                name: 'HomeAdmin', // Navigate to HomeAdmin
-                params: {
-                  screen: 'Home',
-                },
-              },
-              {
-                name: 'ConfirmTxPage',
-                params: {
-                  transaction: paymentResponse.response,
-                  error: paymentResponse.error,
-                },
-              },
-            ],
-          });
-        });
-      });
-    }
-  }
 }
 
 const styles = StyleSheet.create({

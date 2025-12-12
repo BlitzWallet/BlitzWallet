@@ -40,6 +40,7 @@ export const sparkPaymenWrapper = async ({
   mnemonic,
   sendWebViewRequest,
   contactInfo,
+  fromMainSendScreen = false,
 }) => {
   try {
     console.log('Begining spark payment');
@@ -265,14 +266,30 @@ export const sparkPaymenWrapper = async ({
       response = tx;
     }
 
-    console.log(response, 'resonse in send function');
-    await bulkUpdateSparkTransactions([response], 'paymentWrapperTx', 0);
-    return { didWork: true, response };
+    console.log(
+      response,
+      'resonse in send function',
+      sparkInformation.identityPubKey,
+    );
+    // Only save immediately if we have identityPubKey (otherwise the tx will not show up)
+    if (sparkInformation.identityPubKey) {
+      await bulkUpdateSparkTransactions([response], 'paymentWrapperTx', 0);
+    }
+    return {
+      didWork: true,
+      response,
+      shouldSave: !sparkInformation.identityPubKey,
+    };
   } catch (err) {
     console.log('Send lightning payment error', err);
     return { didWork: false, error: err.message };
   } finally {
-    if (!getFee) {
+    // Only emit if we processed a payment and have identityPubKey (will handle situation with no identiy pubkey on send screen)
+    if (
+      !getFee &&
+      (!fromMainSendScreen || // not the main send screen → fire always
+        sparkInformation?.identityPubKey) // on main send → only fire if identityPubKey exists
+    ) {
       isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, false);
     }
   }

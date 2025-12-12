@@ -155,13 +155,17 @@ const SparkWalletProvider = ({ children }) => {
   const currentMnemonicRef = useRef(currentWalletMnemoinc);
 
   const cleanStatusAndLRC20Intervals = () => {
-    for (const intervalId of allIntervalIds) {
-      console.log('Clearing stored interval ID:', intervalId);
-      clearInterval(intervalId);
-    }
+    try {
+      for (const intervalId of allIntervalIds) {
+        console.log('Clearing stored interval ID:', intervalId);
+        clearInterval(intervalId);
+      }
 
-    intervalTracker.clear();
-    allIntervalIds.clear();
+      intervalTracker.clear();
+      allIntervalIds.clear();
+    } catch (err) {
+      console.log('Error cleaning lrc20 intervals', err);
+    }
   };
 
   const clearAllDepositIntervals = () => {
@@ -1251,6 +1255,7 @@ const SparkWalletProvider = ({ children }) => {
   // Run fullRestore when didConnect becomes true
   useEffect(() => {
     if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.identityPubKey) return;
     if (didRunInitialRestore.current) return;
     didRunInitialRestore.current = true;
 
@@ -1271,7 +1276,7 @@ const SparkWalletProvider = ({ children }) => {
     }
 
     runRestore();
-  }, [sparkInformation.didConnect]);
+  }, [sparkInformation.didConnect, sparkInformation.identityPubKey]);
 
   // Run transactions after BOTH restore completes
   useEffect(() => {
@@ -1367,6 +1372,7 @@ const SparkWalletProvider = ({ children }) => {
       showTokensInformation,
       toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
+      sparkInfoRef,
     }),
     [
       sparkInformation,
@@ -1382,6 +1388,7 @@ const SparkWalletProvider = ({ children }) => {
       showTokensInformation,
       toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
+      sparkInfoRef,
     ],
   );
 
