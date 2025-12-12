@@ -73,8 +73,6 @@ export default function SendPaymentScreen(props) {
     btcAdress,
   });
 
-  useHandleBackPressNew(goBackFunction);
-
   const { t } = useTranslation();
   const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -91,6 +89,7 @@ export default function SendPaymentScreen(props) {
   const [isAmountFocused, setIsAmountFocused] = useState(true);
   const [showProgressAnimation, setShowProgressAnimation] = useState(false);
   const progressAnimationRef = useRef(null);
+  const hasTriggeredFastPay = useRef(false);
 
   const [paymentInfo, setPaymentInfo] = useState({});
   const [paymentDescription, setPaymentDescription] = useState('');
@@ -116,27 +115,31 @@ export default function SendPaymentScreen(props) {
     masterTokenInfo?.details ||
     sparkInformation?.tokens?.[selectedLRC20Asset] ||
     {};
+  const tokenDecimals = seletctedToken?.tokenMetadata?.decimals ?? 0;
+  const tokenBalance = seletctedToken?.balance ?? 0;
+  const sparkBalance = sparkInformation?.balance ?? 0;
   const isUsingLRC20 = selectedLRC20Asset?.toLowerCase() !== 'bitcoin';
 
   const sendingAmount = paymentInfo?.sendAmount || 0;
   const canEditPaymentAmount = paymentInfo?.canEditPayment;
 
+  const fiatValue = fiatStats?.value || 1;
+
   const convertedSendAmount = !isUsingLRC20
     ? isBTCdenominated
       ? Math.round(Number(sendingAmount))
-      : Math.round((SATSPERBITCOIN / fiatStats?.value) * Number(sendingAmount))
+      : Math.round((SATSPERBITCOIN / fiatValue) * Number(sendingAmount))
     : Number(sendingAmount);
 
   const paymentFee =
     (paymentInfo?.paymentFee || 0) + (paymentInfo?.supportFee || 0);
 
   const canSendPayment = !isUsingLRC20
-    ? Number(sparkInformation.balance) >=
-        Number(convertedSendAmount) + paymentFee && sendingAmount != 0
-    : sparkInformation.balance >= paymentFee &&
+    ? Number(sparkBalance) >= Number(convertedSendAmount) + paymentFee &&
+      sendingAmount != 0
+    : sparkBalance >= paymentFee &&
       sendingAmount != 0 &&
-      seletctedToken.balance >=
-        sendingAmount * 10 ** seletctedToken?.tokenMetadata?.decimals;
+      tokenBalance >= sendingAmount * 10 ** tokenDecimals;
 
   const isLightningPayment = paymentInfo?.paymentNetwork === 'lightning';
   const isLiquidPayment = paymentInfo?.paymentNetwork === 'liquid';
@@ -167,6 +170,22 @@ export default function SendPaymentScreen(props) {
     masterInfoObject[QUICK_PAY_STORAGE_KEY]?.fastPayThresholdSats >=
       convertedSendAmount &&
     !isUsingLRC20;
+
+  const errorMessageNavigation = useCallback(
+    reason => {
+      navigate.navigate('ConfirmPaymentScreen', {
+        btcAdress: '',
+        fromPage: '',
+        publishMessageFunc: null,
+        comingFromAccept: null,
+        enteredPaymentInfo: {},
+        errorMessage:
+          reason ||
+          t('wallet.sendPages.sendPaymentScreen.fallbackErrorMessage'),
+      });
+    },
+    [navigate, t],
+  );
 
   useEffect(() => {
     const currentParams = {
@@ -199,7 +218,7 @@ export default function SendPaymentScreen(props) {
       crashlyticsLogReport('Starting decode address');
       await decodeSendAddress({
         fiatStats,
-        btcAdress,
+        btcAdress: paramsRef.current.btcAdress,
         goBackFunction: errorMessageNavigation,
         setPaymentInfo,
         liquidNodeInformation,
@@ -227,21 +246,24 @@ export default function SendPaymentScreen(props) {
     if (!sparkInformation.didConnect) return;
 
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        decodePayment();
-      });
+      decodePayment();
     });
   }, [sparkInformation.didConnect, refreshDecode]);
 
   useEffect(() => {
-    if (!isUsingFastPay) return;
+    if (
+      !isUsingFastPay ||
+      hasTriggeredFastPay.current ||
+      isSendingPayment.current
+    )
+      return;
+
+    hasTriggeredFastPay.current = true;
 
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        sendPayment();
-      });
+      sendPayment();
     });
-  }, [paymentInfo, canEditPaymentAmount, sparkInformation.didConnect]);
+  }, [isUsingFastPay]);
 
   // useEffect(() => {
   //   // unmounting started websocket if it exists
@@ -265,16 +287,18 @@ export default function SendPaymentScreen(props) {
     setPaymentDescription(newDescription);
   };
 
-  const handleBackpress = () => {
-    goBackFunction();
-  };
+  const handleBackpress = useCallback(() => {
+    keyboardGoBack(navigate);
+  }, [navigate]);
+
+  useHandleBackPressNew(handleBackpress);
 
   console.log('CONFIRM SEND PAYMENT SCREEN');
   console.log(minLNURLSatAmount, maxLNURLSatAmount, selectedLRC20Asset);
   console.log(
     canSendPayment,
     'can send payment',
-    sparkInformation.balance,
+    sparkBalance,
     sendingAmount,
     paymentFee,
     sendingAmount,
@@ -323,14 +347,7 @@ export default function SendPaymentScreen(props) {
             </TouchableOpacity>
           )}
 
-        <ScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 10,
-          }}
-        >
+        <ScrollView contentContainerStyle={styles.balanceScrollContainer}>
           <FormattedBalanceInput
             maxWidth={0.9}
             amountValue={sendingAmount}
@@ -591,15 +608,14 @@ export default function SendPaymentScreen(props) {
       getFee: false,
       ...formmateedSparkPaymentInfo,
       amountSats: isUsingLRC20
-        ? paymentInfo?.sendAmount *
-          10 ** seletctedToken?.tokenMetadata?.decimals
+        ? paymentInfo?.sendAmount * 10 ** tokenDecimals
         : paymentInfo?.type === 'Bitcoin'
         ? convertedSendAmount + (paymentInfo?.paymentFee || 0)
         : convertedSendAmount,
       masterInfoObject,
       fee: paymentFee,
       memo,
-      userBalance: sparkInformation.balance,
+      userBalance: sparkBalance,
       sparkInformation,
       feeQuote: paymentInfo.feeQuote,
       usingZeroAmountInvoice: paymentInfo.usingZeroAmountInvoice,
@@ -670,21 +686,6 @@ export default function SendPaymentScreen(props) {
       });
     }
   }
-
-  function goBackFunction() {
-    keyboardGoBack(navigate);
-  }
-  function errorMessageNavigation(reason) {
-    navigate.navigate('ConfirmPaymentScreen', {
-      btcAdress: '',
-      fromPage: '',
-      publishMessageFunc: null,
-      comingFromAccept: null,
-      enteredPaymentInfo: {},
-      errorMessage:
-        reason || t('wallet.sendPages.sendPaymentScreen.fallbackErrorMessage'),
-    });
-  }
 }
 
 const styles = StyleSheet.create({
@@ -698,7 +699,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  backArrow: { position: 'absolute', zIndex: 99, left: 0 },
+
+  balanceScrollContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+  },
   maxAndAcceptContainer: {
     width: INSET_WINDOW_WIDTH,
     flexDirection: 'row',
