@@ -24,6 +24,7 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import customUUID from '../../../../functions/customUUID';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
+import convertTextInputValue from '../../../../functions/textInputConvertValue';
 
 export default function EditReceivePaymentInformation(props) {
   const navigate = useNavigation();
@@ -45,7 +46,9 @@ export default function EditReceivePaymentInformation(props) {
   const localSatAmount =
     inputDenomination === 'sats'
       ? Number(amountValue)
-      : Math.round(SATSPERBITCOIN / (fiatStats?.value || 65000)) * amountValue;
+      : Math.round(
+          (SATSPERBITCOIN / (fiatStats?.value || 65000)) * amountValue,
+        );
 
   const disableDescription =
     receiveType.toLowerCase() === 'lightning' &&
@@ -53,22 +56,6 @@ export default function EditReceivePaymentInformation(props) {
     !localSatAmount;
 
   console.log(disableDescription, 't');
-  const convertedValue = () =>
-    !amountValue
-      ? ''
-      : inputDenomination === 'fiat'
-      ? String(
-          Math.round(
-            (SATSPERBITCOIN / (fiatStats?.value || 65000)) *
-              Number(amountValue),
-          ),
-        )
-      : String(
-          (
-            ((fiatStats?.value || 65000) / SATSPERBITCOIN) *
-            Number(amountValue)
-          ).toFixed(2),
-        );
 
   useHandleBackPressNew();
 
@@ -106,7 +93,13 @@ export default function EditReceivePaymentInformation(props) {
 
                 return newPrev;
               });
-              setAmountValue(convertedValue() || '');
+              setAmountValue(
+                convertTextInputValue(
+                  amountValue,
+                  fiatStats,
+                  inputDenomination,
+                ) || '',
+              );
             }}
           />
 
