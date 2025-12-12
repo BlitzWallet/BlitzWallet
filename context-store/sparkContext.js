@@ -284,6 +284,12 @@ const SparkWalletProvider = ({ children }) => {
 
   const toggleIsSendingPayment = useCallback(isSending => {
     console.log('Setting is sending payment', isSending);
+    if (isSending) {
+      if (txPollingAbortControllerRef.current) {
+        txPollingAbortControllerRef.current.abort();
+        txPollingAbortControllerRef.current = null;
+      }
+    }
     isSendingPaymentRef.current = isSending;
   }, []);
 
