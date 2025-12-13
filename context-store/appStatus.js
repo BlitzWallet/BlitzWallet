@@ -13,7 +13,7 @@ import * as Network from 'expo-network';
 import { navigationRef } from '../navigation/navigationService';
 import {
   BACKGROUND_THRESHOLD_MS,
-  FORCE_RESET_SPAARK_STATE_MS,
+  // FORCE_RESET_SPAARK_STATE_MS,
 } from '../app/constants';
 
 // Initiate context
@@ -36,7 +36,7 @@ const AppStatusProvider = ({ children }) => {
     Dimensions.get('screen'),
   );
   const shouldResetStateRef = useRef(null);
-  const lastConnectedTimeRef = useRef(null);
+  // const lastConnectedTimeRef = useRef(null);
   const timeInBackgroundRef = useRef(0);
 
   const hasInitializedNavListener = useRef(false);
@@ -70,21 +70,22 @@ const AppStatusProvider = ({ children }) => {
         const timeInBackground = timeInBackgroundRef.current
           ? Date.now() - timeInBackgroundRef.current
           : 0;
-        const timeSinceLastReset = lastConnectedTimeRef.current
-          ? Date.now() - lastConnectedTimeRef.current
-          : 0;
+        // const timeSinceLastReset = lastConnectedTimeRef.current
+        //   ? Date.now() - lastConnectedTimeRef.current
+        //   : 0;
 
         if (
-          timeInBackground > BACKGROUND_THRESHOLD_MS ||
-          (timeSinceLastReset > FORCE_RESET_SPAARK_STATE_MS &&
-            timeInBackground > 45 * 1000)
+          timeInBackground > BACKGROUND_THRESHOLD_MS
+          //  ||
+          // (timeSinceLastReset > FORCE_RESET_SPAARK_STATE_MS &&
+          //   timeInBackground > 45 * 1000)
         ) {
           setTimeout(() => {
             toggleDidGetToHomepage(false);
           }, 100);
 
           shouldResetStateRef.current = true;
-          lastConnectedTimeRef.current = null;
+          // lastConnectedTimeRef.current = null;
         } else {
           shouldResetStateRef.current = false;
         }
@@ -223,7 +224,7 @@ const AppStatusProvider = ({ children }) => {
       appState,
       screenDimensions,
       shouldResetStateRef,
-      lastConnectedTimeRef,
+      // lastConnectedTimeRef,
     }),
     [
       minMaxLiquidSwapAmounts,
@@ -234,7 +235,7 @@ const AppStatusProvider = ({ children }) => {
       appState,
       screenDimensions,
       shouldResetStateRef,
-      lastConnectedTimeRef,
+      // lastConnectedTimeRef,
     ],
   );
 
