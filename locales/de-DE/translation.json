@@ -1007,6 +1007,8 @@
 
   "contacts": {
     "contactsPage": {
+      "contactsHeader": "Kontakte",
+      "addContactsText": "Kontakt hinzufügen",
       "searchContactsPlaceholder": "Hinzugefügte Kontakte suchen",
       "noContactsMessage": "Sie haben keine Kontakte",
       "editContactProfileMessage": "Bearbeiten Sie Ihr Profil, um Kontakte zu nutzen.",

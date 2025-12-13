@@ -1017,6 +1017,8 @@
 
   "contacts": {
     "contactsPage": {
+      "contactsHeader": "Contatti",
+      "addContactsText": "Aggiungi contatto",
       "searchContactsPlaceholder": "Cerca contatti aggiunti",
       "noContactsMessage": "Non hai contatti",
       "editContactProfileMessage": "Modifica il tuo profilo per iniziare a utilizzare i contatti.",

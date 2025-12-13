@@ -1007,6 +1007,8 @@
   },
   "contacts": {
     "contactsPage": {
+      "contactsHeader": "Kontakter",
+      "addContactsText": "Lägg till kontakt",
       "searchContactsPlaceholder": "Sök efter tillagda kontakter",
       "noContactsMessage": "Du har inga kontakter",
       "editContactProfileMessage": "Redigera din profil för att börja använda kontakter.",
