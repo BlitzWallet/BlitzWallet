@@ -1,9 +1,8 @@
-import {useFocusEffect} from '@react-navigation/native';
-import {useState, useRef, useCallback, useMemo} from 'react';
-import {InteractionManager} from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { useState, useRef, useCallback, useMemo } from 'react';
 
 export function useUpdateHomepageTransactions() {
-  const [minuteTick, setMinuteTick] = useState(Math.floor(Date.now() / 60000));
+  const [minuteTick, setMinuteTick] = useState(Math.floor(Date.now() / 10000));
   const intervalRef = useRef(null);
 
   useFocusEffect(
@@ -14,26 +13,24 @@ export function useUpdateHomepageTransactions() {
         clearInterval(intervalRef.current);
       }
 
-      setMinuteTick(Math.floor(Date.now() / 60000));
+      setMinuteTick(Math.floor(Date.now() / 10000));
 
       intervalRef.current = setInterval(() => {
-        setMinuteTick(Math.floor(Date.now() / 60000));
-      }, 60000);
+        setMinuteTick(Math.floor(Date.now() / 10000));
+      }, 10000);
 
       return () => {
-        InteractionManager.runAfterInteractions(() => {
-          console.log('Clearing stable time interval');
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
-        });
+        console.log('Clearing stable time interval');
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
       };
     }, []),
   );
 
   const stableTime = useMemo(
-    () => new Date(minuteTick * 60000).getTime(),
+    () => new Date(minuteTick * 10000).getTime(),
     [minuteTick],
   );
 
