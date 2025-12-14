@@ -29,7 +29,7 @@ import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useNavigation } from '@react-navigation/native';
 import { formatDateToDayMonthYear } from '../../../../functions/rotateAddressDateChecker';
 import { useToast } from '../../../../../context-store/toastManager';
-import { copyToClipboard } from '../../../../functions';
+import { copyToClipboard, formatBalanceAmount } from '../../../../functions';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
 import { useTranslation } from 'react-i18next';
@@ -64,7 +64,12 @@ export default function GiftConfirmation({
 
   const handleShare = async () => {
     try {
-      await handleGiftCardShare({ amount, giftLink });
+      await handleGiftCardShare({
+        amount: formatBalanceAmount(amount, false, {
+          thousandsSeperator: 'space',
+        }),
+        giftLink,
+      });
     } catch (error) {
       console.log('Share cancelled or error:', error);
     }

@@ -24,7 +24,7 @@ import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import displayCorrectDenomination from '../../../../functions/displayCorrectDenomination';
 import { formatTimeRemaining } from '../../../../functions/gift/formatTimeRemaining';
-import { copyToClipboard } from '../../../../functions';
+import { copyToClipboard, formatBalanceAmount } from '../../../../functions';
 import { useToast } from '../../../../../context-store/toastManager';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
 import { useTranslation } from 'react-i18next';
@@ -125,7 +125,12 @@ export default function GiftsOverview({ theme, darkModeType }) {
                   if (useState) {
                     await copyToClipboard(uuid, showToast);
                   } else {
-                    await handleGiftCardShare({ amount, giftLink: claimURL });
+                    await handleGiftCardShare({
+                      amount: formatBalanceAmount(amount, false, {
+                        thousandsSeperator: 'space',
+                      }),
+                      giftLink: claimURL,
+                    });
                   }
                 }}
               >
