@@ -59,7 +59,7 @@ const setupAppStateListener = () => {
     console.log(`AppState changed from ${lastAppState} to ${nextAppState}`);
 
     // Only process queue when transitioning TO active state
-    if (lastAppState !== 'active' && nextAppState === 'active') {
+    if (nextAppState === 'active') {
       processQueuedEvents();
     }
 
