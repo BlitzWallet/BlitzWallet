@@ -1105,7 +1105,7 @@
       },
       "contactsTransactions": {
         "pushNotificationUpdateMessage": "{{name}} {{option}} seu pedido",
-        "acceptProfileMessage": "Solicitação de {{name}}'s paga",
+        "acceptProfileMessage": "Solicitação de {{name}} paga",
         "acceptPayingContactMessage": "Você pagou a solicitação de {{name}}",
         "requestTitle": "Solicitação de pagamento de {{amount}}",
         "send": "Aprovar"
