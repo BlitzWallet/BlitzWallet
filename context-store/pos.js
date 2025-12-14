@@ -69,8 +69,10 @@ const POSTransactionsProvider = ({ children }) => {
             tx.timestamp > savedAccount.lastActivity
               ? tx.timestamp
               : savedAccount.lastActivity,
-          totalUnpaidTxs: savedAccount.totalUnpaidTxs + (!tx.didPay ? 1 : 0),
-          totalPaidTxs: savedAccount.totalPaidTxs + (tx.didPay ? 1 : 0),
+          totalUnpaidTxs:
+            savedAccount.totalUnpaidTxs + (!tx.didPay ? tx.tipAmountSats : 0),
+          totalPaidTxs:
+            savedAccount.totalPaidTxs + (!!tx.didPay ? tx.tipAmountSats : 0),
         };
       }
 
@@ -112,6 +114,7 @@ const POSTransactionsProvider = ({ children }) => {
     });
 
     return () => {
+      console.log(`unsubscribing pos transactions listener...`, !!unsubscribe);
       if (unsubscribe) unsubscribe();
     };
   }, [publicKey, didOpenTable]);

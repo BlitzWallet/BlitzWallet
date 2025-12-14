@@ -1480,7 +1480,7 @@
         "errorPaying": "Unable to pay blitz contact. Try again later.",
         "invalidName": "Name is not an LNURL or a Blitz user.",
         "removeEmployeeWarning": "Are you sure you want to remove this employee?",
-        "startingPaymentProcessMessage": "'Begining payment process, please do not leave this page or the app.",
+        "startingPaymentProcessMessage": "Begining payment process, please do not leave this page or the app.",
         "goBack": "Go back",
         "lastSale": "Last sale:",
         "numTipsPaid": "Tips paid:",

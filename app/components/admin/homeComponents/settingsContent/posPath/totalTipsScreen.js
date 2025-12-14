@@ -80,6 +80,10 @@ export default function TotalTipsScreen(props) {
   });
   const [viewTips, setViewTips] = useState(false);
 
+  const borderColor = useMemo(() => {
+    return backgroundColor;
+  }, [theme, darkModeType, backgroundOffset, backgroundColor]);
+
   const handlePayment = useCallback(async () => {
     try {
       if (totalTipAmount < 1) {
@@ -133,7 +137,7 @@ export default function TotalTipsScreen(props) {
         //   description: POINT_OF_SALE_PAYOUT_DESCRIPTION,
         //   webViewRef,
         // });
-        if (paymentResponse) {
+        if (paymentResponse.didWork) {
           setPaymentUpdate(prev => ({
             ...prev,
             updateMessage: t(
@@ -151,6 +155,13 @@ export default function TotalTipsScreen(props) {
             isRedeemed: null,
             wasSeen: null,
             didSend: null,
+            txid: paymentResponse.paymentResponse.response.id,
+            name:
+              globalContactsInformation.myProfile.name ||
+              globalContactsInformation.myProfile.uniqueName,
+            senderProfileSnapshot: {
+              uniqueName: globalContactsInformation.myProfile.uniqueName,
+            },
           };
 
           await publishMessage({
@@ -215,21 +226,37 @@ export default function TotalTipsScreen(props) {
   }, []);
 
   const renderItem = useCallback(
-    ({ item }) => {
+    ({ item, index }) => {
       return (
         <TipsTXItem
           item={item}
           masterInfoObject={masterInfoObject}
           fiatStats={fiatStats}
           t={t}
+          theme={theme}
+          darkModeType={darkModeType}
+          backgroundColor={backgroundColor}
+          backgroundOffset={backgroundOffset}
+          borderColor={borderColor}
+          isLastIndex={index === txs.length - 1}
         />
       );
     },
-    [masterInfoObject, fiatStats, t],
+    [
+      masterInfoObject,
+      fiatStats,
+      t,
+      theme,
+      darkModeType,
+      backgroundColor,
+      backgroundOffset,
+      borderColor,
+      txs.length,
+    ],
   );
 
   const viewHeight = useMemo(
-    () => screenDimensions.height * 0.5,
+    () => screenDimensions.height * 0.7,
     [screenDimensions.height],
   );
   const removeEmployee = useCallback(async name => {
@@ -244,135 +271,156 @@ export default function TotalTipsScreen(props) {
     });
   }, []);
 
+  const ContainerWrapper = useCallback(
+    ({ children }) => {
+      return (
+        <View style={styles.container}>
+          <View
+            style={{
+              ...styles.contentContainer,
+              backgroundColor: backgroundOffset,
+              height: viewHeight,
+            }}
+          >
+            {children}
+          </View>
+        </View>
+      );
+    },
+    [theme, darkModeType, backgroundOffset, backgroundColor, viewHeight],
+  );
+
+  if (paymentUpdate.isSending) {
+    return (
+      <ContainerWrapper>
+        <FullLoadingScreen
+          textStyles={{ textAlign: 'center' }}
+          text={
+            paymentUpdate.errorMessage ||
+            paymentUpdate.updateMessage ||
+            t('settings.posPath.totalTipsScreen.startingPaymentProcessMessage')
+          }
+          containerStyles={{ height: 250 }}
+        />
+      </ContainerWrapper>
+    );
+  }
+
   return (
-    <View style={styles.container}>
+    <ContainerWrapper>
+      <View style={[styles.navBarButtons, { borderBottomColor: borderColor }]}>
+        <TouchableOpacity
+          onPress={() => {
+            if (viewTips) setViewTips(false);
+            else navigate.goBack();
+          }}
+        >
+          <ThemeImage
+            lightModeIcon={viewTips ? ICONS.smallArrowLeft : ICONS.xSmallIcon}
+            darkModeIcon={viewTips ? ICONS.smallArrowLeft : ICONS.xSmallIcon}
+            lightsOutIcon={
+              viewTips ? ICONS.arrow_small_left_white : ICONS.xSmallIconWhite
+            }
+          />
+        </TouchableOpacity>
+        <ThemeText
+          CustomNumberOfLines={1}
+          styles={styles.employeeName}
+          content={name}
+        />
+
+        <TouchableOpacity
+          onPress={() => removeEmployee(name)}
+          style={{ marginLeft: 15 }}
+        >
+          <ThemeImage
+            styles={{ width: 23, height: 23 }}
+            lightModeIcon={ICONS.trashIcon}
+            darkModeIcon={ICONS.trashIcon}
+            lightsOutIcon={ICONS.trashIconWhite}
+          />
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingTop: 10, paddingBottom: 20 }}
+        data={txs}
+        keyExtractor={item => item.dbDateAdded.toString()}
+        renderItem={renderItem}
+      />
       <View
         style={{
-          ...styles.contentContainer,
-          backgroundColor:
-            theme && darkModeType ? backgroundOffset : backgroundColor,
-          height: viewHeight,
+          paddingHorizontal: 20,
+          paddingBottom: 20,
+          paddingTop: 10,
+          backgroundColor: borderColor,
         }}
       >
-        {!paymentUpdate.isSending && (
-          <View style={styles.navBarButtons}>
-            {!viewTips && (
-              <TouchableOpacity onPress={() => removeEmployee(name)}>
-                <ThemeImage
-                  styles={{ width: 23, height: 23 }}
-                  lightModeIcon={ICONS.trashIcon}
-                  darkModeIcon={ICONS.trashIcon}
-                  lightsOutIcon={ICONS.trashIconWhite}
-                />
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity
-              onPress={() => {
-                if (viewTips) setViewTips(false);
-                else navigate.goBack();
-              }}
-            >
-              <ThemeImage
-                lightModeIcon={
-                  viewTips ? ICONS.smallArrowLeft : ICONS.xSmallIcon
-                }
-                darkModeIcon={
-                  viewTips ? ICONS.smallArrowLeft : ICONS.xSmallIcon
-                }
-                lightsOutIcon={
-                  viewTips
-                    ? ICONS.arrow_small_left_white
-                    : ICONS.xSmallIconWhite
-                }
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-        {paymentUpdate.isSending ? (
-          <>
-            <FullLoadingScreen
-              textStyles={{ textAlign: 'center' }}
-              text={
-                paymentUpdate.errorMessage ||
-                paymentUpdate.updateMessage ||
-                t(
-                  'settings.posPath.totalTipsScreen.startingPaymentProcessMessage',
-                )
-              }
-              containerStyles={{ height: 250 }}
-            />
-            {paymentUpdate.didComplete && (
-              <CustomButton
-                textContent={t('settings.posPath.totalTipsScreen.goBack')}
-              />
-            )}
-          </>
-        ) : viewTips ? (
-          <FlatList
-            contentContainerStyle={{ paddingTop: 10, paddingBottom: 20 }}
-            data={txs}
-            keyExtractor={item => item.dbDateAdded.toString()}
-            renderItem={renderItem}
+        <View style={styles.attributeContainer}>
+          <ThemeText
+            CustomNumberOfLines={1}
+            styles={{
+              textTransform: 'capitalize',
+              includeFontPadding: false,
+            }}
+            content={t('settings.posPath.totalTipsScreen.tipBalance')}
           />
-        ) : (
-          <>
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={styles.employeeName}
-              content={name}
-            />
-            <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-              <View style={styles.attributeContainer}>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  content={t('settings.posPath.totalTipsScreen.lastSale')}
-                />
-                <ThemeText
-                  content={`${formatDateToDayMonthYear(lastActivity)}`}
-                />
-              </View>
-              <View style={styles.attributeContainer}>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  content={t('settings.posPath.totalTipsScreen.numTipsPaid')}
-                />
-                <ThemeText content={`${totalPaidTxs}`} />
-              </View>
-              <View style={styles.attributeContainer}>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  content={t('settings.posPath.totalTipsScreen.numUnpaidTips')}
-                />
-                <ThemeText content={`${totalUnpaidTxs}`} />
-              </View>
-              <View style={styles.attributeContainer}>
-                <ThemeText
-                  CustomNumberOfLines={1}
-                  content={t('settings.posPath.totalTipsScreen.tipBalance')}
-                />
-                <ThemeText
-                  content={`${displayCorrectDenomination({
-                    amount: totalTipAmount,
-                    masterInfoObject,
-                    fiatStats,
-                  })}`}
-                />
-              </View>
-            </ScrollView>
+          <ThemeText
+            styles={{ includeFontPadding: false }}
+            content={displayCorrectDenomination({
+              amount: totalTipAmount,
+              masterInfoObject,
+              fiatStats,
+            })}
+          />
+        </View>
+        <View style={styles.attributeContainer}>
+          <ThemeText
+            styles={{
+              textTransform: 'capitalize',
+              includeFontPadding: false,
+              fontSize: SIZES.smedium,
+            }}
+            CustomNumberOfLines={1}
+            content={t('constants.paidLower')}
+          />
+          <ThemeText
+            styles={{ includeFontPadding: false, fontSize: SIZES.smedium }}
+            content={displayCorrectDenomination({
+              amount: totalPaidTxs,
+              masterInfoObject,
+              fiatStats,
+            })}
+          />
+        </View>
+        <View style={styles.attributeContainer}>
+          <ThemeText
+            styles={{
+              textTransform: 'capitalize',
+              includeFontPadding: false,
+              fontSize: SIZES.smedium,
+            }}
+            CustomNumberOfLines={1}
+            content={t('constants.unpaidLower')}
+          />
+          <ThemeText
+            styles={{ includeFontPadding: false, fontSize: SIZES.smedium }}
+            content={displayCorrectDenomination({
+              amount: totalUnpaidTxs,
+              masterInfoObject,
+              fiatStats,
+            })}
+          />
+        </View>
 
-            <CustomButton
-              actionFunction={handlePayment}
-              textContent={t('constants.pay')}
-            />
-            <CustomButton
-              actionFunction={() => setViewTips(true)}
-              textContent={t('settings.posPath.totalTipsScreen.viewTips')}
-              buttonStyles={{ marginTop: 10 }}
-            />
-          </>
-        )}
+        <CustomButton
+          buttonStyles={{ marginTop: 5 }}
+          actionFunction={handlePayment}
+          textContent={t('constants.pay')}
+        />
       </View>
-    </View>
+    </ContainerWrapper>
   );
 }
 
@@ -385,19 +433,21 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     width: INSET_WINDOW_WIDTH,
-    padding: 10,
     borderRadius: 8,
+    overflow: 'hidden',
   },
 
   employeeName: {
     textAlign: 'center',
-    marginBottom: 20,
     fontSize: SIZES.large,
     textTransform: 'capitalize',
+    marginRight: 'auto',
+    marginLeft: 10,
+    flexShrink: 1,
   },
   attributeContainer: {
     width: '90%',
-    marginBottom: 20,
+    marginBottom: 5,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -408,5 +458,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+    padding: 20,
+    borderBottomWidth: 3,
   },
 });

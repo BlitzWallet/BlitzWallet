@@ -143,9 +143,9 @@ export async function payPOSContact({
 
     if (!paymentResponse.didWork) throw new Error('Unable to send payment');
 
-    return true;
+    return { didWork: true, paymentResponse };
   } catch (err) {
     console.error('Payment error in payPOSContact:', err);
-    return false;
+    return { didWork: false, error: err };
   }
 }

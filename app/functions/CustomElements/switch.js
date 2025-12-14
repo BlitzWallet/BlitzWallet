@@ -103,7 +103,8 @@ const CustomToggleSwitch = ({
       page === 'lrc20Settings' ||
       page === 'useRanomPinLayout' ||
       page === 'settingsNotifications' ||
-      page === 'settingsCrashReporting'
+      page === 'settingsCrashReporting' ||
+      page === 'tipPaymentStatus'
         ? backgroundColor
         : backgroundOffset,
       darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
