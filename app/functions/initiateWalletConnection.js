@@ -182,9 +182,13 @@ export async function initializeSparkSession({
       let txToUse;
 
       // Restore has not run yet:
-      if (!hasRestoreCompleted) {
+      if (
+        !hasRestoreCompleted ||
+        (prev.identityPubKey && prev.identityPubKey !== identityPubKey)
+      ) {
         // We show cached transactions immediately to avoid blanks.
         // But DO NOT overwrite later once restore writes.
+        // Fully overwrite if identityPubKey changed (new wallet).
         txToUse = transactions;
       } else {
         // Restore has finished:

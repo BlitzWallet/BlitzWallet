@@ -1,9 +1,10 @@
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   CustomKeyboardAvoidingView,
+  GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
@@ -36,6 +37,9 @@ import CustomSearchInput from '../../../../../functions/CustomElements/searchInp
 import Icon from '../../../../../functions/CustomElements/Icon';
 import { useWebView } from '../../../../../../context-store/webViewContext';
 import { HIDDEN_OPACITY } from '../../../../../constants/theme';
+import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
+import LottieView from 'lottie-react-native';
+const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 export default function AccountPaymentPage(props) {
   const { sendWebViewRequest } = useWebView();
@@ -56,6 +60,7 @@ export default function AccountPaymentPage(props) {
     isDoingTransfer: false,
     isCalculatingFee: false,
     paymentFee: 0,
+    showConfirmScreen: false,
   });
   const { backgroundOffset, textColor } = GetThemeColors();
   const { t } = useTranslation();
@@ -68,6 +73,13 @@ export default function AccountPaymentPage(props) {
     masterInfoObject.userBalanceDenomination != 'fiat'
       ? Math.round(Number(sendingAmount))
       : Math.round((SATSPERBITCOIN / fiatStats.value) * Number(sendingAmount));
+
+  const confirmAnimation = useMemo(() => {
+    return updateConfirmAnimation(
+      confirmTxAnimation,
+      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
+    );
+  }, [theme, darkModeType]);
 
   const debouncedSearch = useDebounce(async () => {
     // Calculate spark payment fee here
@@ -191,34 +203,11 @@ export default function AccountPaymentPage(props) {
         },
       ]);
 
-      if (currentWalletMnemoinc === to) {
-        // Confirm response will be handled by current listeners
-        return;
-      }
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          navigate.reset({
-            index: 0, // The top-level route index
-            routes: [
-              {
-                name: 'HomeAdmin', // Navigate to HomeAdmin
-                params: {
-                  screen: 'Home',
-                },
-              },
-              {
-                name: 'ConfirmTxPage',
-                params: {
-                  transaction: sendingResponse.response,
-                },
-              },
-            ],
-          });
-        });
-      });
-      setTransferInfo(prev => ({ ...prev, isDoingTransfer: false }));
-      //   Navigat to half modal here
+      setTransferInfo(prev => ({
+        ...prev,
+        isDoingTransfer: false,
+        showConfirmScreen: true,
+      }));
     } catch (err) {
       console.log('Swap error', err);
       setTransferInfo(prev => ({ ...prev, isDoingTransfer: false }));
@@ -236,6 +225,28 @@ export default function AccountPaymentPage(props) {
     currentWalletMnemoinc,
     memo,
   ]);
+
+  if (transferInfo?.showConfirmScreen) {
+    return (
+      <GlobalThemeView useStandardWidth={true}>
+        <View style={styles.animationContainer}>
+          <LottieView
+            source={confirmAnimation}
+            loop={false}
+            style={styles.animation}
+            autoPlay={true}
+          />
+        </View>
+        <CustomButton
+          textContent={t('constants.back')}
+          buttonStyles={{
+            ...CENTER,
+          }}
+          actionFunction={navigate.goBack}
+        />
+      </GlobalThemeView>
+    );
+  }
 
   return (
     <CustomKeyboardAvoidingView
@@ -506,6 +517,15 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginRight: 5,
+  },
+  animationContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 1,
+  },
+  animation: {
+    width: 250,
+    height: 250,
   },
   transferAccountRow: {
     width: '90%',
