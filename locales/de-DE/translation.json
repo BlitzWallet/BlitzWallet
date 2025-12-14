@@ -1327,7 +1327,7 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet bietet kostenlose und Open-Source-Produkte für die Bitcoin-Community.\n\nUm das Projekt nachhaltig zu halten, haben wir eine kleine Transaktionsgebühr auf jede Zahlung erhoben.\n\nHier ist, wie diese Gebühren verteilt werden:",
+      "description": "Blitz Wallet stellt der Bitcoin-Community kostenlose Open-Source-Tools zur Verfügung.\n\nUm die langfristige Nachhaltigkeit des Projekts zu unterstützen, wird auf jede Zahlung eine kleine Transaktionsgebühr erhoben.\n\nSobald Gebühren aktiv sind, werden sie hier angezeigt.",
       "upTo": "Bis zu",
       "fixedFee": "Feste Gebühr",
       "percent": "Prozent",

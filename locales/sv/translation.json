@@ -1328,7 +1328,7 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet erbjuder gratis produkter med öppen källkod för Bitcoin-gemenskapen. \n\nFör att hjälpa till att hålla projektet hållbart har vi lagt till en liten transaktionsavgift för varje betalning.\n\nHär är hur dessa avgifter fördelas:",
+      "description": "Blitz Wallet tillhandahåller gratis verktyg med öppen källkod för Bitcoin-gemenskapen.\n\nFör att stödja projektets långsiktiga hållbarhet kommer en liten transaktionsavgift att tillämpas på varje betalning.\n\nNär avgifter är aktiva kommer de att visas här.",
       "upTo": "Upp till",
       "fixedFee": "Fast arvode",
       "percent": "Procent",

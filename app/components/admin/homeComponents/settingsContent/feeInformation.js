@@ -81,7 +81,7 @@ export default function BlitzFeeInformation() {
         styles={{ textAlign: 'center', marginBottom: 30 }}
         content={t('settings.feeInformation.description')}
       />
-      <GridSection
+      {/* <GridSection
         title="Lightning"
         bracket={
           paymentType === 'lightning'
@@ -98,7 +98,7 @@ export default function BlitzFeeInformation() {
         masterInfoObject={masterInfoObject}
         fiatStats={fiatStats}
       />
-      <View style={styles.timeFrameElementsContainer}>{timeFrameElements}</View>
+      <View style={styles.timeFrameElementsContainer}>{timeFrameElements}</View> */}
     </ScrollView>
   );
 }

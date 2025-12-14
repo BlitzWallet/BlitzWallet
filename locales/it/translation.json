@@ -1344,7 +1344,7 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet offre prodotti gratuiti e open-source per la community Bitcoin. \n\nPer aiutare a mantenere sostenibile il progetto, abbiamo aggiunto una piccola commissione di transazione a ogni pagamento.\n\nEcco come vengono distribuite quelle commissioni:",
+      "description": "Blitz Wallet fornisce strumenti gratuiti e open source alla comunità Bitcoin.\n\nPer supportare la sostenibilità a lungo termine del progetto, verrà applicata una piccola commissione di transazione a ogni pagamento.\n\nUna volta attivate le commissioni, verranno mostrate qui.",
       "upTo": "Fino a",
       "fixedFee": "Commissione Fissa",
       "percent": "Percentuale",

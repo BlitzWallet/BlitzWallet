@@ -1342,7 +1342,7 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "A carteira Blitz oferece produtos gratuitos e de código aberto para a comunidade Bitcoin. \n\nPara ajudar a manter o projeto sustentável, adicionamos uma pequena taxa de transação a cada pagamento.\n\nVeja como essas taxas são distribuídas:",
+      "description": "A carteira Blitz oferece produtos gratuitos e de código aberto para a comunidade Bitcoin.\n\nPara apoiar a sustentabilidade de longo prazo do projeto, será aplicada uma pequena taxa de transação a cada pagamento.\n\nQuando as taxas estiverem ativas, elas serão exibidas aqui.",
       "upTo": "Até",
       "fixedFee": "Taxa fixa",
       "percent": "Porcentagem",
