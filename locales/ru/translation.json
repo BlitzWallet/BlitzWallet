@@ -1095,7 +1095,7 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} ваш запрос",
         "acceptProfileMessage": "Оплачено {{name}}",
         "acceptPayingContactMessage": "{{name}} оплатил ваш запрос",
-        "requestTitle": "Получил запрос на ",
+        "requestTitle": "Получен запрос на {{amount}}",
         "send": "Отправить"
       },
       "viewAllGiftCards": {

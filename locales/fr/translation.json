@@ -1095,7 +1095,7 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} votre demande",
         "acceptProfileMessage": "Paiement de la demande de {{name}}",
         "acceptPayingContactMessage": "{{name}} payé votre demande",
-        "requestTitle": "Réception d'une demande de ",
+        "requestTitle": "Demande reçue pour {{amount}}",
         "send": "Envoyer"
       },
       "viewAllGiftCards": {

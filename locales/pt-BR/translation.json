@@ -1107,7 +1107,7 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} seu pedido",
         "acceptProfileMessage": "Solicitação de {{name}}'s paga",
         "acceptPayingContactMessage": "Você pagou a solicitação de {{name}}",
-        "requestTitle": "Solicitação de pagamento de ",
+        "requestTitle": "Solicitação recebida para {{amount}}",
         "send": "Aprovar"
       },
       "viewAllGiftCards": {

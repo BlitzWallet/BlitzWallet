@@ -1095,7 +1095,7 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} Ihre Anfrage",
         "acceptProfileMessage": "{{name}}'s Anfrage bezahlt",
         "acceptPayingContactMessage": "{{name}} hat Ihre Anfrage bezahlt",
-        "requestTitle": "Erhaltene Anfrage für ",
+        "requestTitle": "Anfrage über {{amount}} erhalten",
         "send": "Senden"
       },
       "viewAllGiftCards": {
