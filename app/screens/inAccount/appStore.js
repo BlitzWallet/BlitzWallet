@@ -62,8 +62,8 @@ export default function AppStore({ navigation }) {
       (appElementWidth / localScreenWidth) * 100
     }%`;
 
-    if (hideGenerativeAI && app.pageName.toLowerCase() === 'ai') return;
-    else if (!hideGenerativeAI && app.pageName.toLowerCase() === 'soon') return;
+    // if (hideGenerativeAI && app.pageName.toLowerCase() === 'ai') return;
+    // else if (!hideGenerativeAI && app.pageName.toLowerCase() === 'soon') return;
 
     return (
       <TouchableOpacity

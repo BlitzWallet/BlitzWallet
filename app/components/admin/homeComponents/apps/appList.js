@@ -14,12 +14,12 @@ const APPLIST = [
     description: 'apps.appList.SMSDescription',
     pageName: 'sms4sats',
   },
-  {
-    name: 'apps.appList.VPN',
-    svgName: 'shield',
-    description: 'apps.appList.VPNDescription',
-    pageName: 'lnvpn',
-  },
+  // {
+  //   name: 'apps.appList.VPN',
+  //   svgName: 'shield',
+  //   description: 'apps.appList.VPNDescription',
+  //   pageName: 'lnvpn',
+  // },
   {
     name: 'apps.appList.onlineListings',
     svgName: 'globeIcon',
