@@ -284,7 +284,8 @@ export const GlobalContactsList = ({ children }) => {
   useEffect(() => {
     if (!Object.keys(globalContactsInformation).length) return;
     if (!contactsPrivateKey) return;
-    const now = new Date().getTime();
+    // Set timestamp to 30 seconds ago to account for any clock skew
+    const now = new Date().getTime() - 30 * 1000; // 30 seconds ago
 
     // Unsubscribe from previous listeners before setting new ones
     if (unsubscribeMessagesRef.current) {
