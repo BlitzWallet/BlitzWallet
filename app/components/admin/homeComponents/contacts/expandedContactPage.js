@@ -72,7 +72,7 @@ export default function ExpandedContactsPage(props) {
     async function updateSeenTransactions() {
       const newMessagesList = [];
       let consecutiveSeenCount = 0;
-      const REQUIRED_CONSECUTIVE_SEEN = 5;
+      const REQUIRED_CONSECUTIVE_SEEN = 100;
 
       for (let i = 0; i < contactTransactions.length; i++) {
         const msg = contactTransactions[i];
