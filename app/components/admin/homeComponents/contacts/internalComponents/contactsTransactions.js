@@ -19,6 +19,8 @@ import { getTimeDisplay } from '../../../../../functions/contacts';
 import getReceiveAddressAndContactForContactsPayment from './getReceiveAddressAndKindForPayment';
 import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
 import { getTransactionContent } from '../contactsPageComponents/transactionText';
+import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
 
 function ConfirmedOrSentTransaction({
   txParsed,
@@ -106,6 +108,7 @@ function ConfirmedOrSentTransaction({
                 : COLORS.cancelRed
               : textColor,
             marginRight: 15,
+            includeFontPadding: false,
           }}
           content={getTransactionContent({
             paymentDescription,
@@ -122,6 +125,7 @@ function ConfirmedOrSentTransaction({
                 ? textColor
                 : COLORS.cancelRed
               : textColor,
+            includeFontPadding: false,
           }}
           content={getTimeDisplay(
             timeDifferenceMinutes,
@@ -164,6 +168,7 @@ export default function ContactsTransactionItem(props) {
   const { selectedContact, transaction, myProfile, currentTime, imageData } =
     props;
   const { t } = useTranslation();
+  const { fiatStats } = useNodeContext();
   const { masterInfoObject } = useGlobalContextProvider();
   const { contactsPrivateKey, publicKey } = useKeysContext();
   const { theme, darkModeType } = useGlobalThemeContext();
@@ -435,19 +440,20 @@ export default function ContactsTransactionItem(props) {
           />
 
           <View style={{ width: '100%', flex: 1 }}>
-            <FormattedSatText
-              frontText={t(
+            <ThemeText
+              styles={{ includeFontPadding: false }}
+              content={t(
                 'contacts.internalComponents.contactsTransactions.requestTitle',
+                {
+                  amount: displayCorrectDenomination({
+                    amount: txParsed.amountMsat / 1000,
+                    masterInfoObject,
+                    fiatStats,
+                    useMillionDenomination: true,
+                  }),
+                },
               )}
-              neverHideBalance={true}
-              containerStyles={styles.requestTextContainer}
-              styles={{
-                color: theme ? COLORS.darkModeText : COLORS.lightModeText,
-                includeFontPadding: false,
-              }}
-              balance={txParsed.amountMsat / 1000}
             />
-
             <ThemeText
               styles={{
                 ...styles.dateText,
@@ -530,12 +536,6 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginRight: 5,
-  },
-  requestTextContainer: {
-    marginRight: 'auto',
-    width: '100%',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
   },
   descriptionText: {
     fontSize: SIZES.medium,

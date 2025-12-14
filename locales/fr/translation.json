@@ -1007,6 +1007,8 @@
   },
   "contacts": {
     "contactsPage": {
+      "contactsHeader": "Contacts",
+      "addContactsText": "Ajouter un contact",
       "searchContactsPlaceholder": "Rechercher les contacts ajoutés",
       "noContactsMessage": "Vous n'avez pas de contacts",
       "editContactProfileMessage": "Modifiez votre profil pour commencer à utiliser les contacts.",
@@ -1093,7 +1095,7 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} votre demande",
         "acceptProfileMessage": "Paiement de la demande de {{name}}",
         "acceptPayingContactMessage": "{{name}} payé votre demande",
-        "requestTitle": "Réception d'une demande de ",
+        "requestTitle": "Demande reçue pour {{amount}}",
         "send": "Envoyer"
       },
       "viewAllGiftCards": {

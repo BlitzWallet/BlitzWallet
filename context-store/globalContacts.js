@@ -111,7 +111,7 @@ export const GlobalContactsList = ({ children }) => {
           retrivedContact.uuid !== globalContactsInformation.myProfile.uuid,
       )
       .map(retrivedContact => ({
-        bio: retrivedContact.contacts.myProfile.bio || 'No bio',
+        bio: retrivedContact.contacts.myProfile.bio || '',
         isFavorite: false,
         name: retrivedContact.contacts.myProfile.name,
         receiveAddress: retrivedContact.contacts.myProfile.receiveAddress,
@@ -284,7 +284,8 @@ export const GlobalContactsList = ({ children }) => {
   useEffect(() => {
     if (!Object.keys(globalContactsInformation).length) return;
     if (!contactsPrivateKey) return;
-    const now = new Date().getTime();
+    // Set timestamp to 30 seconds ago to account for any clock skew
+    const now = new Date().getTime() - 30 * 1000; // 30 seconds ago
 
     // Unsubscribe from previous listeners before setting new ones
     if (unsubscribeMessagesRef.current) {

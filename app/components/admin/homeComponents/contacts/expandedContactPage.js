@@ -70,22 +70,29 @@ export default function ExpandedContactsPage(props) {
   useEffect(() => {
     //listening for messages when you're on the contact
     async function updateSeenTransactions() {
-      const hasUnlookedTransaction = contactTransactions.filter(
-        globalMessage => {
-          return !globalMessage.message.wasSeen;
-        },
-      );
+      const newMessagesList = [];
+      let consecutiveSeenCount = 0;
+      const REQUIRED_CONSECUTIVE_SEEN = 5;
 
-      if (!hasUnlookedTransaction.length) return;
+      for (let i = 0; i < contactTransactions.length; i++) {
+        const msg = contactTransactions[i];
 
-      let newMessagesList = [];
-
-      for (const savedMessage of hasUnlookedTransaction) {
-        newMessagesList.push({
-          ...savedMessage,
-          message: { ...savedMessage.message, wasSeen: true },
-        });
+        if (msg.message.wasSeen) {
+          consecutiveSeenCount++;
+          if (consecutiveSeenCount >= REQUIRED_CONSECUTIVE_SEEN) {
+            break;
+          }
+        } else {
+          consecutiveSeenCount = 0;
+          newMessagesList.push({
+            ...msg,
+            message: { ...msg.message, wasSeen: true },
+          });
+        }
       }
+
+      if (!newMessagesList.length) return;
+
       queueSetCashedMessages({
         newMessagesList,
         myPubKey: globalContactsInformation.myProfile.uuid,

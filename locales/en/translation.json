@@ -1017,6 +1017,8 @@
 
   "contacts": {
     "contactsPage": {
+      "contactsHeader": "Contacts",
+      "addContactsText": "Add Contact",
       "searchContactsPlaceholder": "Search added contacts",
       "noContactsMessage": "You have no contacts",
       "editContactProfileMessage": "Edit your profile to begin using contacts.",
@@ -1107,7 +1109,7 @@
         "pushNotificationUpdateMessage": "{{name}} {{option}} your request",
         "acceptProfileMessage": "Paid {{name}}'s request",
         "acceptPayingContactMessage": "{{name}} paid your request",
-        "requestTitle": "Received request for ",
+        "requestTitle": "Received request for {{amount}}",
         "send": "Send"
       },
       "viewAllGiftCards": {

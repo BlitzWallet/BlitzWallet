@@ -74,11 +74,12 @@ export default function ContactsPage({ navigation }) {
     decodedAddedContacts,
     contactsMessags,
   );
-  const filteredContacts = useFilteredContacts(
-    contactInfoList,
-    inputText.trim(),
-    hideUnknownContacts,
-  );
+  const filteredContacts =
+    useFilteredContacts(
+      contactInfoList,
+      inputText.trim(),
+      hideUnknownContacts,
+    ) ?? [];
 
   const profileContainerStyle = useMemo(
     () => ({
@@ -104,35 +105,53 @@ export default function ContactsPage({ navigation }) {
     [contactInfoList, bottomPadding],
   );
 
+  const showAddContactRowItem =
+    !contactInfoList?.length ||
+    filteredContacts?.length ||
+    (contactInfoList?.length &&
+      !filteredContacts?.length &&
+      !inputText?.trim()?.length);
+
   const navigateToExpandedContact = useCallback(
     async contact => {
-      crashlyticsLogReport('Navigating to expanded contact from contacts page');
-      if (!contact.isAdded) {
-        let newAddedContacts = [...decodedAddedContacts];
-        const indexOfContact = decodedAddedContacts.findIndex(
-          obj => obj.uuid === contact.uuid,
+      try {
+        crashlyticsLogReport(
+          'Navigating to expanded contact from contacts page',
         );
+        if (!contact.isAdded) {
+          let newAddedContacts = [...decodedAddedContacts];
+          const indexOfContact = decodedAddedContacts.findIndex(
+            obj => obj.uuid === contact.uuid,
+          );
 
-        let newContact = newAddedContacts[indexOfContact];
-        newContact['isAdded'] = true;
+          let newContact = newAddedContacts[indexOfContact];
+          newContact['isAdded'] = true;
 
-        toggleGlobalContactsInformation(
-          {
-            myProfile: { ...globalContactsInformation.myProfile },
-            addedContacts: encriptMessage(
-              contactsPrivateKey,
-              publicKey,
-              JSON.stringify(newAddedContacts),
-            ),
-          },
-          true,
-        );
-      }
-      requestAnimationFrame(() => {
-        navigate.navigate('ExpandedContactsPage', {
-          uuid: contact.uuid,
+          toggleGlobalContactsInformation(
+            {
+              myProfile: { ...globalContactsInformation.myProfile },
+              addedContacts: encriptMessage(
+                contactsPrivateKey,
+                publicKey,
+                JSON.stringify(newAddedContacts),
+              ),
+            },
+            true,
+          );
+        }
+        requestAnimationFrame(() => {
+          navigate.navigate('ExpandedContactsPage', {
+            uuid: contact.uuid,
+          });
         });
-      });
+      } catch (err) {
+        console.log('error navigating to expanded contact', err);
+        requestAnimationFrame(() => {
+          navigate.navigate('ExpandedContactsPage', {
+            uuid: contact.uuid,
+          });
+        });
+      }
     },
     [
       decodedAddedContacts,
@@ -177,7 +196,7 @@ export default function ContactsPage({ navigation }) {
     console.log('RERENDERING CONTACTS ELEMENTS');
     console.log('_------------------------------');
     const currentTime = getServerTime();
-    return filteredContacts.map(item => (
+    let contacts = filteredContacts.map((item, index) => (
       <ContactElement
         key={item.contact.uuid}
         contact={item.contact}
@@ -194,8 +213,24 @@ export default function ContactsPage({ navigation }) {
         currentTime={currentTime}
         serverTimeOffset={serverTimeOffset}
         t={t}
+        isLastElement={index === filteredContacts.length - 1}
       />
     ));
+    if (showAddContactRowItem) {
+      contacts.unshift(
+        <AddContactRowItem
+          key={'add-cotnacts-row-item'}
+          theme={theme}
+          darkModeType={darkModeType}
+          backgroundOffset={backgroundOffset}
+          isConnectedToTheInternet={isConnectedToTheInternet}
+          navigate={navigate}
+          numberOfContacts={filteredContacts?.length}
+          t={t}
+        />,
+      );
+    }
+    return contacts;
   }, [
     filteredContacts,
     cache,
@@ -207,23 +242,9 @@ export default function ContactsPage({ navigation }) {
     navigate,
     getServerTime,
     serverTimeOffset,
+    showAddContactRowItem,
     t,
   ]);
-
-  const goToAddContact = useCallback(() => {
-    if (!isConnectedToTheInternet) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('errormessages.nointernet'),
-      });
-    } else {
-      keyboardNavigate(() =>
-        navigate.navigate('CustomHalfModal', {
-          wantedContent: 'addContacts',
-          sliderHight: 0.4,
-        }),
-      );
-    }
-  }, [isConnectedToTheInternet, navigate]);
 
   const goToMyProfile = useCallback(() => {
     keyboardNavigate(() => navigate.navigate('SettingsHome', {}));
@@ -288,32 +309,29 @@ export default function ContactsPage({ navigation }) {
             }
             style={[
               memoizedStyles.giftContainer,
-              { backgroundColor: backgroundOffset },
+              {
+                backgroundColor: theme ? backgroundOffset : COLORS.primary,
+                zIndex: 99,
+              },
             ]}
           >
-            <ThemeText
-              CustomNumberOfLines={1}
-              styles={memoizedStyles.giftText}
-              content={t('wallet.contactsPage.giftsText')}
+            <ThemeImage
+              styles={{
+                width: 18,
+                height: 18,
+                tintColor:
+                  theme && !darkModeType ? COLORS.primary : COLORS.darkModeText,
+              }}
+              lightModeIcon={ICONS.giftCardIcon}
+              darkModeIcon={ICONS.giftCardIcon}
+              lightsOutIcon={ICONS.giftCardIcon}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={goToAddContact}>
-            <Icon
-              name={'addContactsIcon'}
-              width={30}
-              height={30}
-              color={
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-              }
-              offsetColor={
-                theme
-                  ? darkModeType
-                    ? COLORS.lightsOutBackground
-                    : COLORS.darkModeBackground
-                  : COLORS.lightModeBackground
-              }
-            />
-          </TouchableOpacity>
+          <ThemeText
+            CustomNumberOfLines={1}
+            content={t('contacts.contactsPage.contactsHeader')}
+            styles={memoizedStyles.headerText}
+          />
           <TouchableOpacity onPress={goToMyProfile}>
             <View
               style={[
@@ -446,7 +464,7 @@ const PinnedContactElement = memo(
         ...memoizedStyles.pinnedContact,
         width: containerSize,
       }),
-      [backgroundOffset],
+      [containerSize],
     );
 
     const imageContainerStyle = useMemo(
@@ -470,7 +488,7 @@ const PinnedContactElement = memo(
       return {
         maxWidth: containerSize - (hasUnlookedTransaction ? 25 : 0),
       };
-    }, [containerSize]);
+    }, [containerSize, hasUnlookedTransaction]);
 
     const notificationStyle = useMemo(
       () => ({
@@ -478,8 +496,7 @@ const PinnedContactElement = memo(
         backgroundColor:
           darkModeType && theme ? COLORS.darkModeText : COLORS.primary,
         position: 'absolute',
-        left: '50%',
-        transform: [{ translateX: -(textWidth / 2 + 5 + 10) }],
+        transform: [{ translateX: -(textWidth / 2 + 5 + 2) }],
       }),
       [darkModeType, theme, textWidth],
     );
@@ -521,10 +538,7 @@ const PinnedContactElement = memo(
             <ThemeText
               CustomEllipsizeMode="tail"
               CustomNumberOfLines={1}
-              styles={{
-                fontSize: SIZES.small,
-                textAlign: 'center',
-              }}
+              styles={memoizedStyles.pinnedContactName}
               content={formatDisplayName(contact)}
             />
           </View>
@@ -550,6 +564,7 @@ const ContactElement = memo(
     currentTime,
     serverTimeOffset,
     t,
+    isLastElement,
   }) => {
     const imageContainerStyle = useMemo(
       () => ({
@@ -594,7 +609,13 @@ const ContactElement = memo(
 
     return (
       <TouchableOpacity
-        style={memoizedStyles.contactRowContainer}
+        style={[
+          memoizedStyles.contactRowContainer,
+          !isLastElement && {
+            borderBottomWidth: 1,
+            borderBottomColor: backgroundOffset,
+          },
+        ]}
         onLongPress={handleLongPress}
         onPress={handlePress}
       >
@@ -608,49 +629,126 @@ const ContactElement = memo(
         </View>
         <View style={memoizedStyles.globalContainer}>
           <View style={memoizedStyles.contactsRowInlineStyle}>
-            <ThemeText
-              CustomEllipsizeMode="tail"
-              CustomNumberOfLines={1}
-              styles={{ flex: 1, marginRight: 5 }}
-              content={formatDisplayName(contact)}
-            />
+            <View style={memoizedStyles.rowNameAndUnkonwnContainer}>
+              <ThemeText
+                CustomEllipsizeMode="tail"
+                CustomNumberOfLines={1}
+                styles={{
+                  includeFontPadding: false,
+                  flexShrink: 1,
+                }}
+                content={formatDisplayName(contact)}
+              />
+              {!contact.isAdded && (
+                <ThemeText
+                  CustomEllipsizeMode="tail"
+                  CustomNumberOfLines={1}
+                  styles={{
+                    flexShrink: 1,
+                    fontSize: SIZES.small,
+                    color:
+                      darkModeType && theme
+                        ? COLORS.darkModeText
+                        : COLORS.primary,
+                    includeFontPadding: false,
+                  }}
+                  content={t('contacts.contactsPage.unknownSender')}
+                />
+              )}
+            </View>
+
             {hasUnlookedTransaction && <View style={notificationStyle} />}
             <ThemeText
-              styles={{ fontSize: SIZES.small, marginRight: 5 }}
+              styles={memoizedStyles.contactDateText}
               content={formattedDate}
             />
             <ThemeImage
-              styles={{
-                width: 20,
-                height: 20,
-                transform: [{ rotate: '180deg' }],
-              }}
+              styles={memoizedStyles.contactArrowIcon}
               darkModeIcon={ICONS.leftCheveronIcon}
               lightModeIcon={ICONS.leftCheveronIcon}
               lightsOutIcon={ICONS.left_cheveron_white}
             />
           </View>
 
-          <View style={memoizedStyles.contactsRowInlineStyle}>
-            <ThemeText
-              CustomNumberOfLines={2}
-              styles={{ fontSize: SIZES.small, flexShrink: 1, marginRight: 10 }}
-              content={lastUpdated ? formatMessage(firstMessage) || ' ' : ' '}
-            />
-            {!contact.isAdded && (
+          {!!formatMessage(firstMessage) && (
+            <View style={memoizedStyles.contactsRowInlineStyle}>
               <ThemeText
-                styles={{
-                  fontSize: SIZES.small,
-                  color:
-                    darkModeType && theme
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                  marginLeft: 'auto',
-                }}
-                content={t('contacts.contactsPage.unknownSender')}
+                CustomNumberOfLines={2}
+                styles={{ fontSize: SIZES.small, flexShrink: 1 }}
+                content={formatMessage(firstMessage)}
               />
-            )}
-          </View>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  },
+);
+
+const AddContactRowItem = memo(
+  ({
+    darkModeType,
+    theme,
+    backgroundOffset,
+    t,
+    isConnectedToTheInternet,
+    navigate,
+    numberOfContacts,
+  }) => {
+    const goToAddContact = useCallback(() => {
+      if (!isConnectedToTheInternet) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('errormessages.nointernet'),
+        });
+      } else {
+        keyboardNavigate(() =>
+          navigate.navigate('CustomHalfModal', {
+            wantedContent: 'addContacts',
+            sliderHight: 0.4,
+          }),
+        );
+      }
+    }, [isConnectedToTheInternet, navigate]);
+
+    const imageContainerStyle = useMemo(
+      () => ({
+        ...memoizedStyles.contactImageContainer,
+        backgroundColor:
+          theme && darkModeType ? backgroundOffset : COLORS.primary,
+      }),
+      [backgroundOffset, theme, darkModeType],
+    );
+
+    return (
+      <TouchableOpacity
+        style={[
+          memoizedStyles.contactRowContainer,
+          numberOfContacts && {
+            borderBottomWidth: 1,
+            borderBottomColor: backgroundOffset,
+          },
+        ]}
+        onPress={goToAddContact}
+        key={'Add-contacts-row-item'}
+      >
+        <View style={imageContainerStyle}>
+          <ThemeImage
+            styles={memoizedStyles.addContactIcon}
+            lightModeIcon={ICONS.xSmallIconWhite}
+            darkModeIcon={ICONS.xSmallIconWhite}
+            lightsOutIcon={ICONS.xSmallIconWhite}
+          />
+        </View>
+        <View style={memoizedStyles.globalContainer}>
+          <ThemeText
+            CustomEllipsizeMode="tail"
+            CustomNumberOfLines={1}
+            styles={{
+              color: theme ? COLORS.darkModeText : COLORS.primary,
+              includeFontPadding: false,
+            }}
+            content={t('contacts.contactsPage.addContactsText')}
+          />
         </View>
       </TouchableOpacity>
     );
@@ -660,6 +758,14 @@ const ContactElement = memo(
 const memoizedStyles = StyleSheet.create({
   globalContainer: {
     flex: 1,
+  },
+  headerText: {
+    flexShrink: 1,
+    width: '100%',
+    textAlign: 'center',
+    fontSize: SIZES.large,
+    paddingHorizontal: 90,
+    position: 'absolute',
   },
   contactsPageWithContactsScrollview: {
     flex: 1,
@@ -706,6 +812,7 @@ const memoizedStyles = StyleSheet.create({
   },
   pinnedContact: {
     alignItems: 'center',
+    paddingVertical: 10,
   },
   pinnedContactsContainer: {
     flexDirection: 'row',
@@ -719,6 +826,11 @@ const memoizedStyles = StyleSheet.create({
     justifyContent: 'center',
   },
 
+  pinnedContactName: {
+    fontSize: SIZES.small,
+    flexShrink: 1,
+    includeFontPadding: false,
+  },
   pinnedContactImageContainer: {
     width: '100%',
     height: '100%',
@@ -729,12 +841,27 @@ const memoizedStyles = StyleSheet.create({
   },
 
   contactRowContainer: {
-    width: '100%',
+    width: '95%',
     flexDirection: 'row',
     alignItems: 'center',
 
     ...CENTER,
-    marginTop: 10,
+    paddingVertical: 10,
+  },
+  rowNameAndUnkonwnContainer: {
+    flexDirection: 'column',
+    flexGrow: 1,
+    marginRight: 5,
+  },
+  contactDateText: {
+    fontSize: SIZES.small,
+    marginRight: 5,
+    includeFontPadding: false,
+  },
+  contactArrowIcon: {
+    width: 20,
+    height: 20,
+    transform: [{ rotate: '180deg' }],
   },
   contactsRowInlineStyle: {
     width: '100%',
@@ -755,13 +882,11 @@ const memoizedStyles = StyleSheet.create({
   giftContainer: {
     flexShrink: 1,
     height: 35,
-    // paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
+    width: 35,
+    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 'auto',
   },
   giftText: {
     flexShrink: 1,
@@ -783,6 +908,6 @@ const memoizedStyles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.6,
     marginBottom: 24,
-    // Add your theme color
   },
+  addContactIcon: { transform: [{ rotate: '45deg' }], width: 25, height: 25 },
 });

@@ -63,5 +63,5 @@ export function createFormattedDate(time, currentTime, t) {
 }
 
 export function formatMessage(message) {
-  return message?.message?.description || ' ';
+  return message?.message?.description;
 }

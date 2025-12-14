@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -6,9 +6,9 @@ import {
 import CustomSettingsTopBar from '../../../../../../functions/CustomElements/settingsTopBar';
 import CustomSearchInput from '../../../../../../functions/CustomElements/searchInput';
 import CustomButton from '../../../../../../functions/CustomElements/button';
-import {useMemo, useState} from 'react';
-import {useGlobalContextProvider} from '../../../../../../../context-store/context';
-import {useNavigation} from '@react-navigation/native';
+import { useMemo, useState } from 'react';
+import { useGlobalContextProvider } from '../../../../../../../context-store/context';
+import { useNavigation } from '@react-navigation/native';
 import GetThemeColors from '../../../../../../hooks/themeColors';
 import {
   CENTER,
@@ -17,21 +17,22 @@ import {
   ICONS,
   SIZES,
 } from '../../../../../../constants';
-import {formatCurrency} from '../../../../../../functions/formatCurrency';
+import { formatCurrency } from '../../../../../../functions/formatCurrency';
 import ThemeImage from '../../../../../../functions/CustomElements/themeImage';
 import Icon from '../../../../../../functions/CustomElements/Icon';
-import {useGlobalThemeContext} from '../../../../../../../context-store/theme';
-import {useTranslation} from 'react-i18next';
+import { useGlobalThemeContext } from '../../../../../../../context-store/theme';
+import { useTranslation } from 'react-i18next';
 
 export default function AddPOSItemsPage() {
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { masterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const [posItemSearch, setPosItemSearch] = useState('');
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
   const navigate = useNavigation();
   const posItems = masterInfoObject.posSettings.items || [];
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
   const currentCurrency = masterInfoObject.posSettings?.storeCurrency;
 
   const removePOSItem = itemUUID => {
@@ -42,7 +43,7 @@ export default function AddPOSItemsPage() {
     );
     posObject.items = newItemArray;
 
-    toggleMasterInfoObject({posSettings: posObject});
+    toggleMasterInfoObject({ posSettings: posObject });
   };
 
   const formattedElements = useMemo(() => {
@@ -56,11 +57,12 @@ export default function AddPOSItemsPage() {
               ...styles.posItemContainer,
               backgroundColor: backgroundOffset,
             }}
-            key={item.uuid}>
-            <View style={{flex: 1, marginRight: 10}}>
+            key={item.uuid}
+          >
+            <View style={{ flex: 1, marginRight: 10 }}>
               <ThemeText styles={styles.posItemName} content={item.name} />
               <ThemeText
-                styles={{includeFontPadding: false}}
+                styles={{ includeFontPadding: false }}
                 content={
                   formatCurrency({
                     amount: item.price.toFixed(2),
@@ -95,7 +97,8 @@ export default function AddPOSItemsPage() {
                     wantedContent: 'addPOSItemsHalfModal',
                     initialSettings: item,
                   })
-                }>
+                }
+              >
                 <Icon
                   color={
                     theme && darkModeType ? COLORS.darkModeText : COLORS.primary
@@ -113,7 +116,8 @@ export default function AddPOSItemsPage() {
                       'settings.posPath.items.addPOSItemsPage.deleteItemMessage',
                     ),
                   });
-                }}>
+                }}
+              >
                 <ThemeImage
                   lightModeIcon={ICONS.trashIcon}
                   darkModeIcon={ICONS.trashIcon}
@@ -132,7 +136,8 @@ export default function AddPOSItemsPage() {
       isKeyboardActive={isKeyboardActive}
       useLocalPadding={true}
       useTouchableWithoutFeedback={true}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+    >
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
         label={t('settings.posPath.items.addPOSItemsPage.title')}
@@ -142,11 +147,12 @@ export default function AddPOSItemsPage() {
         stickyHeaderIndices={[0]}
         contentContainerStyle={{
           paddingTop: 10,
-        }}>
+        }}
+      >
         <CustomSearchInput
           inputText={posItemSearch}
           setInputText={setPosItemSearch}
-          containerStyles={{...styles.searchInput, backgroundColor}}
+          containerStyles={{ ...styles.searchInput, backgroundColor }}
           placeholderText={t(
             'settings.posPath.items.addPOSItemsPage.itemSearchPlaceholder',
           )}
@@ -156,11 +162,11 @@ export default function AddPOSItemsPage() {
         {formattedElements.length ? (
           formattedElements
         ) : (
-          <View style={{marginTop: 20, alignItems: 'center'}}>
+          <View style={{ marginTop: 20, alignItems: 'center' }}>
             <ThemeText
-              styles={{width: '90%', textAlign: 'center'}}
+              styles={{ width: '90%', textAlign: 'center' }}
               content={
-                posItems
+                posItems?.length
                   ? t('settings.posPath.items.addPOSItemsPage.noItemsSearch')
                   : t('settings.posPath.items.addPOSItemsPage.noItemsAdded')
               }

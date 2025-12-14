@@ -1015,6 +1015,8 @@
 
   "contacts": {
     "contactsPage": {
+      "contactsHeader": "Contatos",
+      "addContactsText": "Adicionar contato",
       "searchContactsPlaceholder": "Pesquisar contatos adicionados",
       "noContactsMessage": "Você não tem contatos",
       "editContactProfileMessage": "Edite seu perfil para começar a usar contatos.",
@@ -1103,9 +1105,9 @@
       },
       "contactsTransactions": {
         "pushNotificationUpdateMessage": "{{name}} {{option}} seu pedido",
-        "acceptProfileMessage": "Solicitação de {{name}}'s paga",
+        "acceptProfileMessage": "Solicitação de {{name}} paga",
         "acceptPayingContactMessage": "Você pagou a solicitação de {{name}}",
-        "requestTitle": "Solicitação de pagamento de ",
+        "requestTitle": "Solicitação de pagamento de {{amount}}",
         "send": "Aprovar"
       },
       "viewAllGiftCards": {
