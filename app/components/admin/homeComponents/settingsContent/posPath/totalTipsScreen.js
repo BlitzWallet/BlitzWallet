@@ -443,6 +443,7 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
     marginRight: 'auto',
     marginLeft: 10,
+    includeFontPadding: false,
     flexShrink: 1,
   },
   attributeContainer: {
