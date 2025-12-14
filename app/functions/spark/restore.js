@@ -30,13 +30,76 @@ import {
 import { transformTxToPaymentObject } from './transformTxToPayment';
 import sha256Hash from '../hash';
 
-export const restoreSparkTxState = async (
+const RESTORE_STATE_KEY = 'spark_tx_restore_state';
+const MAX_BATCH_SIZE = 400;
+const DEFAULT_BATCH_SIZE = 5;
+const INCREMENTAL_SAVE_THRESHOLD = 200;
+
+/**
+ * Get the current restore state for an account
+ */
+async function getRestoreState(accountId, numSavedTxs) {
+  try {
+    const stateJson = await getLocalStorageItem(
+      `${RESTORE_STATE_KEY}_${accountId}`,
+    );
+
+    if (!stateJson) {
+      // We assume if a user has over 400 saved txs, they are fully restored
+      return {
+        isFullyRestored: numSavedTxs > 400 ? true : false,
+        lastProcessedOffset: 0,
+        lastProcessedTxId: null,
+        restoredTxCount: 0,
+      };
+    }
+    return JSON.parse(stateJson);
+  } catch (error) {
+    console.error('Error getting restore state:', error);
+    return {
+      isFullyRestored: false,
+      lastProcessedOffset: 0,
+      lastProcessedTxId: null,
+      restoredTxCount: 0,
+    };
+  }
+}
+
+/**
+ * Update the restore state for an account
+ */
+async function updateRestoreState(accountId, state) {
+  try {
+    await setLocalStorageItem(
+      `${RESTORE_STATE_KEY}_${accountId}`,
+      JSON.stringify(state),
+    );
+  } catch (error) {
+    console.error('Error updating restore state:', error);
+  }
+}
+
+/**
+ * Mark restoration as complete for an account
+ */
+async function markRestoreComplete(accountId) {
+  await updateRestoreState(accountId, {
+    isFullyRestored: true,
+    lastProcessedOffset: 0,
+    lastProcessedTxId: null,
+    restoredTxCount: 0,
+    completedAt: Date.now(),
+  });
+}
+
+const restoreSparkTxState = async (
   BATCH_SIZE,
   identityPubKey,
   isSendingPayment,
   mnemonic,
   accountId,
   sendWebViewRequest,
+  onProgressSave = null,
 ) => {
   const restoredTxs = [];
 
@@ -52,10 +115,80 @@ export const restoreSparkTxState = async (
       lightning: pendingTxs.filter(tx => tx.paymentType === 'lightning'),
       bitcoin: pendingTxs.filter(tx => tx.paymentType === 'bitcoin'),
     };
+    const restoreState = await getRestoreState(accountId, savedIds.size);
 
-    let offset = 0;
-    let localBatchSize = !savedIds.size ? 100 : BATCH_SIZE;
+    const isRestoring = !restoreState.isFullyRestored;
+    let offset = isRestoring ? restoreState.lastProcessedOffset : 0;
+    const localBatchSize = isRestoring ? MAX_BATCH_SIZE : BATCH_SIZE;
+
+    console.log(
+      `Restore mode: ${
+        isRestoring ? 'ACTIVE' : 'NORMAL'
+      }, batch size: ${localBatchSize}`,
+    );
+
     const donationPubKey = process.env.BLITZ_SPARK_PUBLICKEY;
+
+    const newTxsAtFront = [];
+    if (isRestoring && offset > 0) {
+      console.log('Checking for new transactions at the front...');
+      try {
+        const recentTxs = await getSparkTransactions(BATCH_SIZE, 0, mnemonic);
+        const recentBatch = recentTxs.transfers || [];
+
+        for (const tx of recentBatch) {
+          if (savedIds.has(tx.id)) break;
+          // Filter donations and active sends
+          if (
+            tx.transferDirection === 'OUTGOING' &&
+            tx.receiverIdentityPublicKey === donationPubKey
+          ) {
+            continue;
+          }
+          if (tx.transferDirection === 'OUTGOING' && isSendingPayment) continue;
+
+          const type = sparkPaymentType(tx);
+
+          // Check against pending transactions
+          if (type === 'bitcoin') {
+            const duplicate = txsByType.bitcoin.find(item => {
+              const details = JSON.parse(item.details);
+              return (
+                tx.transferDirection === details.direction &&
+                tx.totalValue === details.amount &&
+                details.time - new Date(tx.createdTime) < 1000 * 60 * 10
+              );
+            });
+            if (duplicate) continue;
+          } else if (type === 'lightning') {
+            const duplicate = txsByType.lightning.find(item => {
+              const details = JSON.parse(item.details);
+              return (
+                tx.transferDirection === details.direction &&
+                details?.createdAt - new Date(tx.createdTime) < 1000 * 30
+              );
+            });
+            if (duplicate) continue;
+          }
+
+          newTxsAtFront.push(tx);
+        }
+
+        if (newTxsAtFront.length > 0) {
+          console.log(
+            `Found ${newTxsAtFront.length} new transactions at the front`,
+          );
+          restoredTxs.push(...newTxsAtFront);
+          // Add these new tx IDs to savedIds to avoid duplicates
+          newTxsAtFront.forEach(tx => savedIds.add(tx.id));
+        }
+      } catch (error) {
+        console.error('Error checking for new transactions:', error);
+      }
+    }
+
+    let batchCounter = 0;
+    let foundOverlap = false;
 
     while (true) {
       const txs = await getSparkTransactions(localBatchSize, offset, mnemonic);
@@ -64,11 +197,11 @@ export const restoreSparkTxState = async (
 
       if (!batchTxs.length) {
         console.log('No more transactions found, ending restore.');
+        await markRestoreComplete(accountId);
         break;
       }
 
       // Process batch and check for overlap simultaneously
-      let foundOverlap = false;
       const newBatchTxs = [];
       for (const tx of batchTxs) {
         // Check for overlap first (most likely to break early)
@@ -121,8 +254,27 @@ export const restoreSparkTxState = async (
 
       // Add filtered transactions to result
       restoredTxs.push(...newBatchTxs);
+      batchCounter++;
+
+      if (isRestoring && restoredTxs.length >= INCREMENTAL_SAVE_THRESHOLD) {
+        console.log(`Incremental save: ${restoredTxs.length} transactions`);
+
+        await updateRestoreState(accountId, {
+          isFullyRestored: false,
+          lastProcessedOffset: offset + localBatchSize,
+          lastProcessedTxId: newBatchTxs[newBatchTxs.length - 1]?.id || null,
+          restoredTxCount: restoreState.restoredTxCount + restoredTxs.length,
+        });
+
+        if (onProgressSave) {
+          await onProgressSave(restoredTxs.slice());
+        }
+
+        restoredTxs.length = 0;
+      }
 
       if (foundOverlap) {
+        await markRestoreComplete(accountId);
         break;
       }
 
@@ -131,10 +283,13 @@ export const restoreSparkTxState = async (
 
     console.log(`Total restored transactions: ${restoredTxs.length}`);
 
-    return { txs: restoredTxs };
+    return {
+      txs: restoredTxs,
+      isRestoreComplete: !isRestoring || foundOverlap,
+    };
   } catch (error) {
     console.error('Error in spark restore history state:', error);
-    return { txs: [] };
+    return { txs: [], isRestoreComplete: false };
   }
 };
 
@@ -184,7 +339,7 @@ async function processTransactionChunk(
 let isRestoringState = false;
 export async function fullRestoreSparkState({
   sparkAddress,
-  batchSize = 50,
+  batchSize = DEFAULT_BATCH_SIZE,
   chunkSize = 100,
   maxConcurrentChunks = 3, // Reduced for better responsiveness
   yieldInterval = 50, // Yield every N milliseconds
@@ -202,6 +357,49 @@ export async function fullRestoreSparkState({
     }
     isRestoringState = true;
     console.log('running');
+
+    const handleProgressSave = async txBatch => {
+      if (!txBatch.length) return;
+
+      const [unpaidInvoices, unpaidContactInvoices] = await Promise.all([
+        getAllUnpaidSparkLightningInvoices(),
+        getAllSparkContactInvoices(),
+      ]);
+
+      const paymentObjects = [];
+      for (const tx of txBatch) {
+        try {
+          const paymentObject = await transformTxToPaymentObject(
+            tx,
+            sparkAddress,
+            undefined,
+            true,
+            unpaidInvoices,
+            identityPubKey,
+            txBatch.length,
+            undefined,
+            unpaidContactInvoices,
+          );
+          if (paymentObject) {
+            paymentObjects.push(paymentObject);
+          }
+        } catch (err) {
+          console.error(
+            'Error transforming tx during incremental save:',
+            tx.id,
+            err,
+          );
+        }
+      }
+
+      if (paymentObjects.length) {
+        await bulkUpdateSparkTransactions(paymentObjects, 'incrementalRestore');
+        console.log(
+          `Incrementally saved ${paymentObjects.length} transactions`,
+        );
+      }
+    };
+
     const restored = await restoreSparkTxState(
       batchSize,
       identityPubKey,
@@ -209,6 +407,7 @@ export async function fullRestoreSparkState({
       mnemonic,
       identityPubKey,
       sendWebViewRequest,
+      handleProgressSave,
     );
     if (!restored.txs.length) return;
     const [unpaidInvoices, unpaidContactInvoices] = await Promise.all([
