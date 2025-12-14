@@ -111,7 +111,7 @@ export const GlobalContactsList = ({ children }) => {
           retrivedContact.uuid !== globalContactsInformation.myProfile.uuid,
       )
       .map(retrivedContact => ({
-        bio: retrivedContact.contacts.myProfile.bio || 'No bio',
+        bio: retrivedContact.contacts.myProfile.bio || '',
         isFavorite: false,
         name: retrivedContact.contacts.myProfile.name,
         receiveAddress: retrivedContact.contacts.myProfile.receiveAddress,

@@ -108,6 +108,7 @@ function ConfirmedOrSentTransaction({
                 : COLORS.cancelRed
               : textColor,
             marginRight: 15,
+            includeFontPadding: false,
           }}
           content={getTransactionContent({
             paymentDescription,
@@ -124,6 +125,7 @@ function ConfirmedOrSentTransaction({
                 ? textColor
                 : COLORS.cancelRed
               : textColor,
+            includeFontPadding: false,
           }}
           content={getTimeDisplay(
             timeDifferenceMinutes,
