@@ -1490,6 +1490,7 @@
         "unpaidtips": "Mance: {{number}}",
         "title": "Mance da pagare",
         "empNamePlaceholder": "Nome dipendente",
+        "noEmployees": "Al momento non hai dipendenti con mance salvate. Una volta che un dipendente utilizza il punto vendita, le sue mance appariranno qui così potrai pagarle.",
         "noTips": "Il dipendente non ha mance"
       },
       "items": {

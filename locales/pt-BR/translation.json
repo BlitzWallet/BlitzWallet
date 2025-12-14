@@ -1488,6 +1488,7 @@
         "unpaidtips": "Gorjetas: {{number}}",
         "title": "Gorjetas a pagar",
         "empNamePlaceholder": "Nome do funcionário",
+        "noEmployees": "No momento, você não tem funcionários com gorjetas salvas. Assim que um funcionário usar o ponto de venda, suas gorjetas aparecerão aqui para que você possa pagá-las.",
         "noTips": "O funcionário não tem gorjetas"
       },
       "items": {

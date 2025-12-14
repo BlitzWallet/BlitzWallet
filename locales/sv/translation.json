@@ -1472,6 +1472,7 @@
         "unpaidtips": "Tips: {{number}}",
         "title": "Tips för att betala",
         "empNamePlaceholder": "Anställdas namn",
+        "noEmployees": "Du har för närvarande inga anställda med sparade dricks. När en anställd använder kassasystemet kommer deras dricks att visas här så att du kan betala ut dem.",
         "noTips": "Medarbetaren har inga tips"
       },
       "items": {

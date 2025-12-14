@@ -1324,6 +1324,7 @@
         "unpaidtips": "Consejos: {{number}}",
         "title": "Propinas a pagar",
         "empNamePlaceholder": "Nombre del empleado",
+        "noEmployees": "Actualmente no tienes empleados con propinas guardadas. Cuando un empleado use el punto de venta, sus propinas aparecerán aquí para que puedas pagarlas.",
         "noTips": "El empleado no tiene propinas"
       },
       "items": {

@@ -1,32 +1,32 @@
-import {useCallback, useMemo, useState} from 'react';
-import {CENTER, ICONS} from '../../../../../constants';
+import { useCallback, useMemo, useState } from 'react';
+import { CENTER, ICONS } from '../../../../../constants';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import {FlatList, StyleSheet, View} from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {useNavigation} from '@react-navigation/native';
-import {usePOSTransactions} from '../../../../../../context-store/pos';
+import { useNavigation } from '@react-navigation/native';
+import { usePOSTransactions } from '../../../../../../context-store/pos';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useNodeContext} from '../../../../../../context-store/nodeContext';
-import {useGlobalInsets} from '../../../../../../context-store/insetsProvider';
-import {useTranslation} from 'react-i18next';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import { useTranslation } from 'react-i18next';
 
 export default function ViewPOSTransactions() {
-  const {groupedTxs} = usePOSTransactions();
+  const { groupedTxs } = usePOSTransactions();
   const [employeeName, setEmployeeName] = useState('');
-  const {masterInfoObject} = useGlobalContextProvider();
-  const {fiatStats} = useNodeContext();
+  const { masterInfoObject } = useGlobalContextProvider();
+  const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
-  const {bottomPadding} = useGlobalInsets();
-  const {t} = useTranslation();
+  const { bottomPadding } = useGlobalInsets();
+  const { t } = useTranslation();
 
   const filteredList = useMemo(() => {
-    return !groupedTxs
+    return !groupedTxs.length
       ? []
       : groupedTxs.filter(tx => {
           const [name, info] = tx;
@@ -34,8 +34,8 @@ export default function ViewPOSTransactions() {
         });
   }, [groupedTxs, employeeName]);
 
-  const transactionItem = useCallback(({item}) => {
-    const [name, {totalTipAmount}] = item;
+  const transactionItem = useCallback(({ item }) => {
+    const [name, { totalTipAmount }] = item;
     return (
       <View style={styles.transactionContainer}>
         <View style={styles.nameAndTipContainer}>
@@ -60,7 +60,7 @@ export default function ViewPOSTransactions() {
 
         <CustomButton
           useArrow={true}
-          actionFunction={() => navigate.navigate('TotalTipsScreen', {item})}
+          actionFunction={() => navigate.navigate('TotalTipsScreen', { item })}
         />
       </View>
     );
@@ -69,37 +69,44 @@ export default function ViewPOSTransactions() {
   return (
     <CustomKeyboardAvoidingView
       styles={styles.globalContainer}
-      useStandardWidth={true}>
+      useStandardWidth={true}
+      useTouchableWithoutFeedback={true}
+    >
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
         showLeftImage={false}
         leftImageBlue={ICONS.receiptIcon}
         LeftImageDarkMode={ICONS.receiptWhite}
-        containerStyles={{marginBottom: 0}}
+        containerStyles={{ marginBottom: 0 }}
         label={t('settings.posPath.transactions.title')}
       />
-      <View style={{...styles.container, alignItems: 'center'}}>
+      <View style={{ ...styles.container, alignItems: 'center' }}>
         <CustomSearchInput
           placeholderText={t(
             'settings.posPath.transactions.empNamePlaceholder',
           )}
+          inputText={employeeName}
           setInputText={setEmployeeName}
-          containerStyles={{marginTop: 10}}
+          containerStyles={{ marginTop: 10 }}
         />
         {filteredList.length ? (
           <FlatList
-            style={{width: '100%'}}
-            contentContainerStyle={{paddingBottom: bottomPadding + 50}}
+            style={{ width: '100%' }}
+            contentContainerStyle={{ paddingBottom: bottomPadding + 50 }}
             showsVerticalScrollIndicator={false}
             scrollEnabled={true}
             data={filteredList}
             renderItem={transactionItem}
-            keyExtractor={([name, {total, txs}]) => name}
+            keyExtractor={([name, { total, txs }]) => name}
           />
         ) : (
           <ThemeText
-            styles={{marginTop: 20, textAlign: 'center'}}
-            content={t('settings.posPath.transactions.noTips')}
+            styles={{ marginTop: 20, textAlign: 'center' }}
+            content={
+              groupedTxs.length
+                ? t('settings.posPath.transactions.noTips')
+                : t('settings.posPath.transactions.noEmployees')
+            }
           />
         )}
       </View>
@@ -108,7 +115,7 @@ export default function ViewPOSTransactions() {
 }
 
 const styles = StyleSheet.create({
-  globalContainer: {paddingBottom: 0},
+  globalContainer: { paddingBottom: 0 },
   container: {
     flex: 1,
     width: '95%',

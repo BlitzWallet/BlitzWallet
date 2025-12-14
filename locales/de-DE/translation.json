@@ -1471,6 +1471,7 @@
         "unpaidtips": "Trinkgelder: {{number}}",
         "title": "Zu zahlende Trinkgelder",
         "empNamePlaceholder": "Mitarbeitername",
+        "noEmployees": "Du hast derzeit keine Mitarbeiter mit gespeicherten Trinkgeldern. Sobald ein Mitarbeiter das Kassensystem verwendet, werden seine Trinkgelder hier angezeigt, sodass du sie auszahlen kannst.",
         "noTips": "Der Mitarbeiter hat keine Trinkgelder"
       },
       "items": {

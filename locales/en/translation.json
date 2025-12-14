@@ -1492,6 +1492,7 @@
         "unpaidtips": "Tips: {{number}}",
         "title": "Tips to pay",
         "empNamePlaceholder": "Employee name",
+        "noEmployees": "You currently don’t have any employees with saved tips. Once an employee uses the point-of-sale, their tips will appear here so you can pay them.",
         "noTips": "Employee has no tips"
       },
       "items": {

@@ -1472,6 +1472,7 @@
         "unpaidtips": "Conseils : {{number}}",
         "title": "Conseils pour payer",
         "empNamePlaceholder": "Nom de l'employé",
+        "noEmployees": "Vous n’avez actuellement aucun employé avec des pourboires enregistrés. Une fois qu’un employé utilise le point de vente, ses pourboires apparaîtront ici afin que vous puissiez les payer.",
         "noTips": "L'employé n'a pas de pourboire"
       },
       "items": {
