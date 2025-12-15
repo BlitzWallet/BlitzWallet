@@ -52,6 +52,11 @@ export default function TotalTipsScreen(props) {
   const { groupedTxs } = usePOSTransactions();
   const { t } = useTranslation();
   const [wantedName, {}] = props.route?.params?.item;
+
+  const createdGroup = useMemo(() => {
+    return groupedTxs.find(item => item[0] === wantedName) || [];
+  }, [groupedTxs]);
+
   const [
     name,
     {
@@ -62,7 +67,8 @@ export default function TotalTipsScreen(props) {
       txs,
       unpaidTxs,
     },
-  ] = groupedTxs.find(item => item[0] === wantedName);
+  ] = createdGroup;
+
   const getServerTime = useServerTimeOnly();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { contactsPrivateKey, accountMnemoinc } = useKeysContext();
@@ -79,6 +85,16 @@ export default function TotalTipsScreen(props) {
     didComplete: false,
   });
   const [viewTips, setViewTips] = useState(false);
+
+  const sourtedTxs = useMemo(() => {
+    try {
+      if (!txs || !Array.isArray(txs)) return [];
+      return [...txs].sort((a, b) => (b?.timestamp || 0) - (a?.timestamp || 0));
+    } catch (err) {
+      console.log('error sorting txs', err);
+      return [];
+    }
+  }, [txs]);
 
   const borderColor = useMemo(() => {
     return backgroundColor;
@@ -238,7 +254,7 @@ export default function TotalTipsScreen(props) {
           backgroundColor={backgroundColor}
           backgroundOffset={backgroundOffset}
           borderColor={borderColor}
-          isLastIndex={index === txs.length - 1}
+          isLastIndex={index === sourtedTxs.length - 1}
         />
       );
     },
@@ -251,7 +267,7 @@ export default function TotalTipsScreen(props) {
       backgroundColor,
       backgroundOffset,
       borderColor,
-      txs.length,
+      sourtedTxs.length,
     ],
   );
 
@@ -345,7 +361,7 @@ export default function TotalTipsScreen(props) {
       <FlatList
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingTop: 10, paddingBottom: 20 }}
-        data={txs}
+        data={sourtedTxs}
         keyExtractor={item => item.dbDateAdded.toString()}
         renderItem={renderItem}
       />
