@@ -54,18 +54,18 @@ const SplashScreen = () => {
   const animationRef = useRef(null);
 
   const blueModeColor = {
-    rectangleFill: [0.92157, 0.92157, 0.92157],
+    rectangleFill: [0.92157, 0.92157, 0.92157, 1],
     shapeFill: [0.011765, 0.458824, 0.964706, 1],
   };
 
   const darkModeColor = {
-    rectangleFill: [0, 0.1451, 0.3059],
-    shapeFill: [1, 1, 1],
+    rectangleFill: [0, 0.1451, 0.3059, 1],
+    shapeFill: [1, 1, 1, 1],
   };
 
   const lightsOutMode = {
-    rectangleFill: [0, 0, 0],
-    shapeFill: [1, 1, 1],
+    rectangleFill: [0, 0, 0, 1],
+    shapeFill: [1, 1, 1, 1],
   };
 
   const darkModeAnimation = updateBlitzAnimationData(
@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
   lottie: {
     width: 150,
     height: 150,
+    backgroundColor: 'transparent',
   },
 
   errorContainer: {

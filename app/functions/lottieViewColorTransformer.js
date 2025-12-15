@@ -8,7 +8,7 @@ export function updateMascatWalkingAnimation(obj, mode) {
   if (typeof obj !== 'object' || obj === null) return obj;
 
   // Create a shallow copy if it's an array or object
-  const newObj = Array.isArray(obj) ? [...obj] : {...obj};
+  const newObj = Array.isArray(obj) ? [...obj] : { ...obj };
 
   for (const key in newObj) {
     if (
@@ -44,12 +44,12 @@ export function updateBlitzAnimationData(animationData, colorSettings) {
 
   // Default color settings if none provided
   const defaults = {
-    rectangleFill: [0, 0.1451, 0.3059], // Dark blue-gray
+    rectangleFill: [0, 0.1451, 0.3059, 1], // Dark blue-gray
     shapeFill: [0.011765, 0.458824, 0.964706, 1], // Same blue as before
   };
 
   // Merge provided settings with defaults
-  const colors = {...defaults, ...colorSettings};
+  const colors = { ...defaults, ...colorSettings };
 
   // Process each layer
   modifiedData.layers.forEach(layer => {
