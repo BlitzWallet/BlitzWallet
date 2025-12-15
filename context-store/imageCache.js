@@ -43,6 +43,7 @@ export function ImageCacheProvider({ children }) {
   const { decodedAddedContacts } = useGlobalContacts();
   const { masterInfoObject } = useGlobalContextProvider();
   const didRunContextCacheCheck = useRef(null);
+  const cachedImagesRef = useRef(cache);
 
   const inFlightRequests = useRef(new Map());
 
@@ -66,6 +67,10 @@ export function ImageCacheProvider({ children }) {
       console.error('Error loading image cache from storage', e);
     }
   }, []);
+
+  useEffect(() => {
+    cachedImagesRef.current = cache;
+  }, [cache]);
 
   useEffect(() => {
     refreshCacheObject();
@@ -188,8 +193,22 @@ export function ImageCacheProvider({ children }) {
       const cacheUpdates = {};
       results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value) {
-          const uuid = validContacts[index].uuid;
-          cacheUpdates[uuid] = result.value;
+          try {
+            const uuid = validContacts[index].uuid;
+            const newEntry = result.value;
+            const existingEntry = cachedImagesRef.current[uuid];
+
+            // Only add to updates if the entry is new or has changed
+            if (
+              !existingEntry ||
+              existingEntry.updated !== newEntry.updated ||
+              existingEntry.localUri !== newEntry.localUri
+            ) {
+              cacheUpdates[uuid] = newEntry;
+            }
+          } catch (err) {
+            console.error('Error updating response', err);
+          }
         }
       });
 
