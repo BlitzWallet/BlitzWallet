@@ -170,7 +170,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
         </View>
       );
     },
-    [theme, masterInfoObject, fiatStats, refreshGiftsList],
+    [theme, masterInfoObject, fiatStats, refreshGiftsList, darkModeType],
   );
   return (
     <View style={styles.container}>
