@@ -5,15 +5,15 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import {addDataToCollection} from '../db';
-import {decryptMessage} from '../app/functions/messaging/encodingAndDecodingMessages';
-import {useKeysContext} from './keys';
+import { addDataToCollection } from '../db';
+import { decryptMessage } from '../app/functions/messaging/encodingAndDecodingMessages';
+import { useKeysContext } from './keys';
 
 // Create a context for the WebView ref
 const GlobalAppData = createContext(null);
 
-export const GlobalAppDataProvider = ({children}) => {
-  const {contactsPrivateKey, publicKey} = useKeysContext();
+export const GlobalAppDataProvider = ({ children }) => {
+  const { contactsPrivateKey, publicKey } = useKeysContext();
 
   const [globalAppDataInformation, setGlobalAppDatasInformation] = useState({});
   const [giftCardsList, setGiftCardsList] = useState([]);
@@ -24,11 +24,11 @@ export const GlobalAppDataProvider = ({children}) => {
 
   const toggleGlobalAppDataInformation = (newData, writeToDB) => {
     setGlobalAppDatasInformation(prev => {
-      const newAppData = {...prev, ...newData};
+      const newAppData = { ...prev, ...newData };
 
       if (writeToDB) {
         addDataToCollection(
-          {appData: newAppData},
+          { appData: newAppData },
           'blitzWalletUsers',
           publicKey,
         );
@@ -42,38 +42,84 @@ export const GlobalAppDataProvider = ({children}) => {
   }, []);
 
   const decryptData = (key, defaultValue) => {
-    let data;
-    if (key === 'chatGPT') {
-      data = globalAppDataInformation[key]?.conversation;
-    } else {
-      data = globalAppDataInformation[key];
+    try {
+      let data;
+      if (key === 'chatGPT') {
+        data = globalAppDataInformation[key]?.conversation;
+      } else {
+        data = globalAppDataInformation[key];
+      }
+      if (!publicKey || typeof data !== 'string') return defaultValue;
+
+      const decryptedString = decryptMessage(
+        contactsPrivateKey,
+        publicKey,
+        data,
+      );
+
+      if (
+        !decryptedString ||
+        typeof decryptedString !== 'string' ||
+        decryptedString.trim() === ''
+      ) {
+        console.warn(`Decryption returned invalid data for key: ${key}`);
+        return defaultValue;
+      }
+
+      return JSON.parse(decryptedString);
+    } catch (error) {
+      console.error(`Error decrypting data for key "${key}":`, error.message);
+      return defaultValue;
     }
-    if (!publicKey || typeof data !== 'string') return defaultValue;
-    return JSON.parse(decryptMessage(contactsPrivateKey, publicKey, data));
   };
 
   useEffect(() => {
     if (!publicKey || !contactsPrivateKey) return;
-    const data = decryptData('chatGPT', []);
-    setDecodedChatGPT({
-      conversation: data,
-      credits: globalAppDataInformation?.chatGPT?.credits || 0,
-    });
+    try {
+      const data = decryptData('chatGPT', []);
+      setDecodedChatGPT({
+        conversation: data,
+        credits: globalAppDataInformation?.chatGPT?.credits || 0,
+      });
+    } catch (error) {
+      console.error('Error decoding ChatGPT data:', error);
+      setDecodedChatGPT({
+        conversation: [],
+        credits: 0,
+      });
+    }
   }, [globalAppDataInformation.chatGPT, publicKey, contactsPrivateKey]);
 
   useEffect(() => {
     if (!publicKey || !contactsPrivateKey) return;
-    setDecodedMessages(decryptData('messagesApp', {received: [], sent: []}));
+    try {
+      setDecodedMessages(
+        decryptData('messagesApp', { received: [], sent: [] }),
+      );
+    } catch (error) {
+      console.error('Error decoding messages:', error);
+      setDecodedMessages({ received: [], sent: [] });
+    }
   }, [globalAppDataInformation.messagesApp, publicKey, contactsPrivateKey]);
 
   useEffect(() => {
     if (!publicKey || !contactsPrivateKey) return;
-    setDecodedVPNS(decryptData('VPNplans', []));
+    try {
+      setDecodedVPNS(decryptData('VPNplans', []));
+    } catch (error) {
+      console.error('Error decoding VPN plans:', error);
+      setDecodedVPNS([]);
+    }
   }, [globalAppDataInformation.VPNplans, publicKey, contactsPrivateKey]);
 
   useEffect(() => {
     if (!publicKey || !contactsPrivateKey) return;
-    setDecodedGiftCards(decryptData('giftCards', {}));
+    try {
+      setDecodedGiftCards(decryptData('giftCards', {}));
+    } catch (error) {
+      console.error('Error decoding gift cards:', error);
+      setDecodedGiftCards({});
+    }
   }, [globalAppDataInformation.giftCards, publicKey, contactsPrivateKey]);
 
   const contextValue = useMemo(
