@@ -1670,7 +1670,7 @@
 
         "giftsOverview": {
           "noGiftsHead": "Nenhum vale-bitcoin ainda",
-          "noGiftsDesc": "Crie seu primeiro vale-bitcoin para compartilhar Bitcoin com amigos e família",
+          "noGiftsDesc": "Crie seu primeiro vale-bitcoin para distribuir bitcoins com amigos e família",
           "createGift": "Criar vale-bitcoin",
           "claimed": "Resgatado",
           "expired": "Expirado",
