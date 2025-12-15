@@ -38,9 +38,8 @@ export default function CustomSettingsTopBar({
         }}
       >
         <ThemeImage
-          lightsOutIcon={customBackColor || ICONS.arrow_small_left_white}
-          darkModeIcon={customBackColor || ICONS.smallArrowLeft}
-          lightModeIcon={customBackColor || ICONS.smallArrowLeft}
+          source={customBackColor || ICONS.arrow_small_left_white}
+          disableTint={!!customBackColor}
         />
       </TouchableOpacity>
       <ThemeText

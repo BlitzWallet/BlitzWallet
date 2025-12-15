@@ -254,8 +254,8 @@ const ADVANCEDOPTIONS = [
     for: 'general',
     name: 'ViewAllSwaps',
     displayName: 'screens.inAccount.settingsContent.view all swaps',
-    icon: ICONS.liquidIcon,
-    iconWhite: ICONS.liquidIconWhite,
+    icon: ICONS.transferArrows,
+    iconWhite: ICONS.transferArrowsWhite,
     arrowIcon: ICONS.leftCheveronIcon,
   },
 
