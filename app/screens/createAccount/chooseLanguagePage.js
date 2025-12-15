@@ -120,6 +120,7 @@ const styles = StyleSheet.create({
   dropdownText: {
     textAlign: 'center',
     includeFontPadding: false,
+    paddingRight: 0,
   },
   dropdownItemCustomStyles: {
     flexDirection: 'row',

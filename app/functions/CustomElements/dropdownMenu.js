@@ -95,10 +95,13 @@ const DropdownMenu = ({
             />
           ) : (
             <ThemeText
-              styles={{
-                ...styles.defTextStyle,
-                ...textStyles,
-              }}
+              styles={[
+                showVerticalArrowsAbsolute && { paddingRight: 20 },
+                {
+                  ...styles.defTextStyle,
+                  ...textStyles,
+                },
+              ]}
               CustomNumberOfLines={1}
               content={selectedValue ? selectedValue : placeholderText}
             />
