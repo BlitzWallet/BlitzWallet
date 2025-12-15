@@ -263,7 +263,6 @@ export default function CreateNostrConnectAccount(props) {
     <CustomKeyboardAvoidingView
       useLocalPadding={true}
       useStandardWidth={true}
-      useTouchableWithoutFeedback={true}
       isKeyboardActive={isKeyboardActive}
     >
       <CustomSettingsTopBar

@@ -205,14 +205,20 @@ export default function LoginSecurity({ extraData }) {
               onPress={() => toggleLoginSecurity('pin')}
               style={styles.toggleSecurityMode}
             >
-              <ThemeText content={t('settings.loginSecurity.text3')} />
+              <ThemeText
+                styles={{ includeFontPadding: false }}
+                content={t('settings.loginSecurity.text3')}
+              />
               <CheckMarkCircle isActive={securityLoginSettings.isPinEnabled} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => toggleLoginSecurity('biometric')}
               style={styles.toggleSecurityMode}
             >
-              <ThemeText content={t('settings.loginSecurity.text4')} />
+              <ThemeText
+                styles={{ includeFontPadding: false }}
+                content={t('settings.loginSecurity.text4')}
+              />
               <CheckMarkCircle
                 isActive={securityLoginSettings.isBiometricEnabled}
               />

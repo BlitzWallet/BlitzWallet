@@ -1,21 +1,22 @@
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {ThemeText} from '../../../../functions/CustomElements';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemeText } from '../../../../functions/CustomElements';
 import CustomSearchInput from '../../../../functions/CustomElements/searchInput';
-import {supportedLanguagesList} from '../../../../../locales/localeslist';
-import {useCallback, useMemo, useState} from 'react';
-import {useTranslation} from 'react-i18next';
+import { supportedLanguagesList } from '../../../../../locales/localeslist';
+import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CheckMarkCircle from '../../../../functions/CustomElements/checkMarkCircle';
-import {useGlobalContextProvider} from '../../../../../context-store/context';
-import {CENTER, COLORS, CONTENT_KEYBOARD_OFFSET} from '../../../../constants';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import { useGlobalContextProvider } from '../../../../../context-store/context';
+import { CENTER, COLORS, CONTENT_KEYBOARD_OFFSET } from '../../../../constants';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 
 export default function ChooseLangugae() {
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
-  const {t} = useTranslation();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundColor} = GetThemeColors();
+  const { masterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
+  const { t } = useTranslation();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor } = GetThemeColors();
   const [searchInput, setSearchInput] = useState('');
   const selectedLanguage = masterInfoObject?.userSelectedLanguage;
 
@@ -28,10 +29,10 @@ export default function ChooseLangugae() {
   }, [selectedLanguage, supportedLanguagesList]);
 
   const updateLanguageSetting = useCallback(item => {
-    toggleMasterInfoObject({userSelectedLanguage: item.id});
+    toggleMasterInfoObject({ userSelectedLanguage: item.id });
   }, []);
 
-  const languageItem = ({item, index}) => {
+  const languageItem = ({ item, index }) => {
     return (
       <TouchableOpacity
         style={[
@@ -42,7 +43,8 @@ export default function ChooseLangugae() {
         ]}
         onPress={() => {
           updateLanguageSetting(item);
-        }}>
+        }}
+      >
         <CheckMarkCircle
           isActive={item.id?.toLowerCase() === selectedLanguage?.toLowerCase()}
           containerSize={25}
@@ -59,6 +61,7 @@ export default function ChooseLangugae() {
               ? COLORS.primary
               : COLORS.lightModeText,
             marginLeft: 10,
+            includeFontPadding: false,
           }}
           content={t(item.translatedName)}
         />
@@ -73,7 +76,7 @@ export default function ChooseLangugae() {
         renderItem={languageItem}
         keyExtractor={(item, index) => item.id || index.toString()}
         ListHeaderComponent={
-          <View style={[styles.searchContainer, {backgroundColor}]}>
+          <View style={[styles.searchContainer, { backgroundColor }]}>
             <CustomSearchInput
               inputText={searchInput}
               setInputText={setSearchInput}

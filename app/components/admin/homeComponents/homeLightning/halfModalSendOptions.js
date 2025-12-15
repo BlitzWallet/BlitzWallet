@@ -161,6 +161,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: SIZES.large,
+    includeFontPadding: false,
   },
 
   icon: {

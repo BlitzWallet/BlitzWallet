@@ -193,6 +193,7 @@ export default function ExpandedTx(props) {
   const renderPaymentStatus = () => (
     <View style={styles.paymentStatusContainer}>
       <ThemeText
+        styles={{ includeFontPadding: false }}
         content={t('screens.inAccount.expandedTxPage.paymentStatus')}
       />
       <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>

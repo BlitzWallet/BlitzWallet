@@ -135,7 +135,6 @@ export default function AddPOSItemsPage() {
     <CustomKeyboardAvoidingView
       isKeyboardActive={isKeyboardActive}
       useLocalPadding={true}
-      useTouchableWithoutFeedback={true}
       useStandardWidth={true}
     >
       <CustomSettingsTopBar

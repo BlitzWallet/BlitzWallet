@@ -646,6 +646,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 'auto',
     opacity: 0.7,
+    includeFontPadding: false,
   },
   animatedQRContainer: {
     position: 'relative',

@@ -391,7 +391,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 8,
     flexDirection: 'row',
-    marginTop: 20,
   },
   copyText: {
     color: COLORS.darkModeText,

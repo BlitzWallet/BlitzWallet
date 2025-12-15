@@ -87,6 +87,7 @@ export default function FiatCurrencyPage() {
               : COLORS.lightModeText,
             marginLeft: 10,
             flexShrink: 1,
+            includeFontPadding: false,
           }}
           content={`${currency.id} - ${currency.info.name}`}
         />

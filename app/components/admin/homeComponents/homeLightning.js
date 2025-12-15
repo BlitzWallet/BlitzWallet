@@ -302,7 +302,10 @@ export default function HomeLightning() {
                     ? t('constants.sat_balance')
                     : t('constants.total_balance')
                 }
-                styles={{ textTransform: 'uppercase' }}
+                styles={{
+                  textTransform: 'uppercase',
+                  includeFontPadding: false,
+                }}
               />
               <MemoizedUserSatAmount
                 isConnectedToTheInternet={isConnectedToTheInternet}

@@ -376,11 +376,13 @@ const styles = StyleSheet.create({
   optionTitleText: {
     width: '80%',
     flexShrink: 1,
+    includeFontPadding: false,
   },
   optionItemText: {
     width: '80%',
     flexShrink: 1,
     fontFamily: FONT.Title_Regular,
     fontSize: SIZES.small,
+    includeFontPadding: false,
   },
 });

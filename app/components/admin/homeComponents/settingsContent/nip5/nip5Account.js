@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
@@ -11,27 +11,28 @@ import {
   ThemeText,
 } from '../../../../../functions/CustomElements';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {INSET_WINDOW_WIDTH, SIZES} from '../../../../../constants/theme';
-import {useGlobalContextProvider} from '../../../../../../context-store/context';
-import {useState} from 'react';
+import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
+import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import { useState } from 'react';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {useNavigation} from '@react-navigation/native';
-import {addNip5toCollection, isValidNip5Name} from '../../../../../../db';
-import {npubToHex} from '../../../../../functions/nostr';
-import {copyToClipboard} from '../../../../../functions';
-import {useToast} from '../../../../../../context-store/toastManager';
+import { useNavigation } from '@react-navigation/native';
+import { addNip5toCollection, isValidNip5Name } from '../../../../../../db';
+import { npubToHex } from '../../../../../functions/nostr';
+import { copyToClipboard } from '../../../../../functions';
+import { useToast } from '../../../../../../context-store/toastManager';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 export default function Nip5VerificationPage() {
-  const {showToast} = useToast();
+  const { showToast } = useToast();
   const navigate = useNavigation();
-  const {masterInfoObject, toggleMasterInfoObject} = useGlobalContextProvider();
+  const { masterInfoObject, toggleMasterInfoObject } =
+    useGlobalContextProvider();
   const [isLoading, setIsLoading] = useState('');
-  const {name, pubkey} = masterInfoObject?.nip5Settings;
+  const { name, pubkey } = masterInfoObject?.nip5Settings;
 
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [inputs, setInputs] = useState({
     name: name || '',
     pubkey: pubkey || '',
@@ -93,7 +94,7 @@ export default function Nip5VerificationPage() {
       });
     } catch (err) {
       console.log('Error saving nip5 information', err);
-      navigate.navigate('ErrorScreen', {errorMessage: err.message});
+      navigate.navigate('ErrorScreen', { errorMessage: err.message });
     } finally {
       setIsLoading(false);
     }
@@ -143,9 +144,10 @@ export default function Nip5VerificationPage() {
               onPress={() => {
                 if (!inputs.name.length) return;
                 copyToClipboard(`${inputs.name}@blitzwalletapp.com`, showToast);
-              }}>
+              }}
+            >
               <ThemeImage
-                styles={{width: 25, height: 25}}
+                styles={{ width: 25, height: 25 }}
                 lightModeIcon={ICONS.clipboardBlue}
                 darkModeIcon={ICONS.clipboardBlue}
                 lightsOutIcon={ICONS.clipboardLight}
@@ -193,7 +195,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   inputDescriptor: {
-    marginBottom: 10,
+    marginBottom: 8,
+    includeFontPadding: false,
   },
   textCoount: {
     width: '100%',

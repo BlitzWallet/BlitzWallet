@@ -1,28 +1,29 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {ThemeText} from '../../../../functions/CustomElements';
-import {COLORS, INSET_WINDOW_WIDTH, SIZES} from '../../../../constants/theme';
-import {CENTER, ICONS} from '../../../../constants';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemeText } from '../../../../functions/CustomElements';
+import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
+import { CENTER, ICONS } from '../../../../constants';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
-import {useNavigation} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
+import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 export default function NostrHome() {
   const navitate = useNavigation();
-  const {darkModeType, theme} = useGlobalThemeContext();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { darkModeType, theme } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
       <View
         style={{
           ...styles.itemRow,
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-        }}>
+        }}
+      >
         <View style={styles.itemTextContainer}>
           <ThemeText
-            styles={{...styles.itemHeader, marginBottom: 10}}
+            styles={{ ...styles.itemHeader, marginBottom: 10 }}
             content={t('settings.nostrHome.nip5Title')}
           />
           <ThemeText
@@ -35,9 +36,10 @@ export default function NostrHome() {
           style={{
             ...styles.clickContainer,
             backgroundColor: theme ? backgroundColor : COLORS.primary,
-          }}>
+          }}
+        >
           <ThemeImage
-            styles={{transform: [{rotate: '180deg'}]}}
+            styles={{ transform: [{ rotate: '180deg' }] }}
             lightModeIcon={ICONS.leftCheveronLight}
             darkModeIcon={ICONS.leftCheveronLight}
             lightsOutIcon={ICONS.leftCheveronLight}
@@ -48,7 +50,8 @@ export default function NostrHome() {
         style={{
           ...styles.itemRow,
           backgroundColor: theme ? backgroundOffset : COLORS.darkModeText,
-        }}>
+        }}
+      >
         <View style={styles.itemTextContainer}>
           <View style={styles.itemHeaderContainer}>
             <ThemeText
@@ -77,9 +80,10 @@ export default function NostrHome() {
           style={{
             ...styles.clickContainer,
             backgroundColor: theme ? backgroundColor : COLORS.primary,
-          }}>
+          }}
+        >
           <ThemeImage
-            styles={{transform: [{rotate: '180deg'}]}}
+            styles={{ transform: [{ rotate: '180deg' }] }}
             lightModeIcon={ICONS.leftCheveronLight}
             darkModeIcon={ICONS.leftCheveronLight}
             lightsOutIcon={ICONS.leftCheveronLight}
@@ -122,9 +126,10 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     fontSize: SIZES.small,
     marginLeft: 5,
+    includeFontPadding: false,
   },
 
-  itemDescription: {fontSize: SIZES.small, includeFontPadding: false},
+  itemDescription: { fontSize: SIZES.small, includeFontPadding: false },
   clickContainer: {
     borderRadius: 8,
     width: 40,

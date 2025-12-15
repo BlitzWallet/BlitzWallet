@@ -122,15 +122,7 @@ export default function ChooseContactHalfModal() {
             <ThemeText
               CustomEllipsizeMode={'tail'}
               CustomNumberOfLines={1}
-              content={formatDisplayName(contact)}
-            />
-            <ThemeText
-              CustomEllipsizeMode={'tail'}
-              CustomNumberOfLines={1}
-              styles={{
-                fontSize: SIZES.small,
-              }}
-              content={!!contact.name.length ? contact.uniqueName : ''}
+              content={formatDisplayName(contact) || contact.uniqueName || ''}
             />
           </View>
         </TouchableOpacity>
