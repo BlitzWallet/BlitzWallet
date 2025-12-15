@@ -234,6 +234,7 @@ export default function SwitchReceiveOptionPage({
         onPress={toggleExpanded}
       >
         <ThemeText
+          styles={{ includeFontPadding: false }}
           content={t('wallet.receivePages.switchReceiveOptionPage.actionBTN', {
             action: isExpanded
               ? t('constants.lessLower')

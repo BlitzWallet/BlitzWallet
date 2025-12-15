@@ -224,6 +224,7 @@ export default function LRC20Assets() {
         onPress={toggleExpanded}
       >
         <ThemeText
+          styles={{ includeFontPadding: false }}
           content={t('wallet.homeLightning.lrc20Assets.actionText', {
             action: isExpanded ? t('constants.hide') : t('constants.show'),
           })}

@@ -57,10 +57,11 @@ export default function ContactsPage({ navigation }) {
     globalContactsInformation,
     contactsMessags,
     toggleGlobalContactsInformation,
+    giftCardsList,
   } = useGlobalContacts();
   const { serverTimeOffset } = useServerTime();
   const getServerTime = useServerTimeOnly();
-  const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
   const hideUnknownContacts = masterInfoObject.hideUnknownContacts;
@@ -111,6 +112,10 @@ export default function ContactsPage({ navigation }) {
     (contactInfoList?.length &&
       !filteredContacts?.length &&
       !inputText?.trim()?.length);
+
+  const showHighlightedGifts = useMemo(() => {
+    return giftCardsList && !!giftCardsList?.length;
+  }, [giftCardsList]);
 
   const navigateToExpandedContact = useCallback(
     async contact => {
@@ -310,7 +315,11 @@ export default function ContactsPage({ navigation }) {
             style={[
               memoizedStyles.giftContainer,
               {
-                backgroundColor: theme ? backgroundOffset : COLORS.primary,
+                backgroundColor: !showHighlightedGifts
+                  ? backgroundOffset
+                  : theme && darkModeType
+                  ? COLORS.darkModeText
+                  : COLORS.primary,
                 zIndex: 99,
               },
             ]}
@@ -319,8 +328,11 @@ export default function ContactsPage({ navigation }) {
               styles={{
                 width: 18,
                 height: 18,
-                tintColor:
-                  theme && !darkModeType ? COLORS.primary : COLORS.darkModeText,
+                tintColor: !showHighlightedGifts
+                  ? textColor
+                  : theme && darkModeType
+                  ? COLORS.lightModeText
+                  : COLORS.darkModeText,
               }}
               lightModeIcon={ICONS.giftCardIcon}
               darkModeIcon={ICONS.giftCardIcon}
