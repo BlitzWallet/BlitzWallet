@@ -55,6 +55,27 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
     [bottomPadding],
   );
 
+  // Get base icon source based on label and focused state
+  const getIconSource = (label, isFocused) => {
+    switch (label) {
+      case 'Contacts':
+        return isFocused
+          ? ICONS.contactsIconSelectedWhite
+          : ICONS.contactsIconWhite;
+      case 'Home':
+        return isFocused ? ICONS.wallet_white : ICONS.adminHomeWallet_white;
+      case 'App Store':
+        return isFocused ? ICONS.appStoreFilled_white : ICONS.appStore_white;
+      default: // Gifts
+        return isFocused ? ICONS.giftFilledWhite : ICONS.giftWhite;
+    }
+  };
+
+  // Get tint color based on theme
+  const getTintColor = () => {
+    return theme && darkModeType ? COLORS.darkModeText : COLORS.primary;
+  };
+
   return (
     <View style={memorizedTabContainerStyles}>
       <View
@@ -66,7 +87,6 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
                 ? backgroundColor
                 : backgroundOffset,
             width: containerWidth,
-            // opacity: 0.9,
           },
         ]}
       >
@@ -113,38 +133,8 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
             }
           };
 
-          const icon =
-            label === 'Contacts'
-              ? theme && darkModeType
-                ? isFocused
-                  ? ICONS.contactsIconSelectedWhite
-                  : ICONS.contactsIconWhite
-                : isFocused
-                ? ICONS.contactsIconBlueSelected
-                : ICONS.contactsIconBlue
-              : label === 'Home'
-              ? theme && darkModeType
-                ? isFocused
-                  ? ICONS.wallet_white
-                  : ICONS.adminHomeWallet_white
-                : isFocused
-                ? ICONS.walletBlueIcon
-                : ICONS.adminHomeWallet
-              : label === 'App Store'
-              ? theme && darkModeType
-                ? isFocused
-                  ? ICONS.appStoreFilled_white
-                  : ICONS.appStore_white
-                : isFocused
-                ? ICONS.appstoreFilled
-                : ICONS.appstore
-              : theme && darkModeType
-              ? isFocused
-                ? ICONS.giftFilledWhite
-                : ICONS.giftWhite
-              : isFocused
-              ? ICONS.giftFilledBlue
-              : ICONS.giftBlue;
+          const icon = getIconSource(label, isFocused);
+          const tintColor = getTintColor();
 
           return (
             <TouchableOpacity
@@ -154,7 +144,7 @@ function MyTabBar({ state, descriptors, navigation, showShop }) {
               style={styles.tabItemContainer}
             >
               <View style={styles.iconAndLabelContainer}>
-                <Image source={icon} style={styles.icon} />
+                <Image source={icon} style={[styles.icon, { tintColor }]} />
                 {label === 'Contacts' &&
                   hasUnlookedTransactions &&
                   !isFocused && (
