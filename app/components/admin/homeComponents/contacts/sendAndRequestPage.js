@@ -699,7 +699,15 @@ export default function SendAndRequestPage(props) {
                             'contacts.sendAndRequestPage.sendGiftText',
                           )}
                         />
-                        <Icon color={textColor} name={'giftIcon'} />
+                        <ThemeImage
+                          styles={{
+                            width: 20,
+                            height: 20,
+                            tintColor: textColor,
+                          }}
+                          disableTint={true}
+                          source={ICONS.giftCardIcon}
+                        />
                       </TouchableOpacity>
                     )}
                   <CustomSearchInput
