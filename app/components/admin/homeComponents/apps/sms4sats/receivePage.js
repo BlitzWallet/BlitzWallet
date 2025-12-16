@@ -310,32 +310,8 @@ export default function SMSMessagingReceivedPage(props) {
     });
   }, [navigate]);
 
-  const renderItem = useCallback(
-    ({ item, index }) => {
-      if (index === 0) {
-        return (
-          <View>
-            <CustomSearchInput
-              inputText={searchInput}
-              setInputText={setSearchInput}
-              containerStyles={{ ...styles.itemSearch, backgroundColor }}
-              onFocusFunction={keyboardFocusFunction}
-              onBlurFunction={keyboardBlurFunction}
-              placeholderText={t('apps.sms4sats.receivePage.inputPlaceholder')}
-            />
-            {filteredList.length === 0 && (
-              <ThemeText
-                styles={styles.noItemsText}
-                content={t('apps.sms4sats.receivePage.noAvailableServices')}
-              />
-            )}
-          </View>
-        );
-      }
-
-      const serviceItem = filteredList[index - 1];
-      if (!serviceItem) return null;
-
+  const renderGridItem = useCallback(
+    serviceItem => {
       return (
         <TouchableOpacity
           onPress={() =>
@@ -345,41 +321,40 @@ export default function SMSMessagingReceivedPage(props) {
               serviceItem.image?.src,
             )
           }
-          style={styles.serviceRow}
+          style={styles.gridItem}
         >
           <Image
-            style={styles.avatar}
+            style={styles.gridAvatar}
             source={{ uri: imgEndpoint(serviceItem.image?.src) }}
             contentFit="contain"
           />
-          <ThemeText content={serviceItem.text} styles={styles.serviceText} />
+          <ThemeText
+            content={serviceItem.text}
+            styles={styles.gridServiceText}
+            CustomNumberOfLines={2}
+          />
         </TouchableOpacity>
       );
     },
-    [
-      filteredList,
-      userLocal,
-      searchInput,
-      handleItemSelector,
-      handleInfoPress,
-      handleSelctProcesss,
-      keyboardFocusFunction,
-      keyboardBlurFunction,
-      backgroundColor,
-    ],
+    [handleItemSelector],
+  );
+
+  const renderItem = useCallback(
+    ({ item }) => {
+      if (!item) return null;
+
+      return renderGridItem(item);
+    },
+    [renderGridItem],
   );
 
   const getItemCount = useCallback(() => {
-    return filteredList.length + 1;
+    return filteredList.length;
   }, [filteredList.length]);
 
-  const keyExtractor = useCallback(
-    (item, index) => {
-      if (index === 0) return 'search-input';
-      return `service-${filteredList[index - 1]?.key}-${index}`;
-    },
-    [filteredList],
-  );
+  const keyExtractor = useCallback((item, index) => {
+    return `service-${item?.key}-${index}`;
+  }, []);
 
   return (
     <CustomKeyboardAvoidingView
@@ -469,20 +444,39 @@ export default function SMSMessagingReceivedPage(props) {
           }
         />
       ) : (
-        <FlatList
-          data={Array(getItemCount()).fill(null)}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          stickyHeaderIndices={[0]}
-          showsVerticalScrollIndicator={false}
-          initialNumToRender={22}
-          maxToRenderPerBatch={20}
-          windowSize={3}
-          contentContainerStyle={{
-            paddingTop: 10,
-            paddingBottom: bottomPadding,
-          }}
-        />
+        <>
+          <View style={styles.searchContainer}>
+            <CustomSearchInput
+              inputText={searchInput}
+              setInputText={setSearchInput}
+              containerStyles={{ ...styles.itemSearch, backgroundColor }}
+              onFocusFunction={keyboardFocusFunction}
+              onBlurFunction={keyboardBlurFunction}
+              placeholderText={t('apps.sms4sats.receivePage.inputPlaceholder')}
+            />
+          </View>
+          {filteredList.length === 0 ? (
+            <ThemeText
+              styles={styles.noItemsText}
+              content={t('apps.sms4sats.receivePage.noAvailableServices')}
+            />
+          ) : (
+            <FlatList
+              data={filteredList}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
+              numColumns={3}
+              showsVerticalScrollIndicator={false}
+              initialNumToRender={21}
+              maxToRenderPerBatch={21}
+              windowSize={3}
+              contentContainerStyle={{
+                paddingTop: 10,
+                paddingBottom: bottomPadding,
+              }}
+            />
+          )}
+        </>
       )}
     </CustomKeyboardAvoidingView>
   );
@@ -506,10 +500,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     paddingVertical: 10,
   },
+  searchContainer: {
+    width: '100%',
+    marginBottom: 10,
+  },
   itemSearch: {
     marginTop: 0,
-    marginBottom: 10,
-    paddingBottom: CONTENT_KEYBOARD_OFFSET,
+    marginBottom: 0,
+  },
+  gridItem: {
+    flex: 1,
+    alignItems: 'center',
+    marginHorizontal: 5,
+    marginBottom: 15,
+  },
+  gridAvatar: {
+    width: 70,
+    height: 70,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  gridServiceText: {
+    fontSize: SIZES.small,
+    textAlign: 'center',
   },
   serviceRow: {
     flexDirection: 'row',

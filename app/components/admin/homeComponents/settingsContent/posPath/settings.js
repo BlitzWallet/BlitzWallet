@@ -152,6 +152,7 @@ export default function PosSettingsPage() {
                   ? COLORS.primary
                   : COLORS.lightModeText,
                 marginLeft: 10,
+                includeFontPadding: false,
               }}
               content={`${item.id} - ${item.info.name}`}
             />

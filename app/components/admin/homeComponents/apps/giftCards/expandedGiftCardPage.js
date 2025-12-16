@@ -329,7 +329,9 @@ export default function ExpandedGiftCardPage(props) {
                     backgroundColor: theme ? backgroundColor : COLORS.white,
                     borderColor:
                       !EMAIL_REGEX.test(email) && email !== ''
-                        ? COLORS.cancelRed
+                        ? theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.cancelRed
                         : 'transparent',
                     color: theme ? COLORS.darkModeText : COLORS.lightModeText,
                   }}
@@ -374,6 +376,7 @@ export default function ExpandedGiftCardPage(props) {
                   );
                   return;
                 }
+                if (!email) return;
                 if (email != decodedGiftCards?.profile?.email) {
                   navigate.navigate('ConfirmActionPage', {
                     confirmMessage: t(

@@ -1,14 +1,14 @@
-import {View, TouchableOpacity, StyleSheet} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {COLORS, SIZES} from '../../../../../../constants';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { COLORS, SIZES } from '../../../../../../constants';
 import GetThemeColors from '../../../../../../hooks/themeColors';
-import {ThemeText} from '../../../../../../functions/CustomElements';
-import {useTranslation} from 'react-i18next';
+import { ThemeText } from '../../../../../../functions/CustomElements';
+import { useTranslation } from 'react-i18next';
 
 export default function ConfirmLeaveChatGPT(props) {
   const navigate = useNavigation();
-  const {textColor, backgroundColor} = GetThemeColors();
-  const {t} = useTranslation();
+  const { textColor, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.container]}>
@@ -18,7 +18,8 @@ export default function ConfirmLeaveChatGPT(props) {
           {
             backgroundColor: backgroundColor,
           },
-        ]}>
+        ]}
+      >
         <ThemeText
           styles={styles.headerText}
           content={t('apps.chatGPT.confirmLeaveChat.title')}
@@ -30,7 +31,8 @@ export default function ConfirmLeaveChatGPT(props) {
               navigate.goBack();
               props.route.params.wantsToSave();
             }}
-            style={[styles.button]}>
+            style={[styles.button]}
+          >
             <ThemeText
               styles={styles.buttonText}
               content={t('constants.yes')}
@@ -48,7 +50,8 @@ export default function ConfirmLeaveChatGPT(props) {
               navigate.goBack();
               props.route.params.doesNotWantToSave();
             }}
-            style={styles.button}>
+            style={styles.button}
+          >
             <ThemeText styles={styles.buttonText} content={t('constants.no')} />
           </TouchableOpacity>
         </View>
@@ -59,7 +62,7 @@ export default function ConfirmLeaveChatGPT(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.halfModalBackgroundColor,
+    backgroundColor: COLORS.opaicityGray,
     alignItems: 'center',
     justifyContent: 'center',
   },

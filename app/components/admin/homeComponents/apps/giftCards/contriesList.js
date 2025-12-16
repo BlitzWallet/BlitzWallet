@@ -27,6 +27,7 @@ import CustomSettingsTopBar from '../../../../../functions/CustomElements/settin
 import Icon from '../../../../../functions/CustomElements/Icon';
 import { useTranslation } from 'react-i18next';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
+import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
 
 export default function CountryList(props) {
   const { contactsPrivateKey, publicKey } = useKeysContext();
@@ -137,30 +138,32 @@ export default function CountryList(props) {
             alignItems: 'center',
           }}
         >
-          {item.code === 'WW' ? (
-            <View
-              style={{
-                width: 40,
-                height: 30,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 8,
-                backgroundColor: backgroundOffset,
-              }}
-            >
-              <Icon color={textColor} name={'globeIcon'} />
-            </View>
-          ) : (
-            <CountryFlag isoCode={item.code} size={25} />
-          )}
+          <CheckMarkCircle
+            isActive={ISOCode === item.code && !onlyReturn}
+            containerSize={20}
+          />
+          <View style={{ marginLeft: 10 }}>
+            {item.code === 'WW' ? (
+              <View
+                style={{
+                  width: 40,
+                  height: 30,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 8,
+                  backgroundColor: backgroundOffset,
+                }}
+              >
+                <Icon color={textColor} name={'globeIcon'} />
+              </View>
+            ) : (
+              <CountryFlag isoCode={item.code} size={25} />
+            )}
+          </View>
           <ThemeText
             styles={{
               marginLeft: 10,
               fontWeight: 500,
-              color:
-                ISOCode === item.code && !onlyReturn
-                  ? COLORS.primary
-                  : textColor,
             }}
             content={item.countryName}
           />
