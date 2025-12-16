@@ -72,7 +72,7 @@ export default function CreateCustodyAccountPage(props) {
   const keyRefs = useRef({});
   const blockDeleteAccountRef = useRef(null);
 
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, textInputColor } = GetThemeColors();
 
   const accounts = useCustodyAccountList();
   const navigate = useNavigation();
@@ -247,6 +247,11 @@ export default function CreateCustodyAccountPage(props) {
           >
             <ThemeText styles={styles.numberText} content={`${item1}.`} />
             <TextInput
+              autoCorrect={false}
+              autoComplete="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              textContentType="none"
               keyboardAppearance={theme ? 'dark' : 'light'}
               ref={ref => (keyRefs.current[item1] = ref)}
               value={inputedKey[`key${item1}`]}
@@ -269,6 +274,11 @@ export default function CreateCustodyAccountPage(props) {
           >
             <ThemeText styles={styles.numberText} content={`${item2}.`} />
             <TextInput
+              autoCorrect={false}
+              autoComplete="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              textContentType="none"
               keyboardAppearance={theme ? 'dark' : 'light'}
               ref={ref => (keyRefs.current[item2] = ref)}
               value={inputedKey[`key${item2}`]}
@@ -411,11 +421,9 @@ export default function CreateCustodyAccountPage(props) {
           }}
           textInputStyles={{
             color:
-              theme && darkModeType
-                ? COLORS.darkModeText
-                : nameIsAlreadyUsed
+              nameIsAlreadyUsed && !(theme && darkModeType)
                 ? COLORS.cancelRed
-                : textColor,
+                : textInputColor,
           }}
           placeholderText={t(
             'settings.accountComponents.createAccountPage.nameInputPlaceholder',

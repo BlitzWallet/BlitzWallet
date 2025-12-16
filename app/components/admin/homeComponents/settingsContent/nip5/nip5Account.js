@@ -23,6 +23,7 @@ import { copyToClipboard } from '../../../../../functions';
 import { useToast } from '../../../../../../context-store/toastManager';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { useTranslation } from 'react-i18next';
+import { keyboardGoBack } from '../../../../../functions/customNavigation';
 
 export default function Nip5VerificationPage() {
   const { showToast } = useToast();
@@ -44,14 +45,19 @@ export default function Nip5VerificationPage() {
       [identifier]: value,
     }));
   };
+  const doesInputMatchSaved = inputs.name === name && inputs.pubkey === pubkey;
 
   const saveNip5Information = async () => {
     try {
       setIsLoading(true);
+
+      if (doesInputMatchSaved) {
+        keyboardGoBack(navigate);
+        return;
+      }
       if (!inputs.name) throw new Error(t('settings.nip5.noNameError'));
       if (!inputs.pubkey) throw new Error(t('settings.nip5.noPubKey'));
 
-      if (inputs.name === name && inputs.pubkey === pubkey) return;
       if (inputs.name.length > 60)
         throw new Error(t('settings.nip5.nameLengthError'));
 
@@ -170,7 +176,9 @@ export default function Nip5VerificationPage() {
               marginTop: CONTENT_KEYBOARD_OFFSET,
             }}
             textContent={
-              inputs.name || inputs.pubkey
+              doesInputMatchSaved
+                ? t('constants.back')
+                : (inputs.name || inputs.pubkey) && name && pubkey
                 ? t('constants.update')
                 : t('constants.save')
             }

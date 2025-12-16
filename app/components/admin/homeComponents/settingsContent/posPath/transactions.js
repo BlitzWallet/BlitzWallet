@@ -15,6 +15,7 @@ import { useGlobalContextProvider } from '../../../../../../context-store/contex
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
+import { keyboardNavigate } from '../../../../../functions/customNavigation';
 
 export default function ViewPOSTransactions() {
   const { groupedTxs } = usePOSTransactions();
@@ -60,7 +61,11 @@ export default function ViewPOSTransactions() {
 
         <CustomButton
           useArrow={true}
-          actionFunction={() => navigate.navigate('TotalTipsScreen', { item })}
+          actionFunction={() =>
+            keyboardNavigate(() =>
+              navigate.navigate('TotalTipsScreen', { item }),
+            )
+          }
         />
       </View>
     );
@@ -70,7 +75,6 @@ export default function ViewPOSTransactions() {
     <CustomKeyboardAvoidingView
       styles={styles.globalContainer}
       useStandardWidth={true}
-      useTouchableWithoutFeedback={true}
     >
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
@@ -91,8 +95,11 @@ export default function ViewPOSTransactions() {
         />
         {filteredList.length ? (
           <FlatList
+            keyboardShouldPersistTaps="handled"
             style={{ width: '100%' }}
-            contentContainerStyle={{ paddingBottom: bottomPadding + 50 }}
+            contentContainerStyle={{
+              paddingBottom: bottomPadding + 50,
+            }}
             showsVerticalScrollIndicator={false}
             scrollEnabled={true}
             data={filteredList}

@@ -477,8 +477,8 @@ export default function AccountPaymentPage(props) {
                 color={
                   theme && darkModeType ? COLORS.darkModeText : COLORS.primary
                 }
-                height={20}
-                width={20}
+                height={18}
+                width={18}
                 name={'editIcon'}
               />
             </View>
@@ -488,7 +488,7 @@ export default function AccountPaymentPage(props) {
             inputText={memo}
             setInputText={setMemo}
             containerStyles={styles.textInputContainerStyles}
-            textInputStyles={styles.textInputStyles}
+            textInputStyles={{ ...styles.textInputStyles, color: textColor }}
             placeholderText={t(
               'settings.accountComponents.accountPaymentPage.inputPlaceHolderText',
             )}
@@ -517,6 +517,8 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginRight: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   animationContainer: {
     alignItems: 'center',
