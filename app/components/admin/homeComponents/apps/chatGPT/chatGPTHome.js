@@ -17,18 +17,14 @@ import {
   SATSPERBITCOIN,
   SIZES,
 } from '../../../../../constants';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { copyToClipboard } from '../../../../../functions';
 import ContextMenu from 'react-native-context-menu-view';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {
-  HIDDEN_OPACITY,
-  SHADOWS,
-  WINDOWWIDTH,
-} from '../../../../../constants/theme';
+import { HIDDEN_OPACITY, SHADOWS } from '../../../../../constants/theme';
 import ExampleGPTSearchCard from './exampleSearchCards';
 import saveChatGPTChat from './functions/saveChat';
 import Icon from '../../../../../functions/CustomElements/Icon';
@@ -49,6 +45,92 @@ import { useTranslation } from 'react-i18next';
 import { ONEMILLION } from '../../../../../constants/math';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 
+// Extract ChatMessage component for better performance
+const ChatMessage = ({
+  item,
+  onCopy,
+  onEdit,
+  backgroundOffset,
+  theme,
+  darkModeType,
+  textColor,
+  blitzLogoFilter,
+  screenDimensions,
+  t,
+}) => (
+  <ContextMenu
+    onPress={e => {
+      const targetEvent = e.nativeEvent.name;
+      if (targetEvent === t('constants.copy')) {
+        onCopy(item.content);
+      } else {
+        onEdit(item.content);
+      }
+    }}
+    previewBackgroundColor={backgroundOffset}
+    actions={[{ title: t('constants.copy') }, { title: t('constants.edit') }]}
+  >
+    <View style={[chatObjectStyles.container, { flexDirection: 'column' }]}>
+      <View style={styles.chatHeader}>
+        <View
+          style={{
+            ...chatObjectStyles.profileIcon,
+            backgroundColor: theme
+              ? COLORS.darkModeText
+              : COLORS.lightModeBackgroundOffset,
+          }}
+        >
+          {item.role === 'user' ? (
+            <Image
+              style={[
+                chatObjectStyles.logoIcon,
+                { tintColor: blitzLogoFilter },
+              ]}
+              source={ICONS.logoIcon}
+            />
+          ) : (
+            <Icon
+              name="AiAppIcon"
+              color={COLORS.lightModeText}
+              width={15}
+              height={15}
+            />
+          )}
+        </View>
+        <ThemeText
+          styles={chatObjectStyles.userLabel}
+          content={
+            item.role === 'user'
+              ? t('apps.chatGPT.chatGPTHome.youText')
+              : item?.responseBot || 'ChatGPT'
+          }
+        />
+      </View>
+      <View style={styles.chatContent}>
+        {item.content ? (
+          <ThemeText
+            styles={{
+              color:
+                item.content.toLowerCase() ===
+                t('errormessages.requestError').toLowerCase()
+                  ? theme && darkModeType
+                    ? textColor
+                    : COLORS.cancelRed
+                  : textColor,
+              includeFontPadding: false,
+            }}
+            content={item.content}
+          />
+        ) : (
+          <View style={{ width: screenDimensions.width * 0.95 * 0.95 - 35 }}>
+            <FullLoadingScreen size="small" showText={false} />
+          </View>
+        )}
+      </View>
+    </View>
+  </ContextMenu>
+);
+
 export default function ChatGPTHome(props) {
   const navigate = useNavigation();
   const { showToast } = useToast();
@@ -57,6 +139,8 @@ export default function ChatGPTHome(props) {
   const { theme, darkModeType } = useGlobalThemeContext();
   const { textColor, backgroundOffset } = GetThemeColors();
   const { screenDimensions } = useAppStatus();
+  const { t } = useTranslation();
+
   const chatHistoryFromProps = props.route.params?.chatHistory;
   const {
     decodedChatGPT,
@@ -64,7 +148,9 @@ export default function ChatGPTHome(props) {
     globalAppDataInformation,
   } = useGlobalAppData();
   const { globalContactsInformation } = useGlobalContacts();
+
   const flatListRef = useRef(null);
+
   const [chatHistory, setChatHistory] = useState({
     conversation: [],
     uuid: '',
@@ -73,110 +159,262 @@ export default function ChatGPTHome(props) {
   });
   const [newChats, setNewChats] = useState([]);
   const [model, setSearchModel] = useState('Gpt-4o');
-  const [forceUpdate, setForceUpdate] = useState(false);
   const [userChatText, setUserChatText] = useState('');
-  const totalAvailableCredits = decodedChatGPT.credits;
   const [showScrollBottomIndicator, setShowScrollBottomIndicator] =
     useState(false);
   const [isKeyboardFocused, setIsKeyboardFocused] = useState(true);
-  const { t } = useTranslation();
+
+  const totalAvailableCredits = decodedChatGPT.credits;
+  const conjoinedLists = useMemo(
+    () => [...chatHistory.conversation, ...newChats],
+    [chatHistory.conversation, newChats],
+  );
 
   useEffect(() => {
     if (!chatHistoryFromProps) return;
-    const loadedChatHistory = JSON.parse(JSON.stringify(chatHistoryFromProps));
-
-    setChatHistory(loadedChatHistory);
+    setChatHistory(JSON.parse(JSON.stringify(chatHistoryFromProps)));
   }, [chatHistoryFromProps]);
 
-  const conjoinedLists = [...chatHistory.conversation, ...newChats];
+  const blitzLogoFilter = useMemo(() => {
+    return theme && darkModeType ? COLORS.lightModeText : COLORS.primary;
+  }, [theme, darkModeType]);
 
-  const userChatHistory = useMemo(() => {
-    return conjoinedLists.map(item => {
-      return (
-        <ContextMenu
-          key={item.uuid}
-          onPress={e => {
-            const targetEvent = e.nativeEvent.name;
-            if (targetEvent === t('constants.copy')) {
-              copyToClipboard(item.content, showToast, 'ChatGPT');
-            } else {
-              setUserChatText(item.content);
-            }
-          }}
-          previewBackgroundColor={backgroundOffset}
-          actions={[
-            { title: t('constants.copy') },
-            { title: t('constants.edit') },
-          ]}
-        >
-          <View style={chatObjectStyles.container}>
-            <View
-              style={{
-                ...chatObjectStyles.profileIcon,
-                backgroundColor: theme
-                  ? COLORS.darkModeText
-                  : COLORS.lightModeBackgroundOffset,
-              }}
-            >
-              {item.role === 'user' ? (
-                <Image
-                  style={chatObjectStyles.logoIcon}
-                  source={ICONS.logoIcon}
-                />
-              ) : (
-                <Icon
-                  name="AiAppIcon"
-                  color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-                  width={15}
-                  height={15}
-                />
-              )}
-            </View>
-            <View style={{ flex: 1 }}>
-              <ThemeText
-                styles={chatObjectStyles.userLabel}
-                content={
-                  item.role === 'user'
-                    ? t('apps.chatGPT.chatGPTHome.youText')
-                    : item?.responseBot || 'ChatGPT'
-                }
-              />
-              {item.content ? (
-                <ThemeText
-                  key={`${item.uuid}`}
-                  styles={{
-                    color:
-                      item.content.toLowerCase() ===
-                      t('errormessages.requestError').toLowerCase()
-                        ? theme && darkModeType
-                          ? textColor
-                          : COLORS.cancelRed
-                        : textColor,
-                  }}
-                  content={item.content}
-                />
-              ) : (
-                <View
-                  style={{
-                    width: screenDimensions.width * 0.95 * 0.95 - 35,
-                  }}
-                >
-                  <FullLoadingScreen size="small" showText={false} />
-                </View>
-              )}
-            </View>
-          </View>
-        </ContextMenu>
-      );
+  const handleCopy = useCallback(
+    content => {
+      copyToClipboard(content, showToast, 'ChatGPT');
+    },
+    [showToast],
+  );
+
+  const handleEdit = useCallback(content => {
+    setUserChatText(content);
+  }, []);
+
+  const handleScroll = useCallback(e => {
+    const offset = e.nativeEvent.contentOffset.y;
+    setShowScrollBottomIndicator(offset > 20);
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    flatListRef.current?.scrollTo({ x: 0, y: 0, animated: true });
+  }, []);
+
+  const openModelSelector = useCallback(() => {
+    if (Platform.OS === 'android') {
+      Keyboard.dismiss();
+    }
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'switchGenerativeAiModel',
+      setSelectedModel: setSearchModel,
+      sliderHight: 0.7,
+    });
+  }, [navigate]);
+
+  const openDrawer = useCallback(() => {
+    Keyboard.dismiss();
+    props.navigation.openDrawer();
+  }, [props.navigation]);
+
+  const closeChat = useCallback(() => {
+    if (newChats.length === 0) {
+      navigate.popTo('HomeAdmin');
+      return;
+    }
+
+    const saveChat = () =>
+      saveChatGPTChat({
+        contactsPrivateKey,
+        globalAppDataInformation,
+        chatHistory,
+        newChats,
+        toggleGlobalAppDataInformation,
+        navigate,
+        errorMessage: t('apps.chatGPT.saveChat.errorMessage'),
+      });
+
+    const discardChat = () => navigate.popTo('HomeAdmin');
+
+    navigate.setOptions({
+      wantsToSave: saveChat,
+      doesNotWantToSave: discardChat,
+    });
+
+    keyboardNavigate(() => {
+      navigate.navigate('ConfirmLeaveChatGPT', {
+        wantsToSave: saveChat,
+        doesNotWantToSave: discardChat,
+      });
     });
   }, [
-    conjoinedLists,
+    newChats.length,
     navigate,
+    contactsPrivateKey,
+    globalAppDataInformation,
+    chatHistory,
+    toggleGlobalAppDataInformation,
+    t,
+  ]);
+
+  const getChatResponse = useCallback(
+    async (userChatObject, filteredModel) => {
+      try {
+        const tempArr = [...conjoinedLists, userChatObject];
+        const requestData = {
+          aiRequest: {
+            model: filteredModel.id,
+            messages: tempArr,
+          },
+          requestAccount: globalContactsInformation.myProfile.uuid,
+        };
+
+        const response = await fetchBackend(
+          'generativeAIV3',
+          requestData,
+          contactsPrivateKey,
+          publicKey,
+        );
+
+        if (!response) throw new Error('Unable to finish request');
+
+        const data = response;
+        const [textInfo] = data.choices;
+        const satsPerDollar = SATSPERBITCOIN / (fiatStats.value || 60000);
+
+        const price =
+          (filteredModel.inputPrice / ONEMILLION) * data.usage.prompt_tokens +
+          (filteredModel.outputPrice / ONEMILLION) *
+            data.usage.completion_tokens;
+
+        const apiCallCost = price * satsPerDollar;
+        const blitzCost = Math.ceil(apiCallCost + 25);
+        const newCredits = totalAvailableCredits - blitzCost;
+
+        setNewChats(prev => {
+          const tempArr = [...prev];
+          const oldItem = tempArr.pop();
+          return [
+            ...tempArr,
+            {
+              ...oldItem,
+              content: textInfo.message.content,
+              role: textInfo.message.role,
+              responseBot: filteredModel.name,
+            },
+          ];
+        });
+
+        toggleGlobalAppDataInformation(
+          {
+            chatGPT: {
+              conversation: globalAppDataInformation.chatGPT.conversation || [],
+              credits: newCredits,
+            },
+          },
+          true,
+        );
+      } catch (err) {
+        console.log('Error with chatGPT request', err);
+        setNewChats(prev => {
+          const tempArr = [...prev];
+          const oldItem = tempArr.pop();
+          return [
+            ...tempArr,
+            {
+              ...oldItem,
+              role: 'assistant',
+              content: t('errormessages.requestError'),
+              responseBot: filteredModel.name,
+            },
+          ];
+        });
+      }
+    },
+    [
+      conjoinedLists,
+      globalContactsInformation.myProfile.uuid,
+      contactsPrivateKey,
+      publicKey,
+      fiatStats.value,
+      totalAvailableCredits,
+      toggleGlobalAppDataInformation,
+      globalAppDataInformation.chatGPT.conversation,
+      t,
+    ],
+  );
+
+  const submitChaMessage = useCallback(
+    async forcedText => {
+      const trimmedText = forcedText?.trim();
+      if (!trimmedText) return;
+
+      if (totalAvailableCredits < 30) {
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('apps.chatGPT.chatGPTHome.noAvailableCreditsError'),
+        });
+        return;
+      }
+
+      const [filteredModel] = AI_MODEL_COST.filter(
+        item => item.shortName.toLowerCase() === model.toLowerCase(),
+      );
+
+      const currentTime = new Date();
+      const userChatObject = {
+        content: trimmedText,
+        role: 'user',
+        time: currentTime,
+        uuid: customUUID(),
+      };
+
+      const GPTChatObject = {
+        role: 'assistant',
+        responseBot: filteredModel.name,
+        content: '',
+        time: currentTime,
+        uuid: customUUID(),
+      };
+
+      setNewChats(prev => [...prev, userChatObject, GPTChatObject]);
+      setUserChatText('');
+      getChatResponse(userChatObject, filteredModel);
+    },
+    [totalAvailableCredits, model, navigate, t, getChatResponse],
+  );
+
+  const userChatHistory = useMemo(() => {
+    return conjoinedLists.map(item => (
+      <ChatMessage
+        key={item.uuid}
+        item={item}
+        onCopy={handleCopy}
+        onEdit={handleEdit}
+        backgroundOffset={backgroundOffset}
+        theme={theme}
+        darkModeType={darkModeType}
+        textColor={textColor}
+        blitzLogoFilter={blitzLogoFilter}
+        screenDimensions={screenDimensions}
+        t={t}
+      />
+    ));
+  }, [
+    conjoinedLists,
+    handleCopy,
+    handleEdit,
+    backgroundOffset,
     theme,
     darkModeType,
-    // windowDimension,
-    forceUpdate,
+    textColor,
+    blitzLogoFilter,
+    screenDimensions,
+    t,
   ]);
+
+  const hasNoChats = conjoinedLists.length === 0;
+  const showExampleCards =
+    chatHistory.conversation.length === 0 &&
+    userChatText.length === 0 &&
+    newChats.length === 0;
 
   return (
     <CustomKeyboardAvoidingView
@@ -186,7 +424,7 @@ export default function ChatGPTHome(props) {
     >
       <View style={styles.topBar}>
         <TouchableOpacity
-          style={{ position: 'absolute', left: 0 }}
+          style={[styles.topBarButton, { left: 0 }]}
           onPress={() => keyboardNavigate(closeChat)}
         >
           <ThemeImage
@@ -197,21 +435,14 @@ export default function ChatGPTHome(props) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => {
-            if (Platform.OS === 'android') {
-              Keyboard.dismiss();
-            }
-            navigate.navigate('CustomHalfModal', {
-              wantedContent: 'switchGenerativeAiModel',
-              setSelectedModel: setSearchModel,
-              sliderHight: 0.7,
-            });
-          }}
-          style={{
-            ...styles.switchModel,
-            maxWidth: screenDimensions.width * 0.95 - 80,
-            backgroundColor: backgroundOffset,
-          }}
+          onPress={openModelSelector}
+          style={[
+            styles.switchModel,
+            {
+              maxWidth: screenDimensions.width * 0.95 - 80,
+              backgroundColor: backgroundOffset,
+            },
+          ]}
         >
           <ThemeText
             CustomNumberOfLines={1}
@@ -227,11 +458,8 @@ export default function ChatGPTHome(props) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={{ position: 'absolute', right: 0 }}
-          onPress={() => {
-            Keyboard.dismiss();
-            props.navigation.openDrawer();
-          }}
+          style={[styles.topBarButton, { right: 0 }]}
+          onPress={openDrawer}
         >
           <ThemeImage
             lightModeIcon={ICONS.drawerList}
@@ -240,21 +468,17 @@ export default function ChatGPTHome(props) {
           />
         </TouchableOpacity>
       </View>
+
       <ThemeText
-        styles={{ textAlign: 'center' }}
+        styles={styles.creditsText}
         content={t('apps.chatGPT.chatGPTHome.availableCredits', {
           credits: totalAvailableCredits.toFixed(2),
         })}
       />
 
-      <View style={[styles.container]}>
-        {conjoinedLists.length === 0 ? (
-          <View
-            style={[
-              styles.container,
-              { alignItems: 'center', justifyContent: 'center' },
-            ]}
-          >
+      <View style={styles.container}>
+        {hasNoChats ? (
+          <View style={styles.emptyStateContainer}>
             <View
               style={[
                 styles.noChatHistoryImgContainer,
@@ -266,7 +490,7 @@ export default function ChatGPTHome(props) {
               ]}
             >
               <Image
-                style={{ width: '50%', height: '50%' }}
+                style={[styles.emptyStateLogo, { tintColor: blitzLogoFilter }]}
                 source={ICONS.logoIcon}
               />
             </View>
@@ -274,36 +498,26 @@ export default function ChatGPTHome(props) {
         ) : (
           <View style={styles.flasListContianer}>
             <ScrollView
-              style={{ transform: [{ scaleY: -1 }] }}
+              style={styles.invertedScroll}
               horizontal={false}
-              onScroll={e => {
-                const offset = e.nativeEvent.contentOffset.y;
-                if (offset > 20) setShowScrollBottomIndicator(true);
-                else setShowScrollBottomIndicator(false);
-              }}
+              onScroll={handleScroll}
               ref={flatListRef}
+              scrollEventThrottle={16}
             >
-              <View
-                key={'invertedContainer'}
-                style={{ transform: [{ scaleY: -1 }] }}
-              >
-                {userChatHistory}
-              </View>
+              <View style={styles.invertedContainer}>{userChatHistory}</View>
             </ScrollView>
             {showScrollBottomIndicator && (
               <TouchableOpacity
                 activeOpacity={1}
-                onPress={() => {
-                  flatListRef.current.scrollTo({ x: 0, y: 0, animated: true });
-                }}
-                style={{
-                  ...styles.scrollToBottom,
-                  backgroundColor: backgroundOffset,
-                }}
+                onPress={scrollToBottom}
+                style={[
+                  styles.scrollToBottom,
+                  { backgroundColor: backgroundOffset },
+                ]}
               >
-                <Image
-                  style={styles.scrollToBottomIcon}
-                  source={ICONS.smallArrowLeft}
+                <ThemeImage
+                  source={ICONS.arrow_small_left_white}
+                  styles={styles.scrollToBottomIcon}
                 />
               </TouchableOpacity>
             )}
@@ -311,11 +525,10 @@ export default function ChatGPTHome(props) {
         )}
       </View>
 
-      {chatHistory.conversation.length === 0 &&
-        userChatText.length === 0 &&
-        newChats.length === 0 && (
-          <ExampleGPTSearchCard submitChaMessage={submitChaMessage} />
-        )}
+      {showExampleCards && (
+        <ExampleGPTSearchCard submitChaMessage={submitChaMessage} />
+      )}
+
       <View style={styles.bottomBarContainer}>
         <TextInput
           keyboardAppearance={theme ? 'dark' : 'light'}
@@ -331,30 +544,21 @@ export default function ChatGPTHome(props) {
             { color: textColor, borderColor: textColor },
           ]}
           value={userChatText}
-          onFocus={() => {
-            setIsKeyboardFocused(true);
-          }}
-          onBlur={() => {
-            setIsKeyboardFocused(false);
-          }}
+          onFocus={() => setIsKeyboardFocused(true)}
+          onBlur={() => setIsKeyboardFocused(false)}
         />
         <TouchableOpacity
-          onPress={() => {
-            if (!userChatText.length) return;
-            submitChaMessage(userChatText);
-          }}
-          style={{
-            width: 45,
-            height: 45,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 40,
-            opacity: !userChatText.length ? HIDDEN_OPACITY : 1,
-            backgroundColor: theme
-              ? COLORS.lightModeBackground
-              : COLORS.lightModeText,
-            marginLeft: 10,
-          }}
+          onPress={() => userChatText.length && submitChaMessage(userChatText)}
+          disabled={!userChatText.length}
+          style={[
+            styles.sendButton,
+            {
+              opacity: !userChatText.length ? HIDDEN_OPACITY : 1,
+              backgroundColor: theme
+                ? COLORS.lightModeBackground
+                : COLORS.lightModeText,
+            },
+          ]}
         >
           <Icon
             width={30}
@@ -372,153 +576,6 @@ export default function ChatGPTHome(props) {
       </View>
     </CustomKeyboardAvoidingView>
   );
-
-  function closeChat() {
-    if (newChats.length === 0) {
-      navigate.popTo('HomeAdmin');
-      return;
-    }
-    navigate.setOptions({
-      wantsToSave: () =>
-        saveChatGPTChat({
-          contactsPrivateKey,
-          globalAppDataInformation,
-          chatHistory,
-          newChats,
-          toggleGlobalAppDataInformation,
-          navigate,
-          errorMessage: t('apps.chatGPT.saveChat.errorMessage'),
-        }),
-      doesNotWantToSave: () => navigate.popTo('HomeAdmin'),
-    });
-    navigate.navigate('ConfirmLeaveChatGPT', {
-      wantsToSave: () =>
-        saveChatGPTChat({
-          contactsPrivateKey,
-          globalAppDataInformation,
-          chatHistory,
-          newChats,
-          toggleGlobalAppDataInformation,
-          navigate,
-          errorMessage: t('apps.chatGPT.saveChat.errorMessage'),
-        }),
-      doesNotWantToSave: () => navigate.popTo('HomeAdmin'),
-    });
-  }
-
-  async function submitChaMessage(forcedText) {
-    if (forcedText.length === 0 || forcedText.trim() === '') return;
-
-    if (totalAvailableCredits < 30) {
-      navigate.navigate('ErrorScreen', {
-        errorMessage: t('apps.chatGPT.chatGPTHome.noAvailableCreditsError'),
-      });
-      return;
-    }
-
-    const [filteredModel] = AI_MODEL_COST.filter(item => {
-      return item.shortName.toLowerCase() === model.toLowerCase();
-    });
-
-    let textToSend = forcedText;
-
-    let userChatObject = {};
-    let GPTChatObject = {};
-    const currentTime = new Date();
-    userChatObject['content'] = textToSend;
-    userChatObject['role'] = 'user';
-    userChatObject['time'] = currentTime;
-    userChatObject['uuid'] = customUUID();
-
-    GPTChatObject['role'] = 'assistant';
-    GPTChatObject['responseBot'] = filteredModel.name;
-    GPTChatObject['content'] = '';
-    GPTChatObject['time'] = currentTime;
-    GPTChatObject['uuid'] = customUUID();
-
-    setNewChats(prev => [...prev, userChatObject, GPTChatObject]);
-    setUserChatText('');
-    getChatResponse(userChatObject, filteredModel);
-  }
-
-  async function getChatResponse(userChatObject, filteredModel) {
-    try {
-      let tempAmount = totalAvailableCredits;
-      let tempArr = [...conjoinedLists];
-      tempArr.push(userChatObject);
-      const requestData = {
-        aiRequest: {
-          model: filteredModel.id,
-          messages: tempArr,
-        },
-        requestAccount: globalContactsInformation.myProfile.uuid,
-      };
-      const response = await fetchBackend(
-        'generativeAIV3',
-        requestData,
-        contactsPrivateKey,
-        publicKey,
-      );
-
-      if (!response) throw new Error('Unable to finish request');
-
-      // calculate price
-      const data = response;
-      const [textInfo] = data.choices;
-      const satsPerDollar = SATSPERBITCOIN / (fiatStats.value || 60000);
-
-      const price =
-        (filteredModel.inputPrice / ONEMILLION) * data.usage.prompt_tokens +
-        (filteredModel.outputPrice / ONEMILLION) * data.usage.completion_tokens;
-
-      const apiCallCost = price * satsPerDollar; //sats
-
-      const blitzCost = Math.ceil(apiCallCost + 25);
-
-      tempAmount -= blitzCost;
-
-      setNewChats(prev => {
-        let tempArr = [...prev];
-        const oldItem = tempArr.pop();
-        tempArr.push({
-          ...oldItem,
-          content: textInfo.message.content,
-          role: textInfo.message.role,
-          responseBot: filteredModel.name,
-        });
-        return tempArr;
-      });
-      setTimeout(() => {
-        setForceUpdate(prev => !prev); // Add this
-      }, 50);
-
-      toggleGlobalAppDataInformation(
-        {
-          chatGPT: {
-            conversation: globalAppDataInformation.chatGPT.conversation || [],
-            credits: tempAmount,
-          },
-        },
-        true,
-      );
-    } catch (err) {
-      console.log('Error with chatGPT request', err);
-      setNewChats(prev => {
-        let tempArr = [...prev];
-        const oldItem = tempArr.pop();
-        tempArr.push({
-          ...oldItem,
-          role: 'assistant',
-          content: t('errormessages.requestError'),
-          responseBot: filteredModel.name,
-        });
-        return tempArr;
-      });
-      setTimeout(() => {
-        setForceUpdate(prev => !prev); // Add this
-      }, 50);
-    }
-  }
 }
 
 const styles = StyleSheet.create({
@@ -532,6 +589,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 15,
     ...CENTER,
+  },
+  topBarButton: {
+    position: 'absolute',
   },
   switchModel: {
     flexDirection: 'row',
@@ -552,7 +612,14 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
   },
-
+  creditsText: {
+    textAlign: 'center',
+  },
+  emptyStateContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   noChatHistoryImgContainer: {
     width: 50,
     height: 50,
@@ -560,11 +627,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 25,
   },
-
+  emptyStateLogo: {
+    width: '50%',
+    height: '50%',
+  },
   flasListContianer: {
     flex: 1,
     marginTop: 20,
     position: 'relative',
+  },
+  invertedScroll: {
+    transform: [{ scaleY: -1 }],
+  },
+  invertedContainer: {
+    transform: [{ scaleY: -1 }],
   },
   scrollToBottom: {
     width: 40,
@@ -583,7 +659,15 @@ const styles = StyleSheet.create({
     height: 20,
     transform: [{ rotate: '270deg' }],
   },
-
+  chatHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  chatContent: {
+    flex: 1,
+    paddingLeft: 40,
+  },
   bottomBarContainer: {
     width: '100%',
     flexDirection: 'row',
@@ -592,7 +676,6 @@ const styles = StyleSheet.create({
     ...CENTER,
     marginTop: 5,
   },
-
   bottomBarTextInput: {
     flex: 1,
     paddingVertical: 8,
@@ -604,7 +687,16 @@ const styles = StyleSheet.create({
     fontSize: SIZES.medium,
     includeFontPadding: false,
   },
+  sendButton: {
+    width: 45,
+    height: 45,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 40,
+    marginLeft: 10,
+  },
 });
+
 const chatObjectStyles = StyleSheet.create({
   container: {
     width: '100%',
@@ -623,5 +715,9 @@ const chatObjectStyles = StyleSheet.create({
     height: '50%',
     width: '50%',
   },
-  userLabel: { fontWeight: '500', marginBottom: 5 },
+  userLabel: {
+    fontWeight: '500',
+    marginLeft: 5,
+    includeFontPadding: false,
+  },
 });
