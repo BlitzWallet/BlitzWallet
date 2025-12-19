@@ -50,7 +50,7 @@ Blitz Wallet is a React Native application that allows users to interact with th
 ## Download Blitz Wallet
 
 [![Google Play](.github/assets/images/google-play.svg)](https://play.google.com/store/apps/details?id=com.blitzwallet)
-[![TestFlight](.github/assets/images/app-store.svg)](https://testflight.apple.com/join/r8MfbNa6)
+[![IOS Appstore](.github/assets/images/app-store.svg)]([https://testflight.apple.com/join/r8MfbNa6](https://apps.apple.com/us/app/blitz-wallet/id6476810582))
 
 ## Contribute
 
