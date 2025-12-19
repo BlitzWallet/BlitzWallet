@@ -682,7 +682,7 @@ const ContactElement = memo(
             />
           </View>
 
-          {!!formatMessage(firstMessage) && (
+          {!!formatMessage(firstMessage) && contact.isAdded && (
             <View style={memoizedStyles.contactsRowInlineStyle}>
               <ThemeText
                 CustomNumberOfLines={2}

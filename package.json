@@ -42,7 +42,7 @@
     "@scure/bip39": "^1.6.0",
     "bech32": "^2.0.0",
     "bip21": "^3.0.0",
-    "bitcoin-address-parser": "^1.0.2",
+    "bitcoin-address-parser": "^1.0.3",
     "bolt11": "^1.4.1",
     "boltz-core": "^3.0.0",
     "crypto-es": "^2.1.0",

@@ -132,8 +132,8 @@ export function Toast({
             {toast.type === 'clipboard' ? (
               <ThemeImage
                 styles={{ width: 25, height: 25, marginRight: 15 }}
-                lightModeIcon={ICONS.clipboardDark}
-                darkModeIcon={ICONS.clipboardDark}
+                lightModeIcon={ICONS.clipboardBlue}
+                darkModeIcon={ICONS.clipboardBlue}
                 lightsOutIcon={ICONS.clipboardDark}
               />
             ) : toast.type === 'confirmTx' ? (
