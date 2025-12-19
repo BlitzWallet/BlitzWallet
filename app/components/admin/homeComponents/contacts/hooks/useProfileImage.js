@@ -104,8 +104,8 @@ export function useProfileImage() {
   const resizeImage = async ({ imgURL }) => {
     try {
       const { width: originalWidth, height: originalHeight } = imgURL;
-      const photoWidth = originalWidth * 0.95;
-      const photoHeight = originalHeight * 0.95;
+      const photoWidth = originalWidth;
+      const photoHeight = originalHeight;
       const targetSize = 250; // Match your largest display size
 
       const smallerDimension = Math.min(photoWidth, photoHeight);
