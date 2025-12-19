@@ -53,7 +53,7 @@ export const supportedLanguagesList = [
     translatedName: 'languages.swedish',
     shortId: 'sv',
     id: 'sv',
-    flagCode: 'sv',
+    flagCode: 'se',
   },
   {
     languageName: 'русский',
