@@ -13,7 +13,6 @@ import {
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
   EMAIL_REGEX,
-  ICONS,
   SIZES,
   VALID_URL_REGEX,
   VALID_USERNAME_REGEX,
@@ -35,6 +34,7 @@ import { getCachedProfileImage } from '../../../../functions/cachedImage';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useTranslation } from 'react-i18next';
 import getDeepLinkUser from './internalComponents/getDeepLinkUser';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export default function AddContactsHalfModal({
   slideHeight,
@@ -285,10 +285,11 @@ export default function AddContactsHalfModal({
               zIndex: 1,
             }}
           >
-            <ThemeImage
-              darkModeIcon={ICONS.scanQrCodeBlue}
-              lightModeIcon={ICONS.scanQrCodeBlue}
-              lightsOutIcon={ICONS.scanQrCodeDark}
+            <IconNew
+              name={'ScanQrCode'}
+              color={
+                theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+              }
             />
           </TouchableOpacity>
         }

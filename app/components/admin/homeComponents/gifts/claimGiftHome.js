@@ -15,6 +15,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { keyboardNavigate } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export default function ClaimGiftHome({ theme }) {
   const navigate = useNavigation();
@@ -118,11 +119,7 @@ export default function ClaimGiftHome({ theme }) {
                 }
                 style={styles.qrButton}
               >
-                <ThemeImage
-                  lightModeIcon={ICONS.scanQrCodeBlue}
-                  darkModeIcon={ICONS.scanQrCodeBlue}
-                  lightsOutIcon={ICONS.scanQrCodeLight}
-                />
+                <IconNew name={'ScanQrCode'} />
               </TouchableOpacity>
             </View>
           </View>

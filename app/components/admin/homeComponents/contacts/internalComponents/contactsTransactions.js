@@ -21,6 +21,7 @@ import { useGlobalContacts } from '../../../../../../context-store/globalContact
 import { getTransactionContent } from '../contactsPageComponents/transactionText';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import IconNew from '../../../../../functions/CustomElements/iconControllar';
 
 function ConfirmedOrSentTransaction({
   txParsed,
@@ -68,31 +69,15 @@ function ConfirmedOrSentTransaction({
   return (
     <View style={[styles.transactionContainer, { alignItems: 'center' }]}>
       {didDeclinePayment ? (
-        <Image
-          style={styles.icons}
-          source={
-            theme && darkModeType
-              ? ICONS.failedTransactionWhite
-              : ICONS.failedTransaction
-          }
+        <IconNew
+          containerStyle={styles.icons}
+          name={'CircleX'}
+          color={theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed}
         />
       ) : (
-        <ThemeImage
-          styles={{
-            ...styles.icons,
-            transform: [
-              {
-                rotate: didDeclinePayment
-                  ? '180deg'
-                  : isOutgoingPayment
-                  ? '90deg'
-                  : '270deg',
-              },
-            ],
-          }}
-          darkModeIcon={ICONS.smallArrowLeft}
-          lightModeIcon={ICONS.smallArrowLeft}
-          lightsOutIcon={ICONS.arrow_small_left_white}
+        <IconNew
+          containerStyle={styles.icons}
+          name={isOutgoingPayment ? 'ArrowUp' : 'ArrowDown'}
         />
       )}
 
@@ -425,20 +410,7 @@ export default function ContactsTransactionItem(props) {
         />
       ) : (
         <View style={styles.transactionContainer}>
-          <ThemeImage
-            styles={{
-              ...styles.icons,
-              transform: [
-                {
-                  rotate: '270deg',
-                },
-              ],
-            }}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
-
+          <IconNew containerStyle={styles.icons} name={'ArrowDown'} />
           <View style={{ width: '100%', flex: 1 }}>
             <ThemeText
               styles={{ includeFontPadding: false }}

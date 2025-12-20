@@ -39,6 +39,7 @@ import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useProfileImage } from './hooks/useProfileImage';
 import EditProfileTextInput from './internalComponents/editProfileTextItems';
 import { areImagesSame } from './utils/imageComparison';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export default function EditMyProfilePage(props) {
   const navigate = useNavigation();
@@ -111,8 +112,7 @@ export default function EditMyProfilePage(props) {
           }
           keyboardGoBack(navigate);
         }}
-        leftImageBlue={ICONS.trashIcon}
-        LeftImageDarkMode={ICONS.trashIconWhite}
+        leftImageName="Trash2"
         leftImageFunction={() =>
           navigate.navigate('ConfirmActionPage', {
             confirmMessage: t('contacts.editMyProfilePage.deleateWarning'),
@@ -120,7 +120,6 @@ export default function EditMyProfilePage(props) {
             cancelFunction: () => deleteUser(false),
           })
         }
-        leftImageStyles={{ height: 25, width: 'unset', aspectRatio: 1 }}
         showLeftImage={!isEditingMyProfile}
       />
       <InnerContent
@@ -519,9 +518,10 @@ function InnerContent({
           </View>
           {(isEditingMyProfile || selectedAddedContact.isLNURL) && (
             <View style={styles.selectFromPhotos}>
-              <Image
-                source={hasImage ? ICONS.xSmallIconBlack : ICONS.ImagesIconDark}
-                style={{ width: 20, height: 20 }}
+              <IconNew
+                name={hasImage ? 'X' : 'Image'}
+                color={COLORS.lightModeText}
+                size={20}
               />
             </View>
           )}

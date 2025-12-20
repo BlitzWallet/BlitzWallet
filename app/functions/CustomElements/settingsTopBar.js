@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { CENTER, FONT, ICONS, SIZES } from '../../constants';
 import { keyboardGoBack } from '../customNavigation';
 import { useAppStatus } from '../../../context-store/appStatus';
+import IconNew from './iconControllar';
 
 export default function CustomSettingsTopBar({
   containerStyles,
@@ -18,6 +19,8 @@ export default function CustomSettingsTopBar({
   leftImageStyles = {},
   customBackFunction,
   customBackColor,
+  leftImageName = '',
+  lefImageColor = '',
 }) {
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
@@ -61,12 +64,13 @@ export default function CustomSettingsTopBar({
           }}
           onPress={leftImageFunction}
         >
-          <ThemeImage
+          <IconNew name={leftImageName} color={lefImageColor} />
+          {/* <ThemeImage
             styles={{ ...leftImageStyles }}
             lightsOutIcon={LeftImageDarkMode}
             darkModeIcon={leftImageBlue}
             lightModeIcon={leftImageBlue}
-          />
+          /> */}
         </TouchableOpacity>
       )}
     </View>

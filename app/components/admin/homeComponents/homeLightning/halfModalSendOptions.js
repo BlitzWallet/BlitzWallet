@@ -14,6 +14,7 @@ import Icon from '../../../../functions/CustomElements/Icon';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useRef } from 'react';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export default function HalfModalSendOptions(props) {
   const navigate = useNavigation();
@@ -26,16 +27,10 @@ export default function HalfModalSendOptions(props) {
   const sendOptionElements = ['img', 'clipboard', 'manual'].map((item, key) => {
     const lightIcon =
       item === 'img'
-        ? ICONS.ImagesIcon
+        ? 'Image'
         : item === 'clipboard'
-        ? ICONS.clipboardLight
-        : ICONS.editIconLight;
-    const darkIcon =
-      item === 'img'
-        ? ICONS.ImagesIconDark
-        : item === 'clipboard'
-        ? ICONS.clipboardDark
-        : ICONS.editIcon;
+        ? 'Clipboard'
+        : 'SquarePen';
 
     const itemText =
       item === 'img'
@@ -89,19 +84,18 @@ export default function HalfModalSendOptions(props) {
                 justifyContent: 'center',
               }}
             >
-              <Icon
+              <IconNew
+                name={'SquarePen'}
                 color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-                height={30}
-                width={30}
-                name={'editIcon'}
+                size={35}
               />
             </View>
           ) : (
-            <ThemeImage
-              styles={styles.icon}
-              lightModeIcon={darkIcon}
-              darkModeIcon={lightIcon}
-              lightsOutIcon={lightIcon}
+            <IconNew
+              containerStyle={styles.icon}
+              name={lightIcon}
+              color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+              size={35}
             />
           )}
           <ThemeText styles={styles.optionText} content={itemText} />
@@ -124,12 +118,13 @@ export default function HalfModalSendOptions(props) {
             }}
           >
             <View style={styles.optionRow}>
-              <ThemeImage
-                styles={styles.icon}
-                lightModeIcon={ICONS.contactsIcon}
-                darkModeIcon={ICONS.contactsIconLight}
-                lightsOutIcon={ICONS.contactsIconLight}
+              <IconNew
+                containerStyle={styles.icon}
+                name={'Contact'}
+                color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+                size={35}
               />
+
               <ThemeText
                 styles={{ ...styles.optionText }}
                 content={t('wallet.halfModal.contacts')}

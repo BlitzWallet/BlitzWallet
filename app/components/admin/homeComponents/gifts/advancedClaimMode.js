@@ -25,6 +25,7 @@ import {
   keyboardNavigate,
 } from '../../../../functions/customNavigation';
 import { useTranslation } from 'react-i18next';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export default function AdvancedGiftClaim() {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -160,12 +161,7 @@ export default function AdvancedGiftClaim() {
                 },
               ]}
             >
-              <ThemeImage
-                styles={{ width: 22, height: 22 }}
-                lightModeIcon={ICONS.warningWhite}
-                darkModeIcon={ICONS.warningWhite}
-                lightsOutIcon={ICONS.warningWhite}
-              />
+              <IconNew name={'TriangleAlert'} size={22} />
               <ThemeText
                 styles={styles.errorText}
                 content={t(

@@ -57,6 +57,7 @@ import { receiveSparkLightningPayment } from '../../../../functions/spark';
 import { getBolt11InvoiceForContact } from '../../../../functions/contacts';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 const MAX_SEND_OPTIONS = [
   { label: '25%', value: '25' },
   { label: '50%', value: '50' },
@@ -633,11 +634,12 @@ export default function SendAndRequestPage(props) {
                           },
                         ]}
                       >
-                        <ThemeImage
-                          styles={styles.editIcon}
-                          lightModeIcon={ICONS.editIcon}
-                          darkModeIcon={ICONS.editIconLight}
-                          lightsOutIcon={ICONS.editIconLight}
+                        <IconNew
+                          name={'SquarePen'}
+                          size={15}
+                          color={
+                            theme ? COLORS.darkModeText : COLORS.lightModeText
+                          }
                         />
                       </View>
                     </TouchableOpacity>

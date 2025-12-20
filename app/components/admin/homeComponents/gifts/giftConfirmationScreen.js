@@ -34,6 +34,7 @@ import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
 import { useTranslation } from 'react-i18next';
 import QrCodeWrapper from '../../../../functions/CustomElements/QrWrapper';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 const confirmTxAnimation = require('../../../../assets/confirmTxAnimation.json');
 
@@ -231,11 +232,12 @@ export default function GiftConfirmation({
               style={styles.copyButton}
               activeOpacity={0.7}
             >
-              <ThemeImage
-                styles={{ width: 20, height: 20 }}
-                lightModeIcon={ICONS.clipboardBlue}
-                darkModeIcon={ICONS.clipboardBlue}
-                lightsOutIcon={ICONS.clipboardDark}
+              <IconNew
+                name={'Copy'}
+                color={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
+                size={22}
               />
             </TouchableOpacity>
           </View>
@@ -249,11 +251,14 @@ export default function GiftConfirmation({
           style={styles.shareButton}
           activeOpacity={0.8}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.share}
-            darkModeIcon={ICONS.share}
-            lightsOutIcon={ICONS.shareBlack}
+          <IconNew
+            name={'Share'}
+            color={
+              theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+            }
+            size={22}
           />
+
           <ThemeText
             styles={styles.shareButtonText}
             content={t(

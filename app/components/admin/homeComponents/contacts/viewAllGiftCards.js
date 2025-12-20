@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Image,
@@ -6,24 +6,25 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-import {ThemeText} from '../../../../functions/CustomElements';
-import {COLORS, ICONS, SIZES} from '../../../../constants';
-import {useGlobalThemeContext} from '../../../../../context-store/theme';
+import { ThemeText } from '../../../../functions/CustomElements';
+import { COLORS, ICONS, SIZES } from '../../../../constants';
+import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
-import {useGlobalContacts} from '../../../../../context-store/globalContacts';
-import {INSET_WINDOW_WIDTH} from '../../../../constants/theme';
-import {useNavigation} from '@react-navigation/native';
+import { useGlobalContacts } from '../../../../../context-store/globalContacts';
+import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import { useNavigation } from '@react-navigation/native';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
 import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import {useTranslation} from 'react-i18next';
-import {getGiftCardData} from '../../../../functions/contacts/giftCardStorage';
+import { useTranslation } from 'react-i18next';
+import { getGiftCardData } from '../../../../functions/contacts/giftCardStorage';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export default function ViewAllGiftCards() {
-  const {giftCardsList} = useGlobalContacts();
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundColor, backgroundOffset, textColor} = GetThemeColors();
+  const { giftCardsList } = useGlobalContacts();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor, backgroundOffset, textColor } = GetThemeColors();
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [allCardsWithInfo, setAllCardsWithInfo] = useState([]);
 
   useEffect(() => {
@@ -96,7 +97,7 @@ export default function ViewAllGiftCards() {
     console.log(giftCard);
   };
 
-  const renderGiftCardItem = ({item}) => {
+  const renderGiftCardItem = ({ item }) => {
     const giftCardInfo = item.message.giftCardInfo;
     const expandedCardInfo = item.expandedCardInfo;
 
@@ -113,7 +114,8 @@ export default function ViewAllGiftCards() {
           },
         ]}
         onPress={() => handleGiftCardPress(item)}
-        activeOpacity={0.7}>
+        activeOpacity={0.7}
+      >
         {/* Claimed Status Pill */}
         {expandedCardInfo?.userMarkedClaimed && (
           <View
@@ -128,7 +130,8 @@ export default function ViewAllGiftCards() {
                     : COLORS.primary
                   : 'transparent',
               },
-            ]}>
+            ]}
+          >
             <ThemeText
               styles={{
                 ...styles.claimedPillText,
@@ -148,7 +151,7 @@ export default function ViewAllGiftCards() {
         <View style={styles.logoContainer}>
           {giftCardInfo?.logo ? (
             <Image
-              source={{uri: giftCardInfo.logo}}
+              source={{ uri: giftCardInfo.logo }}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -181,11 +184,10 @@ export default function ViewAllGiftCards() {
           balance={giftCardInfo?.amount || 0}
           useMillionDenomination={true}
         />
-        <ThemeImage
-          styles={styles.chevronContainer}
-          lightModeIcon={ICONS.leftCheveronIcon}
-          darkModeIcon={ICONS.leftCheveronIcon}
-          lightsOutIcon={ICONS.leftCheveronLight}
+        <IconNew
+          name={'ChevronRight'}
+          size={20}
+          containerStyle={styles.chevronContainer}
         />
       </TouchableOpacity>
     );
@@ -215,17 +217,13 @@ export default function ViewAllGiftCards() {
               buttonText: t('constants.understandText'),
             })
           }
-          style={styles.titleContainer}>
+          style={styles.titleContainer}
+        >
           <ThemeText
             styles={styles.headerTitle}
             content={t('contacts.internalComponents.viewAllGiftCards.header')}
           />
-          <ThemeImage
-            styles={styles.aboutIcon}
-            lightModeIcon={ICONS.aboutIcon}
-            darkModeIcon={ICONS.aboutIcon}
-            lightsOutIcon={ICONS.aboutIconWhite}
-          />
+          <IconNew name={'Info'} size={25} containerStyle={styles.aboutIcon} />
         </TouchableOpacity>
         <ThemeText
           styles={styles.headerSubtitle}
@@ -268,8 +266,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   aboutIcon: {
-    width: 22,
-    height: 22,
+    // width: 22,
+    // height: 22,
     marginLeft: 5,
   },
   headerTitle: {
@@ -333,11 +331,11 @@ const styles = StyleSheet.create({
     fontSize: SIZES.xSmall,
   },
   chevronContainer: {
-    width: 20,
-    height: 20,
+    // width: 20,
+    // height: 20,
     opacity: 0.6,
-    transform: [{rotate: '180deg'}],
-    marginLeft: 5,
+    // transform: [{ rotate: '180deg' }],
+    // marginLeft: 5,
   },
   separator: {
     height: 1,

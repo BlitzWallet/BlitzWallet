@@ -13,6 +13,7 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export default function BackupSeedWarning() {
   const { t } = useTranslation();
@@ -49,12 +50,7 @@ export default function BackupSeedWarning() {
         ]}
       >
         <View style={styles.iconContainer}>
-          <ThemeImage
-            styles={styles.warningIcon}
-            darkModeIcon={ICONS.warningBlue}
-            lightsOutIcon={ICONS.warningWhite}
-            lightModeIcon={ICONS.warningBlue}
-          />
+          <IconNew name={'TriangleAlert'} size={45} />
         </View>
 
         <ThemeText

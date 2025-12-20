@@ -6,18 +6,15 @@ import { GlobalThemeView } from '../../../../functions/CustomElements';
 import { useNavigation } from '@react-navigation/native';
 import { keyboardGoBack } from '../../../../functions/customNavigation';
 import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { CENTER, COLORS, ICONS } from '../../../../constants';
+import { CENTER, COLORS } from '../../../../constants';
 import ContactProfileImage from './internalComponents/profileImage';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useImageCache } from '../../../../../context-store/imageCache';
 import { useExpandedNavbar } from './hooks/useExpandedNavbar';
-import FullLoadingScreen from '../../../../functions/CustomElements/loadingScreen';
-import { Image } from 'expo-image';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import Icon from '../../../../functions/CustomElements/Icon';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import AddContactsPage from './addContactsPage';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 // Memoized shared header component
 const SharedHeader = memo(
@@ -68,11 +65,7 @@ const MemoizedNavBar = memo(
     return (
       <View style={styles.topBar}>
         <TouchableOpacity style={styles.backButtonContainer} onPress={onBack}>
-          <ThemeImage
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <IconNew name={'ArrowLeft'} />
         </TouchableOpacity>
         {selectedContact && isContactAdded && (
           <TouchableOpacity
@@ -81,30 +74,12 @@ const MemoizedNavBar = memo(
               handleFavortie({ selectedContact });
             }}
           >
-            <Icon
-              width={25}
-              height={25}
-              name={'didPinContactStar'}
-              color={
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-              }
-              offsetColor={
-                selectedContact.isFavorite
-                  ? theme && darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.primary
-                  : backgroundColor
-              }
-            />
+            <IconNew name="Star" fill={selectedContact.isFavorite} />
           </TouchableOpacity>
         )}
         {selectedContact && isContactAdded && (
           <TouchableOpacity onPress={() => handleSettings({ selectedContact })}>
-            <ThemeImage
-              darkModeIcon={ICONS.settingsIcon}
-              lightModeIcon={ICONS.settingsIcon}
-              lightsOutIcon={ICONS.settingsWhite}
-            />
+            <IconNew name="Settings" />
           </TouchableOpacity>
         )}
       </View>

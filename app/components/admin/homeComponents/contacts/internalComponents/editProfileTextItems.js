@@ -4,6 +4,7 @@ import { COLORS, FONT, SIZES, ICONS } from '../../../../../constants';
 
 import { ThemeText } from '../../../../../functions/CustomElements';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import IconNew from '../../../../../functions/CustomElements/iconControllar';
 
 /**
  * Reusable text input component for edit profile forms
@@ -78,12 +79,7 @@ export default function EditProfileTextInput({
             content={label}
           />
           <View onPress={onInfoPress}>
-            <ThemeImage
-              styles={styles.infoIcon}
-              lightModeIcon={ICONS.aboutIcon}
-              darkModeIcon={ICONS.aboutIcon}
-              lightsOutIcon={ICONS.aboutIconWhite}
-            />
+            <IconNew containerStyle={styles.infoIcon} name={'Info'} size={20} />
           </View>
         </TouchableOpacity>
       ) : (

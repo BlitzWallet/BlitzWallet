@@ -17,8 +17,9 @@ import { useGifts } from '../../../../../context-store/giftContext';
 import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../functions/CustomElements/button';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
-export default function ReclaimGift({ theme }) {
+export default function ReclaimGift({ theme, darkModeType }) {
   const { expiredGiftsArray } = useGifts();
   const navigate = useNavigation();
   const { bottomPadding } = useGlobalInsets();
@@ -79,10 +80,11 @@ export default function ReclaimGift({ theme }) {
           <View style={styles.centerContent}>
             {/* Icon */}
             <View style={styles.iconContainer}>
-              <ThemeImage
-                lightModeIcon={ICONS.rotateLeftBlue}
-                darkModeIcon={ICONS.rotateLeftBlue}
-                lightsOutIcon={ICONS.rotateLeft}
+              <IconNew
+                name={'RotateCcw'}
+                color={
+                  theme && darkModeType ? COLORS.lightModeText : COLORS.primary
+                }
               />
             </View>
 

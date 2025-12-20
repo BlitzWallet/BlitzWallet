@@ -34,6 +34,7 @@ import {
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
 import { useExpandedNavbar } from './hooks/useExpandedNavbar';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export default function ExpandedContactsPage(props) {
   const navigate = useNavigation();
@@ -142,11 +143,10 @@ export default function ExpandedContactsPage(props) {
             </View>
             {!selectedContact?.isLNURL && selectedContact?.uniqueName && (
               <View style={styles.selectFromPhotos}>
-                <ThemeImage
-                  styles={{ width: 20, height: 20 }}
-                  darkModeIcon={ICONS.shareBlack}
-                  lightModeIcon={ICONS.shareBlack}
-                  lightsOutIcon={ICONS.shareBlack}
+                <IconNew
+                  size={18}
+                  name={'Share'}
+                  color={COLORS.lightModeText}
                 />
               </View>
             )}
@@ -328,41 +328,19 @@ export default function ExpandedContactsPage(props) {
           style={styles.backButtonContainer}
           onPress={navigate.goBack}
         >
-          <ThemeImage
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <IconNew name={'ArrowLeft'} />
         </TouchableOpacity>
         {selectedContact && (
           <TouchableOpacity
             style={styles.starContianer}
             onPress={() => handleFavortie({ selectedContact })}
           >
-            <Icon
-              width={25}
-              height={25}
-              name={'didPinContactStar'}
-              color={
-                theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-              }
-              offsetColor={
-                selectedContact.isFavorite
-                  ? theme && darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.primary
-                  : backgroundColor
-              }
-            />
+            <IconNew name="Star" fill={selectedContact.isFavorite} />
           </TouchableOpacity>
         )}
         {selectedContact && (
           <TouchableOpacity onPress={() => handleSettings({ selectedContact })}>
-            <ThemeImage
-              darkModeIcon={ICONS.settingsIcon}
-              lightModeIcon={ICONS.settingsIcon}
-              lightsOutIcon={ICONS.settingsWhite}
-            />
+            <IconNew name="Settings" />
           </TouchableOpacity>
         )}
       </View>

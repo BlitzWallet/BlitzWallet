@@ -28,6 +28,7 @@ import { copyToClipboard, formatBalanceAmount } from '../../../../functions';
 import { useToast } from '../../../../../context-store/toastManager';
 import { handleGiftCardShare } from '../../../../functions/gift/standardizeLinkShare';
 import { useTranslation } from 'react-i18next';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export default function GiftsOverview({ theme, darkModeType }) {
   const { showToast } = useToast();
@@ -134,13 +135,7 @@ export default function GiftsOverview({ theme, darkModeType }) {
                   }
                 }}
               >
-                <ThemeImage
-                  lightModeIcon={useState ? ICONS.clipboardBlue : ICONS.share}
-                  darkModeIcon={useState ? ICONS.clipboardBlue : ICONS.share}
-                  lightsOutIcon={
-                    useState ? ICONS.clipboardLight : ICONS.shareWhite
-                  }
-                />
+                <IconNew name={useState ? 'Copy' : 'Share'} size={22} />
               </TouchableOpacity>
             )}
           </View>
@@ -220,12 +215,8 @@ export default function GiftsOverview({ theme, darkModeType }) {
             },
           ]}
         >
-          <ThemeImage
-            styles={styles.buttonIcon}
-            lightModeIcon={ICONS.xSmallIcon}
-            darkModeIcon={ICONS.xSmallIcon}
-            lightsOutIcon={ICONS.xSmallIconWhite}
-          />
+          <IconNew containerStyle={styles.buttonIcon} name={'Plus'} size={20} />
+
           <ThemeText
             styles={{ includeFontPadding: false }}
             content={t('screens.inAccount.giftPages.giftsOverview.createGift')}
@@ -304,6 +295,5 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginRight: 5,
-    transform: [{ rotate: '-45deg' }],
   },
 });
