@@ -442,7 +442,8 @@ const SparkWalletProvider = ({ children }) => {
       if (
         updateType === 'lrc20Payments' ||
         updateType === 'txStatusUpdate' ||
-        updateType === 'transactions'
+        updateType === 'transactions' ||
+        updateType === 'contactDetailsUpdate'
       ) {
         setSparkInformation(prev => ({
           ...prev,
@@ -553,10 +554,11 @@ const SparkWalletProvider = ({ children }) => {
         updateType === 'paymentWrapperTx' ||
         updateType === 'transactions' ||
         updateType === 'txStatusUpdate' ||
-        updateType === 'lrc20Payments'
+        updateType === 'lrc20Payments' ||
+        updateType === 'contactDetailsUpdate'
       ) {
         console.log(
-          'Payment type is send payment, transaction, lrc20 first render, or txstatus update, skipping confirm tx page navigation',
+          'Payment type is send payment, transaction, lrc20 first render, updateContactDetails, or txstatus update, skipping confirm tx page navigation',
         );
         return;
       }

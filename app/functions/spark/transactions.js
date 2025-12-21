@@ -128,6 +128,55 @@ export const getAllSparkTransactions = async (options = {}) => {
   }
 };
 
+export const getBulkSparkTransactions = async sparkIDs => {
+  if (!sparkIDs || sparkIDs.length === 0) return [];
+
+  try {
+    await ensureSparkDatabaseReady();
+
+    const placeholders = sparkIDs.map(() => '?').join(',');
+    const query = `
+      SELECT * FROM ${SPARK_TRANSACTIONS_TABLE_NAME}
+      WHERE sparkID IN (${placeholders})
+    `;
+
+    const results = await sqlLiteDB.getAllAsync(query, sparkIDs);
+
+    // Create a Map for O(1) lookups
+    const txMap = new Map();
+    for (const tx of results) {
+      txMap.set(tx.sparkID, tx);
+    }
+
+    return txMap;
+  } catch (error) {
+    console.error('Error fetching bulk spark transactions:', error);
+    return new Map();
+  }
+};
+
+export const deleteBulkSparkContactTransactions = async sparkIDs => {
+  if (!sparkIDs || sparkIDs.length === 0) return 0;
+
+  try {
+    await ensureSparkDatabaseReady();
+
+    const placeholders = sparkIDs.map(() => '?').join(',');
+    const query = `
+      DELETE FROM ${SPARK_REQUEST_IDS_TABLE_NAME}
+      WHERE sparkID IN (${placeholders})
+    `;
+
+    const result = await sqlLiteDB.runAsync(query, sparkIDs);
+
+    // sqlite typically exposes number of affected rows like this
+    return result?.changes ?? 0;
+  } catch (error) {
+    console.error('Error deleting bulk spark transactions:', error);
+    return 0;
+  }
+};
+
 export const getAllPendingSparkPayments = async accountId => {
   try {
     await ensureSparkDatabaseReady();
@@ -373,7 +422,7 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
             paymentStatus: tx.paymentStatus,
             paymentType: tx.paymentType || 'unknown',
             accountId: tx.accountId || 'unknown',
-            details: tx.details,
+            details: tx.details ?? {},
             useTempId: tx.useTempId,
           });
         }

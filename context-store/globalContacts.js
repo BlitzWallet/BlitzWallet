@@ -17,11 +17,13 @@ import {
 } from '../app/functions/messaging/encodingAndDecodingMessages';
 
 import {
+  clearContactRaceRetryTimers,
   CONTACTS_TRANSACTION_UPDATE_NAME,
   contactsSQLEventEmitter,
   deleteCachedMessages,
   getCachedMessages,
   queueSetCashedMessages,
+  startContactPaymentMatchRetrySequance,
 } from '../app/functions/messaging/cachedMessages';
 import { db } from '../db/initializeFirebase';
 import { useKeysContext } from './keys';
@@ -144,6 +146,20 @@ export const GlobalContactsList = ({ children }) => {
     async function handleUpdate(updateType) {
       try {
         console.log('Received contact transaction update type', updateType);
+        if (updateType === 'hanleContactRace') {
+          // If the update type is "handle race", we have not yet received the payment
+          // event from Spark. A race condition can occur where a Firebase DB event
+          // fires at the same time the corresponding Spark transaction is saved to
+          // Spark’s SQL database. In this case, the description and contact information
+          // from Firebase may not be attached to the Spark transaction.
+          //
+          // To mitigate this, we use an exponential backoff that repeatedly checks
+          // saved transactions (specifically incoming transactions that do not yet
+          // have a corresponding Spark transaction). This reduces the chance that
+          // the transaction is saved without the associated metadata.
+          startContactPaymentMatchRetrySequance();
+          return;
+        }
         updatedCachedMessagesStateFunction();
       } catch (err) {
         console.log('error in contact messages update function', err);
@@ -158,6 +174,7 @@ export const GlobalContactsList = ({ children }) => {
       contactsSQLEventEmitter.removeAllListeners(
         CONTACTS_TRANSACTION_UPDATE_NAME,
       );
+      clearContactRaceRetryTimers();
     };
   }, [updatedCachedMessagesStateFunction]);
 
@@ -284,85 +301,92 @@ export const GlobalContactsList = ({ children }) => {
   useEffect(() => {
     if (!Object.keys(globalContactsInformation).length) return;
     if (!contactsPrivateKey) return;
-    // Set timestamp to 30 seconds ago to account for any clock skew
-    const now = new Date().getTime() - 30 * 1000; // 30 seconds ago
+    // Set timestamp to last conversation to retrive historical messages
+    async function handleListener() {
+      const cachedConversations = await getCachedMessages();
+      const savedMillis = cachedConversations.lastMessageTimestamp;
 
-    // Unsubscribe from previous listeners before setting new ones
-    if (unsubscribeMessagesRef.current) {
-      unsubscribeMessagesRef.current();
+      // Unsubscribe from previous listeners before setting new ones
+      if (unsubscribeMessagesRef.current) {
+        unsubscribeMessagesRef.current();
+      }
+
+      const combinedMessageQuery = query(
+        collection(db, 'contactMessages'),
+        where('timestamp', '>', savedMillis),
+        or(
+          where('toPubKey', '==', globalContactsInformation.myProfile.uuid),
+          where('fromPubKey', '==', globalContactsInformation.myProfile.uuid),
+        ),
+        orderBy('timestamp'),
+      );
+
+      unsubscribeMessagesRef.current = onSnapshot(
+        combinedMessageQuery,
+        snapshot => {
+          if (!snapshot?.docChanges()?.length) return;
+          let newMessages = [];
+          let newUniqueIds = new Map();
+          snapshot.docChanges().forEach(change => {
+            if (change.type === 'added') {
+              const newMessage = change.doc.data();
+              // Log whether it's sent or received
+              const isReceived =
+                newMessage.toPubKey ===
+                globalContactsInformation.myProfile.uuid;
+              console.log(
+                `${isReceived ? 'received' : 'sent'} a new message`,
+                newMessage,
+              );
+              if (typeof newMessage.message === 'string') {
+                const sendersPubkey =
+                  newMessage.toPubKey ===
+                  globalContactsInformation.myProfile.uuid
+                    ? newMessage.fromPubKey
+                    : newMessage.toPubKey;
+                const decoded = decryptMessage(
+                  contactsPrivateKey,
+                  sendersPubkey,
+                  newMessage.message,
+                );
+
+                if (!decoded) return;
+                let parsedMessage;
+                try {
+                  parsedMessage = JSON.parse(decoded);
+                } catch (err) {
+                  console.log('error parsing decoded message', err);
+                  return;
+                }
+
+                if (parsedMessage?.senderProfileSnapshot && isReceived) {
+                  newUniqueIds.set(
+                    sendersPubkey,
+                    parsedMessage.senderProfileSnapshot?.uniqueName,
+                  );
+                }
+
+                newMessages.push({
+                  ...newMessage,
+                  message: parsedMessage,
+                  sendersPubkey,
+                  isReceived,
+                });
+              } else newMessages.push(newMessage);
+            }
+          });
+          updateContactUniqueName(newUniqueIds);
+          if (newMessages.length > 0) {
+            queueSetCashedMessages({
+              newMessagesList: newMessages,
+              myPubKey: globalContactsInformation.myProfile.uuid,
+            });
+          }
+        },
+      );
     }
 
-    const combinedMessageQuery = query(
-      collection(db, 'contactMessages'),
-      where('timestamp', '>', now),
-      or(
-        where('toPubKey', '==', globalContactsInformation.myProfile.uuid),
-        where('fromPubKey', '==', globalContactsInformation.myProfile.uuid),
-      ),
-      orderBy('timestamp'),
-    );
-
-    unsubscribeMessagesRef.current = onSnapshot(
-      combinedMessageQuery,
-      snapshot => {
-        if (!snapshot?.docChanges()?.length) return;
-        let newMessages = [];
-        let newUniqueIds = new Map();
-        snapshot.docChanges().forEach(change => {
-          if (change.type === 'added') {
-            const newMessage = change.doc.data();
-            // Log whether it's sent or received
-            const isReceived =
-              newMessage.toPubKey === globalContactsInformation.myProfile.uuid;
-            console.log(
-              `${isReceived ? 'received' : 'sent'} a new message`,
-              newMessage,
-            );
-            if (typeof newMessage.message === 'string') {
-              const sendersPubkey =
-                newMessage.toPubKey === globalContactsInformation.myProfile.uuid
-                  ? newMessage.fromPubKey
-                  : newMessage.toPubKey;
-              const decoded = decryptMessage(
-                contactsPrivateKey,
-                sendersPubkey,
-                newMessage.message,
-              );
-
-              if (!decoded) return;
-              let parsedMessage;
-              try {
-                parsedMessage = JSON.parse(decoded);
-              } catch (err) {
-                console.log('error parsing decoded message', err);
-                return;
-              }
-
-              if (parsedMessage?.senderProfileSnapshot && isReceived) {
-                newUniqueIds.set(
-                  sendersPubkey,
-                  parsedMessage.senderProfileSnapshot?.uniqueName,
-                );
-              }
-
-              newMessages.push({
-                ...newMessage,
-                message: parsedMessage,
-                sendersPubkey,
-                isReceived,
-              });
-            } else newMessages.push(newMessage);
-          }
-        });
-        updateContactUniqueName(newUniqueIds);
-        if (newMessages.length > 0) {
-          queueSetCashedMessages({
-            newMessagesList: newMessages,
-            myPubKey: globalContactsInformation.myProfile.uuid,
-          });
-        }
-      },
-    );
+    handleListener();
 
     return () => {
       if (unsubscribeMessagesRef.current) {
@@ -475,6 +499,9 @@ export const GlobalContactsList = ({ children }) => {
   useEffect(() => {
     if (!Object.keys(globalContactsInformation).length) return;
     if (!contactsPrivateKey) return;
+    // No longer need to sync here since we are handling this through snapshot
+    updatedCachedMessagesStateFunction();
+    return;
 
     if (lookForNewMessages.current) {
       lookForNewMessages.current = false;
