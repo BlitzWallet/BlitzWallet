@@ -2,10 +2,25 @@ import {
   lnurlAuth,
   LnUrlCallbackStatusVariant,
 } from '@breeztech/react-native-breez-sdk-liquid';
-import {crashlyticsLogReport} from '../../../../../functions/crashlyticsLogs';
+import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
+import {
+  ensureLiquidConnection,
+  isLiquidNodeConnected,
+} from '../../../../../functions/breezLiquid/liquidNodeManager';
 
 export default async function processLNUrlAuth(input, context) {
-  const {goBackFunction, navigate, setLoadingMessage, t} = context;
+  const { goBackFunction, navigate, setLoadingMessage, t, accountMnemoinc } =
+    context;
+
+  if (!isLiquidNodeConnected()) {
+    console.log('Liquid node not connected, waiting for connection...');
+    const resposne = await ensureLiquidConnection(accountMnemoinc);
+
+    if (!resposne) {
+      goBackFunction(t('errormessages.tryAgain'));
+      return;
+    }
+  }
 
   crashlyticsLogReport('Hanlding LURL auth');
   setLoadingMessage(

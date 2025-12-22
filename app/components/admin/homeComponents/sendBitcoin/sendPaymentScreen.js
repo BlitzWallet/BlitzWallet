@@ -60,6 +60,7 @@ import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import EmojiQuickBar from '../../../../functions/CustomElements/emojiBar';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { bulkUpdateSparkTransactions } from '../../../../functions/spark/transactions';
+import { useKeysContext } from '../../../../../context-store/keys';
 
 export default function SendPaymentScreen(props) {
   const navigate = useNavigation();
@@ -82,6 +83,7 @@ export default function SendPaymentScreen(props) {
   const { sendWebViewRequest } = useWebView();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { screenDimensions } = useAppStatus();
+  const { accountMnemoinc } = useKeysContext();
   const { sparkInformation, showTokensInformation, sparkInfoRef } =
     useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
@@ -247,6 +249,7 @@ export default function SendPaymentScreen(props) {
         sendWebViewRequest,
         contactInfo,
         globalContactsInformation,
+        accountMnemoinc,
       });
     }
     if (!sparkInformation.didConnect) return;

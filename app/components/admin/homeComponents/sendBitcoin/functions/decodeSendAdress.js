@@ -38,6 +38,7 @@ export default async function decodeSendAddress(props) {
     sendWebViewRequest,
     contactInfo,
     globalContactsInformation,
+    accountMnemoinc,
   } = props;
 
   try {
@@ -152,6 +153,7 @@ export default async function decodeSendAddress(props) {
         contactInfo,
         sparkInformation,
         globalContactsInformation,
+        accountMnemoinc,
       });
     } catch (err) {
       return goBackFunction(

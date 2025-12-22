@@ -11,11 +11,11 @@ import { useGlobalContextProvider } from './context';
 import loadNewFiatData from '../app/functions/saveAndUpdateFiatData';
 import { useKeysContext } from './keys';
 import { useAppStatus } from './appStatus';
-import connectToLiquidNode from '../app/functions/connectToLiquid';
 import { useSparkWallet } from './sparkContext';
 import { useGlobalContacts } from './globalContacts';
 import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
 import { useAuthContext } from './authContext';
+import { ensureLiquidConnection } from '../app/functions/breezLiquid/liquidNodeManager';
 
 // Initiate context
 const NodeContextManager = createContext(null);
@@ -84,12 +84,10 @@ const GLobalNodeContextProider = ({ children }) => {
     didRunLiquidConnection.current = true;
 
     async function connectToLiquid() {
-      const connectionResponse = await connectToLiquidNode(accountMnemoinc);
+      const connectionResponse = await ensureLiquidConnection(accountMnemoinc);
       console.log('liquid connection response', connectionResponse);
-      if (connectionResponse.isConnected) {
-        toggleLiquidNodeInformation({
-          didConnectToNode: true,
-        });
+      if (connectionResponse) {
+        toggleLiquidNodeInformation({ didConnectToNode: true });
       }
     }
     connectToLiquid();
