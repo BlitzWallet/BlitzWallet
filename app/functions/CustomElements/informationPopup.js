@@ -1,40 +1,45 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useEffect, useRef, useState} from 'react';
-import {COLORS, ICONS} from '../../constants';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect, useRef, useState } from 'react';
+import { COLORS } from '../../constants';
 import ThemeText from './textTheme';
 import CustomButton from './button';
 import GetThemeColors from '../../hooks/themeColors';
-import ThemeImage from './themeImage';
-import {useGlobalThemeContext} from '../../../context-store/theme';
+import { useGlobalThemeContext } from '../../../context-store/theme';
 import Animated, {
   useSharedValue,
   withTiming,
   runOnJS,
   useAnimatedStyle,
 } from 'react-native-reanimated';
+import IconNew from './iconControllar';
 
 export default function InformationPopup(props) {
   const BlurViewAnimation = useSharedValue(0);
   const isInitialLoad = useRef(true);
   const navigate = useNavigation();
   const [goBack, setGoGack] = useState(false);
-  const {theme, darkModeType} = useGlobalThemeContext();
-  const {backgroundOffset, backgroundColor} = GetThemeColors();
+  const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundOffset, backgroundColor } = GetThemeColors();
   const {
     route: {
-      params: {textContent, buttonText, CustomTextComponent, customNavigation},
+      params: {
+        textContent,
+        buttonText,
+        CustomTextComponent,
+        customNavigation,
+      },
     },
   } = props;
 
   useEffect(() => {
     if (isInitialLoad.current) {
-      BlurViewAnimation.value = withTiming(1, {duration: 500});
+      BlurViewAnimation.value = withTiming(1, { duration: 500 });
 
       isInitialLoad.current = false;
     }
     if (goBack) {
-      BlurViewAnimation.value = withTiming(0, {duration: 500}, isFinished => {
+      BlurViewAnimation.value = withTiming(0, { duration: 500 }, isFinished => {
         if (isFinished) {
           if (customNavigation) {
             runOnJS(customNavigation)();
@@ -57,15 +62,13 @@ export default function InformationPopup(props) {
           style={{
             ...styles.contentContainer,
             backgroundColor: backgroundOffset,
-          }}>
+          }}
+        >
           <TouchableOpacity
             onPress={() => setGoGack(true)}
-            style={{marginLeft: 'auto', marginBottom: 10}}>
-            <ThemeImage
-              lightModeIcon={ICONS.xSmallIcon}
-              darkModeIcon={ICONS.xSmallIcon}
-              lightsOutIcon={ICONS.xSmallIconWhite}
-            />
+            style={{ marginLeft: 'auto', marginBottom: 10 }}
+          >
+            <IconNew name={'X'} />
           </TouchableOpacity>
 
           {textContent && (

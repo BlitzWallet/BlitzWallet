@@ -11,7 +11,7 @@ import {
   CustomKeyboardAvoidingView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import { CENTER, COLORS, ICONS, SIZES } from '../../../../../constants';
+import { CENTER, COLORS, SIZES } from '../../../../../constants';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { sendCountryCodes } from './sendCountryCodes';
@@ -146,8 +146,7 @@ export default function SMSMessagingSendPage() {
           }}
           label={t(`constants.send`)}
           showLeftImage={true}
-          leftImageBlue={ICONS.receiptIcon}
-          LeftImageDarkMode={ICONS.receiptWhite}
+          leftImageName="ReceiptText"
           leftImageFunction={() => {
             navigate.navigate('HistoricalSMSMessagingPage', {
               selectedPage: 'send',

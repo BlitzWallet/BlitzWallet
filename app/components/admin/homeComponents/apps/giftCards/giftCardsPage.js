@@ -18,12 +18,10 @@ import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
-  ICONS,
   SIZES,
 } from '../../../../../constants';
 import CountryFlag from 'react-native-country-flag';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import getGiftCardsList from './giftCardAPI';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
 import useHandleBackPressNew from '../../../../../hooks/useHandleBackPressNew';
@@ -32,6 +30,7 @@ import { useGlobalInsets } from '../../../../../../context-store/insetsProvider'
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
+import IconNew from '../../../../../functions/CustomElements/iconControllar';
 
 export default function GiftCardPage() {
   const { decodedGiftCards, toggleGiftCardsList, giftCardsList } =
@@ -192,11 +191,7 @@ export default function GiftCardPage() {
           }}
           style={{ marginRight: 'auto' }}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <IconNew name={'ArrowLeft'} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() =>
@@ -213,11 +208,7 @@ export default function GiftCardPage() {
             )
           }
         >
-          <ThemeImage
-            darkModeIcon={ICONS.receiptIcon}
-            lightModeIcon={ICONS.receiptIcon}
-            lightsOutIcon={ICONS.receiptWhite}
-          />
+          <IconNew name={'ReceiptText'} />
         </TouchableOpacity>
       </View>
       <CustomSearchInput

@@ -5,6 +5,7 @@ import ThemeText from './textTheme';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import ThemeImage from './themeImage';
 import { useMemo } from 'react';
+import IconNew from './iconControllar';
 
 export default function CustomButton({
   buttonStyles,
@@ -90,14 +91,14 @@ export default function CustomButton({
           loadingColor={loadingColor}
         />
       ) : useArrow ? (
-        <ThemeImage
-          styles={styles.arrowStyles}
-          lightModeIcon={ICONS.leftCheveronIcon}
-          darkModeIcon={ICONS.leftCheveronIcon}
-          lightsOutIcon={
-            buttonStyles?.backgroundColor
-              ? ICONS.leftCheveronLight
-              : ICONS.leftCheveronDark
+        <IconNew
+          name={'ChevronRight'}
+          color={
+            theme && darkModeType
+              ? buttonStyles?.backgroundColor
+                ? COLORS.darkModeText
+                : COLORS.lightModeText
+              : COLORS.primary
           }
         />
       ) : (

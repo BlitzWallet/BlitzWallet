@@ -8,9 +8,7 @@ import {
 import { ThemeText } from '../../../../functions/CustomElements';
 import { useGlobalContacts } from '../../../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
-import Icon from '../../../../functions/CustomElements/Icon';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useGlobalInsets } from '../../../../../context-store/insetsProvider';
 import { useRef } from 'react';
@@ -87,7 +85,7 @@ export default function HalfModalSendOptions(props) {
               <IconNew
                 name={'SquarePen'}
                 color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-                size={35}
+                size={30}
               />
             </View>
           ) : (
@@ -95,7 +93,7 @@ export default function HalfModalSendOptions(props) {
               containerStyle={styles.icon}
               name={lightIcon}
               color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-              size={35}
+              size={30}
             />
           )}
           <ThemeText styles={styles.optionText} content={itemText} />
@@ -122,7 +120,7 @@ export default function HalfModalSendOptions(props) {
                 containerStyle={styles.icon}
                 name={'Contact'}
                 color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-                size={35}
+                size={30}
               />
 
               <ThemeText
@@ -149,6 +147,7 @@ const styles = StyleSheet.create({
 
   optionRow: {
     width: '90%',
+    minHeight: 50,
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
@@ -160,8 +159,6 @@ const styles = StyleSheet.create({
   },
 
   icon: {
-    width: 35,
-    height: 35,
-    marginRight: 15,
+    marginRight: 10,
   },
 });

@@ -1,22 +1,22 @@
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {ThemeText} from '../../../../../functions/CustomElements';
-import {COLORS, ICONS} from '../../../../../constants';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemeText } from '../../../../../functions/CustomElements';
+import { COLORS } from '../../../../../constants';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import {SIZES} from '../../../../../constants/theme';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {useNavigation} from '@react-navigation/native';
-import {parsePhoneNumberWithError} from 'libphonenumber-js';
-import {countrymap} from './receiveCountryCodes';
-import {useCallback, useMemo} from 'react';
-import {copyToClipboard} from '../../../../../functions';
-import {useToast} from '../../../../../../context-store/toastManager';
-import {useTranslation} from 'react-i18next';
+import { SIZES } from '../../../../../constants/theme';
+import { useNavigation } from '@react-navigation/native';
+import { parsePhoneNumberWithError } from 'libphonenumber-js';
+import { countrymap } from './receiveCountryCodes';
+import { useCallback, useMemo } from 'react';
+import { copyToClipboard } from '../../../../../functions';
+import { useToast } from '../../../../../../context-store/toastManager';
+import { useTranslation } from 'react-i18next';
+import IconNew from '../../../../../functions/CustomElements/iconControllar';
 
 export default function ViewSmsReceiveCode(props) {
-  const {showToast} = useToast();
-  const {backgroundOffset} = GetThemeColors();
+  const { showToast } = useToast();
+  const { backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const country = props.route?.params?.country || 'N/A';
   const code = props.route?.params?.code || 'N/A';
@@ -41,18 +41,15 @@ export default function ViewSmsReceiveCode(props) {
   return (
     <View style={styles.container}>
       <View
-        style={[styles.contentContainer, {backgroundColor: backgroundOffset}]}>
+        style={[styles.contentContainer, { backgroundColor: backgroundOffset }]}
+      >
         <View style={styles.topBar}>
           <ThemeText
             styles={styles.codeHeaderText}
             content={t('apps.sms4sats.viewSMSReceiveCode.header')}
           />
           <TouchableOpacity onPress={navigate.goBack} style={styles.closeIcon}>
-            <ThemeImage
-              lightModeIcon={ICONS.xSmallIcon}
-              darkModeIcon={ICONS.xSmallIcon}
-              lightsOutIcon={ICONS.xSmallIconWhite}
-            />
+            <IconNew name={'X'} />
           </TouchableOpacity>
         </View>
 

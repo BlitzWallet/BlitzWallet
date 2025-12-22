@@ -4,20 +4,18 @@ import {
   CENTER,
   COLORS,
   HIDDEN_BALANCE_TEXT,
-  ICONS,
   SIZES,
   SKELETON_ANIMATION_SPEED,
 } from '../constants';
 import { ThemeText } from './CustomElements';
 import FormattedSatText from './CustomElements/satTextDisplay';
 import { useTranslation } from 'react-i18next';
-import Icon from './CustomElements/Icon';
 import { memo, useMemo, useCallback } from 'react';
 import { crashlyticsLogReport } from './crashlyticsLogs';
 import SkeletonPlaceholder from './CustomElements/skeletonView';
 import formatTokensNumber from './lrc20/formatTokensBalance';
-import { Image } from 'expo-image';
 import { getTimeDisplay } from './contacts';
+import IconNew from './CustomElements/iconControllar';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -364,17 +362,6 @@ export const UserTransaction = memo(function UserTransaction({
     [currentTime, paymentDate],
   );
 
-  const paymentImage = useMemo(() => {
-    if (isFailedPayment) {
-      return darkModeType && theme
-        ? ICONS.failedTransactionWhite
-        : ICONS.failedTransaction;
-    }
-    return darkModeType && theme
-      ? ICONS.arrow_small_left_white
-      : ICONS.smallArrowLeft;
-  }, [darkModeType, theme, isFailedPayment]);
-
   const token = useMemo(
     () =>
       isLRC20Payment
@@ -478,24 +465,30 @@ export const UserTransaction = memo(function UserTransaction({
       activeOpacity={frompage === TRANSACTION_CONSTANTS.SPARK_WALLET ? 1 : 0.5}
       onPress={handlePress}
     >
-      {showPendingTransactionStatusIcon ? (
-        <View style={styles.icons}>
-          <Icon
-            width={27}
-            height={27}
-            color={darkModeType && theme ? COLORS.darkModeText : COLORS.primary}
-            name="pendingTxIcon"
-          />
-        </View>
-      ) : (
-        <Image
-          style={[styles.icons, imageTransformStyle]}
-          source={paymentImage}
-          contentFit="contain"
-          recyclingKey={String(paymentImage)}
-          transition={null}
+      <View style={styles.icons}>
+        <IconNew
+          containerStyle={[
+            styles.icons,
+            !isFailedPayment &&
+              !showPendingTransactionStatusIcon &&
+              imageTransformStyle,
+          ]}
+          color={
+            theme && darkModeType
+              ? COLORS.darkModeText
+              : isFailedPayment
+              ? COLORS.cancelRed
+              : COLORS.primary
+          }
+          name={
+            showPendingTransactionStatusIcon
+              ? 'Clock'
+              : isFailedPayment
+              ? 'CircleX'
+              : 'ArrowLeft'
+          }
         />
-      )}
+      </View>
       <View style={styles.transactionContent}>
         <ThemeText
           CustomEllipsizeMode="tail"

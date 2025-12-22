@@ -8,8 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { ThemeText } from '../../../../functions/CustomElements';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
-import { CENTER, ICONS } from '../../../../constants';
+import { CENTER } from '../../../../constants';
 import { COLORS, INSET_WINDOW_WIDTH, SIZES } from '../../../../constants/theme';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
@@ -20,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { Image as ExpoImage } from 'expo-image';
 import Icon from '../../../../functions/CustomElements/Icon';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 // Token item component with image fetching
 function TokenItem({
@@ -231,15 +231,7 @@ export default function LRC20Assets() {
         />
 
         <Animated.View style={[{ marginLeft: 5 }, arrowStyle]}>
-          <ThemeImage
-            styles={{
-              width: 15,
-              height: 15,
-            }}
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <IconNew name={'ArrowLeft'} size={15} />
         </Animated.View>
       </TouchableOpacity>
 

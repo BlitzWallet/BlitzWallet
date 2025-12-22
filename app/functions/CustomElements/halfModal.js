@@ -18,7 +18,6 @@ import ConfirmExportPayments from '../../components/admin/homeComponents/exportT
 import ConfirmChatGPTPage from '../../components/admin/homeComponents/apps/chatGPT/components/confirmationPage';
 import AddContactsHalfModal from '../../components/admin/homeComponents/contacts/addContactsHalfModal';
 import GetThemeColors from '../../hooks/themeColors';
-import MyProfileQRCode from '../../components/admin/homeComponents/contacts/internalComponents/profilePageQrPopup';
 import ExpandedMessageHalfModal from '../../components/admin/homeComponents/contacts/expandedMessageHalfModal';
 // import LiquidAddressModal from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
 import ManualEnterSendAddress from '../../components/admin/homeComponents/homeLightning/manualEnterSendAddress';
@@ -31,7 +30,6 @@ import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import EditLNURLContactOnReceivePage from '../../components/admin/homeComponents/receiveBitcoin/editLNURLContact';
 import CustomInputHalfModal from './CustomInputHalfModal';
 import CustomQrCode from '../../components/admin/homeComponents/settingsContent/bankComponents/invoicePopup';
-import ChooseLNURLCopyFormat from '../../components/admin/homeComponents/receiveBitcoin/lnurlCopyType';
 import LRC20AssetSelectorHalfModal from '../lrc20/lrc20HalfModal';
 import LRC20TokenInformation from '../lrc20/lrc20TokenDataHalfModal';
 import SelectAltAccountHalfModal from '../../components/admin/homeComponents/settingsContent/accountComponents/SelectAltAccountHalfModal';
@@ -192,9 +190,6 @@ export default function CustomHalfModal(props) {
           />
         );
 
-      case 'myProfileQRcode':
-        return <MyProfileQRCode theme={theme} />;
-
       case 'expandedContactMessage':
         return (
           <ExpandedMessageHalfModal
@@ -257,8 +252,7 @@ export default function CustomHalfModal(props) {
             passedParams={props?.route?.params?.passedParams}
           />
         );
-      case 'chooseLNURLCopyFormat':
-        return <ChooseLNURLCopyFormat />;
+
       case 'LRC20AssetSelectorHalfModal':
         return (
           <LRC20AssetSelectorHalfModal

@@ -43,6 +43,7 @@ import { getSingleContact } from '../../../../../../db';
 import { useServerTimeOnly } from '../../../../../../context-store/serverTime';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../../../../context-store/webViewContext';
+import IconNew from '../../../../../functions/CustomElements/iconControllar';
 
 export default function TotalTipsScreen(props) {
   const { sendWebViewRequest } = useWebView();
@@ -331,13 +332,7 @@ export default function TotalTipsScreen(props) {
             else navigate.goBack();
           }}
         >
-          <ThemeImage
-            lightModeIcon={viewTips ? ICONS.smallArrowLeft : ICONS.xSmallIcon}
-            darkModeIcon={viewTips ? ICONS.smallArrowLeft : ICONS.xSmallIcon}
-            lightsOutIcon={
-              viewTips ? ICONS.arrow_small_left_white : ICONS.xSmallIconWhite
-            }
-          />
+          <IconNew name={'X'} />
         </TouchableOpacity>
         <ThemeText
           CustomNumberOfLines={1}

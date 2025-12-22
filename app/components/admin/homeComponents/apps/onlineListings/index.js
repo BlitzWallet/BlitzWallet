@@ -31,9 +31,7 @@ import {
   SHOPS_DIRECTORY_KEY,
 } from '../../../../../constants';
 import { SIZES } from '../../../../../constants/theme';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import { useNavigation } from '@react-navigation/native';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import DropdownMenu from '../../../../../functions/CustomElements/dropdownMenu';
 import { useTranslation } from 'react-i18next';
 import { keyboardNavigate } from '../../../../../functions/customNavigation';
@@ -43,6 +41,7 @@ import {
   setLocalStorageItem,
 } from '../../../../../functions';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
+import IconNew from '../../../../../functions/CustomElements/iconControllar';
 
 function useDebouncedValue(value, delay = 300) {
   const [debounced, setDebounced] = useState(value);
@@ -256,11 +255,7 @@ export default function ViewOnlineListings({ removeUserLocal }) {
             keyboardNavigate(() => navigate.popTo('HomeAdmin'));
           }}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <IconNew name={'ArrowLeft'} />
         </TouchableOpacity>
         <ThemeText
           styles={styles.topbarText}
@@ -290,11 +285,10 @@ export default function ViewOnlineListings({ removeUserLocal }) {
           }}
         >
           {userLocal === 'WW' ? (
-            <Icon
-              width={15}
-              height={15}
+            <IconNew
               color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-              name={'globeIcon'}
+              name={'Globe'}
+              size={15}
             />
           ) : (
             <CountryFlag isoCode={userLocal} size={20} />
@@ -368,9 +362,10 @@ const BusinessCard = React.memo(
             <CountryFlag isoCode={item.country.code} size={20} />
           ) : (
             <View style={[styles.flagContainer, { backgroundColor }]}>
-              <Icon
+              <IconNew
                 color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-                name={'globeIcon'}
+                name={'Globe'}
+                size={15}
               />
             </View>
           )}
@@ -414,11 +409,10 @@ const BusinessCard = React.memo(
           ]}
           onPress={handleWebsitePress}
         >
-          <Icon
+          <IconNew
             color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-            width={15}
-            height={15}
-            name={'globeIcon'}
+            name={'Globe'}
+            size={15}
           />
           <ThemeText
             content={t('apps.onlineListings.visitWebsite')}

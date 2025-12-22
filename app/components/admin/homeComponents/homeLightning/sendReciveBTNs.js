@@ -1,11 +1,11 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { CENTER, COLORS, ICONS } from '../../../../constants';
+import { CENTER, COLORS } from '../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useCallback } from 'react';
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export function SendRecieveBTNs({
   theme,
@@ -92,11 +92,7 @@ export function SendRecieveBTNs({
               : COLORS.primary,
           }}
         >
-          <ThemeImage
-            darkModeIcon={ICONS.scanQrCodeLight}
-            lightsOutIcon={ICONS.scanQrCodeLight}
-            lightModeIcon={ICONS.scanQrCodeLight}
-          />
+          <IconNew name={'ScanQrCode'} color={COLORS.darkModeText} />
         </View>
       </TouchableOpacity>
     );

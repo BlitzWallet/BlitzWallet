@@ -1,13 +1,12 @@
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {ICONS, SIZES} from '../../constants';
-import {ThemeText} from '.';
-import {useState} from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { SIZES } from '../../constants';
+import { ThemeText } from '.';
+import { useState } from 'react';
 import GetThemeColors from '../../hooks/themeColors';
-import {useGlobalThemeContext} from '../../../context-store/theme';
+import IconNew from './iconControllar';
 
-export default function KeyForKeyboard({num, addPin, isDot, frompage}) {
-  const {theme} = useGlobalThemeContext();
-  const {backgroundOffset} = GetThemeColors();
+export default function KeyForKeyboard({ num, addPin, isDot, frompage }) {
+  const { backgroundOffset, textColor } = GetThemeColors();
   const [isPressed, setIsPressed] = useState(false);
 
   const handlePress = () => {
@@ -28,25 +27,21 @@ export default function KeyForKeyboard({num, addPin, isDot, frompage}) {
           : setTimeout(() => setIsPressed(false), 200)
       }
       onPress={handlePress}
-      style={styles.key}>
+      style={styles.key}
+    >
       <View
         style={[
           styles.keyDot,
-          {backgroundColor: isPressed ? backgroundOffset : 'transparent'},
-        ]}>
+          { backgroundColor: isPressed ? backgroundOffset : 'transparent' },
+        ]}
+      >
         {isDot && frompage !== 'sendSMSPage' && (
-          <Image
-            style={{width: 60, height: 60}}
-            source={theme ? ICONS.dotLight : ICONS.dotDark}
-          />
+          <View style={[styles.dot, { backgroundColor: textColor }]} />
         )}
 
         {!isDot &&
           (num === 'back' ? (
-            <Image
-              style={styles.backArrow}
-              source={theme ? ICONS.leftCheveronLight : ICONS.leftCheveronDark}
-            />
+            <IconNew size={25} color={textColor} name={'ChevronLeft'} />
           ) : (
             <ThemeText styles={styles.keyText} content={`${num}`} />
           ))}
@@ -78,5 +73,10 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     resizeMode: 'contain',
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 10,
   },
 });

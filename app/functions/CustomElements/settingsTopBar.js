@@ -21,6 +21,7 @@ export default function CustomSettingsTopBar({
   customBackColor,
   leftImageName = '',
   lefImageColor = '',
+  leftImageSize = 30,
 }) {
   const { screenDimensions } = useAppStatus();
   const navigate = useNavigation();
@@ -40,10 +41,7 @@ export default function CustomSettingsTopBar({
           navigate.goBack();
         }}
       >
-        <ThemeImage
-          source={customBackColor || ICONS.arrow_small_left_white}
-          disableTint={!!customBackColor}
-        />
+        <IconNew name={'ArrowLeft'} color={customBackColor || ''} />
       </TouchableOpacity>
       <ThemeText
         CustomNumberOfLines={1}
@@ -64,13 +62,20 @@ export default function CustomSettingsTopBar({
           }}
           onPress={leftImageFunction}
         >
-          <IconNew name={leftImageName} color={lefImageColor} />
-          {/* <ThemeImage
-            styles={{ ...leftImageStyles }}
-            lightsOutIcon={LeftImageDarkMode}
-            darkModeIcon={leftImageBlue}
-            lightModeIcon={leftImageBlue}
-          /> */}
+          {leftImageName ? (
+            <IconNew
+              size={leftImageSize}
+              name={leftImageName}
+              color={lefImageColor}
+            />
+          ) : (
+            <ThemeImage
+              styles={{ ...leftImageStyles }}
+              lightsOutIcon={LeftImageDarkMode}
+              darkModeIcon={leftImageBlue}
+              lightModeIcon={leftImageBlue}
+            />
+          )}
         </TouchableOpacity>
       )}
     </View>

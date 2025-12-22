@@ -9,14 +9,14 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ThemeText } from '../functions/CustomElements';
-import ThemeImage from '../functions/CustomElements/themeImage';
-import { COLORS, ICONS } from '../constants';
+import { COLORS } from '../constants';
 import { useGlobalInsets } from '../../context-store/insetsProvider';
 import { SIZES, WINDOWWIDTH } from '../constants/theme';
 import { useTranslation } from 'react-i18next';
 import GetThemeColors from '../hooks/themeColors';
 import displayCorrectDenomination from '../functions/displayCorrectDenomination';
 import formatTokensNumber from '../functions/lrc20/formatTokensBalance';
+import IconNew from '../functions/CustomElements/iconControllar';
 
 export function Toast({
   toast,
@@ -130,18 +130,16 @@ export function Toast({
         <View style={getToastStyle()}>
           <View style={styles.toastContent}>
             {toast.type === 'clipboard' ? (
-              <ThemeImage
-                styles={{ width: 25, height: 25, marginRight: 15 }}
-                lightModeIcon={ICONS.clipboardBlue}
-                darkModeIcon={ICONS.clipboardBlue}
-                lightsOutIcon={ICONS.clipboardDark}
+              <IconNew
+                name={'Copy'}
+                size={22}
+                containerStyle={{ marginRight: 15 }}
               />
             ) : toast.type === 'confirmTx' ? (
-              <ThemeImage
-                styles={{ width: 25, height: 25, marginRight: 15 }}
-                lightModeIcon={ICONS.aboutIcon}
-                darkModeIcon={ICONS.aboutIcon}
-                lightsOutIcon={ICONS.aboutIconBlack}
+              <IconNew
+                name={'Info'}
+                size={22}
+                containerStyle={{ marginRight: 15 }}
               />
             ) : (
               <ThemeText styles={styles.toastIcon} content={getIconForType()} />

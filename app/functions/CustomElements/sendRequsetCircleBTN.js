@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Icon from './Icon';
+import IconNew from './iconControllar';
 
 export default function CustomSendAndRequsetBTN({
   btnType,
@@ -26,16 +26,13 @@ export default function CustomSendAndRequsetBTN({
           ...containerStyles,
         }}
       >
-        <Icon
-          name={'arrow'}
-          width={width}
-          height={height}
-          path={
-            btnType === 'receive'
-              ? 'M12 6V18M12 18L7 13M12 18L17 13'
-              : undefined
-          }
+        <IconNew
+          name={'ArrowDown'}
           color={arrowColor}
+          size={height}
+          containerStyle={{
+            transform: [{ rotate: btnType === 'receive' ? '0deg' : '180deg' }],
+          }}
         />
       </View>
     </TouchableOpacity>

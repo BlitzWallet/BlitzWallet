@@ -7,6 +7,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export default function NostrHome() {
   const navitate = useNavigation();
@@ -38,12 +39,7 @@ export default function NostrHome() {
             backgroundColor: theme ? backgroundColor : COLORS.primary,
           }}
         >
-          <ThemeImage
-            styles={{ transform: [{ rotate: '180deg' }] }}
-            lightModeIcon={ICONS.leftCheveronLight}
-            darkModeIcon={ICONS.leftCheveronLight}
-            lightsOutIcon={ICONS.leftCheveronLight}
-          />
+          <IconNew color={COLORS.darkModeText} name={'ChevronRight'} />
         </TouchableOpacity>
       </View>
       <View
@@ -82,12 +78,7 @@ export default function NostrHome() {
             backgroundColor: theme ? backgroundColor : COLORS.primary,
           }}
         >
-          <ThemeImage
-            styles={{ transform: [{ rotate: '180deg' }] }}
-            lightModeIcon={ICONS.leftCheveronLight}
-            darkModeIcon={ICONS.leftCheveronLight}
-            lightsOutIcon={ICONS.leftCheveronLight}
-          />
+          <IconNew color={COLORS.darkModeText} name={'ChevronRight'} />
         </TouchableOpacity>
       </View>
     </View>

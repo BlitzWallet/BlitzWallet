@@ -12,15 +12,8 @@ import { useToast } from '../../../context-store/toastManager';
 import GlobalThemeView from './globalThemeView';
 import CustomSettingsTopBar from './settingsTopBar';
 import GetThemeColors from '../../hooks/themeColors';
-import {
-  CENTER,
-  EMAIL_REGEX,
-  ICONS,
-  SIZES,
-  VALID_URL_REGEX,
-} from '../../constants';
+import { CENTER, EMAIL_REGEX, SIZES, VALID_URL_REGEX } from '../../constants';
 import ThemeText from './textTheme';
-import ThemeImage from './themeImage';
 import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { useTranslation } from 'react-i18next';
 import ContactProfileImage from '../../components/admin/homeComponents/contacts/internalComponents/profileImage';
@@ -31,6 +24,7 @@ import { COLORS, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import getDeepLinkUser from '../../components/admin/homeComponents/contacts/internalComponents/getDeepLinkUser';
 import { useNavigation } from '@react-navigation/native';
 import { getCachedProfileImage } from '../cachedImage';
+import IconNew from './iconControllar';
 
 export default function ShowProfileQr() {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -163,8 +157,7 @@ export default function ShowProfileQr() {
       <CustomSettingsTopBar
         label={t('settings.index.showQR')}
         showLeftImage={true}
-        leftImageBlue={ICONS.share}
-        LeftImageDarkMode={ICONS.shareWhite}
+        leftImageName="Upload"
         leftImageFunction={handleShare}
       />
 
@@ -272,11 +265,11 @@ export default function ShowProfileQr() {
             ]}
             onPress={handleCopy}
           >
-            <ThemeImage
-              styles={{ width: 20, height: 20, marginRight: 5 }}
-              lightModeIcon={ICONS.clipboardLight}
-              darkModeIcon={ICONS.clipboardLight}
-              lightsOutIcon={ICONS.clipboardLight}
+            <IconNew
+              name={'Copy'}
+              color={COLORS.darkModeText}
+              size={20}
+              containerStyle={{ marginRight: 5 }}
             />
             <ThemeText
               styles={styles.copyText}
@@ -305,11 +298,11 @@ export default function ShowProfileQr() {
               });
             }}
           >
-            <ThemeImage
-              styles={{ width: 20, height: 20, marginRight: 5 }}
-              lightModeIcon={ICONS.scanQrCodeDark}
-              darkModeIcon={ICONS.scanQrCodeLight}
-              lightsOutIcon={ICONS.scanQrCodeLight}
+            <IconNew
+              name={'ScanQrCode'}
+              color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+              size={20}
+              containerStyle={{ marginRight: 5 }}
             />
             <ThemeText
               styles={{ includeFontPadding: false }}

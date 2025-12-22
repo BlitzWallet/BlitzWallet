@@ -7,8 +7,6 @@ import {
 } from '../../../../../constants/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import { ThemeText } from '../../../../../functions/CustomElements';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import { ICONS } from '../../../../../constants';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import { useRootstockProvider } from '../../../../../../context-store/rootstockSwapContext';
@@ -62,11 +60,7 @@ export default function SubmarineSwapDisplay(props) {
         ]}
       >
         <TouchableOpacity onPress={navigate.goBack} style={styles.closePopup}>
-          <ThemeImage
-            lightModeIcon={ICONS.xSmallIcon}
-            darkModeIcon={ICONS.xSmallIcon}
-            lightsOutIcon={ICONS.xSmallIconWhite}
-          />
+          <IconNew name={'X'} />
         </TouchableOpacity>
 
         <ScrollView

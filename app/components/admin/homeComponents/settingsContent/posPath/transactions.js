@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { CENTER, ICONS } from '../../../../../constants';
+import { CENTER } from '../../../../../constants';
 import {
   CustomKeyboardAvoidingView,
   ThemeText,
@@ -79,8 +79,6 @@ export default function ViewPOSTransactions() {
       <CustomSettingsTopBar
         shouldDismissKeyboard={true}
         showLeftImage={false}
-        leftImageBlue={ICONS.receiptIcon}
-        LeftImageDarkMode={ICONS.receiptWhite}
         containerStyles={{ marginBottom: 0 }}
         label={t('settings.posPath.transactions.title')}
       />

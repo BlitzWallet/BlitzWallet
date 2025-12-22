@@ -1,7 +1,6 @@
 import {
   View,
   TouchableOpacity,
-  Image,
   StyleSheet,
   ScrollView,
   Platform,
@@ -25,6 +24,7 @@ import { HIDDEN_OPACITY, MAX_CONTENT_WIDTH } from '../../constants/theme';
 import { useGlobalInsets } from '../../../context-store/insetsProvider';
 import { TAB_ITEM_HEIGHT } from '../../../navigation/tabs';
 import ProfileImageSettingsNavigator from '../../functions/CustomElements/profileSettingsNavigator';
+import IconNew from '../../functions/CustomElements/iconControllar';
 
 export default function AppStore({ navigation }) {
   const { showToast } = useToast();
@@ -119,25 +119,15 @@ export default function AppStore({ navigation }) {
               },
             ]}
           >
-            {app.svgName ? (
-              <Icon
-                color={
-                  theme && !darkModeType
-                    ? COLORS.darkModeText
-                    : COLORS.lightModeText
-                }
-                width={30}
-                height={30}
-                name={app.svgName}
-              />
-            ) : (
-              <Image
-                // resizeMethod="scale"
-                resizeMode="contain"
-                style={{ width: 25, height: 25 }}
-                source={theme && !darkModeType ? app.iconLight : app.iconDark}
-              />
-            )}
+            <IconNew
+              color={
+                theme && !darkModeType
+                  ? COLORS.darkModeText
+                  : COLORS.lightModeText
+              }
+              name={app.iconNew}
+              size={22}
+            />
           </View>
           <ThemeText
             content={t(app.name)}

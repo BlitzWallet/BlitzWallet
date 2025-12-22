@@ -30,7 +30,6 @@ import saveChatGPTChat from './functions/saveChat';
 import Icon from '../../../../../functions/CustomElements/Icon';
 import { useGlobalAppData } from '../../../../../../context-store/appData';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import { AI_MODEL_COST } from './contants/AIModelCost';
 import { useGlobalContacts } from '../../../../../../context-store/globalContacts';
 import FullLoadingScreen from '../../../../../functions/CustomElements/loadingScreen';
@@ -44,6 +43,7 @@ import { useToast } from '../../../../../../context-store/toastManager';
 import { useTranslation } from 'react-i18next';
 import { ONEMILLION } from '../../../../../constants/math';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
+import IconNew from '../../../../../functions/CustomElements/iconControllar';
 
 // Extract ChatMessage component for better performance
 const ChatMessage = ({
@@ -427,11 +427,7 @@ export default function ChatGPTHome(props) {
           style={[styles.topBarButton, { left: 0 }]}
           onPress={() => keyboardNavigate(closeChat)}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <IconNew name={'ArrowLeft'} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -449,11 +445,11 @@ export default function ChatGPTHome(props) {
             styles={styles.topBarText}
             content={model}
           />
-          <ThemeImage
-            styles={styles.topBarIcon}
-            lightModeIcon={ICONS.leftCheveronDark}
-            darkModeIcon={ICONS.left_cheveron_white}
-            lightsOutIcon={ICONS.left_cheveron_white}
+
+          <IconNew
+            color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+            name={'ChevronUp'}
+            size={20}
           />
         </TouchableOpacity>
 
@@ -461,11 +457,7 @@ export default function ChatGPTHome(props) {
           style={[styles.topBarButton, { right: 0 }]}
           onPress={openDrawer}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.drawerList}
-            darkModeIcon={ICONS.drawerList}
-            lightsOutIcon={ICONS.drawerListWhite}
-          />
+          <IconNew name={'MessageSquareMore'} />
         </TouchableOpacity>
       </View>
 
@@ -515,10 +507,7 @@ export default function ChatGPTHome(props) {
                   { backgroundColor: backgroundOffset },
                 ]}
               >
-                <ThemeImage
-                  source={ICONS.arrow_small_left_white}
-                  styles={styles.scrollToBottomIcon}
-                />
+                <IconNew name={'ArrowDown'} size={20} />
               </TouchableOpacity>
             )}
           </View>

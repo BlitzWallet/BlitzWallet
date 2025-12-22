@@ -1,7 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import ThemeImage from './themeImage';
-import { COLORS, ICONS } from '../../constants';
+import { COLORS } from '../../constants';
 import ThemeText from './textTheme';
 import GetThemeColors from '../../hooks/themeColors';
 import { useGlobalThemeContext } from '../../../context-store/theme';
@@ -10,6 +9,7 @@ import CountryFlag from 'react-native-country-flag';
 import FullLoadingScreen from './loadingScreen';
 import { useDropdown } from '../../../context-store/dropdownContext';
 import { useFocusEffect } from '@react-navigation/native';
+import IconNew from './iconControllar';
 
 const DropdownMenu = ({
   options,
@@ -107,28 +107,18 @@ const DropdownMenu = ({
             />
           )}
           {showVerticalArrows && (
-            <View
-              style={[
+            <IconNew
+              containerStyle={[
                 styles.verticalArrowsContainer,
                 showVerticalArrowsAbsolute && {
                   position: 'absolute',
                   right: 10,
                 },
               ]}
-            >
-              <ThemeImage
-                styles={styles.verticalTopArrow}
-                lightModeIcon={ICONS.leftCheveronDark}
-                darkModeIcon={ICONS.leftCheveronLight}
-                lightsOutIcon={ICONS.leftCheveronLight}
-              />
-              <ThemeImage
-                styles={styles.verticalBottomArrow}
-                lightModeIcon={ICONS.leftCheveronDark}
-                darkModeIcon={ICONS.leftCheveronLight}
-                lightsOutIcon={ICONS.leftCheveronLight}
-              />
-            </View>
+              color={theme ? COLORS.darkModeText : COLORS.lightModeText}
+              name={'ChevronsUpDown'}
+              size={25}
+            />
           )}
         </TouchableOpacity>
         {showClearIcon && (
@@ -136,11 +126,7 @@ const DropdownMenu = ({
             style={styles.clearIconContainer}
             onPress={() => onSelect('')}
           >
-            <ThemeImage
-              lightModeIcon={ICONS.xSmallIcon}
-              darkModeIcon={ICONS.xSmallIcon}
-              lightsOutIcon={ICONS.xSmallIconWhite}
-            />
+            <IconNew name={'X'} />
           </TouchableOpacity>
         )}
       </View>
@@ -159,23 +145,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   verticalArrowsContainer: {
-    height: '100%',
-    width: 20,
     position: 'relative',
-  },
-  verticalTopArrow: {
-    width: 20,
-    height: 20,
-    transform: [{ rotate: '90deg' }],
-    position: 'absolute',
-    top: -5,
-  },
-  verticalBottomArrow: {
-    width: 20,
-    height: 20,
-    transform: [{ rotate: '270deg' }],
-    position: 'absolute',
-    bottom: -5,
   },
   dropdownButton: {
     height: '100%',

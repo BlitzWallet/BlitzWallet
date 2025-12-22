@@ -73,17 +73,7 @@ export default function SettingsContentIndex(props) {
           <View style={styles.innerContainer}>
             <CustomSettingsTopBar
               showLeftImage={selectedPage?.toLowerCase() === 'backup wallet'}
-              leftImageStyles={{ width: 25, height: 25 }}
-              leftImageBlue={
-                selectedPage?.toLowerCase() === 'backup wallet'
-                  ? ICONS.aboutIcon
-                  : ''
-              }
-              LeftImageDarkMode={
-                selectedPage?.toLowerCase() === 'backup wallet'
-                  ? ICONS.aboutIconWhite
-                  : ''
-              }
+              leftImageName={'Info'}
               leftImageFunction={() => {
                 if (selectedPage?.toLowerCase() === 'backup wallet') {
                   navigate.navigate('InformationPopup', {

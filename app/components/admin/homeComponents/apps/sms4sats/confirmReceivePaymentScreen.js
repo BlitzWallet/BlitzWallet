@@ -1,27 +1,27 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useGlobalThemeContext} from '../../../../../../context-store/theme';
-import {updateConfirmAnimation} from '../../../../../functions/lottieViewColorTransformer';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useGlobalThemeContext } from '../../../../../../context-store/theme';
+import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
 import LottieView from 'lottie-react-native';
-import {COLORS, ICONS} from '../../../../../constants';
-import {ThemeText} from '../../../../../functions/CustomElements';
+import { COLORS } from '../../../../../constants';
+import { ThemeText } from '../../../../../functions/CustomElements';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import {useNavigation} from '@react-navigation/native';
-import {INSET_WINDOW_WIDTH, SIZES} from '../../../../../constants/theme';
-import {useTranslation} from 'react-i18next';
-import {parsePhoneNumberWithError} from 'libphonenumber-js';
-import {useToast} from '../../../../../../context-store/toastManager';
-import {copyToClipboard} from '../../../../../functions';
+import { useNavigation } from '@react-navigation/native';
+import { INSET_WINDOW_WIDTH, SIZES } from '../../../../../constants/theme';
+import { useTranslation } from 'react-i18next';
+import { parsePhoneNumberWithError } from 'libphonenumber-js';
+import { useToast } from '../../../../../../context-store/toastManager';
+import { copyToClipboard } from '../../../../../functions';
+import IconNew from '../../../../../functions/CustomElements/iconControllar';
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 export default function ConfirmSMSReceivePage(props) {
-  const {theme, darkModeType} = useGlobalThemeContext();
+  const { theme, darkModeType } = useGlobalThemeContext();
   const animationRef = useRef(null);
-  const {backgroundOffset} = GetThemeColors();
+  const { backgroundOffset } = GetThemeColors();
   const navigate = useNavigation();
-  const {t} = useTranslation();
-  const {showToast} = useToast();
+  const { t } = useTranslation();
+  const { showToast } = useToast();
   const [contentHeight, setContentHeight] = useState(0);
 
   const didSucceed = props.route.params?.didSucceed;
@@ -50,7 +50,7 @@ export default function ConfirmSMSReceivePage(props) {
   }, []);
 
   const handleContentLayout = event => {
-    const {height} = event.nativeEvent.layout;
+    const { height } = event.nativeEvent.layout;
     setContentHeight(height);
   };
 
@@ -63,13 +63,10 @@ export default function ConfirmSMSReceivePage(props) {
             backgroundColor: backgroundOffset,
             height: contentHeight > 0 ? contentHeight + 100 : 'auto',
           },
-        ]}>
+        ]}
+      >
         <TouchableOpacity style={styles.backBTN} onPress={navigate.goBack}>
-          <ThemeImage
-            lightModeIcon={ICONS.xSmallIcon}
-            darkModeIcon={ICONS.xSmallIcon}
-            lightsOutIcon={ICONS.xSmallIconWhite}
-          />
+          <IconNew name={'X'} />
         </TouchableOpacity>
         <ScrollView
           contentContainerStyle={{
@@ -77,7 +74,8 @@ export default function ConfirmSMSReceivePage(props) {
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+        >
           <View onLayout={handleContentLayout}>
             {/* Animation Section */}
             <View style={styles.animationContainer}>
@@ -92,7 +90,8 @@ export default function ConfirmSMSReceivePage(props) {
             <View
               style={{
                 width: isRefund ? '90%' : '100%',
-              }}>
+              }}
+            >
               <ThemeText
                 content={
                   isRefund
@@ -113,7 +112,8 @@ export default function ConfirmSMSReceivePage(props) {
                   />
                   <TouchableOpacity
                     onPress={() => copyToClipboard(number, showToast)}
-                    style={styles.phoneNumberContainer}>
+                    style={styles.phoneNumberContainer}
+                  >
                     <ThemeText
                       content={formatPhoneNumber(number)}
                       styles={styles.phoneNumber}

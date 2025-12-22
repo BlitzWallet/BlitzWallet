@@ -10,6 +10,7 @@ import { useSparkWallet } from '../../../context-store/sparkContext';
 import formatTokensNumber from '../lrc20/formatTokensBalance';
 import FormattedSatText from './satTextDisplay';
 import { useNavigation } from '@react-navigation/native';
+import IconNew from './iconControllar';
 
 export default function NavBarWithBalance({
   backFunction,
@@ -35,11 +36,7 @@ export default function NavBarWithBalance({
           else naivigate.goBack();
         }}
       >
-        <ThemeImage
-          lightModeIcon={ICONS.smallArrowLeft}
-          darkModeIcon={ICONS.smallArrowLeft}
-          lightsOutIcon={ICONS.arrow_small_left_white}
-        />
+        <IconNew name={'ArrowLeft'} />
       </TouchableOpacity>
 
       {showBalance && (

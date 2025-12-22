@@ -28,7 +28,7 @@ export default function POSInstructionsPath() {
     >
       <CustomSettingsTopBar
         label={t('settings.posPath.posInstructionsPath.title')}
-        customBackColor={ICONS.arrow_small_left_black}
+        customBackColor={COLORS.lightModeText}
       />
       <ThemeText
         styles={[styles.headingText, { marginTop: 'auto' }]}

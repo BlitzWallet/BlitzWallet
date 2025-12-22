@@ -8,7 +8,6 @@ import {
 import {
   CENTER,
   SIZES,
-  ICONS,
   COLORS,
   SKELETON_ANIMATION_SPEED,
 } from '../../constants';
@@ -20,7 +19,6 @@ import { ButtonsContainer } from '../../components/admin/homeComponents/receiveB
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import GetThemeColors from '../../hooks/themeColors';
-import ThemeImage from '../../functions/CustomElements/themeImage';
 import { initializeAddressProcess } from '../../functions/receiveBitcoin/addressGeneration';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import QrCodeWrapper from '../../functions/CustomElements/QrWrapper';
@@ -47,6 +45,7 @@ import Animated, {
 import SkeletonPlaceholder from '../../functions/CustomElements/skeletonView';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useSparkWallet } from '../../../context-store/sparkContext';
+import IconNew from '../../functions/CustomElements/iconControllar';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -176,8 +175,7 @@ export default function ReceivePaymentHome(props) {
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar
         showLeftImage={true}
-        leftImageBlue={ICONS.share}
-        LeftImageDarkMode={ICONS.shareWhite}
+        leftImageName="Upload"
         leftImageFunction={handleShare}
         label={t('constants.receive')}
       />
@@ -293,11 +291,10 @@ export default function ReceivePaymentHome(props) {
               />
               {selectedRecieveOption.toLowerCase() !== 'lightning' &&
                 selectedRecieveOption.toLowerCase() !== 'spark' && (
-                  <ThemeImage
-                    styles={styles.AboutIcon}
-                    lightModeIcon={ICONS.aboutIcon}
-                    darkModeIcon={ICONS.aboutIcon}
-                    lightsOutIcon={ICONS.aboutIconWhite}
+                  <IconNew
+                    name={'Info'}
+                    size={15}
+                    containerStyle={{ marginLeft: 5 }}
                   />
                 )}
             </View>
@@ -520,9 +517,8 @@ function QrCode(props) {
                   amount: initialSendAmount,
                 })
           }
-          lightModeIcon={ICONS.editIcon}
-          darkModeIcon={ICONS.editIconLight}
-          lightsOutIcon={ICONS.editIconLight}
+          iconColor={theme ? COLORS.darkModeText : COLORS.lightModeText}
+          iconName={'Edit'}
           showBoder={true}
           actionFunction={editAmount}
         />
@@ -538,18 +534,8 @@ function QrCode(props) {
               '...' +
               address.slice(address.length - 7)
         }
-        lightModeIcon={
-          // isUsingLnurl ? ICONS.editIcon :
-          ICONS.clipboardDark
-        }
-        darkModeIcon={
-          // isUsingLnurl ? ICONS.editIconLight :
-          ICONS.clipboardLight
-        }
-        lightsOutIcon={
-          // isUsingLnurl ? ICONS.editIconLight :
-          ICONS.clipboardLight
-        }
+        iconColor={theme ? COLORS.darkModeText : COLORS.lightModeText}
+        iconName={'Copy'}
         actionFunction={() => {
           if (addressState.isGeneratingInvoice) return;
           // if (isUsingLnurl) editLNURL();
@@ -565,9 +551,8 @@ function QrCode(props) {
 function QRInformationRow({
   title = '',
   info = '',
-  lightModeIcon,
-  darkModeIcon,
-  lightsOutIcon,
+  iconName,
+  iconColor,
   showBoder,
   actionFunction,
   showSkeleton = false,
@@ -630,12 +615,7 @@ function QRInformationRow({
           borderRadius: 8,
         }}
       >
-        <ThemeImage
-          styles={{ width: 15, height: 15 }}
-          lightModeIcon={lightModeIcon}
-          darkModeIcon={darkModeIcon}
-          lightsOutIcon={lightsOutIcon}
-        />
+        <IconNew name={iconName} color={iconColor} size={15} />
       </View>
     </TouchableOpacity>
   );

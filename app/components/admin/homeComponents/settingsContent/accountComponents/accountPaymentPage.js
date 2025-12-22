@@ -13,17 +13,11 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import FormattedBalanceInput from '../../../../../functions/CustomElements/formattedBalanceInput';
 import FormattedSatText from '../../../../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {
-  CENTER,
-  COLORS,
-  ICONS,
-  SATSPERBITCOIN,
-} from '../../../../../constants';
+import { CENTER, COLORS, SATSPERBITCOIN } from '../../../../../constants';
 import { useTranslation } from 'react-i18next';
 import useDebounce from '../../../../../hooks/useDebounce';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
 import GetThemeColors from '../../../../../hooks/themeColors';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 import useCustodyAccountList from '../../../../../hooks/useCustodyAccountsList';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { useKeysContext } from '../../../../../../context-store/keys';
@@ -34,11 +28,11 @@ import {
 } from '../../../../../functions/spark';
 import { bulkUpdateSparkTransactions } from '../../../../../functions/spark/transactions';
 import CustomSearchInput from '../../../../../functions/CustomElements/searchInput';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import { useWebView } from '../../../../../../context-store/webViewContext';
 import { HIDDEN_OPACITY } from '../../../../../constants/theme';
 import { updateConfirmAnimation } from '../../../../../functions/lottieViewColorTransformer';
 import LottieView from 'lottie-react-native';
+import IconNew from '../../../../../functions/CustomElements/iconControllar';
 const confirmTxAnimation = require('../../../../../assets/confirmTxAnimation.json');
 
 export default function AccountPaymentPage(props) {
@@ -264,17 +258,11 @@ export default function AccountPaymentPage(props) {
         style={{ width: '100%' }}
         contentContainerStyle={{ paddingBottom: 10 }}
       >
-        <ThemeImage
-          styles={{
-            transform: [{ rotate: '90deg' }],
-            ...CENTER,
-            marginTop: 30,
-            marginBottom: 30,
-          }}
-          lightModeIcon={ICONS.exchangeIcon}
-          darkModeIcon={ICONS.exchangeIcon}
-          lightsOutIcon={ICONS.exchangeIconWhite}
+        <IconNew
+          name={'ArrowDownUp'}
+          containerStyle={{ ...CENTER, marginTop: 30, marginBottom: 20 }}
         />
+
         <TouchableOpacity
           onPress={() => {
             navigate.navigate('CustomHalfModal', {
@@ -315,14 +303,10 @@ export default function AccountPaymentPage(props) {
         >
           <View style={{ flexShrink: 1 }}>
             <View style={styles.transferTextContainer}>
-              <ThemeImage
-                styles={{
-                  ...styles.transferTextIcon,
-                  transform: [{ rotate: '-90deg' }],
-                }}
-                lightModeIcon={ICONS.arrowFromRight}
-                darkModeIcon={ICONS.arrowFromRight}
-                lightsOutIcon={ICONS.arrowFromRightWhite}
+              <IconNew
+                name={'Upload'}
+                size={20}
+                containerStyle={styles.transferTextIcon}
               />
               <ThemeText content={t('constants.from')} />
             </View>
@@ -365,16 +349,7 @@ export default function AccountPaymentPage(props) {
                 )}
               />
             )}
-            <ThemeImage
-              styles={{
-                width: 20,
-                height: 20,
-                transform: [{ rotate: '180deg' }],
-              }}
-              lightModeIcon={ICONS.leftCheveronIcon}
-              darkModeIcon={ICONS.leftCheveronIcon}
-              lightsOutIcon={ICONS.leftCheveronLight}
-            />
+            <IconNew name={'ChevronRight'} size={20} />
           </TouchableOpacity>
         </View>
         <View
@@ -384,14 +359,10 @@ export default function AccountPaymentPage(props) {
           }}
         >
           <View style={styles.transferTextContainer}>
-            <ThemeImage
-              styles={{
-                ...styles.transferTextIcon,
-                transform: [{ rotate: '90deg' }],
-              }}
-              lightModeIcon={ICONS.arrowToRight}
-              darkModeIcon={ICONS.arrowToRight}
-              lightsOutIcon={ICONS.arrowToRightLight}
+            <IconNew
+              name={'Download'}
+              size={20}
+              containerStyle={styles.transferTextIcon}
             />
             <ThemeText content={t('constants.to')} />
           </View>
@@ -418,16 +389,7 @@ export default function AccountPaymentPage(props) {
                     )
               }
             />
-            <ThemeImage
-              styles={{
-                width: 20,
-                height: 20,
-                transform: [{ rotate: '180deg' }],
-              }}
-              lightModeIcon={ICONS.leftCheveronIcon}
-              darkModeIcon={ICONS.leftCheveronIcon}
-              lightsOutIcon={ICONS.leftCheveronLight}
-            />
+            <IconNew name={'ChevronRight'} size={20} />
           </TouchableOpacity>
         </View>
         <View
@@ -437,13 +399,10 @@ export default function AccountPaymentPage(props) {
           }}
         >
           <View style={styles.transferTextContainer}>
-            <ThemeImage
-              styles={{
-                ...styles.transferTextIcon,
-              }}
-              lightModeIcon={ICONS.receiptIcon}
-              darkModeIcon={ICONS.receiptIcon}
-              lightsOutIcon={ICONS.receiptWhite}
+            <IconNew
+              name={'ReceiptText'}
+              size={20}
+              containerStyle={styles.transferTextIcon}
             />
             <ThemeText content={t('constants.fee')} />
           </View>
@@ -472,16 +431,11 @@ export default function AccountPaymentPage(props) {
           }}
         >
           <View style={styles.transferTextContainer}>
-            <View style={styles.transferTextIcon}>
-              <Icon
-                color={
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary
-                }
-                height={18}
-                width={18}
-                name={'editIcon'}
-              />
-            </View>
+            <IconNew
+              containerStyle={styles.transferTextIcon}
+              name={'Edit'}
+              size={20}
+            />
             <ThemeText content={t('constants.description')} />
           </View>
           <CustomSearchInput
@@ -514,11 +468,7 @@ export default function AccountPaymentPage(props) {
 const styles = StyleSheet.create({
   transferTextContainer: { flexDirection: 'row', alignItems: 'center' },
   transferTextIcon: {
-    width: 20,
-    height: 20,
     marginRight: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   animationContainer: {
     alignItems: 'center',

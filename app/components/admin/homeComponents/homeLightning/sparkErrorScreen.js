@@ -15,6 +15,7 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { copyToClipboard } from '../../../../functions';
 import { useTranslation } from 'react-i18next';
 import { useWebView } from '../../../../../context-store/webViewContext';
+import IconNew from '../../../../functions/CustomElements/iconControllar';
 
 export default function SparkErrorScreen(props) {
   const { accountMnemoinc } = useKeysContext();
@@ -80,11 +81,7 @@ export default function SparkErrorScreen(props) {
           onPress={navigate.goBack}
           style={{ marginLeft: 'auto' }}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.xSmallIcon}
-            darkModeIcon={ICONS.xSmallIcon}
-            lightsOutIcon={ICONS.xSmallIconWhite}
-          />
+          <IconNew name={'X'} />
         </TouchableOpacity>
         <ThemeText
           styles={styles.headerText}

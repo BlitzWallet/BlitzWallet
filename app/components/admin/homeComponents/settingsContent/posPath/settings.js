@@ -12,7 +12,6 @@ import {
   CENTER,
   COLORS,
   CONTENT_KEYBOARD_OFFSET,
-  ICONS,
   VALID_USERNAME_REGEX,
 } from '../../../../../constants';
 import {
@@ -31,8 +30,6 @@ import {
   INSET_WINDOW_WIDTH,
   SIZES,
 } from '../../../../../constants/theme';
-import ThemeImage from '../../../../../functions/CustomElements/themeImage';
-import Icon from '../../../../../functions/CustomElements/Icon';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
 import {
   keyboardGoBack,
@@ -41,6 +38,7 @@ import {
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useTranslation } from 'react-i18next';
 import { fiatCurrencies } from '../../../../../functions/currencyOptions';
+import IconNew from '../../../../../functions/CustomElements/iconControllar';
 
 export default function PosSettingsPage() {
   const { masterInfoObject, toggleMasterInfoObject } =
@@ -173,11 +171,7 @@ export default function PosSettingsPage() {
             keyboardGoBack(navigate);
           }}
         >
-          <ThemeImage
-            lightsOutIcon={ICONS.arrow_small_left_white}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-          />
+          <IconNew name={'ArrowLeft'} />
         </TouchableOpacity>
         <ThemeText
           CustomNumberOfLines={1}
@@ -195,11 +189,7 @@ export default function PosSettingsPage() {
             navigate.navigate('POSInstructionsPath');
           }}
         >
-          <ThemeImage
-            lightsOutIcon={ICONS.aboutIconWhite}
-            darkModeIcon={ICONS.aboutIcon}
-            lightModeIcon={ICONS.aboutIcon}
-          />
+          <IconNew name={'Info'} />
         </TouchableOpacity>
         <TouchableOpacity
           style={{ position: 'absolute', top: 0, right: 0, zIndex: 1 }}
@@ -215,11 +205,7 @@ export default function PosSettingsPage() {
             });
           }}
         >
-          <ThemeImage
-            lightsOutIcon={ICONS.receiptWhite}
-            darkModeIcon={ICONS.receiptIcon}
-            lightModeIcon={ICONS.receiptIcon}
-          />
+          <IconNew name={'ReceiptText'} />
         </TouchableOpacity>
       </View>
       <ScrollView
@@ -302,19 +288,15 @@ export default function PosSettingsPage() {
           style={{ marginRight: 5 }}
         >
           {showErrorIcon ? (
-            <Icon
+            <IconNew
+              name={'CircleAlert'}
+              size={20}
               color={
                 theme && darkModeType ? COLORS.darkModeText : COLORS.cancelRed
               }
-              name={'errorIcon'}
             />
           ) : (
-            <ThemeImage
-              styles={{ height: 20, width: 20 }}
-              lightModeIcon={ICONS.aboutIcon}
-              darkModeIcon={ICONS.aboutIcon}
-              lightsOutIcon={ICONS.aboutIconWhite}
-            />
+            <IconNew name={'Info'} size={20} />
           )}
         </TouchableOpacity>
 
@@ -327,12 +309,7 @@ export default function PosSettingsPage() {
             marginLeft: 'auto',
           }}
         >
-          <ThemeImage
-            styles={{ transform: [{ rotate: '180deg' }] }}
-            lightModeIcon={ICONS.leftCheveronIcon}
-            darkModeIcon={ICONS.leftCheveronIcon}
-            lightsOutIcon={ICONS.left_cheveron_white}
-          />
+          <IconNew name={'ChevronRight'} />
         </TouchableOpacity>
       </View>
 

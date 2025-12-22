@@ -39,6 +39,7 @@ import CountryFlag from 'react-native-country-flag';
 import { useGlobalInsets } from '../../../../../../context-store/insetsProvider';
 import { useAppStatus } from '../../../../../../context-store/appStatus';
 import { useWebView } from '../../../../../../context-store/webViewContext';
+import IconNew from '../../../../../functions/CustomElements/iconControllar';
 
 const imgEndpoint = endpoint => `https://sms4sats.com/${endpoint}`;
 
@@ -369,11 +370,7 @@ export default function SMSMessagingReceivedPage(props) {
             keyboardNavigate(() => navigate.goBack());
           }}
         >
-          <ThemeImage
-            lightModeIcon={ICONS.smallArrowLeft}
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
+          <IconNew name={'ArrowLeft'} />
         </TouchableOpacity>
 
         <ThemeText
@@ -411,11 +408,10 @@ export default function SMSMessagingReceivedPage(props) {
           }}
         >
           {userLocal.iso === 'WW' ? (
-            <Icon
-              width={15}
-              height={15}
+            <IconNew
               color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-              name={'globeIcon'}
+              name={'Globe'}
+              size={15}
             />
           ) : (
             <CountryFlag isoCode={userLocal.iso} size={20} />
@@ -428,11 +424,7 @@ export default function SMSMessagingReceivedPage(props) {
             })
           }
         >
-          <ThemeImage
-            lightModeIcon={ICONS.receiptIcon}
-            darkModeIcon={ICONS.receiptIcon}
-            lightsOutIcon={ICONS.receiptWhite}
-          />
+          <IconNew name={'ReceiptText'} />
         </TouchableOpacity>
       </View>
       {isPurchasing.isLoading || isLoadingLocationServices ? (

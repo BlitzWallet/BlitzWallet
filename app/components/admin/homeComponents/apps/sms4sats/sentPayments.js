@@ -1,33 +1,40 @@
-import React, {useEffect, useState, useCallback, useMemo, useRef} from 'react';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   GlobalThemeView,
   ThemeText,
 } from '../../../../../functions/CustomElements';
-import {ICONS, SIZES} from '../../../../../constants';
-import {copyToClipboard} from '../../../../../functions';
-import {useNavigation} from '@react-navigation/native';
-import {parsePhoneNumberWithError} from 'libphonenumber-js';
-import {useGlobalAppData} from '../../../../../../context-store/appData';
+import { ICONS, SIZES } from '../../../../../constants';
+import { copyToClipboard } from '../../../../../functions';
+import { useNavigation } from '@react-navigation/native';
+import { parsePhoneNumberWithError } from 'libphonenumber-js';
+import { useGlobalAppData } from '../../../../../../context-store/appData';
 import CustomSettingsTopBar from '../../../../../functions/CustomElements/settingsTopBar';
-import {useToast} from '../../../../../../context-store/toastManager';
-import {useTranslation} from 'react-i18next';
+import { useToast } from '../../../../../../context-store/toastManager';
+import { useTranslation } from 'react-i18next';
 import CustomButton from '../../../../../functions/CustomElements/button';
-import {useKeysContext} from '../../../../../../context-store/keys';
-import {encriptMessage} from '../../../../../functions/messaging/encodingAndDecodingMessages';
+import { useKeysContext } from '../../../../../../context-store/keys';
+import { encriptMessage } from '../../../../../functions/messaging/encodingAndDecodingMessages';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 
 const API_ENDPOINTS = {
   ORDER_STATUS: 'https://api2.sms4sats.com/orderstatus',
 };
 
-export default function HistoricalSMSMessagingPage({route}) {
-  const {showToast} = useToast();
+export default function HistoricalSMSMessagingPage({ route }) {
+  const { showToast } = useToast();
   const navigate = useNavigation();
   const [messageElements, setMessageElements] = useState([]);
-  const {decodedMessages, toggleGlobalAppDataInformation} = useGlobalAppData();
-  const {contactsPrivateKey, publicKey} = useKeysContext();
-  const {t} = useTranslation();
+  const { decodedMessages, toggleGlobalAppDataInformation } =
+    useGlobalAppData();
+  const { contactsPrivateKey, publicKey } = useKeysContext();
+  const { t } = useTranslation();
   const clickData = useRef({});
 
   const selectedPage = route?.params?.selectedPage?.toLowerCase() || 'send';
@@ -110,7 +117,7 @@ export default function HistoricalSMSMessagingPage({route}) {
           JSON.stringify(savedMessages),
         );
         await toggleGlobalAppDataInformation(
-          {messagesApp: encryptedMessage},
+          { messagesApp: encryptedMessage },
           true,
         );
 
@@ -218,7 +225,7 @@ export default function HistoricalSMSMessagingPage({route}) {
     [isReceiveMode, t],
   );
 
-  const MessageItem = ({element}) => {
+  const MessageItem = ({ element }) => {
     const [isLoading, setIsLoading] = useState(false);
     return (
       <View style={styles.orderIdContainer}>
@@ -231,7 +238,8 @@ export default function HistoricalSMSMessagingPage({route}) {
             }
             copyToClipboard(element.orderId, showToast);
           }}
-          disabled={isLoading}>
+          disabled={isLoading}
+        >
           <ThemeText
             CustomNumberOfLines={1}
             content={getDisplayContent(element, 'title')}
@@ -298,7 +306,8 @@ export default function HistoricalSMSMessagingPage({route}) {
         )}
         {(element.isRefunded || !element.isPending) && (
           <TouchableOpacity
-            onPress={() => updateOrderStatus(element, undefined, true)}>
+            onPress={() => updateOrderStatus(element, undefined, true)}
+          >
             <ThemeImage
               lightModeIcon={ICONS.trashIcon}
               darkModeIcon={ICONS.trashIcon}
@@ -345,7 +354,8 @@ export default function HistoricalSMSMessagingPage({route}) {
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContainer}>
+            contentContainerStyle={styles.scrollContainer}
+          >
             {messageElements}
           </ScrollView>
         )}
@@ -353,7 +363,8 @@ export default function HistoricalSMSMessagingPage({route}) {
         {!!messageElements.length && (
           <TouchableOpacity
             onPress={handleSupportContact}
-            style={styles.supportContainer}>
+            style={styles.supportContainer}
+          >
             <ThemeText
               styles={styles.supportText}
               content={t('apps.sms4sats.sentPayments.helpMessage')}
