@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import {
   GlobalThemeView,
@@ -41,9 +41,11 @@ import { useGlobalThemeContext } from '../../../../../context-store/theme';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useGifts } from '../../../../../context-store/giftContext';
 import { useTranslation } from 'react-i18next';
+import DropdownMenu from '../../../../functions/CustomElements/dropdownMenu';
 
 export default function CreateGift(props) {
   const { saveGiftToCloud, deleteGiftFromCloudAndLocal } = useGifts();
+  const [duration, setDuration] = useState({ label: '7 Days', value: '7' });
   const { theme } = useGlobalThemeContext();
   const { sparkInformation } = useSparkWallet();
   const navigate = useNavigation();
@@ -53,7 +55,7 @@ export default function CreateGift(props) {
     useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const [description, setDescription] = useState('');
-  const { backgroundOffset, textColor } = GetThemeColors();
+  const { backgroundOffset, textColor, backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
 
   const [loadingMessage, setLoadingMessage] = useState('');
@@ -63,6 +65,51 @@ export default function CreateGift(props) {
   const convertedSatAmount = amount;
 
   const currentDerivedGiftIndex = masterInfoObject.currentDerivedGiftIndex || 1;
+
+  const handleSelectProcess = useCallback(value => {
+    setDuration(value);
+  }, []);
+
+  const GIFT_DURATIONS = useMemo(() => {
+    return [
+      {
+        label: t('screens.inAccount.giftPages.createGift.durationText', {
+          numDays: 7,
+        }),
+        value: '7',
+      },
+      {
+        label: t('screens.inAccount.giftPages.createGift.durationText', {
+          numDays: 14,
+        }),
+        value: '14',
+      },
+      {
+        label: t('screens.inAccount.giftPages.createGift.durationText', {
+          numDays: 30,
+        }),
+        value: '30',
+      },
+      {
+        label: t('screens.inAccount.giftPages.createGift.durationText', {
+          numDays: 60,
+        }),
+        value: '60',
+      },
+      {
+        label: t('screens.inAccount.giftPages.createGift.durationText', {
+          numDays: 90,
+        }),
+        value: '90',
+      },
+      {
+        label: t('screens.inAccount.giftPages.createGift.durationText', {
+          numDays: 180,
+        }),
+        value: '180',
+      },
+    ];
+  }, [t]);
 
   const createGift = async () => {
     try {
@@ -98,11 +145,15 @@ export default function CreateGift(props) {
       );
       const urls = createGiftUrl(giftId, randomSecret);
 
+      const daysInMS = 1000 * 60 * 60 * 24;
+      const giftDuration = duration.value;
+      const addedMS = giftDuration * daysInMS;
+
       let storageObject = {
         uuid: giftId,
         createdTime: Date.now(),
         lastUpdated: Date.now(),
-        expireTime: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        expireTime: Date.now() + addedMS,
         encryptedText: encryptedMnemonic,
         amount: convertedSatAmount,
         description: description || '',
@@ -287,9 +338,43 @@ export default function CreateGift(props) {
                   onChangeText={setDescription}
                 />
               </View>
+              <View
+                style={[
+                  styles.fieldContainer,
+                  {
+                    backgroundColor: theme
+                      ? backgroundOffset
+                      : COLORS.darkModeText,
+                  },
+                ]}
+              >
+                <View style={styles.descriptionContainer}>
+                  <ThemeText
+                    styles={styles.label}
+                    content={t('apps.VPN.durationSlider.duration')}
+                  />
+                </View>
+                <DropdownMenu
+                  customButtonStyles={{ backgroundColor }}
+                  selectedValue={t(
+                    'screens.inAccount.giftPages.createGift.durationText',
+                    { numDays: duration.value },
+                  )}
+                  translateLabelText={true}
+                  onSelect={handleSelectProcess}
+                  options={GIFT_DURATIONS}
+                  showClearIcon={false}
+                  showVerticalArrowsAbsolute={true}
+                />
+              </View>
               <ThemeText
                 styles={styles.disclaimer}
-                content={t('screens.inAccount.giftPages.createGift.disclaimer')}
+                content={t(
+                  'screens.inAccount.giftPages.createGift.disclaimer',
+                  {
+                    numDays: duration.value,
+                  },
+                )}
               />
             </View>
           </KeyboardAwareScrollView>

@@ -1674,7 +1674,8 @@
           "header": "Geschenk erstellen",
           "inputPlaceholder": "Nachricht oder Notiz hinzufügen...",
           "button": "Geschenk erstellen",
-          "disclaimer": "Wenn Sie ein Geschenk erstellen, bleibt das Geld 7 Tage lang gesperrt. Wenn es in dieser Zeit niemand einlöst, können Sie zur Rückforderungsseite gehen, um es zurückzubekommen."
+          "disclaimer": "Wenn Sie ein Geschenk erstellen, bleibt das Geld {{numDays}} Tage lang gesperrt. Wenn es in dieser Zeit niemand einlöst, können Sie zur Rückforderungsseite gehen, um es zurückzubekommen.",
+          "durationText": "{{numDays}} Tage"
         },
 
         "giftConfirmation": {
