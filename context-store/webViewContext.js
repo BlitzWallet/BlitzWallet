@@ -98,6 +98,8 @@ const rejectIfNotConnectedToInternet = [
 export const INCOMING_SPARK_TX_NAME = 'RECEIVED_CONTACTS EVENT';
 export const incomingSparkTransaction = new EventEmitter();
 const WASM_ERRORS = [
+  'WASM',
+  'WebAssembly',
   'WebAssembly.Compile is disallowed on the main thread',
   "Cannot read properties of undefined (reading '__wbindgen_malloc')",
 ];
