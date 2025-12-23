@@ -22,9 +22,14 @@ export default async function processLNUrlPay(input, context) {
   } = context;
   crashlyticsLogReport('Beiging decode LNURL pay');
 
+  const [username, domain] = input.data.address?.split('@');
+
   if (
-    input.data.address?.split('@')?.[0]?.toLowerCase() ===
-    globalContactsInformation.myProfile.uniqueName?.toLowerCase()
+    username?.toLowerCase() ===
+      globalContactsInformation.myProfile.uniqueName.toLowerCase() &&
+    (domain === 'blitz-wallet.com' ||
+      domain === 'blitzwalletapp.com' ||
+      domain === 'blitzwallet.app')
   ) {
     throw new Error(
       t('wallet.sendPages.handlingAddressErrors.payingToSameAddress', {
