@@ -13,6 +13,9 @@ import { deleteGiftsTable } from './gift/giftsStorage';
 
 export default async function factoryResetWallet() {
   try {
+    const didTerminate = await terminateAccount();
+    if (!didTerminate) throw new Error('Did not terminate');
+
     await deleteTable();
     // await deleteEcashDBTables();
     await deletePOSTransactionsTable();
@@ -20,7 +23,6 @@ export default async function factoryResetWallet() {
     await deleteUnpaidSparkLightningTransactionTable();
     await deleteSparkContactsTransactionsTable();
     await deleteGiftsTable();
-    await terminateAccount();
 
     try {
       await signOut(firebaseAuth);

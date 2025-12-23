@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {crashlyticsLogReport} from './crashlyticsLogs';
+import { crashlyticsLogReport } from './crashlyticsLogs';
 
 export async function setLocalStorageItem(key, val) {
   try {

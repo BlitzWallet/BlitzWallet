@@ -1,34 +1,23 @@
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { CENTER, COLORS, SIZES } from '../../../../constants';
 import { useCallback, useMemo, useState } from 'react';
-import { terminateAccount } from '../../../../functions/secureStore';
 import RNRestart from 'react-native-restart';
 import { ThemeText } from '../../../../functions/CustomElements';
 import CustomButton from '../../../../functions/CustomElements/button';
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
 import Icon from '../../../../functions/CustomElements/Icon';
-import { deleteTable } from '../../../../functions/messaging/cachedMessages';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
-import { signOut } from '@react-native-firebase/auth';
 import { useNodeContext } from '../../../../../context-store/nodeContext';
 import { useGlobalThemeContext } from '../../../../../context-store/theme';
-import { deletePOSTransactionsTable } from '../../../../functions/pos';
 import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
 } from '../../../../constants/theme';
-import { removeAllLocalData } from '../../../../functions/localStorage';
-import {
-  deleteSparkContactsTransactionsTable,
-  deleteSparkTransactionTable,
-  deleteUnpaidSparkLightningTransactionTable,
-} from '../../../../functions/spark/transactions';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
-import { firebaseAuth } from '../../../../../db/initializeFirebase';
 import { useTranslation } from 'react-i18next';
 import { useAppStatus } from '../../../../../context-store/appStatus';
-import { deleteGiftsTable } from '../../../../functions/gift/giftsStorage';
+import factoryResetWallet from '../../../../functions/factoryResetWallet';
 
 export default function ResetPage(props) {
   const [wantsToReset, setWantsToReset] = useState(false);
@@ -66,37 +55,10 @@ export default function ResetPage(props) {
     }
 
     try {
-      const [
-        didClearLocalStoreage,
-        didClearMessages,
-        didClearPos,
-        didClearTxTable,
-        didClearPendingTxTable,
-        didClearGiftsTable,
-        didClearSparkTxTable,
-        didClearSecureItems,
-      ] = await Promise.all([
-        removeAllLocalData(),
-        deleteTable(),
-        deletePOSTransactionsTable(),
-        deleteSparkTransactionTable(),
-        deleteUnpaidSparkLightningTransactionTable(),
-        deleteGiftsTable(),
-        deleteSparkContactsTransactionsTable(),
-        terminateAccount(),
-      ]);
+      const resetResponse = await factoryResetWallet();
 
-      if (!didClearLocalStoreage)
-        throw Error(t('settings.resetWallet.localStorageError'));
-
-      if (!didClearSecureItems)
+      if (!resetResponse)
         throw Error(t('settings.resetWallet.secureStorageError'));
-
-      try {
-        await signOut(firebaseAuth);
-      } catch (err) {
-        console.log('reset wallet sign out error', err);
-      }
 
       RNRestart.restart();
     } catch (err) {

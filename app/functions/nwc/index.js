@@ -1,20 +1,20 @@
-import {NWC_LOACAL_STORE_KEY, NWC_SECURE_STORE_KEY} from '../../constants';
-import {getLocalStorageItem, setLocalStorageItem} from '../localStorage';
-import {retrieveData, storeData} from '../secureStore';
+import { NWC_LOACAL_STORE_KEY, NWC_SECURE_STORE_KEY } from '../../constants';
+import { getLocalStorageItem, setLocalStorageItem } from '../localStorage';
+import { retrieveData, storeData } from '../secureStore';
 
 export async function getNWCAccountInformation() {
   try {
-    const localNWCInformation = await retrieveData('NWC_SECURE_STORE_KEY');
+    const localNWCInformation = await retrieveData(NWC_SECURE_STORE_KEY);
 
     if (localNWCInformation.didWork && localNWCInformation.value !== null) {
-      return {didWork: true, data: JSON.parse(localNWCInformation.value)};
+      return { didWork: true, data: JSON.parse(localNWCInformation.value) };
     } else {
-      await storeData('NWC_SECURE_STORE_KEY', JSON.stringify({}));
-      return {didWork: true, data: {}};
+      await storeData(NWC_SECURE_STORE_KEY, JSON.stringify({}));
+      return { didWork: true, data: {} };
     }
   } catch (error) {
     console.error('Error retrieving NWC account information:', error);
-    return {didWork: false, error};
+    return { didWork: false, error };
   }
 }
 
