@@ -1490,7 +1490,7 @@
           "minutes_one": "Queda {{count}} minuto",
           "minutes_other": "Quedan {{count}} minutos"
         },
-        "shareMessage": "¡Has recibido un regalo de {{icon}}{{amount}}! Reclámalo aquí:\n{{link}}",
+        "shareMessage": "¡Has recibido un regalo de {{amount}}! Reclámalo aquí:\n{{link}}",
         "fundGiftMessage": "Creando regalo",
         "reclaimGiftMessage": "Recuperando regalo",
 

@@ -1644,7 +1644,7 @@
           "minutes_one": "{{count}} Minute übrig",
           "minutes_other": "{{count}} Minuten übrig"
         },
-        "shareMessage": "Du hast ein Geschenk von {{icon}}{{amount}} erhalten! Hier einlösen:\n{{link}}",
+        "shareMessage": "Du hast ein Geschenk von {{amount}} erhalten! Hier einlösen:\n{{link}}",
         "fundGiftMessage": "Geschenk wird erstellt",
         "reclaimGiftMessage": "Geschenk wird zurückgeholt",
 

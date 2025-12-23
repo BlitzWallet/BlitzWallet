@@ -161,6 +161,7 @@ export default function CreateGift(props) {
         state: 'Unclaimed',
         giftNum: currentDeriveIndex,
         claimURL: urls.webUrl,
+        satDisplay: masterInfoObject.satDisplay,
       };
 
       setLoadingMessage(

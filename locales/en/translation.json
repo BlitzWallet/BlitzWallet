@@ -1665,7 +1665,7 @@
           "minutes_one": "{{count}} minute left",
           "minutes_other": "{{count}} minutes left"
         },
-        "shareMessage": "You've received a {{icon}}{{amount}} gift! Claim it here:\n{{link}}",
+        "shareMessage": "You've received a {{amount}} gift! Claim it here:\n{{link}}",
         "fundGiftMessage": "Creating Gift",
         "reclaimGiftMessage": "Reclaiming Gift",
 

@@ -1639,7 +1639,7 @@
           "minutes_one": "{{count}} minute restante",
           "minutes_other": "{{count}} minutes restantes"
         },
-        "shareMessage": "Vous avez reçu un cadeau {{icon}}{{amount}} ! Réclamez-le ici :\n{{link}}",
+        "shareMessage": "Vous avez reçu un cadeau {{amount}} ! Réclamez-le ici :\n{{link}}",
         "fundGiftMessage": "Créer un cadeau",
         "reclaimGiftMessage": "Récupérer le don",
         "giftsHome": {

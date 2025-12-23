@@ -1647,7 +1647,7 @@
           "minutes_many": "{{count}} осталось минут",
           "minutes_other": "{{count}} минут"
         },
-        "shareMessage": "Вы получили подарок {{icon}}{{amount}} ! Заявите об этом здесь:\n{{link}}",
+        "shareMessage": "Вы получили подарок {{amount}} ! Заявите об этом здесь:\n{{link}}",
         "fundGiftMessage": "Создание подарка",
         "reclaimGiftMessage": "Возвращение подарка",
         "giftsHome": {
