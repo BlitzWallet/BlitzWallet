@@ -3,9 +3,14 @@ import {
   removeAllLocalData,
   setLocalStorageItem,
 } from './localStorage';
-import {crashlyticsLogReport} from './crashlyticsLogs';
-import {CUSTODY_ACCOUNTS_STORAGE_KEY} from '../constants';
-import {BIOMETRIC_KEY} from '../constants';
+import { crashlyticsLogReport } from './crashlyticsLogs';
+import {
+  CUSTODY_ACCOUNTS_STORAGE_KEY,
+  LOGIN_SECURITY_MODE_TYPE_KEY,
+  NWC_SECURE_STORE_KEY,
+  NWC_SECURE_STORE_MNEMOINC,
+} from '../constants';
+import { BIOMETRIC_KEY } from '../constants';
 import {
   AFTER_FIRST_UNLOCK,
   deleteItemAsync,
@@ -44,10 +49,10 @@ async function retrieveData(key, options = {}) {
       ...options,
     });
 
-    return {didWork: true, value};
+    return { didWork: true, value };
   } catch (error) {
     console.log('Error storing data to secure store', error);
-    return {didWork: false, value: false};
+    return { didWork: false, value: false };
   }
 }
 
@@ -59,6 +64,9 @@ async function terminateAccount() {
     await deleteItemAsync('encryptedMnemonic', KEYCHAIN_OPTION);
     await deleteItemAsync(BIOMETRIC_KEY, KEYCHAIN_OPTION);
     await deleteItemAsync(CUSTODY_ACCOUNTS_STORAGE_KEY, KEYCHAIN_OPTION);
+    await deleteItemAsync(LOGIN_SECURITY_MODE_TYPE_KEY, KEYCHAIN_OPTION);
+    await deleteItemAsync(NWC_SECURE_STORE_MNEMOINC, KEYCHAIN_OPTION);
+    await deleteItemAsync(NWC_SECURE_STORE_KEY, KEYCHAIN_OPTION);
 
     const didRemove = await removeAllLocalData();
     if (!didRemove) throw Error('not able to remove local storage data');

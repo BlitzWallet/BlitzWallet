@@ -65,8 +65,14 @@ export default function GiftConfirmation({
   const handleShare = async () => {
     try {
       await handleGiftCardShare({
-        amount: formatBalanceAmount(amount, false, {
-          thousandsSeperator: 'space',
+        amount: displayCorrectDenomination({
+          amount: amount,
+          masterInfoObject: {
+            ...masterInfoObject,
+            userBalanceDenomination: 'sats',
+            thousandsSeperator: 'space',
+          },
+          fiatStats,
         }),
         giftLink,
       });

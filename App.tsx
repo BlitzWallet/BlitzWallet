@@ -515,6 +515,10 @@ function ResetStack(): JSX.Element | null {
 
         const storedSettings = JSON.parse(securitySettings);
 
+        if (mnemonic.value && !storedSettings.isSecurityEnabled) {
+          setAccountMnemonic(mnemonic.value);
+        }
+
         setInitSettings(prev => {
           return {
             ...prev,

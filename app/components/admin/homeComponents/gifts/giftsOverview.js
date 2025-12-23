@@ -126,8 +126,14 @@ export default function GiftsOverview({ theme, darkModeType }) {
                     await copyToClipboard(uuid, showToast);
                   } else {
                     await handleGiftCardShare({
-                      amount: formatBalanceAmount(amount, false, {
-                        thousandsSeperator: 'space',
+                      amount: displayCorrectDenomination({
+                        amount: amount,
+                        masterInfoObject: {
+                          ...masterInfoObject,
+                          userBalanceDenomination: 'sats',
+                          thousandsSeperator: 'space',
+                        },
+                        fiatStats,
                       }),
                       giftLink: claimURL,
                     });

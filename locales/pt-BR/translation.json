@@ -300,7 +300,7 @@
       "confirmationSlideUp": {
         "invoiceInfoError": "Erro ao obter informações da fatura.",
         "title": "Confirmar VPN",
-        "duration": "Duração: 1 {{duration}}",
+        "duration": "Expira em: 1 {{duration}}",
         "price": "Preço: ",
         "fee": "Taxa: "
       },
@@ -308,7 +308,7 @@
         "durationOption": "1 {{duration}}",
         "price": "Preço: ",
         "noDurations": "Nenhuma duração disponível",
-        "duration": "Duração",
+        "duration": "Prazo de expiração",
         "0.1": "hora",
         "0.5": "dia",
         "1.5": "semana",
@@ -320,7 +320,7 @@
         "deleteVPNConfirmMessage": "Tem certeza de que deseja remover esta VPN?",
         "country": "País:",
         "createdAt": "Criado em:",
-        "duration": "Duração:",
+        "duration": "Prazo de expiração:",
         "paymentHash": "Hash do pagamento:",
         "title": "Compras",
         "retryClaim": "Tentando criar arquivo",
@@ -1661,7 +1661,7 @@
           "minutes_one": "{{count}} minuto restante",
           "minutes_other": "{{count}} minutos restantes"
         },
-        "shareMessage": "Você recebeu um vale-bitcoin de {{icon}}{{amount}}! Resgate aqui:\n{{link}}",
+        "shareMessage": "Você recebeu um vale-bitcoin de {{amount}}! Resgate aqui:\n{{link}}",
         "fundGiftMessage": "Vale-bitcoin criado",
         "reclaimGiftMessage": "Vale-bitcoin reembolsado",
 
@@ -1691,7 +1691,8 @@
           "header": "Criar vale-bitcoin",
           "inputPlaceholder": "Adicione uma mensagem ou nota...",
           "button": "Criar vale-bitcoin",
-          "disclaimer": "Quando você cria um vale-bitcoin, o valor usado para emiti-lo fica bloqueado por 7 dias. Se ninguém resgatar o vale nesse período, você pode ir na aba Expirados e recuperar o valor."
+          "disclaimer": "Quando você cria um vale-bitcoin, o valor usado para emiti-lo fica bloqueado por {{numDays}} dias. Se ninguém resgatar o vale nesse período, você pode ir na aba Expirados e recuperar o valor.",
+          "durationText": "{{numDays}} dias"
         },
 
         "giftConfirmation": {

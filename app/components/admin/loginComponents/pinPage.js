@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { signOut } from '@react-native-firebase/auth';
 import {
   getLocalStorageItem,
-  handleLogin,
   retrieveData,
   setLocalStorageItem,
-  terminateAccount,
 } from '../../../functions';
 import {
   LOGIN_SECUITY_MODE_KEY,
@@ -29,7 +26,6 @@ import {
   decryptMnemonicWithPin,
   handleLoginSecuritySwitch,
 } from '../../../functions/handleMnemonic';
-import { firebaseAuth } from '../../../../db/initializeFirebase';
 
 export default function PinPage() {
   const [loginSettings, setLoginSettings] = useState({
@@ -216,14 +212,8 @@ export default function PinPage() {
                 'adminLogin.pinPage.isBiometricEnabledConfirmAction',
               ),
               confirmFunction: async () => {
-                const deleted = await terminateAccount();
+                const deleted = await factoryResetWallet();
                 if (deleted) {
-                  clearSettings();
-                  try {
-                    await signOut(firebaseAuth);
-                  } catch (err) {
-                    console.log('pin page sign out error', err);
-                  }
                   RNRestart.restart();
                 } else {
                   navigate.navigate('ErrorScreen', {
@@ -251,14 +241,8 @@ export default function PinPage() {
               'adminLogin.pinPage.isBiometricEnabledConfirmAction',
             ),
             confirmFunction: async () => {
-              const deleted = await terminateAccount();
+              const deleted = await factoryResetWallet();
               if (deleted) {
-                clearSettings();
-                try {
-                  await signOut(firebaseAuth);
-                } catch (err) {
-                  console.log('pin page sign out error', err);
-                }
                 RNRestart.restart();
               } else {
                 navigate.navigate('ErrorScreen', {

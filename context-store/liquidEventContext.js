@@ -15,6 +15,11 @@ import {
 import startLiquidUpdateInterval from '../app/functions/liquidBackupUpdate';
 import { useNodeContext } from './nodeContext';
 import { useAuthContext } from './authContext';
+import {
+  ensureLiquidConnection,
+  resetLiquidConnectionStatus,
+} from '../app/functions/breezLiquid/liquidNodeManager';
+import { useKeysContext } from './keys';
 
 const LiquidEventContext = createContext(null);
 
@@ -24,6 +29,7 @@ const REQUIRED_SYNC_COUNT = 2;
 
 // Create a context for the WebView ref
 export function LiquidEventProvider({ children }) {
+  const { accountMnemoinc } = useKeysContext();
   const { authResetkey } = useAuthContext();
   const { toggleLiquidNodeInformation, liquidNodeInformation } =
     useNodeContext();
@@ -50,6 +56,7 @@ export function LiquidEventProvider({ children }) {
     }
     cleanup();
     disconnect();
+    resetLiquidConnectionStatus();
     toggleLiquidNodeInformation({
       didConnectToNode: null,
       transactions: [],
@@ -141,6 +148,7 @@ export function LiquidEventProvider({ children }) {
         }
 
         numberOfLiquidEvents.current = numberOfAttempts;
+        await ensureLiquidConnection(accountMnemoinc);
         liquidEventListenerId.current = await addEventListener(
           onLiquidBreezEvent,
         );
@@ -148,7 +156,7 @@ export function LiquidEventProvider({ children }) {
         console.error('Failed to start liquid event listener:', error);
       }
     },
-    [onLiquidBreezEvent],
+    [onLiquidBreezEvent, accountMnemoinc],
   );
 
   useEffect(() => {

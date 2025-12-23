@@ -57,4 +57,5 @@ export const fiatCurrencies = [
   { info: { spacing: null, name: '円' }, id: 'JPY' },
   { info: { spacing: null, name: '원' }, id: 'KRW' },
   { info: { spacing: null, name: 'Ugandan Shilling' }, id: 'UGX' },
+  { info: { spacing: null, name: 'Georgian Lari' }, id: 'GEL' },
 ];

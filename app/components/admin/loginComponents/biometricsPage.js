@@ -7,7 +7,7 @@ import CustomButton from '../../../functions/CustomElements/button';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import GetThemeColors from '../../../hooks/themeColors';
 import { useNavigation } from '@react-navigation/native';
-import { retrieveData, storeData, terminateAccount } from '../../../functions';
+import { retrieveData, storeData } from '../../../functions';
 import {
   decryptMnemonicWithBiometrics,
   handleLoginSecuritySwitch,
@@ -15,9 +15,8 @@ import {
 import sha256Hash from '../../../functions/hash';
 import { useKeysContext } from '../../../../context-store/keys';
 import { useTranslation } from 'react-i18next';
-import { signOut } from '@react-native-firebase/auth';
-import { firebaseAuth } from '../../../../db/initializeFirebase';
 import RNRestart from 'react-native-restart';
+import factoryResetWallet from '../../../functions/factoryResetWallet';
 
 export default function BiometricsLogin() {
   const { t } = useTranslation();
@@ -62,13 +61,8 @@ export default function BiometricsLogin() {
                 'adminLogin.pinPage.isBiometricEnabledConfirmAction',
               ),
               confirmFunction: async () => {
-                const deleted = await terminateAccount();
+                const deleted = await factoryResetWallet();
                 if (deleted) {
-                  try {
-                    await signOut(firebaseAuth);
-                  } catch (err) {
-                    console.log('pin page sign out error', err);
-                  }
                   RNRestart.restart();
                 } else {
                   navigate.navigate('ErrorScreen', {
@@ -105,13 +99,8 @@ export default function BiometricsLogin() {
             'adminLogin.pinPage.isBiometricEnabledConfirmAction',
           ),
           confirmFunction: async () => {
-            const deleted = await terminateAccount();
+            const deleted = await factoryResetWallet();
             if (deleted) {
-              try {
-                await signOut(firebaseAuth);
-              } catch (err) {
-                console.log('pin page sign out error', err);
-              }
               RNRestart.restart();
             } else {
               navigate.navigate('ErrorScreen', {

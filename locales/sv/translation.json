@@ -1640,7 +1640,7 @@
           "minutes_one": "{{count}} minut kvar",
           "minutes_other": "{{count}} minuter kvar"
         },
-        "shareMessage": "Du har fått en {{icon}}{{amount}} gåva! Gör anspråk på den här:\n{{link}}",
+        "shareMessage": "Du har fått en {{amount}} gåva! Gör anspråk på den här:\n{{link}}",
         "fundGiftMessage": "Skapande av gåva",
         "reclaimGiftMessage": "Återvinning av gåva",
         "giftsHome": {
@@ -1667,7 +1667,8 @@
           "header": "Skapa gåva",
           "inputPlaceholder": "Lägg till ett meddelande eller en anteckning...",
           "button": "Skapa gåva",
-          "disclaimer": "När du skapar en gåva förblir pengarna låsta i 7 dagar. Om ingen gör anspråk på dem innan dess kan du gå till återkravssidan för att få tillbaka dem."
+          "disclaimer": "När du skapar en gåva förblir pengarna låsta i {{numDays}} dagar. Om ingen gör anspråk på dem innan dess kan du gå till återkravssidan för att få tillbaka dem.",
+          "durationText": "{{numDays}} dagar"
         },
         "giftConfirmation": {
           "header": "Gåva skapad!",

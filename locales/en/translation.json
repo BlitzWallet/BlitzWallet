@@ -1666,7 +1666,7 @@
           "minutes_one": "{{count}} minute left",
           "minutes_other": "{{count}} minutes left"
         },
-        "shareMessage": "You've received a {{icon}}{{amount}} gift! Claim it here:\n{{link}}",
+        "shareMessage": "You've received a {{amount}} gift! Claim it here:\n{{link}}",
         "fundGiftMessage": "Creating Gift",
         "reclaimGiftMessage": "Reclaiming Gift",
 
@@ -1696,7 +1696,8 @@
           "header": "Create Gift",
           "inputPlaceholder": "Add a message or note...",
           "button": "Create Gift",
-          "disclaimer": "When you create a gift, the money stays locked for 7 days. If no one claims it by then, you can go to the reclaim page to get it back."
+          "disclaimer": "When you create a gift, the money stays locked for {{numDays}} days. If no one claims it by then, you can go to the reclaim page to get it back.",
+          "durationText": "{{numDays}} days"
         },
 
         "giftConfirmation": {

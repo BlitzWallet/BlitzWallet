@@ -17,6 +17,11 @@ export async function ensureLiquidConnection(accountMnemonic) {
   return connectionPromise;
 }
 
+export function resetLiquidConnectionStatus() {
+  isConnected = false;
+  connectionPromise = null;
+}
+
 export function isLiquidNodeConnected() {
   return isConnected;
 }

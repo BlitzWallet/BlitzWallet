@@ -1491,7 +1491,7 @@
           "minutes_one": "Queda {{count}} minuto",
           "minutes_other": "Quedan {{count}} minutos"
         },
-        "shareMessage": "¡Has recibido un regalo de {{icon}}{{amount}}! Reclámalo aquí:\n{{link}}",
+        "shareMessage": "¡Has recibido un regalo de {{amount}}! Reclámalo aquí:\n{{link}}",
         "fundGiftMessage": "Creando regalo",
         "reclaimGiftMessage": "Recuperando regalo",
 
@@ -1521,7 +1521,8 @@
           "header": "Crear regalo",
           "inputPlaceholder": "Añade un mensaje o nota...",
           "button": "Crear regalo",
-          "disclaimer": "Cuando creas un regalo, el dinero queda bloqueado durante 7 días. Si nadie lo reclama en ese período, puedes ir a la página de recuperación para recuperarlo."
+          "disclaimer": "Cuando creas un regalo, el dinero queda bloqueado durante {{numDays}} días. Si nadie lo reclama en ese período, puedes ir a la página de recuperación para recuperarlo.",
+          "durationText": "{{numDays}} días"
         },
 
         "giftConfirmation": {
