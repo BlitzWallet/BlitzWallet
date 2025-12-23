@@ -14,6 +14,7 @@
     "accept": "Akzeptieren",
     "total_balance": "Gesamtguthaben",
     "sat_balance": "SAT-Guthaben",
+    "usd_balance": "USD-Kontostand",
     "amount": "Betrag",
     "sent": "Gesendet",
     "received": "Empfangen",

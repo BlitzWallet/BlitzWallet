@@ -14,6 +14,7 @@
     "accept": "Принять",
     "total_balance": "Общий баланс",
     "sat_balance": "SAT Balance",
+    "usd_balance": "Баланс в долларах США",
     "amount": "Сумма",
     "sent": "Отправлено",
     "received": "Получено",

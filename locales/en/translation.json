@@ -14,6 +14,7 @@
     "accept": "Accept",
     "total_balance": "Total Balance",
     "sat_balance": "SAT Balance",
+    "usd_balance": "USD Balance",
     "amount": "Amount",
     "sent": "Sent",
     "received": "Received",

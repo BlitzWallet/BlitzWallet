@@ -28,8 +28,10 @@ import {
   deriveSparkIdentityKey,
 } from '../gift/deriveGiftWallet';
 import { DEFAULT_PAYMENT_EXPIRY_SEC } from '../../constants';
+import { FlashnetAPI } from './flashnet.js';
 
 export let sparkWallet = {};
+export let flashnetClients = {};
 let initializingWallets = {};
 
 // Hash cache to avoid recalculating hashes
@@ -133,6 +135,11 @@ export const initializeSparkWallet = async (mnemonic, isInitialLoad = true) => {
     initializingWallets[hash] = (async () => {
       const wallet = await initializeWallet(mnemonic);
       sparkWallet[hash] = wallet;
+
+      const flashnetAPI = FlashnetAPI(wallet);
+
+      await flashnetAPI.initializeFlashnetClient();
+      flashnetClients[hash] = flashnetAPI;
       delete initializingWallets[hash]; // cleanup after done
     })();
 
@@ -1055,4 +1062,110 @@ const validateWebViewResponse = (response, errorMessage) => {
   }
 
   return response;
+};
+
+// Flashnet
+
+export const listFlashnetPools = async ({ mnemonic }) => {
+  try {
+    const client = getFlashnetClient(mnemonic);
+    return await client.listPools();
+  } catch (err) {
+    console.log('List Flashnet pools error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
+export const swapBitcoinToUSDB = async ({
+  poolId,
+  amountSats,
+  bitcoinPubkey,
+  usdbPubkey,
+  maxSlippageBps = 100,
+  mnemonic,
+}) => {
+  try {
+    const client = getFlashnetClient(mnemonic);
+    return await client.swapBitcoinToUSDB({
+      poolId,
+      amountSats,
+      bitcoinPubkey,
+      usdbPubkey,
+      maxSlippageBps,
+    });
+  } catch (err) {
+    console.log('Swap Bitcoin to USDB error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
+export const swapUSDBToBitcoin = async ({
+  poolId,
+  amountUSDB,
+  usdbPubkey,
+  bitcoinPubkey,
+  maxSlippageBps = 100,
+  mnemonic,
+}) => {
+  try {
+    const client = getFlashnetClient(mnemonic);
+    return await client.swapUSDBToBitcoin({
+      poolId,
+      amountUSDB,
+      usdbPubkey,
+      bitcoinPubkey,
+      maxSlippageBps,
+    });
+  } catch (err) {
+    console.log('Swap USDB to Bitcoin error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
+export const payLightningInvoiceWithUSDB = async ({
+  invoice,
+  poolId,
+  usdbPubkey,
+  bitcoinPubkey,
+  amountUSDB,
+  maxSwapSlippageBps = 100,
+  maxLightningFeeSats,
+  mnemonic,
+}) => {
+  try {
+    const client = getFlashnetClient(mnemonic);
+    return await client.payLightningWithUSDB({
+      invoice,
+      poolId,
+      usdbPubkey,
+      bitcoinPubkey,
+      amountUSDB,
+      maxSwapSlippageBps,
+      maxLightningFeeSats,
+    });
+  } catch (err) {
+    console.log('Pay Lightning with USDB error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
+export const estimateUSDBForLightning = async ({
+  invoice,
+  poolId,
+  usdbPubkey,
+  bitcoinPubkey,
+  mnemonic,
+}) => {
+  try {
+    const client = getFlashnetClient(mnemonic);
+    return await client.estimateUSDBForLightningPayment({
+      invoice,
+      poolId,
+      usdbPubkey,
+      bitcoinPubkey,
+    });
+  } catch (err) {
+    console.log('Estimate USDB for Lightning error', err);
+    return { didWork: false, error: err.message };
+  }
 };

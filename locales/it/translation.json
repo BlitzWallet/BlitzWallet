@@ -14,6 +14,7 @@
     "accept": "Accetta",
     "total_balance": "Saldo Totale",
     "sat_balance": "Saldo SAT",
+    "usd_balance": "Saldo in USD",
     "amount": "Importo",
     "sent": "Inviato",
     "received": "Ricevuto",

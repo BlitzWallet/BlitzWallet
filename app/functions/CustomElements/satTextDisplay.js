@@ -30,13 +30,14 @@ export default function FormattedSatText({
   useMillionDenomination = false,
   useSpaces = true,
   useSizing = false,
+  forceCurrency = null,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
 
   const localBalanceDenomination =
     globalBalanceDenomination || masterInfoObject.userBalanceDenomination;
-  const currencyText = fiatStats.coin || 'USD';
+  const currencyText = forceCurrency ? forceCurrency : fiatStats.coin || 'USD';
 
   const formattedBalance = useMemo(
     () =>

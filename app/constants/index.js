@@ -110,6 +110,9 @@ const DEFAULT_PAYMENT_EXPIRY_SEC = 60 * 60 * 12;
 
 const SCREEN_DIMENSIONS = Dimensions.get('screen');
 
+const USDB_TOKEN_ID =
+  'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87';
+
 export {
   COLORS,
   FONT,
@@ -186,4 +189,5 @@ export {
   BACKGROUND_THRESHOLD_MS,
   FORCE_RESET_SPAARK_STATE_MS,
   DEFAULT_PAYMENT_EXPIRY_SEC,
+  USDB_TOKEN_ID,
 };

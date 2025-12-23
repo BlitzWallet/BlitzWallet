@@ -14,6 +14,7 @@
     "accept": "Accepter",
     "total_balance": "Solde total",
     "sat_balance": "Bilan SAT",
+    "usd_balance": "Solde en USD",
     "amount": "Montant",
     "sent": "Envoyé",
     "received": "Reçu",

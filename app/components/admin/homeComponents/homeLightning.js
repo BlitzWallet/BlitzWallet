@@ -1,4 +1,10 @@
-import { StyleSheet, View, Platform, RefreshControl } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Platform,
+  RefreshControl,
+  useWindowDimensions,
+} from 'react-native';
 import { UserSatAmount } from './homeLightning/userSatAmount';
 import { useGlobalContextProvider } from '../../../../context-store/context';
 import { GlobalThemeView, ThemeText } from '../../../functions/CustomElements';
@@ -35,6 +41,7 @@ import {
   sparkTransactionsEventEmitter,
 } from '../../../functions/spark/transactions';
 import { scheduleOnRN } from 'react-native-worklets';
+import { BalanceDots } from './homeLightning/balanceDots';
 
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
@@ -58,9 +65,17 @@ export default function HomeLightning() {
   const currentTime = useUpdateHomepageTransactions();
   const { t } = useTranslation();
   const { backgroundColor } = GetThemeColors();
+  const balanceScrollX = useSharedValue(0);
+  const screenWidth = useWindowDimensions().width;
 
   const scrollY = useSharedValue(0);
   const [navbarHeight, setNavbarHeight] = useState(0);
+
+  const onBalanceScroll = useAnimatedScrollHandler({
+    onScroll: event => {
+      balanceScrollX.value = event.contentOffset.x;
+    },
+  });
 
   const [scrollContentChanges, setScrollContentChanges] = useState({
     borderRadius: false,
@@ -132,6 +147,15 @@ export default function HomeLightning() {
       transform: [{ translateY }],
     };
   });
+
+  const BALANCE_PAGES = useMemo(
+    () => [
+      { key: 'total', type: 'total' },
+      { key: 'sats', type: 'sats' },
+      { key: 'usd', type: 'usd' },
+    ],
+    [],
+  );
 
   const flatListDataForSpark = useMemo(() => {
     return (
@@ -288,30 +312,74 @@ export default function HomeLightning() {
           );
         case 'balance':
           return (
-            <View
-              style={[
-                styles.balanceSection,
-                {
-                  backgroundColor: backgroundColor,
-                },
-              ]}
-            >
-              <ThemeText
-                content={
-                  showTokensInformation
-                    ? t('constants.sat_balance')
-                    : t('constants.total_balance')
-                }
-                styles={{
-                  textTransform: 'uppercase',
-                  includeFontPadding: false,
+            <View style={[styles.balanceSection, { backgroundColor: 'red' }]}>
+              <Animated.FlatList
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                data={BALANCE_PAGES}
+                keyExtractor={item => item.key}
+                onScroll={onBalanceScroll}
+                scrollEventThrottle={16}
+                renderItem={({ item }) => {
+                  return (
+                    <View style={{ width: screenWidth, alignItems: 'center' }}>
+                      {item.type === 'total' && (
+                        <>
+                          <ThemeText
+                            content={t('constants.total_balance')}
+                            styles={styles.balanceLabel}
+                          />
+                          <MemoizedUserSatAmount
+                            isConnectedToTheInternet={isConnectedToTheInternet}
+                            theme={theme}
+                            darkModeType={darkModeType}
+                            sparkInformation={sparkInformation}
+                            mode="total"
+                          />
+                        </>
+                      )}
+
+                      {item.type === 'sats' && (
+                        <>
+                          <ThemeText
+                            content={t('constants.sat_balance')}
+                            styles={styles.balanceLabel}
+                          />
+                          <MemoizedUserSatAmount
+                            isConnectedToTheInternet={isConnectedToTheInternet}
+                            theme={theme}
+                            darkModeType={darkModeType}
+                            sparkInformation={sparkInformation}
+                            mode="sats"
+                          />
+                        </>
+                      )}
+
+                      {item.type === 'usd' && (
+                        <>
+                          <ThemeText
+                            content={t('constants.usd_balance')}
+                            styles={styles.balanceLabel}
+                          />
+                          <MemoizedUserSatAmount
+                            isConnectedToTheInternet={isConnectedToTheInternet}
+                            theme={theme}
+                            darkModeType={darkModeType}
+                            sparkInformation={sparkInformation}
+                            mode="usd"
+                          />
+                        </>
+                      )}
+                    </View>
+                  );
                 }}
               />
-              <MemoizedUserSatAmount
-                isConnectedToTheInternet={isConnectedToTheInternet}
-                theme={theme}
-                darkModeType={darkModeType}
-                sparkInformation={sparkInformation}
+
+              <BalanceDots
+                scrollX={balanceScrollX}
+                pageCount={BALANCE_PAGES.length}
+                screenWidth={screenWidth}
               />
             </View>
           );
@@ -405,21 +473,150 @@ export default function HomeLightning() {
   return (
     <GlobalThemeView styles={globlThemeViewMemodStlyes}>
       {enabledLRC20 && <View style={topPaddingForLRC20PageMemeStyles} />}
-      <Animated.FlatList
+
+      <Animated.ScrollView
         refreshControl={refreshControl}
-        initialNumToRender={homepageTxPreferance || 25}
-        maxToRenderPerBatch={10}
-        windowSize={5}
-        removeClippedSubviews={true}
-        data={listData}
-        keyExtractor={(item, index) => item.key || index.toString()}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={scrollViewContainerStyles}
         onScroll={onScroll}
         scrollEventThrottle={16}
-        renderItem={renderItem}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={scrollViewContainerStyles}
         stickyHeaderIndices={[0]}
-      />
+      >
+        {/* Sticky navbar */}
+        <View
+          onLayout={handleNavbarLayout}
+          style={[
+            styles.navbarContainer,
+            {
+              backgroundColor: backgroundColor,
+              borderBottomLeftRadius: scrollContentChanges.borderRadius
+                ? 30
+                : 0,
+              borderBottomRightRadius: scrollContentChanges.borderRadius
+                ? 30
+                : 0,
+            },
+          ]}
+        >
+          <MemoizedNavBar
+            darkModeType={darkModeType}
+            theme={theme}
+            toggleTheme={toggleTheme}
+            sparkBalance={sparkInformation?.balance}
+            sparkTokens={sparkInformation?.tokens}
+            didViewSeedPhrase={didViewSeedPhrase}
+          />
+
+          <Animated.View
+            style={[styles.navbarBalance, balanceOpacityStyle]}
+            pointerEvents="none"
+          >
+            <FormattedSatText
+              useMillionDenomination={true}
+              styles={styles.navbarBalanceText}
+              balance={sparkInformation.balance}
+              useSizing={true}
+            />
+          </Animated.View>
+        </View>
+
+        {/* Balance pager (horizontal swipe) */}
+        <View style={[styles.balanceSection, { backgroundColor }]}>
+          <Animated.FlatList
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingTop: 50,
+              paddingBottom: 20,
+            }}
+            data={BALANCE_PAGES}
+            keyExtractor={item => item.key}
+            onScroll={onBalanceScroll}
+            scrollEventThrottle={16}
+            renderItem={({ item }) => {
+              return (
+                <View style={{ width: screenWidth, alignItems: 'center' }}>
+                  {item.type === 'total' && (
+                    <>
+                      <ThemeText
+                        content={t('constants.total_balance')}
+                        styles={styles.balanceLabel}
+                      />
+                      <MemoizedUserSatAmount
+                        isConnectedToTheInternet={isConnectedToTheInternet}
+                        theme={theme}
+                        darkModeType={darkModeType}
+                        sparkInformation={sparkInformation}
+                        mode="total"
+                      />
+                    </>
+                  )}
+
+                  {item.type === 'sats' && (
+                    <>
+                      <ThemeText
+                        content={t('constants.sat_balance')}
+                        styles={styles.balanceLabel}
+                      />
+                      <MemoizedUserSatAmount
+                        isConnectedToTheInternet={isConnectedToTheInternet}
+                        theme={theme}
+                        darkModeType={darkModeType}
+                        sparkInformation={sparkInformation}
+                        mode="sats"
+                      />
+                    </>
+                  )}
+
+                  {item.type === 'usd' && (
+                    <>
+                      <ThemeText
+                        content={t('constants.usd_balance')}
+                        styles={styles.balanceLabel}
+                      />
+                      <MemoizedUserSatAmount
+                        isConnectedToTheInternet={isConnectedToTheInternet}
+                        theme={theme}
+                        darkModeType={darkModeType}
+                        sparkInformation={sparkInformation}
+                        mode="usd"
+                      />
+                    </>
+                  )}
+                </View>
+              );
+            }}
+          />
+          <BalanceDots
+            scrollX={balanceScrollX}
+            pageCount={BALANCE_PAGES.length}
+            screenWidth={screenWidth}
+          />
+        </View>
+
+        <View
+          style={[
+            styles.buttonsContainer,
+            { backgroundColor: backgroundColor },
+          ]}
+        >
+          <MemoizedSendRecieveBTNs
+            theme={theme}
+            darkModeType={darkModeType}
+            isConnectedToTheInternet={isConnectedToTheInternet}
+          />
+          {showTokensInformation && (
+            <MemoizedLRC20Assets theme={theme} darkModeType={darkModeType} />
+          )}
+        </View>
+
+        {/* Transactions list */}
+
+        {flatListDataForSpark.map((tx, idx) => (
+          <View key={idx}>{tx.item}</View>
+        ))}
+      </Animated.ScrollView>
     </GlobalThemeView>
   );
 }
@@ -444,9 +641,12 @@ const styles = StyleSheet.create({
     fontSize: SIZES.large,
     includeFontPadding: false,
   },
+  balanceLabel: {
+    textTransform: 'uppercase',
+  },
   balanceSection: {
     alignItems: 'center',
-    paddingTop: 30,
+    // paddingTop: 30,
   },
   buttonsContainer: {
     borderBottomLeftRadius: 30,

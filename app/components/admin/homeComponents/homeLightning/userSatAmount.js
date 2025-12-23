@@ -2,8 +2,10 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
   COLORS,
   FONT,
+  SATSPERBITCOIN,
   SIZES,
   SKELETON_ANIMATION_SPEED,
+  USDB_TOKEN_ID,
 } from '../../../../constants';
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import FormattedSatText from '../../../../functions/CustomElements/satTextDisplay';
@@ -14,15 +16,18 @@ import SkeletonTextPlaceholder from '../../../../functions/CustomElements/skelet
 import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
+import formatTokensNumber from '../../../../functions/lrc20/formatTokensBalance';
+import { useNodeContext } from '../../../../../context-store/nodeContext';
 
 export const UserSatAmount = memo(function UserSatAmount({
   isConnectedToTheInternet,
   theme,
   darkModeType,
   sparkInformation,
+  mode,
 }) {
   // const didMount = useRef(null);
-
+  const { fiatStats } = useNodeContext();
   const { masterInfoObject, toggleMasterInfoObject, setMasterInfoObject } =
     useGlobalContextProvider();
   const { backgroundColor } = GetThemeColors();
@@ -30,10 +35,25 @@ export const UserSatAmount = memo(function UserSatAmount({
   const saveTimeoutRef = useRef(null);
   const navigate = useNavigation();
   // const [balanceWidth, setBalanceWidth] = useState(0);
+  const tokenInformation = sparkInformation?.tokens?.[USDB_TOKEN_ID];
+  const usdBalance =
+    formatTokensNumber(
+      tokenInformation?.balance,
+      tokenInformation?.tokenMetadata?.decimals,
+    ) ?? 0;
+  const satsPerDollar = SATSPERBITCOIN / (fiatStats?.value || 100000);
+  const satUSDValue = satsPerDollar * usdBalance;
   const userBalance = sparkInformation.balance;
   const initialValueRef = useRef(masterInfoObject.userBalanceDenomination);
   const { t } = useTranslation();
   const [layout, setlayout] = useState({ height: 45, width: 87 });
+  console.log(tokenInformation, usdBalance, satUSDValue);
+  const displayBalance =
+    mode === 'total'
+      ? userBalance + (isNaN(satUSDValue) ? 0 : satUSDValue)
+      : mode === 'sats'
+      ? userBalance
+      : satUSDValue;
 
   // useEffect(() => {
   //   didMount.current = true;
@@ -50,6 +70,7 @@ export const UserSatAmount = memo(function UserSatAmount({
   // );
 
   const handleBalanceChange = useCallback(() => {
+    if (mode !== 'total') return;
     if (!isConnectedToTheInternet) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('errormessages.nointernet'),
@@ -93,6 +114,7 @@ export const UserSatAmount = memo(function UserSatAmount({
       // onLayout={handleLayout}
       style={styles.balanceContainer}
       onPress={handleBalanceChange}
+      activeOpacity={mode === 'total' ? 0.2 : 1}
     >
       <SkeletonTextPlaceholder
         highlightColor={backgroundColor}
@@ -105,8 +127,12 @@ export const UserSatAmount = memo(function UserSatAmount({
           <FormattedSatText
             useSpaces={sparkInformation.didConnect || userBalance}
             styles={styles.valueText}
-            balance={userBalance || 0}
+            balance={displayBalance}
             useSizing={true}
+            globalBalanceDenomination={
+              mode === 'total' ? undefined : mode === 'sats' ? 'sats' : 'fiat'
+            }
+            forceCurrency={mode === 'usd' ? 'USD' : null}
           />
         </View>
       </SkeletonTextPlaceholder>
@@ -117,7 +143,7 @@ export const UserSatAmount = memo(function UserSatAmount({
 const styles = StyleSheet.create({
   balanceContainer: {
     justifyContent: 'center',
-    marginBottom: 20,
+    // marginBottom: 20,
     position: 'relative',
     width: INSET_WINDOW_WIDTH,
     minHeight: 45,
