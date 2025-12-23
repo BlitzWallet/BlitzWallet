@@ -15,7 +15,10 @@ import {
 import startLiquidUpdateInterval from '../app/functions/liquidBackupUpdate';
 import { useNodeContext } from './nodeContext';
 import { useAuthContext } from './authContext';
-import { ensureLiquidConnection } from '../app/functions/breezLiquid/liquidNodeManager';
+import {
+  ensureLiquidConnection,
+  resetLiquidConnectionStatus,
+} from '../app/functions/breezLiquid/liquidNodeManager';
 import { useKeysContext } from './keys';
 
 const LiquidEventContext = createContext(null);
@@ -53,6 +56,7 @@ export function LiquidEventProvider({ children }) {
     }
     cleanup();
     disconnect();
+    resetLiquidConnectionStatus();
     toggleLiquidNodeInformation({
       didConnectToNode: null,
       transactions: [],
