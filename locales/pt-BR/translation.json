@@ -299,7 +299,7 @@
       "confirmationSlideUp": {
         "invoiceInfoError": "Erro ao obter informações da fatura.",
         "title": "Confirmar VPN",
-        "duration": "Duração: 1 {{duration}}",
+        "duration": "Expira em: 1 {{duration}}",
         "price": "Preço: ",
         "fee": "Taxa: "
       },
@@ -307,7 +307,7 @@
         "durationOption": "1 {{duration}}",
         "price": "Preço: ",
         "noDurations": "Nenhuma duração disponível",
-        "duration": "Duração",
+        "duration": "Prazo de expiração",
         "0.1": "hora",
         "0.5": "dia",
         "1.5": "semana",
@@ -319,7 +319,7 @@
         "deleteVPNConfirmMessage": "Tem certeza de que deseja remover esta VPN?",
         "country": "País:",
         "createdAt": "Criado em:",
-        "duration": "Duração:",
+        "duration": "Prazo de expiração:",
         "paymentHash": "Hash do pagamento:",
         "title": "Compras",
         "retryClaim": "Tentando criar arquivo",
