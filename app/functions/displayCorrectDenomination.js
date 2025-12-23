@@ -10,10 +10,13 @@ export default function displayCorrectDenomination({
   useCustomLabel = false,
   customLabel = '',
   useMillionDenomination = false,
+  forceCurrency = null,
 }) {
   try {
     const localBalanceDenomination = masterInfoObject.userBalanceDenomination;
-    const currencyText = fiatStats?.coin || 'USD';
+    const currencyText = forceCurrency
+      ? forceCurrency
+      : fiatStats?.coin || 'USD';
 
     if (useCustomLabel) {
       const formattedBalance = formatBalanceAmount(

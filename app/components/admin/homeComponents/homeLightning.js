@@ -380,6 +380,8 @@ export default function HomeLightning() {
                 scrollX={balanceScrollX}
                 pageCount={BALANCE_PAGES.length}
                 screenWidth={screenWidth}
+                theme={theme}
+                darkModeType={darkModeType}
               />
             </View>
           );
@@ -592,6 +594,8 @@ export default function HomeLightning() {
             scrollX={balanceScrollX}
             pageCount={BALANCE_PAGES.length}
             screenWidth={screenWidth}
+            theme={theme}
+            darkModeType={darkModeType}
           />
         </View>
 

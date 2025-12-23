@@ -53,6 +53,8 @@ export const UserSatAmount = memo(function UserSatAmount({
       ? userBalance + (isNaN(satUSDValue) ? 0 : satUSDValue)
       : mode === 'sats'
       ? userBalance
+      : isNaN(satUSDValue)
+      ? 0
       : satUSDValue;
 
   // useEffect(() => {

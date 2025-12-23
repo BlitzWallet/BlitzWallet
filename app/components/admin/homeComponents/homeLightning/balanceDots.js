@@ -5,7 +5,14 @@ import Animated, {
 } from 'react-native-reanimated';
 import { COLORS } from '../../../../constants';
 
-export const BalanceDots = ({ scrollX, pageCount, screenWidth }) => {
+export const BalanceDots = ({
+  scrollX,
+  pageCount,
+  screenWidth,
+  theme,
+  darkModeType,
+}) => {
+  console.log(theme, darkModeType);
   return (
     <View style={styles.dotsContainer}>
       {Array.from({ length: pageCount }).map((_, i) => {
@@ -30,7 +37,19 @@ export const BalanceDots = ({ scrollX, pageCount, screenWidth }) => {
           };
         });
 
-        return <Animated.View key={i} style={[styles.dot, animatedStyle]} />;
+        return (
+          <Animated.View
+            key={i}
+            style={[
+              styles.dot,
+              animatedStyle,
+              {
+                backgroundColor:
+                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+              },
+            ]}
+          />
+        );
       })}
     </View>
   );
@@ -48,7 +67,6 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.primary,
     marginHorizontal: 4,
   },
 

@@ -54,6 +54,31 @@ export const OPERATION_TYPES = {
   removeListeners: 'removeWalletEventListener',
   setPrivacyEnabled: 'setPrivacyEnabled',
   getSingleTxDetails: 'getSingleTxDetails',
+
+  initFlashnet: 'initFlashnet',
+  listFlashnetPools: 'listFlashnetPools',
+  getFlashnetPoolDetails: 'getFlashnetPoolDetails',
+
+  // Flashnet Swap Simulations
+  simulateBitcoinToUSDB: 'simulateBitcoinToUSDB',
+  simulateUSDBToBitcoin: 'simulateUSDBToBitcoin',
+
+  // Flashnet Swap Executions
+  swapBitcoinToUSDB: 'swapBitcoinToUSDB',
+  swapUSDBToBitcoin: 'swapUSDBToBitcoin',
+
+  // Flashnet Lightning Integration
+  estimateUSDBForLightning: 'estimateUSDBForLightning',
+  payLightningWithUSDB: 'payLightningWithUSDB',
+
+  // Flashnet History
+  getUserSwapHistory: 'getUserSwapHistory',
+  getPoolSwapHistory: 'getPoolSwapHistory',
+
+  // Flashnet Advanced
+  executeRouteSwap: 'executeRouteSwap',
+  requestClawback: 'requestClawback',
+  checkClawbackStatus: 'checkClawbackStatus',
 };
 
 const longOperations = [
@@ -935,8 +960,8 @@ export const WebViewProvider = ({ children }) => {
     }
 
     const debouceID = setTimeout(() => {
-      // forceReactNativeUse = true;
-      startHandshake(); //remove this and app fully uses RN
+      forceReactNativeUse = true;
+      // startHandshake(); //remove this and app fully uses RN
     }, 250);
 
     return () => {

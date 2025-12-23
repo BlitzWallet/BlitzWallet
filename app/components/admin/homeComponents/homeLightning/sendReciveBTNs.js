@@ -6,6 +6,7 @@ import ThemeImage from '../../../../functions/CustomElements/themeImage';
 import { useCallback } from 'react';
 import CustomSendAndRequsetBTN from '../../../../functions/CustomElements/sendRequsetCircleBTN';
 import { crashlyticsLogReport } from '../../../../functions/crashlyticsLogs';
+import { ArrowUpDown } from 'lucide-react-native';
 
 export function SendRecieveBTNs({
   theme,
@@ -27,7 +28,7 @@ export function SendRecieveBTNs({
     }
   }, [isConnectedToTheInternet]);
 
-  const buttonElements = ['send', 'camera', 'receive'].map(btnType => {
+  const buttonElements = ['send', 'receive', 'camera', 'swap'].map(btnType => {
     if (isNWCWallet && btnType === 'camera') return;
     const isArrow = btnType === 'send' || btnType === 'receive';
     if (isArrow) {
@@ -68,9 +69,6 @@ export function SendRecieveBTNs({
       <TouchableOpacity
         key={btnType}
         onPress={() => {
-          crashlyticsLogReport(
-            `Running in send and receive buttons on homepage for button send BTC page`,
-          );
           const areSettingsSet = handleSettingsCheck();
           if (!areSettingsSet) {
             navigate.navigate('ErrorScreen', {
@@ -78,25 +76,35 @@ export function SendRecieveBTNs({
             });
             return;
           }
+          if (btnType === 'swap') {
+            navigate.navigate('SwapsPage');
+          } else {
+            crashlyticsLogReport(
+              `Running in send and receive buttons on homepage for button send BTC page`,
+            );
 
-          navigate.navigate('SendBTC');
+            navigate.navigate('SendBTC');
+          }
         }}
       >
         <View
           style={{
             ...styles.scanQrIcon,
-            backgroundColor: theme
-              ? darkModeType
-                ? COLORS.lightsOutBackgroundOffset
-                : COLORS.darkModeBackgroundOffset
-              : COLORS.primary,
+            backgroundColor: COLORS.darkModeText,
           }}
         >
-          <ThemeImage
-            darkModeIcon={ICONS.scanQrCodeLight}
-            lightsOutIcon={ICONS.scanQrCodeLight}
-            lightModeIcon={ICONS.scanQrCodeLight}
-          />
+          {btnType === 'swap' ? (
+            <ArrowUpDown
+              color={theme ? COLORS.lightModeText : COLORS.primary}
+              size={30}
+            />
+          ) : (
+            <ThemeImage
+              darkModeIcon={ICONS.scanQrCodeDark}
+              lightsOutIcon={ICONS.scanQrCodeDark}
+              lightModeIcon={ICONS.scanQrCodeBlue}
+            />
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -107,7 +115,6 @@ export function SendRecieveBTNs({
       style={{
         ...styles.container,
         marginBottom: isNWCWallet ? 0 : 50,
-        width: isNWCWallet ? 160 : 250,
       }}
     >
       {buttonElements}
@@ -121,6 +128,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 20,
+    gap: 10,
     ...CENTER,
   },
 
