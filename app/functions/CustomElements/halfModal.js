@@ -50,6 +50,7 @@ import Animated, {
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useAppStatus } from '../../../context-store/appStatus';
 import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
+import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/selectPaymentMethod';
 import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
 
 export default function CustomHalfModal(props) {
@@ -316,6 +317,18 @@ export default function CustomHalfModal(props) {
       case 'SelectLRC20Token':
         return (
           <SelectLRC20Token
+            isKeyboardActive={isKeyboardActive}
+            setIsKeyboardActive={setIsKeyboardActive}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        );
+      case 'SelectPaymentMethod':
+        return (
+          <SelectPaymentMethod
+            sparkBalance={props?.route?.params?.sparkBalance}
+            USD_SAT_VALUE={props?.route?.params?.USD_SAT_VALUE}
+            convertedSendAmount={props?.route?.params?.convertedSendAmount}
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}
             theme={theme}
