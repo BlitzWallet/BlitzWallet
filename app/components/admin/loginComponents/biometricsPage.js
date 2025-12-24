@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { COLORS, ICONS, SIZES } from '../../../constants';
 import { Image } from 'expo-image';
@@ -6,7 +6,7 @@ import { ThemeText } from '../../../functions/CustomElements';
 import CustomButton from '../../../functions/CustomElements/button';
 import { useGlobalThemeContext } from '../../../../context-store/theme';
 import GetThemeColors from '../../../hooks/themeColors';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { retrieveData, storeData } from '../../../functions';
 import {
   decryptMnemonicWithBiometrics,
@@ -26,6 +26,15 @@ export default function BiometricsLogin() {
   const navigate = useNavigation();
   const didNavigate = useRef(null);
   const numRetriesBiometric = useRef(0);
+  const isInitialRender = useRef(true);
+  const isFocusedRef = useRef(true);
+  const [isAuthenticating, setIsAuthenticating] = useState(true);
+
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    isFocusedRef.current = isFocused;
+  }, [isFocused]);
 
   useEffect(() => {
     async function loadPageInformation() {
@@ -43,6 +52,10 @@ export default function BiometricsLogin() {
 
         if (needsToBeMigrated) {
           console.log('before login security switch');
+          if (didNavigate.current) return;
+
+          setIsAuthenticating(true);
+
           const savedMnemonic = await retrieveData('encryptedMnemonic');
           const migrationResponse = await handleLoginSecuritySwitch(
             savedMnemonic.value,
@@ -50,12 +63,14 @@ export default function BiometricsLogin() {
             'biometric',
           );
           console.log('after login security switch');
+
           if (migrationResponse) {
             storeData('pinHash', sha256Hash(storedPin.value));
             setAccountMnemonic(savedMnemonic.value);
             didNavigate.current = true;
             navigate.replace('ConnectingToNodeLoadingScreen');
           } else {
+            setIsAuthenticating(false);
             navigate.navigate('ConfirmActionPage', {
               confirmMessage: t(
                 'adminLogin.pinPage.isBiometricEnabledConfirmAction',
@@ -78,22 +93,23 @@ export default function BiometricsLogin() {
         handleFaceID();
       } catch (err) {
         console.log('Load pin page information error', err);
+        setIsAuthenticating(false);
       }
     }
     loadPageInformation();
   }, []);
 
   const handleFaceID = async () => {
+    if (isAuthenticating && !isInitialRender.current) {
+      console.log('Already authenticating, ignoring duplicate call');
+      return;
+    }
+    if (didNavigate.current) return;
+    if (!isFocusedRef.current) return;
+    isInitialRender.current = false;
+
     try {
-      if (didNavigate.current) return;
-      if (numRetriesBiometric.current++ < 3) {
-        const decryptResponse = await decryptMnemonicWithBiometrics();
-        if (decryptResponse) {
-          setAccountMnemonic(decryptResponse);
-          didNavigate.current = true;
-          navigate.replace('ConnectingToNodeLoadingScreen');
-        }
-      } else {
+      if (numRetriesBiometric.current >= 3) {
         navigate.navigate('ConfirmActionPage', {
           confirmMessage: t(
             'adminLogin.pinPage.isBiometricEnabledConfirmAction',
@@ -108,10 +124,30 @@ export default function BiometricsLogin() {
               });
             }
           },
+          cancelFunction: () => {
+            numRetriesBiometric.current = 0;
+          },
         });
+        return;
+      }
+
+      setIsAuthenticating(true);
+      numRetriesBiometric.current++;
+
+      console.log('Starting biometric authentication...');
+
+      const decryptResponse = await decryptMnemonicWithBiometrics();
+
+      if (decryptResponse) {
+        setAccountMnemonic(decryptResponse);
+        didNavigate.current = true;
+        navigate.replace('ConnectingToNodeLoadingScreen');
+      } else {
+        setIsAuthenticating(false);
       }
     } catch (err) {
       console.log('error handling faceid', err);
+      setIsAuthenticating(false);
     }
   };
 
@@ -119,7 +155,7 @@ export default function BiometricsLogin() {
     <View style={styles.container}>
       <View style={styles.centerContent}>
         <Image
-          source={ICONS.logoIcon} // Replace with your asset
+          source={ICONS.logoIcon}
           style={[
             styles.logo,
             {
@@ -137,10 +173,12 @@ export default function BiometricsLogin() {
             {
               backgroundColor:
                 theme && darkModeType ? backgroundOffset : COLORS.primary,
+              opacity: isAuthenticating ? 0.6 : 1,
             },
           ]}
           textStyles={{ color: COLORS.darkModeText }}
           textContent={t('adminLogin.pinPage.biometricsHeader')}
+          disabled={isAuthenticating}
         />
 
         <ThemeText styles={styles.blitzText} content={'Blitz'} />

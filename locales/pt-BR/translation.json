@@ -12,7 +12,7 @@
     "decline": "Recusar",
     "receive": "Receber",
     "accept": "Aceitar",
-    "total_balance": "Sats",
+    "total_balance": "Saldo total",
     "sat_balance": "Sats",
     "usd_balance": "Saldo em USD",
     "amount": "Quantia",
@@ -1391,7 +1391,7 @@
         "transactions": "Transações",
         "lookupInvoice": "Consultar fatura",
         "budgetRenewalHeader": "Renovação Orçamentária",
-        "bugetPlaceholder": "Selecione o período de renovação do orçamento",
+        "bugetPlaceholder": "Período de renovação",
         "createConnection": "",
         "connectionName": ""
       },
@@ -1533,7 +1533,7 @@
   "screens": {
     "inAccount": {
       "appStore": {
-        "soonMessage": "Adoramos que você queira mais apps. Sugira-os abaixo!",
+        "soonMessage": "Ótimo que você queira mais apps. Sugira-os abaixo!",
         "title": "Marketplace",
         "shopTitle": "Compre com Bitcoin",
         "shopDescription": "Compre cartões-presente de milhares de lojas ao redor do mundo",

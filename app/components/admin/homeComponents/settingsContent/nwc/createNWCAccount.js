@@ -371,7 +371,13 @@ export default function CreateNostrConnectAccount(props) {
             />
             <DropdownMenu
               placeholder={t('settings.nwc.createNWCAccount.bugetPlaceholder')}
-              selectedValue={budgetRenewalSettings.option}
+              selectedValue={
+                budgetRenewalSettings.option
+                  ? t(
+                      `timeLabels.${budgetRenewalSettings.option?.toLowerCase()}`,
+                    )
+                  : ''
+              }
               showVerticalArrowsAbsolute={true}
               onSelect={item => {
                 setBudgetRenewalSettings(prev => ({

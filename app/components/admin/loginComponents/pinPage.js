@@ -20,9 +20,7 @@ import { useNavigation } from '@react-navigation/native';
 import factoryResetWallet from '../../../functions/factoryResetWallet';
 import sha256Hash from '../../../functions/hash';
 import { useKeysContext } from '../../../../context-store/keys';
-import { storeData } from '../../../functions/secureStore';
 import {
-  decryptMnemonicWithBiometrics,
   decryptMnemonicWithPin,
   handleLoginSecuritySwitch,
 } from '../../../functions/handleMnemonic';
@@ -190,68 +188,6 @@ export default function PinPage() {
           needsToBeMigrated,
           enteredPinCount: persistedPinEnterCount || 0,
         }));
-        if (!storedSettings.isBiometricEnabled) return;
-
-        if (needsToBeMigrated) {
-          console.log('before login security switch');
-          const savedMnemonic = await retrieveData('encryptedMnemonic');
-          const migrationResponse = await handleLoginSecuritySwitch(
-            savedMnemonic.value,
-            '',
-            'biometric',
-          );
-          console.log('after login security switch');
-          if (migrationResponse) {
-            storeData('pinHash', sha256Hash(storedPin.value));
-            setAccountMnemonic(savedMnemonic.value);
-            didNavigate.current = true;
-            navigate.replace('ConnectingToNodeLoadingScreen');
-          } else {
-            navigate.navigate('ConfirmActionPage', {
-              confirmMessage: t(
-                'adminLogin.pinPage.isBiometricEnabledConfirmAction',
-              ),
-              confirmFunction: async () => {
-                const deleted = await factoryResetWallet();
-                if (deleted) {
-                  RNRestart.restart();
-                } else {
-                  navigate.navigate('ErrorScreen', {
-                    errorMessage: t('errormessages.deleteAccount'),
-                  });
-                }
-              },
-            });
-          }
-          return;
-        }
-
-        const decryptResponse = await decryptMnemonicWithBiometrics();
-        if (decryptResponse) {
-          setAccountMnemonic(decryptResponse);
-          didNavigate.current = true;
-          navigate.replace('ConnectingToNodeLoadingScreen');
-        } else {
-          if (numRetriesBiometric.current++ < 3) {
-            loadPageInformation();
-            return;
-          }
-          navigate.navigate('ConfirmActionPage', {
-            confirmMessage: t(
-              'adminLogin.pinPage.isBiometricEnabledConfirmAction',
-            ),
-            confirmFunction: async () => {
-              const deleted = await factoryResetWallet();
-              if (deleted) {
-                RNRestart.restart();
-              } else {
-                navigate.navigate('ErrorScreen', {
-                  errorMessage: t('errormessages.deleteAccount'),
-                });
-              }
-            },
-          });
-        }
       } catch (err) {
         console.log('Load pin page information error', err);
       }
