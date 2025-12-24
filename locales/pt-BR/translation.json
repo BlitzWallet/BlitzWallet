@@ -1386,7 +1386,7 @@
         "permissionsHeader": "Permissões de carteira",
         "receivePayments": "Receber pagamentos",
         "sendPayments": "Enviar pagamentos",
-        "getBalance": "Obter saldo",
+        "getBalance": "Verificar saldo",
         "transactions": "Transações",
         "lookupInvoice": "Consultar fatura",
         "budgetRenewalHeader": "Renovação Orçamentária",
