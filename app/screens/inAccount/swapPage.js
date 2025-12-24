@@ -27,15 +27,24 @@ import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import GetThemeColors from '../../hooks/themeColors';
 import CustomButton from '../../functions/CustomElements/button';
-import { listFlashnetPools } from '../../functions/spark';
+import {
+  findBestPool,
+  simulateSwap,
+  executeSwap,
+  swapBitcoinToToken,
+  swapTokenToBitcoin,
+  checkSwapViability,
+  handleFlashnetError,
+  BTC_ASSET_ADDRESS,
+  requestManualClawback,
+  listClawbackableTransfers,
+} from '../../functions/spark/flashnet';
+
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
 
-// Constants for Flashnet
-const BITCOIN_ASSET_PUBKEY =
-  '020202020202020202020202020202020202020202020202020202020202020202';
-const USDB_ASSET_PUBKEY = USDB_TOKEN_ID;
-const DEFAULT_POOL_ID = 'your-btc-usdb-pool-id'; // Get from pool listing
-const MAX_SLIPPAGE_BPS = 100; // 1% default slippage
+// USDB Token address - update this with your actual USDB token address
+const USDB_ASSET_PUBKEY =
+  '3206c93b24a4d18ea19d0a9a213204af2c7e74a6d16c7535cc5d33eca4ad1eca';
 
 export default function SwapsPage() {
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -52,9 +61,11 @@ export default function SwapsPage() {
   const [toAsset, setToAsset] = useState('USD');
   const [isSimulating, setIsSimulating] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
+  const [isLoadingPool, setIsLoadingPool] = useState(true);
   const [poolInfo, setPoolInfo] = useState(null);
   const [simulationResult, setSimulationResult] = useState(null);
   const [error, setError] = useState(null);
+  const [priceImpact, setPriceImpact] = useState(null);
 
   // Get balances
   const tokenInformation = sparkInformation?.tokens?.[USDB_TOKEN_ID];
@@ -67,56 +78,72 @@ export default function SwapsPage() {
 
   const displayBalance = fromAsset === 'BTC' ? btcBalance : usdBalance;
 
-  //   Load pool information on mount
+  // Load pool information on mount
   useEffect(() => {
+    // requestManualClawback(
+    //   currentWalletMnemoinc,
+    //   '70d966bb1baad893217f9216c199508ae6a1f061781e6ed6e5b25ef94dc4f1b9',
+    //   '02894808873b896e21d29856a6d7bb346fb13c019739adb9bf0b6a8b7e28da53da',
+    // )
+    //   .then(data => console.log(data, 'manual clawback'))
+    //   .catch(err => console.log(err, 'clawback err'));
+    // listClawbackableTransfers(currentWalletMnemoinc, 50).then(data =>
+    //   console.log(data),
+    // );
     loadPoolInfo();
   }, []);
 
   const loadPoolInfo = async () => {
+    setIsLoadingPool(true);
+    setError(null);
+
     try {
-      const result = await listFlashnetPools({
-        mnemonic: currentWalletMnemoinc,
-        filters: {
-          assetAAddress: BITCOIN_ASSET_PUBKEY,
-          assetBAddress:
-            'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87',
-        },
-      });
-      console.log(result, 'ts');
+      // Use the new findBestPool function for automatic pool discovery
+      const result = await findBestPool(
+        currentWalletMnemoinc,
+        BTC_ASSET_ADDRESS,
+        USDB_ASSET_PUBKEY,
+        // { minTvl: 1000 }, // Minimum $1000 TVL for safety
+      );
 
-      if (result.didWork && result.pools) {
-        // Find the BTC/USDB pool
-        const btcUsdbPool = result.pools.pools.find(
-          pool =>
-            (pool.assetA === BITCOIN_ASSET_PUBKEY &&
-              pool.assetB === USDB_ASSET_PUBKEY) ||
-            (pool.assetA === USDB_ASSET_PUBKEY &&
-              pool.assetB === BITCOIN_ASSET_PUBKEY),
+      if (result.didWork && result.pool) {
+        setPoolInfo(result.pool);
+        console.log('✓ Found BTC/USDB pool:', {
+          poolId: result.pool.lpPublicKey,
+          tvl: result.pool.tvlAssetB,
+          volume24h: result.pool.volume24hAssetB,
+        });
+      } else {
+        setError(result.error || 'BTC/USDB pool not found');
+        Alert.alert(
+          'Pool Not Available',
+          'Unable to find a BTC/USDB liquidity pool. Please try again later.',
         );
-
-        if (btcUsdbPool) {
-          setPoolInfo(btcUsdbPool);
-        } else {
-          setError('BTC/USDB pool not found');
-        }
       }
     } catch (err) {
       console.error('Load pool info error:', err);
       setError('Failed to load pool information');
+      Alert.alert(
+        'Error',
+        'Failed to connect to swap service. Please check your connection.',
+      );
+    } finally {
+      setIsLoadingPool(false);
     }
   };
 
   // Simulate swap when amount changes
   useEffect(() => {
     if (fromAmount && !isNaN(fromAmount) && parseFloat(fromAmount) > 0) {
-      simulateSwap(fromAmount);
+      simulateSwapAmount(fromAmount);
     } else {
       setToAmount('');
       setSimulationResult(null);
+      setPriceImpact(null);
     }
-  }, [fromAmount, fromAsset, toAsset]);
+  }, [fromAmount, fromAsset, toAsset, poolInfo]);
 
-  const simulateSwap = useCallback(
+  const simulateSwapAmount = useCallback(
     async amount => {
       if (!poolInfo) return;
 
@@ -125,42 +152,52 @@ export default function SwapsPage() {
 
       try {
         const isBtcToUsdb = fromAsset === 'BTC';
+        const decimals = tokenInformation?.tokenMetadata?.decimals || 6;
 
-        // Convert amount to proper format
-        const amountToSwap = isBtcToUsdb
-          ? Math.floor(parseFloat(amount)).toString() // BTC in sats
-          : Math.floor(
-              parseFloat(amount) *
-                Math.pow(10, tokenInformation?.tokenMetadata?.decimals || 6),
-            ).toString(); // USDB in token units
+        // Convert amount to proper format (smallest units)
+        const amountInSmallestUnits = isBtcToUsdb
+          ? Math.floor(parseFloat(amount)) // BTC in sats
+          : Math.floor(parseFloat(amount) * Math.pow(10, decimals)); // USDB in token units
 
-        const simulateFunction = isBtcToUsdb
-          ? 'simulateBitcoinToUSDB'
-          : 'simulateUSDBToBitcoin';
+        // Determine asset addresses based on swap direction
+        const assetInAddress = isBtcToUsdb
+          ? BTC_ASSET_ADDRESS
+          : USDB_ASSET_PUBKEY;
+        const assetOutAddress = isBtcToUsdb
+          ? USDB_ASSET_PUBKEY
+          : BTC_ASSET_ADDRESS;
 
-        const result = await sparkAPI[simulateFunction]({
-          poolId: poolInfo.poolId || DEFAULT_POOL_ID,
-          amountSats: isBtcToUsdb ? amountToSwap : undefined,
-          amountUSDB: !isBtcToUsdb ? amountToSwap : undefined,
-          bitcoinPubkey: BITCOIN_ASSET_PUBKEY,
-          usdbPubkey: USDB_ASSET_PUBKEY,
-          mnemonic: sparkInformation.mnemonicHash,
+        // Simulate the swap using the new unified function
+        const result = await simulateSwap(currentWalletMnemoinc, {
+          poolId: poolInfo.lpPublicKey,
+          assetInAddress,
+          assetOutAddress,
+          amountIn: amountInSmallestUnits,
         });
 
         if (result.didWork && result.simulation) {
           setSimulationResult(result.simulation);
+          setPriceImpact(parseFloat(result.simulation.priceImpact));
 
           // Convert output amount to display format
           const outputAmount = isBtcToUsdb
             ? (
-                parseFloat(result.simulation.amountOut) /
-                Math.pow(10, tokenInformation?.tokenMetadata?.decimals || 6)
+                parseFloat(result.simulation.expectedOutput) /
+                Math.pow(10, decimals)
               ).toFixed(2)
-            : parseFloat(result.simulation.amountOut).toFixed(0);
+            : parseFloat(result.simulation.expectedOutput).toFixed(0);
 
           setToAmount(outputAmount);
+
+          // Warn if price impact is high
+          if (parseFloat(result.simulation.priceImpact) > 3) {
+            setError(`⚠️ High price impact: ${result.simulation.priceImpact}%`);
+          }
         } else {
-          setError(result.error || 'Simulation failed');
+          const errorInfo = handleFlashnetError(result.details);
+          setError(
+            errorInfo.userMessage || result.error || 'Simulation failed',
+          );
           setToAmount('0');
         }
       } catch (err) {
@@ -171,10 +208,11 @@ export default function SwapsPage() {
         setIsSimulating(false);
       }
     },
-    [fromAsset, toAsset, poolInfo, tokenInformation],
+    [fromAsset, toAsset, poolInfo, tokenInformation, currentWalletMnemoinc],
   );
 
   const handleSwapAssets = () => {
+    // Swap the assets and amounts
     const tempAsset = fromAsset;
     const tempAmount = fromAmount;
 
@@ -183,10 +221,15 @@ export default function SwapsPage() {
     setFromAmount(toAmount);
     setToAmount(tempAmount);
     setSimulationResult(null);
+    setPriceImpact(null);
+    setError(null);
   };
 
   const handleFromAmountChange = value => {
-    setFromAmount(value);
+    // Only allow valid decimal numbers
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setFromAmount(value);
+    }
   };
 
   const setPercentage = percent => {
@@ -195,21 +238,31 @@ export default function SwapsPage() {
     handleFromAmountChange(amount);
   };
 
-  const executeSwap = async () => {
+  const executeSwapAction = async () => {
     if (!poolInfo || !fromAmount || parseFloat(fromAmount) <= 0) {
       Alert.alert('Error', 'Please enter a valid amount');
       return;
     }
 
+    // Check price impact before confirming
+    const priceImpactWarning =
+      priceImpact > 5
+        ? `\n\n⚠️ WARNING: High price impact of ${priceImpact.toFixed(2)}%`
+        : '';
+
     // Confirm swap with user
     Alert.alert(
       'Confirm Swap',
-      `Swap ${fromAmount} ${fromAsset} for approximately ${toAmount} ${toAsset}?\n\n` +
-        `Price Impact: ${simulationResult?.priceImpact || 'N/A'}%\n` +
-        `Fee: ${simulationResult?.fee || 'N/A'}`,
+      `Swap ${fromAmount} ${fromAsset} for approximately ${toAmount} ${toAsset}?${priceImpactWarning}\n\n` +
+        `Price Impact: ${priceImpact?.toFixed(2) || 'N/A'}%\n` +
+        `Pool: ${poolInfo.lpPublicKey.substring(0, 8)}...`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Confirm', onPress: performSwap },
+        {
+          text: 'Confirm',
+          onPress: performSwap,
+          style: priceImpact > 5 ? 'destructive' : 'default',
+        },
       ],
     );
   };
@@ -220,87 +273,109 @@ export default function SwapsPage() {
 
     try {
       const isBtcToUsdb = fromAsset === 'BTC';
+      const decimals = tokenInformation?.tokenMetadata?.decimals || 6;
 
-      // Convert amount to proper format
-      const amountToSwap = isBtcToUsdb
-        ? Math.floor(parseFloat(fromAmount)).toString()
-        : Math.floor(
-            parseFloat(fromAmount) *
-              Math.pow(10, tokenInformation?.tokenMetadata?.decimals || 6),
-          ).toString();
+      // Convert amount to smallest units
+      const amountInSmallestUnits = isBtcToUsdb
+        ? Math.floor(parseFloat(fromAmount))
+        : Math.floor(parseFloat(fromAmount) * Math.pow(10, decimals));
 
-      const swapFunction = isBtcToUsdb
-        ? 'swapBitcoinToUSDB'
-        : 'swapUSDBToBitcoin';
-
-      const result = await sparkAPI[swapFunction]({
-        poolId: poolInfo.poolId || DEFAULT_POOL_ID,
-        amountSats: isBtcToUsdb ? amountToSwap : undefined,
-        amountUSDB: !isBtcToUsdb ? amountToSwap : undefined,
-        bitcoinPubkey: BITCOIN_ASSET_PUBKEY,
-        usdbPubkey: USDB_ASSET_PUBKEY,
-        maxSlippageBps: MAX_SLIPPAGE_BPS,
-        mnemonic: sparkInformation.mnemonicHash,
-      });
+      // Use the convenient swap functions
+      const result = isBtcToUsdb
+        ? await swapBitcoinToToken(currentWalletMnemoinc, {
+            tokenAddress: USDB_ASSET_PUBKEY,
+            amountSats: amountInSmallestUnits,
+            poolId: poolInfo.lpPublicKey,
+            maxSlippageBps: priceImpact > 3 ? 200 : 100, // Higher slippage for high impact
+          })
+        : await swapTokenToBitcoin(currentWalletMnemoinc, {
+            tokenAddress: USDB_ASSET_PUBKEY,
+            tokenAmount: amountInSmallestUnits,
+            poolId: poolInfo.lpPublicKey,
+            maxSlippageBps: priceImpact > 3 ? 200 : 100,
+          });
 
       if (result.didWork && result.swap) {
+        // Calculate actual received amount
+        const receivedAmount = isBtcToUsdb
+          ? (
+              parseFloat(result.swap.amountOut) / Math.pow(10, decimals)
+            ).toFixed(2)
+          : parseFloat(result.swap.amountOut).toFixed(0);
+
         Alert.alert(
-          'Swap Successful!',
-          `You received ${
-            isBtcToUsdb
-              ? (
-                  parseFloat(result.swap.amountOut) /
-                  Math.pow(10, tokenInformation?.tokenMetadata?.decimals || 6)
-                ).toFixed(2)
-              : parseFloat(result.swap.amountOut).toFixed(0)
-          } ${toAsset}`,
+          '✅ Swap Successful!',
+          `You received ${receivedAmount} ${toAsset}\n\n` +
+            `Transfer ID: ${result.swap.outboundTransferId.substring(
+              0,
+              16,
+            )}...`,
           [
             {
               text: 'OK',
               onPress: () => {
+                // Reset form
                 setFromAmount('');
                 setToAmount('');
                 setSimulationResult(null);
+                setPriceImpact(null);
+                setError(null);
+
                 // Refresh balance
                 sparkAPI.getSparkBalance({
-                  mnemonic: sparkInformation.mnemonicHash,
+                  mnemonic: currentWalletMnemoinc,
                 });
               },
             },
           ],
         );
       } else {
-        // Handle specific error types
-        let errorMessage = result.error || 'Swap failed';
+        // Handle errors using the new error handler
+        const errorInfo = handleFlashnetError(result.details);
 
-        switch (result.errorType) {
-          case 'INSUFFICIENT_BALANCE':
-            errorMessage = 'Insufficient balance to complete this swap';
-            break;
-          case 'SLIPPAGE_EXCEEDED':
-            errorMessage = 'Price changed too much. Please try again.';
-            break;
-          case 'POOL_INACTIVE':
-            errorMessage =
-              'Pool is temporarily unavailable. Please try again later.';
-            break;
-          case 'BELOW_MINIMUM':
-            errorMessage = 'Amount is below the minimum required for this pool';
-            break;
+        let errorMessage =
+          errorInfo.userMessage || result.error || 'Swap failed';
+        let errorTitle = 'Swap Failed';
+
+        // Show fund recovery status
+        if (errorInfo.clawback) {
+          if (errorInfo.clawback.allRecovered) {
+            errorTitle = 'Swap Failed - Funds Recovered';
+            errorMessage +=
+              '\n\n✅ Your funds have been automatically recovered.';
+          } else if (errorInfo.clawback.partialRecovered) {
+            errorTitle = 'Swap Failed - Partial Recovery';
+            errorMessage += `\n\n⚠️ Some funds recovered automatically (${errorInfo.clawback.recoveredCount}).`;
+          }
+        } else if (errorInfo.autoRefund) {
+          errorMessage += '\n\n✅ Your funds will be automatically refunded.';
         }
 
-        Alert.alert('Swap Failed', errorMessage);
-        setError(errorMessage);
+        // Add helpful suggestions based on error type
+        if (errorInfo.type === 'slippage') {
+          errorMessage +=
+            '\n\n💡 Try increasing slippage tolerance or waiting for better market conditions.';
+        } else if (errorInfo.type === 'insufficient_liquidity') {
+          errorMessage +=
+            '\n\n💡 Try swapping a smaller amount or waiting for more liquidity.';
+        }
+
+        Alert.alert(errorTitle, errorMessage);
+        setError(errorInfo.userMessage || result.error);
       }
     } catch (err) {
       console.error('Execute swap error:', err);
-      Alert.alert('Error', 'An unexpected error occurred during the swap');
+      Alert.alert(
+        'Error',
+        'An unexpected error occurred during the swap. Please try again.',
+      );
       setError('Swap execution failed');
     } finally {
       setIsSwapping(false);
     }
   };
 
+  // Determine if swap can be executed
   const canSwap =
     fromAmount &&
     parseFloat(fromAmount) > 0 &&
@@ -308,213 +383,312 @@ export default function SwapsPage() {
     parseFloat(toAmount) > 0 &&
     !isSimulating &&
     !isSwapping &&
-    !error;
+    !isLoadingPool &&
+    poolInfo &&
+    (!error || error.includes('⚠️ High price impact')); // Allow swap even with price impact warning
 
   return (
     <GlobalThemeView useStandardWidth={true}>
       <CustomSettingsTopBar />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.contentWrapper}>
-          {/* From Section */}
-          <View style={styles.cardContainer}>
-            <View
-              style={[
-                styles.card,
-                {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
-                },
-              ]}
-            >
-              <View style={styles.cardHeader}>
-                <ThemeText
-                  styles={styles.label}
-                  content={`I have ${displayCorrectDenomination({
-                    amount: displayBalance,
-                    masterInfoObject: {
-                      ...masterInfoObject,
-                      userBalanceDenomination:
-                        fromAsset === 'BTC' ? 'sats' : 'fiat',
-                    },
-                    forceCurrency: 'USD',
-                    fiatStats,
-                  })}`}
-                />
-              </View>
-
-              <View style={styles.assetRow}>
-                <View style={styles.assetInfo}>
-                  <View style={[styles.iconContainer, { backgroundColor }]}>
-                    {fromAsset === 'BTC' ? (
-                      <Bitcoin
-                        color={
-                          theme ? COLORS.darkModeText : COLORS.lightModeText
-                        }
-                      />
-                    ) : (
-                      <DollarSign
-                        size={24}
-                        color={
-                          theme ? COLORS.darkModeText : COLORS.lightModeText
-                        }
-                      />
-                    )}
-                  </View>
-                  <ThemeText styles={styles.assetText} content={fromAsset} />
-                </View>
-
-                <TextInput
-                  style={styles.amountInput}
-                  value={fromAmount}
-                  onChangeText={handleFromAmountChange}
-                  placeholder="0"
-                  placeholderTextColor={COLORS.gray2}
-                  keyboardType="decimal-pad"
-                  editable={!isSwapping}
-                />
-              </View>
-            </View>
-
-            {/* Swap Button */}
-            <TouchableOpacity
-              style={[
-                styles.swapButton,
-                {
-                  backgroundColor:
-                    theme && darkModeType
-                      ? COLORS.darkModeText
-                      : COLORS.primary,
-                },
-              ]}
-              onPress={handleSwapAssets}
-              activeOpacity={0.7}
-              disabled={isSwapping}
-            >
-              <ArrowDownUp
-                size={22}
-                color={
-                  theme && darkModeType
-                    ? COLORS.lightModeText
-                    : COLORS.darkModeText
-                }
-              />
-            </TouchableOpacity>
-
-            {/* To Section */}
-            <View
-              style={[
-                styles.card,
-                {
-                  backgroundColor: theme
-                    ? backgroundOffset
-                    : COLORS.darkModeText,
-                },
-              ]}
-            >
-              <View style={styles.cardHeader}>
-                <ThemeText styles={styles.label} content={`I want`} />
-                {isSimulating && (
-                  <ActivityIndicator size="small" color={COLORS.primary} />
-                )}
-              </View>
-
-              <View style={styles.assetRow}>
-                <View style={styles.assetInfo}>
-                  <View style={[styles.iconContainer, { backgroundColor }]}>
-                    {fromAsset !== 'BTC' ? (
-                      <Bitcoin
-                        color={
-                          theme ? COLORS.darkModeText : COLORS.lightModeText
-                        }
-                      />
-                    ) : (
-                      <DollarSign
-                        size={24}
-                        color={
-                          theme ? COLORS.darkModeText : COLORS.lightModeText
-                        }
-                      />
-                    )}
-                  </View>
-                  <ThemeText styles={styles.assetText} content={toAsset} />
-                </View>
-                <ThemeText
-                  styles={styles.amountDisplay}
-                  content={toAmount || '0'}
-                />
-              </View>
-            </View>
-          </View>
-
-          {/* Quick Amount Buttons */}
-          <View style={styles.quickButtons}>
-            <TouchableOpacity
-              style={[styles.quickButton]}
-              onPress={() => setPercentage(0.25)}
-              activeOpacity={0.7}
-              disabled={isSwapping}
-            >
-              <ThemeText styles={styles.quickButtonText} content={'MIN'} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.quickButton]}
-              onPress={() => setPercentage(0.5)}
-              activeOpacity={0.7}
-              disabled={isSwapping}
-            >
-              <ThemeText styles={styles.quickButtonText} content={'HALF'} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.quickButton]}
-              onPress={() => setPercentage(1)}
-              activeOpacity={0.7}
-              disabled={isSwapping}
-            >
-              <ThemeText styles={styles.quickButtonText} content={'MAX'} />
-            </TouchableOpacity>
-          </View>
-
-          {/* Swap Details */}
-          {simulationResult && (
-            <View style={styles.detailsContainer}>
+          {/* Loading State */}
+          {isLoadingPool && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={COLORS.primary} />
               <ThemeText
-                styles={styles.rateInfo}
-                content={`Price Impact: ${simulationResult.priceImpact}%`}
+                styles={styles.loadingText}
+                content="Loading pool information..."
               />
-              {simulationResult.fee && (
-                <ThemeText
-                  styles={styles.rateInfo}
-                  content={`Fee: ${simulationResult.fee}`}
-                />
+            </View>
+          )}
+
+          {/* Main Content */}
+          {!isLoadingPool && poolInfo && (
+            <>
+              {/* From Section */}
+              <View style={styles.cardContainer}>
+                <View
+                  style={[
+                    styles.card,
+                    {
+                      backgroundColor: theme
+                        ? backgroundOffset
+                        : COLORS.darkModeText,
+                    },
+                  ]}
+                >
+                  <View style={styles.cardHeader}>
+                    <ThemeText
+                      styles={styles.label}
+                      content={`I have ${displayCorrectDenomination({
+                        amount: displayBalance,
+                        masterInfoObject: {
+                          ...masterInfoObject,
+                          userBalanceDenomination:
+                            fromAsset === 'BTC' ? 'sats' : 'fiat',
+                        },
+                        forceCurrency: 'USD',
+                        fiatStats,
+                      })}`}
+                    />
+                  </View>
+
+                  <View style={styles.assetRow}>
+                    <View style={styles.assetInfo}>
+                      <View style={[styles.iconContainer, { backgroundColor }]}>
+                        {fromAsset === 'BTC' ? (
+                          <Bitcoin
+                            color={
+                              theme ? COLORS.darkModeText : COLORS.lightModeText
+                            }
+                          />
+                        ) : (
+                          <DollarSign
+                            size={24}
+                            color={
+                              theme ? COLORS.darkModeText : COLORS.lightModeText
+                            }
+                          />
+                        )}
+                      </View>
+                      <ThemeText
+                        styles={styles.assetText}
+                        content={fromAsset}
+                      />
+                    </View>
+
+                    <TextInput
+                      style={[
+                        styles.amountInput,
+                        {
+                          color: theme
+                            ? COLORS.darkModeText
+                            : COLORS.lightModeText,
+                        },
+                      ]}
+                      value={fromAmount}
+                      onChangeText={handleFromAmountChange}
+                      placeholder="0"
+                      placeholderTextColor={COLORS.gray2}
+                      keyboardType="decimal-pad"
+                      editable={!isSwapping && !isLoadingPool}
+                    />
+                  </View>
+                </View>
+
+                {/* Swap Button */}
+                <TouchableOpacity
+                  style={[
+                    styles.swapButton,
+                    {
+                      backgroundColor:
+                        theme && darkModeType
+                          ? COLORS.darkModeText
+                          : COLORS.primary,
+                    },
+                  ]}
+                  onPress={handleSwapAssets}
+                  activeOpacity={0.7}
+                  disabled={isSwapping || isLoadingPool}
+                >
+                  <ArrowDownUp
+                    size={22}
+                    color={
+                      theme && darkModeType
+                        ? COLORS.lightModeText
+                        : COLORS.darkModeText
+                    }
+                  />
+                </TouchableOpacity>
+
+                {/* To Section */}
+                <View
+                  style={[
+                    styles.card,
+                    {
+                      backgroundColor: theme
+                        ? backgroundOffset
+                        : COLORS.darkModeText,
+                    },
+                  ]}
+                >
+                  <View style={styles.cardHeader}>
+                    <ThemeText styles={styles.label} content={`I want`} />
+                    {isSimulating && (
+                      <ActivityIndicator size="small" color={COLORS.primary} />
+                    )}
+                  </View>
+
+                  <View style={styles.assetRow}>
+                    <View style={styles.assetInfo}>
+                      <View style={[styles.iconContainer, { backgroundColor }]}>
+                        {fromAsset !== 'BTC' ? (
+                          <Bitcoin
+                            color={
+                              theme ? COLORS.darkModeText : COLORS.lightModeText
+                            }
+                          />
+                        ) : (
+                          <DollarSign
+                            size={24}
+                            color={
+                              theme ? COLORS.darkModeText : COLORS.lightModeText
+                            }
+                          />
+                        )}
+                      </View>
+                      <ThemeText styles={styles.assetText} content={toAsset} />
+                    </View>
+                    <ThemeText
+                      styles={styles.amountDisplay}
+                      content={toAmount || '0'}
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* Quick Amount Buttons */}
+              <View style={styles.quickButtons}>
+                <TouchableOpacity
+                  style={[
+                    styles.quickButton,
+                    { backgroundColor: backgroundOffset },
+                  ]}
+                  onPress={() => setPercentage(0.25)}
+                  activeOpacity={0.7}
+                  disabled={isSwapping || isLoadingPool}
+                >
+                  <ThemeText styles={styles.quickButtonText} content={'MIN'} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.quickButton,
+                    { backgroundColor: backgroundOffset },
+                  ]}
+                  onPress={() => setPercentage(0.5)}
+                  activeOpacity={0.7}
+                  disabled={isSwapping || isLoadingPool}
+                >
+                  <ThemeText styles={styles.quickButtonText} content={'HALF'} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.quickButton,
+                    { backgroundColor: backgroundOffset },
+                  ]}
+                  onPress={() => setPercentage(1)}
+                  activeOpacity={0.7}
+                  disabled={isSwapping || isLoadingPool}
+                >
+                  <ThemeText styles={styles.quickButtonText} content={'MAX'} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Swap Details */}
+              {simulationResult && (
+                <View style={styles.detailsContainer}>
+                  <View style={styles.detailRow}>
+                    <ThemeText
+                      styles={styles.detailLabel}
+                      content="Price Impact"
+                    />
+                    <ThemeText
+                      styles={[
+                        styles.detailValue,
+                        priceImpact > 5 && styles.detailValueWarning,
+                      ]}
+                      content={`${priceImpact.toFixed(2)}%`}
+                    />
+                  </View>
+                  <View style={styles.detailRow}>
+                    <ThemeText
+                      styles={styles.detailLabel}
+                      content="Exchange Rate"
+                    />
+                    <ThemeText
+                      styles={styles.detailValue}
+                      content={simulationResult.executionPrice}
+                    />
+                  </View>
+                  <View style={styles.detailRow}>
+                    <ThemeText styles={styles.detailLabel} content="Pool" />
+                    <ThemeText
+                      styles={styles.detailValue}
+                      content={`${poolInfo.lpPublicKey.substring(0, 8)}...`}
+                    />
+                  </View>
+                </View>
               )}
-            </View>
+
+              {/* Error Display */}
+              {error && (
+                <View
+                  style={[
+                    styles.errorContainer,
+                    error.includes('⚠️') && styles.warningContainer,
+                  ]}
+                >
+                  <ThemeText styles={styles.errorText} content={error} />
+                </View>
+              )}
+
+              {/* Swap Action Button */}
+              <CustomButton
+                buttonStyles={{
+                  marginTop: 'auto',
+                  opacity: canSwap ? 1 : 0.5,
+                }}
+                textContent={
+                  isSwapping
+                    ? 'Swapping...'
+                    : isLoadingPool
+                    ? 'Loading...'
+                    : `Swap ${fromAsset} → ${toAsset}`
+                }
+                actionFunction={executeSwapAction}
+                disabled={!canSwap}
+              />
+
+              {/* Pool Info */}
+              {poolInfo && (
+                <View style={styles.poolInfoContainer}>
+                  <ThemeText
+                    styles={styles.poolInfoText}
+                    content={`TVL: $${
+                      poolInfo.tvlAssetB?.toLocaleString() || 'N/A'
+                    } • 24h Vol: $${
+                      poolInfo.volume24hAssetB?.toLocaleString() || 'N/A'
+                    }`}
+                  />
+                </View>
+              )}
+
+              <ThemeText
+                styles={styles.disclaimer}
+                content={'Swap services powered by Flashnet AMM'}
+              />
+            </>
           )}
 
-          {/* Error Display */}
-          {error && (
-            <View style={styles.errorContainer}>
-              <ThemeText styles={styles.errorText} content={error} />
+          {/* Error State - No Pool */}
+          {!isLoadingPool && !poolInfo && (
+            <View style={styles.errorStateContainer}>
+              <ThemeText
+                styles={styles.errorStateTitle}
+                content="Service Unavailable"
+              />
+              <ThemeText
+                styles={styles.errorStateMessage}
+                content="Unable to connect to swap service. Please check your connection and try again."
+              />
+              <CustomButton
+                buttonStyles={{ marginTop: 20 }}
+                textContent="Retry"
+                actionFunction={loadPoolInfo}
+              />
             </View>
           )}
-
-          {/* Swap Action Button */}
-          <CustomButton
-            buttonStyles={{
-              marginTop: 'auto',
-              opacity: canSwap ? 1 : 0.5,
-            }}
-            textContent={isSwapping ? 'Swapping...' : `Transfer`}
-            actionFunction={executeSwap}
-            disabled={!canSwap}
-          />
-
-          <ThemeText
-            styles={styles.disclaimer}
-            content={
-              'Swap services powered by Flashnet AMM\nBuilt on Spark • Non-custodial'
-            }
-          />
         </View>
       </ScrollView>
     </GlobalThemeView>
@@ -528,6 +702,18 @@ const styles = StyleSheet.create({
     maxWidth: 600,
     flexGrow: 1,
     paddingBottom: 20,
+    paddingHorizontal: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: SIZES.medium,
+    opacity: HIDDEN_OPACITY,
   },
   card: {
     width: '100%',
@@ -568,20 +754,20 @@ const styles = StyleSheet.create({
   },
   amountInput: {
     fontSize: SIZES.xxLarge,
-    color: COLORS.lightModeText,
     fontWeight: '500',
     textAlign: 'right',
     minWidth: 100,
+    color: COLORS.lightModeText,
   },
   amountDisplay: {
     fontSize: SIZES.xxLarge,
-    color: COLORS.lightModeText,
     fontWeight: '500',
   },
   cardContainer: {
     gap: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 16,
   },
   swapButton: {
     width: 52,
@@ -597,7 +783,7 @@ const styles = StyleSheet.create({
   quickButtons: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 24,
+    marginTop: 8,
   },
   quickButton: {
     flex: 1,
@@ -609,17 +795,31 @@ const styles = StyleSheet.create({
   quickButtonText: {
     fontSize: SIZES.smedium,
     fontWeight: '500',
-    color: COLORS.lightModeText,
   },
   detailsContainer: {
     marginTop: 16,
     gap: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
+    padding: 16,
+    borderRadius: 12,
   },
-  rateInfo: {
-    textAlign: 'center',
-    fontSize: SIZES.smedium,
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  detailLabel: {
+    fontSize: SIZES.small,
     fontFamily: FONT.Descriptoin_Regular,
-    color: COLORS.gray,
+    opacity: HIDDEN_OPACITY,
+  },
+  detailValue: {
+    fontSize: SIZES.small,
+    fontFamily: FONT.Descriptoin_Regular,
+    fontWeight: '500',
+  },
+  detailValueWarning: {
+    color: COLORS.cancelRed,
   },
   errorContainer: {
     backgroundColor: 'rgba(255, 59, 48, 0.1)',
@@ -627,17 +827,48 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 16,
   },
+  warningContainer: {
+    backgroundColor: 'rgba(255, 149, 0, 0.1)',
+  },
   errorText: {
     color: COLORS.cancelRed,
     fontSize: SIZES.small,
     textAlign: 'center',
+  },
+  poolInfoContainer: {
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  poolInfoText: {
+    fontSize: SIZES.xSmall,
+    fontFamily: FONT.Descriptoin_Regular,
+    color: COLORS.gray,
+    opacity: HIDDEN_OPACITY,
   },
   disclaimer: {
     textAlign: 'center',
     fontSize: SIZES.xSmall,
     fontFamily: FONT.Descriptoin_Regular,
     color: COLORS.gray,
-    marginTop: 20,
+    marginTop: 12,
     lineHeight: 16,
+  },
+  errorStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 32,
+  },
+  errorStateTitle: {
+    fontSize: SIZES.xLarge,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  errorStateMessage: {
+    fontSize: SIZES.medium,
+    textAlign: 'center',
+    opacity: HIDDEN_OPACITY,
+    lineHeight: 22,
   },
 });
