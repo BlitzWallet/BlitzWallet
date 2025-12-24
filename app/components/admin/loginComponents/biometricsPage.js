@@ -26,8 +26,9 @@ export default function BiometricsLogin() {
   const navigate = useNavigation();
   const didNavigate = useRef(null);
   const numRetriesBiometric = useRef(0);
+  const isInitialRender = useRef(true);
   const isFocusedRef = useRef(true);
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(true);
 
   const isFocused = useIsFocused();
 
@@ -99,12 +100,13 @@ export default function BiometricsLogin() {
   }, []);
 
   const handleFaceID = async () => {
-    if (isAuthenticating) {
+    if (isAuthenticating && !isInitialRender.current) {
       console.log('Already authenticating, ignoring duplicate call');
       return;
     }
     if (didNavigate.current) return;
     if (!isFocusedRef.current) return;
+    isInitialRender.current = false;
 
     try {
       if (numRetriesBiometric.current >= 3) {
@@ -121,6 +123,9 @@ export default function BiometricsLogin() {
                 errorMessage: t('errormessages.deleteAccount'),
               });
             }
+          },
+          cancelFunction: () => {
+            numRetriesBiometric.current = 0;
           },
         });
         return;
