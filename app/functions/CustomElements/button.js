@@ -14,6 +14,7 @@ export default function CustomButton({
   useLoading,
   loadingColor = COLORS.lightModeText,
   useArrow = false,
+  disabled = false,
 }) {
   const { theme, darkModeType } = useGlobalThemeContext();
 
@@ -77,6 +78,7 @@ export default function CustomButton({
 
   return (
     <TouchableOpacity
+      disabled={disabled}
       style={memorizedContainerStyles}
       onPress={() => {
         if (useLoading) return;
