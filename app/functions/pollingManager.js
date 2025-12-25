@@ -90,9 +90,9 @@ export const createPollingManager = ({
         } finally {
           if (
             globalResult != null &&
-            (previousResult == null || globalResult >= previousResult)
+            (previousResult == null || globalResult !== previousResult)
           ) {
-            // Only update if same or higher
+            // Only update if balance changes
             previousResult = globalResult;
           }
         }
@@ -135,16 +135,10 @@ export const createBalancePoller = (
 
       if (newBalance == null || previousBalance == null) return false;
 
-      if (newBalance < previousBalance) {
-        console.log('Balance dropped — ignoring');
-        sameValueIndex = 0;
-        return false;
-      }
-
-      if (newBalance > previousBalance) {
+      if (newBalance !== previousBalance) {
+        console.log('Balance changed — resetting');
         hasIncreasedAtLeastOnce = true;
         sameValueIndex = 0;
-        return false;
       }
 
       sameValueIndex++;
