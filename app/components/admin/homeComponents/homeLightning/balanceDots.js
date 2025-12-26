@@ -12,7 +12,6 @@ export const BalanceDots = ({
   theme,
   darkModeType,
 }) => {
-  console.log(theme, darkModeType);
   return (
     <View style={styles.dotsContainer}>
       {Array.from({ length: pageCount }).map((_, i) => {
