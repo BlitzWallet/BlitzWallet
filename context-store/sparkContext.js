@@ -68,6 +68,11 @@ import {
 } from '../app/functions/pollingManager';
 import { USDB_TOKEN_ID } from '../app/constants';
 import formatTokensNumber from '../app/functions/lrc20/formatTokensBalance';
+import {
+  BTC_ASSET_ADDRESS,
+  minFlashnetSwapAmounts,
+  USD_ASSET_ADDRESS,
+} from '../app/functions/spark/flashnet';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -114,6 +119,7 @@ const SparkWalletProvider = ({ children }) => {
   const [tokensImageCache, setTokensImageCache] = useState({});
   const [pendingNavigation, setPendingNavigation] = useState(null);
   const [restoreCompleted, setRestoreCompleted] = useState(false);
+  const [swapLimits, setSwapLimits] = useState(null);
   const hasRestoreCompleted = useRef(false);
   const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
     useState(0);
@@ -145,6 +151,7 @@ const SparkWalletProvider = ({ children }) => {
   const currentPollingMnemonicRef = useRef(null);
   const isInitialRender = useRef(true);
   const authResetKeyRef = useRef(authResetkey);
+
   const showTokensInformation =
     masterInfoObject.enabledBTKNTokens === null
       ? !!Object.keys(sparkInformation.tokens || {}).length
@@ -1314,6 +1321,31 @@ const SparkWalletProvider = ({ children }) => {
     fetchTransactions();
   }, [restoreCompleted]);
 
+  // Get min swap amounts to added better UX for uesrs
+  useEffect(() => {
+    if (!sparkInformation.didConnect) return;
+    async function getLimits() {
+      const [usdLimits, bitconLimits] = await Promise.all([
+        minFlashnetSwapAmounts(currentMnemonicRef.current, USD_ASSET_ADDRESS),
+        minFlashnetSwapAmounts(currentMnemonicRef.current, BTC_ASSET_ADDRESS),
+      ]);
+      if (usdLimits.didWork && bitconLimits.didWork) {
+        setSwapLimits({
+          usd: Number(usdLimits.assetData) / 1000000,
+          bitcoin: Number(bitconLimits.assetData),
+        });
+      } else {
+        setSwapLimits({
+          usd: 1,
+          bitcoin: 1000,
+        });
+      }
+    }
+    getLimits();
+  }, [sparkInformation.didConnect]);
+
+  console.log(swapLimits, 'swap limites');
+
   // This function connects to the spark node and sets the session up
 
   const connectToSparkWallet = useCallback(async () => {
@@ -1394,6 +1426,7 @@ const SparkWalletProvider = ({ children }) => {
       isSendingPaymentRef,
       sparkInfoRef,
       USD_BALANCE,
+      swapLimits,
     }),
     [
       sparkInformation,
@@ -1411,6 +1444,7 @@ const SparkWalletProvider = ({ children }) => {
       isSendingPaymentRef,
       sparkInfoRef,
       USD_BALANCE,
+      swapLimits,
     ],
   );
 

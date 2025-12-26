@@ -17,7 +17,7 @@ export const USD_ASSET_ADDRESS =
   '3206c93b24a4d18ea19d0a9a213204af2c7e74a6d16c7535cc5d33eca4ad1eca';
 
 // Default slippage tolerance
-export const DEFAULT_SLIPPAGE_BPS = 100; // 1%
+export const DEFAULT_SLIPPAGE_BPS = 500; // 5%
 export const DEFAULT_MAX_SLIPPAGE_BPS = 500; // 5% for lightning payments
 
 // ============================================
@@ -63,9 +63,9 @@ const formatError = (error, operation) => {
  * Calculate minimum output with slippage tolerance
  */
 const calculateMinOutput = (expectedOutput, slippageBps) => {
-  const output = toBigInt(expectedOutput);
-  const slippageFactor = BigInt(10000 - slippageBps);
-  return (output * slippageFactor) / BigInt(10000);
+  const output = BigInt(expectedOutput);
+  const factor = 10_000n - BigInt(slippageBps);
+  return (output * factor) / 10_000n;
 };
 
 // ============================================
@@ -192,6 +192,46 @@ export const listAllPools = async (mnemonic, filters = {}) => {
   }
 };
 
+/**
+ * Gets the minimum swap amounts for a given asset
+ * @param {string} mnemonic - Wallet mnemonic
+ * @param {object} filters - Asset hex
+ * @returns {Promise<object>} List of pools
+ */
+export const minFlashnetSwapAmounts = async (mnemonic, assetHex) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.minFlashnetSwapAmounts,
+        { mnemonic, assetHex },
+      );
+      return validateWebViewResponse(response, 'Not able to request clawback');
+    } else {
+      const client = getFlashnetClient(mnemonic);
+      const minMap = await client.getMinAmountsMap();
+
+      const assetData = minMap.get(assetHex.toLowerCase());
+
+      return {
+        didWork: true,
+        assetData: assetData,
+      };
+    }
+  } catch (error) {
+    console.error(
+      'List pools error:',
+      formatError(error, 'minFlashnetSwapAmounts'),
+    );
+    return {
+      didWork: false,
+      error: error.message,
+      details: formatError(error, 'minFlashnetSwapAmounts'),
+    };
+  }
+};
+
 // ============================================
 // SWAP SIMULATION & EXECUTION
 // ============================================
@@ -250,7 +290,7 @@ export const executeSwap = async (
     amountIn,
     minAmountOut, // Optional - will be calculated if not provided
     maxSlippageBps = DEFAULT_SLIPPAGE_BPS,
-    integratorFeeRateBps = 0,
+    integratorFeeRateBps = 100,
   },
 ) => {
   try {
@@ -278,18 +318,22 @@ export const executeSwap = async (
       assetOutAddress,
       amountIn: amountIn.toString(),
       minAmountOut: calculatedMinOut.toString(),
-      maxSlippageBps,
+      maxSlippageBps: 500,
       integratorFeeRateBps,
+      integratorPublicKey: process.env.BLITZ_SPARK_PUBLICKEY,
     });
+
+    console.log(swap, 'swap response');
 
     return {
       didWork: true,
       swap: {
-        amountIn: swap.amountIn,
         amountOut: swap.amountOut,
+        executionPrice: swap.executionPrice,
+        feeAmount: swap.feeAmount,
+        flashnetRequestId: swap.flashnetRequestId,
         outboundTransferId: swap.outboundTransferId,
         poolId: swap.poolId,
-        executionPrice: swap.executionPrice,
       },
     };
   } catch (error) {
@@ -485,7 +529,7 @@ export const payLightningWithToken = async (
     maxLightningFeeSats = null,
     rollbackOnFailure = true,
     useExistingBtcBalance = false,
-    integratorFeeRateBps = 0,
+    integratorFeeRateBps = 100,
   },
 ) => {
   try {
@@ -499,6 +543,7 @@ export const payLightningWithToken = async (
       rollbackOnFailure,
       useExistingBtcBalance,
       integratorFeeRateBps,
+      integratorPublicKey: process.env.BLITZ_SPARK_PUBLICKEY,
     });
 
     if (result.success) {
@@ -818,7 +863,7 @@ export const requestManualClawback = async (
       });
       const result = await client.clawback({
         sparkTransferId,
-        poolId,
+        lpIdentityPublicKey: poolId,
       });
 
       if (!result || result.error) {
@@ -852,6 +897,58 @@ export const requestManualClawback = async (
       didWork: false,
       error: error.message,
       details: formatError(error, 'requestManualClawback'),
+    };
+  }
+};
+
+/**
+ * Manually request clawback Eligibility
+ * @param {string} mnemonic - Wallet mnemonic
+ * @param {string} sparkTransferId - Transfer ID to recover
+ * @returns {Promise<object>} Clawback result
+ */
+export const checkClawbackEligibility = async (mnemonic, sparkTransferId) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.requestClawback,
+        { mnemonic, sparkTransferId, poolId },
+      );
+      return validateWebViewResponse(response, 'Not able to request clawback');
+    } else {
+      const client = getFlashnetClient(mnemonic);
+
+      const eligibility = await client.checkClawbackEligibility({
+        sparkTransferId,
+      });
+
+      if (eligibility.accepted) {
+        console.log('Transfer is eligible for clawback');
+        return {
+          didWork: true,
+          error: null,
+          response: true,
+        };
+      } else {
+        console.log('Cannot clawback:', eligibility.error);
+        return {
+          didWork: true,
+          error: eligibility.error,
+          response: false,
+        };
+      }
+    }
+  } catch (error) {
+    console.error(
+      'Manual clawback error:',
+      formatError(error, 'requestManualClawback'),
+    );
+    return {
+      didWork: false,
+      error: error.message,
+      response: false,
     };
   }
 };

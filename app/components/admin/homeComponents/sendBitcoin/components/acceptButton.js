@@ -37,6 +37,10 @@ export default function AcceptButtonSendPage({
   sendWebViewRequest,
   globalContactsInformation,
   canUseFastPay,
+  selectedPaymentMethod,
+  needsToChoosePaymentMethod,
+  sparkBalance,
+  USD_SAT_VALUE,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -201,6 +205,16 @@ export default function AcceptButtonSendPage({
 
     if (!isLRC20Valid) {
       handleLRC20Error();
+      return false;
+    }
+
+    if (needsToChoosePaymentMethod && !selectedPaymentMethod) {
+      navigate.navigate('CustomHalfModal', {
+        wantedContent: 'SelectPaymentMethod',
+        sparkBalance,
+        USD_SAT_VALUE,
+        convertedSendAmount,
+      });
       return false;
     }
 

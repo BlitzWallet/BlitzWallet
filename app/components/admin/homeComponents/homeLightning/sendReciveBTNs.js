@@ -60,9 +60,10 @@ export function SendRecieveBTNs({
         arrowColor: theme
           ? darkModeType
             ? COLORS.lightsOutBackground
-            : COLORS.darkModeBackground
-          : COLORS.primary,
-        containerBackgroundColor: COLORS.darkModeText,
+            : COLORS.darkModeText
+          : COLORS.darkModeText,
+        containerBackgroundColor:
+          theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
       });
     }
     return (
@@ -90,19 +91,24 @@ export function SendRecieveBTNs({
         <View
           style={{
             ...styles.scanQrIcon,
-            backgroundColor: COLORS.darkModeText,
+            backgroundColor:
+              theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
           }}
         >
           {btnType === 'swap' ? (
             <ArrowUpDown
-              color={theme ? COLORS.lightModeText : COLORS.primary}
+              color={
+                theme && darkModeType
+                  ? COLORS.lightModeText
+                  : COLORS.darkModeText
+              }
               size={30}
             />
           ) : (
             <ThemeImage
-              darkModeIcon={ICONS.scanQrCodeDark}
+              darkModeIcon={ICONS.scanQrCodeLight}
               lightsOutIcon={ICONS.scanQrCodeDark}
-              lightModeIcon={ICONS.scanQrCodeBlue}
+              lightModeIcon={ICONS.scanQrCodeLight}
             />
           )}
         </View>
