@@ -67,7 +67,6 @@ export async function getLRC20Transactions({
           ),
         )
       ) {
-        console.log('Transaction already saved');
         continue;
       }
 
