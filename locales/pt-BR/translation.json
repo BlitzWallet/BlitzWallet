@@ -900,7 +900,7 @@
         "sparkDesc": "Instantâneo, Suporta Tokens",
         "sparkTitle": "Endereço Spark",
         "bitcoinTitle": "Endereço Bitcoin",
-        "lightningTitle": "Fatura Lightning",
+        "lightningTitle": "Endereço Lightning",
         "liquidTitle": "Endereço Liquid",
         "rootstockTitle": "Endereço Rootstock"
       },
