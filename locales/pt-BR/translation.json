@@ -1389,7 +1389,7 @@
         "getBalance": "Verificar saldo",
         "transactions": "Transações",
         "lookupInvoice": "Consultar fatura",
-        "budgetRenewalHeader": "Renovação orçamentária",
+        "budgetRenewalHeader": "Renovação do limite de gastos",
         "bugetPlaceholder": "Período de renovação",
         "createConnection": "",
         "connectionName": ""
