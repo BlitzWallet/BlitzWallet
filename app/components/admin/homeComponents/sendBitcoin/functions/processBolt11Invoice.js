@@ -78,9 +78,7 @@ export default async function processBolt11Invoice(input, context) {
       : `${
           masterInfoObject.userBalanceDenomination != 'fiat'
             ? `${Math.round(amountMsat / 1000)}`
-            : fiatValue < 0.01
-            ? ''
-            : `${fiatValue.toFixed(2)}`
+            : fiatValue
         }`,
     canEditPayment: comingFromAccept ? false : !amountMsat,
   };

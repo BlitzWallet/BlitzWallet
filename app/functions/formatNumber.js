@@ -9,12 +9,16 @@ export default function formatBalanceAmount(
     if (!formattingAmount) {
       return '0';
     }
+
     const millionDemoniationSetting =
       useMillionDenomination !== undefined && useMillionDenomination;
 
-    const numericValue = parseFloat(
-      String(formattingAmount).replace(/[^\d.-]/g, ''),
-    );
+    // Check if the input ends with a decimal point (for display purposes)
+    const inputStr = String(formattingAmount);
+    const hasTrailingDecimal = inputStr.trim().endsWith('.');
+
+    const numericValue = parseFloat(inputStr.replace(/[^\d.-]/g, ''));
+
     if (isNaN(numericValue)) return '0';
 
     const useSpaces = masterInfoObject?.thousandsSeperator === 'space';
@@ -47,14 +51,28 @@ export default function formatBalanceAmount(
     if (useSpaces) {
       const [intRaw, decRaw] = String(numericValue).split('.');
       const grouped = intRaw.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-      return decRaw ? `${grouped}.${decRaw.slice(0, 2)}` : grouped;
+
+      if (decRaw) {
+        return `${grouped}.${decRaw.slice(0, 2)}`;
+      } else if (hasTrailingDecimal) {
+        return `${grouped}.`;
+      } else {
+        return grouped;
+      }
     }
 
     // LOCAL FORMAT
-    return new Intl.NumberFormat(i18next.language || 'en', {
+    const formatted = new Intl.NumberFormat(i18next.language || 'en', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(numericValue);
+
+    // If user is typing a decimal point, append it
+    if (hasTrailingDecimal && !formatted.includes('.')) {
+      return formatted + '.';
+    }
+
+    return formatted;
   } catch (err) {
     console.log('format balance amount error', err);
     return '0';

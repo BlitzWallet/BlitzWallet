@@ -102,9 +102,7 @@ export default async function processBitcoinAddress(input, context) {
       : `${
           masterInfoObject.userBalanceDenomination != 'fiat'
             ? `${amountSat}`
-            : fiatValue < 0.01
-            ? ''
-            : `${fiatValue.toFixed(2)}`
+            : fiatValue
         }`,
     canEditPayment:
       comingFromAccept || amountSat > SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT
