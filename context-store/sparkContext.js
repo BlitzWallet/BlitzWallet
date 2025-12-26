@@ -73,6 +73,7 @@ import {
   minFlashnetSwapAmounts,
   USD_ASSET_ADDRESS,
 } from '../app/functions/spark/flashnet';
+import { loadSavedTransferIds } from '../app/functions/spark/handleFlashnetTransferIds';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -1357,6 +1358,7 @@ const SparkWalletProvider = ({ children }) => {
       sendWebViewRequest,
       hasRestoreCompleted: hasRestoreCompleted.current,
     });
+    loadSavedTransferIds();
     setDidRunNormalConnection(true);
     // lastConnectedTimeRef.current = Date.now();
     if (!didWork) {
