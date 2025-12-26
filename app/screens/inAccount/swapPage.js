@@ -1,29 +1,24 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   View,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
   ScrollView,
-  ActivityIndicator,
-  Alert,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { Bitcoin, DollarSign, ArrowDownUp } from 'lucide-react-native';
-import {
-  COLORS,
-  FONT,
-  SATSPERBITCOIN,
-  SIZES,
-  USDB_TOKEN_ID,
-} from '../../constants';
+import { CENTER, COLORS, ICONS, SIZES, USDB_TOKEN_ID } from '../../constants';
 import { HIDDEN_OPACITY, WINDOWWIDTH } from '../../constants/theme';
-import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
+import {
+  CustomKeyboardAvoidingView,
+  GlobalThemeView,
+  ThemeText,
+} from '../../functions/CustomElements';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { useNodeContext } from '../../../context-store/nodeContext';
-import formatTokensNumber from '../../functions/lrc20/formatTokensBalance';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import GetThemeColors from '../../hooks/themeColors';
 import CustomButton from '../../functions/CustomElements/button';
@@ -41,18 +36,36 @@ import {
 } from '../../functions/spark/flashnet';
 
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
+import useDebounce from '../../hooks/useDebounce';
+import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { updateConfirmAnimation } from '../../functions/lottieViewColorTransformer';
+import LottieView from 'lottie-react-native';
+import { useAppStatus } from '../../../context-store/appStatus';
+import {
+  SPARK_TX_UPDATE_ENVENT_NAME,
+  sparkTransactionsEventEmitter,
+} from '../../functions/spark/transactions';
+import ThemeImage from '../../functions/CustomElements/themeImage';
+import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
+import CustomNumberKeyboard from '../../functions/CustomElements/customNumberKeyboard';
+
+const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 
 // USDB Token address - update this with your actual USDB token address
 const USDB_ASSET_PUBKEY =
   '3206c93b24a4d18ea19d0a9a213204af2c7e74a6d16c7535cc5d33eca4ad1eca';
 
 export default function SwapsPage() {
+  const navigate = useNavigation();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { sparkInformation, sparkAPI } = useSparkWallet();
+  const { sparkInformation, USD_BALANCE } = useSparkWallet();
+  const { screenDimensions } = useAppStatus();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { fiatStats } = useNodeContext();
+  const { fiatStats, SATS_PER_DOLLAR } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor } = GetThemeColors();
+  const { t } = useTranslation();
 
   // State management
   const [fromAmount, setFromAmount] = useState('');
@@ -66,44 +79,55 @@ export default function SwapsPage() {
   const [simulationResult, setSimulationResult] = useState(null);
   const [error, setError] = useState(null);
   const [priceImpact, setPriceImpact] = useState(null);
+  const [confirmedSwap, setConfirmedSwap] = useState(null);
+  const [lastEditedField, setLastEditedField] = useState('from');
+  const [showKeyboard, setShowKeyboard] = useState(false);
+  const animationRef = useRef(null);
 
   // Get balances
   const tokenInformation = sparkInformation?.tokens?.[USDB_TOKEN_ID];
-  const usdBalance =
-    formatTokensNumber(
-      tokenInformation?.balance,
-      tokenInformation?.tokenMetadata?.decimals,
-    ) ?? 0;
+  const usdBalance = USD_BALANCE;
   const btcBalance = sparkInformation?.balance || 0;
 
-  const displayBalance = fromAsset === 'BTC' ? btcBalance : usdBalance;
+  const convertedFromAmount =
+    fromAsset === 'BTC' ? fromAmount : fromAmount * SATS_PER_DOLLAR;
+
+  const displayBalance =
+    fromAsset === 'BTC' ? btcBalance : usdBalance * SATS_PER_DOLLAR;
+
+  const executionPrice =
+    lastEditedField === 'from'
+      ? fromAsset === 'BTC'
+        ? simulationResult?.executionPrice
+        : simulationResult?.executionPrice * 1000000
+      : fromAsset === 'BTC'
+      ? simulationResult?.executionPrice * 1000000
+      : simulationResult?.executionPrice;
 
   // Load pool information on mount
   useEffect(() => {
-    // requestManualClawback(
-    //   currentWalletMnemoinc,
-    //   '70d966bb1baad893217f9216c199508ae6a1f061781e6ed6e5b25ef94dc4f1b9',
-    //   '02894808873b896e21d29856a6d7bb346fb13c019739adb9bf0b6a8b7e28da53da',
-    // )
-    //   .then(data => console.log(data, 'manual clawback'))
-    //   .catch(err => console.log(err, 'clawback err'));
-    // listClawbackableTransfers(currentWalletMnemoinc, 50).then(data =>
-    //   console.log(data),
-    // );
     loadPoolInfo();
   }, []);
+
+  const clearPageStates = () => {
+    setFromAmount('');
+    setToAmount('');
+    setSimulationResult(null);
+    setPriceImpact(null);
+    setError(null);
+    setLastEditedField('from');
+    setShowKeyboard(false);
+  };
 
   const loadPoolInfo = async () => {
     setIsLoadingPool(true);
     setError(null);
 
     try {
-      // Use the new findBestPool function for automatic pool discovery
       const result = await findBestPool(
         currentWalletMnemoinc,
         BTC_ASSET_ADDRESS,
         USDB_ASSET_PUBKEY,
-        // { minTvl: 1000 }, // Minimum $1000 TVL for safety
       );
 
       if (result.didWork && result.pool) {
@@ -115,18 +139,10 @@ export default function SwapsPage() {
         });
       } else {
         setError(result.error || 'BTC/USDB pool not found');
-        Alert.alert(
-          'Pool Not Available',
-          'Unable to find a BTC/USDB liquidity pool. Please try again later.',
-        );
       }
     } catch (err) {
       console.error('Load pool info error:', err);
       setError('Failed to load pool information');
-      Alert.alert(
-        'Error',
-        'Failed to connect to swap service. Please check your connection.',
-      );
     } finally {
       setIsLoadingPool(false);
     }
@@ -134,137 +150,189 @@ export default function SwapsPage() {
 
   // Simulate swap when amount changes
   useEffect(() => {
-    if (fromAmount && !isNaN(fromAmount) && parseFloat(fromAmount) > 0) {
-      simulateSwapAmount(fromAmount);
-    } else {
-      setToAmount('');
-      setSimulationResult(null);
-      setPriceImpact(null);
+    if (lastEditedField === 'from') {
+      if (fromAmount && !isNaN(fromAmount) && parseFloat(fromAmount) > 0) {
+        simulateSwapAmount(fromAmount, 'from');
+      } else {
+        setToAmount('');
+        setSimulationResult(null);
+        setPriceImpact(null);
+        setError('');
+      }
+    } else if (lastEditedField === 'to') {
+      if (toAmount && !isNaN(toAmount) && parseFloat(toAmount) > 0) {
+        simulateSwapAmount(toAmount, 'to');
+      } else {
+        setFromAmount('');
+        setSimulationResult(null);
+        setPriceImpact(null);
+        setError('');
+      }
     }
-  }, [fromAmount, fromAsset, toAsset, poolInfo]);
+  }, [fromAmount, toAmount, fromAsset, toAsset, poolInfo, lastEditedField]);
 
-  const simulateSwapAmount = useCallback(
-    async amount => {
-      if (!poolInfo) return;
+  const simulateSwapAmount = useDebounce(async (amount, direction) => {
+    if (!poolInfo) return;
 
-      setIsSimulating(true);
-      setError(null);
+    setIsSimulating(true);
+    setError(null);
 
-      try {
-        const isBtcToUsdb = fromAsset === 'BTC';
-        const decimals = tokenInformation?.tokenMetadata?.decimals || 6;
+    try {
+      const isBtcToUsdb = fromAsset === 'BTC';
+      const decimals = tokenInformation?.tokenMetadata?.decimals || 6;
+      const isForwardDirection = direction === 'from';
 
-        // Convert amount to proper format (smallest units)
-        const amountInSmallestUnits = isBtcToUsdb
-          ? Math.floor(parseFloat(amount)) // BTC in sats
-          : Math.floor(parseFloat(amount) * Math.pow(10, decimals)); // USDB in token units
+      let amountInSmallestUnits;
+      let assetInAddress;
+      let assetOutAddress;
 
-        // Determine asset addresses based on swap direction
-        const assetInAddress = isBtcToUsdb
-          ? BTC_ASSET_ADDRESS
-          : USDB_ASSET_PUBKEY;
-        const assetOutAddress = isBtcToUsdb
-          ? USDB_ASSET_PUBKEY
-          : BTC_ASSET_ADDRESS;
+      if (isForwardDirection) {
+        amountInSmallestUnits = isBtcToUsdb
+          ? Math.floor(parseFloat(amount))
+          : Math.floor(parseFloat(amount) * Math.pow(10, decimals));
 
-        // Simulate the swap using the new unified function
-        const result = await simulateSwap(currentWalletMnemoinc, {
-          poolId: poolInfo.lpPublicKey,
-          assetInAddress,
-          assetOutAddress,
-          amountIn: amountInSmallestUnits,
-        });
+        assetInAddress = isBtcToUsdb ? BTC_ASSET_ADDRESS : USDB_ASSET_PUBKEY;
+        assetOutAddress = isBtcToUsdb ? USDB_ASSET_PUBKEY : BTC_ASSET_ADDRESS;
+      } else {
+        amountInSmallestUnits = isBtcToUsdb
+          ? Math.floor(parseFloat(amount) * Math.pow(10, decimals))
+          : Math.floor(parseFloat(amount));
 
-        if (result.didWork && result.simulation) {
-          setSimulationResult(result.simulation);
-          setPriceImpact(parseFloat(result.simulation.priceImpact));
+        assetInAddress = isBtcToUsdb ? USDB_ASSET_PUBKEY : BTC_ASSET_ADDRESS;
+        assetOutAddress = isBtcToUsdb ? BTC_ASSET_ADDRESS : USDB_ASSET_PUBKEY;
+      }
 
-          // Convert output amount to display format
-          const outputAmount = isBtcToUsdb
+      const result = await simulateSwap(currentWalletMnemoinc, {
+        poolId: poolInfo.lpPublicKey,
+        assetInAddress,
+        assetOutAddress,
+        amountIn: amountInSmallestUnits,
+      });
+
+      if (result.didWork && result.simulation) {
+        setSimulationResult(result.simulation);
+        setPriceImpact(parseFloat(result.simulation.priceImpact));
+
+        let outputAmount;
+        if (isForwardDirection) {
+          outputAmount = isBtcToUsdb
             ? (
                 parseFloat(result.simulation.expectedOutput) /
                 Math.pow(10, decimals)
               ).toFixed(2)
             : parseFloat(result.simulation.expectedOutput).toFixed(0);
-
           setToAmount(outputAmount);
-
-          // Warn if price impact is high
-          if (parseFloat(result.simulation.priceImpact) > 3) {
-            setError(`⚠️ High price impact: ${result.simulation.priceImpact}%`);
-          }
         } else {
-          const errorInfo = handleFlashnetError(result.details);
-          setError(
-            errorInfo.userMessage || result.error || 'Simulation failed',
-          );
-          setToAmount('0');
+          outputAmount = isBtcToUsdb
+            ? parseFloat(result.simulation.expectedOutput).toFixed(0)
+            : (
+                parseFloat(result.simulation.expectedOutput) /
+                Math.pow(10, decimals)
+              ).toFixed(2);
+          setFromAmount(outputAmount);
         }
-      } catch (err) {
-        console.error('Simulate swap error:', err);
-        setError('Failed to calculate swap amount');
-        setToAmount('0');
-      } finally {
-        setIsSimulating(false);
+
+        if (parseFloat(result.simulation.priceImpact) > 3) {
+          setError(`High price impact: ${result.simulation.priceImpact}%`);
+        }
+      } else {
+        const errorInfo = handleFlashnetError(result.details);
+        setError(errorInfo.message || result.error || 'Simulation failed');
+        if (isForwardDirection) {
+          setToAmount('0');
+        } else {
+          setFromAmount('0');
+        }
       }
-    },
-    [fromAsset, toAsset, poolInfo, tokenInformation, currentWalletMnemoinc],
-  );
+    } catch (err) {
+      console.error('Simulate swap error:', err);
+      setError('Failed to calculate swap amount');
+      if (direction === 'from') {
+        setToAmount('0');
+      } else {
+        setFromAmount('0');
+      }
+    } finally {
+      setIsSimulating(false);
+    }
+  }, 500);
 
   const handleSwapAssets = () => {
-    // Swap the assets and amounts
     const tempAsset = fromAsset;
     const tempAmount = fromAmount;
 
     setFromAsset(toAsset);
     setToAsset(tempAsset);
-    setFromAmount(toAmount);
-    setToAmount(tempAmount);
+    setFromAmount('');
+    setToAmount('');
+
+    setLastEditedField(lastEditedField === 'from' ? 'to' : 'from');
+
     setSimulationResult(null);
     setPriceImpact(null);
     setError(null);
   };
 
-  const handleFromAmountChange = value => {
-    // Only allow valid decimal numbers
+  const handleFromAmountChange = (value, direction) => {
     if (value === '' || /^\d*\.?\d*$/.test(value)) {
-      setFromAmount(value);
+      if (direction === 'from') {
+        setFromAmount(value);
+        setLastEditedField('from');
+      } else {
+        setToAmount(value);
+        setLastEditedField('to');
+      }
     }
   };
 
   const setPercentage = percent => {
     const balance = fromAsset === 'BTC' ? btcBalance : usdBalance;
     const amount = (balance * percent).toString();
-    handleFromAmountChange(amount);
+    setFromAmount(amount);
+    setLastEditedField('from');
+    setShowKeyboard(true);
+  };
+
+  const handleInputPress = direction => {
+    setLastEditedField(direction);
+    setShowKeyboard(true);
+  };
+
+  const handleKeyboardInput = value => {
+    console.log(value, 'est');
+    if (lastEditedField === 'from') {
+      handleFromAmountChange(value, 'from');
+    } else {
+      handleFromAmountChange(value, 'to');
+    }
+  };
+
+  const dismissKeyboard = () => {
+    setShowKeyboard(false);
   };
 
   const executeSwapAction = async () => {
     if (!poolInfo || !fromAmount || parseFloat(fromAmount) <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount');
+      navigate.navigate('ErrorScreen', {
+        errorMessage: 'Please enter a valid amount',
+      });
       return;
     }
 
-    // Check price impact before confirming
-    const priceImpactWarning =
-      priceImpact > 5
-        ? `\n\n⚠️ WARNING: High price impact of ${priceImpact.toFixed(2)}%`
-        : '';
+    const showConfirmScreen = priceImpact > 5;
 
-    // Confirm swap with user
-    Alert.alert(
-      'Confirm Swap',
-      `Swap ${fromAmount} ${fromAsset} for approximately ${toAmount} ${toAsset}?${priceImpactWarning}\n\n` +
+    if (!showConfirmScreen) {
+      performSwap();
+      return;
+    }
+
+    navigate.navigate('ConfirmActionPage', {
+      confirmMessage: t(
         `Price Impact: ${priceImpact?.toFixed(2) || 'N/A'}%\n` +
-        `Pool: ${poolInfo.lpPublicKey.substring(0, 8)}...`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Confirm',
-          onPress: performSwap,
-          style: priceImpact > 5 ? 'destructive' : 'default',
-        },
-      ],
-    );
+          'Do you still want to swap?',
+      ),
+      confirmFunction: () => performSwap(),
+    });
   };
 
   const performSwap = async () => {
@@ -275,83 +343,56 @@ export default function SwapsPage() {
       const isBtcToUsdb = fromAsset === 'BTC';
       const decimals = tokenInformation?.tokenMetadata?.decimals || 6;
 
-      // Convert amount to smallest units
       const amountInSmallestUnits = isBtcToUsdb
         ? Math.floor(parseFloat(fromAmount))
         : Math.floor(parseFloat(fromAmount) * Math.pow(10, decimals));
 
-      // Use the convenient swap functions
       const result = isBtcToUsdb
         ? await swapBitcoinToToken(currentWalletMnemoinc, {
             tokenAddress: USDB_ASSET_PUBKEY,
             amountSats: amountInSmallestUnits,
             poolId: poolInfo.lpPublicKey,
-            maxSlippageBps: priceImpact > 3 ? 200 : 100, // Higher slippage for high impact
           })
         : await swapTokenToBitcoin(currentWalletMnemoinc, {
             tokenAddress: USDB_ASSET_PUBKEY,
             tokenAmount: amountInSmallestUnits,
             poolId: poolInfo.lpPublicKey,
-            maxSlippageBps: priceImpact > 3 ? 200 : 100,
           });
 
       if (result.didWork && result.swap) {
-        // Calculate actual received amount
-        const receivedAmount = isBtcToUsdb
-          ? (
-              parseFloat(result.swap.amountOut) / Math.pow(10, decimals)
-            ).toFixed(2)
+        const realReceivedAmount = isBtcToUsdb
+          ? (parseFloat(result.swap.amountOut) / Math.pow(10, decimals)) *
+            SATS_PER_DOLLAR
           : parseFloat(result.swap.amountOut).toFixed(0);
-
-        Alert.alert(
-          '✅ Swap Successful!',
-          `You received ${receivedAmount} ${toAsset}\n\n` +
-            `Transfer ID: ${result.swap.outboundTransferId.substring(
-              0,
-              16,
-            )}...`,
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                // Reset form
-                setFromAmount('');
-                setToAmount('');
-                setSimulationResult(null);
-                setPriceImpact(null);
-                setError(null);
-
-                // Refresh balance
-                sparkAPI.getSparkBalance({
-                  mnemonic: currentWalletMnemoinc,
-                });
-              },
-            },
-          ],
+        const realFeeAmount = Math.round(
+          (parseFloat(result.swap.feeAmount) / Math.pow(10, decimals)) *
+            SATS_PER_DOLLAR,
         );
+        setConfirmedSwap({ ...result.swap, realReceivedAmount, realFeeAmount });
+        sparkTransactionsEventEmitter.emit(
+          SPARK_TX_UPDATE_ENVENT_NAME,
+          'fullUpdate',
+        );
+        requestAnimationFrame(() => {
+          animationRef.current?.play();
+        });
       } else {
-        // Handle errors using the new error handler
         const errorInfo = handleFlashnetError(result.details);
 
         let errorMessage =
           errorInfo.userMessage || result.error || 'Swap failed';
-        let errorTitle = 'Swap Failed';
 
-        // Show fund recovery status
         if (errorInfo.clawback) {
           if (errorInfo.clawback.allRecovered) {
-            errorTitle = 'Swap Failed - Funds Recovered';
             errorMessage +=
               '\n\n✅ Your funds have been automatically recovered.';
           } else if (errorInfo.clawback.partialRecovered) {
-            errorTitle = 'Swap Failed - Partial Recovery';
             errorMessage += `\n\n⚠️ Some funds recovered automatically (${errorInfo.clawback.recoveredCount}).`;
           }
         } else if (errorInfo.autoRefund) {
           errorMessage += '\n\n✅ Your funds will be automatically refunded.';
         }
 
-        // Add helpful suggestions based on error type
         if (errorInfo.type === 'slippage') {
           errorMessage +=
             '\n\n💡 Try increasing slippage tolerance or waiting for better market conditions.';
@@ -360,22 +401,28 @@ export default function SwapsPage() {
             '\n\n💡 Try swapping a smaller amount or waiting for more liquidity.';
         }
 
-        Alert.alert(errorTitle, errorMessage);
+        navigate.navigate('errorScreen', { errorMessage: errorMessage });
         setError(errorInfo.userMessage || result.error);
       }
     } catch (err) {
       console.error('Execute swap error:', err);
-      Alert.alert(
-        'Error',
-        'An unexpected error occurred during the swap. Please try again.',
-      );
+      navigate.navigate('errorScreen', {
+        errorMessage:
+          'An unexpected error occurred during the swap. Please try again.',
+      });
       setError('Swap execution failed');
     } finally {
       setIsSwapping(false);
     }
   };
 
-  // Determine if swap can be executed
+  const confirmAnimation = useMemo(() => {
+    return updateConfirmAnimation(
+      confirmTxAnimation,
+      theme ? (darkModeType ? 'lightsOut' : 'dark') : 'light',
+    );
+  }, [theme, darkModeType]);
+
   const canSwap =
     fromAmount &&
     parseFloat(fromAmount) > 0 &&
@@ -385,318 +432,531 @@ export default function SwapsPage() {
     !isSwapping &&
     !isLoadingPool &&
     poolInfo &&
-    (!error || error.includes('⚠️ High price impact')); // Allow swap even with price impact warning
+    (!error || error.includes('High price impact'));
+
+  if (confirmedSwap) {
+    const isBtcToUsdb = fromAsset === 'BTC';
+
+    return (
+      <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}
+        >
+          <LottieView
+            ref={animationRef}
+            source={confirmAnimation}
+            loop={false}
+            style={{
+              width: screenDimensions.width / 1.5,
+              height: screenDimensions.width / 1.5,
+              maxWidth: 400,
+              maxHeight: 400,
+            }}
+          />
+
+          <ThemeText
+            styles={{ fontSize: SIZES.large, marginBottom: 10 }}
+            content={'Swap Confirmed'}
+          />
+
+          <View style={{ marginBottom: 5 }}>
+            <ThemeText
+              styles={{
+                fontSize: SIZES.small,
+                opacity: 0.6,
+                textAlign: 'center',
+              }}
+              content={'You sent'}
+            />
+          </View>
+          <View style={{ marginBottom: 20 }}>
+            <ThemeText
+              styles={{
+                fontSize: SIZES.xLarge,
+                includeFontPadding: false,
+                textAlign: 'center',
+              }}
+              content={displayCorrectDenomination({
+                amount: convertedFromAmount,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: !isBtcToUsdb ? 'fiat' : 'sats',
+                },
+                fiatStats,
+                forceCurrency: 'USD',
+              })}
+            />
+          </View>
+
+          <View style={{ marginBottom: 5 }}>
+            <ThemeText
+              styles={{
+                fontSize: SIZES.small,
+                opacity: 0.6,
+                textAlign: 'center',
+              }}
+              content={'You received'}
+            />
+          </View>
+          <View style={{ marginBottom: 40 }}>
+            <ThemeText
+              styles={{
+                fontSize: SIZES.huge,
+                includeFontPadding: false,
+                textAlign: 'center',
+              }}
+              content={displayCorrectDenomination({
+                amount: confirmedSwap.realReceivedAmount,
+                masterInfoObject: {
+                  ...masterInfoObject,
+                  userBalanceDenomination: isBtcToUsdb ? 'fiat' : 'sats',
+                },
+                fiatStats,
+                forceCurrency: 'USD',
+              })}
+            />
+          </View>
+
+          <View style={styles.paymentTable}>
+            {priceImpact && (
+              <View style={styles.paymentTableRow}>
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={styles.labelText}
+                  content={'Price Impact'}
+                />
+                <ThemeText
+                  styles={priceImpact > 5 ? { color: COLORS.cancelRed } : {}}
+                  content={`${priceImpact.toFixed(2)}%`}
+                />
+              </View>
+            )}
+
+            {!!confirmedSwap.realFeeAmount && (
+              <View style={styles.paymentTableRow}>
+                <ThemeText
+                  CustomNumberOfLines={1}
+                  styles={styles.labelText}
+                  content={'Fee'}
+                />
+                <ThemeText
+                  content={displayCorrectDenomination({
+                    amount: confirmedSwap.realFeeAmount,
+                    masterInfoObject,
+                    fiatStats,
+                  })}
+                />
+              </View>
+            )}
+          </View>
+
+          <CustomButton
+            buttonStyles={{
+              width: 'auto',
+              minWidth: 300,
+              backgroundColor: theme ? COLORS.darkModeText : COLORS.primary,
+              marginTop: 'auto',
+            }}
+            textStyles={{
+              color: theme ? COLORS.lightModeText : COLORS.darkModeText,
+            }}
+            actionFunction={navigate.goBack}
+            textContent={'Go back'}
+          />
+          <CustomButton
+            buttonStyles={{
+              width: 'auto',
+              minWidth: 300,
+              backgroundColor: 'transparent',
+            }}
+            actionFunction={() => {
+              setConfirmedSwap(null);
+              clearPageStates();
+            }}
+            textContent={'Create Another Swap'}
+          />
+        </ScrollView>
+      </GlobalThemeView>
+    );
+  }
+
+  const handleContainerClick = () => {
+    setShowKeyboard(false);
+  };
 
   return (
-    <GlobalThemeView useStandardWidth={true}>
+    <CustomKeyboardAvoidingView
+      useTouchableWithoutFeedback={true}
+      touchableWithoutFeedbackFunction={handleContainerClick}
+      useStandardWidth={true}
+    >
       <CustomSettingsTopBar />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.contentWrapper}>
-          {/* Loading State */}
-          {isLoadingPool && (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
-              <ThemeText
-                styles={styles.loadingText}
-                content="Loading pool information..."
-              />
-            </View>
-          )}
+      <TouchableWithoutFeedback onPress={dismissKeyboard}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}
+        >
+          <View style={styles.contentWrapper}>
+            {isLoadingPool && (
+              <View style={styles.loadingContainer}>
+                <FullLoadingScreen
+                  textStyles={styles.loadingText}
+                  text={'Loading pool information...'}
+                />
+              </View>
+            )}
 
-          {/* Main Content */}
-          {!isLoadingPool && poolInfo && (
-            <>
-              {/* From Section */}
-              <View style={styles.cardContainer}>
-                <View
-                  style={[
-                    styles.card,
-                    {
-                      backgroundColor: theme
-                        ? backgroundOffset
-                        : COLORS.darkModeText,
-                    },
-                  ]}
-                >
-                  <View style={styles.cardHeader}>
-                    <ThemeText
-                      styles={styles.label}
-                      content={`I have ${displayCorrectDenomination({
-                        amount: displayBalance,
-                        masterInfoObject: {
-                          ...masterInfoObject,
-                          userBalanceDenomination:
-                            fromAsset === 'BTC' ? 'sats' : 'fiat',
-                        },
-                        forceCurrency: 'USD',
-                        fiatStats,
-                      })}`}
-                    />
-                  </View>
-
-                  <View style={styles.assetRow}>
-                    <View style={styles.assetInfo}>
-                      <View style={[styles.iconContainer, { backgroundColor }]}>
-                        {fromAsset === 'BTC' ? (
-                          <Bitcoin
-                            color={
-                              theme ? COLORS.darkModeText : COLORS.lightModeText
-                            }
-                          />
-                        ) : (
-                          <DollarSign
-                            size={24}
-                            color={
-                              theme ? COLORS.darkModeText : COLORS.lightModeText
-                            }
-                          />
-                        )}
-                      </View>
+            {!isLoadingPool && poolInfo && (
+              <>
+                <View style={styles.cardContainer}>
+                  <View
+                    style={[
+                      styles.card,
+                      {
+                        backgroundColor: theme
+                          ? backgroundOffset
+                          : COLORS.darkModeText,
+                      },
+                    ]}
+                  >
+                    <View style={styles.cardHeader}>
                       <ThemeText
-                        styles={styles.assetText}
-                        content={fromAsset}
+                        styles={styles.label}
+                        content={`I have ${displayCorrectDenomination({
+                          amount: displayBalance,
+                          masterInfoObject: {
+                            ...masterInfoObject,
+                            userBalanceDenomination:
+                              fromAsset === 'BTC' ? 'sats' : 'fiat',
+                          },
+                          forceCurrency: 'USD',
+                          fiatStats,
+                        })}`}
                       />
                     </View>
 
-                    <TextInput
-                      style={[
-                        styles.amountInput,
-                        {
-                          color: theme
+                    <View style={styles.assetRow}>
+                      <View style={styles.assetInfo}>
+                        <View
+                          style={[styles.iconContainer, { backgroundColor }]}
+                        >
+                          {fromAsset === 'BTC' ? (
+                            <Bitcoin
+                              color={
+                                theme
+                                  ? COLORS.darkModeText
+                                  : COLORS.lightModeText
+                              }
+                            />
+                          ) : (
+                            <DollarSign
+                              size={24}
+                              color={
+                                theme
+                                  ? COLORS.darkModeText
+                                  : COLORS.lightModeText
+                              }
+                            />
+                          )}
+                        </View>
+                        <ThemeText
+                          styles={styles.assetText}
+                          content={fromAsset}
+                        />
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => handleInputPress('from')}
+                        activeOpacity={0.7}
+                      >
+                        <ThemeText
+                          styles={[
+                            styles.amountInput,
+                            {
+                              color: theme
+                                ? COLORS.darkModeText
+                                : COLORS.lightModeText,
+                            },
+                          ]}
+                          content={fromAmount || '0'}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  {/* Swap Button */}
+                  <TouchableOpacity
+                    style={[
+                      styles.swapButton,
+                      {
+                        backgroundColor:
+                          theme && darkModeType
                             ? COLORS.darkModeText
-                            : COLORS.lightModeText,
+                            : COLORS.primary,
+                      },
+                    ]}
+                    onPress={handleSwapAssets}
+                    activeOpacity={0.7}
+                    disabled={isSwapping || isLoadingPool}
+                  >
+                    <ArrowDownUp
+                      size={22}
+                      color={
+                        theme && darkModeType
+                          ? COLORS.lightModeText
+                          : COLORS.darkModeText
+                      }
+                    />
+                  </TouchableOpacity>
+
+                  {!showKeyboard && (
+                    <TouchableOpacity
+                      style={[
+                        styles.swapButton,
+                        {
+                          backgroundColor:
+                            theme && darkModeType
+                              ? COLORS.darkModeText
+                              : COLORS.primary,
                         },
                       ]}
-                      value={fromAmount}
-                      onChangeText={handleFromAmountChange}
-                      placeholder="0"
-                      placeholderTextColor={COLORS.gray2}
-                      keyboardType="decimal-pad"
-                      editable={!isSwapping && !isLoadingPool}
-                    />
-                  </View>
-                </View>
+                      onPress={handleSwapAssets}
+                      activeOpacity={0.7}
+                      disabled={isSwapping || isLoadingPool}
+                    >
+                      <ArrowDownUp
+                        size={22}
+                        color={
+                          theme && darkModeType
+                            ? COLORS.lightModeText
+                            : COLORS.darkModeText
+                        }
+                      />
+                    </TouchableOpacity>
+                  )}
 
-                {/* Swap Button */}
-                <TouchableOpacity
-                  style={[
-                    styles.swapButton,
-                    {
-                      backgroundColor:
-                        theme && darkModeType
-                          ? COLORS.darkModeText
-                          : COLORS.primary,
-                    },
-                  ]}
-                  onPress={handleSwapAssets}
-                  activeOpacity={0.7}
-                  disabled={isSwapping || isLoadingPool}
-                >
-                  <ArrowDownUp
-                    size={22}
-                    color={
-                      theme && darkModeType
-                        ? COLORS.lightModeText
-                        : COLORS.darkModeText
-                    }
-                  />
-                </TouchableOpacity>
-
-                {/* To Section */}
-                <View
-                  style={[
-                    styles.card,
-                    {
-                      backgroundColor: theme
-                        ? backgroundOffset
-                        : COLORS.darkModeText,
-                    },
-                  ]}
-                >
-                  <View style={styles.cardHeader}>
-                    <ThemeText styles={styles.label} content={`I want`} />
-                    {isSimulating && (
-                      <ActivityIndicator size="small" color={COLORS.primary} />
-                    )}
-                  </View>
-
-                  <View style={styles.assetRow}>
-                    <View style={styles.assetInfo}>
-                      <View style={[styles.iconContainer, { backgroundColor }]}>
-                        {fromAsset !== 'BTC' ? (
-                          <Bitcoin
-                            color={
-                              theme ? COLORS.darkModeText : COLORS.lightModeText
-                            }
-                          />
-                        ) : (
-                          <DollarSign
-                            size={24}
-                            color={
-                              theme ? COLORS.darkModeText : COLORS.lightModeText
-                            }
-                          />
-                        )}
-                      </View>
-                      <ThemeText styles={styles.assetText} content={toAsset} />
+                  <View
+                    style={[
+                      styles.card,
+                      {
+                        backgroundColor: theme
+                          ? backgroundOffset
+                          : COLORS.darkModeText,
+                      },
+                    ]}
+                  >
+                    <View style={styles.cardHeader}>
+                      <ThemeText styles={styles.label} content={`I want`} />
+                      {isSimulating && (
+                        <FullLoadingScreen
+                          showText={false}
+                          containerStyles={{ flex: 0 }}
+                          size="small"
+                        />
+                      )}
                     </View>
-                    <ThemeText
-                      styles={styles.amountDisplay}
-                      content={toAmount || '0'}
-                    />
+
+                    <View style={styles.assetRow}>
+                      <View style={styles.assetInfo}>
+                        <View
+                          style={[styles.iconContainer, { backgroundColor }]}
+                        >
+                          {fromAsset !== 'BTC' ? (
+                            <Bitcoin
+                              color={
+                                theme
+                                  ? COLORS.darkModeText
+                                  : COLORS.lightModeText
+                              }
+                            />
+                          ) : (
+                            <DollarSign
+                              size={24}
+                              color={
+                                theme
+                                  ? COLORS.darkModeText
+                                  : COLORS.lightModeText
+                              }
+                            />
+                          )}
+                        </View>
+                        <ThemeText
+                          styles={styles.assetText}
+                          content={toAsset}
+                        />
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => handleInputPress('to')}
+                        activeOpacity={0.7}
+                      >
+                        <ThemeText
+                          styles={[
+                            styles.amountInput,
+                            {
+                              color: theme
+                                ? COLORS.darkModeText
+                                : COLORS.lightModeText,
+                            },
+                          ]}
+                          content={toAmount || '0'}
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
+
+                <View style={styles.quickButtons}>
+                  <TouchableOpacity
+                    style={[
+                      styles.quickButton,
+                      { backgroundColor: backgroundOffset },
+                    ]}
+                    onPress={() => setPercentage(0.25)}
+                    activeOpacity={0.7}
+                    disabled={isSwapping || isLoadingPool}
+                  >
+                    <ThemeText
+                      styles={styles.quickButtonText}
+                      content={'MIN'}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.quickButton,
+                      { backgroundColor: backgroundOffset },
+                    ]}
+                    onPress={() => setPercentage(0.5)}
+                    activeOpacity={0.7}
+                    disabled={isSwapping || isLoadingPool}
+                  >
+                    <ThemeText
+                      styles={styles.quickButtonText}
+                      content={'HALF'}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.quickButton,
+                      { backgroundColor: backgroundOffset },
+                    ]}
+                    onPress={() => setPercentage(1)}
+                    activeOpacity={0.7}
+                    disabled={isSwapping || isLoadingPool}
+                  >
+                    <ThemeText
+                      styles={styles.quickButtonText}
+                      content={'MAX'}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                {error && (
+                  <View
+                    style={[
+                      styles.errorContainer,
+                      {
+                        backgroundColor:
+                          theme && darkModeType
+                            ? backgroundOffset
+                            : COLORS.primary,
+                      },
+                    ]}
+                  >
+                    <ThemeImage
+                      styles={{ width: 22, height: 22 }}
+                      lightModeIcon={ICONS.warningWhite}
+                      darkModeIcon={ICONS.warningWhite}
+                      lightsOutIcon={ICONS.warningWhite}
+                    />
+                    <ThemeText styles={styles.errorText} content={error} />
+                  </View>
+                )}
+                <View style={{ marginTop: 'auto' }} />
+
+                {!showKeyboard && (
+                  <>
+                    <CustomButton
+                      buttonStyles={{
+                        marginTop: 20,
+                        opacity: canSwap ? 1 : 0.5,
+                      }}
+                      textContent={
+                        isSwapping
+                          ? 'Swapping...'
+                          : isLoadingPool
+                          ? 'Loading...'
+                          : `Swap ${fromAsset} → ${toAsset}`
+                      }
+                      actionFunction={executeSwapAction}
+                      disabled={!canSwap}
+                    />
+
+                    <ThemeText
+                      styles={styles.disclaimer}
+                      content={
+                        'Swap services are available through third-party API providers.'
+                      }
+                    />
+                  </>
+                )}
+              </>
+            )}
+
+            {!isLoadingPool && !poolInfo && (
+              <View style={styles.errorStateContainer}>
+                <ThemeText
+                  styles={styles.errorStateTitle}
+                  content="Service Unavailable"
+                />
+                <ThemeText
+                  styles={styles.errorStateMessage}
+                  content="Unable to connect to swap service. Please check your connection and try again."
+                />
+                <CustomButton
+                  buttonStyles={{ marginTop: 20 }}
+                  textContent="Retry"
+                  actionFunction={loadPoolInfo}
+                />
               </View>
+            )}
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+      {showKeyboard && (
+        <HandleKeyboardRender
+          lastEditedField={lastEditedField}
+          fromAsset={fromAsset}
+          toAsset={toAsset}
+          handleKeyboardInput={handleKeyboardInput}
+        />
+      )}
+    </CustomKeyboardAvoidingView>
+  );
+}
 
-              {/* Quick Amount Buttons */}
-              <View style={styles.quickButtons}>
-                <TouchableOpacity
-                  style={[
-                    styles.quickButton,
-                    { backgroundColor: backgroundOffset },
-                  ]}
-                  onPress={() => setPercentage(0.25)}
-                  activeOpacity={0.7}
-                  disabled={isSwapping || isLoadingPool}
-                >
-                  <ThemeText styles={styles.quickButtonText} content={'MIN'} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.quickButton,
-                    { backgroundColor: backgroundOffset },
-                  ]}
-                  onPress={() => setPercentage(0.5)}
-                  activeOpacity={0.7}
-                  disabled={isSwapping || isLoadingPool}
-                >
-                  <ThemeText styles={styles.quickButtonText} content={'HALF'} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.quickButton,
-                    { backgroundColor: backgroundOffset },
-                  ]}
-                  onPress={() => setPercentage(1)}
-                  activeOpacity={0.7}
-                  disabled={isSwapping || isLoadingPool}
-                >
-                  <ThemeText styles={styles.quickButtonText} content={'MAX'} />
-                </TouchableOpacity>
-              </View>
+function HandleKeyboardRender({
+  lastEditedField,
+  toAsset,
+  fromAsset,
+  handleKeyboardInput,
+}) {
+  const [amount, setAmount] = useState('');
 
-              {/* Swap Details */}
-              {simulationResult && (
-                <View style={styles.detailsContainer}>
-                  <View style={styles.detailRow}>
-                    <ThemeText
-                      styles={styles.detailLabel}
-                      content="Price Impact"
-                    />
-                    <ThemeText
-                      styles={[
-                        styles.detailValue,
-                        priceImpact > 5 && styles.detailValueWarning,
-                      ]}
-                      content={`${priceImpact.toFixed(2)}%`}
-                    />
-                  </View>
-                  <View style={styles.detailRow}>
-                    <ThemeText
-                      styles={styles.detailLabel}
-                      content="Exchange Rate"
-                    />
-                    <ThemeText
-                      styles={styles.detailValue}
-                      content={simulationResult.executionPrice}
-                    />
-                  </View>
-                  <View style={styles.detailRow}>
-                    <ThemeText styles={styles.detailLabel} content="Pool" />
-                    <ThemeText
-                      styles={styles.detailValue}
-                      content={`${poolInfo.lpPublicKey.substring(0, 8)}...`}
-                    />
-                  </View>
-                </View>
-              )}
+  useEffect(() => {
+    handleKeyboardInput(amount);
+  }, [amount]);
 
-              {/* Error Display */}
-              {error && (
-                <View
-                  style={[
-                    styles.errorContainer,
-                    error.includes('⚠️') && styles.warningContainer,
-                  ]}
-                >
-                  <ThemeText styles={styles.errorText} content={error} />
-                </View>
-              )}
-
-              {/* Swap Action Button */}
-              <CustomButton
-                buttonStyles={{
-                  marginTop: 'auto',
-                  opacity: canSwap ? 1 : 0.5,
-                }}
-                textContent={
-                  isSwapping
-                    ? 'Swapping...'
-                    : isLoadingPool
-                    ? 'Loading...'
-                    : `Swap ${fromAsset} → ${toAsset}`
-                }
-                actionFunction={executeSwapAction}
-                disabled={!canSwap}
-              />
-
-              {/* Pool Info */}
-              {poolInfo && (
-                <View style={styles.poolInfoContainer}>
-                  <ThemeText
-                    styles={styles.poolInfoText}
-                    content={`TVL: $${
-                      poolInfo.tvlAssetB?.toLocaleString() || 'N/A'
-                    } • 24h Vol: $${
-                      poolInfo.volume24hAssetB?.toLocaleString() || 'N/A'
-                    }`}
-                  />
-                </View>
-              )}
-
-              <ThemeText
-                styles={styles.disclaimer}
-                content={'Swap services powered by Flashnet AMM'}
-              />
-            </>
-          )}
-
-          {/* Error State - No Pool */}
-          {!isLoadingPool && !poolInfo && (
-            <View style={styles.errorStateContainer}>
-              <ThemeText
-                styles={styles.errorStateTitle}
-                content="Service Unavailable"
-              />
-              <ThemeText
-                styles={styles.errorStateMessage}
-                content="Unable to connect to swap service. Please check your connection and try again."
-              />
-              <CustomButton
-                buttonStyles={{ marginTop: 20 }}
-                textContent="Retry"
-                actionFunction={loadPoolInfo}
-              />
-            </View>
-          )}
-        </View>
-      </ScrollView>
-    </GlobalThemeView>
+  return (
+    <CustomNumberKeyboard
+      showDot={
+        (lastEditedField === 'from' && fromAsset === 'USD') ||
+        (lastEditedField === 'to' && toAsset === 'USD')
+      }
+      setInputValue={setAmount}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: { flexGrow: 1, alignItems: 'center' },
+  scrollContainer: { flexGrow: 1, alignItems: 'center', paddingTop: 20 },
   contentWrapper: {
     width: WINDOWWIDTH,
     maxWidth: 600,
@@ -759,10 +1019,6 @@ const styles = StyleSheet.create({
     minWidth: 100,
     color: COLORS.lightModeText,
   },
-  amountDisplay: {
-    fontSize: SIZES.xxLarge,
-    fontWeight: '500',
-  },
   cardContainer: {
     gap: 10,
     alignItems: 'center',
@@ -796,73 +1052,37 @@ const styles = StyleSheet.create({
     fontSize: SIZES.smedium,
     fontWeight: '500',
   },
-  detailsContainer: {
-    marginTop: 16,
-    gap: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.03)',
-    padding: 16,
-    borderRadius: 12,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  detailLabel: {
-    fontSize: SIZES.small,
-    fontFamily: FONT.Descriptoin_Regular,
-    opacity: HIDDEN_OPACITY,
-  },
-  detailValue: {
-    fontSize: SIZES.small,
-    fontFamily: FONT.Descriptoin_Regular,
-    fontWeight: '500',
-  },
-  detailValueWarning: {
-    color: COLORS.cancelRed,
-  },
   errorContainer: {
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
     padding: 12,
     borderRadius: 8,
     marginTop: 16,
-  },
-  warningContainer: {
-    backgroundColor: 'rgba(255, 149, 0, 0.1)',
-  },
-  errorText: {
-    color: COLORS.cancelRed,
-    fontSize: SIZES.small,
-    textAlign: 'center',
-  },
-  poolInfoContainer: {
-    marginTop: 8,
+    flexDirection: 'row',
     alignItems: 'center',
   },
-  poolInfoText: {
-    fontSize: SIZES.xSmall,
-    fontFamily: FONT.Descriptoin_Regular,
-    color: COLORS.gray,
-    opacity: HIDDEN_OPACITY,
+  errorText: {
+    fontSize: SIZES.small,
+    textAlign: 'center',
+    color: COLORS.darkModeText,
+    marginLeft: 10,
+    includeFontPadding: false,
   },
   disclaimer: {
     textAlign: 'center',
     fontSize: SIZES.xSmall,
-    fontFamily: FONT.Descriptoin_Regular,
-    color: COLORS.gray,
+    opacity: HIDDEN_OPACITY,
     marginTop: 12,
     lineHeight: 16,
+    maxWidth: 250,
+    ...CENTER,
   },
   errorStateContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 32,
   },
   errorStateTitle: {
     fontSize: SIZES.xLarge,
-    fontWeight: '600',
+    fontWeight: '500',
     marginBottom: 8,
   },
   errorStateMessage: {
@@ -870,5 +1090,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: HIDDEN_OPACITY,
     lineHeight: 22,
+  },
+  globalContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  paymentTable: {
+    width: '95%',
+    maxWidth: 300,
+    rowGap: 20,
+  },
+  paymentTableRow: {
+    width: '100%',
+    minWidth: 200,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  labelText: {
+    flexShrink: 1,
+    marginRight: 5,
   },
 });

@@ -11,6 +11,7 @@ export default function displayCorrectDenomination({
   customLabel = '',
   useMillionDenomination = false,
   forceCurrency = null,
+  convertAmount = true,
 }) {
   try {
     const localBalanceDenomination = masterInfoObject.userBalanceDenomination;
@@ -28,16 +29,18 @@ export default function displayCorrectDenomination({
       return `${formattedBalance} ${labelText}`;
     }
 
-    const formattedBalance = formatBalanceAmount(
-      numberConverter(
-        amount,
-        localBalanceDenomination,
-        localBalanceDenomination === 'fiat' ? 2 : 0,
-        fiatStats,
-      ),
-      useMillionDenomination,
-      masterInfoObject,
-    );
+    const formattedBalance = convertAmount
+      ? formatBalanceAmount(
+          numberConverter(
+            amount,
+            localBalanceDenomination,
+            localBalanceDenomination === 'fiat' ? 2 : 0,
+            fiatStats,
+          ),
+          useMillionDenomination,
+          masterInfoObject,
+        )
+      : amount;
 
     const showSymbol = masterInfoObject.satDisplay === 'symbol';
     const showSats =

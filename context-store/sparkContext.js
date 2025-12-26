@@ -66,6 +66,8 @@ import {
   createBalancePoller,
   createRestorePoller,
 } from '../app/functions/pollingManager';
+import { USDB_TOKEN_ID } from '../app/constants';
+import formatTokensNumber from '../app/functions/lrc20/formatTokensBalance';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -147,6 +149,18 @@ const SparkWalletProvider = ({ children }) => {
     masterInfoObject.enabledBTKNTokens === null
       ? !!Object.keys(sparkInformation.tokens || {}).length
       : masterInfoObject.enabledBTKNTokens;
+
+  const usdbTokenInfo = sparkInformation?.tokens?.[USDB_TOKEN_ID];
+
+  const USD_BALANCE = useMemo(() => {
+    console.log('RUNNING USDB Balance UPDATE');
+    return usdbTokenInfo
+      ? formatTokensNumber(
+          usdbTokenInfo?.balance,
+          usdbTokenInfo?.tokenMetadata?.decimals,
+        )
+      : 0;
+  }, [usdbTokenInfo]);
 
   const didRunInitialRestore = useRef(false);
 
@@ -1379,6 +1393,7 @@ const SparkWalletProvider = ({ children }) => {
       toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
       sparkInfoRef,
+      USD_BALANCE,
     }),
     [
       sparkInformation,
@@ -1395,6 +1410,7 @@ const SparkWalletProvider = ({ children }) => {
       toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
       sparkInfoRef,
+      USD_BALANCE,
     ],
   );
 

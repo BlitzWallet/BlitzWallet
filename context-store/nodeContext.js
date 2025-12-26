@@ -16,6 +16,7 @@ import { useGlobalContacts } from './globalContacts';
 import liquidToSparkSwap from '../app/functions/spark/liquidToSparkSwap';
 import { useAuthContext } from './authContext';
 import { ensureLiquidConnection } from '../app/functions/breezLiquid/liquidNodeManager';
+import { SATSPERBITCOIN } from '../app/constants';
 
 // Initiate context
 const NodeContextManager = createContext(null);
@@ -36,6 +37,10 @@ const GLobalNodeContextProider = ({ children }) => {
   const { authResetkey } = useAuthContext();
   const selectedCurrency = masterInfoObject.fiatCurrency;
   const [fiatStats, setFiatStats] = useState({ coin: 'USD', value: 100_000 });
+
+  const SATS_PER_DOLLAR = useMemo(() => {
+    return SATSPERBITCOIN / (fiatStats.value ?? 0);
+  }, [fiatStats]);
 
   const toggleFiatStats = useCallback(newInfo => {
     setFiatStats({ ...newInfo, coin: newInfo.coin?.toUpperCase() });
@@ -142,6 +147,7 @@ const GLobalNodeContextProider = ({ children }) => {
       fiatStats,
       pendingLiquidPayment,
       setPendingLiquidPayment,
+      SATS_PER_DOLLAR,
     }),
     [
       liquidNodeInformation,
@@ -150,6 +156,7 @@ const GLobalNodeContextProider = ({ children }) => {
       toggleLiquidNodeInformation,
       pendingLiquidPayment,
       setPendingLiquidPayment,
+      SATS_PER_DOLLAR,
     ],
   );
 
