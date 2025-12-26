@@ -48,7 +48,7 @@ export default function SelctPaymentMethod({
   return (
     <View style={styles.innerContainer}>
       <ThemeText
-        styles={{ fontWeight: 500, fontSize: SIZES.xLarge }}
+        styles={{ fontWeight: 500, fontSize: SIZES.large }}
         content={`Please select how you’d like to fund your ${displayCorrectDenomination(
           { amount: convertedSendAmount, masterInfoObject, fiatStats },
         )} payment.`}
