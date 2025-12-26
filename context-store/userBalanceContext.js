@@ -1,27 +1,7 @@
-import React, {
-  createContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import {
-  getLocalStorageItem,
-  retrieveData,
-  setLocalStorageItem,
-} from '../app/functions';
-import {
-  CUSTODY_ACCOUNTS_STORAGE_KEY,
-  NWC_SECURE_STORE_MNEMOINC,
-} from '../app/constants';
+import React, { createContext, useMemo } from 'react';
+
 import { useSparkWallet } from './sparkContext';
 import { useNodeContext } from './nodeContext';
-import {
-  decryptMnemonic,
-  encryptMnemonic,
-} from '../app/functions/handleMnemonic';
-import { useGlobalContextProvider } from './context';
-import { useAuthContext } from './authContext';
 
 // Create a context for the WebView ref
 const UserBalanceContext = createContext(null);
