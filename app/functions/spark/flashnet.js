@@ -499,6 +499,7 @@ export const getLightningPaymentQuote = async (
         executionPrice: quote.executionPrice,
         priceImpact: quote.priceImpactPct,
         poolId: quote.poolId,
+        fee: quote.btcAmountRequired - quote.invoiceAmountSats,
       },
     };
   } catch (error) {
@@ -600,7 +601,7 @@ export const getUserSwapHistory = async (mnemonic, limit = 50) => {
   try {
     const client = getFlashnetClient(mnemonic);
 
-    const result = await client.getUserSwapHistory({ limit });
+    const result = await client.getUserSwaps();
 
     return {
       didWork: true,
