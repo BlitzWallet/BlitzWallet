@@ -7,6 +7,7 @@ import {
   ICONS,
   SIZES,
   SKELETON_ANIMATION_SPEED,
+  USDB_TOKEN_ID,
 } from '../constants';
 import { ThemeText } from './CustomElements';
 import FormattedSatText from './CustomElements/satTextDisplay';
@@ -18,6 +19,7 @@ import SkeletonPlaceholder from './CustomElements/skeletonView';
 import formatTokensNumber from './lrc20/formatTokensBalance';
 import { Image } from 'expo-image';
 import { getTimeDisplay } from './contacts';
+import { isFlashnetTransfer } from './spark/handleFlashnetTransferIds';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -169,6 +171,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
     // numberOfCachedTxs,
     didGetToHomepage,
     enabledLRC20,
+    scrollPosition,
   } = props;
 
   // Remove unnecessary console.logs for performance
@@ -242,6 +245,17 @@ export default function getFormattedHomepageTxsForSpark(props) {
       if (
         transactionPaymentType === TRANSACTION_CONSTANTS.LIGHTNING &&
         currentTransaction.status === TRANSACTION_CONSTANTS.LIGHTNING_INITIATED
+      )
+        continue;
+      if (
+        frompage === TRANSACTION_CONSTANTS.HOME &&
+        isFlashnetTransfer(currentTransaction.sparkID)
+      )
+        continue;
+      if (scrollPosition === 'sats' && isLRC20Payment) continue;
+      if (
+        scrollPosition === 'usd' &&
+        (!isLRC20Payment || paymentDetails.LRC20Token !== USDB_TOKEN_ID)
       )
         continue;
 

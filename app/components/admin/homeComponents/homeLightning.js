@@ -200,6 +200,7 @@ export default function HomeLightning() {
         // numberOfCachedTxs,
         didGetToHomepage,
         enabledLRC20,
+        scrollPosition,
       }) || []
     );
   }, [
@@ -214,6 +215,7 @@ export default function HomeLightning() {
     darkModeType,
     t,
     enabledLRC20,
+    scrollPosition,
   ]);
 
   // Memoize the list data
