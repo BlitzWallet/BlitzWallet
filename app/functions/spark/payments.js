@@ -10,14 +10,21 @@ import {
   getSparkAddress,
   sparkWallet,
   sendSparkTokens,
+  getSparkLightningSendRequest,
 } from '.';
 import {
   isSendingPayingEventEmiiter,
   SENDING_PAYMENT_EVENT_NAME,
 } from '../../../context-store/sparkContext';
-import { DEFAULT_PAYMENT_EXPIRY_SEC } from '../../constants';
+import { DEFAULT_PAYMENT_EXPIRY_SEC, USDB_TOKEN_ID } from '../../constants';
 import sha256Hash from '../hash';
 import calculateProgressiveBracketFee from './calculateSupportFee';
+import {
+  getUserSwapHistory,
+  payLightningWithToken,
+  USD_ASSET_ADDRESS,
+} from './flashnet';
+import { setFlashnetTransfer } from './handleFlashnetTransferIds';
 import {
   addSingleUnpaidSparkLightningTransaction,
   bulkUpdateSparkTransactions,
@@ -41,6 +48,7 @@ export const sparkPaymenWrapper = async ({
   sendWebViewRequest,
   contactInfo,
   fromMainSendScreen = false,
+  usablePaymentMethod,
 }) => {
   try {
     console.log('Begining spark payment');
@@ -95,84 +103,143 @@ export const sparkPaymenWrapper = async ({
       };
     }
     let response;
-    if (
-      seletctedToken === 'Bitcoin' &&
-      userBalance < amountSats + (paymentType === 'bitcoin' ? supportFee : fee)
-    )
-      throw new Error('Insufficient funds');
+    // if (
+    //   seletctedToken === 'Bitcoin' &&
+    //   userBalance < amountSats + (paymentType === 'bitcoin' ? supportFee : fee)
+    // )
+    //   throw new Error('Insufficient funds');
 
     isSendingPayingEventEmiiter.emit(SENDING_PAYMENT_EVENT_NAME, true);
     if (paymentType === 'lightning') {
-      const initialFee = Math.round(fee - supportFee);
+      if (usablePaymentMethod === 'USD') {
+        const swapPaymentResponse = await payLightningWithToken(mnemonic, {
+          invoice: address,
+          tokenAddress: USD_ASSET_ADDRESS,
+        });
 
-      // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
+        if (!swapPaymentResponse.didWork)
+          throw new Error(
+            swapPaymentResponse.error ||
+              'Error when sending lightning payment from USD balance',
+          );
 
-      const lightningPayResponse = await sendSparkLightningPayment({
-        maxFeeSats: Math.max(initialFee, 1000),
-        invoice: address,
-        amountSats: usingZeroAmountInvoice ? amountSats : undefined,
-        mnemonic,
-      });
-
-      if (!lightningPayResponse.didWork)
-        throw new Error(
-          lightningPayResponse.error || 'Error when sending lightning payment',
+        // delete swap transfer and combine all info into one tx
+        setFlashnetTransfer(swapPaymentResponse.result.swapTransferId);
+        const lightningSendResponse = await getSparkLightningSendRequest(
+          swapPaymentResponse.result.lightningPaymentId,
+          mnemonic,
         );
+        // Get user swaps
+        const userSwaps = await getUserSwapHistory(mnemonic, 10);
 
-      console.log(lightningPayResponse, 'lightniing pay response');
-      const data = lightningPayResponse.paymentResponse;
+        if (userSwaps.didWork) {
+          const swap = userSwaps.swaps.find(
+            savedSwap =>
+              savedSwap.outboundTransferId ===
+              swapPaymentResponse.result.swapTransferId,
+          );
 
-      // check if lightning payment used LN or handled over spark
-      const paymentType = !!data?.type ? 'spark' : 'lightning';
-
-      if (paymentType === 'lightning') {
-        const realPaymentFee = data?.fee?.originalValue
-          ? data?.fee?.originalValue /
-            (data?.fee?.originalUnit === 'MILLISATOSHI' ? 1000 : 1)
-          : initialFee;
+          // if swap is found delte from tx history
+          if (swap) {
+            setFlashnetTransfer(swap.inboundTransferId);
+          }
+        }
 
         const tx = {
-          id: data.id,
+          id: swapPaymentResponse.result.lightningPaymentId,
           paymentStatus: 'pending',
           paymentType: 'lightning',
           accountId: sparkInformation.identityPubKey,
           details: {
             sendingUUID: contactInfo?.uuid,
-            fee: realPaymentFee,
-            totalFee: supportFee + realPaymentFee,
-            supportFee: supportFee,
-            amount: amountSats,
+            fee: feeQuote.fee,
+            totalFee: feeQuote.fee,
+            supportFee: feeQuote.fee,
+            amount: swapPaymentResponse.result.tokenAmountSpent,
             description: memo || '',
             address: address,
-            time: new Date(data.updatedAt).getTime(),
-            createdAt: new Date(data.createdAt).getTime(),
+            time: new Date(lightningSendResponse.updatedAt).getTime(),
+            createdAt: new Date(lightningSendResponse.createdAt).getTime(),
             direction: 'OUTGOING',
             preimage: '',
+            isLRC20Payment: true,
+            LRC20Token: USDB_TOKEN_ID,
           },
         };
         response = tx;
       } else {
-        const tx = {
-          id: data.id,
-          paymentStatus: 'completed',
-          paymentType: 'spark',
-          accountId: sparkInformation.identityPubKey,
-          details: {
-            sendingUUID: contactInfo?.uuid,
-            fee: 0,
-            totalFee: 0 + supportFee,
-            supportFee: supportFee,
-            amount: amountSats,
-            address: address,
-            time: new Date(data.updatedTime).getTime(),
-            direction: 'OUTGOING',
-            description: memo || '',
-            senderIdentityPublicKey: data.receiverIdentityPublicKey,
-            isLRC20Payment: false,
-            LRC20Token: seletctedToken,
-          },
-        };
-        response = tx;
+        const initialFee = Math.round(fee - supportFee);
+
+        // await handleSupportPayment(masterInfoObject, supportFee, mnemonic);
+
+        const lightningPayResponse = await sendSparkLightningPayment({
+          maxFeeSats: Math.max(initialFee, 1000),
+          invoice: address,
+          amountSats: usingZeroAmountInvoice ? amountSats : undefined,
+          mnemonic,
+        });
+
+        if (!lightningPayResponse.didWork)
+          throw new Error(
+            lightningPayResponse.error ||
+              'Error when sending lightning payment',
+          );
+
+        console.log(lightningPayResponse, 'lightniing pay response');
+        const data = lightningPayResponse.paymentResponse;
+
+        // check if lightning payment used LN or handled over spark
+        const paymentType = !!data?.type ? 'spark' : 'lightning';
+
+        if (paymentType === 'lightning') {
+          const realPaymentFee = data?.fee?.originalValue
+            ? data?.fee?.originalValue /
+              (data?.fee?.originalUnit === 'MILLISATOSHI' ? 1000 : 1)
+            : initialFee;
+
+          const tx = {
+            id: data.id,
+            paymentStatus: 'pending',
+            paymentType: 'lightning',
+            accountId: sparkInformation.identityPubKey,
+            details: {
+              sendingUUID: contactInfo?.uuid,
+              fee: realPaymentFee,
+              totalFee: supportFee + realPaymentFee,
+              supportFee: supportFee,
+              amount: amountSats,
+              description: memo || '',
+              address: address,
+              time: new Date(data.updatedAt).getTime(),
+              createdAt: new Date(data.createdAt).getTime(),
+              direction: 'OUTGOING',
+              preimage: '',
+            },
+          };
+          response = tx;
+        } else {
+          const tx = {
+            id: data.id,
+            paymentStatus: 'completed',
+            paymentType: 'spark',
+            accountId: sparkInformation.identityPubKey,
+            details: {
+              sendingUUID: contactInfo?.uuid,
+              fee: 0,
+              totalFee: 0 + supportFee,
+              supportFee: supportFee,
+              amount: amountSats,
+              address: address,
+              time: new Date(data.updatedTime).getTime(),
+              direction: 'OUTGOING',
+              description: memo || '',
+              senderIdentityPublicKey: data.receiverIdentityPublicKey,
+              isLRC20Payment: false,
+              LRC20Token: seletctedToken,
+            },
+          };
+          response = tx;
+        }
       }
     } else if (paymentType === 'bitcoin') {
       // make sure to import exist speed
