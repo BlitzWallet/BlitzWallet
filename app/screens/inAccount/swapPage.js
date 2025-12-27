@@ -150,11 +150,13 @@ export default function SwapsPage() {
           volume24h: result.pool.volume24hAssetB,
         });
       } else {
-        setError(result.error || 'BTC/USDB pool not found');
+        setError(
+          result.error || t('screens.inAccount.swapsPage.noPoolFoundBackup'),
+        );
       }
     } catch (err) {
       console.error('Load pool info error:', err);
-      setError('Failed to load pool information');
+      setError(t('screens.inAccount.swapsPage.loadPoolError'));
     } finally {
       setIsLoadingPool(false);
     }
@@ -268,11 +270,19 @@ export default function SwapsPage() {
         }
 
         if (parseFloat(result.simulation.priceImpact) > 3) {
-          setError(`High price impact: ${result.simulation.priceImpact}%`);
+          setError(
+            t('screens.inAccount.swapsPage.highPriceImpact', {
+              priceImpact: result.simulation.priceImpact,
+            }),
+          );
         }
       } else {
         const errorInfo = handleFlashnetError(result.details);
-        setError(errorInfo.message || result.error || 'Simulation failed');
+        setError(
+          errorInfo.message ||
+            result.error ||
+            t('screens.inAccount.swapsPage.failedSimulation'),
+        );
         if (isForwardDirection) {
           setToAmount('0');
         } else {
@@ -281,7 +291,7 @@ export default function SwapsPage() {
       }
     } catch (err) {
       console.error('Simulate swap error:', err);
-      setError('Failed to calculate swap amount');
+      setError(t('screens.inAccount.swapsPage.swapAmountCalculatorFailed'));
       if (direction === 'from') {
         setToAmount('0');
       } else {
@@ -403,7 +413,7 @@ export default function SwapsPage() {
   const executeSwapAction = async () => {
     if (!poolInfo || !fromAmount || parseFloat(fromAmount) <= 0) {
       navigate.navigate('ErrorScreen', {
-        errorMessage: 'Please enter a valid amount',
+        errorMessage: t('screens.inAccount.swapsPage.invalidAmount'),
       });
       return;
     }
@@ -416,10 +426,9 @@ export default function SwapsPage() {
     }
 
     navigate.navigate('ConfirmActionPage', {
-      confirmMessage: t(
-        `Price Impact: ${priceImpact?.toFixed(2) || 'N/A'}%\n` +
-          'Do you still want to swap?',
-      ),
+      confirmMessage: t('screens.inAccount.swapsPage.priceImpact', {
+        impact: priceImpact?.toFixed(2) || 'N/A',
+      }),
       confirmFunction: () => performSwap(),
     });
   };
@@ -469,25 +478,29 @@ export default function SwapsPage() {
         const errorInfo = handleFlashnetError(result.details);
 
         let errorMessage =
-          errorInfo.userMessage || result.error || 'Swap failed';
+          errorInfo.userMessage ||
+          result.error ||
+          t('screens.inAccount.swapsPage.swapFailedBackupError');
 
         if (errorInfo.clawback) {
           if (errorInfo.clawback.allRecovered) {
-            errorMessage +=
-              '\n\n✅ Your funds have been automatically recovered.';
+            errorMessage += t(
+              'screens.inAccount.swapsPage.swapAutomaticRecovery',
+            );
           } else if (errorInfo.clawback.partialRecovered) {
-            errorMessage += `\n\n⚠️ Some funds recovered automatically (${errorInfo.clawback.recoveredCount}).`;
+            errorMessage += t(
+              'screens.inAccount.swapsPage.swapPartialRecovery',
+              { count: errorInfo.clawback.recoveredCount },
+            );
           }
         } else if (errorInfo.autoRefund) {
-          errorMessage += '\n\n✅ Your funds will be automatically refunded.';
+          errorMessage += t('screens.inAccount.swapsPage.swapFutureRecovery');
         }
 
         if (errorInfo.type === 'slippage') {
-          errorMessage +=
-            '\n\n💡 Try increasing slippage tolerance or waiting for better market conditions.';
+          errorMessage += t('screens.inAccount.swapsPage.swapSlippageError');
         } else if (errorInfo.type === 'insufficient_liquidity') {
-          errorMessage +=
-            '\n\n💡 Try swapping a smaller amount or waiting for more liquidity.';
+          errorMessage += t('screens.inAccount.swapsPage.swapLiquidityError');
         }
 
         navigate.navigate('errorScreen', { errorMessage: errorMessage });
@@ -496,10 +509,9 @@ export default function SwapsPage() {
     } catch (err) {
       console.error('Execute swap error:', err);
       navigate.navigate('errorScreen', {
-        errorMessage:
-          'An unexpected error occurred during the swap. Please try again.',
+        errorMessage: t('screens.inAccount.swapsPage.fullSwapError'),
       });
-      setError('Swap execution failed');
+      setError(t('screens.inAccount.swapsPage.fullSwapError'));
     } finally {
       setIsSwapping(false);
     }
@@ -521,7 +533,8 @@ export default function SwapsPage() {
     !isSwapping &&
     !isLoadingPool &&
     poolInfo &&
-    (!error || error.includes('High price impact'));
+    (!error ||
+      error.includes(t('screens.inAccount.swapsPage.checkSwapMessage')));
 
   if (confirmedSwap) {
     const isBtcToUsdb = fromAsset === 'BTC';
@@ -552,7 +565,7 @@ export default function SwapsPage() {
               fontSize: SIZES.xLarge,
               marginBottom: 8,
             }}
-            content={'Swap Confirmed'}
+            content={t('screens.inAccount.swapsPage.swapConfimred')}
           />
 
           {/* Main Details Card */}
@@ -569,7 +582,10 @@ export default function SwapsPage() {
                 },
               ]}
             >
-              <ThemeText styles={styles.detailLabel} content={'You sent'} />
+              <ThemeText
+                styles={styles.detailLabel}
+                content={t('screens.inAccount.swapsPage.youSent')}
+              />
               <ThemeText
                 styles={styles.detailAmount}
                 content={displayCorrectDenomination({
@@ -616,7 +632,10 @@ export default function SwapsPage() {
                 },
               ]}
             >
-              <ThemeText styles={styles.detailLabel} content={'You received'} />
+              <ThemeText
+                styles={styles.detailLabel}
+                content={t('screens.inAccount.swapsPage.youReceived')}
+              />
               <ThemeText
                 styles={styles.detailAmount}
                 content={displayCorrectDenomination({
@@ -643,7 +662,7 @@ export default function SwapsPage() {
                 <ThemeText
                   CustomNumberOfLines={1}
                   styles={styles.detailRowLabel}
-                  content={'Fee'}
+                  content={t('constants.fee')}
                 />
                 <ThemeText
                   styles={styles.detailRowValue}
@@ -682,7 +701,7 @@ export default function SwapsPage() {
               setConfirmedSwap(null);
               clearPageStates();
             }}
-            textContent={'New Swap'}
+            textContent={t('screens.inAccount.swapsPage.newSwap')}
           />
         </ScrollView>
       </GlobalThemeView>
@@ -706,7 +725,7 @@ export default function SwapsPage() {
               <View style={styles.loadingContainer}>
                 <FullLoadingScreen
                   textStyles={styles.loadingText}
-                  text={'Loading pool information...'}
+                  text={t('screens.inAccount.swapsPage.loadingPool')}
                 />
               </View>
             )}
@@ -727,16 +746,18 @@ export default function SwapsPage() {
                     <View style={styles.cardHeader}>
                       <ThemeText
                         styles={styles.label}
-                        content={`I have ${displayCorrectDenomination({
-                          amount: displayBalance,
-                          masterInfoObject: {
-                            ...masterInfoObject,
-                            userBalanceDenomination:
-                              fromAsset === 'BTC' ? 'sats' : 'fiat',
-                          },
-                          forceCurrency: 'USD',
-                          fiatStats,
-                        })}`}
+                        content={t('screens.inAccount.swapsPage.fromBalance', {
+                          amount: displayCorrectDenomination({
+                            amount: displayBalance,
+                            masterInfoObject: {
+                              ...masterInfoObject,
+                              userBalanceDenomination:
+                                fromAsset === 'BTC' ? 'sats' : 'fiat',
+                            },
+                            forceCurrency: 'USD',
+                            fiatStats,
+                          }),
+                        })}
                       />
                       {isSimulating && lastEditedField === 'to' && (
                         <FullLoadingScreen
@@ -838,7 +859,10 @@ export default function SwapsPage() {
                     ]}
                   >
                     <View style={styles.cardHeader}>
-                      <ThemeText styles={styles.label} content={`I want`} />
+                      <ThemeText
+                        styles={styles.label}
+                        content={t('screens.inAccount.swapsPage.toBalance')}
+                      />
                       {isSimulating && lastEditedField === 'from' && (
                         <FullLoadingScreen
                           showText={false}
@@ -916,7 +940,7 @@ export default function SwapsPage() {
                   >
                     <ThemeText
                       styles={styles.quickButtonText}
-                      content={'MIN'}
+                      content={t('screens.inAccount.swapsPage.min')}
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -930,7 +954,7 @@ export default function SwapsPage() {
                   >
                     <ThemeText
                       styles={styles.quickButtonText}
-                      content={'HALF'}
+                      content={t('screens.inAccount.swapsPage.half')}
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -944,7 +968,7 @@ export default function SwapsPage() {
                   >
                     <ThemeText
                       styles={styles.quickButtonText}
-                      content={'MAX'}
+                      content={t('screens.inAccount.swapsPage.max')}
                     />
                   </TouchableOpacity>
                 </View>
@@ -981,10 +1005,17 @@ export default function SwapsPage() {
                       }}
                       textContent={
                         isSwapping
-                          ? 'Swapping...'
+                          ? t(
+                              'screens.inAccount.swapsPage.swappingMessageButton',
+                            )
                           : isLoadingPool
-                          ? 'Loading...'
-                          : `Swap ${fromAsset} → ${toAsset}`
+                          ? t(
+                              'screens.inAccount.swapsPage.loadingMessageButton',
+                            )
+                          : t('screens.inAccount.swapsPage.swapMessageButton', {
+                              fromAsset,
+                              toAsset,
+                            })
                       }
                       actionFunction={executeSwapAction}
                       disabled={!canSwap}
@@ -992,9 +1023,7 @@ export default function SwapsPage() {
 
                     <ThemeText
                       styles={styles.disclaimer}
-                      content={
-                        'Swap services are available through third-party API providers.'
-                      }
+                      content={t('screens.inAccount.swapsPage.swapDisclaimer')}
                     />
                   </>
                 )}
@@ -1005,15 +1034,19 @@ export default function SwapsPage() {
               <View style={styles.errorStateContainer}>
                 <ThemeText
                   styles={styles.errorStateTitle}
-                  content="Service Unavailable"
+                  content={t(
+                    'screens.inAccount.swapsPage.serviceUnavailableHead',
+                  )}
                 />
                 <ThemeText
                   styles={styles.errorStateMessage}
-                  content="Unable to connect to swap service. Please check your connection and try again."
+                  content={t(
+                    'screens.inAccount.swapsPage.serviceUnavailableDesc',
+                  )}
                 />
                 <CustomButton
                   buttonStyles={{ marginTop: 20 }}
-                  textContent="Retry"
+                  textContent={t('constants.retry')}
                   actionFunction={loadPoolInfo}
                 />
               </View>
