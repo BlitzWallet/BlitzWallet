@@ -35,6 +35,7 @@ import {
   USD_ASSET_ADDRESS,
   requestManualClawback,
   listClawbackableTransfers,
+  getUserSwapHistory,
 } from '../../functions/spark/flashnet';
 
 import { useActiveCustodyAccount } from '../../../context-store/activeAccount';
@@ -45,6 +46,7 @@ import { updateConfirmAnimation } from '../../functions/lottieViewColorTransform
 import LottieView from 'lottie-react-native';
 import { useAppStatus } from '../../../context-store/appStatus';
 import {
+  bulkUpdateSparkTransactions,
   SPARK_TX_UPDATE_ENVENT_NAME,
   sparkTransactionsEventEmitter,
 } from '../../functions/spark/transactions';
@@ -457,6 +459,8 @@ export default function SwapsPage() {
             poolId: poolInfo.lpPublicKey,
           });
 
+      console.log('Execure swap response', result);
+
       if (result.didWork && result.swap) {
         const realReceivedAmount = isBtcToUsdb
           ? (parseFloat(result.swap.amountOut) / Math.pow(10, decimals)) *
@@ -467,10 +471,129 @@ export default function SwapsPage() {
             SATS_PER_DOLLAR,
         );
         setConfirmedSwap({ ...result.swap, realReceivedAmount, realFeeAmount });
-        sparkTransactionsEventEmitter.emit(
-          SPARK_TX_UPDATE_ENVENT_NAME,
-          'fullUpdate',
+
+        const userSwaps = await getUserSwapHistory(currentWalletMnemoinc, 10);
+
+        const swap = userSwaps.swaps.find(
+          savedSwap =>
+            savedSwap.outboundTransferId === result.swap.outboundTransferId,
         );
+
+        let incomingTransfer, outgoingTransfer;
+
+        if (swap) {
+          if (isBtcToUsdb) {
+            incomingTransfer = {
+              id: swap.outboundTransferId,
+              paymentStatus: 'completed',
+              paymentType: 'spark',
+              accountId: sparkInformation.identityPubKey,
+              details: {
+                fee: realFeeAmount,
+                totalFee: realFeeAmount,
+                supportFee: 0,
+                amount: parseFloat(result.swap.amountOut),
+                description: t(
+                  'screens.inAccount.swapsPage.paymentDescription_incoming',
+                  {
+                    swapDirection: t(
+                      'screens.inAccount.swapsPage.swapDirection_btcusd',
+                    ),
+                  },
+                ),
+                address: sparkInformation.sparkAddress,
+                time: Date.now() + 1000,
+                createdAt: Date.now() + 1000,
+                direction: 'INCOMING',
+                isLRC20Payment: true,
+                LRC20Token: USDB_TOKEN_ID,
+              },
+            };
+            outgoingTransfer = {
+              id: swap.inboundTransferId,
+              paymentStatus: 'completed',
+              paymentType: 'spark',
+              accountId: sparkInformation.identityPubKey,
+              details: {
+                fee: 0,
+                totalFee: 0,
+                supportFee: 0,
+                amount: parseFloat(swap.amountIn),
+                description: t(
+                  'screens.inAccount.swapsPage.paymentDescription_outgoing',
+                  {
+                    swapDirection: t(
+                      'screens.inAccount.swapsPage.swapDirection_btcusd',
+                    ),
+                  },
+                ),
+                address: sparkInformation.sparkAddress,
+                time: Date.now(),
+                createdAt: Date.now(),
+                direction: 'OUTGOING',
+              },
+            };
+          } else {
+            incomingTransfer = {
+              id: swap.outboundTransferId,
+              paymentStatus: 'pending',
+              paymentType: 'spark',
+              accountId: sparkInformation.identityPubKey,
+              details: {
+                fee: realFeeAmount,
+                totalFee: realFeeAmount,
+                supportFee: 0,
+                amount: parseFloat(swap.amountOut),
+                description: t(
+                  'screens.inAccount.swapsPage.paymentDescription_incoming',
+                  {
+                    swapDirection: t(
+                      'screens.inAccount.swapsPage.swapDirection_usdbtc',
+                    ),
+                  },
+                ),
+                address: sparkInformation.sparkAddress,
+                time: Date.now() + 1000,
+                createdAt: Date.now() + 1000,
+                direction: 'INCOMING',
+              },
+            };
+            outgoingTransfer = {
+              id: swap.inboundTransferId,
+              paymentStatus: 'completed',
+              paymentType: 'spark',
+              accountId: sparkInformation.identityPubKey,
+              details: {
+                fee: 0,
+                totalFee: 0,
+                supportFee: 0,
+                amount: parseFloat(swap.amountIn),
+                description: t(
+                  'screens.inAccount.swapsPage.paymentDescription_outgoing',
+                  {
+                    swapDirection: t(
+                      'screens.inAccount.swapsPage.swapDirection_usdbtc',
+                    ),
+                  },
+                ),
+                address: sparkInformation.sparkAddress,
+                time: Date.now(),
+                createdAt: Date.now(),
+                direction: 'OUTGOING',
+                isLRC20Payment: true,
+                LRC20Token: USDB_TOKEN_ID,
+              },
+            };
+          }
+        }
+
+        if (incomingTransfer && outgoingTransfer) {
+          bulkUpdateSparkTransactions(
+            [incomingTransfer, outgoingTransfer],
+            'fullUpdate',
+          );
+        }
+
         requestAnimationFrame(() => {
           animationRef.current?.play();
         });
@@ -503,12 +626,12 @@ export default function SwapsPage() {
           errorMessage += t('screens.inAccount.swapsPage.swapLiquidityError');
         }
 
-        navigate.navigate('errorScreen', { errorMessage: errorMessage });
+        navigate.navigate('ErrorScreen', { errorMessage: errorMessage });
         setError(errorInfo.userMessage || result.error);
       }
     } catch (err) {
       console.error('Execute swap error:', err);
-      navigate.navigate('errorScreen', {
+      navigate.navigate('ErrorScreen', {
         errorMessage: t('screens.inAccount.swapsPage.fullSwapError'),
       });
       setError(t('screens.inAccount.swapsPage.fullSwapError'));

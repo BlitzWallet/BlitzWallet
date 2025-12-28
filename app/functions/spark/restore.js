@@ -976,8 +976,7 @@ async function processSparkTransactions(
   let updatedTxs = [];
   for (const txStateUpdate of sparkTxs) {
     const details = JSON.parse(txStateUpdate.details);
-
-    if (details.isGift) {
+    if (IS_SPARK_ID.test(txStateUpdate.sparkID)) {
       const findTxResponse = await getSingleTxDetails(
         mnemonic,
         txStateUpdate.sparkID,
@@ -985,7 +984,10 @@ async function processSparkTransactions(
 
       if (!findTxResponse) continue;
 
-      includesGift = true;
+      if (details.isGift) {
+        includesGift = true;
+      }
+
       updatedTxs.push({
         id: txStateUpdate.sparkID,
         paymentStatus: getSparkPaymentStatus(findTxResponse.status),
