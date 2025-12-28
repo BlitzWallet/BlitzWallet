@@ -5,6 +5,7 @@
 
 import { FlashnetClient, isFlashnetError } from '@flashnet/sdk';
 import { getFlashnetClient, selectSparkRuntime } from '.';
+import i18next from 'i18next';
 
 // ============================================
 // CONSTANTS
@@ -100,7 +101,12 @@ export const findBestPool = async (
     console.log(pools, 'test');
 
     if (!pools.pools || pools.pools.length === 0) {
-      throw new Error(`No pools found for ${tokenAAddress}/${tokenBAddress}`);
+      throw new Error(
+        i18next.t('screens.inAccount.swapsPage.noPoolsFoundError', {
+          tokenAAddress,
+          tokenBAddress,
+        }),
+      );
     }
 
     // Return the best pool (highest TVL)
@@ -547,6 +553,8 @@ export const payLightningWithToken = async (
       integratorPublicKey: process.env.BLITZ_SPARK_PUBLICKEY,
     });
 
+    console.log('token lightning payment response:', result);
+
     if (result.success) {
       return {
         didWork: true,
@@ -602,6 +610,8 @@ export const getUserSwapHistory = async (mnemonic, limit = 50) => {
     const client = getFlashnetClient(mnemonic);
 
     const result = await client.getUserSwaps();
+
+    console.log('User swap history response:', result);
 
     return {
       didWork: true,
@@ -791,18 +801,16 @@ export const handleFlashnetError = error => {
   // Check for specific error types
   if (error.isSlippageError()) {
     errorInfo.type = 'slippage';
-    errorInfo.userMessage =
-      'Price moved too much. Try increasing slippage tolerance.';
+    errorInfo.userMessage = 'screens.inAccount.swapPages.slippageError';
   } else if (error.isInsufficientLiquidityError()) {
     errorInfo.type = 'insufficient_liquidity';
-    errorInfo.userMessage =
-      'Not enough liquidity. Try a smaller amount or different pool.';
+    errorInfo.userMessage = 'screens.inAccount.swapPages.noLiquidity';
   } else if (error.isAuthError()) {
     errorInfo.type = 'authentication';
-    errorInfo.userMessage = 'Authentication failed. Please reconnect.';
+    errorInfo.userMessage = 'screens.inAccount.swapPages.authenticationError';
   } else if (error.isPoolNotFoundError()) {
     errorInfo.type = 'pool_not_found';
-    errorInfo.userMessage = 'Pool does not exist.';
+    errorInfo.userMessage = 'screens.inAccount.swapPages.noPoolError';
   }
 
   // Check fund recovery status
@@ -816,15 +824,19 @@ export const handleFlashnetError = error => {
 
     if (errorInfo.clawback.allRecovered) {
       errorInfo.userMessage =
-        errorInfo.userMessage + ' Funds recovered automatically.';
+        errorInfo.userMessage +
+        ' ' +
+        'screens.inAccount.swapPages.automaticRecovery';
     } else if (errorInfo.clawback.partialRecovered) {
       errorInfo.userMessage =
-        errorInfo.userMessage + ' Some funds need manual recovery.';
+        errorInfo.userMessage +
+        ' ' +
+        'screens.inAccount.swapPages.semiRecovered';
     }
   } else if (error.willAutoRefund?.()) {
     errorInfo.autoRefund = true;
     errorInfo.userMessage =
-      errorInfo.userMessage + ' Funds will be returned automatically.';
+      errorInfo.userMessage + ' ' + 'screens.inAccount.swapPages.willRecover';
   }
 
   return errorInfo;

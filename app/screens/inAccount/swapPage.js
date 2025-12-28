@@ -281,7 +281,7 @@ export default function SwapsPage() {
       } else {
         const errorInfo = handleFlashnetError(result.details);
         setError(
-          errorInfo.message ||
+          t(errorInfo.message) ||
             result.error ||
             t('screens.inAccount.swapsPage.failedSimulation'),
         );
@@ -601,7 +601,7 @@ export default function SwapsPage() {
         const errorInfo = handleFlashnetError(result.details);
 
         let errorMessage =
-          errorInfo.userMessage ||
+          t(errorInfo.userMessage) ||
           result.error ||
           t('screens.inAccount.swapsPage.swapFailedBackupError');
 
