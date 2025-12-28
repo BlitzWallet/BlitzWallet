@@ -156,6 +156,27 @@ export const SliderProgressAnimation = ({
     }
   };
 
+  // Function to pause and reset to beginning
+  const startAtBeginning = () => {
+    if (isCompletedRef.current) return;
+
+    isPausedRef.current = true;
+    pausedAtRef.current = 0;
+    pauseTimeRef.current = Date.now();
+    setIsPaused(true);
+
+    cancelAnimation(progress);
+
+    progress.value = 0;
+
+    setCurrentPercentage(0);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
+
   // Function to resume the animation
   const startProgress = () => {
     if (isCompletedRef.current || !isPausedRef.current) return;
@@ -207,6 +228,7 @@ export const SliderProgressAnimation = ({
       completeProgress,
       pauseProgress,
       startProgress,
+      startAtBeginning,
     }),
     [],
   );
