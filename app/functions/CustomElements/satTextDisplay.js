@@ -6,12 +6,12 @@ import {
   FONT,
   HIDDEN_BALANCE_TEXT,
   SIZES,
-  TOKEN_TICKER_MAX_LENGTH,
 } from '../../constants';
 import ThemeText from './textTheme';
 import { formatCurrency } from '../formatCurrency';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import formatBalanceAmount from '../formatNumber';
+import formatTokensLabel from '../lrc20/formatTokensLabel';
 import numberConverter from '../numberConverter';
 import { useMemo } from 'react';
 
@@ -153,10 +153,7 @@ export default function FormattedSatText({
           marginLeft: frontText ? 0 : 'auto',
         },
       ),
-      renderText(
-        ` ${customLabel?.toUpperCase()?.slice(0, TOKEN_TICKER_MAX_LENGTH)}`,
-        { flexShrink: 1 },
-      ),
+      renderText(` ${formatTokensLabel(customLabel)}`, { flexShrink: 1 }),
       backText && renderText(backText),
     ];
   } else if (showSats) {

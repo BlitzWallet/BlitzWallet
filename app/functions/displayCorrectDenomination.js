@@ -1,6 +1,7 @@
 import { BITCOIN_SAT_TEXT, BITCOIN_SATS_ICON } from '../constants';
 import { formatCurrency } from './formatCurrency';
 import formatBalanceAmount from './formatNumber';
+import formatTokensLabel from './lrc20/formatTokensLabel';
 import numberConverter from './numberConverter';
 
 export default function displayCorrectDenomination({
@@ -25,7 +26,7 @@ export default function displayCorrectDenomination({
         useMillionDenomination,
         masterInfoObject,
       );
-      const labelText = customLabel?.toUpperCase()?.slice(0, 10) || '';
+      const labelText = formatTokensLabel(customLabel);
       return `${formattedBalance} ${labelText}`;
     }
 
