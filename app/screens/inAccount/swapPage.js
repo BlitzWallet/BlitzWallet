@@ -26,10 +26,8 @@ import CustomButton from '../../functions/CustomElements/button';
 import {
   findBestPool,
   simulateSwap,
-  executeSwap,
   swapBitcoinToToken,
   swapTokenToBitcoin,
-  checkSwapViability,
   handleFlashnetError,
   BTC_ASSET_ADDRESS,
   USD_ASSET_ADDRESS,
@@ -55,11 +53,13 @@ import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import CustomNumberKeyboard from '../../functions/CustomElements/customNumberKeyboard';
 import { formatBalanceAmount } from '../../functions';
 import customUUID from '../../functions/customUUID';
+import { useFlashnet } from '../../../context-store/flashnetContext';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 
 export default function SwapsPage() {
   const navigate = useNavigation();
+  const { poolInfo: globalPoolInfo, togglePoolInfo } = useFlashnet();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { sparkInformation, USD_BALANCE } = useSparkWallet();
   const { screenDimensions } = useAppStatus();
@@ -119,7 +119,12 @@ export default function SwapsPage() {
 
   // Load pool information on mount
   useEffect(() => {
-    loadPoolInfo();
+    if (globalPoolInfo) {
+      setPoolInfo(globalPoolInfo);
+      setIsLoadingPool(false);
+    } else {
+      loadPoolInfo();
+    }
   }, []);
 
   const clearPageStates = () => {
@@ -146,6 +151,7 @@ export default function SwapsPage() {
 
       if (result.didWork && result.pool) {
         setPoolInfo(result.pool);
+        togglePoolInfo(result.pool);
         console.log('✓ Found BTC/USDB pool:', {
           poolId: result.pool.lpPublicKey,
           tvl: result.pool.tvlAssetB,
