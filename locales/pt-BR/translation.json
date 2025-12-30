@@ -1326,14 +1326,14 @@
       "contact": "Contato",
       "lnurl": "LNURL",
       "nostrZaps": "Nostr zaps",
-      "nwc": "Nostr Wallet Connect",
+      "nwc": "Conexão Nostr",
       "pos": "Ponto de venda"
     },
     "nostrHome": {
       "nip5Title": "Verificação Nip5",
       "nip5Desc": "Verifique rapidamente sua identidade Nostr usando a Blitz.",
-      "nwcTitle": "Nostr Wallet Connect",
-      "nwcDesc": "Conecte sua carteira Blitz aos aplicativos que usam o Nostr."
+      "nwcTitle": "Conexão Nostr",
+      "nwcDesc": "Conecte sua conta aos aplicativos que usam o Nostr."
     },
     "fiatCurrency": {
       "title": "Moeda de exibição",
@@ -1371,19 +1371,19 @@
       }
     },
     "nwc": {
-      "confirmDelete": "Tem certeza de que deseja excluir este item do Nostr Connect?",
-      "searchAccountPlaceholder": "Pesquisar conta NWC",
-      "noAccountsMessage": "Você não tem contas Nostr Connect.",
-      "addAccount": "Adicionar conta",
+      "confirmDelete": "Tem certeza de que deseja excluir esta permissão?",
+      "searchAccountPlaceholder": "Pesquisar permissões",
+      "noAccountsMessage": "Você não tem permissões concedidas.",
+      "addAccount": "Nova permissão",
       "createNWCAccount": {
-        "noAccountNameError": "Por favor, insira um nome de conta.",
+        "noAccountNameError": "Por favor, insira um nome para essa permissão.",
         "noPermissionsError": "Por favor, habilite pelo menos uma permissão.",
         "noBudgetError": "Selecione um período de renovação de orçamento.",
         "noBudgetAmountError": "Selecione um valor de orçamento.",
-        "title": "Criar conta",
-        "loadingMessage": "Criando conta",
-        "nameInputPlaceholder": "Digite o nome da conta NWC",
-        "permissionsHeader": "Permissões de carteira",
+        "title": "Criar permissão",
+        "loadingMessage": "Criando permissão",
+        "nameInputPlaceholder": "Digite o nome para essa permissão",
+        "permissionsHeader": "Opções",
         "receivePayments": "Receber pagamentos",
         "sendPayments": "Enviar pagamentos",
         "getBalance": "Verificar saldo",
@@ -1396,14 +1396,14 @@
       },
 
       "hasNoAccounts": {
-        "wanringMessage": "Para enviar dinheiro da sua carteira Nostr Connect, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua carteira principal.\n\n Você pode transferir fundos da sua carteira principal para a NWC na página de configurações da conta."
+        "wanringMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua carteira principal para a NWC na página de configurações da conta."
       },
       "noNotifications": {
-        "wanringMessage": "Para usar o Nostr Wallet Connect, você precisa ter a notificação push do Nostr Wallet Connect habilitada.\n\nHabilite as notificações push nas configurações e tente novamente."
+        "wanringMessage": "Para usar as funcionalidades da conta com conexão Nostr, você precisa ter a notificação conexão Nostr habilitada.\n\nHabilite a opção nas notificações e tente novamente."
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase-semente",
-        "wanringMessage": "Para manter sua carteira segura, o Nostr Wallet Connect cria uma frase-semente separada da sua carteira principal.\n\nEsta carteira usa o segundo caminho de derivação e sempre pode ser recuperada usando a frase-semente da sua carteira principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da carteira, anote esta frase-semente.",
+        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase-semente separada.\n\nEsta conta usa o segundo caminho de derivação e sempre pode ser recuperada usando a frase-semente da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da carteira, anote esta frase-semente.",
         "viewSeed": "Ver frase-semente"
       }
     },
