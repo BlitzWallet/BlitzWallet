@@ -1396,14 +1396,14 @@
       },
 
       "hasNoAccounts": {
-        "wanringMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua carteira principal para a NWC na página de configurações da conta."
+        "wanringMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua carteira principal para a conta Nostr na página de configurações da conta."
       },
       "noNotifications": {
         "wanringMessage": "Para usar as funcionalidades da conta com conexão Nostr, você precisa ter a notificação conexão Nostr habilitada.\n\nHabilite a opção nas notificações e tente novamente."
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase-semente",
-        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase-semente separada.\n\nEsta conta usa o segundo caminho de derivação e sempre pode ser recuperada usando a frase-semente da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da carteira, anote esta frase-semente.",
+        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase-semente separada.\n\nEsta conta sempre pode ser recuperada usando a frase-semente da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase-semente.",
         "viewSeed": "Ver frase-semente"
       }
     },
