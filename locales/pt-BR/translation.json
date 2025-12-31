@@ -1382,7 +1382,7 @@
         "noBudgetAmountError": "Selecione um valor de orçamento.",
         "title": "Criar conexão",
         "loadingMessage": "Criando conexão",
-        "nameInputPlaceholder": "Digite o nome para essa conexão",
+        "nameInputPlaceholder": "Digite um nome para essa conexão Nostr",
         "permissionsHeader": "Permissões",
         "receivePayments": "Receber pagamentos",
         "sendPayments": "Enviar pagamentos",
