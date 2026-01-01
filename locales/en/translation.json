@@ -1751,7 +1751,7 @@
           "reclaimHead": "Refund Gift",
           "claimLoading": "Claiming your gift… please stay in the app.",
           "reclaimLoading": "Returning your funds… please stay in the app.",
-          "claimAmountHead": "Receving amount",
+          "claimAmountHead": "Receiving amount",
           "reclaimAmountHead": "Amount Restored",
           "reclaimAmountHeadExpert": "Gift Number Restored",
           "networkFeeWarningExpert": "Any amount found, minus network fees, will be added to your balance",
