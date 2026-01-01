@@ -162,13 +162,13 @@ function App(): JSX.Element {
                                                 <ImageCacheProvider>
                                                   <GlobalServerTimeProvider>
                                                     <GiftProvider>
-                                                      <UserBalanceProvider>
-                                                        <FlashnetProvider>
+                                                      <FlashnetProvider>
+                                                        <UserBalanceProvider>
                                                           {/* <Suspense
                     fallback={<FullLoadingScreen text={'Loading Page'} />}> */}
                                                           <ResetStack />
-                                                        </FlashnetProvider>
-                                                      </UserBalanceProvider>
+                                                        </UserBalanceProvider>
+                                                      </FlashnetProvider>
                                                     </GiftProvider>
                                                     {/* </Suspense> */}
                                                   </GlobalServerTimeProvider>
