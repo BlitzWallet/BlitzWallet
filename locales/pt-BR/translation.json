@@ -868,7 +868,7 @@
     "contactsPage": {
       "header": "Selecione o contato",
       "inputTextPlaceholder": "Procurar nome de usuário...",
-      "subHeader": "Todos contatos",
+      "subHeader": "Meus contatos",
       "giftsText": "Cartões-presente recebidos"
     },
     "cameraPage": {
