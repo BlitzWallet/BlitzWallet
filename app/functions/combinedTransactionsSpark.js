@@ -455,7 +455,6 @@ export const UserTransaction = memo(function UserTransaction({
               : '90deg',
         },
       ],
-      marginLeft: -5,
     }),
     [
       showPendingTransactionStatusIcon,
@@ -565,6 +564,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginRight: 5,
+    marginLeft: -5,
     alignItems: 'center',
     justifyContent: 'center',
   },
