@@ -11,7 +11,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { Bitcoin, DollarSign, ArrowDownUp } from 'lucide-react-native';
+import { ArrowDownUp } from 'lucide-react-native';
 import { CENTER, COLORS, ICONS, SIZES, USDB_TOKEN_ID } from '../../constants';
 import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
@@ -43,28 +43,30 @@ import { useTranslation } from 'react-i18next';
 import { updateConfirmAnimation } from '../../functions/lottieViewColorTransformer';
 import LottieView from 'lottie-react-native';
 import { useAppStatus } from '../../../context-store/appStatus';
-import {
-  bulkUpdateSparkTransactions,
-  SPARK_TX_UPDATE_ENVENT_NAME,
-  sparkTransactionsEventEmitter,
-} from '../../functions/spark/transactions';
+import { bulkUpdateSparkTransactions } from '../../functions/spark/transactions';
 import ThemeImage from '../../functions/CustomElements/themeImage';
 import FullLoadingScreen from '../../functions/CustomElements/loadingScreen';
 import CustomNumberKeyboard from '../../functions/CustomElements/customNumberKeyboard';
 import { formatBalanceAmount } from '../../functions';
 import customUUID from '../../functions/customUUID';
 import { useFlashnet } from '../../../context-store/flashnetContext';
+import { useUserBalanceContext } from '../../../context-store/userBalanceContext';
 
 const confirmTxAnimation = require('../../assets/confirmTxAnimation.json');
 
 export default function SwapsPage() {
   const navigate = useNavigation();
-  const { poolInfo: globalPoolInfo, togglePoolInfo } = useFlashnet();
+  const {
+    poolInfo: globalPoolInfo,
+    togglePoolInfo,
+    flatnet_sats_per_dollar,
+  } = useFlashnet();
+  const { dollarBalanceToken } = useUserBalanceContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
-  const { sparkInformation, USD_BALANCE } = useSparkWallet();
+  const { sparkInformation } = useSparkWallet();
   const { screenDimensions } = useAppStatus();
   const { masterInfoObject } = useGlobalContextProvider();
-  const { fiatStats, SATS_PER_DOLLAR } = useNodeContext();
+  const { fiatStats } = useNodeContext();
   const { theme, darkModeType } = useGlobalThemeContext();
   const { backgroundOffset, backgroundColor, textColor } = GetThemeColors();
   const { t } = useTranslation();
@@ -99,23 +101,16 @@ export default function SwapsPage() {
 
   // Get balances
   const tokenInformation = sparkInformation?.tokens?.[USDB_TOKEN_ID];
-  const usdBalance = USD_BALANCE;
+
   const btcBalance = sparkInformation?.balance || 0;
 
   const convertedFromAmount =
-    fromAsset === 'BTC' ? fromAmount : fromAmount * SATS_PER_DOLLAR;
+    fromAsset === 'BTC' ? fromAmount : fromAmount * flatnet_sats_per_dollar;
 
   const displayBalance =
-    fromAsset === 'BTC' ? btcBalance : usdBalance * SATS_PER_DOLLAR;
-
-  const executionPrice =
-    lastEditedField === 'from'
-      ? fromAsset === 'BTC'
-        ? simulationResult?.executionPrice
-        : simulationResult?.executionPrice * 1000000
-      : fromAsset === 'BTC'
-      ? simulationResult?.executionPrice * 1000000
-      : simulationResult?.executionPrice;
+    fromAsset === 'BTC'
+      ? btcBalance
+      : formatBalanceAmount(dollarBalanceToken, false, masterInfoObject);
 
   // Load pool information on mount
   useEffect(() => {
@@ -340,8 +335,10 @@ export default function SwapsPage() {
   };
 
   const setPercentage = percent => {
-    const balance = fromAsset === 'BTC' ? btcBalance : usdBalance;
-    const amount = (balance * percent).toString();
+    const balance = fromAsset === 'BTC' ? btcBalance : dollarBalanceToken;
+    const amount = (balance * percent)
+      .toFixed(fromAsset === 'BTC' ? 0 : 2)
+      .toString();
 
     setFromAmount(amount);
     setLastEditedField('from');
@@ -470,11 +467,11 @@ export default function SwapsPage() {
       if (result.didWork && result.swap) {
         const realReceivedAmount = isBtcToUsdb
           ? (parseFloat(result.swap.amountOut) / Math.pow(10, decimals)) *
-            SATS_PER_DOLLAR
+            flatnet_sats_per_dollar
           : parseFloat(result.swap.amountOut).toFixed(0);
         const realFeeAmount = Math.round(
           (parseFloat(result.swap.feeAmount) / Math.pow(10, decimals)) *
-            SATS_PER_DOLLAR,
+            flatnet_sats_per_dollar,
         );
         setConfirmedSwap({ ...result.swap, realReceivedAmount, realFeeAmount });
 
@@ -885,6 +882,7 @@ export default function SwapsPage() {
                             },
                             forceCurrency: 'USD',
                             fiatStats,
+                            convertAmount: fromAsset === 'BTC',
                           }),
                         })}
                       />
@@ -900,24 +898,30 @@ export default function SwapsPage() {
                     <View style={styles.assetRow}>
                       <View style={styles.assetInfo}>
                         <View
-                          style={[styles.iconContainer, { backgroundColor }]}
+                          style={[
+                            styles.iconContainer,
+                            {
+                              backgroundColor: theme
+                                ? backgroundColor
+                                : fromAsset === 'BTC'
+                                ? COLORS.bitcoinOrange
+                                : COLORS.dollarGreen,
+                            },
+                          ]}
                         >
                           {fromAsset === 'BTC' ? (
-                            <Bitcoin
-                              color={
-                                theme
-                                  ? COLORS.darkModeText
-                                  : COLORS.lightModeText
-                              }
+                            <ThemeImage
+                              styles={{ width: 25, height: 25 }}
+                              lightModeIcon={ICONS.bitcoinIcon}
+                              darkModeIcon={ICONS.bitcoinIcon}
+                              lightsOutIcon={ICONS.bitcoinIcon}
                             />
                           ) : (
-                            <DollarSign
-                              size={24}
-                              color={
-                                theme
-                                  ? COLORS.darkModeText
-                                  : COLORS.lightModeText
-                              }
+                            <ThemeImage
+                              styles={{ width: 25, height: 25 }}
+                              lightModeIcon={ICONS.dollarIcon}
+                              darkModeIcon={ICONS.dollarIcon}
+                              lightsOutIcon={ICONS.dollarIcon}
                             />
                           )}
                         </View>
@@ -1004,24 +1008,30 @@ export default function SwapsPage() {
                     <View style={styles.assetRow}>
                       <View style={styles.assetInfo}>
                         <View
-                          style={[styles.iconContainer, { backgroundColor }]}
+                          style={[
+                            styles.iconContainer,
+                            {
+                              backgroundColor: theme
+                                ? backgroundColor
+                                : fromAsset === 'USD'
+                                ? COLORS.bitcoinOrange
+                                : COLORS.dollarGreen,
+                            },
+                          ]}
                         >
                           {fromAsset !== 'BTC' ? (
-                            <Bitcoin
-                              color={
-                                theme
-                                  ? COLORS.darkModeText
-                                  : COLORS.lightModeText
-                              }
+                            <ThemeImage
+                              styles={{ width: 25, height: 25 }}
+                              lightModeIcon={ICONS.bitcoinIcon}
+                              darkModeIcon={ICONS.bitcoinIcon}
+                              lightsOutIcon={ICONS.bitcoinIcon}
                             />
                           ) : (
-                            <DollarSign
-                              size={24}
-                              color={
-                                theme
-                                  ? COLORS.darkModeText
-                                  : COLORS.lightModeText
-                              }
+                            <ThemeImage
+                              styles={{ width: 25, height: 25 }}
+                              lightModeIcon={ICONS.dollarIcon}
+                              darkModeIcon={ICONS.dollarIcon}
+                              lightsOutIcon={ICONS.dollarIcon}
                             />
                           )}
                         </View>
@@ -1130,22 +1140,16 @@ export default function SwapsPage() {
                     <CustomButton
                       buttonStyles={{
                         marginTop: 20,
-                        opacity: canSwap ? 1 : 0.5,
+                        opacity: canSwap || isSwapping ? 1 : 0.5,
                       }}
-                      textContent={
-                        isSwapping
-                          ? t(
-                              'screens.inAccount.swapsPage.swappingMessageButton',
-                            )
-                          : isLoadingPool
-                          ? t(
-                              'screens.inAccount.swapsPage.loadingMessageButton',
-                            )
-                          : t('screens.inAccount.swapsPage.swapMessageButton', {
-                              fromAsset,
-                              toAsset,
-                            })
-                      }
+                      useLoading={isSwapping || isLoadingPool}
+                      textContent={t(
+                        'screens.inAccount.swapsPage.swapMessageButton',
+                        {
+                          fromAsset,
+                          toAsset,
+                        },
+                      )}
                       actionFunction={executeSwapAction}
                       disabled={!canSwap}
                     />
