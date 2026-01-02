@@ -1,5 +1,6 @@
 import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
 import {
+  APPROXIMATE_SYMBOL,
   BLITZ_DEFAULT_PAYMENT_DESCRIPTION,
   CENTER,
   COLORS,
@@ -172,6 +173,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
     didGetToHomepage,
     enabledLRC20,
     scrollPosition,
+    flatnet_sats_per_dollar,
   } = props;
 
   // Remove unnecessary console.logs for performance
@@ -299,6 +301,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
           isFailedPayment={isFailedPayment}
           sparkInformation={sparkInformation}
           isLRC20Payment={isLRC20Payment}
+          flatnet_sats_per_dollar={flatnet_sats_per_dollar}
         />
       );
 
@@ -370,6 +373,7 @@ export const UserTransaction = memo(function UserTransaction({
   isFailedPayment,
   sparkInformation,
   isLRC20Payment,
+  flatnet_sats_per_dollar,
 }) {
   const { t } = useTranslation();
 
@@ -482,6 +486,10 @@ export const UserTransaction = memo(function UserTransaction({
     t,
   ]);
 
+  const showSwapConversion =
+    transaction.details.performSwaptoUSD &&
+    !transaction.details.completedSwaptoUSD;
+
   return (
     <TouchableOpacity
       style={{
@@ -528,25 +536,49 @@ export const UserTransaction = memo(function UserTransaction({
         />
       </View>
       {!isFailedPayment && (
-        <FormattedSatText
-          neverHideBalance={frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE}
-          containerStyles={styles.amountContainer}
-          frontText={
-            userBalanceDenomination !== 'hidden'
-              ? transaction.details.direction === TRANSACTION_CONSTANTS.INCOMING
-                ? '+'
-                : '-'
-              : ''
-          }
-          balance={
-            isLRC20Payment
-              ? formatTokensNumber(transaction.details.amount, token?.decimals)
-              : transaction.details.amount
-          }
-          useCustomLabel={isLRC20Payment}
-          customLabel={token?.tokenTicker?.slice(0, 3)}
-          useMillionDenomination={true}
-        />
+        <View
+          style={{
+            alignSelf: showSwapConversion ? 'center' : 'flex-start',
+          }}
+        >
+          <FormattedSatText
+            neverHideBalance={frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE}
+            containerStyles={styles.amountContainer}
+            frontText={
+              userBalanceDenomination !== 'hidden'
+                ? transaction.details.direction ===
+                  TRANSACTION_CONSTANTS.INCOMING
+                  ? '+'
+                  : '-'
+                : ''
+            }
+            balance={
+              isLRC20Payment
+                ? formatTokensNumber(
+                    transaction.details.amount,
+                    token?.decimals,
+                  )
+                : transaction.details.amount
+            }
+            useCustomLabel={isLRC20Payment}
+            customLabel={token?.tokenTicker?.slice(0, 3)}
+            useMillionDenomination={true}
+          />
+          {showSwapConversion && (
+            <FormattedSatText
+              styles={{ fontSize: SIZES.small }}
+              neverHideBalance={
+                frompage === TRANSACTION_CONSTANTS.VIEW_ALL_PAGE
+              }
+              containerStyles={styles.amountContainer}
+              frontText={APPROXIMATE_SYMBOL}
+              balance={flatnet_sats_per_dollar / transaction.details.amount}
+              useCustomLabel={true}
+              customLabel={'USD'}
+              useMillionDenomination={true}
+            />
+          )}
+        </View>
       )}
     </TouchableOpacity>
   );

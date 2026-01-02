@@ -1,7 +1,10 @@
 import { decode } from 'bolt11';
 import { getSparkPaymentStatus, sparkPaymentType } from '.';
 import calculateProgressiveBracketFee from './calculateSupportFee';
-import { deleteSparkContactTransaction } from './transactions';
+import {
+  deleteSparkContactTransaction,
+  updateSparkTransactionDetails,
+} from './transactions';
 
 export async function transformTxToPaymentObject(
   tx,
@@ -52,27 +55,41 @@ export async function transformTxToPaymentObject(
       paymentAmount,
       'lightning',
     );
-
     const foundInvoiceDetails = foundInvoice
       ? JSON.parse(foundInvoice.details)
       : undefined;
 
-    const description =
-      numTxsBeingRestored < 20
-        ? invoice
-          ? decode(invoice).tags.find(tag => tag.tagName === 'description')
-              ?.data ||
-            foundInvoice?.description ||
-            ''
-          : foundInvoice?.description || ''
-        : '';
+    const isSwapPayment = foundInvoice && foundInvoiceDetails.performSwaptoUSD;
+
+    if (isSwapPayment) {
+      updateSparkTransactionDetails(foundInvoice.sparkID, {
+        performSwaptoUSD: true,
+        finalSparkID: tx.transfer ? tx.transfer.sparkId : tx.id,
+      });
+    }
+
+    const description = isSwapPayment
+      ? 'BTC to USD Swap'
+      : numTxsBeingRestored < 20
+      ? invoice
+        ? decode(invoice).tags.find(tag => tag.tagName === 'description')
+            ?.data ||
+          foundInvoice?.description ||
+          ''
+        : foundInvoice?.description || ''
+      : '';
 
     return {
       id: tx.transfer ? tx.transfer.sparkId : tx.id,
-      paymentStatus: status === 'completed' || preimage ? 'completed' : status,
+      paymentStatus: isSwapPayment
+        ? 'pending'
+        : status === 'completed' || preimage
+        ? 'completed'
+        : status,
       paymentType: 'lightning',
       accountId: accountId,
       details: {
+        ...foundInvoiceDetails,
         fee: paymentFee,
         totalFee: paymentFee + supportFee,
         supportFee: supportFee,

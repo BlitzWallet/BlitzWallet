@@ -43,6 +43,7 @@ import {
 import { scheduleOnRN } from 'react-native-worklets';
 import { BalanceDots } from './homeLightning/balanceDots';
 import { useUserBalanceContext } from '../../../../context-store/userBalanceContext';
+import { useFlashnet } from '../../../../context-store/flashnetContext';
 
 const MemoizedNavBar = memo(NavBar);
 const MemoizedUserSatAmount = memo(UserSatAmount);
@@ -56,7 +57,8 @@ export default function HomeLightning() {
     isSendingPaymentRef,
     // numberOfCachedTxs
   } = useSparkWallet();
-  const { bitcoinBalance, dollarBalance, totalSatValue } =
+  const { flatnet_sats_per_dollar } = useFlashnet();
+  const { bitcoinBalance, dollarBalanceSat, totalSatValue } =
     useUserBalanceContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { theme, darkModeType, toggleTheme } = useGlobalThemeContext();
@@ -201,6 +203,7 @@ export default function HomeLightning() {
         didGetToHomepage,
         enabledLRC20,
         scrollPosition,
+        flatnet_sats_per_dollar,
       }) || []
     );
   }, [
@@ -216,6 +219,7 @@ export default function HomeLightning() {
     t,
     enabledLRC20,
     scrollPosition,
+    flatnet_sats_per_dollar,
   ]);
 
   // Memoize the list data
@@ -386,7 +390,7 @@ export default function HomeLightning() {
                   ? totalSatValue
                   : scrollPosition === 'sats'
                   ? bitcoinBalance
-                  : dollarBalance
+                  : dollarBalanceSat
               }
               forceCurrency={scrollPosition !== 'usd' ? '' : 'USD'}
               useSizing={true}

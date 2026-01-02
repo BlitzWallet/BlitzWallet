@@ -693,6 +693,9 @@ async function processLightningTransaction(
       ? JSON.parse(matchResult.savedInvoice.details)
       : {};
 
+    if (savedDetails.performSwaptoUSD && !savedDetails.completedSwaptoUSD)
+      return false;
+
     return {
       useTempId: true,
       tempId: txStateUpdate.sparkID,
