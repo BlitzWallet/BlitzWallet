@@ -1409,7 +1409,7 @@
     },
     "accountComponents": {
       "homepage": {
-        "addNewAccount": "Adicionar",
+        "addNewAccount": "Nova conta",
         "swap": "Transferir",
         "viewSeed": "Ver frase-semente",
         "editAccount": "Editar conta",
