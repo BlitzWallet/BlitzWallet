@@ -1403,7 +1403,7 @@
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase-semente",
-        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase-semente separada.\n\nEsta conta sempre pode ser recuperada usando a frase-semente da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase-semente.",
+        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase-semente separada.\n\nQualquer conta criada na Blitz pode ser recuperada usando a frase-semente da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase-semente.",
         "viewSeed": "Ver frase-semente"
       }
     },
