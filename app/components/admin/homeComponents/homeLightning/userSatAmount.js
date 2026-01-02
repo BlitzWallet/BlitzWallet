@@ -15,6 +15,7 @@ import GetThemeColors from '../../../../hooks/themeColors';
 import { useTranslation } from 'react-i18next';
 import { INSET_WINDOW_WIDTH } from '../../../../constants/theme';
 import { useUserBalanceContext } from '../../../../../context-store/userBalanceContext';
+import { formatBalanceAmount } from '../../../../functions';
 
 export const UserSatAmount = memo(function UserSatAmount({
   isConnectedToTheInternet,
@@ -24,7 +25,7 @@ export const UserSatAmount = memo(function UserSatAmount({
   mode,
 }) {
   // const didMount = useRef(null);
-  const { bitcoinBalance, dollarBalance, totalSatValue } =
+  const { bitcoinBalance, dollarBalanceToken, totalSatValue } =
     useUserBalanceContext();
 
   const { masterInfoObject, toggleMasterInfoObject, setMasterInfoObject } =
@@ -44,7 +45,7 @@ export const UserSatAmount = memo(function UserSatAmount({
       ? totalSatValue
       : mode === 'sats'
       ? bitcoinBalance
-      : dollarBalance;
+      : formatBalanceAmount(dollarBalanceToken, false, masterInfoObject);
   // useEffect(() => {
   //   didMount.current = true;
   //   return () => (didMount.current = false);
@@ -122,6 +123,7 @@ export const UserSatAmount = memo(function UserSatAmount({
               mode === 'total' ? undefined : mode === 'sats' ? 'sats' : 'fiat'
             }
             forceCurrency={mode === 'usd' ? 'USD' : null}
+            useBalance={mode === 'usd'}
           />
         </View>
       </SkeletonTextPlaceholder>
