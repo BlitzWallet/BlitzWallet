@@ -68,7 +68,7 @@ export const UserSatAmount = memo(function UserSatAmount({
       });
       return;
     }
-    if (!sparkInformation.didConnect) return;
+    if (!sparkInformation.identityPubKey) return;
 
     if (masterInfoObject.userBalanceDenomination === 'sats')
       handleDBStateChange(
@@ -97,7 +97,7 @@ export const UserSatAmount = memo(function UserSatAmount({
   }, [
     isConnectedToTheInternet,
     masterInfoObject.userBalanceDenomination,
-    sparkInformation.didConnect,
+    sparkInformation.identityPubKey,
   ]);
 
   return (
@@ -111,7 +111,7 @@ export const UserSatAmount = memo(function UserSatAmount({
         highlightColor={backgroundColor}
         backgroundColor={COLORS.opaicityGray}
         speed={SKELETON_ANIMATION_SPEED}
-        enabled={!sparkInformation.didConnect}
+        enabled={!sparkInformation.identityPubKey}
         layout={layout}
       >
         <View onLayout={event => setlayout(event.nativeEvent.layout)}>
