@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemeText } from '../../../../../functions/CustomElements';
 import { useGlobalThemeContext } from '../../../../../../context-store/theme';
-import { CENTER } from '../../../../../constants';
+import { CENTER, ICONS } from '../../../../../constants';
 import {
   COLORS,
   INSET_WINDOW_WIDTH,
@@ -10,12 +10,13 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-import { Bitcoin, DollarSign } from 'lucide-react-native';
 import CheckMarkCircle from '../../../../../functions/CustomElements/checkMarkCircle';
 import CustomButton from '../../../../../functions/CustomElements/button';
 import displayCorrectDenomination from '../../../../../functions/displayCorrectDenomination';
 import { useGlobalContextProvider } from '../../../../../../context-store/context';
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
+import GetThemeColors from '../../../../../hooks/themeColors';
+import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 
 export default function SelctPaymentMethod({
   sparkBalance,
@@ -28,6 +29,7 @@ export default function SelctPaymentMethod({
   const [selectedBalance, setSelectedBalance] = useState('');
 
   const { theme, darkModeType } = useGlobalThemeContext();
+  const { backgroundColor } = GetThemeColors();
   const { t } = useTranslation();
 
   const handleBalanceSelection = term => {
@@ -58,10 +60,21 @@ export default function SelctPaymentMethod({
         onPress={() => handleBalanceSelection('BTC')}
         style={styles.containerRow}
       >
-        <Bitcoin
-          color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-          size={30}
-        />
+        <View
+          style={[
+            styles.iconContainer,
+            {
+              backgroundColor: theme ? backgroundColor : COLORS.bitcoinOrange,
+            },
+          ]}
+        >
+          <ThemeImage
+            styles={{ width: 25, height: 25 }}
+            lightModeIcon={ICONS.bitcoinIcon}
+            darkModeIcon={ICONS.bitcoinIcon}
+            lightsOutIcon={ICONS.bitcoinIcon}
+          />
+        </View>
         <View style={styles.textContainer}>
           <ThemeText styles={styles.balanceTitle} content={'Bitcoin'} />
           <ThemeText
@@ -83,10 +96,21 @@ export default function SelctPaymentMethod({
         onPress={() => handleBalanceSelection('USD')}
         style={styles.containerRow}
       >
-        <DollarSign
-          color={theme ? COLORS.darkModeText : COLORS.lightModeText}
-          size={30}
-        />
+        <View
+          style={[
+            styles.iconContainer,
+            {
+              backgroundColor: theme ? backgroundColor : COLORS.dollarGreen,
+            },
+          ]}
+        >
+          <ThemeImage
+            styles={{ width: 25, height: 25 }}
+            lightModeIcon={ICONS.dollarIcon}
+            darkModeIcon={ICONS.dollarIcon}
+            lightsOutIcon={ICONS.dollarIcon}
+          />
+        </View>
         <View style={styles.textContainer}>
           <ThemeText styles={styles.balanceTitle} content={'USD'} />
           <ThemeText
@@ -129,14 +153,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
+
     borderRadius: 8,
     marginVertical: 5,
   },
   textContainer: {
     width: '100%',
     flexShrink: 1,
-    marginLeft: 20,
+    marginLeft: 15,
   },
   iconSize: {
     fontSize: SIZES.xxLarge,
@@ -175,5 +199,12 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     flex: 1,
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
