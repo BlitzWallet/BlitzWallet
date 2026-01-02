@@ -1119,7 +1119,7 @@ export const getSingleTxDetails = async (mnemonic, id) => {
 /**
  * Validates WebView response and throws if error present
  */
-const validateWebViewResponse = (response, errorMessage) => {
+export const validateWebViewResponse = (response, errorMessage) => {
   if (!response) {
     throw new Error(errorMessage || 'No response from WebView');
   }
