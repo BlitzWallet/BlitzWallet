@@ -13,7 +13,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { ArrowDownUp } from 'lucide-react-native';
 import { CENTER, COLORS, ICONS, SIZES, USDB_TOKEN_ID } from '../../constants';
-import { HIDDEN_OPACITY, INSET_WINDOW_WIDTH } from '../../constants/theme';
+import {
+  HIDDEN_OPACITY,
+  INSET_WINDOW_WIDTH,
+  WINDOWWIDTH,
+} from '../../constants/theme';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
@@ -111,6 +115,16 @@ export default function SwapsPage() {
     fromAsset === 'BTC'
       ? btcBalance
       : formatBalanceAmount(dollarBalanceToken, false, masterInfoObject);
+
+  const fromAssetLabel =
+    fromAsset === 'USD'
+      ? t('constants.dollars_upper')
+      : t('constants.bitcoin_upper');
+
+  const toAssetLabel =
+    toAsset === 'USD'
+      ? t('constants.dollars_upper')
+      : t('constants.bitcoin_upper');
 
   // Load pool information on mount
   useEffect(() => {
@@ -363,14 +377,14 @@ export default function SwapsPage() {
 
   // Calculate dynamic font size based on text length
   const getAmountFontSize = amount => {
-    if (!amount) return SIZES.xxLarge;
+    if (!amount) return SIZES.xLarge;
 
     const length = amount.toString().length;
 
-    if (length <= 6) return SIZES.xxLarge;
-    if (length <= 9) return SIZES.xLarge;
-    if (length <= 12) return SIZES.large;
-    if (length <= 15) return SIZES.medium;
+    if (length <= 6) return SIZES.xLarge;
+    if (length <= 9) return SIZES.large;
+    if (length <= 12) return SIZES.medium;
+    if (length <= 15) return SIZES.smedium;
     return SIZES.smedium;
   };
 
@@ -927,7 +941,7 @@ export default function SwapsPage() {
                         </View>
                         <ThemeText
                           styles={styles.assetText}
-                          content={fromAsset}
+                          content={fromAssetLabel}
                         />
                       </View>
                       <TouchableOpacity
@@ -950,7 +964,8 @@ export default function SwapsPage() {
                             fromAmount,
                             false,
                             masterInfoObject,
-                          ) || '0'}
+                          ) || '0'}{' '}
+                          {fromAsset === 'BTC' ? 'SAT' : 'USD'}
                         </Animated.Text>
                       </TouchableOpacity>
                     </View>
@@ -1037,7 +1052,7 @@ export default function SwapsPage() {
                         </View>
                         <ThemeText
                           styles={styles.assetText}
-                          content={toAsset}
+                          content={toAssetLabel}
                         />
                       </View>
                       <TouchableOpacity
@@ -1060,7 +1075,8 @@ export default function SwapsPage() {
                             toAmount,
                             false,
                             masterInfoObject,
-                          ) || '0'}
+                          ) || '0'}{' '}
+                          {toAsset === 'BTC' ? 'SAT' : 'USD'}
                         </Animated.Text>
                       </TouchableOpacity>
                     </View>
@@ -1262,7 +1278,7 @@ function HandleKeyboardRender({
 const styles = StyleSheet.create({
   scrollContainer: { flexGrow: 1, paddingTop: 20 },
   contentWrapper: {
-    width: INSET_WINDOW_WIDTH,
+    width: WINDOWWIDTH,
     maxWidth: 600,
     flexGrow: 1,
   },
