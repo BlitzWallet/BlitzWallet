@@ -51,6 +51,7 @@ import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useAppStatus } from '../../../context-store/appStatus';
 import SelectLRC20Token from '../../components/admin/homeComponents/sendBitcoin/components/selectLRC20Token';
 import SelectPaymentMethod from '../../components/admin/homeComponents/sendBitcoin/components/selectPaymentMethod';
+import SelectReceiveAsset from '../../components/admin/homeComponents/receiveBitcoin/selectReceiveAsset';
 import ClaimGiftScreen from '../../components/admin/homeComponents/gifts/claimGiftScreen';
 
 export default function CustomHalfModal(props) {
@@ -342,6 +343,14 @@ export default function CustomHalfModal(props) {
             claimType={props?.route?.params?.claimType}
             expertMode={props?.route?.params?.expertMode}
             customGiftIndex={props?.route?.params?.customGiftIndex}
+            theme={theme}
+            darkModeType={darkModeType}
+          />
+        );
+      case 'SelectReceiveAsset':
+        return (
+          <SelectReceiveAsset
+            endReceiveType={props?.route?.params?.endReceiveType}
             theme={theme}
             darkModeType={darkModeType}
           />
