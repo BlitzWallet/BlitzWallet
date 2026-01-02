@@ -84,7 +84,7 @@ export default function SwapsPage() {
   const [isSwapping, setIsSwapping] = useState(false);
   const [isLoadingPool, setIsLoadingPool] = useState(true);
   const [poolInfo, setPoolInfo] = useState(null);
-  const [simulationResult, setSimulationResult] = useState(null);
+  // const [simulationResult, setSimulationResult] = useState(null);
   const [error, setError] = useState(null);
   const [priceImpact, setPriceImpact] = useState(null);
   const [confirmedSwap, setConfirmedSwap] = useState(null);
@@ -93,8 +93,8 @@ export default function SwapsPage() {
   const animationRef = useRef(null);
 
   // Animated values for font sizes
-  const fromAmountFontSize = useSharedValue(SIZES.xxLarge);
-  const toAmountFontSize = useSharedValue(SIZES.xxLarge);
+  const fromAmountFontSize = useSharedValue(SIZES.xLarge);
+  const toAmountFontSize = useSharedValue(SIZES.xLarge);
   const fromAmountScale = useSharedValue(1);
   const toAmountScale = useSharedValue(1);
   const fromAmountOpacity = useSharedValue(1);
@@ -109,7 +109,17 @@ export default function SwapsPage() {
   const btcBalance = sparkInformation?.balance || 0;
 
   const convertedFromAmount =
-    fromAsset === 'BTC' ? fromAmount : fromAmount * flatnet_sats_per_dollar;
+    fromAsset === 'BTC'
+      ? fromAmount
+      : formatBalanceAmount(fromAmount, false, masterInfoObject);
+  const covertedToAmount =
+    toAsset === 'BTC'
+      ? confirmedSwap?.realReceivedAmount
+      : formatBalanceAmount(
+          confirmedSwap?.realReceivedAmount / flatnet_sats_per_dollar,
+          false,
+          masterInfoObject,
+        );
 
   const displayBalance =
     fromAsset === 'BTC'
@@ -139,7 +149,7 @@ export default function SwapsPage() {
   const clearPageStates = () => {
     setFromAmount('');
     setToAmount('');
-    setSimulationResult(null);
+    // setSimulationResult(null);
     setPriceImpact(null);
     setError(null);
     setLastEditedField('from');
@@ -195,7 +205,7 @@ export default function SwapsPage() {
         simulateSwapAmount(fromAmount, 'from', uuid);
       } else {
         setToAmount('');
-        setSimulationResult(null);
+        // setSimulationResult(null);
         setPriceImpact(null);
         setError('');
       }
@@ -206,7 +216,7 @@ export default function SwapsPage() {
         simulateSwapAmount(toAmount, 'to', uuid);
       } else {
         setFromAmount('');
-        setSimulationResult(null);
+        // setSimulationResult(null);
         setPriceImpact(null);
         setError('');
       }
@@ -264,7 +274,7 @@ export default function SwapsPage() {
       }
 
       if (result.didWork && result.simulation) {
-        setSimulationResult(result.simulation);
+        // setSimulationResult(result.simulation);
         setPriceImpact(parseFloat(result.simulation.priceImpact));
 
         let outputAmount;
@@ -294,10 +304,12 @@ export default function SwapsPage() {
           );
         }
       } else {
-        const errorInfo = handleFlashnetError(result.details);
+        const errorInfo = handleFlashnetError({
+          ...result.details,
+          error: result.error,
+        });
         setError(
-          t(errorInfo.message) ||
-            result.error ||
+          t(errorInfo.userMessage) ||
             t('screens.inAccount.swapsPage.failedSimulation'),
         );
         if (isForwardDirection) {
@@ -331,7 +343,7 @@ export default function SwapsPage() {
     setLastEditedField(lastEditedField === 'from' ? 'to' : 'from');
     currentRequetId.current = null;
 
-    setSimulationResult(null);
+    // setSimulationResult(null);
     setPriceImpact(null);
     setError(null);
   };
@@ -489,7 +501,7 @@ export default function SwapsPage() {
         );
         setConfirmedSwap({ ...result.swap, realReceivedAmount, realFeeAmount });
 
-        const userSwaps = await getUserSwapHistory(currentWalletMnemoinc, 10);
+        const userSwaps = await getUserSwapHistory(currentWalletMnemoinc, 5);
 
         const swap = userSwaps.swaps.find(
           savedSwap =>
@@ -615,11 +627,13 @@ export default function SwapsPage() {
           animationRef.current?.play();
         });
       } else {
-        const errorInfo = handleFlashnetError(result.details);
+        const errorInfo = handleFlashnetError({
+          ...result.details,
+          error: result.error,
+        });
 
         let errorMessage =
           t(errorInfo.userMessage) ||
-          result.error ||
           t('screens.inAccount.swapsPage.swapFailedBackupError');
 
         if (errorInfo.clawback) {
@@ -736,6 +750,7 @@ export default function SwapsPage() {
                   },
                   fiatStats,
                   forceCurrency: 'USD',
+                  convertAmount: !isBtcToUsdb ? false : true,
                 })}
               />
             </View>
@@ -779,13 +794,14 @@ export default function SwapsPage() {
               <ThemeText
                 styles={styles.detailAmount}
                 content={displayCorrectDenomination({
-                  amount: confirmedSwap.realReceivedAmount,
+                  amount: covertedToAmount,
                   masterInfoObject: {
                     ...masterInfoObject,
                     userBalanceDenomination: isBtcToUsdb ? 'fiat' : 'sats',
                   },
                   fiatStats,
                   forceCurrency: 'USD',
+                  convertAmount: isBtcToUsdb ? false : true,
                 })}
               />
             </View>
