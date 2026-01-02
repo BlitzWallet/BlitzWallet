@@ -8,7 +8,6 @@ import {
 import {
   CENTER,
   COLORS,
-  ICONS,
   SIZES,
   TOKEN_TICKER_MAX_LENGTH,
 } from '../../constants';
@@ -18,7 +17,6 @@ import Icon from '../../functions/CustomElements/Icon';
 import FormattedSatText from '../../functions/CustomElements/satTextDisplay';
 import CustomButton from '../../functions/CustomElements/button';
 import GetThemeColors from '../../hooks/themeColors';
-import ThemeImage from '../../functions/CustomElements/themeImage';
 import { useGlobalThemeContext } from '../../../context-store/theme';
 import useHandleBackPressNew from '../../hooks/useHandleBackPressNew';
 import { useSparkWallet } from '../../../context-store/sparkContext';
@@ -30,10 +28,7 @@ import { formatLocalTimeShort } from '../../functions/timeFormatter';
 import { useMemo, useRef, useState } from 'react';
 import CustomSearchInput from '../../functions/CustomElements/searchInput';
 import { bulkUpdateSparkTransactions } from '../../functions/spark/transactions';
-import {
-  keyboardGoBack,
-  keyboardNavigate,
-} from '../../functions/customNavigation';
+import { keyboardNavigate } from '../../functions/customNavigation';
 import displayCorrectDenomination from '../../functions/displayCorrectDenomination';
 import { useNodeContext } from '../../../context-store/nodeContext';
 import { useGlobalContextProvider } from '../../../context-store/context';
@@ -41,6 +36,7 @@ import ContactProfileImage from '../../components/admin/homeComponents/contacts/
 import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { useImageCache } from '../../../context-store/imageCache';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContacts();
@@ -288,16 +284,10 @@ export default function ExpandedTx(props) {
     <GlobalThemeView useStandardWidth={true} styles={styles.container}>
       <View style={styles.content}>
         {/* Header */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => keyboardGoBack(navigate)}
-        >
-          <ThemeImage
-            darkModeIcon={ICONS.smallArrowLeft}
-            lightModeIcon={ICONS.smallArrowLeft}
-            lightsOutIcon={ICONS.arrow_small_left_white}
-          />
-        </TouchableOpacity>
+        <CustomSettingsTopBar
+          containerStyles={{ marginBottom: 0 }}
+          shouldDismissKeyboard={true}
+        />
 
         <KeyboardAwareScrollView
           showsVerticalScrollIndicator={false}
@@ -350,11 +340,7 @@ export default function ExpandedTx(props) {
               containerStyles={styles.amountContainer}
               neverHideBalance={true}
               styles={styles.primaryAmount}
-              balance={
-                isLRC20Payment && formattedTokensBalance >= 1
-                  ? formattedTokensBalance
-                  : amount
-              }
+              balance={isLRC20Payment ? formattedTokensBalance : amount}
               useCustomLabel={isLRC20Payment}
               customLabel={selectedToken?.tokenMetadata?.tokenTicker}
               useMillionDenomination={true}
@@ -367,21 +353,6 @@ export default function ExpandedTx(props) {
                 neverHideBalance={true}
                 styles={styles.secondaryAmount}
                 balance={amount}
-              />
-            )}
-
-            {isLRC20Payment && formattedTokensBalance < 1 && (
-              <FormattedSatText
-                containerStyles={styles.secondaryAmountContainer}
-                neverHideBalance={true}
-                styles={styles.secondaryAmount}
-                balance={formatTokensNumber(
-                  transaction.details.amount,
-                  selectedToken?.tokenMetadata?.decimals,
-                )}
-                useCustomLabel={isLRC20Payment}
-                customLabel={selectedToken?.tokenMetadata?.tokenTicker}
-                useMillionDenomination={true}
               />
             )}
 
