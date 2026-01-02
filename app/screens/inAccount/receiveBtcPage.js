@@ -462,7 +462,7 @@ function QrCode(props) {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'SelectReceiveAsset',
       endReceiveType,
-      sliderHight: 0.45,
+      sliderHight: 0.5,
     });
   };
 
