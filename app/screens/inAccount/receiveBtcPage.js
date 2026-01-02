@@ -47,11 +47,13 @@ import Animated, {
 import SkeletonPlaceholder from '../../functions/CustomElements/skeletonView';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useSparkWallet } from '../../../context-store/sparkContext';
+import { useFlashnet } from '../../../context-store/flashnetContext';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
+  const { swapLimits } = useFlashnet();
   const { sparkInformation, toggleNewestPaymentTimestamp } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContacts();
@@ -63,9 +65,12 @@ export default function ReceivePaymentHome(props) {
     useActiveCustodyAccount();
   const [contentHeight, setContentHeight] = useState(0);
   const { startLiquidEventListener } = useLiquidEvent();
-  const initialSendAmount = props.route.params?.receiveAmount || 0;
+  const userReceiveAmount = props.route.params?.receiveAmount || 0;
+  const [initialSendAmount, setInitialSendAmount] = useState(userReceiveAmount);
+
   const paymentDescription = props.route.params?.description;
   const requestUUID = props.route.params?.uuid;
+  const endReceiveType = props?.route.params.endReceiveType || 'BTC';
   useHandleBackPressNew();
   const selectedRecieveOption =
     props.route.params?.selectedRecieveOption || 'Lightning';
@@ -104,11 +109,12 @@ export default function ReceivePaymentHome(props) {
 
       if (
         prevRequstInfo.current &&
-        initialSendAmount === prevRequstInfo.current.initialSendAmount &&
+        userReceiveAmount === prevRequstInfo.current.userReceiveAmount &&
         selectedRecieveOption.toLowerCase() ===
           prevRequstInfo.current.selectedRecieveOption.toLowerCase() &&
         paymentDescription === prevRequstInfo.current.paymentDescription &&
-        !addressStateRef.current.errorMessageText.text
+        !addressStateRef.current.errorMessageText.text &&
+        endReceiveType === prevRequstInfo.current.endReceiveType
       ) {
         // This checks if we had a previous requst
         // And all other formation is the same
@@ -118,15 +124,18 @@ export default function ReceivePaymentHome(props) {
 
       // Update prev request info to the new data
       prevRequstInfo.current = {
-        initialSendAmount,
+        userReceiveAmount,
         selectedRecieveOption,
         paymentDescription,
+        endReceiveType,
       };
       if (
-        !initialSendAmount &&
+        !userReceiveAmount &&
         selectedRecieveOption.toLowerCase() === 'lightning' &&
-        !isUsingAltAccount
+        !isUsingAltAccount &&
+        endReceiveType === 'BTC'
       ) {
+        setInitialSendAmount(0);
         setAddressState(prev => ({
           ...prev,
           generatedAddress: `${globalContactsInformation.myProfile.uniqueName}@blitzwalletapp.com`,
@@ -136,7 +145,7 @@ export default function ReceivePaymentHome(props) {
 
       await initializeAddressProcess({
         userBalanceDenomination: masterInfoObject.userBalanceDenomination,
-        receivingAmount: initialSendAmount,
+        receivingAmount: userReceiveAmount,
         description: paymentDescription,
         masterInfoObject,
         // minMaxSwapAmounts: minMaxLiquidSwapAmounts,
@@ -149,6 +158,10 @@ export default function ReceivePaymentHome(props) {
         currentWalletMnemoinc,
         sendWebViewRequest,
         sparkInformation,
+        endReceiveType,
+        swapLimits,
+        setInitialSendAmount,
+        userReceiveAmount,
       });
       if (selectedRecieveOption === 'Liquid') {
         startLiquidEventListener(60);
@@ -158,12 +171,19 @@ export default function ReceivePaymentHome(props) {
     }
     runAddressInit();
   }, [
-    initialSendAmount,
+    userReceiveAmount,
     paymentDescription,
     selectedRecieveOption,
     requestUUID,
+    endReceiveType,
   ]);
 
+  const headerContext =
+    selectedRecieveOption?.toLowerCase() === 'spark' ||
+    selectedRecieveOption?.toLowerCase() === 'lightning'
+      ? selectedRecieveOption?.toLowerCase() +
+        `_${endReceiveType?.toLowerCase()}`
+      : selectedRecieveOption?.toLowerCase();
   const handleShare = () => {
     if (!addressState.generatedAddress) return;
     if (addressState.isGeneratingInvoice) return;
@@ -201,7 +221,7 @@ export default function ReceivePaymentHome(props) {
           <ThemeText
             styles={styles.title}
             content={t('screens.inAccount.receiveBtcPage.header', {
-              context: selectedRecieveOption?.toLowerCase(),
+              context: headerContext,
             })}
           />
           <QrCode
@@ -214,6 +234,8 @@ export default function ReceivePaymentHome(props) {
             fiatStats={fiatStats}
             isUsingAltAccount={isUsingAltAccount}
             t={t}
+            endReceiveType={endReceiveType}
+            swapLimits={swapLimits}
           />
 
           <ButtonsContainer
@@ -329,6 +351,8 @@ function QrCode(props) {
     fiatStats,
     isUsingAltAccount,
     t,
+    endReceiveType,
+    swapLimits,
   } = props;
   const { showToast } = useToast();
   const { theme } = useGlobalThemeContext();
@@ -337,7 +361,8 @@ function QrCode(props) {
   const isUsingLnurl =
     selectedRecieveOption.toLowerCase() === 'lightning' &&
     !initialSendAmount &&
-    !isUsingAltAccount;
+    !isUsingAltAccount &&
+    endReceiveType === 'BTC';
 
   const qrOpacity = useSharedValue(addressState.generatedAddress ? 1 : 0);
   const loadingOpacity = useSharedValue(isUsingLnurl ? 0 : 1);
@@ -417,6 +442,10 @@ function QrCode(props) {
     selectedRecieveOption?.toLowerCase() !== 'spark' &&
     selectedRecieveOption?.toLowerCase() !== 'rootstock';
 
+  const canConvert =
+    selectedRecieveOption?.toLowerCase() === 'spark' ||
+    selectedRecieveOption?.toLowerCase() === 'lightning';
+
   const showLongerAddress =
     (selectedRecieveOption?.toLowerCase() === 'bitcoin' ||
       selectedRecieveOption?.toLowerCase() === 'liquid') &&
@@ -429,11 +458,13 @@ function QrCode(props) {
     });
   };
 
-  // const editLNURL = () => {
-  //   navigate.navigate('CustomHalfModal', {
-  //     wantedContent: 'editLNURLOnReceive',
-  //   });
-  // };
+  const selectReceiveTypeAsset = () => {
+    navigate.navigate('CustomHalfModal', {
+      wantedContent: 'SelectReceiveAsset',
+      endReceiveType,
+      sliderHight: 0.45,
+    });
+  };
 
   const qrData = isUsingLnurl
     ? encodeLNURL(globalContactsInformation?.myProfile?.uniqueName)
@@ -508,12 +539,36 @@ function QrCode(props) {
         </View>
       </TouchableOpacity>
 
+      {canConvert && (
+        <QRInformationRow
+          title={t('screens.inAccount.receiveBtcPage.receiveAsHeader')}
+          info={t(
+            `screens.inAccount.receiveBtcPage.receiveAs_${selectedRecieveOption?.toLowerCase()}_${endReceiveType}`,
+          )}
+          lightModeIcon={ICONS.leftCheveronDark}
+          darkModeIcon={ICONS.leftCheveronLight}
+          lightsOutIcon={ICONS.leftCheveronLight}
+          showBoder={true}
+          rotateIcon={true}
+          actionFunction={selectReceiveTypeAsset}
+        />
+      )}
+
       {canUseAmount && (
         <QRInformationRow
           title={t('constants.amount')}
           info={
             !initialSendAmount
               ? t('screens.inAccount.receiveBtcPage.amountPlaceholder')
+              : endReceiveType === 'USD' &&
+                initialSendAmount === swapLimits.bitcoin
+              ? t('screens.inAccount.receiveBtcPage.amount_USD_MIN', {
+                  swapAmountSat: displayCorrectDenomination({
+                    masterInfoObject: masterInfoObject,
+                    fiatStats: fiatStats,
+                    amount: initialSendAmount,
+                  }),
+                })
               : displayCorrectDenomination({
                   masterInfoObject: masterInfoObject,
                   fiatStats: fiatStats,
@@ -571,6 +626,7 @@ function QRInformationRow({
   showBoder,
   actionFunction,
   showSkeleton = false,
+  rotateIcon = false,
 }) {
   const { backgroundColor } = GetThemeColors();
   return (
@@ -628,6 +684,7 @@ function QRInformationRow({
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: 8,
+          transform: [{ rotate: rotateIcon ? '-90deg' : '0deg' }],
         }}
       >
         <ThemeImage

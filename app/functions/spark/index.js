@@ -27,7 +27,7 @@ import {
   deriveSparkAddress,
   deriveSparkIdentityKey,
 } from '../gift/deriveGiftWallet';
-import { DEFAULT_PAYMENT_EXPIRY_SEC } from '../../constants';
+import { DEFAULT_PAYMENT_EXPIRY_SEC, USDB_TOKEN_ID } from '../../constants';
 import { FlashnetClient } from '@flashnet/sdk';
 
 export let sparkWallet = {};
@@ -680,6 +680,7 @@ export const receiveSparkLightningPayment = async ({
   amountSats,
   memo,
   mnemonic,
+  includeSparkAddress = true,
 }) => {
   try {
     const runtime = await selectSparkRuntime(mnemonic);
@@ -690,7 +691,8 @@ export const receiveSparkLightningPayment = async ({
           mnemonic,
           amountSats,
           memo,
-          expirySeconds: DEFAULT_PAYMENT_EXPIRY_SEC, // 12 hour invoice expiry
+          expirySeconds: DEFAULT_PAYMENT_EXPIRY_SEC, // 12 hour invoice expiry,
+          includeSparkAddress,
         },
       );
       return validateWebViewResponse(
@@ -703,7 +705,7 @@ export const receiveSparkLightningPayment = async ({
         amountSats,
         memo,
         expirySeconds: DEFAULT_PAYMENT_EXPIRY_SEC, // 12 hour invoice expiry
-        includeSparkAddress: true,
+        includeSparkAddress,
       });
       return { didWork: true, response };
     }
@@ -936,6 +938,65 @@ export const getSparkTokenTransactions = async ({
   } catch (err) {
     console.log('get spark Tokens transactions error', err);
     return [];
+  }
+};
+
+export const createSatsInvoice = async mnemonic => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.createSatsInvoice,
+        {
+          mnemonic,
+        },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to send spark transactions',
+      );
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const invoice = await wallet.createSatsInvoice({});
+      console.log('Spark Invoice:', invoice); // Returns SparkAddressFormat directly
+      return { didWork: true, invoice };
+    }
+  } catch (err) {
+    console.log('get spark transactions error', err);
+    return { didWork: false, error: err.message };
+  }
+};
+
+export const createTokensInvoice = async (
+  mnemonic,
+  tokenIdentifier = USDB_TOKEN_ID,
+) => {
+  try {
+    const runtime = await selectSparkRuntime(mnemonic);
+    if (runtime === 'webview') {
+      const response = await sendWebViewRequestGlobal(
+        OPERATION_TYPES.createTokensInvoice,
+        {
+          mnemonic,
+          tokenIdentifier,
+        },
+      );
+      return validateWebViewResponse(
+        response,
+        'Not able to send spark transactions',
+      );
+    } else {
+      const wallet = await getWallet(mnemonic);
+      const invoice = await wallet.createTokensInvoice({
+        tokenIdentifier,
+      });
+
+      console.log('Token Invoice:', invoice);
+      return { didWork: true, invoice };
+    }
+  } catch (err) {
+    console.log('get spark transactions error', err);
+    return { didWork: false, error: err.message };
   }
 };
 
