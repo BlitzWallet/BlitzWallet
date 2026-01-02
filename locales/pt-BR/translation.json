@@ -1373,7 +1373,7 @@
     "nwc": {
       "confirmDelete": "Tem certeza de que deseja excluir esta conexão?",
       "searchAccountPlaceholder": "Pesquisar",
-      "noAccountsMessage": "Você ainda não criou nenhuma conexão Nostr.",
+      "noAccountsMessage": "Você ainda não criou uma conexão Nostr.",
       "addAccount": "Nova conexão",
       "createNWCAccount": {
         "noAccountNameError": "Por favor, insira um nome para essa conexão.",
