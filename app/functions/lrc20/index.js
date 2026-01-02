@@ -20,7 +20,7 @@ export async function getLRC20Transactions({
 
     const lastSavedTokenTx = (savedTxs || []).find(tx => {
       const parsed = JSON.parse(tx?.details);
-      return parsed?.isLRC20Payment;
+      return parsed?.isLRC20Payment && tx.paymentType === 'spark';
     });
 
     const lastSavedTransactionId = lastSavedTokenTx
