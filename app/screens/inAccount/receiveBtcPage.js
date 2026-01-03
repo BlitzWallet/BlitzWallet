@@ -312,7 +312,10 @@ export default function ReceivePaymentHome(props) {
                     ),
                     satExchangeRate: displayCorrectDenomination({
                       amount: Math.round(poolInfoRef.currentPriceAInB),
-                      masterInfoObject,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'sats',
+                      },
                       fiatStats,
                     }),
                     dollarAmount: displayCorrectDenomination({
