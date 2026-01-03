@@ -19,7 +19,11 @@ import {
   OPERATION_TYPES,
   sendWebViewRequestGlobal,
 } from '../../../context-store/webViewContext';
-import { FLASHNET_ERROR_CODE_REGEX } from '../../constants';
+import {
+  FLASHNET_ERROR_CODE_REGEX,
+  FLASHNET_PRICE_SLIPAGE_REFUND,
+} from '../../constants';
+import { setFlashnetTransfer } from './handleFlashnetTransferIds';
 
 // ============================================
 // CONSTANTS
@@ -455,7 +459,13 @@ export const executeSwap = async (
     }
   } catch (error) {
     const errorDetails = formatError(error, 'executeSwap');
-    console.error('Execute swap error:', errorDetails);
+    console.error('Execute swap error:', errorDetails, error);
+    const match = text.match(FLASHNET_PRICE_SLIPAGE_REFUND);
+    const txHash = match ? match[1] : null;
+
+    if (txHash) {
+      setFlashnetTransfer(txHash);
+    }
 
     // Check for auto-clawback results
     if (isFlashnetError(error) && error.wasClawbackAttempted()) {
