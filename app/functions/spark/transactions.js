@@ -604,92 +604,96 @@ export const bulkUpdateSparkTransactions = async (transactions, ...data) => {
           : null;
         const existingTempTx = tempKey ? existingTempTxMap.get(tempKey) : null;
 
+        if (processedTx.paymentStatus === 'failed') {
+          includedFailed = true;
+        }
+
         if (existingTx) {
-          if (processedTx.paymentStatus === 'failed') {
-            includedFailed = true;
-            await sqlLiteDB.runAsync(
-              `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
-              [finalSparkId, accountId],
-            );
+          // if (processedTx.paymentStatus === 'failed') {
+          //   includedFailed = true;
+          //   await sqlLiteDB.runAsync(
+          //     `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
+          //     [finalSparkId, accountId],
+          //   );
 
-            if (existingTempTx && processedTx.tempSparkId !== finalSparkId) {
-              await sqlLiteDB.runAsync(
-                `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
-                [processedTx.tempSparkId, accountId],
-              );
-            }
-          } else {
-            const mergedDetails = mergeDetails(
-              existingTx.details,
-              processedTx.details,
-            );
+          //   if (existingTempTx && processedTx.tempSparkId !== finalSparkId) {
+          //     await sqlLiteDB.runAsync(
+          //       `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
+          //       [processedTx.tempSparkId, accountId],
+          //     );
+          //   }
+          // } else {
+          const mergedDetails = mergeDetails(
+            existingTx.details,
+            processedTx.details,
+          );
 
-            await sqlLiteDB.runAsync(
-              `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
+          await sqlLiteDB.runAsync(
+            `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
                SET paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
                WHERE sparkID = ? AND accountId = ?`,
-              [
-                processedTx.paymentStatus,
-                processedTx.paymentType,
-                processedTx.accountId,
-                mergedDetails,
-                finalSparkId,
-                accountId,
-              ],
-            );
+            [
+              processedTx.paymentStatus,
+              processedTx.paymentType,
+              processedTx.accountId,
+              mergedDetails,
+              finalSparkId,
+              accountId,
+            ],
+          );
 
-            if (existingTempTx && processedTx.tempSparkId !== finalSparkId) {
-              await sqlLiteDB.runAsync(
-                `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
-                [processedTx.tempSparkId, accountId],
-              );
-            }
-          }
-        } else if (existingTempTx) {
-          if (processedTx.paymentStatus === 'failed') {
-            includedFailed = true;
+          if (existingTempTx && processedTx.tempSparkId !== finalSparkId) {
             await sqlLiteDB.runAsync(
               `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
               [processedTx.tempSparkId, accountId],
             );
-          } else {
-            const mergedDetails = mergeDetails(
-              existingTempTx.details,
-              processedTx.details,
-            );
+          }
+          // }
+        } else if (existingTempTx) {
+          // if (processedTx.paymentStatus === 'failed') {
+          //   includedFailed = true;
+          //   await sqlLiteDB.runAsync(
+          //     `DELETE FROM ${SPARK_TRANSACTIONS_TABLE_NAME} WHERE sparkID = ? AND accountId = ?`,
+          //     [processedTx.tempSparkId, accountId],
+          //   );
+          // } else {
+          const mergedDetails = mergeDetails(
+            existingTempTx.details,
+            processedTx.details,
+          );
 
-            await sqlLiteDB.runAsync(
-              `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
+          await sqlLiteDB.runAsync(
+            `UPDATE ${SPARK_TRANSACTIONS_TABLE_NAME}
                SET sparkID = ?, paymentStatus = ?, paymentType = ?, accountId = ?, details = ?
                WHERE sparkID = ? AND accountId = ?`,
-              [
-                finalSparkId,
-                processedTx.paymentStatus,
-                processedTx.paymentType,
-                processedTx.accountId,
-                mergedDetails,
-                processedTx.tempSparkId,
-                accountId,
-              ],
-            );
-          }
+            [
+              finalSparkId,
+              processedTx.paymentStatus,
+              processedTx.paymentType,
+              processedTx.accountId,
+              mergedDetails,
+              processedTx.tempSparkId,
+              accountId,
+            ],
+          );
+          // }
         } else {
-          if (processedTx.paymentStatus !== 'failed') {
-            await sqlLiteDB.runAsync(
-              `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}
+          // if (processedTx.paymentStatus !== 'failed') {
+          await sqlLiteDB.runAsync(
+            `INSERT INTO ${SPARK_TRANSACTIONS_TABLE_NAME}
                (sparkID, paymentStatus, paymentType, accountId, details)
                VALUES (?, ?, ?, ?, ?)`,
-              [
-                finalSparkId,
-                processedTx.paymentStatus,
-                processedTx.paymentType,
-                processedTx.accountId,
-                JSON.stringify(processedTx.details),
-              ],
-            );
-          } else {
-            includedFailed = true;
-          }
+            [
+              finalSparkId,
+              processedTx.paymentStatus,
+              processedTx.paymentType,
+              processedTx.accountId,
+              JSON.stringify(processedTx.details),
+            ],
+          );
+          // } else {
+          //   includedFailed = true;
+          // }
         }
       }
 
