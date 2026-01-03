@@ -10,6 +10,7 @@ import {
   COLORS,
   SIZES,
   TOKEN_TICKER_MAX_LENGTH,
+  USDB_TOKEN_ID,
 } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
@@ -76,9 +77,15 @@ export default function ExpandedTx(props) {
   const amount = transaction?.details?.amount;
   const description = transaction.details.description || '';
 
+  const showConversionLine =
+    transaction.details.LRC20Token === USDB_TOKEN_ID &&
+    !!transaction.details.currentPriceAInB;
+
   // const month = paymentDate.toLocaleString('default', { month: 'short' });
   // const day = paymentDate.getDate();
   // const year = paymentDate.getFullYear();
+
+  console.log(transaction);
 
   const handleSave = async memoText => {
     try {
@@ -398,6 +405,33 @@ export default function ExpandedTx(props) {
               )}
 
               {renderLRC20TokenRow()}
+
+              {showConversionLine &&
+                renderInfoRow(
+                  t('constants.rate'),
+                  t('screens.inAccount.expandedTxPage.converstionRate', {
+                    satAmount: displayCorrectDenomination({
+                      amount: Number(transaction.details.currentPriceAInB),
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'sats',
+                      },
+                      fiatStats,
+                    }),
+                    dollarAmount: displayCorrectDenomination({
+                      amount: 1,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'fiat',
+                      },
+                      fiatStats,
+                      convertAmount: false,
+                      forceCurrency: 'USD',
+                    }),
+                  }),
+
+                  true,
+                )}
 
               {isPending &&
                 transaction.paymentType === 'bitcoin' &&
