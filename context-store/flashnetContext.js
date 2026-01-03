@@ -31,7 +31,10 @@ import {
   HANDLE_FLASHNET_AUTO_SWAP,
   updateSparkTransactionDetails,
 } from '../app/functions/spark/transactions';
-import { setFlashnetTransfer } from '../app/functions/spark/handleFlashnetTransferIds';
+import {
+  loadSavedTransferIds,
+  setFlashnetTransfer,
+} from '../app/functions/spark/handleFlashnetTransferIds';
 import { useToast } from './toastManager';
 import { decode } from 'bolt11';
 
@@ -247,6 +250,8 @@ export function FlashnetProvider({ children }) {
       HANDLE_FLASHNET_AUTO_SWAP,
       handleAutoSwap,
     );
+
+    loadSavedTransferIds();
 
     return () => {
       flashnetAutoSwapsEventListener.off(
