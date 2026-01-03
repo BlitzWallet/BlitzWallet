@@ -19,11 +19,7 @@ import {
   OPERATION_TYPES,
   sendWebViewRequestGlobal,
 } from '../../../context-store/webViewContext';
-import {
-  FLASHNET_ERROR_CODE_REGEX,
-  FLASHNET_PRICE_SLIPAGE_REFUND,
-} from '../../constants';
-import { setFlashnetTransfer } from './handleFlashnetTransferIds';
+import { FLASHNET_ERROR_CODE_REGEX } from '../../constants';
 
 // ============================================
 // CONSTANTS
