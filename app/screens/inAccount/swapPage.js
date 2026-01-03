@@ -138,7 +138,7 @@ export default function SwapsPage() {
 
   // Load pool information on mount
   useEffect(() => {
-    if (globalPoolInfo) {
+    if (Object.keys(globalPoolInfo).length) {
       setPoolInfo(globalPoolInfo);
       setIsLoadingPool(false);
     } else {
@@ -697,6 +697,7 @@ export default function SwapsPage() {
       <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
         <CustomSettingsTopBar />
         <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             flexGrow: 1,
             alignItems: 'center',
@@ -1483,6 +1484,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingTop: 20,
     borderTopWidth: 2,
+    marginBottom: 30,
     gap: 16,
   },
   detailRow: {
