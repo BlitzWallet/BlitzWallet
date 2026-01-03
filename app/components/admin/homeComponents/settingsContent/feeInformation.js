@@ -16,6 +16,8 @@ import displayCorrectDenomination from '../../../../functions/displayCorrectDeno
 import { useGlobalContextProvider } from '../../../../../context-store/context';
 import { useTranslation } from 'react-i18next';
 import { useSparkWallet } from '../../../../../context-store/sparkContext';
+import { useFlashnet } from '../../../../../context-store/flashnetContext';
+import { formatBalanceAmount } from '../../../../functions';
 
 export default function BlitzFeeInformation() {
   const { fiatStats } = useNodeContext();
@@ -81,24 +83,7 @@ export default function BlitzFeeInformation() {
         styles={{ textAlign: 'center', marginBottom: 30 }}
         content={t('settings.feeInformation.description')}
       />
-      {/* <GridSection
-        title="Lightning"
-        bracket={
-          paymentType === 'lightning'
-            ? lightningBrackets
-            : paymentType === 'spark'
-            ? sparkBrackets
-            : paymentType === 'bitcoin'
-            ? bitcoinBrackets
-            : LRC20Brackets
-        }
-        color={'#F7931A'}
-        setMinHeight={setMinHeight}
-        minHeight={minHeight}
-        masterInfoObject={masterInfoObject}
-        fiatStats={fiatStats}
-      />
-      <View style={styles.timeFrameElementsContainer}>{timeFrameElements}</View> */}
+      <FeeTable masterInfoObject={masterInfoObject} />
     </ScrollView>
   );
 }
@@ -106,73 +91,64 @@ export default function BlitzFeeInformation() {
 const formatPercentage = value => {
   return `${(value * 100).toFixed(1)}%`;
 };
-function GridSection({
-  bracket,
-  setMinHeight,
-  minHeight,
-  masterInfoObject,
-  fiatStats,
-}) {
-  const { backgroundOffset } = GetThemeColors();
-  const { t } = useTranslation();
-  return (
-    <View
-      onLayout={e => {
-        if (!e.nativeEvent.layout.height) return;
-        setMinHeight(e.nativeEvent.layout.height);
-      }}
-      style={[styles.section, { minHeight: minHeight }]}
-    >
-      <View>
-        <View
-          style={{ ...styles.headerRow, backgroundColor: backgroundOffset }}
-        >
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={styles.headerCell}
-            content={t('settings.feeInformation.upTo')}
-          />
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={styles.headerCell}
-            content={t('settings.feeInformation.fixedFee')}
-          />
-          <ThemeText
-            CustomNumberOfLines={1}
-            styles={styles.headerCell}
-            content={t('settings.feeInformation.percent')}
-          />
-        </View>
 
-        {bracket.map((bracket, index) => (
-          <View key={index} style={styles.dataRow}>
-            <ThemeText
-              styles={styles.dataCell}
-              content={
-                bracket.upTo === Infinity
-                  ? t('settings.feeInformation.noLimit')
-                  : displayCorrectDenomination({
-                      amount: bracket.upTo,
-                      masterInfoObject,
-                      fiatStats,
-                    })
-              }
-            />
-            <ThemeText
-              styles={styles.dataCell}
-              content={displayCorrectDenomination({
-                amount: bracket.fixedFee,
-                masterInfoObject,
-                fiatStats,
-              })}
-            />
-            <ThemeText
-              styles={styles.dataCell}
-              content={formatPercentage(bracket.percentage)}
-            />
-          </View>
-        ))}
+function FeeTable({ masterInfoObject }) {
+  const { poolInfoRef } = useFlashnet();
+  const { backgroundOffset, textColor } = GetThemeColors();
+  const { t } = useTranslation();
+
+  const feeData = [
+    {
+      transactionType: t('settings.feeInformation.swapsType'),
+      fee: t('settings.feeInformation.swapsFee', {
+        poolFee: formatBalanceAmount(
+          poolInfoRef.lpFeeBps / 100,
+          false,
+          masterInfoObject,
+        ),
+        blitzFee: 1,
+      }),
+    },
+    {
+      transactionType: t('settings.feeInformation.othersType'),
+      fee: t('settings.feeInformation.othersFee'),
+    },
+  ];
+
+  return (
+    <View style={styles.container}>
+      {/* Header Row */}
+      <View style={[styles.headerRow, { backgroundColor: backgroundOffset }]}>
+        <ThemeText
+          styles={styles.headerCell}
+          content={t('settings.feeInformation.transactionType')}
+        />
+        <ThemeText styles={styles.headerCell} content={t('constants.fee')} />
       </View>
+
+      {/* Data Rows */}
+      {feeData.map((row, index) => (
+        <View
+          key={index}
+          style={[
+            styles.dataRow,
+            index === feeData.length - 1 && styles.lastRow,
+          ]}
+        >
+          <View style={styles.dataCell}>
+            <ThemeText styles={styles.cellText} content={row.transactionType} />
+          </View>
+          <View style={styles.dataCell}>
+            <ThemeText styles={styles.cellText} content={row.fee} />
+            {row.subFee && (
+              <ThemeText
+                styles={[styles.cellText, styles.subFeeText]}
+                content={`(formula: ${row.subFee})`}
+              />
+            )}
+          </View>
+        </View>
+      ))}
     </View>
   );
 }
@@ -184,58 +160,44 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
 
-  section: {
+  container: {
     width: '100%',
     borderRadius: 8,
+    overflow: 'hidden',
     marginBottom: 20,
   },
-
   headerRow: {
     flexDirection: 'row',
-    columnGap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+  },
+  headerCell: {
+    flex: 1,
+    fontSize: SIZES.small,
+    textAlign: 'left',
+    includeFontPadding: false,
   },
   dataRow: {
     flexDirection: 'row',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
-  headerCell: {
-    padding: 10,
-    width: '33.33%',
-    flexShrink: 1,
-    textAlign: 'center',
+  lastRow: {
+    borderBottomWidth: 0,
   },
   dataCell: {
-    padding: 12,
-    fontSize: SIZES.small,
-    width: '33.33%',
-    flexShrink: 1,
-    textAlign: 'center',
-
-    margin: 4,
-  },
-
-  timeFrameElementsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignContent: 'center',
-    width: '90%',
-    rowGap: 10,
-    columnGap: 10,
-    flexWrap: 'wrap',
-    ...CENTER,
-  },
-  timeFrameElement: {
-    flexGrow: 1,
-    borderRadius: 8,
-
-    borderWidth: 2,
-    alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
   },
-  timeFrameElementText: {
-    textTransform: 'capitalize',
-    includeFontPadding: false,
-    padding: 10,
+  cellText: {
+    fontSize: SIZES.small,
+    textAlign: 'left',
+  },
+  subFeeText: {
+    fontSize: SIZES.xSmall,
+    opacity: 0.7,
+    marginTop: 4,
   },
 });
