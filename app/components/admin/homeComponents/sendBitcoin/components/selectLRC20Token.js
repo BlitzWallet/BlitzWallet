@@ -6,6 +6,7 @@ import {
   CENTER,
   CONTENT_KEYBOARD_OFFSET,
   ICONS,
+  USDB_TOKEN_ID,
 } from '../../../../../constants';
 import {
   COLORS,
@@ -52,8 +53,7 @@ export default function SelectLRC20Token({ setIsKeyboardActive }) {
 
   const filteredData = useMemo(() => {
     // usdb token identifier
-    const priorityToken =
-      'btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87';
+    const priorityToken = USDB_TOKEN_ID;
 
     // Separate priority items from the rest
     const bitcoin = [
