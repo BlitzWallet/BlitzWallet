@@ -66,14 +66,6 @@ import {
   createBalancePoller,
   createRestorePoller,
 } from '../app/functions/pollingManager';
-import { USDB_TOKEN_ID } from '../app/constants';
-import formatTokensNumber from '../app/functions/lrc20/formatTokensBalance';
-import {
-  BTC_ASSET_ADDRESS,
-  minFlashnetSwapAmounts,
-  USD_ASSET_ADDRESS,
-} from '../app/functions/spark/flashnet';
-import { loadSavedTransferIds } from '../app/functions/spark/handleFlashnetTransferIds';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -120,7 +112,6 @@ const SparkWalletProvider = ({ children }) => {
   const [tokensImageCache, setTokensImageCache] = useState({});
   const [pendingNavigation, setPendingNavigation] = useState(null);
   const [restoreCompleted, setRestoreCompleted] = useState(false);
-  const [swapLimits, setSwapLimits] = useState(null);
   const hasRestoreCompleted = useRef(false);
   const [reloadNewestPaymentTimestamp, setReloadNewestPaymentTimestamp] =
     useState(0);
@@ -157,18 +148,6 @@ const SparkWalletProvider = ({ children }) => {
     masterInfoObject.enabledBTKNTokens === null
       ? !!Object.keys(sparkInformation.tokens || {}).length
       : masterInfoObject.enabledBTKNTokens;
-
-  const usdbTokenInfo = sparkInformation?.tokens?.[USDB_TOKEN_ID];
-
-  const USD_BALANCE = useMemo(() => {
-    console.log('RUNNING USDB Balance UPDATE');
-    return usdbTokenInfo
-      ? formatTokensNumber(
-          usdbTokenInfo?.balance,
-          usdbTokenInfo?.tokenMetadata?.decimals,
-        )
-      : 0;
-  }, [usdbTokenInfo]);
 
   const didRunInitialRestore = useRef(false);
 
@@ -257,25 +236,35 @@ const SparkWalletProvider = ({ children }) => {
       if (!changeSparkConnectionState.state) {
         setSparkInformation(prev => ({ ...prev, didConnect: false }));
       } else {
+        let alreadyRanConnection = false;
         if (!sparkInfoRef.current.identityPubKey && shouldRunNormalConnection) {
-          initializeSparkSession({
-            setSparkInformation,
-            mnemonic: currentMnemonicRef.current,
-          });
+          await resetSparkState(true);
+          connectToSparkWallet();
+          alreadyRanConnection = true;
         } else {
           setSparkInformation(prev => ({
             ...prev,
             didConnect: !!prev.identityPubKey,
           }));
         }
+
         const runtime = await selectSparkRuntime(currentMnemonicRef.current);
         if (runtime === 'native') {
-          await addListeners('full');
+          if (!alreadyRanConnection) {
+            await resetSparkState(true);
+            connectToSparkWallet();
+          }
         }
       }
     }
     handleWalletStateChange();
-  }, [changeSparkConnectionState, didGetToHomepage, shouldRunNormalConnection]);
+  }, [
+    changeSparkConnectionState,
+    didGetToHomepage,
+    shouldRunNormalConnection,
+    resetSparkState,
+    connectToSparkWallet,
+  ]);
 
   useEffect(() => {
     if (!sparkInfoRef.current?.tokens) return;
@@ -523,7 +512,38 @@ const SparkWalletProvider = ({ children }) => {
         balancePollingTimeoutRef.current = poller;
         poller.start();
       } else {
-        const balanceResponse = await getSparkBalance(mnemonic);
+        const MAX_RETRIES = 3;
+        const RETRY_DELAY = 2000;
+        let balanceResponse = await getSparkBalance(mnemonic);
+
+        const shouldRetry = balanceResponse => {
+          return (
+            balanceResponse.didWork &&
+            !Object.entries(balanceResponse.tokensObj).find(item => {
+              const [key, value] = item;
+              console.log(key, value, 'key value');
+              return !!value.balance;
+            }) &&
+            (updateType === 'fullUpdate-tokens' || updateType === 'fullUpdate')
+          );
+        };
+
+        if (shouldRetry(balanceResponse)) {
+          console.log('Invalid balance returned retrying balance:');
+
+          for (let index = 0; index < MAX_RETRIES; index++) {
+            balanceResponse = await getSparkBalance(mnemonic);
+            if (shouldRetry(balanceResponse)) {
+              console.log(
+                'Invalid balance returned retrying balance, waiting for timeout',
+              );
+              await new Promise(res => setTimeout(res, RETRY_DELAY));
+              continue;
+            } else {
+              break;
+            }
+          }
+        }
 
         const newBalance = balanceResponse.didWork
           ? Number(balanceResponse.balance)
@@ -547,9 +567,15 @@ const SparkWalletProvider = ({ children }) => {
               : prev.tokens,
           }));
         } else if (updateType === 'fullUpdate-tokens') {
+          handleBalanceCache({
+            isCheck: false,
+            passedBalance: newBalance,
+            mnemonic,
+          });
           setSparkInformation(prev => ({
             ...prev,
             transactions: txs || prev.transactions,
+            balance: newBalance,
             tokens: balanceResponse.didWork
               ? balanceResponse.tokensObj
               : prev.tokens,
@@ -615,6 +641,18 @@ const SparkWalletProvider = ({ children }) => {
       if (new Date(details.time).getTime() < sessionTimeRef.current) {
         console.log(
           'created before session time was set, skipping confirm tx page navigation',
+        );
+        return;
+      }
+
+      if (parsedTx?.paymentStatus?.toLowerCase() === 'failed') {
+        console.log('This payment is of type failed, do not navigate here');
+        return;
+      }
+
+      if (details.performSwaptoUSD) {
+        console.log(
+          'This payment is being used to perform a swap, do not navigate here.',
         );
         return;
       }
@@ -936,7 +974,7 @@ const SparkWalletProvider = ({ children }) => {
     currentPollingMnemonicRef.current = null;
   };
 
-  const resetSparkState = useCallback(async () => {
+  const resetSparkState = useCallback(async (internalRefresh = false) => {
     // Reset refs to initial values
     await removeListeners(true);
     clearMnemonicCache();
@@ -977,8 +1015,10 @@ const SparkWalletProvider = ({ children }) => {
       didConnect: null,
     });
     setPendingNavigation(null);
-    setDidRunNormalConnection(false);
-    setNormalConnectionTimeout(false);
+    if (!internalRefresh) {
+      setDidRunNormalConnection(false);
+      setNormalConnectionTimeout(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -1322,31 +1362,6 @@ const SparkWalletProvider = ({ children }) => {
     fetchTransactions();
   }, [restoreCompleted]);
 
-  // Get min swap amounts to added better UX for uesrs
-  useEffect(() => {
-    if (!sparkInformation.didConnect) return;
-    async function getLimits() {
-      const [usdLimits, bitconLimits] = await Promise.all([
-        minFlashnetSwapAmounts(currentMnemonicRef.current, USD_ASSET_ADDRESS),
-        minFlashnetSwapAmounts(currentMnemonicRef.current, BTC_ASSET_ADDRESS),
-      ]);
-      if (usdLimits.didWork && bitconLimits.didWork) {
-        setSwapLimits({
-          usd: Number(usdLimits.assetData) / 1000000,
-          bitcoin: Number(bitconLimits.assetData),
-        });
-      } else {
-        setSwapLimits({
-          usd: 1,
-          bitcoin: 1000,
-        });
-      }
-    }
-    getLimits();
-  }, [sparkInformation.didConnect]);
-
-  console.log(swapLimits, 'swap limites');
-
   // This function connects to the spark node and sets the session up
 
   const connectToSparkWallet = useCallback(async () => {
@@ -1358,7 +1373,6 @@ const SparkWalletProvider = ({ children }) => {
       sendWebViewRequest,
       hasRestoreCompleted: hasRestoreCompleted.current,
     });
-    loadSavedTransferIds();
     setDidRunNormalConnection(true);
     // lastConnectedTimeRef.current = Date.now();
     if (!didWork) {
@@ -1427,8 +1441,6 @@ const SparkWalletProvider = ({ children }) => {
       toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
       sparkInfoRef,
-      USD_BALANCE,
-      swapLimits,
     }),
     [
       sparkInformation,
@@ -1445,8 +1457,6 @@ const SparkWalletProvider = ({ children }) => {
       toggleNewestPaymentTimestamp,
       isSendingPaymentRef,
       sparkInfoRef,
-      USD_BALANCE,
-      swapLimits,
     ],
   );
 
