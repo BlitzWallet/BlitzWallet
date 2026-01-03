@@ -14,7 +14,7 @@ import {
 } from '../../constants';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { copyToClipboard } from '../../functions';
+import { copyToClipboard, formatBalanceAmount } from '../../functions';
 import { useGlobalContextProvider } from '../../../context-store/context';
 import { ButtonsContainer } from '../../components/admin/homeComponents/receiveBitcoin';
 import { GlobalThemeView, ThemeText } from '../../functions/CustomElements';
@@ -53,7 +53,7 @@ export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
   const { fiatStats } = useNodeContext();
   const { sendWebViewRequest } = useWebView();
-  const { swapLimits } = useFlashnet();
+  const { swapLimits, poolInfoRef } = useFlashnet();
   const { sparkInformation, toggleNewestPaymentTimestamp } = useSparkWallet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { globalContactsInformation } = useGlobalContacts();
@@ -250,14 +250,17 @@ export default function ReceivePaymentHome(props) {
 
           <TouchableOpacity
             activeOpacity={
-              selectedRecieveOption.toLowerCase() !== 'lightning' &&
+              (selectedRecieveOption.toLowerCase() !== 'lightning' ||
+                (selectedRecieveOption.toLowerCase() === 'lightning' &&
+                  endReceiveType === 'USD')) &&
               selectedRecieveOption.toLowerCase() !== 'spark'
                 ? 0.2
                 : 1
             }
             onPress={() => {
               if (
-                selectedRecieveOption.toLowerCase() === 'lightning' ||
+                (selectedRecieveOption.toLowerCase() === 'lightning' &&
+                  endReceiveType !== 'USD') ||
                 selectedRecieveOption.toLowerCase() === 'spark'
               )
                 return;
@@ -298,6 +301,32 @@ export default function ReceivePaymentHome(props) {
                     }),
                   },
                 );
+              } else if (selectedRecieveOption.toLowerCase() === 'lightning') {
+                informationText = t(
+                  'screens.inAccount.receiveBtcPage.lightningConvertMessage',
+                  {
+                    convertFee: formatBalanceAmount(
+                      poolInfoRef.lpFeeBps / 100 + 1,
+                      false,
+                      masterInfoObject,
+                    ),
+                    satExchangeRate: displayCorrectDenomination({
+                      amount: Math.round(poolInfoRef.currentPriceAInB),
+                      masterInfoObject,
+                      fiatStats,
+                    }),
+                    dollarAmount: displayCorrectDenomination({
+                      amount: 1,
+                      masterInfoObject: {
+                        ...masterInfoObject,
+                        userBalanceDenomination: 'fiat',
+                      },
+                      fiatStats,
+                      forceCurrency: 'USD',
+                      convertAmount: false,
+                    }),
+                  },
+                );
               }
               navigate.navigate('InformationPopup', {
                 textContent: informationText,
@@ -313,7 +342,9 @@ export default function ReceivePaymentHome(props) {
                 styles={styles.feeTitleText}
                 content={t('constants.fee')}
               />
-              {selectedRecieveOption.toLowerCase() !== 'lightning' &&
+              {(selectedRecieveOption.toLowerCase() !== 'lightning' ||
+                (selectedRecieveOption.toLowerCase() === 'lightning' &&
+                  endReceiveType === 'USD')) &&
                 selectedRecieveOption.toLowerCase() !== 'spark' && (
                   <ThemeImage
                     styles={styles.AboutIcon}
@@ -323,7 +354,9 @@ export default function ReceivePaymentHome(props) {
                   />
                 )}
             </View>
-            {selectedRecieveOption.toLowerCase() !== 'lightning' &&
+            {(selectedRecieveOption.toLowerCase() !== 'lightning' ||
+              (selectedRecieveOption.toLowerCase() === 'lightning' &&
+                endReceiveType === 'USD')) &&
             selectedRecieveOption.toLowerCase() !== 'spark' ? (
               <ThemeText content={t('constants.veriable')} />
             ) : (
