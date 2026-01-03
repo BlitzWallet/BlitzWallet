@@ -239,11 +239,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
       // Early continue conditions
       if (!enabledLRC20 && isLRC20Payment) continue;
       if (isLRC20Payment && !hasSavedTokenData) continue;
-      if (
-        paymentStatus === TRANSACTION_CONSTANTS.FAILED &&
-        paymentDetails.direction === TRANSACTION_CONSTANTS.INCOMING
-      )
-        continue;
+      if (paymentStatus === TRANSACTION_CONSTANTS.FAILED) continue;
       if (
         transactionPaymentType === TRANSACTION_CONSTANTS.LIGHTNING &&
         currentTransaction.status === TRANSACTION_CONSTANTS.LIGHTNING_INITIATED
