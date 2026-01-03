@@ -3,8 +3,10 @@ import { getSparkPaymentStatus, sparkPaymentType } from '.';
 import calculateProgressiveBracketFee from './calculateSupportFee';
 import {
   deleteSparkContactTransaction,
+  deleteUnpaidSparkLightningTransaction,
   updateSparkTransactionDetails,
 } from './transactions';
+import i18next from 'i18next';
 
 export async function transformTxToPaymentObject(
   tx,
@@ -66,10 +68,12 @@ export async function transformTxToPaymentObject(
         performSwaptoUSD: true,
         finalSparkID: tx.transfer ? tx.transfer.sparkId : tx.id,
       });
+    } else if (foundInvoice) {
+      deleteUnpaidSparkLightningTransaction(foundInvoice.sparkID);
     }
 
     const description = isSwapPayment
-      ? 'BTC to USD Swap'
+      ? i18next.t('screens.inAccount.swapsPage.swapDirection_btcusd')
       : numTxsBeingRestored < 20
       ? invoice
         ? decode(invoice).tags.find(tag => tag.tagName === 'description')
