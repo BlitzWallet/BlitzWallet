@@ -29,6 +29,7 @@ import { useActiveCustodyAccount } from './activeAccount';
 import { useAuthContext } from './authContext';
 
 export const OPERATION_TYPES = {
+  // Spark
   initWallet: 'initializeSparkWallet',
   getIdentityKey: 'getSparkIdentityPubKey',
   getBalance: 'getSparkBalance',
@@ -54,31 +55,27 @@ export const OPERATION_TYPES = {
   removeListeners: 'removeWalletEventListener',
   setPrivacyEnabled: 'setPrivacyEnabled',
   getSingleTxDetails: 'getSingleTxDetails',
+  createSatsInvoice: 'createSatsInvoice',
+  createTokensInvoice: 'createTokensInvoice',
 
+  // Flashnet
   initFlashnet: 'initFlashnet',
   listFlashnetPools: 'listFlashnetPools',
-  getFlashnetPoolDetails: 'getFlashnetPoolDetails',
-
-  // Flashnet Swap Simulations
-  simulateBitcoinToUSDB: 'simulateBitcoinToUSDB',
-  simulateUSDBToBitcoin: 'simulateUSDBToBitcoin',
-
-  // Flashnet Swap Executions
-  swapBitcoinToUSDB: 'swapBitcoinToUSDB',
-  swapUSDBToBitcoin: 'swapUSDBToBitcoin',
-
-  // Flashnet Lightning Integration
-  estimateUSDBForLightning: 'estimateUSDBForLightning',
-  payLightningWithUSDB: 'payLightningWithUSDB',
-
-  // Flashnet History
+  findBestPool: 'findBestPool',
+  getPoolDetails: 'getPoolDetails',
+  listAllPools: 'listAllPools',
+  minFlashnetSwapAmounts: 'minFlashnetSwapAmounts',
+  simulateSwap: 'simulateSwap',
+  executeSwap: 'executeSwap',
+  swapBitcoinToToken: 'swapBitcoinToToken',
+  swapTokenToBitcoin: 'swapTokenToBitcoin',
+  getLightningPaymentQuote: 'getLightningPaymentQuote',
+  payLightningWithToken: 'payLightningWithToken',
   getUserSwapHistory: 'getUserSwapHistory',
-  getPoolSwapHistory: 'getPoolSwapHistory',
-
-  // Flashnet Advanced
-  executeRouteSwap: 'executeRouteSwap',
   requestClawback: 'requestClawback',
+  checkClawbackEligibility: 'checkClawbackEligibility',
   checkClawbackStatus: 'checkClawbackStatus',
+  listClawbackableTransfers: 'listClawbackableTransfers',
 };
 
 const longOperations = [
@@ -90,6 +87,12 @@ const longOperations = [
   OPERATION_TYPES.sendLightningPayment,
   OPERATION_TYPES.sendBitcoinPayment,
   OPERATION_TYPES.initWallet,
+  OPERATION_TYPES.initFlashnet,
+  OPERATION_TYPES.executeSwap,
+  OPERATION_TYPES.swapBitcoinToToken,
+  OPERATION_TYPES.swapTokenToBitcoin,
+  OPERATION_TYPES.payLightningWithToken,
+  OPERATION_TYPES.requestClawback,
 ];
 
 const mediumOperations = [
@@ -105,6 +108,7 @@ const mediumOperations = [
   OPERATION_TYPES.getSingleTxDetails,
   OPERATION_TYPES.getTokenTransactions,
   OPERATION_TYPES.setPrivacyEnabled,
+  OPERATION_TYPES.simulateSwap,
 ];
 
 const rejectIfNotConnectedToInternet = [
@@ -960,8 +964,8 @@ export const WebViewProvider = ({ children }) => {
     }
 
     const debouceID = setTimeout(() => {
-      forceReactNativeUse = true;
-      // startHandshake(); //remove this and app fully uses RN
+      // forceReactNativeUse = true;
+      startHandshake(); //remove this and app fully uses RN
     }, 250);
 
     return () => {
