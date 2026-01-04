@@ -147,13 +147,14 @@ export default function SwapsPage() {
 
   // Load pool information on mount
   useEffect(() => {
+    if (!sparkInformation.didConnect) return;
     if (Object.keys(globalPoolInfo).length) {
       setPoolInfo(globalPoolInfo);
       setIsLoadingPool(false);
     } else {
       loadPoolInfo();
     }
-  }, []);
+  }, [sparkInformation.didConnect]);
 
   const clearPageStates = () => {
     setFromAmount('');
@@ -714,7 +715,7 @@ export default function SwapsPage() {
 
     return (
       <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
-        <CustomSettingsTopBar />
+        <CustomSettingsTopBar containerStyles={{ marginBottom: 0 }} />
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
