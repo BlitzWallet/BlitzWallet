@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     maxWidth: 300,
     width: '100%',
     marginTop: 10,
-    marginBottom: 30,
+    marginBottom: 10,
     overflow: 'hidden',
   },
 
@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
-    marginBottom: 20,
   },
   switchButtonText: {
     fontSize: SIZES.medium,
