@@ -312,6 +312,10 @@ export function FlashnetProvider({ children }) {
     getLimits();
   }, [sparkInformation.didConnect]);
 
+  const swapUSDPriceDollars = useMemo(() => {
+    return (poolInfo?.currentPriceAInB * 100000000) / 1000000;
+  }, [poolInfo?.currentPriceAInB]);
+
   const contextValue = useMemo(() => {
     return {
       poolInfo,
@@ -319,8 +323,15 @@ export function FlashnetProvider({ children }) {
       poolInfoRef: poolInfoRef.current,
       flatnet_sats_per_dollar,
       swapLimits,
+      swapUSDPriceDollars,
     };
-  }, [poolInfo, togglePoolInfo, flatnet_sats_per_dollar, swapLimits]);
+  }, [
+    poolInfo,
+    togglePoolInfo,
+    flatnet_sats_per_dollar,
+    swapLimits,
+    swapUSDPriceDollars,
+  ]);
 
   return (
     <FlashnetContext.Provider value={contextValue}>
