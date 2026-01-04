@@ -57,7 +57,7 @@ export default function HomeLightning() {
     isSendingPaymentRef,
     // numberOfCachedTxs
   } = useSparkWallet();
-  const { flatnet_sats_per_dollar } = useFlashnet();
+  const { poolInfoRef } = useFlashnet();
   const { bitcoinBalance, dollarBalanceSat, totalSatValue } =
     useUserBalanceContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
@@ -203,7 +203,7 @@ export default function HomeLightning() {
         didGetToHomepage,
         enabledLRC20,
         scrollPosition,
-        flatnet_sats_per_dollar,
+        poolInfoRef,
       }) || []
     );
   }, [
@@ -219,7 +219,6 @@ export default function HomeLightning() {
     t,
     enabledLRC20,
     scrollPosition,
-    flatnet_sats_per_dollar,
   ]);
 
   // Memoize the list data

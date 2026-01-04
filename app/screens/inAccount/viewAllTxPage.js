@@ -18,7 +18,7 @@ import { useFlashnet } from '../../../context-store/flashnetContext';
 export default function ViewAllTxPage() {
   const navigate = useNavigation();
   const { sparkInformation, showTokensInformation } = useSparkWallet();
-  const { flatnet_sats_per_dollar } = useFlashnet();
+  const { poolInfoRef } = useFlashnet();
   const { masterInfoObject } = useGlobalContextProvider();
   const { theme, darkModeType } = useGlobalThemeContext();
   const [txs, setTxs] = useState([]);
@@ -50,7 +50,7 @@ export default function ViewAllTxPage() {
       userBalanceDenomination,
       didGetToHomepage: true,
       enabledLRC20,
-      flatnet_sats_per_dollar,
+      poolInfoRef,
     });
 
     setTxs(txs);
@@ -63,7 +63,6 @@ export default function ViewAllTxPage() {
     darkModeType,
     userBalanceDenomination,
     enabledLRC20,
-    flatnet_sats_per_dollar,
   ]);
 
   return (

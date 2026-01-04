@@ -21,6 +21,7 @@ import formatTokensNumber from './lrc20/formatTokensBalance';
 import { Image } from 'expo-image';
 import { getTimeDisplay } from './contacts';
 import { isFlashnetTransfer } from './spark/handleFlashnetTransferIds';
+import { satsToDollars } from './spark/flashnet';
 
 // Constants to avoid re-creating objects
 const TRANSACTION_CONSTANTS = {
@@ -173,7 +174,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
     didGetToHomepage,
     enabledLRC20,
     scrollPosition,
-    flatnet_sats_per_dollar,
+    poolInfoRef,
   } = props;
 
   // Remove unnecessary console.logs for performance
@@ -297,7 +298,7 @@ export default function getFormattedHomepageTxsForSpark(props) {
           isFailedPayment={isFailedPayment}
           sparkInformation={sparkInformation}
           isLRC20Payment={isLRC20Payment}
-          flatnet_sats_per_dollar={flatnet_sats_per_dollar}
+          poolInfoRef={poolInfoRef}
         />
       );
 
@@ -369,7 +370,7 @@ export const UserTransaction = memo(function UserTransaction({
   isFailedPayment,
   sparkInformation,
   isLRC20Payment,
-  flatnet_sats_per_dollar,
+  poolInfoRef,
 }) {
   const { t } = useTranslation();
 
@@ -556,6 +557,9 @@ export const UserTransaction = memo(function UserTransaction({
                   )
                 : transaction.details.amount
             }
+            globalBalanceDenomination={
+              showSwapConversion ? 'sats' : userBalanceDenomination
+            }
             useCustomLabel={isLRC20Payment}
             customLabel={token?.tokenTicker?.slice(0, 3)}
             useMillionDenomination={true}
@@ -568,7 +572,13 @@ export const UserTransaction = memo(function UserTransaction({
               }
               containerStyles={styles.amountContainer}
               frontText={APPROXIMATE_SYMBOL}
-              balance={flatnet_sats_per_dollar / transaction.details.amount}
+              balance={
+                satsToDollars(
+                  transaction.details.amount,
+                  poolInfoRef.currentPriceAInB,
+                ) *
+                (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
+              }
               useCustomLabel={true}
               customLabel={'USD'}
               useMillionDenomination={true}
