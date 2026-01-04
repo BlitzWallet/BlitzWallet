@@ -168,7 +168,7 @@
     "year": "ano",
     "years": "anos",
     "daily": "Diário",
-    "weekly": "Semanalmente",
+    "weekly": "Semanal",
     "monthly": "Mensal",
     "yearly": "Anual"
   },
@@ -311,7 +311,7 @@
         "durationOption": "1 {{duration}}",
         "price": "Preço: ",
         "noDurations": "Nenhuma duração disponível",
-        "duration": "Prazo de expiração",
+        "duration": "Validade",
         "0.1": "hora",
         "0.5": "dia",
         "1.5": "semana",
@@ -323,7 +323,7 @@
         "deleteVPNConfirmMessage": "Tem certeza de que deseja remover esta VPN?",
         "country": "País:",
         "createdAt": "Criado em:",
-        "duration": "Prazo de expiração:",
+        "duration": "Validade:",
         "paymentHash": "Hash do pagamento:",
         "title": "Compras",
         "retryClaim": "Tentando criar arquivo",
@@ -872,7 +872,7 @@
     "contactsPage": {
       "header": "Selecione o contato",
       "inputTextPlaceholder": "Procurar nome de usuário...",
-      "subHeader": "Todos contatos",
+      "subHeader": "Meus contatos",
       "giftsText": "Cartões-presente recebidos"
     },
     "cameraPage": {
@@ -904,7 +904,7 @@
         "sparkDesc": "Instantâneo, Suporta Tokens",
         "sparkTitle": "Endereço Spark",
         "bitcoinTitle": "Endereço Bitcoin",
-        "lightningTitle": "Fatura Lightning",
+        "lightningTitle": "Endereço Lightning",
         "liquidTitle": "Endereço Liquid",
         "rootstockTitle": "Endereço Rootstock"
       },
@@ -1038,7 +1038,7 @@
       "searchPlaceholder": "Encontre um contato",
       "lnurlAddMessage": "Você está prestes a adicionar",
       "noProfilesFound": "Nenhum perfil corresponde a esta pesquisa",
-      "startTypingMessage": "Procurar por endereço Lightning (ex. nome@servico.com) ou nome de usuário Blitz."
+      "startTypingMessage": "Procurar por endereço Lightning (ex. nome@exemplo.com) ou nome de usuário Blitz."
     },
 
     "expandedContactPage": {
@@ -1330,16 +1330,16 @@
       "mainToggleDesc": "As notificações permitem que você fique informado sobre eventos e atualizações importantes que acontecem no aplicativo.",
       "optionsTitle": "Opções de notificação",
       "contact": "Contato",
-      "lnurl": "LNURL",
+      "lnurl": "Endereço Lightning",
       "nostrZaps": "Nostr zaps",
-      "nwc": "Nostr Wallet Connect",
+      "nwc": "Conexão Nostr",
       "pos": "Ponto de venda"
     },
     "nostrHome": {
       "nip5Title": "Verificação Nip5",
       "nip5Desc": "Verifique rapidamente sua identidade Nostr usando a Blitz.",
-      "nwcTitle": "Nostr Wallet Connect",
-      "nwcDesc": "Conecte sua carteira Blitz aos aplicativos que usam o Nostr."
+      "nwcTitle": "Conexão Nostr",
+      "nwcDesc": "Conecte sua conta aos aplicativos que usam o Nostr."
     },
     "fiatCurrency": {
       "title": "Moeda de exibição",
@@ -1382,45 +1382,45 @@
       }
     },
     "nwc": {
-      "confirmDelete": "Tem certeza de que deseja excluir este item do Nostr Connect?",
-      "searchAccountPlaceholder": "Pesquisar conta NWC",
-      "noAccountsMessage": "Você não tem contas Nostr Connect.",
-      "addAccount": "Adicionar conta",
+      "confirmDelete": "Tem certeza de que deseja excluir esta conexão?",
+      "searchAccountPlaceholder": "Pesquisar",
+      "noAccountsMessage": "Você ainda não criou uma conexão Nostr.",
+      "addAccount": "Nova conexão",
       "createNWCAccount": {
-        "noAccountNameError": "Por favor, insira um nome de conta.",
+        "noAccountNameError": "Por favor, insira um nome para essa conexão.",
         "noPermissionsError": "Por favor, habilite pelo menos uma permissão.",
         "noBudgetError": "Selecione um período de renovação de orçamento.",
         "noBudgetAmountError": "Selecione um valor de orçamento.",
-        "title": "Criar conta",
-        "loadingMessage": "Criando conta",
-        "nameInputPlaceholder": "Digite o nome da conta NWC",
-        "permissionsHeader": "Permissões de carteira",
+        "title": "Criar conexão",
+        "loadingMessage": "Criando conexão",
+        "nameInputPlaceholder": "Digite um nome para essa conexão Nostr",
+        "permissionsHeader": "Permissões",
         "receivePayments": "Receber pagamentos",
         "sendPayments": "Enviar pagamentos",
-        "getBalance": "Obter saldo",
+        "getBalance": "Verificar saldo",
         "transactions": "Transações",
         "lookupInvoice": "Consultar fatura",
-        "budgetRenewalHeader": "Renovação Orçamentária",
+        "budgetRenewalHeader": "Renovação do limite de gastos",
         "bugetPlaceholder": "Período de renovação",
         "createConnection": "",
         "connectionName": ""
       },
 
       "hasNoAccounts": {
-        "wanringMessage": "Para enviar dinheiro da sua carteira Nostr Connect, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua carteira principal.\n\n Você pode transferir fundos da sua carteira principal para a NWC na página de configurações da conta."
+        "wanringMessage": "Para enviar dinheiro da sua conta com conexão Nostr, você primeiro precisa adicionar fundos, seja recebendo dinheiro ou transferindo da sua conta principal.\n\n Você pode transferir fundos da sua conta principal para a conta com conexão Nostr em Configurações/Contas."
       },
       "noNotifications": {
-        "wanringMessage": "Para usar o Nostr Wallet Connect, você precisa ter a notificação push do Nostr Wallet Connect habilitada.\n\nHabilite as notificações push nas configurações e tente novamente."
+        "wanringMessage": "Para usar as funcionalidades da conta com conexão Nostr, você precisa ter a notificação conexão Nostr habilitada.\n\nHabilite a opção nas notificações e tente novamente."
       },
       "showSeedPage": {
         "loadingMessage": "Gerando frase-semente",
-        "wanringMessage": "Para manter sua carteira segura, o Nostr Wallet Connect cria uma frase-semente separada da sua carteira principal.\n\nEsta carteira usa o segundo caminho de derivação e sempre pode ser recuperada usando a frase-semente da sua carteira principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da carteira, anote esta frase-semente.",
+        "wanringMessage": "Para manter sua conta principal segura, a conta com conexão Nostr possui uma frase-semente separada.\n\nQualquer conta criada na Blitz pode ser recuperada usando a frase-semente da sua conta principal.\n\nSe você não tem conhecimento de tecnologia e não tem certeza sobre como recuperar o endereço da conta, anote esta frase-semente.",
         "viewSeed": "Ver frase-semente"
       }
     },
     "accountComponents": {
       "homepage": {
-        "addNewAccount": "Adicionar",
+        "addNewAccount": "Nova conta",
         "swap": "Transferir",
         "viewSeed": "Ver frase-semente",
         "editAccount": "Editar conta",
