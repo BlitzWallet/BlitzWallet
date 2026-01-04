@@ -369,11 +369,11 @@ export default function SendPaymentScreen(props) {
   );
 
   const uiState = useMemo(() => {
-    if (canEditAmount) {
+    if (canEditAmount && !isSendingPayment.current) {
       return 'EDIT_AMOUNT'; // Show number pad + description input
     }
 
-    if (needsToChoosePaymentMethod) {
+    if (needsToChoosePaymentMethod && !isSendingPayment.current) {
       return 'CHOOSE_METHOD'; // Show info screen with button to select method
     }
 
@@ -561,6 +561,7 @@ export default function SendPaymentScreen(props) {
         usablePaymentMethod: determinePaymentMethod,
         paymentInfo,
         fiatValueConvertedSendAmount,
+        poolInfoRef,
       };
 
       const paymentResponse = await sparkPaymenWrapper(paymentObject);

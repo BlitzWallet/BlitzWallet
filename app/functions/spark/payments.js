@@ -21,11 +21,13 @@ import {
 import {
   DEFAULT_PAYMENT_EXPIRY_SEC,
   IS_SPARK_ID,
+  IS_SPARK_REQUEST_ID,
   USDB_TOKEN_ID,
 } from '../../constants';
 import sha256Hash from '../hash';
 import calculateProgressiveBracketFee from './calculateSupportFee';
 import {
+  dollarsToSats,
   executeSwap,
   getUserSwapHistory,
   payLightningWithToken,
@@ -59,6 +61,7 @@ export const sparkPaymenWrapper = async ({
   swapPaymentQuote,
   paymentInfo,
   fiatValueConvertedSendAmount,
+  poolInfoRef,
 }) => {
   try {
     console.log('Begining spark payment');
@@ -136,12 +139,21 @@ export const sparkPaymenWrapper = async ({
 
         // delete swap transfer and combine all info into one tx
         setFlashnetTransfer(swapPaymentResponse.result.swapTransferId);
-        const lightningSendResponse = await getSparkLightningSendRequest(
-          swapPaymentResponse.result.lightningPaymentId,
-          mnemonic,
-        );
-        // Get user swaps
-        const userSwaps = await getUserSwapHistory(mnemonic, 5);
+
+        const [lightningSendResponse, userSwaps] = await Promise.all([
+          IS_SPARK_REQUEST_ID.test(
+            swapPaymentResponse.result.lightningPaymentId,
+          )
+            ? getSparkLightningSendRequest(
+                swapPaymentResponse.result.lightningPaymentId,
+                mnemonic,
+              )
+            : getSingleTxDetails(
+                mnemonic,
+                swapPaymentResponse.result.lightningPaymentId,
+              ),
+          getUserSwapHistory(mnemonic, 5),
+        ]);
 
         if (userSwaps.didWork) {
           const swap = userSwaps.swaps.find(
@@ -156,21 +168,39 @@ export const sparkPaymenWrapper = async ({
           }
         }
 
+        const didUseLightning = IS_SPARK_REQUEST_ID.test(
+          swapPaymentResponse.result.lightningPaymentId,
+        );
+
+        const usdToSatFee = dollarsToSats(
+          swapPaymentResponse.result.ammFeePaid / 1000000,
+          poolInfoRef.currentPriceAInB,
+        );
+        const lnFee = swapPaymentResponse.result.lightningFeePaid;
+
         const tx = {
           id: swapPaymentResponse.result.lightningPaymentId,
-          paymentStatus: 'pending',
-          paymentType: 'lightning',
+          paymentStatus: didUseLightning ? 'pending' : 'completed',
+          paymentType: didUseLightning ? 'lightning' : 'spark',
           accountId: sparkInformation.identityPubKey,
           details: {
             sendingUUID: contactInfo?.uuid,
-            fee: swapPaymentQuote.fee,
-            totalFee: swapPaymentQuote.fee,
-            supportFee: swapPaymentQuote.fee,
+            fee: Math.round(usdToSatFee + lnFee),
+            totalFee: Math.round(usdToSatFee + lnFee),
+            supportFee: 0,
             amount: swapPaymentResponse.result.tokenAmountSpent,
             description: memo || '',
             address: address,
-            time: new Date(lightningSendResponse.updatedAt).getTime(),
-            createdAt: new Date(lightningSendResponse.createdAt).getTime(),
+            time: new Date(
+              lightningSendResponse[
+                didUseLightning ? 'updatedAt' : 'updatedTime'
+              ],
+            ).getTime(),
+            createdAt: new Date(
+              lightningSendResponse[
+                didUseLightning ? 'createdAt' : 'createdTime'
+              ],
+            ).getTime(),
             direction: 'OUTGOING',
             preimage: '',
             isLRC20Payment: true,
