@@ -5,6 +5,42 @@ import Animated, {
 } from 'react-native-reanimated';
 import { COLORS } from '../../../../constants';
 
+const Dot = ({ scrollX, index, screenWidth, theme, darkModeType }) => {
+  const animatedStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      scrollX.value / screenWidth,
+      [index - 1, index, index + 1],
+      [0.3, 1, 0.3],
+      'clamp',
+    );
+
+    const scale = interpolate(
+      scrollX.value / screenWidth,
+      [index - 1, index, index + 1],
+      [0.8, 1.2, 0.8],
+      'clamp',
+    );
+
+    return {
+      opacity,
+      transform: [{ scale }],
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.dot,
+        animatedStyle,
+        {
+          backgroundColor:
+            theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
+        },
+      ]}
+    />
+  );
+};
+
 export const BalanceDots = ({
   scrollX,
   pageCount,
@@ -14,42 +50,16 @@ export const BalanceDots = ({
 }) => {
   return (
     <View style={styles.dotsContainer}>
-      {Array.from({ length: pageCount }).map((_, i) => {
-        const animatedStyle = useAnimatedStyle(() => {
-          const opacity = interpolate(
-            scrollX.value / screenWidth,
-            [i - 1, i, i + 1],
-            [0.3, 1, 0.3],
-            'clamp',
-          );
-
-          const scale = interpolate(
-            scrollX.value / screenWidth,
-            [i - 1, i, i + 1],
-            [0.8, 1.2, 0.8],
-            'clamp',
-          );
-
-          return {
-            opacity,
-            transform: [{ scale }],
-          };
-        });
-
-        return (
-          <Animated.View
-            key={i}
-            style={[
-              styles.dot,
-              animatedStyle,
-              {
-                backgroundColor:
-                  theme && darkModeType ? COLORS.darkModeText : COLORS.primary,
-              },
-            ]}
-          />
-        );
-      })}
+      {Array.from({ length: pageCount }).map((_, i) => (
+        <Dot
+          key={i}
+          scrollX={scrollX}
+          index={i}
+          screenWidth={screenWidth}
+          theme={theme}
+          darkModeType={darkModeType}
+        />
+      ))}
     </View>
   );
 };
