@@ -18,9 +18,9 @@ import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
 
-export default function SelctPaymentMethod({
+export default function SelectPaymentMethod({
   sparkBalance,
-  USD_SAT_VALUE,
+  dollarBalanceSat,
   convertedSendAmount,
 }) {
   const { masterInfoObject } = useGlobalContextProvider();
@@ -116,7 +116,7 @@ export default function SelctPaymentMethod({
           <ThemeText
             styles={styles.amountText}
             content={`${displayCorrectDenomination({
-              amount: USD_SAT_VALUE,
+              amount: dollarBalanceSat,
               masterInfoObject,
               fiatStats,
             })} balance`}
