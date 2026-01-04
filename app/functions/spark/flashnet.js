@@ -938,6 +938,28 @@ export const getCurrentPrice = async (mnemonic, poolId) => {
   }
 };
 
+/**
+ * Convert sats to dollars
+ * @param {string|number} sats - Amount of satoshis (100,000,000)
+ * @param {string|number} currentPriceAinB - Price of Bitcoin in dollars
+ * @returns {number} Amount in dollars
+ */
+export function satsToDollars(sats, currentPriceAinB) {
+  const DOLLAR_DECIMALS = 1_000_000;
+  return (sats * currentPriceAinB) / DOLLAR_DECIMALS;
+}
+
+/**
+ * Convert dollars to sats
+ * @param {string|number} dollars - Amount of dollars (1,000,000)
+ * @param {string|number} currentPriceAinB - Price of Bitcoin in dollars
+ * @returns {number} Amount in sats
+ */
+export function dollarsToSats(dollars, currentPriceAinB) {
+  const DOLLAR_DECIMALS = 1_000_000;
+  return (dollars * DOLLAR_DECIMALS) / currentPriceAinB;
+}
+
 // ============================================
 // ERROR HANDLING UTILITIES
 // ============================================
@@ -1301,6 +1323,8 @@ export default {
   // checkSwapViability,
   // getCurrentPrice,
   handleFlashnetError,
+  satsToDollars,
+  dollarsToSats,
 
   // Manual recovery functions
   requestManualClawback,
