@@ -18,6 +18,9 @@ const initialEasing = Easing.bezier(0.29, 0.93, 0.85, 0.29); // Steep initial sl
 // Custom easing for final creep: very slow to mimic processing hesitation
 const creepEasing = Easing.bezier(0.1, 0.95, 0.2, 1);
 
+const FIRST_DURATION = 60000;
+const SECOND_DURATION = 120000;
+
 export const SliderProgressAnimation = ({
   isVisible = false,
   textColor = '#FFFFFF',
@@ -48,9 +51,9 @@ export const SliderProgressAnimation = ({
 
       opacity.value = withTiming(1, { duration: 300 });
 
-      // Reach 90% in 45 seconds, with ~20% in first 2 seconds using custom easing
+      // Reach 90% in 60 seconds, with ~20% in first 2 seconds using custom easing
       progress.value = withTiming(0.9, {
-        duration: 45000, // 45 seconds for 0-90%
+        duration: FIRST_DURATION, // 60 seconds for 0-90%
         easing: initialEasing,
       });
 
@@ -63,15 +66,15 @@ export const SliderProgressAnimation = ({
       // Set up interval to update percentage display
       intervalRef.current = setInterval(updatePercentage, 100);
 
-      // After 45 seconds, creep to 100% over 45 seconds (total 90 seconds)
+      // After 60 seconds, creep to 100% over 60 seconds (total 120 seconds)
       timeoutRef.current = setTimeout(() => {
         if (!isCompletedRef.current && !isPausedRef.current) {
           progress.value = withTiming(1, {
-            duration: 90000, // 90 seconds to go from 90% to 100%
+            duration: SECOND_DURATION, // 120 seconds to go from 90% to 100%
             easing: creepEasing,
           });
         }
-      }, 45000);
+      }, FIRST_DURATION);
 
       return () => {
         if (intervalRef.current) {
@@ -187,7 +190,7 @@ export const SliderProgressAnimation = ({
 
     if (currentProgress < 0.9) {
       // Calculate remaining time for the initial phase (0-90%)
-      const totalInitialDuration = 45000;
+      const totalInitialDuration = FIRST_DURATION;
       const elapsedProgress = currentProgress / 0.9;
       const remainingDuration = totalInitialDuration * (1 - elapsedProgress);
 
@@ -201,7 +204,7 @@ export const SliderProgressAnimation = ({
       timeoutRef.current = setTimeout(() => {
         if (!isCompletedRef.current && !isPausedRef.current) {
           progress.value = withTiming(1, {
-            duration: 90000,
+            duration: SECOND_DURATION,
             easing: creepEasing,
           });
         }
@@ -211,7 +214,7 @@ export const SliderProgressAnimation = ({
       const remainingProgress = 1 - currentProgress;
       const totalCreepProgress = 0.1; // 90% to 100%
       const remainingRatio = remainingProgress / totalCreepProgress;
-      const remainingDuration = 90000 * remainingRatio;
+      const remainingDuration = SECOND_DURATION * remainingRatio;
 
       // Continue to 100%
       progress.value = withTiming(1, {
