@@ -12,7 +12,14 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { ArrowDownUp } from 'lucide-react-native';
-import { CENTER, COLORS, ICONS, SIZES, USDB_TOKEN_ID } from '../../constants';
+import {
+  APPROXIMATE_SYMBOL,
+  CENTER,
+  COLORS,
+  ICONS,
+  SIZES,
+  USDB_TOKEN_ID,
+} from '../../constants';
 import {
   HIDDEN_OPACITY,
   INSET_WINDOW_WIDTH,
@@ -64,8 +71,10 @@ export default function SwapsPage() {
     poolInfo: globalPoolInfo,
     togglePoolInfo,
     flatnet_sats_per_dollar,
+    swapUSDPriceDollars,
+    swapLimits,
   } = useFlashnet();
-  const { dollarBalanceToken } = useUserBalanceContext();
+  const { dollarBalanceToken, bitcoinBalance } = useUserBalanceContext();
   const { currentWalletMnemoinc } = useActiveCustodyAccount();
   const { sparkInformation } = useSparkWallet();
   const { screenDimensions } = useAppStatus();
@@ -362,9 +371,14 @@ export default function SwapsPage() {
 
   const setPercentage = percent => {
     const balance = fromAsset === 'BTC' ? btcBalance : dollarBalanceToken;
-    const amount = (balance * percent)
-      .toFixed(fromAsset === 'BTC' ? 0 : 2)
-      .toString();
+    let amount;
+    if (percent === 'min') {
+      amount = swapLimits[fromAsset === 'BTC' ? 'bitcoin' : 'usd'].toString();
+    } else if (percent === 'half') {
+      amount = (balance * 0.5).toFixed(fromAsset === 'BTC' ? 0 : 2).toString();
+    } else {
+      amount = (balance * 1).toFixed(fromAsset === 'BTC' ? 0 : 2).toString();
+    }
 
     setFromAmount(amount);
     setLastEditedField('from');
@@ -678,6 +692,10 @@ export default function SwapsPage() {
     );
   }, [theme, darkModeType]);
 
+  const hasEnoughBalance =
+    (fromAsset === 'BTC' && fromAmount <= bitcoinBalance) ||
+    (fromAsset === 'USD' && fromAmount <= dollarBalanceToken);
+
   const canSwap =
     fromAmount &&
     parseFloat(fromAmount) > 0 &&
@@ -688,7 +706,8 @@ export default function SwapsPage() {
     !isLoadingPool &&
     poolInfo &&
     (!error ||
-      error.includes(t('screens.inAccount.swapsPage.checkSwapMessage')));
+      error.includes(t('screens.inAccount.swapsPage.checkSwapMessage'))) &&
+    hasEnoughBalance;
 
   if (confirmedSwap) {
     const isBtcToUsdb = fromAsset === 'BTC';
@@ -1100,13 +1119,26 @@ export default function SwapsPage() {
                   </View>
                 </View>
 
+                <ThemeText
+                  styles={styles.dollarPrice}
+                  content={`${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+                    amount: Number(swapUSDPriceDollars).toFixed(2),
+                    forceCurrency: 'USD',
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: 'fiat',
+                    },
+                    convertAmount: false,
+                  })}`}
+                />
+
                 <View style={styles.quickButtons}>
                   <TouchableOpacity
                     style={[
                       styles.quickButton,
                       { backgroundColor: backgroundOffset },
                     ]}
-                    onPress={() => setPercentage(0.25)}
+                    onPress={() => setPercentage('min')}
                     activeOpacity={0.7}
                     disabled={isSwapping || isLoadingPool}
                   >
@@ -1120,7 +1152,7 @@ export default function SwapsPage() {
                       styles.quickButton,
                       { backgroundColor: backgroundOffset },
                     ]}
-                    onPress={() => setPercentage(0.5)}
+                    onPress={() => setPercentage('half')}
                     activeOpacity={0.7}
                     disabled={isSwapping || isLoadingPool}
                   >
@@ -1134,7 +1166,7 @@ export default function SwapsPage() {
                       styles.quickButton,
                       { backgroundColor: backgroundOffset },
                     ]}
-                    onPress={() => setPercentage(1)}
+                    onPress={() => setPercentage('max')}
                     activeOpacity={0.7}
                     disabled={isSwapping || isLoadingPool}
                   >
@@ -1405,6 +1437,15 @@ const styles = StyleSheet.create({
     fontSize: SIZES.xSmall,
     opacity: HIDDEN_OPACITY,
     marginTop: 12,
+    lineHeight: 16,
+    maxWidth: 250,
+    ...CENTER,
+  },
+  dollarPrice: {
+    textAlign: 'center',
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_OPACITY,
+    marginBottom: 12,
     lineHeight: 16,
     maxWidth: 250,
     ...CENTER,
