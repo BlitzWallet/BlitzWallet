@@ -14,7 +14,7 @@
     "accept": "Accetta",
     "total_balance": "Saldo Totale",
     "sat_balance": "Saldo SAT",
-    "usd_balance": "Saldo in USD",
+    "usd_balance": "Saldo in dollari",
     "amount": "Importo",
     "sent": "Inviato",
     "received": "Ricevuto",
@@ -118,7 +118,10 @@
     "manage": "Gestire",
     "reclaim": "Scaduto",
     "optionalFlag": "(Opzionale)",
-    "gift": "Regalo"
+    "gift": "Regalo",
+    "bitcoin_upper": "Bitcoin",
+    "dollars_upper": "Dollari",
+    "rate": "Tasso"
   },
 
   "languages": {
@@ -964,6 +967,8 @@
       },
       "acceptButton": {
         "noSendAmountError": "Inserisci un importo da inviare",
+        "noSwapForBTCPaymentsError": "Bitcoin insufficienti. Hai abbastanza dollari, ma i pagamenti on-chain devono essere inviati in Bitcoin. Per favore, converti i tuoi dollari in Bitcoin nella pagina di swap.",
+        "balanceFragmentationError": "I tuoi saldi in USD e Bitcoin sono troppo bassi singolarmente e lo swap minimo è di {{amount}}. Utilizza lo swap manuale per unire i tuoi fondi.",
         "liquidError": "Importo invio {{overFlowType}} {{amount}}",
         "onchainError": "L'importo minimo da inviare on-chain è {{amount}}",
         "lnurlPayError": "Importo invio {{overFlowType}} {{amount}}",
@@ -1345,11 +1350,16 @@
     },
     "feeInformation": {
       "title": "",
-      "description": "Blitz Wallet fornisce strumenti gratuiti e open source alla comunità Bitcoin.\n\nPer supportare la sostenibilità a lungo termine del progetto, verrà applicata una piccola commissione di transazione a ogni pagamento.\n\nUna volta attivate le commissioni, verranno mostrate qui.",
+      "description": "Blitz Wallet fornisce strumenti gratuiti e open source alla comunità Bitcoin.\n\nPer supportare la sostenibilità a lungo termine del progetto, verrà applicata una piccola commissione di transazione a ogni pagamento.\n\nLa suddivisione delle commissioni è riportata di seguito.",
       "upTo": "Fino a",
       "fixedFee": "Commissione Fissa",
       "percent": "Percentuale",
-      "noLimit": "Nessun limite"
+      "noLimit": "Nessun limite",
+      "transactionType": "Tipo di transazione",
+      "swapsType": "Swap BTC <> USD",
+      "swapsFee": "{{poolFee}} % di commissione pool + {{blitzFee}} % di commissione Blitz",
+      "othersType": "Altro",
+      "othersFee": "Commissioni di rete"
     },
 
     "nip5": {
@@ -1561,7 +1571,8 @@
         "paymentStatus": "Stato pagamento",
         "confReqired": "Confs richiesti",
         "detailsBTN": "Dettagli tecnici",
-        "contactPaymentType": "Contatto"
+        "contactPaymentType": "Contatto",
+        "converstionRate": "{{satAmount}} per {{dollarAmount}}"
       },
       "explorePage": {
         "timeLeft": "({{time}} rimasto)",
@@ -1584,19 +1595,29 @@
         "onchainFeeMessage": "I pagamenti on-chain hanno una commissione di rete e una commissione Spark dello 0,1%.\n\nSe invii soldi a te stesso, pagherai la commissione di rete due volte — una per inviarli e una per reclamarli.\n\nSe qualcun altro ti invia fondi, pagherai la commissione di rete una sola volta per reclamarli.",
         "liquidFeeMessage": "I pagamenti ricevuti su indirizzi Liquid devono essere trasferiti su Spark.\n\nQuesto processo include una commissione di blocco di circa {{fee}}, una commissione di riscossione di circa {{claimFee}} e una commissione di servizio dello 0,1% da parte di Boltz in base all'importo inviato.",
         "rootstockFeeMessage": "I pagamenti ricevuti su indirizzi Rootstock devono essere trasferiti su Spark.\n\nQuesto processo include una commissione di blocco di circa {{fee}} e una commissione di servizio dello 0,1% da parte di Boltz in base all'importo inviato.",
+        "lightningConvertMessage": "Ricevere dollari tramite Lightning richiede la conversione di Bitcoin in USD. Si applica una commissione del {{convertFee}} % e il tasso di cambio attuale è {{satExchangeRate}} per {{dollarAmount}}.",
         "generatingInvoice": "Generazione Fattura",
         "amountPlaceholder": "Qualsiasi importo",
+        "receiveAsHeader": "Ricevi come",
+        "receiveAs_spark_BTC": "Bitcoin o token",
+        "receiveAs_lightning_BTC": "Mantieni in Bitcoin",
+        "receiveAs_spark_USD": "Dollari",
+        "receiveAs_lightning_USD": "Converti in dollari",
+        "amount_USD_MIN": "Min. {{swapAmountSat}}",
         "invoiceDescription_lightningInvoice": "Fattura Lightning",
         "invoiceDescription_lightningAddress": "Indirizzo Lightning",
         "invoiceDescription_bitcoinAddress": "Indirizzo Bitcoin",
         "invoiceDescription_liquidAddress": "Indirizzo Liquid",
         "invoiceDescription_sparkAddress": "Indirizzo Spark",
         "invoiceDescription_rootstockAddress": "Indirizzo Rootstock",
-        "header_lightning": "Bitcoin tramite Lightning",
+        "header_lightning_btc": "Bitcoin tramite Lightning",
+        "header_lightning_usd": "Dollari tramite Lightning",
         "header_bitcoin": "Bitcoin",
-        "header_spark": "Bitcoin/Token tramite Spark",
+        "header_spark_btc": "Bitcoin/Token tramite Spark",
+        "header_spark_usd": "Dollari tramite Spark",
         "header_liquid": "Bitcoin tramite Liquid",
-        "header_rootstock": "Bitcoin tramite Rootstock"
+        "header_rootstock": "Bitcoin tramite Rootstock",
+        "selectReceiveAssetHead": "Seleziona l’asset da ricevere"
       },
 
       "settingsContent": {
@@ -1771,13 +1792,63 @@
           "giftBalanceMessage_3": "Stiamo completando gli ultimi passaggi...",
           "claimingGiftMessage4": "Riscatto del regalo..."
         }
+      },
+
+      "swapsPage": {
+        "noPoolFoundBackup": "Pool BTC/USDB non trovato",
+        "loadPoolError": "Impossibile caricare le informazioni del pool",
+        "noPoolsFoundError": "Nessun pool trovato per {{tokenAAddress}}/{{tokenBAddress}}",
+        "highPriceImpact": "Impatto sul prezzo elevato: {{priceImpact}}",
+        "slippageError": "Il prezzo è cambiato troppo. Prova ad aumentare la tolleranza allo slippage.",
+        "noLiquidity": "Liquidità insufficiente. Prova con un importo minore o un pool diverso.",
+        "authenticationError": "Autenticazione non riuscita. Ricollegati.",
+        "noPoolError": "Il pool non esiste.",
+        "automaticRecovery": "Fondi recuperati automaticamente.",
+        "semiRecovered": "Alcuni fondi richiedono il recupero manuale.",
+        "willRecover": "I fondi verranno restituiti automaticamente.",
+        "failedSimulation": "Simulazione fallita",
+        "swapAmountCalculatorFailed": "Impossibile calcolare l'importo dello swap",
+        "invalidAmount": "Inserisci un importo valido",
+        "priceImpact": "Impatto sul prezzo: {{impact}}%\n Vuoi comunque procedere con lo swap?",
+        "swapFailedBackupError": "Swap fallito",
+        "swapAutomaticRecovery": "\n\nI tuoi fondi sono stati recuperati automaticamente.",
+        "swapPartialRecovery": "\n\nAlcuni fondi sono stati recuperati automaticamente ({{count}}).",
+        "swapFutureRecovery": "\n\nI tuoi fondi verranno rimborsati automaticamente.",
+        "swapSlippageError": "\n\nProva ad aumentare la tolleranza allo slippage o attendi condizioni di mercato migliori.",
+        "swapLiquidityError": "\n\nProva a scambiare un importo minore o attendi più liquidità.",
+        "fullSwapError": "Si è verificato un errore imprevisto durante lo swap. Riprova.",
+        "checkSwapMessage": "Impatto sul prezzo elevato",
+        "swapConfimred": "Swap confermato",
+        "youSent": "Hai inviato",
+        "youReceived": "Hai ricevuto",
+        "newSwap": "Nuovo swap",
+        "loadingPool": "Caricamento informazioni del pool...",
+        "fromBalance": "Ho {{amount}}",
+        "toBalance": "Voglio",
+        "min": "MIN",
+        "half": "METÀ",
+        "max": "MAX",
+        "swappingMessageButton": "Swap in corso...",
+        "loadingMessageButton": "Caricamento...",
+        "swapMessageButton": "Swap {{fromAsset}} → {{toAsset}}",
+        "swapDisclaimer": "I servizi di swap sono forniti tramite API di terze parti.",
+        "serviceUnavailableHead": "Servizio non disponibile",
+        "serviceUnavailableDesc": "Impossibile connettersi al servizio di swap. Controlla la connessione e riprova.",
+        "swapDirection_usdbtc": "USD → BTC",
+        "swapDirection_btcusd": "BTC → USD",
+        "paymentDescription_outgoing": "{{swapDirection}} – In uscita",
+        "paymentDescription_incoming": "{{swapDirection}} – In entrata"
       }
     }
   },
 
   "toastmessages": {
     "confirmCopy": "Copiato negli appunti",
-    "failedCopy": "Impossibile copiare"
+    "failedCopy": "Impossibile copiare",
+    "handleSwap": {
+      "title": "Pagamento di swap ricevuto",
+      "desc": "Il tuo saldo verrà aggiornato a breve"
+    }
   },
 
   "errormessages": {
@@ -1875,5 +1946,49 @@
       "payment": "{{name}} ti ha pagato {{amount}}",
       "giftCard": "{{name}} ti ha inviato una carta regalo {{giftCardName}}"
     }
+  },
+
+  "flashnetUserMessages": {
+    "FSAG-1000": "La richiesta non ha superato i controlli di validazione.",
+    "FSAG-1001": "Manca un campo obbligatorio nella richiesta.",
+    "FSAG-1002": "Uno o più campi hanno un formato non valido.",
+    "FSAG-1003": "Un valore è al di fuori dell’intervallo consentito.",
+    "FSAG-1004": "Questo valore esiste già e deve essere univoco.",
+
+    "FSAG-2001": "Impossibile verificare la firma della richiesta.",
+    "FSAG-2002": "L’identità del token non corrisponde alla chiave pubblica prevista.",
+    "FSAG-2003": "È richiesta l’autenticazione per questa operazione.",
+    "FSAG-2004": "La sessione è scaduta o il token non è valido.",
+    "FSAG-2005": "Il nonce della richiesta non è valido o è già stato utilizzato.",
+    "FSAG-2101": "La chiave pubblica fornita non è valida.",
+
+    "FSAG-3001": "Si è verificato un problema temporaneo del servizio. Riprova.",
+    "FSAG-3002": "Si è verificato un problema temporaneo del servizio. Riprova.",
+    "FSAG-3101": "Si è verificato un errore del database. Riprova.",
+    "FSAG-3201": "Il servizio di regolamento non è temporaneamente disponibile.",
+    "FSAG-3201T1": "Il servizio di regolamento non è temporaneamente disponibile.",
+    "FSAG-3201T2": "La richiesta di regolamento è scaduta.",
+    "FSAG-3202": "Un servizio dipendente non è temporaneamente disponibile.",
+    "FSAG-3301": "Il processore AMM non ha potuto ricevere la richiesta.",
+    "FSAG-3302": "Il processore AMM ha superato il tempo limite durante l’elaborazione.",
+    "FSAG-3401": "Si è verificato un errore interno di elaborazione.",
+    "FSAG-3402": "Si è verificato un errore interno di elaborazione.",
+
+    "FSAG-4001": "Il pool specificato non esiste.",
+    "FSAG-4002": "Il namespace host specificato non esiste.",
+    "FSAG-4101": "La sessione di autenticazione non è stata trovata o è scaduta.",
+    "FSAG-4102": "Il flusso di autenticazione non è stato seguito correttamente.",
+    "FSAG-4201": "Il pool non ha liquidità sufficiente per completare lo swap.",
+    "FSAG-4202": "Il prezzo si è mosso oltre la tolleranza di slippage consentita.",
+    "FSAG-4203": "Questa operazione non può essere eseguita nello stato attuale del pool.",
+    "FSAG-4204": "Non hai abbastanza token LP per completare questo prelievo.",
+    "FSAG-4301": "La configurazione delle commissioni non è valida.",
+    "FSAG-4401": "Questo trasferimento Spark è già stato utilizzato in un’operazione.",
+
+    "FSAG-5001": "Si è verificato un errore interno durante l’elaborazione della richiesta.",
+    "FSAG-5002": "Questa funzionalità non è ancora disponibile.",
+    "FSAG-5003": "Si è verificato un errore interno. Contatta l’assistenza se il problema persiste.",
+    "FSAG-5004": "Si è verificato un errore di configurazione del sistema.",
+    "FSAG-5100": "Si è verificato un errore imprevisto del server."
   }
 }
