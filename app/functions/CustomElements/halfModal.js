@@ -327,8 +327,6 @@ export default function CustomHalfModal(props) {
       case 'SelectPaymentMethod':
         return (
           <SelectPaymentMethod
-            sparkBalance={props?.route?.params?.sparkBalance}
-            dollarBalanceSat={props?.route?.params?.dollarBalanceSat}
             convertedSendAmount={props?.route?.params?.convertedSendAmount}
             isKeyboardActive={isKeyboardActive}
             setIsKeyboardActive={setIsKeyboardActive}

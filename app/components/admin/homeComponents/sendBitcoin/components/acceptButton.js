@@ -274,8 +274,6 @@ export default function AcceptButtonSendPage({
     if (selectedPaymentMethod === 'user-choice') {
       navigate.navigate('CustomHalfModal', {
         wantedContent: 'SelectPaymentMethod',
-        sparkBalance: bitcoinBalance,
-        USD_SAT_VALUE: dollarBalanceSat,
         convertedSendAmount,
       });
       return false;

@@ -678,11 +678,9 @@ export default function SendPaymentScreen(props) {
   const handleSelectPaymentMethod = useCallback(() => {
     navigate.navigate('CustomHalfModal', {
       wantedContent: 'SelectPaymentMethod',
-      sparkBalance,
-      dollarBalanceSat,
       convertedSendAmount,
     });
-  }, [navigate, sparkBalance, dollarBalanceSat, convertedSendAmount]);
+  }, [navigate, convertedSendAmount]);
 
   const handleSelectTokenPress = useCallback(() => {
     navigate.navigate('CustomHalfModal', {

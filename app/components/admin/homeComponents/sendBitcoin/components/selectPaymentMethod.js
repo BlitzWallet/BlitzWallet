@@ -17,12 +17,11 @@ import { useGlobalContextProvider } from '../../../../../../context-store/contex
 import { useNodeContext } from '../../../../../../context-store/nodeContext';
 import GetThemeColors from '../../../../../hooks/themeColors';
 import ThemeImage from '../../../../../functions/CustomElements/themeImage';
+import { useUserBalanceContext } from '../../../../../../context-store/userBalanceContext';
 
-export default function SelectPaymentMethod({
-  sparkBalance,
-  dollarBalanceSat,
-  convertedSendAmount,
-}) {
+export default function SelectPaymentMethod({ convertedSendAmount }) {
+  const { bitcoinBalance, dollarBalanceToken } = useUserBalanceContext();
+
   const { masterInfoObject } = useGlobalContextProvider();
   const { fiatStats } = useNodeContext();
   const navigate = useNavigation();
@@ -80,7 +79,7 @@ export default function SelectPaymentMethod({
           <ThemeText
             styles={styles.amountText}
             content={`${displayCorrectDenomination({
-              amount: sparkBalance,
+              amount: bitcoinBalance,
               masterInfoObject,
               fiatStats,
             })} balance`}
@@ -112,12 +111,20 @@ export default function SelectPaymentMethod({
           />
         </View>
         <View style={styles.textContainer}>
-          <ThemeText styles={styles.balanceTitle} content={'USD'} />
+          <ThemeText
+            styles={styles.balanceTitle}
+            content={t('constants.dollars_upper')}
+          />
           <ThemeText
             styles={styles.amountText}
             content={`${displayCorrectDenomination({
-              amount: dollarBalanceSat,
-              masterInfoObject,
+              amount: Number(dollarBalanceToken).toFixed(2),
+              masterInfoObject: {
+                ...masterInfoObject,
+                userBalanceDenomination: 'fiat',
+              },
+              forceCurrency: 'USD',
+              convertAmount: false,
               fiatStats,
             })} balance`}
           />
