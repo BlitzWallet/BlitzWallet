@@ -372,14 +372,9 @@ export default function SwapsPage() {
 
   const setPercentage = percent => {
     const balance = fromAsset === 'BTC' ? btcBalance : dollarBalanceToken;
-    let amount;
-    if (percent === 'min') {
-      amount = swapLimits[fromAsset === 'BTC' ? 'bitcoin' : 'usd'].toString();
-    } else if (percent === 'half') {
-      amount = (balance * 0.5).toFixed(fromAsset === 'BTC' ? 0 : 2).toString();
-    } else {
-      amount = (balance * 1).toFixed(fromAsset === 'BTC' ? 0 : 2).toString();
-    }
+    const amount = (balance * percent)
+      .toFixed(fromAsset === 'BTC' ? 0 : 2)
+      .toString();
 
     setFromAmount(amount);
     setLastEditedField('from');
@@ -1139,13 +1134,13 @@ export default function SwapsPage() {
                       styles.quickButton,
                       { backgroundColor: backgroundOffset },
                     ]}
-                    onPress={() => setPercentage('min')}
+                    onPress={() => setPercentage(0.25)}
                     activeOpacity={0.7}
                     disabled={isSwapping || isLoadingPool}
                   >
                     <ThemeText
                       styles={styles.quickButtonText}
-                      content={t('screens.inAccount.swapsPage.min')}
+                      content={'25%'}
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -1153,13 +1148,13 @@ export default function SwapsPage() {
                       styles.quickButton,
                       { backgroundColor: backgroundOffset },
                     ]}
-                    onPress={() => setPercentage('half')}
+                    onPress={() => setPercentage(0.5)}
                     activeOpacity={0.7}
                     disabled={isSwapping || isLoadingPool}
                   >
                     <ThemeText
                       styles={styles.quickButtonText}
-                      content={t('screens.inAccount.swapsPage.half')}
+                      content={'50%'}
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -1167,13 +1162,27 @@ export default function SwapsPage() {
                       styles.quickButton,
                       { backgroundColor: backgroundOffset },
                     ]}
-                    onPress={() => setPercentage('max')}
+                    onPress={() => setPercentage(0.75)}
                     activeOpacity={0.7}
                     disabled={isSwapping || isLoadingPool}
                   >
                     <ThemeText
                       styles={styles.quickButtonText}
-                      content={t('screens.inAccount.swapsPage.max')}
+                      content={'75%'}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.quickButton,
+                      { backgroundColor: backgroundOffset },
+                    ]}
+                    onPress={() => setPercentage(1)}
+                    activeOpacity={0.7}
+                    disabled={isSwapping || isLoadingPool}
+                  >
+                    <ThemeText
+                      styles={styles.quickButtonText}
+                      content={'100%'}
                     />
                   </TouchableOpacity>
                 </View>
@@ -1201,25 +1210,24 @@ export default function SwapsPage() {
                 )}
                 <View style={{ marginTop: 'auto' }} />
 
+                <CustomButton
+                  buttonStyles={{
+                    marginTop: 20,
+                    opacity: canSwap || isSwapping ? 1 : 0.5,
+                  }}
+                  useLoading={isSwapping || isLoadingPool}
+                  textContent={t(
+                    'screens.inAccount.swapsPage.swapMessageButton',
+                    {
+                      fromAsset,
+                      toAsset,
+                    },
+                  )}
+                  actionFunction={executeSwapAction}
+                  disabled={!canSwap}
+                />
                 {!showKeyboard && (
                   <>
-                    <CustomButton
-                      buttonStyles={{
-                        marginTop: 20,
-                        opacity: canSwap || isSwapping ? 1 : 0.5,
-                      }}
-                      useLoading={isSwapping || isLoadingPool}
-                      textContent={t(
-                        'screens.inAccount.swapsPage.swapMessageButton',
-                        {
-                          fromAsset,
-                          toAsset,
-                        },
-                      )}
-                      actionFunction={executeSwapAction}
-                      disabled={!canSwap}
-                    />
-
                     <ThemeText
                       styles={styles.disclaimer}
                       content={t('screens.inAccount.swapsPage.swapDisclaimer')}
@@ -1418,6 +1426,7 @@ const styles = StyleSheet.create({
   quickButtonText: {
     fontSize: SIZES.smedium,
     fontWeight: '500',
+    includeFontPadding: false,
   },
   errorContainer: {
     padding: 12,
