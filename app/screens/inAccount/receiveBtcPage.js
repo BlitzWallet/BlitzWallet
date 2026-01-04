@@ -11,6 +11,8 @@ import {
   ICONS,
   COLORS,
   SKELETON_ANIMATION_SPEED,
+  APPROXIMATE_SYMBOL,
+  HIDDEN_BALANCE_TEXT,
 } from '../../constants';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -48,6 +50,7 @@ import SkeletonPlaceholder from '../../functions/CustomElements/skeletonView';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
 import { useSparkWallet } from '../../../context-store/sparkContext';
 import { useFlashnet } from '../../../context-store/flashnetContext';
+import { satsToDollars } from '../../functions/spark/flashnet';
 
 export default function ReceivePaymentHome(props) {
   const navigate = useNavigation();
@@ -236,6 +239,7 @@ export default function ReceivePaymentHome(props) {
             t={t}
             endReceiveType={endReceiveType}
             swapLimits={swapLimits}
+            poolInfoRef={poolInfoRef}
           />
 
           <ButtonsContainer
@@ -389,6 +393,7 @@ function QrCode(props) {
     t,
     endReceiveType,
     swapLimits,
+    poolInfoRef,
   } = props;
   const { showToast } = useToast();
   const { theme } = useGlobalThemeContext();
@@ -513,6 +518,22 @@ function QrCode(props) {
         : 'lightningAddress'
       : `${selectedRecieveOption.toLowerCase()}Address`;
 
+  const approximateUSDAmount = ` ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination(
+    {
+      masterInfoObject: {
+        ...masterInfoObject,
+        userBalanceDenomination: 'fiat',
+      },
+      forceCurrency: 'USD',
+      fiatStats: fiatStats,
+      amount: (
+        satsToDollars(initialSendAmount, poolInfoRef?.currentPriceAInB) *
+        (1 - (poolInfoRef.lpFeeBps / 100 + 1) / 100)
+      ).toFixed(2),
+      convertAmount: false,
+    },
+  )}`;
+
   return (
     <View
       style={[styles.qrCodeContainer, { backgroundColor: backgroundOffset }]}
@@ -604,12 +625,12 @@ function QrCode(props) {
                     fiatStats: fiatStats,
                     amount: initialSendAmount,
                   }),
-                })
+                }) + approximateUSDAmount
               : displayCorrectDenomination({
                   masterInfoObject: masterInfoObject,
                   fiatStats: fiatStats,
                   amount: initialSendAmount,
-                })
+                }) + (endReceiveType === 'USD' ? approximateUSDAmount : '')
           }
           lightModeIcon={ICONS.editIcon}
           darkModeIcon={ICONS.editIconLight}
@@ -794,4 +815,13 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   infoTextContiner: { width: '100%', flexShrink: 1, marginRight: 10 },
+  dollarPrice: {
+    textAlign: 'center',
+    fontSize: SIZES.smedium,
+    opacity: HIDDEN_BALANCE_TEXT,
+    marginTop: 12,
+    lineHeight: 16,
+    maxWidth: 250,
+    ...CENTER,
+  },
 });
