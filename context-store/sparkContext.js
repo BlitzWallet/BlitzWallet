@@ -66,6 +66,7 @@ import {
   createBalancePoller,
   createRestorePoller,
 } from '../app/functions/pollingManager';
+import { USDB_TOKEN_ID } from '../app/constants';
 
 export const isSendingPayingEventEmiiter = new EventEmitter();
 export const SENDING_PAYMENT_EVENT_NAME = 'SENDING_PAYMENT_EVENT';
@@ -146,7 +147,9 @@ const SparkWalletProvider = ({ children }) => {
 
   const showTokensInformation =
     masterInfoObject.enabledBTKNTokens === null
-      ? !!Object.keys(sparkInformation.tokens || {}).length
+      ? !!Object.keys(sparkInformation.tokens || {}).filter(
+          token => token !== USDB_TOKEN_ID,
+        ).length
       : masterInfoObject.enabledBTKNTokens;
 
   const didRunInitialRestore = useRef(false);
