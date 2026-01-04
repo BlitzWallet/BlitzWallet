@@ -13,6 +13,8 @@ import {
   isSupportedPNPQR,
 } from '../../../../../functions/sendBitcoin/getMerchantAddress';
 import { parseInput, InputTypes } from 'bitcoin-address-parser';
+import { decodeSparkInvoice } from '../../../../../functions/spark/decodeInvoices';
+import { deriveSparkAddress } from '../../../../../functions/gift/deriveGiftWallet';
 export default async function decodeSendAddress(props) {
   let {
     btcAdress,
@@ -39,6 +41,14 @@ export default async function decodeSendAddress(props) {
     contactInfo,
     globalContactsInformation,
     accountMnemoinc,
+    usablePaymentMethod,
+    bitcoinBalance,
+    dollarBalanceSat,
+    convertedSendAmount,
+    poolInfoRef,
+    swapLimits,
+    // usd_multiplier_coefiicent,
+    min_usd_swap_amount,
   } = props;
 
   try {
@@ -63,24 +73,40 @@ export default async function decodeSendAddress(props) {
     ) {
       if (btcAdress.startsWith('spark:')) {
         const processedAddress = decodeBip21Address(btcAdress, 'spark');
+
+        const decodeResponse = decodeSparkInvoice(processedAddress.address);
+
+        const sparkAddress = deriveSparkAddress(
+          Buffer.from(decodeResponse.identityPublicKey, 'hex'),
+        );
+
         parsedInvoice = {
           type: 'Spark',
           address: {
-            address: processedAddress.address,
+            address: sparkAddress.address,
             message: processedAddress.options.message,
             label: processedAddress.options.label,
             network: 'Spark',
+            expectedReceive: decodeResponse.paymentType,
+            expectedToken: decodeResponse.tokenIdentifierBech32m,
             amount: processedAddress.options.amount,
           },
         };
       } else {
+        const decodeResponse = decodeSparkInvoice(btcAdress);
+        const sparkAddress = deriveSparkAddress(
+          Buffer.from(decodeResponse.identityPublicKey, 'hex'),
+        );
+
         parsedInvoice = {
           type: 'Spark',
           address: {
-            address: btcAdress,
+            address: sparkAddress.address,
             message: null,
             label: null,
             network: 'Spark',
+            expectedReceive: decodeResponse.paymentType,
+            expectedToken: decodeResponse.tokenIdentifierBech32m,
             amount: null,
           },
         };
@@ -154,6 +180,14 @@ export default async function decodeSendAddress(props) {
         sparkInformation,
         globalContactsInformation,
         accountMnemoinc,
+        usablePaymentMethod,
+        bitcoinBalance,
+        dollarBalanceSat,
+        convertedSendAmount,
+        poolInfoRef,
+        swapLimits,
+        // usd_multiplier_coefiicent,
+        min_usd_swap_amount,
       });
     } catch (err) {
       return goBackFunction(
@@ -167,7 +201,11 @@ export default async function decodeSendAddress(props) {
         comingFromAccept &&
         (seletctedToken?.tokenMetadata?.tokenTicker === 'Bitcoin' ||
           seletctedToken?.tokenMetadata?.tokenTicker === undefined) &&
-        sparkInformation.balance <
+        dollarBalanceSat <
+          processedPaymentInfo.paymentFee +
+            processedPaymentInfo.supportFee +
+            enteredPaymentInfo.amount &&
+        bitcoinBalance <
           processedPaymentInfo.paymentFee +
             processedPaymentInfo.supportFee +
             enteredPaymentInfo.amount
@@ -178,7 +216,8 @@ export default async function decodeSendAddress(props) {
             {
               amount: displayCorrectDenomination({
                 amount: Math.max(
-                  sparkInformation.balance -
+                  dollarBalanceSat +
+                    bitcoinBalance -
                     (processedPaymentInfo.paymentFee +
                       processedPaymentInfo.supportFee),
                   0,

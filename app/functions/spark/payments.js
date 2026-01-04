@@ -55,7 +55,7 @@ export const sparkPaymenWrapper = async ({
   sendWebViewRequest,
   contactInfo,
   fromMainSendScreen = false,
-  usablePaymentMethod,
+  usablePaymentMethod = 'BTC',
   swapPaymentQuote,
   paymentInfo,
   fiatValueConvertedSendAmount,

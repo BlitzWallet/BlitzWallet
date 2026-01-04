@@ -38,9 +38,14 @@ export default function AcceptButtonSendPage({
   globalContactsInformation,
   canUseFastPay,
   selectedPaymentMethod,
-  needsToChoosePaymentMethod,
-  sparkBalance,
-  USD_SAT_VALUE,
+  bitcoinBalance,
+  dollarBalanceSat,
+  isDecoding,
+  poolInfoRef,
+  swapLimits,
+  // usd_multiplier_coefiicent,
+  min_usd_swap_amount,
+  hasSufficientBalance,
 }) {
   const navigate = useNavigation();
   const { t } = useTranslation();
@@ -77,6 +82,20 @@ export default function AcceptButtonSendPage({
     return convertedSendAmount >= SMALLEST_ONCHAIN_SPARK_SEND_AMOUNT;
   }, [paymentInfo?.type, convertedSendAmount]);
 
+  const showNoSwapAvailableForBitcoinError = useMemo(() => {
+    if (paymentInfo?.type !== InputTypes.BITCOIN_ADDRESS) return false;
+
+    return (
+      dollarBalanceSat >= convertedSendAmount &&
+      bitcoinBalance < convertedSendAmount
+    );
+  }, [
+    paymentInfo?.type,
+    convertedSendAmount,
+    dollarBalanceSat,
+    bitcoinBalance,
+  ]);
+
   const isLRC20Valid = useMemo(() => {
     if (!isLRC20Payment) return true;
     return (
@@ -85,6 +104,19 @@ export default function AcceptButtonSendPage({
       paymentInfo?.sendAmount * 10 ** seletctedToken?.tokenMetadata?.decimals
     );
   }, [isLRC20Payment, sparkInformation?.balance, seletctedToken, paymentInfo]);
+
+  const isBalanceFragmentationIssue = useMemo(() => {
+    const hasSufficientTotalBalance =
+      bitcoinBalance + dollarBalanceSat > convertedSendAmount;
+
+    return hasSufficientTotalBalance && !hasSufficientBalance;
+  }, [
+    bitcoinBalance,
+    dollarBalanceSat,
+    convertedSendAmount,
+    selectedPaymentMethod,
+    hasSufficientBalance,
+  ]);
 
   // const buttonOpacity = useMemo(() => {
   //   return canSendPayment &&
@@ -129,6 +161,32 @@ export default function AcceptButtonSendPage({
           masterInfoObject,
         }),
       }),
+    });
+  };
+
+  const handleShowNoSwapAvailableForBitcoinError = () => {
+    navigate.navigate('ErrorScreen', {
+      errorMessage: t(
+        'wallet.sendPages.acceptButton.noSwapForBTCPaymentsError',
+      ),
+    });
+  };
+
+  const handleBalanceFragmentationError = () => {
+    navigate.navigate('ErrorScreen', {
+      errorMessage: t(
+        'wallet.sendPages.acceptButton.balanceFragmentationError',
+        {
+          amount: displayCorrectDenomination({
+            amount:
+              selectedPaymentMethod === 'BTC'
+                ? min_usd_swap_amount
+                : swapLimits.bitcoin,
+            masterInfoObject,
+            fiatStats,
+          }),
+        },
+      ),
     });
   };
 
@@ -198,6 +256,11 @@ export default function AcceptButtonSendPage({
       return false;
     }
 
+    if (showNoSwapAvailableForBitcoinError) {
+      handleShowNoSwapAvailableForBitcoinError();
+      return false;
+    }
+
     if (paymentInfo?.type === InputTypes.LNURL_PAY && !isLNURLAmountValid) {
       handleLNURLPayError();
       return false;
@@ -208,13 +271,18 @@ export default function AcceptButtonSendPage({
       return false;
     }
 
-    if (needsToChoosePaymentMethod && !selectedPaymentMethod) {
+    if (selectedPaymentMethod === 'user-choice') {
       navigate.navigate('CustomHalfModal', {
         wantedContent: 'SelectPaymentMethod',
-        sparkBalance,
-        USD_SAT_VALUE,
+        sparkBalance: bitcoinBalance,
+        USD_SAT_VALUE: dollarBalanceSat,
         convertedSendAmount,
       });
+      return false;
+    }
+
+    if (isBalanceFragmentationIssue) {
+      handleBalanceFragmentationError();
       return false;
     }
 
@@ -261,6 +329,14 @@ export default function AcceptButtonSendPage({
         t,
         sendWebViewRequest,
         globalContactsInformation,
+        usablePaymentMethod: selectedPaymentMethod,
+        bitcoinBalance,
+        dollarBalanceSat,
+        convertedSendAmount: convertedSendAmount,
+        poolInfoRef,
+        swapLimits,
+        // usd_multiplier_coefiicent,
+        min_usd_swap_amount,
       });
     } catch (error) {
       console.log('Accept button error:', error);
@@ -282,7 +358,7 @@ export default function AcceptButtonSendPage({
   return (
     <CustomButton
       buttonStyles={memorizedStyles}
-      useLoading={isGeneratingInvoice}
+      useLoading={isGeneratingInvoice || isDecoding}
       actionFunction={handleEnterSendAmount}
       textContent={
         canUseFastPay ? t('constants.confirm') : t('constants.review')

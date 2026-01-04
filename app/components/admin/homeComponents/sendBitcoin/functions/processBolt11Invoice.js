@@ -4,6 +4,10 @@ import { crashlyticsLogReport } from '../../../../../functions/crashlyticsLogs';
 import { sparkPaymenWrapper } from '../../../../../functions/spark/payments';
 import { InputTypes } from 'bitcoin-address-parser';
 import hasAlredyPaidInvoice from './hasPaid';
+import {
+  getLightningPaymentQuote,
+  USD_ASSET_ADDRESS,
+} from '../../../../../functions/spark/flashnet';
 
 export default async function processBolt11Invoice(input, context) {
   const {
@@ -15,6 +19,10 @@ export default async function processBolt11Invoice(input, context) {
     currentWalletMnemoinc,
     t,
     sendWebViewRequest,
+    usablePaymentMethod,
+    bitcoinBalance,
+    dollarBalanceSat,
+    min_usd_swap_amount,
   } = context;
 
   crashlyticsLogReport('Handling decode bolt11 invoices');
@@ -44,24 +52,87 @@ export default async function processBolt11Invoice(input, context) {
     !!amountMsat &&
     Number(amountMsat / 1000) / (SATSPERBITCOIN / (fiatStats?.value || 65000));
   let fee = {};
-  if (amountMsat) {
-    if (paymentInfo.paymentFee && paymentInfo.supportFee) {
-      fee = {
-        fee: paymentInfo.paymentFee,
-        supportFee: paymentInfo.supportFee,
-      };
-    } else {
-      fee = await sparkPaymenWrapper({
-        getFee: true,
-        address: input.data.address,
-        amountSats: Math.round(amountMsat / 1000),
-        paymentType: 'lightning',
-        masterInfoObject,
-        mnemonic: currentWalletMnemoinc,
-        sendWebViewRequest,
-      });
+  let swapPaymentQuote = {};
 
-      if (!fee.didWork) throw new Error(fee.error);
+  if (amountMsat) {
+    const needUsdFee =
+      (usablePaymentMethod === 'USD' ||
+        (!usablePaymentMethod && dollarBalanceSat >= amountMsat / 1000)) &&
+      amountMsat / 1000 >= min_usd_swap_amount;
+    const needBtcFee =
+      usablePaymentMethod === 'BTC' ||
+      (!usablePaymentMethod && bitcoinBalance >= amountMsat / 1000);
+
+    const hasUsdQuote =
+      typeof paymentInfo.swapPaymentQuote === 'object' &&
+      Object.keys(paymentInfo.swapPaymentQuote).length;
+    const hasBtcFee = !!paymentInfo.paymentFee;
+
+    const promises = [];
+    let usdPromiseIndex = -1;
+    let btcPromiseIndex = -1;
+
+    if (needUsdFee && !hasUsdQuote) {
+      usdPromiseIndex = promises.length;
+      promises.push(
+        getLightningPaymentQuote(
+          currentWalletMnemoinc,
+          input.data.address,
+          USD_ASSET_ADDRESS,
+        ),
+      );
+    }
+
+    if (needBtcFee && !hasBtcFee) {
+      btcPromiseIndex = promises.length;
+      promises.push(
+        sparkPaymenWrapper({
+          getFee: true,
+          address: input.data.address,
+          amountSats: Math.round(amountMsat / 1000),
+          paymentType: 'lightning',
+          masterInfoObject,
+          mnemonic: currentWalletMnemoinc,
+          sendWebViewRequest,
+        }),
+      );
+    }
+
+    if (promises.length > 0) {
+      const results = await Promise.all(promises);
+
+      if (usdPromiseIndex !== -1) {
+        const paymentQuote = results[usdPromiseIndex];
+        if (!paymentQuote.didWork) throw new Error(paymentQuote.error);
+        swapPaymentQuote = paymentQuote.quote;
+        fee = {
+          fee: paymentQuote.quote.fee,
+          supportFee: 0,
+        };
+      }
+
+      if (btcPromiseIndex !== -1) {
+        const btcFee = results[btcPromiseIndex];
+        if (!btcFee.didWork) throw new Error(btcFee.error);
+        fee = {
+          fee: btcFee.fee,
+          supportFee: btcFee.supportFee,
+        };
+      }
+    } else {
+      if (needUsdFee && hasUsdQuote) {
+        swapPaymentQuote = paymentInfo.swapPaymentQuote;
+        fee = {
+          fee: paymentInfo.swapPaymentQuote.fee,
+          supportFee: 0,
+        };
+      }
+      if (needBtcFee && hasBtcFee) {
+        fee = {
+          fee: paymentInfo.paymentFee,
+          supportFee: paymentInfo.supportFee,
+        };
+      }
     }
   }
 
@@ -73,6 +144,7 @@ export default async function processBolt11Invoice(input, context) {
     supportFee: fee.supportFee,
     address: input.data.address,
     usingZeroAmountInvoice: !input.data.amountMsat,
+    swapPaymentQuote: swapPaymentQuote,
     sendAmount: !amountMsat
       ? ''
       : `${
