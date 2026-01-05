@@ -169,7 +169,7 @@ export const findBestPool = async (
       };
     }
   } catch (error) {
-    console.error('Find best pool error:', formatError(error, 'findBestPool'));
+    console.warn('Find best pool error:', formatError(error, 'findBestPool'));
     return {
       didWork: false,
       error: error.message,
@@ -217,7 +217,7 @@ export const getPoolDetails = async (mnemonic, poolId) => {
       };
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'Get pool details error:',
       formatError(error, 'getPoolDetails'),
     );
@@ -268,7 +268,7 @@ export const listAllPools = async (mnemonic, filters = {}) => {
       };
     }
   } catch (error) {
-    console.error('List pools error:', formatError(error, 'listAllPools'));
+    console.warn('List pools error:', formatError(error, 'listAllPools'));
     return {
       didWork: false,
       error: error.message,
@@ -308,7 +308,7 @@ export const minFlashnetSwapAmounts = async (mnemonic, assetHex) => {
       };
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'List pools error:',
       formatError(error, 'minFlashnetSwapAmounts'),
     );
@@ -367,7 +367,7 @@ export const simulateSwap = async (
       };
     }
   } catch (error) {
-    console.error('Simulate swap error:', formatError(error, 'simulateSwap'));
+    console.warn('Simulate swap error:', formatError(error, 'simulateSwap'));
     return {
       didWork: false,
       error: error.message,
@@ -455,7 +455,7 @@ export const executeSwap = async (
     }
   } catch (error) {
     const errorDetails = formatError(error, 'executeSwap');
-    console.error('Execute swap error:', errorDetails);
+    console.warn('Execute swap error:', errorDetails);
 
     // Check for auto-clawback results
     if (isFlashnetError(error) && error.wasClawbackAttempted()) {
@@ -537,7 +537,7 @@ export const swapBitcoinToToken = async (
       });
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'Swap BTC to token error:',
       formatError(error, 'swapBitcoinToToken'),
     );
@@ -607,7 +607,7 @@ export const swapTokenToBitcoin = async (
       });
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'Swap token to BTC error:',
       formatError(error, 'swapTokenToBitcoin'),
     );
@@ -674,7 +674,7 @@ export const getLightningPaymentQuote = async (
       };
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'Get Lightning quote error:',
       formatError(error, 'getLightningPaymentQuote'),
     );
@@ -769,7 +769,7 @@ export const payLightningWithToken = async (
       }
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'Pay Lightning with token error:',
       formatError(error, 'payLightningWithToken'),
     );
@@ -819,7 +819,7 @@ export const getUserSwapHistory = async (mnemonic, limit = 50) => {
       };
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'Get swap history error:',
       formatError(error, 'getUserSwapHistory'),
     );
@@ -926,7 +926,7 @@ export const getCurrentPrice = async (mnemonic, poolId) => {
       tvl: poolResult.marketData.tvl,
     };
   } catch (error) {
-    console.error(
+    console.warn(
       'Get current price error:',
       formatError(error, 'getCurrentPrice'),
     );
@@ -1100,7 +1100,7 @@ export const requestManualClawback = async (
       }
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'Manual clawback error:',
       formatError(error, 'requestManualClawback'),
     );
@@ -1155,7 +1155,7 @@ export const checkClawbackEligibility = async (mnemonic, sparkTransferId) => {
       }
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'Manual clawback error:',
       formatError(error, 'requestManualClawback'),
     );
@@ -1199,7 +1199,7 @@ export const checkClawbackStatus = async (mnemonic, internalRequestId) => {
       };
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'Check clawback status error:',
       formatError(error, 'checkClawbackStatus'),
     );
@@ -1241,7 +1241,7 @@ export const requestBatchClawback = async (mnemonic, transferIds, poolId) => {
       };
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'Batch clawback error:',
       formatError(error, 'requestBatchClawback'),
     );
@@ -1285,7 +1285,7 @@ export const listClawbackableTransfers = async (
       };
     }
   } catch (error) {
-    console.error(
+    console.warn(
       'Check clawback status error:',
       formatError(error, 'checkClawbackStatus'),
     );

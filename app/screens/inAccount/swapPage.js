@@ -188,7 +188,6 @@ export default function SwapsPage() {
         BTC_ASSET_ADDRESS,
         USD_ASSET_ADDRESS,
       );
-
       if (result.didWork && result.pool) {
         setPoolInfo(result.pool);
         togglePoolInfo(result.pool);
@@ -198,13 +197,15 @@ export default function SwapsPage() {
           volume24h: result.pool.volume24hAssetB,
         });
       } else {
-        setError(
-          result.error || t('screens.inAccount.swapsPage.noPoolFoundBackup'),
-        );
+        navigate.navigate('ErrorScreen', {
+          errorMessage: t('screens.inAccount.swapsPage.noPoolFoundBackup'),
+        });
       }
     } catch (err) {
-      console.error('Load pool info error:', err);
-      setError(t('screens.inAccount.swapsPage.loadPoolError'));
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.loadPoolError'),
+      });
+      console.warn('Load pool info error:', err);
     } finally {
       setIsLoadingPool(false);
     }
@@ -318,21 +319,18 @@ export default function SwapsPage() {
         }
 
         if (parseFloat(result.simulation.priceImpact) > 3) {
-          setError(
-            t('screens.inAccount.swapsPage.highPriceImpact', {
+          navigate.navigate('ErrorScreen', {
+            errorMessage: t('screens.inAccount.swapsPage.highPriceImpact', {
               priceImpact: result.simulation.priceImpact,
             }),
-          );
+          });
         }
       } else {
         const errorInfo = handleFlashnetError({
           ...result.details,
           error: result.error,
         });
-        setError(
-          t(errorInfo.userMessage) ||
-            t('screens.inAccount.swapsPage.failedSimulation'),
-        );
+        setError(true);
         if (isForwardDirection) {
           setToAmount('0');
         } else {
@@ -340,8 +338,8 @@ export default function SwapsPage() {
         }
       }
     } catch (err) {
-      console.error('Simulate swap error:', err);
-      setError(t('screens.inAccount.swapsPage.swapAmountCalculatorFailed'));
+      console.warn('Simulate swap error:', err);
+      setError(true);
       if (direction === 'from') {
         setToAmount('0');
       } else {
@@ -479,6 +477,69 @@ export default function SwapsPage() {
     if (!poolInfo || !fromAmount || parseFloat(fromAmount) <= 0) {
       navigate.navigate('ErrorScreen', {
         errorMessage: t('screens.inAccount.swapsPage.invalidAmount'),
+      });
+      return;
+    }
+
+    if (fromAsset === 'BTC' && fromAmount < swapLimits.bitcoin) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.minBTCError', {
+          min: displayCorrectDenomination({
+            amount: swapLimits.bitcoin,
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: 'sats',
+            },
+            fiatStats,
+            // convertAmount: false,
+          }),
+        }),
+      });
+      return;
+    }
+
+    if (fromAsset === 'USD' && fromAmount < swapLimits.usd) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.minUSDError', {
+          min: displayCorrectDenomination({
+            amount: swapLimits.usd,
+            masterInfoObject: {
+              ...masterInfoObject,
+              userBalanceDenomination: 'fiat',
+            },
+            fiatStats,
+            forceCurrency: 'USD',
+            convertAmount: false,
+          }),
+        }),
+      });
+      return;
+    }
+
+    if (!simulationResult || !Object.keys(simulationResult).length) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.simulationError'),
+      });
+      return;
+    }
+
+    if (isSwapping) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.swapInProgressError'),
+      });
+      return;
+    }
+
+    if (isSimulating) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.simulationInProgress'),
+      });
+      return;
+    }
+
+    if (!hasEnoughBalance) {
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.insufficientBalance'),
       });
       return;
     }
@@ -728,15 +789,18 @@ export default function SwapsPage() {
           errorMessage += t('screens.inAccount.swapsPage.swapLiquidityError');
         }
 
-        navigate.navigate('ErrorScreen', { errorMessage: errorMessage });
-        setError(errorInfo.userMessage || result.error);
+        navigate.navigate('ErrorScreen', {
+          errorMessage: errorInfo.userMessage || result.error,
+        });
       }
     } catch (err) {
-      console.error('Execute swap error:', err);
+      console.warn('Execute swap error:', err);
       navigate.navigate('ErrorScreen', {
         errorMessage: t('screens.inAccount.swapsPage.fullSwapError'),
       });
-      setError(t('screens.inAccount.swapsPage.fullSwapError'));
+      navigate.navigate('ErrorScreen', {
+        errorMessage: t('screens.inAccount.swapsPage.fullSwapError'),
+      });
     } finally {
       setIsSwapping(false);
     }
@@ -765,6 +829,20 @@ export default function SwapsPage() {
     (!error ||
       error.includes(t('screens.inAccount.swapsPage.checkSwapMessage'))) &&
     hasEnoughBalance;
+
+  if (isLoadingPool) {
+    return (
+      <GlobalThemeView useStandardWidth={true} styles={styles.globalContainer}>
+        <CustomSettingsTopBar containerStyles={{ marginBottom: 0 }} />
+        <View style={styles.loadingContainer}>
+          <FullLoadingScreen
+            textStyles={styles.loadingText}
+            text={t('screens.inAccount.swapsPage.loadingPool')}
+          />
+        </View>
+      </GlobalThemeView>
+    );
+  }
 
   if (confirmedSwap) {
     const isBtcToUsdb = fromAsset === 'BTC';
@@ -941,12 +1019,18 @@ export default function SwapsPage() {
   if (showReviewScreen) {
     const isBtcToUsdb = fromAsset === 'BTC';
 
-    const fee = isBtcToUsdb
+    const swapFee = isBtcToUsdb
       ? Number(simulationResult.feePaidAssetIn / 1000000)
       : dollarsToSats(
           simulationResult.feePaidAssetIn / 1000000,
           poolInfo.currentPriceAInB,
         );
+
+    const lpFee = isBtcToUsdb
+      ? (simulationResult.expectedOutput * (poolInfo.lpFeeBps / 100 + 1)) /
+        100 /
+        1000000
+      : (simulationResult.expectedOutput * (poolInfo.lpFeeBps / 100 + 1)) / 100;
 
     const exchangeRate = isBtcToUsdb
       ? `${displayCorrectDenomination({
@@ -985,7 +1069,6 @@ export default function SwapsPage() {
             userBalanceDenomination: 'sats',
           },
           forceCurrency: 'USD',
-          convertAmount: false,
         })}`;
 
     const formattedBitcoinPrice = displayCorrectDenomination({
@@ -999,7 +1082,7 @@ export default function SwapsPage() {
     });
 
     const formattedFee = displayCorrectDenomination({
-      amount: Number(fee).toFixed(isBtcToUsdb ? 3 : 0),
+      amount: Number(swapFee + lpFee).toFixed(isBtcToUsdb ? 3 : 0),
       masterInfoObject: {
         ...masterInfoObject,
         userBalanceDenomination: isBtcToUsdb ? 'fiat' : 'sats',
@@ -1210,15 +1293,6 @@ export default function SwapsPage() {
           // onPress={dismissKeyboard}
         > */}
         <View style={styles.contentWrapper}>
-          {isLoadingPool && (
-            <View style={styles.loadingContainer}>
-              <FullLoadingScreen
-                textStyles={styles.loadingText}
-                text={t('screens.inAccount.swapsPage.loadingPool')}
-              />
-            </View>
-          )}
-
           {!isLoadingPool && poolInfo && (
             <>
               <View style={styles.cardContainer}>
@@ -1512,7 +1586,7 @@ export default function SwapsPage() {
                 </TouchableOpacity>
               </View>
 
-              {error && (
+              {/* {error && (
                 <View
                   style={[
                     styles.errorContainer,
@@ -1532,7 +1606,7 @@ export default function SwapsPage() {
                   />
                   <ThemeText styles={styles.errorText} content={error} />
                 </View>
-              )}
+              )} */}
               <View style={{ marginTop: 'auto' }} />
             </>
           )}
@@ -1563,29 +1637,33 @@ export default function SwapsPage() {
       </ScrollView>
 
       {/* {true && ( */}
-      <HandleKeyboardRender
-        lastEditedField={lastEditedField}
-        fromAsset={fromAsset}
-        toAsset={toAsset}
-        handleKeyboardInput={handleKeyboardInput}
-        setFromAmount={setFromAmount}
-        fromAmount={fromAmount}
-        toAmount={toAmount}
-      />
-      <CustomButton
-        buttonStyles={{
-          ...CENTER,
-          opacity: canSwap || isSwapping ? 1 : 0.5,
-        }}
-        useLoading={isSwapping || isLoadingPool}
-        textContent={t('constants.review')}
-        actionFunction={executeSwapAction}
-        disabled={!canSwap}
-      />
-      <ThemeText
-        styles={styles.disclaimer}
-        content={t('screens.inAccount.swapsPage.swapDisclaimer')}
-      />
+      {!isLoadingPool && poolInfo && (
+        <>
+          <HandleKeyboardRender
+            lastEditedField={lastEditedField}
+            fromAsset={fromAsset}
+            toAsset={toAsset}
+            handleKeyboardInput={handleKeyboardInput}
+            setFromAmount={setFromAmount}
+            fromAmount={fromAmount}
+            toAmount={toAmount}
+          />
+          <CustomButton
+            buttonStyles={{
+              ...CENTER,
+              opacity: canSwap || isSwapping ? 1 : 0.5,
+            }}
+            useLoading={isSwapping || isLoadingPool}
+            textContent={t('constants.review')}
+            actionFunction={executeSwapAction}
+            // disabled={!canSwap}
+          />
+          <ThemeText
+            styles={styles.disclaimer}
+            content={t('screens.inAccount.swapsPage.swapDisclaimer')}
+          />
+        </>
+      )}
       {/* )} */}
     </GlobalThemeView>
   );

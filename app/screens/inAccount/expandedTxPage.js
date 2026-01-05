@@ -430,7 +430,6 @@ export default function ExpandedTx(props) {
                       userBalanceDenomination: 'sats',
                     },
                     forceCurrency: 'USD',
-                    convertAmount: false,
                   })}`,
                   true,
                 )}
