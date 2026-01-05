@@ -121,7 +121,8 @@
     "gift": "Cadeau",
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dollars",
-    "rate": "Taux"
+    "rate": "Taux",
+    "swap": "Swap"
   },
   "languages": {
     "english": "English",
@@ -910,7 +911,8 @@
         "descriptionPlaceholder": "Description du paiement...",
         "fallbackErrorMessage": "Erreur de décodage de la facture",
         "connectToSparkMessage": "Connexion à votre portefeuille.",
-        "switchTokenText": "Utiliser un autre jeton"
+        "switchTokenText": "Utiliser un autre jeton",
+        "zeroAmountInvoiceDollarPayments": "Les factures à montant zéro ne sont pas prises en charge pour les paiements de dollars vers Bitcoin."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Les adresses ne doivent contenir que du texte. Veuillez vérifier et réessayer.",
@@ -1804,7 +1806,13 @@
         "youWillReceive": "Vous recevrez",
         "bitcoinPrice": "Prix du Bitcoin",
         "swapFee": "Frais de swap",
-        "exchangeRate": "Taux de change"
+        "exchangeRate": "Taux de change",
+        "minBTCError": "Le montant minimum en BTC est de {{min}}. Veuillez augmenter le montant pour continuer.",
+        "minUSDError": "Le montant minimum en USD est de {{min}}. Veuillez augmenter le montant pour continuer.",
+        "simulationError": "Nous n’avons pas pu calculer ce swap pour le moment. Veuillez réessayer.",
+        "swapInProgressError": "Un swap est déjà en cours. Veuillez patienter.",
+        "insufficientBalance": "Le montant dépasse votre solde disponible. Veuillez saisir un montant inférieur.",
+        "simulationInProgress": "Veuillez patienter, le swap est encore en cours de calcul."
       }
     }
   },

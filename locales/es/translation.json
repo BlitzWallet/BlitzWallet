@@ -121,7 +121,8 @@
     "gift": "Regalo",
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dólares",
-    "rate": "Tasa"
+    "rate": "Tasa",
+    "swap": "Swap"
   },
 
   "languages": {
@@ -771,7 +772,8 @@
         "descriptionPlaceholder": "Descripción del pago...",
         "fallbackErrorMessage": "Error al decodificar la factura",
         "connectToSparkMessage": "Conectando a tu billetera.",
-        "switchTokenText": "Usar un token diferente"
+        "switchTokenText": "Usar un token diferente",
+        "zeroAmountInvoiceDollarPayments": "Las facturas con monto cero no son compatibles con pagos de dólares a Bitcoin."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Las direcciones deben ser solo texto. Por favor revisa e intenta de nuevo.",
@@ -1669,7 +1671,13 @@
         "youWillReceive": "Recibirás",
         "bitcoinPrice": "Precio de Bitcoin",
         "swapFee": "Comisión de swap",
-        "exchangeRate": "Tipo de cambio"
+        "exchangeRate": "Tipo de cambio",
+        "minBTCError": "El monto mínimo de BTC es {{min}}. Aumenta el monto para continuar.",
+        "minUSDError": "El monto mínimo de USD es {{min}}. Aumenta el monto para continuar.",
+        "simulationError": "No pudimos calcular este swap en este momento. Inténtalo de nuevo.",
+        "swapInProgressError": "Ya hay un swap en progreso. Por favor, espera.",
+        "insufficientBalance": "El monto es mayor que tu saldo disponible. Ingresa un monto menor.",
+        "simulationInProgress": "Por favor espera, el swap aún se está calculando."
       }
     }
   },

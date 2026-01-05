@@ -121,7 +121,8 @@
     "gift": "Подарок",
     "bitcoin_upper": "Биткоин",
     "dollars_upper": "Доллары",
-    "rate": "Курс"
+    "rate": "Курс",
+    "swap": "Своп"
   },
   "languages": {
     "english": "English",
@@ -910,7 +911,8 @@
         "descriptionPlaceholder": "Описание оплаты...",
         "fallbackErrorMessage": "Ошибка декодирования счета",
         "connectToSparkMessage": "Подключение к вашему кошельку.",
-        "switchTokenText": "Используйте другой токен"
+        "switchTokenText": "Используйте другой токен",
+        "zeroAmountInvoiceDollarPayments": "Счета с нулевой суммой не поддерживаются для платежей из долларов в биткоины."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Адреса должны быть только текстовыми. Пожалуйста, проверьте и попробуйте еще раз.",
@@ -1812,7 +1814,13 @@
         "youWillReceive": "Вы получите",
         "bitcoinPrice": "Цена биткоина",
         "swapFee": "Комиссия свопа",
-        "exchangeRate": "Обменный курс"
+        "exchangeRate": "Обменный курс",
+        "minBTCError": "Минимальная сумма BTC — {{min}}. Увеличьте сумму, чтобы продолжить.",
+        "minUSDError": "Минимальная сумма USD — {{min}}. Увеличьте сумму, чтобы продолжить.",
+        "simulationError": "Не удалось рассчитать этот своп в данный момент. Повторите попытку.",
+        "swapInProgressError": "Своп уже выполняется. Пожалуйста, подождите.",
+        "insufficientBalance": "Сумма превышает доступный баланс. Введите меньшую сумму.",
+        "simulationInProgress": "Пожалуйста, подождите, расчёт свопа ещё выполняется."
       }
     }
   },

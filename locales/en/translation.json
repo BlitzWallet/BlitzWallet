@@ -121,7 +121,8 @@
     "gift": "Gift",
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dollars",
-    "rate": "Rate"
+    "rate": "Rate",
+    "swap": "Swap"
   },
 
   "languages": {
@@ -922,7 +923,8 @@
         "descriptionPlaceholder": "Payment description...",
         "fallbackErrorMessage": "Error decoding invoice",
         "connectToSparkMessage": "Connecting to your wallet.",
-        "switchTokenText": "Use Different Token"
+        "switchTokenText": "Use Different Token",
+        "zeroAmountInvoiceDollarPayments": "Zero-amount invoices are not supported for Dollar to Bitcoin payments."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Invalid format: Addresses should be text only. Please check and try again.",
@@ -1841,7 +1843,13 @@
         "youWillReceive": "You will receive",
         "bitcoinPrice": "Bitcoin Price",
         "swapFee": "Swap Fee",
-        "exchangeRate": "Exchange Rate"
+        "exchangeRate": "Exchange Rate",
+        "minBTCError": "Minimum BTC amount is {{min}}. Please increase the amount to continue.",
+        "minUSDError": "Minimum USD amount is {{min}}. Please increase the amount to continue.",
+        "simulationError": "We couldn’t calculate this swap right now. Please try again.",
+        "swapInProgressError": "A swap is already in progress. Please wait.",
+        "insufficientBalance": "The amount is greater than your available balance. Please enter a smaller amount.",
+        "simulationInProgress": "Please wait, the swap is still being calculated."
       }
     }
   },

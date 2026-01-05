@@ -121,7 +121,8 @@
     "gift": "Gåva",
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dollar",
-    "rate": "Kurs"
+    "rate": "Kurs",
+    "swap": "Swap"
   },
   "languages": {
     "english": "English",
@@ -910,7 +911,8 @@
         "descriptionPlaceholder": "Betalningsbeskrivning...",
         "fallbackErrorMessage": "Felavkodning av faktura",
         "connectToSparkMessage": "Ansluta till din plånbok.",
-        "switchTokenText": "Använd en annan symbol"
+        "switchTokenText": "Använd en annan symbol",
+        "zeroAmountInvoiceDollarPayments": "Fakturor med nollbelopp stöds inte för betalningar från dollar till Bitcoin."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Adresser ska endast vara text. Vänligen kontrollera och försök igen.",
@@ -1804,7 +1806,13 @@
         "youWillReceive": "Du kommer att få",
         "bitcoinPrice": "Bitcoin-pris",
         "swapFee": "Swapavgift",
-        "exchangeRate": "Växelkurs"
+        "exchangeRate": "Växelkurs",
+        "minBTCError": "Minsta BTC-belopp är {{min}}. Öka beloppet för att fortsätta.",
+        "minUSDError": "Minsta USD-belopp är {{min}}. Öka beloppet för att fortsätta.",
+        "simulationError": "Det gick inte att beräkna denna swap just nu. Försök igen.",
+        "swapInProgressError": "En swap pågår redan. Vänligen vänta.",
+        "insufficientBalance": "Beloppet är större än ditt tillgängliga saldo. Ange ett mindre belopp.",
+        "simulationInProgress": "Vänligen vänta, swapen beräknas fortfarande."
       }
     }
   },

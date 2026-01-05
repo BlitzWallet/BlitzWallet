@@ -121,7 +121,8 @@
     "gift": "Geschenk",
     "bitcoin_upper": "Bitcoin",
     "dollars_upper": "Dollar",
-    "rate": "Kurs"
+    "rate": "Kurs",
+    "swap": "Swap"
   },
 
   "languages": {
@@ -915,7 +916,8 @@
         "descriptionPlaceholder": "Zahlungsbeschreibung...",
         "fallbackErrorMessage": "Fehler beim Dekodieren der Rechnung",
         "connectToSparkMessage": "Verbindung zu deiner Wallet wird hergestellt.",
-        "switchTokenText": "Anderen Token verwenden"
+        "switchTokenText": "Anderen Token verwenden",
+        "zeroAmountInvoiceDollarPayments": "Rechnungen mit Betrag null werden für Dollar-zu-Bitcoin-Zahlungen nicht unterstützt."
       },
       "handlingAddressErrors": {
         "invlidFormat": "Adressen sollten nur Text enthalten. Bitte überprüfen Sie und versuchen Sie es erneut.",
@@ -1823,7 +1825,13 @@
         "youWillReceive": "Du erhältst",
         "bitcoinPrice": "Bitcoin-Preis",
         "swapFee": "Swap-Gebühr",
-        "exchangeRate": "Wechselkurs"
+        "exchangeRate": "Wechselkurs",
+        "minBTCError": "Der Mindestbetrag für BTC beträgt {{min}}. Bitte erhöhe den Betrag, um fortzufahren.",
+        "minUSDError": "Der Mindestbetrag für USD beträgt {{min}}. Bitte erhöhe den Betrag, um fortzufahren.",
+        "simulationError": "Dieser Swap kann derzeit nicht berechnet werden. Bitte versuche es erneut.",
+        "swapInProgressError": "Ein Swap wird bereits durchgeführt. Bitte warte.",
+        "insufficientBalance": "Der Betrag übersteigt dein verfügbares Guthaben. Bitte gib einen kleineren Betrag ein.",
+        "simulationInProgress": "Bitte warten, der Swap wird noch berechnet."
       }
     }
   },
