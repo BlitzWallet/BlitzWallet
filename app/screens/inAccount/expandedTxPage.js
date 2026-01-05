@@ -6,6 +6,7 @@ import {
   Platform,
 } from 'react-native';
 import {
+  APPROXIMATE_SYMBOL,
   CENTER,
   COLORS,
   SIZES,
@@ -38,6 +39,7 @@ import { useGlobalContacts } from '../../../context-store/globalContacts';
 import { useImageCache } from '../../../context-store/imageCache';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import CustomSettingsTopBar from '../../functions/CustomElements/settingsTopBar';
+import { dollarsToSats } from '../../functions/spark/flashnet';
 
 export default function ExpandedTx(props) {
   const { decodedAddedContacts } = useGlobalContacts();
@@ -409,27 +411,25 @@ export default function ExpandedTx(props) {
               {showConversionLine &&
                 renderInfoRow(
                   t('constants.rate'),
-                  t('screens.inAccount.expandedTxPage.converstionRate', {
-                    satAmount: displayCorrectDenomination({
-                      amount: Number(transaction.details.currentPriceAInB),
-                      masterInfoObject: {
-                        ...masterInfoObject,
-                        userBalanceDenomination: 'sats',
-                      },
-                      fiatStats,
-                    }),
-                    dollarAmount: displayCorrectDenomination({
-                      amount: 1,
-                      masterInfoObject: {
-                        ...masterInfoObject,
-                        userBalanceDenomination: 'fiat',
-                      },
-                      fiatStats,
-                      convertAmount: false,
-                      forceCurrency: 'USD',
-                    }),
-                  }),
-
+                  `${displayCorrectDenomination({
+                    amount: 1,
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: 'fiat',
+                    },
+                    forceCurrency: 'USD',
+                    convertAmount: false,
+                  })} ${APPROXIMATE_SYMBOL} ${displayCorrectDenomination({
+                    amount: Number(
+                      dollarsToSats(1, transaction.details.currentPriceAInB),
+                    ).toFixed(2),
+                    masterInfoObject: {
+                      ...masterInfoObject,
+                      userBalanceDenomination: 'sats',
+                    },
+                    forceCurrency: 'USD',
+                    convertAmount: false,
+                  })}`,
                   true,
                 )}
 
