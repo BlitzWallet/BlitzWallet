@@ -393,8 +393,11 @@ export default function SwapsPage() {
 
   const setPercentage = percent => {
     const balance = fromAsset === 'BTC' ? btcBalance : dollarBalanceToken;
-    const amount = (balance * percent)
-      .toFixed(fromAsset === 'BTC' ? 0 : 2)
+    const decimals = fromAsset === 'BTC' ? 0 : 2;
+    const multiplier = Math.pow(10, decimals);
+
+    const amount = (Math.floor(balance * percent * multiplier) / multiplier)
+      .toFixed(decimals)
       .toString();
 
     setFromAmount(amount);
@@ -513,6 +516,24 @@ export default function SwapsPage() {
         ? Math.floor(parseFloat(fromAmount))
         : Math.floor(parseFloat(fromAmount) * Math.pow(10, decimals));
 
+      // const fee = isBtcToUsdb
+      //   ? Number(
+      //       dollarsToSats(
+      //         simulationResult.feePaidAssetIn / Math.pow(10, decimals),
+      //         poolInfo.currentPriceAInB,
+      //       ),
+      //     )
+      //   : Number(simulationResult.feePaidAssetIn);
+
+      // const userBalance = isBtcToUsdb
+      //   ? bitcoinBalance
+      //   : dollarBalanceToken * 1000000;
+
+      // const swapAmount = Math.min(
+      //   userBalance,
+      //   Math.round(amountInSmallestUnits + fee),
+      // );
+
       const result = isBtcToUsdb
         ? await swapBitcoinToToken(currentWalletMnemoinc, {
             tokenAddress: USD_ASSET_ADDRESS,
@@ -529,13 +550,18 @@ export default function SwapsPage() {
 
       if (result.didWork && result.swap) {
         const realReceivedAmount = isBtcToUsdb
-          ? (parseFloat(result.swap.amountOut) / Math.pow(10, decimals)) *
-            flatnet_sats_per_dollar
+          ? dollarsToSats(
+              result.swap.amountOut / Math.pow(10, decimals),
+              result.swap.executionPrice,
+            )
           : parseFloat(result.swap.amountOut).toFixed(0);
         const realFeeAmount = Math.round(
-          (parseFloat(result.swap.feeAmount) / Math.pow(10, decimals)) *
-            flatnet_sats_per_dollar,
+          dollarsToSats(
+            parseFloat(result.swap.feeAmount) / Math.pow(10, decimals),
+            result.swap.executionPrice,
+          ),
         );
+
         setConfirmedSwap({ ...result.swap, realReceivedAmount, realFeeAmount });
         setShowReviewScreen(false);
         const userSwaps = await getUserSwapHistory(currentWalletMnemoinc, 5);
@@ -908,10 +934,7 @@ export default function SwapsPage() {
     const isBtcToUsdb = fromAsset === 'BTC';
 
     const fee = isBtcToUsdb
-      ? satsToDollars(
-          simulationResult.feePaidAssetIn,
-          poolInfo.currentPriceAInB,
-        )
+      ? Number(simulationResult.feePaidAssetIn / 1000000)
       : dollarsToSats(
           simulationResult.feePaidAssetIn / 1000000,
           poolInfo.currentPriceAInB,
@@ -1569,32 +1592,32 @@ function HandleKeyboardRender({
   fromAmount,
   toAmount,
 }) {
-  // const [amount, setAmount] = useState(
-  //   lastEditedField === 'from' ? fromAmount : toAmount,
-  // );
-  // const fromAmountRef = useRef(fromAmount);
-  // const toAmountRef = useRef(toAmount);
-  // const amountRef = useRef(amount);
+  const [amount, setAmount] = useState(
+    lastEditedField === 'from' ? fromAmount : toAmount,
+  );
+  const fromAmountRef = useRef(fromAmount);
+  const toAmountRef = useRef(toAmount);
+  const amountRef = useRef(amount);
 
-  // useEffect(() => {
-  //   amountRef.current = amount;
-  // }, [amount]);
+  useEffect(() => {
+    amountRef.current = amount;
+  }, [amount]);
 
-  // useEffect(() => {
-  //   fromAmountRef.current = fromAmount;
-  // }, [fromAmount]);
+  useEffect(() => {
+    fromAmountRef.current = fromAmount;
+  }, [fromAmount]);
 
-  // useEffect(() => {
-  //   toAmountRef.current = toAmount;
-  // }, [toAmount]);
+  useEffect(() => {
+    toAmountRef.current = toAmount;
+  }, [toAmount]);
 
-  // useEffect(() => {
-  //   handleKeyboardInput(amount);
-  // }, [amount]);
+  useEffect(() => {
+    handleKeyboardInput(amount);
+  }, [amount]);
 
-  // useEffect(() => {
-  //   setAmount('');
-  // }, [fromAsset]);
+  useEffect(() => {
+    setAmount('');
+  }, [fromAsset]);
 
   return (
     <CustomNumberKeyboard
@@ -1603,7 +1626,7 @@ function HandleKeyboardRender({
         (lastEditedField === 'to' && toAsset === 'USD')
       }
       usingForBalance={true}
-      setInputValue={setFromAmount}
+      setInputValue={setAmount}
     />
   );
 }
